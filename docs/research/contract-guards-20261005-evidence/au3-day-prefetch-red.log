@@ -1,0 +1,14 @@
+Command: npm test -- src/lib/__tests__/dayPrefetchScope.test.ts
+Injected fault: src/lib/dayPrefetch.ts changed MAX_CONCURRENT_PREFETCH from 2 to 3.
+
+Result: failed as expected, 2 failed / 3 passed.
+
+Primary failure:
+  "共享 helper 以最多兩個並行預抓 window 的非前景日"
+  Expected first started keys: 2026-10-03, 2026-10-04
+  Received an additional concurrent key: 2026-10-06
+
+The subscription test also failed afterwards because the intentionally failed first test
+did not release its three pending promises; this is test-process queue contamination under
+the injected invalid cap, not a production claim. The restored-cap run below is the
+acceptance result.

@@ -5,7 +5,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **RC-1 · `verifying`**：確認 migration 285、`road_congestion_highway.pmtiles` S3 asset、PR/merge 與 production HTTP/browser evidence。
+- [x] **RC-1 · `verifying`**：確認 migration 285、`road_congestion_highway.pmtiles` S3 asset、PR/merge 與 production HTTP/browser evidence。 — 2026-10-16 盤點關閉：gis-platform #82 migration 386 已上線（見 changelog 2026-09-01）
   - Outcome：正式環境能取得 PMTiles 與 day RPC，路況圖層不會因 gitignored asset 缺失而 404。
   - Next action：核對 branch/PR、S3 HEAD/checksum、HTTP Range 與 browser 四級染色；以 tsc/test、無 404、popup 可點為 acceptance。
 

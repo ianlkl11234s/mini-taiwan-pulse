@@ -1,4 +1,14 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
+import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
+import { ADDICTION_ENABLED_STATISTICS_KEYS, type AddictionStatisticsLayerKey } from './addictionStatisticsRecipes';
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS, type LandslideStatisticsLayerKey } from './landslideStatisticsRecipes';
+import { ATLAS_ENABLED_STATISTICS_KEYS, type AtlasStatisticsLayerKey } from './atlasStatisticsRecipes';
+import { STATISTICS_RENDER_KEYS } from './regionalStatisticsRecipes';
+import { statisticsLinkedSelects } from './statisticsParamsSpec';
+import { JMA_AMEDAS_MODES, JMA_FLOOD_OPACITY, JMA_WARNING_KINDS } from "./jmaTypes";
+import { GIBS_SNOW_PRODUCTS } from "./gibsSnowTypes";
+import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -70,6 +80,8 @@ import {
   CHILD_SERVICE_CLASSES, LTC_SERVICE_TYPES, NURSING_HOME_TYPES, WELFARE_PRECISION_MODES,
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
+import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
@@ -77,6 +89,12 @@ import { JP_ACCOMMODATION_DENSITY_SCALES, JP_RAMSAR_GEOMETRY_FILTERS } from "./j
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
+import { ANNUAL_DEFAULT_YEAR, ANNUAL_YEAR_OPTIONS, DOD_DEFAULT_YEAR, DOD_YEAR_OPTIONS, HIGHWAY_CATEGORY_GROUPS, HIGHWAY_YEAR_OPTIONS } from "./landslideTypes";
+import {
+  FLOOD_YEAR_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
+  RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
+} from "./atlasLayerTypes";
+import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -105,9 +123,21 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
+import { RAIL_ROUTES_SYSTEM_OPTIONS } from "./railRoutesTypes";
+import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATION_FILTER_OPTIONS } from "./environmentLayerTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
+import {
+  ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
+  HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
+  SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
+} from "./harmReductionTypes";
+import {
+  ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
+  BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
+  PUBLIC_TOILET_TYPE_OPTIONS, RECYCLING_MATERIAL_OPTIONS,
+} from "./publicLifeTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -230,7 +260,7 @@ export type OverlayOutKey = string | null;
  * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
  * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
  */
-export interface SliderParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface SliderParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
@@ -299,7 +329,7 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField, Casc
  * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
  * 規格端只宣告 `out`（省略 = 用 `name`）。
  */
-export interface ToggleParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface ToggleParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "toggle";
   name: string;
   label: string;
@@ -323,7 +353,7 @@ export interface ToggleParamSpec extends SharedSlotField, ConditionalField, Casc
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-interface SelectParamSpecBase extends SharedSlotField, ConditionalField, CascadeField {
+interface SelectParamSpecBase extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "select";
   name: string;
   /** 控件 label；宣告了 `labelByValue` 時，本欄退化成「查無對應時的兜底」 */
@@ -365,8 +395,9 @@ interface SelectParamSpecBase extends SharedSlotField, ConditionalField, Cascade
   };
   /**
    * 某個選項在**別的參數**取特定值時不可選（`SelectConfig.disabled`）。
-   * 全 repo 只有一處：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
-   * 屬性可算 —— 不自動跳尺度，而是停用該選項並在 label 講明原因。
+   * 用例：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
+   * 屬性可算 —— 不自動跳尺度，而是停用該選項並在 label 講明原因；
+   * `rail.railTrackMode` 的 3D 在列車平面（railTrain3D=false）時停用（R6 段 3，2026-10-09）。
    *
    * 為什麼不能用現有欄位：`options` 是靜態陣列，這裡的 `disabled` 與 label
    * 都取決於**另一個參數當下的值**，靜態表達不了。
@@ -447,7 +478,7 @@ export const MULTI_SELECT_NONE = "__none__";
  * 分類多選的值維持 scalar string，避免改動既有 store。`__all__` 會隨 options
  * 自動展開，`__none__` 是全關，其他值為排序後的 JSON string array。
  */
-export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
   kind: "multiSelect";
   name: string;
   label: string;
@@ -494,7 +525,146 @@ export function encodeMultiSelectBitmask(
   );
 }
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec;
+// ── 色盤選單（R7）────────────────────────────────────────────────────
+
+/**
+ * 色盤選單：熱區／網格換色（R7，map-layers.md §3.4 G-2／G-3）。值是色盤 id 字串
+ * （`src/map/palettes.ts` 的 `PaletteId`，例 `"magma"`）。
+ *
+ * ⚠️ **不進 overlayParams**（`out` 恆為 `null`）：overlayParams 只收數字，色盤若編成 index，
+ * 色盤庫插一組就會像 select 一樣整體錯位。paint／圖例改走顏色解析器
+ * `state/layerPalette.ts`（讀 store 的字串值 → 當下底圖的色階）。
+ *
+ * 不做「反轉」：熱區與網格的方向已由底圖決定（暗底越密越亮、淡底越密越深），
+ * 反轉會讓低密度蓋過底圖、最密處反而最不顯眼。
+ *
+ * 這是第一個「值是字串、由解析器消費、不進 overlayParams」的控制項型別；
+ * 之後的連動選單照同一個形狀：spec 宣告 → `buildParamControls` 產控件 →
+ * `renderControl` 畫 → `research/layerControls` 與 `memberSceneAdapter` 用 `options` 驗值。
+ */
+export interface PaletteParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
+  kind: "palette";
+  name: string;
+  label: string;
+  /** 預設色盤 id；「還原預設」回到這裡 */
+  default: string;
+  /** 可選的色盤 id（依清單顯示順序）；預設值必須在內 */
+  options: readonly string[];
+  /** 熱區或網格（決定控件預覽與解析器怎麼取階） */
+  role: "heatmap" | "grid";
+  out: null;
+}
+
+// ── 連動選單（圖層面板統一 C 段）──────────────────────────────────
+
+/**
+ * 連動選單：選項由**非同步 provider** 給（統計的期別、指標、細項），值是字串。
+ *
+ * - **值不在 layerParamsStore**：值的唯一來源是 provider（統計＝`regionalStatisticsStore` 的 selection），
+ *   規格只宣告「這一列存在、叫什麼、連到哪個 provider 的哪個欄位」。`default` 恆為 `""`、`out` 恆為 `null`。
+ * - **依賴**：`dependsOn` 列同一個 key 裡、宣告順序在本列之前的連動選單 `name`；
+ *   本列選項＝「與 dependsOn 各列目前值相符的合法組合」裡本欄位的相異值。
+ * - **上游改變時的規則（全部 provider 共用，`state/linkedSelect.ts`）**：改了某一列，宣告順序在它之前的列保持不動、
+ *   它設成新值；之後的每一列依序：目前值若仍在合法組合裡就保留，否則改成第一個合法值。最後一定落在一個真實存在的組合上。
+ * - **可見**：選項 ≥2 才顯示；provider 尚未就緒（載入中／錯誤）且同一 provider 沒有任何一列可見時，
+ *   `primary` 那一列照樣顯示，用來呈現載入狀態與錯誤＋重試。
+ * - `persist: false`：不寫進場景存檔（統計群組的「指標」由可見圖層本身表達，存了反而與可見性還原互相打架）。
+ */
+export interface LinkedSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
+  kind: "linkedSelect";
+  name: string;
+  label: string;
+  /** provider id（`state/linkedSelect.ts` 的註冊表） */
+  provider: string;
+  /** provider 內部的欄位 id（統計：`metric`／`release`／`dim:<維度>`；群組：群組 key） */
+  field: string;
+  /** 上游連動選單的 `name`（同一 key、宣告在前） */
+  dependsOn: readonly string[];
+  /** provider 未就緒時保底顯示、承載載入／錯誤狀態的那一列 */
+  primary?: boolean;
+  /** 省略＝true */
+  persist?: boolean;
+  default: "";
+  out: null;
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec;
+
+// ══════════════════════════════════════════════════════════════════
+//  設定區順序（layer-panel-unify P5，spec §5.11）
+// ══════════════════════════════════════════════════════════════════
+//
+// 展開區控制項一律依類別排：資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀；
+// 「說明・來源」由 ExpandedControls 固定放最後。排序在 `buildParamControls` 做
+// （同類保持宣告順序），spec 陣列與 store／overlay 編碼都不動。
+//
+// 類別判斷：`category` 明寫 > 控件型別（palette＝顏色、multiSelect＝資料篩選）>
+// 滑桿標籤含「透明度」＝透明度 > 下方標籤詞彙表。**查不到就是 null**，
+// `layerParamsOrder.test.ts` 會紅：新圖層用了新標籤，要在詞彙表補一列或在 spec 寫 `category`。
+
+export type ParamControlCategory = "data" | "color" | "opacity" | "size" | "look";
+
+/** 排序：陣列位置即名次 */
+export const PARAM_CONTROL_CATEGORY_ORDER: readonly ParamControlCategory[] = ["data", "color", "opacity", "size", "look"];
+
+interface ControlCategoryField {
+  /** 設定區類別；省略時依型別與標籤詞彙表判斷（同一個詞在不同層意思不同時才寫） */
+  category?: ParamControlCategory;
+}
+
+const CATEGORY_BY_LABEL: Readonly<Record<string, ParamControlCategory>> = {
+  // 資料篩選：決定「畫哪些資料、哪個指標、哪段時間」
+  ...Object.fromEntries([
+    "指標", "品項 全部", "類別", "年份", "定位精度", "位置精度", "狀態", "類型", "型別", "介質", "縣市", "最低嚴重度",
+    "登記", "方向 全部", "航線範圍 全部", "品質", "營業狀態", "服務型態", "共同登記 ≥", "行業中類", "資本額分位",
+    "設立年下限", "設立年上限", "製造業", "上市櫃", "有商標", "地址不一致", "聚焦行業中類", "回溯", "主題", "研究區域",
+    "分類", "過去", "時間範圍", "拖尾", "其他", "跨國關聯線（非移動軌跡）", "包含 AI 初判／待判斷", "僅顯示臺灣相關（直接／間接）",
+    "漁船", "貨輪", "客輪", "運搬船", "未知", "承載類型", "比對狀態", "交通類別", "交通模式", "權重",
+    "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", "顯示替代路線（代表性起訖對）", "關渡＋淡江同時中斷", "設施類型",
+    "資料源", "即時水位", "預測水位 (12-19h)", "累計流量", "閘門", "堤防安全", "河床沖刷", "揚塵", "信心", "確認", "漁電共生",
+    "兩版都有", "只看官方", "只看舊版 OSM", "軌跡篩選", "深度", "累積時長", "作物 芋", "高度門檻 ≥", "行政層級", "疊加", "回放",
+    "歷史播放", "待核實", "軌跡", "含疑似（未查證）", "時段", "污染等級", "測站類型", "相關度", "嚴重", "只看事件", "依時間",
+    "空污", "水污", "廢棄物", "毒化物", "土污", "雙北", "基宜", "桃竹苗", "中彰投", "雲嘉南", "高屏", "花東", "離島", "只看列管中",
+    "排除雙北重繪", "模式", "分鐘", "保留", "顯示模式", "現象", "種類",
+  ].map((label) => [label, "data" as const])),
+  // 顏色：配色方式（熱區／網格色盤是 palette 型別，不必列）
+  ...Object.fromEntries([
+    "配色", "染色模式", "上色", "著色", "著色模式", "著色依據", "上色模式", "村里色階（僅不分遠近）", "分級配色", "分帶填色",
+    // R6：「立體效果」開關排在資料篩選之後、透明度之前（spec.md §5.11）
+    "立體效果",
+  ].map((label) => [label, "color" as const])),
+  // 透明度：標籤不含「透明度」字樣的透明度滑桿
+  "填色濃度": "opacity",
+  "航跡": "opacity",
+  // 大小
+  ...Object.fromEntries([
+    "大小", "點位大小", "光點大小", "音符大小", "總大小", "寬度", "線寬", "邊框寬", "光點", "大廠（即時）", "其他廠", "底圈",
+  ].map((label) => [label, "size" as const])),
+  // 其他外觀
+  ...Object.fromEntries([
+    "高度", "高度 +", "高度倍率", "高度倍率 ×", "漂浮高度", "對比", "3D", "3D 立體", "顯示", "邊框", "顯示外框線",
+    "光暈", "動畫速度", "粒子數", "全台顯示", "音符高度", "線條強度", "網格大小", "解析度", "顯示方式", "樣式", "呈現",
+    "水位計高度", "柱高", "熱區", "Bloom 高樓門檻 ≥", "列車", "軌道", "光束距離", "散點", "離地高度",
+    "網格線", "漣漪", "網格", "高度依據",
+  ].map((label) => [label, "look" as const])),
+};
+
+/** 控制項的設定區類別；查不到回 null（測試擋）。 */
+export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory | null {
+  if (spec.category) return spec.category;
+  if (spec.kind === "palette") return "color";
+  if (spec.kind === "multiSelect" || spec.kind === "linkedSelect") return "data";
+  // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
+  const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
+  if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
+  return CATEGORY_BY_LABEL[label] ?? null;
+}
+
+/** 排序用名次；分不出類的排在最後（只會發生在測試已經紅的情況）。 */
+export function paramControlRank(spec: LayerParamSpec): number {
+  const role = paramControlCategory(spec);
+  return role === null ? PARAM_CONTROL_CATEGORY_ORDER.length : PARAM_CONTROL_CATEGORY_ORDER.indexOf(role);
+}
 
 /** 控件值的三種形狀（與三種 spec 一一對應） */
 export type ParamValue = number | string | boolean;
@@ -513,10 +683,42 @@ function opacitySlider(name: string, def: number): SliderParamSpec {
 }
 
 /** 「大小 x.x」滑桿 —— 點層專用（面層沒有） */
+/** atlas 圖層的分類選項（色票只給地圖／圖例用，控件只要 value／label） */
+function atlasParamOptions(options: readonly { value: string; label: string }[] | readonly AtlasOption[]) {
+  return options.map(({ value, label }) => ({ value, label }));
+}
+
 function scaleSlider(name: string, def: number): SliderParamSpec {
   return {
     kind: "slider", name, labelPrefix: "大小", digits: 1,
     default: def, min: 0.3, max: 3, step: 0.1,
+  };
+}
+
+/**
+ * R7 熱區顏色（色盤選單）：可換色熱區一律預設 magma（Q4 A），選項是整個色盤庫。
+ * 只換熱區色，拉近後的點顏色不變（點仍是該層識別色／類別色）。
+ */
+function heatmapPalette(key: string): PaletteParamSpec {
+  return {
+    kind: "palette", name: `${key}Palette`, label: "熱區顏色",
+    default: "magma", options: PALETTE_IDS, role: "heatmap", out: null,
+  };
+}
+
+/**
+ * R7 網格顏色（色盤選單）：預設沿用該網格現行色系在色盤庫裡的那一組（viridis／magma／cividis；
+ * YlOrRd、inferno 不在庫內 → YlOrBr，2026-10-03 使用者同意）。
+ * 共用一張聚合格的多個 key（日本醫療 5 層、照護 6 層）用同一個 `name` ＋ `sharedGroup`。
+ */
+function gridPalette(
+  name: string,
+  def: PaletteId,
+  extra: Pick<PaletteParamSpec, "sharedGroup" | "showWhen"> = {},
+): PaletteParamSpec {
+  return {
+    kind: "palette", name, label: "網格顏色",
+    default: def, options: PALETTE_IDS, role: "grid", out: null, ...extra,
   };
 }
 
@@ -526,7 +728,7 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
  */
 function zFloatSlider(name: string): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Z 漂浮", digits: 0, labelSuffix: "px",
+    kind: "slider", name, labelPrefix: "漂浮高度", digits: 0, labelSuffix: "px",
     default: 0, min: 0, max: 100, step: 2,
   };
 }
@@ -540,10 +742,10 @@ function zFloatSlider(name: string): SliderParamSpec {
  * 這裡 index 與值碰巧相同，正因如此才必須寫 `encodeNumeric` 講明意圖：
  * 選項表哪天前面插一項，`indexOf` 版會整組錯位且沒有任何閘會紅。
  */
-function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS): LayerParamSpec[] {
+function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS, opacity = 0.85): LayerParamSpec[] {
   const names = FARM_HIGHLIGHT_OPTIONS[key];
   return [
-    opacitySlider(`${key}Opacity`, 0.85),
+    opacitySlider(`${key}Opacity`, opacity),
     {
       kind: "slider", name: `${key}Scale`, labelPrefix: "大小", digits: 2,
       default: 0.3, min: 0.01, max: 0.5, step: 0.01,
@@ -564,12 +766,13 @@ function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS): LayerParamSpec
  * 5 / 16 個 `case` fall-through 共用），且值不進 overlayParams —— 兩層都是
  * Three.js / CustomLayer 直接吃 hook 回傳的欄位。
  *
- * ⚠️ 每次呼叫回**新物件**：`sharedGroup` 的成員規格必須逐欄位相同（閘 1 用 toEqual 驗），
+ * ⚠️ 每次呼叫回**新物件**：`sharedGroup` 的成員規格必須逐欄位相同（閘 1 用 toEqual 驗；
+ * 唯一例外是只管渲染的 `showWhen`，可各 key 自訂，見 layerParamsSharedState.test.ts），
  * 共用同一個物件 reference 反而會讓「誰改到誰」變得看不出來。
  */
 function sharedReturnOpacity(name: string, group: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Opacity", digits: 2,
+    kind: "slider", name, labelPrefix: "透明度", digits: 2,
     default: def, min: 0, max: 1, step: 0.05,
     sharedGroup: group, out: null,
   };
@@ -631,7 +834,7 @@ function busGroupToggles(
 /** 三種公車圖層共用的「Color」染色模式 select（路線 / 速度 / 密度；值走 Three.js ref） */
 function busColorSelect(name: string): SelectNoOverlayParamSpec {
   return {
-    kind: "select", name, label: "Color", default: "route",
+    kind: "select", name, label: "配色", default: "route",
     options: [
       { label: "路線", value: "route" },
       { label: "速度", value: "speed" },
@@ -644,7 +847,7 @@ function busColorSelect(name: string): SelectNoOverlayParamSpec {
 /** 高鐵／台鐵／捷運三層共用的站點大小（跨 case 共用同一個 useState 的等價表達） */
 function stationScaleSlider(): SliderParamSpec {
   return {
-    kind: "slider", name: "stationScale", labelPrefix: "Stn", digits: 1,
+    kind: "slider", name: "stationScale", labelPrefix: "大小", digits: 1,
     default: 1, min: 0.3, max: 3, step: 0.1,
     sharedGroup: "stationScale",
   };
@@ -654,6 +857,8 @@ function hubDisplayModeSelect(
   name: string,
   defaultMode: "polygon" | "point" = "point",
   polygonUnavailable = false,
+  /** 沒有面資料、但「實際範圍」改用其他方式示意時的選項名稱（捷運站：光暈）。 */
+  polygonLabel?: string,
 ): SelectIndexParamSpec {
   return {
     kind: "select",
@@ -661,9 +866,11 @@ function hubDisplayModeSelect(
     label: "顯示",
     default: defaultMode,
     options: TRANSPORT_HUB_DISPLAY_MODES.map((mode) => ({
-      label: polygonUnavailable && mode.value === "polygon"
-        ? "實際範圍（無面資料）"
-        : mode.label,
+      label: mode.value === "polygon" && polygonLabel
+        ? polygonLabel
+        : polygonUnavailable && mode.value === "polygon"
+          ? "實際範圍（無面資料）"
+          : mode.label,
       value: mode.value,
       ...(polygonUnavailable && mode.value === "polygon" ? { disabled: true } : {}),
     })),
@@ -675,7 +882,7 @@ function hubDisplayModeSelect(
 /** 站點／碼頭／機場的月台柱高度（五處同構，只有參數名與 default 不同） */
 function pillarHeightSlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Height", digits: 1,
+    kind: "slider", name, labelPrefix: "高度", digits: 1,
     default: def, min: 0.2, max: 3, step: 0.1, out: null,
   };
 }
@@ -716,30 +923,35 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
       default: opacity, min: 0.1, max: 1, step: 0.05, out: null,
     },
     {
-      kind: "slider", name: `${key}Altitude`, labelPrefix: "Z 軸", digits: 0,
+      kind: "slider", name: `${key}Altitude`, labelPrefix: "高度", digits: 0,
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
   ];
+}
+
+/** R6 段 2：廢棄物設施的「立體效果」開關（只走 Three.js ref，預設平面）。 */
+function wasteStereoToggle(key: string): ToggleParamSpec {
+  return { kind: "toggle", name: `${key}3D`, label: "立體效果", default: false, out: null };
 }
 
 // ── 網格類（H3 / SEGIS / YouBike）四支同構 slider ──────────────────
 // 控件組慣例：Opacity → Contrast → 3D → Height，六個子物件層共用同一組形狀。
 function gridOpacitySlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Opacity", digits: 1,
+    kind: "slider", name, labelPrefix: "透明度", digits: 1,
     default: def, min: 0.1, max: 1, step: 0.1, out: null,
   };
 }
 function gridContrastSlider(name: string): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Contrast", digits: 1,
+    kind: "slider", name, labelPrefix: "對比", digits: 1,
     default: 1.8, min: 0.5, max: 4, step: 0.1, out: null,
   };
 }
 function gridHeightSlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Height", digits: 0,
-    default: def, min: 10, max: 200, step: 10, out: null,
+    kind: "slider", name, labelPrefix: "高度", digits: def === 80 ? 3 : 2,
+    default: EXTRUSION.heightMultiplier, min: 10 / def, max: 200 / def, step: 10 / def, out: null,
   };
 }
 
@@ -796,7 +1008,7 @@ function categoryMetricPair(
     (metricMap[cat] ?? metricMap[defaultCategory] as ParamSelectOption[])[0]!.value;
   return [
     {
-      kind: "select", name: categoryName, label: "Category", default: defaultCategory,
+      kind: "select", name: categoryName, label: "類別", default: defaultCategory,
       options: categoryOptions,
       cascade: categoryOptions.map((o) => ({
         whenSelfIs: o.value, target: metricName, set: firstOf(o.value),
@@ -804,7 +1016,7 @@ function categoryMetricPair(
       out: null,
     },
     {
-      kind: "select", name: metricName, label: "Metric", default: firstOf(defaultCategory),
+      kind: "select", name: metricName, label: "指標", default: firstOf(defaultCategory),
       options: metricMap[defaultCategory] as ParamSelectOption[],
       optionsByParam: { param: categoryName, byValue: metricMap, fallback: defaultCategory },
       out: null,
@@ -822,7 +1034,7 @@ function categoryMetricPair(
  */
 function penaltyControls(): LayerParamSpec[] {
   return [
-    { ...opacitySlider("pollutionPenaltyOpacity", 0.75), sharedGroup: "pollutionPenaltyOpacity" },
+    { ...opacitySlider("pollutionPenaltyOpacity", densePointOpacity(248_556)), sharedGroup: "pollutionPenaltyOpacity" },
     {
       kind: "slider", name: "pollutionPenaltyScale", labelPrefix: "大小", digits: 2,
       default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "pollutionPenaltyScale",
@@ -879,6 +1091,25 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  */
 export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 環境統計 37 層同 comparison：dynamic renderer 只吃共通透明度；期別／細項由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ENVIRONMENT_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<EnvironmentStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 人口統計 32 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(DEMOGRAPHICS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<DemographicsStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 成癮與減害 61 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ADDICTION_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AddictionStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // 崩塌與水土保持 4 層同上：期別由 recipe exact whitelist 提供。
+  ...Object.fromEntries(LANDSLIDE_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<LandslideStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  // atlas 六家族 66 層同上：期別與維度由 recipe exact whitelist 提供。
+  ...Object.fromEntries(ATLAS_ENABLED_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<AtlasStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
+  statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
+  statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
+  statsLaborCountyEmployment: [opacitySlider("statsLaborCountyEmploymentOpacity", 0.55)],
+  statsLaborCountyUnemployment: [opacitySlider("statsLaborCountyUnemploymentOpacity", 0.55)],
+  statsLaborCountyNonLaborForce: [opacitySlider("statsLaborCountyNonLaborForceOpacity", 0.55)],
+  statsLaborCountyParticipationRate: [opacitySlider("statsLaborCountyParticipationRateOpacity", 0.55)],
+  statsLaborCountyUnemploymentRate: [opacitySlider("statsLaborCountyUnemploymentRateOpacity", 0.55)],
+  statsLaborCountyEmploymentByIndustry: [opacitySlider("statsLaborCountyEmploymentByIndustryOpacity", 0.55)],
   // 農林漁牧 Statistics 的實質 values/filter 邏輯由 dynamic renderer 處理；登記簿只宣告共通透明度。
   // 社會統計同樣由 dynamic renderer 處理；release/filter 選項由 recipe exact whitelist 提供。
   statsEducationCountyInstitutionCount: [opacitySlider("statsEducationCountyInstitutionCountOpacity", 0.55)],
@@ -975,7 +1206,8 @@ export const LAYER_PARAMS_SPEC = {
       options: REGISTRY_MODES,
       out: "religionTemplesRegistryIdx", encode: REGISTRY_ENCODE,
     },
-    opacitySlider("religionTemplesOpacity", 0.8),
+    heatmapPalette("religionTemples"),
+    opacitySlider("religionTemplesOpacity", densePointOpacity(19_201)),
     scaleSlider("religionTemplesScale", 1),
   ],
   religionChurches: [
@@ -984,7 +1216,7 @@ export const LAYER_PARAMS_SPEC = {
       options: REGISTRY_MODES,
       out: "religionChurchesRegistryIdx", encode: REGISTRY_ENCODE,
     },
-    opacitySlider("religionChurchesOpacity", 0.85),
+    opacitySlider("religionChurchesOpacity", densePointOpacity(2_116)),
     scaleSlider("religionChurchesScale", 1),
   ],
   religionAncestralHalls: [
@@ -1005,7 +1237,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("religionFoundationsScale", 1),
   ],
   religionOtherWorship: [
-    opacitySlider("religionOtherWorshipOpacity", 0.85),
+    opacitySlider("religionOtherWorshipOpacity", densePointOpacity(1_319)),
     scaleSlider("religionOtherWorshipScale", 1),
   ],
   religionTop100: [
@@ -1032,7 +1264,7 @@ export const LAYER_PARAMS_SPEC = {
       options: PRECISION_MODES,
       out: "funeralFacilitiesPrecisionIdx", encode: PRECISION_ENCODE,
     },
-    opacitySlider("funeralFacilitiesOpacity", 0.85),
+    opacitySlider("funeralFacilitiesOpacity", densePointOpacity(3_707)),
     scaleSlider("funeralFacilitiesScale", 1),
   ],
   funeralOperators: [
@@ -1048,7 +1280,7 @@ export const LAYER_PARAMS_SPEC = {
       options: PRECISION_MODES,
       out: "funeralOperatorsPrecisionIdx", encode: PRECISION_ENCODE,
     },
-    opacitySlider("funeralOperatorsOpacity", 0.8),
+    opacitySlider("funeralOperatorsOpacity", densePointOpacity(6_233)),
     scaleSlider("funeralOperatorsScale", 1),
   ],
   funeralOperatorDensity: [opacitySlider("funeralOperatorDensityOpacity", 0.6)],
@@ -1075,7 +1307,7 @@ export const LAYER_PARAMS_SPEC = {
       options: WELFARE_PRECISION_MODES,
       out: "welfareNursingHomesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
     },
-    opacitySlider("welfareNursingHomesOpacity", 0.85),
+    opacitySlider("welfareNursingHomesOpacity", densePointOpacity(1_611)),
     scaleSlider("welfareNursingHomesScale", 1),
   ],
   welfareElderlyHomes: [
@@ -1084,7 +1316,7 @@ export const LAYER_PARAMS_SPEC = {
       options: WELFARE_PRECISION_MODES,
       out: "welfareElderlyHomesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
     },
-    opacitySlider("welfareElderlyHomesOpacity", 0.85),
+    opacitySlider("welfareElderlyHomesOpacity", densePointOpacity(1_160)),
     scaleSlider("welfareElderlyHomesScale", 1),
   ],
   welfareDisability: [
@@ -1114,7 +1346,7 @@ export const LAYER_PARAMS_SPEC = {
       options: WELFARE_PRECISION_MODES,
       out: "welfareLtcInstitutionsPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
     },
-    opacitySlider("welfareLtcInstitutionsOpacity", 0.85),
+    opacitySlider("welfareLtcInstitutionsOpacity", densePointOpacity(3_117)),
     scaleSlider("welfareLtcInstitutionsScale", 1),
   ],
   welfareChildcare: [
@@ -1123,7 +1355,7 @@ export const LAYER_PARAMS_SPEC = {
       options: WELFARE_PRECISION_MODES,
       out: "welfareChildcarePrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
     },
-    opacitySlider("welfareChildcareOpacity", 0.85),
+    opacitySlider("welfareChildcareOpacity", densePointOpacity(1_578)),
     scaleSlider("welfareChildcareScale", 1),
   ],
   welfareChildServices: [
@@ -1143,7 +1375,7 @@ export const LAYER_PARAMS_SPEC = {
       options: WELFARE_PRECISION_MODES,
       out: "welfareChildServicesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
     },
-    opacitySlider("welfareChildServicesOpacity", 0.85),
+    opacitySlider("welfareChildServicesOpacity", densePointOpacity(1_396)),
     scaleSlider("welfareChildServicesScale", 1),
   ],
   welfareGovOffices: [
@@ -1176,25 +1408,25 @@ export const LAYER_PARAMS_SPEC = {
 
   // ══════════ 交通・醫療・公共設施・教育 ══════════
   bikeStations: [
-    { kind: "slider", name: "bikeScale", labelPrefix: "Bike", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "bikeScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("bikeStationsOpacity", 1),
   ],
   highways: [
-    { kind: "slider", name: "highwayWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
-    { kind: "slider", name: "highwayGlow", labelPrefix: "Glow", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
+    { kind: "slider", name: "highwayWidth", labelPrefix: "線寬", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "highwayGlow", labelPrefix: "光暈", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
     opacitySlider("highwaysOpacity", 1),
   ],
   provincialRoads: [
-    { kind: "slider", name: "provincialWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
-    { kind: "slider", name: "provincialGlow", labelPrefix: "Glow", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
+    { kind: "slider", name: "provincialWidth", labelPrefix: "線寬", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "provincialGlow", labelPrefix: "光暈", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
     opacitySlider("provincialRoadsOpacity", 1),
   ],
   cyclingRoutes: [
-    { kind: "slider", name: "cyclingWidth", labelPrefix: "Cycling", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "cyclingWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("cyclingRoutesOpacity", 1),
   ],
   freewayCongestion: [
-    { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "freewayWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("freewayCongestionOpacity", 1),
   ],
   roadCongestion: [
@@ -1202,17 +1434,18 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("roadCongestionOpacity", 0.85),
   ],
   weatherStations: [
-    { kind: "slider", name: "weatherScale", labelPrefix: "Weather", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "weatherScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("weatherStationsOpacity", 1),
   ],
-  fireEvents: [opacitySlider("fireEventsOpacity", 1)],
-  fireLatest: [opacitySlider("fireLatestOpacity", 1), scaleSlider("fireLatestScale", 1)],
+  fireEvents: [heatmapPalette("fireEvents"), opacitySlider("fireEventsOpacity", 1)],
+  fireLatest: [heatmapPalette("fireLatest"), opacitySlider("fireLatestOpacity", 1), scaleSlider("fireLatestScale", 1)],
   erHospital: [opacitySlider("erHospitalOpacity", 0.85), scaleSlider("erHospitalScale", 1)],
   librarySeats: [opacitySlider("librarySeatsOpacity", 0.9), scaleSlider("librarySeatsScale", 1)],
-  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6), scaleSlider("parkingOnstreetScale", 1)],
-  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9), scaleSlider("parkingOffstreetScale", 1)],
+  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", densePointOpacity(3_085)), scaleSlider("parkingOnstreetScale", 1)],
+  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", densePointOpacity(2_103)), scaleSlider("parkingOffstreetScale", 1)],
   commonRegistrationAddresses: [
-    opacitySlider("commonRegistrationAddressesOpacity", 0.75),
+    heatmapPalette("commonRegistrationAddresses"),
+    opacitySlider("commonRegistrationAddressesOpacity", densePointOpacity(11_121)),
     scaleSlider("commonRegistrationAddressesScale", 1.0),
     {
       kind: "slider", name: "commonRegistrationAddressesMinCompanies", labelPrefix: "共同登記 ≥", digits: 0, labelSuffix: " 家",
@@ -1220,6 +1453,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   companyPoints: [
+    gridPalette("companyPointsPalette", "viridis"),
     opacitySlider("companyPointsOpacity", 0.8),
     scaleSlider("companyPointsScale", 1),
     {
@@ -1269,6 +1503,7 @@ export const LAYER_PARAMS_SPEC = {
       options: COMPANY_GRID_MODES.map((o) => ({ ...o })),
       out: "companyGridModeIdx", encode: COMPANY_GRID_MODES.map((o) => o.value),
     },
+    gridPalette("companyCapitalGridPalette", "magma"),
     opacitySlider("companyCapitalGridOpacity", 0.85),
   ],
   companyIndustryDistribution: [
@@ -1287,6 +1522,7 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "依產業群組", value: "all" }, ...COMPANY_INDUSTRY_MID_OPTIONS],
       out: "companyIndustryDistributionMidIdx", encode: ["all", ...COMPANY_INDUSTRY_MID_OPTIONS.map((option) => option.value)],
     },
+    gridPalette("companyIndustryDistributionPalette", "viridis", { showWhen: { param: "companyIndustryDisplay", equals: "density" } }),
     opacitySlider("companyIndustryDistributionOpacity", 0.68),
   ],
   companyAgeStructure: [
@@ -1295,21 +1531,25 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "近 5 年設立占比", value: "recent" }, { label: "設立年齡中位數", value: "median" }],
       out: "companyAgeStructureModeIdx", encode: ["recent", "median"],
     },
+    gridPalette("companyAgeStructurePalette", "cividis"),
     opacitySlider("companyAgeStructureOpacity", 0.85),
   ],
   manufacturingCompanyPoints: [
-    opacitySlider("manufacturingCompanyPointsOpacity", 0.82),
+    heatmapPalette("manufacturingCompanyPoints"),
+    opacitySlider("manufacturingCompanyPointsOpacity", densePointOpacity(184_944)),
     scaleSlider("manufacturingCompanyPointsScale", 1),
   ],
-  factoryDensityGrid: [opacitySlider("factoryDensityGridOpacity", 0.85)],
-  manufacturingCompanyDensityGrid: [opacitySlider("manufacturingCompanyDensityGridOpacity", 0.85)],
-  regulatedFacilityDensityGrid: [opacitySlider("regulatedFacilityDensityGridOpacity", 0.85)],
+  factoryDensityGrid: [gridPalette("factoryDensityGridPalette", "viridis"), opacitySlider("factoryDensityGridOpacity", 0.85)],
+  manufacturingCompanyDensityGrid: [gridPalette("manufacturingCompanyDensityGridPalette", "viridis"), opacitySlider("manufacturingCompanyDensityGridOpacity", 0.85)],
+  regulatedFacilityDensityGrid: [gridPalette("regulatedFacilityDensityGridPalette", "viridis"), opacitySlider("regulatedFacilityDensityGridOpacity", 0.85)],
   factoryLocations: [
-    opacitySlider("factoryLocationsOpacity", 0.76),
+    heatmapPalette("factoryLocations"),
+    opacitySlider("factoryLocationsOpacity", densePointOpacity(90_652)),
     scaleSlider("factoryLocationsScale", 1),
   ],
   regulatedFacilities: [
-    opacitySlider("regulatedFacilitiesOpacity", 0.72),
+    heatmapPalette("regulatedFacilities"),
+    opacitySlider("regulatedFacilitiesOpacity", densePointOpacity(80_732)),
     scaleSlider("regulatedFacilitiesScale", 1),
   ],
   industrialParkBoundaries: [opacitySlider("industrialParkBoundariesOpacity", 0.24)],
@@ -1324,10 +1564,10 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("industrialParkComparisonOpacity", 0.68),
   ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
-  medClinic: [opacitySlider("medClinicOpacity", 0.85), scaleSlider("medClinicScale", 1.0)],
-  medPharmacy: [opacitySlider("medPharmacyOpacity", 0.85), scaleSlider("medPharmacyScale", 1.0)],
-  medAED: [opacitySlider("medAEDOpacity", 0.9), scaleSlider("medAEDScale", 1.0)],
-  medLTC: [opacitySlider("medLTCOpacity", 0.85), scaleSlider("medLTCScale", 1.0)],
+  medClinic: [heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
+  medPharmacy: [opacitySlider("medPharmacyOpacity", densePointOpacity(7_680)), scaleSlider("medPharmacyScale", 1.0)],
+  medAED: [heatmapPalette("medAED"), opacitySlider("medAEDOpacity", densePointOpacity(15_490)), scaleSlider("medAEDScale", 1.0)],
+  medLTC: [heatmapPalette("medLTC"), opacitySlider("medLTCOpacity", densePointOpacity(31_330)), scaleSlider("medLTCScale", 1.0)],
   serviceAreaPolygon: [
     { kind: "slider", name: "serviceAreaPolygonOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.2, min: 0, max: 0.6, step: 0.02 },
     { kind: "slider", name: "serviceAreaPolygonLineWidth", labelPrefix: "邊框寬", digits: 1, default: 1.5, min: 0, max: 4, step: 0.5 },
@@ -1336,18 +1576,18 @@ export const LAYER_PARAMS_SPEC = {
   eduCampusArea: [opacitySlider("eduCampusAreaOpacity", 0.55)],
   eduDistrictSenior: [opacitySlider("eduDistrictSeniorOpacity", 0.18)],
   eduCramSchool: [
-    opacitySlider("eduCramSchoolOpacity", 0.75),
-    { kind: "slider", name: "eduCramSchoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("eduCramSchoolOpacity", densePointOpacity(17_137)),
+    { kind: "slider", name: "eduCramSchoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   eduUniversityStudents: [
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
-    { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85), scaleSlider("internetExchangePointsScale", 1)],
   landingStations: [opacitySlider("landingOpacity", 1), scaleSlider("landingScale", 1)],
-  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8), scaleSlider("anfrWirelessSitesScale", 1)],
+  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", densePointOpacity(8_000)), scaleSlider("anfrWirelessSitesScale", 1)],
   osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8), scaleSlider("osmCommunicationSitesScale", 1)],
-  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8), scaleSlider("ripeAtlasProbesScale", 1)],
+  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", densePointOpacity(3_000)), scaleSlider("ripeAtlasProbesScale", 1)],
   // 全球層：z6（約 500km）、z8（約 156km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
   // 切換 —— select 走 encodeNumeric，overlayParams 直接拿到 6 / 10 當 filter 值。
   ooklaMobilePerformance: [
@@ -1394,13 +1634,14 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("ooklaFixedTaiwanOpacity", 0.75),
   ],
   convenienceStores: [
-    { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "convenienceScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    heatmapPalette("convenienceStores"),
     opacitySlider("convenienceStoresOpacity", 1),
   ],
-  postOffices: [opacitySlider("postOfficesOpacity", 0.85), scaleSlider("postOfficesScale", 1)],
-  iPostBoxes: [opacitySlider("iPostBoxesOpacity", 0.85), scaleSlider("iPostBoxesScale", 1)],
+  postOffices: [opacitySlider("postOfficesOpacity", densePointOpacity(1_278)), scaleSlider("postOfficesScale", 1)],
+  iPostBoxes: [opacitySlider("iPostBoxesOpacity", densePointOpacity(2_345)), scaleSlider("iPostBoxesScale", 1)],
   communityCenters: [
-    opacitySlider("communityCentersOpacity", 0.85),
+    opacitySlider("communityCentersOpacity", densePointOpacity(1_794)),
     scaleSlider("communityCentersScale", 1),
   ],
   govServiceOffices: [
@@ -1417,11 +1658,25 @@ export const LAYER_PARAMS_SPEC = {
   ],
   retailMarkets: [opacitySlider("retailMarketsOpacity", 0.9), scaleSlider("retailMarketsScale", 1)],
   publicToilets: [
-    opacitySlider("publicToiletsOpacity", 0.75),
+    {
+      kind: "multiSelect", name: "publicToiletsType", label: "場所類別", default: MULTI_SELECT_ALL,
+      options: [...PUBLIC_TOILET_TYPE_OPTIONS], out: "publicToiletsTypeMask",
+    },
+    heatmapPalette("publicToilets"),
+    opacitySlider("publicToiletsOpacity", densePointOpacity(13_281)),
     scaleSlider("publicToiletsScale", 1),
   ],
 
   // ══════════ 天災・水利・農業・運動生態 ══════════
+  // 土壤液化：潛勢＝分級面 F-1 0.55；弱層 100 m 格＝網格 G-3 0.7（map-layers.md §3.3／§3.4）。
+  soilLiquefactionPotential: [opacitySlider("soilLiquefactionPotentialOpacity", 0.55)],
+  weakSoilClay0To5: [opacitySlider("weakSoilClay0To5Opacity", 0.7)],
+  weakSoilSand0To5: [opacitySlider("weakSoilSand0To5Opacity", 0.7)],
+  weakSoilClay5To10: [opacitySlider("weakSoilClay5To10Opacity", 0.7)],
+  weakSoilSand5To10: [opacitySlider("weakSoilSand5To10Opacity", 0.7)],
+  weakSoilClay10To20: [opacitySlider("weakSoilClay10To20Opacity", 0.7)],
+  weakSoilSand10To20: [opacitySlider("weakSoilSand10To20Opacity", 0.7)],
+  liquefactionMonitoringSites: [opacitySlider("liquefactionMonitoringSitesOpacity", 0.9)],
   earthquakesGlobal: [
     // 回溯天數決定 loader 的「查詢窗」（非 filter）—— 全域時間軸最多 7 天視窗，
     // 表達不了 14/30 天的回看。hook 端 `Number(value)` 還原成數字。
@@ -1437,10 +1692,13 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
-    { kind: "slider", name: "earthquakesGlobalOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "earthquakesGlobalOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(3_679), min: 0, max: 1, step: 0.05 },
+    // R6 段 1（2026-10-05）：Three.js 漣漪改為選配，預設平面
+    { kind: "toggle", name: "earthquakesGlobal3D", label: "立體效果", default: false, out: null },
   ],
   worldTrashDebris: [
-    { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("worldTrashDebris"),
+    { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(25_000), min: 0, max: 1, step: 0.05 },
   ],
   coralReefDistribution: [
     { kind: "slider", name: "coralReefDistributionOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0, max: 1, step: 0.05 },
@@ -1503,12 +1761,12 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
-    { kind: "toggle", name: "gfwHourlyTracksFishing", label: "Fishing", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksCargo", label: "Cargo", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksPassenger", label: "Passenger", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksCarrier", label: "Carrier", default: false, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksOther", label: "Other", default: false, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksUnknown", label: "Unknown", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksFishing", label: "漁船", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCargo", label: "貨輪", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksPassenger", label: "客輪", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCarrier", label: "運搬船", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksOther", label: "其他", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksUnknown", label: "未知", default: false, out: null },
   ],
   gfwFishingEffort: [
     { kind: "slider", name: "gfwFishingEffortOpacity", labelPrefix: "透明度", digits: 2, default: 0.58, min: 0, max: 1, step: 0.05, out: null },
@@ -1516,47 +1774,51 @@ export const LAYER_PARAMS_SPEC = {
   gfwDarkVessels: [
     { kind: "slider", name: "gfwDarkVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.86, min: 0, max: 1, step: 0.05, out: null },
   ],
-  jpMedicalHospitals: [opacitySlider("jpMedicalHospitalsOpacity", 0.8)],
-  jpMedicalClinics: [opacitySlider("jpMedicalClinicsOpacity", 0.8)],
-  jpMedicalDental: [opacitySlider("jpMedicalDentalOpacity", 0.8)],
-  jpMedicalMaternity: [opacitySlider("jpMedicalMaternityOpacity", 0.8)],
-  jpMedicalPharmacies: [opacitySlider("jpMedicalPharmaciesOpacity", 0.8)],
-  jpCarePlanning: [opacitySlider("jpCarePlanningOpacity", 0.75)],
-  jpCareHomeVisit: [opacitySlider("jpCareHomeVisitOpacity", 0.75)],
-  jpCareDayServices: [opacitySlider("jpCareDayServicesOpacity", 0.75)],
-  jpCareResidential: [opacitySlider("jpCareResidentialOpacity", 0.75)],
-  jpCareCombined: [opacitySlider("jpCareCombinedOpacity", 0.75)],
-  jpCareEquipment: [opacitySlider("jpCareEquipmentOpacity", 0.75)],
+  jpMedicalHospitals: [gridPalette("jpMedicalGridPalette", "viridis", { sharedGroup: "jpMedicalGridPalette" }), opacitySlider("jpMedicalHospitalsOpacity", densePointOpacity(7_447))],
+  jpMedicalClinics: [gridPalette("jpMedicalGridPalette", "viridis", { sharedGroup: "jpMedicalGridPalette" }), opacitySlider("jpMedicalClinicsOpacity", 0.8)],
+  jpMedicalDental: [gridPalette("jpMedicalGridPalette", "viridis", { sharedGroup: "jpMedicalGridPalette" }), opacitySlider("jpMedicalDentalOpacity", 0.8)],
+  jpMedicalMaternity: [gridPalette("jpMedicalGridPalette", "viridis", { sharedGroup: "jpMedicalGridPalette" }), opacitySlider("jpMedicalMaternityOpacity", densePointOpacity(1_684))],
+  jpMedicalPharmacies: [gridPalette("jpMedicalGridPalette", "viridis", { sharedGroup: "jpMedicalGridPalette" }), opacitySlider("jpMedicalPharmaciesOpacity", 0.8)],
+  jpCarePlanning: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCarePlanningOpacity", 0.75)],
+  jpCareHomeVisit: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCareHomeVisitOpacity", 0.75)],
+  jpCareDayServices: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCareDayServicesOpacity", 0.75)],
+  jpCareResidential: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCareResidentialOpacity", 0.75)],
+  jpCareCombined: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCareCombinedOpacity", densePointOpacity(6_513))],
+  jpCareEquipment: [gridPalette("jpCareGridPalette", "viridis", { sharedGroup: "jpCareGridPalette" }), opacitySlider("jpCareEquipmentOpacity", 0.75)],
   jpMedicalAreasPrimary: [opacitySlider("jpMedicalAreasPrimaryOpacity", 0.2)],
   jpMedicalAreasSecondary: [opacitySlider("jpMedicalAreasSecondaryOpacity", 0.2)],
   jpMedicalAreasTertiary: [opacitySlider("jpMedicalAreasTertiaryOpacity", 0.2)],
   jpWaterLakes: [opacitySlider("jpWaterLakesOpacity", 0.35)],
-  jpWaterDams: [opacitySlider("jpWaterDamsOpacity", 0.85)],
+  jpWaterDams: [opacitySlider("jpWaterDamsOpacity", densePointOpacity(2_749))],
   jpWaterRivers: [opacitySlider("jpWaterRiversOpacity", 0.75)],
-  jpWaterSupplyFacilities: [opacitySlider("jpWaterSupplyFacilitiesOpacity", 0.85)],
+  jpWaterSupplyFacilities: [opacitySlider("jpWaterSupplyFacilitiesOpacity", densePointOpacity(9_976))],
   jpWaterSupplyAreas: [opacitySlider("jpWaterSupplyAreasOpacity", 0.18)],
-  jpWaterSewerFacilities: [opacitySlider("jpWaterSewerFacilitiesOpacity", 0.82)],
-  jpWaterGroundwaterSites: [opacitySlider("jpWaterGroundwaterSitesOpacity", 0.82)],
+  jpWaterSewerFacilities: [opacitySlider("jpWaterSewerFacilitiesOpacity", densePointOpacity(5_724))],
+  jpWaterGroundwaterSites: [opacitySlider("jpWaterGroundwaterSitesOpacity", densePointOpacity(1_293))],
   jpWaterNilimDams: [opacitySlider("jpWaterNilimDamsOpacity", 0.82)],
-  jpWaterAgriculturalPonds: [opacitySlider("jpWaterAgriculturalPondsOpacity", 0.55)],
-  jpWaterFloodHazard: [opacitySlider("jpWaterFloodHazardOpacity", 0.7)],
+  jpWaterAgriculturalPonds: [heatmapPalette("jpWaterAgriculturalPonds"), opacitySlider("jpWaterAgriculturalPondsOpacity", densePointOpacity(161_778))],
+  jpWaterFloodHazard: [{ kind: "slider", name: "jpWaterFloodHazardOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpWaterLocalFacilities: [opacitySlider("jpWaterLocalFacilitiesOpacity", 0.85)],
-  jpWaterQualityStations: [opacitySlider("jpWaterQualityStationsOpacity", 0.75)],
+  jpWaterQualityStations: [opacitySlider("jpWaterQualityStationsOpacity", densePointOpacity(9_831))],
   jpWaterLevelStations: [opacitySlider("jpWaterLevelStationsOpacity", 0.85)],
   jpReligionGsi: [
+    heatmapPalette("jpReligionGsi"),
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionGsiScale", 1),
   ],
   jpReligionOsm: [
-    { kind: "slider", name: "jpReligionOsmOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("jpReligionOsm"),
+    { kind: "slider", name: "jpReligionOsmOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(71_040), min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionOsmScale", 1),
   ],
   jpReligionWikidata: [
-    { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("jpReligionWikidata"),
+    { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(37_154), min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
   ],
   jpAccommodationCanonical: [
-    opacitySlider("jpAccommodationCanonicalOpacity", 0.85),
+    heatmapPalette("jpAccommodationCanonical"),
+    opacitySlider("jpAccommodationCanonicalOpacity", densePointOpacity(25_459)),
     scaleSlider("jpAccommodationCanonicalScale", 1),
   ],
   jpAccommodationDensity: [
@@ -1568,17 +1830,19 @@ export const LAYER_PARAMS_SPEC = {
       encode: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => scale.value),
     },
     opacitySlider("jpAccommodationDensityOpacity", 0.72),
+    gridPalette("jpAccommodationDensityPalette", "YlOrBr"),
   ],
   jpAccommodationJta: [
-    opacitySlider("jpAccommodationJtaOpacity", 0.85),
+    opacitySlider("jpAccommodationJtaOpacity", densePointOpacity(2_242)),
     scaleSlider("jpAccommodationJtaScale", 1),
   ],
   jpAccommodationLocal: [
-    opacitySlider("jpAccommodationLocalOpacity", 0.85),
+    opacitySlider("jpAccommodationLocalOpacity", densePointOpacity(3_948)),
     scaleSlider("jpAccommodationLocalScale", 1),
   ],
   jpAccommodationOsm: [
-    opacitySlider("jpAccommodationOsmOpacity", 0.72),
+    heatmapPalette("jpAccommodationOsm"),
+    opacitySlider("jpAccommodationOsmOpacity", densePointOpacity(20_502)),
     scaleSlider("jpAccommodationOsmScale", 1),
   ],
   jpNaturalParksNational: [opacitySlider("jpNaturalParksNationalOpacity", 0.28)],
@@ -1612,7 +1876,7 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   jpStations: [
-    opacitySlider("jpStationsOpacity", 0.85),
+    opacitySlider("jpStationsOpacity", densePointOpacity(9_046)),
     scaleSlider("jpStationsScale", 1),
     {
       kind: "select", name: "jpStationsColorMode", label: "上色", default: "type",
@@ -1653,11 +1917,11 @@ export const LAYER_PARAMS_SPEC = {
   ],
   osmBridgeFootprints: [opacitySlider("osmBridgeFootprintsOpacity", 0.65)],
   officialBridgesNewTaipei: [
-    opacitySlider("officialBridgesNewTaipeiOpacity", 0.85),
+    opacitySlider("officialBridgesNewTaipeiOpacity", densePointOpacity(1_028)),
     scaleSlider("officialBridgesNewTaipeiScale", 1),
   ],
   bridgeComparisonNewTaipei: [
-    opacitySlider("bridgeComparisonNewTaipeiOpacity", 0.9),
+    opacitySlider("bridgeComparisonNewTaipeiOpacity", densePointOpacity(4_267)),
     scaleSlider("bridgeComparisonNewTaipeiScale", 1),
     {
       kind: "select",
@@ -1672,16 +1936,74 @@ export const LAYER_PARAMS_SPEC = {
       encode: ["all", ...MATCH_STATUSES.map((item) => item.value)],
     },
   ],
+  tainanBridgeInspections: [
+    opacitySlider("tainanBridgeInspectionsOpacity", densePointOpacity(1_719)),
+    scaleSlider("tainanBridgeInspectionsScale", 1),
+  ],
+  officialBridgesHsinchu: [opacitySlider("officialBridgesHsinchuOpacity", 0.85), scaleSlider("officialBridgesHsinchuScale", 1)],
+  taipeiRoadTunnels: [opacitySlider("taipeiRoadTunnelsOpacity", 0.9), scaleSlider("taipeiRoadTunnelsScale", 1)],
+  tainanRoadTunnels: [opacitySlider("tainanRoadTunnelsOpacity", 0.9), scaleSlider("tainanRoadTunnelsScale", 1)],
+  changhuaTrafficSignals: [opacitySlider("changhuaTrafficSignalsOpacity", densePointOpacity(3_448)), scaleSlider("changhuaTrafficSignalsScale", 1)],
+  bssNationalBridgePreview: [opacitySlider("bssNationalBridgePreviewOpacity", 0.82), {
+    kind: "select", name: "bssNationalBridgePreviewClass", label: "交通類別", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "一般道路橋候選", value: "1" },
+      { label: "高架／快速道路待查", value: "2" },
+      { label: "道路類型未判定", value: "3" },
+      { label: "人行／鐵道", value: "4" },
+    ],
+    out: "bssNationalBridgePreviewClass", encodeNumeric: true,
+  }, {
+    kind: "select", name: "bssNationalBridgePreviewQuality", label: "品質", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "影像有支持", value: "1" },
+      { label: "待確認", value: "2" },
+    ],
+    out: "bssNationalBridgePreviewQuality", encodeNumeric: true,
+  }],
+  bssNationalBridgePointsPreview: [heatmapPalette("bssNationalBridgePointsPreview"), opacitySlider("bssNationalBridgePointsPreviewOpacity", densePointOpacity(49_960)), scaleSlider("bssNationalBridgePointsPreviewScale", 1), {
+    kind: "select", name: "bssNationalBridgePointsPreviewQuality", label: "品質", default: "0",
+    options: [
+      { label: "全部", value: "0" },
+      { label: "影像有支持", value: "1" },
+      { label: "待確認", value: "2" },
+    ],
+    out: "bssNationalBridgePointsPreviewQuality", encodeNumeric: true,
+  }],
+  bridgeResilienceTwinCity: [opacitySlider("bridgeResilienceTwinCityOpacity", 0.9), {
+    kind: "select", name: "bridgeResilienceMode", label: "交通模式", default: "car",
+    options: [{ label: "汽車", value: "car" }, { label: "機車", value: "scooter" }],
+    out: "bridgeResilienceModeIdx", encode: ["car", "scooter"],
+  }, {
+    kind: "select", name: "bridgeResilienceWeighting", label: "權重", default: "decay",
+    options: [{ label: "距離遞減（平均行程 20 分）", value: "decay" }, { label: "不分遠近", value: "uniform" }],
+    out: "bridgeResilienceWeightingIdx", encode: ["decay", "uniform"],
+  }, {
+    kind: "toggle", name: "bridgeResilienceShowVillages", label: "顯示受影響村里（先點選一座橋；再點村里看目的地視角）", default: false,
+  }, {
+    kind: "select", name: "bridgeResilienceVillageMetric", label: "村里色階（僅不分遠近）", default: "p90",
+    options: [{ label: "額外時間 p90", value: "p90" }, { label: "受影響目的地人口比", value: "share" }],
+    out: "bridgeResilienceVillageMetricIdx", encode: ["p90", "share"],
+  }, {
+    kind: "toggle", name: "bridgeResilienceShowRoutes", label: "顯示替代路線（代表性起訖對）", default: false,
+  }, {
+    kind: "toggle", name: "bridgeResilienceJoint", label: "關渡＋淡江同時中斷", default: false,
+  }],
+  bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
   jpPoliceFacilities: [
-    opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),
+    heatmapPalette("jpPoliceFacilities"),
+    opacitySlider("jpPoliceFacilitiesOpacity", densePointOpacity(13_195)), scaleSlider("jpPoliceFacilitiesScale", 1),
     { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
       options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
       out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
   ],
-  jpSchools: [opacitySlider("jpSchoolsOpacity", 0.75), scaleSlider("jpSchoolsScale", 1)],
+  jpSchools: [heatmapPalette("jpSchools"), opacitySlider("jpSchoolsOpacity", densePointOpacity(56_807)), scaleSlider("jpSchoolsScale", 1)],
   // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名
   // （非數值字串）⇒ 走 encode 存索引，overlayParams.jpPopulationMeshModeIdx 是 index。
   jpPopulationMesh1km: [
+    gridPalette("jpPopulationMeshPalette", "YlOrBr"),
     opacitySlider("jpPopulationMeshOpacity", 0.55),
     {
       kind: "select", name: "jpPopulationMeshMode", label: "指標",
@@ -1691,7 +2013,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   dustForecast: [
-    { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   waterBasins: [
     { kind: "slider", name: "waterBasinOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
@@ -1712,7 +2034,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "waterProtectionZoneOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
   ],
   waterReservoirs: [
-    { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：即時水情預設畫 Mapbox 平面圓點（色＝警示等級、大小＝有效容量）；
+    // 「立體效果」開啟才疊 Three.js 水位計，水位計高度只對它有意義
+    { kind: "toggle", name: "waterReservoirs3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1,
+      showWhen: { param: "waterReservoirs3D", equals: true },
+    },
     opacitySlider("waterReservoirsOpacity", 1),
     scaleSlider("waterReservoirsScale", 1),
   ],
@@ -1750,7 +2078,7 @@ export const LAYER_PARAMS_SPEC = {
       options: ANIMAL_WELFARE_POINT_TYPE_OPTIONS,
       out: "animalWelfarePointsTypeMask",
     },
-    opacitySlider("animalWelfarePointsOpacity", 0.85),
+    opacitySlider("animalWelfarePointsOpacity", densePointOpacity(6_961)),
     scaleSlider("animalWelfarePointsScale", 1),
   ],
   groundwater: [
@@ -1792,11 +2120,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "agriPOIScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   agriRetail: [
-    opacitySlider("agriRetailOpacity", 0.85),
+    heatmapPalette("agriRetail"),
+    opacitySlider("agriRetailOpacity", densePointOpacity(37_430)),
     { kind: "slider", name: "agriRetailScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   agriProduceWholesale: [
-    opacitySlider("agriProduceWholesaleOpacity", 0.85),
+    heatmapPalette("agriProduceWholesale"),
+    opacitySlider("agriProduceWholesaleOpacity", densePointOpacity(22_843)),
     { kind: "slider", name: "agriProduceWholesaleScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   agriWholesaleMarket: [
@@ -1816,11 +2146,12 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "livestockMarketScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   sportsSchool: [
-    opacitySlider("sportsSchoolOpacity", 0.8),
+    heatmapPalette("sportsSchool"),
+    opacitySlider("sportsSchoolOpacity", densePointOpacity(12_221)),
     { kind: "slider", name: "sportsSchoolScale", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.3, max: 3, step: 0.1 },
   ],
   sportsPublicOther: [
-    opacitySlider("sportsPublicOtherOpacity", 0.8),
+    opacitySlider("sportsPublicOtherOpacity", densePointOpacity(1_135)),
     { kind: "slider", name: "sportsPublicOtherScale", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.3, max: 3, step: 0.1 },
   ],
   sportsPrivate: [
@@ -1842,6 +2173,16 @@ export const LAYER_PARAMS_SPEC = {
   ecoNetworkZones: [opacitySlider("ecoNetworkZonesOpacity", 0.5)],
 
   // ══════════ 森林山域・能源電力航空 ══════════
+  railRoutes: [
+    { kind: "slider", name: "railRoutesWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("railRoutesOpacity", 0.9),
+    {
+      kind: "select", name: "railRoutesSystem", label: "系統", category: "data", // 篩選畫哪個系統
+      default: "all", options: [...RAIL_ROUTES_SYSTEM_OPTIONS],
+      out: "railRoutesSystemIdx",
+      encode: RAIL_ROUTES_SYSTEM_OPTIONS.map((option) => option.value),
+    },
+  ],
   forestRoads: [
     { kind: "slider", name: "forestRoadsWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("forestRoadsOpacity", 0.8),
@@ -1855,21 +2196,21 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("hikingTrailsOpacity", 0.85),
   ],
   canopyHeight: [
-    { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+    { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   jpBuildingHeight: [
     { kind: "select", name: "jpBuildingHeightModeIdx", label: "呈現", default: "0", options: [...JP_BUILDING_HEIGHT_MODES], out: "jpBuildingHeightModeIdx", encode: JP_BUILDING_HEIGHT_MODES.map((mode) => mode.value) },
     { kind: "slider", name: "jpBuildingHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.3, max: 1, step: 0.05 },
   ],
   jpCanopyHeight: [
-    { kind: "slider", name: "jpCanopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+    { kind: "slider", name: "jpCanopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   canopyGiants: [
-    { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
+    { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(7_823), min: 0.3, max: 1, step: 0.05 },
     scaleSlider("canopyGiantsScale", 1),
   ],
   forestTrailSigns: [
-    opacitySlider("forestTrailSignsOpacity", 0.85),
+    opacitySlider("forestTrailSignsOpacity", densePointOpacity(3_407)),
     { kind: "slider", name: "forestTrailSignsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   mountainHuts: [
@@ -1877,7 +2218,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "mountainHutsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   forestSignalPoints: [
-    opacitySlider("forestSignalPointsOpacity", 0.85),
+    opacitySlider("forestSignalPointsOpacity", densePointOpacity(1_416)),
     { kind: "slider", name: "forestSignalPointsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   forestEducationCenters: [
@@ -1885,13 +2226,19 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "forestEducationCentersScale", labelPrefix: "大小", digits: 2, default: 1.2, min: 0.3, max: 3, step: 0.1 },
   ],
   forestWildlife: [
-    opacitySlider("forestWildlifeOpacity", 0.85),
+    opacitySlider("forestWildlifeOpacity", densePointOpacity(1_241)),
     { kind: "slider", name: "forestWildlifeScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   powerPlants: [scaleSlider("powerPlantsScale", 0.5), opacitySlider("powerPlantsOpacity", 0.95)],
   aviationRestrictedGlow: [opacitySlider("aviationRestrictedGlowOpacity", 0.85)],
   powerGenerationUnit: [
-    { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    // R6 段 2（2026-10-06）：預設畫 Mapbox 平面圓點（色＝燃料、大小＝即時出力 MW）；
+    // 「立體效果」開啟才疊 Three.js 出力光柱，柱高只對光柱有意義
+    { kind: "toggle", name: "powerGenerationUnit3D", label: "立體效果", default: false, out: null },
+    {
+      kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1,
+      showWhen: { param: "powerGenerationUnit3D", equals: true },
+    },
     opacitySlider("powerGenerationOpacity", 0.7),
     scaleSlider("powerGenerationScale", 1),
   ],
@@ -1904,11 +2251,11 @@ export const LAYER_PARAMS_SPEC = {
   facSecondary: [scaleSlider("facSecondaryScale", 0.5), opacitySlider("facSecondaryOpacity", 0.85)],
   facOsmSupplement: [
     scaleSlider("facOsmSupplementScale", 0.5),
-    opacitySlider("facOsmSupplementOpacity", 0.7),
+    opacitySlider("facOsmSupplementOpacity", densePointOpacity(1_215)),
   ],
   gasStationCpc: [
     scaleSlider("gasStationCpcScale", 1.7),
-    opacitySlider("gasStationCpcOpacity", 0.85),
+    opacitySlider("gasStationCpcOpacity", densePointOpacity(2_023)),
   ],
   gasStationFpcc: [
     scaleSlider("gasStationFpccScale", 1.7),
@@ -1924,13 +2271,13 @@ export const LAYER_PARAMS_SPEC = {
   ],
   gasStationCanonical: [
     scaleSlider("gasStationCanonicalScale", 1.7),
-    opacitySlider("gasStationCanonicalOpacity", 0.9),
+    opacitySlider("gasStationCanonicalOpacity", densePointOpacity(3_053)),
   ],
   lpgSubpackaging: [
     scaleSlider("lpgSubpackagingScale", 1.1),
     opacitySlider("lpgSubpackagingOpacity", 0.85),
   ],
-  lpgRetailers: [scaleSlider("lpgRetailersScale", 1.3), opacitySlider("lpgRetailersOpacity", 0.75)],
+  lpgRetailers: [scaleSlider("lpgRetailersScale", 1.3), opacitySlider("lpgRetailersOpacity", densePointOpacity(1_185))],
   lngTerminal: [
     { kind: "slider", name: "lngTerminalScale", labelPrefix: "大小", digits: 1, default: 1.6, min: 0.5, max: 4, step: 0.1 },
     opacitySlider("lngTerminalOpacity", 0.95),
@@ -1978,10 +2325,13 @@ export const LAYER_PARAMS_SPEC = {
   osmPowerLines: [
     { kind: "slider", name: "osmPowerLinesWidth", labelPrefix: "寬度", digits: 1, default: 0.7, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("osmPowerLinesOpacity", 0.4),
+    // R6 段 1（2026-10-05）：Three.js bloom 改為選配，預設只畫 Mapbox 線
+    { kind: "toggle", name: "osmPowerLines3D", label: "立體效果", default: false, out: null },
   ],
   osmPowerTowers: [
     scaleSlider("osmPowerTowersSize", 1),
-    opacitySlider("osmPowerTowersOpacity", 0.75),
+    heatmapPalette("osmPowerTowers"),
+    opacitySlider("osmPowerTowersOpacity", densePointOpacity(26_589)),
   ],
   aviationControl: [opacitySlider("aviationControlOpacity", 0.7)],
   aviationRestricted: [opacitySlider("aviationRestrictedOpacity", 0.7)],
@@ -2019,7 +2369,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("renewablePermitsTaipeiSize", 1),
     opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
   ],
-  evChargingStations: [opacitySlider("evChargingOpacity", 0.8), scaleSlider("evChargingScale", 1)],
+  evChargingStations: [opacitySlider("evChargingOpacity", densePointOpacity(3_060)), scaleSlider("evChargingScale", 1)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 
   // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
@@ -2055,13 +2405,13 @@ export const LAYER_PARAMS_SPEC = {
   ],
   policeStation: [
     scaleSlider("policeStationScale", 1),
-    opacitySlider("policeStationOpacity", 0.85),
+    opacitySlider("policeStationOpacity", densePointOpacity(2_065)),
   ],
   womenChildWarning: [
     scaleSlider("womenChildWarningScale", 1),
     opacitySlider("womenChildWarningOpacity", 0.9),
   ],
-  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", 0.85)],
+  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", densePointOpacity(2_056))],
   speedZoneSegment: [
     { kind: "slider", name: "speedZoneSegmentWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 5, step: 0.1 },
     opacitySlider("speedZoneSegmentOpacity", 0.85),
@@ -2101,17 +2451,15 @@ export const LAYER_PARAMS_SPEC = {
   statsMotorcycleLicenseHoldersCount: [opacitySlider("statsMotorcycleLicenseHoldersCountOpacity", 0.55)],
   statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
   statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
-  crimeAreaMonthly: [
-    { kind: "slider", name: "crimeAreaMonthlyOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
-  ],
-  theftTaoyuan: [scaleSlider("theftTaoyuanScale", 1), opacitySlider("theftTaoyuanOpacity", 0.8)],
+  theftTaoyuan: [scaleSlider("theftTaoyuanScale", 1), opacitySlider("theftTaoyuanOpacity", densePointOpacity(1_423))],
   trafficAccidentYearly: [
     scaleSlider("trafficAccidentYearlyScale", 1),
-    opacitySlider("trafficAccidentYearlyOpacity", 0.85),
+    opacitySlider("trafficAccidentYearlyOpacity", densePointOpacity(1_600)),
   ],
   accidentTaipei: [
     scaleSlider("accidentTaipeiScale", 1),
-    opacitySlider("accidentTaipeiOpacity", 0.7),
+    heatmapPalette("accidentTaipei"),
+    opacitySlider("accidentTaipeiOpacity", densePointOpacity(22_918)),
   ],
   a1AccidentRealtime: [
     scaleSlider("a1AccidentRealtimeScale", 1),
@@ -2135,7 +2483,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   civilDefenseShelter: [
     scaleSlider("civilDefenseShelterScale", 1),
-    opacitySlider("civilDefenseShelterOpacity", 0.7),
+    opacitySlider("civilDefenseShelterOpacity", densePointOpacity(62_695)),
   ],
   aquaculturePonds: [
     { kind: "slider", name: "aquaculturePondsOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
@@ -2159,7 +2507,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   tourHotSpringZones: [opacitySlider("tourHotSpringZonesOpacity", 0.5)],
   tourScenicAreas: [opacitySlider("tourScenicAreasOpacity", 0.5)],
-  tourHeritage: [opacitySlider("tourHeritageOpacity", 0.85), scaleSlider("tourHeritageScale", 1)],
+  tourHeritage: [opacitySlider("tourHeritageOpacity", densePointOpacity(2_894)), scaleSlider("tourHeritageScale", 1)],
   tourFactories: [
     opacitySlider("tourFactoriesOpacity", 0.85),
     scaleSlider("tourFactoriesScale", 1),
@@ -2168,19 +2516,155 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("tourAmusementParksOpacity", 0.85),
     scaleSlider("tourAmusementParksScale", 1),
   ],
-  tourCamping: [opacitySlider("tourCampingOpacity", 0.85), scaleSlider("tourCampingScale", 1)],
+  tourCamping: [opacitySlider("tourCampingOpacity", densePointOpacity(1_737)), scaleSlider("tourCampingScale", 1)],
   tourRestaurants: [
-    opacitySlider("tourRestaurantsOpacity", 0.85),
+    opacitySlider("tourRestaurantsOpacity", densePointOpacity(3_688)),
     scaleSlider("tourRestaurantsScale", 1),
+  ],
+  drinkingWaterPoints: [opacitySlider("drinkingWaterPointsOpacity", densePointOpacity(3_369)), scaleSlider("drinkingWaterPointsScale", 1)],
+  publicWasteBaskets: [opacitySlider("publicWasteBasketsOpacity", 0.85), scaleSlider("publicWasteBasketsScale", 1)],
+  materialRecyclingPoints: [
+    {
+      kind: "multiSelect", name: "materialRecyclingPointsMaterial", label: "回收材質", default: MULTI_SELECT_ALL,
+      options: [...RECYCLING_MATERIAL_OPTIONS], out: "materialRecyclingPointsMaterialMask",
+    },
+    opacitySlider("materialRecyclingPointsOpacity", 0.85), scaleSlider("materialRecyclingPointsScale", 1),
+  ],
+  disasterShelters: [
+    {
+      kind: "multiSelect", name: "disasterSheltersType", label: "適用災害", default: MULTI_SELECT_ALL,
+      options: [...DISASTER_SHELTER_TYPE_OPTIONS], out: "disasterSheltersTypeMask",
+    },
+    opacitySlider("disasterSheltersOpacity", densePointOpacity(5_946)), scaleSlider("disasterSheltersScale", 1),
+  ],
+  playgrounds: [opacitySlider("playgroundsOpacity", densePointOpacity(2_580)), scaleSlider("playgroundsScale", 1)],
+  accessibleParkFacilities: [
+    {
+      kind: "multiSelect", name: "accessibleParkFacilitiesType", label: "設施類型", default: MULTI_SELECT_ALL,
+      options: [...ACCESSIBLE_FACILITY_TYPE_OPTIONS], out: "accessibleParkFacilitiesTypeMask",
+    },
+    {
+      kind: "multiSelect", name: "accessibleParkFacilitiesStatus", label: "無障礙狀態", default: MULTI_SELECT_ALL,
+      options: [...ACCESSIBILITY_STATUS_OPTIONS], out: "accessibleParkFacilitiesStatusMask",
+    },
+    heatmapPalette("accessibleParkFacilities"),
+    opacitySlider("accessibleParkFacilitiesOpacity", densePointOpacity(20_870)), scaleSlider("accessibleParkFacilitiesScale", 1),
+  ],
+  bicycleSupport: [
+    {
+      kind: "multiSelect", name: "bicycleSupportService", label: "補給服務", default: MULTI_SELECT_ALL,
+      options: [...BICYCLE_SUPPORT_SERVICE_OPTIONS], out: "bicycleSupportServiceMask",
+    },
+    heatmapPalette("bicycleSupport"),
+    opacitySlider("bicycleSupportOpacity", densePointOpacity(11_989)), scaleSlider("bicycleSupportScale", 1),
+  ],
+  nationalParks: [opacitySlider("nationalParksOpacity", 0.5)],
+  visitorCentres: [opacitySlider("visitorCentresOpacity", 0.85), scaleSlider("visitorCentresScale", 1)],
+  publicLifeOsmCoverage: [opacitySlider("publicLifeOsmCoverageOpacity", 0.55)],
+
+  // ══════════ 減害服務 Harm Reduction 5 層 ══════════
+  harmReductionNeedle: [
+    {
+      kind: "multiSelect", name: "harmReductionNeedleService", label: "服務類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(NEEDLE_SERVICE_OPTIONS), out: "harmReductionNeedleServiceMask",
+    },
+    { kind: "toggle", name: "harmReductionNeedleOnly24h", label: "只看 24 小時服務", default: false, category: "data" },
+    opacitySlider("harmReductionNeedleOpacity", 0.85), scaleSlider("harmReductionNeedleScale", 1),
+  ],
+  harmReductionTreatment: [
+    {
+      kind: "multiSelect", name: "harmReductionTreatmentCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TREATMENT_CATEGORY_OPTIONS), out: "harmReductionTreatmentCategoryMask",
+    },
+    opacitySlider("harmReductionTreatmentOpacity", 0.85), scaleSlider("harmReductionTreatmentScale", 1),
+  ],
+  harmReductionHivSelftest: [
+    {
+      kind: "multiSelect", name: "harmReductionHivSelftestChannel", label: "通路類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SELFTEST_CHANNEL_OPTIONS), out: "harmReductionHivSelftestChannelMask",
+    },
+    opacitySlider("harmReductionHivSelftestOpacity", 0.85), scaleSlider("harmReductionHivSelftestScale", 1),
+  ],
+  harmReductionHivTesting: [
+    {
+      kind: "multiSelect", name: "harmReductionHivTestingCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(HIV_TESTING_CATEGORY_OPTIONS), out: "harmReductionHivTestingCategoryMask",
+    },
+    opacitySlider("harmReductionHivTestingOpacity", 0.85), scaleSlider("harmReductionHivTestingScale", 1),
+  ],
+  harmReductionPreventionCenters: [
+    opacitySlider("harmReductionPreventionCentersOpacity", 0.9), scaleSlider("harmReductionPreventionCentersScale", 1),
+  ],
+  // ── 減害服務第二批（2026-10-06）──
+  harmReductionAlcohol: [
+    {
+      kind: "multiSelect", name: "harmReductionAlcoholService", label: "機構身分", default: MULTI_SELECT_ALL,
+      options: toParamOptions(ALCOHOL_SERVICE_OPTIONS), out: "harmReductionAlcoholServiceMask",
+    },
+    opacitySlider("harmReductionAlcoholOpacity", 0.85), scaleSlider("harmReductionAlcoholScale", 1),
+  ],
+  harmReductionSmokingCessation: [
+    {
+      kind: "multiSelect", name: "harmReductionSmokingCessationFacility", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(SMOKING_FACILITY_OPTIONS), out: "harmReductionSmokingCessationFacilityMask",
+    },
+    opacitySlider("harmReductionSmokingCessationOpacity", 0.8), scaleSlider("harmReductionSmokingCessationScale", 1),
+  ],
+  harmReductionInternetAddiction: [
+    {
+      kind: "multiSelect", name: "harmReductionInternetAddictionServiceType", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(INTERNET_SERVICE_TYPE_OPTIONS), out: "harmReductionInternetAddictionServiceTypeMask",
+    },
+    opacitySlider("harmReductionInternetAddictionOpacity", 0.85), scaleSlider("harmReductionInternetAddictionScale", 1),
+  ],
+  harmReductionPrep: [
+    {
+      kind: "multiSelect", name: "harmReductionPrepFunding", label: "PrEP 給付", default: MULTI_SELECT_ALL,
+      options: toParamOptions(PREP_FUNDING_OPTIONS), out: "harmReductionPrepFundingMask",
+    },
+    opacitySlider("harmReductionPrepOpacity", 0.85), scaleSlider("harmReductionPrepScale", 1),
+  ],
+  harmReductionCondomOutlets: [
+    {
+      kind: "multiSelect", name: "harmReductionCondomOutletsOutletType", label: "販售類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(CONDOM_OUTLET_OPTIONS), out: "harmReductionCondomOutletsOutletTypeMask",
+    },
+    opacitySlider("harmReductionCondomOutletsOpacity", 0.85), scaleSlider("harmReductionCondomOutletsScale", 1),
+  ],
+  harmReductionAntiDrugPharmacies: [
+    opacitySlider("harmReductionAntiDrugPharmaciesOpacity", 0.85), scaleSlider("harmReductionAntiDrugPharmaciesScale", 1),
+  ],
+  harmReductionTherapeuticCommunities: [
+    opacitySlider("harmReductionTherapeuticCommunitiesOpacity", 0.9), scaleSlider("harmReductionTherapeuticCommunitiesScale", 1),
+  ],
+  harmReductionAftercare: [
+    opacitySlider("harmReductionAftercareOpacity", 0.9), scaleSlider("harmReductionAftercareScale", 1),
+  ],
+  harmReductionDuiCrashes: [
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesClass", label: "事故類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_CLASS_OPTIONS), out: "harmReductionDuiCrashesClassMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesYear", label: "年份", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_YEAR_OPTIONS), out: "harmReductionDuiCrashesYearMask",
+    },
+    {
+      kind: "multiSelect", name: "harmReductionDuiCrashesBasis", label: "酒駕判定", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DUI_BASIS_OPTIONS), out: "harmReductionDuiCrashesBasisMask",
+    },
+    opacitySlider("harmReductionDuiCrashesOpacity", 0.75), scaleSlider("harmReductionDuiCrashesScale", 1),
   ],
 
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
-    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    { kind: "slider", name: "busScale", labelPrefix: "大小", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    heatmapPalette("busStationsCity"),
     opacitySlider("busStationsCityOpacity", 1),
   ],
   busStationsIntercity: [
-    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    { kind: "slider", name: "busScale", labelPrefix: "大小", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    heatmapPalette("busStationsIntercity"),
     opacitySlider("busStationsIntercityOpacity", 1),
   ],
   fireIsochrone: [
@@ -2199,40 +2683,40 @@ export const LAYER_PARAMS_SPEC = {
   ],
   urbanHeat: [
     {
-      kind: "select", name: "urbanHeatModeIdx", label: "顯示", default: "0",
+      kind: "select", name: "urbanHeatModeIdx", label: "顯示", default: "0", category: "data", // 選指標（熱島強度／地表溫度），不是外觀
       options: URBAN_HEAT_MODES.map((m) => ({ label: m.label, value: m.value })),
       out: "urbanHeatModeIdx", encode: URBAN_HEAT_MODES.map((o) => o.value),
     },
-    { kind: "slider", name: "urbanHeatOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.2, max: 1, step: 0.05 },
+    { kind: "slider", name: "urbanHeatOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
   ],
   schools: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
     { kind: "toggle", name: "schoolLevelColor", label: "分級配色", default: false },
   ],
   eduSchoolElementary: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolJunior: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolSenior: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolUniversity: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolSpecial: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduRemoteSchools: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduDistrictElementary: [
     { kind: "slider", name: "eduDistrictK12Opacity", labelPrefix: "透明度", digits: 2, default: 0.3, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduDistrictK12Opacity" },
@@ -2242,15 +2726,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   eduKindergarten: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
   eduAfterschoolCare: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
   eduMutualCare: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
 
   // ══════════ 天災水利・農林・工業・不動產 20 層 ══════════
@@ -2271,11 +2755,11 @@ export const LAYER_PARAMS_SPEC = {
   iotWraStructure: [
     { kind: "slider", name: "iotWraStructureScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     { kind: "slider", name: "iotWraStructureOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
-    { kind: "toggle", name: "iotWraStructureFlow", label: "累計流量 Flow", default: true },
-    { kind: "toggle", name: "iotWraStructureGate", label: "閘門 Watergate", default: true },
-    { kind: "toggle", name: "iotWraStructureDam", label: "堤防安全 Dam", default: true },
-    { kind: "toggle", name: "iotWraStructureErosion", label: "河床沖刷 Erosion", default: true },
-    { kind: "toggle", name: "iotWraStructureDust", label: "揚塵 Dust", default: true },
+    { kind: "toggle", name: "iotWraStructureFlow", label: "累計流量", default: true },
+    { kind: "toggle", name: "iotWraStructureGate", label: "閘門", default: true },
+    { kind: "toggle", name: "iotWraStructureDam", label: "堤防安全", default: true },
+    { kind: "toggle", name: "iotWraStructureErosion", label: "河床沖刷", default: true },
+    { kind: "toggle", name: "iotWraStructureDust", label: "揚塵", default: true },
   ],
   agriSoilFertility: [
     { kind: "slider", name: "agriSoilFertilityOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
@@ -2288,20 +2772,20 @@ export const LAYER_PARAMS_SPEC = {
   forestCompartments: [
     { kind: "slider", name: "forestCompartmentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestCompartmentsOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestCompartmentsShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestCompartmentsShowOutline", label: "邊框", default: true },
   ],
   forestReserve: [
     { kind: "slider", name: "forestReserveOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestReserveOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestReserveShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestReserveShowOutline", label: "邊框", default: true },
   ],
   forestRecreation: [
     { kind: "slider", name: "forestRecreationOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestRecreationOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestRecreationShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestRecreationShowOutline", label: "邊框", default: true },
   ],
   forestTreatmentWorks: [
-    { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(6_213), min: 0.1, max: 1, step: 0.05 },
     scaleSlider("forestTreatmentWorksScale", 1),
   ],
   forestFlatParks: [
@@ -2327,16 +2811,222 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
     scaleSlider("industrialPowerPlantScale", 1),
   ],
+  // ══════════ 崩塌 Landslide 4 層 ══════════
+  // 潛勢區與影響範圍共用同一個年度版本選單（sharedGroup：切一個，兩層一起換），預設最新 115 年版。
+  landslideDodAreas: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodAreasOpacity", 0.55),
+  ],
+  landslideDodImpact: [
+    {
+      kind: "select", name: "landslideDodYear", label: "年度版本", default: String(DOD_DEFAULT_YEAR), sharedGroup: "landslideDodYear", category: "data",
+      options: DOD_YEAR_OPTIONS, out: "landslideDodYearIdx", encode: DOD_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideDodImpactOpacity", 0.35),
+  ],
+  highwayDisasterHistory: [
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryCategory", label: "災情類別", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_CATEGORY_GROUPS.map(({ value, label }) => ({ value, label })), out: "highwayDisasterHistoryCategoryMask",
+    },
+    {
+      kind: "multiSelect", name: "highwayDisasterHistoryYear", label: "通報年份", default: MULTI_SELECT_ALL,
+      options: HIGHWAY_YEAR_OPTIONS, out: "highwayDisasterHistoryYearMask",
+    },
+    opacitySlider("highwayDisasterHistoryOpacity", densePointOpacity(16_163)), scaleSlider("highwayDisasterHistoryScale", 1),
+  ],
+  // 年度全島崩塌地：只有 4 年（缺年在圖例與說明標示），預設 2024（V2 版）。
+  landslideAnnual: [
+    {
+      kind: "select", name: "landslideAnnualYear", label: "年份", default: String(ANNUAL_DEFAULT_YEAR),
+      options: ANNUAL_YEAR_OPTIONS, out: "landslideAnnualYearIdx", encode: ANNUAL_YEAR_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landslideAnnualOpacity", 0.55),
+  ],
+  // ══════════ atlas 批次 2026-10：26 層點／線／面 ══════════
+  indigenousTribes: [
+    opacitySlider("indigenousTribesOpacity", densePointOpacity(735)), scaleSlider("indigenousTribesScale", 1),
+  ],
+  indigenousIsolationRisk: [
+    opacitySlider("indigenousIsolationRiskOpacity", densePointOpacity(168)), scaleSlider("indigenousIsolationRiskScale", 1),
+  ],
+  agriRuralCommunityVillages: [
+    {
+      kind: "multiSelect", name: "agriRuralCommunityVillagesType", label: "社區類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(RURAL_COMMUNITY_OPTIONS), out: "agriRuralCommunityVillagesTypeMask",
+    },
+    opacitySlider("agriRuralCommunityVillagesOpacity", 0.45),
+  ],
+  provincialRoadSigns: [
+    {
+      kind: "multiSelect", name: "provincialRoadSignsSeries", label: "標誌類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(ROAD_SIGN_SERIES_OPTIONS), out: "provincialRoadSignsSeriesMask",
+    },
+    opacitySlider("provincialRoadSignsOpacity", densePointOpacity(22_522)), scaleSlider("provincialRoadSignsScale", 1),
+  ],
+  provincialRoadMileposts: [
+    opacitySlider("provincialRoadMilepostsOpacity", densePointOpacity(30_098)), scaleSlider("provincialRoadMilepostsScale", 1),
+  ],
+  freewayTrafficSigns: [
+    {
+      kind: "multiSelect", name: "freewayTrafficSignsGroup", label: "標誌類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FREEWAY_SIGN_GROUP_OPTIONS), out: "freewayTrafficSignsGroupMask",
+    },
+    opacitySlider("freewayTrafficSignsOpacity", densePointOpacity(51_405)), scaleSlider("freewayTrafficSignsScale", 1),
+  ],
+  freewayInterchanges: [
+    opacitySlider("freewayInterchangesOpacity", densePointOpacity(207)), scaleSlider("freewayInterchangesScale", 1),
+  ],
+  freewayEcoSensitive: [
+    opacitySlider("freewayEcoSensitiveOpacity", 0.5),
+  ],
+  provincialRoadMonitored: [
+    {
+      kind: "multiSelect", name: "provincialRoadMonitoredSeries", label: "監控類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(MONITOR_SERIES_OPTIONS), out: "provincialRoadMonitoredSeriesMask",
+    },
+    opacitySlider("provincialRoadMonitoredOpacity", 0.85), scaleSlider("provincialRoadMonitoredScale", 1),
+  ],
+  provincialRoadEmergencyBays: [
+    opacitySlider("provincialRoadEmergencyBaysOpacity", 0.9), scaleSlider("provincialRoadEmergencyBaysScale", 1),
+  ],
+  floodDisasterPointsNcdr: [
+    {
+      kind: "multiSelect", name: "floodDisasterPointsNcdrYear", label: "事件年", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(FLOOD_YEAR_OPTIONS), out: "floodDisasterPointsNcdrYearMask",
+    },
+    opacitySlider("floodDisasterPointsNcdrOpacity", densePointOpacity(8_646)), scaleSlider("floodDisasterPointsNcdrScale", 1),
+  ],
+  taipeiWaterloggingHistory: [
+    opacitySlider("taipeiWaterloggingHistoryOpacity", 0.5),
+  ],
+  swcbDisasterPhotoPoints: [
+    {
+      kind: "multiSelect", name: "swcbDisasterPhotoPointsCategory", label: "照片類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(SWCB_PHOTO_CATEGORY_OPTIONS), out: "swcbDisasterPhotoPointsCategoryMask",
+    },
+    opacitySlider("swcbDisasterPhotoPointsOpacity", densePointOpacity(34_419)), scaleSlider("swcbDisasterPhotoPointsScale", 1),
+  ],
+  cetaceanStrandings: [
+    {
+      kind: "multiSelect", name: "cetaceanStrandingsYear", label: "擱淺年份", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STRANDING_YEAR_OPTIONS), out: "cetaceanStrandingsYearMask",
+    },
+    opacitySlider("cetaceanStrandingsOpacity", densePointOpacity(936)), scaleSlider("cetaceanStrandingsScale", 1),
+  ],
+  seaTurtleStrandings: [
+    {
+      kind: "multiSelect", name: "seaTurtleStrandingsYear", label: "擱淺年份", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STRANDING_YEAR_OPTIONS), out: "seaTurtleStrandingsYearMask",
+    },
+    opacitySlider("seaTurtleStrandingsOpacity", densePointOpacity(1_719)), scaleSlider("seaTurtleStrandingsScale", 1),
+  ],
+  beachWaterQuality: [
+    opacitySlider("beachWaterQualityOpacity", densePointOpacity(20)), scaleSlider("beachWaterQualityScale", 1),
+  ],
+  marineMicroplastics: [
+    opacitySlider("marineMicroplasticsOpacity", densePointOpacity(25)), scaleSlider("marineMicroplasticsScale", 1),
+  ],
+  marinePollutionIncidents: [
+    opacitySlider("marinePollutionIncidentsOpacity", densePointOpacity(1_759)), scaleSlider("marinePollutionIncidentsScale", 1),
+  ],
+  namrEdnaSurveySites: [
+    opacitySlider("namrEdnaSurveySitesOpacity", densePointOpacity(119)), scaleSlider("namrEdnaSurveySitesScale", 1),
+  ],
+  placeNames: [
+    {
+      kind: "multiSelect", name: "placeNamesCategory", label: "地名類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(PLACE_CATEGORY_OPTIONS), out: "placeNamesCategoryMask",
+    },
+    opacitySlider("placeNamesOpacity", densePointOpacity(36_431)), scaleSlider("placeNamesScale", 1),
+  ],
+  triangulationPoints: [
+    opacitySlider("triangulationPointsOpacity", densePointOpacity(2_658)), scaleSlider("triangulationPointsScale", 1),
+  ],
+  wraFloodgatesCentral: [
+    {
+      kind: "multiSelect", name: "wraFloodgatesCentralKind", label: "設施類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(GATE_KIND_OPTIONS), out: "wraFloodgatesCentralKindMask",
+    },
+    opacitySlider("wraFloodgatesCentralOpacity", densePointOpacity(808)), scaleSlider("wraFloodgatesCentralScale", 1),
+  ],
+  wraCentralDrainage: [
+    opacitySlider("wraCentralDrainageOpacity", 0.35),
+  ],
+  iowStructureMonitoring: [
+    opacitySlider("iowStructureMonitoringOpacity", densePointOpacity(102)), scaleSlider("iowStructureMonitoringScale", 1),
+  ],
+  wraDredgingPoints: [
+    opacitySlider("wraDredgingPointsOpacity", densePointOpacity(137)), scaleSlider("wraDredgingPointsScale", 1),
+  ],
+  wraEcologySurveySites: [
+    opacitySlider("wraEcologySurveySitesOpacity", densePointOpacity(1_195)), scaleSlider("wraEcologySurveySitesScale", 1),
+  ],
+  // ══════════ 海域保護與漁業 G08（2026-10-17）══════════
+  natureReserves: [
+    opacitySlider("natureReservesOpacity", 0.3),
+  ],
+  wildlifeProtectedAreas: [
+    opacitySlider("wildlifeProtectedAreasOpacity", 0.3),
+  ],
+  openFishingLocations: [
+    opacitySlider("openFishingLocationsOpacity", densePointOpacity(155)), scaleSlider("openFishingLocationsScale", 1),
+  ],
+  coastalAreaExtents: [
+    {
+      kind: "multiSelect", name: "coastalAreaExtentsType", label: "範圍類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(COASTAL_AREA_TYPE_OPTIONS), out: "coastalAreaExtentsTypeMask",
+    },
+    opacitySlider("coastalAreaExtentsOpacity", 0.25),
+  ],
+  artificialReefCenters: [
+    opacitySlider("artificialReefCentersOpacity", densePointOpacity(88)), scaleSlider("artificialReefCentersScale", 1),
+  ],
+  protectedReefCenters: [
+    opacitySlider("protectedReefCentersOpacity", densePointOpacity(67)), scaleSlider("protectedReefCentersScale", 1),
+  ],
+  setNetFishingAreas: [
+    opacitySlider("setNetFishingAreasOpacity", 0.4),
+  ],
+  // ══════════ 地層下陷＋海堤 G19（2026-10-17）══════════
+  landSubsidenceStations: [
+    {
+      kind: "multiSelect", name: "landSubsidenceStationsType", label: "測站類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STATION_TYPE_OPTIONS), out: "landSubsidenceStationsTypeMask",
+    },
+    opacitySlider("landSubsidenceStationsOpacity", densePointOpacity(112)), scaleSlider("landSubsidenceStationsScale", 1),
+  ],
+  landSubsidenceCumulative: [
+    {
+      kind: "select", name: "landSubsidenceCumulativePeriod", label: "期別", category: "data", default: CONTOUR_LATEST,
+      options: CUMULATIVE_PERIOD_OPTIONS, out: "landSubsidenceCumulativePeriodIdx", encode: CUMULATIVE_PERIOD_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landSubsidenceCumulativeOpacity", 0.85),
+  ],
+  landSubsidenceRate: [
+    {
+      kind: "select", name: "landSubsidenceRatePeriod", label: "期別", category: "data", default: CONTOUR_LATEST,
+      options: RATE_PERIOD_OPTIONS, out: "landSubsidenceRatePeriodIdx", encode: RATE_PERIOD_OPTIONS.map((option) => option.value),
+    },
+    opacitySlider("landSubsidenceRateOpacity", 0.85),
+  ],
+  seawallZones: [
+    opacitySlider("seawallZonesOpacity", 0.5),
+  ],
   mountainRescueIncidents: [
     {
       kind: "select", name: "mountainRescueIncidentsYear", label: "年份", default: "all",
       options: [{ label: "全部", value: "all" }, ...MOUNTAIN_RESCUE_YEARS.map((y) => ({ label: String(y), value: String(y) }))],
       out: "mountainRescueIncidentsYearIdx", encode: ["all", ...MOUNTAIN_RESCUE_YEARS.map(String)],
     },
-    { kind: "slider", name: "mountainRescueIncidentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "mountainRescueIncidentsOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(2_465), min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "mountainRescueIncidentsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
   ],
   realEstateRentalGrid: [
+    gridPalette("realEstateRentalGridPalette", "batlow"),
     { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
     { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
   ],
@@ -2353,6 +3043,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
   ],
   realEstatePresaleGrid: [
+    gridPalette("realEstatePresaleGridPalette", "YlOrBr"),
     { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
     { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
   ],
@@ -2372,15 +3063,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   aquacultureWaterSatelliteMoa: [
     { kind: "slider", name: "aquacultureWaterSatelliteMoaOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowConfirmed", label: "確認 Confirmed", default: true },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowSolar", label: "漁電共生 Solar", default: true },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowOther", label: "其他 Other", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowConfirmed", label: "確認", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowSolar", label: "漁電共生", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowOther", label: "其他", default: true },
   ],
   aquacultureWaterUnion: [
     { kind: "slider", name: "aquacultureWaterUnionOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
-    { kind: "toggle", name: "aquacultureWaterUnionShowBoth", label: "兩版都有 Both", default: true },
-    { kind: "toggle", name: "aquacultureWaterUnionShowMoaOnly", label: "只官方 MOA", default: true },
-    { kind: "toggle", name: "aquacultureWaterUnionShowOsmOnly", label: "只舊版 OSM", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowBoth", label: "兩版都有", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowMoaOnly", label: "只看官方", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowOsmOnly", label: "只看舊版 OSM", default: true },
   ],
   streetTreesTaipeiDiff: [
     {
@@ -2393,7 +3084,8 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "全部", value: "all" }, { label: "只看消失", value: "disappeared" }, { label: "只看變動", value: "changed" }],
       out: "streetTreesTaipeiDiffStatusIdx", encode: ["all", "disappeared", "changed"],
     },
-    { kind: "slider", name: "streetTreesTaipeiDiffOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("streetTreesTaipeiDiff"),
+    { kind: "slider", name: "streetTreesTaipeiDiffOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(99_527), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "streetTreesTaipeiDiffRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
   ],
   protectedTreesNational: [
@@ -2407,7 +3099,7 @@ export const LAYER_PARAMS_SPEC = {
       options: PROTECTED_TREE_CITIES.map((c) => ({ label: c.name, value: c.name })),
       out: "protectedTreesNationalCityMask",
     },
-    { kind: "slider", name: "protectedTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "protectedTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(6_544), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "protectedTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   riversideTreesTaipei: [
@@ -2416,7 +3108,8 @@ export const LAYER_PARAMS_SPEC = {
       options: RIVERSIDE_PARKS.map((n) => ({ label: n, value: n })),
       out: "riversideTreesTaipeiParkMask",
     },
-    { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("riversideTreesTaipei"),
+    { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(10_917), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "riversideTreesTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   parksTaipei: [
@@ -2425,7 +3118,7 @@ export const LAYER_PARAMS_SPEC = {
       options: TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name })),
       out: "parksTaipeiCategoryMask",
     },
-    { kind: "slider", name: "parksTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "parksTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(2_917), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "parksTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   culturalFacilities: [
@@ -2452,7 +3145,7 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }],
       out: "artsEventsStatusIdx", encode: ["all", "ongoing", "upcoming"],
     },
-    { kind: "slider", name: "artsEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "artsEventsOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(6_121), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "artsEventsRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   tourAttractions: [
@@ -2461,7 +3154,7 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "分類", value: "category" }, { label: "熱度", value: "heat" }],
       out: "tourAttractionsModeIdx", encode: ["category", "heat"],
     },
-    { kind: "slider", name: "tourAttractionsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "tourAttractionsOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(6_070), min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "tourAttractionsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   tourEvents: [
@@ -2479,7 +3172,8 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }],
       out: "tourHotelsClassMask",
     },
-    { kind: "slider", name: "tourHotelsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    heatmapPalette("tourHotels"),
+    { kind: "slider", name: "tourHotelsOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(15_654), min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "tourHotelsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   streetTreesTaipei3epoch: [
@@ -2493,7 +3187,8 @@ export const LAYER_PARAMS_SPEC = {
       options: STREET_TREE_3EPOCH_TRAJ_FILTERS.map((f) => ({ label: f.label, value: f.value })),
       out: "streetTreesTaipei3epochTrajFilterIdx", encode: STREET_TREE_3EPOCH_TRAJ_FILTERS.map((o) => o.value),
     },
-    { kind: "slider", name: "streetTreesTaipei3epochOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("streetTreesTaipei3epoch"),
+    { kind: "slider", name: "streetTreesTaipei3epochOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(105_675), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "streetTreesTaipei3epochRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
   ],
   streetTreesNational: [
@@ -2507,7 +3202,8 @@ export const LAYER_PARAMS_SPEC = {
       options: STREET_TREE_NATIONAL_CITIES.map((c) => ({ label: c.label, value: c.value })),
       out: "streetTreesNationalCityMask",
     },
-    { kind: "slider", name: "streetTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    heatmapPalette("streetTreesNational"),
+    { kind: "slider", name: "streetTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(210_436), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "streetTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
   ],
   treePitsTaipei: [
@@ -2565,12 +3261,13 @@ export const LAYER_PARAMS_SPEC = {
   // ── 交通/設施點層：大小 ＋ 透明度 ＋ Z 漂浮 ──
   cctv: [
     scaleSlider("cctvScale", 1),
-    opacitySlider("cctvOpacity", 0.7),
+    opacitySlider("cctvOpacity", densePointOpacity(6_129)),
     zFloatSlider("cctvZ"),
   ],
   fireHydrants: [
     scaleSlider("fireHydrantsScale", 1),
-    opacitySlider("fireHydrantsOpacity", 0.7),
+    heatmapPalette("fireHydrants"),
+    opacitySlider("fireHydrantsOpacity", densePointOpacity(69_839)),
     zFloatSlider("fireHydrantsZ"),
   ],
   etcGantry: [
@@ -2591,13 +3288,14 @@ export const LAYER_PARAMS_SPEC = {
   agriculture: [
     opacitySlider("agricultureOpacity", 1),
     { kind: "slider", name: "agricultureOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 1, min: 0, max: 5, step: 0.1 },
-    { kind: "toggle", name: "agricultureShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "agricultureShowOutline", label: "邊框", default: true },
     zFloatSlider("agricultureZ"),
   ],
   wasteStopsStatic: [
     // ⚠️ 大小是 2 位小數（不是 scaleSlider 的 1 位）—— 同名不同形，不可複用建構子
     { kind: "slider", name: "wasteStopsStaticScale", labelPrefix: "大小", digits: 2, default: 1, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "wasteStopsStaticGlow", labelPrefix: "光暈", digits: 2, default: 0.1, min: 0, max: 0.5, step: 0.02 },
+    heatmapPalette("wasteStopsStatic"),
     opacitySlider("wasteStopsStaticOpacity", 1),
     zFloatSlider("wasteStopsStaticZ"),
   ],
@@ -2662,7 +3360,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   precipRaster: [
-    opacitySlider("precipRasterOpacity", 0.6),
+    { kind: "slider", name: "precipRasterOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 },
     {
       kind: "select", name: "precipRasterHours", label: "累積時長", default: "24",
       options: [
@@ -2761,10 +3459,10 @@ export const LAYER_PARAMS_SPEC = {
       out: "agriCropSuitabilityCropId", encodeNumeric: true,
     },
   ],
-  livestockFarmPig: livestockFarm("livestockFarmPig"),
-  livestockFarmChicken: livestockFarm("livestockFarmChicken"),
+  livestockFarmPig: livestockFarm("livestockFarmPig", densePointOpacity(4_584)),
+  livestockFarmChicken: livestockFarm("livestockFarmChicken", densePointOpacity(5_176)),
   livestockFarmCattle: livestockFarm("livestockFarmCattle"),
-  livestockFarmDuck: livestockFarm("livestockFarmDuck"),
+  livestockFarmDuck: livestockFarm("livestockFarmDuck", densePointOpacity(1_305)),
   livestockFarmGoose: livestockFarm("livestockFarmGoose"),
   livestockFarmSheep: livestockFarm("livestockFarmSheep"),
   livestockFarmOther: livestockFarm("livestockFarmOther"),
@@ -2777,7 +3475,7 @@ export const LAYER_PARAMS_SPEC = {
 
   buildingsGba: [
     {
-      kind: "select", name: "buildingsGbaModeIdx", label: "顯示模式", default: "0",
+      kind: "select", name: "buildingsGbaModeIdx", label: "顯示模式", default: "0", category: "look", // 高度分級／3D／夜景是外觀
       options: [...BUILDINGS_GBA_MODES],
       // 存的是模式編號本身（手寫版是 `parseInt(v, 10)` 直接進 overlayParams）
       out: "buildingsGbaModeIdx", encodeNumeric: true,
@@ -2788,6 +3486,11 @@ export const LAYER_PARAMS_SPEC = {
     {
       kind: "slider", name: "buildingsGbaBloomMinHeight", labelPrefix: "Bloom 高樓門檻 ≥", digits: 0, labelSuffix: " m",
       default: 100, min: 40, max: 200, step: 10,
+      showWhen: { param: "buildingsGbaModeIdx", equals: "3" },
+    },
+    // R6 段 1（2026-10-05）：夜景模式的 Three.js 高樓 bloom 改為選配（只在夜景模式出現）
+    {
+      kind: "toggle", name: "buildingsGbaBloom", label: "立體效果", default: false, out: null,
       showWhen: { param: "buildingsGbaModeIdx", equals: "3" },
     },
   ],
@@ -2815,16 +3518,18 @@ export const LAYER_PARAMS_SPEC = {
       },
       out: "propertyValueGridModeIdx", encodeNumeric: true,
     },
+    gridPalette("propertyValueGridPalette", "YlOrBr", { showWhen: { param: "propertyValueGridModeIdx", equals: "0" } }),
+    gridPalette("propertyValueGridPerCapitaPalette", "viridis", { showWhen: { param: "propertyValueGridModeIdx", equals: "1" } }),
     { kind: "slider", name: "propertyValueGridOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
     { kind: "toggle", name: "propertyValueGridExtruded", label: "3D 立體", default: false },
     {
-      kind: "slider", name: "propertyValueGridContrast", labelPrefix: "對比 Contrast", digits: 1,
+      kind: "slider", name: "propertyValueGridContrast", labelPrefix: "對比", digits: 1,
       default: 1.8, min: 0.5, max: 4, step: 0.1,
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
     {
-      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "整體高度 Height", digits: 0,
-      default: 40, min: 10, max: 400, step: 10,
+      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "高度倍率", digits: 2,
+      default: EXTRUSION.heightMultiplier, min: 0.25, max: 10, step: 0.25,
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
   ],
@@ -2873,14 +3578,14 @@ export const LAYER_PARAMS_SPEC = {
 
   earthquakes: [
     {
-      kind: "slider", name: "eqOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "eqOpacity", labelPrefix: "透明度", digits: 2,
       default: 1.0, min: 0, max: 1, step: 0.05, out: null,
     },
     // ⚠️ 參數名**不**沿用舊 useState 的 `eqShowHistory` —— 那是 boolean，
     //    而控件本體是 select（`"timeline"` / `"history"`）。hook 端還原成
     //    `eqShowHistory = value === "history"` 再回傳，回傳 API 一字未動。
     {
-      kind: "select", name: "eqMode", label: "Mode", default: "timeline",
+      kind: "select", name: "eqMode", label: "模式", default: "timeline",
       options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }],
       out: null,
     },
@@ -2894,7 +3599,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   roadEvents: [
     {
-      kind: "slider", name: "reOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "reOpacity", labelPrefix: "透明度", digits: 2,
       default: 1.0, min: 0, max: 1, step: 0.05, out: null,
     },
   ],
@@ -2915,7 +3620,7 @@ export const LAYER_PARAMS_SPEC = {
     // 單日沒有東西可掃 → 回放只在疊加 > 單日時有意義
     { kind: "toggle", name: "plaReplay", label: "回放", default: false, out: null },
     {
-      kind: "slider", name: "plaOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "plaOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.6, min: 0, max: 1, step: 0.05, out: null,
     },
     // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
@@ -2947,20 +3652,20 @@ export const LAYER_PARAMS_SPEC = {
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
   cwaCloudImagery: [
     {
-      kind: "slider", name: "cwaCloudOpacity", labelPrefix: "Opacity", digits: 2,
-      default: 1.0, min: 0, max: 1, step: 0.05, out: null,
+      kind: "slider", name: "cwaCloudOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   cwaRadarImagery: [
     {
-      kind: "slider", name: "cwaRadarOpacity", labelPrefix: "Opacity", digits: 2,
-      default: 0.85, min: 0, max: 1, step: 0.05, out: null,
+      kind: "slider", name: "cwaRadarOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   aqiImagery: [
     {
-      kind: "slider", name: "aqiImageryOpacity", labelPrefix: "Opacity", digits: 2,
-      default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
+      kind: "slider", name: "aqiImageryOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05, out: null,
     },
   ],
   aqiMicroSensors: [
@@ -2973,7 +3678,6 @@ export const LAYER_PARAMS_SPEC = {
       options: MICRO_SENSOR_MODES,
       out: "aqiMicroModeIdx", encodeNumeric: true,
     },
-    { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
     opacitySlider("aqiMicroOpacity", 1),
   ],
 
@@ -2990,7 +3694,7 @@ export const LAYER_PARAMS_SPEC = {
   noiseCaptureGrid: [opacitySlider("noiseCaptureGridOpacity", 0.75)],
   noiseControlZones: [opacitySlider("noiseControlZonesOpacity", 0.65)],
   aviationNoiseZones: [opacitySlider("aviationNoiseZonesOpacity", 0.65)],
-  noiseEnforcementEvents: [opacitySlider("noiseEnforcementEventsOpacity", 0.8)],
+  noiseEnforcementEvents: [heatmapPalette("noiseEnforcementEvents"), opacitySlider("noiseEnforcementEventsOpacity", densePointOpacity(29_661))],
   soundCameraLocations: [
     opacitySlider("soundCameraLocationsOpacity", 0.9),
     {
@@ -2998,6 +3702,194 @@ export const LAYER_PARAMS_SPEC = {
       default: "all", options: [...SOUND_CAMERA_PRECISIONS],
       out: "soundCameraLocationsPrecisionIdx",
       encode: SOUND_CAMERA_PRECISIONS.map((precision) => precision.value),
+    },
+  ],
+
+  // ── 水質與污水：等級／類型 select 轉 index，供 registry filter 重建 ──
+  riverRpiStations: [
+    opacitySlider("riverRpiStationsOpacity", 0.9),
+    scaleSlider("riverRpiStationsScale", 1),
+    {
+      kind: "select", name: "riverRpiStationsClass", label: "污染等級",
+      default: "all", options: [...RIVER_RPI_FILTER_OPTIONS],
+      out: "riverRpiStationsClassIdx",
+      encode: RIVER_RPI_FILTER_OPTIONS.map((option) => option.value),
+    },
+  ],
+  waterQualityStations: [
+    opacitySlider("waterQualityStationsOpacity", 0.85),
+    scaleSlider("waterQualityStationsScale", 1),
+    {
+      kind: "select", name: "waterQualityStationsType", label: "測站類型",
+      default: "all", options: [...WATER_QUALITY_STATION_FILTER_OPTIONS],
+      out: "waterQualityStationsTypeIdx",
+      encode: WATER_QUALITY_STATION_FILTER_OPTIONS.map((option) => option.value),
+    },
+  ],
+  sewageTreatmentPlants: [
+    opacitySlider("sewageTreatmentPlantsOpacity", 0.9),
+    scaleSlider("sewageTreatmentPlantsScale", 1),
+  ],
+  drinkingWaterProtectionZones: [opacitySlider("drinkingWaterProtectionZonesOpacity", 0.65)],
+
+  // ── 環境第二波：點層一律透明度＋大小；RPI 河段可切「最新一次／近 12 月平均」著色（paint diff，不重建）──
+  seaWaterQualityStations: [opacitySlider("seaWaterQualityStationsOpacity", 0.9), scaleSlider("seaWaterQualityStationsScale", 1)],
+  pm25ManualStations: [opacitySlider("pm25ManualStationsOpacity", 0.9), scaleSlider("pm25ManualStationsScale", 1)],
+  dioxinStations: [opacitySlider("dioxinStationsOpacity", 0.9), scaleSlider("dioxinStationsScale", 1)],
+  incineratorEmissions: [opacitySlider("incineratorEmissionsOpacity", 0.9), scaleSlider("incineratorEmissionsScale", 1)],
+  nuscGammaRadiation: [opacitySlider("nuscGammaRadiationOpacity", 0.9), scaleSlider("nuscGammaRadiationScale", 1)],
+  waterEffluentLive: [opacitySlider("waterEffluentLiveOpacity", 0.9), scaleSlider("waterEffluentLiveScale", 1)],
+  cemsStackLive: [opacitySlider("cemsStackLiveOpacity", 0.9), scaleSlider("cemsStackLiveScale", 1)],
+  cwaUvDaily: [opacitySlider("cwaUvDailyOpacity", 0.9), scaleSlider("cwaUvDailyScale", 1)],
+  // ── 日本氣象廳即時 4 層：點層透明度＋大小；AMeDAS 可切觀測項目（積雪只畫有積雪計的站 → filter 需重建）──
+  jmaAmedas: [
+    opacitySlider("jmaAmedasOpacity", 0.9), scaleSlider("jmaAmedasScale", 1),
+    {
+      kind: "select", name: "jmaAmedasMode", label: "指標", default: "temp",
+      options: JMA_AMEDAS_MODES.map(({ label, value }) => ({ label, value })),
+      out: "jmaAmedasModeIdx", encode: JMA_AMEDAS_MODES.map((mode) => mode.value),
+    },
+  ],
+  jmaWarnings: [
+    opacitySlider("jmaWarningsOpacity", 0.55),
+    {
+      kind: "select", name: "jmaWarningsKind", label: "種類", default: "all",
+      options: JMA_WARNING_KINDS.map(({ label, value }) => ({ label, value })),
+      out: "jmaWarningsKindIdx", encode: JMA_WARNING_KINDS.map((k) => k.value),
+    },
+  ],
+  jmaQuakes: [opacitySlider("jmaQuakesOpacity", 0.85), scaleSlider("jmaQuakesScale", 1)],
+  jmaVolcanoes: [opacitySlider("jmaVolcanoesOpacity", 0.9), scaleSlider("jmaVolcanoesScale", 1)],
+  // ── JMA／環境省 時間軸點位與區域（P4）：落雷沿用台灣落雷控件；物候可切現象（filter 需重建）──
+  jmaLightning: [
+    { kind: "slider", name: "jmaLightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
+    opacitySlider("jmaLightningOpacity", 0.85),
+    scaleSlider("jmaLightningScale", 1),
+  ],
+  jmaWbgt: [opacitySlider("jmaWbgtOpacity", 0.9), scaleSlider("jmaWbgtScale", 1)],
+  jmaSnowcap: [opacitySlider("jmaSnowcapOpacity", 0.95), scaleSlider("jmaSnowcapScale", 1)],
+  jmaAutumnLeaves: [
+    {
+      kind: "select", name: "jmaAutumnLeavesPhenomenon", label: "現象", default: "015",
+      options: JMA_AUTUMN_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaAutumnLeavesPhenomenonIdx", encode: JMA_AUTUMN_PHENOMENA.map((p) => p.value),
+    },
+    opacitySlider("jmaAutumnLeavesOpacity", 0.9), scaleSlider("jmaAutumnLeavesScale", 1),
+  ],
+  jmaSakura: [
+    {
+      kind: "select", name: "jmaSakuraPhenomenon", label: "現象", default: "004",
+      options: JMA_SAKURA_PHENOMENA.map(({ label, value }) => ({ label, value })),
+      out: "jmaSakuraPhenomenonIdx", encode: JMA_SAKURA_PHENOMENA.map((p) => p.value),
+    },
+    opacitySlider("jmaSakuraOpacity", 0.9), scaleSlider("jmaSakuraScale", 1),
+  ],
+  jmaRainySeason: [opacitySlider("jmaRainySeasonOpacity", 0.55)],
+  // JMA 發布幀影像（image source＋raster-color）：raster 透明度 SSOT；走 overlayParams（host 用 useKeyOverlayParams 讀）
+  jmaSnowDepth: [
+    {
+      kind: "slider", name: "jmaSnowDepthOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRadar: [
+    {
+      kind: "slider", name: "jmaRadarOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRasrf: [
+    {
+      kind: "slider", name: "jmaRasrfOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskLand: [
+    {
+      kind: "slider", name: "jmaRiskLandOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaRiskInund: [
+    {
+      kind: "slider", name: "jmaRiskInundOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaUvIndex: [
+    {
+      kind: "slider", name: "jmaUvIndexOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSst: [
+    {
+      kind: "slider", name: "jmaSstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaSeaIce: [
+    {
+      kind: "slider", name: "jmaSeaIceOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaHimawari: [
+    {
+      kind: "slider", name: "jmaHimawariOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaSnowFirst: [
+    {
+      kind: "slider", name: "jmaAnaSnowFirstOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaSnowDays: [
+    {
+      kind: "slider", name: "jmaAnaSnowDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRainDays: [
+    {
+      kind: "slider", name: "jmaAnaRainDaysOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskLandHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskLandHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  jmaAnaRiskInundHours: [
+    {
+      kind: "slider", name: "jmaAnaRiskInundHoursOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+  ],
+  // 上游直連（P5）：GIBS 衛星雪覆蓋 raster＋產品切換；洪水キキクル line。黃砂是圖片面板，無控件。
+  gibsSnowCover: [
+    {
+      kind: "slider", name: "gibsSnowCoverOpacity", labelPrefix: "透明度", digits: 2,
+      default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05,
+    },
+    {
+      kind: "select", name: "gibsSnowCoverProduct", label: "資料源", default: "modis_terra",
+      options: GIBS_SNOW_PRODUCTS.map(({ label, value }) => ({ label, value })),
+      out: "gibsSnowCoverProductIdx", encode: GIBS_SNOW_PRODUCTS.map((p) => p.value),
+    },
+  ],
+  jmaRiskFlood: [opacitySlider("jmaRiskFloodOpacity", JMA_FLOOD_OPACITY)],
+  riverRpiSegments: [
+    opacitySlider("riverRpiSegmentsOpacity", 0.85),
+    {
+      kind: "select", name: "riverRpiSegmentsMode", label: "著色依據",
+      default: "latest", options: RIVER_RPI_SEGMENT_MODES.map(({ label, value }) => ({ label, value })),
+      out: "riverRpiSegmentsModeIdx",
+      encode: RIVER_RPI_SEGMENT_MODES.map((mode) => mode.value),
     },
   ],
 
@@ -3040,19 +3932,19 @@ export const LAYER_PARAMS_SPEC = {
   flights: [
     // Alt ×3.0：前綴自帶 `×`、與數字之間沒有空白 → labelSep ""
     {
-      kind: "slider", name: "altExaggeration", labelPrefix: "Alt ×", labelSep: "", digits: 1,
+      kind: "slider", name: "altExaggeration", labelPrefix: "高度倍率 ×", labelSep: "", digits: 1,
       default: 3, min: 1, max: 5, step: 0.5, out: null,
     },
     {
-      kind: "slider", name: "altOffset", labelPrefix: "Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "altOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 50, min: 0, max: 200, step: 50, out: null,
     },
     {
-      kind: "slider", name: "staticOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "staticOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.1, min: 0.02, max: 0.5, step: 0.02, out: null,
     },
     {
-      kind: "slider", name: "orbScale", labelPrefix: "Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "orbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.000005, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
   ],
@@ -3065,31 +3957,43 @@ export const LAYER_PARAMS_SPEC = {
   ],
   ships: [
     {
-      kind: "slider", name: "shipOrbScale", labelPrefix: "Ship Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "shipOrbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.000003, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
     },
     {
-      kind: "slider", name: "shipTrailOpacity", labelPrefix: "Ship Trail", digits: 2,
+      kind: "slider", name: "shipTrailOpacity", labelPrefix: "航跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
   ],
   rail: [
-    { kind: "toggle", name: "railTrainVisible", label: "Train", default: true, out: null },
+    { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },
+    // R6 段 3（2026-10-06）：列車的立體效果（Three.js 光球＋3 分鐘拖尾）；關＝Mapbox 平面點、拉近換方向箭頭。
+    // 移動物件預設立體（G-1 2026-10-05 修訂）。2026-10-09 決議：列車平面時軌道有效值一律 2D
+    // （箭頭與 Mapbox 軌道線對齊），不改寫下方 railTrackMode 的存值；立體開時恢復使用者原設定。
     {
-      kind: "select", name: "railTrackMode", label: "Track", default: "3d",
+      kind: "toggle", name: "railTrain3D", label: "立體效果", default: true, out: null,
+      showWhen: { param: "railTrainVisible", equals: true },
+    },
+    {
+      kind: "select", name: "railTrackMode", label: "軌道", default: "3d",
       options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }],
+      // 列車平面時 3D 停用並附原因（存值為 3d 時選單顯示「3D（列車平面時用 2D）」）；
+      // 實際畫法由 effectiveRailTrackMode() 推導，兩邊同一條規則
+      disableRule: { option: "3d", param: "railTrain3D", enabledWhenIn: ["true"], reason: "（列車平面時用 2D）" },
       out: null,
     },
+    // 高度只抬 Three.js 光球與 3D 軌道；列車平面時兩者都不畫（軌道有效值 2D），滑桿收起
     {
-      kind: "slider", name: "railAltOffset", labelPrefix: "Rail Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "railAltOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 110, min: 0, max: 500, step: 10, out: null,
+      showWhen: { param: "railTrain3D", equals: true },
     },
     {
-      kind: "slider", name: "railOrbScale", labelPrefix: "Rail Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "railOrbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.00001, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
     },
     {
-      kind: "slider", name: "railTrackOpacity", labelPrefix: "Rail Trk", digits: 2,
+      kind: "slider", name: "railTrackOpacity", labelPrefix: "軌道透明度", digits: 2,
       default: 0.35, min: 0.05, max: 1, step: 0.05, out: null,
     },
   ],
@@ -3098,11 +4002,11 @@ export const LAYER_PARAMS_SPEC = {
     busGroupMultiSelect(),
     busColorSelect("busColorMode"),
     {
-      kind: "slider", name: "busAltOffset", labelPrefix: "Bus Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "busAltOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "busOrbScale", labelPrefix: "Bus Orb", digits: 0, displayScale: 1000000,
+      kind: "slider", name: "busOrbScale", labelPrefix: "光點", digits: 0, displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
     opacitySlider("busOpacity", 1),
@@ -3110,11 +4014,11 @@ export const LAYER_PARAMS_SPEC = {
   busIntercityLive: [
     busColorSelect("busIntercityColorMode"),
     {
-      kind: "slider", name: "busIntercityAltOffset", labelPrefix: "InterCity Z +", labelSep: "",
+      kind: "slider", name: "busIntercityAltOffset", labelPrefix: "高度 +", labelSep: "",
       digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "busIntercityOrbScale", labelPrefix: "InterCity Orb", digits: 0,
+      kind: "slider", name: "busIntercityOrbScale", labelPrefix: "光點", digits: 0,
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
@@ -3123,15 +4027,15 @@ export const LAYER_PARAMS_SPEC = {
   touristShuttleLive: [
     busColorSelect("touristShuttleColorMode"),
     {
-      kind: "slider", name: "touristShuttleOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "touristShuttleOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0.2, max: 1, step: 0.05, out: null,
     },
     {
-      kind: "slider", name: "touristShuttleAltOffset", labelPrefix: "Shuttle Z +", labelSep: "",
+      kind: "slider", name: "touristShuttleAltOffset", labelPrefix: "高度 +", labelSep: "",
       digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "touristShuttleOrbScale", labelPrefix: "Shuttle Orb", digits: 0,
+      kind: "slider", name: "touristShuttleOrbScale", labelPrefix: "光點", digits: 0,
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
@@ -3139,17 +4043,20 @@ export const LAYER_PARAMS_SPEC = {
   lighthouses: [
     // ⚠️ 只有 lighthouseScale 走 overlayParams（paint 吃），三個光束參數全是 Three.js ref
     {
-      kind: "slider", name: "lighthouseScale", labelPrefix: "LH", digits: 1,
+      kind: "slider", name: "lighthouseScale", labelPrefix: "大小", digits: 1,
       default: 0.6, min: 0.3, max: 3, step: 0.1,
     },
-    { kind: "toggle", name: "beamVisible", label: "Beam", default: true, out: null },
+    // R6 段 1（2026-10-05）：參數名沿用（會員場景相容），label 統一、預設關
+    { kind: "toggle", name: "beamVisible", label: "立體效果", default: false, out: null },
     {
-      kind: "slider", name: "beamDistance", labelPrefix: "Dist", digits: 1,
+      kind: "slider", name: "beamDistance", labelPrefix: "光束距離", digits: 1,
       default: 0.9, min: 0.2, max: 3, step: 0.1, out: null,
+      showWhen: { param: "beamVisible", equals: true },
     },
     {
-      kind: "slider", name: "beamOpacity", labelPrefix: "Opa", digits: 2,
+      kind: "slider", name: "beamOpacity", labelPrefix: "光束透明度", digits: 2,
       default: 0.1, min: 0.05, max: 0.8, step: 0.05, out: null,
+      showWhen: { param: "beamVisible", equals: true },
     },
   ],
   // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
@@ -3157,24 +4064,25 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("thsrOpacity", 1),
     hubDisplayModeSelect("thsrDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
+    { kind: "toggle", name: "thsrPillarVisible", label: "立體效果", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
     opacitySlider("traOpacity", 1),
     hubDisplayModeSelect("traDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
+    { kind: "toggle", name: "traPillarVisible", label: "立體效果", default: false, out: null }, // 2026-09-28 使用者：預設關
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
     opacitySlider("metroOpacity", 1),
-    hubDisplayModeSelect("metroDisplayMode", "point", true),
+    // 捷運沒有站體面資料：「實際範圍」用光暈示意站點範圍（2026-09-28 使用者）
+    hubDisplayModeSelect("metroDisplayMode", "point", false, "實際範圍（光暈示意）"),
     stationScaleSlider(),
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
     {
-      kind: "toggle", name: "metroPillarVisible", label: "Pillar", default: false,
+      kind: "toggle", name: "metroPillarVisible", label: "立體效果", default: false,
       out: "metroPillar3d",
     },
     pillarHeightSlider("metroPillarHeight", 0.2),
@@ -3183,8 +4091,8 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("portOpacity", 1),
     hubDisplayModeSelect("portDisplayMode"),
     scaleSlider("portScale", 1),
-    { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
+    { kind: "slider", name: "portGlow", labelPrefix: "光暈", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "portPillarVisible", label: "立體效果", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
   ],
   airports: [
@@ -3192,42 +4100,49 @@ export const LAYER_PARAMS_SPEC = {
     hubDisplayModeSelect("airportDisplayMode"),
     scaleSlider("airportScale", 1),
     {
-      kind: "slider", name: "airportGlow", labelPrefix: "Glow", digits: 1,
+      kind: "slider", name: "airportGlow", labelPrefix: "光暈", digits: 1,
       default: 0.8, min: 0, max: 2, step: 0.1,
     },
-    { kind: "toggle", name: "airportPillarVisible", label: "Pillar", default: false, out: null },
+    { kind: "toggle", name: "airportPillarVisible", label: "立體效果", default: false, out: null },
     pillarHeightSlider("airportPillarHeight", 0.6),
   ],
   // 消防分隊：散點（Mapbox circle）與 3D 光柱（Three.js）各自開關 → 前者走 paint、後者走 ref
   fireStations: [
     { kind: "toggle", name: "fireStationsDots", label: "散點", default: true },
-    { kind: "toggle", name: "fireStations3D", label: "3D 光柱波動", default: true, out: null },
+    { kind: "toggle", name: "fireStations3D", label: "立體效果", default: false, out: null }, // R6 段 1：預設關
     scaleSlider("fireStationsScale", 1),
     opacitySlider("fireStationsOpacity", 0.85),
     zFloatSlider("fireStationsZ"),
   ],
   temperatureWave: [
-    { kind: "toggle", name: "tempExtruded", label: "3D", default: true, out: null },
+    // R6 段 1（2026-10-05）：關閉立體時改畫 Mapbox 溫度網格（同 temperatureGrid 的原生 fill），
+    // 開啟才是 Three.js 溫度波；高度／離地高度／網格線只對 Three.js 有意義
+    { kind: "toggle", name: "tempExtruded", label: "立體效果", default: false, out: null },
     {
-      kind: "slider", name: "tempHeight", labelPrefix: "Height", digits: 0,
+      kind: "slider", name: "tempHeight", labelPrefix: "高度", digits: 0,
       default: 200, min: 0, max: 400, step: 20, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
     },
     {
-      kind: "slider", name: "tempZOffset", labelPrefix: "Z Offset", digits: 0,
+      kind: "slider", name: "tempZOffset", labelPrefix: "離地高度", digits: 0,
       default: 300, min: 0, max: 1000, step: 50, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
     },
     {
-      kind: "slider", name: "tempOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "tempOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0.1, max: 1, step: 0.05, out: null,
     },
-    { kind: "toggle", name: "tempWireframe", label: "Grid", default: false, out: null },
+    {
+      kind: "toggle", name: "tempWireframe", label: "網格線", default: false, out: null,
+      showWhen: { param: "tempExtruded", equals: true },
+    },
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),
     {
-      kind: "select", name: "newsMinRelevance", label: "相關度", default: "3",
+      kind: "select", name: "newsMinRelevance", label: "相關度", default: "2",
       options: [
         { label: "全部", value: "0" },
         { label: "地方+", value: "2" },
@@ -3245,10 +4160,10 @@ export const LAYER_PARAMS_SPEC = {
       out: null,
     },
     { kind: "toggle", name: "newsEventsOnly", label: "只看事件", default: true, out: null },
-    { kind: "toggle", name: "newsTimeBased", label: "Time", default: true, out: null },
-    { kind: "toggle", name: "newsRipple", label: "Ripple", default: true, out: null },
+    { kind: "toggle", name: "newsTimeBased", label: "依時間", default: true, out: null },
+    { kind: "toggle", name: "newsRipple", label: "漣漪", default: true, out: null },
     {
-      kind: "slider", name: "newsScale", labelPrefix: "Scale", digits: 1,
+      kind: "slider", name: "newsScale", labelPrefix: "大小", digits: 1,
       default: 1, min: 0.3, max: 3, step: 0.1,
     },
   ],
@@ -3263,7 +4178,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "toggle", name: "h3Extruded", label: "3D", default: false, out: null },
     gridHeightSlider("h3ElevationScale", 50),
     {
-      kind: "select", name: "h3Metric", label: "Metric", default: "day",
+      kind: "select", name: "h3Metric", label: "指標", default: "day",
       options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }],
       out: null,
     },
@@ -3298,12 +4213,12 @@ export const LAYER_PARAMS_SPEC = {
   ],
   youbikeFullness: [
     {
-      kind: "select", name: "ybResolution", label: "Grid", default: "7",
+      kind: "select", name: "ybResolution", label: "網格", default: "7",
       options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }],
       out: null,
     },
     {
-      kind: "select", name: "ybHeightMode", label: "Height", default: "mixed",
+      kind: "select", name: "ybHeightMode", label: "高度依據", default: "mixed",
       options: [
         { label: "有車×容量", value: "mixed" },
         { label: "有車率", value: "fullness" },
@@ -3313,7 +4228,7 @@ export const LAYER_PARAMS_SPEC = {
     },
     gridOpacitySlider("ybOpacity", 0.65),
     {
-      kind: "slider", name: "ybContrast", labelPrefix: "Contrast", digits: 1,
+      kind: "slider", name: "ybContrast", labelPrefix: "對比", digits: 1,
       default: 1, min: 0.3, max: 3, step: 0.1, out: null,
     },
     { kind: "toggle", name: "ybExtruded", label: "3D", default: true, out: null },
@@ -3322,7 +4237,8 @@ export const LAYER_PARAMS_SPEC = {
 
   // ── 環境污染：opacity / scale 走 paint，filter 狀態走 hook return ──
   pollutionFacility: [
-    opacitySlider("pollutionFacilityOpacity", 0.8),
+    heatmapPalette("pollutionFacility"),
+    opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),
     {
       kind: "slider", name: "pollutionFacilityScale", labelPrefix: "大小", digits: 2,
       default: 1, min: 0.3, max: 3, step: 0.1,
@@ -3337,20 +4253,29 @@ export const LAYER_PARAMS_SPEC = {
     ...FACILITY_MEDIA.map((m) => ({
       kind: "toggle" as const,
       name: `pollutionFacilityMedia_${m}`,
-      label: POLLUTION_MEDIUM_LABELS[m],
+      // 控件標籤只留中文（共用表是「空污 Air」中英並列，popup 仍用原表）
+      label: POLLUTION_MEDIUM_LABELS[m].replace(/\s+[A-Za-z]+$/, ""),
       default: true,
       out: null,
     })),
   ],
   // 裁處事件三層 fall-through：6 個控件全部共用同一份值
-  pollutionPenaltyCritical: penaltyControls(),
-  pollutionPenaltyGeneral: penaltyControls(),
-  pollutionPenaltyMobile: penaltyControls(),
+  pollutionPenaltyCritical: [heatmapPalette("pollutionPenaltyCritical"), ...penaltyControls()],
+  pollutionPenaltyGeneral: [heatmapPalette("pollutionPenaltyGeneral"), ...penaltyControls()],
+  pollutionPenaltyMobile: [heatmapPalette("pollutionPenaltyMobile"), ...penaltyControls()],
 
   // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
-  wasteTruck: [...wasteOrbSliders(), opacitySlider("wasteTruckOpacity", 1)],
+  wasteTruck: [
+    // 音符兩支滑桿與 wasteSchedule 共用同一份值；平面模式沒有音符 → 本 key 掛 showWhen 收起
+    // （2026-10-09 決議）。showWhen 只管渲染，wasteSchedule 那份不掛、值照樣兩邊同步。
+    ...wasteOrbSliders().map((s) => (s.name === "wasteOrbScale" ? s
+      : { ...s, showWhen: { param: "wasteTruck3D", equals: true } })),
+    opacitySlider("wasteTruckOpacity", 1),
+    // 移動物件預設立體（Three.js 光球＋音符）；關＝Mapbox 平面點、拉近換方向箭頭，音符不顯示
+    { kind: "toggle", name: "wasteTruck3D", label: "立體效果", default: true, out: null },
+  ],
   wasteSchedule: [
     ...busGroupToggles("wasteScheduleGroup", {
       TaipeiMetro: true, KeelungYilan: true, TaoyuanHsinchuMiaoli: true, CentralTaiwan: true,
@@ -3362,36 +4287,43 @@ export const LAYER_PARAMS_SPEC = {
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
   // 不能沿用巢狀物件裡的 `size` / `opacity` / `altitude`。
+  // R6 段 2（2026-10-06）：五類設施預設畫 Mapbox 平面圓點（類別色），「立體效果」開啟才疊 Three.js 造型
   wfIncinerator: [
     ...wasteSubSliders("wfIncinerator", 1.0, 0.85),
-    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+    wasteStereoToggle("wfIncinerator"),
+    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示；只畫在 Three.js 裡）
     {
       kind: "slider", name: "wfIncineratorRingSize", labelPrefix: "底圈", digits: 2,
       default: 1.0, min: 0, max: 4, step: 0.1, out: null,
+      showWhen: { param: "wfIncinerator3D", equals: true },
     },
   ],
-  wfLandfill: wasteSubSliders("wfLandfill", 1.0, 0.45),
-  wfLandfillCoastal: wasteSubSliders("wfLandfillCoastal", 1.0, 0.55),
-  wfTransfer: wasteSubSliders("wfTransfer", 1.0, 0.85),
-  wfMedical: wasteSubSliders("wfMedical", 1.0, 0.85),
-  wfMonitoring: wasteSubSliders("wfMonitoring", 1.0, 0.7),
+  wfLandfill: [...wasteSubSliders("wfLandfill", 1.0, 0.45), wasteStereoToggle("wfLandfill")],
+  wfLandfillCoastal: [...wasteSubSliders("wfLandfillCoastal", 1.0, 0.55), wasteStereoToggle("wfLandfillCoastal")],
+  wfTransfer: [...wasteSubSliders("wfTransfer", 1.0, 0.85), wasteStereoToggle("wfTransfer")],
+  wfMedical: [...wasteSubSliders("wfMedical", 1.0, 0.85), wasteStereoToggle("wfMedical")],
+  // R6 段 1（2026-10-05）：Three.js 監測井改為選配，預設只畫 Mapbox 點（其他 5 類設施不動）
+  wfMonitoring: [
+    ...wasteSubSliders("wfMonitoring", 1.0, 0.7),
+    { kind: "toggle", name: "wfMonitoring3D", label: "立體效果", default: false, out: null },
+  ],
   wfRecycling: wasteSubSliders("wfRecycling", 1.0, 0.85),
   wfScrapYard: wasteSubSliders("wfScrapYard", 1.0, 0.85),
-  wfOther: wasteSubSliders("wfOther", 1.0, 0.7),
-  wdClothes: wasteSubSliders("wdClothes", 1.0, 0.7),
-  wdMixed: wasteSubSliders("wdMixed", 1.0, 0.7),
+  wfOther: wasteSubSliders("wfOther", 1.0, densePointOpacity(4_530)),
+  wdClothes: wasteSubSliders("wdClothes", 1.0, densePointOpacity(7_236)),
+  wdMixed: wasteSubSliders("wdMixed", 1.0, densePointOpacity(6_368)),
   wdRecyclingContainer: wasteSubSliders("wdRecyclingContainer", 1.0, 0.85),
   wdBattery: wasteSubSliders("wdBattery", 1.5, 0.9),
 
   // 污染場址：opacity / scale 走 paint，「只看列管中」是 filter → hook return
   pollutionSite: [
-    opacitySlider("pollutionSiteOpacity", 0.9),
+    opacitySlider("pollutionSiteOpacity", densePointOpacity(8_253)),
     {
       kind: "slider", name: "pollutionSiteScale", labelPrefix: "大小", digits: 2,
       default: 1, min: 0.3, max: 3, step: 0.1,
     },
     {
-      kind: "toggle", name: "pollutionSiteActiveOnly", label: "只看列管中 Active",
+      kind: "toggle", name: "pollutionSiteActiveOnly", label: "只看列管中",
       default: true, out: null,
     },
   ],
@@ -3403,6 +4335,13 @@ export const LAYER_PARAMS_SPEC = {
  * `keyof LayerVisibility` 全集，`MigratedParamsKey` 就退化成 348 key，
  * 雙軌判別式跟著失效（同 `LAYER_MANIFEST` 的 `ManifestKey` 那道護欄）。
  */
+// 統計（圖層面板統一 C 段）：每個統計 key 在透明度前補上連動選單（群組「指標」、指標、期別、各維度）。
+// 規格由 recipe catalog 派生（`statisticsParamsSpec.ts`），不逐層手寫；值在 `regionalStatisticsStore`。
+for (const key of STATISTICS_RENDER_KEYS) {
+  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
+  if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...specs];
+}
+
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;
 
 export const MIGRATED_PARAMS_KEYS = Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[];
@@ -3427,7 +4366,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select" || spec.kind === "multiSelect") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -3463,9 +4402,24 @@ export function resolveParamValues(
 export function visibleParamsSpec(
   spec: readonly LayerParamSpec[],
   values: LayerParamValues,
+  linkedHidden?: (spec: LinkedSelectParamSpec) => boolean,
 ): LayerParamSpec[] {
   const resolved = resolveParamValues(spec, values);
-  return spec.filter((s) => !s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals);
+  return spec.filter((s) => (!s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals)
+    && !(s.kind === "linkedSelect" && linkedHidden?.(s)));
+}
+
+/**
+ * 面板上的實際順序（P5，spec §5.11）：可見控件依類別穩定排序。
+ * `buildParamControls` 與 Agent 端 `research/layerControls.ts` 都用這支，兩邊逐位對得上
+ * （research 端靠位置把沒有 name 的控件對回 spec）。manifest `params.kinds` 仍比宣告順序，不比這個。
+ */
+export function orderedVisibleParamsSpec(
+  spec: readonly LayerParamSpec[],
+  values: LayerParamValues,
+  linkedHidden?: (spec: LinkedSelectParamSpec) => boolean,
+): LayerParamSpec[] {
+  return visibleParamsSpec(spec, values, linkedHidden).sort((a, b) => paramControlRank(a) - paramControlRank(b));
 }
 
 /**
@@ -3477,11 +4431,14 @@ export function visibleParamsSpec(
 export function resolveSelectOptions(
   spec: SelectParamSpec,
   resolved: LayerParamValues,
+  /** 顯示層翻譯（面板傳 `paramText`）；省略＝原中文，Agent 與黃金快照走這條 */
+  tx?: (zh: string) => string,
 ): ParamSelectOption[] {
   const dyn = spec.optionsByParam;
-  const options = dyn
+  const source = dyn
     ? (dyn.byValue[String(resolved[dyn.param] ?? "")] ?? dyn.byValue[dyn.fallback] ?? spec.options)
     : spec.options;
+  const options = tx ? source.map((o) => ({ ...o, label: tx(o.label) })) : source;
   const rule = spec.disableRule;
   if (!rule) return options;
   const enabled = rule.enabledWhenIn.includes(String(resolved[rule.param] ?? ""));
@@ -3489,7 +4446,7 @@ export function resolveSelectOptions(
   //    只在停用時才加這個 key 會讓黃金快照的 params section 紅。
   return options.map((o) => {
     const disabled = o.value === rule.option && !enabled;
-    return { label: disabled ? `${o.label}${rule.reason}` : o.label, value: o.value, disabled };
+    return { label: disabled ? `${o.label}${tx ? tx(rule.reason) : rule.reason}` : o.label, value: o.value, disabled };
   });
 }
 
@@ -3560,5 +4517,10 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
     case "multiSelect":
       if (spec.out !== null) return encodeMultiSelectBitmask(String(value), spec.options);
       throw new Error(`multiSelect "${spec.name}" 宣告 out: null（資料篩選通道），不該被編碼`);
+    case "palette":
+      // 色盤不進 overlayParams（out 恆為 null，見 PaletteParamSpec）
+      throw new Error(`palette "${spec.name}" 不進 overlayParams，不該被編碼`);
+    case "linkedSelect":
+      throw new Error(`linkedSelect "${spec.name}" 的值在 provider，不進 overlayParams`);
   }
 }

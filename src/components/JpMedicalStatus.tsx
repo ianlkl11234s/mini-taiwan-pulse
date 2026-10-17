@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { getJpMedicalRuntime, retryJpMedicalCatalog, subscribeJpMedicalRuntime } from "../data/jpMedicalLoader";
 import { JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
+import { Z_INDEX } from "../styles/designTokens";
 
 const number = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "未提供";
 const date = (value: unknown) => typeof value === "string" ? value.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3") : "未提供";
@@ -35,7 +36,8 @@ export function JpMedicalStatus({ kind, layerKey }: { kind: "facilities" | "care
 export function JpMedicalAlert() {
   const runtime = useSyncExternalStore(subscribeJpMedicalRuntime, getJpMedicalRuntime, getJpMedicalRuntime);
   if (runtime.status !== "error") return null;
-  return <div role="alert" style={{ position: "absolute", top: 100, right: 16, zIndex: 50, maxWidth: "min(340px, 85vw)", padding: 12, background: "#451a1a", color: "#fff", borderRadius: 8 }}>
+  // 層級 popover：在工具列選單之上（LayerHosts 最後渲染），但在說明／分享等置中視窗之下（design-system §5.25）
+  return <div role="alert" style={{ position: "absolute", top: 100, right: 16, zIndex: Z_INDEX.popover, maxWidth: "min(340px, 85vw)", padding: 12, background: "#451a1a", color: "#fff", borderRadius: 8 }}>
     日本醫療資料載入失敗：{runtime.error}<br />
     <button onClick={retryJpMedicalCatalog}>重試醫療資料</button>
   </div>;

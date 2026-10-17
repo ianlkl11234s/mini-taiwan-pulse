@@ -16,9 +16,11 @@ import {
   geojsonSourceOptions,
   applyLayerOpacity,
   isJpHeightManagedOverlay,
+  updateAllOverlayThemes,
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 // ── 純函式 ──
@@ -201,6 +203,7 @@ interface Call { method: string; args: unknown[] }
 function createMockMap() {
   const sources = new Map<string, Record<string, unknown>>();
   const layers = new Map<string, { visibility: string }>();
+  const layerSpecs = new Map<string, { id: string; filter?: unknown }>();
   const calls: Call[] = [];
   const map = {
     getSource: (id: string) => sources.get(id),
@@ -209,9 +212,10 @@ function createMockMap() {
       sources.set(id, {});
     },
     getLayer: (id: string) => (layers.has(id) ? {} : undefined),
-    addLayer: (spec: { id: string }) => {
+    addLayer: (spec: { id: string; filter?: unknown }) => {
       calls.push({ method: "addLayer", args: [spec.id] });
       layers.set(spec.id, { visibility: "visible" });
+      layerSpecs.set(spec.id, spec);
     },
     removeLayer: (id: string) => {
       calls.push({ method: "removeLayer", args: [id] });
@@ -222,10 +226,11 @@ function createMockMap() {
     },
     setLayoutProperty: (id: string, key: string, value: unknown) => {
       calls.push({ method: "setLayoutProperty", args: [id, key, value] });
+      if (key === "visibility") layers.get(id)!.visibility = String(value);
     },
     getLayoutProperty: (id: string) => layers.get(id)?.visibility,
   };
-  return { map: map as unknown as MapboxMap, calls, sources };
+  return { map: map as unknown as MapboxMap, calls, sources, layerSpecs };
 }
 
 const config: OverlayConfig = {
@@ -276,6 +281,54 @@ describe("updateOverlayTheme (diff-based)", () => {
       .filter((c) => c.method === "setPaintProperty")
       .map((c) => c.args[1]);
     expect(keys).toContain("line-color");
+  });
+
+  it("A0：隱藏 layer 的 paint 延後到重新顯示才寫入（避免 transition prior 卡住無限重畫）", () => {
+    const { map, calls } = createMockMap();
+    addOverlay(map, config, true, { waterRiverOpacity: 1, waterRiverWidth: 1 });
+    let vis = "none";
+    // mock setLayoutProperty 只記 call，visibility 由這裡控制
+    (map as unknown as { getLayoutProperty: (id: string) => string }).getLayoutProperty = () => vis;
+    calls.length = 0;
+
+    updateOverlayTheme(map, config, true, { waterRiverOpacity: 0.5, waterRiverWidth: 1 });
+    updateOverlayTheme(map, config, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+
+    vis = "visible";
+    setOverlayVisible(map, config, true, true);
+    expect(calls.filter((c) => c.method === "setPaintProperty").map((c) => c.args)).toEqual([
+      ["water-rivers-core", "line-opacity", 0.85 * 0.25],
+    ]);
+    // 已補套 → 再次顯示不重複寫
+    calls.length = 0;
+    setOverlayVisible(map, config, true, true);
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+  });
+
+});
+
+describe("updateAllOverlayThemes：隱藏圖層跳過、打開時補套（2026-10-01 效能）", () => {
+  it("隱藏的 overlay 換主題／拖滑桿不算 paint，打開時用最新主題與參數補套一次", () => {
+    const { map, calls } = createMockMap();
+    addOverlay(map, config, true, { waterRiverOpacity: 1, waterRiverWidth: 1 });
+    let vis = "none";
+    (map as unknown as { getLayoutProperty: (id: string) => string }).getLayoutProperty = () => vis;
+    calls.length = 0;
+
+    const hidden = { [config.id]: false } as unknown as Parameters<typeof updateAllOverlayThemes>[4];
+    updateAllOverlayThemes(map, [config], false, { waterRiverOpacity: 0.5, waterRiverWidth: 1 }, hidden);
+    updateAllOverlayThemes(map, [config], true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 }, hidden);
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
+
+    vis = "visible";
+    setOverlayVisible(map, config, true, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty").map((c) => c.args)).toEqual([
+      ["water-rivers-core", "line-opacity", 0.85 * 0.25],
+    ]);
+    calls.length = 0;
+    setOverlayVisible(map, config, true, true, { waterRiverOpacity: 0.25, waterRiverWidth: 1 });
+    expect(calls.filter((c) => c.method === "setPaintProperty")).toHaveLength(0);
   });
 });
 
@@ -341,14 +394,16 @@ describe("交通場站派生點位接線", () => {
     expect(entry?.layers.every((layer) => layer.type === "circle")).toBe(true);
   });
 
-  it("捷運保留原 detail layers，並在 z10 以下提供全台 overview 點", () => {
+  it("捷運：Mapbox 點位所有縮放都有點；實際範圍模式 z10 以下點、z10 以上範圍光暈", () => {
     const metro = OVERLAY_REGISTRY.filter((config) => config.id === "stationsMetro");
     const overview = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-overview-point-core"));
     const detail = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-pt-fill"));
     expect(overview?.sourceId).toBe("station-points");
+    // 2026-09-28：點位模式放大後也要有點，overview 不再限 maxzoom 10
     expect(overview?.layers
       .filter((layer) => layer.suffix.startsWith("metro-overview-"))
-      .every((layer) => layer.maxzoom === 10 && layer.minzoom == null)).toBe(true);
+      .every((layer) => layer.maxzoom == null && layer.minzoom == null)).toBe(true);
+    expect(overview?.layers.find((layer) => layer.suffix === "metro-lowzoom-core")?.maxzoom).toBe(10);
     expect(detail?.layers.some((layer) => layer.minzoom === 10)).toBe(true);
   });
 
@@ -435,39 +490,33 @@ describe("Ookla static overlay 的 attribution / loading 契約", () => {
     return config;
   };
 
-  it("global GeoJSON 與台灣 PMTiles 都把 attribution 交給 Mapbox source", () => {
+  // 2026-09-30 PF-4：全球格網由整包 GeoJSON 改 PMTiles，attribution 與台灣細格同走 source instance。
+  it("global 與台灣 PMTiles 都把 attribution 交給 Mapbox source", () => {
     const global = ookla("ooklaMobilePerformance", "ookla-mobile-global");
     const taiwan = ookla("ooklaMobileTaiwan", "ookla-tw-z14-mobile");
     expect(global.attribution).toContain("Ookla");
     expect(taiwan.attribution).toBe(global.attribution);
 
-    const globalMock = createMockMap();
-    addOverlay(globalMock.map, global, true, {});
-    expect(globalMock.calls.find((call) => call.method === "addSource")?.args[1]).toMatchObject({
-      attribution: global.attribution,
-    });
-
-    const pmtilesMock = createMockMap();
-    addOverlay(pmtilesMock.map, taiwan, true, {});
-    expect(pmtilesMock.sources.get(taiwan.sourceId)?.attribution).toBe(taiwan.attribution);
+    for (const entry of [global, ookla("ooklaFixedPerformance", "ookla-fixed-global"), taiwan]) {
+      expect(entry.pmtiles, `${entry.sourceId} 應走 PMTiles`).toBeTruthy();
+      const mock = createMockMap();
+      addOverlay(mock.map, entry, true, {});
+      expect(mock.sources.get(entry.sourceId)?.attribution).toBe(entry.attribution);
+    }
   });
 
-  it("global GeoJSON lazy fetch 期間會註冊 loadingRegistry，完成後才結束", async () => {
+  it("global PMTiles 不再整包 fetch GeoJSON（hydrate 直接略過）", async () => {
     const config = ookla("ooklaMobilePerformance", "ookla-mobile-global");
-    const setData = vi.fn();
-    const map = { getSource: () => ({ setData }) } as unknown as MapboxMap;
-    let resolveFetch: ((value: { ok: boolean; json: () => Promise<GeoJSON.FeatureCollection> }) => void) | undefined;
-    vi.stubGlobal("fetch", vi.fn(() => new Promise((resolve) => { resolveFetch = resolve; })));
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
     resetOverlayHydration();
-
     try {
-      const pending = hydrateOverlayIfNeeded(map, config);
-      const taskId = `overlay-hydrate:${config.sourceId}`;
-      expect(loadingRegistry.snapshot()).toContainEqual(expect.objectContaining({ id: taskId }));
-      resolveFetch?.({ ok: true, json: async () => ({ type: "FeatureCollection", features: [] }) });
-      await pending;
-      expect(setData).toHaveBeenCalledWith({ type: "FeatureCollection", features: [] });
-      expect(loadingRegistry.snapshot()).not.toContainEqual(expect.objectContaining({ id: taskId }));
+      const map = { getSource: () => ({ setData: vi.fn() }) } as unknown as MapboxMap;
+      await hydrateOverlayIfNeeded(map, config);
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(loadingRegistry.snapshot()).not.toContainEqual(
+        expect.objectContaining({ id: `overlay-hydrate:${config.sourceId}` }),
+      );
     } finally {
       vi.unstubAllGlobals();
       resetOverlayHydration();
@@ -510,4 +559,69 @@ describe("updateOverlayTheme (rebuildOnParamChange)", () => {
     expect(calls.filter((c) => c.method === "removeLayer")).toHaveLength(1);
     expect(calls.filter((c) => c.method === "addLayer")).toHaveLength(1);
   });
+
+  it("buildingsGba only rebuilds for its height filter, not opacity, theme, or mode", () => {
+    const buildings = OVERLAY_REGISTRY.find((item) => item.id === "buildingsGba")!;
+    const { map, calls, layerSpecs } = createMockMap();
+    const base = { buildingsGbaOpacity: 0.75, buildingsGbaModeIdx: 0, buildingsGbaMinHeight: 0 };
+    addOverlay(map, buildings, true, base);
+    calls.length = 0;
+
+    updateOverlayTheme(map, buildings, true, { ...base, buildingsGbaOpacity: 0.5 });
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5 });
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1 });
+    expect(calls.filter((call) => call.method === "removeLayer" || call.method === "addLayer")).toHaveLength(0);
+    expect(calls.filter((call) => call.method === "setPaintProperty")).not.toHaveLength(0);
+
+    setOverlayVisible(map, buildings, false, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1 });
+    calls.length = 0;
+    updateOverlayTheme(map, buildings, false, { ...base, buildingsGbaOpacity: 0.5, buildingsGbaModeIdx: 1, buildingsGbaMinHeight: 30 }, false);
+    expect(calls.filter((call) => call.method === "removeLayer")).toHaveLength(2);
+    expect(calls.filter((call) => call.method === "addLayer")).toHaveLength(2);
+    expect(layerSpecs.get("buildings-gba-fill")?.filter).toEqual([">=", ["get", "h"], 30]);
+    expect(layerSpecs.get("buildings-gba-extrusion")?.filter).toEqual([">=", ["get", "h"], 30]);
+    expect(calls.filter((call) => call.method === "setLayoutProperty").map((call) => call.args))
+      .toEqual([
+        ["buildings-gba-fill", "visibility", "none"],
+        ["buildings-gba-extrusion", "visibility", "none"],
+      ]);
+  });
+
+  it("restores a missing opt-in rebuild layer even when its height filter is unchanged", () => {
+    const buildings = OVERLAY_REGISTRY.find((item) => item.id === "buildingsGba")!;
+    const { map, calls } = createMockMap();
+    const params = { buildingsGbaOpacity: 0.75, buildingsGbaModeIdx: 0, buildingsGbaMinHeight: 0 };
+    addOverlay(map, buildings, true, params);
+    (map as unknown as { removeLayer: (id: string) => void }).removeLayer("buildings-gba-fill");
+    calls.length = 0;
+
+    updateOverlayTheme(map, buildings, true, params);
+    expect(calls.filter((call) => call.method === "removeLayer").map((call) => call.args)).toEqual([
+      ["buildings-gba-extrusion"],
+    ]);
+    expect(calls.filter((call) => call.method === "addLayer")).toHaveLength(2);
+  });
+});
+
+// GD-1: exercise the production source builder, rather than a copied spec fixture.
+describe("manifest overlay source specs", () => {
+  for (const entry of OVERLAY_REGISTRY) {
+    it(`${entry.id}/${entry.sourceId} has no undefined source fields`, () => {
+      expect(LAYER_MANIFEST).toHaveProperty(entry.id);
+      const { map, calls } = createMockMap();
+      addOverlay(map, entry, true);
+      const sources = calls.filter((call) => call.method === "addSource");
+      expect(sources).toHaveLength(1);
+      const spec = sources[0]!.args[1] as Record<string, unknown>;
+      const undefinedPaths: string[] = [];
+      function inspect(value: unknown, path: string) {
+        if (value === undefined) undefinedPaths.push(path);
+        else if (value !== null && typeof value === "object") {
+          for (const [key, child] of Object.entries(value)) inspect(child, `${path}.${key}`);
+        }
+      }
+      inspect(spec, entry.sourceId);
+      expect(undefinedPaths, `${entry.id} source spec`).toEqual([]);
+    });
+  }
 });

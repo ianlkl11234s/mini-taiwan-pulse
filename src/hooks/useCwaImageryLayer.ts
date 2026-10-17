@@ -148,6 +148,9 @@ export function useCwaImageryLayer({
   // 最新可見性（給 subscribeDate / 背景預載 callback 避免閉包過期）
   const visRef = useRef({ cloud: cloudVisible, radar: radarVisible });
   visRef.current = { cloud: cloudVisible, radar: radarVisible };
+  // 透明度只走 ref + 下方樣式 effect，不進 lifecycle effect 的 deps（避免重訂閱 timeStore）
+  const opacityRef = useRef({ cloud: cloudOpacity, radar: radarOpacity });
+  opacityRef.current = { cloud: cloudOpacity, radar: radarOpacity };
   // per-dataset cache：dsId → dateKey → CacheSlot；access order 維護 LRU（last = 最近用過）
   const cacheRef = useRef<Map<string, Map<string, CacheSlot>>>(new Map());
   const orderRef = useRef<Map<string, string[]>>(new Map());
@@ -273,6 +276,8 @@ export function useCwaImageryLayer({
     const unsubWindow = timeStore.subscribeWindowDateKeys(() => schedulePrefetch());
     return () => {
       if (prefetchTimer !== null) window.clearTimeout(prefetchTimer);
+      // 作廢進行中的串行 prefetch：下一輪 effect 會重置 disposedRef，只靠它擋不住舊迴圈
+      prefetchSeq++;
       unsubDate();
       unsubWindow();
     };
@@ -324,6 +329,7 @@ export function useCwaImageryLayer({
           },
           initialUrl: url,
           opacity,
+          resampling: dsId === CLOUD_DATASET ? "linear" : "nearest",
         });
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);
@@ -343,12 +349,14 @@ export function useCwaImageryLayer({
     const run = (currentTimeSec: number) => {
       // 每個 dataset 各自處理，避免雲圖在 style transition 拋錯時連帶跳過雷達關閉。
       try {
-        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+        // 可見性同時看 visRef（render 時更新的最新值）：被關掉後若還有舊 closure 的 run
+        // 遲到觸發（實測 All Off 後曾有一次舊 timer 把雷達又設回 visible），也只會隱藏。
+        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible && visRef.current.cloud, opacityRef.current.cloud, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
       try {
-        reconcile(radarRef.current, RADAR_DATASET, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+        reconcile(radarRef.current, RADAR_DATASET, radarVisible && visRef.current.radar, opacityRef.current.radar, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
       } catch {
         scheduleRetry();
       }
@@ -368,11 +376,30 @@ export function useCwaImageryLayer({
       map!.once("idle", retry);
     }
     const onStyleLoad = () => run(timeStore.getTime());
+    const allHidden = () => [cloudRef.current, radarRef.current].every((state) => {
+      const id = state.handle?.layerId;
+      try {
+        return !id || !map.getLayer(id) || map.getLayoutProperty(id, "visibility") === "none";
+      } catch {
+        return false;
+      }
+    });
 
     // 不用 isStyleLoaded() 擋住 visibility=false：tile busy 時它也可能是 false，
     // 但已存在的 layer 仍必須立刻 setVisible(false)。失敗才等 idle 重試。
     run(timeStore.getTime());
-    unsubTime = timeStore.subscribeThrottled(1000, run);
+    if (cloudVisible || radarVisible) {
+      unsubTime = timeStore.subscribeThrottled(1000, run);
+    } else if (!allHidden()) {
+      // 兩層都關：run 只做 setVisible(false)，常駐每秒呼叫會一直 setLayoutProperty → 重畫。
+      // 但 style 轉換中 hide 可能丟例外，而 scheduleRetry 等的 idle 在播放中不會來 →
+      // 每秒重試到確實隱藏為止，然後自行退訂。
+      const unsub = timeStore.subscribeThrottled(1000, (t) => {
+        run(t);
+        if (allHidden()) { unsub(); if (unsubTime === unsub) unsubTime = null; }
+      });
+      unsubTime = unsub;
+    }
     map.on("style.load", onStyleLoad);
     return () => {
       disposed = true;
@@ -381,7 +408,19 @@ export function useCwaImageryLayer({
       if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };
-  }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity, mapTick]);
+  }, [mapRef, cloudVisible, radarVisible, mapTick]);
+
+  // 透明度：只改 paint（handle 已存在才套用；新建 handle 時 reconcile 會帶入最新值）
+  useEffect(() => {
+    // 隱藏中的 raster 不寫 paint（hidden layer 不重算 transition，會讓 hasTransitions 長期為真而持續重繪）；
+    // 最新值留在 opacityRef，下次 reconcile 顯示時帶入。
+    if (cloudVisible) {
+      try { cloudRef.current.handle?.setOpacity(cloudOpacity); } catch { /* style 轉換中，下次 reconcile 補上 */ }
+    }
+    if (radarVisible) {
+      try { radarRef.current.handle?.setOpacity(radarOpacity); } catch { /* 同上 */ }
+    }
+  }, [cloudOpacity, radarOpacity, cloudVisible, radarVisible, mapTick]);
 
   // 注：原本獨立的 preloadDays effect 已不需要 — window 變動會由 subscribeWindowDateKeys
   // 觸發 ensureFresh，evict 邏輯在那裡執行（保護視窗內所有日）。

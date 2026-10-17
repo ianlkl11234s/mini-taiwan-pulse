@@ -1,16 +1,17 @@
 import { getStatisticsVisual } from "../../data/statisticsVisuals";
-import { LayerToggleSwitch } from "./LayerToggleSwitch";
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ListRow } from "./LayerRow";
+import { useRailTheme } from "./railTheme";
+import { useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import { getStatisticsPeriodNotice, subscribeStatisticsPeriodNotice } from '../../state/medicalStatisticsSelection';
 import type { LayerVisibility } from '../../types';
 import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
-import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../../state/medicalStatisticsSelection';
-import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeStore';
 import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
-import { FONT_SIZE, RADIUS } from '../../styles/designTokens';
+import { FONT_SIZE } from '../../styles/designTokens';
 import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
+import { useLocale } from '../../state/localeStore';
+import { enumLabel } from '../../i18n/dataText';
 
 interface Props {
   groupKey: string;
@@ -18,56 +19,40 @@ interface Props {
   expandedLayer: string | null;
   onLayerClick: (key: keyof LayerVisibility, intent?: LayerClickIntent) => void;
   renderControls: (key: keyof LayerVisibility) => ReactNode;
-  renderToggle?: (on: boolean, onChange: () => void, label: string) => ReactNode;
   textColor?: string;
   dimColor?: string;
-  colorScheme: 'light' | 'dark';
 }
 
-/** Keep the native select aligned with the surrounding sidebar palette. */
-export function medicalStatisticsSelectStyle(textColor: string, colorScheme: 'light' | 'dark') {
-  return {
-    width: '100%', boxSizing: 'border-box' as const, padding: '5px 8px', borderRadius: RADIUS.md,
-    border: '1px solid currentColor', background: 'transparent', color: textColor, colorScheme, font: 'inherit',
-  };
-}
-
-export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af', colorScheme }: Props) {
+/**
+ * 統計群組列（群組變體，圖層面板統一 C 段）：一列對應多個 key（醫療、住宅、土地…）。
+ *
+ * - 列本身是共用 `ListRow`（P8）；整組開關。
+ * - 展開區就是「目前成員」的 `ExpandedControls`：第一列是共用的「指標／口徑」連動選單
+ *   （`${key}Variant`），接著期別與細項、透明度、說明・來源——與其他統計層同一套順序。
+ * - 切換成員由 provider 完成（同期別切換、必要時先預載）；這裡只在切換後把 App 的展開層
+ *   同步成新成員（`statistics-variant-switch`：清掉舊層的 popup）。
+ */
+export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const group = getMedicalStatisticsGroup(groupKey);
-  const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
-  const [error, setError] = useState('');
-  const [switching, setSwitching] = useState(false);
-  const switchRequest = useRef(0);
-  useEffect(() => () => { switchRequest.current += 1; }, []);
-  const selected = resolveMedicalStatisticsGroupKey(group, visibility, expandedLayer ?? undefined, preferred) ?? preferred ?? group?.options[0]?.key ?? 'statsHealthHospitalBedTotal';
-  const sourceState = useSyncExternalStore(callback => regionalStatisticsStore.subscribe(selected, callback), () => regionalStatisticsStore.getSnapshot(selected), () => regionalStatisticsStore.getSnapshot(selected));
-  if (!group) return null;
-  const visual = getStatisticsVisual(group.options[0]!.key, group.label);
-  const Icon = visual.icon;
-  const members = group.options.map(option => option.key);
-  const active = members.filter(key => visibility[key]);
+  const { DIM } = useRailTheme();
+  const members = group?.options.map(option => option.key) ?? [];
   const expanded = members.some(key => key === expandedLayer);
-  const choose = async (next: keyof LayerVisibility) => {
-    if (next === selected && active.length <= 1) return;
-    let switched=selectMedicalStatisticsVariant(selected, next, members);
-    if (!switched) {
-      const request=++switchRequest.current;
-      setSwitching(true);
-      switched=await prepareMedicalStatisticsVariant(selected,next,members,()=>request===switchRequest.current && layerVisibilityStore.getVisibility(selected));
-      if (request!==switchRequest.current) return;
-      setSwitching(false);
-    }
-    if (!switched) {
-      setError(regionalStatisticsStore.getSnapshot(next).error ?? '此類型沒有相同期別的資料，請先調整年份。');
-      return;
-    }
-    setPreferred(next);
-    setError('');
-    if (expandedLayer !== next) onLayerClick(next, 'statistics-variant-switch');
-  };
+  const selected = (group && resolveMedicalStatisticsGroupKey(group, visibility, expandedLayer ?? undefined)) ?? (expanded ? expandedLayer as keyof LayerVisibility : undefined) ?? group?.options[0]?.key;
+  // 指標選單換了可見成員 → 展開層跟著換（舊展開層已不可見時才換，重疊模式不動）
+  useEffect(() => {
+    if (!expanded || !selected || selected === expandedLayer) return;
+    if (visibility[selected] && !visibility[expandedLayer as keyof LayerVisibility]) onLayerClick(selected, 'statistics-variant-switch');
+  }, [expanded, selected, expandedLayer, visibility, onLayerClick]);
+  const periodNotice = useSyncExternalStore(subscribeStatisticsPeriodNotice, () => (selected ? getStatisticsPeriodNotice(selected) : undefined));
+  if (!group || !selected) return null;
+  const visual = getStatisticsVisual(group.options[0]!.key, group.label);
+  // 群組名是配方中文；外文查 `enum.statGroup.<中文>`，查不到維持中文（與其他資料標籤同規則）。
+  const label = enumLabel('statGroup', group.label, group.label, i18n);
+  const Icon = visual.icon;
+  const active = members.filter(key => visibility[key]);
   const toggle = () => {
-    switchRequest.current += 1;
-    setSwitching(false);
     if (!active.length) {
       onLayerClick(selected);
       return;
@@ -75,27 +60,23 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     let next = layerVisibilityStore.getAll();
     for (const key of members) if (isStatisticsChoropleth(key)) next = statisticsDisplayModeStore.setVisible(key, false, next);
     layerVisibilityStore.setAll(next);
-    setPreferred(selected);
   };
   return <div style={{ color: textColor }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? `2px solid ${visual.accent}` : '2px solid transparent' }}>
-      <Icon size={14} color={visual.accent} style={{ flexShrink: 0 }} />
-      <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: textColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
-        {group.label}{expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-      </button>
-      {renderToggle ? renderToggle(active.length > 0, toggle, `${group.label} 顯示`) : <LayerToggleSwitch on={active.length > 0} onChange={toggle} label={`${group.label} 顯示`} />}
-    </div>
+    <ListRow
+      ariaLabel={label}
+      label={label}
+      icon={<Icon size={14} color={active.length ? visual.accent : DIM} style={{ flexShrink: 0 }} />}
+      accent={visual.accent}
+      active={active.length > 0}
+      expandable
+      expanded={expanded}
+      onClick={() => onLayerClick(selected)}
+      toggle={{ on: active.length > 0, onChange: toggle, label: t('paramsPanel.groupToggle', { label }) }}
+    />
     {expanded && <>
-      <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
-        <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
-        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={medicalStatisticsSelectStyle(textColor, colorScheme)}>
-          {group.options.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
-        </select>
-        {switching && <p role="status" style={{ color: dimColor }}>正在確認目標期別…</p>}
-        {active.length > 1 && <p style={{ color: dimColor }}>目前重疊顯示 {active.length} 種；選擇類型後，此主題改為單一類型。</p>}
-        {error && <p role="alert">{error}</p>}
-      </div>
+      {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>{t('paramsPanel.groupOverlap', { count: active.length, option: group.optionLabel ?? t('paramsPanel.groupOptionDefault') })}</p>}
       {renderControls(selected)}
+      {periodNotice && <p role="status" style={{ margin: '2px 12px 4px 22px', color: '#fbbf24', fontSize: FONT_SIZE.sm }}>{periodNotice}</p>}
     </>}
   </div>;
 }

@@ -1,13 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import rawRecipes from "../agriStatisticsRecipes.json?raw";
 import {
   AGRI_ENABLED_STATISTICS_KEYS,
   AGRI_ENABLED_STATISTICS_RECIPES,
+  agriEnabledRecipeDetails,
   agriReleaseOptions,
   getAgriRecipe,
+  getAgriRecipeDetails,
   resolveAgriRelease,
+  type AgriRecipe,
   type AgriStatisticsLayerKey,
 } from "../agriStatisticsRecipes";
+import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
+
+beforeAll(() => ensureStatisticsRecipeDetails());
 import { STATISTICS_RECIPES } from "../regionalStatisticsRecipes";
 import { AGRI_EXISTING_LAYER_REFERENCES, STATISTICS_TAB_LAYER_ROLES } from "../statisticsLayerRegistry";
 import { AGRI_CATALOG_DATASET_ALIASES, LAYER_MANIFEST } from "../layerManifest";
@@ -38,7 +44,7 @@ const catalogKeys = STATISTICS_DATA_THEMES.flatMap((theme) =>
   theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)),
 );
 
-function asPublicRelease(recipe: (typeof AGRI_ENABLED_STATISTICS_RECIPES)[number], option: (typeof recipe.release_options)[number]): StatisticsRelease {
+function asPublicRelease(recipe: AgriRecipe, option: AgriRecipe["release_options"][number]): StatisticsRelease {
   return {
     dataset_id: recipe.dataset_id,
     indicator_id: recipe.indicator_id,
@@ -145,10 +151,10 @@ describe("農林漁牧 statistics handoff contract", () => {
   });
 
   it("resolves every one of the 2,748 immutable tuples and intersects only matching public releases", () => {
-    const allPublicReleases = AGRI_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options.map((option) => asPublicRelease(recipe, option)));
+    const allPublicReleases = agriEnabledRecipeDetails().flatMap((recipe) => recipe.release_options.map((option) => asPublicRelease(recipe, option)));
     expect(allPublicReleases).toHaveLength(2748);
 
-    for (const recipe of AGRI_ENABLED_STATISTICS_RECIPES) {
+    for (const recipe of agriEnabledRecipeDetails()) {
       expect(agriReleaseOptions(recipe.layer_key, allPublicReleases)).toHaveLength(recipe.release_options.length);
       for (const option of recipe.release_options) {
         expect(resolveAgriRelease(recipe.layer_key, option, option.dimensions)).toEqual({ releaseId: option.release_id, dimensions: option.dimensions });
@@ -157,7 +163,7 @@ describe("農林漁牧 statistics handoff contract", () => {
   });
 
   it("rejects altered release identity, partial dimensions, extra dimensions, and an unavailable crop-season tuple", () => {
-    const recipe = getAgriRecipe("statsCropPlantedAreaTownship")!;
+    const recipe = getAgriRecipeDetails("statsCropPlantedAreaTownship")!;
     const option = recipe.release_options[0]!;
     const release = asPublicRelease(recipe, option);
     expect(agriReleaseOptions(recipe.layer_key, [{ ...release, dataset_id: "wrong_dataset" }])).toEqual([]);

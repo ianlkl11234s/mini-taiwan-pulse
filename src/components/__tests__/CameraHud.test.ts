@@ -34,7 +34,7 @@ describe("CameraHud", () => {
     const source = fakeMap();
     const camera = readCameraInfo(source.map);
     expect(camera).toEqual({ lng: 121.5001, lat: 25.0123, zoom: 9.6, pitch: 43, bearing: -12 });
-    expect(formatCameraInfo(camera)).toBe("25.0123, 121.5001 z9.6 pitch 43 bearing -12");
+    expect(formatCameraInfo(camera)).toBe("25.0123, 121.5001 · z9.6 · 仰角 43° · 方位 -12°");
   });
 
   it("notifies only its subscribers for every move, then cleans up and rebinds maps", () => {

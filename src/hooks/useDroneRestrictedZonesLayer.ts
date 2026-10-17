@@ -1,23 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
- * 無人機禁/限航區（民航局 dronegis）— 5,741 polygon 共用 PMTiles，filter 拆兩 layer
+ * 民航局 dronegis 歷史空域參考面 — 5,741 Polygon + 2 MultiPolygon 共用 PMTiles，filter 拆兩 layer
  *
  * 資料來源：
  *   taipei-gis-analytics/pipelines/aviation_drone/drone_restricted_zones/
  *   → /public/coverage/drone_restricted_zones.pmtiles（11 MB，z 5-14）
  *
  * 拆分：
- *   🚫 droneNoFlyZone     紅 4,311 + 未分類 1,322 = 5,633（保守視為禁飛）
- *   ⚠️  droneRestrictedZone 黃 108（縣市政府限航需申請）
+ *   🚫 droneNoFlyZone     2026-06-30 快照：紅 4,311 + 未分類 1,324 = 5,635（不判定當前規則）
+ *   ⚠️  droneRestrictedZone 2026-06-30 快照黃 108（不判定當前申請規則）
  *
- * 為什麼未分類併紅：__source = nfz only 沒填中文「空域顏色」，內容多為
- * 機場 5km 圈 / 軍區 / 邊境 / 國家公園 → 規則上都禁飛，視覺保守 > 激進。
+ * 未分類併紅色顯示只因 __source = nfz 的中文「空域顏色」缺值；
+ * 顏色與歷史幾何不能作現行飛行規則判定。
  */
 
 const SOURCE_TYPE = (PmTilesSource as unknown as { SOURCE_TYPE: string }).SOURCE_TYPE;
@@ -68,6 +69,16 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+/** 透明度只改 paint，不進生命週期 effect 的 deps */
+function applyOpacity(map: MapboxMap, nfzOpacity: number, restrictedOpacity: number) {
+  const apply = (key: string, fillId: string, lineId: string, opacity: number) => {
+    if (map.getLayer(fillId)) map.setPaintProperty(fillId, "fill-opacity", hookFillOpacity(key, fillId, opacity, 0.45));
+    if (map.getLayer(lineId)) map.setPaintProperty(lineId, "line-opacity", hookLineOpacity(key, lineId, Math.min(1, opacity + 0.3), 0.75));
+  };
+  apply("droneNoFlyZone", NFZ_FILL, NFZ_LINE, nfzOpacity);
+  apply("droneRestrictedZone", RESTRICTED_FILL, RESTRICTED_LINE, restrictedOpacity);
+}
+
 export function useDroneZonesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   nfzVisible: boolean,
@@ -77,6 +88,8 @@ export function useDroneZonesLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
+  const opacityRef = useRef({ nfzOpacity, restrictedOpacity });
+  opacityRef.current = { nfzOpacity, restrictedOpacity };
 
   useEffect(() => {
     const anyVisible = nfzVisible || restrictedVisible;
@@ -106,7 +119,7 @@ export function useDroneZonesLayer(
         } as any);
       }
 
-      const ensureFill = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
+      const ensureFill = (key: string, id: string, filter: FilterSpecification, color: string, opacity: number) => {
         if (!map?.getLayer(id)) {
           map?.addLayer({
             id,
@@ -115,17 +128,15 @@ export function useDroneZonesLayer(
             "source-layer": SOURCE_LAYER,
             minzoom: 7,
             filter,
-            paint: {
+            paint: hookFillPaint(key, id, {
               "fill-color": color,
               "fill-opacity": opacity,
               "fill-antialias": false,
-            },
+            }, { "fill-color": color, "fill-opacity": 0.45, "fill-antialias": false }),
           });
-        } else {
-          map.setPaintProperty(id, "fill-opacity", opacity);
         }
       };
-      const ensureLine = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
+      const ensureLine = (key: string, id: string, filter: FilterSpecification, color: string, opacity: number) => {
         if (!map?.getLayer(id)) {
           map?.addLayer({
             id,
@@ -134,22 +145,23 @@ export function useDroneZonesLayer(
             "source-layer": SOURCE_LAYER,
             minzoom: 8,
             filter,
-            paint: {
+            layout: hookLineLayout(key, id),
+            paint: hookLinePaint(key, id, {
               "line-color": color,
               "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2],
               "line-opacity": Math.min(1, opacity + 0.3),
-            },
+            }, { "line-color": color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2], "line-opacity": 0.75 }),
           });
-        } else {
-          map.setPaintProperty(id, "line-opacity", Math.min(1, opacity + 0.3));
         }
       };
 
-      ensureFill(NFZ_FILL, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
-      ensureLine(NFZ_LINE, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
-      ensureFill(RESTRICTED_FILL, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
-      ensureLine(RESTRICTED_LINE, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
+      const { nfzOpacity, restrictedOpacity } = opacityRef.current;
+      ensureFill("droneNoFlyZone", NFZ_FILL, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
+      ensureLine("droneNoFlyZone", NFZ_LINE, NFZ_FILTER, NFZ_COLOR, nfzOpacity);
+      ensureFill("droneRestrictedZone", RESTRICTED_FILL, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
+      ensureLine("droneRestrictedZone", RESTRICTED_LINE, RESTRICTED_FILTER, RESTRICTED_COLOR, restrictedOpacity);
 
+      applyOpacity(map, nfzOpacity, restrictedOpacity);
       setVis(map, NFZ_FILL, nfzVisible);
       setVis(map, NFZ_LINE, nfzVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
@@ -199,5 +211,11 @@ export function useDroneZonesLayer(
         }
       } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, nfzVisible, restrictedVisible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !(nfzVisible || restrictedVisible) || !safeIsStyleLoaded(map)) return;
+    applyOpacity(map, nfzOpacity, restrictedOpacity);
   }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity, mapTick]);
 }

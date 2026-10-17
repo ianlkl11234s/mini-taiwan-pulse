@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/indigenous_rural" "$DATA_DIR/marine" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/harm_reduction" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/public_life" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -26,14 +26,17 @@ aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
 
 echo "[pull] sync geo → $DATA_DIR/geo/（扁平 S3 + include filter）"
 aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
-  --include "provincial_road.geojson" --include "national_highway.geojson" \
-  --include "bus_stations_city.geojson" --include "bus_stations_intercity.geojson" \
+  --include "bus_stations_intercity.geojson" \
   --include "bike_stations.geojson" --include "cycling_routes.geojson" \
   --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
   --include "convenience_stores.geojson" \
   --include "active_faults.geojson" \
   --include "water_*.geojson" --include "water_*.pmtiles" --include "fire_*.geojson" \
-  --include "medical_*.geojson"
+  --include "medical_*.geojson" \
+  --exclude "water_flood_extreme.geojson" --exclude "water_reservoirs.geojson" --exclude "water_rivers.geojson" \
+  --exclude "water_river_polygons.geojson" --exclude "water_canals.geojson" --exclude "fire_hydrants.geojson" \
+  --exclude "medical_clinics.geojson" --exclude "medical_pharmacies.geojson" --exclude "medical_aed.geojson" --exclude "medical_ltc.geojson"
+# ↑ 2026-09-30：前端已改走 PMTiles、src 零引用的舊 GeoJSON（後置 --exclude 優先於 glob include）；provincial_road／national_highway／bus_stations_city 同理已自 include 移除
 
 # PT-1 PMTiles（geo 鏡像子前綴 deploy-assets/geo/）→ /data/geo/（前端請求 /geo/*.pmtiles）
 # 與上方扁平 geojson include-filter 並存；aws s3 sync 非破壞（無 --delete），兩者同進 /data/geo/ 不衝突。
@@ -54,7 +57,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "public_life/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
@@ -65,12 +68,22 @@ aws s3 sync "$S3/medical/" "$DATA_DIR/medical/" --no-progress
 #    rm -f 清掉既有 volume 殘留舊檔（防繼續供應）。見 docs/features/owner-gated-layers。
 echo "[pull] sync agriculture → $DATA_DIR/agriculture/"
 aws s3 sync "$S3/agriculture/" "$DATA_DIR/agriculture/" --no-progress \
-  --exclude "livestock_farms.geojson" --exclude "slaughterhouses.geojson"
+  --exclude "livestock_farms.geojson" --exclude "slaughterhouses.geojson" \
+  --exclude "agri_retail_companies.geojson" --exclude "produce_wholesale_companies.geojson" \
+  --exclude "farm_roads.geojson" --exclude "eco_network_zones.geojson"  # 2026-09-30 前端走 .pmtiles、src 零引用
 rm -f "$DATA_DIR/agriculture/livestock_farms.geojson" "$DATA_DIR/agriculture/slaughterhouses.geojson"
 
 # 工商登記：版本化 GeoJSON / PMTiles → /data/business_registry/（dated filename 不覆寫舊版）
 echo "[pull] sync business_registry → $DATA_DIR/business_registry/"
-aws s3 sync "$S3/business_registry/" "$DATA_DIR/business_registry/" --no-progress
+aws s3 sync "$S3/business_registry/" "$DATA_DIR/business_registry/" --no-progress \
+  --exclude "company_points_202608.pmtiles" --exclude "company_capital_grid_202608.pmtiles" \
+  --exclude "regulated_facilities_20260818.pmtiles" --exclude "factory_locations_202606.pmtiles" \
+  --exclude "common_registration_addresses_202608.geojson" \
+  --exclude "factory_locations_202606_allzoom.pmtiles" --exclude "manufacturing_company_points_202608_allzoom.pmtiles" \
+  --exclude "regulated_facilities_20260818_allzoom.pmtiles"  # 2026-09-30 舊版資產（前端已切 _r2／_allzoom_b8）
+rm -f "$DATA_DIR/business_registry/factory_locations_202606_allzoom.pmtiles" \
+  "$DATA_DIR/business_registry/manufacturing_company_points_202608_allzoom.pmtiles" \
+  "$DATA_DIR/business_registry/regulated_facilities_20260818_allzoom.pmtiles"
 
 # 產業園區：版本化 PMTiles → /data/industrial_zone/（dated filename 不覆寫舊版）
 echo "[pull] sync industrial_zone → $DATA_DIR/industrial_zone/"
@@ -88,7 +101,8 @@ aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
 echo "[pull] sync forestry → $DATA_DIR/forestry/"
-aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson"
+aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson" \
+  --exclude "forest_roads.geojson" --exclude "hiking_trails.geojson"  # 2026-09-30 前端走 .pmtiles、src 零引用
 
 # 養殖漁業：鏡像子前綴 deploy-assets/fishery/ → /data/fishery/（ponds/衛星偵測 PMTiles 大檔；生產區/箱網 geojson 小檔在 dist fallback）
 echo "[pull] sync fishery → $DATA_DIR/fishery/"
@@ -119,10 +133,15 @@ aws s3 sync "$S3/funeral/" "$DATA_DIR/funeral/" --no-progress
 # dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 funeral 慣例）
 echo "[pull] sync welfare → $DATA_DIR/welfare/"
 aws s3 sync "$S3/welfare/" "$DATA_DIR/welfare/" --no-progress
-# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（山域事故 geojson 全 git 管理走 dist
-# fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 civic_facilities 慣例）
+# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（年度全島崩塌地 PMTiles 107MB 走 S3；
+# 山域事故／大規模崩塌潛勢區等小檔全 git 管理走 dist fallback）
 echo "[pull] sync hazards → $DATA_DIR/hazards/"
 aws s3 sync "$S3/hazards/" "$DATA_DIR/hazards/" --no-progress
+# 原民與農村／海洋（atlas 批次 2026-10）：小檔全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔
+echo "[pull] sync indigenous_rural → $DATA_DIR/indigenous_rural/"
+aws s3 sync "$S3/indigenous_rural/" "$DATA_DIR/indigenous_rural/" --no-progress
+echo "[pull] sync marine → $DATA_DIR/marine/"
+aws s3 sync "$S3/marine/" "$DATA_DIR/marine/" --no-progress
 
 # 公共設施：鏡像子前綴 deploy-assets/civic_facilities/ → /data/civic_facilities/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync civic_facilities → $DATA_DIR/civic_facilities/"
@@ -132,9 +151,17 @@ aws s3 sync "$S3/civic_facilities/" "$DATA_DIR/civic_facilities/" --no-progress
 echo "[pull] sync environment → $DATA_DIR/environment/"
 aws s3 sync "$S3/environment/" "$DATA_DIR/environment/" --no-progress
 
+# 公共生活與韌性：新檔自動隨鏡像子前綴同步，無須逐檔白名單。
+echo "[pull] sync public_life → $DATA_DIR/public_life/"
+aws s3 sync "$S3/public_life/" "$DATA_DIR/public_life/" --no-progress
+
 # POI：鏡像子前綴 deploy-assets/poi/ → /data/poi/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync poi → $DATA_DIR/poi/"
 aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
+
+# 減害服務：鏡像子前綴 deploy-assets/harm_reduction/ → /data/harm_reduction/（13 GeoJSON＋1 PMTiles 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
+echo "[pull] sync harm_reduction → $DATA_DIR/harm_reduction/"
+aws s3 sync "$S3/harm_reduction/" "$DATA_DIR/harm_reduction/" --no-progress
 
 # 🌍 世界 World：鏡像子前綴 deploy-assets/world/ → /data/world/（Outerview 全球垃圾殘骸 GeoJSON 3.8MB）
 echo "[pull] sync world → $DATA_DIR/world/"
@@ -167,7 +194,8 @@ aws s3 sync "$S3/tourism/" "$DATA_DIR/tourism/" --no-progress
 
 # 房地產：鏡像子前綴 deploy-assets/coverage/ → /data/coverage/（real_estate_* 大檔；gas 小檔在 dist fallback）
 echo "[pull] sync coverage → $DATA_DIR/coverage/"
-aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
+aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress \
+  --exclude "real_estate_points.pmtiles"  # 2026-09-30 前端零引用（點位走 real_estate_points_buffer.bin）
 
 # EM-15 嵌入用歷史快照：整夾 sync（之後加新日期/新圖層零改腳本）
 # EM-16 起本夾含 flights/ships/rail 的 `.json.gz`：S3 端**沒有** Content-Encoding metadata，
@@ -246,8 +274,8 @@ fi
 
 # 公車大檔：*.json.gz 同步到 cache，僅在有變時才重新 gunzip
 echo "[pull] sync bus *.json.gz → cache"
-aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes.json.gz" --include "tourist_shuttle_routes.json.gz"
-for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json tourist_shuttle_routes.json; do
+aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes_v2.json.gz" --include "tourist_shuttle_routes_v2.json.gz"
+for f in taipei_bus_routes_v2.json intercity_bus_routes_v2.json pingtungcounty_bus_routes_v2.json tourist_shuttle_routes_v2.json; do
   gz="$CACHE/$f.gz"
   if [ -f "$gz" ]; then
     if [ ! -f "$DATA_DIR/bus/$f" ] || [ "$gz" -nt "$DATA_DIR/bus/$f" ]; then
@@ -255,6 +283,10 @@ for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_rou
       gunzip -c "$gz" > "$DATA_DIR/bus/$f"
     fi
   fi
+done
+# 2026-09-30：v1（含 cumDist）四個大檔已由 _v2 取代，清掉 volume 上的舊檔與 cache
+for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json tourist_shuttle_routes.json; do
+  rm -f "$DATA_DIR/bus/$f" "$CACHE/$f.gz"
 done
 
 # 日本醫療：按當前 release allowlist 驗 SHA/bytes，所有檔案成功後才原子更新 current。

@@ -18,6 +18,7 @@ import {
   fetchWasteScheduleDay,
   type WasteScheduleRoute,
 } from "../data/wasteScheduleLoader";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 
 const MAX_CACHE_ENTRIES = 8;
 
@@ -62,6 +63,7 @@ export function useWasteScheduleLayer(
       loadedKeyRef.current = cacheKey;
       routesRef.current = cached.routes;
       setCount(cached.routes.length);
+      requestThreeRepaint();
       return;
     }
 
@@ -76,6 +78,7 @@ export function useWasteScheduleLayer(
       loadedKeyRef.current = cacheKey;
       routesRef.current = routes;
       setCount(routes.length);
+      requestThreeRepaint();
     } catch (err) {
       console.error("[WasteSchedule] fetchWasteScheduleDay failed:", err);
     } finally {
@@ -90,6 +93,7 @@ export function useWasteScheduleLayer(
     if (!enabled) {
       routesRef.current = [];
       setCount(0);
+      requestThreeRepaint();
       loadedKeyRef.current = "";
       return;
     }

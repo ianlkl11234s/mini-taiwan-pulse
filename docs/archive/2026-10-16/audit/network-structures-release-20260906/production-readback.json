@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-09-06T15:43:48.634Z",
+  "objects": [
+    {
+      "name": "osm_bridge_carriers_20260906.pmtiles",
+      "status": 206,
+      "range": "bytes 0-126/13529953",
+      "magic": [
+        80,
+        77,
+        84,
+        105,
+        108,
+        101,
+        115,
+        3
+      ],
+      "valid": true
+    },
+    {
+      "name": "osm_bridge_footprints_20260906.pmtiles",
+      "status": 206,
+      "range": "bytes 0-126/1313438",
+      "magic": [
+        80,
+        77,
+        84,
+        105,
+        108,
+        101,
+        115,
+        3
+      ],
+      "valid": true
+    },
+    {
+      "name": "official_bridges_new_taipei_20260906.pmtiles",
+      "status": 206,
+      "range": "bytes 0-126/1119033",
+      "magic": [
+        80,
+        77,
+        84,
+        105,
+        108,
+        101,
+        115,
+        3
+      ],
+      "valid": true
+    },
+    {
+      "name": "bridge_comparison_new_taipei_20260906.pmtiles",
+      "status": 206,
+      "range": "bytes 0-126/3722084",
+      "magic": [
+        80,
+        77,
+        84,
+        105,
+        108,
+        101,
+        115,
+        3
+      ],
+      "valid": true
+    }
+  ],
+  "missingStatus": 404,
+  "script": "https://mini-taiwan-pulse.itsmigu.com/assets/main-IGGoUU7c.js",
+  "body": "新北市政府橋梁清冊；© OpenStreetMap contributors (ODbL) | © Mapbox © OpenStreetMap Improve this map\nMini Taiwan Pulse\nPure Black\nDark\nLight\nSatellite\nSatellite Streets\nNavigation Night\nStreets\n!\nJP\nLayers\nAll Off\n基準 BASELINE\n底圖 BASE MAP\n0/15\n移動與城市 CITY & MOBILITY\n交通 MOVE\n1/38\n人口社經 PEOPLE\n0/5\n都市分析 URBAN ANALYSIS\n0/1\n房地產 REAL ESTATE\n0/7\n工商登記 BUSINESS REGISTRY\n0/8\n公共生活 PUBLIC LIFE\n基礎建設 INFRASTRUCTURE\n0/9\n教育 EDUCATION\n0/17\n社福長照 WELFARE\n0/9\n運動休閒 SPORTS & LEISURE\n0/6\n文化 CULTURE\n0/5\n宗教 RELIGION\n0/6\n殯葬 FUNERAL\n0/5\n觀光 TOURISM\n0/11\n安全與治理 SAFETY & GOVERNANCE\n醫療 MEDICAL\n0/8\n消防 FIRE & RESCUE\n0/5\n災害 HAZARD\n0/12\n民防避難 CIVIL DEFENSE\n0/1\n執法治安 LAW & ORDER\n0/20\n環境與資源 ENVIRONMENT & RESOURCES\n能源 ENERGY\n0/41\n廢棄物 WASTE\n0/18\n環境氣候 ENVIRONMENT\n0/26\n水資源 WATER\n0/25\n農業 AGRICULTURE\n0/29\n動物福利 ANIMAL WELFARE\n0/3\n林業 FORESTRY\n0/16\n情報 INTELLIGENCE\n太空 SPACE\n0/16\n情勢 SITUATION\n0/3\n◀\n9/6 (日)\n▶\nNow\n1d\n2d\n3d\n4d\n5d\n6d\n7d\n▶\n30x\n60x\n120x\n300x\n600x\n1800x\n3600x\n22:43\n00:00\n23:59\n即時\n歷史\nShare\nCapture\nMonitor\nBETA\nAI\nInfo\n使用 Google 登入\nRight-drag to rotate · Scroll to zoom\n0 flights\n25.2058, 121.5124 z14 pitch 0 bearing 0\n新北橋梁 OSM 比對\n菜公坑一號橋(4C-23)\n官方 ID\n427\n比對狀態\n未評估\n方法\nnot_evaluated\n原因\n原因：coincident_endpoints\n候選評分\n未評估（缺值）\n幾何\n原始重合端點；無可評估軸線\n注意\n候選比對，非權威配對；僅 OSM 表示此官方清冊未找到候選，不代表官方漏報。\n來源\n新北市轄內橋梁基本資料\n資料日期\n2025-12-29T10:39:33+08:00\n日期意義\n官方詮釋資料更新時間，非實測日期\n擷取時間\n2026-09-06T14:18:45Z\n原始資料 ↗\nLEGEND"
+}

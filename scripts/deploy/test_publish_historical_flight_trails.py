@@ -72,10 +72,20 @@ class HistoricalFlightPublicationTest(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(payload)
             samples.append({"asset": {"path": relative, "bytes": len(payload), "sha256": sha(payload)}})
-        manifest = {"schema": "historical-flight-trails-v1", "release_id": "r1", "samples": samples}
+        manifest = {"schema": "historical-flight-trails-v1", "license_status": "verified_public_display", "release_id": "r1", "samples": samples}
         root.mkdir(parents=True, exist_ok=True)
         (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
         return root
+
+    def test_rejects_unverified_public_display_license(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = self.make_root(Path(temporary), 1)
+            manifest_path = root / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["license_status"] = "unverified"
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "license_status"):
+                PUBLISH.manifest_entries(root)
 
     def test_validation_rejects_unreferenced_and_hash_mismatch_files(self):
         with tempfile.TemporaryDirectory() as temporary:

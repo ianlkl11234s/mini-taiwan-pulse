@@ -72,4 +72,28 @@ describe('regionalStatisticsStore selection snapshots', () => {
     await regionalStatisticsStore.load(key);
     expect(mocks.loadRegionalStatistics).toHaveBeenCalledTimes(2);
   });
+
+  it('does not reset the non-labor-force derived share when the map re-registers the default count recipe', () => {
+    const key = 'statsLaborCountyNonLaborForce';
+    regionalStatisticsStore.setSelection(key, {
+      layerKey: key,
+      sourceLayerKey: 'statsLaborCountyParticipationRate',
+      datasetId: 'labor_statistics',
+      indicatorId: 'participation_rate',
+      level: 'county',
+      valueTransform: 'complement_100',
+    });
+    regionalStatisticsStore.registerRecipe(key, {
+      layerKey: key,
+      datasetId: 'labor_statistics',
+      indicatorId: 'not_in_labor_force',
+      level: 'county',
+    });
+    expect(regionalStatisticsStore.getSnapshot(key).selection).toMatchObject({
+      indicatorId: 'participation_rate',
+      sourceLayerKey: 'statsLaborCountyParticipationRate',
+      valueTransform: 'complement_100',
+    });
+    regionalStatisticsStore.setSelection(key, null);
+  });
 });

@@ -65,6 +65,9 @@ export interface WasteFacilityLayerOptions {
   onSceneReady?: (scenes: WasteFacility3DScenes) => void;
 }
 
+/** 焚化爐轉環／閃電等裝飾動畫：任一子圖層可見時持續重繪（時間軸暫停也不停），全關則 0 repaint。 */
+const ANIMATE_WHILE_VISIBLE = true;
+
 const ALL_KEYS: WasteFacility3DKey[] = [
   "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
 ];
@@ -134,7 +137,7 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
         }
       }
 
-      // 任一 sub-scene visible 才需要重繪
+      // 裝飾動畫：任一子圖層可見時自排下一幀；全部關閉時不再 triggerRepaint。
       let anyVisible = false;
       for (const k of ALL_KEYS) {
         if (vis[k]) {
@@ -142,12 +145,15 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
           scenes[k].render(matrix);
         }
       }
-      if (anyVisible) map?.triggerRepaint();
+      if (anyVisible && ANIMATE_WHILE_VISIBLE) map?.triggerRepaint();
     },
 
     pickFacility(sx, sy, vw, vh) {
       let best: { key: WasteFacility3DKey; row: WasteFacilityRow; dist: number } | null = null;
+      // 只 pick 目前有畫的子場景（R6：監測井立體效果關時，隱形 scene 不可攔截點擊）
+      const vis = opts.getVisibility();
       for (const k of ALL_KEYS) {
+        if (!vis[k]) continue;
         const row = scenes[k].pick(sx, sy, vw, vh);
         if (row) {
           // 用 threshold 內最近的（pick 內部已過濾）

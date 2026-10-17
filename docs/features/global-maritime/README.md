@@ -72,7 +72,7 @@ metrics 為準。
 - 1,426,361 筆 normalized rows、57,726 艘候選船、2 筆 tile-boundary duplicates、0 invalid rows。
 - 建立 168,936 個候選 segments；schema v2 本機 artifact 依 150,000 points cap 顯示 989 艘／989 段，加入逐頂點 `observed_times` 後為 8,687,132 bytes。
 - finalize 實測 69.27 秒、peak RSS 約 435 MiB；首次 probe 未保存完整 API wall time，全球容量試算前必須補上 end-to-end timing。
-- 本機 `bbox.html` 已驗證日期、統計、軌跡、端點、popup、toggle、attribution，browser console 0 error；production build 會主動移除此 POC GeoJSON。
+- 本機 `tools/bbox.html` 已驗證日期、統計、軌跡、端點、popup、toggle、attribution，browser console 0 error；production build 會主動移除此 POC GeoJSON。
 
 ## GFW 小時格網主站 POC（2026-08-25）
 

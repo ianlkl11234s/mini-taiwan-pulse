@@ -1,0 +1,16 @@
+/* R2 呼吸脈衝選取圈（ui-unification-sheet 第 2 區）。根元素由 mapboxgl.Marker 定位（0×0 錨點）。 */
+.selection-ring { width: 0; height: 0; pointer-events: none; }
+.selection-ring i {
+  position: absolute; left: 0; top: 0; display: block; box-sizing: border-box;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--selection-ring-accent, #64aaff);
+  transform: translate(-50%, -50%);
+}
+.selection-ring .selection-ring__pulse { animation: selection-ring-pulse 1.8s ease-out infinite; }
+@keyframes selection-ring-pulse {
+  from { width: 24px; height: 24px; opacity: .8; }
+  to { width: 58px; height: 58px; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .selection-ring .selection-ring__pulse { animation: none; width: 36px; height: 36px; opacity: .35; }
+}

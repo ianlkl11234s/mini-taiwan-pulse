@@ -1,7 +1,9 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { IntelIcon } from "../IntelIcon";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import {
-  COLORS, FONT_CJK, FONT_DATA, MICON,
+  FONT_CJK, FONT_DATA, MICON,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER, alertSeverity, relTime,
   type AlertGroupShort,
 } from "../intelTokens";
@@ -9,9 +11,15 @@ import {
   fetchActiveAlerts,
   type AlertTally,
   type ActiveAlert,
+  type AlertSeriesMap,
 } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import { useMonitorV2 } from "../monitor/monitorStyle";
+import { fs, MF } from "../monitor/monitorFont";
+import { MonitorSub } from "../monitor/MonitorMetric";
+import { useMonitorTheme } from "../monitor/monitorTheme";
+import { MON_CHART_H } from "../monitor/monitorChart";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
@@ -23,7 +31,7 @@ interface Props {
   tally: AlertTally;
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
-  series: Record<AlertGroupShort, number[]>;
+  series: AlertSeriesMap;
   accent: string;
   nowTs: number;
 }
@@ -31,14 +39,20 @@ interface Props {
 // ─── AlertTrend — 24h 全 group 加總 area-line ──────────────────
 function AlertTrend({
   series, accent,
-}: { series: Record<AlertGroupShort, number[]>; accent: string }) {
+}: { series: AlertSeriesMap; accent: string }) {
+  // 失敗＝全 null：不畫面積線、高峰顯示「—」（不是 24 格 0）
+  const noData = ALERT_GROUP_ORDER.every((g) => series[g].every((v) => v == null));
   const totals = Array.from({ length: 24 }, (_, h) =>
     ALERT_GROUP_ORDER.reduce((sum, g) => sum + (series[g][h] ?? 0), 0),
   );
   const peak = Math.max(1, ...totals);
   const W = 100;
-  const H = 28;
   const tip = useChartTooltip();
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const { t } = useLocale();
+  // v2：圖區高照 mini 階（24），固定高格子內容只能等高或更矮
+  const H = v2 ? MON_CHART_H.mini : 28;
 
   const points = totals
     .map((v, i) => {
@@ -56,17 +70,18 @@ function AlertTrend({
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: [{ dot: accent, value: fmtChartValue(totals[h]!, "則") }],
+      rows: noData ? [] : [{ dot: theme.fill(accent), value: fmtChartValue(totals[h]!, t("alerts.unit", { count: totals[h]! })) }],
+      ...(noData ? { note: t("alerts.trend.noData") } : null),
     });
   }
 
   return (
     <div
-      style={{
+      style={v2 ? { padding: "2px 0", marginBottom: 10 } : {
         padding: "8px 10px",
         borderRadius: RADIUS.lg,
-        background: "rgba(255,255,255,0.025)",
-        border: `1px solid ${COLORS.borderMid}`,
+        background: theme.neutral(0.025),
+        border: `1px solid ${theme.p.borderMid}`,
         marginBottom: 10,
       }}
     >
@@ -77,20 +92,20 @@ function AlertTrend({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-            color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
+            color: theme.p.textFaint,
           }}
         >
-          24H TREND
+          {v2 ? t("alerts.trend.last24h") : "24H TREND"}
         </span>
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm,
-            color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm),
+            color: theme.p.textMuted,
           }}
         >
-          Peak {peak}
+          {v2 ? t("alerts.trend.peak") : "Peak"} {noData ? "—" : peak}
         </span>
       </div>
       <svg
@@ -102,14 +117,16 @@ function AlertTrend({
         onMouseMove={handleMove}
         onMouseLeave={tip.hide}
       >
-        <polygon points={area} fill={`${accent}33`} />
-        <polyline
-          points={points}
-          fill="none"
-          stroke={accent}
-          strokeWidth={0.8}
-          vectorEffect="non-scaling-stroke"
-        />
+        {!noData && <polygon points={area} fill={`${theme.fill(accent)}33`} />}
+        {!noData && (
+          <polyline
+            points={points}
+            fill="none"
+            stroke={theme.fill(accent)}
+            strokeWidth={0.8}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </svg>
       {tip.node}
     </div>
@@ -117,11 +134,15 @@ function AlertTrend({
 }
 
 // ─── Sparkline (per-group) ──────────────────
-function Sparkline({ data, color }: { data: number[]; color: string }) {
+function Sparkline({ data: raw, color }: { data: (number | null)[]; color: string }) {
+  const noData = raw.every((v) => v == null);
+  const data = raw.map((v) => v ?? 0);
   const peak = Math.max(1, ...data);
   const W = 100;
   const H = 16;
   const tip = useChartTooltip();
+  const theme = useMonitorTheme();
+  const { t } = useLocale();
   const pts = data
     .map((v, i) => {
       const x = (i / 23) * W;
@@ -137,7 +158,8 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
     const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
     tip.show(e.clientX, e.clientY, {
       title: hourLabel(h),
-      rows: [{ dot: color, value: fmtChartValue(data[h] ?? 0, "則") }],
+      rows: noData ? [] : [{ dot: theme.fill(color), value: fmtChartValue(data[h] ?? 0, t("alerts.unit", { count: data[h] ?? 0 })) }],
+      ...(noData ? { note: t("alerts.trend.noData") } : null),
     });
   }
 
@@ -152,13 +174,15 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
         onMouseMove={handleMove}
         onMouseLeave={tip.hide}
       >
-        <polyline
-          points={pts}
-          fill="none"
-          stroke={color}
-          strokeWidth={0.8}
-          vectorEffect="non-scaling-stroke"
-        />
+        {!noData && (
+          <polyline
+            points={pts}
+            fill="none"
+            stroke={theme.fill(color)}
+            strokeWidth={0.8}
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
       </svg>
       {tip.node}
     </>
@@ -173,11 +197,14 @@ function GroupCard({
   count: number;
   severe: number;
   topTerm: string | null;
-  spark: number[];
+  spark: (number | null)[];
   hot: boolean;
   onClick: () => void;
 }) {
   const def = ALERT_GROUPS_DEF[group];
+  const i18n = useLocale();
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
   const dim = count === 0;
   return (
     <button
@@ -188,11 +215,11 @@ function GroupCard({
         padding: "9px 10px",
         borderRadius: RADIUS.lg,
         background: dim
-          ? "rgba(255,255,255,0.015)"
+          ? theme.neutral(0.015)
           : hot
-            ? `${def.color}10`
-            : "rgba(255,255,255,0.04)",
-        border: `1px solid ${hot ? `${def.color}55` : COLORS.borderMid}`,
+            ? `${theme.fill(def.color)}10`
+            : theme.neutral(0.04),
+        border: `1px solid ${hot ? `${theme.fill(def.color)}55` : theme.p.borderMid}`,
         opacity: dim ? 0.38 : 1,
         cursor: dim ? "default" : "pointer",
         display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4,
@@ -200,33 +227,46 @@ function GroupCard({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <IntelIcon d={MICON[def.iconKey]!} size={11} color={def.color} />
+        <IntelIcon d={MICON[def.iconKey]!} size={11} color={theme.fill(def.color)} />
         {/* nowrap：六宮格是固定高（monitorSplitLayout.ts 註記 h5 就會讓數字溢出卡外），
             中文組名一旦折成兩行就會把數字推出格子。split 的窄欄 + 內容縮放後
             「民生」實測會折行，兩個標籤都鎖不折 */}
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
-            color: COLORS.textDefault, whiteSpace: "nowrap",
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 600,
+            color: theme.p.textDefault, whiteSpace: "nowrap",
           }}
         >
-          {def.label}
+          {enumLabel("intel.alertGroup", def.id, def.label, i18n)}
         </span>
         <div style={{ flex: 1 }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
-            letterSpacing: "0.5px", whiteSpace: "nowrap",
-          }}
-        >
-          {def.en}
-        </span>
+        {/* v2：最熱警報詞移到組名同一行右側（字級 S13 下獨立一行放不進固定高格子） */}
+        {v2 ? (
+          <span
+            title={topTerm ?? undefined}
+            style={{
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted,
+              minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}
+          >
+            {topTerm ?? ""}
+          </span>
+        ) : (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: def.color,
+              letterSpacing: "0.5px", whiteSpace: "nowrap",
+            }}
+          >
+            {def.en}
+          </span>
+        )}
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 6, flexWrap: v2 ? "wrap" : undefined, rowGap: v2 ? 2 : undefined }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700,
-            color: hot ? def.color : COLORS.textStrong,
+            fontFamily: FONT_DATA, fontSize: v2 ? MF.main : FONT_SIZE.xxl, fontWeight: 700,
+            color: hot ? theme.text(def.color) : theme.p.textStrong,
             lineHeight: 1,
           }}
         >
@@ -235,22 +275,25 @@ function GroupCard({
         {severe > 0 && (
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
-              color: "#ef4444",
+              fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), fontWeight: 700,
+              color: v2 ? theme.p.statusErr : "#ef4444",
+              whiteSpace: v2 ? "nowrap" : undefined,
             }}
           >
-            ⚠ {severe} 嚴重
+            ⚠ {i18n.t("alerts.board.severeCount", { count: severe })}
           </span>
         )}
       </div>
-      <span
-        style={{
-          fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
-          height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        }}
-      >
-        {topTerm ?? "—"}
-      </span>
+      {!v2 && (
+        <span
+          style={{
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textFaint,
+            height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}
+        >
+          {topTerm ?? "—"}
+        </span>
+      )}
       <Sparkline data={spark} color={def.color} />
     </button>
   );
@@ -260,6 +303,9 @@ function GroupCard({
 function AlertDrawer({
   group, nowTs,
 }: { group: AlertGroupShort; nowTs: number }) {
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
   const def = ALERT_GROUPS_DEF[group];
   const [rows, setRows] = useState<ActiveAlert[] | null>(null);
 
@@ -275,11 +321,11 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-          color: COLORS.textFaint,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
+          color: theme.p.textFaint,
         }}
       >
-        載入中…
+        {i18n.t("alerts.drawer.loading")}
       </div>
     );
   }
@@ -288,11 +334,11 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-          color: COLORS.textFaint,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
+          color: theme.p.textFaint,
         }}
       >
-        無 {def.label} 警報
+        {i18n.t("alerts.drawer.none", { group: enumLabel("intel.alertGroup", def.id, def.label, i18n) })}
       </div>
     );
   }
@@ -314,29 +360,29 @@ function AlertDrawer({
             style={{
               display: "flex", alignItems: "center", gap: 7,
               padding: "5px 0",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <span
               style={{
                 width: 6, height: 6, borderRadius: RADIUS.full,
-                background: sev.color, flexShrink: 0,
+                background: theme.fill(sev.color), flexShrink: 0,
                 boxShadow: r.severity >= 3 ? `0 0 5px ${sev.color}` : "none",
               }}
             />
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-                color: COLORS.textDefault, flex: 1,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base),
+                color: theme.p.textDefault, flex: 1,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               title={r.headline}
             >
-              <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm }}>{r.county} · </span>
+              <span style={{ color: theme.p.textMuted, fontSize: fs(v2, FONT_SIZE.sm) }}>{r.county} · </span>
               {r.headline || r.term}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
-              {relTime(r.sent_ts, nowTs)}
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: theme.p.textFaint }}>
+              {relTime(r.sent_ts, nowTs, i18n)}
             </span>
           </div>
         );
@@ -348,12 +394,15 @@ function AlertDrawer({
 // ─── AlertBoard 主元件 ───────────────────────
 export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
+  const i18n = useLocale();
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
 
   if (status !== "ready") {
-    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
-    const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
+    const label = status === "denied" ? i18n.t("alerts.summary.denied") : status === "error" ? i18n.t("alerts.summary.error") : i18n.t("alerts.summary.loading");
+    const at = lastSuccessAt ? ` · ${i18n.t("alerts.lastSuccess", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })}` : "";
     return (
-      <div style={{ padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
+      <div style={{ ...(v2 ? {} : { padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${theme.p.borderMid}` }), color: theme.p.textMuted, fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm) }}>
         {label}{at}
       </div>
     );
@@ -367,27 +416,27 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           style={{
             padding: "9px 12px",
             borderRadius: RADIUS.lg,
-            background: "rgba(34,197,94,0.06)",
-            border: `1px solid ${COLORS.statusLiveBorder}`,
+            background: theme.isDark ? "rgba(34,197,94,0.06)" : theme.p.statusLiveSoft,
+            border: `1px solid ${theme.p.statusLiveBorder}`,
             display: "flex", alignItems: "center", gap: 7,
           }}
         >
-          <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
+          <IntelIcon d={MICON.check!} size={12} color={theme.p.statusLive} />
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 11.5, color: COLORS.statusLive, fontWeight: 600,
+              fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), color: theme.p.statusLive, fontWeight: 600,
             }}
           >
-            目前全國無 active 警報
+            {v2 ? i18n.t("alerts.allClearV2") : i18n.t("alerts.allClear")}
           </span>
           <div style={{ flex: 1 }} />
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-              color: COLORS.textFaint,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
+              color: theme.p.textFaint,
             }}
           >
-            ALL CLEAR
+            {v2 ? i18n.t("alerts.allClearBadge") : "ALL CLEAR"}
           </span>
         </div>
       </div>
@@ -396,7 +445,20 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* section label */}
+      {/* section label（v2：標題與來源已由外框畫，只留總數與嚴重數，用 MonitorSub 小字） */}
+      {v2 ? (
+        <div style={{ padding: "0 2px 6px", flexShrink: 0 }}>
+          <MonitorSub
+            items={[
+              i18n.t("alerts.board.sources"),
+              i18n.t("alerts.board.total", { count: tally.total }),
+              tally.severe > 0 ? (
+                <span style={{ color: theme.p.statusErr, fontWeight: 700 }}>{i18n.t("alerts.board.severeCount", { count: tally.severe })}</span>
+              ) : null,
+            ]}
+          />
+        </div>
+      ) : (
       <div
         style={{
           display: "flex", alignItems: "center", gap: 8,
@@ -404,26 +466,28 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           flexShrink: 0,
         }}
       >
-        <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />
+        {!v2 && <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700,
+              color: theme.p.textStrong, letterSpacing: "0.5px",
+            }}
+          >
+            {i18n.t("alerts.board.title")}
+          </span>
+        )}
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700,
-            color: COLORS.textStrong, letterSpacing: "0.5px",
+            fontFamily: v2 ? FONT_CJK : FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: v2 ? "0.5px" : "1.5px",
+            color: theme.p.textDim,
           }}
         >
-          警訊整合
-        </span>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-            color: COLORS.textDim,
-          }}
-        >
-          NCDR + CWA
+          {v2 ? i18n.t("alerts.board.sources") : "NCDR + CWA"}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-          {tally.total} 則
+        <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
+          {i18n.t("alerts.board.total", { count: tally.total })}
         </span>
         {tally.severe > 0 && (
           <span
@@ -431,15 +495,16 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
               padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.18)",
               border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), fontWeight: 700,
               color: "#ef4444",
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
           >
-            {tally.severe} 嚴重
+            {i18n.t("alerts.board.severeCount", { count: tally.severe })}
           </span>
         )}
       </div>
+      )}
 
       <div
         style={{
@@ -483,8 +548,8 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
           style={{
             marginTop: 8,
             borderRadius: RADIUS.lg,
-            background: "rgba(0,0,0,0.32)",
-            border: `1px solid ${COLORS.borderMid}`,
+            background: theme.isDark ? "rgba(0,0,0,0.32)" : theme.neutral(0.04),
+            border: `1px solid ${theme.p.borderMid}`,
             flexShrink: 0,
           }}
         >
@@ -492,28 +557,28 @@ export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs
             style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "7px 10px",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <IntelIcon
               d={MICON[ALERT_GROUPS_DEF[openGroup].iconKey]!}
               size={11}
-              color={ALERT_GROUPS_DEF[openGroup].color}
+              color={theme.fill(ALERT_GROUPS_DEF[openGroup].color)}
             />
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 700,
-                color: COLORS.textStrong,
+                fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
+                color: theme.p.textStrong,
               }}
             >
-              {ALERT_GROUPS_DEF[openGroup].label}明細
+              {i18n.t("alerts.drawer.title", { group: enumLabel("intel.alertGroup", openGroup, ALERT_GROUPS_DEF[openGroup].label, i18n) })}
             </span>
             <div style={{ flex: 1 }} />
             <button
               onClick={() => setOpenGroup(null)}
               style={{
                 background: "none", border: "none", cursor: "pointer",
-                color: COLORS.textMuted, padding: 2,
+                color: theme.p.textMuted, padding: 2,
               }}
             >
               <IntelIcon d={MICON.chevUp!} size={11} />

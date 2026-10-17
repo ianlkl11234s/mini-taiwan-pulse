@@ -39,6 +39,38 @@ describe("statisticsDisplayModeStore", () => {
     expect(resolveStatisticsModeForUrl(undefined, false)).toBeUndefined();
   });
 
+  it("All Off 與逐一關閉每個開著的圖層結果一致（含統計面 recency 紀錄）", () => {
+    const setup = () => {
+      layerVisibilityStore.reset();
+      statisticsDisplayModeStore.reset();
+      apply(statisticsDisplayModeStore.setMode("overlap", layerVisibilityStore.getAll()));
+      apply(statisticsDisplayModeStore.enable(A!, layerVisibilityStore.getAll()));
+      apply(statisticsDisplayModeStore.enable(C!, layerVisibilityStore.getAll()));
+      layerVisibilityStore.setBulk({ flights: true, waterReservoirs: true, fireHydrants: true });
+    };
+
+    // 逐一關閉：App.handleToggleVisibility 的路徑（統計面走 setVisible，其餘直接 false）
+    setup();
+    const on = (Object.keys(layerVisibilityStore.getAll()) as (keyof ReturnType<typeof layerVisibilityStore.getAll>)[])
+      .filter((key) => layerVisibilityStore.getVisibility(key));
+    for (const key of on) {
+      if ((STATISTICS_CHOROPLETH_KEYS as readonly string[]).includes(key)) {
+        apply(statisticsDisplayModeStore.setVisible(key as typeof A & string, false, layerVisibilityStore.getAll()));
+      } else {
+        layerVisibilityStore.setVisibility(key, false);
+      }
+    }
+    const oneByOne = { vis: layerVisibilityStore.getAll(), stats: statisticsDisplayModeStore.getSnapshot() };
+
+    // All Off
+    setup();
+    apply(statisticsDisplayModeStore.allOff(layerVisibilityStore.getAll()));
+
+    expect(layerVisibilityStore.getAll()).toEqual(oneByOne.vis);
+    expect(statisticsDisplayModeStore.getSnapshot()).toEqual(oneByOne.stats);
+    expect(Object.values(layerVisibilityStore.getAll()).some(Boolean)).toBe(false);
+  });
+
   it("預設為單一模式", () => {
     expect(statisticsDisplayModeStore.getSnapshot()).toEqual({ mode: "single", lastEnabledKey: null, recentEnabledKeys: [] });
   });
@@ -104,13 +136,13 @@ describe("statisticsDisplayModeStore", () => {
     expect(layerVisibilityStore.getVisibility(C!)).toBe(false);
   });
 
-  it("crimeAreaMonthly 與 recipes 都受互斥，行政邊界不受影響", () => {
+  it("治安統計（取代 crimeAreaMonthly）與 recipes 都受互斥，行政邊界不受影響", () => {
     layerVisibilityStore.setVisibility("countyBoundary", true);
     apply(statisticsDisplayModeStore.enable(A!, layerVisibilityStore.getAll()));
-    apply(statisticsDisplayModeStore.enable("crimeAreaMonthly", layerVisibilityStore.getAll()));
+    apply(statisticsDisplayModeStore.enable("statsCrimeDrugCasesTownship", layerVisibilityStore.getAll()));
 
     expect(layerVisibilityStore.getVisibility(A!)).toBe(false);
-    expect(layerVisibilityStore.getVisibility("crimeAreaMonthly")).toBe(true);
+    expect(layerVisibilityStore.getVisibility("statsCrimeDrugCasesTownship")).toBe(true);
     expect(layerVisibilityStore.getVisibility("countyBoundary")).toBe(true);
   });
 

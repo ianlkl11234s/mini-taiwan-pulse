@@ -3,17 +3,13 @@ import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "map
 import { fetchJpStations } from "../data/jpStationsLoader";
 import { JP_STATION_TYPE_COLOR_EXPRESSION, JP_STATION_PAX_COLOR_EXPRESSION } from "../data/jpStationTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+
+const DEFAULT_OPACITY = Number(paramDefault("jpStations", "jpStationsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-stations";
 const LAYER_ID = "jp-stations-circle";
-
-function scaledRadius(scale: number, zoom6Radius: number, zoom12Radius: number): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    6, zoom6Radius * scale,
-    12, zoom12Radius * scale,
-  ] as unknown as ExpressionSpecification;
-}
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -23,7 +19,7 @@ function colorExpression(colorMode: "type" | "ridership"): ExpressionSpecificati
   return colorMode === "ridership" ? JP_STATION_PAX_COLOR_EXPRESSION : JP_STATION_TYPE_COLOR_EXPRESSION;
 }
 
-function circleLayer(radius: ExpressionSpecification, opacity: number, colorMode: "type" | "ridership"): CircleLayer {
+function circleLayer(radius: number, opacity: number, colorMode: "type" | "ridership", isDark: boolean): CircleLayer {
   return {
     id: LAYER_ID,
     type: "circle",
@@ -33,8 +29,7 @@ function circleLayer(radius: ExpressionSpecification, opacity: number, colorMode
       "circle-radius": radius,
       "circle-color": colorExpression(colorMode),
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": "rgba(15, 23, 42, 0.45)",
-      "circle-stroke-width": 0.35,
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
     },
   } as CircleLayer;
 }
@@ -46,6 +41,7 @@ export function useJpStationsLayer(
   opacity: number,
   scale: number,
   colorMode: "type" | "ridership",
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -74,23 +70,26 @@ export function useJpStationsLayer(
     if (!dataRef.current) return;
 
     const mount = () => {
+      const isDark = isDarkTheme;
       if (!dataRef.current) return;
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, { type: "geojson", data: dataRef.current });
       }
       if (!map.getLayer(LAYER_ID)) {
-        map.addLayer(circleLayer(scaledRadius(scale, 3, 6), opacity, colorMode));
+        map.addLayer(circleLayer(pointRadius("M", scale), opacity, colorMode, isDark));
       }
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(LAYER_ID, "circle-radius", scaledRadius(scale, 3, 6));
+        map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
         map.setPaintProperty(LAYER_ID, "circle-color", colorExpression(colorMode));
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(LAYER_ID, prop, stroke[prop]);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, colorMode, mapTick, dataTick]);
+  }, [mapRef, visible, opacity, scale, colorMode, isDarkTheme, mapTick, dataTick]);
 }

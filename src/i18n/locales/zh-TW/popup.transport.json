@@ -1,0 +1,21 @@
+{
+  "popup.transport.unknownStation": "未命名站點",
+  "popup.transport.active": "運作中",
+  "popup.transport.inactive": "已停用",
+  "popup.transport.startDate": "啟用日",
+  "popup.transport.docks": "車柱數",
+  "popup.transport.intercityBus": "客運",
+  "popup.transport.cityBus": "市區公車",
+  "popup.transport.routeCount": "路線數",
+  "popup.transport.transferStation": "{line}（轉乘站）",
+  "popup.transport.stationCode": "站代碼",
+  "popup.transport.railRoute": "軌道路線",
+  "popup.transport.vesselType": "船舶類型",
+  "popup.transport.aisTypeCode": "AIS 類型碼",
+  "popup.transport.ship.passenger": "客船 Passenger",
+  "popup.transport.ship.cargo": "貨船 Cargo",
+  "popup.transport.ship.tanker": "油輪 Tanker",
+  "popup.transport.ship.fishing": "漁船 Fishing",
+  "popup.transport.ship.special": "作業/拖船 Tug/Special",
+  "popup.transport.ship.unknown": "未知 Unknown"
+}

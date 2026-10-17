@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   Baby, BedDouble, Beef, Bike, Bus, Car, ChartNoAxesCombined, Droplets, Fish,
-  GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
+  Briefcase, GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
   Recycle, Route, School, Shield, Ship, Stethoscope, Trash2, Trees, TriangleAlert,
-  Volume2, Wheat, Zap,
+  Volume2, Wheat, Zap, Users, HousePlus, CalendarClock,
+  Ribbon, Pill, Wine, Gavel, Cigarette, Leaf, Syringe, TestTube, Smartphone, Mountain, Construction,
+  Microscope, Brain, Landmark, CreditCard, PiggyBank, Feather, Sprout, Dumbbell, CloudRain, ShieldAlert, Turtle, Anchor,
 } from 'lucide-react';
 import { LAYER_MANIFEST } from '../layerManifest';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../regionalStatisticsRecipes';
@@ -25,6 +27,7 @@ describe('getStatisticsVisual', () => {
     ['醫療人員', 'statsHealthWesternPhysicianCount', undefined, undefined, Stethoscope],
     ['長照', 'statsHealthCareWorkerRegistration', undefined, undefined, HeartHandshake],
     ['住宅', 'statsHousingOccupiedCounty', undefined, undefined, House],
+    ['工作與所得', 'statsLaborCountyEmployment', undefined, undefined, Briefcase],
     ['公車', 'statsBusOperatingTripCount', undefined, undefined, Bus],
     ['自行車', 'statsTaipeiUrbanRentalTrips', undefined, undefined, Bike],
     ['汽車', 'statsAutomobileRegisteredCount', undefined, undefined, Car],
@@ -43,6 +46,31 @@ describe('getStatisticsVisual', () => {
     ['道路', 'statsRoadLandAreaTownship', undefined, undefined, Route],
     ['噪音', 'statsTaichungRoadNoiseMonitoringStations', undefined, undefined, Volume2],
     ['治安', 'unknown', '犯罪率', '治安', Shield],
+    ['HIV', 'statsHivNewCasesCounty', undefined, undefined, Ribbon],
+    ['毒品嫌疑犯', 'statsDrugSuspectsPer100kCounty', undefined, undefined, Pill],
+    ['酒駕', 'statsDuiEnforcementCounty', undefined, undefined, Wine],
+    ['地檢署', 'statsProsecutorDrugNewCasesCounty', undefined, undefined, Gavel],
+    ['吸菸率', 'statsAdultSmokingRateCounty', undefined, undefined, Cigarette],
+    ['嚼檳榔率', 'statsAdultBetelRateCounty', undefined, undefined, Leaf],
+    ['清潔針具據點', 'statsNeedleEducationStationsTownship', undefined, undefined, Syringe],
+    ['HIV 篩檢點', 'statsHivTestingSitesPer100kCounty', undefined, undefined, TestTube],
+    ['網路成癮服務', 'statsInternetAddictionServicesCounty', undefined, undefined, Smartphone],
+    ['崩塌', 'statsLandslideAreaCounty', undefined, undefined, Mountain],
+    ['治山防災工程', 'statsSlopeWorksCostCounty', undefined, undefined, Construction],
+    ['水土保持災害損失', 'statsSwcDisasterLossCounty', undefined, undefined, TriangleAlert],
+    ['結核病', 'statsHealthTbIncidencePer100kTownship', undefined, undefined, Microscope],
+    ['癌症發生', 'statsHealthCancerIncidenceAsr', undefined, undefined, Ribbon],
+    ['精神疾病門診', 'statsHealthMentalOutpatientPer1000', undefined, undefined, Brain],
+    ['縣市政府歲入', 'statsFiscalLocalRevenue', undefined, undefined, Landmark],
+    ['信用卡消費', 'statsCreditCardResidentAmount', undefined, undefined, CreditCard],
+    ['存放款', 'statsBankDeposits', undefined, undefined, PiggyBank],
+    ['原住民保留地', 'statsIndigenousReservedLandArea', undefined, undefined, Feather],
+    ['農村再生', 'statsRuralRegenTraining', undefined, undefined, Sprout],
+    ['體育經費', 'statsSportsBudgetTotal', undefined, undefined, Dumbbell],
+    ['土石流警戒', 'statsDebrisFlowAlertStreamsCounty', undefined, undefined, CloudRain],
+    ['社會脆弱度', 'statsSocialVulnerabilityCompositeCounty', undefined, undefined, ShieldAlert],
+    ['海龜擱淺', 'statsSeaTurtleStrandedCounty', undefined, undefined, Turtle],
+    ['廢漁具', 'statsMarineDebrisFishingGearTonnesCounty', undefined, undefined, Anchor],
     ['fallback', 'unknown', undefined, undefined, ChartNoAxesCombined],
   ])('%s uses a semantic icon', (_name, key, label, group, icon) => {
     expect(getStatisticsVisual(key, label, group).icon).toBe(icon);
@@ -55,15 +83,58 @@ describe('getStatisticsVisual', () => {
     expect(getStatisticsVisual('statsBusOperatingTripCount').theme).toBe(getStatisticsVisual('statsComparisonBusOperatingTripCountPerKm2').theme);
   });
 
-  it('uses five-step sequential palettes with monotonically decreasing luminance', () => {
+  it('uses sequential palettes with at least five ordered classes', () => {
     for (const key of STATISTICS_KEYS) {
       const recipe = STATISTICS_RECIPES[key]!;
       const colors = getStatisticsVisual(key, recipe.label).colors;
-      expect(colors).toHaveLength(5);
+      expect(colors.length).toBeGreaterThanOrEqual(5);
       for (let index = 1; index < colors.length; index += 1) {
         expect(luminance(colors[index - 1]!)).toBeGreaterThan(luminance(colors[index]!));
       }
     }
+  });
+
+  it('routes environment statistics to BuPu and water utilities to GnBu, never transport or fallback', () => {
+    expect(getStatisticsVisual('statsMotorArrivalRateCounty', '機車定檢到檢率').theme).toBe('環境');
+    expect(getStatisticsVisual('statsComplaintsCounty', '公害陳情案件數').theme).toBe('環境');
+    expect(getStatisticsVisual('statsBodDischargedPerKm2County', '廢（污）水 BOD 排放量每平方公里').theme).toBe(getStatisticsVisual('statsBodDischargedCounty').theme);
+    expect(getStatisticsVisual('statsTapWaterFailuresCounty', '自來水不合格件數').theme).toBe('公用事業');
+    expect(getStatisticsVisual('statsSewerConnectionCounty', '公共污水下水道用戶接管普及率').theme).toBe('公用事業');
+    // 既有層不因新增 key 映射而改道
+    expect(getStatisticsVisual('statsWaterSupplyHistorical').icon).toBe(Droplets);
+    expect(getStatisticsVisual('statsWasteCounty').icon).toBe(Trash2);
+  });
+
+  it('routes demographics to the RdPu population theme by key prefix, never births/utilities or red–green', () => {
+    expect(getStatisticsVisual('statsDemographicsCountyPopulationTotal', '戶籍人口數').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsTownshipShareAge65Plus', '65 歲以上人口占比').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsCountyPopulationTotal').icon).toBe(Users);
+    expect(getStatisticsVisual('statsDemographicsCountyHouseholdSize').icon).toBe(HousePlus);
+    expect(getStatisticsVisual('statsDemographicsCountyMedianAge').icon).toBe(CalendarClock);
+    // 未來出生／死亡等指標仍走人口主題，不落入出生登記（公用事業）分支
+    expect(getStatisticsVisual('statsDemographicsCountyBirths', '出生數').theme).toBe('人口');
+    expect(getStatisticsVisual('statsDemographicsCountyAgingIndex').colors).toEqual(['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
+    expect(getStatisticsVisual('statsBirthsTownship').icon).toBe(Baby);
+    expect(getStatisticsVisual('statsDemographicsCountyBirths').icon).toBe(Baby);
+  });
+
+  it('uses PuOr centred on 0 for signed demographics (natural increase, net migration and their rates)', () => {
+    for (const [key, breaks] of [
+      ['statsDemographicsCountyNaturalIncrease', [-5000, -2000, 0, 2000, 5000]],
+      ['statsDemographicsTownshipNetMigrationRate', [-10, -5, 0, 5, 10]],
+      ['statsDemographicsCountyNetMigrationYtd', [-2000, -1000, 0, 1000, 2000]],
+    ] as const) {
+      expect(STATISTICS_RECIPES[key].breaks).toEqual(breaks);
+      expect(statisticsRenderRecipe(key).colors).toEqual(['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788']);
+    }
+    // 非負指標仍為 RdPu 序列色
+    expect(statisticsRenderRecipe('statsDemographicsCountyBirths').colors[0]).toBe('#feebe2');
+  });
+
+  it('uses the eight-class colorblind-friendly income palette for village income', () => {
+    expect(getStatisticsVisual('statsLaborVillageIncomeMedian', '綜合所得中位數').colors).toEqual([
+      '#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e',
+    ]);
   });
 
   it('resamples sequential colors to the number of Mapbox step intervals', () => {
@@ -90,8 +161,17 @@ describe('getStatisticsVisual', () => {
   });
 
   it('covers all source keys, presentation views, and their manifest entries', () => {
-    expect(STATISTICS_KEYS).toHaveLength(299);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(311);
+    // 2026-10-02: +37 環境統計（環境部／國土管理署 18 dataset）。
+    // 2026-10-04: +32 人口統計（戶籍人口 8＋年齡結構 24；村里 HOLD 不收）。
+    // 2026-10-04: +65 人口統計 P3–P6（人口動態 30＋遷徙 14＋原住民 8＋外來人口 13）。
+    // 2026-10-04: +20 人口統計村里（戶籍人口 4＋年齡結構 12＋原住民 4；只有 11508 一期）。
+    // 2026-10-06: +61 成癮與減害（HIV 4＋執法 15＋行為調查 2＋服務據點 40）。
+    // 2026-10-06: +13 成癮與減害第三輪（地檢署轄區 5＋清潔針具三類任一 4＋替代治療執行機構 4）。
+    // 2026-10-06: +4 崩塌與水土保持（崩塌筆數／面積、治山防災工程總經費、水土保持災害總損失）。
+    // 2026-10-12: +66 atlas 批次（疾病與健康 19＋財稅與消費 22＋原民與農村 3＋體育 4＋災害風險 8＋海洋 10）。
+    // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）。
+    expect(STATISTICS_KEYS).toHaveLength(642);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(654);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

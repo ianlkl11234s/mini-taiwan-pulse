@@ -1,0 +1,18 @@
+{
+  "popup.jpMedical.sourceNavii": "厚生労働省 Navii",
+  "popup.jpMedical.parentGroup": "上位分類",
+  "popup.jpMedical.rawServiceType": "元のサービス種別",
+  "popup.jpMedical.sourceH17": "厚生労働省 H17",
+  "popup.jpMedical.sourceSnapshot": "出典スナップショット",
+  "popup.jpMedical.coLocated": "同一地点・現在の絞り込みで {count} 件のサービス登録",
+  "popup.jpMedical.service": "サービス",
+  "popup.jpMedical.areasTitle": "医療圏 · 2020年版（過去データ）",
+  "popup.jpMedical.dataStatus": "データ状態",
+  "popup.jpMedical.staleValue": "STALE：2020年版（過去データ）",
+  "popup.jpMedical.sourceAreas": "国土数値情報 医療圏データ（2020）",
+  "popup.jpMedical.purpose": "用途",
+  "popup.jpMedical.purposeText": "行政計画上の境界であり、施設のサービス範囲やリアルタイムの受診圏ではありません",
+  "popup.jpMedical.geometryGrain": "ジオメトリの粒度",
+  "popup.jpMedical.geometryGrainText": "出典のポリゴンパーツ単位です。人口・面積・圏域数の合算には使えません",
+  "popup.jpMedical.sourceFields": "出典フィールド"
+}

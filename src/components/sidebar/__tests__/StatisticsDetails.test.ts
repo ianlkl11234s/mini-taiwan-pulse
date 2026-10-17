@@ -1,15 +1,23 @@
-import { describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDetailControlStyle, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
-import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { localeStore } from '../../../state/localeStore';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel } from '../StatisticsDetails';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary } from '../../../data/statisticsLabels';
+import { unparseableStatisticsReleaseCount } from '../../../data/statisticsSelection';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
-import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
+import { getSocialRecipeDetails } from '../../../data/socialStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../../../data/statisticsRecipeDetails';
+
+beforeAll(() => ensureStatisticsRecipeDetails());
+import { getLaborRecipe, laborLocationSemantics } from '../../../data/laborStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
-  it('keeps statistics selectors readable in either sidebar theme', () => {
-    expect(statisticsDetailControlStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
-    expect(statisticsDetailControlStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
-    expect(medicalStatisticsSelectStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
-    expect(medicalStatisticsSelectStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
+  it('shows reference boundary codes as Chinese source descriptions (spec §6.3)', () => {
+    expect(boundaryVersionLabel('COUNTY_MOI_1140318')).toBe('內政部縣市界（114 年 3 月 18 日版）');
+    expect(boundaryVersionLabel('SOMETHING_NEW_1')).toBe('未命名的參考邊界版本');
+    expect(boundaryVersionLabel(undefined)).toBe('未提供');
+    const text = humanizeStatisticsText('縣市歸屬以 COUNTY_MOI_1140318 參考縣界顯示；11501為來源統計參考版；TOWN_MOI_1140318為實際顯示圖形版本。');
+    expect(text).not.toMatch(/MOI_|NLSC_/);
+    expect(text).toContain('內政部縣市界（114 年 3 月 18 日版）');
   });
 
   it('renders the selected period and fund as a compact disclosure label', () => {
@@ -56,6 +64,22 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' })).toBe('期間：民國 114 年・12 月；系統：臺中捷運；地理語意：車站所在地');
   });
 
+  it('humanizes environment dimensions instead of showing source tokens', () => {
+    expect(statisticsDimensionSummary({ inspection_type: 'other_stationary' }, { period_start: '2025-01-01', period_end: '2025-12-31' }))
+      .toBe('期間：2025 年；稽查類別：其他固定污染源');
+    expect(statisticsDimensionSummary({ wastewater_source: 'agricultural' })).toBe('污水來源：農業');
+  });
+
+  it('humanizes labor exact selectors without hiding the industry subset rule', () => {
+    expect(statisticsDimensionSummary({ industry: 'manufacturing', period: 'H1', roc_year: '115' }, undefined, 'labor_statistics'))
+      .toBe('期間：民國 115 年；行業：製造業（工業子集）；期別：上半年');
+    const salary = getLaborRecipe('statsLaborCountyAnnualSalaryMedian')!;
+    expect(laborLocationSemantics(salary)).toContain('實際工作場所縣市');
+    expect(laborLocationSemantics(salary)).not.toContain('人力資源調查的居住地');
+    expect(laborLocationSemantics(getLaborRecipe('statsLaborVillageIncomeMedian')!)).toContain('申報／戶籍村里');
+    expect(laborLocationSemantics(getLaborRecipe('statsLaborCountyLaborForce')!)).toContain('居住地');
+  });
+
   it('humanizes new source-field and facility-location disclosures', () => {
     expect(statisticsDimensionSummary({ roc_year: '110', source_field: 'COLUMN7', geographic_coverage: 'taipei_township_only' })).toBe('期間：民國 110 年；來源欄位：河濱年租借次數；地理涵蓋：僅臺北市 12 區');
     expect(statisticsDimensionSummary({ roc_year: '115', month: '07', geographic_semantics: 'facility_location_activity', health: 'CURRENT', coverage: 'PARTIAL' })).toBe('期間：民國 115 年・07 月；地理語意：設施所在地活動；資料新鮮度：CURRENT；覆蓋狀態：PARTIAL');
@@ -100,7 +124,7 @@ describe('statisticsDimensionSummary', () => {
 
   it('does not alert a county housing recipe about the same indicator’s township release, but retains same-level mismatches', () => {
     const key = 'statsHousingTotalCounty';
-    const recipe = getSocialRecipe(key)!;
+    const recipe = getSocialRecipeDetails(key)!;
     const option = recipe.release_options[0]!;
     const release = {
       release_id: option.release_id,
@@ -118,10 +142,27 @@ describe('statisticsDimensionSummary', () => {
   });
 
   it('formats social legend labels from recipe format while marking rounded boundaries approximate', () => {
-    const social = getSocialRecipe('statsHousingUnusedPctCounty')!;
+    const social = getSocialRecipeDetails('statsHousingUnusedPctCounty')!;
     expect(statisticsLegendRows(STATISTICS_RECIPES.statsHousingUnusedPctCounty, social.format).map(row => row.label)).toEqual([
       '低於 ≈12.4', '≈12.4 至未滿 ≈13.26', '≈13.26 至未滿 ≈13.93', '≈13.93 至未滿 ≈16.64', '≈16.64 以上',
     ]);
   });
 
+  it('renders legend and coverage labels in English and Japanese', async () => {
+    await localeStore.ready('ja');
+    localeStore.set('en');
+    const en = localeStore.getSnapshot();
+    const social = getSocialRecipeDetails('statsHousingUnusedPctCounty')!;
+    expect(statisticsLegendRows(STATISTICS_RECIPES.statsHousingUnusedPctCounty, social.format, en).map(row => row.label)).toEqual([
+      'Below ≈12.4', '≈12.4 to under ≈13.26', '≈13.26 to under ≈13.93', '≈13.93 to under ≈16.64', '≈16.64 or above',
+    ]);
+    expect(statisticsCoverageStatusLabel(true, en)).toBe('Dataset coverage status');
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount, en)).toBe('County/city');
+    expect(statisticsValueLabel(null, 'TWD', en)).toBe('Not provided');
+    localeStore.set('ja');
+    expect(statisticsSelectedTupleAreaLabel(STATISTICS_RECIPES.statsLivestockHeadCountTownship, localeStore.getSnapshot())).toBe('郷鎮の統計値');
+  });
+
 });
+
+afterAll(() => localeStore.set('zh-TW'));

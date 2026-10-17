@@ -7,7 +7,6 @@ import {
   marineObservationCircleLayers,
   marineObservationColorExpression,
   marineObservationMapboxData,
-  marineObservationRadiusExpression,
 } from "../useMarineObservationLayer";
 import { MARINE_OBSERVATION_FRESHNESS_MINUTES } from "../../data/marineObservationLoader";
 
@@ -42,15 +41,7 @@ describe("marine observation Mapbox layer", () => {
     expect(JSON.stringify(cwa)).not.toContain('"0"');
   });
 
-  it("keeps zoom at the top-level interpolate input and passes Mapbox style validation", () => {
-    expect(marineObservationRadiusExpression(2)).toEqual([
-      "interpolate", ["linear"], ["zoom"],
-      5, 4.8,
-      8, 7.2,
-      12, 10.4,
-      16, 14.4,
-    ]);
-
+  it("passes Mapbox style validation", () => {
     for (const sourceNetwork of ["cwa", "isohe"] as const) {
       const sourceId = `marine-observation-${sourceNetwork}`;
       for (const layer of marineObservationCircleLayers(sourceNetwork, 0.73)) {
@@ -69,9 +60,9 @@ describe("marine observation Mapbox layer", () => {
     const isoheCircle = marineObservationCircleLayers("isohe", 2)[1];
     const hiddenCircle = marineObservationCircleLayers("cwa", -1)[1];
 
-    expect(cwaCircle?.paint?.["circle-stroke-opacity"]).toBe(0.73);
+    expect(cwaCircle?.paint?.["circle-stroke-opacity"]).toBeCloseTo(0.8 * 0.73 / 0.9);
     expect(JSON.stringify(cwaCircle?.paint?.["circle-opacity"])).toContain("0.73");
-    expect(isoheCircle?.paint?.["circle-stroke-opacity"]).toBe(1);
+    expect(isoheCircle?.paint?.["circle-stroke-opacity"]).toBeCloseTo(0.8 / 0.9);
     expect(hiddenCircle?.paint?.["circle-stroke-opacity"]).toBe(0);
   });
 

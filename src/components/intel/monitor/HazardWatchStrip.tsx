@@ -18,26 +18,30 @@ import { memo, useRef } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useInView } from "../../../hooks/useInView";
+import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
+import { useLocale } from "../../../state/localeStore";
+import type { MessageKey } from "../../../i18n/keys";
 
 interface HazardCh {
   videoId: string;
-  name: string;
+  nameKey: MessageKey;
   en: string;
-  hint: string;
+  hintKey: MessageKey;
 }
 
 const HAZARD_CHANNELS: HazardCh[] = [
   {
     videoId: "KyT4qSK8lJo",
-    name: "台灣地震監視",
+    nameKey: "monitor.hazard.stripEqName",
     en: "EQ MONITOR",
-    hint: "地震速報 · 強震即時警報",
+    hintKey: "monitor.hazard.stripEqHint",
   },
   {
     videoId: "ADZTiqEGT8g",
-    name: "台灣颱風論壇",
+    nameKey: "monitor.hazard.stripWxName",
     en: "WEATHER LIVE",
-    hint: "氣溫 · 雨量 · 雷達 · 颱風",
+    hintKey: "monitor.hazard.stripWxHint",
   },
 ];
 
@@ -49,6 +53,8 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
   // IntersectionObserver gate：iframe 只在首次進入視窗才掛
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
+  const v2 = useMonitorV2();
+  const { t } = useLocale();
   return (
     <div
       ref={slotRef}
@@ -61,7 +67,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
       <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {visible ? (
         <iframe
-          title={ch.name}
+          title={t(ch.nameKey)}
           src={embedSrc(ch.videoId)}
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -77,11 +83,11 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             style={{
               position: "absolute", inset: 0, display: "flex",
               alignItems: "center", justifyContent: "center",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px",
               color: COLORS.textFaint, background: "#000",
             }}
           >
-            STANDBY
+            {v2 ? t("monitor.hazard.standby") : "STANDBY"}
           </div>
         )}
 
@@ -108,30 +114,32 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), fontWeight: 700,
                 color: "#04121f", letterSpacing: "0.5px",
               }}
             >
-              LIVE
+              {v2 ? t("monitor.hazard.live") : "LIVE"}
             </span>
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
-            {ch.name}
+            {t(ch.nameKey)}
           </span>
-          <span
-            style={{
-              fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
-              letterSpacing: "0.5px",
-              textShadow: "0 1px 3px rgba(0,0,0,0.9)",
-            }}
-          >
-            {ch.en}
-          </span>
+          {!v2 && (
+            <span
+              style={{
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: COLORS.textDefault,
+                letterSpacing: "0.5px",
+                textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+              }}
+            >
+              {ch.en}
+            </span>
+          )}
         </div>
       </div>
 
@@ -148,21 +156,21 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             padding: "3px 9px", borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.72)",
             border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+            fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm),
             color: COLORS.textDefault,
             backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
           }}
         >
-          {ch.hint}
+          {t(ch.hintKey)}
         </span>
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)",
           }}
         >
-          🔇 點擊解除靜音
+          {t("monitor.hazard.unmute")}
         </span>
       </div>
     </div>
@@ -170,34 +178,40 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
 }
 
 export const HazardWatchStrip = memo(function HazardWatchStrip() {
+  const v2 = useMonitorV2();
+  const { t } = useLocale();
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
-        border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,152,0,0.04)",
-        padding: 13, display: "flex", flexDirection: "column",
+        gridColumn: "1 / -1",
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl,
+          border: `1px solid ${COLORS.panelBorder}`,
+          background: "rgba(255,152,0,0.04)",
+          padding: 13,
+        }),
+        display: "flex", flexDirection: "column",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
+      {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.statusWarn }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
             color: COLORS.textDefault,
           }}
         >
-          災防觀測 · HAZARD WATCH
+          {t("monitor.hazard.stripTitle")}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-          地震 + 天氣 · 24h 監測
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
+          {t("monitor.hazard.stripSub")}
         </span>
-      </div>
+      </div>}
 
       <div
         style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10,
+          display: "grid", gridTemplateColumns: v2 ? "repeat(2, minmax(0, 1fr))" : "1fr 1fr", gap: 10,
         }}
       >
         {HAZARD_CHANNELS.map((ch) => (

@@ -8,13 +8,14 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { X, Send, Settings, Square, RotateCcw, CornerDownLeft } from "lucide-react";
-import type { ChatMessage, ChatProviderId, MapBridge, RunChatTurn } from "../../chat/types";
+import type { ChatMessage, ChatProviderId, ChatToolCallSummary, MapBridge, RunChatTurn } from "../../chat/types";
 import { chatStore, useChatStore } from "../../state/chatStore";
 import { keyVault } from "../../lib/keyVault";
 import { KeySettings, MODEL_OPTIONS } from "./KeySettings";
 import { useIsMobile } from "../../hooks/useIsMobile";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import {
-  SURFACE, COLORS, BORDER, RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, ELEVATION, WHITE_ALPHA,
+  SURFACE, COLORS, BORDER, RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, ELEVATION, WHITE_ALPHA, Z_INDEX,
 } from "../../styles/designTokens";
 
 export interface ChatPanelProps {
@@ -99,16 +100,23 @@ function actionButtonStyle(c: Palette): React.CSSProperties {
   };
 }
 
-function ToolChip({ summary, c }: { summary: string; c: Palette }) {
+/**
+ * 工具摘要 chip。摘要由工具產生（中文，也會併回對話歷史給 AI），外文介面改顯示通用狀態，
+ * 原摘要放 title；中文介面照舊顯示摘要。
+ */
+function ToolChip({ call, c }: { call: ChatToolCallSummary; c: Palette }) {
+  const { active, t } = useLocale();
+  const text = active === "zh-TW" ? call.summary : t(call.failed ? "chat.toolFailed" : "chat.toolDone");
   return (
     <span
+      title={active === "zh-TW" ? undefined : call.summary}
       style={{
         padding: "2px 8px", borderRadius: RADIUS.pill,
         background: c.chipBg, border: `1px solid ${c.borderMid}`,
         fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textSecondary,
       }}
     >
-      {summary}
+      {text}
     </span>
   );
 }
@@ -117,10 +125,12 @@ function MessageBubble({
   msg,
   streamingPlaceholder,
   c,
+  i18n,
 }: {
   msg: ChatMessage;
   streamingPlaceholder: boolean;
   c: Palette;
+  i18n: LocaleSnapshot;
 }) {
   const isUser = msg.role === "user";
   return (
@@ -145,13 +155,13 @@ function MessageBubble({
         {!isUser && msg.toolCalls && msg.toolCalls.length > 0 && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {msg.toolCalls.map((call, idx) => (
-              <ToolChip key={`${msg.id}-tool-${idx}`} summary={call.summary} c={c} />
+              <ToolChip key={`${msg.id}-tool-${idx}`} call={call} c={c} />
             ))}
           </div>
         )}
         {!isUser && msg.usage && (
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textFaint }}>
-            輸入 {msg.usage.inputTokens} ・ 輸出 {msg.usage.outputTokens} tokens
+            {i18n.t("chat.usage", { input: msg.usage.inputTokens, output: msg.usage.outputTokens })}
           </span>
         )}
         {msg.error && (
@@ -166,6 +176,8 @@ function MessageBubble({
 
 export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compact = false, isDarkTheme = true }: ChatPanelProps) {
   const { messages, status, provider, model, settingsOpen } = useChatStore();
+  const i18n = useLocale();
+  const { t } = i18n;
   const { isMobile } = useIsMobile();
   const c = buildPalette(isDarkTheme);
   const [draft, setDraft] = useState("");
@@ -259,7 +271,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
       if (aborted) {
         chatStore.setStatus("idle");
       } else {
-        const message = err instanceof Error ? err.message : "對話發生錯誤，請稍後再試";
+        const message = err instanceof Error ? err.message : t("chat.error.generic");
         chatStore.updateLastAssistant({ error: message });
         chatStore.setStatus("error");
       }
@@ -284,7 +296,8 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         background: c.panelMobile,
         borderTop: `1px solid ${c.borderPanel}`,
         borderRadius: "16px 16px 0 0",
-        zIndex: 60,
+        // 與置中視窗同層（modal）：DOM 在 MemberPanel／InfoModal／ShareModal 之前，靠順序讓它們蓋過對話浮層
+        zIndex: Z_INDEX.modal,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.dock,
         animation: "chatPanelRiseMobile .28s cubic-bezier(0.22,1,0.36,1)",
@@ -300,7 +313,8 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${c.borderPanel}`,
         borderRadius: RADIUS.xl,
-        zIndex: 60,
+        // 與置中視窗同層（modal）：DOM 在 MemberPanel／InfoModal／ShareModal 之前，靠順序讓它們蓋過對話浮層
+        zIndex: Z_INDEX.modal,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.lg,
         animation: "chatPanelRise .22s ease-out",
@@ -317,21 +331,21 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
         }}
       >
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: c.textStrong }}>
-          AI 助手
+          {t("chat.title")}
         </span>
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: c.textDim }}>
           BYOK CHAT
         </span>
         <div style={{ flex: 1 }} />
         {!settingsOpen && messages.length > 0 && (
-          <button onClick={() => chatStore.reset()} style={actionButtonStyle(c)} title="清空對話">
-            <RotateCcw size={13} /> 清空
+          <button onClick={() => chatStore.reset()} style={actionButtonStyle(c)} title={t("chat.clearTitle")}>
+            <RotateCcw size={13} /> {t("chat.clear")}
           </button>
         )}
         <button onClick={() => chatStore.setSettingsOpen(!settingsOpen)} style={actionButtonStyle(c)}>
-          <Settings size={13} /> {settingsOpen ? "對話" : "設定"}
+          <Settings size={13} /> {settingsOpen ? t("chat.backToChat") : t("chat.settings")}
         </button>
-        <button onClick={onClose} style={actionButtonStyle(c)}>
+        <button onClick={onClose} style={actionButtonStyle(c)} aria-label={t("chat.close")} title={t("chat.close")}>
           <X size={14} />
         </button>
       </div>
@@ -349,10 +363,10 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
               }}
             >
               <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: c.textSecondary, flex: 1 }}>
-                尚未設定 {PROVIDER_LABELS[provider]} 的 API key，請先到設定頁貼上金鑰。
+                {t("chat.noKeyNotice", { provider: PROVIDER_LABELS[provider] })}
               </span>
               <button onClick={() => chatStore.setSettingsOpen(true)} style={actionButtonStyle(c)}>
-                前往設定
+                {t("chat.goSettings")}
               </button>
             </div>
           )}
@@ -373,7 +387,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                 }}
               >
                 <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: c.textSecondary }}>
-                  問我地圖上的資料，我可以幫你開圖層、飛到定點、查數字
+                  {t("chat.empty")}
                 </span>
               </div>
             ) : (
@@ -385,6 +399,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                     status === "streaming" && idx === messages.length - 1 && m.role === "assistant"
                   }
                   c={c}
+                  i18n={i18n}
                 />
               ))
             )}
@@ -402,7 +417,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={hasKey ? "輸入訊息…" : "請先到設定頁貼上 API key"}
+                placeholder={hasKey ? t("chat.placeholder") : t("chat.placeholderNoKey")}
                 rows={2}
                 style={{
                   flex: 1, resize: "none", padding: "8px 10px", borderRadius: RADIUS.lg,
@@ -414,9 +429,9 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                 <button
                   onClick={() => abortRef.current?.abort()}
                   style={{ ...actionButtonStyle(c), color: COLORS.statusErr }}
-                  title="中斷"
+                  title={t("chat.abort")}
                 >
-                  <Square size={13} /> 中斷
+                  <Square size={13} /> {t("chat.abort")}
                 </button>
               ) : (
                 <button
@@ -428,7 +443,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                     cursor: draft.trim() ? "pointer" : "not-allowed",
                   }}
                 >
-                  <Send size={13} /> 送出
+                  <Send size={13} /> {t("chat.send")}
                 </button>
               )}
             </div>
@@ -438,7 +453,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                 fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textFaint,
               }}
             >
-              <CornerDownLeft size={10} /> 送出・Shift+Enter 換行
+              <CornerDownLeft size={10} /> {t("chat.hint")}
             </span>
           </div>
         </>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FONT_CJK } from "../styles/designTokens";
 
 type NoticeListener = (message: string) => void;
 const listeners = new Set<NoticeListener>();
@@ -35,6 +36,7 @@ export function TransientNotice() {
         bottom: 28,
         left: "50%",
         transform: "translateX(-50%)",
+        // 特例：維持 3000，必須高於「資料更新中」遮罩（1000）；Z_INDEX.toast（50）會被遮罩壓暗（見 design-system/spec.md 層級章節）
         zIndex: 3000,
         padding: "9px 16px",
         background: "rgba(0,0,0,0.82)",
@@ -44,7 +46,7 @@ export function TransientNotice() {
         borderRadius: 10,
         color: "#E5E7EB",
         fontSize: 13,
-        fontFamily: "Inter, system-ui, sans-serif",
+        fontFamily: FONT_CJK,
         whiteSpace: "nowrap",
         pointerEvents: "none",
         boxShadow: "0 6px 24px rgba(0,0,0,0.35)",

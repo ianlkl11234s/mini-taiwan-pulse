@@ -28,6 +28,7 @@ RELEASE_ID = re.compile(r"^[A-Za-z0-9_-]+$")
 ASSET_PATH = re.compile(r"^releases/([A-Za-z0-9_-]+)/([A-Za-z0-9_.-]+)\.geojson$")
 NOT_FOUND = {"404", "NoSuchKey", "NotFound", "NoSuchBucket"}
 PRECONDITION_FAILED = {"412", "PreconditionFailed", "ConditionalRequestConflict"}
+PUBLICATION_LICENSE_STATUS = "verified_public_display"
 
 
 def utc_now() -> str:
@@ -87,6 +88,8 @@ def manifest_entries(root: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         raise ValueError("manifest.json is not valid UTF-8 JSON") from error
     if not isinstance(manifest, dict) or manifest.get("schema") != "historical-flight-trails-v1":
         raise ValueError("manifest schema is not historical-flight-trails-v1")
+    if manifest.get("license_status") != PUBLICATION_LICENSE_STATUS:
+        raise ValueError("manifest license_status is not verified for public display")
     release_id = manifest.get("release_id")
     if not isinstance(release_id, str) or not RELEASE_ID.fullmatch(release_id):
         raise ValueError("manifest release_id is unsafe")

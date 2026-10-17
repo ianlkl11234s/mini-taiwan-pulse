@@ -7,9 +7,10 @@ import {
 import { STATISTICS_RECIPES, a1AccidentReleaseSelector, busOperationReleaseSelector, caaAirportActivityReleaseSelector, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiBicycleReleaseSelector, taipeiTrafficViolationCitationReleaseSelector, taichungRoadNoiseMonitoringReleaseSelector, taoyuanAirportReleaseSelector, tmrtStationOutboundReleaseSelector } from "../regionalStatisticsRecipes";
 
 describe("statistics layer role registry", () => {
-  it("將 Statistics tab 的 crime choropleth 納入模式，行政邊界明確豁免", () => {
-    expect(STATISTICS_TAB_LAYER_ROLES.crimeAreaMonthly).toBe("choropleth");
-    expect(STATISTICS_CHOROPLETH_KEYS).toContain("crimeAreaMonthly");
+  it("將 Statistics tab 的治安統計 choropleth 納入模式（舊 crimeAreaMonthly 已移除），行政邊界明確豁免", () => {
+    expect(STATISTICS_TAB_LAYER_ROLES.statsCrimeDrugCasesTownship).toBe("choropleth");
+    expect(STATISTICS_CHOROPLETH_KEYS).toContain("statsCrimeDrugCasesTownship");
+    expect(STATISTICS_CHOROPLETH_KEYS).not.toContain("crimeAreaMonthly");
     expect(isStatisticsChoropleth("countyBoundary")).toBe(false);
     expect(isStatisticsChoropleth("townshipBoundary")).toBe(false);
   });

@@ -4,6 +4,8 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { JP_RAILWAY_TYPE_COLOR_EXPRESSION } from "../data/jpRailwayTypes";
+import { paramDefault } from "../data/layerParamsSpec";
+import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 const SOURCE_ID = "jp-railways";
 const SOURCE_LAYER = "jp_railways";
@@ -11,6 +13,7 @@ const LINE_LAYER_ID = "jp-railways-line";
 const FILE = "jp_railways.pmtiles";
 const MINZOOM = 4;
 const MAXZOOM = 12;
+const OPACITY_DEFAULT = Number(paramDefault("jpRailways", "jpRailwaysOpacity") ?? 1);
 
 // UX baseline（主要路網線層）：z6=1px → z14=3px
 const LINE_WIDTH: ExpressionSpecification = [
@@ -29,17 +32,22 @@ function absoluteUrl(relativeFile: string): string {
 }
 
 function railwayLineLayer(opacity: number): LineLayer {
+  const paint = hookLinePaint("jpRailways", LINE_LAYER_ID, {
+    "line-color": JP_RAILWAY_TYPE_COLOR_EXPRESSION,
+    "line-width": LINE_WIDTH,
+    "line-opacity": clampOpacity(opacity),
+  }, {
+    "line-color": JP_RAILWAY_TYPE_COLOR_EXPRESSION,
+    "line-width": LINE_WIDTH,
+    "line-opacity": OPACITY_DEFAULT,
+  });
   return {
     id: LINE_LAYER_ID,
     type: "line",
     source: SOURCE_ID,
     "source-layer": SOURCE_LAYER,
-    layout: { visibility: "none", "line-cap": "round", "line-join": "round" },
-    paint: {
-      "line-color": JP_RAILWAY_TYPE_COLOR_EXPRESSION,
-      "line-width": LINE_WIDTH,
-      "line-opacity": clampOpacity(opacity),
-    },
+    layout: { visibility: "none", ...hookLineLayout("jpRailways", LINE_LAYER_ID) },
+    paint,
   } as LineLayer;
 }
 
@@ -75,7 +83,7 @@ export function useJpRailwaysLayer(
       }
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", clampOpacity(opacity));
+        map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpRailways", LINE_LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
       }
     };
 

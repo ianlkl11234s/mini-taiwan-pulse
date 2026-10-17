@@ -84,6 +84,18 @@
 
 補充 browser 驗收：三種原點與三種密度層均於 z7.38 全台視野確認可見；工廠密度在 z10.5 確認 450m 格與 popup。上游小型測試 3/3 通過（canonical grid、加總守恆、無效／缺失座標拒絕）。
 
+## 2026-09-30 allzoom 點位 buffer 64 → 8（效能，點不抽稀）
+
+三個原點層改用 `--buffer=8` 重切（上游 `08_allzoom_density.py`，analytics 分支 `perf/allzoom-buffer-8`；契約同步記在 `industrial-allzoom-density.md`）。輸入快照與 2026-09-18 相同（geojsonseq sha 逐位元一致）。z0／z7／z10／z14 各 zoom 解出點數與舊檔相同，z0／z14 逐點座標與屬性一致；減少的只有跨圖磚邊界的重複副本（z7 含邊界副本：factory 312,100 → 94,386）。buffer 8（512px tile 下 ≥16 CSS px）涵蓋 dense override 最大點半徑 4.5px × 大小滑桿 3 倍 + 1px 描邊 = 14.5px。
+
+| 本地 artifact | records | 大小 | SHA-256 |
+|---|---:|---:|---|
+| `public/business_registry/factory_locations_202606_allzoom_b8.pmtiles` | 90,652 | 123.7 → 70.0 MB | `d2e2abf0ea7cc48cbd4453fb6b68e03e66a27dbdb3e9c65fa935d30ef0843f9d` |
+| `public/business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles` | 184,944 | 102.7 → 57.1 MB | `638cb57c795ff3fdfa04780c598a7b587b56a2a52e98528f0e33d425bc377d40` |
+| `public/business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles` | 80,732 | 128.3 → 71.8 MB | `0fd869c5e56b51f5e2e558cd4bc35db2942f69dde7cb8c8d0526b33bac3d9be0` |
+
+舊 `_allzoom.pmtiles` 保留於本機與 S3，供舊版前端快取期間使用；之後再從部署清單移除。
+
 ## 2026-09-18 PR 整合驗收
 
 - 前端 PR #260：保留產業／年齡既有 commit，分開提交標籤開關、科學色階、工業點位與密度；一般 merge 整合當前 master。

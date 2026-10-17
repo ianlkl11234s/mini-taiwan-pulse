@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   deriveManeuverEvents,
   computePrediction,
+  MIN_PREDICTION_INTERVALS,
   type TleHistoryRow,
 } from "../satelliteHistoryLoader";
 
@@ -82,47 +83,56 @@ describe("deriveManeuverEvents — 從 TLE 歷史推變軌", () => {
   });
 });
 
-describe("computePrediction — μ ± σ 信心區間", () => {
+describe("deriveManeuverEvents — 缺值不當 0", () => {
+  it("新舊任一端 inclination 為 null → 不產生假變軌", () => {
+    const hist: TleHistoryRow[] = [
+      row(0, 97.4, 94.4, 0.001),
+      { ...row(7, 97.4, 94.4, 0.001), inclination: null },
+    ];
+    // 新的傾角 97.4、舊的 null：若把 null 當 0 會得到 +97.4° 假事件
+    expect(deriveManeuverEvents(hist)).toHaveLength(0);
+  });
+
+  it("某欄缺值但其他欄真的變化 → 只用有值的欄位判斷", () => {
+    const hist: TleHistoryRow[] = [
+      row(0, 97.4, 94.5, 0.001),
+      { ...row(7, 97.4, 94.4, 0.001), inclination: null },
+    ];
+    const ev = deriveManeuverEvents(hist);
+    expect(ev).toHaveLength(1);
+    expect(ev[0]!.type).toBe("ALTITUDE_CHANGE");
+    expect(ev[0]!.deltaInclination).toBeUndefined();
+  });
+});
+
+describe("computePrediction — 依歷史間隔估算（無信心百分比）", () => {
+  const day = (n: number) => new Date(Date.now() - n * 86400 * 1000).toISOString().slice(0, 10);
+  const ev = (...ages: number[]) =>
+    ages.map((n) => ({ date: day(n), type: "ALTITUDE_CHANGE" as const, detail: "" }));
+
   it("少於 2 events → null（樣本不足）", () => {
     const pred = computePrediction([]);
     expect(pred.muDays).toBeNull();
-    expect(pred.confidencePercent).toBeNull();
+    expect(pred).not.toHaveProperty("confidencePercent");
   });
 
-  it("2 events 14 天間隔 → μ=14, σ=0", () => {
-    const events = [
-      { date: new Date(Date.now()).toISOString().slice(0, 10), type: "ALTITUDE_CHANGE" as const, detail: "" },
-      { date: new Date(Date.now() - 14 * 86400 * 1000).toISOString().slice(0, 10), type: "ALTITUDE_CHANGE" as const, detail: "" },
-    ];
-    const pred = computePrediction(events);
-    expect(pred.muDays).toBeCloseTo(14, 0);
-    expect(pred.sigmaDays).toBeCloseTo(0, 1);
-    expect(pred.sampleSize).toBe(2);
+  it(`間隔數 < ${MIN_PREDICTION_INTERVALS}（n=2、3 個事件）→ 不給預測`, () => {
+    expect(computePrediction(ev(0, 14)).muDays).toBeNull();
+    expect(computePrediction(ev(0, 10, 30)).muDays).toBeNull();
+    expect(computePrediction(ev(0, 10, 30)).sampleSize).toBe(3);
   });
 
-  it("3 events 不等間隔 → σ > 0", () => {
-    const t = Date.now();
-    const events = [
-      { date: new Date(t).toISOString().slice(0, 10), type: "ALTITUDE_CHANGE" as const, detail: "" },
-      { date: new Date(t - 10 * 86400 * 1000).toISOString().slice(0, 10), type: "ALTITUDE_CHANGE" as const, detail: "" },
-      { date: new Date(t - 30 * 86400 * 1000).toISOString().slice(0, 10), type: "ALTITUDE_CHANGE" as const, detail: "" },
-    ];
-    const pred = computePrediction(events);
-    expect(pred.muDays).toBeGreaterThan(0);
+  it(`剛好 ${MIN_PREDICTION_INTERVALS} 個間隔（4 個事件）→ 有 μ、σ 與區間`, () => {
+    const pred = computePrediction(ev(0, 10, 30, 40));
+    expect(pred.muDays).toBeCloseTo(40 / 3, 5);
     expect(pred.sigmaDays!).toBeGreaterThan(0);
-    expect(pred.confidencePercent).toBeGreaterThan(0);
-    expect(pred.confidencePercent).toBeLessThanOrEqual(80);
+    expect(pred.nextLowDays!).toBeLessThanOrEqual(pred.nextHighDays!);
+    expect(pred.sampleSize).toBe(4);
   });
 
-  it("信心區間隨樣本數遞增 (n=2: 40%, n=10: 80% 上限)", () => {
-    const mkEvents = (n: number) => Array.from({ length: n }, (_, i) => ({
-      date: new Date(Date.now() - i * 7 * 86400 * 1000).toISOString().slice(0, 10),
-      type: "ALTITUDE_CHANGE" as const,
-      detail: "",
-    }));
-    const small = computePrediction(mkEvents(2));
-    const large = computePrediction(mkEvents(15));
-    expect(small.confidencePercent).toBeLessThan(large.confidencePercent!);
-    expect(large.confidencePercent).toBeLessThanOrEqual(80);
+  it("等間隔 → σ=0", () => {
+    const pred = computePrediction(ev(0, 7, 14, 21));
+    expect(pred.muDays).toBeCloseTo(7, 5);
+    expect(pred.sigmaDays).toBeCloseTo(0, 5);
   });
 });

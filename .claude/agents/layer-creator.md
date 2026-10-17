@@ -67,8 +67,8 @@ tools: Read, Write, Edit, Grep, Glob, Bash
     **只有新 key 那幾行該動**；既有層出現 diff 就是回歸，回去修程式
 
 **條件觸點**（不是每層都要，判斷不了就問用戶）：
-分類 ≥ 2 色 → `LegendPanel.tsx` sub-component ＋ `LEGEND_REGISTRY`；
-可點選 → `featureInfo/<domain>Panels.tsx` ＋ `registry.tsx` 的 `PANEL_REGISTRY`/`HEADER_LABELS`
+分類 ≥ 2 色 → `src/components/legend/<domain>Legends.tsx` 寫 sub-component（**i18n**：文字放 `legend.<domain>.json` 用 `t()`、類別名用 `enumLabel`，標題可借圖層名 `localizeLayerName`；不要寫死中文。範例看同檔既有圖例）（依主題挑檔）＋ `LegendPanel.tsx` 的 `LEGEND_REGISTRY`；
+可點選 → `featureInfo/<domain>Panels.tsx` ＋ `registry.tsx` 的 `PANEL_REGISTRY`/`HEADER_LABELS`（**i18n**：常用欄位用 `<Row field="address" …/>`（`popup.field.*`，見 `src/i18n/locales/zh-TW/popup.json`）；面板專屬文字放 `popup.<domain>.json` 用 `t()`，不要寫死中文。規則見 `src/i18n/README.md`）
 ＋ `src/map/gisClickRegistry.ts` 的 `GIS_LAYERS`（4b 起模組級；first-hit-wins，小範圍排前）；
 PMTiles → `nginx.conf` ＋ 兩支 deploy 腳本清單。
 
@@ -77,6 +77,11 @@ PMTiles → `nginx.conf` ＋ 兩支 deploy 腳本清單。
 - 用戶沒指定類型 → 問「是 static GeoJSON 還是 dynamic 時序？」
 - 用戶沒指定色碼 → 從既有 `LAYER_COLORS` 找未使用色系，或給 3 個選項問
 - 資料來源是 Supabase → loader 用 `supabase.rpc()`，先用 `/check-rpc` 確認 RPC 存在
+  - 若要新寫 RPC／表（migration 在 `../gis-platform`），權限照 `docs/supabase-optimization.md` §權限慣例：
+    前端 RPC `REVOKE EXECUTE … FROM PUBLIC; GRANT EXECUTE … TO anon, authenticated;`；cron／內部函式
+    `REVOKE EXECUTE … FROM PUBLIC, anon, authenticated;`；前端讀的表／view 只 `GRANT SELECT … TO anon, authenticated;`；
+    `SECURITY DEFINER` 一律 `SET search_path`；時間範圍參數在函式內 clamp。2026-10 起 public 的 default privileges
+    已收回，漏寫 GRANT 前端會 permission denied → 回報時列進「需要人工確認」
 - 資料來源是 GeoJSON → loader 改用 `fetch("./xxx.geojson")`
 
 ## 完成後回報格式

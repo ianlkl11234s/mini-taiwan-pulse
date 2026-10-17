@@ -73,7 +73,7 @@ bash scripts/audit/weekly/run_all.sh
 | `probe_layers.ts` | A2 RPC 死鏈／A3 A4 線上資產活性／A5 孤兒資產 |
 | `probe_runtime.ts` | **A6 圖層執行期建置**（真的開瀏覽器跑正式站，比對 registry 期望的 sourceId 與實際建起來的）|
 | `probe_production.sh` | C4 正式站回應／B6 CDN 快取有效性 |
-| `check_docs.ts` | D1 README 數字對帳（14 項：layer 數／dataClass／features 夾／主題數／主題表逐列／上游 dataset／Loader 數／collector 數／nginx location／Three.js Scene）／D2 文件齊全／D3 落後／D4 散檔／D5 狀態檔／D7 params 漂移／D8 頻率覆蓋 |
+| `check_docs.ts` | D1 README 數字對帳（14 項：layer 數／dataClass／features 夾／主題數／主題表逐列／上游 dataset／Loader 數／collector 數／nginx location／Three.js Scene）／D2 README 齊全（handoff／backlog／changelog 依契約視需要，只記 metrics）／D3 落後／D4 散檔／D7 params 漂移／D8 頻率覆蓋 |
 | `check_hygiene.sh` | E1 未 push／E2 dirty／E3 大檔誤入 git／E4 public 用量 |
 
 參數：`--skip-network`（離線只跑 docs／hygiene）、`--only <name>`（只跑一支）。
@@ -101,7 +101,7 @@ bash scripts/audit/weekly/run_all.sh
    是 `data-collectors/tasks/monitoring.py` 的背景監控——從 🔴 降為 🟡。）
 2. **孤兒判定要收斂口徑**——「DB 有 1023 個 function」是含 extension 的毛數，
    排除 extension-owned、pg_cron 呼叫的、前端用到的之後才是候選（實際約 86 個，不是 800 多）。
-3. **散檔歸檔看連結不看檔名**——`water-resources-status.md` 看起來像一次性 status，
+3. **散檔歸檔看連結不看檔名**——`docs/features/water-resources/water-resources-status.md` 看起來像一次性 status，
    實際是全域 MEMORY.md 指定的現行狀態檔。
 4. **本週新增圖層專章**：先 `git log --since="7 days ago" --stat src/data/layerManifest.ts` 看範圍，
    要看內容用 `-U0`（**不要用 `-p`**，這是萬行登記簿，完整 diff 會灌爆 context）抓新 entry，

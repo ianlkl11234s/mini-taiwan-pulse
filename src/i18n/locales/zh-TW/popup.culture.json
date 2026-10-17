@@ -1,0 +1,22 @@
+{
+  "popup.culture.branchFallback": "北市圖",
+  "popup.culture.facilityFallback": "文化設施",
+  "popup.culture.museumFallback": "地方文化館",
+  "popup.culture.eventFallback": "藝文活動",
+  "popup.culture.venueFallback": "表演場館",
+  "popup.culture.ongoing": "進行中",
+  "popup.culture.upcoming": "未開始",
+  "popup.culture.categoryCode": "類別代碼",
+  "popup.culture.showTime": "場次時間",
+  "popup.culture.eventCount": "活動數",
+  "popup.culture.showCount": "場次數",
+  "popup.culture.openAreas": "開放區",
+  "popup.culture.areasValue": "{open} / {total} 區",
+  "popup.culture.freeSeats": "空位",
+  "popup.culture.closed": "休館中",
+  "popup.culture.areaList": "各閱覽區（{count}）",
+  "popup.culture.trend24h": "24h 空位趨勢",
+  "popup.culture.closedSuffix": "（休館）",
+  "popup.culture.closedGap": "閉館時段不顯示",
+  "popup.culture.librarySource": "臺北市立圖書館 · 資料 10 分鐘更新"
+}

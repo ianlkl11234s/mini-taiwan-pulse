@@ -37,7 +37,6 @@ interface LayerRow {
   theme: string;
   section: string;
   chinese_label: string;
-  label_mobile: string;
   source_url: string;
   source_type: string;
   loader_file: string;
@@ -53,8 +52,7 @@ for (const theme of THEMES) {
         layer_key: layer.key,
         theme: theme.title,
         section: group.title,
-        chinese_label: layer.label,
-        label_mobile: layer.labelMobile ?? "",
+        chinese_label: layer.name.zh,
         source_url: "",
         source_type: "",
         loader_file: "",
@@ -243,7 +241,7 @@ function csvEscape(s: string): string {
   return s;
 }
 const header = [
-  "layer_key", "theme", "section", "chinese_label", "label_mobile",
+  "layer_key", "theme", "section", "chinese_label",
   "source_url", "source_type", "loader_file", "rpc_names", "hook_file",
 ];
 const csvLines = [header.join(",")];

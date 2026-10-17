@@ -8,6 +8,57 @@ import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { dedupRpc } from "../lib/rpcDebounce";
 
+/** 路線 JSON 原始形狀：v2 檔移除可推導的 cumDist（舊檔仍含，直接沿用） */
+export type RawBusRouteGeometry = Omit<BusRouteGeometry, "cumDist" | "totalDist"> & {
+  cumDist?: number[];
+  totalDist?: number;
+};
+
+/**
+ * 累積距離（degree 空間二維歐氏距離逐段累加，首元素 0）。
+ * 公式須與 scripts/preprocess/preprocess-bus-routes.py compute_cum_dist 完全一致；
+ * 原檔另做 round(v, 6)，此處不 round（差 ≤ 5e-7 度 ≈ 5.5 cm）。
+ */
+export function computeCumDist(coords: readonly (readonly [number, number])[]): number[] {
+  const n = coords.length;
+  const cum = new Array<number>(n);
+  if (n === 0) return cum;
+  cum[0] = 0;
+  let acc = 0;
+  for (let i = 1; i < n; i++) {
+    const a = coords[i - 1]!, b = coords[i]!;
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    acc += Math.sqrt(dx * dx + dy * dy);
+    cum[i] = acc;
+  }
+  return cum;
+}
+
+/** 缺 cumDist 時就地補算（totalDist 取重算末值，確保 progress ≤ 1）；已有則原樣沿用 */
+export function normalizeBusRoute(val: RawBusRouteGeometry): BusRouteGeometry {
+  if (val.cumDist && val.totalDist !== undefined) return val as BusRouteGeometry;
+  const cumDist = computeCumDist(val.coords);
+  const route = val as BusRouteGeometry;
+  route.cumDist = cumDist;
+  route.totalDist = cumDist.length > 0 ? cumDist[cumDist.length - 1]! : 0;
+  return route;
+}
+
+/** 把整份路線 JSON 轉成 BusRouteData（補算 cumDist + 建 routeUid 索引），回傳補算耗時 */
+export function buildBusRouteData(raw: Record<string, RawBusRouteGeometry>): { data: BusRouteData; normalizeMs: number } {
+  const routes = new Map<string, BusRouteGeometry>();
+  const routeIndex = new Map<string, string[]>();
+  const t0 = performance.now();
+  for (const [key, val] of Object.entries(raw)) {
+    const route = normalizeBusRoute(val);
+    routes.set(key, route);
+    const uid = route.routeUid;
+    if (!routeIndex.has(uid)) routeIndex.set(uid, []);
+    routeIndex.get(uid)!.push(key);
+  }
+  return { data: { routes, routeIndex }, normalizeMs: performance.now() - t0 };
+}
+
 // Per-city route cache
 const cityRouteCache = new Map<BusCity, BusRouteData>();
 const cityRouteFetching = new Map<BusCity, Promise<BusRouteData>>();
@@ -27,21 +78,11 @@ export async function loadBusRoutesForCity(city: BusCity): Promise<BusRouteData>
     `公車路線 ${city}`,
     fetch(BUS_CITY_CONFIG[city].jsonFile).then((r) => {
       if (!r.ok) throw new Error(`Bus routes ${city}: ${r.status}`);
-      return r.json() as Promise<Record<string, BusRouteGeometry>>;
+      return r.json() as Promise<Record<string, RawBusRouteGeometry>>;
     }),
   ).then((raw) => {
-    const routes = new Map<string, BusRouteGeometry>();
-    const routeIndex = new Map<string, string[]>();
-
-    for (const [key, val] of Object.entries(raw)) {
-      routes.set(key, val);
-      const uid = val.routeUid;
-      if (!routeIndex.has(uid)) routeIndex.set(uid, []);
-      routeIndex.get(uid)!.push(key);
-    }
-
-    console.log(`[Bus] Loaded ${routes.size} route shapes for ${city}`);
-    const result: BusRouteData = { routes, routeIndex };
+    const { data: result, normalizeMs } = buildBusRouteData(raw);
+    console.log(`[Bus] Loaded ${result.routes.size} route shapes for ${city} (cumDist ${normalizeMs.toFixed(1)}ms)`);
     cityRouteCache.set(city, result);
     cityRouteFetching.delete(city);
     return result;
@@ -186,21 +227,11 @@ export async function loadBusIntercityRoutes(): Promise<BusRouteData> {
     "公路客運路線",
     fetch(BUS_INTERCITY_ROUTES_JSON).then((r) => {
       if (!r.ok) throw new Error(`Bus intercity routes: ${r.status}`);
-      return r.json() as Promise<Record<string, BusRouteGeometry>>;
+      return r.json() as Promise<Record<string, RawBusRouteGeometry>>;
     }),
   ).then((raw) => {
-    const routes = new Map<string, BusRouteGeometry>();
-    const routeIndex = new Map<string, string[]>();
-
-    for (const [key, val] of Object.entries(raw)) {
-      routes.set(key, val);
-      const uid = val.routeUid;
-      if (!routeIndex.has(uid)) routeIndex.set(uid, []);
-      routeIndex.get(uid)!.push(key);
-    }
-
-    console.log(`[BusIntercity] Loaded ${routes.size} route shapes`);
-    const result: BusRouteData = { routes, routeIndex };
+    const { data: result, normalizeMs } = buildBusRouteData(raw);
+    console.log(`[BusIntercity] Loaded ${result.routes.size} route shapes (cumDist ${normalizeMs.toFixed(1)}ms)`);
     intercityRouteCache = result;
     intercityRouteFetching = null;
     return result;

@@ -19,6 +19,12 @@ IMMUTABLE_CACHE = "public, max-age=31536000, immutable"
 CATALOG_CACHE = "public, max-age=60"
 MAX_ASSETS = 500
 MAX_CATALOG_BYTES = 2 * 1024 * 1024
+MAX_ASSET_BYTES = 25 * 1024 * 1024
+MAX_BUILDING_GRID_BYTES = 5 * 1024 * 1024
+
+
+def asset_byte_budget(value: dict) -> int:
+    return MAX_BUILDING_GRID_BYTES if value.get("sourceLayer") == "building_grid" else MAX_ASSET_BYTES
 
 
 def sha256_path(path: Path) -> str:
@@ -74,7 +80,7 @@ def _asset_records(catalog: dict) -> list[dict]:
         digest, size = value.get("sha256"), value.get("bytes")
         if not match or not isinstance(digest, str) or not HEX.fullmatch(digest) or match.group(1) != digest:
             raise ValueError(f"asset path/SHA mismatch: {relative}")
-        if not isinstance(size, int) or size <= 0 or size > 25 * 1024 * 1024:
+        if not isinstance(size, int) or size <= 0 or size > asset_byte_budget(value):
             raise ValueError(f"asset byte budget invalid: {relative}")
         existing = records.get(relative)
         record = {"relative_path": relative, "sha256": digest, "bytes": size}

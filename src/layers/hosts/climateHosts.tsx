@@ -19,6 +19,7 @@ import {
 } from "../../map/climateRamps";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { paramBool, paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
 /** 全球地震（USGS） */
 export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
@@ -30,8 +31,9 @@ export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
   useEarthquakesGlobalLayer(
     deps.mapRef,
     deps.layerVisibility.earthquakesGlobal,
-    p.earthquakesGlobalOpacity ?? 0.9,
+    p.earthquakesGlobalOpacity ?? 0.8,
     paramNum(values, "earthquakesGlobal", "earthquakesGlobalDays"),
+    paramBool(values, "earthquakesGlobal", "earthquakesGlobal3D"),
   );
   return null;
 };
@@ -45,6 +47,7 @@ export const TyphoonTracksHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.typhoonTracks,
     p.typhoonTracksOpacity ?? 0.9,
     (["all", "jma", "jtwc"][p.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -56,7 +59,8 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
   useWorldTrashDebrisLayer(
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
-    p.worldTrashDebrisOpacity ?? 0.85,
+    p.worldTrashDebrisOpacity ?? 0.75,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -78,6 +82,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     ["all", ...GLOBAL_EVENT_CATEGORIES.map((item) => item.value)][p.globalEventsCategoryIdx ?? 0] ?? "all",
     p.globalEventsMinSeverity ?? 3,
     (p.globalEventsTaiwanOnly ?? 0) === 1,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -105,6 +110,7 @@ export const JpReligionHost: LayerHostComponent = ({ deps }) => {
       jpReligionOsm: osm.jpReligionOsmScale ?? 1,
       jpReligionWikidata: wikidata.jpReligionWikidataScale ?? 1,
     },
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -165,7 +171,7 @@ export const DustForecastHost: LayerHostComponent = ({ deps }) => {
   useDustForecastLayer(
     deps.mapRef,
     deps.layerVisibility.dustForecast,
-    p.dustForecastOpacity ?? 0.7,
+    p.dustForecastOpacity ?? RASTER.opacity,
   );
   return null;
 };
@@ -189,6 +195,7 @@ export const DisasterAlertHost: LayerHostComponent = ({ deps }) => {
       safetyAlerts: v.safetyAlerts,
     },
     paramNum(values, "lifelineAlerts", "daOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -231,6 +238,7 @@ export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "vesselWatch", "vesselWatchOpacity"),
     paramNum(values, "vesselWatch", "vesselWatchTrailDays"),
     paramBool(values, "vesselWatch", "vesselWatchShowPresumed"),
+    deps.isDarkTheme,
   );
   return null;
 };

@@ -15,6 +15,7 @@ import {
   fetchWasteTrailsMatchedDay,
   type WasteTrailRow,
 } from "../data/wasteLoader";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 
 /** 載多久軌跡（分鐘） */
 const TRAIL_WINDOW_MIN = 60;
@@ -54,6 +55,7 @@ export function useWasteLayer(
     if (!enabled || !isLive) {
       trailsRef.current = [];
       setCount(0);
+      requestThreeRepaint();
       return;
     }
 
@@ -70,6 +72,7 @@ export function useWasteLayer(
         if (cancelled) return;
         trailsRef.current = rows;
         setCount(uniqueVehicleCount(rows));
+        requestThreeRepaint();
       } catch (err) {
         if (!cancelled) console.error("[Waste] fetchWasteTrails failed:", err);
       } finally {
@@ -99,6 +102,7 @@ export function useWasteLayer(
       loadedDayRef.current = fetchKey;
       trailsRef.current = cached.trails;
       setCount(uniqueVehicleCount(cached.trails));
+      requestThreeRepaint();
       return;
     }
 
@@ -130,6 +134,7 @@ export function useWasteLayer(
       loadedDayRef.current = fetchKey;
       trailsRef.current = rows;
       setCount(uniqueVehicleCount(rows));
+      requestThreeRepaint();
       if (rows.length === 0) {
         console.log(`[Waste] No trail data for ${dateStr} (${citiesKey})`);
       }

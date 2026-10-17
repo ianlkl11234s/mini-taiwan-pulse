@@ -12,7 +12,7 @@ export function coordinateCanvas(): StyleSpecification {
     );
   }
   return { version: 8, sources: { grid: { type: "geojson", data: grid } }, layers: [
-    { id: "paper", type: "background", paint: { "background-color": "#e8e7df" } },
-    { id: "coordinates", type: "line", source: "grid", paint: { "line-color": "#bdc8c0", "line-width": 0.6, "line-opacity": 0.65 } },
+    { id: "paper", type: "background", paint: { "background-color": "#151a24" } },
+    { id: "coordinates", type: "line", source: "grid", paint: { "line-color": "#2a3244", "line-width": 0.6, "line-opacity": 0.8 } },
   ] };
 }

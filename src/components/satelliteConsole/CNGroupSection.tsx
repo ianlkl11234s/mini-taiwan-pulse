@@ -3,19 +3,27 @@
  *
  * Yaogan/Jilin/Gaofen (S) + TJS (A) + Beidou (B) + Shiyan/餘 (C)
  *
- * 每組標題：群色點 + label + tier chip + N 顆 + ⚡近 24h 變軌 X 顆 + toggle + chevron
- * 展開：該組衛星列表，每列 name / alt / ⚡ if maneuver
+ * 每組標題：共用 ListRow —— icon + 中文主名／外文小字 + 變軌 N chip + N 顆 + chevron + 列開關
+ * 展開：該組衛星列表，每列 name / alt / 變軌 chip if maneuver
  *
  * Toggle 與 LayerVisibility 雙向同步（左 sidebar 同步可見）
  */
 import { useEffect, useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, CN_GROUPS_META, INTL_GROUPS_META } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { loadSatellites } from "../../data/satelliteLoader";
+import { FONT_CJK, FONT_DATA, CN_GROUPS_META, INTL_GROUPS_META } from "./satelliteConsoleTokens";
+import { useSatelliteTheme } from "./satelliteTheme";
+import { FONT_SIZE } from "../../styles/designTokens";
+import { chipOutline } from "../intel/intelTokens";
+import { loadSatellitesResult } from "../../data/satelliteLoader";
 import type { SatelliteRecord, SatelliteCategory } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
 import type { LayerVisibility } from "../../types";
 import * as satellite from "satellite.js";
+import { Satellite as SatelliteIcon } from "lucide-react";
+import { ListRow, LayerNameLine } from "../sidebar/LayerRow";
+import { SubGroupLabel } from "../sidebar/ThemeBanner";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { rich } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -31,13 +39,26 @@ interface SatRow {
 }
 
 
+// §5.21 狀態徽章：chipOutline，圓角 3、10px（同 SatelliteConsoleHeader）
+const CHIP_BASE = {
+  display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 5px",
+  borderRadius: 3, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap",
+} as const;
+
 export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility, onSelectNorad }: Props) {
   const [records, setRecords] = useState<SatelliteRecord[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ok" | "error">("loading");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const { p, fill, text, neutral } = useSatelliteTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
 
   useEffect(() => {
     let alive = true;
-    loadSatellites().then((recs) => { if (alive) setRecords(recs); });
+    loadSatellitesResult().then((res) => {
+      if (!alive) return;
+      if (res.ok) { setRecords(res.records); setLoadState("ok"); } else setLoadState("error");
+    });
     return () => { alive = false; };
   }, []);
 
@@ -97,65 +118,40 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
     const manCount = maneuverCountByCat.get(g.key) ?? 0;
     const layerKey = g.layerKey as keyof LayerVisibility;
     const layerOn = !!layerVisibility[layerKey];
+    // 群組名走 enum；外文小字在外文介面只留名稱裡沒有的部分（避免「Yaogan Yaogan」）
+    const groupName = enumLabel("satelliteGroup", g.key, g.zh, i18n);
+    const groupAltRaw = enumLabel("satelliteGroupAlt", g.key, g.alt, i18n);
+    const groupAlt = i18n.active !== "zh-TW" && groupName.toLowerCase().includes(groupAltRaw.toLowerCase()) ? undefined : groupAltRaw;
     return (
-      <div key={g.key} style={{ borderTop: `1px solid ${COLORS.borderSoft}` }}>
-        <div
+      <div key={g.key} style={{ borderTop: `1px solid ${p.borderSoft}` }}>
+        {/* 共用圖層列（layer-panel-unify P8）：icon・名稱＋等級徽章・顆數・chevron・黑白列開關（開關移到 chevron 後） */}
+        <ListRow
+          ariaLabel={groupName}
+          label={<LayerNameLine name={{ zh: groupName, alt: groupAlt }} />}
+          icon={<SatelliteIcon size={14} color={layerOn ? fill(g.color) : p.textDim} style={{ flexShrink: 0 }} />}
+          meta={<>
+            {manCount > 0 && (
+              <span title={t("satelliteConsole.maneuver24h")} style={{ marginLeft: 6, alignSelf: "center", ...CHIP_BASE, ...chipOutline(p.statusErr) }}>
+                {t("satelliteConsole.maneuver")} <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{manCount}</span>
+              </span>
+            )}
+          </>}
+          count={list.length}
+          countUnit={t("satelliteConsole.unit.sat", { count: list.length })}
+          // SC2：左緣線／icon 補到對白 3:1，計數字走 chipText（暗色皆原色）
+          accent={fill(g.color)}
+          countColor={text(g.color)}
+          active={layerOn}
+          expandable
+          expanded={isOpen}
           onClick={() => toggle(g.key)}
-          style={{
-            display: "flex", alignItems: "center", gap: 8,
-            padding: "8px 14px", cursor: "pointer", userSelect: "none",
-          }}
-        >
-          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: g.color, flexShrink: 0 }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong }}>
-            {g.label}
-          </span>
-          <span style={{
-            padding: "0 5px", borderRadius: RADIUS.md,
-            border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: "14px",
-          }}>{g.tier}</span>
-          <span style={{ marginLeft: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-            {list.length} 顆
-          </span>
-          {manCount > 0 && (
-            <span style={{
-              marginLeft: 4, padding: "1px 6px", borderRadius: RADIUS.md,
-              background: "rgba(239,68,68,0.16)", border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, color: COLORS.statusErr,
-              animation: "satManeuverPulse 1.1s ease-in-out infinite",
-            }}>⚡{manCount}</span>
-          )}
-          <div style={{ flex: 1 }} />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>);
-            }}
-            aria-label="toggle layer"
-            style={{
-              width: 28, height: 16, borderRadius: RADIUS.xl,
-              border: `1px solid ${layerOn ? COLORS.borderAccent : COLORS.borderMid}`,
-              background: layerOn ? COLORS.accentFaint : "transparent",
-              cursor: "pointer", position: "relative", padding: 0,
-            }}
-          >
-            <span style={{
-              position: "absolute", top: 1, left: layerOn ? 13 : 1,
-              width: 12, height: 12, borderRadius: RADIUS.full,
-              background: layerOn ? COLORS.accent : COLORS.textDim,
-              transition: "left 0.15s ease",
-            }} />
-          </button>
-          <span style={{ color: COLORS.textDim, fontSize: FONT_SIZE.sm, marginLeft: 4 }}>
-            {isOpen ? "▾" : "▸"}
-          </span>
-        </div>
+          toggle={{ on: layerOn, onChange: () => setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>), label: t("satelliteConsole.group.toggleLabel", { name: groupName }) }}
+        />
         {isOpen && (
           <div style={{ padding: "0 14px 8px" }}>
             {list.length === 0 ? (
-              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "4px 0" }}>
-                {layerOn ? "無資料（loader 仍在抓 TLE）" : "尚未開啟此圖層"}
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "4px 0" }}>
+                {loadState === "loading" ? t("satelliteConsole.loading") : loadState === "error" ? t("satelliteConsole.loadFailed") : layerOn ? t("satelliteConsole.group.noData") : t("satelliteConsole.group.layerOff")}
               </div>
             ) : (
               <div style={{ maxHeight: 200, overflowY: "auto" }} className="mtp-scroll">
@@ -167,28 +163,31 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
                       style={{
                         display: "flex", alignItems: "center", gap: 6,
                         padding: "3px 0", cursor: "pointer",
-                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textDefault,
+                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: p.textDefault,
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = neutral(0.03))}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     >
                       <span style={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {sat.name}
                       </span>
                       {sat.alt != null && (
-                        <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDim }}>
-                          {Math.round(sat.alt)} km
+                        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.textDim, whiteSpace: "nowrap" }}>
+                          <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{Math.round(sat.alt)}</span> km
                         </span>
                       )}
                       {isManeuver && (
-                        <span style={{ color: COLORS.statusErr, fontSize: FONT_SIZE.base }} title="近 24h 變軌">⚡</span>
+                        <span title={t("satelliteConsole.maneuver24h")} style={{ ...CHIP_BASE, ...chipOutline(p.statusErr) }}>{t("satelliteConsole.maneuver")}</span>
                       )}
                     </div>
                   );
                 })}
                 {list.length > 80 && (
-                  <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, textAlign: "center" }}>
-                    … 共 {list.length}，顯示前 80
+                  <div style={{ padding: "4px 0", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: p.textFaint, textAlign: "center" }}>
+                    {rich(t("satelliteConsole.group.listCap", { count: list.length, n: "{n}", max: "{max}" }), {
+                      n: <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{list.length}</span>,
+                      max: <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>80</span>,
+                    })}
                   </div>
                 )}
               </div>
@@ -199,27 +198,15 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
     );
   };
 
+  // 群組列色票由 SatelliteConsole 的 RailThemeContext（railPalette(isDarkTheme)）提供
   return (
-    <div style={{ borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-      <div style={{
-        padding: "9px 14px 6px",
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        letterSpacing: "2px",
-        color: COLORS.textFaint,
-      }}>
-        CHINA · 6 GROUPS
-      </div>
+    <div style={{ borderBottom: `1px solid ${p.borderSoft}` }}>
+      <SubGroupLabel>{t("satelliteConsole.group.china")}</SubGroupLabel>
       {CN_GROUPS_META.map(renderGroup)}
 
       {/* 國際偵察區 */}
-      <div style={{
-        padding: "9px 14px 6px",
-        marginTop: 4,
-        borderTop: `1px solid ${COLORS.borderSoft}`,
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: COLORS.textFaint,
-      }}>
-        INTL RECON · 9 COUNTRIES
+      <div style={{ marginTop: 4, borderTop: `1px solid ${p.borderSoft}` }}>
+        <SubGroupLabel>{t("satelliteConsole.group.intlRecon")}</SubGroupLabel>
       </div>
       {INTL_GROUPS_META.map(renderGroup)}
     </div>

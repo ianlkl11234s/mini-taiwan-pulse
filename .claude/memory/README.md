@@ -1,6 +1,8 @@
 # .claude/memory/
 
-Mini Taiwan Pulse 專案記憶系統。Session 開頭讀這裡，結束時透過 `/wrap-up` 更新。
+Mini Taiwan Pulse 專案記憶系統。有接手需求時從這裡選讀，結束時透過 `/wrap-up` 更新。
+
+> **經驗總集（主題導覽）**：[`docs/LESSONS.md`](../../docs/LESSONS.md)——踩坑、best practice、網站哲學、小實驗依主題整理，每條連回本目錄或 docs 的正本。想知道「這類事以前學到什麼」先看它；新教訓先寫正本，再到 LESSONS.md 加一行。
 
 ## 檔案總覽
 
@@ -30,17 +32,19 @@ Mini Taiwan Pulse 專案記憶系統。Session 開頭讀這裡，結束時透過
 
 | 檔案 | 用途 | 讀寫時機 |
 |---|---|---|
-| [FORESTRY_GROUP_STATUS.md](FORESTRY_GROUP_STATUS.md) | 林業圖層 campaign 歷史狀態 | 只有當次 scope 涉及該 campaign 才讀／更新 |
-| [PMTILES_STATUS.md](PMTILES_STATUS.md) | PMTiles 批次轉換歷史狀態 | 只有當次 scope 涉及該 campaign 才讀／更新 |
+| FORESTRY_GROUP_STATUS.md | 林業圖層 campaign（2026-06）歷史狀態 | **已歸檔（2026-10-16）**，見 [`docs/archive/2026-10-16/`](../../docs/archive/2026-10-16/)；campaign 已完成，不再更新 |
+| PMTILES_STATUS.md | PMTiles 批次轉換（2026-06）歷史狀態 | **已歸檔（2026-10-16）**，見 [`docs/archive/2026-10-16/`](../../docs/archive/2026-10-16/)；現況以 `find public -name '*.pmtiles'` 為準 |
 
 `README.md` 是 routing SSOT，`load-session.sh` 是輕量注入工具，都不算需要每次 wrap-up 更新的 memory 內容。新增專案特定檔時，只需在本表登記用途與讀寫條件，不維護固定檔案總數。
 
 ## Session 開頭 SOP（給未來的 Claude）
 
-1. 讀 `STATUS.md` → 知道現況、上次結束點
-2. 掃 `BACKLOG.md` → 知道待辦優先級
-3. 查 `PRINCIPLES.md` → 避免重開溝通已定案的事
-4. 必要時查 `DATA_SCOPE` / `PLAYBOOKS` / `GLOSSARY`
+> 2026-10-16 對齊 CLAUDE.md「Session 記憶迴圈」：SessionStart hook 只給短路由，**不預載**；以下是有接手需求時的選讀順序，只讀與本次 scope 相關的檔與段落。
+
+1. 接續上次工作 → `STATUS.md`（現況、上次結束點）
+2. 要排優先級 → `BACKLOG.md`
+3. 動手前想確認既有共識 → `PRINCIPLES.md` 相關段（或先看 `docs/LESSONS.md` 找主題）
+4. 必要時查 `DATA_SCOPE` / `PLAYBOOKS` / `GLOSSARY`；似曾相識的 bug 搜 `../pitfalls/`
 5. **不變規則**在專案根 [../../CLAUDE.md](../../CLAUDE.md)
 
 ## Session 結束 SOP（wrap-up v2）

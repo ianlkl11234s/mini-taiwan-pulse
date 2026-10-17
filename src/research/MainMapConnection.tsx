@@ -1,42 +1,150 @@
+import { ListRow } from "../components/sidebar/LayerRow";
+import { SubGroupLabel } from "../components/sidebar/ThemeBanner";
+import { railPalette, RailThemeContext } from "../components/sidebar/railTheme";
+import { Slider } from "../components/controls/Slider";
+import { PanelHeader } from "../components/sidebar/PanelHeader";
+import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
+import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
 import { listLayerCapabilities } from "./layerCapabilities";
-import { framingFitsViewport, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
+import { framingFitsViewport, refineViewportCamera, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
-import { requestLayerExploration } from "./explorationNavigation";
+import { explorationLayerKeys, requestLayerExploration } from "./explorationNavigation";
 import { createPortal } from "react-dom";
 import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
 import { cancelResearchMotion, moveResearchCamera } from "./researchMotion";
-import { useCallback, useEffect, useRef, useState } from "react";
-import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
-import { applyMainMapLayers, captureLayerOverrides } from "./mainMapLayers";
-import { QueryResponder } from "./QueryResponder";
+import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "./mainMapLayers";
+import { QueryResponder, type QueryHandler } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
 import { applyLayerControl, describeLayerControls, validateLayerControl } from "./layerControls";
 import { resolveOfflineLocation } from "./addressLookup";
-import { describeDataset, ensureDataset, searchDatasets } from "./researchDatasets";
+import { describeDataset, ensureDataset, ensureStatisticsResearchDatasets, searchDatasets } from "./researchDatasets";
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { waitForSceneRender } from "./sceneReadiness";
-import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { isStyleReady, waitForLayoutFrame, waitForMapStyle, waitForSceneRender, waitForValue } from "./sceneReadiness";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, warehouseDatasetsSourceLabel, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
+import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
+import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
+import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStack";
+import { analysisLegendEntries, publishAnalysisLegend, type AnalysisLegendPlayback } from "./analysisLegendStore";
+import {
+  clearAnalysisPlayback, getAnalysisPlaybackState, getAnalysisPlaybackVersion, scrubAnalysisPlayback,
+  subscribeAnalysisPlayback, syncAnalysisPlaybackRegistry, toggleAnalysisPlayback,
+} from "./analysisPlaybackStore";
+import type { PresentableResult } from "./researchAnalysisSession";
+import { WarehouseCompareTableView } from "./WarehouseCompareTable";
+import { RankBars } from "./charts/RankBars";
+import { TrendLine } from "./charts/TrendLine";
+import { seriesTrendLineData, shortTaipeiDateLabel, warehouseSeriesTrendLineData } from "./analysisResultCharts";
+import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseResultStyle";
+import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
+import { localeStore, useLocale, type LocaleSnapshot } from "../state/localeStore";
+import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
+import { summarizeVisibleLayers, SUMMARY_LOADED_WAIT_MS as SUMMARY_WAIT_CAP, summarizeWhenLoaded, viewportBounds, type VisibleSummaryMap } from "./visibleSummary";
+import { restoreWarehouseResults } from "./warehouseResultRestore";
+import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
-type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
-const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
+/** 事件發生當下取目前語系翻譯（非 React 回呼用）。只用在畫面狀態文字；送給 Agent 的內容不經過這裡。 */
+const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, vars);
+type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
+  /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
+  onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
+  /** True while the docked FeatureInfoPanel shows an analysis result (App: featureInfo.layerType === "analysisResult").
+   *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
+  analysisResultSelected?: boolean };
+const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+/** P3: commands and map_context arriving before App marks the map prepared wait this long (headless first load takes several seconds). */
+const MAP_PREPARE_WAIT_MS = 20_000;
+const MAP_CONTEXT_WAIT_MS = 10_000;
+/** map_context total (map-ready wait + data_not_loaded re-poll) stays under ~12 s: the MCP side gives up on a query shortly after, so the re-poll only gets what the map wait left over (max 6 s). */
+const MAP_CONTEXT_TOTAL_BUDGET_MS = 12_000;
+export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
+
+/** 顯示用的活動卡文案（不送回 Agent）：依介面語系翻譯。 */
+export function completedActivityForOperation(operation: string, data: Record<string, unknown>, i18n: LocaleSnapshot = localeStore.getSnapshot()): Activity {
+  const { t } = i18n;
+  const totalMatched = typeof data.totalMatched === "number" ? data.totalMatched : null;
+  const returned = typeof data.returned === "number" ? data.returned : null;
+  if (operation === "search_layers") {
+    if (totalMatched === 0) return { phase: "complete", title: t("research.done.layersEmptyTitle"), detail: t("research.done.emptyDetail") };
+    return { phase: "complete", title: t("research.done.layersFoundTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.layersFoundDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
+  }
+  if (operation === "search_datasets") {
+    if (totalMatched === 0) return { phase: "complete", title: t("research.done.datasetsEmptyTitle"), detail: t("research.done.emptyDetail") };
+    return { phase: "complete", title: t("research.done.datasetsFoundTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.datasetsFoundDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
+  }
+  if (operation === "query_records") {
+    return { phase: "complete", title: t("research.done.recordsTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.recordsDetail", { total: totalMatched, returned: returned ?? totalMatched }) };
+  }
+  if (operation === "analysis_card_draft") return { phase: "complete", title: t("research.done.cardDraftTitle"), detail: t("research.done.cardDraftDetail") };
+  if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: t("research.done.layerReadyTitle"), detail: t("research.done.returnedToAgent") };
+  if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: t("research.done.stepDoneTitle"), detail: t("research.done.summarizeDetail", { total: totalMatched }) };
+  return { phase: "complete", title: t("research.done.stepDoneTitle"), detail: totalMatched === null ? t("research.done.returnedToAgent") : t("research.done.stepDoneDetail", { total: totalMatched }) };
+}
+
+/**
+ * 4b「做成卡片」：瀏覽器沒有主動呼叫 Agent 的通道（bridge 只有 MCP 發起的 query），且閘門在 MCP 端算，
+ * 所以按鈕只說明怎麼請 Agent 產草稿；草稿送達後由「卡片草稿」區塊預覽與發布。
+ */
+export function makeCardHint(label: string, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  return i18n.t("research.done.cardHint", { label });
+}
+
+/**
+ * 右上「最新動作」活動卡是否顯示：只看是否有活動（配對後才會有；斷線時清空）與拍攝模式。
+ * 刻意不看左側「與 Agent 協作」面板開關——面板被左側互斥（§5.26）收起時，執行步驟仍要看得到。
+ */
+export function activityCardVisible(activity: Activity | null, uiHidden: boolean | undefined): boolean {
+  return activity !== null && !uiHidden;
+}
+
+type StyleRestoreMap = {
+  once(event: "idle", listener: () => void): unknown;
+  off(event: "idle", listener: () => void): unknown;
+  isStyleLoaded(): boolean;
+};
+
+/** One style-cycle fallback: it restores only a result overlay that remains absent after Mapbox settles. */
+export function scheduleAnalysisResultStyleRestore(
+  map: StyleRestoreMap,
+  redraw: () => void,
+  isReady: () => boolean,
+): () => void {
+  let active = true;
+  const afterIdle = () => {
+    if (!active || !map.isStyleLoaded() || isReady()) return;
+    redraw();
+  };
+  map.once("idle", afterIdle);
+  return () => { active = false; map.off("idle", afterIdle); };
+}
+
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
-  const [open, setOpen] = useState(false);
+  const i18n = useLocale();
+  const { t } = i18n;
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = props.open ?? uncontrolledOpen;
+  const setOpen = useCallback((next: boolean | ((current: boolean) => boolean)) => {
+    const resolved = typeof next === "function" ? next(open) : next;
+    if (props.open === undefined) setUncontrolledOpen(resolved);
+    props.onOpenChange?.(resolved);
+  }, [open, props.onOpenChange, props.open]);
+  const [evidence, setEvidence] = useState<ResearchEvidence[]>([]);
   const [activityHistory, setActivityHistory] = useState<Activity[]>([]);
   const activity = activityHistory[0] ?? null;
   const setActivity = useCallback((next: Activity | null | ((current: Activity | null) => Activity | null)) => {
@@ -44,35 +152,97 @@ export function MainMapConnection(props: Props) {
   }, []);
   const [following, setFollowing] = useState(true);
   const followingRef = useRef(true);
-  const [analysisOpacity, setAnalysisOpacityValue] = useState(0.85);
+  const [analysisOpacity, setAnalysisOpacityValue] = useState<AnalysisResultOpacity>({ defaultOpacity: 0.85, byResult: {} });
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
+  /** T2 A2: the raw (row-carrying) results behind the currently presented slots — cached at install
+   *  time (render()/redraw()) so hover/click lookups (period-specific value/trend) never re-call
+   *  presentable() per mousemove/click. */
+  const availableResultRowsRef = useRef<PresentableResult[]>([]);
+  /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
+  const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
+  /** Rebuilds the open docked popup payload (playback sync); null when no timed-choropleth popup is open. */
+  const openPanelRef = useRef<{ rebuild: () => AnalysisResultPanelProperties } | null>(null);
+  /** S1: when each result last became visible (LRU for the 3-result cap) and which area results lost the fill slot. */
+  const analysisActivationsRef = useRef<Map<string, number>>(new Map());
+  const analysisOutlineOnlyRef = useRef<string[]>([]);
+  const installedOutlineKeyRef = useRef("");
+  /** Last collection as the server holds it. An Agent-side cap is not pushed back (a manual push
+   *  mid-command would cancel that command's report), so the server keeps re-sending the uncapped
+   *  collection; activations must diff against that, or the hidden slot rotates on every command. */
+  const requestedResultsRef = useRef<ResultCollection | null>(null);
+  const planAnalysisResults = useCallback((previousResults: ResultCollection | null, results: ResultCollection | null | undefined, presentable: readonly PresentableResult[]): ResultCollection | null => {
+    analysisActivationsRef.current = nextAnalysisActivations(previousResults, results, analysisActivationsRef.current);
+    const kinds = new globalThis.Map(presentable.map(result => [result.resultId, analysisResultStackKind(result)]));
+    const plan = planAnalysisStack(results, analysisActivationsRef.current, resultId => kinds.get(resultId) ?? "other");
+    analysisOutlineOnlyRef.current = plan.outlineOnly;
+    return plan.collection;
+  }, []);
+  const applyAnalysisSelection = useCallback(() => {
+    const map = latest.current.map;
+    if (map) setAnalysisSelection(map, presentedAnalysisRef.current, analysisSelectionRef.current, analysisOpacityRef.current);
+  }, []);
+  /** T2 A2: reconciles the playback registry with whichever installed results are actually timed
+   *  choropleths, after every install (render()'s Agent-driven path and redraw()'s style.load path
+   *  both call this — see analysisPlaybackStore.ts syncAnalysisPlaybackRegistry). */
+  const syncPlaybackForResults = useCallback((installed: readonly AnalysisResultPresentation[]) => {
+    const active = new globalThis.Map<string, number>();
+    for (const result of installed) {
+      const style = result.resultStyle;
+      if (style && style.kind === "choropleth" && isTimedChoropleth(style)) active.set(result.resultId, style.periods.length);
+    }
+    syncAnalysisPlaybackRegistry(active);
+  }, []);
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
+  // W1: 本次分析圖層 defaults to its first 5 items + a "展開全部" toggle (spec docs/features/viz-library/DECISIONS.md §6).
+  const [resultsExpanded, setResultsExpanded] = useState(false);
+  /** 分析結果列預設展開；這裡只記使用者手動收起的 */
+  const [collapsedResults, setCollapsedResults] = useState<ReadonlySet<string>>(() => new Set());
+  /** 4b: the one pending analysis-card draft relayed by pulse_publish_card (a newer draft replaces it). */
+  const [cardDraft, setCardDraft] = useState<AnalysisCardDraft | null>(null);
+  /** 4b 「做成卡片」: which result's hint is showing (no browser→Agent channel, so the button only explains). */
+  const [cardHintFor, setCardHintFor] = useState<string | null>(null);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
-  const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
+  // null＝尚未有訊息，畫面顯示預設引導語（隨介面語系），其餘訊息在產生當下依語系翻譯
+  const [message, setMessage] = useState<string | null>(null);
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
+  /** P2: stable handler for ResearchConnection's long poll; delegates to the current connection's responder. */
+  const [queryHandler] = useState<QueryHandler>(() => ({
+    handle: request => responder.current?.handle(request),
+    inFlightRequestId: () => responder.current?.inFlightRequestId() ?? null,
+  }));
   const analysis = useRef<ResearchAnalysisSession | null>(null);
   const networkProvider = useRef<ValhallaNetworkProvider | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
+  /** Gateway channel for P1 result bytes; render() needs it to restore results after a reload. */
+  const connectionRef = useRef<BridgeConnectionContext | null>(null);
+  /** Warehouse base ids whose upload is gone for this connection; not re-queried on every render. */
+  const expiredWarehouseIds = useRef<Set<string>>(new Set());
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
   const generation = useRef(0);
-  const resultPopup = useRef<mapboxgl.Popup | null>(null);
   const capture = useCallback((): Scene => {
-    const camera = latest.current.bridge.getCamera();
+    // Result switches must preserve the rendered camera, including Agent fitBounds
+    // movements that have not propagated into the application's bridge snapshot.
+    const map = latest.current.map;
+    const center = map?.getCenter();
+    const camera = center && map ? { lng: center.lng, lat: center.lat, zoom: map.getZoom() } : latest.current.bridge.getCamera();
     return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null, results: previous.current?.results ?? null };
   }, []);
   const clearAnalysisPresentation = useCallback((syncScene: boolean) => {
     ++generation.current;
-    resultPopup.current?.remove(); resultPopup.current = null;
+    latest.current.onAnalysisResultFeature?.(null);
     if (latest.current.map) removeAnalysisResults(latest.current.map);
-    presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]);
+    clearAnalysisPlayback();
+    presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
+    requestedResultsRef.current = null; analysisActivationsRef.current = new globalThis.Map(); analysisOutlineOnlyRef.current = []; installedOutlineKeyRef.current = "";
+    analysis.current?.setActiveResultCollection([]);
     if (syncScene && controller.current) {
       const scene = { ...capture(), results: null };
       previous.current = scene; controller.current.manual(scene);
@@ -81,15 +251,29 @@ export function MainMapConnection(props: Props) {
   const updateResultCollection = useCallback((update: (collection: ResultCollection) => ResultCollection) => {
     const current = resultCollectionRef.current;
     if (!current || !controller.current) return;
-    const results = update(current);
+    // Re-enabling a hidden result makes it the newest; the S1 cap then hides the least recent one.
+    let presentable: PresentableResult[] = [];
+    try { presentable = analysis.current?.mapPresentable(current.items.map(item => item.resultId)) ?? []; } catch { presentable = []; }
+    // The user toggle diffs against what is on screen (capped) and is pushed, so the server follows.
+    const results = planAnalysisResults(current, update(current), presentable) ?? current;
+    requestedResultsRef.current = results;
     resultCollectionRef.current = results; setResultCollection(results);
     const scene = { ...capture(), results };
     previous.current = scene;
     controller.current.manual(scene);
-  }, [capture]);
-  const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
-    const { bridge, map, labels, locked } = latest.current;
-    if (!map || !map.isStyleLoaded()) throw new Error("MAP_NOT_READY");
+  }, [capture, planAnalysisResults]);
+  const render = useCallback(async (requestedScene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
+    let scene = requestedScene;
+    const run = ++generation.current;
+    // P3: the tab attaches at load, so a command or the first snapshot can arrive before App
+    // marks the map prepared; wait for it (bounded) instead of failing at once.
+    const map = await waitForValue(() => latest.current.map, () => run === generation.current, MAP_PREPARE_WAIT_MS);
+    if (!map) { if (run !== generation.current) return "error"; throw new Error("MAP_NOT_READY"); }
+    const { bridge, labels, locked } = latest.current;
+    if (!await waitForMapStyle(map, () => run === generation.current && latest.current.map === map)) {
+      if (run !== generation.current) return "error";
+      throw new Error("MAP_NOT_READY");
+    }
     if (scene.resultMode !== "empty" || scene.nearby != null || scene.focus != null) throw new Error("MAP_EXPLORATION_ONLY");
     // Pairing must never reset the user's camera or visible layers.
     if (revision === 0) {
@@ -97,25 +281,60 @@ export function MainMapConnection(props: Props) {
       previous.current = scene; return "ready";
     }
     if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+    // P1: a reloaded tab keeps the scene's warehouse ids but not their rows. Re-import them from
+    // the gateway before validation; the 1 s expiry watchdog only starts after setResultCollection.
+    let expiredResults = 0;
+    const connection = connectionRef.current;
+    if (scene.results && connection) {
+      const session = analysis.current!;
+      const restore = await restoreWarehouseResults(scene.results, {
+        has: resultId => session.hasResult(resultId),
+        meta: baseIds => connection.client.resultsMeta(connection.studyId, connection.tabId, baseIds),
+        importResult: args => session.importWarehouseResult(args, id => connection.client.fetchResult(connection.studyId, connection.tabId, id)),
+        expired: expiredWarehouseIds.current,
+      });
+      if (run !== generation.current || analysis.current !== session) return "error";
+      if (restore.dropped.length) { expiredResults = restore.dropped.length; scene = { ...scene, results: restore.collection }; }
+    }
     // Validate every declared ID, including hidden collection entries, before
     // acknowledging the scene. Hidden must not become a way to retain an
     // expired or unauthorized result beyond the normal session boundary.
-    const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
+    const allAnalysisResults = scene.results ? analysis.current!.mapPresentable(scene.results.items.map(item => item.resultId)) : [];
+    // S1 (O1): cap at 3 visible results / one heatmap by switching the least recently shown ones
+    // off (not removed; the list toggle brings them back). The capped collection is what readback
+    // reports, so the Agent sees which results were auto-hidden.
+    const cappedResults = planAnalysisResults(requestedResultsRef.current, scene.results, allAnalysisResults);
+    requestedResultsRef.current = scene.results ?? null;
+    if (cappedResults !== (scene.results ?? null)) scene = { ...scene, results: cappedResults };
+    const outlineKey = analysisOutlineOnlyRef.current.join("\n");
     const visibleAnalysisIds = new Set(visibleResultIds(scene.results));
     const analysisResults = allAnalysisResults.filter(result => visibleAnalysisIds.has(result.resultId));
-    const availableResults = describeAnalysisResults(allAnalysisResults);
+    // Read fresh at render time (not captured in this callback's closure) so a basemap switch that
+    // just landed is honoured immediately, not one render behind.
+    const theme = vizThemeForBasemap(latest.current.isDarkTheme);
+    const availableResults = describeAnalysisResults(allAnalysisResults, theme);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
-    const run = ++generation.current;
+    // Unknown/locked keys are dropped from the applied scene; only this command's own keys fail it.
+    const layerPlan = planMainMapLayers(scene.layers, patch?.layers, new Set(Object.keys(labels)), locked);
+    if (layerPlan.ignored.length) scene = { ...scene, layers: layerPlan.usable };
+    // A layerControl inherited from the stored scene that no longer validates (e.g. it was the
+    // failing part of an earlier command) is skipped instead of failing every later command.
+    if (!patch?.layerControl && scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) {
+      try { validateLayerControl(scene.layerControl, locked); } catch { scene = { ...scene, layerControl: previous.current?.layerControl }; }
+    }
     let movement: Promise<boolean> = Promise.resolve(true);
-    setActivity({ phase: "presenting", title: "正在同步地圖" });
+    setActivity({ phase: "presenting", title: tr("research.msg.syncingTitle") });
     applying.current = true;
     try {
       if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) validateLayerControl(scene.layerControl, locked);
-      const newlyEnabled = Object.entries(scene.layers ?? {}).filter(([key, on]) => on && previous.current?.layers?.[key] !== true).map(([key]) => key);
+      // Only an explicit `pulse_set_layers`-style command (this render's own patch carrying
+      // `layers`) may pop the Layers rail open. Presenting analysis results (patch.results,
+      // patch.framing/camera) or a resync/report replay (no patch at all) must never surface it.
+      const newlyEnabled = explorationLayerKeys(scene.layers, previous.current?.layers, patch?.layers);
       applyMainMapLayers(scene.layers ?? {}, new Set(Object.keys(labels)), locked, bridge);
       if (newlyEnabled.length) requestLayerExploration(newlyEnabled);
-      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) applyLayerControl(scene.layerControl, locked);
+      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) await applyLayerControl(scene.layerControl, locked);
       if (scene.timeline && patch?.timeline) {
         if (!latest.current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
         await latest.current.timeline.apply(scene.timeline);
@@ -123,30 +342,47 @@ export function MainMapConnection(props: Props) {
       const previousResultIds = presentedAnalysisRef.current.map(result => result.resultId);
       const nextResultIds = analysisResults.map(result => result.resultId);
       if (JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds)) {
-        resultPopup.current?.remove(); resultPopup.current = null;
+        latest.current.onAnalysisResultFeature?.(null);
+        analysisSelectionRef.current = [];
       }
-      const installed = analysisResults.length ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : (removeAnalysisResults(map), []);
+      // Camera-only commands keep the same immutable result rows. Calling
+      // GeoJSONSource#setData for those commands needlessly reloads sources.
+      const presentationChanged = JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds) || outlineKey !== installedOutlineKeyRef.current;
+      if (presentationChanged) installedOutlineKeyRef.current = outlineKey;
+      const installed = analysisResults.length
+        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current }) : presentedAnalysisRef.current
+        : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+      availableResultRowsRef.current = allAnalysisResults;
+      syncPlaybackForResults(installed);
       setAvailableAnalysis(availableResults);
       resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
+      analysis.current?.setActiveResultCollection(scene.results?.items.map(item => item.resultId) ?? []);
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
-        await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        await waitForLayoutFrame();
         if (run !== generation.current || !followingRef.current) return "error";
         movement = moveResearchCamera(map, framingChanged && scene.framing ? resolveViewportCamera(map, scene.framing) : scene.camera);
       }
       else if (cameraChanged) movement = Promise.resolve(false);
       previous.current = scene;
     } finally { applying.current = false; }
-    const cameraMoved = await movement;
-    const cameraReady = framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved;
-    // Camera readback is necessary but not sufficient: wait for the next browser
-    // render frame before reporting the command ready. The main map may render
-    // continuously and never become globally idle; source/data health remains in
-    // its own loading UI and is not part of a camera receipt.
-    const rendered = waitForSceneRender(map, revision);
+    let cameraMoved = await movement;
+    // Correct against Mapbox's actual projection after layout settles. Keep this
+    // bounded and never resume a camera move the user interrupted.
+    for (let attempt = 0; attempt < 2 && framingChanged && scene.framing; attempt++) {
+      await waitForLayoutFrame();
+      if (run !== generation.current || !followingRef.current) break;
+      const correction = refineViewportCamera(map, scene.framing);
+      if (!correction) break;
+      cameraMoved = await moveResearchCamera(map, correction);
+    }
+    // Require a real rendered frame and strict live bounds readback.
+    const rendered = waitForSceneRender(map, revision, 5_000, () =>
+      framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved,
+    );
     const renderReady = await rendered.promise;
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    const cameraReady = renderReady === "ready";
     if (run !== generation.current) return "error";
     if (patch?.timeline) {
       const observed = latest.current.timeline?.getContext();
@@ -160,21 +396,29 @@ export function MainMapConnection(props: Props) {
       await new Promise(resolve => setTimeout(resolve, 50));
       resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     }
-    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
-    const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
-    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : "圖層或分析結果狀態有衝突，請重新確認。");
-    setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
+    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && layerPlan.rejected.length === 0 && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const resultMessage = resultReadback.featureCount > 0 ? tr("research.msg.highlighted", { count: resultReadback.featureCount }) : patch?.results === null ? tr("research.msg.resultsCleared") : null;
+    setMessage(matches ? `r${revision} ${resultMessage ?? tr("research.msg.synced")}` : layerPlan.rejected.length ? tr("research.msg.skippedLayers", { layers: layerPlan.rejected.join(tr("researchResult.sep.comma")) }) : tr("research.msg.conflict"));
+    setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? tr("research.msg.presentedTitle") : tr("research.msg.mapUpdatedTitle") : !cameraReady && !followingRef.current ? tr("research.msg.keptViewTitle") : tr("research.msg.notFinishedTitle"), detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? tr("research.msg.followPausedDetail") : undefined });
+    if (expiredResults) {
+      setMessage(tr("research.msg.expiredMessage"));
+      setActivity({ phase: "complete", title: tr("research.msg.expiredTitle"), detail: tr("research.msg.expiredDetail", { count: expiredResults }) });
+    }
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
+    setEvidence([]);
+    connectionRef.current = context; expiredWarehouseIds.current = new Set();
     controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
-    controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
+    controller.current = context ? new StudyController(context, render, () => { setMessage(tr("research.msg.actionFailedMessage")); setActivity({ phase: "error", title: tr("research.msg.actionFailedTitle"), detail: tr("research.msg.actionFailedDetail") }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
+      if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
+      // PF-7: statistics-recipe datasets register after their lazily imported details load (loadingRegistry task).
+      await ensureStatisticsResearchDatasets();
       const current = latest.current;
       const visible = current.bridge.getVisibleLayerKeys();
-      if (!EXPLORATION_OPERATIONS.has(request.operation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
       let result: Record<string, unknown>;
       switch (request.operation) {
@@ -192,7 +436,7 @@ export function MainMapConnection(props: Props) {
           }
           break;
         }
-        case "list_layer_capabilities": result = listLayerCapabilities(request.args); break;
+        case "list_layer_capabilities": result = listLayerCapabilities(request.args, current.locked); break;
         case "search_layer_records": {
           const layerKey = String(request.args.layerKey ?? "");
           if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
@@ -202,10 +446,26 @@ export function MainMapConnection(props: Props) {
         case "time_context":
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
-        case "map_context":
-          if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
+        case "map_context": {
+          // Same P3 window as render(): a query right after load or reload waits for the map (bounded, under the 25 s query deadline).
+          const contextStarted = Date.now();
+          const liveMap = await waitForValue(() => latest.current.map && isStyleReady(latest.current.map) ? latest.current.map : null, () => epoch === connectionEpoch.current, MAP_CONTEXT_WAIT_MS);
+          if (!liveMap) throw new Error("MAP_NOT_READY");
+          const live = latest.current;
+          const liveVisible = live.bridge.getVisibleLayerKeys();
+          // Custom-drawn layers report data_not_loaded until their fetch lands; re-poll (250 ms, <= 6 s, within the total budget) so one read can return real numbers.
+          const visibleSummary = await summarizeWhenLoaded(
+            () => summarizeVisibleLayers(liveMap as unknown as VisibleSummaryMap, liveVisible, { labelFor: key => live.labels[key] ?? key }),
+            Math.max(0, Math.min(SUMMARY_WAIT_CAP, MAP_CONTEXT_TOTAL_BUDGET_MS - (Date.now() - contextStarted))),
+            undefined,
+            () => epoch === connectionEpoch.current,
+          );
+          // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
+          result = { observedAt: new Date().toISOString(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
+            // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
+            bounds: viewportBounds(liveMap), visibleSummary };
           break;
+        }
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
         case "describe_dataset": {
@@ -228,6 +488,19 @@ export function MainMapConnection(props: Props) {
         case "materialize_data": {
           if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
           result = await analysis.current.materializeData(request.args.planId);
+          break;
+        }
+        case "import_warehouse_result": {
+          if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+          result = await analysis.current.importWarehouseResult(request.args, id => context.client.fetchResult(context.studyId, context.tabId, id));
+          break;
+        }
+        case "analysis_card_draft": {
+          // Draft only: the browser shows a preview; publishing needs the user's own click (拍板 8).
+          const parsed = parseAnalysisCardDraft(request.args);
+          if (!parsed.ok) throw new Error(parsed.error);
+          setCardDraft(parsed.draft);
+          result = { accepted: true, draftId: parsed.draft.draftId };
           break;
         }
         case "describe_layer": {
@@ -253,6 +526,8 @@ export function MainMapConnection(props: Props) {
         case "walking_isochrone": {
           if (!networkProvider.current) throw new Error("NETWORK_PROVIDER_UNAVAILABLE");
           const outcome = await networkProvider.current.walkingIsochrone(request.args);
+          // 撤銷／換 session 期間回來的舊結果不得寫進新的 analysis session。
+          if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
           if (outcome.status === "READY" && "contours" in outcome) {
             if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
             result = analysis.current.storeWalkingIsochrone(outcome);
@@ -262,35 +537,39 @@ export function MainMapConnection(props: Props) {
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
         default: {
           if (!analysis.current || !ANALYSIS_OPERATIONS.has(request.operation as AnalysisQueryOperation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
-          result = analysis.current.execute(request.operation as AnalysisQueryOperation, request.args);
+          result = request.operation === "spatial_query" && ["line_buffer", "surface_intersection", "measure_geometry"].includes(String(request.args.predicate))
+            ? await analysis.current.executeGeometry(request.args)
+            : analysis.current.execute(request.operation as AnalysisQueryOperation, request.args);
         }
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
+      if (result && ["query_records", "spatial_query", "aggregate_by_area", "compare_regions", "create_analysis_scope", "route_distance", "walking_isochrone"].includes(request.operation)) {
+        const evidenceItem = researchEvidence(request.operation, request.args, result);
+        setEvidence(items => [evidenceItem, ...items].slice(0, 6));
+        result = { ...result, researchScope: { operation: evidenceItem.operation, scope: evidenceItem.scope, sources: evidenceItem.sources } };
+      }
       return result!;
-    }, () => { setMessage("讀取服務暫時無法同步，請檢查連線。"); setActivity({ phase: "error", title: "連線暫時中斷", detail: "目前地圖會保留，請確認連線後繼續。" }); }, event => {
+    }, () => { setMessage(tr("research.msg.readFailedMessage")); setActivity({ phase: "error", title: tr("research.msg.readFailedTitle"), detail: tr("research.msg.readFailedDetail") }); }, event => {
       const next = activityForOperation(event.request.operation, event.request.args);
       if (!EXPLORATION_OPERATIONS.has(event.request.operation) || !next) return;
       if (event.phase === "started") { setActivity(next); return; }
-      if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: "資料可能暫時無法讀取；這不代表沒有符合的結果。" }); return; }
-      const data = event.result.data;
-      const count = typeof data.totalMatched === "number" ? data.totalMatched : null;
-      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : event.request.operation === "summarize_layer" ? `符合 ${count} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
+      if (!event.result?.ok) { setActivity({ phase: "error", title: tr("research.msg.stepFailedTitle"), detail: analysisErrorMessage(event.result && !event.result.ok ? event.result.error : "UNKNOWN") }); return; }
+      setActivity(completedActivityForOperation(event.request.operation, event.result.data));
     }, health => {
       const messages = {
-        retrying: { phase: "complete" as const, title: "同步稍慢，正在重試", detail: "目前地圖會保留。" },
-        offline: { phase: "error" as const, title: "暫時無法同步", detail: "已連續多次失敗，網站會繼續嘗試連線。" },
-        recovered: { phase: "ready" as const, title: "同步已恢復", detail: "可以繼續探索地圖。" },
-        paused: { phase: "complete" as const, title: "操作已暫停", detail: "可在本地 Agent 面板恢復操作。" },
-        auth: { phase: "error" as const, title: "需要重新確認連線", detail: "請在本地 Agent 面板確認登入與配對狀態。" },
-        cancelled: { phase: "complete" as const, title: "這次查詢已取消或逾時", detail: "可以重新提出查詢；目前地圖會保留。" },
+        retrying: { phase: "complete" as const, title: tr("research.msg.retryingTitle"), detail: tr("research.msg.retryingDetail") },
+        offline: { phase: "error" as const, title: tr("research.msg.offlineTitle"), detail: tr("research.msg.offlineDetail") },
+        recovered: { phase: "ready" as const, title: tr("research.msg.recoveredTitle"), detail: tr("research.msg.recoveredDetail") },
+        paused: { phase: "complete" as const, title: tr("research.msg.pausedTitle"), detail: tr("research.msg.pausedHealthDetail") },
+        auth: { phase: "error" as const, title: tr("research.msg.authTitle"), detail: tr("research.msg.authDetail") },
+        cancelled: { phase: "complete" as const, title: tr("research.msg.cancelledTitle"), detail: tr("research.msg.cancelledDetail") },
       };
-      setMessage(health.state === "recovered" ? "同步已恢復。" : `${messages[health.state].title}（${health.code}）`);
+      setMessage(health.state === "recovered" ? tr("research.msg.recoveredMessage") : tr("research.msg.withCode", { title: messages[health.state].title, code: health.code }));
       setActivity(messages[health.state]);
     }) : null;
-    responder.current?.start();
   }, [clearAnalysisPresentation, render]);
-  const disconnect = useCallback(() => connect(null), [connect]);
-  const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
+  const disconnect = useCallback(() => { setEvidence([]); setCardDraft(null); connect(null); }, [connect]);
+  const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: tr("research.msg.pausedTitle"), detail: tr("research.msg.pausedDetail") }); controller.current?.receive(state); }, []);
   const changeFollowing = (value: boolean) => {
     followingRef.current = value; setFollowing(value);
     if (!value && latest.current.map) {
@@ -317,118 +596,331 @@ export function MainMapConnection(props: Props) {
       ++generation.current;
       controller.current?.beginManual();
       if (map) cancelResearchMotion(map);
-      setActivity({ phase: "complete", title: "已保留目前視角", detail: followingRef.current ? "已停止這次移動；下一個 Agent 動作仍會繼續跟隨。" : "跟隨已由你關閉；下一個 Agent 動作會保留視角。" });
+      setActivity({ phase: "complete", title: tr("research.msg.viewKeptTitle"), detail: followingRef.current ? tr("research.msg.viewKeptFollowing") : tr("research.msg.viewKeptNotFollowing") });
     };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
+  // P3: a scene whose render gave up before the map was prepared is rendered again once it is.
+  useEffect(() => { if (props.map) controller.current?.represent(); }, [props.map]);
   useEffect(() => {
     const map = props.map;
     if (!map) return;
+    // I1 hover: mouse-only (touch gets neither tip nor hover outline); imperative so a mousemove
+    // never re-renders this panel. Install/redraw already drops the feature-state highlight.
+    const hoverTip = supportsAnalysisHover() ? createAnalysisHoverTip(map.getContainer()) : null;
+    const endHover = () => { hoverTip?.hide(); clearAnalysisHover(map); };
+    // T2 A2: hover resolves a rendered feature's row from the session store by resultId + _fid,
+    // never from the Mapbox-queried feature's own properties — a GeoJSON source's array-valued
+    // properties are not reliably read back through queryRenderedFeatures, unlike the scalar
+    // properties hover/click already rely on (see analysisResultOverlay.ts propertiesFor).
+    const hover = (event: MapMouseEvent) => {
+      if (!hoverTip) return;
+      const layers = analysisResultHoverLayerIds(map, presentedAnalysisRef.current.length);
+      const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers }).find(candidate => analysisFeatureTarget(candidate)) : undefined;
+      const target = feature ? analysisFeatureTarget(feature) : null;
+      if (!feature || !target) { endHover(); return; }
+      setAnalysisHover(map, target);
+      const slotIndex = analysisResultSlotIndex(target.source);
+      const presented = slotIndex !== null ? presentedAnalysisRef.current[slotIndex] : undefined;
+      const style = presented?.resultStyle;
+      const row = presented && style && style.kind === "choropleth" && isTimedChoropleth(style)
+        ? availableResultRowsRef.current.find(result => result.resultId === presented.resultId)?.rows[target.id] as Record<string, unknown> | undefined
+        : undefined;
+      if (presented && style && style.kind === "choropleth" && isTimedChoropleth(style) && row) {
+        const playback = getAnalysisPlaybackState(presented.resultId);
+        const fact = warehouseChoroplethPeriodFact(style, row, playback?.index ?? style.periods.length - 1);
+        hoverTip.show(event.point, { name: researchResultPopupTitle(feature.properties ?? {}), value: `${fact.period}：${fact.value}` }, latest.current.isDarkTheme === false);
+        return;
+      }
+      hoverTip.show(event.point, analysisHoverLabel(feature.properties ?? {}), latest.current.isDarkTheme === false);
+    };
     const redraw = () => {
-      if (!map.isStyleLoaded()) return;
+      endHover();
+      if (!isStyleReady(map)) return;
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
-      if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+      // Series-kind analysis results (read_series/compare_series, geometry "none") are analysis-only
+      // cards, never map layers — and presentable() throws RESULT_NOT_MAP_ELIGIBLE for the *whole*
+      // batch if even one id lacks map-eligible geometry. Keep them out of this batch so one such
+      // result never blanks every spatial result; they get their own TrendLine card below instead
+      // (spec P3=W3, docs/features/viz-library/DECISIONS.md §6).
+      const mapResultIds = analysis.current ? allResultIds.filter(resultId => analysis.current!.mapEligible(resultId)) : [];
+      if (mapResultIds.length && analysis.current && mapResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+        // Read fresh via the ref (not a dep of this effect) so a style/basemap switch — which is
+        // exactly what triggers "style.load" below — recolours with the *new* theme, not a stale one.
+        const theme = vizThemeForBasemap(latest.current.isDarkTheme);
         const visibleIds = new Set(resultIds);
-        const available = analysis.current.presentable(allResultIds);
-        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current);
+        const available = analysis.current.presentable(mapResultIds);
+        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current });
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
-        setAvailableAnalysis(describeAnalysisResults(available));
+        availableResultRowsRef.current = available;
+        syncPlaybackForResults(installed);
+        applyAnalysisSelection();
+        setAvailableAnalysis(describeAnalysisResults(available, theme));
       } else {
         removeAnalysisResults(map);
         presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+        availableResultRowsRef.current = [];
+        syncPlaybackForResults([]);
         setAvailableAnalysis([]);
       }
     };
-    const click = (event: mapboxgl.MapMouseEvent) => {
-      const layers = analysisResultLayerIds(presentedAnalysisRef.current.length).filter(id => map.getLayer(id));
-      const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers })[0] : undefined;
-      if (!feature) return;
-      const properties = feature.properties ?? {};
-      const titleKey = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "grid_id", "record_id"].find(key => properties[key] != null);
-      const content = document.createElement("article"); content.className = "research-result-popup";
-      const eyebrow = document.createElement("span"); eyebrow.className = "research-result-popup__eyebrow"; eyebrow.textContent = "ANALYSIS RESULT";
-      const title = document.createElement("strong"); title.className = "research-result-popup__title"; title.textContent = titleKey ? String(properties[titleKey]) : "分析結果";
-      const distance = Number(properties.distanceM);
-      const facts = document.createElement("dl"); facts.className = "research-result-popup__facts";
-      const appendFact = (label: string, value: string) => {
-        const row = document.createElement("div");
-        const term = document.createElement("dt"); term.textContent = label;
-        const detail = document.createElement("dd"); detail.textContent = value;
-        row.append(term, detail); facts.append(row);
-      };
-      if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
-      const observedValue = properties.value;
-      if (typeof observedValue === "number" && Number.isFinite(observedValue)) appendFact("VALUE", `${observedValue.toLocaleString("zh-TW")}${properties.unit ? ` ${String(properties.unit)}` : ""}`);
-      else if (properties.status != null) appendFact("STATUS", String(properties.status));
-      if (Number.isFinite(distance)) appendFact("DISTANCE", `${Math.round(distance).toLocaleString("zh-TW")} 公尺 · 直線`);
-      if (properties.source_version) appendFact("VERSION", String(properties.source_version));
-      if (properties.boundary_version) appendFact("BOUNDARY", String(properties.boundary_version));
-      if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
-      const note = document.createElement("p"); note.className = "research-result-popup__note"; note.textContent = "暫時分析結果 · 非完整來源圖層";
-      content.append(eyebrow, title, facts, note);
-      resultPopup.current?.remove();
-      resultPopup.current = new mapboxgl.Popup({ className: `research-result-map-popup research-result-map-popup--${latest.current.isDarkTheme === false ? "light" : "dark"}`, closeButton: true, maxWidth: "300px", offset: 12 }).setLngLat(event.lngLat).setDOMContent(content).addTo(map);
+    // P3=W3: a clicked feature's own recent-periods trend (only for a timed choropleth; every other
+    // result's popup shows no trend). Resolves the row the same way `hover` does — by resultId+_fid
+    // from the session store, not from the queried feature's own properties.
+    const trendFor = (resultId: string, properties: Record<string, unknown>): AnalysisResultPanelTrend | null => {
+      const fid = properties[FEATURE_ID_PROPERTY];
+      if (typeof fid !== "number") return null;
+      const style = presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle;
+      if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return null;
+      const row = availableResultRowsRef.current.find(result => result.resultId === resultId)?.rows[fid] as Record<string, unknown> | undefined;
+      const series = row?.[style.seriesProperty];
+      if (!Array.isArray(series)) return null;
+      const playback = getAnalysisPlaybackState(resultId);
+      const points = style.periods.map((period, index) => {
+        const value = series[index];
+        return { label: shortTaipeiDateLabel(period), value: typeof value === "number" && Number.isFinite(value) ? value : null };
+      });
+      return { points, caption: tr("research.panel.trendCaption", { count: style.periods.length }), markerIndex: playback?.index ?? style.periods.length - 1 };
     };
-    redraw(); map.on("style.load", redraw); map.on("click", click);
-    return () => { map.off("style.load", redraw); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
+    // The docked popup's value comes from the feature's latest-period styleFactValue; for a timed
+    // choropleth re-derive it from the row at the *current* playback period so it matches the map.
+    const timedStyleFor = (properties: Record<string, unknown>) => {
+      const resultId = properties.resultId;
+      const style = typeof resultId === "string" ? presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle : undefined;
+      return style && style.kind === "choropleth" && isTimedChoropleth(style) ? { resultId: resultId as string, style } : null;
+    };
+    const periodSyncedFeature = <T extends { properties?: Record<string, unknown> | null }>(feature: T): T => {
+      const properties = feature.properties ?? {};
+      const timed = timedStyleFor(properties);
+      const fid = properties[FEATURE_ID_PROPERTY];
+      if (!timed || typeof fid !== "number") return feature;
+      const row = availableResultRowsRef.current.find(result => result.resultId === timed.resultId)?.rows[fid] as Record<string, unknown> | undefined;
+      if (!row) return feature;
+      const fact = warehouseChoroplethPeriodFact(timed.style, row, getAnalysisPlaybackState(timed.resultId)?.index ?? timed.style.periods.length - 1);
+      return { ...feature, properties: { ...properties, styleFactLabel: fact.label, styleFactValue: fact.value } };
+    };
+    const click = (event: MapMouseEvent) => {
+      const layers = analysisResultInteractiveLayerIds(map, presentedAnalysisRef.current.length);
+      const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
+      // No hit: the App's own map click handler owns clearing or replacing the docked panel.
+      if (!overlaps.features.length) return;
+      analysisSelectionRef.current = overlaps.features.map(feature => analysisSelectionOf(feature)).filter((selection): selection is AnalysisSelection => selection !== null);
+      applyAnalysisSelection();
+      // Registered after useMapInteraction's click listener (map is only passed once prepared),
+      // so within one batched click this panel wins over its synchronous "blank click" clear.
+      const build = () => researchResultPanelProperties(
+        { ...overlaps, features: overlaps.features.map(periodSyncedFeature) },
+        resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
+        datasetId => {
+          try { return describeDataset(datasetId, latest.current.locked).label; }
+          catch (error) {
+            // warehouse:<id> 不在前端 descriptor：以匯入 lineage 的上游資料集名稱代替。
+            const sources = presentedAnalysisRef.current.find(result => result.datasetId === datasetId)?.sourceDatasets;
+            const label = warehouseDatasetsSourceLabel(sources, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]);
+            if (label) return label;
+            throw error;
+          }
+        },
+        trendFor,
+      );
+      // 開著的 popup 要跟著播放／拖曳更新（markerIndex 與目前期別的值）；只有含 timed choropleth 的 popup 需要。
+      openPanelRef.current = overlaps.features.some(feature => timedStyleFor(feature.properties ?? {})) ? { rebuild: build } : null;
+      latest.current.onAnalysisResultFeature?.(build());
+    };
+    let cancelStyleRestore: (() => void) | null = null;
+    const redrawAfterStyleLoad = () => {
+      redraw();
+      // MapView rebuilds its own overlays in the same style cycle. Check again
+      // once that work has settled, but only reinstall if the transient result
+      // layers really did not survive; do not issue a new analysis query.
+      cancelStyleRestore?.();
+      cancelStyleRestore = scheduleAnalysisResultStyleRestore(map, redraw, () => {
+        const presentation = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
+        return presentation.sourcesReady && presentation.layersReady;
+      });
+    };
+    redraw(); map.on("style.load", redrawAfterStyleLoad); map.on("click", click);
+    if (hoverTip) { map.on("mousemove", hover); map.on("mouseout", endHover); map.on("movestart", endHover); }
+    return () => {
+      cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
+      if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
+      openPanelRef.current = null;
+      latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
+      clearAnalysisPlayback();
+    };
   }, [props.map]);
+  // T2 A2: subscribes to the playback store so a tick/scrub (analysisPlaybackStore.ts) re-renders
+  // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
+  // bar (index/playing) live.
+  const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
+  // F118: keep an open timed-choropleth popup in step with the playback (tick/scrub).
+  useEffect(() => {
+    if (props.analysisResultSelected && openPanelRef.current) latest.current.onAnalysisResultFeature?.(openPanelRef.current.rebuild());
+  }, [playbackVersion, props.analysisResultSelected]);
+  // T2 A2: re-paints every installed timed choropleth to its own stored period on every tick/scrub,
+  // and again whenever a fresh install (Agent command, basemap switch) lands — so a scrubbed period
+  // survives `style.load`'s source/layer rebuild (spec: "切換底圖...後保留目前期別").
+  useEffect(() => {
+    const map = props.map;
+    if (!map) return;
+    const theme = vizThemeForBasemap(props.isDarkTheme);
+    const outlineOnly = new Set(analysisOutlineOnlyRef.current);
+    for (const result of presentedAnalysis) {
+      const style = result.resultStyle;
+      if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) continue;
+      const state = getAnalysisPlaybackState(result.resultId);
+      const periodIndex = state?.index ?? style.periods.length - 1;
+      setAnalysisResultPeriod(map, presentedAnalysis, result.resultId, periodIndex, theme, outlineOnly.has(result.resultId));
+    }
+    // playbackVersion is read only inside the loop (via getAnalysisPlaybackState); it is the actual
+    // trigger for a tick/scrub, so it must stay a dep even though it is not referenced by name above.
+  }, [playbackVersion, presentedAnalysis, props.map, props.isDarkTheme]);
+  // T2 A2: one entry's own play/pause/scrub bundle for the legend bar (AnalysisLegendSection),
+  // resolved fresh from the store at publish time — see analysisLegendEntries' playbackFor param.
+  const analysisPlaybackFor = useCallback((resultId: string): AnalysisLegendPlayback | undefined => {
+    const style = presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle;
+    if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return undefined;
+    const length = style.periods.length;
+    const state = getAnalysisPlaybackState(resultId) ?? { index: Math.max(0, length - 1), playing: false };
+    return {
+      periods: style.periods, periodUnit: style.periodUnit, index: state.index, playing: state.playing,
+      onToggle: () => toggleAnalysisPlayback(resultId, length),
+      onScrub: (index: number) => scrubAnalysisPlayback(resultId, index, length),
+    };
+  }, []);
+  // G1/G2: the analysis legend lives in the 「圖例」 panel (top group); compact while the docked panel is open.
+  useEffect(() => {
+    publishAnalysisLegend({
+      // Source line = the dataset descriptor's name (not the result title, which is often the same text).
+      entries: analysisLegendEntries(presentedAnalysis, (datasetId, _displayLabel, sourceDatasets) => {
+        const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
+        if (label !== UNNAMED_DATASET_LABEL) return label;
+        // warehouse:<id> 不在前端 descriptor：改用匯入 lineage 的上游資料集，解析不出名稱的不顯示。
+        return warehouseDatasetsSourceLabel(sourceDatasets, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]) ?? null;
+      }, analysisPlaybackFor, availableAnalysis),
+      compact: !!props.analysisResultSelected,
+    });
+    // playbackVersion: republishes on every tick/scrub so the bar's index/playing stay live.
+  }, [presentedAnalysis, availableAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
+  useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
+  // I2: closing the docked panel, or selecting another layer's feature, restores every result.
+  useEffect(() => {
+    if (props.analysisResultSelected || !analysisSelectionRef.current.length) return;
+    analysisSelectionRef.current = [];
+    applyAnalysisSelection();
+  }, [props.analysisResultSelected, applyAnalysisSelection]);
   useEffect(() => {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
     if (!resultIds.length) return;
     const timer = window.setInterval(() => {
-      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasResult(resultId))) {
+      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasAccessibleResult(resultId))) {
         clearAnalysisPresentation(true);
-        setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
-        setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });
+        setMessage(tr("research.msg.expiredOverlay"));
+        setActivity({ phase: "complete", title: tr("research.msg.expiredClearedTitle"), detail: tr("research.msg.expiredClearedDetail") });
       }
     }, 1_000);
     return () => window.clearInterval(timer);
   }, [clearAnalysisPresentation, resultCollection, setActivity]);
-  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; resultPopup.current?.remove(); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
+  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; latest.current.onAnalysisResultFeature?.(null); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
-  return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
-    {props.map && createPortal(<div className="research-activity-position"><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
-    {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
-    <div className="main-map-agent-panel" hidden={!panelOpen}>
-      {!props.embedded && <h2>連接這張地圖</h2>}
-      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
+  const showToggle = props.showToggle ?? !props.embedded;
+  return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
+    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityCardVisible(activity, props.uiHidden) ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
+    {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>{t("research.panel.toggle")}</button>}
+    <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
+      {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow={t("research.panel.eyebrow")} title={t("research.panel.title")} onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
+      <ResearchConnection surface="map" queryHandler={queryHandler} onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: tr("research.msg.readyTitle"), detail: tr("research.msg.readyDetail") }); }} />
+      <div className="agent-panel-body">
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
-        <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
+        <span>{t("research.panel.follow")}<small>{t("research.panel.followHint")}</small></span>
       </label>
-      <p role="status">{message}</p>
-      {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
-        <h3>已呈現的分析結果</h3>
-        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；可逐層開關與排序，這不是完整來源圖層。</p>
-        <label>分析結果透明度
-          <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis.length, value); }} />
-        </label>
-        {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
-          <legend>群組</legend>
-          {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
-            <input type="checkbox" checked={group.visible} onChange={event => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-            <span>{group.label}</span>
-          </label>)}
-        </fieldset>}
+      <p className="agent-session-status" role="status">{(message ?? t("research.msg.initial")).replace(/^r\d+\s+/, "")}</p>
+      {cardDraft && <AnalysisCardDraftSection key={cardDraft.draftId} draft={cardDraft} onDiscard={() => setCardDraft(null)} />}
+      {resultCollection && <section className="agent-analysis-results" aria-label={t("research.panel.resultsAria")}>
+        <h3>{t("research.panel.resultsTitle")} <span className="agent-section-count">{resultCollection.items.length}</span></h3>
+        <p>{t("research.panel.resultsSummary", { count: presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0) })}</p>
+        {/* 群組與結果列走共用圖層列（layer-panel-unify P8）：黑白列開關，取代原生 checkbox */}
+        <RailThemeContext.Provider value={railPalette(props.isDarkTheme !== false)}>
+        {resultCollection.groups.length > 0 && <div className="agent-analysis-groups" role="group" aria-label={t("research.panel.groups")}>
+          <SubGroupLabel>{t("research.panel.groups")}</SubGroupLabel>
+          {resultCollection.groups.map(group => <ListRow key={group.groupId} ariaLabel={group.label} label={group.label}
+            toggle={{ on: group.visible, label: t("research.panel.showGroup", { label: group.label }), onChange: () => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: !group.visible } : candidate) })) }} />)}
+        </div>}
         <ul>{resultCollection.items.map((item, index) => {
-          const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
+          if (!resultsExpanded && index >= 5) return null;
+          const series = analysis.current?.seriesResult(item.resultId) ?? null;
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
+          // 結果本體（趨勢線、比較表、排名條）預設展開，不藏進 chevron
+          const expanded = !collapsedResults.has(item.resultId);
+          const toggleExpanded = () => setCollapsedResults(current => { const next = new Set(current); if (next.has(item.resultId)) next.delete(item.resultId); else next.add(item.resultId); return next; });
+          if (series) {
+            // T1=L1: a warehouse-imported series style (pulse_wh_present kind "series") carries its
+            // own periods/values/baseline directly; a session-local read_series/compare_series result
+            // has no resultStyle and instead shapes its rows as period_start/value/baseline_value.
+            const warehouseStyle = series.resultStyle?.kind === "series" ? series.resultStyle : null;
+            const trend = warehouseStyle ? warehouseSeriesTrendLineData(warehouseStyle) : seriesTrendLineData(series.rows, typeof series.units.value === "string" ? series.units.value : null);
+            const latestText = "latestText" in trend ? trend.latestText : null;
+            const title = warehouseStyle?.title ?? series.displayLabel;
+            const unit = warehouseStyle ? warehouseStyle.unit : (typeof series.units.value === "string" ? series.units.value : null);
+            const periodCount = warehouseStyle ? warehouseStyle.periods.length : series.rows.length;
+            return <li key={item.resultId} className="agent-analysis-result-item">
+              <ListRow ariaLabel={title} label={title} expandable expanded={expanded} onClick={toggleExpanded}
+                sub={<>
+                  {t("research.panel.periods", { count: periodCount })}{group ? ` · ${group.label}` : ""}
+                  {latestText !== null ? ` · ${t("research.panel.latestPeriod", { label: trend.points[trend.points.length - 1]?.label ?? "", value: String(latestText) })}` : ""}
+                  {warehouseStyle?.baselineLabel ? ` · ${t("research.panel.baseline", { label: warehouseStyle.baselineLabel })}` : ""}
+                </>} />
+              {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
+                <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={unit} />
+              </div>}
+            </li>;
+          }
+          const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const label = result?.displayLabel ?? t("research.panel.resultDefault");
           return <li key={item.resultId} className="agent-analysis-result-item">
-            <label className="agent-analysis-toggle">
-              <input type="checkbox" checked={item.visible} onChange={event => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-              <span><strong>{result?.displayLabel ?? item.resultId}</strong>{result ? `${result.featureCount} 筆／${result.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
-            </label>
-            <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
-              <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
-              <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
-            </span>
+            <ListRow ariaLabel={label} label={label} expandable expanded={expanded} onClick={toggleExpanded}
+              icon={<span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />}
+              accent={rendered?.color ?? result?.color}
+              active={item.visible}
+              sub={<>{rendered ? `${t("research.panel.records", { count: rendered.featureCount })} · ${rendered.geometryType}` : t("research.panel.notShown")}{group ? ` · ${group.label}` : ""}</>}
+              toggle={{ on: item.visible, label: t("research.panel.show", { label }), onChange: () => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) })) }} />
+            {expanded && <div className="agent-analysis-row-label agent-analysis-row-body">
+                <label className="agent-analysis-opacity">{t("research.panel.opacity")}
+                  <Slider ariaLabel={t("research.panel.opacityAria", { label })} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                </label>
+                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} theme={vizThemeForBasemap(props.isDarkTheme)} onSelectColumn={column => {
+                  if (!props.map) return;
+                  let point: Record<string, unknown> | undefined;
+                  try { point = analysis.current?.presentable([item.resultId])[0]?.rows.find(row => row._compare_index === column.index); } catch { point = undefined; }
+                  const geometry = point?.geometry as { type?: string; coordinates?: [number, number] } | undefined;
+                  if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
+                }} />}
+                {rendered?.rankBars && <RankBars items={rendered.rankBars.items} theme={vizThemeForBasemap(props.isDarkTheme)} valueKind={rendered.rankBars.valueKind} unit={rendered.rankBars.unit} title={rendered.rankBars.title} />}
+                {/^wh-\d+/.test(item.resultId) && <>
+                  <button type="button" className="agent-analysis-make-card" aria-expanded={cardHintFor === item.resultId} onClick={() => setCardHintFor(current => current === item.resultId ? null : item.resultId)}>{t("research.panel.makeCard")}</button>
+                  {cardHintFor === item.resultId && <small className="agent-analysis-make-card-hint" role="status">{makeCardHint(result?.displayLabel ?? t("research.done.thisResult"), i18n)}</small>}
+                </>}
+                <span className="agent-analysis-order" aria-label={t("research.panel.orderAria", { label })}>
+                  <button aria-label={t("research.panel.moveUp")} disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
+                  <button aria-label={t("research.panel.moveDown")} disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
+                </span>
+            </div>}
           </li>;
         })}</ul>
-        <button onClick={() => clearAnalysisPresentation(true)}>清除分析結果</button>
+        </RailThemeContext.Provider>
+        {resultCollection.items.length > 5 && <button type="button" className="agent-analysis-expand" onClick={() => setResultsExpanded(value => !value)}>
+          {resultsExpanded ? t("research.panel.collapse") : t("research.panel.expandAll", { count: resultCollection.items.length })}
+        </button>}
+        <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>{t("research.panel.clear")}</button>
       </section>}
+      {!resultCollection && <section className="agent-empty-results"><h3>{t("research.panel.resultsTitle")}</h3><p>{t("research.panel.emptyHint1")}<br />{t("research.panel.emptyHint2")}</p></section>}
+      {evidence.length > 0 && <details className="agent-evidence-disclosure"><summary>{t("research.panel.evidence")} <span>{evidence.length}</span></summary><ResearchEvidencePanel evidence={evidence} /></details>}
+      </div>
     </div>
   </div>;
 }

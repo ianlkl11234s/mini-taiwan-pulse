@@ -488,6 +488,24 @@ describe("internet health RPC contract", () => {
 describe("internet health RIPE timeline", () => {
   const to = "2026-09-01T00:00:00Z";
 
+  it("carries metadata.expected_probe_count onto each 24h five-minute bucket and leaves it off when absent or on 7d buckets", () => {
+    const day = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({ value: 0.9, sample_count: 70, metadata: { address_family: 4, measurement_state: "ready", expected_probe_count: 85 } }),
+      timelineRow({ observed_at: "2026-08-31T23:40:00Z", value: 0.9, sample_count: 70 }),
+      timelineRow({ observed_at: "2026-08-31T23:45:00Z", value: 0.9, sample_count: 70, metadata: { address_family: 4, measurement_state: "ready", expected_probe_count: 0 } }),
+    ] }], { range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", to });
+    const withValue = day.ipv4.points.filter((point) => point.value !== null);
+    expect(withValue).toHaveLength(3);
+    expect(withValue[0]).toMatchObject({ expectedProbeCount: 85 });
+    expect(withValue[1]).not.toHaveProperty("expectedProbeCount");
+    expect(withValue[2]).not.toHaveProperty("expectedProbeCount");
+
+    const week = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({ value: 0.9, sample_count: 70, metadata: { address_family: 4, measurement_state: "ready", expected_probe_count: 85 } }),
+    ] }], { range: "7d", source: "ripe_atlas", metric: "ping_success_ratio", to });
+    expect(week.ipv4.points.find((point) => point.value !== null)).not.toHaveProperty("expectedProbeCount");
+  });
+
   it("plans continuous half-open chunks and splits 30d below the RPC cap", () => {
     const chunks = planInternetHealthTimelineChunks({
       range: "30d", source: "ripe_atlas", metric: "ping_success_ratio", to,

@@ -1,0 +1,132 @@
+/* 監看卡標準殼（spec §5.35 A1／C3）。顏色走語意變數，P5 淡色版只要在 .mtp-mon--light 改指向。 */
+.mtp-mon {
+  --mon-card-bg: var(--white-a4);
+  --mon-card-border: var(--border-panel);
+  --mon-text-strong: var(--text-strong);
+  --mon-text-muted: var(--text-muted);
+  --mon-text-dim: var(--text-dim);
+  --mon-warn: var(--status-warn);
+  --mon-err: var(--status-err);
+  /* 監看新版字級 S13（spec §5.35；與 monitorFont.ts MON_FONT_PX 同值） */
+  --mon-f-cap: 13px;
+  --mon-f-label: 13px;
+  --mon-f-body: 14px;
+  --mon-f-title: 16px;
+  --mon-f-kpi: 19px;
+  --mon-f-main: 24px;
+}
+
+.mtp-mcard {
+  container-type: inline-size;
+  flex: 1 0 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: 10px 12px;
+  background: var(--mon-card-bg);
+  border: 1px solid var(--mon-card-border);
+  border-radius: var(--radius-lg);
+  /* 窄格規則：內容不得畫出格子 */
+  overflow: hidden;
+  font-family: var(--font-cjk);
+  /* 使用者 2026-10-02：上下行太緊；卡內未自訂行高的文字一律 1.45 */
+  line-height: 1.45;
+}
+
+/* 舊版樣式：同一棵樹但不產生盒子，內容照舊直接排進格子 */
+.mtp-mcard--bare,
+.mtp-mcard--bare > .mtp-mcard__body {
+  display: contents;
+}
+
+.mtp-mcard__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-xs) var(--space-sm);
+  min-width: 0;
+}
+
+.mtp-mcard__title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.mtp-mcard__zh {
+  font-size: var(--mon-f-title);
+  font-weight: 700;
+  color: var(--mon-text-strong);
+  white-space: nowrap;
+}
+
+.mtp-mcard__en {
+  font-size: var(--mon-f-cap);
+  color: var(--mon-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  min-width: 0;
+}
+
+.mtp-mcard__meta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.mtp-mcard__time {
+  font-family: var(--font-data);
+  font-size: var(--mon-f-label);
+  color: var(--mon-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.mtp-mcard__time.is-warn { color: var(--mon-warn); }
+
+.mtp-mcard__pill {
+  font-size: var(--mon-f-label);
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
+  color: var(--mon-text-muted);
+}
+.mtp-mcard__pill--stale { color: var(--mon-warn); }
+.mtp-mcard__pill--stopped { color: var(--mon-err); }
+
+/* P5 淡色（spec §5.35 H2；S1 白卡疊淡灰面板、P2 pill 淡底實心）。值只取 --light-*。 */
+.mtp-mon--light {
+  --mon-card-bg: var(--light-surface-solid);
+  --mon-card-border: var(--light-border);
+  --mon-text-strong: var(--light-text-strong);
+  --mon-text-muted: var(--light-text-muted);
+  --mon-text-dim: var(--light-text-dim);
+  --mon-warn: var(--light-status-warn);
+  --mon-err: var(--light-status-err);
+  color: var(--light-text-default);
+}
+.mtp-mon--light .mtp-mcard__pill {
+  border-color: transparent;
+  background: var(--light-fill-strong);
+}
+.mtp-mon--light .mtp-mcard__pill--stale { background: color-mix(in srgb, var(--light-status-warn) 12%, var(--light-surface-solid)); }
+.mtp-mon--light .mtp-mcard__pill--stopped { background: color-mix(in srgb, var(--light-status-err) 12%, var(--light-surface-solid)); }
+
+.mtp-mcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 0 auto;
+}
+
+/* 窄格：英文附註先讓位 */
+@container (max-width: 300px) {
+  .mtp-mcard__en { display: none; }
+}

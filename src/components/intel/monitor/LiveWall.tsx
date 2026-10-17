@@ -1,10 +1,20 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { SURFACE, LIGHT, ELEVATION, RADIUS, FONT_SIZE, Z_INDEX } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
+import { useMonitorV2 } from "./monitorStyle";
+import { useMonitorTheme } from "./monitorTheme";
+import { fs } from "./monitorFont";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
+
+/** 頻道名稱／分類／備註／緊急標籤的顯示翻譯；資料本身（LIVE_CHANNELS）保留中文 */
+const channelName = (ch: LiveChannel, i18n: LocaleSnapshot) => enumLabel("liveChannel", ch.id, ch.name, i18n);
+const channelNote = (ch: LiveChannel, i18n: LocaleSnapshot) => (ch.note ? enumLabel("liveNote", ch.id, ch.note, i18n) : undefined);
 
 export interface LiveChannel {
   id: string;
@@ -110,16 +120,40 @@ interface MenuProps {
 function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // 選單經 portal 掛到 body（卡片殼 overflow:hidden 會裁掉向上展開的選單），位置由按鈕量測
+  const [pos, setPos] = useState<{ left: number; bottom: number } | null>(null);
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
 
   useEffect(() => {
     if (!open) return;
     const close = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (ref.current && !ref.current.contains(t) && !menuRef.current?.contains(t)) setOpen(false);
     };
+    const dismiss = () => setOpen(false);
+    const dismissOnScroll = (e: Event) => { if (!menuRef.current?.contains(e.target as Node)) setOpen(false); };
     document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    window.addEventListener("resize", dismiss);
+    window.addEventListener("scroll", dismissOnScroll, true);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      window.removeEventListener("resize", dismiss);
+      window.removeEventListener("scroll", dismissOnScroll, true);
+    };
   }, [open]);
+  useLayoutEffect(() => {
+    if (!open || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const w = v2 ? 264 : 232;
+    setPos({
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - w - 8)),
+      bottom: window.innerHeight - rect.top + 6,
+    });
+  }, [open, v2]);
 
   return (
     <div ref={ref} style={{ position: "relative" }}>
@@ -130,37 +164,40 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           background: "rgba(0,0,0,0.72)", color: "#fff",
           border: `1px solid ${COLORS.borderMid}`, cursor: "pointer",
           backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
-          fontFamily: FONT_CJK, fontSize: 10.5,
+          fontFamily: FONT_CJK, fontSize: fs(v2, 10.5),
         }}
       >
-        <span style={{ fontWeight: 700 }}>{cur.name}</span>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-            color: COLORS.textMuted, letterSpacing: "0.5px",
-          }}
-        >
-          {cur.en}
-        </span>
+        <span style={{ fontWeight: 700 }}>{channelName(cur, i18n)}</span>
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
+              color: COLORS.textMuted, letterSpacing: "0.5px",
+            }}
+          >
+            {cur.en}
+          </span>
+        )}
         <span
           style={{
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform .2s",
-            fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
           }}
         >
           ▾
         </span>
       </button>
 
-      {open && (
+      {open && pos && createPortal(
         <div
+          ref={menuRef}
           style={{
-            position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-            width: 232, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
-            border: `1px solid ${COLORS.borderMid}`,
-            background: SURFACE.solid,
+            position: "fixed", bottom: pos.bottom, left: pos.left,
+            width: v2 ? 264 : 232, maxWidth: v2 ? "80vw" : undefined, zIndex: Z_INDEX.modal, borderRadius: RADIUS.xl, overflow: "hidden",
+            border: `1px solid ${theme.p.borderMid}`,
+            background: theme.isDark ? SURFACE.solid : LIGHT.surfaceSolid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
             boxShadow: ELEVATION.md,
             animation: "drawerOpen .18s cubic-bezier(.22,1,.36,1)",
@@ -169,20 +206,20 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           <div
             style={{
               display: "flex", alignItems: "center", gap: 6, padding: "8px 11px 7px",
-              borderBottom: `1px solid ${COLORS.borderSoft}`,
+              borderBottom: `1px solid ${theme.p.borderSoft}`,
             }}
           >
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, letterSpacing: "1.4px",
-                color: COLORS.textDim,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "1.4px",
+                color: theme.p.textDim,
               }}
             >
-              SELECT CHANNEL
+              {v2 ? i18n.t("monitor.wall.selectChannel") : "SELECT CHANNEL"}
             </span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>
-              {channels.length} 家可看
+            <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
+              {i18n.t("monitor.wall.channelsAvailable", { count: channels.length })}
             </span>
           </div>
           <div className="mtp-scroll" style={{ maxHeight: 320, overflowY: "auto" }}>
@@ -202,14 +239,14 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     >
                       <span
                         style={{
-                          fontFamily: FONT_CJK, fontSize: 8.5, letterSpacing: "1px",
-                          color: COLORS.textDim,
+                          fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), letterSpacing: "1px",
+                          color: theme.p.textDim,
                         }}
                       >
-                        {c.tag}
+                        {enumLabel("liveTag", c.tag, c.tag, i18n)}
                       </span>
-                      <span style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
-                      <span style={{ fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textFaint }}>
+                      <span style={{ flex: 1, height: 1, background: theme.p.borderSoft }} />
+                      <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: theme.p.textFaint }}>
                         {channels.filter((x) => x.tag === c.tag).length}
                       </span>
                     </div>
@@ -223,9 +260,9 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 9,
                       padding: "8px 11px",
-                      background: active ? "rgba(100,170,255,0.12)" : "transparent",
+                      background: active ? (theme.isDark ? "rgba(100,170,255,0.12)" : theme.p.accentFaint) : "transparent",
                       border: "none",
-                      borderLeft: active ? `2px solid ${COLORS.accent}` : "2px solid transparent",
+                      borderLeft: active ? `2px solid ${theme.p.accent}` : "2px solid transparent",
                       cursor: inOther ? "not-allowed" : "pointer",
                       opacity: inOther ? 0.4 : 1, textAlign: "left",
                       transition: "background .12s",
@@ -234,8 +271,8 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                     <span
                       style={{
                         width: 6, height: 6, borderRadius: RADIUS.full, flexShrink: 0,
-                        background: c.emergency ? COLORS.statusWarn : "#ff3b30",
-                        boxShadow: `0 0 5px ${c.emergency ? COLORS.statusWarn : "#ff3b30"}`,
+                        background: c.emergency ? theme.p.statusWarn : theme.fill("#ff3b30"),
+                        boxShadow: `0 0 5px ${c.emergency ? theme.p.statusWarn : theme.fill("#ff3b30")}`,
                         animation: "intelRing 1.6s ease-in-out infinite",
                       }}
                     />
@@ -248,48 +285,50 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                       <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                         <span
                           style={{
-                            fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 700,
-                            color: active ? "#fff" : COLORS.textDefault,
+                            fontFamily: FONT_CJK, fontSize: fs(v2, 11.5), fontWeight: 700,
+                            color: active ? (theme.isDark ? "#fff" : theme.p.textStrong) : theme.p.textDefault,
                           }}
                         >
-                          {c.name}
+                          {channelName(c, i18n)}
                         </span>
-                        <span
-                          style={{
-                            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-                            color: COLORS.textFaint, letterSpacing: "0.5px",
-                          }}
-                        >
-                          {c.en}
-                        </span>
+                        {!v2 && (
+                          <span
+                            style={{
+                              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
+                              color: theme.p.textFaint, letterSpacing: "0.5px",
+                            }}
+                          >
+                            {c.en}
+                          </span>
+                        )}
                         {c.emergency && (
                           <span
                             style={{
-                              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: "#04121f", fontWeight: 700,
                               padding: "0px 5px", borderRadius: RADIUS.md,
-                              background: COLORS.statusWarn,
+                              background: theme.p.statusWarn,
                             }}
                           >
-                            防災
+                            {i18n.t("monitor.wall.emergencyBadge")}
                           </span>
                         )}
                       </span>
                       {(c.note || inOther) && (
                         <span
                           style={{
-                            fontFamily: FONT_CJK, fontSize: 8.5,
-                            color: inOther ? COLORS.accent : COLORS.textFaint,
+                            fontFamily: FONT_CJK, fontSize: fs(v2, 8.5),
+                            color: inOther ? theme.p.accent : theme.p.textFaint,
                             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                           }}
                         >
-                          {inOther ? "另一格播放中" : c.note}
+                          {inOther ? i18n.t("monitor.wall.inOther") : channelNote(c, i18n)}
                         </span>
                       )}
                     </span>
                     {active && (
                       <span
                         style={{
-                          fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.accent, flexShrink: 0,
+                          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.accent, flexShrink: 0,
                         }}
                       >
                         ✓
@@ -300,7 +339,8 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
               );
             })}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -322,19 +362,23 @@ function LiveSlot({
   // 一開就把 4 個 YT player 全載起來吃 CPU/網路（rootMargin: 200px 預載）。
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const name = channelName(ch, i18n);
   return (
     <div
       ref={slotRef}
       style={{
         position: "relative", borderRadius: RADIUS.xl, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
-        border: emergency ? "1px solid rgba(255,152,0,0.55)" : `1px solid ${COLORS.borderSoft}`,
+        border: emergency ? "1px solid rgba(255,152,0,0.55)" : `1px solid ${theme.p.borderSoft}`,
       }}
     >
       <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {src && visible ? (
           <iframe
-            title={ch.name}
+            title={name}
             src={src}
             style={{
               position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -351,16 +395,16 @@ function LiveSlot({
               position: "absolute", inset: 0, display: "flex",
               flexDirection: "column", alignItems: "center", justifyContent: "center",
               gap: 6, color: COLORS.textFaint,
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "center", padding: 16,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), textAlign: "center", padding: 16,
             }}
           >
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px" }}>
-              {resolved?.last_error ? "RESOLVER ERROR" : "RESOLVING…"}
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px" }}>
+              {resolved?.last_error ? (v2 ? i18n.t("monitor.wall.resolveFailed") : "RESOLVER ERROR") : (v2 ? i18n.t("monitor.wall.resolving") : "RESOLVING…")}
             </span>
             <span>
               {resolved?.last_error
-                ? `${ch.name}：${resolved.last_error}`
-                : `等待 ${ch.handle} 的直播解析`}
+                ? i18n.t("monitor.wall.resolveError", { name, error: resolved.last_error })
+                : i18n.t("monitor.wall.waiting", { handle: ch.handle })}
             </span>
           </div>
         )}
@@ -388,29 +432,29 @@ function LiveSlot({
             />
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 8.5, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), fontWeight: 700,
                 color: "#fff", letterSpacing: "0.5px",
               }}
             >
-              LIVE
+              {v2 ? i18n.t("monitor.wall.liveBadge") : "LIVE"}
             </span>
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
-            {ch.name}
+            {name}
           </span>
           {emergency && (
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: "#04121f", fontWeight: 700,
                 padding: "1px 6px", borderRadius: RADIUS.md, background: COLORS.statusWarn,
               }}
             >
-              目前播放：{ch.emergencyLabel}
+              {i18n.t("monitor.wall.nowPlaying", { label: enumLabel("liveEmergency", ch.emergencyLabel ?? "", ch.emergencyLabel ?? "", i18n) })}
             </span>
           )}
         </div>
@@ -425,11 +469,11 @@ function LiveSlot({
         <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} channels={channels} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)", pointerEvents: "none",
           }}
         >
-          🔇 點擊解除靜音
+          {i18n.t("monitor.wall.unmute")}
         </span>
       </div>
     </div>
@@ -447,10 +491,14 @@ export const LiveWall = memo(function LiveWall() {
   const setSlot = (i: number) => (id: string) =>
     setSlots((prev) => prev.map((v, k) => (k === i ? id : v)));
   const ctsLive = slots.includes("cts");
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
 
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
   const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
   const resolvedRows = resolverQuery.data;
+  // 標題列不送時間：resolver 的 updated_at 是「解析時間」不是影像／資料本身的時間（P4 G2：本格沒有 fresh 登記）
   const resolvedMap = useMemo(() => {
     const m = new Map<string, YtLiveVideo>();
     for (const r of resolvedRows) m.set(r.handle, r);
@@ -490,45 +538,51 @@ export const LiveWall = memo(function LiveWall() {
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
-        border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,255,255,0.022)",
-        padding: 13, display: "flex", flexDirection: "column",
+        gridColumn: "1 / -1",
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl,
+          border: `1px solid ${theme.p.panelBorder}`,
+          background: "rgba(255,255,255,0.022)",
+          padding: 13,
+        }),
+        display: "flex", flexDirection: "column",
       }}
     >
-      <MonitorDataStatus label="直播解析" query={resolverQuery} />
+      <MonitorDataStatus label={i18n.t("monitor.wall.dataLabel")} query={resolverQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
-        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
-            color: COLORS.textDefault,
-          }}
-        >
-          新聞直播 · LIVE WALL
-        </span>
+        {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: theme.p.accent }} />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
+              color: theme.p.textDefault,
+            }}
+          >
+            {i18n.t("monitor.wall.titleLegacy")}
+          </span>
+        )}
         <div style={{ flex: 1 }} />
         {ctsLive ? (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn,
+              fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.statusWarn,
               padding: "2px 8px", borderRadius: RADIUS.md,
-              background: COLORS.statusWarnSoft,
-              border: "1px solid rgba(255,152,0,0.3)",
+              background: theme.p.statusWarnSoft,
+              border: theme.isDark ? "1px solid rgba(255,152,0,0.3)" : `1px solid ${theme.p.statusWarnBorder}`,
             }}
           >
-            ⚠ 華視已切換防災直播
+            {i18n.t("monitor.wall.ctsEmergency")}
           </span>
         ) : (
-          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-            4 格同步 · 可切換 {availableChannels.length} 家
+          <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
+            {i18n.t("monitor.wall.slots", { count: availableChannels.length })}
           </span>
         )}
       </div>
       <div
         style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr 1fr", gap: 10,
+          display: "grid", gridTemplateColumns: v2 ? "repeat(2, minmax(0, 1fr))" : "1fr 1fr",
+          gridTemplateRows: v2 ? undefined : "1fr 1fr", gap: 10,
         }}
       >
         {slots.map((chId, i) => {
@@ -551,12 +605,12 @@ export const LiveWall = memo(function LiveWall() {
           marginTop: 7,
           textAlign: "center",
           fontFamily: FONT_CJK,
-          fontSize: 9.5,
-          color: COLORS.textFaint,
+          fontSize: fs(v2, 9.5),
+          color: theme.p.textFaint,
           lineHeight: 1.5,
         }}
       >
-        ⓘ 因為與 YouTube 的連線關係，不一定每格都會有辦法顯示
+        {i18n.t("monitor.wall.footnote")}
       </div>
     </div>
   );

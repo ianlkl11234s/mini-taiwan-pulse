@@ -54,7 +54,7 @@ function hashColor(routeUid: string): string {
 }
 
 /** 點投影到 LineString 最近處，回傳 progress [0,1] */
-function snapToRoute(
+export function snapToRoute(
   lat: number,
   lng: number,
   route: BusRouteGeometry,

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import { createRealEstatePointsLayer, RE_POINTS_LAYER_ID } from "../map/realEstatePointsCustomLayer";
+import { RE_POINTS_LAYER_ID, realEstatePointsModule, mountLazyCustomLayer, removeLazyCustomLayer } from "../map/lazyThreeLayers";
 import { rePointsStore } from "../state/realEstatePointsStore";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -48,7 +48,8 @@ export function useRealEstatePointsLayer(
       if (disposed) return;
       if (map.getLayer(RE_POINTS_LAYER_ID)) return;
       try {
-        map.addLayer(createRealEstatePointsLayer());
+        // C1b：three 模組第一次開啟才載入；錨點佔住原位置（載入完成時若已關閉則不加）
+        mountLazyCustomLayer(map, RE_POINTS_LAYER_ID, realEstatePointsModule, (m) => m.createRealEstatePointsLayer(), () => !disposed);
         clearRetry();
       } catch {
         if (!retryPending) {
@@ -63,7 +64,7 @@ export function useRealEstatePointsLayer(
       disposed = true;
       map.off("style.load", tryMount);
       clearRetry();
-      try { if (map.getLayer(RE_POINTS_LAYER_ID)) map.removeLayer(RE_POINTS_LAYER_ID); } catch { /* map 可能已銷毀 */ }
+      try { removeLazyCustomLayer(map, RE_POINTS_LAYER_ID); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, anyShown, mapTick]);
 

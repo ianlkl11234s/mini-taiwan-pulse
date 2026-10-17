@@ -1,16 +1,10 @@
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { Row, SourceFooter } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
+import { enumLabel } from "../../i18n/dataText";
+import { FONT_SIZE } from "../../styles/designTokens";
+import { Row, Title } from "./shared";
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
+type I18n = Pick<LocaleSnapshot, "t">;
 
 function areaHa(v: unknown): string {
   const n = Number(v);
@@ -18,35 +12,37 @@ function areaHa(v: unknown): string {
 }
 
 export function AquaculturePondsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t: tr } = useLocale();
   return (
     <>
-      <Title color="#26c6da">{String(props.name ?? "魚塭")}</Title>
-      <Row label="養殖物" value={String(props.produce ?? "")} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
+      <Title color="#26c6da">{String(props.name ?? tr("popup.fishery.pond"))}</Title>
+      <Row label={tr("popup.fishery.produce")} value={String(props.produce ?? "")} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }
 
 export function AquacultureZonePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
-      <Title color="#66bb6a">{String(props.zone_name ?? "養殖漁業生產區")}</Title>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="鄉鎮" value={String(props.township ?? "")} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
+      <Title color="#66bb6a">{String(props.zone_name ?? tr("popup.fishery.zone"))}</Title>
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="township" value={placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }
 
 export function AquacultureCageNetPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
-      <Title color="#5c6bc0">{String(props.public_no ?? "海上箱網")}</Title>
-      <Row label="鄉鎮" value={String(props.township ?? "")} />
-      <Row label="位置" value={String(props.location ?? "")} />
-      <SourceFooter props={props} />
+      <Title color="#5c6bc0">{String(props.public_no ?? tr("popup.fishery.cageNet"))}</Title>
+      <Row field="township" value={placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)} />
+      <Row field="location" value={String(props.location ?? "")} />
     </>
   );
 }
@@ -60,29 +56,30 @@ function nlscLandUse(props: Record<string, unknown>): string {
 }
 
 export function AquacultureWaterSatellitePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const inOsm = props.in_osm === true;
   const solarSymbiotic = props.solar_symbiotic === true;
   const nlscCode = typeof props.nlsc_code === "string" ? props.nlsc_code : "";
   const tier =
     inOsm || nlscCode === "0102" || solarSymbiotic
-      ? { color: "#26c6da", label: "確定 · 養殖/OSM" }
+      ? { color: "#26c6da", label: tr("popup.fishery.tierSure") }
       : nlscCode === "0402" || nlscCode === "0104"
-        ? { color: "#90a4ae", label: "蓄水池/農業設施" }
-        : { color: "#cfd8dc", label: "不確定 · 水田/其他" };
+        ? { color: "#90a4ae", label: tr("popup.fishery.tierReservoir") }
+        : { color: "#cfd8dc", label: tr("popup.fishery.tierUnsure") };
   return (
     <>
-      <Title color={tier.color}>衛星偵測養殖水體</Title>
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="信心" value={tier.label} color={tier.color} />
-      <Row label="土地使用（NLSC 113年）" value={nlscLandUse(props)} />
+      <Title color={tier.color}>{tr("popup.fishery.satelliteTitle")}</Title>
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row label={tr("popup.fishery.confidence")} value={tier.label} color={tier.color} />
+      <Row label={tr("popup.fishery.landUse113")} value={nlscLandUse(props)} />
       {solarSymbiotic && (
-        <Row label="漁電共生" value="光電案場內，官方認定水產養殖或有魚塭證據而保留" color="#fbbf24" />
+        <Row label={tr("popup.fishery.solarSymbiotic")} value={tr("popup.fishery.solarSymbioticValue")} color="#fbbf24" />
       )}
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
-        ⓘ 10m 解析度水體團塊，非逐口輪廓；漏標候選含少量假陽性（太陽能板/滯洪池等）
+        {tr("popup.fishery.satelliteNote")}
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -97,22 +94,22 @@ const MOA_TIER: Record<string, { color: string; label: string }> = {
 };
 
 /** display_class + solar_suspect/overlaps_lake 旗標 → 白話說明「為何這樣分類/為何有疑慮」 */
-function moaReasonText(props: Record<string, unknown>): string {
+function moaReasonText(props: Record<string, unknown>, tr: I18n["t"]): string {
   switch (props.display_class) {
     case "confirmed":
-      return "NLSC 國土利用確認為水產養殖";
+      return tr("popup.fishery.moaConfirmed");
     case "unverified":
-      return "NLSC 未確認——可能是新塘或 NLSC 圖資尚未收錄（依只救不殺保留）";
+      return tr("popup.fishery.moaUnverified");
     case "ambiguous": {
       const hits: string[] = [];
-      if (props.solar_suspect === true) hits.push("光電");
-      if (props.overlaps_lake === true) hits.push("湖泊");
-      return `有疑慮：命中${hits.length > 0 ? hits.join("/") : "疑似規則"}，但 NLSC 未確認`;
+      if (props.solar_suspect === true) hits.push(tr("popup.fishery.hitSolar"));
+      if (props.overlaps_lake === true) hits.push(tr("popup.fishery.hitLake"));
+      return tr("popup.fishery.moaAmbiguous", { hits: hits.length > 0 ? hits.join("/") : tr("popup.fishery.hitRule") });
     }
     case "solar_symbiotic":
-      return "漁電共生（魚塭上蓋太陽能板）";
+      return tr("popup.fishery.moaSolar");
     case "mountain_suspect":
-      return "疑地形陰影（坡度或林地判定），可能非真魚塭";
+      return tr("popup.fishery.moaMountain");
     default:
       return "";
   }
@@ -120,21 +117,23 @@ function moaReasonText(props: Record<string, unknown>): string {
 
 export function AquacultureWaterSatelliteMoaPanel({ props }: { props: Record<string, unknown> }) {
   const displayClass = typeof props.display_class === "string" ? props.display_class : "";
-  const tier = MOA_TIER[displayClass] ?? { color: "#9e9e9e", label: displayClass || "未知" };
-  const reason = moaReasonText(props);
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const moa = MOA_TIER[displayClass];
+  const tier = moa ? { color: moa.color, label: enumLabel("fisheryMoaTier", displayClass, moa.label, i18n) } : { color: "#9e9e9e", label: displayClass || tr("popup.common.unknown") };
+  const reason = moaReasonText(props, tr);
   return (
     <>
-      <Title color={tier.color}>魚塭·官方標籤版</Title>
-      <Row label="分類" value={tier.label} color={tier.color} />
+      <Title color={tier.color}>{tr("popup.fishery.moaTitle")}</Title>
+      <Row field="classification" value={tier.label} color={tier.color} />
       {reason && (
         <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
           ⓘ {reason}
         </div>
       )}
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="土地使用（NLSC）" value={nlscLandUse(props)} />
-      <SourceFooter props={props} />
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row label={tr("popup.fishery.landUse")} value={nlscLandUse(props)} />
     </>
   );
 }
@@ -153,14 +152,14 @@ const UNION_SOURCE_LABEL: Record<string, string> = {
 };
 
 /** union_class → 白話說明「這塊面是哪一版偵測到的、信心如何」 */
-function unionReasonText(props: Record<string, unknown>): string {
+function unionReasonText(props: Record<string, unknown>, tr: I18n["t"]): string {
   switch (props.union_class) {
     case "both":
-      return "舊衛星版與官方標籤版都偵測到，信心最高";
+      return tr("popup.fishery.unionBoth");
     case "moa_only":
-      return "僅官方標籤版偵測到（新找回，舊版漏抓）";
+      return tr("popup.fishery.unionMoaOnly");
     case "osm_only":
-      return "僅舊 OSM 版偵測到（官方標籤版未涵蓋）";
+      return tr("popup.fishery.unionOsmOnly");
     default:
       return "";
   }
@@ -168,23 +167,25 @@ function unionReasonText(props: Record<string, unknown>): string {
 
 export function AquacultureWaterUnionPanel({ props }: { props: Record<string, unknown> }) {
   const unionClass = typeof props.union_class === "string" ? props.union_class : "";
-  const tier = UNION_TIER[unionClass] ?? { color: "#9e9e9e", label: unionClass || "未知" };
-  const reason = unionReasonText(props);
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const union = UNION_TIER[unionClass];
+  const tier = union ? { color: union.color, label: enumLabel("fisheryUnionTier", unionClass, union.label, i18n) } : { color: "#9e9e9e", label: unionClass || tr("popup.common.unknown") };
+  const reason = unionReasonText(props, tr);
   const sourceRaw = typeof props.source === "string" ? props.source : "";
-  const sourceLabel = sourceRaw ? (UNION_SOURCE_LABEL[sourceRaw] ?? sourceRaw) : "";
+  const sourceLabel = sourceRaw ? (UNION_SOURCE_LABEL[sourceRaw] ? enumLabel("fisheryUnionSource", sourceRaw, UNION_SOURCE_LABEL[sourceRaw], i18n) : sourceRaw) : "";
   return (
     <>
-      <Title color={tier.color}>魚塭·整合對照版</Title>
-      <Row label="分類" value={tier.label} color={tier.color} />
+      <Title color={tier.color}>{tr("popup.fishery.unionTitle")}</Title>
+      <Row field="classification" value={tier.label} color={tier.color} />
       {reason && (
         <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
           ⓘ {reason}
         </div>
       )}
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="來源版本" value={sourceLabel} />
-      <SourceFooter props={props} />
+      <Row field="area" value={areaHa(props.area_ha)} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="sourceVersion" value={sourceLabel} />
     </>
   );
 }
@@ -198,13 +199,15 @@ const INTEGRATED_SOURCE: Record<string, { label: string; color: string }> = {
 
 export function AquacultureIntegratedPanel({ props }: { props: Record<string, unknown> }) {
   const src = typeof props.source === "string" ? props.source : "";
-  const tier = INTEGRATED_SOURCE[src] ?? { label: src || "未知", color: "#9e9e9e" };
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const integ = INTEGRATED_SOURCE[src];
+  const tier = integ ? { label: enumLabel("fisheryIntegratedSource", src, integ.label, i18n), color: integ.color } : { label: src || tr("popup.common.unknown"), color: "#9e9e9e" };
   return (
     <>
-      <Title color={tier.color}>養殖漁業整合</Title>
-      <Row label="來源" value={tier.label} color={tier.color} />
-      <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
+      <Title color={tier.color}>{tr("popup.fishery.integratedTitle")}</Title>
+      <Row field="source" value={tier.label} color={tier.color} />
+      <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }

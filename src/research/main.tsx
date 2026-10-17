@@ -1,6 +1,7 @@
 import "../embed/mercatorEngineMaplibre";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import "../styles/tokens.css";
 import { ResearchApp } from "./ResearchApp";
 
 const root = document.getElementById("root");

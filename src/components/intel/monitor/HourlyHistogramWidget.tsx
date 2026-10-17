@@ -1,9 +1,14 @@
 import { useMemo } from "react";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { fs } from "./monitorFont";
+import { useMonitorV2 } from "./monitorStyle";
+import { FONT_CJK, FONT_DATA } from "../intelTokens";
+import { useMonitorTheme } from "./monitorTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface HourlyBucket {
@@ -39,6 +44,10 @@ interface Props {
 }
 
 export function HourlyHistogramWidget({ events }: Props) {
+  const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const catLabel = (c: { key: string; label: string }) => enumLabel("eventNewsCategory", c.key, c.label, i18n);
+  const theme = useMonitorTheme();
   const buckets = useMemo(() => bucketByHour(events), [events]);
   const peak = Math.max(1, ...buckets.map((b) => b.total));
   const nowHour = new Date().getHours();
@@ -52,7 +61,7 @@ export function HourlyHistogramWidget({ events }: Props) {
           flexShrink: 0,
         }}
       >
-        <SectionLabel>24h 事件直方圖 · BREAKDOWN</SectionLabel>
+        <SectionLabel>{i18n.t("monitor.hourly.title")}</SectionLabel>
         <div
           style={{
             display: "flex", flexWrap: "wrap", justifyContent: "flex-end",
@@ -64,16 +73,16 @@ export function HourlyHistogramWidget({ events }: Props) {
               key={c.key}
               style={{
                 display: "inline-flex", alignItems: "center", gap: 3,
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+                fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim,
                 whiteSpace: "nowrap",
               }}
             >
               <span
                 style={{
-                  width: 7, height: 7, borderRadius: RADIUS.sm, background: c.color,
+                  width: 7, height: 7, borderRadius: RADIUS.sm, background: theme.fill(c.color),
                 }}
               />
-              {c.label}
+              {catLabel(c)}
             </span>
           ))}
         </div>
@@ -89,7 +98,7 @@ export function HourlyHistogramWidget({ events }: Props) {
             key={g}
             style={{
               position: "absolute", left: 0, right: 0, bottom: `${g * 100}%`,
-              height: 1, background: "rgba(255,255,255,0.05)",
+              height: 1, background: theme.neutral(0.05),
             }}
           />
         ))}
@@ -101,9 +110,9 @@ export function HourlyHistogramWidget({ events }: Props) {
               {...tip.bind(() => ({
                 title: `${String(hd.h).padStart(2, "0")}:00`,
                 rows: NEWS_CATEGORIES.filter((c) => hd.c[c.key]).map((c) => ({
-                  dot: c.color, label: c.label, value: fmtChartValue(hd.c[c.key], "則"),
+                  dot: theme.fill(c.color), label: catLabel(c), value: fmtChartValue(hd.c[c.key], i18n.t("monitor.unit.news")),
                 })),
-                note: `共 ${hd.total} 則`,
+                note: i18n.t("monitor.hourly.total", { count: hd.total }),
               }))}
               style={{
                 flex: 1, display: "flex", flexDirection: "column-reverse",
@@ -119,7 +128,7 @@ export function HourlyHistogramWidget({ events }: Props) {
                     key={c.key}
                     style={{
                       height: `${(hd.c[c.key] / hd.total) * 100}%`,
-                      background: c.color, opacity: 0.82,
+                      background: theme.fill(c.color), opacity: 0.82,
                     }}
                   />
                 ) : null,
@@ -131,14 +140,14 @@ export function HourlyHistogramWidget({ events }: Props) {
       <div
         style={{
           display: "flex", justifyContent: "space-between", marginTop: 4,
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint,
           flexShrink: 0,
         }}
       >
         <span>00:00</span>
-        <span>06:00</span>
+        {!v2 && <span>06:00</span>}
         <span>12:00</span>
-        <span>18:00</span>
+        {!v2 && <span>18:00</span>}
         <span>23:59</span>
       </div>
       {tip.node}

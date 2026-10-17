@@ -6,6 +6,7 @@ import {
   compareLatestToMedian,
   deriveIsrLatestDisplay,
   deriveIsrPassThresholds,
+  padIsrBarsToToday,
   medianOfIsrPassCounts,
   quantileOfIsrPassCounts,
   selectIsrPassWindow,
@@ -208,5 +209,22 @@ describe("ISR pass card relative color thresholds", () => {
     ], false, "2026-08-09");
     expect(bars[0]?.value).toBeNull();
     expect(deriveIsrPassThresholds(bars.map((bar) => bar.value))?.p25).toBe(11.75);
+  });
+});
+
+describe("padIsrBarsToToday", () => {
+  const bar = (day: string) => ({ label: day.slice(5), key: day, value: 3, level: 0 });
+  it("appends null (grey) bars from the day after the latest valid day to today, capped to the window", () => {
+    const out = padIsrBarsToToday([bar("2026-09-29"), bar("2026-09-30")], "2026-09-30", "2026-10-03", 30);
+    expect(out.map((b) => b.key)).toEqual(["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03"]);
+    expect(out.slice(2).every((b) => b.value === null)).toBe(true);
+    const capped = padIsrBarsToToday([bar("2026-09-30")], "2026-09-30", "2026-10-03", 2);
+    expect(capped).toHaveLength(2);
+    expect(capped.every((b) => b.value === null)).toBe(true);
+  });
+  it("returns the bars untouched when not behind", () => {
+    const bars = [bar("2026-10-03")];
+    expect(padIsrBarsToToday(bars, "2026-10-03", "2026-10-03", 30)).toBe(bars);
+    expect(padIsrBarsToToday(bars, null, "2026-10-03", 30)).toBe(bars);
   });
 });

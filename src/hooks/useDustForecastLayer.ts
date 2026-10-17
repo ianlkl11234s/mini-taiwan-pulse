@@ -152,7 +152,7 @@ export function useDustForecastLayer(
             source: SOURCE_ID,
             paint: {
               "raster-opacity": opacityRef.current,
-              "raster-resampling": "linear",
+              "raster-resampling": "nearest",
               "raster-fade-duration": 0,
             },
           });

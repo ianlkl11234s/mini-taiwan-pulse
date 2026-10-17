@@ -3,6 +3,10 @@ import type { Map as MapboxMap, FillLayer, LineLayer, ExpressionSpecification } 
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+
+const opacityDefault = (key: "jpAdminPrefecture" | "jpAdminBoundaries") => Number(paramDefault(key, `${key}Opacity`) ?? 1);
 
 const PREFECTURE_SOURCE_ID = "jp-admin-prefecture";
 const PREFECTURE_SOURCE_LAYER = "jp_admin_boundaries_prefecture";
@@ -35,36 +39,30 @@ function absoluteUrl(relativeFile: string): string {
   return new URL(relative, window.location.href).href;
 }
 
-function fillLayer(id: string, source: string, sourceLayer: string, color: string, opacity: number): FillLayer {
+function fillLayer(key: "jpAdminPrefecture" | "jpAdminBoundaries", id: string, source: string, sourceLayer: string, color: string, opacity: number): FillLayer {
   return {
     id,
     type: "fill",
     source,
     "source-layer": sourceLayer,
     layout: { visibility: "none" },
-    paint: {
-      "fill-color": color,
-      "fill-opacity": clampOpacity(opacity),
-    },
+    paint: hookFillPaint(key, id, { "fill-color": color, "fill-opacity": clampOpacity(opacity) }, { "fill-color": color, "fill-opacity": opacityDefault(key) }),
   } as FillLayer;
 }
 
-function lineLayer(id: string, source: string, sourceLayer: string, color: string): LineLayer {
+function lineLayer(key: "jpAdminPrefecture" | "jpAdminBoundaries", id: string, source: string, sourceLayer: string, color: string, isDarkTheme: boolean): LineLayer {
   return {
     id,
     type: "line",
     source,
     "source-layer": sourceLayer,
-    layout: { visibility: "none" },
-    paint: {
-      "line-color": color,
-      "line-opacity": 0.6,
-      "line-width": LINE_WIDTH,
-    },
+    layout: { visibility: "none", ...hookLineLayout(key, id) },
+    paint: hookLinePaint(key, id, { "line-color": color, "line-opacity": 0.6, "line-width": LINE_WIDTH }, { "line-color": color, "line-opacity": 0.6, "line-width": LINE_WIDTH }, isDarkTheme),
   } as LineLayer;
 }
 
 interface AdminPolygonConfig {
+  key: "jpAdminPrefecture" | "jpAdminBoundaries";
   sourceId: string;
   sourceLayer: string;
   fillLayerId: string;
@@ -76,6 +74,7 @@ interface AdminPolygonConfig {
 }
 
 const PREFECTURE_CONFIG: AdminPolygonConfig = {
+  key: "jpAdminPrefecture",
   sourceId: PREFECTURE_SOURCE_ID,
   sourceLayer: PREFECTURE_SOURCE_LAYER,
   fillLayerId: PREFECTURE_FILL_LAYER_ID,
@@ -87,6 +86,7 @@ const PREFECTURE_CONFIG: AdminPolygonConfig = {
 };
 
 const MUNICIPALITY_CONFIG: AdminPolygonConfig = {
+  key: "jpAdminBoundaries",
   sourceId: MUNICIPALITY_SOURCE_ID,
   sourceLayer: MUNICIPALITY_SOURCE_LAYER,
   fillLayerId: MUNICIPALITY_FILL_LAYER_ID,
@@ -102,6 +102,7 @@ function useAdminPolygonLayer(
   visible: boolean,
   opacity: number,
   config: AdminPolygonConfig,
+  isDarkTheme: boolean,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -126,24 +127,26 @@ function useAdminPolygonLayer(
         } as any);
       }
       if (!map.getLayer(config.fillLayerId)) {
-        map.addLayer(fillLayer(config.fillLayerId, config.sourceId, config.sourceLayer, config.color, opacity));
+        map.addLayer(fillLayer(config.key, config.fillLayerId, config.sourceId, config.sourceLayer, config.color, opacity));
       }
       if (!map.getLayer(config.lineLayerId)) {
-        map.addLayer(lineLayer(config.lineLayerId, config.sourceId, config.sourceLayer, config.color));
+        map.addLayer(lineLayer(config.key, config.lineLayerId, config.sourceId, config.sourceLayer, config.color, isDarkTheme));
       }
       if (map.getLayer(config.fillLayerId)) {
         map.setLayoutProperty(config.fillLayerId, "visibility", "visible");
-        map.setPaintProperty(config.fillLayerId, "fill-opacity", clampOpacity(opacity));
+        map.setPaintProperty(config.fillLayerId, "fill-opacity", hookFillOpacity(config.key, config.fillLayerId, clampOpacity(opacity), opacityDefault(config.key)));
       }
       if (map.getLayer(config.lineLayerId)) {
         map.setLayoutProperty(config.lineLayerId, "visibility", "visible");
+        map.setPaintProperty(config.lineLayerId, "line-opacity", hookLineOpacity(config.key, config.lineLayerId, 0.6, 0.6, isDarkTheme));
+        map.setPaintProperty(config.lineLayerId, "line-color", hookLinePaint(config.key, config.lineLayerId, { "line-color": config.color }, { "line-color": config.color }, isDarkTheme)["line-color"] as string);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, mapTick, config]);
+  }, [mapRef, visible, opacity, mapTick, config, isDarkTheme]);
 }
 
 export interface JpAdminLayerVisibility {
@@ -161,7 +164,8 @@ export function useJpAdminLayers(
   mapRef: React.RefObject<MapboxMap | null>,
   visibility: JpAdminLayerVisibility,
   opacity: JpAdminLayerOpacity,
+  isDarkTheme = true,
 ) {
-  useAdminPolygonLayer(mapRef, visibility.jpAdminPrefecture, opacity.jpAdminPrefecture, PREFECTURE_CONFIG);
-  useAdminPolygonLayer(mapRef, visibility.jpAdminBoundaries, opacity.jpAdminBoundaries, MUNICIPALITY_CONFIG);
+  useAdminPolygonLayer(mapRef, visibility.jpAdminPrefecture, opacity.jpAdminPrefecture, PREFECTURE_CONFIG, isDarkTheme);
+  useAdminPolygonLayer(mapRef, visibility.jpAdminBoundaries, opacity.jpAdminBoundaries, MUNICIPALITY_CONFIG, isDarkTheme);
 }

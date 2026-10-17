@@ -1,6 +1,8 @@
-import { cellToBoundary } from "h3-js";
+import { deferUntilH3, requireH3 } from "./h3Runtime";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { YoubikeH3CellData } from "../data/youbikeH3Loader";
+import { hookFillOpacity, hookFillPaint } from "./lineFillSpec";
+import { EXTRUSION } from "./mapStyleScale";
 
 const SOURCE_ID = "h3-youbike-src";
 const FILL_LAYER_ID = "h3-youbike-fill";
@@ -54,7 +56,7 @@ function youbikeCellsToGeoJSON(
   if (maxCapacity === 0) maxCapacity = 1;
 
   const features: GeoJSON.Feature[] = cells.map((cell) => {
-    const boundary = cellToBoundary(cell.h);
+    const boundary = requireH3().cellToBoundary(cell.h);
     const coords = boundary.map(([lat, lng]) => [lng, lat]);
     coords.push(coords[0]!);
 
@@ -100,12 +102,17 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       type: "fill",
       source: SOURCE_ID,
       layout: { visibility: "none" },
-      paint: {
+      paint: hookFillPaint("youbikeFullness", FILL_LAYER_ID, {
         "fill-color": ["get", "color"],
         "fill-color-transition": { duration: 800, delay: 0 },
         "fill-opacity": 0.6,
         "fill-opacity-transition": { duration: 500, delay: 0 },
-      },
+      }, {
+        "fill-color": ["get", "color"],
+        "fill-color-transition": { duration: 800, delay: 0 },
+        "fill-opacity": 0.6,
+        "fill-opacity-transition": { duration: 500, delay: 0 },
+      }),
     });
   }
   if (!map.getLayer(EXTRUSION_LAYER_ID)) {
@@ -117,9 +124,10 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       paint: {
         "fill-extrusion-color": ["get", "color"],
         "fill-extrusion-color-transition": { duration: 800, delay: 0 },
-        "fill-extrusion-height": ["*", ["get", "height"], 5000],
+        "fill-extrusion-height": ["*", ["get", "height"], EXTRUSION.gridHeightUnit * EXTRUSION.youbikeHeightBase * EXTRUSION.heightMultiplier],
         "fill-extrusion-height-transition": { duration: 800, delay: 0 },
-        "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-opacity": EXTRUSION.opacity,
+        "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
         "fill-extrusion-opacity-transition": { duration: 500, delay: 0 },
       },
     });
@@ -132,9 +140,17 @@ export function updateYoubikeLayer(
   params: YoubikeLayerParams,
   visible: boolean,
 ): void {
+  if (deferUntilH3("h3-youbike", visible && cells.length > 0, () => updateYoubikeLayer(map, cells, params, visible))) return;
   ensureYoubikeLayers(map);
   const source = map.getSource(SOURCE_ID);
   if (!source || source.type !== "geojson") return;
+
+  // 關閉時只隱藏、不再轉 GeoJSON／setData（關閉後不該繼續算）；重開時會帶 visible=true 重跑
+  if (!visible) {
+    map.setLayoutProperty(FILL_LAYER_ID, "visibility", "none");
+    map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", "none");
+    return;
+  }
 
   if (cells.length > 0) {
     const geojson = youbikeCellsToGeoJSON(cells, params);
@@ -143,7 +159,7 @@ export function updateYoubikeLayer(
     source.setData({ type: "FeatureCollection", features: [] });
   }
 
-  if (!visible || cells.length === 0) {
+  if (cells.length === 0) {
     map.setLayoutProperty(FILL_LAYER_ID, "visibility", "none");
     map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", "none");
     return;
@@ -152,9 +168,15 @@ export function updateYoubikeLayer(
   map.setLayoutProperty(FILL_LAYER_ID, "visibility", params.extruded ? "none" : "visible");
   map.setLayoutProperty(EXTRUSION_LAYER_ID, "visibility", params.extruded ? "visible" : "none");
 
-  map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", params.opacity);
-  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", params.opacity);
-  map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
-    ["*", ["get", "height"], params.elevationScale * 100],
-  );
+  // 只改「目前顯示中」那一層的 paint：隱藏 layer 不會 recalculate，改 paint 留下的
+  // transition prior（本層 fill-opacity 有 500ms 明示 transition）永遠清不掉 →
+  // style.hasTransitions() 恆 true → 地圖無限重畫（A0）。切換 extruded 會帶新 params 重跑。
+  if (params.extruded) {
+    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-opacity", Math.min(1, EXTRUSION.opacity * (params.opacity / 0.65)));
+    map.setPaintProperty(EXTRUSION_LAYER_ID, "fill-extrusion-height",
+      ["*", ["get", "height"], params.elevationScale * EXTRUSION.gridHeightUnit * EXTRUSION.youbikeHeightBase * EXTRUSION.heightMultiplier],
+    );
+  } else {
+    map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("youbikeFullness", FILL_LAYER_ID, params.opacity, 0.65));
+  }
 }

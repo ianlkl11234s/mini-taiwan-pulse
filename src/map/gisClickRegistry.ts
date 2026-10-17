@@ -45,6 +45,29 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  { layers: ["harm-reduction-prevention-centers-circle", "harm-reduction-prevention-centers-glow"], type: "harmReductionPreventionCenters" },
+  { layers: ["harm-reduction-needle-circle", "harm-reduction-needle-glow"], type: "harmReductionNeedle" },
+  { layers: ["harm-reduction-treatment-circle", "harm-reduction-treatment-glow"], type: "harmReductionTreatment" },
+  { layers: ["harm-reduction-hiv-testing-circle", "harm-reduction-hiv-testing-glow"], type: "harmReductionHivTesting" },
+  { layers: ["harm-reduction-hiv-selftest-circle", "harm-reduction-hiv-selftest-glow"], type: "harmReductionHivSelftest" },
+  { layers: ["harm-reduction-alcohol-circle", "harm-reduction-alcohol-glow"], type: "harmReductionAlcohol" },
+  { layers: ["harm-reduction-prep-circle", "harm-reduction-prep-glow"], type: "harmReductionPrep" },
+  { layers: ["harm-reduction-internet-addiction-circle", "harm-reduction-internet-addiction-glow"], type: "harmReductionInternetAddiction" },
+  { layers: ["harm-reduction-aftercare-circle", "harm-reduction-aftercare-glow"], type: "harmReductionAftercare" },
+  { layers: ["harm-reduction-smoking-cessation-circle", "harm-reduction-smoking-cessation-glow"], type: "harmReductionSmokingCessation" },
+  { layers: ["harm-reduction-anti-drug-pharmacies-circle", "harm-reduction-anti-drug-pharmacies-glow"], type: "harmReductionAntiDrugPharmacies" },
+  { layers: ["harm-reduction-condom-outlets-circle", "harm-reduction-condom-outlets-glow"], type: "harmReductionCondomOutlets" },
+  { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
+  // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
+  { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
+  { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
+  { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
+  { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
+  { layers: ["disaster-shelters-circle", "disaster-shelters-glow"], type: "disasterShelters" },
+  { layers: ["playgrounds-circle", "playgrounds-glow"], type: "playgrounds" },
+  { layers: ["accessible-park-facilities-circle", "accessible-park-facilities-glow"], type: "accessibleParkFacilities" },
+  { layers: ["bicycle-support-circle", "bicycle-support-glow"], type: "bicycleSupport" },
+  { layers: ["visitor-centres-circle", "visitor-centres-glow"], type: "visitorCentres" },
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
   // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
   //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
@@ -146,6 +169,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["coverage-ev-island-line"], type: "evIsland" },
   { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
+  { layers: ["jma-lightning-core", "jma-lightning-halo"], type: "lightningStrike" },
   { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
   // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
   // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
@@ -168,6 +192,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  // 日本氣象廳即時點層（火山／AMeDAS 小點排在地震大泡泡之前）
+  { layers: ["jma-volcanoes-circle"], type: "jmaVolcanoes" },
+  { layers: ["jma-snowcap-circle"], type: "jmaSnowcap" },
+  { layers: ["jma-sakura-circle"], type: "jmaSakura" },
+  { layers: ["jma-autumn-leaves-circle"], type: "jmaAutumnLeaves" },
+  { layers: ["jma-wbgt-circle"], type: "jmaWbgt" },
+  { layers: ["jma-amedas-circle"], type: "jmaAmedas" },
+  { layers: ["jma-quakes-circle"], type: "jmaQuakes" },
   { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
   { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
   { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
@@ -203,15 +235,28 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
   { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
   { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
+  // 土壤液化監測站（owner-only 11 點）：點層，排在面層之前。
+  { layers: ["soil-liquefaction-monitoring-sites-circle"], type: "liquefactionMonitoringSites" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
   { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
+  { layers: ["jma-warnings-fill"], type: "jmaWarnings" },
+  { layers: ["jma-rainy-season-fill"], type: "jmaRainySeason" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
   { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
-  // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
+  // 檢測點優先於承載線；橋梁輪廓是面，排在細線之後，避免先吃掉同位置點擊。
+  { layers: ["tainan-bridge-inspections-circle"], type: "tainanBridgeInspections" },
+  { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
+  { layers: ["bss-national-bridge-preview-point"], type: "bssNationalBridgePointsPreview" },
+  { layers: ["bss-national-bridge-preview-original-direction-line", "bss-national-bridge-preview-offset-direction-line", "bss-national-bridge-preview-ordinary-route-context", "bss-national-bridge-preview-near-curved-carrier-local-context", "bss-national-bridge-preview-waterway-crossing-context", "bss-national-bridge-preview-multi-near-carrier-waterway-context", "bss-national-bridge-preview-tied-route-consensus-context", "bss-national-bridge-preview-no-waterway-carrier-consensus-context", "bss-national-bridge-preview-no-crossing-nearest-route-context", "bss-national-bridge-preview-stage1-local-direction-candidate"], type: "bssNationalBridgePreview" },
+  // 村里面在最底層：橋線先命中；命中村里＝進入目的地視角（useMapInteraction 分流，不換 popup）。
+  { layers: ["bridge-resilience-hit", "bridge-resilience-structure", "bridge-resilience-ground", "bridge-resilience-village-fill"], type: "bridgeResilienceTwinCity" },
+  { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
+  { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
+  { layers: ["official-bridges-hsinchu-line", "official-bridges-hsinchu-coincident-endpoints"], type: "officialBridgesHsinchu" },
   { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },
   { layers: ["bridge-comparison-new-taipei-line", "bridge-comparison-new-taipei-coincident-endpoints"], type: "bridgeComparisonNewTaipei" },
@@ -262,7 +307,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["station-points-tra-overview-point-core", "station-points-tra-overview-point-glow"], type: "railStation" },
   { layers: ["station-points-metro-overview-point-core", "station-points-metro-overview-point-glow"], type: "railStation" },
   { layers: ["station-points-tra-pt-fill", "station-points-tra-pt-glow-1", "station-points-tra-pt-glow-2"], type: "railStation" },
-  { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
+  // 「實際範圍」模式 z<10 仍以點顯示（metro-lowzoom-core），同樣要能點開站點 popup。
+  { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2", "station-points-metro-lowzoom-core"], type: "railStation" },
   { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
   { layers: ["fire-events-layer"], type: "fireEvent" },
   { layers: ["fire-latest-layer"], type: "fireEvent" },
@@ -369,10 +415,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-monitor-stations-core", "water-monitor-stations-glow"], type: "waterMonitor" },
   { layers: ["water-detention-basins-core", "water-detention-basins-glow"], type: "waterDetentionBasin" },
   { layers: ["lakes-ponds-osm-fill", "lakes-ponds-osm-line"], type: "lakesPondsOsm" },
+  // R6 段 2：水庫即時水情平面圓點（同 waterDam 面板，帶蓄水率）；排在壩體前＝圓點蓋住壩體時先命中
+  { layers: ["water-reservoir-status-circle"], type: "waterDam" },
   { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: [...MARINE_OBSERVATION_CLICK_LAYERS], type: "marineObservation" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
+  { layers: ["bridge-rain-circle"], type: "bridgeRainThresholds" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
   // 💧 IoT 感測站兩層：properties 早已逐欄烤好（見 useIotWraRiverLayer / …Structure 的
   //    buildFC），W2 前只缺本表一行。iotWraRiver 1,634 站與 riverLevel 831 站僅重疊
@@ -432,6 +481,39 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
   { layers: ["mountain-huts-circle"], type: "mountainHut" },
   { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
+  // 崩塌：省道歷史災情點（小目標）排在面層前
+  { layers: ["highway-disaster-history-circle", "highway-disaster-history-glow"], type: "highwayDisaster" },
+  // atlas 批次 2026-10：點位（小目標）排在面層前；線／混合幾何的點也在這裡
+  { layers: ["indigenous-tribes-circle", "indigenous-tribes-glow"], type: "indigenousTribes" },
+  { layers: ["indigenous-isolation-risk-circle", "indigenous-isolation-risk-glow"], type: "indigenousIsolationRisk" },
+  { layers: ["provincial-road-signs-circle", "provincial-road-signs-glow"], type: "provincialRoadSigns" },
+  { layers: ["provincial-road-mileposts-circle", "provincial-road-mileposts-glow"], type: "provincialRoadMileposts" },
+  { layers: ["freeway-traffic-signs-circle", "freeway-traffic-signs-glow"], type: "freewayTrafficSigns" },
+  { layers: ["freeway-interchanges-circle", "freeway-interchanges-glow"], type: "freewayInterchanges" },
+  { layers: ["flood-disaster-points-ncdr-circle", "flood-disaster-points-ncdr-glow"], type: "floodDisasterPointsNcdr" },
+  { layers: ["swcb-disaster-photo-points-circle", "swcb-disaster-photo-points-glow"], type: "swcbDisasterPhotoPoints" },
+  { layers: ["cetacean-strandings-circle", "cetacean-strandings-glow"], type: "cetaceanStrandings" },
+  { layers: ["sea-turtle-strandings-circle", "sea-turtle-strandings-glow"], type: "seaTurtleStrandings" },
+  { layers: ["beach-water-quality-circle", "beach-water-quality-glow"], type: "beachWaterQuality" },
+  { layers: ["marine-microplastics-circle", "marine-microplastics-glow"], type: "marineMicroplastics" },
+  { layers: ["marine-pollution-incidents-circle", "marine-pollution-incidents-glow"], type: "marinePollutionIncidents" },
+  { layers: ["namr-edna-survey-sites-circle", "namr-edna-survey-sites-glow"], type: "namrEdnaSurveySites" },
+  { layers: ["place-names-moi-circle", "place-names-moi-glow"], type: "placeNames" },
+  { layers: ["triangulation-points-moi-circle", "triangulation-points-moi-glow"], type: "triangulationPoints" },
+  { layers: ["wra-floodgates-central-circle", "wra-floodgates-central-glow"], type: "wraFloodgatesCentral" },
+  { layers: ["iow-structure-monitoring-circle", "iow-structure-monitoring-glow"], type: "iowStructureMonitoring" },
+  { layers: ["wra-dredging-points-circle", "wra-dredging-points-glow"], type: "wraDredgingPoints" },
+  // 海域保護與漁業 G08：點層（捕魚點、魚礁中心點）
+  { layers: ["open-fishing-locations-circle", "open-fishing-locations-glow"], type: "openFishingLocations" },
+  { layers: ["artificial-reef-centers-circle", "artificial-reef-centers-glow"], type: "artificialReefCenters" },
+  { layers: ["protected-reef-centers-circle", "protected-reef-centers-glow"], type: "protectedReefCenters" },
+  // 地層下陷＋海堤 G19：測站點、等值線（線比面先命中）
+  { layers: ["land-subsidence-stations-circle", "land-subsidence-stations-glow"], type: "landSubsidenceStations" },
+  { layers: ["land-subsidence-contours-cumulative-line"], type: "landSubsidenceCumulative" },
+  { layers: ["land-subsidence-contours-rate-line"], type: "landSubsidenceRate" },
+  { layers: ["wra-ecology-survey-sites-circle", "wra-ecology-survey-sites-glow"], type: "wraEcologySurveySites" },
+  { layers: ["provincial-road-monitored-point", "provincial-road-monitored-line"], type: "provincialRoadMonitored" },
+  { layers: ["provincial-road-emergency-bays-point", "provincial-road-emergency-bays-line"], type: "provincialRoadEmergencyBays" },
   // FORESTRY — points / lines 先（小目標優先）
   { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
   { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },
@@ -477,6 +559,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🚄 高鐵站體面（12 面）。點位模式的派生面心已在前段；這裡保留原面 popup，
   //    依「面層不可搶點層」放在所有點層之後。與 station-points-* 共用 railStation panel。
   { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
+  // 🚆 軌道路線（靜態線，railRoutes）：線層在站點／站體面之後，免得蓋掉點在站上的 popup。
+  { layers: ["rail-routes-line"], type: "railRoutes" },
   // 💧 水資源 線 / 面 5 層 —— 線層在前（±5px bbox 已夠命中細線，不必收 glow），
   //    面層依覆蓋面積由小到大排後，保護區流域級最大故置末。
   { layers: ["water-canals-core"], type: "waterCanals" },
@@ -518,7 +602,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["correctional-facility-circle"], type: "correctionalFacility" },
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
   { layers: STATISTICS_RENDER_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
-  { layers: ["crime-area-monthly-fill", "crime-area-monthly-line"], type: "crimeAreaMonthly" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },
   { layers: ["accident-taipei-circle"], type: "accidentTaipei" },
@@ -531,6 +614,19 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🔊 噪音／聲響點層：與環境污染家族相鄰；三個 polygon 家族另置於陣列末段。
   // noise preset 要排在泛用 pollutionPenalty 前，兩個入口同開時才保留「裁處非 dB」語意。
   { layers: ["sound-camera-locations-circle"], type: "soundCameraLocations" },
+  { layers: ["river-rpi-stations-circle"], type: "riverRpiStations" },
+  { layers: ["sewage-treatment-plants-circle"], type: "sewageTreatmentPlants" },
+  { layers: ["water-quality-stations-circle"], type: "waterQualityStations" },
+  // 環境第二波點層（即時 4 層＋靜態 4 層）；RPI 河段線排在 RPI 測站點之後、面之前。
+  { layers: ["water-effluent-live-circle"], type: "waterEffluentLive" },
+  { layers: ["cems-stack-live-circle"], type: "cemsStackLive" },
+  { layers: ["nusc-gamma-radiation-circle"], type: "nuscGammaRadiation" },
+  { layers: ["cwa-uv-daily-circle"], type: "cwaUvDaily" },
+  { layers: ["incinerator-emissions-circle"], type: "incineratorEmissions" },
+  { layers: ["dioxin-stations-circle"], type: "dioxinStations" },
+  { layers: ["pm25-manual-stations-circle"], type: "pm25ManualStations" },
+  { layers: ["sea-water-quality-stations-circle"], type: "seaWaterQualityStations" },
+  { layers: ["river-rpi-segments-line", "river-rpi-segments-tidal"], type: "riverRpiSegments" },
   { layers: ["official-noise-monitoring-circle"], type: "officialNoiseMonitoring" },
   { layers: ["pollution-penalty-noise-circle"], type: "noiseEnforcementEvents" },
   // 環境污染（點層優先於大面積；三層皆 PMTiles circle）
@@ -545,6 +641,22 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   },
   { layers: ["pollution-facility-circle"], type: "pollutionFacility" },
   { layers: ["aviation-control-fill", "aviation-control-line"], type: "aviationControl" },
+  // 崩塌面層：年度崩塌地（多為小面）→ 潛勢區 → 影響範圍（潛勢區多半落在影響範圍內，先命中）；
+  //    排在坡度／坡向等全島 fill 之前。
+  { layers: ["landslide-annual-fill", "landslide-annual-outline"], type: "landslideAnnual" },
+  { layers: ["landslide-dod-areas-fill", "landslide-dod-areas-outline"], type: "landslideDodArea" },
+  { layers: ["landslide-dod-impact-fill", "landslide-dod-impact-outline"], type: "landslideDodImpact" },
+  // atlas 批次 2026-10 面層：小面在前，全島村里面（農村社區）最後
+  { layers: ["taipei-waterlogging-history-fill", "taipei-waterlogging-history-outline"], type: "taipeiWaterloggingHistory" },
+  { layers: ["freeway-eco-sensitive-fill", "freeway-eco-sensitive-outline"], type: "freewayEcoSensitive" },
+  { layers: ["wra-central-drainage-fill", "wra-central-drainage-outline"], type: "wraCentralDrainage" },
+  // 海域保護與漁業 G08 面層：小面在前（定置漁業權 → 野生動物保護區 → 自然保留區），海岸地區範圍沿全島海岸最後
+  { layers: ["set-net-fishing-areas-fill", "set-net-fishing-areas-outline"], type: "setNetFishingAreas" },
+  { layers: ["seawall-zones-fill", "seawall-zones-outline"], type: "seawallZones" },
+  { layers: ["wildlife-protected-areas-fill", "wildlife-protected-areas-outline"], type: "wildlifeProtectedAreas" },
+  { layers: ["nature-reserves-fill", "nature-reserves-outline"], type: "natureReserves" },
+  { layers: ["agri-rural-community-villages-fill", "agri-rural-community-villages-outline"], type: "agriRuralCommunityVillages" },
+  { layers: ["coastal-area-extents-fill", "coastal-area-extents-outline"], type: "coastalAreaExtents" },
   { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
   { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
   { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },
@@ -565,6 +677,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   },
   { layers: ["aviation-noise-zones-fill", "aviation-noise-zones-outline"], type: "aviationNoiseZones" },
   { layers: ["noise-control-zones-fill", "noise-control-zones-outline"], type: "noiseControlZones" },
+  { layers: ["drinking-water-protection-zones-fill", "drinking-water-protection-zones-outline", "drinking-water-protection-zones-distance-outline"], type: "drinkingWaterProtectionZones" },
   // 地震回放 鄉鎮面量圖：368 鄉鎮大面積 fill → 排在點/線層之後
   { layers: ["eq-replay-town-fill"], type: "earthquakeReplayTown" },
   // GFW 每日捕撈活動是東亞大面積格網面；保留在船點／航跡／SAR 之後才查詢。
@@ -584,6 +697,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
   // 🌊 海底等深線（深度分帶 fill）：覆蓋全海域的大面積 fill，同「大面積面層放最末」原則
   { layers: ["isobath-fill"], type: "isobathBand" },
+  // 土壤液化（owner-only）：弱層 100 m 格比潛勢調查單元細，先命中；各自連同缺值斜線子層
+  // （厚度 0 的格子 fill 透明但仍可點，popup 顯示「無弱層」）。潛勢連同「未調查」斜線層。
+  // 放在 H3／田區等全範圍面層之前，否則被它們先吞掉；弱層依繪製順序反排（後加的畫在上面，先命中）。
+  { layers: ["soil-liquefaction-weakSoilSand10To20-fill", "soil-liquefaction-weakSoilSand10To20-missing"], type: "weakSoilSand10To20" },
+  { layers: ["soil-liquefaction-weakSoilClay10To20-fill", "soil-liquefaction-weakSoilClay10To20-missing"], type: "weakSoilClay10To20" },
+  { layers: ["soil-liquefaction-weakSoilSand5To10-fill", "soil-liquefaction-weakSoilSand5To10-missing"], type: "weakSoilSand5To10" },
+  { layers: ["soil-liquefaction-weakSoilClay5To10-fill", "soil-liquefaction-weakSoilClay5To10-missing"], type: "weakSoilClay5To10" },
+  { layers: ["soil-liquefaction-weakSoilSand0To5-fill", "soil-liquefaction-weakSoilSand0To5-missing"], type: "weakSoilSand0To5" },
+  { layers: ["soil-liquefaction-weakSoilClay0To5-fill", "soil-liquefaction-weakSoilClay0To5-missing"], type: "weakSoilClay0To5" },
+  { layers: ["soil-liquefaction-potential-fill", "soil-liquefaction-potential-not-investigated"], type: "soilLiquefactionPotential" },
   // 🔷 H3 指標格 6 層（W2）：三個 factory 現算的六邊形網格，皆鋪滿有資料的行政區域。
   //    放在既有面層之後、田區之前 —— 這六層歷來零點擊接線，排最尾端對既有命中順序零影響。
   //    ⚠️ 每層都必須收 `-fill` **與** `-ext` 兩個 id：3D toggle 讓兩者互斥
@@ -594,6 +717,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["h3-socio-fill", "h3-socio-ext"], type: "socioeconomic" },
   { layers: ["h3-spatial-fill", "h3-spatial-ext"], type: "spatialEconomy" },
   { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
+  // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
+  //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
+  { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
+  // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
+  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。

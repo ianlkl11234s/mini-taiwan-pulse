@@ -8,7 +8,10 @@ export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "pause
 const QUERY_POLL_BASE_MS = 2_000;
 const QUERY_POLL_HIDDEN_MS = 10_000;
 export const MAX_QUERY_RESULT_BYTES = 256 * 1024;
-// 8s retry + the BridgeClient's worst-case 8s request leaves 9s before its 25s wait.
+export const MAX_QUERY_RESULT_STRING_LENGTH = 32 * 1024;
+export const MAX_QUERY_RESULT_CONTAINER_ITEMS = 100;
+export const MAX_QUERY_RESULT_DEPTH = 12;
+// 8s retry + the BridgeClient's worst-case 8s request leaves 9s before the MCP's 25s query deadline.
 const QUERY_POLL_MAX_MS = 8_000;
 
 export function queryPollDelay(failures: number, visibility: DocumentVisibilityState | "unknown" = "unknown"): number {
@@ -16,43 +19,85 @@ export function queryPollDelay(failures: number, visibility: DocumentVisibilityS
   return Math.max(failureDelay, visibility === "hidden" ? QUERY_POLL_HIDDEN_MS : QUERY_POLL_BASE_MS);
 }
 
-/** Single-flight tab reader. Reads never apply a scene or run user-supplied code. */
-export class QueryResponder {
+/** Must stay aligned with the Gateway's validResult guard to avoid retrying INVALID_INPUT. */
+export function validQueryResultData(value: unknown, depth = 0): boolean {
+  if (value === null || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "string") return value.length <= MAX_QUERY_RESULT_STRING_LENGTH;
+  if (Array.isArray(value)) return depth < MAX_QUERY_RESULT_DEPTH && value.length <= MAX_QUERY_RESULT_CONTAINER_ITEMS && value.every(item => validQueryResultData(item, depth + 1));
+  if (!value || typeof value !== "object") return false;
+  const object = value as Record<string, unknown>;
+  const entries = Object.entries(object);
+  return depth < MAX_QUERY_RESULT_DEPTH && entries.length <= MAX_QUERY_RESULT_CONTAINER_ITEMS && entries.every(([, item]) => validQueryResultData(item, depth + 1));
+}
+
+function recoverableTransportResult(data: Record<string, unknown>): QueryResult {
+  const resultId = typeof data.resultId === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(data.resultId) ? data.resultId : null;
+  return resultId
+    ? { ok: true, data: { resultId, recoverable: true, error: "RESULT_NOT_TRANSPORTABLE", recovery: "get_analysis_result" } }
+    : { ok: false, error: "RESULT_TOO_LARGE" };
+}
+
+/**
+ * Geometry is available from the browser-session result store. Only compact
+ * top-level result-page rows for transport; do not recursively alter unknown
+ * nested metadata or the stored analysis geometry.
+ */
+function compactRowGeometries(data: Record<string, unknown>): Record<string, unknown> {
+  if (!Array.isArray(data.rows)) return data;
+  let changed = false;
+  const rows = data.rows.map(row => {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return row;
+    const record = row as Record<string, unknown>;
+    const geometry = record.geometry;
+    if (!geometry || typeof geometry !== "object" || Array.isArray(geometry) || !("coordinates" in geometry)) return row;
+    const geometryType = Reflect.get(geometry, "type");
+    const type = typeof geometryType === "string" ? geometryType : "unknown";
+    changed = true;
+    return { ...record, geometry: { type, coordinatesOmitted: true } };
+  });
+  return changed ? { ...data, rows } : data;
+}
+
+function isTransportable(result: QueryResult): boolean {
+  return new TextEncoder().encode(JSON.stringify(result)).byteLength <= MAX_QUERY_RESULT_BYTES
+    && (!result.ok || validQueryResultData(result.data));
+}
+
+/** Validate the JSON wire representation: object undefined fields are omitted and array holes become null. */
+function toWireResult(result: QueryResult): QueryResult | null {
+  try { return JSON.parse(JSON.stringify(result)) as QueryResult; }
+  catch { return null; }
+}
+
+/** The BrowserChannel hands delivered requests here; implemented by QueryResponder. */
+export type QueryHandler = { handle(request: BrowserQuery): Promise<void> | void; inFlightRequestId(): string | null };
+
+/**
+ * Single-flight tab reader (P2: requests arrive via BrowserChannel's `/browser/wait`).
+ * Reads never apply a scene or run user-supplied code. The in-flight request id is kept
+ * until its result is accepted or it expires, so the long poll never redelivers it while
+ * a failed delivery is retried from the `last` cache with the bounded backoff.
+ */
+export class QueryResponder implements QueryHandler {
   private stopped = false;
   private failures = 0;
   private unhealthy = false;
   private delivered: string | null = null;
-  private busy = false;
+  private current: { requestId: string; token: number } | null = null;
+  private token = 0;
   private timer: ReturnType<typeof setTimeout> | null = null;
-  private started = false;
   private last: { id: string; result: QueryResult } | null = null;
   constructor(private readonly connection: BridgeConnectionContext, private readonly execute: (query: BrowserQuery) => Promise<Record<string, unknown>>, private readonly onError: () => void, private readonly onActivity?: (event: QueryActivityEvent) => void, private readonly onHealth?: (event: QueryHealth) => void) {}
-  start(): void {
-    if (this.started || this.stopped) return;
-    this.started = true;
-    void this.pollLoop();
-  }
-  stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.timer = null; this.last = null; }
-  private async pollLoop(): Promise<void> {
-    const healthy = await this.tick();
-    if (this.stopped) return;
-    // The gateway holds an idle browser query briefly, so a healthy loop can
-    // continue without a background-tab timer that Chromium may throttle.
-    if (healthy) { void this.pollLoop(); return; }
-    const visibility = typeof document === "undefined" ? "unknown" : document.visibilityState;
-    this.timer = setTimeout(() => {
-      this.timer = null;
-      void this.pollLoop();
-    }, queryPollDelay(this.failures, visibility));
-  }
-  async tick(): Promise<boolean> {
-    if (this.stopped || this.busy) return false;
-    this.busy = true;
-    const { client, studyId, tabId } = this.connection;
+  stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.timer = null; this.last = null; this.current = null; }
+  inFlightRequestId(): string | null { return this.current?.requestId ?? null; }
+
+  async handle(request: BrowserQuery): Promise<void> {
+    if (this.stopped || this.current?.requestId === request.requestId) return;
+    const token = ++this.token;
+    this.current = { requestId: request.requestId, token };
     try {
-      const { request } = await client.query(studyId, tabId);
-      if (this.stopped) return true;
-      if (!request || request.expiresAt <= Date.now()) { this.recovered(); return true; }
+      if (request.expiresAt <= Date.now()) { this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" }); return; }
       let result: QueryResult;
       if (this.last?.id === request.requestId) result = this.last.result;
       else {
@@ -62,23 +107,38 @@ export class QueryResponder {
           const message = error instanceof Error ? error.message : "QUERY_FAILED";
           result = { ok: false, error: /^[A-Z_]{1,64}$/.test(message) ? message : "QUERY_FAILED" };
         }
-        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > MAX_QUERY_RESULT_BYTES) result = { ok: false, error: "RESULT_TOO_LARGE" };
-        if (!this.stopped) this.last = { id: request.requestId, result };
+        const wireResult = toWireResult(result);
+        result = wireResult ?? { ok: false, error: "RESULT_TOO_LARGE" };
+        if (!isTransportable(result)) {
+          const compacted = result.ok ? { ok: true as const, data: compactRowGeometries(result.data) } : result;
+          result = isTransportable(compacted) ? compacted : result.ok ? recoverableTransportResult(result.data) : { ok: false, error: "RESULT_TOO_LARGE" };
+        }
+        if (this.stale(token)) return;
+        this.last = { id: request.requestId, result };
       }
-      if (!this.stopped && request.expiresAt > Date.now()) {
+      await this.deliver(request, result, token);
+    } finally {
+      if (this.current?.token === token) this.current = null;
+    }
+  }
+
+  private stale(token: number): boolean { return this.stopped || this.current?.token !== token; }
+
+  private async deliver(request: BrowserQuery, result: QueryResult, token: number): Promise<void> {
+    const { client, studyId, tabId } = this.connection;
+    while (!this.stale(token)) {
+      if (request.expiresAt <= Date.now()) { this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" }); return; }
+      try {
         await client.queryResult(studyId, tabId, request.requestId, result);
-        if (this.stopped) return true;
+        if (this.stale(token)) return;
         this.recovered();
         if (this.delivered !== request.requestId) {
           this.delivered = request.requestId;
           this.onActivity?.({ request, phase: "completed", result });
         }
-      } else if (!this.stopped) {
-        this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" });
-      }
-      return true;
-    } catch (error) {
-      if (!this.stopped) {
+        return;
+      } catch (error) {
+        if (this.stale(token)) return;
         const code = error instanceof BridgeError ? error.code : "BRIDGE_UNAVAILABLE";
         const classified = classifyConnectionFailure(error);
         const state = code === "SESSION_PAUSED" ? "paused"
@@ -87,10 +147,11 @@ export class QueryResponder {
           : ++this.failures >= 3 ? "offline" : "retrying";
         this.unhealthy = true;
         if (this.onHealth) this.onHealth({ state, code }); else this.onError();
+        if (state !== "retrying" && state !== "offline") return;
+        const visibility = typeof document === "undefined" ? "unknown" : document.visibilityState;
+        await new Promise<void>(resolve => { this.timer = setTimeout(() => { this.timer = null; resolve(); }, queryPollDelay(this.failures - 1, visibility)); });
       }
-      return false;
     }
-    finally { this.busy = false; }
   }
   private recovered(): void {
     if (this.unhealthy) { this.unhealthy = false; this.failures = 0; this.onHealth?.({ state: "recovered", code: "OK" }); }

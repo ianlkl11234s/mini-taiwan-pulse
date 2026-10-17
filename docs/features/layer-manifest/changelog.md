@@ -2606,3 +2606,15 @@ manifest 現在是 348 層的**登記 SSOT**，也是新層的**唯一入口**�
 **交棒後開放項**：S3 上傳（腳本已修，待 merge 後跑）；slope/aspect.png 死檔刪除拍板；
 29 筆 popup CANDIDATE（9 工作包）；6 筆 EDGE 拍板；完整性測試 7 個雙桶 key 盲區
 （另表另棒）；MapView/LegendPanel 聚合訂閱屬預期行為非殘留。
+
+## 2026-09-30 — PF-4：`wasteStopsStatic` 改 PMTiles
+
+- `geo/waste_stops_static.geojson`（22.45 MB，73,060 點）→ `geo/waste_stops_static_20260930.pmtiles`
+  （16.57 MB，source-layer `waste_stops`，Z6–z14；`dataClass` A → B）。
+- 轉檔 `scripts/preprocess/build-static-pmtiles-pf4.py`：`-r1 -pf -pk -ai`，每個 zoom 全量；
+  z6–z8 每級 73,060 點，z14 逐筆比對屬性（含 `id`／`via`／`routes_count`）與座標（最大偏移 3e-6°）。
+- Z6 對齊兩個 circle layer 的 `minzoom: 6`，低於 z6 本來就不畫，行為不變；popup 欄位契約不變。
+- 供應路徑：新檔 git 追蹤走 `/geo/` dist fallback，並被 upload 的 `public/geo/*.pmtiles` glob 帶到
+  `deploy-assets/geo/`。舊 GeoJSON 保留（`build-waste-stops-owner-only.mjs`、`capability-audit.mjs` 讀本機檔）。
+- 傳輸取捨：原檔 gzip 約 1.5 MB；全台 z6 視角主 tile 約 1.45 MB（gzip），但免去 22 MB JSON parse，
+  拉近後只抓視窗內 tile。

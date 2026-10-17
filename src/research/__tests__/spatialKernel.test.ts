@@ -32,6 +32,13 @@ describe("spatialKernel", () => {
     expect(geometriesIntersect(point(0, 5), polygon)).toBe(true);
   });
 
+  it("keeps point predicates stable with a zero-length ring edge", () => {
+    const repeatedVertexPolygon: PolygonGeometry = { type: "Polygon", coordinates: [[[0, 0], [10, 0], [10, 0], [10, 10], [0, 10], [0, 0]]] };
+    expect(locatePointInSurface(point(2, 2), repeatedVertexPolygon)).toBe("inside");
+    expect(geometryWithin(point(2, 2), repeatedVertexPolygon)).toBe(true);
+    expect(geometriesIntersect(point(0, 5), repeatedVertexPolygon)).toBe(true);
+  });
+
   it("checks every MultiPolygon part without filling gaps", () => {
     const multi: MultiPolygonGeometry = { type: "MultiPolygon", coordinates: [
       [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],

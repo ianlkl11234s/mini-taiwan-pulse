@@ -123,10 +123,11 @@ export function companyDemographicsSumExpr(fields: readonly string[]): unknown[]
   return ["case", ["all", ...fields.map(numericField)], sum, -1];
 }
 
-export function companyDemographicsDensityColorExpr(value: unknown[], scale: (typeof COMPANY_DEMOGRAPHICS_SCALES)[number]): unknown[] {
+/** 合計密度 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function companyDemographicsDensityColorExpr(value: unknown[], scale: (typeof COMPANY_DEMOGRAPHICS_SCALES)[number], colors: readonly string[] = COMPANY_DENSITY_COLORS): unknown[] {
   const density: unknown[] = ["/", value, companyGridAreaKm2(scale.areaScale)];
-  const step: unknown[] = ["step", density, COMPANY_DENSITY_COLORS[0]];
-  for (let index = 1; index < COMPANY_DENSITY_STOPS.length; index++) step.push(COMPANY_DENSITY_STOPS[index], COMPANY_DENSITY_COLORS[index]);
+  const step: unknown[] = ["step", density, colors[0]];
+  for (let index = 1; index < COMPANY_DENSITY_STOPS.length; index++) step.push(COMPANY_DENSITY_STOPS[index], colors[index]);
   return ["case", [">=", value, 0], step, COMPANY_GRID_NULL_COLOR];
 }
 
@@ -145,10 +146,11 @@ export const COMPANY_AGE_MEDIAN_STOPS = [0, 2, 5, 10, 20, 35, 55] as const;
 /** Cividis 0.18–1：藍黃與亮度遞增，避免以紅綠區分年齡。 */
 export const COMPANY_AGE_COLORS = ["#2f426d", "#545a6d", "#727374", "#928d78", "#b6a96f", "#dbc75a", "#fee838"] as const;
 
-export function companyAgeColorExpr(modeIdx: number): unknown[] {
+/** 公司年齡 7 階（R7：`colors` 由 state/layerPalette 的解析器依圖層色盤＋底圖給；省略＝本檔常數） */
+export function companyAgeColorExpr(modeIdx: number, colors: readonly string[] = COMPANY_AGE_COLORS): unknown[] {
   const value = companyAgeValueExpr(modeIdx);
   const stops = modeIdx === 1 ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
-  const step: unknown[] = ["step", value, COMPANY_AGE_COLORS[0]];
-  for (let index = 1; index < stops.length; index++) step.push(stops[index], COMPANY_AGE_COLORS[index]);
+  const step: unknown[] = ["step", value, colors[0]];
+  for (let index = 1; index < stops.length; index++) step.push(stops[index], colors[index]);
   return ["case", [">=", value, 0], step, COMPANY_GRID_NULL_COLOR];
 }

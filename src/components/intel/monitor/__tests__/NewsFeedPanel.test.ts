@@ -15,8 +15,13 @@ const props = {
 
 describe("NewsFeedPanel query status", () => {
   it("does not render an interrupted feed as green or animated live data", () => {
-    const markup = renderToStaticMarkup(createElement(NewsFeedPanel, { ...props, status: "error" }));
+    const markup = renderToStaticMarkup(createElement(NewsFeedPanel, {
+      ...props, status: "error", message: "可用的定位新聞只到 2026-09-09",
+    }));
     expect(markup).toContain("更新中斷");
+    expect(markup).toContain("可用的定位新聞只到 2026-09-09");
+    expect(markup).toContain("新聞資料更新中斷");
+    expect(markup).not.toContain("目前無符合條件的事件");
     expect(markup).toContain("background:#ef4444;box-shadow:0 0 5px #ef4444;animation:none");
     expect(markup).toContain("font-size:9px;font-weight:700;color:#ef4444\">更新中斷");
     expect(markup).not.toContain("animation:intelRing");

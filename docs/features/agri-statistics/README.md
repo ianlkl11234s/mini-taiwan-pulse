@@ -30,6 +30,7 @@ VITE_SUPABASE_URL=http://127.0.0.1:3743 VITE_SUPABASE_ANON_KEY=local-preview-no-
 ## 接線與修改檔案
 
 - `src/data/agriStatisticsRecipes.json` 保留交付機讀資料；`agriStatisticsRecipes.ts` 提供型別與 exact tuple helper。24 個 enabled key 由此派生；3 個 disabled key 無 toggle、manifest 或空殼。
+- 首屏只載 `agriStatisticsRecipes.catalog.json`（由交付 JSON 派生、不含 `release_options`）；完整配方在開統計圖層／研究查詢時經 `ensureStatisticsRecipeDetails('agri')` 按需載入（只下載農業明細，不帶社會明細）。更新交付 JSON 後必跑 `npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts`，`statisticsRecipeCatalog.test.ts` 會擋不一致。
 - `regionalStatisticsRecipes.ts`、`statisticsLayerRegistry.ts`、`layerManifest.ts`、`layerParamsSpec.ts`、`src/types/index.ts` 接入既有 Statistics 路徑。保留 `statsRiceHarvest`、`statsPigWaterCounty`，只加跨主題索引，沒有複製 observations/releases。
 - `src/components/sidebar/layerCatalog.ts`、`StatisticsDetails.tsx` 提供分類、完整 release whitelist、相依篩選、coverage/health、來源與版本揭露、既有統計索引及 related GIS 連結。
 - `src/data/regionalStatisticsLoader.ts`、`statisticsGeometryCache.ts`、`vite.config.ts` 提供 DEV preview adapter、正式 R2 CDN snapshot 契約、geometry hash 與 code/name 對應。資料庫 public RPC 只由 platform publisher 讀取，正式瀏覽器不再呼叫 Supabase。

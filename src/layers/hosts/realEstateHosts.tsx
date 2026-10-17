@@ -60,11 +60,12 @@ export const PropertyValueAdminHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.propertyValueAdmin,
     p.propertyValueAdminLevelIdx ?? 0,
     p.propertyValueAdminOpacity ?? 0.7,
+    deps.isDarkTheme,
   );
   return null;
 };
 
-/** 點選的圖層點 → 淡黃色脈動光暈（跨圖層裝飾，沒有自己的 layer key） */
+/** 點選的圖層點 → 選取圈（useSelectionRing 的呼吸脈衝；跨圖層裝飾，沒有自己的 layer key） */
 export const SelectedFeatureHaloHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useSelectedFeatureHalo");
   useSelectedFeatureHalo(deps.mapRef, deps.featureInfo);

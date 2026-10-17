@@ -1,0 +1,8 @@
+{
+  "enum.powerLineType.minor_line": "配電線",
+  "enum.powerLineType.cable": "地中ケーブル",
+  "enum.powerLineType.line": "送電線",
+  "enum.fossilFacilityType.lng_terminal": "LNG受入基地",
+  "enum.fossilFacilityType.oil_refinery": "製油所",
+  "enum.fossilFacilityType.gas_power_plant": "ガス火力発電所"
+}

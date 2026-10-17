@@ -4,26 +4,37 @@ import type { RefObject } from "react";
 import type { GlobalEventPoint } from "../../data/globalEventsLoader";
 
 const harness = vi.hoisted(() => {
-  const refs: { current: unknown }[] = [];
-  let cleanups: (() => void)[] = [];
+  const slots: Array<{ current: unknown } | { deps: readonly unknown[] | undefined; cleanup?: () => void }> = [];
   let cursor = 0;
   let timeCallback: ((time: number) => void) | null = null;
   let windowCallback: ((keys: string[]) => void) | null = null;
   let throttleMs: number | null = null;
   return {
     reset: () => {
-      for (const cleanup of cleanups) cleanup();
-      refs.length = 0;
-      cleanups = [];
+      for (const slot of slots) if ("cleanup" in slot) slot.cleanup?.();
+      slots.length = 0;
       cursor = 0;
       timeCallback = null;
       windowCallback = null;
       throttleMs = null;
     },
-    useRef: <T,>(initial: T) => (refs[cursor++] ??= { current: initial }) as { current: T },
-    useEffect: (effect: () => void | (() => void)) => {
+    render: () => { cursor = 0; },
+    useRef: <T,>(initial: T) => (slots[cursor++] ??= { current: initial }) as { current: T },
+    useEffect: (effect: () => void | (() => void), deps?: readonly unknown[]) => {
+      const index = cursor++;
+      const previous = slots[index] as { deps: readonly unknown[] | undefined; cleanup?: () => void } | undefined;
+      const unchanged = previous?.deps !== undefined && deps !== undefined && previous.deps.length === deps.length && previous.deps.every((value, i) => Object.is(value, deps?.[i]));
+      if (unchanged) return;
+      previous?.cleanup?.();
       const cleanup = effect();
-      if (cleanup) cleanups.push(cleanup);
+      slots[index] = { deps, cleanup: cleanup ?? undefined };
+    },
+    useCallback: <T,>(fn: T, deps: readonly unknown[]) => {
+      const index = cursor++;
+      const previous = slots[index] as { deps: readonly unknown[]; value: T } | undefined;
+      if (previous && previous.deps.length === deps.length && previous.deps.every((value, i) => Object.is(value, deps[i]))) return previous.value;
+      slots[index] = { deps, value: fn } as unknown as { current: unknown };
+      return fn;
     },
     timeSubscribe: (ms: number, callback: (time: number) => void) => {
       throttleMs = ms;
@@ -48,7 +59,7 @@ vi.mock("react", async (importOriginal) => ({
   ...await importOriginal<typeof import("react")>(),
   useRef: harness.useRef,
   useEffect: harness.useEffect,
-  useCallback: <T,>(fn: T) => fn,
+  useCallback: harness.useCallback,
 }));
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
 vi.mock("../../data/globalEventsLoader", async (importOriginal) => ({
@@ -257,6 +268,26 @@ describe("useGlobalEventsLayer timeline", () => {
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("global-events-relations-line", "visibility", "none");
   });
 
+  it("theme switch only updates cluster-label halo without reloading or rewriting sources", async () => {
+    loader.current.mockResolvedValue([point()]);
+    const state = createMap();
+    const ref = { current: state.map } as RefObject<MapboxMap | null>;
+    harness.render();
+    useGlobalEventsLayer(ref, true, 0.9, "live", "timeline", true, null, true, 7, "all", 0, false, true);
+    await flush();
+    const source = state.sources.get("global-events-current")!.setData;
+    source.mockClear();
+    loader.current.mockClear();
+    loader.window.mockClear();
+    (state.map.setPaintProperty as ReturnType<typeof vi.fn>).mockClear();
+    harness.render();
+    useGlobalEventsLayer(ref, true, 0.9, "live", "timeline", true, null, true, 7, "all", 0, false, false);
+    expect(loader.current).not.toHaveBeenCalled();
+    expect(loader.window).not.toHaveBeenCalled();
+    expect(source).not.toHaveBeenCalled();
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("global-events-clusters-label", "text-halo-color", "rgba(255,255,255,0.94)");
+  });
+
   it("pan/rotation/zoom never rewrite coordinates; native offset symbols preserve all colocated events and cleanup", async () => {
     const rows = Array.from({ length: 8 }, (_, i) => point({ eventId: `event-${i}`, versionId: `v-${i}`, eventPlaceId: `place-${i}`, displayPlaceId: `place-${i}` }));
     loader.current.mockResolvedValue(rows);
@@ -276,6 +307,11 @@ describe("useGlobalEventsLayer timeline", () => {
       "icon-pitch-alignment": "viewport", "icon-rotation-alignment": "viewport",
       "icon-offset": ["get", "icon_offset"], "icon-allow-overlap": true, "icon-ignore-placement": true,
     } });
+    expect(state.layers.get("global-events-clusters-label")).toMatchObject({ type: "symbol", layout: {
+      "text-size": ["interpolate", ["linear"], ["zoom"], 10, 11, 14, 13],
+      "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+      "text-allow-overlap": true, "text-ignore-placement": true,
+    }, paint: { "text-halo-width": 1.25 } });
     const callCount = source.mock.calls.length;
     for (const [scale, bearing] of [[1, 0], [4, 90], [0.1, 180]]) {
       vi.mocked(state.map.project).mockImplementation(() => ({ x: scale, y: bearing }) as never);

@@ -1,11 +1,12 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "0.1.0",
+  "version": "2.10.0",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
     "dev": "vite",
+    "dev:private-research": "JP_WATER_PRIVATE_ROOT=../taipei-gis-analytics/output/jp_water_private_runtime PRIVATE_RESEARCH_STORAGE=local PRIVATE_RESEARCH_ORIGINS=http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3732 node --env-file=.env --env-file-if-exists=.env.local server/coral-private/coral-private-server.mjs",
     "dev:exploration": "PULSE_RESEARCH_GATEWAY_ORIGIN=http://127.0.0.1:8791 vite --host 127.0.0.1 --port 3732 --strictPort",
     "research:local:start": "node scripts/research/local-stack.mjs start",
     "research:local:stop": "node scripts/research/local-stack.mjs stop",
@@ -21,7 +22,11 @@
     "s3:upload:ships": "tsx scripts/deploy/upload-ships-to-s3.ts",
     "s3:upload:rail": "tsx scripts/deploy/upload-rail-to-s3.ts",
     "rail:bundle": "python3 scripts/preprocess/bundle-rail-data.py",
-    "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py"
+    "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py",
+    "research:layer-status": "vite-node --script scripts/research/build-layer-status.mjs",
+    "design:baseline": "tsx scripts/design/update-design-baseline.ts",
+    "design:audit-layers": "vite-node scripts/design/audit-layer-styles.ts",
+    "design:snapshot": "node scripts/design/snapshot-design-system.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.5",
@@ -30,6 +35,10 @@
     "@aws-sdk/client-s3": "^3.995.0",
     "@protomaps/basemaps": "^5.7.2",
     "@supabase/supabase-js": "^2.101.1",
+    "@turf/area": "7.2.0",
+    "@turf/buffer": "7.2.0",
+    "@turf/intersect": "7.2.0",
+    "@turf/length": "7.2.0",
     "ai": "^7.0.11",
     "dotenv": "^17.3.1",
     "h3-js": "^4.4.0",

@@ -45,8 +45,12 @@ import {
   LAYER_COLORS,
   LAYER_MACRO_GROUPS,
   THEMES,
+  THEME_NAME_TITLES,
   WORLD_TAB_THEME_TITLES,
+  themeMacroGroup,
+  themeName,
 } from "../layerCatalog";
+import { JAPAN_MACRO_GROUPS, LAYER_PANELS } from "../layerPanels";
 import { hasLayerDetails } from "../../LayerSidebar";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
@@ -76,8 +80,6 @@ const allLayerKeys = Object.keys(LAYER_COLORS);
  * internal use / API gate / 子 UI 控制」。真的要刪層是另一件事，走刪除流程。
  */
 const ORPHAN_LEDGER = new Set([
-  // wasteRoute / wasteStop：由 wasteTruck 的子 UI 控制，不各給一個 toggle
-  "wasteRoute", "wasteStop",
   // medICUBeds：Phase 3 尚未實作渲染，幽靈 toggle 已自 sidebar 移除（2026-06-10）
   "medICUBeds",
   // Energy MVP：KPI 性質，已整合到 monitor 面板（LayerVisibility key 保留）
@@ -112,7 +114,7 @@ const NO_PARAMS_LEDGER = new Set([
   // wasteScheduleNote：Three.js ShaderMaterial 音符特效，opacity 要動 shader uniform，
   // 屬裝飾性圖層 → 有意識地不做（2026-06-10 決定）
   "wasteScheduleNote",
-  "wasteRoute", "wasteStop",     // 由 wasteTruck 子 UI 控制
+  "jmaKosa",           // 黃砂予測：不畫在地圖上，時刻選單在 JmaKosaPanel 面板內
   "wasteCleaningSquads",         // 單色綠 POI，無 size/opacity slider（透過 isDark 自動配色）
   // powerStatusHud / powerRegionDemand：搬 monitor 面板，不在 sidebar（見 ORPHAN_LEDGER）
   "powerStatusHud", "powerRegionDemand",
@@ -127,17 +129,17 @@ const NO_PARAMS_LEDGER = new Set([
  * docs/features/layer-manifest/changelog.md 各批），不是目測。
  */
 const NO_LEGEND_LEDGER = new Set([
-  // 交通：車站/場站/線形皆單色（鐵道車種分色在 rail，已接 RailLegend）
-  "stationsTHSR", "stationsTRA", "stationsMetro",
+  // 交通：車站/場站/線形皆單色（鐵道車種分色在 rail，已接 RailLegend；stationsMetro 已依線著色並補圖例）
+  "stationsTHSR", "stationsTRA",
   "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
-  "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
+  // busStationsCity／busStationsIntercity：R5 拉遠改熱區，補單色＋熱區色階圖例（已移出）
+  "bikeStations", "cyclingRoutes",
   "weatherStations",
   // h3Population：同屬預烤 properties.color 的連續色階（h3LayerFactory 的 DAY/NIGHT
   // 兩套色階），但「現在顯示哪一套」存在 params、沒進 overlayParams，圖例拿不到
   // → 硬畫會有一半機率跟地圖對不上。待把 metric 併進 overlayParams 再補。
   "h3Population",
-  "convenienceStores",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（govServiceOffices 3 類分色 → 已接 legend）
   "postOffices", "iPostBoxes", "communityCenters",
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（publicToilets 4 級分色 → 已接 legend）
@@ -150,14 +152,16 @@ const NO_LEGEND_LEDGER = new Set([
   // 水庫（單色青面）／滯洪池（單色 #0284c7 點）：paint 無 match/step 分類。
   // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme
   // 皆為屬性驅動多色，已接 LEGEND_REGISTRY。
-  "waterReservoirs", "waterDetentionBasins",
+  // R6 段 2：waterReservoirs 已有即時水情圖例（ReservoirStatusLegend），移出 ledger
+  "waterDetentionBasins",
   // groundwaterWells（靜態井位 backdrop，單色灰點）／precipRaster（IoW 上游已把色階
   // 燒進 PNG 的 image source）→ 鐵則 2 不適用。
   "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
-  "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
-  "wasteScheduleNote", "wasteStopsStatic", "wasteCleaningSquads", "wasteRoute", "wasteStop",
-  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
+  "agriRuralRegen", "farmRoads", "wasteSchedule", // wasteTruck：R6 段 3 補圖例，移出 ledger
+  "wasteScheduleNote", "wasteCleaningSquads",
+  // R6 段 2：焚化爐／掩埋場／濱海掩埋／轉運站／醫療已有類別圖例（WasteFacilityLegend），移出 ledger
+  "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
   // Bloom 實驗層：單色光暈疊在既有 layer 上（發電廠/變電所/電線/航空管制），無分類
@@ -189,7 +193,7 @@ const NO_LEGEND_LEDGER = new Set([
 /**
  * `popup: null`（鐵則 3 豁免 —— 沒有 click popup）。
  *
- * ⚠️ **本 ledger 是 Phase 4 就地凍結的現況**（57 筆）。Phase 2 逐批搬移時，每一筆
+ * ⚠️ **本 ledger 是 Phase 4 就地凍結的現況**（57 筆；2026-09-29 土壤液化 8 層改接 popup，已自 ledger 移除）。Phase 2 逐批搬移時，每一筆
  * `popup` 宣告都與 `GIS_LAYERS` / `HEADER_LABELS` 機械對帳過（見 layerManifest.test.ts
  * 那條雙向斷言），所以「宣告 null 的層確實沒有接線」是查證過的；
  * **但「它是否*應該*有 popup」是 UX 判斷，沒有逐筆重新考證。**
@@ -221,6 +225,12 @@ const NO_POPUP_LEDGER = new Set([
   // 環境氣候 raster：雲圖 / 雷達 / AQI 影像皆為上游已上色成品，無數值通道
   //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）
   "cwaCloudImagery", "cwaRadarImagery", "aqiImagery",
+  // JMA 發布幀影像：PNG 只有等級值、無 feature 可 query（點擊讀值探針待 owner 拍板）
+  "jmaSnowDepth", "jmaRadar", "jmaRasrf", "jmaRiskLand", "jmaRiskInund", "jmaUvIndex", "jmaSst", "jmaSeaIce", "jmaHimawari",
+  "jmaAnaSnowFirst", "jmaAnaSnowDays", "jmaAnaRainDays", "jmaAnaRiskLandHours", "jmaAnaRiskInundHours",
+  // 上游直連（P5）：GIBS 雪覆蓋是上游已上色 raster（無數值通道）；洪水キキクル 線只帶 level，圖例已標示，
+  // 實測當下全國無警戒、屬性待雨天抽驗再決定 popup；黃砂是圖片面板，沒有地圖 feature。
+  "gibsSnowCover", "jmaRiskFlood", "jmaKosa",
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
@@ -234,7 +244,7 @@ const NO_POPUP_LEDGER = new Set([
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
   "substationEhvGlow", "windPlan",
   // orphan（無 sidebar toggle，見 ORPHAN_LEDGER）
-  "powerStatusHud", "powerRegionDemand", "medICUBeds", "wasteRoute", "wasteStop",
+  "powerStatusHud", "powerRegionDemand", "medICUBeds",
 ]);
 
 // ══════════════════════════════════════════════════════════════════
@@ -420,7 +430,7 @@ describe("manifest 完整性：豁免 ledger", () => {
       NO_POPUP_LEDGER,
       "承載屬性的 feature 都要接 FeatureInfoPanel：types 的 FeatureInfo.layerType 加 key → " +
       "featureInfo/registry 的 PANEL_REGISTRY + HEADER_LABELS 各加一行 → " +
-      "useMapInteraction 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
+      "map/gisClickRegistry 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
       "（development-rules §4a 規則 3）",
     );
   });
@@ -437,18 +447,29 @@ describe("鐵則 4：select 控件渲染閾值", () => {
    * 唯一的失敗模式是「兩個 sidebar 的閾值改了一邊忘了另一邊」——
    * 桌機看到 dropdown、手機看到撐爆的 button row。
    */
-  it("IconRailSidebar 與 LayerSidebar 用同一個閾值", () => {
+  it("IconRailSidebar 與 LayerSidebar 用同一個閾值（兩者都經共用 LayersPanel → ExpandedControls → ParamControlList）", () => {
+    // Phase I 起兩個 sidebar 共用 `ParamControlList`（sidebar/LayerParamControls.tsx），閾值只寫在共用元件一處。
+    // 圖層面板統一 A 段起，桌機與手機連面板本體都共用（sidebar/LayersPanel.tsx），展開區只有 ExpandedControls 一份；
+    // 保護意圖不變：兩個 sidebar 都必須走共用元件，不能各自再渲染一份控制項。
     const THRESHOLD = "ctrl.options.length > 3";
+    expect(
+      readFileSync("src/components/sidebar/LayerParamControls.tsx", "utf8").includes(THRESHOLD),
+      `共用控制項元件找不到 \`${THRESHOLD}\` —— 渲染邏輯改了形狀（請同步更新本測試）。` +
+      `§4a 規則 4：≥ 4 個 option 必用原生 <select>，中文標籤的 button row 一定撐爆 240px 窄欄。`,
+    ).toBe(true);
+    expect(readFileSync("src/components/sidebar/ExpandedControls.tsx", "utf8")).toContain("<ParamControlList controls={controls} />");
+    expect(readFileSync("src/components/sidebar/LayersPanel.tsx", "utf8")).toContain("<ExpandedControls");
     for (const file of [
       "src/components/IconRailSidebar.tsx",
       "src/components/LayerSidebar.tsx",
+      "src/components/sidebar/LayersPanel.tsx",
     ]) {
-      expect(
-        readFileSync(file, "utf8").includes(THRESHOLD),
-        `${file} 找不到 \`${THRESHOLD}\` —— 兩個 sidebar 的 select 閾值分岔了，` +
-        `或渲染邏輯改了形狀（請同步更新本測試）。§4a 規則 4：≥ 4 個 option 必用原生 <select>，` +
-        `中文標籤的 button row 一定撐爆 240px 窄欄。`,
-      ).toBe(true);
+      const source = readFileSync(file, "utf8");
+      if (file !== "src/components/sidebar/LayersPanel.tsx") {
+        expect(source, `${file} 沒有走共用的 LayersPanel`).toMatch(/import \{ LayersPanel[^}]*\} from "\.\/sidebar\/LayersPanel"/);
+        expect(source, `${file} 不該再自己掛 ParamControlList`).not.toContain("<ParamControlList");
+      }
+      expect(source.includes("ctrl.options.length"), `${file} 又自己渲染了一份 select —— 閾值會分岔`).toBe(false);
     }
   });
 });
@@ -459,16 +480,21 @@ describe("區域統計 sidebar 接線", () => {
     expect(hasLayerDetails("flights", false)).toBe(false);
   });
 
-  it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
-    const railSidebar = readFileSync('src/components/IconRailSidebar.tsx', 'utf8');
-    expect(railSidebar).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
-    expect(railSidebar).toContain('textColor={TEXT_STRONG}\n                            dimColor={DIM}\n                            colorScheme={COLOR_SCHEME}');
-    const layerSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
-    expect(layerSidebar).toContain("isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />");
-    expect(layerSidebar).toContain("textColor={textColor}\n                    dimColor={dimColor}\n                    colorScheme={isDarkTheme ? 'dark' : 'light'}");
-    const mobileSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
-    expect(mobileSidebar).toContain('aria-label={`${displayLabel} 詳情`}');
-    expect(mobileSidebar).toContain('{isExpanded && hasDetails && (');
+  it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情（共用 ExpandedControls），每一列都有可存取的展開按鈕", () => {
+    // C 段：統計的篩選走共用連動選單（ParamControlList），來源與處理紀錄在最後的「說明・來源」
+    const expanded = readFileSync('src/components/sidebar/ExpandedControls.tsx', 'utf8');
+    expect(expanded).toContain('<LayerInfoLine layerKey={layerKey}><StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} /></LayerInfoLine>');
+    expect(expanded.indexOf('<ParamControlList controls={controls} />')).toBeLessThan(expanded.indexOf('<StatisticsDetails'));
+    expect(expanded).toContain('useLinkedSelects(layerKey);');
+    const panel = readFileSync('src/components/sidebar/LayersPanel.tsx', 'utf8');
+    // 群組變體由目錄資料（LayerDef.variant）決定，不在面板裡查群組表
+    expect(panel).toContain('if (!variant.lead) return null;');
+    // 每一列都有展開區（至少「說明・來源」），列按鈕帶 aria-expanded
+    expect(panel).toContain('{isExpanded && (');
+    expect(readFileSync('src/components/sidebar/LayerRow.tsx', 'utf8')).toContain('aria-expanded={expandable ? expanded : undefined}');
+    for (const file of ['src/components/IconRailSidebar.tsx', 'src/components/LayerSidebar.tsx']) {
+      expect(readFileSync(file, 'utf8')).toContain('<LayersPanel');
+    }
     expect(readFileSync('src/components/MobileBottomSheet.tsx', 'utf8')).toContain('zIndex: 40');
     expect(readFileSync('src/App.tsx', 'utf8')).toContain('onLayerClick={handleLayerClick}');
   });
@@ -506,5 +532,81 @@ describe("日本與世界 tab 命名規則", () => {
       theme: GLOBAL_ENVIRONMENT_THEME_TITLE,
       group: "廢棄物觀測 Waste Observations",
     });
+  });
+});
+
+describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () => {
+  it("每個主題（含各入口重組的主題）都登記了顯示名稱（新增主題要補 THEME_NAMES）", () => {
+    const titles = [...THEMES, ...LAYER_PANELS.flatMap((panel) => panel.themes)].map((theme) => theme.title);
+    const missing = [...new Set(titles)].filter((title) => !THEME_NAME_TITLES.has(title));
+    expect(missing).toEqual([]);
+  });
+
+  it("日本 15 個主題一律有日文副標，與中文同字也照樣顯示", () => {
+    expect(JAPAN_TAB_THEME_TITLES).toHaveLength(15);
+    for (const title of JAPAN_TAB_THEME_TITLES) {
+      expect(themeName(title).sub, title).toBeTruthy();
+    }
+    expect(themeName("宗教")).toEqual({ zh: "宗教", sub: "宗教" });
+    expect(themeName("長照服務")).toEqual({ zh: "長照服務", sub: "介護サービス" });
+  });
+
+  it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致", () => {
+    for (const panel of LAYER_PANELS) {
+      if (!panel.macroGroups) continue;
+      const titles = panel.themes.map((theme) => theme.title);
+      const groupOf = (title: string) => panel.macroGroups!.findIndex((group) => group.themes.includes(title));
+      for (const title of titles) {
+        expect(panel.macroGroups.filter((group) => group.themes.includes(title)), `${panel.id}:${title}`).toHaveLength(1);
+      }
+      const order = titles.map(groupOf);
+      expect(order, panel.id).toEqual([...order].sort((a, b) => a - b));
+      for (const group of panel.macroGroups) {
+        for (const title of group.themes) expect(titles, `${panel.id}:${group.zh}`).toContain(title);
+      }
+    }
+  });
+
+  it("日本大分類照使用者決定的 5 類", () => {
+    expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["行政與人口", "交通與旅宿", "醫療與照護", "社會", "自然與環境"]);
+    expect(LAYER_PANELS.find((panel) => panel.id === "japan")!.macroGroups).toBe(JAPAN_MACRO_GROUPS);
+  });
+
+  it("統計大分類照使用者決定的 5 類（S-B），世界沿用台灣大分類名（W-A）", () => {
+    const panel = (id: string) => LAYER_PANELS.find((candidate) => candidate.id === id)!;
+    expect(panel("statistics").macroGroups!.map((group) => group.zh)).toEqual(["人口與社會", "經濟與住宅", "交通", "土地與環境", "基準"]);
+    expect(panel("world").macroGroups!.map((group) => group.zh)).toEqual(["公共生活", "環境與資源", "情報"]);
+    expect(panel("world").themes.map((theme) => theme.title)).toEqual([
+      "全球通訊 Global Communications", "全球氣候 Global Climate", GLOBAL_ENVIRONMENT_THEME_TITLE, GLOBAL_SITUATION_THEME_TITLE, "全球海事 Global Maritime",
+    ]);
+    // 世界大分類與 THEMES 排序讀同一張對照，不另立一份
+    for (const group of panel("world").macroGroups!) {
+      const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
+      for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
+    }
+  });
+
+  it("日本主題一律預設收合，與台灣一致（2026-10-03 使用者決定）", () => {
+    for (const theme of LAYER_PANELS.find((panel) => panel.id === "japan")!.themes) {
+      expect(theme.defaultCollapsed, theme.title).toBe(true);
+    }
+  });
+
+  it("圖層名稱結構化：日本圖層有中文主名與日文小字，來源放限定詞", () => {
+    expect(LAYER_MANIFEST.jpStations.name).toEqual({ zh: "車站", alt: "駅" });
+    expect(LAYER_MANIFEST.jpReligionGsi.name).toEqual({ zh: "宗教設施", alt: "宗教施設", qualifier: "国土地理院" });
+  });
+
+  it("小分組與主題標題不露內部代碼：要有中文、不含国土数値情報代碼（A10 這類）或 historical", () => {
+    const titles = new Set<string>();
+    for (const panel of LAYER_PANELS) {
+      for (const theme of panel.themes) {
+        titles.add(themeName(theme.title).zh);
+        for (const group of theme.groups) titles.add(group.title);
+      }
+    }
+    for (const [, entry] of entries) if (entry.section) titles.add(entry.section.group);
+    const leaks = [...titles].filter((title) => !/[\u4e00-\u9fff]/.test(title) || /\b[A-Z]\d{2}\b/.test(title) || /historical/i.test(title));
+    expect(leaks).toEqual([]);
   });
 });

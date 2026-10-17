@@ -1,3 +1,4 @@
+import { hookFillOpacity, hookLinePaint, hookLineWidth, hookLineOpacity, hookLineLayout } from "./lineFillSpec";
 // Agriculture 圖層 factory
 //
 // FTW Fields 2025 (38.6 萬田區) + Agriculture Phase 3 Batch 1 (5 PMTiles + 1 GeoJSON POI)
@@ -14,6 +15,8 @@ import {
 // PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 import { loadingRegistry } from "../lib/loadingRegistry";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}agriculture`;
@@ -82,7 +85,6 @@ export function ensureAgricultureLayers(map: MapboxMap): void {
           0.5, 0.18,
           0.6, 0.42,
         ],
-        "fill-outline-color": "rgba(46, 125, 50, 0.6)",
       },
     });
   }
@@ -94,16 +96,11 @@ export function ensureAgricultureLayers(map: MapboxMap): void {
       source: FTW_SOURCE_ID,
       "source-layer": FTW_SOURCE_LAYER,
       minzoom: 10,
-      layout: { visibility: "none" },
+      layout: { visibility: "none", ...hookLineLayout("agriculture", FTW_OUTLINE_ID) },
       paint: {
         "line-color": "#1b5e20",
-        "line-width": [
-          "interpolate", ["linear"], ["zoom"],
-          10, 0.2,
-          13, 0.6,
-          16, 1.2,
-        ],
-        "line-opacity": 0.55,
+        "line-width": hookLineWidth("agriculture", FTW_OUTLINE_ID, 0.8, 0.8),
+        "line-opacity": hookLineOpacity("agriculture", FTW_OUTLINE_ID, 0.55, 0.55),
       },
     });
   }
@@ -116,6 +113,15 @@ export function updateAgricultureLayer(
 ): void {
   if (map.getLayer(FTW_FILL_ID)) {
     map.setLayoutProperty(FTW_FILL_ID, "visibility", visible ? "visible" : "none");
+  }
+  // 隱藏時不改 paint：隱藏 layer 不會 recalculate，改 paint 留下的 transition prior
+  // 永遠清不掉 → style.hasTransitions() 恆 true → 地圖無限重畫（A0）。
+  // 開啟時 MapView 會再以 visible=true 呼叫本函式補上 paint。
+  if (!visible) {
+    if (map.getLayer(FTW_OUTLINE_ID)) map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", "none");
+    return;
+  }
+  if (map.getLayer(FTW_FILL_ID)) {
     map.setPaintProperty(FTW_FILL_ID, "fill-opacity", [
       "*", params.opacity,
       [
@@ -131,14 +137,12 @@ export function updateAgricultureLayer(
   if (map.getLayer(FTW_OUTLINE_ID)) {
     const showOutline = visible && params.showOutline;
     map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", showOutline ? "visible" : "none");
-    // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
-    const w = params.outlineWidth;
-    map.setPaintProperty(FTW_OUTLINE_ID, "line-width", [
-      "interpolate", ["linear"], ["zoom"],
-      10, 0.2 * w,
-      13, 0.6 * w,
-      16, 1.2 * w,
-    ]);
+    // 同上：outline 隱藏時不改 paint（打開 showOutline 時會再呼叫本函式補上）
+    if (showOutline) {
+      // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
+      const w = params.outlineWidth;
+      map.setPaintProperty(FTW_OUTLINE_ID, "line-width", hookLineWidth("agriculture", FTW_OUTLINE_ID, 0.8 * w, 0.8));
+    }
   }
 }
 
@@ -159,7 +163,6 @@ interface SimplePolyConfig {
   maxzoom: number;
   fillColor: string | unknown[];
   defaultOpacity: number;
-  outlineColor?: string;
 }
 
 export interface AgriPolyParams {
@@ -168,6 +171,21 @@ export interface AgriPolyParams {
 }
 
 export const AGRI_POLY_PARAMS_DEFAULT: AgriPolyParams = { opacity: 1 };
+
+const agriPolyKey = (id: string): string => ({
+  "agri-soil-fill": "agriSoil",
+  "agri-leisure-farm-zones-fill": "agriLeisureFarmZones",
+  "agri-rural-regen-fill": "agriRuralRegen",
+} as Record<string, string>)[id] ?? "";
+
+const agriPolyOutlineId = (fillId: string): string => fillId.replace(/-fill$/, "-outline");
+
+/** F-2 覆蓋面外框：獨立 line 子圖層（與面同色，寬度／透明度由 hookLinePaint 依階計算並跟滑桿）。 */
+function agriPolyOutlinePaint(fillId: string, color: string, opacity: number, defaultOpacity: number) {
+  const key = agriPolyKey(fillId);
+  const id = agriPolyOutlineId(fillId);
+  return hookLinePaint(key, id, { "line-color": color, "line-opacity": opacity, "line-width": 1 }, { "line-color": color, "line-opacity": defaultOpacity, "line-width": 1 });
+}
 
 function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
   registerPmtilesSourceTypeOnce();
@@ -184,9 +202,21 @@ function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": cfg.fillColor as any,
-        "fill-opacity": cfg.defaultOpacity,
-        ...(cfg.outlineColor ? { "fill-outline-color": cfg.outlineColor } : {}),
+        "fill-opacity": hookFillOpacity(agriPolyKey(cfg.fillId), cfg.fillId, cfg.defaultOpacity, cfg.defaultOpacity),
       },
+    });
+  }
+
+  const outlineId = agriPolyOutlineId(cfg.fillId);
+  if (!map.getLayer(outlineId)) {
+    map.addLayer({
+      id: outlineId,
+      type: "line",
+      source: cfg.sourceId,
+      "source-layer": cfg.sourceLayer,
+      minzoom: cfg.minzoom,
+      layout: { visibility: "none", ...hookLineLayout(agriPolyKey(cfg.fillId), outlineId) },
+      paint: agriPolyOutlinePaint(cfg.fillId, cfg.fillColor as string, cfg.defaultOpacity, cfg.defaultOpacity),
     });
   }
 }
@@ -200,7 +230,12 @@ function updateSimplePolyLayer(
 ): void {
   if (!map.getLayer(fillId)) return;
   map.setLayoutProperty(fillId, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(fillId, "fill-opacity", baseOpacity * params.opacity);
+  map.setPaintProperty(fillId, "fill-opacity", hookFillOpacity(agriPolyKey(fillId), fillId, baseOpacity * params.opacity, baseOpacity));
+  const outlineId = agriPolyOutlineId(fillId);
+  if (map.getLayer(outlineId)) {
+    map.setLayoutProperty(outlineId, "visibility", visible ? "visible" : "none");
+    map.setPaintProperty(outlineId, "line-opacity", agriPolyOutlinePaint(fillId, "", baseOpacity * params.opacity, baseOpacity)["line-opacity"] as number);
+  }
 }
 
 // =============================================================================
@@ -221,7 +256,6 @@ export function ensureAgriSoilLayers(map: MapboxMap): void {
     maxzoom: 13,
     fillColor: "#8d6e63",
     defaultOpacity: SOIL_BASE_OPACITY,
-    outlineColor: "#5d4037",
   });
 }
 
@@ -268,7 +302,7 @@ export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
-        "fill-opacity": SOIL_FERT_BASE_OPACITY,
+        "fill-opacity": hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY, SOIL_FERT_BASE_OPACITY),
       },
     });
   }
@@ -281,7 +315,7 @@ export function updateAgriSoilFertilityLayer(
 ): void {
   if (!map.getLayer(SOIL_FERT_FILL_ID)) return;
   map.setLayoutProperty(SOIL_FERT_FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", SOIL_FERT_BASE_OPACITY * params.opacity);
+  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY * params.opacity, SOIL_FERT_BASE_OPACITY));
   const meta = SOIL_FERTILITY_METRICS[params.metric] ?? SOIL_FERTILITY_METRICS.health;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-color", meta.paintExpr as any);
@@ -305,7 +339,6 @@ export function ensureAgriLeisureFarmZonesLayers(map: MapboxMap): void {
     maxzoom: 13,
     fillColor: "#66bb6a",
     defaultOpacity: LEISURE_BASE_OPACITY,
-    outlineColor: "#2e7d32",
   });
 }
 
@@ -394,7 +427,7 @@ export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": CROP_KIND_COLOR_EXPR as any,
-        "fill-opacity": CROP_BASE_OPACITY,
+        "fill-opacity": hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY, CROP_BASE_OPACITY),
       },
     });
   }
@@ -407,7 +440,7 @@ export function updateAgriCropSuitabilityLayer(
 ): void {
   if (!map.getLayer(CROP_FILL_ID)) return;
   map.setLayoutProperty(CROP_FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(CROP_FILL_ID, "fill-opacity", CROP_BASE_OPACITY * params.opacity);
+  map.setPaintProperty(CROP_FILL_ID, "fill-opacity", hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY * params.opacity, CROP_BASE_OPACITY));
   map.setFilter(CROP_FILL_ID, ["==", ["get", "crop_layer_id"], params.cropLayerId]);
 }
 
@@ -428,9 +461,11 @@ export interface AgriPOIParams {
   scale: number;
 }
 
+const AGRI_POI_OPACITY_DEFAULT = Number(paramDefault("agriPOI", "agriPOIOpacity"));
+
 export const AGRI_POI_PARAMS_DEFAULT: AgriPOIParams = { opacity: 1, scale: 1 };
 
-export function ensureAgriPOILayers(map: MapboxMap): void {
+export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
   if (!map.getSource(POI_SOURCE_ID)) {
     // 空 FC 起手，避免 mount 時 Mapbox 自動 fetch。
     // 真正 fetch 由 updateAgriPOILayer 在 visible=true 時 lazy 觸發。
@@ -446,15 +481,10 @@ export function ensureAgriPOILayers(map: MapboxMap): void {
       source: POI_SOURCE_ID,
       layout: { visibility: "none" },
       paint: {
-        "circle-radius": [
-          "interpolate", ["linear"], ["zoom"],
-          6, 3,
-          14, 8,
-        ],
+        "circle-radius": pointRadius("M"),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "circle-color": POI_TYPE_COLOR_EXPR as any,
-        "circle-stroke-width": 1,
-        "circle-stroke-color": "#ffffff",
+        ...pointStrokePaint(isDarkTheme),
         "circle-opacity": 0.9,
       },
     });
@@ -466,6 +496,7 @@ export function updateAgriPOILayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPOIParams = AGRI_POI_PARAMS_DEFAULT,
+  isDarkTheme = true,
 ): void {
   if (!map.getLayer(POI_CIRCLE_ID)) return;
   if (visible && !agriPOIHydrated) {
@@ -489,9 +520,11 @@ export function updateAgriPOILayer(
   }
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
   map.setPaintProperty(POI_CIRCLE_ID, "circle-opacity", 0.9 * params.opacity);
-  map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", [
-    "interpolate", ["linear"], ["zoom"],
-    6, 3 * params.scale,
-    14, 8 * params.scale,
-  ]);
+  map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", pointRadius("M", params.scale));
+  {
+    const stroke = pointStrokePaint(isDarkTheme, params.opacity / AGRI_POI_OPACITY_DEFAULT);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(POI_CIRCLE_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+  }
 }

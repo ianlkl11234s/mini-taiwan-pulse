@@ -25,12 +25,21 @@ const alive = pid => {
 const probe = async url => {
   try { return (await fetch(url, { signal: AbortSignal.timeout(1000) })).status; } catch { return 0; }
 };
+const snapshot = async () => {
+  const [frontend, gateway, privateResearch] = await Promise.all([
+    probe("http://127.0.0.1:3732/"),
+    probe("http://127.0.0.1:8791/"),
+    probe("http://127.0.0.1:8796/api/private-research/jp-water/water?access=1"),
+  ]);
+  return { frontend, gateway, privateResearch };
+};
 
 if (command === "serve") {
   mkdirSync(runtime, { recursive: true, mode: 0o700 });
   writeFileSync(statePath, JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }), { mode: 0o600 });
   const children = [
     spawn(process.execPath, [resolve(root, "scripts/research/start-gateway.mjs")], { cwd: root, env: runtimeEnv, stdio: "inherit" }),
+    spawn("npm", ["run", "dev:private-research"], { cwd: root, env: runtimeEnv, stdio: "inherit" }),
     spawn("npm", ["run", "dev:exploration"], { cwd: root, env: runtimeEnv, stdio: "inherit" }),
   ];
   let stopping = false;
@@ -57,7 +66,7 @@ if (command === "start") {
   if (!email || !/^[^\s,@]+@[^\s,@]+\.[^\s,@]+$/.test(email)) throw new Error("Set PULSE_RESEARCH_PILOT_EMAILS to the authorized test account.");
   const current = readState();
   if (current && alive(current.pid)) {
-    console.log(JSON.stringify({ status: "already_running", pid: current.pid, frontend: await probe("http://127.0.0.1:3732/"), gateway: await probe("http://127.0.0.1:8791/") }));
+    console.log(JSON.stringify({ status: "already_running", pid: current.pid, ...await snapshot() }));
     process.exit(0);
   }
   mkdirSync(runtime, { recursive: true, mode: 0o700 });
@@ -66,9 +75,9 @@ if (command === "start") {
   const child = spawn(process.execPath, [fileURLToPath(import.meta.url), "serve"], { cwd: root, env: runtimeEnv, detached: true, stdio: ["ignore", output, output] });
   child.unref(); closeSync(output);
   for (let attempt = 0; attempt < 40; attempt++) {
-    const [frontend, gateway] = await Promise.all([probe("http://127.0.0.1:3732/"), probe("http://127.0.0.1:8791/")]);
-    if (frontend === 200 && gateway === 404) {
-      console.log(JSON.stringify({ status: "running", pid: child.pid, frontend, gateway }));
+    const services = await snapshot();
+    if (services.frontend === 200 && services.gateway === 404 && services.privateResearch === 401) {
+      console.log(JSON.stringify({ status: "running", pid: child.pid, ...services }));
       process.exit(0);
     }
     if (!alive(child.pid)) break;
@@ -88,7 +97,7 @@ if (command === "stop") {
 
 if (command === "status") {
   const current = readState();
-  console.log(JSON.stringify({ status: current && alive(current.pid) ? "running" : "stopped", pid: current && alive(current.pid) ? current.pid : null, frontend: await probe("http://127.0.0.1:3732/"), gateway: await probe("http://127.0.0.1:8791/") }));
+  console.log(JSON.stringify({ status: current && alive(current.pid) ? "running" : "stopped", pid: current && alive(current.pid) ? current.pid : null, ...await snapshot() }));
   process.exit(0);
 }
 

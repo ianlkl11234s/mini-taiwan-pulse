@@ -24,20 +24,29 @@ export interface TleHistoryRow {
   fetched_at: string;
 }
 
+/** error：null = 讀取成功（prev/curr 為 null 代表資料庫沒有該筆）；否則是讀取失敗，與「查無資料」分開 */
+export type LoaderFailure = "unconfigured" | "rpc";
+
 export interface TlePair {
   prev: TleHistoryRow | null;
   curr: TleHistoryRow | null;
+  error: LoaderFailure | null;
 }
+
+export type TleHistoryResult =
+  | { ok: true; rows: TleHistoryRow[] }
+  | { ok: false; reason: LoaderFailure };
 
 const tleHistoryCache = keyedThunkCache<TleHistoryRow[]>(10 * 60_000);
 
 /** 30 天 TLE 歷史。10min TTL 快取（key=norad:days），重選同衛星不重打（失敗不留快取） */
-export function fetchTleHistory(norad: number, days = 30): Promise<TleHistoryRow[]> {
-  if (!supabaseConfigured) return Promise.resolve([]);
-  return tleHistoryCache(`${norad}:${days}`, () => fetchTleHistoryUncached(norad, days)).catch(
-    (err) => {
+export function fetchTleHistory(norad: number, days = 30): Promise<TleHistoryResult> {
+  if (!supabaseConfigured) return Promise.resolve({ ok: false, reason: "unconfigured" });
+  return tleHistoryCache(`${norad}:${days}`, () => fetchTleHistoryUncached(norad, days)).then(
+    (rows): TleHistoryResult => ({ ok: true, rows }),
+    (err): TleHistoryResult => {
       console.warn(`[satconsole] get_satellite_tle_history(${norad}) failed:`, err);
-      return [] as TleHistoryRow[];
+      return { ok: false, reason: "rpc" };
     },
   );
 }
@@ -57,7 +66,7 @@ export async function fetchTlePair(
   prevEpoch: string,
   currEpoch: string,
 ): Promise<TlePair> {
-  if (!supabaseConfigured) return { prev: null, curr: null };
+  if (!supabaseConfigured) return { prev: null, curr: null, error: "unconfigured" };
   const { data, error } = await withLoading(
     `satellite:tle-pair:${norad}`,
     `變軌前後 TLE ${norad}`,
@@ -69,12 +78,13 @@ export async function fetchTlePair(
   );
   if (error) {
     console.warn(`[satconsole] get_satellite_tle_pair(${norad}) failed:`, error.message);
-    return { prev: null, curr: null };
+    return { prev: null, curr: null, error: "rpc" };
   }
   const rows = (data ?? []) as Array<TleHistoryRow & { side: "prev" | "curr" }>;
   return {
     prev: rows.find((r) => r.side === "prev") ?? null,
     curr: rows.find((r) => r.side === "curr") ?? null,
+    error: null,
   };
 }
 
@@ -96,6 +106,10 @@ const T_INC = 0.01;       // 度
 const T_PERIOD = 0.03;    // min
 const T_ECC = 1e-5;       // 無單位
 
+function deltaOrNull(curr: number | null, prev: number | null): number | null {
+  return curr == null || prev == null ? null : curr - prev;
+}
+
 export function deriveManeuverEvents(history: TleHistoryRow[]): DerivedManeuverEvent[] {
   // history 是 DESC 排序，從舊到新比對較直觀，先反轉
   const asc = [...history].reverse();
@@ -103,54 +117,58 @@ export function deriveManeuverEvents(history: TleHistoryRow[]): DerivedManeuverE
   for (let i = 1; i < asc.length; i++) {
     const prev = asc[i - 1]!;
     const curr = asc[i]!;
-    const di = (curr.inclination ?? 0) - (prev.inclination ?? 0);
-    const dp = (curr.period_min ?? 0) - (prev.period_min ?? 0);
-    const de = (curr.eccentricity ?? 0) - (prev.eccentricity ?? 0);
-    const ai = Math.abs(di), ap = Math.abs(dp), ae = Math.abs(de);
+    // 任一端為 null 就略過該欄（不當 0 相減，否則 null→有值會變成假變軌）
+    const di = deltaOrNull(curr.inclination, prev.inclination);
+    const dp = deltaOrNull(curr.period_min, prev.period_min);
+    const de = deltaOrNull(curr.eccentricity, prev.eccentricity);
+    const ai = di == null ? 0 : Math.abs(di);
+    const ap = dp == null ? 0 : Math.abs(dp);
+    const ae = de == null ? 0 : Math.abs(de);
     if (ai < T_INC && ap < T_PERIOD && ae < T_ECC) continue;
     let type: DerivedManeuverEvent["type"] = "ALTITUDE_CHANGE";
     let detail = "";
     // 軌道面變化權重最高
-    if (ai >= T_INC && ai * 100 > ap * 0.5) {
+    if (di != null && ai >= T_INC && ai * 100 > ap * 0.5) {
       type = "PLANE_CHANGE";
       detail = `傾角 ${di > 0 ? "+" : ""}${di.toFixed(2)}°`;
-    } else if (ap >= T_PERIOD) {
+    } else if (dp != null && ap >= T_PERIOD) {
       type = "ALTITUDE_CHANGE";
       detail = `週期 ${dp > 0 ? "+" : ""}${dp.toFixed(2)} min`;
-    } else if (ae >= T_ECC) {
+    } else if (de != null && ae >= T_ECC) {
       type = "SHAPE_CHANGE";
       detail = `離心率 ${de > 0 ? "+" : ""}${de.toExponential(1)}`;
     } else {
       continue;
     }
     const date = curr.fetched_at.slice(0, 10);
-    void prev; // prev 已用於 delta 計算，這行只是讓 ts noUnusedLocals 滿意（其實沒事）
     out.push({
       date,
       type,
       detail,
-      deltaInclination: di,
-      deltaEccentricity: de,
-      deltaPeriodMin: dp,
+      deltaInclination: di ?? undefined,
+      deltaEccentricity: de ?? undefined,
+      deltaPeriodMin: dp ?? undefined,
     });
   }
   // 反轉回 DESC（最新在前）
   return out.reverse();
 }
 
-/** μ ± σ 啟發式預測：基於歷史變軌間隔的均值與標準差 */
+/** μ ± σ 啟發式預測：基於歷史變軌間隔的均值與標準差（只是依間隔推估，不是統計信心） */
 export interface PredictionStats {
   muDays: number | null;
   sigmaDays: number | null;
   nextLowDays: number | null;
   nextHighDays: number | null;
-  confidencePercent: number | null;
   sampleSize: number;
 }
 
+/** 至少要有幾個「變軌間隔」才給預測（<3 個間隔 σ 沒有意義，n=2 時 σ 恆為 0） */
+export const MIN_PREDICTION_INTERVALS = 3;
+
 export function computePrediction(events: DerivedManeuverEvent[]): PredictionStats {
-  if (events.length < 2) {
-    return { muDays: null, sigmaDays: null, nextLowDays: null, nextHighDays: null, confidencePercent: null, sampleSize: events.length };
+  if (events.length - 1 < MIN_PREDICTION_INTERVALS) {
+    return { muDays: null, sigmaDays: null, nextLowDays: null, nextHighDays: null, sampleSize: events.length };
   }
   // events 是 DESC，間隔 = 第 i 與第 i+1 的日期差
   const intervals: number[] = [];
@@ -163,14 +181,11 @@ export function computePrediction(events: DerivedManeuverEvent[]): PredictionSta
   const sigma = Math.sqrt(
     intervals.reduce((a, b) => a + (b - mu) ** 2, 0) / intervals.length,
   );
-  // 信心區間以樣本數遞增（n=2 → 40%，n=10 → 80% 上限）
-  const confidence = Math.min(80, 30 + intervals.length * 5);
   return {
     muDays: mu,
     sigmaDays: sigma,
     nextLowDays: Math.max(1, Math.round(mu - sigma)),
     nextHighDays: Math.round(mu + sigma),
-    confidencePercent: confidence,
     sampleSize: intervals.length + 1,
   };
 }

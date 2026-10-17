@@ -2,15 +2,37 @@ import { getEducationPresentationView } from './statisticsPresentationViews';
 import { getComparisonRecipe, comparisonReleaseOptions } from './comparisonStatisticsRecipes';
 import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from './socialStatisticsRecipes';
 import { withLoading } from '../lib/loadingRegistry';
+import { localeStore } from '../state/localeStore';
+import { statisticsTitle } from '../i18n/statisticsText';
 import { cachedByKey } from '../lib/loaderCache';
 import { statisticsGeometryCache, waitForGeometry, type StatisticsBoundaryGeometry } from './statisticsGeometryCache';
-import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
+import { agriReleaseOptions, getAgriRecipe, getAgriRecipeDetails, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from './statisticsRecipeDetails';
+import { getLaborRecipe, laborLocationSemantics, laborReleaseOptions, resolveLaborRelease } from './laborStatisticsRecipes';
+import { getEnvironmentRecipe, environmentReleaseOptions, resolveEnvironmentRelease } from './environmentStatisticsRecipes';
+import { getAddictionRecipe, addictionReleaseOptions, resolveAddictionRelease } from './addictionStatisticsRecipes';
+import { getLandslideRecipe, landslideReleaseOptions, resolveLandslideRelease } from './landslideStatisticsRecipes';
+import { atlasDefaultReleaseOption, atlasReleaseOptions, getAtlasRecipe, resolveAtlasRelease } from './atlasStatisticsRecipes';
+import { statisticsPeriodLabel } from './statisticsLabels';
+import { getDemographicsRecipe, demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsPeriodParts, demographicsReleaseOptions, resolveDemographicsRelease } from './demographicsStatisticsRecipes';
 
-export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2';
-export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; layerKey?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
+export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2' | 'prosecutor_district';
+export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; layerKey?: string; sourceLayerKey?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; valueTransform?: 'complement_100'; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
 export interface StatisticsCatalogItem { dataset_id: string; indicator_id: string; name: string; unit: string; levels: StatisticsLevel[] }
 export interface StatisticsRelease { release_id: string; dataset_id: string; indicator_id: string; boundary_version: string; period_start: string; period_end: string; levels?: StatisticsLevel[] }
 export interface StatisticsObservation { area_code: string; value: number | null; status: string; source_status?: string; source_token?: string; inputs?: Record<string, unknown> }
+
+export function transformStatisticsObservation(value: StatisticsObservation, transform?: StatisticsRecipe['valueTransform']): StatisticsObservation {
+  if (!transform || value.status !== 'observed' || typeof value.value !== 'number') return value;
+  if (transform === 'complement_100') {
+    return {
+      ...value,
+      value: Number((100 - value.value).toFixed(10)),
+      inputs: { ...value.inputs, source_participation_rate_pct: value.value },
+    };
+  }
+  return value;
+}
 export interface StatisticsValues { status: string; release: StatisticsRelease; area_level: StatisticsLevel; total: number; returned: number; truncated: boolean; next_offset: number | null; observations: StatisticsObservation[] }
 export type StatisticsSource = Record<string, unknown>;
 /** Sidecars describe nonnumeric source tokens; observed numbers need no invented token. */
@@ -40,6 +62,8 @@ export interface RegionalStatisticsValuesResult {
 const STATISTICS_CDN_SCHEMA = 'regional-statistics-cdn-v1';
 const DEFAULT_STATISTICS_CDN_BASE = 'https://data.itsmigu.com/statistics/v1';
 const LOCAL_STATISTICS_CDN_ROUTE = '/__statistics-cdn';
+export const STATISTICS_CDN_FETCH_TIMEOUT_MS = 12_000;
+const STATISTICS_BOUNDARY_FETCH_TIMEOUT_MS = 40_000;
 interface StatisticsCdnAsset { path: string; sha256: string; bytes: number }
 interface StatisticsCdnPointer { schema_version: string; manifest: StatisticsCdnAsset }
 interface StatisticsCdnSelector {
@@ -79,11 +103,24 @@ export function statisticsBoundaryFetchUrl(manifest: GeometryManifest, origin?: 
 }
 
 function statisticsCdnBase(recipe?: StatisticsRecipe): string {
+  const contractLayerKey = recipe?.sourceLayerKey ?? recipe?.layerKey;
   // This delivery is incremental. Only its exact registered datasets use the opt-in local origin.
-  const social = recipe?.layerKey ? getSocialRecipe(recipe.layerKey) : undefined;
+  // labor／demographics 預覽包不含村里 release（村里層讀正式 CDN），故村里 recipe 不走預覽路由。
+  const social = contractLayerKey ? getSocialRecipe(contractLayerKey) : undefined;
   if (import.meta.env.DEV && import.meta.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true'
     && social?.enabled && social.dataset_id === recipe?.datasetId) {
     return new URL('/__social-statistics-cdn', window.location.origin).href;
+  }
+  const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
+  if (import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true'
+    && labor?.enabled && labor.level !== 'village' && labor.dataset_id === recipe?.datasetId) {
+    return new URL('/__labor-statistics-cdn', window.location.origin).href;
+  }
+  // 人口統計本地預覽：analytics 合併的 demographics-statistics-preview（多個 dataset 的 incremental 交付）。
+  const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
+  if (import.meta.env.DEV && import.meta.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true'
+    && demographics?.enabled && demographics.level !== 'village' && demographics.dataset_id === recipe?.datasetId) {
+    return new URL('/__demographics-statistics-cdn', window.location.origin).href;
   }
   const configured = configuredStatisticsCdnBase();
   if (import.meta.env.DEV && configured === DEFAULT_STATISTICS_CDN_BASE) {
@@ -114,15 +151,47 @@ async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
 }
 
 async function fetchJson(url: string, expected?: StatisticsCdnAsset): Promise<unknown> {
-  const response = await fetch(url, expected ? undefined : { cache: 'no-cache' });
-  if (!response.ok) throw new Error(`Statistics CDN 回應 ${response.status}`);
-  const bytes = await response.arrayBuffer();
-  if (expected) {
-    if (!Number.isInteger(expected.bytes) || expected.bytes < 2 || bytes.byteLength !== expected.bytes) throw new Error('Statistics CDN artifact 大小不符');
-    if (!/^[0-9a-f]{64}$/.test(expected.sha256) || await sha256Hex(bytes) !== expected.sha256) throw new Error('Statistics CDN artifact SHA-256 不符');
+  // This signal belongs to the shared immutable cache entry, never an
+  // individual caller. A caller may stop waiting via waitForGeometry without
+  // cancelling a fetch another caller is already sharing.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), STATISTICS_CDN_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { ...(expected ? {} : { cache: 'no-cache' }), signal: controller.signal });
+    if (!response.ok) throw new Error(`Statistics CDN 回應 ${response.status}`);
+    const bytes = await response.arrayBuffer();
+    if (expected) {
+      if (!Number.isInteger(expected.bytes) || expected.bytes < 2 || bytes.byteLength !== expected.bytes) throw new Error('Statistics CDN artifact 大小不符');
+      if (!/^[0-9a-f]{64}$/.test(expected.sha256) || await sha256Hex(bytes) !== expected.sha256) throw new Error('Statistics CDN artifact SHA-256 不符');
+    }
+    try { return JSON.parse(new TextDecoder().decode(bytes)); }
+    catch { throw new Error('Statistics CDN JSON 格式不符'); }
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('Statistics CDN 載入逾時');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-  try { return JSON.parse(new TextDecoder().decode(bytes)); }
-  catch { throw new Error('Statistics CDN JSON 格式不符'); }
+}
+
+async function fetchBoundaryBytes(url: string): Promise<ArrayBuffer> {
+  // The geometry cache is shared just like CDN metadata.  Do not use a
+  // caller's signal here: waitForGeometry lets that caller leave while a
+  // concurrent render can still consume the one validated boundary read.
+  const controller = new AbortController();
+  // Township reference geometry is a verified 45 MB immutable asset. It needs
+  // a longer, still bounded budget than manifest and release metadata.
+  const timeout = setTimeout(() => controller.abort(), STATISTICS_BOUNDARY_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
+    return await response.arrayBuffer();
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('Statistics CDN 載入逾時');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 const loadCdnManifestCached = cachedByKey<StatisticsCdnManifest>(async base => {
@@ -224,8 +293,9 @@ async function previewRequest<T>(route: string, query: Record<string, unknown>, 
 }
 
 async function request<T>(route: string, query: Record<string, unknown>, signal?: AbortSignal, recipe?: StatisticsRecipe): Promise<T> {
-  const agri = recipe?.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
-  if (agriPreviewEnabled() && agri) return previewRequest<T>(route, query, recipe!, agri, signal);
+  // Preview needs the exact release_options; resolveStatisticsRecipe has already awaited the details.
+  const agri = agriPreviewEnabled() && recipe?.layerKey ? getAgriRecipeDetails(recipe.layerKey) : undefined;
+  if (agri) return previewRequest<T>(route, query, recipe!, agri, signal);
   const base = statisticsCdnBase(recipe);
   const manifest = await cdnManifest(base, signal);
   if (route === 'catalog') return manifest.catalog as T;
@@ -263,6 +333,10 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     if (!base || recipe.dimensions?.education_stage !== view.stage) throw new Error('教育學制或指標不符固定入口');
     recipe = {...recipe, layerKey: base.layerKey};
   }
+  // PF-7/PF-10: agri/social exact selectors live in that family's lazily imported recipe details (registered in loadingRegistry).
+  const detailsKey = recipe.sourceLayerKey ?? recipe.layerKey;
+  const detailsFamily = !detailsKey ? null : getAgriRecipe(detailsKey) ? 'agri' : getSocialRecipe(detailsKey) ? 'social' : null;
+  if (detailsFamily) await ensureStatisticsRecipeDetails(detailsFamily);
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
       request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, signal, recipe),
@@ -271,28 +345,44 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     const { releases } = releasesResponse;
     if (!Array.isArray(catalog) || !Array.isArray(releases)) throw new Error('統計目錄格式不符');
     let effectiveRecipe = recipe;
-    const social = recipe.layerKey ? getSocialRecipe(recipe.layerKey) : undefined;
-    const agri = recipe.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
+    const contractLayerKey = recipe.sourceLayerKey ?? recipe.layerKey;
+    const social = contractLayerKey ? getSocialRecipe(contractLayerKey) : undefined;
+    const agri = contractLayerKey ? getAgriRecipeDetails(contractLayerKey) : undefined;
+    const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
+    const environment = contractLayerKey ? getEnvironmentRecipe(contractLayerKey) : undefined;
+    const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
+    const addiction = contractLayerKey ? getAddictionRecipe(contractLayerKey) : undefined;
+    const landslide = contractLayerKey ? getLandslideRecipe(contractLayerKey) : undefined;
+    const atlas = contractLayerKey ? getAtlasRecipe(contractLayerKey) : undefined;
     const compatibleReleases = () => releases
       .filter(item => !item.levels || item.levels.includes(recipe.level))
       .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
       .filter((item): item is { release: StatisticsRelease; dimensions: Record<string, unknown> } => item.dimensions !== null)
       .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
     let release: StatisticsRelease | undefined;
-    if (!recipe.releaseId && (agri || social)) {
-      const option = (social ? socialReleaseOptions : agriReleaseOptions)(recipe.layerKey!, releases)[0];
+    if (!recipe.releaseId && (agri || social || labor || environment || demographics || addiction || landslide || atlas)) {
+      const options = social ? socialReleaseOptions(contractLayerKey!, releases)
+        : agri ? agriReleaseOptions(contractLayerKey!, releases)
+          : labor ? laborReleaseOptions(contractLayerKey!, releases)
+            : demographics ? demographicsReleaseOptions(contractLayerKey!, releases)
+              : addiction ? addictionReleaseOptions(contractLayerKey!, releases)
+                : landslide ? landslideReleaseOptions(contractLayerKey!, releases)
+                  : atlas ? atlasReleaseOptions(contractLayerKey!, releases)
+                    : environmentReleaseOptions(contractLayerKey!, releases);
+      // atlas（含治安）：預設期別依 recipe default_release_id（治安＝最新全年，不是排第一的部分期別）。
+      const option = atlas ? atlasDefaultReleaseOption(contractLayerKey!, options) : options[0];
       if (!option) throw new Error('統計尚無已公開且通過交付白名單的期別');
       release = releases.find(item => item.release_id === option.releaseId);
       effectiveRecipe = { ...recipe, releaseId: option.releaseId, dimensions: option.dimensions, allowReleaseFallback: false };
     } else release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
-    if (!agri && !social && !recipe.releaseId && recipe.releaseFallback) {
+    if (!agri && !social && !labor && !environment && !demographics && !addiction && !landslide && !atlas && !recipe.releaseId && recipe.releaseFallback) {
       const requested = recipe.dimensions ?? {};
       const matched = compatibleReleases().find(candidate => Object.entries(requested).every(([key, value]) => candidate.dimensions[key] === value));
       if (!matched) throw new Error('指定統計維度尚未公開或已撤回，請重新選擇');
       release = matched.release;
       effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: matched.dimensions, allowReleaseFallback: false };
     }
-    if (!social && !agri && !release && recipe.releaseId && recipe.allowReleaseFallback) {
+    if (!social && !agri && !labor && !environment && !demographics && !addiction && !landslide && !atlas && !release && recipe.releaseId && recipe.allowReleaseFallback) {
       const fallback = compatibleReleases()[0];
       if (!fallback) throw new Error('預設統計期別已撤回，且沒有相容的公開期別可使用');
       release = fallback.release;
@@ -306,12 +396,19 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
       const option = comparisonReleaseOptions(recipe.layerKey!, releases).find(o => o.releaseId === release!.release_id && sameDimensions(o.dimensions, effectiveRecipe.dimensions ?? {}));
       if (!option || indicator.unit !== comparison.unit || comparison.dataset_id !== recipe.datasetId || comparison.indicator_id !== recipe.indicatorId || comparison.level !== recipe.level) throw new Error('比較統計未命中已驗證期別或單位');
     }
-    if (agri || social) {
-      const configured = social ?? agri;
+    if (agri || social || labor || environment || demographics || addiction || landslide || atlas) {
+      const configured = social ?? agri ?? labor ?? environment ?? demographics ?? addiction ?? landslide ?? atlas;
       if (!configured) throw new Error('統計 recipe 與正式發布契約不符');
       if (!configured.enabled || configured.dataset_id !== recipe.datasetId || configured.indicator_id !== recipe.indicatorId || configured.level !== recipe.level || configured.boundary_version !== release.boundary_version) throw new Error('統計 recipe 與正式發布契約不符');
       if (indicator.unit !== configured.unit) throw new Error('統計單位與已驗證 recipe 不符');
-      const resolved = (social ? resolveSocialRelease : resolveAgriRelease)(recipe.layerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
+      const resolved = social ? resolveSocialRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+        : agri ? resolveAgriRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+          : labor ? resolveLaborRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+            : demographics ? resolveDemographicsRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+              : addiction ? resolveAddictionRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+                : landslide ? resolveLandslideRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+                  : atlas ? resolveAtlasRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>)
+                    : resolveEnvironmentRelease(contractLayerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
       if (!resolved) throw new Error('統計期別或維度不在已驗證白名單中');
       effectiveRecipe = { ...effectiveRecipe, releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false };
     }
@@ -332,7 +429,9 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
     const [{ first, observations }, geometryResult, sourceResponse, health] = await Promise.all([
       (async () => {
         const first = await request<StatisticsValues>('values', query, signal, recipe);
-        return { first, observations: validateStatisticsValues(first, release, recipe) };
+        const observations = validateStatisticsValues(first, release, recipe)
+          .map(value => transformStatisticsObservation(value, effectiveRecipe.valueTransform));
+        return { first, observations };
       })(),
       (async () => {
         const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, signal, recipe);
@@ -340,9 +439,7 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
         if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
         if (!includeBoundary) return { geometryManifest };
         const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
-          const response = await fetch(statisticsBoundaryFetchUrl(geometryManifest, globalThis.location?.origin));
-          if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
-          return response.arrayBuffer();
+          return fetchBoundaryBytes(statisticsBoundaryFetchUrl(geometryManifest, globalThis.location?.origin));
         }), signal);
         return { geometryManifest, boundary };
       })(),
@@ -363,25 +460,46 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
     return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest: geometryResult.geometryManifest, boundary: geometryResult.boundary };
 }
 
+/** 載入列的標籤：顯示當下語系（載入任務建立時決定）；中文介面與原本相同。 */
+function loadingLabel(recipe: StatisticsRecipe, kind: 'values' | 'statistics'): string {
+  const i18n = localeStore.getSnapshot();
+  if (recipe.label) return recipe.layerKey ? statisticsTitle(recipe.layerKey, recipe.label, i18n) : recipe.label;
+  return i18n.t(kind === 'values' ? 'dataSources.loadingLabel.values' : 'dataSources.loadingLabel.statistics');
+}
+
 export async function loadRegionalStatisticsValues(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsValuesResult> {
-  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計數值', loadStatisticsValuesResult(recipe, signal));
+  // Caller cancellation (superseded selection / unmount) ends the task without flagging 載入失敗.
+  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, loadingLabel(recipe, 'values'), loadStatisticsValuesResult(recipe, signal), { signal });
 }
 
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
   const renderKey = recipe.layerKey;
-  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
+  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, loadingLabel(recipe, 'statistics'), (async () => {
     const result = await loadStatisticsValuesResult(recipe, signal, true);
     const { catalog, releases, values: first, sources, health, effectiveRecipe, geometryManifest, boundary } = result;
     const { release } = first;
-    const comparison = effectiveRecipe.layerKey ? getComparisonRecipe(effectiveRecipe.layerKey) : undefined;
-    const social = effectiveRecipe.layerKey ? getSocialRecipe(effectiveRecipe.layerKey) : undefined;
-    const agri = effectiveRecipe.layerKey ? getAgriRecipe(effectiveRecipe.layerKey) : undefined;
+    const contractLayerKey = effectiveRecipe.sourceLayerKey ?? effectiveRecipe.layerKey;
+    const comparison = contractLayerKey ? getComparisonRecipe(contractLayerKey) : undefined;
+    const social = contractLayerKey ? getSocialRecipe(contractLayerKey) : undefined;
+    const agri = contractLayerKey ? getAgriRecipe(contractLayerKey) : undefined;
+    const labor = contractLayerKey ? getLaborRecipe(contractLayerKey) : undefined;
+    const environment = contractLayerKey ? getEnvironmentRecipe(contractLayerKey) : undefined;
+    const demographics = contractLayerKey ? getDemographicsRecipe(contractLayerKey) : undefined;
+    const addiction = contractLayerKey ? getAddictionRecipe(contractLayerKey) : undefined;
+    const landslide = contractLayerKey ? getLandslideRecipe(contractLayerKey) : undefined;
+    const atlas = contractLayerKey ? getAtlasRecipe(contractLayerKey) : undefined;
     const sourceResponse = { source: sources };
     const observations = first.observations;
     if (!boundary) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
     const indicator = catalog.find(item => item.dataset_id === recipe.datasetId && item.indicator_id === recipe.indicatorId);
     if (!indicator) throw new Error('此指標不提供指定地理層級');
     const byCode = new Map(observations.map(value => [value.area_code, value]));
+    const coverage = health?.coverage;
+    const notCoveredAreaCodes = new Set(Array.isArray(coverage?.not_covered_area_codes)
+      ? coverage.not_covered_area_codes.filter((code): code is string => typeof code === 'string')
+      : []);
+    const processingParameters = ((sourceResponse.source.provenance as Record<string, unknown> | undefined)?.processing as Record<string, unknown> | undefined)?.parameters as Record<string, unknown> | undefined;
+    const sourceMissingReason = typeof processingParameters?.missing_reason === 'string' ? processingParameters.missing_reason : undefined;
     const geometryCodes = new Set<string>();
     const features = boundary.features.map(feature => {
       const code = feature.properties?.area_code;
@@ -390,9 +508,13 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       const value = byCode.get(code);
       const derivation = sourceResponse.source.derivation as Record<string, unknown> | undefined;
       const processing = sourceResponse.source.processing_summary as Record<string, unknown> | undefined;
-      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, inputs: value?.inputs, indicator_name: comparison?.label ?? social?.label ?? indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, comparison_formula: derivation?.formula ?? processing?.formula, interpretation: derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
+      const missingReason = !labor || value?.status === 'observed' ? undefined
+        : notCoveredAreaCodes.has(code) ? 'source_not_covered'
+          : sourceMissingReason ?? 'source_join_or_time_mismatch';
+      const transformed = effectiveRecipe.valueTransform === 'complement_100';
+      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, missing_reason: missingReason, inputs: value?.inputs, indicator_name: effectiveRecipe.label ?? comparison?.label ?? social?.label ?? labor?.label ?? environment?.label ?? demographics?.label ?? addiction?.label ?? landslide?.label ?? atlas?.label ?? indicator.name, unit: indicator.unit, format: agri?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, disclosure: environment?.disclosure ?? addiction?.disclosure ?? landslide?.disclosure ?? atlas?.disclosure ?? (demographics ? [demographicsDisclosure(demographics), demographicsIndicatorNote(demographics)].filter(Boolean).join(' ') : undefined), release_id: release.release_id, period_label: demographics ? demographicsPeriodLabel(contractLayerKey!, release) ?? statisticsPeriodLabel(release) : `${release.period_start} — ${release.period_end}`, period_start: demographics || atlas ? release.period_start : undefined, period_end: demographics || atlas ? release.period_end : undefined, period_ytd: demographics ? demographicsPeriodParts(contractLayerKey!, release) : undefined, boundary_version: release.boundary_version, boundary_semantics: labor?.boundary_semantics ?? demographics?.boundary_semantics, location_semantics: labor ? laborLocationSemantics(labor) : environment?.location_semantics ?? demographics?.location_semantics ?? addiction?.location_semantics ?? landslide?.location_semantics ?? atlas?.location_semantics, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, coverage_numerator: health?.coverage_numerator, coverage_denominator: health?.coverage_denominator, value_transform: effectiveRecipe.valueTransform, comparison_formula: transformed ? '100% − 勞動力參與率' : derivation?.formula ?? processing?.formula ?? (demographics && typeof processingParameters?.formula === 'string' && processingParameters.formula !== demographicsDisclosure(demographics) ? processingParameters.formula : undefined), interpretation: transformed ? '非勞動力率占同一期人力資源調查 15 歲以上民間人口的比例。' : derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
     return { catalog, releases, values: first, sources: sourceResponse.source, health, effectiveRecipe: { ...effectiveRecipe, layerKey: renderKey ?? effectiveRecipe.layerKey }, geometryManifest, features };
-  })());
+  })(), { signal });
 }

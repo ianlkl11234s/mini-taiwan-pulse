@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import {
-  createSubstationEhvGlowLayer,
   SUBSTATION_EHV_GLOW_LAYER_ID,
-} from "../map/substationEhvGlowCustomLayer";
+  substationEhvGlowModule,
+  mountLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 import {
   fetchOsmSubstations,
   type OsmSubstation,
@@ -33,15 +34,13 @@ export function useSubstationEhvGlowLayer(
     const tryMount = () => {
       if (map.getLayer(SUBSTATION_EHV_GLOW_LAYER_ID)) return;
       try {
-        map.addLayer(
-          createSubstationEhvGlowLayer({
-            getIsVisible: () => visibleRef.current,
-            getOpacity: () => opacityRef.current,
-            getSizeMul: () => sizeMulRef.current,
-            getSubstations: () => rowsRef.current,
-          }),
-        );
-        console.log("[SubstationEhvGlow] mounted ✓");
+        // C1b：three 模組第一次可見才載入；錨點佔住原位置
+        mountLazyCustomLayer(map, SUBSTATION_EHV_GLOW_LAYER_ID, substationEhvGlowModule, (m) => m.createSubstationEhvGlowLayer({
+          getIsVisible: () => visibleRef.current,
+          getOpacity: () => opacityRef.current,
+          getSizeMul: () => sizeMulRef.current,
+          getSubstations: () => rowsRef.current,
+        }), () => visibleRef.current);
       } catch (e) {
         console.log("[SubstationEhvGlow] addLayer 失敗 → idle 後重試", e);
         map.once("idle", tryMount);

@@ -16,6 +16,8 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * 共機活動區 timeline 圖層（依日期回放 + 多日疊加）
@@ -126,10 +128,10 @@ function buildLayers(map: MapboxMap, opacity: number, trailDays: number): boolea
       id: FILL_ID,
       type: "fill",
       source: SOURCE_ID,
-      paint: {
+      paint: hookFillPaint("plaActivity", FILL_ID, {
         "fill-color": ["get", "kind_color"] as unknown as ExpressionSpecification,
         "fill-opacity": fillOpacityExpr(opacity, trailDays),
-      },
+      }, { "fill-color": ["get", "kind_color"] as unknown as ExpressionSpecification, "fill-opacity": fillOpacityExpr(0.7, 7) }),
     } as FillLayer);
   }
 
@@ -138,13 +140,13 @@ function buildLayers(map: MapboxMap, opacity: number, trailDays: number): boolea
       id: LINE_ID,
       type: "line",
       source: SOURCE_ID,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("plaActivity", LINE_ID),
+      paint: hookLinePaint("plaActivity", LINE_ID, {
         "line-color": ["get", "kind_color"] as unknown as ExpressionSpecification,
         "line-width": lineWidth(trailDays),
         "line-opacity": lineOpacityExpr(opacity, trailDays),
         "line-dasharray": LINE_DASH,
-      },
+      }, { "line-color": ["get", "kind_color"] as unknown as ExpressionSpecification, "line-width": lineWidth(7), "line-opacity": lineOpacityExpr(0.7, 7), "line-dasharray": LINE_DASH }),
     } as LineLayer);
   }
 
@@ -176,7 +178,6 @@ export function usePlaActivityLayer(
   const fetchingRef = useRef<string>("");
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
-  const rafRef = useRef<number>(0);
   const appliedThreshRef = useRef<number>(-1);
 
   const writeCache = useCallback((key: string, data: PlaTrack[]) => {
@@ -338,7 +339,8 @@ export function usePlaActivityLayer(
     }
 
     let start = 0;
-    const tick = (now: number) => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；進度以時間計算，掃描速度不受節流影響
+    const stop = startThrottledRaf((now) => {
       if (!start) start = now;
       const elapsed = (now - start) / 1000;
       if (elapsed > SWEEP_SECONDS + HOLD_SECONDS) {
@@ -347,11 +349,9 @@ export function usePlaActivityLayer(
       // 掃描期由舊到新遞減；停留期維持 0（完整疊圖）
       const p = Math.min(elapsed / SWEEP_SECONDS, 1);
       applyThresh(map, Math.round(maxThresh * (1 - p)));
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
+    });
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      stop();
       // 停止回放後不要留在半截狀態
       try { if (map.getLayer(FILL_ID)) applyThresh(map, 0); } catch { /* map 可能已銷毀 */ }
     };

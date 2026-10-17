@@ -1,0 +1,95 @@
+{
+  "audit_version": 1,
+  "audit_date": "2026-09-26",
+  "scope": {
+    "dataset_id": "power_poles",
+    "profile": "local_read_only_source_audit",
+    "raw_directory": "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/raw/energy/power_poles",
+    "processed_directory": "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/energy/power_poles",
+    "method": "CSV and GeoJSON FeatureCollection files were read sequentially; SHA-256 used 1 MiB blocks. No network, database, release, or deployment access."
+  },
+  "field_definitions": {
+    "raw": ["bytes", "sha256", "csv_data_rows", "pole_id_blank_or_null (pipeline-equivalent pandas read_csv dtype=str, fillna, strip)", "twd97_coordinate_valid_by_pipeline_rule", "twd97_coordinate_invalid_or_missing"],
+    "processed": ["bytes", "sha256", "geojson_features", "pole_id_blank_or_null", "Point_features", "non_Point_features", "missing_or_null_geometry", "invalid_WGS84_Point_coordinates", "WGS84_bbox_minLon_minLat_maxLon_maxLat"],
+    "comparison": "For every listed city, raw rows = processed features = manifest rows; processed bytes = manifest size_bytes."
+  },
+  "manifest": {
+    "path": "data/processed/energy/power_poles/_manifest.json",
+    "sha256": "a8e4522ec780c6b96929bb73e7398b362221b2c58fcc7384812c4e638aa09eed",
+    "declared_files": 22,
+    "declared_rows": 2959326,
+    "declared_bytes": 1069885871,
+    "comparison_result": "MATCH: all 22 files' manifest rows and bytes match locally observed processed files."
+  },
+  "totals": {
+    "raw_files": 22,
+    "raw_bytes": 315389236,
+    "raw_rows": 2959326,
+    "raw_blank_or_null_pole_id": 616007,
+    "raw_twd97_coordinate_valid_by_pipeline_rule": 2959326,
+    "raw_twd97_coordinate_invalid_or_missing": 0,
+    "processed_files": 22,
+    "processed_bytes": 1069885871,
+    "processed_features": 2959326,
+    "processed_blank_or_null_pole_id": 616007,
+    "processed_geometry": {"Point": 2959326, "non_Point": 0, "missing_or_null": 0, "invalid_WGS84_Point_coordinates": 0},
+    "raw_to_processed_blank_pole_id_delta": 0,
+    "interpretation": "The initial CSV parser counted 36 fewer raw blanks, all in Changhua_County. Pipeline-equivalent pandas read_csv(dtype=str).fillna('') counts 14,306 Changhua blanks and 616,007 nationwide, matching processed. This corrects the audit definition; no conversion-added blanks are established."
+  },
+  "files": {
+    "Changhua_County": {"raw":[28276139,"42171a0a85904385cb0a67389fbcc4c5852e8893cf3b3a14aaec91711abd2fd1",251103,14306,251103,0],"processed":[92660246,"4dadad7b41ebaadf81a50be0a746debde2c5152780df30507ff90e5d4494d023",251103,14306,251103,0,0,0,[120.26868439206248,23.427917401889786,120.97274102411983,24.18892033260706]]},
+    "Chiayi_City": {"raw":[1097981,"4e876f2eaa3b66bfe93e2628ad63988c8c79ad899033d8fb4c38ff8538516ce8",11087,4811,11087,0],"processed":[3896593,"27265060e631b5dddf16aab59df6c7f21fe5ef841e3e5eef4d74f92a60d3c8e6",11087,4811,11087,0,0,0,[120.25189670290038,23.437708035077875,120.69041842040734,23.518353920942044]]},
+    "Chiayi_County": {"raw":[21636574,"853df3ad290a828ba73023b686175adbf9f35d8da76cf2bedd2c12fdcc747d8f",208002,61430,208002,0],"processed":[74552660,"8c28c0c9fe4b0b40c103a3c0ed76e9f653d92a22bc6b0636c93d36170cb15ba8",208002,61430,208002,0,0,0,[120.11927562632657,23.04969321728828,120.8303977022547,24.90106745113261]]},
+    "Hsinchu_City": {"raw":[2145162,"5f66d616e6822cefe79b63f0a0e0830625aee710173eb0d0fc2c50f6bce486c8",20596,5932,20596,0],"processed":[7360686,"fb7050a9d52b9d270065c86dfff1d7d1f1b9975c399d3178da10e01da47b924d",20596,5932,20596,0,0,0,[120.88067336386945,24.667882767583254,121.23089032617048,24.848801504156413]]},
+    "Hsinchu_County": {"raw":[12338015,"bfc7f4d23f8604e1ab6b272cbdf323142ec4da4543096aab1e9ebcf6d159add5",115313,26318,115313,0],"processed":[41847858,"3b7106a720d23c7943023e458f502d0b50d774f96d1adcb5a1f7c95ee4cc440f",115313,26318,115313,0,0,0,[120.93587616136192,24.497882282661497,121.3696196666502,25.030700648371205]]},
+    "Hualien_County": {"raw":[12830988,"aabc18eca843215b4d073a0a1df09a8983342d9dc0b4022b13f926999e4e3f69",118327,17990,118327,0],"processed":[43259746,"3858b69191d060b28cb9ab7d97f48c8c7eef457293194efccd0ccbec70a577a8",118327,17990,118327,0,0,0,[121.21157364455523,23.09856707975472,121.76980924809796,24.339648468695625]]},
+    "Kaohsiung_City": {"raw":[25999036,"1a16df3fc89574f2ef9730de1e3204c6f2d682823367db06507dd4709f7899e0",243535,30179,243535,0],"processed":[88189237,"d83ba9f11141e56b355ddd9a50be24b9d63120c229b6ecc2b363e41fc6a6e5fd",243535,30179,243535,0,0,0,[120.17679885528496,22.475328178800222,120.92784092739669,23.54537211301551]]},
+    "Keelung_City": {"raw":[1775941,"efad32830608c07cbc35a1ebd0aa2565d5608eb4faa3fe74d42210c26dad9a07",15742,772,15742,0],"processed":[5792387,"9e0d53154cb661451eef506da0c5cac74679bf548544eb2479915045658504a8",15742,772,15742,0,0,0,[121.63340456932337,25.06229524001346,121.80304981888378,25.17957062324218]]},
+    "Kinmen_County": {"raw":[1726068,"f136c2efb13f2c84524fe81c31c4d0936000f76bc681ea32dbcd0e72c899383d",17482,11715,17482,0],"processed":[6173511,"72e30898989759dcc753a162956e77893cd3c5ee8cc8542791c701408e9217db",17482,11715,17482,0,0,0,[120.21299836588177,24.38966600304636,120.47157537697545,24.528478973042798]]},
+    "Lienchiang_County": {"raw":[119320,"2b389adde8c22cf96cabc75bf5b13bec3cc80d91badd623e87b4f2306cab9cc3",1093,211,1093,0],"processed":[403702,"18de6927d309db427b1898d28b046191120029d98a5f3bcbc64da55ca268a43d",1093,211,1093,0,0,0,[121.91101561053644,25.95516390497434,122.5083300736506,26.37654084970048]]},
+    "Miaoli_County": {"raw":[15567128,"4c08c6f3b96edf07507dd731ff4cd8b31285bf83bd56d14c2c567255766e1f3b",150422,46240,150422,0],"processed":[53832199,"a3a960963d82771c7c62fb1285b5dcbff041c4c7b12696df6c5eee645ebce629",150422,46240,150422,0,0,0,[120.62738944816937,24.289342396635263,121.14525187841203,24.870314707233]]},
+    "Nantou_County": {"raw":[20610063,"3baaeb498cb8aeb6dc65a42da5e842a5ca877f514e53487f10907bfffa5d899c",189302,9454,189302,0],"processed":[68788691,"0a4e7e7548ff805a0f9a520739c13e48d71510651225287202d05a2b42d710f5",189302,9454,189302,0,0,0,[120.38318007789837,23.482118342989125,121.308869575445,24.245865708916927]]},
+    "New_Taipei_City": {"raw":[18515483,"111cf1abdbc7c94ad7fba534aea8453667a1a6bbdced8baac4d49fa6356d5afb",166525,5907,166525,0],"processed":[61501556,"b84540a37651f013f494cc355cab669b42c03caca6030d270e024157b7ef364e",166525,5907,166525,0,0,0,[121.19943482704713,24.77422915287888,122.00482064303105,25.298038970420475]]},
+    "Penghu_County": {"raw":[927010,"a3ca5d19cb74008cd8a4f4dfd4f35c78c790a0905727f6af5e7c1a27bbb94e63",9840,9239,9840,0],"processed":[3447360,"7e2185fcc2c9d4cdee0c4c39f29eabcfa7f62373eecf5e788714702d4804cbb7",9840,9239,9840,0,0,0,[121.41181854656867,23.18970166189785,121.69212483076649,23.747177968126625]]},
+    "Pingtung_County": {"raw":[23479954,"99c496b6516c125754a6035c0dafdc25817fd1f73cd63e1789bc4cbf5cd786f8",228031,88928,228031,0],"processed":[81944130,"bc1e4f6969c75042ff58a65fde6feda7baeb952ebae5c34b4e101e6703658d73",228031,88928,228031,0,0,0,[120.27293457018335,21.710318076851955,139.99280399130055,22.883231587502607]]},
+    "Taichung_City": {"raw":[24005653,"b166765d2b231070ab857ff1809cce9cf9f78ccc1266aa98dfabc42298aed7f2",241963,137257,241963,0],"processed":[85570190,"82dbd0a5651c275b19754c35260d871401a0f71f1fac765107520d5a9555c24e",241963,137257,241963,0,0,0,[120.47339058392848,23.643073300263307,121.34774689691298,24.43767285995169]]},
+    "Tainan_City": {"raw":[37518831,"b9e7288702ce8bc236ca9fbe25575ca6990be9602a1db6fced683542e60a5edb",339910,4760,339910,0],"processed":[123309654,"4eebb7055d30905c225fd8aff0dec300548deda134f42e90853e1f9cd2d5c8df",339910,4760,339910,0,0,0,[120.03592192229912,22.890095186454495,120.64519209580429,23.61949682363053]]},
+    "Taipei_City": {"raw":[2897088,"ef88caee41b182826ea13a43d69c1f5465b29d0d1f6627d29be98188ca280555",28831,10106,28831,0],"processed":[10222074,"07799a90dbae4157eba8692e71fd4ccd10cf772a462efc5f05c1a0f455cf8cc1",28831,10106,28831,0,0,0,[121.46194156070364,24.963021830833842,121.66597422249649,25.243440612679915]]},
+    "Taitung_County": {"raw":[9232334,"1e8a3bf4f79c07b56b866760643e681cfaee3f88c68a64c4c04d2bc57533a889",85680,20402,85680,0],"processed":[31196332,"a1875e1efc31f8b53536973d6ce89359768049e0ff56db4c55c9f8d778c975e4",85680,20402,85680,0,0,0,[120.21976685581403,14.350956328012149,135.83262103208057,23.434970493243547]]},
+    "Taoyuan_City": {"raw":[20908483,"f99464290a5a143b2e07c74fc58d99b7267b04addbc619828398130fbe43800e",187129,752,187129,0],"processed":[68607114,"0959b821723bf020ef46d00fbb653cb5c0e919b2abda6dc4a7d2fcd696e074a8",187129,752,187129,0,0,0,[120.98734925551283,23.38153764233941,140.3564187869875,25.118947560050763]]},
+    "Yilan_County": {"raw":[8111412,"e2a3ebc9150a7e99636b1a719b9e0bafabf8fb4faec79ec949131b2e72f7e9c2",80681,23661,80681,0],"processed":[28382826,"8969798d7ae89cdc796f031b480701c7f88236657dd787f84dfbe56006f06d94",80681,23661,80681,0,0,0,[121.35223221475614,24.32290124277413,121.95650334516212,24.984307271088312]]},
+    "Yunlin_County": {"raw":[25670573,"da1836ba3b69920f6cd624df724f75d5a6891dc3bd79df663b0c802747b5d416",248732,85637,248732,0],"processed":[88947119,"3fbf339ec393f3bbb864f937cdb369dc4e4b6d654b4a05ba8412ee59dd3fd3f5",248732,85637,248732,0,0,0,[120.13688027383773,23.50727076938985,120.73585602758166,23.909108221413756]]}
+  },
+  "coverage_and_geometry_findings": {
+    "manifest_and_local_files": "All 22 include three offshore county partitions: Penghu_County (9,840), Kinmen_County (17,482), and Lienchiang_County (1,093), total 28,415 features.",
+    "documentation_conflict": "docs/data-catalog/energy/power_poles.md, docs/data-registry.yaml, and data-sources.md state that d077010 has no Penghu/Kinmen/Lienchiang endpoints and require island_power_grid. That statement conflicts with the local raw files, processed files, and manifest; source endpoint/version provenance must be resolved before claiming either coverage condition.",
+    "geometry_shape": "All 2,959,326 processed features are syntactically valid WGS84 Point coordinates; this does not establish geographic correctness.",
+    "coordinate_validity_and_outlier_policy": "The pipeline only accepted raw TWD97 coordinates where X > 100000 and Y > 1000000; it did not apply an upper bound or a Taiwan/county geographic containment check. This audit reports syntactic WGS84 validity and per-file bbox only, retains every feature, and does not recode outliers as missing or successful coverage.",
+    "geographic_outlier_bboxes": [
+      {"city":"Pingtung_County","bbox":[120.27293457018335,21.710318076851955,139.99280399130055,22.883231587502607],"issue":"max longitude 139.99 is outside Taiwan."},
+      {"city":"Taitung_County","bbox":[120.21976685581403,14.350956328012149,135.83262103208057,23.434970493243547],"issue":"min latitude 14.35 and max longitude 135.83 are outside Taiwan."},
+      {"city":"Taoyuan_City","bbox":[120.98734925551283,23.38153764233941,140.3564187869875,25.118947560050763],"issue":"min latitude 23.38 and max longitude 140.36 extend outside plausible city coverage."}
+    ],
+    "geographic_outlier_count": {"policy":"118.0 <= longitude <= 123.5 and 20.5 <= latitude <= 26.5, including offshore islands", "total":3, "Pingtung_County":1, "Taitung_County":1, "Taoyuan_City":1},
+    "hold": "Do not use this audit as an analytics-reader eligibility approval. Three geographically implausible WGS84 Points need raw-coordinate lineage checks; offshore source contract and PMTiles build provenance remain unresolved."
+  },
+  "display_pmtiles": {
+    "path": "public/coverage/power_poles.pmtiles",
+    "bytes": 27077927,
+    "sha256": "7e74c1a757357e7cee0a4f65e97fa170d15c8966d00c369b6ef79bc499ed282e",
+    "local_dist_copy_sha256": "7e74c1a757357e7cee0a4f65e97fa170d15c8966d00c369b6ef79bc499ed282e",
+    "declared_build_command": "scripts/build_power_poles_pmtiles.sh declares tippecanoe clustering/drop-densest settings.",
+    "equivalence_proven": false,
+    "equivalence_reason": "No checked build receipt binds this PMTiles SHA to the 22 processed GeoJSON SHA set, manifest SHA, source version, or exact input list. Cluster/drop behavior also prevents using display tile feature counts as raw-record counts."
+  },
+  "source_contract_evidence": {
+    "source": "Taiwan Power Company d077010",
+    "source_url_recorded_in_manifest": "https://service.taipower.com.tw/data/opendata/apply/file/d077010/",
+    "license_recorded_in_catalog": "OGDL-Taiwan-1.0",
+    "snapshot_or_last_updated_recorded": "2026-06-15",
+    "raw_crs_recorded": "EPSG:3826",
+    "processed_crs_recorded": "EPSG:4326",
+    "limitations": "These are local documentation and manifest claims only. This audit did not contact the upstream endpoint, verify current license text, or obtain a signed download receipt."
+  },
+  "result": "PARTIAL_HOLD: local artifact integrity, per-file count, null, and geometry-shape checks are complete; geographical correctness, offshore source-contract conflict, and PMTiles provenance remain unresolved."
+}

@@ -2,13 +2,19 @@ import { searchScore } from "./researchSearch";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
 import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
 import { ALL_PRESETS } from "../map/cameraPresets";
+import { registeredDatasetsForLayer } from "./researchDatasets";
 
 export interface DiscoveryContext {
   locked: ReadonlySet<string>;
   visible: ReadonlySet<string>;
 }
 
-export type DataReadSupport = "not_provided_in_first_phase";
+export interface DataReadSupport {
+  status: "readable" | "parameters_required" | "query_unavailable" | "not_registered";
+  queryEnabled: boolean;
+  requiredParameters: readonly string[];
+  authorization: "public" | "owner_only" | "unknown";
+}
 
 export interface LayerDiscovery {
   key: string;
@@ -47,10 +53,18 @@ export interface PlaceCandidate {
 
 const DEFAULT_CONTEXT: DiscoveryContext = { locked: new Set(), visible: new Set() };
 
-/** This phase describes map registrations only; it never claims payload-reader support. */
+/** Derived from registered dataset contracts; display registration alone never implies a reader. */
 export function dataReadSupport(layerKey: string): DataReadSupport {
-  void layerKey;
-  return "not_provided_in_first_phase";
+  const descriptors = registeredDatasetsForLayer(layerKey);
+  if (descriptors.length === 0) return { status: "not_registered", queryEnabled: false, requiredParameters: [], authorization: "unknown" };
+  const queryEnabled = descriptors.some(descriptor => descriptor.access.query.enabled);
+  const requiredParameters = [...new Set(descriptors.flatMap(descriptor => descriptor.parameters?.filter(parameter => parameter.required).map(parameter => parameter.name) ?? []))].sort();
+  return {
+    status: !queryEnabled ? "query_unavailable" : requiredParameters.length > 0 ? "parameters_required" : "readable",
+    queryEnabled,
+    requiredParameters,
+    authorization: descriptors.some(descriptor => descriptor.access.mode === "owner_only") ? "owner_only" : "public",
+  };
 }
 
 function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscovery {
@@ -65,7 +79,7 @@ function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscover
     visible: context.visible.has(key),
     dataReadSupport: dataReadSupport(key),
     displayCapability: { canOpen: entry.section !== null && !locked, basis: "manifest_registration" },
-    datasetIds: [],
+    datasetIds: registeredDatasetsForLayer(key).map(descriptor => descriptor.datasetId),
   };
 }
 

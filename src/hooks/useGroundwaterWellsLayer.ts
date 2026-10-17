@@ -3,6 +3,8 @@ import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import { fetchGroundwaterLatest, type GroundwaterLatestRow } from "../data/groundwaterLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
 
 /**
  * 地下水井靜態點位層（backdrop，48h 內有讀值的 ~733 站）
@@ -41,6 +43,8 @@ function buildFC(rows: GroundwaterLatestRow[]): GeoJSON.FeatureCollection {
   };
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("groundwaterWells", "groundwaterWellsOpacity"));
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
@@ -51,12 +55,10 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": 2.2 * scale,
+        "circle-radius": pointRadius("M", scale),
         "circle-color": isDark ? "#94a3b8" : "#64748b", // slate-400 / slate-500
         "circle-opacity": (isDark ? 0.75 : 0.6) * opacity,
-        "circle-stroke-width": 0.6,
-        "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
-        "circle-stroke-opacity": 0.8 * opacity,
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     } as CircleLayer);
   }
@@ -64,9 +66,14 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
 
 function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getLayer(LAYER_CIRCLE)) return;
-  map.setPaintProperty(LAYER_CIRCLE, "circle-radius", 2.2 * scale);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-radius", pointRadius("M", scale));
   map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
-  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.8 * opacity);
+  {
+    const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+  }
 }
 
 function setLayerVisibility(map: MapboxMap, visible: boolean) {
@@ -86,6 +93,9 @@ export function useGroundwaterWellsLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const dataLoadedRef = useRef(false);
+  // 樣式值走 ref：拖透明度／切主題只更新 paint，不取消進行中的抓資料
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
 
   useEffect(() => {
     if (!visible) return;
@@ -98,8 +108,9 @@ export function useGroundwaterWellsLayer(
     const attach = () => {
       if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
+      const st = styleRef.current;
+      ensureLayers(map, st.isDark, st.scale, st.opacity);
+      updatePaint(map, st.isDark, st.scale, st.opacity);
       setLayerVisibility(map, true);
       if (pollTimer) {
         clearInterval(pollTimer);
@@ -130,5 +141,11 @@ export function useGroundwaterWellsLayer(
       if (pollTimer) clearInterval(pollTimer);
       try { if (map.getLayer(LAYER_CIRCLE)) setLayerVisibility(map, false); } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    updatePaint(map, isDark, scale, opacity);
   }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

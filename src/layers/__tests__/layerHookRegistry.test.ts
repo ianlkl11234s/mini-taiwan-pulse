@@ -54,6 +54,12 @@ import { describe, it, expect } from "vitest";
 import { MANIFEST_KEYS } from "../../data/layerManifest";
 import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
+import { LABOR_ENABLED_STATISTICS_KEYS } from "../../data/laborStatisticsRecipes";
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../data/environmentStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../data/landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../data/atlasStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../data/demographicsStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 
@@ -111,6 +117,21 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",
   // MapView.attachRegionalStatistics handles all agri recipes as the same dynamic runtime family.
   ...AGRI_ENABLED_STATISTICS_KEYS,
+  // Labor-statistics recipes use the same MapView lifecycle adapter. They are
+  // dataset-scoped in the loader, but do not require one React hook per key.
+  ...LABOR_ENABLED_STATISTICS_KEYS,
+  // Environment-statistics recipes share the same MapView dynamic runtime.
+  ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
+  // Addiction-statistics recipes share the same MapView dynamic runtime.
+  ...ADDICTION_ENABLED_STATISTICS_KEYS,
+  // Landslide-statistics recipes share the same MapView dynamic runtime.
+  ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
+  // Atlas-statistics recipes (six families) share the same MapView dynamic runtime.
+  ...ATLAS_ENABLED_STATISTICS_KEYS,
+  // Demographics-statistics recipes share the same MapView dynamic runtime.
+  ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
+  // JmaKosaPanel：黃砂予測是圖片面板（非地圖圖層），由 App 右下浮動堆疊依 visibility 掛載
+  "jmaKosa",
 ]);
 
 // ══════════════════════════════════════════════════════════════════
@@ -126,7 +147,7 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
  * 有 hook 的 key 塞進來會紅。
  */
 const NO_HOOK_LEDGER = new Set<string>([
-  "osmBridgeCarriers", "osmBridgeFootprints", "officialBridgesNewTaipei", "bridgeComparisonNewTaipei", // 純 PMTiles overlayRegistry，無 hook。
+  "osmBridgeCarriers", "osmBridgeFootprints", "officialBridgesNewTaipei", "bridgeComparisonNewTaipei", "tainanBridgeInspections", "officialBridgesHsinchu", "taipeiRoadTunnels", "tainanRoadTunnels", "changhuaTrafficSignals", // 純 PMTiles overlayRegistry，無 hook。
   // ── OVERLAY_REGISTRY 的靜態 GeoJSON 層（104）──
   "accidentTaipei", "activeFaults", "agriWholesaleMarket", "antiCorruptionOffice",
   "aquacultureCageNet", "aquacultureZone", "artsEvents", "bikeStations",
@@ -156,12 +177,39 @@ const NO_HOOK_LEDGER = new Set<string>([
   "weatherStations", "welfareCenters", "windPlan", "womenChildWarning",
   // 🔊 噪音／聲響：三個 GeoJSON 點／面層；純 registry overlay，無 loader / hook。
   "officialNoiseMonitoring", "aviationNoiseZones", "soundCameraLocations",
+  // 💧 水質與污水：四個 public/environment GeoJSON；純 registry overlay，無 loader / hook。
+  "riverRpiStations", "waterQualityStations", "sewageTreatmentPlants", "drinkingWaterProtectionZones",
+  // 🌊 環境第二波 5 個靜態 GeoJSON（海域水質、PM2.5 手動站、戴奧辛、焚化廠、RPI 河段推估）：純 registry overlay。
+  "seaWaterQualityStations", "pm25ManualStations", "dioxinStations", "incineratorEmissions", "riverRpiSegments",
   // 🤝 社福長照 9 層（第 40 主題）：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 loader / hook。
   // ⚠️ `welfareCenters`（上一行）是**基礎建設**主題的社福中心，不是本批成員 ——
   //    兩者零重疊（本批 welfareGovOffices 已在上游排除 T0103），只是名字像。
   "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes",
   "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
   "welfareNursingHomes", "welfareSocialWorkOrgs",
+  // 公共生活 OSM snapshot：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "drinkingWaterPoints", "publicWasteBaskets", "materialRecyclingPoints", "disasterShelters",
+  "playgrounds", "accessibleParkFacilities", "bicycleSupport", "nationalParks", "visitorCentres",
+  "publicLifeOsmCoverage",
+  // 減害服務：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
+  "harmReductionNeedle", "harmReductionTreatment", "harmReductionHivSelftest",
+  "harmReductionHivTesting", "harmReductionPreventionCenters",
+  "harmReductionAlcohol", "harmReductionPrep", "harmReductionInternetAddiction", "harmReductionAftercare", "harmReductionSmokingCessation", "harmReductionAntiDrugPharmacies", "harmReductionCondomOutlets", "harmReductionTherapeuticCommunities", "harmReductionDuiCrashes",
+  // 崩塌：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "landslideDodAreas", "landslideDodImpact", "highwayDisasterHistory", "landslideAnnual",
+  // atlas 批次 2026-10：26 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "indigenousTribes", "indigenousIsolationRisk", "agriRuralCommunityVillages",
+  "provincialRoadSigns", "provincialRoadMileposts", "freewayTrafficSigns", "freewayInterchanges", "freewayEcoSensitive", "provincialRoadMonitored", "provincialRoadEmergencyBays",
+  "floodDisasterPointsNcdr", "taipeiWaterloggingHistory", "swcbDisasterPhotoPoints",
+  "cetaceanStrandings", "seaTurtleStrandings", "beachWaterQuality", "marineMicroplastics", "marinePollutionIncidents", "namrEdnaSurveySites",
+  "placeNames", "triangulationPoints",
+  "wraFloodgatesCentral", "wraCentralDrainage", "iowStructureMonitoring", "wraDredgingPoints", "wraEcologySurveySites",
+  // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas",
+  // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
+  "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
+  // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
+  "railRoutes",
 
   // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",
@@ -172,7 +220,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
   "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "jpAccommodationDensity",
   "factoryLocations", "industrialParkBoundaries", "industrialParkComparison", "regulatedFacilities",
-  "contourDtm20", "countyBoundary", "courtJurisdiction", "crimeAreaMonthly", "ecoNetworkZones",
+  "contourDtm20", "countyBoundary", "courtJurisdiction", "ecoNetworkZones",
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",
   "eduDistrictJunior", "evIsland", "farmRoads", "fireHydrants", "forestCompartments",
   "forestReserve", "forestRoads", "gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc",
@@ -191,10 +239,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   "agriCropSuitability", "agriLeisureFarmZones", "agriPOI", "agriRuralRegen", "agriSoil",
   "agriSoilFertility", "agriculture", "fireIsochrone", "medDesert", "medIsochrone",
 
-  // ── 尚無渲染實作 / 無程式碼引用（3；三者皆在 layerConsistency 的 ORPHAN_LEDGER）──
+  // ── 尚無渲染實作 / 無程式碼引用（1；在 layerConsistency 的 ORPHAN_LEDGER）──
   // medICUBeds：Phase 3 未實作渲染，幽靈 toggle 已自 sidebar 移除
-  // wasteRoute / wasteStop：除了 types 與 manifest，src/ 內零引用（保留 key 供 internal use）
-  "medICUBeds", "wasteRoute", "wasteStop",
+  "medICUBeds",
   // Versioned statistics renderer is attached directly by MapView; it is not a
   // React layer hook and must remain outside the hook registry.
   "statsWasteCounty", "statsRecyclingCounty", "statsWaterSupplyHistorical", "statsPigWaterCounty", "statsWasteRecyclingRate", "statsResidentialElectricity", "statsRiceHarvest", "statsBirthsTownship",
@@ -226,10 +273,14 @@ const NO_HOOK_LEDGER = new Set<string>([
  *     L909-942（h3Population / popCount+indicators / socioeconomic /
  *     spatialEconomy 四段 loader effect；popCount 與 indicators 共用同一個
  *     `loadDemographicsResolution`，各自仍宣告一份 appHook 需求，不是重複計數）
+ *   - R6 段 1（2026-10-05）temperatureWave：App 側 `useTemperatureData` ＋
+ *     useThreeJsLayers 的 3D 溫度波（立體效果開）；registry 側 `useTemperatureGridLayer`
+ *     entry（立體效果關時畫平面網格，`hosts/miscHosts.tsx` TemperatureGridHost）
  */
 const DUAL_MOUNT_KEYS = new Set<string>([
   "rail", "h3Population", "popCount", "indicators",
   "socioeconomic", "spatialEconomy", "youbikeFullness",
+  "temperatureWave",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

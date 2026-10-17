@@ -1,0 +1,10 @@
+{
+  "enum.animalWelfarePointType.veterinary_clinic": "Veterinary clinic",
+  "enum.animalWelfarePointType.licensed_pet_business": "Licensed pet business",
+  "enum.animalWelfarePointType.animal_protection_office": "Animal protection office",
+  "enum.animalWelfarePointType.pet_registration_station": "Pet registration station",
+  "enum.animalWelfarePointType.rabies_vaccination_site": "Rabies vaccination site",
+  "enum.animalWelfarePointType.veterinary_emergency": "Veterinary emergency",
+  "enum.animalWelfarePointType.pet_friendly_place": "Pet-friendly place",
+  "enum.animalWelfarePointType.unknown": "Other service site"
+}

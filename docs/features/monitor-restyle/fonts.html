@@ -1,0 +1,201 @@
+<title>監看字級比較</title>
+<style>
+/* 版面：頂部工具列（螢幕寬度、暗淡）→ 三欄方案並排（每欄同一組真實寬度的卡片）→ 影響表 → 選擇。值取自 spec §3 token。 */
+:root{color-scheme:dark;--page:#07070f;--panel:#0e0e19;--line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);--ok:#22c55e;--warn:#f59e0b;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--text);font:13px/1.6 var(--font-cjk);margin:0;padding-inline:16px;padding-block:0 80px}
+.wrap{max-width:none;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1{margin:0 0 6px;font-size:22px;font-weight:600;color:var(--strong)}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong)}
+p{margin:0}
+.lead{max-width:88ch;color:var(--muted)}
+.lead b{color:var(--strong);font-weight:600}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(7,7,15,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.bar .brand{font-weight:600;color:var(--strong)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:3px 12px;font:12px var(--font-cjk);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--pick-faint);color:var(--pick)}
+.seg button:focus-visible{outline:2px solid var(--pick);outline-offset:-2px}
+.hint{font-size:12px;color:var(--dim)}
+.cols{display:flex;gap:18px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.col{flex:0 0 auto;display:flex;flex-direction:column;gap:10px}
+.col-h{display:flex;flex-direction:column;gap:2px}
+.col-h .ol{font:700 13px var(--font-data);color:var(--pick)}
+.col-h .ot{font-weight:600;color:var(--strong)}
+.col-h .os{font-size:12px;color:var(--muted)}
+table.t{width:100%;border-collapse:collapse;font-size:12.5px}
+table.t th,table.t td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t th{color:var(--muted);font-weight:500;white-space:nowrap}
+table.t td.n{font-family:var(--font-data);text-align:right;white-space:nowrap;color:var(--strong)}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+.pick-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pbtn{all:unset;cursor:pointer;font:13px var(--font-cjk);padding:5px 14px;border-radius:5px;border:1px solid var(--line-2);color:var(--text)}
+.pbtn[aria-pressed="true"]{background:var(--pick);border-color:var(--pick);color:#07070f;font-weight:600}
+.pbtn:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+#outText{width:100%;min-height:90px;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;color:var(--strong);font:12.5px/1.7 var(--font-data);padding:10px 12px}
+.note-in{flex:1 1 280px;min-width:0;background:transparent;border:1px solid var(--line-2);border-radius:5px;color:var(--strong);font:12px var(--font-cjk);padding:5px 9px}
+
+/* ── 監看面板模擬：字級由每欄的 CSS 變數決定 ── */
+.dock{--mb:#0b0c12;--card:rgba(255,255,255,.04);--bd:rgba(255,255,255,.10);--bds:rgba(255,255,255,.06);--ts:#f3f4f6;--td:#d8dce3;--tm:#9ca3af;--tdim:#6b7280;--live:#22c55e;--warn:#ff9800;--err:#ef4444;--hatch:rgba(255,255,255,.16);--grid:rgba(255,255,255,.06);--c1:#64aaff;--c2:#22c55e;--c3:#f59e0b;--up:#ef4444;
+ background:var(--mb);border:1px solid var(--line);border-radius:8px;padding:var(--pad);display:flex;flex-direction:column;gap:10px;font-family:var(--font-cjk);color:var(--td)}
+body.lt .dock{--mb:#eef0f3;--card:#fff;--bd:rgba(0,0,0,.10);--bds:rgba(0,0,0,.06);--ts:#111827;--td:#1f2937;--tm:#4b5563;--tdim:#6b7280;--live:#15803d;--warn:#c2410c;--err:#b42318;--hatch:rgba(0,0,0,.16);--grid:rgba(0,0,0,.06);--c1:#0b6fd6;--c2:#15803d;--c3:#b45309;--up:#b42318}
+.row{display:grid;gap:10px}
+.mc{background:var(--card);border:1px solid var(--bd);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow:hidden;container-type:inline-size}
+.hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;min-width:0}
+.hd .zh{font-size:var(--f-title);font-weight:700;color:var(--ts);white-space:nowrap}
+.hd .en{font-size:var(--f-cap);color:var(--tdim);white-space:nowrap;overflow:hidden;min-width:0}
+.hd .r{margin-left:auto;display:inline-flex;gap:6px;align-items:baseline;white-space:nowrap}
+.hd .tm{font:var(--f-label) var(--font-data);color:var(--tdim)}
+.pill{font-size:var(--f-label);line-height:1;padding:2px 5px;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.pill.e{color:var(--err)}.pill.n{color:var(--tm)}
+@container (max-width:260px){.hd .en{display:none}}
+.vl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;min-width:0}
+.vl .n{font:700 var(--f-main)/1.1 var(--font-data);color:var(--ts);white-space:nowrap;font-variant-numeric:tabular-nums}
+.vl .n.m{color:var(--tm)}
+.vl .u{font-size:var(--f-body);color:var(--tm);white-space:nowrap}
+.vl .d{font:var(--f-body) var(--font-data);white-space:nowrap}
+.up{color:var(--up)}
+.sub{font-size:var(--f-label);color:var(--tm);display:flex;flex-wrap:wrap;gap:2px 10px}
+.sub span{white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--kpi-min),1fr));gap:6px 14px}
+.kpi{display:flex;flex-direction:column;min-width:0}
+.kpi .kl{font-size:var(--f-label);color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .kv{font:700 var(--f-kpi)/1.15 var(--font-data);color:var(--ts);white-space:nowrap;font-variant-numeric:tabular-nums}
+.kpi .kv small{font:400 var(--f-label) var(--font-cjk);color:var(--tm);margin-left:3px}
+.ch svg{display:block;width:100%}
+.ax{display:flex;justify-content:space-between;gap:6px;font:var(--f-cap) var(--font-data);color:var(--tdim);white-space:nowrap}
+.foot{font-size:var(--f-cap);color:var(--tdim)}
+.note{font-size:var(--f-label);color:var(--warn)}
+.list{display:flex;flex-direction:column}
+.li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--bds);font-size:var(--f-body)}
+.li:first-child{border-top:0}
+.li .rk{font:var(--f-label) var(--font-data);color:var(--tdim)}
+.li .nm{color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .v{font:700 var(--f-body) var(--font-data);color:var(--ts)}
+.er{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--er-min),1fr));gap:6px}
+.er > div{display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;background:var(--card);min-width:0}
+.er .nm{display:flex;flex-direction:column;min-width:0;flex:1}
+.er .nm span:first-child{font-size:var(--f-label);color:var(--td);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.er .nm b{font:700 var(--f-body) var(--font-data)}
+.er svg{flex:0 0 46px;width:46px}
+.measure{font:11px var(--font-data);color:var(--dim)}
+</style>
+
+<div class="bar">
+  <span class="brand">監看字級比較</span>
+  <span class="seg" role="group" aria-label="螢幕寬度">
+    <button type="button" data-w="1920" aria-pressed="true">1920 螢幕</button>
+    <button type="button" data-w="1496" aria-pressed="false">1496 螢幕</button>
+  </span>
+  <span class="seg" role="group" aria-label="主題">
+    <button type="button" data-th="dk" aria-pressed="true">暗</button>
+    <button type="button" data-th="lt" aria-pressed="false">淡</button>
+  </span>
+  <span class="hint">分割模式右半邊的實際寬度；三欄同一份資料（2026-10-01 截圖當下的值）。欄位太寬時可左右捲。</span>
+</div>
+
+<div class="wrap">
+<header style="padding-top:22px">
+  <h1>監看模式最小字級：現況、13、14</h1>
+  <p class="lead">只改監看模式。下面每一欄是同一組卡片，用<b>分割模式的真實寬度</b>畫（1/3 寬、1/2 寬、全寬；可切 1920／1496 螢幕）。<b>S0</b> 是現在的實際大小（內容放大 1.15 倍後）；<b>S13</b>、<b>S14</b> 取消放大，直接用監看專用字級。淡色只是示意，監看淡色版排在 P5。</p>
+</header>
+
+<div class="cols" id="cols"></div>
+
+<section style="display:flex;flex-direction:column;gap:10px">
+  <h2>字級對照（實際顯示 px）</h2>
+  <div class="tbl"><table class="t" id="scale"></table></div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:10px">
+  <h2>會影響到的地方</h2>
+  <div class="tbl"><table class="t">
+    <thead><tr><th>項目</th><th>S0 現況</th><th>S13</th><th>S14</th></tr></thead>
+    <tbody>
+      <tr><td>本頁這組卡片的高度（實測）</td><td>1920：1,149px／1496：1,196px</td><td>+4%／+4%</td><td>+8%／+10%</td></tr>
+      <tr><td>split 整頁高度</td><td>約 8,500px</td><td colspan="2">未實測；文字多的卡（新聞清單、急診 60 院、網路觀察）增幅會比上面這組大，P2 實作後量</td></tr>
+      <tr><td>上半部固定高格子</td><td>不變</td><td>新聞、警訊、熱區、信號分級各多 1 列，兩欄仍同止</td><td>各多 1–2 列；熱區前五名可能只剩前四</td></tr>
+      <tr><td>1/3 寬災害三卡（1496 螢幕約 207px）</td><td>放得下</td><td>放得下，副資訊換行</td><td>主數字與單位常換行；建議改 2＋1 排法</td></tr>
+      <tr><td>急診 60 院小格</td><td>一排 4 格</td><td>1920 一排 4 格、1496 一排 3 格</td><td>1920 一排 3–4 格、1496 一排 3 格；醫院名稱較常被截斷</td></tr>
+      <tr><td>迷你走勢（24px 高）</td><td>有軸字</td><td>軸字只留首尾</td><td>迷你圖不放軸字，只有主圖放</td></tr>
+      <tr><td>英文小字附註</td><td>窄格隱藏</td><td>13px，較常隱藏</td><td>14px，1/3 寬幾乎都隱藏</td></tr>
+      <tr><td>程式改動</td><td>—</td><td colspan="2">監看專用字級表（取代 9／10／11 在監看內的用法）、內容放大 1.15 → 1.0、固定高格列數補償；併進 P2 一起做</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:10px">
+  <h2>選擇</h2>
+  <div class="pick-row" id="picks">
+    <button type="button" class="pbtn" data-c="S0" aria-pressed="false">S0 維持現況</button>
+    <button type="button" class="pbtn" data-c="S13" aria-pressed="false">S13 最小 13</button>
+    <button type="button" class="pbtn" data-c="S14" aria-pressed="false">S14 最小 14</button>
+    <input class="note-in" id="note" placeholder="補充（選填），例：標題再大一點" aria-label="補充">
+  </div>
+  <textarea id="outText" aria-label="選擇彙整"></textarea>
+  <div class="pick-row"><button type="button" class="pbtn" id="copy">複製選擇</button><span class="hint" id="copyHint">貼回對話即可。</span></div>
+</section>
+</div>
+
+<script>
+/* 方案字級（實際顯示 px）。S0＝現況 token × 1.15 */
+const V={
+  S0:{t:"S0 現況",s:"9／10／11／13 × 放大 1.15",cap:10.4,label:11.5,body:12.7,title:15,kpi:20.7,main:25.3,pad:14,kpiMin:96,erMin:150},
+  S13:{t:"S13 最小 13",s:"取消放大，最小 13",cap:13,label:13,body:14,title:16,kpi:19,main:24,pad:12,kpiMin:110,erMin:175},
+  S14:{t:"S14 最小 14",s:"取消放大，最小 14",cap:14,label:14,body:15,title:17,kpi:21,main:26,pad:12,kpiMin:120,erMin:190},
+};
+const ROLE=[["cap","軸上日期、英文小字、來源列"],["label","小節標、KPI 標籤、資料時間、pill"],["body","正文、清單、單位"],["title","卡片標題"],["kpi","KPI 數值"],["main","主數字"]];
+/* 分割模式內容區實寬（px）：1920→835、1496→約 640 */
+const GRID={1920:835,1496:640};
+const GAP=10;
+const TAIEX=[46210,46480,46390,46620,46510,46830,47020,46910,46750,46980,47120,47300,47210,47080,46950,47160,47390,47280,47450,47620,47510,47380,47590,47700,47640,47820,47760,47690,47632,48312];
+const LIGHT=[0,210,380,40,0,0,0,12,0,60,18,72,null,1];
+const PRISON=[63900,63950,64010,63980,64060,64100,64120,64080,64005,null,null,null,null,null];
+const RESERVE=[12,21,22,19,26,35,22,28,29,31,31,28,33,32,26,29,27,26,31,22,27,29,25,19,null,null,null,21,15,19.8];
+const ER=[["林口長庚",143,"#ef4444"],["臺大",74,"#f97316"],["三總",54,"#f97316"],["台北馬偕",41,"#f97316"],["萬芳",36,"#f97316"],["新光",35,"#f97316"],["亞東",34,"#f97316"],["部立雙和",33,"#f97316"],["北榮",32,"#f59e0b"],["部立桃園",31,"#f59e0b"],["台北慈濟",30,"#f59e0b"],["淡水馬偕",28,"#f59e0b"]];
+let uid=0;
+function line(s,{h=40,col="var(--c1)",area=true,dim=false}={}){const v=s.filter(x=>x!=null),lo=Math.min(...v),hi=Math.max(...v),n=s.length;const X=i=>i/(n-1)*100,Y=x=>h-2-(x-lo)/((hi-lo)||1)*(h-6);let segs=[],c=[];s.forEach((x,i)=>{if(x==null){if(c.length)segs.push(c);c=[]}else c.push([X(i),Y(x)])});if(c.length)segs.push(c);const id="h"+uid++;let gaps="";let st=null;s.forEach((x,i)=>{if(x==null&&st==null)st=i;if((x!=null||i===n-1)&&st!=null){const e=x==null?i:i-1;const a=X(Math.max(st-1,0)),b=X(Math.min(e+1,n-1));gaps+=`<rect x="${a}" y="0" width="${b-a}" height="${h}" fill="url(#${id})"/>`;st=null}});const op=dim?.45:1;const p=segs.map(g=>{const d=g.map((q,j)=>(j?"L":"M")+q[0].toFixed(2)+" "+q[1].toFixed(2)).join("");return(area&&g.length>1?`<path d="${d}L${g[g.length-1][0]} ${h}L${g[0][0]} ${h}Z" fill="${col}" opacity="${.12*op}"/>`:"")+`<path d="${d}" fill="none" stroke="${col}" stroke-width="1.5" vector-effect="non-scaling-stroke" opacity="${op}"/>`}).join("");return `<svg viewBox="0 0 100 ${h}" preserveAspectRatio="none" height="${h}" aria-hidden="true"><defs><pattern id="${id}" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="var(--hatch)" stroke-width="1.2"/></pattern></defs><line x1="0" y1="${h-.5}" x2="100" y2="${h-.5}" stroke="var(--grid)" vector-effect="non-scaling-stroke"/>${gaps}${p}</svg>`}
+function bars(s,{h=40,col="var(--c3)"}={}){const hi=Math.max(...s.filter(x=>x!=null),1),n=s.length,w=100/n;return `<svg viewBox="0 0 100 ${h}" preserveAspectRatio="none" height="${h}" aria-hidden="true"><line x1="0" y1="${h-.5}" x2="100" y2="${h-.5}" stroke="var(--grid)" vector-effect="non-scaling-stroke"/>`+s.map((x,i)=>{const a=i*w+w*.15,b=w*.7;if(x==null)return `<rect x="${a}" y="${h-4}" width="${b}" height="4" fill="var(--hatch)"/>`;if(x===0)return `<rect x="${a}" y="${h-1}" width="${b}" height="1" fill="${col}" opacity=".5"/>`;const bh=Math.max(x/hi*(h-2),1.5);return `<rect x="${a}" y="${h-bh}" width="${b}" height="${bh}" fill="${col}"/>`}).join("")+"</svg>"}
+const hd=(zh,en,r)=>`<div class="hd"><span class="zh">${zh}</span><span class="en">${en}</span><span class="r">${r}</span></div>`;
+const ax=(a,b)=>`<div class="ax"><span>${a}</span><span>${b}</span></div>`;
+
+function cards(k){
+  return {
+  taiex:`<div class="mc">${hd("加權指數","TAIEX",'<span class="pill n">收盤</span><span class="tm">13:33</span>')}<div class="vl"><span class="n">48,312.77</span><span class="d up">▲ 372.64　+0.78%</span></div><div class="sub"><span>高 48,313.35</span><span>低 47,893.42</span><span>量 939.4 億</span></div><div class="ch">${line(TAIEX,{h:48,col:"var(--up)"})}${ax("09/02","10/01")}</div></div>`,
+  prison:`<div class="mc">${hd("在監人數","Inmates",'<span class="pill e">停更 139 天</span><span class="tm">05/15</span>')}<div class="vl"><span class="n m">64,005</span><span class="u">人</span></div><div class="sub"><span>男 57,010</span><span>女 6,995</span><span>超收率 5.70%</span></div><div class="ch">${line(PRISON,{h:48,dim:true})}${ax("05/02","10/01")}</div><div class="note">法務部矯正署上游已停止更新</div></div>`,
+  lightning:`<div class="mc">${hd("落雷","Lightning",'<span class="tm">12:47</span>')}<div class="vl"><span class="n">1</span><span class="u">次／近 1 小時</span></div><div class="sub"><span>今日累計 1 次</span><span>最新 18 分鐘前</span></div><div class="ch">${bars(LIGHT,{h:48})}${ax("09/18","10/01")}</div><div class="foot">來源：氣象署落雷觀測</div></div>`,
+  quake:`<div class="mc">${hd("地震","Earthquake",'<span class="tm">09/30</span>')}<div class="vl"><span class="n">M 5.9</span><span class="u">深度 13.3 公里</span></div><div class="sub"><span>花蓮縣政府東方 136.0 公里</span></div><div class="ch">${bars([2,4,7,0,5,6,8,5,5,9,0,0,8,6],{h:48,col:"var(--err)"})}${ax("09/18","10/01")}</div></div>`,
+  rad:`<div class="mc">${hd("環境輻射","Radiation",'<span class="tm">12:53</span>')}<div class="vl"><span class="n">0.055</span><span class="u">µSv/h 平均</span></div><div class="sub"><span>最高 0.089 友二里</span><span>49/51 站</span></div><div class="ch">${bars([5,5,5,5,5,5,5,5,5,5,5,5,5,5],{h:48,col:"var(--c2)"})}${ax("09/18","10/01")}</div></div>`,
+  hot:`<div class="mc">${hd("熱區前五名","Hotspots",'<span class="tm">13:02</span>')}<div class="list">${[["高雄市",12],["臺北市",7],["基隆市",6],["新北市",4],["苗栗縣",4]].map((r,i)=>`<div class="li"><span class="rk">${i+1}</span><span class="nm">${r[0]}</span><span class="v">${r[1]}</span></div>`).join("")}</div></div>`,
+  power:`<div class="mc">${hd("供電","Power grid",'<span class="tm">12:50</span>')}<div class="vl"><span class="n">19.8</span><span class="u">% 備轉容量率</span></div><div class="kpis"><div class="kpi"><span class="kl">負載</span><span class="kv">37,729<small>MW</small></span></div><div class="kpi"><span class="kl">供電能力</span><span class="kv">47,687<small>MW</small></span></div><div class="kpi"><span class="kl">預測尖峰</span><span class="kv">13:00–15:00</span></div></div><div class="ch">${line(RESERVE,{h:96})}${ax("09/02","10/01")}</div></div>`,
+  er:`<div class="mc">${hd("急診壅塞","ER congestion",'<span class="tm">12:45</span>')}<div class="vl"><span class="n">1,559</span><span class="u">人等床</span></div><div class="er">${ER.map(r=>`<div><span class="nm"><span>${r[0]}</span><b style="color:${r[2]}">${r[1]}</b></span>${line([3,5,4,6,5,7,6,8,7,6,8,7],{h:22,col:r[2],area:false})}</div>`).join("")}</div></div>`,
+  };
+}
+function render(){
+  const W=+document.querySelector('[data-w][aria-pressed="true"]').dataset.w;
+  const g=GRID[W],w4=Math.floor((g-2*GAP)/3),w6=Math.floor((g-GAP)/2);
+  document.getElementById("cols").innerHTML=Object.entries(V).map(([k,v])=>{
+    const c=cards(k);
+    const style=`--f-cap:${v.cap}px;--f-label:${v.label}px;--f-body:${v.body}px;--f-title:${v.title}px;--f-kpi:${v.kpi}px;--f-main:${v.main}px;--pad:${v.pad}px;--kpi-min:${v.kpiMin}px;--er-min:${v.erMin}px;width:${g+2*v.pad+2}px`;
+    return `<div class="col"><div class="col-h"><span class="ol">${k}</span><span class="ot">${v.t}</span><span class="os">${v.s}</span></div>
+      <div class="dock" style="${style}">
+        <div class="row" style="grid-template-columns:repeat(3,${w4}px)">${c.rad}${c.lightning}${c.quake}</div>
+        <div class="row" style="grid-template-columns:repeat(2,${w6}px)">${c.taiex}${c.prison}</div>
+        <div class="row" style="grid-template-columns:repeat(2,${w6}px)">${c.hot}<div></div></div>
+        <div class="row" style="grid-template-columns:${g}px">${c.power}</div>
+        <div class="row" style="grid-template-columns:${g}px">${c.er}</div>
+      </div>
+      <span class="measure" data-k="${k}"></span></div>`}).join("");
+  document.querySelectorAll(".measure").forEach(m=>{const d=m.previousElementSibling;m.textContent=`這組卡片總高 ${Math.round(d.getBoundingClientRect().height)}px · 1/3 寬 ${w4}px · 1/2 寬 ${w6}px · 全寬 ${g}px`});
+  document.getElementById("scale").innerHTML="<thead><tr><th>用途</th>"+Object.keys(V).map(k=>`<th>${k}</th>`).join("")+"</tr></thead><tbody>"+ROLE.map(([r,l])=>`<tr><td>${l}</td>${Object.values(V).map(v=>`<td class="n">${v[r]}</td>`).join("")}</tr>`).join("")+"</tbody>";
+}
+document.querySelectorAll("[data-w]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-w]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));render()}));
+document.querySelectorAll("[data-th]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-th]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));document.body.classList.toggle("lt",b.dataset.th==="lt")}));
+let pick="";const out=()=>{document.getElementById("outText").value=`監看字級選擇：${pick||"（未選）"}`+(document.getElementById("note").value?`　補充：${document.getElementById("note").value}`:"")};
+document.getElementById("picks").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;pick=b.dataset.c;document.querySelectorAll("[data-c]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));out()});
+document.getElementById("note").addEventListener("input",out);
+document.getElementById("copy").addEventListener("click",()=>{const ta=document.getElementById("outText"),h=document.getElementById("copyHint");navigator.clipboard.writeText(ta.value).then(()=>{h.textContent="已複製。"}).catch(()=>{ta.select();h.textContent="請按 ⌘C 複製。"})});
+render();out();
+</script>

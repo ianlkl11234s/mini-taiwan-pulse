@@ -1,0 +1,228 @@
+/*
+ * 右下資料來源列（attribution-compact）。規格：docs/design-system/spec.md §5.38。
+ * 色值一律取 tokens.css；暗／淡以觸發 class 切換別名（--pa-*）。
+ */
+
+.pulse-attrib--dark,
+.pulse-map--dark {
+  --pa-bar-bg: var(--surface-subtle);
+  --pa-bar-text: var(--text-muted);
+  --pa-bar-link: var(--text-default);
+  --pa-card-bg: var(--surface-strong);
+  --pa-card-border: var(--border-panel);
+  --pa-card-shadow: var(--elevation-lg);
+  --pa-title: var(--text-strong);
+  --pa-text: var(--text-default);
+  --pa-dim: var(--text-dim);
+  --pa-link: var(--link);
+  --pa-divider: var(--border-soft);
+  --pa-hover: var(--control-bg-hover);
+}
+
+.pulse-attrib--light,
+.pulse-map--light {
+  --pa-bar-bg: var(--light-surface-panel);
+  --pa-bar-text: var(--light-text-muted);
+  --pa-bar-link: var(--light-text-default);
+  --pa-card-bg: var(--light-surface-strong);
+  --pa-card-border: var(--light-border);
+  --pa-card-shadow: var(--light-elevation-lg);
+  --pa-title: var(--light-text-strong);
+  --pa-text: var(--light-text-default);
+  --pa-dim: var(--light-text-dim);
+  --pa-link: var(--light-link);
+  --pa-divider: var(--light-border-soft);
+  --pa-hover: var(--light-control-bg-hover);
+}
+
+/* ── 手機底部 sheet 開著時，Mapbox 底部角落（logo、版權列）讓到 sheet 上方 ──
+ * --mobile-sheet-inset 由 MobileBottomSheet 寫入目前 sheet 高度；沒有 sheet（桌機、拍攝模式）時不存在＝0。 */
+.pulse-map .mapboxgl-ctrl-bottom-left,
+.pulse-map .mapboxgl-ctrl-bottom-right {
+  bottom: var(--mobile-sheet-inset, 0px);
+}
+
+/* ── 收合列：內建版權列（只剩底圖）＋左側 host 同一行 ── */
+.pulse-map .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl.mapboxgl-ctrl-attrib,
+.pulse-map .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl.pulse-attrib-host {
+  background: var(--pa-bar-bg);
+  color: var(--pa-bar-text);
+  font-size: var(--font-base);
+  line-height: 20px;
+  height: 20px;
+  white-space: nowrap;
+}
+
+.pulse-map .mapboxgl-ctrl-attrib a {
+  color: var(--pa-bar-link);
+}
+
+.pulse-map .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl.pulse-attrib-host {
+  clear: none;
+  margin: 0;
+  padding: 0 0 0 var(--space-sm);
+  border-top-left-radius: var(--radius-md);
+}
+
+.pulse-map .mapboxgl-ctrl-bottom-right .mapboxgl-ctrl.pulse-attrib-host:empty {
+  display: none;
+}
+
+.pulse-attrib-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: 20px;
+}
+
+.pulse-attrib-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: 18px;
+  padding: 0 var(--space-xs);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--pa-bar-link);
+  font: inherit;
+  font-family: var(--font-cjk);
+  cursor: pointer;
+}
+
+.pulse-attrib-toggle:hover {
+  background: var(--pa-hover);
+}
+
+.pulse-attrib-toggle:focus-visible,
+.pulse-attrib-close:focus-visible,
+.pulse-attrib-card a:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.pulse-attrib-count {
+  font-family: var(--font-data);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pulse-attrib-sep {
+  color: var(--pa-bar-text);
+}
+
+/* ── 展開卡 ── */
+.pulse-attrib-card {
+  position: fixed;
+  right: 10px;
+  bottom: calc(28px + var(--mobile-sheet-inset, 0px));
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  max-height: min(55vh, 440px);
+  display: flex;
+  flex-direction: column;
+  background: var(--pa-card-bg);
+  border: 1px solid var(--pa-card-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--pa-card-shadow);
+  color: var(--pa-text);
+  font-family: var(--font-cjk);
+  font-size: var(--font-base);
+  line-height: 1.5;
+}
+
+.pulse-attrib-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-sm) var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--pa-divider);
+}
+
+.pulse-attrib-card-title {
+  display: inline-flex;
+  gap: var(--space-xs);
+  color: var(--pa-title);
+  font-size: var(--font-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pulse-attrib-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--pa-dim);
+  cursor: pointer;
+}
+
+.pulse-attrib-close:hover {
+  background: var(--pa-hover);
+  color: var(--pa-title);
+}
+
+.pulse-attrib-card-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-xs) var(--space-lg) var(--space-md);
+}
+
+.pulse-attrib-group + .pulse-attrib-group {
+  margin-top: var(--space-sm);
+}
+
+.pulse-attrib-license {
+  margin: var(--space-sm) 0 var(--space-xxs);
+  color: var(--pa-dim);
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pulse-attrib-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pulse-attrib-group li {
+  padding: var(--space-xxs) 0;
+  overflow-wrap: anywhere;
+}
+
+.pulse-attrib-group a {
+  color: var(--pa-link);
+  text-decoration: none;
+}
+
+.pulse-attrib-group a:hover {
+  text-decoration: underline;
+}
+
+.pulse-attrib-ext {
+  margin-left: var(--space-xxs);
+  vertical-align: -1px;
+}
+
+.pulse-attrib-card-foot {
+  padding: var(--space-sm) var(--space-lg);
+  border-top: 1px solid var(--pa-divider);
+  color: var(--pa-dim);
+  font-size: var(--font-sm);
+}
+
+@media (max-width: 639px) {
+  /* 窄螢幕單行版權列（約 340px）會與左下 Mapbox logo 重疊 → logo 墊高一列（20px）放到版權列上方 */
+  .pulse-map .mapboxgl-ctrl-bottom-left {
+    bottom: calc(var(--mobile-sheet-inset, 0px) + 20px);
+  }
+
+  .pulse-attrib-card {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+  }
+}

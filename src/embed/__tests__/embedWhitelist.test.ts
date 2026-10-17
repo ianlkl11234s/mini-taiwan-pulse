@@ -14,7 +14,7 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { EMBED_CDN_LAYERS, rowsToGeoJSON } from "../dynamicCdnLayers";
 import { SNAPSHOT_KEYS, snapshotUrl } from "../snapshotLayers";
 import { REPLAY_KEYS, REPLAY_LAYERS, replaySnapshotUrl, isReplayLayer } from "../replayLayers";
-import { GATED_LAYERS, LAYER_COLORS } from "../../components/sidebar/layerCatalog";
+import { GATED_LAYERS, LAYER_COLORS, RELEASE_HOLD_LAYERS } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor } from "../embedWhitelist";
 import { EMBED_FACTORY_OVERLAY_CONFIGS } from "../factoryOverlayConfigs";
 import type { LayerVisibility } from "../../types";
@@ -25,10 +25,22 @@ describe("EMBED_ALLOWED 白名單", () => {
     expect(leaked, `gated 圖層外流：${leaked.join(", ")}`).toEqual([]);
   });
 
+  it("沒有授權 HOLD 圖層", () => {
+    expect([...RELEASE_HOLD_LAYERS].filter((key) => EMBED_ALLOWED.has(key))).toEqual([]);
+  });
+
   it("💰 dynamicData 圖層只有『已 CDN 化』的例外能進（Supabase egress 仍為零）", () => {
-    const dynamic = OVERLAY_REGISTRY.filter((o) => o.dynamicData).map((o) => o.id);
-    const leaked = dynamic.filter((id) => EMBED_ALLOWED.has(id) && !(id in EMBED_CDN_LAYERS));
+    // 以 config 為單位比對：同一個 key 可同時有靜態與 dynamicData config（R6 段 2 waterReservoirs：
+    // 蓄水範圍面＋壩體點是靜態、即時水情圓點是 dynamicData）—— embed 只收靜態那兩個，動態那個不進。
+    const allowed = new Set(EMBED_ALLOWED_CONFIGS);
+    const leaked = OVERLAY_REGISTRY
+      .filter((o) => o.dynamicData && allowed.has(o) && !(o.id in EMBED_CDN_LAYERS))
+      .map((o) => `${o.id}(${o.sourceId})`);
     expect(leaked, `未經 CDN 化的動態圖層外流：${leaked.join(", ")}`).toEqual([]);
+    // 純動態 key（沒有任何靜態 config）連 key 都不能出現在白名單
+    const staticIds = new Set(OVERLAY_REGISTRY.filter((o) => !o.dynamicData).map((o) => o.id));
+    const dynamicOnly = OVERLAY_REGISTRY.filter((o) => o.dynamicData && !staticIds.has(o.id)).map((o) => o.id);
+    expect(dynamicOnly.filter((id) => EMBED_ALLOWED.has(id) && !(id in EMBED_CDN_LAYERS))).toEqual([]);
   });
 
   // 這兩道守門擋的是同一個坑（gasStation）：loader 改用了 staticRpc，但
@@ -67,15 +79,20 @@ describe("EMBED_ALLOWED 白名單", () => {
     expect(EMBED_ALLOWED.has("aquaculturePonds")).toBe(true);
   });
 
+  it("不把需要 catalog lifecycle 的日本高度圖層當成 literal URL 嵌入", () => {
+    expect(EMBED_ALLOWED.has("jpBuildingHeight")).toBe(false);
+    expect(EMBED_ALLOWED.has("jpCanopyHeight")).toBe(false);
+  });
+
   it("白名單 = registry（扣 gated、動態僅留 CDN 例外）+ 快照圖層 + 回放圖層", () => {
     // 去重：registry 存在「一個 layer id ↔ 多個 config」（propertyValueGrid 的
     // 150m/450m/1.5km 三份 PMTiles 共用同一個 id），EMBED_ALLOWED 是 Set。
     const expected = new Set<string>([
       ...OVERLAY_REGISTRY
-        .filter((o) => (!o.dynamicData || o.id in EMBED_CDN_LAYERS) && !GATED_LAYERS.has(o.id))
+        .filter((o) => (!o.dynamicData || o.id in EMBED_CDN_LAYERS) && !GATED_LAYERS.has(o.id) && !RELEASE_HOLD_LAYERS.has(o.id) && !["jpBuildingHeight", "jpCanopyHeight"].includes(o.id))
         .map((o) => o.id),
       ...EMBED_FACTORY_OVERLAY_CONFIGS
-        .filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id))
+        .filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id) && !RELEASE_HOLD_LAYERS.has(o.id))
         .map((o) => o.id),
       // EM-15：快照圖層不在 registry（主站是專屬 hook 畫的）
       ...SNAPSHOT_KEYS,

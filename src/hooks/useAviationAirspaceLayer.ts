@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 航空器空域 eAIP — 共用 1 份 PMTiles，filter 拆兩個 toggle：
@@ -89,6 +90,28 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+/** 透明度只改 paint，不進生命週期 effect 的 deps */
+function applyOpacity(map: MapboxMap, controlOpacity: number, restrictedOpacity: number) {
+  const controlFillOpacity = 0.22 * controlOpacity;
+  const controlLineOpacity = Math.min(1, controlOpacity * 0.9 + 0.2);
+  if (map.getLayer(CONTROL_FILL)) {
+    map.setPaintProperty(CONTROL_FILL, "fill-opacity", hookFillOpacity("aviationControl", CONTROL_FILL, controlFillOpacity, 0.22 * 0.7));
+  }
+  if (map.getLayer(CONTROL_LINE)) {
+    map.setPaintProperty(CONTROL_LINE, "line-opacity", hookLineOpacity("aviationControl", CONTROL_LINE, controlLineOpacity, Math.min(1, 0.7 * 0.9 + 0.2)));
+  }
+  const restrictedFillOpacity: mapboxgl.ExpressionSpecification = [
+    "*", RESTRICTED_OPACITY_FACTOR, restrictedOpacity,
+  ] as unknown as mapboxgl.ExpressionSpecification;
+  const restrictedLineOpacity = Math.min(1, restrictedOpacity * 0.9 + 0.2);
+  if (map.getLayer(RESTRICTED_FILL)) {
+    map.setPaintProperty(RESTRICTED_FILL, "fill-opacity", hookFillOpacity("aviationRestricted", RESTRICTED_FILL, restrictedFillOpacity, ["*", RESTRICTED_OPACITY_FACTOR, 0.7] as unknown as mapboxgl.ExpressionSpecification));
+  }
+  if (map.getLayer(RESTRICTED_LINE)) {
+    map.setPaintProperty(RESTRICTED_LINE, "line-opacity", hookLineOpacity("aviationRestricted", RESTRICTED_LINE, restrictedLineOpacity, Math.min(1, 0.7 * 0.9 + 0.2)));
+  }
+}
+
 export function useAviationAirspaceLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   controlVisible: boolean,
@@ -98,6 +121,8 @@ export function useAviationAirspaceLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
+  const opacityRef = useRef({ controlOpacity, restrictedOpacity });
+  opacityRef.current = { controlOpacity, restrictedOpacity };
 
   useEffect(() => {
     const anyVisible = controlVisible || restrictedVisible;
@@ -128,6 +153,7 @@ export function useAviationAirspaceLayer(
       }
 
       // ── Control 群：FIR 只邊框、TMA 淡 fill+邊框 ──
+      const { controlOpacity, restrictedOpacity } = opacityRef.current;
       const controlFillOpacity = 0.22 * controlOpacity;
       const controlLineOpacity = Math.min(1, controlOpacity * 0.9 + 0.2);
       if (!map.getLayer(CONTROL_FILL)) {
@@ -138,14 +164,12 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 5,
           filter: TMA_ONLY,
-          paint: {
+          paint: hookFillPaint("aviationControl", CONTROL_FILL, {
             "fill-color": COLOR_EXPR,
             "fill-opacity": controlFillOpacity,
             "fill-antialias": false,
-          },
+          }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.22 * 0.7, "fill-antialias": false }),
         });
-      } else {
-        map.setPaintProperty(CONTROL_FILL, "fill-opacity", controlFillOpacity);
       }
       if (!map.getLayer(CONTROL_LINE)) {
         map.addLayer({
@@ -155,15 +179,14 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 4,
           filter: FIR_AND_TMA,
-          paint: {
+          layout: hookLineLayout("aviationControl", CONTROL_LINE),
+          paint: hookLinePaint("aviationControl", CONTROL_LINE, {
             "line-color": COLOR_EXPR,
             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2.2],
             "line-opacity": controlLineOpacity,
             "line-dasharray": [4, 2],
-          },
+          }, { "line-color": COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2.2], "line-opacity": Math.min(1, 0.7 * 0.9 + 0.2), "line-dasharray": [4, 2] }),
         });
-      } else {
-        map.setPaintProperty(CONTROL_LINE, "line-opacity", controlLineOpacity);
       }
 
       // ── Restricted 群：CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT ──
@@ -179,14 +202,12 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 5,
           filter: RESTRICTED_LAYERS,
-          paint: {
+          paint: hookFillPaint("aviationRestricted", RESTRICTED_FILL, {
             "fill-color": COLOR_EXPR,
             "fill-opacity": restrictedFillOpacity,
             "fill-antialias": false,
-          },
+          }, { "fill-color": COLOR_EXPR, "fill-opacity": ["*", RESTRICTED_OPACITY_FACTOR, 0.7] as unknown as mapboxgl.ExpressionSpecification, "fill-antialias": false }),
         });
-      } else {
-        map.setPaintProperty(RESTRICTED_FILL, "fill-opacity", restrictedFillOpacity);
       }
       if (!map.getLayer(RESTRICTED_LINE)) {
         map.addLayer({
@@ -196,16 +217,16 @@ export function useAviationAirspaceLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 6,
           filter: RESTRICTED_LAYERS,
-          paint: {
+          layout: hookLineLayout("aviationRestricted", RESTRICTED_LINE),
+          paint: hookLinePaint("aviationRestricted", RESTRICTED_LINE, {
             "line-color": COLOR_EXPR,
             "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 10, 1.0, 12, 1.6],
             "line-opacity": restrictedLineOpacity,
-          },
+          }, { "line-color": COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 10, 1.0, 12, 1.6], "line-opacity": Math.min(1, 0.7 * 0.9 + 0.2) }),
         });
-      } else {
-        map.setPaintProperty(RESTRICTED_LINE, "line-opacity", restrictedLineOpacity);
       }
 
+      applyOpacity(map, controlOpacity, restrictedOpacity);
       setVis(map, CONTROL_FILL, controlVisible);
       setVis(map, CONTROL_LINE, controlVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
@@ -255,5 +276,11 @@ export function useAviationAirspaceLayer(
         }
       } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, controlVisible, restrictedVisible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !(controlVisible || restrictedVisible) || !safeIsStyleLoaded(map)) return;
+    applyOpacity(map, controlOpacity, restrictedOpacity);
   }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity, mapTick]);
 }

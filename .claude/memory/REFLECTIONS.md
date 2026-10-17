@@ -2,6 +2,11 @@
 
 每次 `/wrap-up` 追加一篇。格式：What worked / What didn't / Next-time rules / Memory 產出。
 
+> **2026-10-16 盤點索引**（只加註，不改舊段）
+> - 本檔**不是時間序**（開頭是 06-19、06-18，之後才從 04-22 起排），格式換過四代；找段落請用 `rg -n '^## '`。
+> - 反覆出現的 next-time rules 已升級到 PRINCIPLES「跨主題工作原則（2026-10-16 從 REFLECTIONS 升級）」；網站哲學與小實驗整理在 [`docs/LESSONS.md`](../../docs/LESSONS.md) §6、§7。
+> - **已被推翻、勿再照做**的舊反思：「兩個 sidebar 都要改」（04-26 iot_wra 段；已由共用面板取代，見 PRINCIPLES「圖層面板只用共用元件」）；pnpm worktree＋`npm install --package-lock-only`（07-03 段；現行 npm 唯一）；「SessionStart hook inline STATUS／BACKLOG／PRINCIPLES」（06-19 能源段；現行只給短路由）；squash merge／base master（多段；現行 merge commit、base develop）；Claude review workflow 改短 prompt（06-13/14 段；已改原生 Codex review）；EM-16「Three.js 圖層不做」（08-06~09 段已自行翻案）；raster-color-mix 推導（07-29/31 段；以像素取樣為準）。
+
 ---
 
 ## 2026-06-19 Energy v2 Phase A + B autonomous run
@@ -105,7 +110,7 @@
 - **分階段規劃 Phase 1a / 1b / 1c 並每段跑 tsc -b**：避免一次改 20 檔才發現編譯壞掉
 - **動手前先調查上游資料結構**：Phase 1b 前先查 `river_lines` 發現 2,445 km outlier
   MultiLineString，避免部署後才發現「全台都亮」bug
-- **status doc 當工作 checkpoint**：`docs/water-resources-status.md` 讓中斷 session
+- **status doc 當工作 checkpoint**：`docs/features/water-resources/water-resources-status.md` 讓中斷 session
   回來能 5 分鐘接上
 - **遇到卡點停下來問使用者選路**：Phase 1a 遇到 geojson 沒 compare_id 時列 A/B
   方案讓使用者選
@@ -364,7 +369,7 @@
 
 - **Source data quirks 一條一條打**：weekday_pattern 4 種格式 / 跨日 24:11 /
   departure 空字串 / 同 stop 重複 / 時間倒退 / 班次切換 / dwell=0 共 7 種，
-  每踩到一個就量化 + 寫進 docs/research/waste-schedule-data-quirks.md。
+  每踩到一個就量化 + 寫進 docs/features/waste-collection/research/schedule-data-quirks.md。
   下次 22 城擴展前直接跑 sanity SQL 檢查。
 - **picking + debug tooltip 救了視覺打磨**：用戶看到「閃現」我猜不到原因，
   加 click → 顯示 route_id / stop_seq / arrival / departure / gap，
@@ -624,7 +629,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 
 - **「先規劃 / 再 phase 切 / 再動手」分三段**：用戶問「規劃衛星圖層」時，沒
   急著寫 code，先進 plan mode 寫 `/Users/migu/.claude/plans/icon-curried-locket.md`
-  + 提案文件 `docs/proposal/satellite-console.md`。提案完整後再動手，整個衛星
+  + 提案文件 `docs/features/satellite-console-restyle/proposal.md`。提案完整後再動手，整個衛星
   10 commit 一氣呵成、無重做。
 - **用戶要求「先診斷不要修」**：閃爍 bug 用戶明示「先確認原因，先不要急著改」，
   迫使我把 3 個嫌疑點全列出（殭屍 closure / effect 重綁 / listener 洩漏）
@@ -640,7 +645,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 
 ### What didn't ❌
 
-- **三犯 `git add -A`**：working tree 有 `docs/proposal/monitor-mode.md`
+- **三犯 `git add -A`**：working tree 有 `docs/archive/2026-10-04/proposal/monitor-mode.md`
   untracked 草稿時，連續三次 `git add -A` 把草稿掃進衛星 commit。每次都要
   `git rm --cached` + `git commit --amend`。第一次該記住的。
 - **commit 切到錯分支沒察覺**：在 feat/news-filter-critical 上 commit 衛星
@@ -679,7 +684,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 **做得好**：
 1. **設計師 jsx 程式碼直接 port**：Monitor 全套（PressureRing/TwseTicker/SituationOverview/SituationCards/LiveWall/TimelineDock/IndicatorPanel/MonitorPanel）幾乎照搬，**只把 CSS var 換成 ts const、mock data 換 supabase loader**，視覺幾乎 1:1。下次有設計交接照這個 SOP 走，不要重新設計。
 2. **跨 repo SOP 已寫進 PLAYBOOKS**：本 session 第一次完整跑 data-collectors + gis-platform + mini-taiwan-pulse 三 repo 同步部署，過程踩到的坑（transformer 漏註冊、RPC 名對不上、@handle 不認）全固化進 PRINCIPLES + INCIDENTS + PLAYBOOKS。
-3. **alerts handoff 寫成自帶 task list 的 impl doc**：另一 session 拿了 `docs/proposal/alerts-integration-impl.md` + 一段 prompt 就能開工。寫的時候用 PRINCIPLES「三要素」（RPC signature / 元件 Props / 設計 URL）逐項檢查。
+3. **alerts handoff 寫成自帶 task list 的 impl doc**：另一 session 拿了 `docs/archive/2026-10-04/proposal/alerts-integration-impl.md` + 一段 prompt 就能開工。寫的時候用 PRINCIPLES「三要素」（RPC signature / 元件 Props / 設計 URL）逐項檢查。
 
 **該改進**：
 1. **Monitor 卡空白 bug 該在 ship 前就抓到**：我寫前端 loader 時假設後端 RPC 跟著 handoff doc 建好，但只 pressure 那支真的有。下次 ship 前一定要 `psql proname` 一條一條比對。
@@ -745,7 +750,7 @@ inline 值收斂到 token，merged 進 master。
 
 - 若要再做大型 token / 樣式收斂，**先讀 PB-19** — 6 phase 結構、subagent prompt
   精準度、codex fallback、user 拍板節點都已固化
-- 若要抽新 token（DS-1~7 之一），參考 docs/design-system.md §1 SSOT 結構與
+- 若要抽新 token（DS-1~7 之一），參考 docs/design-system/spec.md §1 SSOT 結構與
   §7 KEEP OUT。改 designTokens.ts 前確認沒違反「單向 import」避免 circular dep
 - 若用戶問「該不該抽 X 元件」，先回 PRINCIPLES「不抽通用元件庫」+ 視同 G009/008
   巨型檔案拆分一起看，不要單獨抽
@@ -934,7 +939,7 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 
 **觸發**：用戶盤整開發流程，目標「下一次開發能有效觸發 SKILLS、避免重複問題」。
 
-**做了什麼**：3 波共 65+ 檔改動 — 建 handoff/ADR/features 骨架、寫 layer-onboarding skill、CLAUDE.md 加 Git Workflow、全域 memory 28→7 大改組。詳見 `docs/proposal/dx-overhaul-2026-07.md`。
+**做了什麼**：3 波共 65+ 檔改動 — 建 handoff/ADR/features 骨架、寫 layer-onboarding skill、CLAUDE.md 加 Git Workflow、全域 memory 28→7 大改組。詳見 `docs/archive/2026-10-04/proposal/dx-overhaul-2026-07.md`。
 
 **做對的地方**：
 - 用對抗式 Explore agent 平行驗證 memory 涵蓋度，揭露 2 條 critical 缺項（複合索引 / pg_cron TZ 教訓）之前 PRINCIPLES 沒有
@@ -1297,7 +1302,7 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 ### 下次要改的
 
 1. **自己寫的結論會過期；翻案要靠逐檔實測，不是重讀文件。**
-   `docs/proposal/embed-dynamic-layers.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
+   `docs/features/embeddable-map/dynamic-layers-plan.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
    而正確做法是把那份結論當**假設**重驗一次：實測後發現三顆引擎（171/314/741 行）
    全是純 TS 零渲染依賴、渲染層對 mapbox 的**執行期**綁定只有 `coordinates.ts` 一支
    （`customLayer.ts` 是 type-only import）。
@@ -1986,3 +1991,126 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：feature index 加入 agent research／GIS analysis 入口。
 - `REFLECTIONS.md`：本篇。
 - 完整 handoff：`docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md`。
+
+## 2026-10-02～03 Pulse Agent v2：拆成四個 skill、接真地圖測試、六輪收斂
+
+### What worked
+
+- 先找出「怪怪的」的具體原因，不急著拆分：回答規則寫在三處、規則本身擋畫圖、兩套工具宇宙、上圖要 5 步、測試沒接地圖。拆 skill 前先修這些。
+- 三條鐵則寫成能從工具紀錄檢查的條件（`shown:true`、計算前先有地圖動作），而不是「畫面要有動靜」這種沒辦法驗證的描述；Codex 審查點出這點後效果明顯。
+- 測試失敗一律先分類（skill／工具／測試架構／題庫／資料），一輪只改一類，分數變化才看得出是誰的功勞。分層題庫 6 → 10 → 10 → 26/26（repeat），舊題 14 → 18/20。
+- 驗算題庫抓到三題標準答案本身是錯的，Agent 其實答對了；依原因修目錄、配方和題庫，沒有放寬檢查。
+
+### Friction / limits
+
+- 子代理在長時間測試中兩次因串流停滯而中斷，留下沒 commit 的改動和卡住的 eval 程序；之後長跑要用背景執行並定期看進度，中斷時用 PID 停程序、自己接手 commit。
+- 測試期間要把使用者層 skill 換成新版，但正式 MCP 還是舊版，換錯時機會讓真實 session 叫不存在的工具；每輪測完都要還原，上線時 skill 要最後換。
+- 含金鑰的暫存 MCP 設定檔被重複產生，必須每輪結束檢查並刪除。
+
+### 下次
+
+- 改 MCP payload 時，同時改 gateway 白名單和用實際輸出當 fixture 的測試。
+- 新功能的驗收一定包含「接真地圖」那一輪，不能只靠倉庫工具的分數。
+
+## 2026-10-03～04 監看模式改版 P4、P4b、P5
+
+### What worked
+
+- P4 先派唯讀 agent 定位全部檔:行，再依「loader 擁有權」分三組，避免兩組同時改 `intelLoaders.ts`；advisor 提醒後才改分組，省下互相覆寫的風險。
+- 共用底層讓暗色值等於舊字面值（`monitorTheme.ts`），730 處換色不必逐處擔心舊版或一般彈窗變色。
+- 瀏覽器量測用 DOM `scrollHeight-clientHeight` 掃全部格子，再對有問題的格子截圖，比逐張看全頁快；抓到壓力環旋轉外框撐出 27px、食品最新點溢出 4px。
+- 使用者要「根本解」時照上游先動：gis-platform migration 先寫、先審、套用並查證，前端最後 push。
+
+### Friction / limits
+
+- 「最後一列日期」不等於來源新鮮度：特殊船舶與落雷沒有事件的日子本來就沒有列，第一次接線誤判成停更，改成 event 週期。
+- 網址 `?style=light` 會被 App 覆寫，第一次淡色截圖其實是暗色；要用工具列「底圖」切換。
+- 收尾時才發現 design-system README 的「最後更新」和 CHANGELOG 漏一輪，多開一個文件 PR，還遇到平行 session 同列衝突。
+
+### 下次
+
+- 每輪 PR 前把「最後更新」列、CHANGELOG、feature README 實作順序一起對一次，不留到收尾。
+- 新鮮度登記前先問「沒資料的日子有沒有列」，有列才可用最後一列判斷。
+
+## 2026-10-02～04 效能 P1／P2、R5 熱區、R7 配色、R8 圖層面板統一
+
+### What worked
+
+- **先量再改**：P2 原計畫「關閉圖層開站不建」，量測後發現開站本來就不抓隱藏層，真成本在換主題時替約 300 組隱藏層算樣式；改做法後 280ms → 0.1ms，避開了疊放順序與換底圖重建的風險（#480）。
+- **選擇頁逐題拍板**：配色、色階、面板統一、大分類都做成可點選、一鍵複製答案的 HTML 選擇頁（暗／淡並排、真實面板樣子），使用者用白話回答就能定案；決定先寫進提案再開工，後續 A／D／B／C 分段 PR 幾乎沒有返工。
+- **檔案分工平行**：A 段（面板）與 D 段（配色）分 worktree、禁改清單寫進 prompt，兩邊只撞到 CHANGELOG 文字；改圖層總表的 B 段單獨跑。
+- **新控制項型別先做一個當範本**：R7 的 `palette` 接好 6 個接點後，C 段的 `linkedSelect` 照抄，順利一次到位。
+- 每段合併前都先合入最新 master 重跑全套測試，再等 CI 綠才 merge。
+
+### Friction / limits
+
+- 我曾把「不動產總市值」網格的色階說成 YlOrRd（實際是 inferno）、把 design-audit.md 說成存在於錯的分支；回答使用者前應以程式或 git 為準，不轉述子代理盤點的二手結論。
+- 使用者問「這是什麼意思」時，代表我用了太多內部代碼與術語（YlOrRd、P3 B）；之後先講畫面上會看到什麼。
+- 一次在 CI 還在跑時就 merge（#480）；之後一律等 checks 綠。
+- 子代理兩度卡在 agent-browser（見 INCIDENTS 2026-10-02）。
+- 子代理會自行擴大範圍（台灣面板標題改「台灣 Taiwan」、統計前 5 主題保持展開）；交付時要逐項列出「使用者沒選過的改動」請使用者確認。
+
+### 下次
+
+- 設計類工作：盤點 → 選擇頁 → 決定寫進提案 → 分段實作 → 每段前後對照頁。
+- 回答前的數字與名稱以第一手來源核對。
+- 活的元件頁要隨元件一起更新，不要等收尾才補。
+
+### Memory output
+
+- `INCIDENTS.md`：同名 agent-browser daemon 互卡。
+- `PRINCIPLES.md`：兩 Sidebar 規則改寫為共用面板元件；大量點位補 R5 熱區門檻。
+- `STATUS.md`：加一段設計系統／圖層面板現況（保留平行 session 的分析正式站內容）。
+
+## 2026-10-04 衛星情報面板改版（P-D、P1–P5）
+
+### What worked
+
+- **一頁選完全部段落**：P2–P5 做成同一頁比較頁（共用 kit＋每段一個 js 檔），點選即選、底部固定答案列＋「複製答案」＋唯讀文字框備援、localStorage 記住選擇；使用者一次貼回 21 個代號，實作沒有返工。
+- **代號全頁唯一並按段分字母**（P1 E/H/B/T/S/F、P2 N/G/K/M/L…），貼回的答案不會歧義。
+- **按檔案分工平行實作**：P2／P3／P4 擁有不同檔，禁改清單（tokens 只給 P2、不碰 CHANGELOG／README）寫進 prompt，三段零衝突；P5 碰全部檔，排在最後單獨跑。
+- 牽涉 migration 的選項（Z3）只起草在上游 worktree、不 push 不套用，前端先做過渡，使用者後來決定擱置也沒有浪費。
+
+### Friction / limits
+
+- 連續合併多個 PR 時，每個都加了 CHANGELOG Unreleased 一行、新圖層 PR 還會改 golden 圖層數，後合的必衝突；解法是合入 develop、兩邊條目都留、重跑 `dump-layer-golden.ts`。
+- `gh pr merge` 在剛 push merge commit 後會立刻顯示 CLEAN（CI 不是必要檢查），#532 沒等新 CI 就合；之後確認了 develop 合併後 CI 綠，但應在 push 後等 checks。
+- 全套測試中 research 的時間預算測試（companyPoints、pollutionPenalties、treePits）在高負載下會失敗，單獨重跑通過。
+- 淡色截圖：只帶 `?style=light` 會被 App 改回 dark；帶完整網址狀態 `?v=1&lng=…&lat=…&z=…&sm=single&style=light` 才生效。
+- 子代理實作完仍有漏網的內部用語（彈窗「bbox」），最後瀏覽器目視才抓到。
+
+### 下次
+
+- 多 PR 連續合併：依建立順序合，每合一個就檢查下一個 mergeable，衝突在獨立 worktree 解，push 後等 CI 再合。
+- 子代理實作 UI 後，主 agent 自己在瀏覽器暗淡各看一次再交付。
+
+### Memory output
+
+- `STATUS.md`：加一段衛星情報改版現況（保留平行工作線內容）。
+- `BACKLOG.md`：SAT-Z3 已隨 #533 合入（本次不再改）。
+
+## 2026-10-06～15 R6 Three.js 圖層平面模式（段 1–3）
+
+### What worked
+
+- 沿用「盤點 → 選擇頁 → 提案 → 分段 PR＋前後對照頁」；選擇題過多時只問核心 2 題，其餘照建議、對照頁再調，使用者反應良好。
+- 使用者回饋「箭頭沒對到軌道」先量測（列車與最近軌道距離 <0.4px）再找根因：真正原因是 `RailTracksHost` 換底圖不重建，不是座標問題。
+- 疊加分支（s1→s2→s3）衝突由下往上逐段解，每段 tsc＋全套測試後再推。
+
+### Friction / limits
+
+- 合併 develop 時重跑 `build-layer-status.mjs` 會依本機倉庫目錄把已入倉的層退回 `dataset_not_in_warehouse`；改為採 develop 版、只補回本分支自己改的列。
+- develop 新增 CI「Design layer inventory up to date」，連 evidence 行號位移都會擋；疊加分支要由最底層開始重產並往上合。
+- zsh 迴圈 `for pair in "a b c"; set -- $pair` 不會拆字，`cd` 失敗後指令在錯的 worktree 執行（幸好沒造成改動）；多參數迴圈改用 `bash -c`。
+- 誤用 `echo >> .git` 想忽略暫時檔，worktree 的 `.git` 是指標檔，整個 worktree 立刻失效；用 `sed` 刪掉多出的行即恢復。要忽略暫時檔請寫 `$(git rev-parse --git-path info/exclude)`。
+- 另一個 session 在 10/15 發布 v2.8.0 時把 R6 一起帶上正式站，本 session 的記憶仍寫「未發布」；收尾時以正式站 main-*.js 版號為準更正。
+
+### 下次
+
+- 收尾前一律讀 origin/master 與正式站版號再寫上線狀態，不沿用對話裡的舊結論。
+
+### Memory output
+
+- `BACKLOG.md`：新增 R6-V（正式站目視）；R6-4 段 4 已於 #578 登記。
+- `STATUS.md`：最上方加 R6 現況段（保留其他段）。
+

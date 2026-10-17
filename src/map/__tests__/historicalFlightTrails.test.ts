@@ -10,7 +10,8 @@ describe('historical 3D lifecycle', () => {
   it('updates existing custom layer and recreates after style removal', () => {
     const layers = new Map();
     const map = { getStyle: () => ({}), getLayer: (id: string) => layers.get(id),
-      addLayer: vi.fn((layer) => layers.set(layer.id, layer)), removeLayer: vi.fn((id) => layers.delete(id)), triggerRepaint: vi.fn() };
+      addLayer: vi.fn((layer) => layers.set(layer.id, layer)), removeLayer: vi.fn((id) => layers.delete(id)),
+      setLayoutProperty: vi.fn(), triggerRepaint: vi.fn() };
     const data = {} as HistoricalFlightCollection;
     const params = { altitudeScale: 3, opacity: .8 } as HistoricalFlightParams;
     renderHistoricalFlightTrails(map as unknown as MapboxMap, 'TW', data, params);
@@ -18,6 +19,7 @@ describe('historical 3D lifecycle', () => {
     expect(layer.renderingMode).toBe('3d');
     renderHistoricalFlightTrails(map as unknown as MapboxMap, 'TW', data, { ...params, altitudeScale: 5 });
     expect(map.addLayer).toHaveBeenCalledTimes(1);
+    expect(map.setLayoutProperty).toHaveBeenCalledWith('historical-flight-trails-tw-3d', 'visibility', 'visible');
     expect(layer.setParams).toHaveBeenCalledWith({ ...params, altitudeScale: 5 });
     layers.clear();
     renderHistoricalFlightTrails(map as unknown as MapboxMap, 'TW', data, params);

@@ -2,6 +2,7 @@
 
 import { useReservoirStatusLayer } from "../../hooks/useReservoirStatusLayer";
 import { useRainGaugeLayer } from "../../hooks/useRainGaugeLayer";
+import { useBridgeRainLayer } from "../../hooks/useBridgeRainLayer";
 import { useFloodSensorLayer } from "../../hooks/useFloodSensorLayer";
 import { useFloodSensorIsochroneLayer } from "../../hooks/useFloodSensorIsochroneLayer";
 import { useTaipeiSewerLayer } from "../../hooks/useTaipeiSewerLayer";
@@ -15,12 +16,17 @@ import { useGroundwaterLayer } from "../../hooks/useGroundwaterLayer";
 import { useIotWraRiverLayer } from "../../hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "../../hooks/useIotWraStructureLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { useKeyOverlayParams } from "../layerParamsAccess";
+import { paramBool, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
+import { RASTER } from "../../map/mapStyleScale";
 
-/** 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） */
+/**
+ * 水庫即時水情：平面圓點（registry，預設）的資料餵料＋（立體效果開時）Three.js 水位計
+ * （cylinder：外殼 = 容量、內水位 = 蓄水率）。
+ */
 export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useReservoirStatusLayer");
   const p = useKeyOverlayParams("waterReservoirs");
+  const values = useLayerParams("waterReservoirs");
   useReservoirStatusLayer(
     deps.mapRef,
     deps.layerVisibility.waterReservoirs,
@@ -30,6 +36,7 @@ export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
     deps.reservoirSceneRef,
     deps.reservoirStatusesRef,
     deps.activeReservoirId,
+    paramBool(values, "waterReservoirs", "waterReservoirs3D"),
   );
   return null;
 };
@@ -44,6 +51,16 @@ export const RainGaugeHost: LayerHostComponent = ({ deps }) => {
     deps.isDarkTheme,
     p.rainGaugeScale ?? 1,
     p.rainGaugeOpacity ?? 1,
+  );
+  return null;
+};
+
+export const BridgeRainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useBridgeRainLayer");
+  const p = useKeyOverlayParams("bridgeRainThresholds");
+  useBridgeRainLayer(
+    deps.mapRef, deps.layerVisibility.bridgeRainThresholds,
+    p.bridgeRainThresholdsOpacity ?? 0.9, deps.isDarkTheme,
   );
   return null;
 };
@@ -83,6 +100,7 @@ export const TaipeiSewerHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiSewer,
     p.taipeiSewerScale ?? 1,
     p.taipeiSewerOpacity ?? 0.85,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -96,6 +114,7 @@ export const TaipeiEvacuateHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiEvacuate,
     p.taipeiEvacuateScale ?? 1,
     p.taipeiEvacuateOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -109,6 +128,7 @@ export const TaipeiPumbHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.taipeiPumb,
     p.taipeiPumbScale ?? 1,
     p.taipeiPumbOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -121,7 +141,7 @@ export const PrecipRasterHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.precipRaster,
     (p.precipRasterHours as 1 | 3 | 6 | 24) ?? 24,
-    p.precipRasterOpacity ?? 0.6,
+    p.precipRasterOpacity ?? RASTER.opacity,
   );
   return null;
 };
@@ -151,6 +171,7 @@ export const MarineObservationHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.marineObservationIsohe,
     cwa.marineObservationCwaOpacity ?? 0.9,
     isohe.marineObservationIsoheOpacity ?? 0.9,
+    deps.isDarkTheme,
   );
   return null;
 };

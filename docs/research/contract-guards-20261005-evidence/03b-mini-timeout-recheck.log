@@ -1,0 +1,14 @@
+
+> mini-taiwan-pulse@2.5.0 test
+> vitest run --maxWorkers=1 src/research/__tests__/pollutionPenaltiesDataset.test.ts
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/contract-guards-20261005
+
+ ✓ src/research/__tests__/pollutionPenaltiesDataset.test.ts (3 tests) 3580ms
+   ✓ matches independent full-source oracles for dense Taipei and rural contrast within hard budgets  3574ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  15:23:01
+   Duration  3.96s (transform 66ms, setup 0ms, collect 81ms, tests 3.58s, environment 0ms, prepare 41ms)

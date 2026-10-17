@@ -55,7 +55,11 @@ export class BusScene {
   private busPositions = new Map<number, BusVehicle>(); // instanceIndex → bus
   /** 視覺平滑：記住每輛車的上一幀 Mercator 座標 */
   private prevMercator = new Map<string, { x: number; y: number; z: number }>();
-  private smoothFactor = 0.15; // 0=不動, 1=無平滑
+  private smoothFactor = 0.15; // 每 60fps 幀（~16.7ms）的逼近比例；0=不動, 1=無平滑
+  /** 上次 update 的時間（performance.now），讓 lerp 以實際經過時間計算、不受 fps 影響 */
+  private lastUpdateMs = 0;
+  /** 平滑收斂門檻（Mercator 單位，約 4cm）：距目標小於此值即直接貼齊，視為已收斂 */
+  private static readonly SETTLE_EPS = 1e-9;
 
   private lastMatrix: THREE.Matrix4 | null = null;
   private _dummy = new THREE.Matrix4();
@@ -174,8 +178,19 @@ export class BusScene {
     return c;
   }
 
-  update(buses: BusVehicle[], colorMode: BusColorMode = "route") {
-    if (!this.instancedMesh) return;
+  /**
+   * @returns 是否仍有無路線車輛正在往目標 lerp（尚未收斂）。
+   *          呼叫端據此決定要不要再排下一幀，收斂後即停止重繪。
+   */
+  update(buses: BusVehicle[], colorMode: BusColorMode = "route"): boolean {
+    if (!this.instancedMesh) return false;
+    let settling = false;
+    // 以時間為基礎的平滑：同一個 smoothFactor 在 60fps 與低 fps 下收斂時間一致（約 1 秒）。
+    // dt 上限 100ms：閒置很久後的第一幀不會瞬間貼齊，仍保留平滑。
+    const nowMs = performance.now();
+    const dtMs = this.lastUpdateMs ? Math.min(100, Math.max(0, nowMs - this.lastUpdateMs)) : 16.7;
+    this.lastUpdateMs = nowMs;
+    const smooth = 1 - Math.pow(1 - this.smoothFactor, dtMs / 16.7);
     // density 模式：直接讀 bus.density（preprocess 算好的班次/小時，固定值）
     // 不再每 frame 統計，負擔更低；顏色對同一班車永遠相同
 
@@ -204,10 +219,20 @@ export class BusScene {
         // 無路線：lerp 平滑
         const prev = this.prevMercator.get(bus.plateNumb);
         if (prev) {
-          const s = this.smoothFactor;
+          const s = smooth;
           fx = prev.x + (target.x - prev.x) * s;
           fy = prev.y + (target.y - prev.y) * s;
           fz = prev.z + (target.z - prev.z) * s;
+          const eps = BusScene.SETTLE_EPS;
+          if (
+            Math.abs(target.x - fx) < eps &&
+            Math.abs(target.y - fy) < eps &&
+            Math.abs(target.z - fz) < eps
+          ) {
+            fx = target.x; fy = target.y; fz = target.z;
+          } else {
+            settling = true;
+          }
         } else {
           fx = target.x; fy = target.y; fz = target.z;
         }
@@ -258,6 +283,7 @@ export class BusScene {
         if (!activeKeys.has(key)) this.prevMercator.delete(key);
       }
     }
+    return settling;
   }
 
   render(matrix: number[]) {

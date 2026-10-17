@@ -1,0 +1,12 @@
+<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><title>Agent 光暈元件驗收</title>
+<style>body{margin:0;background:#101418;color:#eee;font:16px system-ui;height:100vh}main{padding:60px}button{padding:12px;margin:10px;background:#252c32;color:white;border:1px solid #68727c;border-radius:8px}</style>
+<main><h1>操作光暈驗收範例</h1><p>這是元件測試頁，不是真實查詢進度。檢查四邊極淡冷白光暈及按鈕仍可操作。</p><div id="controls"></div></main><div id="activity" class="research-activity-position"></div>
+<script type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { ResearchActivity } from '/src/research/ResearchActivityCard.tsx';
+const root=createRoot(document.querySelector('#activity'));
+const show=phase=>root.render(React.createElement(ResearchActivity,{activity:{phase,title:phase==='working'?'元件驗收：工作中':phase==='error'?'元件驗收：失敗':'元件驗收：已完成',detail:'由按鈕控制的驗收 fixture'}}));
+for(const [label,phase] of [['開始','working'],['完成','complete'],['失敗','error']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>show(phase);document.querySelector('#controls').append(b)}
+show('working');
+</script></html>

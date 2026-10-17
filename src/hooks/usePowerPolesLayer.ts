@@ -3,6 +3,9 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+import { HOOK_POINT_TIERS } from "../map/pointTiers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -41,6 +44,17 @@ const SOURCE_LAYER = "power_poles";
 const HEAT_ID = "power-poles-heat";
 const CIRCLE_ID = "power-poles-circle";
 
+const OPACITY_DEFAULT = Number(paramDefault("powerPoles", "powerPolesOpacity"));
+
+export function powerPolePointPaint(isDark: boolean, opacity: number, size: number) {
+  const tier = HOOK_POINT_TIERS.powerPoles;
+  if (!tier || tier === "B") throw new Error("powerPoles requires a fixed point tier");
+  return {
+    "circle-radius": pointRadius(tier, size),
+    ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
+  };
+}
+
 // pole_type → color（5 類，全表保留原 12 種值，其他 8 種歸為「其他」）
 const POLE_TYPE_COLOR_EXPR: mapboxgl.ExpressionSpecification = [
   "match",
@@ -55,6 +69,7 @@ const POLE_TYPE_COLOR_EXPR: mapboxgl.ExpressionSpecification = [
 export function usePowerPolesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
+  isDark: boolean,
   opacity: number,
   size: number,
   heatStrength: number,
@@ -153,6 +168,7 @@ export function usePowerPolesLayer(
       }
 
       // Circle layer — z11+ 看個體，z11 開始淡入
+      const pointPaint = powerPolePointPaint(isDark, opacity, size);
       if (!map.getLayer(CIRCLE_ID)) {
         map.addLayer({
           id: CIRCLE_ID,
@@ -162,19 +178,16 @@ export function usePowerPolesLayer(
           minzoom: 11,
           paint: {
             "circle-color": POLE_TYPE_COLOR_EXPR,
-            "circle-radius": [
-              "interpolate", ["linear"], ["zoom"],
-              11, 0.6 * size,
-              13, 1.8 * size,
-              14, 3 * size,
-            ],
+            "circle-radius": pointPaint["circle-radius"],
             "circle-opacity": [
               "interpolate", ["linear"], ["zoom"],
               11, 0,
               12, opacity * 0.5,
               13, opacity,
             ],
-            "circle-stroke-width": 0,
+            "circle-stroke-color": pointPaint["circle-stroke-color"],
+            "circle-stroke-width": pointPaint["circle-stroke-width"],
+            "circle-stroke-opacity": pointPaint["circle-stroke-opacity"],
             "circle-blur": 0.2,
           },
         });
@@ -183,10 +196,10 @@ export function usePowerPolesLayer(
           "interpolate", ["linear"], ["zoom"],
           11, 0, 12, opacity * 0.5, 13, opacity,
         ]);
-        map.setPaintProperty(CIRCLE_ID, "circle-radius", [
-          "interpolate", ["linear"], ["zoom"],
-          11, 0.6 * size, 13, 1.8 * size, 14, 3 * size,
-        ]);
+        map.setPaintProperty(CIRCLE_ID, "circle-radius", pointPaint["circle-radius"]);
+        map.setPaintProperty(CIRCLE_ID, "circle-stroke-color", pointPaint["circle-stroke-color"]);
+        map.setPaintProperty(CIRCLE_ID, "circle-stroke-width", pointPaint["circle-stroke-width"]);
+        map.setPaintProperty(CIRCLE_ID, "circle-stroke-opacity", pointPaint["circle-stroke-opacity"]);
       }
       map.setLayoutProperty(HEAT_ID, "visibility", "visible");
       map.setLayoutProperty(CIRCLE_ID, "visibility", "visible");
@@ -204,5 +217,5 @@ export function usePowerPolesLayer(
         if (map.getLayer(CIRCLE_ID)) map.setLayoutProperty(CIRCLE_ID, "visibility", "none");
       } catch { /* map 可能已銷毀 */ }
     };
-  }, [mapRef, visible, opacity, size, heatStrength, z5Reveal, mapTick]);
+  }, [mapRef, visible, isDark, opacity, size, heatStrength, z5Reveal, mapTick]);
 }

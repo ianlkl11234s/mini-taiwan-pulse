@@ -131,8 +131,8 @@ $1: [
 
 | 條件 | 要動 |
 |---|---|
-| 分類 ≥ 2 色（鐵則 2） | `LegendPanel.tsx` 寫 sub-component ＋ 同檔 `LEGEND_REGISTRY` 加一行 `{ id, render }`（**keys 不用寫**——4b 起由 manifest `legend` 欄位反查派生）；manifest `legend` 填該 id |
-| 可點選（鐵則 3） | `featureInfo/<domain>Panels.tsx` 寫 panel ＋ `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 ＋ **`src/map/gisClickRegistry.ts`**（4b 起自 useMapInteraction 升格模組級）的 `GIS_LAYERS` 加條目（**first-hit-wins**：小範圍排前、大面積背景排後）；manifest `popup` 填該 layerType |
+| 分類 ≥ 2 色（鐵則 2） | `src/components/legend/<domain>Legends.tsx`（依主題挑檔）寫 sub-component（**i18n**：文字放 `legend.<domain>.json` 用 `t()`、類別名用 `enumLabel`，標題可借圖層名 `localizeLayerName`；不要寫死中文。範例看同檔既有圖例） ＋ `LegendPanel.tsx` 的 `LEGEND_REGISTRY` 加一行 `{ id, render }`（**keys 不用寫**——4b 起由 manifest `legend` 欄位反查派生）；manifest `legend` 填該 id |
+| 可點選（鐵則 3） | `featureInfo/<domain>Panels.tsx` 寫 panel（**i18n**：常用欄位用 `<Row field="address" …/>`（`popup.field.*`，見 `src/i18n/locales/zh-TW/popup.json`）；面板專屬文字放 `popup.<domain>.json` 用 `t()`，不要寫死中文。規則見 `src/i18n/README.md`） ＋ `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 ＋ **`src/map/gisClickRegistry.ts`**（4b 起自 useMapInteraction 升格模組級）的 `GIS_LAYERS` 加條目（**first-hit-wins**：小範圍排前、大面積背景排後）；manifest `popup` 填該 layerType |
 | 分類色票要三邊共用 | 抽 `src/data/$1Types.ts` 供 factory / featureInfo / legend 三邊 import |
 | PMTiles / 大型靜態檔 | `nginx.conf` location ＋ `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` 清單（⚠️ PT-1 曾漏此步導致 13 層全站 404） |
 | 想讓 BYOK 對話查得到 | `src/chat/tools/datasets.ts` 的 `DATASET_WHITELIST` |
@@ -166,7 +166,7 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 - 更新 `docs/features/<slug>/changelog.md`
 - 更新 `docs/features/<slug>/backlog.md` 對應項標 ✅
 - 若動到資料契約 → 開 ADR
-- 走 GitHub Flow PR（模板見 CLAUDE.md §Git Workflow）
+- 從 `develop` 開分支，`gh pr create --base develop`（模板見 CLAUDE.md §Git Workflow）
 
 ## Command 完成後自動輸出
 
@@ -185,6 +185,11 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 
 - Skill：`layer-onboarding`（驗收 + UX + 跨 repo）— **本 command 結束後必跑**
 - Skill：`supabase-optimize`（若 RPC > 1s）
+- 新增 Supabase RPC／表時（`--source=supabase`）：權限照 `docs/supabase-optimization.md` §權限慣例——
+  給前端的 RPC `REVOKE EXECUTE … FROM PUBLIC; GRANT EXECUTE … TO anon, authenticated;`；
+  cron／內部函式 `REVOKE EXECUTE … FROM PUBLIC, anon, authenticated;`；前端讀的表／view 只 `GRANT SELECT … TO anon, authenticated;`；
+  `SECURITY DEFINER` 一律 `SET search_path`；時間範圍參數在函式內 clamp 上限。
+  原因：2026-10 起 public schema 的 default privileges 已收回，新物件不會自動開放給 anon，漏寫 GRANT 前端會 permission denied。
 - Skill：`three-3d-component`（若走 3D CustomLayer）
 - Rules：`CLAUDE.md §5 §5a §Git Workflow`、`docs/development-rules.md §4 §4a`
 - 工程紀錄：`docs/features/layer-manifest/`（manifest 為什麼長這樣、豁免 ledger 的由來）

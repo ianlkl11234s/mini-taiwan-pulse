@@ -1,15 +1,18 @@
 import { useMonitorResource } from "../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./monitor/MonitorDataStatus";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, alertSeverity, withAlpha, type AlertGroupShort } from "./intelTokens";
+import { getIntelPalette, IntelThemeProvider, neutralFill } from "./intelTheme";
+import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
 import { IntelFilters, type TimeRange } from "./IntelFilters";
 import { IntelSituation } from "./IntelSituation";
 import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
-import { GlobalSituationFeed, selectGlobalFeedCards } from "./GlobalSituationFeed";
+import { GlobalSituationFeed, GLOBAL_FEED_LOAD_FAILED, selectGlobalFeedCards } from "./GlobalSituationFeed";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
 import { AlertCard } from "./alerts/AlertCard";
@@ -76,6 +79,8 @@ function secsToNextCron(nowSec: number): number {
 interface Props {
   open: boolean;
   onClose: () => void;
+  /** 底圖是否為暗色主題；預設 true（沿用既有暗色外觀，呼叫端不傳也不變）。 */
+  isDarkTheme?: boolean;
   /**
    * 與 layer 共享的 filter（同步雙向）。**主站不傳** —— AR-22 P4 起本元件自己
    * per-key 訂閱 `newsEvents` 的參數 slot（`useNewsFilter`），與圖層讀寫同一份值。
@@ -95,11 +100,15 @@ const loadTrending = () => fetchNewsTrending(1, 50);
 export function IntelPanel({
   open,
   onClose,
+  isDarkTheme = true,
   filter: filterProp,
   onFilterChange: onFilterChangeProp,
   onSelectLocation,
   externalSelectedId,
 }: Props) {
+  const palette = getIntelPalette(isDarkTheme);
+  const i18n = useLocale();
+  const { t } = i18n;
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
   const filter = filterProp ?? storeFilter;
@@ -261,7 +270,7 @@ export function IntelPanel({
           globalSituationFeedStore.set({
             ...globalSituationFeedStore.getSnapshot(),
             status: "error",
-            message: error instanceof Error ? error.message : "全球情勢載入失敗",
+            message: error instanceof Error ? error.message : GLOBAL_FEED_LOAD_FAILED,
           });
         });
     };
@@ -395,9 +404,12 @@ export function IntelPanel({
 
   const staleLabels = useMemo(() => {
     const seen = new Set<string>();
-    for (const a of staleAlerts) seen.add(ALERT_PERSISTENCE_RULES[a.group].staleLabel);
+    for (const a of staleAlerts) {
+      const label = ALERT_PERSISTENCE_RULES[a.group].staleLabel;
+      seen.add(enumLabel("intel.staleLabel", label, label, i18n));
+    }
     return [...seen].join("・");
-  }, [staleAlerts]);
+  }, [staleAlerts, i18n]);
 
   if (!open) return null;
 
@@ -445,17 +457,18 @@ export function IntelPanel({
   };
 
   return (
+    <IntelThemeProvider palette={palette}>
     <div
       style={{
         position: "fixed",
         left: 64,
-        top: 98,
+        top: LAYOUT.leftDockTop,
         bottom: 130,
         width: 412,
-        background: COLORS.panelBg,
+        background: palette.panelBg,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid ${COLORS.panelBorder}`,
+        border: `1px solid ${palette.panelBorder}`,
         borderRadius: RADIUS.xl,
         zIndex: 30,
         display: "flex",
@@ -464,7 +477,7 @@ export function IntelPanel({
         pointerEvents: "auto",
         boxShadow: ELEVATION.lg,
         animation: "intelPanelFadeIn .25s ease-out",
-        color: COLORS.textDefault,
+        color: palette.textDefault,
       }}
     >
       <IntelHeader
@@ -522,36 +535,45 @@ export function IntelPanel({
           style={{
             display: "flex", alignItems: "center", gap: 5,
             padding: "8px 14px 8px",
-            borderBottom: `1px solid ${COLORS.borderSoft}`,
+            borderBottom: `1px solid ${palette.borderSoft}`,
           }}
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-              color: COLORS.textFaint, marginRight: 4,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+              color: palette.textDim, marginRight: 4,
             }}
           >
-            SEVERITY ≥
+            {t("intel.panel.severityMin")}
           </span>
-          {([1, 2, 3, 4] as const).map((lv) => {
-            const labels = ["留意", "警戒", "嚴重", "緊急"];
-            const active = severityMin === lv;
-            return (
-              <button
-                key={lv}
-                onClick={() => setSeverityMin(lv)}
-                style={{
-                  padding: "3px 9px", borderRadius: RADIUS.md,
-                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
-                  color: active ? COLORS.accent : COLORS.textMuted,
-                  fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
-                }}
-              >
-                {labels[lv - 1]}
-              </button>
-            );
-          })}
+          <div
+            style={{
+              display: "flex", height: 22, padding: 2, gap: 2,
+              borderRadius: RADIUS.lg,
+              border: `1px solid ${palette.controlBorder}`,
+              background: palette.controlBg,
+            }}
+          >
+            {([1, 2, 3, 4] as const).map((lv) => {
+              const sevDef = alertSeverity(lv);
+              const active = severityMin === lv;
+              return (
+                <button
+                  key={lv}
+                  onClick={() => setSeverityMin(lv)}
+                  style={{
+                    padding: "0 9px", borderRadius: RADIUS.md, border: "none",
+                    background: active ? palette.accentFaint : "transparent",
+                    color: active ? palette.accent : palette.textMuted,
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: active ? 600 : 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {enumLabel("intel.alertSeverity", sevDef.key, sevDef.label, i18n)}
+                </button>
+              );
+            })}
+          </div>
           {pickedGroups.length > 0 && (
             <>
               <div style={{ flex: 1 }} />
@@ -559,13 +581,13 @@ export function IntelPanel({
                 onClick={() => setPickedGroups([])}
                 style={{
                   padding: "3px 8px", borderRadius: RADIUS.md,
-                  background: "rgba(255,255,255,0.04)",
-                  border: `1px solid ${COLORS.borderMid}`,
-                  color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: 10.5,
+                  background: neutralFill(0.04, palette.isDark),
+                  border: `1px solid ${palette.borderMid}`,
+                  color: palette.textMuted, fontFamily: FONT_CJK, fontSize: 10.5,
                   cursor: "pointer",
                 }}
               >
-                清除群組 ({pickedGroups.length})
+                {t("intel.panel.clearGroups", { count: pickedGroups.length })}
               </button>
             </>
           )}
@@ -575,62 +597,70 @@ export function IntelPanel({
           style={{
             display: "flex", alignItems: "center", gap: 5,
             padding: "8px 14px 8px",
-            borderBottom: `1px solid ${COLORS.borderSoft}`,
+            borderBottom: `1px solid ${palette.borderSoft}`,
           }}
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-              color: COLORS.textFaint, marginRight: 4,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+              color: palette.textDim, marginRight: 4,
             }}
           >
-            RANGE
+            {t("intel.panel.timeRange")}
           </span>
-          {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
-            const active = timeRange === r;
-            return (
-              <button
-                key={r}
-                onClick={() => setTimeRange(r)}
-                style={{
-                  padding: "3px 10px", borderRadius: RADIUS.md,
-                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
-                  color: active ? COLORS.accent : COLORS.textMuted,
-                  fontFamily: FONT_DATA, fontSize: 10.5, fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                {r.toUpperCase()}
-              </button>
-            );
-          })}
+          <div
+            style={{
+              display: "flex", height: 22, padding: 2, gap: 2,
+              borderRadius: RADIUS.lg,
+              border: `1px solid ${palette.controlBorder}`,
+              background: palette.controlBg,
+            }}
+          >
+            {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
+              const active = timeRange === r;
+              return (
+                <button
+                  key={r}
+                  onClick={() => setTimeRange(r)}
+                  style={{
+                    padding: "0 8px", borderRadius: RADIUS.md, border: "none",
+                    background: active ? palette.accentFaint : "transparent",
+                    color: active ? palette.accent : palette.textMuted,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {r.toUpperCase()}
+                </button>
+              );
+            })}
+          </div>
           {isGlobalEventsTab && (
             <>
               <div style={{ flex: 1 }} />
               <button
                 onClick={() => setIncludeWatch((v) => !v)}
-                title="加入 AI 判為「觀察中」(keep_watch) 與尚未判斷的事件；低價值 (drop_noise) 一律不顯示"
+                title={t("intel.panel.includeWatchTitle")}
                 style={{
                   padding: "3px 9px", borderRadius: RADIUS.md,
-                  background: includeWatch ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${includeWatch ? COLORS.accentSoft : COLORS.borderMid}`,
-                  color: includeWatch ? COLORS.accent : COLORS.textMuted,
+                  background: includeWatch ? palette.accentFaint : neutralFill(0.04, palette.isDark),
+                  border: `1px solid ${includeWatch ? palette.accentSoft : palette.borderMid}`,
+                  color: includeWatch ? palette.accent : palette.textMuted,
                   fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
                 }}
               >
-                含觀察中／未判斷
+                {t("intel.panel.includeWatch")}
               </button>
             </>
           )}
         </div>
       ) : null}
 
-      <MonitorDataStatus label="來源健康" query={sourceQuery} />
-      <MonitorDataStatus label="升溫排行" query={trendingQuery} />
+      <MonitorDataStatus label={t("intel.panel.sourceHealth")} query={sourceQuery} />
+      <MonitorDataStatus label={t("intel.panel.trendingRank")} query={trendingQuery} />
       {(feedTab === "news" || feedTab === "all") && clustersQuery.status !== "ready" && (
-        <div style={{ padding: "8px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
-          {clustersQuery.status === "denied" ? "新聞資料無權限讀取" : clustersQuery.status === "error" ? `新聞更新中斷${clustersQuery.lastSuccessAt ? ` · 最後成功 ${new Date(clustersQuery.lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+        <div style={{ padding: "8px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: palette.textMuted, borderBottom: `1px solid ${palette.borderSoft}` }}>
+          {clustersQuery.status === "denied" ? t("intel.panel.newsDenied") : clustersQuery.status === "error" ? `${t("intel.panel.newsError")}${clustersQuery.lastSuccessAt ? ` · ${t("alerts.lastSuccess", { time: i18n.formatDateTime(clustersQuery.lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })}` : ""}` : t("intel.panel.newsLoading")}
         </div>
       )}
 
@@ -662,14 +692,14 @@ export function IntelPanel({
               style={{
                 marginBottom: 10, padding: "7px 10px",
                 borderRadius: RADIUS.lg,
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${COLORS.borderMid}`,
+                background: neutralFill(0.04, palette.isDark),
+                border: `1px solid ${palette.borderMid}`,
                 fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
-                color: COLORS.textMuted, lineHeight: 1.5,
+                color: palette.textMuted, lineHeight: 1.5,
               }}
             >
-              歷史 · {historyDate} 的 NCDR 示警（{historyRows.length} 則）
-              <span style={{ color: COLORS.textFaint }}>　不含地震；回到今天看即時警報</span>
+              {t("intel.panel.historyBanner", { date: historyDate, count: historyRows.length })}
+              <span style={{ color: palette.textFaint }}>{"\u3000"}{t("intel.panel.historyNote")}</span>
             </div>
           )}
           {(historyMode ? historyRows : activeAlerts).length === 0 ? (
@@ -680,9 +710,9 @@ export function IntelPanel({
                 height: "100%", gap: 8, textAlign: "center", padding: 24,
               }}
             >
-              <IntelIcon d={ICON.alert} size={28} color={COLORS.textGhost} />
-              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-                目前無符合條件的警報
+              <IntelIcon d={ICON.alert} size={28} color={palette.textGhost} />
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
+                {t("intel.panel.noAlerts")}
               </div>
             </div>
           ) : (
@@ -692,8 +722,7 @@ export function IntelPanel({
                   <span
                     style={{
                       position: "absolute", left: 12, top: 6, bottom: 6,
-                      width: 1.5,
-                      background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                      borderLeft: `1px solid ${palette.borderMid}`,
                     }}
                   />
                   {alertRows.map((a) => (
@@ -712,10 +741,10 @@ export function IntelPanel({
                 <div
                   style={{
                     fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-                    color: COLORS.textMuted, textAlign: "center", padding: "18px 0",
+                    color: palette.textMuted, textAlign: "center", padding: "18px 0",
                   }}
                 >
-                  {historyMode ? "該日無符合條件的示警" : "無新發布的警報，僅有下方長期持續事件"}
+                  {historyMode ? t("intel.panel.noAlertsDay") : t("intel.panel.noFreshAlerts")}
                 </div>
               )}
 
@@ -728,19 +757,19 @@ export function IntelPanel({
                     style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 7,
                       padding: "7px 10px", borderRadius: RADIUS.lg,
-                      background: "rgba(255,255,255,0.03)",
-                      border: `1px dashed ${COLORS.borderMid}`,
-                      color: COLORS.textMuted, cursor: "pointer", textAlign: "left",
+                      background: neutralFill(0.03, palette.isDark),
+                      border: `1px dashed ${palette.borderMid}`,
+                      color: palette.textMuted, cursor: "pointer", textAlign: "left",
                     }}
                   >
                     <span style={{ fontFamily: FONT_DATA, fontSize: 10 }}>
                       {staleOpen ? "▾" : "▸"}
                     </span>
                     <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
-                      持續中 {staleAlerts.length} 則
+                      {t("intel.panel.ongoing", { count: staleAlerts.length })}
                     </span>
                     <div style={{ flex: 1 }} />
-                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
                       {staleLabels}
                     </span>
                   </button>
@@ -791,9 +820,9 @@ export function IntelPanel({
                     height: "100%", gap: 8, textAlign: "center", padding: 24,
                   }}
                 >
-                  <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
-                  <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-                    目前無事件 / 警報
+                  <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
+                  <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
+                    {t("intel.panel.noEventsOrAlerts")}
                   </div>
                 </div>
               );
@@ -803,8 +832,7 @@ export function IntelPanel({
                 <span
                   style={{
                     position: "absolute", left: 12, top: 6, bottom: 6,
-                    width: 1.5,
-                    background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                    borderLeft: `1px solid ${palette.borderMid}`,
                   }}
                 />
                 {merged.map((row) =>
@@ -847,12 +875,12 @@ export function IntelPanel({
               padding: 24,
             }}
           >
-            <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-              目前無符合條件的事件
+            <IntelIcon d={ICON.radio} size={28} color={palette.textGhost} />
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
+              {t("intel.panel.noEvents")}
             </div>
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-              調整分類 / 時間範圍 / 縣市，或回到即時
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
+              {t("intel.panel.noEventsHint")}
             </div>
           </div>
         ) : (
@@ -863,8 +891,7 @@ export function IntelPanel({
                 left: 12,
                 top: 6,
                 bottom: 6,
-                width: 1.5,
-                background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                borderLeft: `1px solid ${palette.borderMid}`,
               }}
             />
             {flatEvents.map((e) => (
@@ -906,8 +933,8 @@ export function IntelPanel({
         @keyframes alertBreathe { 0%,100%{opacity:1} 50%{opacity:0.62} }
         @keyframes alertPulse   { 0%,100%{opacity:1} 50%{opacity:0.45} }
         @keyframes alertEdge {
-          0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
-          50%     { box-shadow: 0 0 16px 0 rgba(239,68,68,0.42); }
+          0%,100% { box-shadow: 0 0 0 0 ${withAlpha(palette.statusErr, 0)}; }
+          50%     { box-shadow: 0 0 16px 0 ${withAlpha(palette.statusErr, 0.42)}; }
         }
         @keyframes drawerOpen {
           from { opacity: 0; transform: translateY(-6px); }
@@ -918,5 +945,6 @@ export function IntelPanel({
         }
       `}</style>
     </div>
+    </IntelThemeProvider>
   );
 }

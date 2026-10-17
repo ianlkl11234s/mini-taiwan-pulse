@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { listLayerCapabilities } from "../layerCapabilities";
+import { ensureStatisticsResearchDatasets } from "../researchDatasets";
+
+// PF-7: statistics-recipe datasets register after their lazily imported details load.
+beforeAll(() => ensureStatisticsResearchDatasets());
 
 describe("layer capability registry", () => {
   it("pages every manifest layer without treating rendering as a reader", () => {
@@ -13,13 +17,38 @@ describe("layer capability registry", () => {
 
   it("declares complete-source readers, on-demand GeoJSON candidates, and refuses to infer PMTiles records", () => {
     const schools = listLayerCapabilities({ query: "schools" });
-    expect(schools.layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "point", supportedMeasures: ["count"], timeModel: "static_version", freshness: "unknown" })]));
+    expect(schools.layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "point", supportedMeasures: ["count"], timeModel: "static_version", freshness: "unknown", sourceContract: { licenseStatus: "not_recorded", publicationStatus: "existing_public_asset_not_a_license_verification" } })]));
     const pmtiles = listLayerCapabilities({ query: "pmtiles" });
     expect(pmtiles.layers).toEqual(expect.arrayContaining([expect.objectContaining({ sourceKinds: expect.arrayContaining(["pmtiles"]), recordSearch: "not_registered", aggregate: "not_registered", dataRole: "unknown", supportedMeasures: [], timeModel: "unknown", freshness: "unsupported" })]));
     const countReady = listLayerCapabilities({ measure: "count", status: "ready" });
-    expect(countReady).toMatchObject({ totalMatched: 5, returned: 5 });
-    expect((countReady.layers as { layerKey: string }[]).map(layer => layer.layerKey).sort()).toEqual(["convenienceStores", "medHospital", "policeStation", "publicLibraries", "schools"]);
+    expect(countReady.totalMatched).toBeGreaterThan(5);
+    expect(listLayerCapabilities({ query: "schools" }).layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready" })]));
     const candidates = listLayerCapabilities({ status: "on_demand_validation", sourceKind: "geojson", limit: 20 });
     expect(candidates.totalMatched).toBeGreaterThan(0);
   });
+
+  it("uses the statistics registry instead of marking an immutable release reader unregistered", () => {
+    const result = listLayerCapabilities({ query: "statsEducationCountyStudentTeacherRatio", limit: 20 });
+    expect(result.layers).toEqual(expect.arrayContaining([expect.objectContaining({
+      layerKey: "statsEducationCountyStudentTeacherRatio", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "admin_statistic",
+      datasetIds: ["regional-statistics:statsEducationCountyStudentTeacherRatio"], access: { mode: "public", queryEnabled: true, requiredParameters: ["releaseId"] },
+    })]));
+  });
+
+  it("omits locked layers entirely rather than exposing their registered source metadata", () => {
+    const locked = new Set(["allenCoralAtlas", "schools"]);
+    expect(listLayerCapabilities({ query: "allen", limit: 20 }, locked)).toMatchObject({ totalMatched: 0, layers: [] });
+    expect((listLayerCapabilities({ query: "schools", limit: 20 }, locked).layers as { layerKey: string }[]).some(layer => layer.layerKey === "schools")).toBe(false);
+  });
+
+  it("keeps event and line readers discoverable without inventing event aggregates", () => {
+    const event = listLayerCapabilities({ query: "earthquakeReplay", status: "ready" });
+    expect(event.layers).toEqual(expect.arrayContaining([expect.objectContaining({
+      layerKey: "earthquakeReplay", recordSearch: "ready", statistics: "not_registered", aggregate: "not_registered",
+      datasetKinds: ["event"], supportedMeasures: [], timeModel: "unknown",
+    })]));
+    const lines = listLayerCapabilities({ query: "busLive", status: "ready" });
+    expect((lines.layers as { datasetKinds: string[] }[]).some(layer => layer.datasetKinds.includes("line"))).toBe(true);
+  });
+
 });

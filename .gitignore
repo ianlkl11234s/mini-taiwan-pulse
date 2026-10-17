@@ -1,4 +1,8 @@
 node_modules
+
+# Public Life & Resilience 大型靜態產物：本機驗收放 public/，正式供應走 S3 volume。
+public/public_life/*.geojson
+public/public_life/*.pmtiles
 dist
 .env
 .env.local
@@ -19,7 +23,13 @@ public/gfw-v4-browser-manifest.json
 public/global-maritime/gfw-hourly/v4/
 # Vite task-local dependency cache created in isolated worktrees
 node_modules.vite-cache/
-public/rail/
+# public/rail 由 export-rail-data.py + S3 rail.tar.gz 管理；只有人工策展的 extensions 與
+# 建置產物 routes_static.geojson（build-rail-routes.py）進 git
+public/rail/*
+!public/rail/routes_static.geojson
+!public/rail/trtc/
+public/rail/trtc/*
+!public/rail/trtc/extensions/
 public/static-rpc/
 public/rail_bundle.json
 scripts/flight-list.json
@@ -51,6 +61,10 @@ public/bus/taipei_bus_routes.json
 public/bus/intercity_bus_routes.json
 public/bus/pingtungcounty_bus_routes.json
 public/bus/tourist_shuttle_routes.json
+public/bus/taipei_bus_routes_v2.json
+public/bus/intercity_bus_routes_v2.json
+public/bus/pingtungcounty_bus_routes_v2.json
+public/bus/tourist_shuttle_routes_v2.json
 
 # Agriculture PMTiles + GeoJSON（由 S3 deploy-assets 管理；總計 ~215MB）
 public/agriculture/*.pmtiles
@@ -201,6 +215,16 @@ public/jp-medical
 
 # Japan height local artifacts, independently published
 public/jp-heights/
+
+# 研究 sidecar（agent 查詢用資料）改放 ../runtime/research-public，DEV 由 loopback middleware
+# 以原 URL /research/... 提供；production build 不包含；未來走 R2/Supabase。
+public/research/
+
+# 研究用分析 sidecar 一律放 ../runtime/research-public，DEV 以 /research/... 提供（ADR-0014 D5）
+/public/urban/urban_zoning_taipei.analysis.json
+
+# 災害：年度全島崩塌地 PMTiles（107MB，走 S3 deploy-assets/hazards/；其餘 hazards 小檔 git 管理）
+public/hazards/landslide_annual_swcb_*.pmtiles
 
 # Local CCTV reconstruction runtime
 .venv-cctv/

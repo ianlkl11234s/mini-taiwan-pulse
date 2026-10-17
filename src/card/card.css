@@ -1,0 +1,126 @@
+/* 分析卡（DECISIONS §6 E1：直式 4:5）。顏色、字級、間距一律用 src/styles/tokens.css 變數。
+ * 卡片頁與 Agent 面板草稿預覽共用；預覽以 --card-scale 等比縮小。 */
+
+.analysis-card-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-xl);
+  background: var(--surface-app);
+  font-family: var(--font-cjk);
+  color: var(--text-default);
+}
+
+.analysis-card {
+  --card-scale: 1;
+  box-sizing: border-box;
+  width: min(100%, 480px);
+  aspect-ratio: 4 / 5;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-panel);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elevation-md);
+  font-family: var(--font-cjk);
+  color: var(--text-default);
+}
+.analysis-card *, .analysis-card *::before, .analysis-card *::after { box-sizing: border-box; }
+
+.analysis-card--preview {
+  --card-scale: 0.72;
+  width: 100%;
+  box-shadow: none;
+}
+
+.analysis-card--notice { grid-template-rows: 1fr; align-content: center; }
+
+.analysis-card__map {
+  position: relative;
+  aspect-ratio: 5 / 3;
+  background: var(--surface-app);
+  border-bottom: 1px solid var(--border-panel);
+}
+.analysis-card__map-canvas { position: absolute; inset: 0; }
+.analysis-card__map-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  color: var(--text-muted);
+  font-size: calc(var(--font-md) * var(--card-scale));
+  text-align: center;
+  background: var(--surface-subtle);
+}
+
+.analysis-card__legend {
+  position: absolute;
+  left: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 2;
+  max-width: 60%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-strong);
+  border: 1px solid var(--border-panel);
+  border-radius: var(--radius-lg);
+  font-size: calc(var(--font-sm) * var(--card-scale));
+  color: var(--text-default);
+}
+.analysis-card__legend-title { font-weight: var(--font-weight-semibold); color: var(--text-strong); margin-bottom: var(--space-xxs); }
+.analysis-card__legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.analysis-card__legend li { display: flex; align-items: center; gap: var(--space-xs); }
+.analysis-card__legend-method { margin-top: var(--space-xxs); color: var(--text-dim); }
+.analysis-card__swatch { display: inline-block; width: 12px; height: 8px; border-radius: var(--radius-sm); flex: none; }
+.analysis-card__swatch--missing { border: 1px solid var(--border-mid); }
+
+.analysis-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-md) * var(--card-scale));
+  padding: calc(var(--space-xl) * var(--card-scale));
+  min-height: 0;
+}
+.analysis-card__title {
+  margin: 0;
+  font-size: calc(var(--font-xl) * var(--card-scale));
+  line-height: 1.35;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-strong);
+}
+.analysis-card__period { margin: 0; font-size: calc(var(--font-base) * var(--card-scale)); color: var(--text-muted); }
+
+.analysis-card__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: var(--space-md); margin: 0; }
+.analysis-card__stat { min-width: 0; }
+.analysis-card__stat dt { font-size: calc(var(--font-sm) * var(--card-scale)); color: var(--text-muted); overflow-wrap: anywhere; }
+.analysis-card__stat dd { margin: 0; font-size: calc(var(--font-xl) * var(--card-scale)); font-weight: var(--font-weight-semibold); color: var(--text-strong); }
+.analysis-card__stat dd small { margin-left: var(--space-xxs); font-size: calc(var(--font-sm) * var(--card-scale)); font-weight: var(--font-weight-regular); color: var(--text-muted); }
+
+.analysis-card__bars { color: var(--text-default); font-size: calc(var(--font-sm) * var(--card-scale)); }
+.analysis-card__bars .agent-rank-bars__title { color: var(--text-muted); margin-bottom: var(--space-xxs); }
+
+.analysis-card__caveats { margin: 0; padding-left: var(--space-xl); font-size: calc(var(--font-sm) * var(--card-scale)); color: var(--status-warn); }
+
+.analysis-card__sources { font-size: calc(var(--font-sm) * var(--card-scale)); color: var(--text-muted); }
+.analysis-card__sources ul { list-style: none; margin: var(--space-xxs) 0 0; padding: 0; }
+.analysis-card__label { color: var(--text-dim); }
+
+.analysis-card__footer {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-soft);
+  font-size: calc(var(--font-sm) * var(--card-scale));
+  color: var(--text-dim);
+}
+.analysis-card__brand { color: var(--accent); font-weight: var(--font-weight-semibold); }
+
+@media (max-width: 420px) {
+  .analysis-card-page { padding: var(--space-lg); }
+  .analysis-card { aspect-ratio: auto; }
+}

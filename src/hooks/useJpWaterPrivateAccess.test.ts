@@ -87,4 +87,21 @@ describe("useJpWaterPrivateAccess", () => {
     expect(mocks.reportError).not.toHaveBeenCalled();
     expect(dispatchEvent).not.toHaveBeenCalled();
   });
+
+  it("explains how to recover when the local private sidecar is absent", async () => {
+    mocks.useUser.mockReturnValue({ user: { id: "owner" }, loading: false });
+    mocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } });
+    mocks.getSession.mockResolvedValue({
+      data: { session: { user: { id: "owner" }, access_token: "owner-token" } },
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 500 })));
+    vi.stubGlobal("window", { addEventListener: vi.fn(), removeEventListener: vi.fn() });
+
+    runtime.render(useJpWaterPrivateAccess);
+    await flush();
+
+    expect(mocks.reportError).toHaveBeenCalledWith(expect.objectContaining({
+      message: expect.stringContaining("npm run dev:private-research"),
+    }));
+  });
 });

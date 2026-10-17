@@ -93,6 +93,7 @@ export function usePrecipRasterLayer(
           },
           initialUrl: frame.url,
           opacity: opacityRef.current,
+          resampling: "nearest",
         });
       } else if (currentIsoRef.current !== frame.observedAtIso) {
         handleRef.current.setUrl(frame.url);

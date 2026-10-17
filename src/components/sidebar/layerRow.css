@@ -1,0 +1,21 @@
+/* 共用圖層列（sidebar/LayerRow.tsx）：計數格兼當載入狀態的小轉圈（layer-panel-unify P1）。
+   色用 token 變數；淡色面板由 .lr-light 覆寫。 */
+@keyframes lr-spin { to { transform: rotate(360deg); } }
+.lr-spin {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border: 1.5px solid var(--border-mid);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: lr-spin 0.8s linear infinite;
+}
+.lr-light .lr-spin {
+  border-color: var(--light-border-mid);
+  border-top-color: var(--light-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lr-spin { animation: none; }
+}

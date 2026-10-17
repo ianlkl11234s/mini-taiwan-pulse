@@ -1,0 +1,9 @@
+{
+  "popup.analysisResult.hereBefore": "本位置 ",
+  "popup.analysisResult.hereAfter": " 筆紀錄",
+  "popup.analysisResult.selectRecord": "選擇重疊分析紀錄",
+  "popup.analysisResult.recordLabel": "紀錄",
+  "popup.analysisResult.recordValue": "本次分析命中的空間紀錄",
+  "popup.analysisResult.footer": "暫時分析結果 · 非完整來源圖層",
+  "popup.analysisResult.omitted": " · 另有 {count} 筆重疊紀錄未列出"
+}

@@ -4,7 +4,7 @@
  * 把「相機位置 + 開啟哪些圖層 + 圖層參數 + 凍結日期」序列化進 query string，
  * 讓一條網址就能重現特定畫面 —— 主站用於分享連結，`/embed` 用於文章嵌入。
  *
- * 設計原則（見 docs/proposal/embeddable-map-impl.md §4）：
+ * 設計原則（見 docs/archive/2026-10-04/proposal/embeddable-map-impl.md §4）：
  * 1. **Diff-based**：只序列化與預設不同的項目。預設幾乎全關，故 `layers=` 就是「要開的清單」。
  * 2. **Human-readable**：寫文章時要手打／手改，不做 base64 壓縮。
  * 3. **版本化**：`v=1`。缺版本或版本不符一律回空物件，避免舊嵌入碼被新解析器誤讀。
@@ -21,9 +21,10 @@
  *    別人的文章裡出現白屏是最糟的失敗模式，寧可少一層。
  */
 import type { LayerVisibility } from "../types";
-import { LAYER_COLORS, GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { LAYER_COLORS, GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../components/sidebar/layerCatalog";
 import { COMPARISON_STATISTICS_KEYS, STATISTICS_COMPARISONS_UI_ENABLED } from "../data/comparisonStatisticsRecipes";
 import { isRailCode } from "../constants/railLines";
+import { DEFAULT_LOCALE, matchLocale, type Locale } from "../i18n/locales";
 import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
 
 export const URL_STATE_VERSION = 1;
@@ -72,6 +73,8 @@ export interface UrlState {
    * 代碼是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
    */
   railSystems?: string[];
+  /** 介面語系（`?lang=`）。zh-TW 為預設，buildUrl 不寫；主站的 localeStore 另外直接讀網址。 */
+  lang?: Locale;
 }
 
 export interface ParseOptions {
@@ -144,6 +147,7 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
       if (k === "allenCoralAtlas") return false; // private account layers are never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
+      if (RELEASE_HOLD_LAYERS.has(k as keyof LayerVisibility)) return false; // 授權/再散布尚未驗證
       // Comparison selectors stay in the runtime manifest for local contract validation,
       // but production deep links must obey the same release gate as the visible catalog.
       if (COMPARISON_STATISTICS_KEY_SET.has(k) && !STATISTICS_COMPARISONS_UI_ENABLED) return false;
@@ -243,6 +247,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
     if (items.length > 0) state.ui = items;
   }
 
+  const lang = matchLocale(q.get("lang"));
+  if (lang) state.lang = lang;
+
   return state;
 }
 
@@ -284,7 +291,13 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.style) q.set("style", state.style);
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));
+  if (state.lang && state.lang !== DEFAULT_LOCALE) q.set("lang", state.lang);
 
   const sep = base.includes("?") ? "&" : "?";
   return `${base}${sep}${q.toString()}`;
+}
+
+/** 清空網址（私人畫面）時保留語系：中文回到乾淨路徑，外文留 `?v=1&lang=xx`。 */
+export function cleanUrl(pathname: string, lang: Locale): string {
+  return lang === DEFAULT_LOCALE ? pathname : buildUrl({ lang }, pathname);
 }

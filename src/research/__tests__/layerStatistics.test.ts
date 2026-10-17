@@ -82,6 +82,7 @@ describe("generic full-source statistics", () => {
     ]));
     const result = await searchLayerRecords({ layerKey: "schools", query: "台北", limit: 1 });
     expect(result).toMatchObject({ operation: "record_search", totalMatched: 1, returned: 1, returnedFields: expect.arrayContaining(["school_name", "city"]), records: [expect.objectContaining({ id: "a", fields: expect.objectContaining({ school_name: "臺北測試學校", city: "台北市" }) })] });
+    expect(await searchLayerRecords({ layerKey: "schools", filters: [{ field: "address", value: "台北市中正區" }] })).toMatchObject({ totalMatched: 1 });
     await expect(searchLayerRecords({ layerKey: "schools", query: "測試", fields: ["geometry"] } as never)).rejects.toThrow("INVALID_RECORD_SEARCH_INPUT");
     await expect(searchLayerRecords({ layerKey: "schools", query: "" })).rejects.toThrow("RECORD_SEARCH_FIELD_NOT_ALLOWED");
     await expect(searchLayerRecords({ layerKey: "schoolsElementary", query: "測試" })).rejects.toThrow("LAYER_STATISTICS_UNSUPPORTED");

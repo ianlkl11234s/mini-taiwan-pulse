@@ -102,13 +102,16 @@ export function resolveJpAccommodationDensityScale(index: number): JpAccommodati
     ?? (JP_ACCOMMODATION_DENSITY_SCALES[0] as JpAccommodationDensityScale);
 }
 
-export const JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION: ExpressionSpecification = [
-  "step", ["to-number", ["get", "n_records"], 0],
-  JP_ACCOMMODATION_DENSITY_COLORS[0],
-  ...JP_ACCOMMODATION_DENSITY_STOPS.slice(1).flatMap((stop, index) => [
-    stop, JP_ACCOMMODATION_DENSITY_COLORS[index + 1],
-  ]),
-] as unknown as ExpressionSpecification;
+/** R7：7 階色由色盤選單給（預設 YlOrBr，原 ColorBrewer Oranges 不在色盤庫內） */
+export function jpAccommodationDensityColorExpr(colors: readonly string[]): ExpressionSpecification {
+  return [
+    "step", ["to-number", ["get", "n_records"], 0],
+    colors[0],
+    ...JP_ACCOMMODATION_DENSITY_STOPS.slice(1).flatMap((stop, index) => [
+      stop, colors[index + 1],
+    ]),
+  ] as unknown as ExpressionSpecification;
+}
 
 export const JP_TOURISM_FILTER_LAYER_IDS: Partial<Record<JpTourismLayerKey, string>> = {
   jpNaturalParksNational: "jp_natural_parks_national",

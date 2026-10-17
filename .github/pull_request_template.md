@@ -29,7 +29,9 @@
 
 ## Checklist (依 CLAUDE.md §Git Workflow)
 
-- [ ] Branch 名符合 `feat/fix/perf/docs/chore/hotfix/<slug>`
+- [ ] Base 是 `develop`（`hotfix/*` 與發布 PR 才進 `master`）
+- [ ] Branch 名符合 `feat/fix/perf/docs/chore/memory/hotfix/<slug>`
+- [ ] user-facing 改動已在 `CHANGELOG.md` 的 `## [Unreleased]` 加一行
 - [ ] Commit prefix 走 Conventional Commits
 - [ ] 若動 layer → 已跑 `layer-onboarding` skill 7 步 SOP
 - [ ] 若動資料契約 → upstream handoff 已更新 / ADR 已開

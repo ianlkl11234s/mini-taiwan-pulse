@@ -1,0 +1,116 @@
+# 多語系路線圖（長期任務）
+
+> 起點：2026-10-12 PR #576（P0 試點）已合進 develop。架構與五問見 [`PLAN.md`](./PLAN.md)，用語表見 [`translation-coverage.md`](./translation-coverage.md)。
+> 本檔是**接手入口**：每次開工先看「目前進度」與「下一步」，收工更新「進度紀錄」。
+
+**一句話**：照區塊一塊一塊把寫死的中文換成 `t("key")`。每塊做完就合併，數字只能往下。沒翻到的地方會顯示中文，所以中途合併也不會壞畫面。
+
+---
+
+## 1. 怎麼看進度
+
+```bash
+npx tsx scripts/i18n/hardcoded-zh.ts          # 各區塊還剩幾行寫死的中文
+npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖住新基準
+```
+
+- **口徑**：去掉註解後還含中文的程式行數。這是近似值，只拿來比前後增減。
+- **防倒退只擋已翻完的檔案**：`hardcodedZh.test.ts` 只擋「已翻完（嚴格）」區塊比基準多；其他區塊只印報告。
+  - 原因：新增圖層本來就要在 manifest 寫中文名，參數 `labelPrefix` 依 design guard 也必須是中文。若未開工的區塊也擋，每個新圖層 PR 都會紅。
+- **基準**：存在 `hardcodedZh.baseline.json`。`--write` 只在嚴格區塊變多時拒絕寫入。
+- **（資料）區塊不追求歸零**：`src/data/`、`src/research/` 裡的中文很多是識別字或資料標籤的正本（例：manifest 的中文圖層名），要在顯示層用對照表翻，不是刪掉。這兩區改看翻譯覆蓋率。
+
+### 目前進度（2026-10-12 基準，共 13,546 行）
+
+| 階段 | 區塊 | 剩餘行數 | 狀態 |
+|---|---|---|---|
+| P0 | 工具列、外框 | 321 | ✅ 外框已翻；剩下是 App.tsx 裡的通知、錯誤訊息等，併入各階段處理 |
+| P0 | 側欄 | 645 | ✅ 外框與圖層名已翻；剩資料來源面板內文、主題識別字（不翻） |
+| P1 | 點擊說明框 | 425＋415 | ✅ 全部面板完成（425 行是 registry 標題正本、415 行是資料值與代碼對照表正本） |
+| P2 | 圖例 | 0＋126 | ✅ 全部圖例完成（拆成 `legend/<domain>Legends.tsx`；126 行在嚴格區塊，是註解、英文小字旁的中文與對照表正本） |
+| P2 | 圖層設定面板 | 645 | ✅ 已翻（顯示層）；645 行是 `layerParamsSpec.ts` 的中文正本，**永久保留**，英日文在 `params.json` |
+| P2 | 地圖 hook／圖層文字 | 350 | |
+| P2/P5 | 資料標籤（資料） | 3,064 | ✅ P2b 統計標籤已在顯示層翻（配方中文是正本，永久保留）；剩餘為各 `*Types.ts` 正本與 P5 資料內容 |
+| P3 | 監測模式 | 0 | ✅ 全部卡片、外殼、警報牆完成（剩中文正本對照表在嚴格區塊） |
+| P3 | 衛星主控台 | 0 | ✅ 完成；資料層中文輸出（相對時間、運作時間、變軌欄位）在顯示層解析，有契約測試 |
+| P3 | 會員、登入、後台 | 29 | ✅ 會員與登入完成；29 行是後台（只有站主用，決定不翻） |
+| P3 | 時間軸 | 0 | ✅ 完成（外文民國年轉西元） |
+| P4 | AI 對話 | 見下 | ✅ 對話框依介面語系回答；對話框介面已翻。剩下是系統提示與工具說明（AI 讀，不翻） |
+| P4 | 分析 Agent、資料描述（資料） | 見下 | ✅ Agent 面板與分析卡外框已翻；資料集描述約 1,240 行只給 AI 讀，不翻。**P4-C（Agent 依配對網頁語言回答）待做**：MCP 先改 |
+| — | 其他 | 603 | 歸類後分到各階段 |
+
+---
+
+## 2. 每次開工／收工的固定步驟
+
+**開工**
+1. `git fetch`，從 `origin/develop` 開分支：`feat/i18n-<區塊>`，例 `feat/i18n-popup-transport`。
+2. 跑 `npx tsx scripts/i18n/hardcoded-zh.ts` 記下起點。
+3. 看本檔「下一步」與該階段的「做法」。
+
+**做一個區塊**
+1. 把寫死的中文搬到 `src/i18n/locales/zh-TW/<區塊>.json`，**逐字照搬**，確保中文畫面不變。程式改用 `t("key")`。新區塊檔照 `src/i18n/README.md`「新增一個區塊檔」接上型別。資料的外文欄位用 `localizedField`，類別代碼用 `enumLabel`。
+2. 同一批 key 補 `en/`、`ja/` 翻譯，用語照 `translation-coverage.md` 的用語表。
+3. **校對兩輪**：英、日各派一個子代理。第一輪逐筆對照中文修正，第二輪重讀檢查用語一致。新用語補進用語表。
+4. 驗證：
+   - `npx tsc -b` 通過。
+   - `npx vitest run src/i18n` 通過（含 parity 與防倒退）。
+   - 相關元件的測試通過。
+   - 瀏覽器帶 `?lang=en`、`?lang=ja` 點幾個樣本，並確認不帶參數時中文畫面沒變。
+5. 把這次翻完、寫死中文已歸零的檔案，加進 `src/i18n/__tests__/hardcodedZhScan.ts` 的 `translated` 區塊（嚴格）。
+6. `npx tsx scripts/i18n/hardcoded-zh.ts --write --accept translated` 鎖住新基準，跟程式一起 commit（`--accept` 是因為搬進新檔案，嚴格區塊的計數會上升；搬進去的檔案剩下的中文只能是資料值或 `enumLabel` 的中文正本）。
+
+**收工**
+1. 在本檔「進度紀錄」加一列：日期、PR、區塊、前→後行數。
+2. 更新上面的「目前進度」表與「下一步」。
+3. PR 到 develop，CHANGELOG `[Unreleased]` 加一行。
+
+**拆 PR 的大小**：一個 PR 一個子區塊，約 300–800 行。說明框依主題拆，例：交通、災害、醫療…。
+
+---
+
+## 3. 各階段
+
+| 階段 | 範圍 | 做完能多看懂什麼 | 主要做法 | 要拍板的事 |
+|---|---|---|---|---|
+| **P1 點擊說明框** | `featureInfo/` 約 55 個面板：欄位名（「地址」「營業時間」）、標題、單位 | 點地圖跳出的資訊 | ⓪ 先改 `/new-layer`（layer-creator agent）產生的 popup 骨架，讓新面板一開始就用 `t()`。① 欄位名改 `t("popup.field.address")`，同名欄位共用 key。② 資料已有外文欄位的（颱風 `name_en`、博物館 `name_eng`…）依語系優先顯示。③ 縣市鄉鎮英譯表（內政部官方，22＋368）。④ 自由文字（新聞、警報）加「原文」標記 | 無 |
+| **P2 圖例與設定** | `LegendPanel`、`legend/*`、約 300 個參數標籤、類別代碼對照（`*Types.ts`）、統計指標名與單位 | 顏色代表什麼、怎麼調圖層 | ✅ P2a 已完成：設定面板在顯示層用中文原文查 `params.json`（規格與 guard 不動，見 `src/i18n/paramText.ts`）；圖例拆成主題檔後平行翻譯，類別走 `enumLabel`。P2b：統計 `indicator_name`、期別、維度值、說明・來源與資料來源總覽 | 無（原「guard 怎麼改」已不需要） |
+| **P3 進階模式** | 監測模式、衛星主控台、時間軸、會員、後台 | 使用進階模式 | 同 P1 | 後台（只有站主用）要不要翻 |
+| **P4 AI 與 Agent** | `chat/systemPrompt.ts` 寫死繁中、MCP「Answer in plain Chinese」、`research/*Dataset.ts` 描述 | 用英日文發問並得到同語言回答 | 把目前語系傳給 chat 與 MCP；跨 repo，MCP 先改 | 跨 repo 發布順序 |
+| **P5 資料內容** | 站名英文、新聞與警報機器翻譯 | 即時資料內容 | 先查 collector 有沒有存 TDX 英文站名；機器翻譯在 collector 做並標示 | 機器翻譯要不要做、花費多少 |
+| **收尾** | 依瀏覽器語言自動切換、`index.html` 的 title／meta／OG、底圖地名換語言、分享連結帶 `lang=` | 外國訪客第一次打開就是他的語言 | ✅ 已完成：瀏覽器語言自動切換（決策 1 改甲）、分享連結帶 `lang=`、`index.html` meta／OG、底圖地名跟著語言 | — |
+
+### 下一步
+P4-C：Agent 依配對網頁的語言回答（跨 repo：MCP 的 `map_context` 帶 locale、server 指示與 pulse-conductor 回答格式補英日文版、拿掉 `cardPayload` 圖例標題必須含漢字的限制、eval 語氣檢查依語系）。P5 遺留已清完；新聞、警報、即時事件內文依決定不翻。
+
+---
+
+## 4. 長期規則（已生效）
+
+> 架構、命名慣例與常見工作的步驟寫在 [`src/i18n/README.md`](../../../src/i18n/README.md)。
+
+- **新的介面文字一律用 `t("key")`**。已翻完的檔案寫死中文會讓測試變紅，請修程式，不要調高基準；未開工的區塊照舊可以寫中文，等該階段一起搬。
+- **識別字不翻**：`section.theme`、manifest `label`、URL 參數、元件狀態值都不翻。只在顯示層翻譯（見 `src/i18n/layerText.ts`）。
+- **新圖層**：中文名寫在 manifest。英日文名稱補在 `layers.json`，沒補時會回退到 manifest 的外文名或中文，不會擋上線。新圖層上線時順手補，校對規則同上。
+- **新語系**：見 `src/i18n/README.md`「新增一個語系」。可以先標 `partial` 邊翻邊合併。
+- **翻譯品質**：使用者不諳英日文，由 Claude 各校對兩輪，不確定的項目記進 `translation-coverage.md`。
+
+---
+
+## 5. 進度紀錄
+
+| 日期 | PR | 區塊 | 寫死中文（前 → 後） | 備註 |
+|---|---|---|---|---|
+| 2026-10-12 | #576 | P0 架構、切換器、工具列、側欄、圖層名 | 建立基準 13,546 | 英日圖層名各約 1,000 筆，各校對兩輪 |
+| 2026-10-12 | （本 PR） | P1 說明框：標題列、共用元件、常用欄位 70 個（769 處）、交通類 | 說明框 3,645 → 2,990 | 修正 tmrt 誤標為桃園捷運；新增 `--accept` 供搬檔進嚴格區塊 |
+| 2026-10-12 | （本 PR） | P1 說明框其餘 49 檔、共用欄位合併、民國年換算 | 說明框 2,990 → 425（報告）＋415（嚴格，資料值） | key 型別改腳本產生；英日各四段兩輪校對 |
+| 2026-10-12 | （本 PR） | P2a 設定面板＋圖例 | 圖例 1,147 → 0（報告）＋126（嚴格）；設定面板顯示層全翻 | 圖例檔依主題拆分；`params.json` 用中文原文當 key，`english-control-label` guard 不必改；英日各兩輪校對；原能會改核安會 |
+| 2026-10-15 | （本 PR） | P2b 統計圖層、資料來源總覽、補 219 個新圖層名、develop 新增 atlas 26 層說明框與圖例 | 側欄 632 → 511；atlas 152 → 37（嚴格） | 配方中文不動，單位／頻率以中文原文查 enum；連動選單 localize，Agent 仍讀中文；英日各兩輪校對 |
+| 2026-10-15 | （本 PR） | P3 監測模式、衛星主控台、時間軸、會員 | 監測 934、衛星 178、時間軸 82、會員 60 → 0（後台 29 不翻） | 英日各兩輪校對；時間改固定台北時區；合併兩套相對時間函式 |
+| 2026-10-15 | （本 PR） | P4-A／B 對話框依語系回答、AI 介面翻譯 | 對話框、Agent 面板、分析卡外框寫死中文歸零（嚴格區塊） | 傳給 AI 的字串維持中文；工具摘要 chip 外文顯示通用狀態；分析卡頁補 localeStore.init |
+| 2026-10-16 | #603 | P5 站名類固定資料：車站（高鐵、台鐵、捷運、輕軌）、機場、港口、燈塔、國道服務區、YouBike 說明框 | 寫死中文不增加（嚴格區塊持平）；新增 `enums.railLine`／`enums.facility` | `station_points.geojson` 補 504 筆 name_en、`port_polygons.geojson` 補 26 筆（漁港上游英文名對錯港不採用）；計程車招呼站為自由文字不翻 |
+| 2026-10-16 | #604 | P2 遺留：統計「指標／口徑」選項短句翻譯、人口統計期別句 | 統計設定面板選項不再冒中文 | 選項拆地理前綴／括號註記後查 `enums.statVariant.json`（英日各約 190 筆）；說明框期別由 loader 帶結構化欄位、面板組句；Agent 仍讀中文 |
+| 2026-10-16 | #605 | P5 固定文字：縣市鄉鎮名、統計發布機關與授權、資料來源總覽機關與授權 | 新增 `placeText.ts`／`agencyText.ts`；縣市鄉鎮 390 筆（代碼＋名稱＋連寫三種 key）、機關 114 筆、授權歸 6 類＋長句整句查表 | 對照表由 `scripts/i18n/gen-place-names.ts` 從 MOI CSV 產生；查不到退回原文；英日各兩輪校對 |
+| 2026-10-16 | #607 | 收尾：瀏覽器語言自動切換、分享連結帶 `lang=`、`index.html` 描述與 OG | 寫死中文不變 | 順序 `?lang=` ＞ localStorage ＞ `navigator.languages` ＞ 中文；`buildUrl` 非中文才寫 `lang`，切語言後網址即時更新；底圖地名另一條 |
+| 2026-10-16 | #608 | 收尾：底圖地名換語言 | 主站 Mapbox 帶 `language`＋訂閱語系呼叫 `setLanguage`；嵌入頁／分析卡 Protomaps `lang` 依語系 | 新增 `map/basemapLanguage.ts`；`setLanguage` 只重抓 tile、不重載 style，自訂圖層實測不受影響；中文介面原本其實顯示英文地名（classic style 預設 `name_en`），改為繁中；嵌入頁補 `localeStore.init` |
+| 2026-10-17 | （本 PR） | P5 小遺留：說明框縣市鄉鎮欄、公車站英文名、嵌入頁「在 Mini Taiwan Pulse 開啟」 | 嚴格區塊持平 779；約 30 個說明框檔改走 `placeName`／`placeTown` | 公車站英文名其實已在 analytics 的 TDX stops 資料（`Stops[].StopName.En`），不必改 collector：`scripts/preprocess/merge-bus-station-name-en.py` 依（縣市碼, StationID）取最多數英文名，市區 99.4%、公路客運 100%；站點檔 gitignored，**發布時要重跑 `upload-deploy-assets.sh` 上傳新的 `bus_stations_city.pmtiles`／`bus_stations_intercity.geojson`**；少數上游英文名本身有錯（例：財政部印刷廠→Dalijian library）；新增 `countyFieldsI18n.test` 逐一渲染所有說明框擋漏翻 |

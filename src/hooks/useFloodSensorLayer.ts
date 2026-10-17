@@ -10,6 +10,8 @@ import {
   type FloodSensorDayRow,
 } from "../data/floodSensorLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -58,6 +60,10 @@ interface StationSeries {
   si_unit: string;
   readings: Array<{ t: number; v: number }>;
 }
+
+const OPACITY_DEFAULT = Number(paramDefault("floodSensor", "floodSensorOpacity"));
+/** 即時資料光暈上限（pointSpec LIVE_DECORATION_CAP）：透明度 ≤ 0.35 */
+const glowOpacity = (isDark: boolean, opacity: number) => Math.min(0.35, (isDark ? 0.4 : 0.3) * opacity);
 
 function depthColorExpression(): ExpressionSpecification {
   return [
@@ -147,7 +153,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": dotRadiusExpression(scale * 1.8),
         "circle-color": depthColorExpression(),
         "circle-blur": 0.7,
-        "circle-opacity": (isDark ? 0.4 : 0.3) * opacity,
+        "circle-opacity": glowOpacity(isDark, opacity),
       },
     } as CircleLayer);
   }
@@ -160,9 +166,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": dotRadiusExpression(scale),
         "circle-color": depthColorExpression(),
         "circle-opacity": 0.9 * opacity,
-        "circle-stroke-width": 0.5,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.5 * opacity,
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     } as CircleLayer);
   }
@@ -179,12 +183,15 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
   }
   if (map.getLayer(LAYER_GLOW)) {
     map.setPaintProperty(LAYER_GLOW, "circle-radius", dotRadiusExpression(scale * 1.8));
-    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.4 : 0.3) * opacity);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", glowOpacity(isDark, opacity));
   }
   if (map.getLayer(LAYER_DOT)) {
     map.setPaintProperty(LAYER_DOT, "circle-radius", dotRadiusExpression(scale));
     map.setPaintProperty(LAYER_DOT, "circle-opacity", 0.9 * opacity);
-    map.setPaintProperty(LAYER_DOT, "circle-stroke-opacity", 0.5 * opacity);
+    const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }
 }
 
@@ -269,6 +276,9 @@ export function useFloodSensorLayer(
 
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
   const currentDateRef = useRef<string>("");
+  // 主題／大小／透明度只走 ref + 下方樣式 effect，不進資料 effect 的 deps（避免重抓／重訂閱）
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
 
   useEffect(() => {
     if (!visible) return;
@@ -281,8 +291,9 @@ export function useFloodSensorLayer(
     const attach = () => {
       if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
+      const st = styleRef.current;
+      ensureLayers(map, st.isDark, st.scale, st.opacity);
+      updatePaint(map, st.isDark, st.scale, st.opacity);
       setLayerVisibility(map, true);
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     };
@@ -323,12 +334,33 @@ export function useFloodSensorLayer(
     });
     const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
 
+    // 換底圖（setStyle）會清掉自訂 source/layer：重建後用已快取資料重畫，不重新抓
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      try {
+        const st = styleRef.current;
+        ensureLayers(map, st.isDark, st.scale, st.opacity);
+        updatePaint(map, st.isDark, st.scale, st.opacity);
+        setLayerVisibility(map, true);
+        redraw();
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
+
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
       if (pollTimer) clearInterval(pollTimer);
       unsubDate();
       unsubTime();
       try { if (map.getLayer(LAYER_DOT)) setLayerVisibility(map, false); } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 主題／大小／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, isDark, scale, opacity);
   }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

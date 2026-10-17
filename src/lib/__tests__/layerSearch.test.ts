@@ -41,6 +41,10 @@ describe("layerSearch", () => {
     expect(searchLayers("definitely-not-a-layer")).toEqual([]);
   });
 
+  it("normalizes 臺 and 台 without changing the manifest-derived index", () => {
+    expect(searchLayers("臺灣").map((layer) => layer.key)).toEqual(searchLayers("台灣").map((layer) => layer.key));
+  });
+
   it("searches upstream dataset IDs and source-kind labels without exposing implementation text", () => {
     const results = searchLayers("usesatelliteslayer");
     expect(results.length).toBeGreaterThan(0);

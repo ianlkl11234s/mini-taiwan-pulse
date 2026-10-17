@@ -58,7 +58,8 @@
       "zoom": 14,
       "visible": true,
       "popup_height_m": 18,
-      "source_year": 2026,
+      "release_year": 2026,
+      "source_time": "varies by location; acquisition date is not fixed",
       "partial_coverage_note_visible": true
     },
     "page_error_logs": 0

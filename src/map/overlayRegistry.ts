@@ -1,11 +1,132 @@
+import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
+import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
+import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
+import { THEMED_PAINT_COLORS } from "./layerPaintColors";
+import { GOV_SERVICE_PAINT_COLORS, ROAD_DRIVE_PAINT_COLORS } from "./layerPaintColors";
+import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
-import type { OverlayConfig } from "../types";
+import type { OverlayConfig, OverlayLayerSpec } from "../types";
+import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
+import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
+import { paramDefault } from "../data/layerParamsSpec";
+import { fireStationColorMatch } from "../data/fireTypes";
+import { withPointSpec } from "./pointSpec";
+import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
+import { withLineFillSpec } from "./lineFillSpec";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+
+/** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
+const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
+
+/**
+ * R5（P-4）密集點的出點縮放：第一參數＝全資料集點數（2026-10-02 量測），第二參數＝原本點的 minzoom
+ * （較高者保留，不讓點比原本更早出現）。熱區畫在這個縮放以下。
+ */
+const DENSE_FROM = {
+  pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
+  streetTreesNational: densePointsFromZoom(210_436),
+  manufacturingCompanyPoints: densePointsFromZoom(184_944),
+  pollutionFacility: densePointsFromZoom(152_246),
+  pollutionPenaltyMobile: densePointsFromZoom(111_067, 5),
+  streetTreesTaipei3epoch: densePointsFromZoom(105_675),
+  streetTreesTaipeiDiff: densePointsFromZoom(99_527),
+  factoryLocations: densePointsFromZoom(90_652),
+  regulatedFacilities: densePointsFromZoom(80_732),
+  wasteStopsStatic: densePointsFromZoom(73_060, 6),
+  pollutionPenaltyCritical: densePointsFromZoom(55_281, 5),
+  busStationsCity: densePointsFromZoom(49_989),
+  agriRetail: densePointsFromZoom(37_430, 8),
+  medLTC: densePointsFromZoom(31_330),
+  noiseEnforcementEvents: densePointsFromZoom(29_661, 5),
+  osmPowerTowers: densePointsFromZoom(26_589, 8),
+  medClinic: densePointsFromZoom(23_704),
+  accidentTaipei: densePointsFromZoom(22_918, 10),
+  agriProduceWholesale: densePointsFromZoom(22_843, 8),
+  accessibleParkFacilities: densePointsFromZoom(20_870),
+  religionTemples: densePointsFromZoom(19_201),
+  harmReductionDuiCrashes: densePointsFromZoom(36_814),
+  highwayDisasterHistory: densePointsFromZoom(16_163),
+  swcbDisasterPhotoPoints: densePointsFromZoom(34_419),
+  tourHotels: densePointsFromZoom(15_654),
+  medAED: densePointsFromZoom(15_490),
+  busStationsIntercity: densePointsFromZoom(15_383),
+  publicToilets: densePointsFromZoom(13_281, 11),
+  convenienceStores: densePointsFromZoom(13_223),
+  sportsSchool: densePointsFromZoom(12_221, 7),
+  bicycleSupport: densePointsFromZoom(11_989),
+  commonRegistrationAddresses: densePointsFromZoom(11_121, 6),
+  riversideTreesTaipei: densePointsFromZoom(10_917),
+} as const;
+
+/** 共同登記地址「至少 N 家公司」門檻；點與熱區共用。 */
+const commonRegistrationFilter = (p?: Record<string, number>): unknown[] => [
+  ">=",
+  ["to-number", ["get", "n_companies"], 0],
+  p?.commonRegistrationAddressesMinCompanies ?? 5,
+];
+
+/** 行道樹變化 status 篩選（點用 opacity 歸零）→ 熱區 weight：0=全部 1=只看消失 2=只看變動。 */
+function streetTreesDiffStatusWeight(filt: number): unknown {
+  if (filt === 1) return ["case", ["==", ["get", "status"], "disappeared"], 1, 0];
+  if (filt === 2) return ["case", ["==", ["get", "status"], "persisted"], 0, 1];
+  return 1;
+}
+
+/** 行道樹三時點軌跡篩選（點用 opacity 歸零）→ 熱區 weight。 */
+function streetTrees3epochTrajWeight(filtIdx: number): unknown {
+  const codes = STREET_TREE_3EPOCH_TRAJ_FILTERS[filtIdx]?.codes ?? null;
+  return codes ? ["match", ["get", "traj"], codes, 1, 0] : 1;
+}
+
+/**
+ * R5（P-4／G-2）密集點的熱區子圖層：畫在出點縮放以下（maxzoom 見 heatmapMaxzoom），不可點擊
+ * （gisClickRegistry 只登記點）。與點共用同一個透明度滑桿：熱區透明度＝0.8 ×（滑桿 ÷ 預設）。
+ * - `opacity` 省略＝該層用 `opacityParam` 乘數型滑桿，由 applyLayerOpacity 統一乘上，這裡傳 1。
+ * - `filter` 與點的子圖層相同（函式形式時 suffix 也要列進 rebuildOnParamChange 才會跟著更新）。
+ * - `weight`：點用 opacity 歸零做篩選時，熱區改吃同條件的 `["case", 條件, 1, 0]`。
+ * - `intensity`：依資料密度校正（2026-10-02：全台 z7.3／本州 z6 視角，以 heatmap kernel 離線模擬＋瀏覽器截圖對照，
+ *   全台層取「頂色像素約佔熱區 11%」、日本層約 2%；只有臺北的層改在臺北 z9.3 視角取約 11%（行道樹全市均勻密集，
+ *   0.03 會整片飽和）；以 fireHydrants 0.1、medClinic 1、jpReligionGsi 1 為目視定錨）。
+ *   低縮放切片有抽稀的層（busStationsCity、medLTC、medAED、agri* 等）值較高是在補抽稀，不代表資料較稀。
+ */
+function denseHeatmapLayer(o: {
+  suffix?: string;
+  pointsFromZoom: number;
+  intensity: number;
+  /** 熱區顏色讀哪一層的色盤選單（R7）；省略＝`opacity.layer` */
+  layer?: string;
+  opacity?: { layer: string; param: string };
+  filter?: OverlayLayerSpec["filter"];
+  weight?: (params?: Record<string, number>) => unknown;
+}): OverlayLayerSpec {
+  const layer = o.layer ?? o.opacity?.layer;
+  if (!layer) throw new Error("denseHeatmapLayer 需要 layer（色盤選單的 layer key）");
+  return {
+    suffix: o.suffix ?? "heatmap",
+    type: "heatmap",
+    maxzoom: heatmapMaxzoom(o.pointsFromZoom),
+    ...(o.filter ? { filter: o.filter } : {}),
+    // R7：顏色由解析器依該層色盤＋底圖給；Q6 B：同時開 ≥2 層熱區時透明度再乘疊放倍率。
+    paint: (isDark, p) => {
+      let scale = 1;
+      if (o.opacity) {
+        const def = Number(paramDefault(o.opacity.layer, o.opacity.param));
+        scale = def > 0 ? (p?.[o.opacity.param] ?? def) / def : 1;
+      }
+      return heatmapPaint(scale, o.intensity, o.weight ? o.weight(p) : 1, heatmapRampFor(layer, isDark), heatmapStackFactor());
+    },
+  };
+}
+
+/** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
+const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
 import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
   OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
+import { RAIL_ROUTES_URL, RAIL_ROUTES_SOURCE_ID, RAIL_ROUTES_FALLBACK_COLOR, railRoutesSystemFilter } from "../data/railRoutesTypes";
 import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -125,6 +246,33 @@ import {
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 import {
+  accessibleFacilityFilter, bicycleSupportServiceFilter, disasterShelterTypeFilter,
+  publicToiletTypeFilter, recyclingMaterialFilter,
+} from "../data/publicLifeTypes";
+import {
+  ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
+} from "../data/publicLifePalette";
+import {
+  CONDOM_OUTLET_OPTIONS, DUI_CLASS_OPTIONS, HARM_REDUCTION_COLORS, HIV_TESTING_CATEGORY_OPTIONS,
+  INTERNET_SERVICE_TYPE_OPTIONS, SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS,
+  alcoholServiceFilter, categoryColorExpression, condomOutletFilter, duiCrashFilter, hivTestingCategoryFilter,
+  internetServiceTypeFilter, needleServiceFilter, prepFundingFilter, selftestChannelFilter, smokingFacilityFilter,
+  treatmentCategoryFilter,
+} from "../data/harmReductionTypes";
+import {
+  ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
+} from "../data/landslideTypes";
+import {
+  ANIMAL_STATUS_OPTIONS, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FLOOD_YEARS, FREEWAY_SIGN_GROUP_OPTIONS,
+  FREEWAY_SIGNS_MIN_ZOOM, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MILEPOSTS_MIN_ZOOM, MONITORED_MIN_ZOOM,
+  MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
+  ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
+  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
+  atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
+  matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
+} from "../data/atlasLayerTypes";
+import { contourColorExpr, contourFilter, SEAWALL_MIN_ZOOM, STATION_TYPE_OPTIONS, type ContourType } from "../data/landSubsidenceTypes";
+import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
   NOISE_CAPTURE_ATTRIBUTION,
   NOISE_CAPTURE_COLOR_EXPR,
@@ -137,13 +285,22 @@ import {
   officialNoisePeriodFilter,
   soundCameraFilter,
 } from "../data/noiseTypes";
+import {
+  DRINKING_WATER_ZONE_COLOR_EXPR, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_COLOR_EXPR, RIVER_RPI_NO_DATA_COLOR, SEWAGE_UNCERTAIN_EXPR, WATER_QUALITY_STATION_COLOR_EXPR,
+  riverRpiClassFilter, waterQualityStationTypeFilter,
+  CEMS_STATUSES, CWA_UV_LEVELS, DIOXIN_STATION_STOPS, ENV_ALERT_COLOR, ENV_STALE_COLOR, INCINERATOR_NOX_STOPS, NUSC_GAMMA_STOPS,
+  OSM_ODBL_ATTRIBUTION, PM25_MANUAL_INACTIVE_EXPR, PM25_MANUAL_STOPS, RIVER_RPI_TIDAL_VALUES, SEA_WATER_CLASS_COLOR_EXPR,
+  SEA_WATER_STALE_EXPR, WATER_EFFLUENT_STATUSES, envInterpolate, envStatusColorExpr, riverRpiSegmentColorExpr,
+} from "../data/environmentLayerTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
   JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
-  JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_STOPS,
+  jpAccommodationDensityColorExpr,
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
+import { medicalPoiColor } from "../data/medicalPOITypes";
 
 function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): OverlayConfig {
   return {
@@ -155,15 +312,15 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
     layers: [
       {
         suffix: "fill", type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+        paint: (isDark, params) => ({
+          "fill-color": jpAccommodationDensityColorExpr(gridRampFor("jpAccommodationDensity", isDark, JP_ACCOMMODATION_DENSITY_STOPS.length)),
           "fill-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
         }),
       },
       {
         suffix: "outline", type: "line", minzoom: 9,
         paint: (isDark, params) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.18)" : "rgba(124,45,18,0.28)",
+          "line-color": THEMED_PAINT_COLORS.jpAccommodationOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.15, 14, 0.55],
           "line-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
         }),
@@ -178,10 +335,10 @@ function industrialDensityOverlay(id: IndustrialDensityKey, source: ReturnType<t
     id, sourceId: source.sourceId, sourceUrl: source.url,
     pmtiles: { sourceLayer: source.sourceLayer, minzoom: source.minzoom, maxzoom: source.maxzoom },
     layers: [{ suffix: "fill", type: "fill", minzoom: coarse ? 4 : 10, ...(coarse ? { maxzoom: 10.01 } : {}),
-      paint: (_isDark, params) => {
+      paint: (isDark, params) => {
         const opacity = params?.[`${id}Opacity`] ?? 0.85;
         return {
-          "fill-color": industrialDensityColorExpr(),
+          "fill-color": industrialDensityColorExpr(gridRampFor(id, isDark, 7)),
           // roundZoom bridge 保持 source 活躍，精確 z10 切換可見尺度。
           "fill-opacity": coarse ? ["interpolate", ["linear"], ["zoom"], 4, opacity, 9.999, opacity, 10, 0] : opacity,
         };
@@ -200,15 +357,15 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
     layers: [
       {
         suffix: "fill", type: "fill", minzoom: 4,
-        paint: (_isDark, p) => ({
-          "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx),
+        paint: (isDark, p) => ({
+          "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx, gridRampFor("companyCapitalGrid", isDark, 7)),
           "fill-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
       {
         suffix: "outline", type: "line", minzoom: 10,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.18)",
+          "line-color": THEMED_PAINT_COLORS.companyGridOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.15, 14, 0.55],
           "line-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
@@ -235,8 +392,8 @@ function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig
       maxzoom: overviewEndZoom,
       // 格網未套用 detail filter，filters active 時絕不可顯示為篩選後總量。
       layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
-      paint: (_isDark, p) => ({
-        "fill-color": companyGridDensityColorExpr(scale),
+      paint: (isDark, p) => ({
+        "fill-color": companyGridDensityColorExpr(scale, gridRampFor("companyPoints", isDark, 7)),
         // 依使用者 opacity 顯示；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
         "fill-opacity": ["interpolate", ["linear"], ["zoom"],
           overviewStartZoom, (p?.companyPointsOpacity ?? 0.82),
@@ -261,16 +418,16 @@ function companyDemographicsOverlay(id: "companyIndustryDistribution" | "company
         && (p?.companyIndustryDistributionMidIdx ?? 0) === 0
         && (p?.companyIndustryGroupsMask ?? ((1 << COMPANY_INDUSTRY_GROUPS.length) - 1)) === 0
         ? { visibility: "none" } : { visibility: "visible" },
-      paint: (_isDark, p) => {
+      paint: (isDark, p) => {
         const opacity = p?.[`${id}Opacity`] ?? (id === "companyAgeStructure" ? 0.85 : 0.68);
         const mask = p?.companyIndustryGroupsMask ?? 2047;
         const midIdx = p?.companyIndustryDistributionMidIdx ?? 0;
         const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
         const color = id === "companyIndustryDistribution"
           ? (p?.companyIndustryDisplayIdx ?? 0) === 1
-            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale)
+            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale, gridRampFor(id, isDark, 7))
             : companyIndustryDominantColorExpr(mask, midCode)
-          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0);
+          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0, gridRampFor(id, isDark, 7));
         const zoomOpacity: number | unknown[] = end === undefined
           ? opacity
           : ["interpolate", ["linear"], ["zoom"], start, opacity, end - 0.001, opacity, end, 0];
@@ -342,6 +499,172 @@ const TOUR_ATTRACTIONS_HEAT_COLOR: unknown[] = [
     ["log10", ["max", ["get", "annual_visitors_2024"], 1]],
     4, "#ffe082", 5, "#ffb300", 6, "#f4511e", 7.5, "#b71c1c"],
   "#616161",
+];
+
+function publicLifePointOverlay(
+  id: keyof import("../types").LayerVisibility,
+  sourceUrl: string,
+  sourceId: string,
+  color: unknown,
+  pmtiles?: { sourceLayer: string; minzoom: number; maxzoom: number },
+  attribution = "© OpenStreetMap contributors (ODbL) · snapshot exploration，非完整官方清冊",
+  radius: readonly [number, number] = [3, 6],
+  options?: {
+    filter?: (params?: Record<string, number>) => unknown[];
+    labelMinzoom?: number;
+    /** R5 密集點：出點縮放以下畫熱區（點數 ≥ 10k 才給）。 */
+    dense?: { pointsFromZoom: number; intensity: number };
+  },
+): OverlayConfig {
+  const paramFilter = options?.filter;
+  const filterProps = paramFilter ? { filter: paramFilter } : {};
+  const dense = options?.dense;
+  const pointMinzoom = dense ? { minzoom: dense.pointsFromZoom } : {};
+  // 透明度 fallback 跟滑桿預設一致（P-3 依點數分階）
+  const opacityDefault = Number(paramDefault(id, `${id}Opacity`) ?? .85);
+  const labelFilter = (params?: Record<string, number>): unknown[] => ["all",
+    ...(paramFilter ? [paramFilter(params)] : []),
+    ["has", "name"],
+    ["!=", ["get", "name"], ""],
+  ];
+  // Mapbox GL production 會在 PMTiles/vector source 的 symbol placement 路徑
+  // 拋出 continuePlacement undefined-length，進而中止整張地圖 render。
+  // PMTiles 保留 circle/popup；名稱 label 只加在已驗證穩定的 GeoJSON source。
+  const labelLayers: OverlayConfig["layers"] = pmtiles ? [] : [{
+    suffix: "label", type: "symbol", minzoom: Math.max(options?.labelMinzoom ?? 14, LABEL.minZoom),
+    layout: {
+      "text-field": ["get", "name"],
+      ...poiLabelLayout(),
+      "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+      "text-variable-anchor": ["top", "bottom", "left", "right"],
+      "text-radial-offset": .8,
+      "text-max-width": 14,
+      "text-optional": true,
+    },
+    filter: labelFilter,
+    paint: (dark, p) => ({
+      "text-color": dark ? "#f8fafc" : "#0f172a",
+      ...labelHaloPaint(dark),
+      "text-opacity": p?.[`${id}Opacity`] ?? opacityDefault,
+    }),
+  }];
+  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: [...(dense && paramFilter ? ["heatmap"] : []), "glow", "circle", ...(pmtiles ? [] : ["label"])], layers: [
+    ...(dense ? [denseHeatmapLayer({ ...dense, opacity: { layer: id, param: `${id}Opacity` }, ...filterProps })] : []),
+    { suffix: "glow", type: "circle", ...pointMinzoom, paint: (_dark, p) => {
+      const scale = p?.[`${id}Scale`] ?? 1;
+      const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
+      return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
+    }, ...filterProps },
+    { suffix: "circle", type: "circle", ...pointMinzoom, paint: (dark, p) => {
+      const scale = p?.[`${id}Scale`] ?? 1;
+      const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
+      return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
+    }, ...filterProps },
+    ...labelLayers,
+  ] };
+}
+const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("drinkingWaterPoints", "./public_life/drinking_water_points.pmtiles", "drinking-water-points", PUBLIC_LIFE_COLORS.drinkingWaterPoints, { sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, undefined, undefined, { labelMinzoom: 13 }),
+  publicLifePointOverlay("publicWasteBaskets", "./public_life/public_waste_baskets.geojson", "public-waste-baskets", PUBLIC_LIFE_COLORS.publicWasteBaskets, undefined, undefined, undefined, { labelMinzoom: 15 }),
+  publicLifePointOverlay("materialRecyclingPoints", "./public_life/material_recycling_points.geojson", "material-recycling-points", PUBLIC_LIFE_COLORS.materialRecyclingPoints, undefined, undefined, undefined, { labelMinzoom: 14, filter: (p) => recyclingMaterialFilter(p?.materialRecyclingPointsMaterialMask) }),
+  publicLifePointOverlay("disasterShelters", "./public_life/disaster_shelters.pmtiles", "disaster-shelters", PUBLIC_LIFE_COLORS.disasterShelters, { sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, "內政部消防署 data.gov.tw 73242 · 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterShelterTypeFilter(p?.disasterSheltersTypeMask) }),
+  publicLifePointOverlay("playgrounds", "./public_life/playgrounds.geojson", "playgrounds", PUBLIC_LIFE_COLORS.playgrounds, undefined, undefined, undefined, { labelMinzoom: 14 }),
+  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask), dense: { pointsFromZoom: DENSE_FROM.accessibleParkFacilities, intensity: 0.3 } }),
+  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask), dense: { pointsFromZoom: DENSE_FROM.bicycleSupport, intensity: 3 } }),
+  { id: "nationalParks", sourceUrl: "./public_life/national_parks.pmtiles", sourceId: "national-parks", pmtiles: { sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, attribution: "國家公園署 / 海洋國家公園管理處 / TGOS · 政府資料開放授權條款第1版", rebuildOnParamChange: ["fill", "outline"], layers: [
+    { suffix: "fill", type: "fill", paint: (_dark, p) => ({ "fill-color": "#15803d", "fill-opacity": (p?.nationalParksOpacity ?? .5) * .55 }) },
+    { suffix: "outline", type: "line", paint: (_dark, p) => ({ "line-color": "#22c55e", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .8, 12, 2.2], "line-opacity": p?.nationalParksOpacity ?? .5 }) },
+  ] },
+  publicLifePointOverlay("visitorCentres", "./public_life/visitor_centres.geojson", "visitor-centres", PUBLIC_LIFE_COLORS.visitorCentres, undefined, undefined, undefined, { labelMinzoom: 13 }),
+  { id: "publicLifeOsmCoverage", sourceUrl: "./public_life/public_life_osm_coverage.pmtiles", sourceId: "public-life-osm-coverage", pmtiles: { sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, attribution: "© OpenStreetMap contributors (ODbL) · 映射密度，不是服務品質、人口覆蓋或道路可達性", rebuildOnParamChange: ["fill", "outline"], layers: [
+    { suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": ["step", ["coalesce", ["to-number", ["get", "observed_count"]], 0], "#e2e8f0", 1, "#bfdbfe", 5, "#60a5fa", 15, "#1d4ed8"], "fill-opacity": p?.publicLifeOsmCoverageOpacity ?? .55 }) },
+    { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": "#2563eb", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .2, 12, .8], "line-opacity": (p?.publicLifeOsmCoverageOpacity ?? .55) * .8 }) },
+  ] },
+];
+
+/** 減害服務：官方名冊 GeoJSON＋酒駕事故 PMTiles（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
+const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("harmReductionNeedle", "./harm_reduction/needle_points.geojson", "harm-reduction-needle", HARM_REDUCTION_COLORS.harmReductionNeedle, undefined, "衛生福利部疾病管制署 清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單", undefined, { labelMinzoom: 14, filter: (p) => needleServiceFilter(p?.harmReductionNeedleServiceMask, p?.harmReductionNeedleOnly24h) }),
+  publicLifePointOverlay("harmReductionTreatment", "./harm_reduction/drug_treatment_facilities.geojson", "harm-reduction-treatment", categoryColorExpression("category", TREATMENT_CATEGORY_OPTIONS), undefined, "衛生福利部 指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353", undefined, { labelMinzoom: 13, filter: (p) => treatmentCategoryFilter(p?.harmReductionTreatmentCategoryMask) }),
+  publicLifePointOverlay("harmReductionHivSelftest", "./harm_reduction/hiv_selftest_outlets.geojson", "harm-reduction-hiv-selftest", categoryColorExpression("channel", SELFTEST_CHANNEL_OPTIONS), undefined, "衛生福利部疾病管制署 愛滋自我篩檢通路（快照 2026-10-06）", undefined, { labelMinzoom: 14, filter: (p) => selftestChannelFilter(p?.harmReductionHivSelftestChannelMask) }),
+  publicLifePointOverlay("harmReductionHivTesting", "./harm_reduction/hiv_testing_sites.geojson", "harm-reduction-hiv-testing", categoryColorExpression("category", HIV_TESTING_CATEGORY_OPTIONS), undefined, "衛生福利部疾病管制署 匿名篩檢與愛滋指定醫事機構（2026-09-22 等）", undefined, { labelMinzoom: 14, filter: (p) => hivTestingCategoryFilter(p?.harmReductionHivTestingCategoryMask) }),
+  publicLifePointOverlay("harmReductionPreventionCenters", "./harm_reduction/drug_prevention_centers.geojson", "harm-reduction-prevention-centers", HARM_REDUCTION_COLORS.harmReductionPreventionCenters, undefined, "法務部 毒品危害防制中心（data.gov.tw 13717）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
+  // ── 第二批（2026-10-06）──
+  publicLifePointOverlay("harmReductionAlcohol", "./harm_reduction/alcohol_treatment_facilities.geojson", "harm-reduction-alcohol", HARM_REDUCTION_COLORS.harmReductionAlcohol, undefined, "衛生福利部心理健康司 酒癮治療費用補助方案機構及酒駕酒癮評估機構名單（2026-08-07）", undefined, { labelMinzoom: 13, filter: (p) => alcoholServiceFilter(p?.harmReductionAlcoholServiceMask) }),
+  publicLifePointOverlay("harmReductionSmokingCessation", "./harm_reduction/smoking_cessation_providers.geojson", "harm-reduction-smoking-cessation", categoryColorExpression("facility_type", SMOKING_FACILITY_OPTIONS), undefined, "衛生福利部國民健康署 戒菸服務合約機構（2026-10-06 官網匯出）", undefined, { labelMinzoom: 15, filter: (p) => smokingFacilityFilter(p?.harmReductionSmokingCessationFacilityMask) }),
+  publicLifePointOverlay("harmReductionInternetAddiction", "./harm_reduction/internet_addiction_services.geojson", "harm-reduction-internet-addiction", categoryColorExpression("service_type", INTERNET_SERVICE_TYPE_OPTIONS), undefined, "衛生福利部 各縣市網路成癮治療服務資源表（2026-07-28）", undefined, { labelMinzoom: 14, filter: (p) => internetServiceTypeFilter(p?.harmReductionInternetAddictionServiceTypeMask) }),
+  publicLifePointOverlay("harmReductionPrep", "./harm_reduction/prep_service_sites.geojson", "harm-reduction-prep", HARM_REDUCTION_COLORS.harmReductionPrep, undefined, "衛生福利部疾病管制署 PrEP 服務醫院名單（2026-09-02）", undefined, { labelMinzoom: 13, filter: (p) => prepFundingFilter(p?.harmReductionPrepFundingMask) }),
+  publicLifePointOverlay("harmReductionCondomOutlets", "./harm_reduction/condom_outlets.geojson", "harm-reduction-condom-outlets", categoryColorExpression("outlet_type", CONDOM_OUTLET_OPTIONS), undefined, "高雄市、新竹市、屏東縣、嘉義市政府 保險套販售點（data.gov.tw）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 14, filter: (p) => condomOutletFilter(p?.harmReductionCondomOutletsOutletTypeMask) }),
+  publicLifePointOverlay("harmReductionAntiDrugPharmacies", "./harm_reduction/anti_drug_pharmacies.geojson", "harm-reduction-anti-drug-pharmacies", HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, undefined, "新北市政府、高雄市政府 社區藥局反毒站（data.gov.tw 125302／107877）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 14 }),
+  publicLifePointOverlay("harmReductionTherapeuticCommunities", "./harm_reduction/therapeutic_communities.geojson", "harm-reduction-therapeutic-communities", HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, undefined, "衛生福利部心理健康司 藥癮治療性社區／社區復健方案承辦機構（2025-07-29）", [4, 8], { labelMinzoom: 11 }),
+  publicLifePointOverlay("harmReductionAftercare", "./harm_reduction/offender_aftercare_offices.geojson", "harm-reduction-aftercare", HARM_REDUCTION_COLORS.harmReductionAftercare, undefined, "法務部 更生保護會（data.gov.tw 10060，2023-06）· 政府資料開放授權條款第1版", [4, 8], { labelMinzoom: 10 }),
+  publicLifePointOverlay("harmReductionDuiCrashes", "./harm_reduction/dui_crash_points.pmtiles", "harm-reduction-dui-crashes", categoryColorExpression("accident_class", DUI_CLASS_OPTIONS), { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 道路交通事故資料（107–114 年）· 政府資料開放授權條款第1版", undefined, { filter: (p) => duiCrashFilter(p?.harmReductionDuiCrashesClassMask, p?.harmReductionDuiCrashesYearMask, p?.harmReductionDuiCrashesBasisMask), dense: { pointsFromZoom: DENSE_FROM.harmReductionDuiCrashes, intensity: 1 } }),
+];
+
+/**
+ * 崩塌 4 層。潛勢區／影響範圍：git GeoJSON，依共用年度版本選單（landslideDodYearIdx，預設 115 年版）濾出單一年度，
+ * 依來源 risk 上色；影響範圍以虛線外框＋較淡填色和潛勢區區分。省道歷史災情：git PMTiles 點，共用點層 helper
+ * （類別色＋類別／年份多選＋密集點熱區）。年度全島崩塌地：107MB PMTiles（S3 volume），只畫單一年度、z10 起
+ * （z6–z9 切片會遺漏小面，z10 起 143,511 面完整）。
+ */
+const LANDSLIDE_OVERLAYS: OverlayConfig[] = [
+  {
+    id: "landslideDodImpact",
+    sourceUrl: "./hazards/landslide_dod_impact.geojson",
+    sourceId: "landslide-dod-impact",
+    attribution: "農業部農村發展及水土保持署 大規模崩塌影響範圍（111–115 年版）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "fill-color": dodRiskColorExpr(),
+        "fill-opacity": p?.landslideDodImpactOpacity ?? 0.35,
+      }) },
+      { suffix: "outline", type: "line", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "line-color": dodRiskColorExpr(),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.6, 14, 1.6],
+        "line-dasharray": [2, 2],
+        "line-opacity": Math.min(1, (p?.landslideDodImpactOpacity ?? 0.35) + 0.4),
+      }) },
+    ],
+  },
+  {
+    id: "landslideDodAreas",
+    sourceUrl: "./hazards/landslide_dod_areas.geojson",
+    sourceId: "landslide-dod-areas",
+    attribution: "農業部農村發展及水土保持署 大規模崩塌潛勢區（111–115 年版）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (_dark, p) => ({
+        "fill-color": dodRiskColorExpr(),
+        "fill-opacity": p?.landslideDodAreasOpacity ?? 0.55,
+      }) },
+      { suffix: "outline", type: "line", filter: (p) => dodYearFilter(p?.landslideDodYearIdx), paint: (dark, p) => ({
+        "line-color": dark ? "#fde68a" : "#7c2d12",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 14, 1.4],
+        "line-opacity": Math.min(1, (p?.landslideDodAreasOpacity ?? 0.55) + 0.3),
+      }) },
+    ],
+  },
+  {
+    id: "landslideAnnual",
+    sourceUrl: "./hazards/landslide_annual_swcb_20261006.pmtiles",
+    sourceId: "landslide-annual",
+    pmtiles: { sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
+    attribution: "農業部農村發展及水土保持署 年度全島崩塌地（2017／2018／2023／2024）· 政府資料開放授權條款第1版",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (_dark, p) => ({
+        "fill-color": LANDSLIDE_LAYER_COLORS.landslideAnnual,
+        "fill-opacity": p?.landslideAnnualOpacity ?? 0.55,
+      }) },
+      { suffix: "outline", type: "line", minzoom: ANNUAL_MIN_ZOOM, filter: (p) => annualYearFilter(p?.landslideAnnualYearIdx), paint: (dark, p) => ({
+        "line-color": dark ? "#fdba74" : "#7c2d12",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.4, 14, 1.2],
+        "line-opacity": Math.min(1, (p?.landslideAnnualOpacity ?? 0.55) + 0.3),
+      }) },
+    ],
+  },
+  publicLifePointOverlay("highwayDisasterHistory", "./hazards/highway_disaster_history.pmtiles", "highway-disaster-history", highwayCategoryColorExpr(), { sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 }, "交通部公路局 道路（橋梁）歷史災情（data.gov.tw 31020）· 政府資料開放授權條款第1版", undefined, { filter: (p) => highwayDisasterFilter(p?.highwayDisasterHistoryCategoryMask, p?.highwayDisasterHistoryYearMask), dense: { pointsFromZoom: DENSE_FROM.highwayDisasterHistory, intensity: 1 } }),
 ];
 
 /**
@@ -423,6 +746,28 @@ function hubPointLayers(
       },
     },
   ];
+}
+
+// ── 捷運站：依線著色、轉乘站白底深描邊 ──
+// 資料屬性由 scripts/preprocess/build-station-points.py --enrich 寫入（line_color 取自 routes_static.geojson）。
+// 半徑由 withPointSpec 的 tier M 固定（P-1），轉乘站以描邊加粗顯示；描邊讀 feature 資料，withPointSpec 會保留。
+const METRO_LINE_COLOR = ["coalesce", ["get", "line_color"], ["get", "color"]];
+const METRO_IS_TRANSFER = ["==", ["get", "transfer"], true];
+function metroTransferCore(layer: OverlayLayerSpec): OverlayLayerSpec {
+  const base = layer.paint;
+  return {
+    ...layer,
+    paint: (isDark, params) => ({
+      ...base(isDark, params),
+      "circle-color": ["case", METRO_IS_TRANSFER, TRANSFER_STATION.fill, METRO_LINE_COLOR],
+      "circle-stroke-color": ["case", METRO_IS_TRANSFER, transferRingColor(isDark), mapSeamColor(isDark)],
+      "circle-stroke-width": ["case", METRO_IS_TRANSFER, TRANSFER_STATION.ringWidth, POINT_STROKE.width],
+    }),
+  };
+}
+function metroPointLayers(prefix: string): OverlayConfig["layers"] {
+  return hubPointLayers(prefix, "metroDisplayModeIdx", METRO_LINE_COLOR, "stationScale")
+    .map((l) => (l.suffix.endsWith("point-core") ? metroTransferCore(l) : l));
 }
 
 // ── 🐷 畜牧 Livestock helpers ──
@@ -547,19 +892,25 @@ function sportsRadius(scale: number): unknown[] {
 // 靠 config.filter 分 layer 隸屬類；circle 依 category 27 類 match 分色 + open_status 淡化。
 function sportsVenueOverlay(meta: SportsLayerMeta): OverlayConfig {
   const { id, layerValue, suffix } = meta;
+  // R5：學校場館 1.2 萬點 → 拉遠畫熱區（config.filter 分類，熱區自動吃同一個 filter）
+  const pointsFromZoom = id === "sportsSchool" ? DENSE_FROM.sportsSchool : 7;
+  const opacityDefault = Number(paramDefault(id, `${id}Opacity`) ?? 0.8);
   return {
     id,
     sourceUrl: SPORTS_SOURCE,
     sourceId: "sports-venues",
     filter: ["==", ["get", "layer"], layerValue],
     layers: [
+      ...(id === "sportsSchool"
+        ? [denseHeatmapLayer({ suffix: `${suffix}-heatmap`, pointsFromZoom, intensity: 3, opacity: { layer: id, param: `${id}Opacity` } })]
+        : []),
       {
         suffix,
         type: "circle",
-        minzoom: 7,
+        minzoom: pointsFromZoom,
         paint: (isDark, p) => {
           const scale = p?.[`${id}Scale`] ?? 1;
-          const opacity = p?.[`${id}Opacity`] ?? 0.8;
+          const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
           // open_status="不對外" 淡化（避免誤讀為可用場地）
           const closed: unknown[] = ["==", ["get", "open_status"], "不對外"];
           const fillOpacity: unknown[] = ["case", closed, opacity * SPORTS_CLOSED_DIM, opacity];
@@ -660,11 +1011,12 @@ export const RE_PALETTES: Record<RePalette, { colors: string[]; domain: [number,
   sale:    { colors: ["#1a9850", "#f7f7f7", "#d73027"], domain: [28480, 227802], domainExcl: [28480, 147000] },
   presale: { colors: ["#ffffb2", "#fd8d3c", "#bd0026"], domain: [72845, 387844], domainExcl: [72845, 202000] },
 };
-function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean): unknown[] {
+/** `colors` 省略＝RE_PALETTES 色票（買賣網格、3D 點）；租賃（6 點）與預售（3 點）網格改由色盤選單給（R7） */
+function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean, colors: readonly string[] = RE_PALETTES[palette].colors): unknown[] {
   const p = RE_PALETTES[palette];
   const [lo, hi] = excludeTaipei ? p.domainExcl : p.domain;
-  const n = p.colors.length;
-  const stops = p.colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
+  const n = colors.length;
+  const stops = colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
   return ["interpolate", ["linear"], ["coalesce", ["get", field], 0], ...stops];
 }
 // ── 🏢 房地產總市值網格 factory（三尺度共用，見 OVERLAY_REGISTRY 內的接線註解）──
@@ -672,6 +1024,13 @@ function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean):
 //   對比 / 高度都是 paint property，走 setPaintProperty diff，同 urbanFormGrid 機制。
 //   2D/3D 切換照 buildingsGba 慣例用「把非當前模式那層的 opacity 壓 0」而非 layout.visibility ——
 //   layout.visibility 已被「尺度選擇」佔用（setOverlayVisible 是整個 config 一起切）。
+/** R7：總市值 9 階／人均 8 階都由色盤選單決定（兩種模式各一個選單） */
+function propertyValueGridFill(scaleIdx: number, modeIdx: number, isDark: boolean): unknown[] {
+  return modeIdx === 1
+    ? propertyValueGridPerCapitaColorExpr(gridRampFor("propertyValueGrid", isDark, 8, "propertyValueGridPerCapitaPalette"))
+    : propertyValueGridColorExpr(scaleIdx, gridRampFor("propertyValueGrid", isDark, 9, "propertyValueGridPalette"));
+}
+
 function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
   return {
@@ -683,17 +1042,14 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
       {
         suffix: "fill",
         type: "fill",
-        paint: (_isDark, p) => {
+        paint: (isDark, p) => {
           // 有效模式（0=總市值 / 1=人均）：150m 磚沒有 pop → helper 統一回退總市值，
           // 與 UI disabled / 圖例判斷同源（SSOT propertyValueTypes.ts）
           const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           const op = p?.propertyValueGridOpacity ?? 0.7;
           return {
-            "fill-color": (modeIdx === 1
-              ? propertyValueGridPerCapitaColorExpr()
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              : propertyValueGridColorExpr(scaleIdx)) as any,
+            "fill-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             // 3D 模式交棒給 extrusion（壓 0 隱藏，避免與立體塊 z-fighting）
             "fill-opacity": (extruded ? 0
               : modeIdx === 1 ? propertyValueGridPerCapitaOpacityExpr(op)
@@ -705,15 +1061,12 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
       {
         suffix: "extrusion",
         type: "fill-extrusion",
-        paint: (_isDark, p) => {
+        paint: (isDark, p) => {
           const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           return {
             // 人均模式只換「顏色」，extrusion 高度**維持 v_mkt**（見下方 height 註解）
-            "fill-extrusion-color": (modeIdx === 1
-              ? propertyValueGridPerCapitaColorExpr()
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              : propertyValueGridColorExpr(scaleIdx)) as any,
+            "fill-extrusion-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
             // 🔵 高度=量體、顏色=強度（刻意設計，兩模式共用）：3D 高度永遠是 v_mkt 總量 ——
             //    「這格壓了多少錢」的天際線不隨模式消失；人均模式下顏色改答「平均每人多有錢」，
             //    高黃=人少錢多、高紫=人多攤薄，兩通道疊出密度語意。pop<10 灰格照常用
@@ -721,14 +1074,17 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
             "fill-extrusion-height": propertyValueGridHeightExpr(
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
-              p?.propertyValueGridElevationScale ?? 40,
+              propertyValueGridHeightScale(p?.propertyValueGridElevationScale) * EXTRUSION.propertyValueHeightBase,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ) as any,
             "fill-extrusion-base": 0,
             // ⚠️ fill-extrusion-opacity 不支援 data-driven → 只能給純數字（非 3D 模式壓 0 隱藏）；
             //    v_mkt=0 的格 height 恰為 0（FLOOR 以下 → norm 夾成 0），自然貼地不需另外淡出；
             //    人均灰格的「半透明」在 3D 同樣做不到 data-driven，僅靠 #555 色相標示
-            "fill-extrusion-opacity": extruded ? (p?.propertyValueGridOpacity ?? 0.7) : 0,
+            "fill-extrusion-opacity": extruded
+              ? Math.min(1, EXTRUSION.opacity * ((p?.propertyValueGridOpacity ?? 0.7) / 0.7))
+              : 0,
+            "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
           };
         },
       },
@@ -748,9 +1104,12 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
       {
         suffix: `${type}-fill`,
         type: "fill",
-        paint: (_isDark, params) => ({
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          "fill-color": reColorExpr(palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei)) as any,
+        paint: (isDark, params) => ({
+          "fill-color": reColorExpr(
+            palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei),
+            (id === "realEstateRentalGrid" || id === "realEstatePresaleGrid") ? gridRampFor(id, isDark, RE_PALETTES[palette].colors.length) : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) as any,
           "fill-opacity": params?.realEstateOpacity ?? 0.7,
         }),
       },
@@ -758,12 +1117,109 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
         suffix: `${type}-line`,
         type: "line",
         paint: (isDark) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)",
+          "line-color": THEMED_PAINT_COLORS.realEstateOutline[isDark ? "dark" : "light"],
           "line-width": 0.3,
         }),
       },
     ],
   };
+}
+
+/**
+ * 環境第二波點層共用 overlay：填色依資料；hollowExpr 成立（過期／停測／缺值）→ 填色透明＋灰描邊。
+ * alertExpr 成立 → 紅描邊（核安會輻射 ≥0.2 μSv/h）。半徑與一般描邊由 pointSpec（POINT_TIERS）套用；
+ * 這裡的描邊依資料變化（資料編碼），pointSpec 會保留。
+ */
+function envPointOverlay(
+  id: keyof import("../types").LayerVisibility,
+  sourceUrl: string,
+  sourceId: string,
+  colorExpr: unknown[],
+  hollowExpr: unknown[],
+  opts: { dynamicData?: boolean; alertExpr?: unknown[] } = {},
+): OverlayConfig {
+  const opacityKey = `${String(id)}Opacity`;
+  return {
+    id, sourceUrl, sourceId,
+    ...(opts.dynamicData ? { dynamicData: true } : {}),
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 5, maxzoom: 22,
+      paint: (isDark, p) => {
+        const op = p?.[opacityKey] ?? 0.9;
+        const seam = mapSeamColor(isDark);
+        const strokeColor: unknown[] = opts.alertExpr
+          ? ["case", hollowExpr, ENV_STALE_COLOR, opts.alertExpr, ENV_ALERT_COLOR, seam]
+          : ["case", hollowExpr, ENV_STALE_COLOR, seam];
+        const strokeWidth: unknown[] = opts.alertExpr
+          ? ["case", hollowExpr, 1.8, opts.alertExpr, 2, 1]
+          : ["case", hollowExpr, 1.8, 1];
+        return {
+          "circle-color": ["case", hollowExpr, ENV_STALE_COLOR, colorExpr] as unknown as string,
+          "circle-opacity": ["case", hollowExpr, 0, op] as unknown as number,
+          "circle-stroke-color": strokeColor as unknown as string,
+          "circle-stroke-width": strokeWidth as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  };
+}
+
+// ── JMA／環境省 時間軸點位（P4）共用：季節類標籤（已觀測「10/3 +2」；未觀測「(10/3)」＝平年日）──
+const JMA_SEASONAL_LABEL_MINZOOM = 6;
+function jmaSeasonalLabelLayer(opacityParam: string, opacityDefault: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayLayerSpec {
+  return {
+    suffix: "label", type: "symbol", minzoom: JMA_SEASONAL_LABEL_MINZOOM,
+    layout: {
+      "text-field": ["get", "label"],
+      ...poiLabelLayout(),
+      "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+      "text-variable-anchor": ["top", "bottom", "left", "right"],
+      "text-radial-offset": .8,
+      "text-optional": true,
+    },
+    ...(filter ? { filter } : {}),
+    paint: (dark, p) => ({
+      "text-color": dark ? "#f8fafc" : "#0f172a",
+      ...labelHaloPaint(dark),
+      "text-opacity": p?.[opacityParam] ?? opacityDefault,
+    }),
+  };
+}
+
+/** 物候前線：已觀測＝與平年差發散色實心；未觀測＝圖層色中空（as-of 已過平年日 → 描邊加粗）。 */
+function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): OverlayConfig {
+  const idxParam = `${key}PhenomenonIdx`;
+  const filter = (p?: Record<string, number>): unknown[] => ["==", ["get", "phenomenon_code"], jmaPhenologyCode(key, p?.[idxParam])];
+  const observed: unknown[] = ["==", ["get", "state"], "observed"];
+  const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+  const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
+  return {
+    id: key,
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId,
+    dynamicData: true,
+    attribution: JMA_ATTRIBUTION,
+    rebuildOnParamChange: ["circle", "label"],
+    rebuildOnParamKeys: [idxParam],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+      filter,
+      paint: (isDark, p) => {
+        const op = p?.[`${key}Opacity`] ?? 0.9;
+        const s = p?.[`${key}Scale`] ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 3.5 * s, 8, 6 * s, 12, 9 * s] as unknown as number,
+          "circle-color": jmaDiffColorExpr(JMA_POINT_LAYER_COLORS[key]) as unknown as string,
+          "circle-opacity": ["case", observed, op, 0] as unknown as number,
+          // withPointSpec 會把 case 的 fallback 換成標準描邊 → 資料編碼一律寫在條件分支（未觀測／已過平年），fallback 給已觀測
+          "circle-stroke-color": ["case", notObserved, JMA_POINT_LAYER_COLORS[key], mapSeamColor(isDark)] as unknown as string,
+          "circle-stroke-width": ["case", ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 0.8] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }, jmaSeasonalLabelLayer(`${key}Opacity`, 0.9, filter)],
+  } satisfies OverlayConfig;
 }
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
@@ -788,7 +1244,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, p) => {
           const mode = resolveUrbanHeatMode(p?.urbanHeatModeIdx ?? 0);
           return {
-            "raster-opacity": p?.urbanHeatOpacity ?? 0.75,
+            "raster-opacity": p?.urbanHeatOpacity ?? RASTER.opacity,
             "raster-resampling": "nearest",
             "raster-fade-duration": 0,
             // 係數作用在 0–255 原始 DN（mapbox computeRasterColorMix 已含 ×255）→ raster-value = 物理值
@@ -1041,17 +1497,23 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
-    rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    // 不用 rebuildOnParamChange：rebuild 會把「原本有一層隱藏」當成整組隱藏，
+    // 顯示模式切到「實際範圍」時 metro-pt-* 會被藏回去。半徑、透明度都能走 paint diff。
     layers: [
-      ...hubPointLayers(
-        "metro-overview-",
-        "metroDisplayModeIdx",
-        ["get", "color"],
-        "stationScale",
-      ).map((layer) => ({ ...layer, maxzoom: 10 })),
+      // Mapbox 點位：所有縮放都有點（原本 maxzoom 10，放大後點會消失）
+      ...metroPointLayers("metro-overview-"),
+      // 實際範圍（光暈示意）：低縮放仍顯示點，z≥10 換成下面的範圍光暈
+      {
+        ...metroPointLayers("metro-lowzoom-")[1]!,
+        suffix: "metro-lowzoom-core",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
+        maxzoom: 10,
+      },
+      // 以下 metro-pt-* 只在「實際範圍」模式出現；是範圍的呈現方式，不套 R2 光暈規則（pointSpec 例外）
       {
         suffix: "metro-pt-range",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 11,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1067,6 +1529,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-2",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1082,6 +1545,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-1",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1097,16 +1561,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-fill",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
           const is3d = (params?.metroPillar3d ?? 0) > 0;
           return {
             "circle-radius": BASE_RADIUS * scale,
-            "circle-color": ["get", "color"] as unknown as string,
+            "circle-color": METRO_LINE_COLOR as unknown as string,
             "circle-opacity": is3d ? 0 : (_isDark ? 0.08 : 0.12),
             "circle-stroke-width": _isDark ? 1 : 1.5,
-            "circle-stroke-color": ["get", "color"] as unknown as string,
+            "circle-stroke-color": METRO_LINE_COLOR as unknown as string,
             "circle-stroke-opacity": is3d ? 0 : (_isDark ? 0.3 : 0.5),
           };
         },
@@ -1352,9 +1817,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ layer: "busStationsCity", pointsFromZoom: DENSE_FROM.busStationsCity, intensity: 1.5 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsCity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1370,7 +1836,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsCity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1384,7 +1850,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -1399,9 +1866,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ layer: "busStationsIntercity", pointsFromZoom: DENSE_FROM.busStationsIntercity, intensity: 1 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1417,7 +1885,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.busStationsIntercity,
         paint: (isDark, params) => {
           const scale = params?.busScale ?? 1;
           return {
@@ -1431,7 +1899,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -1660,7 +2129,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 7,
         paint: (isDark, p) => {
           const scale = p?.cctvScale ?? 1;
-          const opacity = p?.cctvOpacity ?? 0.7;
+          const opacity = p?.cctvOpacity ?? 0.8;
           const z = p?.cctvZ ?? 0;
           return {
             "circle-radius": [
@@ -1687,7 +2156,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 7,
         paint: (isDark, p) => {
           const scale = p?.cctvScale ?? 1;
-          const opacity = p?.cctvOpacity ?? 0.7;
+          const opacity = p?.cctvOpacity ?? 0.8;
           const z = p?.cctvZ ?? 0;
           return {
             "circle-radius": [
@@ -1716,7 +2185,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防分隊 (全台 22 縣市，677 點) ──
-  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰（色號 SSOT = data/fireTypes.ts FIRE_STATION_CATS）
   {
     id: "fireStations",
     sourceUrl: "./geo/fire_stations.geojson",
@@ -1742,13 +2211,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
             ] as unknown as number,
             "circle-blur": 1,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
             "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
             "circle-translate": [0, -z],
@@ -1774,13 +2237,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
             ] as unknown as number,
-            "circle-color": [
-              "match", ["get", "cat"],
-              "大隊", "#b71c1c",
-              "分隊", "#e53935",
-              "分駐所", "#ff7043",
-              "#bdbdbd",
-            ] as unknown as string,
+            "circle-color": fireStationColorMatch() as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -1797,7 +2254,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
-  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
+  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
+  // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
     sourceUrl: "./geo/fire_hydrants.pmtiles",
@@ -1805,12 +2263,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
       {
+        // 熱區不可點擊（gisClickRegistry 只登記 circle/glow）；透明度滑桿按比例同時控制熱區。
+        suffix: "heatmap",
+        type: "heatmap",
+        maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
+        // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
+        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
+      },
+      {
         suffix: "glow",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -1833,10 +2299,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 12,
+        minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const opacity = p?.fireHydrantsOpacity ?? 0.75;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2255,16 +2721,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
   // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
-  // 全球層一份 GeoJSON 同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
-  // —— 兩份資料合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
+  // 全球層一份資料同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
+  // —— 合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
+  // 2026-09-30 PF-4：整包 GeoJSON（19–23 MB）改 PMTiles（scripts/preprocess/build-static-pmtiles-pf4.py，
+  // 每個 zoom 全量、不抽稀；格網對齊 mercator tile，z6 切片 overzoom 無損）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
   ...(([
-    { svc: "mobile", key: "ooklaMobilePerformance" },
-    { svc: "fixed", key: "ooklaFixedPerformance" },
-  ] as const).map(({ svc, key }) => ({
+    { svc: "mobile", key: "ooklaMobilePerformance", sourceUrl: "./geo/ookla_mobile_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+    { svc: "fixed", key: "ooklaFixedPerformance", sourceUrl: "./geo/ookla_fixed_global_20260930.pmtiles", pmtiles: { sourceLayer: "ookla", minzoom: 0, maxzoom: 6 } },
+  ] as const).map(({ svc, key, sourceUrl, pmtiles }) => ({
     id: key,
-    sourceUrl: `./geo/ookla_${svc}_global.geojson`,
+    sourceUrl,
     sourceId: `ookla-${svc}-global`,
+    pmtiles,
     attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line"],
     layers: [
@@ -2286,7 +2755,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
         ],
         paint: (isDark: boolean, params?: Record<string, number>) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-color": THEMED_PAINT_COLORS.ooklaGlobalOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
           "line-opacity": params?.[`${key}Opacity`] ?? 0.65,
         }),
@@ -2323,7 +2792,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "line",
         ...(grid === 14 ? { maxzoom: 15 } : { minzoom: 15 }),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(15,23,42,0.45)",
+          "line-color": THEMED_PAINT_COLORS.ooklaTaiwanOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.2, 12, 0.5, 16, 0.9],
           "line-opacity": (params?.[`${key}Opacity`] ?? 0.75) * 0.8,
         }),
@@ -2352,7 +2821,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"],
             "circle-opacity": (params?.eduSchoolsOpacity ?? 0.85) * (isDark ? 0.14 : 0.18),
           };
         },
@@ -2367,8 +2836,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           // 而真實存在的「空大及大專校院附設進修學校」10 校落 fallback 藍。改走 educationTypes SSOT，
           // 與 5 個 eduSchool* 分級層同色（9 種 school_level 全覆蓋，共 4,315 點）。
           const color = useLevelColor
-            ? (schoolLevelColorExpr(isDark ? "#42a5f5" : "#1565c0") as unknown as string)
-            : (isDark ? "#42a5f5" : "#1565c0");
+            ? (schoolLevelColorExpr(THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"]) as unknown as string)
+            : (THEMED_PAINT_COLORS.school[isDark ? "dark" : "light"]);
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2395,9 +2864,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ layer: "convenienceStores", pointsFromZoom: DENSE_FROM.convenienceStores, intensity: 1 }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.convenienceStores,
         paint: (isDark, params) => {
           const scale = params?.convenienceScale ?? 1;
           return {
@@ -2413,7 +2883,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.convenienceStores,
         paint: (isDark, params) => {
           const scale = params?.convenienceScale ?? 1;
           return {
@@ -2427,7 +2897,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
           };
         },
       },
@@ -2462,7 +2933,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.postOfficesScale ?? 1;
-          const opacity = params?.postOfficesOpacity ?? 0.85;
+          const opacity = params?.postOfficesOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2509,7 +2980,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.iPostBoxesScale ?? 1;
-          const opacity = params?.iPostBoxesOpacity ?? 0.85;
+          const opacity = params?.iPostBoxesOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2556,7 +3027,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const scale = params?.communityCentersScale ?? 1;
-          const opacity = params?.communityCentersOpacity ?? 0.85;
+          const opacity = params?.communityCentersOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2595,10 +3066,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-blur": 1,
             "circle-color": [
               "match", ["get", "type"],
-              "district_office", "#8d6e63",
-              "household_registration", "#7986cb",
-              "land_office", "#9ccc65",
-              "#8d6e63",
+              "district_office", GOV_SERVICE_PAINT_COLORS.district_office,
+              "household_registration", GOV_SERVICE_PAINT_COLORS.household_registration,
+              "land_office", GOV_SERVICE_PAINT_COLORS.land_office,
+              GOV_SERVICE_PAINT_COLORS.district_office,
             ] as unknown as string,
             "circle-opacity": 0.15,
           };
@@ -2617,10 +3088,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": [
               "match", ["get", "type"],
-              "district_office", "#8d6e63",
-              "household_registration", "#7986cb",
-              "land_office", "#9ccc65",
-              "#8d6e63",
+              "district_office", GOV_SERVICE_PAINT_COLORS.district_office,
+              "household_registration", GOV_SERVICE_PAINT_COLORS.household_registration,
+              "land_office", GOV_SERVICE_PAINT_COLORS.land_office,
+              GOV_SERVICE_PAINT_COLORS.district_office,
             ] as unknown as string,
             "circle-stroke-color": "#3e2723",
             "circle-stroke-width": [
@@ -2781,12 +3252,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "publicToilets",
     sourceUrl: "./environment/public_toilets_national.geojson",
     sourceId: "public-toilets",
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle", "label"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.publicToilets, intensity: 3, opacity: { layer: "publicToilets", param: "publicToiletsOpacity" }, filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask) }),
       {
         suffix: "glow",
         type: "circle",
-        minzoom: 11,
+        minzoom: DENSE_FROM.publicToilets,
+        filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
           return {
@@ -2810,7 +3283,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 11,
+        minzoom: DENSE_FROM.publicToilets,
+        filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
           const opacity = params?.publicToiletsOpacity ?? 0.75;
@@ -2836,6 +3310,30 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           };
         },
       },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 16,
+        layout: {
+          "text-field": ["get", "name"],
+          ...poiLabelLayout(),
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+          "text-variable-anchor": ["top", "bottom", "left", "right"],
+          "text-radial-offset": 0.8,
+          "text-max-width": 14,
+          "text-optional": true,
+        },
+        filter: (params) => ["all",
+          publicToiletTypeFilter(params?.publicToiletsTypeMask),
+          ["has", "name"],
+          ["!=", ["get", "name"], ""],
+        ],
+        paint: (isDark, params) => ({
+          "text-color": isDark ? "#f8fafc" : "#0f172a",
+          ...labelHaloPaint(isDark),
+          "text-opacity": params?.publicToiletsOpacity ?? 0.75,
+        }),
+      },
     ],
   },
 
@@ -2857,7 +3355,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-color": medicalPoiColor("hospital", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -2873,7 +3371,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-color": medicalPoiColor("hospital", isDark),
             "circle-stroke-color": isDark ? "#ef9a9a" : "#b71c1c",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -2894,9 +3392,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_clinics", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medClinic,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           return {
@@ -2905,23 +3404,23 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": medicalPoiColor("clinic", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medClinic,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
-          const opacity = params?.medClinicOpacity ?? 0.85;
+          const opacity = params?.medClinicOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": medicalPoiColor("clinic", isDark),
             "circle-stroke-color": isDark ? "#90caf9" : "#0d47a1",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -2953,7 +3452,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-color": medicalPoiColor("pharmacy", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
@@ -2963,13 +3462,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const scale = params?.medPharmacyScale ?? 1;
-          const opacity = params?.medPharmacyOpacity ?? 0.85;
+          const opacity = params?.medPharmacyOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-color": medicalPoiColor("pharmacy", isDark),
             "circle-stroke-color": isDark ? "#a5d6a7" : "#1b5e20",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -2990,9 +3489,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_aed", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medAED, intensity: 5, opacity: { layer: "medAED", param: "medAEDOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medAED,
         paint: (isDark, params) => {
           const scale = params?.medAEDScale ?? 1;
           return {
@@ -3001,23 +3501,23 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-color": medicalPoiColor("aed", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medAED,
         paint: (isDark, params) => {
           const scale = params?.medAEDScale ?? 1;
-          const opacity = params?.medAEDOpacity ?? 0.9;
+          const opacity = params?.medAEDOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-color": medicalPoiColor("aed", isDark),
             "circle-stroke-color": isDark ? "#fff176" : "#f57f17",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3038,9 +3538,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "medical_ltc", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medLTC, intensity: 3, opacity: { layer: "medLTC", param: "medLTCOpacity" } }),
       {
         suffix: "glow",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medLTC,
         paint: (isDark, params) => {
           const scale = params?.medLTCScale ?? 1;
           return {
@@ -3049,23 +3550,23 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-color": medicalPoiColor("ltc", isDark),
             "circle-opacity": isDark ? 0.12 : 0.15,
           };
         },
       },
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.medLTC,
         paint: (isDark, params) => {
           const scale = params?.medLTCScale ?? 1;
-          const opacity = params?.medLTCOpacity ?? 0.85;
+          const opacity = params?.medLTCOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-color": medicalPoiColor("ltc", isDark),
             "circle-stroke-color": isDark ? "#ce93d8" : "#6a1b9a",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3106,7 +3607,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               5, 14 * s, 10, 24 * s, 14, 36 * s,
             ],
             "circle-blur": 1.2,
-            "circle-color": isDark ? "#ffffff" : "#fffbeb",
+            "circle-color": THEMED_PAINT_COLORS.newsCriticalHalo[isDark ? "dark" : "light"],
             "circle-opacity": [
               "case",
               isCritical,
@@ -3127,7 +3628,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               5, 6 * s, 10, 12 * s, 14, 18 * s,
             ],
             "circle-blur": 1,
-            "circle-color": isDark ? "#ff9800" : "#e65100",
+            "circle-color": THEMED_PAINT_COLORS.newsGlow[isDark ? "dark" : "light"],
             "circle-opacity": isDark ? 0.15 : 0.18,
           };
         },
@@ -3398,9 +3899,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, p) => ({
           "line-color": [
             "match", ["get", "t"],
-            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
-            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
-            isDark ? "#94a3b8" : "#64748b",
+            "灌溉專用渠道", THEMED_PAINT_COLORS.canalIrrigation[isDark ? "dark" : "light"],
+            "下游具引灌需求", THEMED_PAINT_COLORS.canalDownstream[isDark ? "dark" : "light"],
+            THEMED_PAINT_COLORS.canalOther[isDark ? "dark" : "light"],
           ] as unknown as string,
           "line-width": 3 * (p?.waterCanalWidth ?? 1),
           "line-blur": 2,
@@ -3413,9 +3914,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, p) => ({
           "line-color": [
             "match", ["get", "t"],
-            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
-            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
-            isDark ? "#94a3b8" : "#64748b",
+            "灌溉專用渠道", THEMED_PAINT_COLORS.canalIrrigation[isDark ? "dark" : "light"],
+            "下游具引灌需求", THEMED_PAINT_COLORS.canalDownstream[isDark ? "dark" : "light"],
+            THEMED_PAINT_COLORS.canalOther[isDark ? "dark" : "light"],
           ] as unknown as string,
           "line-width": (isDark ? 0.5 : 0.8) * (p?.waterCanalWidth ?? 1),
           "line-opacity": (isDark ? 0.7 : 0.75) * (p?.waterCanalOpacity ?? 1),
@@ -3499,7 +4000,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (isDark) => ({
-          "fill-color": isDark ? "#06b6d4" : "#0891b2",
+          "fill-color": isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light,
           "fill-opacity": isDark ? 0.35 : 0.3,
         }),
       },
@@ -3573,6 +4074,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "circle-opacity": 1,
           };
         },
+      },
+    ],
+  },
+
+  // ── 水庫即時水情 Reservoir status（R6 段 2，2026-10-06：平面版，預設）──
+  // 資料由 useReservoirStatusLayer 依時間軸 setData（與 3D 水位計同一份 statuses）。
+  // 色＝警示等級（同 3D 水柱色，缺值為「無資料」灰）、大小＝有效容量立方根（同 3D 外殼），蓄水率 % 文字。
+  // 排在壩體之後＝疊在壩體點上；「立體效果」開時 Three.js 水位計疊在更上面，平面點保留當點選目標。
+  {
+    id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "water-reservoir-status",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": reservoirCapacityRadiusExpr(params?.waterReservoirsScale ?? 1),
+          "circle-color": reservoirAlertColorExpr(),
+          "circle-opacity": POINT_OPACITY.base,
+        }),
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 9,
+        layout: {
+          "text-field": reservoirPctLabelExpr(),
+          // T-2 計數徽章：11／13 Bold、可重疊、底圖色 halo
+          "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+          ...badgeLabelLayout(),
+          "text-anchor": "top",
+          "text-offset": [0, 0.9],
+        },
+        paint: (isDark) => ({
+          "text-color": isDark ? "#e5e7eb" : "#1f2937",
+          ...labelHaloPaint(isDark),
+        }),
       },
     ],
   },
@@ -3819,16 +4360,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── Waste Stops Static (全台清運點位散點) ──
+  // 2026-09-30 PF-4：22 MB 整包 GeoJSON → PMTiles（-r1 全量、Z6 對齊 layer minzoom；
+  // scripts/preprocess/build-static-pmtiles-pf4.py）。屬性欄位與 WasteStopsStaticPanel 契約不變。
   {
     id: "wasteStopsStatic",
     opacityParam: "wasteStopsStaticOpacity",
-    sourceUrl: "./geo/waste_stops_static.geojson",
+    sourceUrl: "./geo/waste_stops_static_20260930.pmtiles",
     sourceId: "waste-stops-static",
+    pmtiles: { sourceLayer: "waste_stops", minzoom: 6, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ layer: "wasteStopsStatic", suffix: "waste-stops-heatmap", pointsFromZoom: DENSE_FROM.wasteStopsStatic, intensity: 0.3 }),
       {
         suffix: "waste-stops-glow",
         type: "circle",
-        minzoom: 6,
+        minzoom: DENSE_FROM.wasteStopsStatic,
         paint: (isDark, p) => {
           const scale = p?.wasteStopsStaticScale ?? 1;
           const glow = p?.wasteStopsStaticGlow ?? 0.10;
@@ -3853,7 +4398,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "waste-stops-fill",
         type: "circle",
-        minzoom: 6,
+        minzoom: DENSE_FROM.wasteStopsStatic,
         paint: (isDark, p) => {
           const scale = p?.wasteStopsStaticScale ?? 1;
           const z = p?.wasteStopsStaticZ ?? 0;
@@ -3867,7 +4412,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               17, 2.2 * scale,
             ],
             "circle-color": isDark ? "#fbbf24" : "#d97706",
-            "circle-opacity": isDark ? 0.6 : 0.75,
+            // P-3：乘數型透明度滑桿（opacityParam，預設 1）→ 點數分階套在主體 alpha
+            "circle-opacity": POINT_OPACITY.over10k,
             "circle-stroke-width": 0,
             "circle-translate": [0, -z],
             "circle-translate-anchor": "viewport",
@@ -3885,13 +4431,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-retail",
     pmtiles: { sourceLayer: "agri_retail", minzoom: 0, maxzoom: 12 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriRetail, intensity: 3, opacity: { layer: "agriRetail", param: "agriRetailOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.agriRetail,
         paint: (isDark, p) => {
           const scale = p?.agriRetailScale ?? 1;
-          const opacity = p?.agriRetailOpacity ?? 0.85;
+          const opacity = p?.agriRetailOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -3913,13 +4460,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "agri-produce-wholesale",
     pmtiles: { sourceLayer: "produce_wholesale", minzoom: 0, maxzoom: 12 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.agriProduceWholesale, intensity: 2, opacity: { layer: "agriProduceWholesale", param: "agriProduceWholesaleOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.agriProduceWholesale,
         paint: (isDark, p) => {
           const scale = p?.agriProduceWholesaleScale ?? 1;
-          const opacity = p?.agriProduceWholesaleOpacity ?? 0.85;
+          const opacity = p?.agriProduceWholesaleOpacity ?? 0.75;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -3996,15 +4544,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "manufacturingCompanyPoints",
-    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles",
+    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom_b8.pmtiles",
     sourceId: "business-registry-manufacturing-company-points",
     pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ suffix: "manufacturing-heatmap", pointsFromZoom: DENSE_FROM.manufacturingCompanyPoints, intensity: 0.07, opacity: { layer: "manufacturingCompanyPoints", param: "manufacturingCompanyPointsOpacity" } }),
       {
-        suffix: "manufacturing-circle", type: "circle", minzoom: 0,
+        suffix: "manufacturing-circle", type: "circle", minzoom: DENSE_FROM.manufacturingCompanyPoints,
         paint: (isDark, p) => {
           const scale = p?.manufacturingCompanyPointsScale ?? 1;
-          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
+          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.6;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 12, 2.2 * scale, 14, 3.5 * scale, 17, 6.4 * scale],
             "circle-color": companyCapitalQColorExpr(),
@@ -4022,15 +4571,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...INDUSTRIAL_DENSITY_DATASETS.flatMap(({ key }) => industrialDensitySources(key).map((source) => industrialDensityOverlay(key, source))),
   {
     id: "factoryLocations",
-    sourceUrl: "./business_registry/factory_locations_202606_allzoom.pmtiles",
+    sourceUrl: "./business_registry/factory_locations_202606_allzoom_b8.pmtiles",
     sourceId: "business-registry-factory-locations",
     pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.factoryLocations, intensity: 0.15, opacity: { layer: "factoryLocations", param: "factoryLocationsOpacity" } }),
       {
-        suffix: "circle", type: "circle", minzoom: 0,
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.factoryLocations,
         paint: (isDark, p) => {
           const scale = p?.factoryLocationsScale ?? 1;
-          const opacity = p?.factoryLocationsOpacity ?? 0.76;
+          const opacity = p?.factoryLocationsOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": FACTORY_LOCATION_COLOR,
@@ -4045,15 +4595,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "regulatedFacilities",
-    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom.pmtiles",
+    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom_b8.pmtiles",
     sourceId: "business-registry-regulated-facilities",
     pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.regulatedFacilities, intensity: 0.3, opacity: { layer: "regulatedFacilities", param: "regulatedFacilitiesOpacity" } }),
       {
-        suffix: "circle", type: "circle", minzoom: 0,
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.regulatedFacilities,
         paint: (isDark, p) => {
           const scale = p?.regulatedFacilitiesScale ?? 1;
-          const opacity = p?.regulatedFacilitiesOpacity ?? 0.72;
+          const opacity = p?.regulatedFacilitiesOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": REGULATED_FACILITY_COLOR,
@@ -4082,7 +4633,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline", type: "line", minzoom: 5,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#86efac" : "#15803d",
+          "line-color": THEMED_PAINT_COLORS.industrialParkOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.55, 12, 1.2, 15, 2],
           "line-opacity": Math.min(1, (p?.industrialParkBoundariesOpacity ?? 0.24) * 3),
         }),
@@ -4105,7 +4656,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline", type: "line", minzoom: 5,
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#ddd6fe" : "#6d28d9",
+          "line-color": THEMED_PAINT_COLORS.industrialComparisonOutline[isDark ? "dark" : "light"],
           "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 1.15, 15, 1.8],
           "line-opacity": Math.min(1, (p?.industrialParkComparisonOpacity ?? 0.68) * 1.25),
         }),
@@ -4118,17 +4669,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "commonRegistrationAddresses",
     sourceUrl: "./business_registry/common_registration_addresses_202608_r2.geojson",
     sourceId: "business-registry-common-registration-addresses",
-    rebuildOnParamChange: ["circle"],
+    rebuildOnParamChange: ["heatmap", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.commonRegistrationAddresses, intensity: 0.3, opacity: { layer: "commonRegistrationAddresses", param: "commonRegistrationAddressesOpacity" }, filter: commonRegistrationFilter }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 6,
-        filter: (p) => [
-          ">=",
-          ["to-number", ["get", "n_companies"], 0],
-          p?.commonRegistrationAddressesMinCompanies ?? 5,
-        ],
+        minzoom: DENSE_FROM.commonRegistrationAddresses,
+        filter: commonRegistrationFilter,
         layout: {
           "circle-sort-key": ["to-number", ["get", "n_companies"], 0],
         },
@@ -4459,10 +5007,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius", "streetTreesTaipeiDiffColorModeIdx"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipeiDiff, intensity: 0.01, opacity: { layer: "streetTreesTaipeiDiff", param: "streetTreesTaipeiDiffOpacity" }, weight: (p) => streetTreesDiffStatusWeight(p?.streetTreesTaipeiDiffStatusIdx ?? 0) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipeiDiff,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesTaipeiDiffOpacity ?? 0.7;
+          const base = p?.streetTreesTaipeiDiffOpacity ?? 0.75;
           const filt = p?.streetTreesTaipeiDiffStatusIdx ?? 0; // 0=全部 1=只看消失 2=只看變動
           const radiusMult = p?.streetTreesTaipeiDiffRadius ?? 1;
           const colorMode = p?.streetTreesTaipeiDiffColorModeIdx ?? 0; // 0=status 1=species 2=diameter 3=height
@@ -4525,7 +5074,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.protectedTreesNationalOpacity ?? 0.85;
+          const opacity = p?.protectedTreesNationalOpacity ?? 0.8;
           const radiusMult = p?.protectedTreesNationalRadius ?? 1;
           const colorMode = p?.protectedTreesNationalColorModeIdx ?? 0; // 0=樹齡 1=城市
           const cityValues = PROTECTED_TREE_CITIES.map((city) => city.name);
@@ -4558,10 +5107,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "riverside-trees-taipei",
     rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.riversideTreesTaipei, intensity: 0.05, opacity: { layer: "riversideTreesTaipei", param: "riversideTreesTaipeiOpacity" }, weight: (p) => multiSelectOpacityExpression("park_name", p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS), RIVERSIDE_PARKS, 1) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.riversideTreesTaipei,
         paint: (isDark, p) => {
-          const opacity = p?.riversideTreesTaipeiOpacity ?? 0.85;
+          const opacity = p?.riversideTreesTaipeiOpacity ?? 0.75;
           const radiusMult = p?.riversideTreesTaipeiRadius ?? 1;
           const parkMask = p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS);
           const opExpr = (mult: number): unknown[] | number =>
@@ -4593,7 +5143,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.parksTaipeiOpacity ?? 0.85;
+          const opacity = p?.parksTaipeiOpacity ?? 0.8;
           const radiusMult = p?.parksTaipeiRadius ?? 1;
           const categoryValues = TAIPEI_PARK_CATEGORIES.map((category) => category.name);
           const categoryMask = p?.parksTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
@@ -4631,10 +5181,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_taipei_3epoch", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesTaipei3epochOpacity", "streetTreesTaipei3epochRadius", "streetTreesTaipei3epochColorModeIdx", "streetTreesTaipei3epochTrajFilterIdx"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesTaipei3epoch, intensity: 0.01, opacity: { layer: "streetTreesTaipei3epoch", param: "streetTreesTaipei3epochOpacity" }, weight: (p) => streetTrees3epochTrajWeight(p?.streetTreesTaipei3epochTrajFilterIdx ?? 0) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesTaipei3epoch,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesTaipei3epochOpacity ?? 0.7;
+          const base = p?.streetTreesTaipei3epochOpacity ?? 0.6;
           const radiusMult = p?.streetTreesTaipei3epochRadius ?? 1;
           const colorMode = p?.streetTreesTaipei3epochColorModeIdx ?? 0; // 0=traj 1=species 2=diameter 3=height
           const filtIdx = p?.streetTreesTaipei3epochTrajFilterIdx ?? 0;  // 0=全部 1..4 見 STREET_TREE_3EPOCH_TRAJ_FILTERS
@@ -4679,10 +5230,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityMask"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.streetTreesNational, intensity: 0.03, opacity: { layer: "streetTreesNational", param: "streetTreesNationalOpacity" }, weight: (p) => multiSelectOpacityExpression("city", p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(STREET_TREE_NATIONAL_CITIES.map((c) => c.value)), STREET_TREE_NATIONAL_CITIES.map((c) => c.value), 1) }),
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.streetTreesNational,
         paint: (_isDark, p) => {
-          const base = p?.streetTreesNationalOpacity ?? 0.7;
+          const base = p?.streetTreesNationalOpacity ?? 0.6;
           const radiusMult = p?.streetTreesNationalRadius ?? 1;
           const colorMode = p?.streetTreesNationalColorModeIdx ?? 0; // 0=species 1=diameter 2=height 3=city
           const cityValues = STREET_TREE_NATIONAL_CITIES.map((city) => city.value);
@@ -4774,6 +5326,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "buildings-gba",
     pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
     rebuildOnParamChange: ["fill", "extrusion"],
+    rebuildOnParamKeys: ["buildingsGbaMinHeight"],
     layers: [
       {
         suffix: "fill",
@@ -4801,12 +5354,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => [">=", ["get", "h"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
           const modeIdx = p?.buildingsGbaModeIdx ?? 0;
-          const opacity = modeIdx === 2 ? (p?.buildingsGbaOpacity ?? 0.75) : 0; // 非 3D 模式壓 0 隱藏
+          const opacity = modeIdx === 2
+            ? Math.min(1, EXTRUSION.opacity * ((p?.buildingsGbaOpacity ?? 0.75) / 0.75))
+            : 0; // 非 3D 模式壓 0 隱藏
           return {
             "fill-extrusion-color": buildingHeightColorExpr(),
             "fill-extrusion-height": ["coalesce", ["get", "h"], 3],
             "fill-extrusion-base": 0,
             "fill-extrusion-opacity": opacity,
+            "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
           };
         },
       },
@@ -4823,7 +5379,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       paint: (_isDark, p) => ({
         "fill-color": jpBuildingHeightColorExpr("height_median"),
         "fill-opacity": p?.jpBuildingHeightOpacity ?? 0.75,
-        "fill-outline-color": "rgba(255,255,255,0.25)",
       }),
     }],
   },
@@ -4856,7 +5411,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "fill-extrusion-color": jpBuildingHeightColorExpr(),
           "fill-extrusion-height": ["get", "height"],
           "fill-extrusion-base": 0,
-          "fill-extrusion-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1 ? (p?.jpBuildingHeightOpacity ?? 0.75) : 0,
+          "fill-extrusion-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1
+            ? Math.min(1, EXTRUSION.opacity * ((p?.jpBuildingHeightOpacity ?? 0.75) / 0.75))
+            : 0,
+          "fill-extrusion-vertical-gradient": EXTRUSION.verticalGradient,
         }),
       },
     ],
@@ -5120,7 +5678,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return ["has", "start_date"];
         },
         paint: (isDark, p) => {
-          const opacity = p?.artsEventsOpacity ?? 0.85;
+          const opacity = p?.artsEventsOpacity ?? 0.8;
           const radiusMult = p?.artsEventsRadius ?? 1;
           const today = cultureTodayStr();
           return {
@@ -5228,12 +5786,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "source"],
-              "A_forest", "#d62728",
-              "B_osm", "#1f77b4",
-              "C_np_sheipa", "#2ca02c",
-              "C_np_kinmen", "#9467bd",
-              "D_taipei_grand", "#ff7f0e",
-              "D_newtaipei", "#e377c2",
+              "A_forest", HIKING_TRAIL_PAINT_COLORS.A_forest,
+              "B_osm", HIKING_TRAIL_PAINT_COLORS.B_osm,
+              "C_np_sheipa", HIKING_TRAIL_PAINT_COLORS.C_np_sheipa,
+              "C_np_kinmen", HIKING_TRAIL_PAINT_COLORS.C_np_kinmen,
+              "D_taipei_grand", HIKING_TRAIL_PAINT_COLORS.D_taipei_grand,
+              "D_newtaipei", HIKING_TRAIL_PAINT_COLORS.D_newtaipei,
               "#888888",
             ],
             "line-width": 5 * w,
@@ -5253,12 +5811,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "source"],
-              "A_forest", "#d62728",
-              "B_osm", "#1f77b4",
-              "C_np_sheipa", "#2ca02c",
-              "C_np_kinmen", "#9467bd",
-              "D_taipei_grand", "#ff7f0e",
-              "D_newtaipei", "#e377c2",
+              "A_forest", HIKING_TRAIL_PAINT_COLORS.A_forest,
+              "B_osm", HIKING_TRAIL_PAINT_COLORS.B_osm,
+              "C_np_sheipa", HIKING_TRAIL_PAINT_COLORS.C_np_sheipa,
+              "C_np_kinmen", HIKING_TRAIL_PAINT_COLORS.C_np_kinmen,
+              "D_taipei_grand", HIKING_TRAIL_PAINT_COLORS.D_taipei_grand,
+              "D_newtaipei", HIKING_TRAIL_PAINT_COLORS.D_newtaipei,
               "#888888",
             ],
             "line-width": [
@@ -5295,7 +5853,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.2)",
+          "line-color": THEMED_PAINT_COLORS.ecoNetworkOutline[isDark ? "dark" : "light"],
           "line-width": 0.8,
           "line-opacity": 1,
         }),
@@ -5324,7 +5882,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": "#15803D",
+          "fill-color": FORESTRY_PAINT_COLORS.forestCompartments,
           "fill-opacity": params?.forestCompartmentsOpacity ?? 0.45,
         }),
       },
@@ -5332,7 +5890,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "#22c55e" : "#166534",
+          "line-color": THEMED_PAINT_COLORS.forestCompartmentsOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestCompartmentsOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestCompartmentsShowOutline ?? 1) ? 0.7 : 0,
         }),
@@ -5352,7 +5910,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": ["match", ["get", "種類"], ...FOREST_RESERVE_TYPE_MATCH, "#0F766E"],
+          "fill-color": ["match", ["get", "種類"], ...FOREST_RESERVE_TYPE_MATCH, FORESTRY_PAINT_COLORS.forestReserve],
           "fill-opacity": params?.forestReserveOpacity ?? 0.6,
         }),
       },
@@ -5360,7 +5918,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)",
+          "line-color": THEMED_PAINT_COLORS.forestReserveOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestReserveOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestReserveShowOutline ?? 1) ? 0.7 : 0,
         }),
@@ -5379,7 +5937,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": "#65A30D",
+          "fill-color": FORESTRY_PAINT_COLORS.forestRecreation,
           "fill-opacity": params?.forestRecreationOpacity ?? 0.6,
         }),
       },
@@ -5387,7 +5945,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "#a3e635" : "#4d7c0f",
+          "line-color": THEMED_PAINT_COLORS.forestRecreationOutline[isDark ? "dark" : "light"],
           "line-width": params?.forestRecreationOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestRecreationShowOutline ?? 1) ? 0.8 : 0,
         }),
@@ -5409,10 +5967,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestTreatmentWorksScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.55 * scale,
-            "circle-color": "#F59E0B",
+            "circle-color": FORESTRY_PAINT_COLORS.forestTreatmentWorks,
             "circle-stroke-color": "#b45309",
             "circle-stroke-width": 0.4,
-            "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.85,
+            "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.8,
           };
         },
       },
@@ -5433,7 +5991,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestFlatParksScale ?? 1.3;
           return {
             "circle-radius": BASE_RADIUS * 1.0 * scale,
-            "circle-color": "#A3E635",
+            "circle-color": FORESTRY_PAINT_COLORS.forestFlatParks,
             "circle-stroke-color": "#365314",
             "circle-stroke-width": 1,
             "circle-opacity": params?.forestFlatParksOpacity ?? 0.9,
@@ -5457,7 +6015,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "raster", type: "raster",
         paint: (_isDark, p) => ({
-          "raster-opacity": p?.canopyHeightOpacity ?? 0.7,
+          "raster-opacity": p?.canopyHeightOpacity ?? RASTER.opacity,
           "raster-resampling": "nearest",
           // mapbox 把 channels 正規化為 0-1 再進 mix，故 R=公尺/255；6.375 = (1/40)×255 → mix 輸出=高度/40
           "raster-color-mix": [6.375, 0, 0, 0],
@@ -5488,7 +6046,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     layers: [{
       suffix: "raster", type: "raster",
       paint: (_isDark, p) => ({
-        "raster-opacity": p?.jpCanopyHeightOpacity ?? 0.7,
+        "raster-opacity": p?.jpCanopyHeightOpacity ?? RASTER.opacity,
         "raster-resampling": "nearest",
         "raster-color-mix": [6.375, 0, 0, 0],
         "raster-color-range": [0, 1],
@@ -5513,7 +6071,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          const opacity = p?.canopyGiantsOpacity ?? 0.8;
           const scale = p?.canopyGiantsScale ?? 1;
           return {
             "circle-color": canopyGiantDistColorExpr(),
@@ -5542,10 +6100,47 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestDamLakesScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 0.85 * scale,
-            "circle-color": "#06B6D4",
+            "circle-color": FORESTRY_PAINT_COLORS.forestDamLakes,
             "circle-stroke-color": "#0e7490",
             "circle-stroke-width": 0.8,
             "circle-opacity": params?.forestDamLakesOpacity ?? 0.95,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 軌道路線（靜態 GeoJSON，LineString；線色＝geojson `color` 各線官方線色）──
+  // 系統 select 走 filter（rebuild 帶新值）；寬度走 paint diff。不載入任何時刻表。
+  {
+    id: "railRoutes",
+    sourceUrl: RAIL_ROUTES_URL,
+    sourceId: RAIL_ROUTES_SOURCE_ID,
+    rebuildOnParamChange: ["line"],
+    rebuildOnParamKeys: ["railRoutesSystemIdx"],
+    attribution: "信義線東延段線形 © OpenStreetMap contributors (ODbL)",
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        filter: (p) => railRoutesSystemFilter(p?.railRoutesSystemIdx ?? 0),
+        paint: (_isDark, params) => {
+          const w = params?.railRoutesWidth ?? 1;
+          // 共用走廊（台鐵／高鐵／捷運並行段）：offset_slot（建置腳本算的半整數）× 線寬，
+          // 讓並行線像路線圖一樣緊貼平行，不再互相穿插；停駐點與線寬相同，任何 zoom 都剛好貼齊。
+          const slot = ["coalesce", ["get", "offset_slot"], 0];
+          return {
+            "line-color": ["coalesce", ["get", "color"], RAIL_ROUTES_FALLBACK_COLOR] as unknown as string,
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 0.8 * w, 9, 1.6 * w, 12, 2.6 * w, 15, 4 * w,
+            ] as unknown as number,
+            "line-offset": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", slot, 0.8 * w], 9, ["*", slot, 1.6 * w], 12, ["*", slot, 2.6 * w], 15, ["*", slot, 4 * w],
+            ] as unknown as number,
+            "line-opacity": params?.railRoutesOpacity ?? 0.9,
           };
         },
       },
@@ -5568,7 +6163,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const w = params?.forestRoadsWidth ?? 1;
           return {
-            "line-color": "#A16207",
+            "line-color": FORESTRY_PAINT_COLORS.forestRoads,
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
               7, 0.4 * w, 11, 1.2 * w, 14, 2.4 * w, 16, 3.2 * w,
@@ -5594,7 +6189,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestAlishanRailScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 0.8 * scale,
-            "circle-color": "#92400E",
+            "circle-color": FORESTRY_PAINT_COLORS.forestAlishanRail,
             "circle-stroke-color": "#fff",
             "circle-stroke-width": 1,
             "circle-opacity": params?.forestAlishanRailOpacity ?? 0.95,
@@ -5618,10 +6213,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestTrailSignsScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.6 * scale,
-            "circle-color": "#84CC16",
+            "circle-color": FORESTRY_PAINT_COLORS.forestTrailSigns,
             "circle-stroke-color": "#365314",
             "circle-stroke-width": 0.5,
-            "circle-opacity": params?.forestTrailSignsOpacity ?? 0.85,
+            "circle-opacity": params?.forestTrailSignsOpacity ?? 0.8,
           };
         },
       },
@@ -5642,10 +6237,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestSignalPointsScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.7 * scale,
-            "circle-color": "#22C55E",
+            "circle-color": FORESTRY_PAINT_COLORS.forestSignalPoints,
             "circle-stroke-color": "#14532d",
             "circle-stroke-width": 0.6,
-            "circle-opacity": params?.forestSignalPointsOpacity ?? 0.85,
+            "circle-opacity": params?.forestSignalPointsOpacity ?? 0.8,
           };
         },
       },
@@ -5694,7 +6289,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestEducationCentersScale ?? 1.2;
           return {
             "circle-radius": BASE_RADIUS * 1.1 * scale,
-            "circle-color": "#0EA5E9",
+            "circle-color": FORESTRY_PAINT_COLORS.forestEducationCenters,
             "circle-stroke-color": "#fff",
             "circle-stroke-width": 1.2,
             "circle-opacity": params?.forestEducationCentersOpacity ?? 0.9,
@@ -5718,10 +6313,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.forestWildlifeScale ?? 1;
           return {
             "circle-radius": BASE_RADIUS * 0.65 * scale,
-            "circle-color": "#A855F7",
+            "circle-color": FORESTRY_PAINT_COLORS.forestWildlife,
             "circle-stroke-color": "#581c87",
             "circle-stroke-width": 0.5,
-            "circle-opacity": params?.forestWildlifeOpacity ?? 0.85,
+            "circle-opacity": params?.forestWildlifeOpacity ?? 0.8,
           };
         },
       },
@@ -5792,6 +6387,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: [],
     layers: [
+      // R6 段 2（2026-10-06）：平面版（預設）。色＝燃料（同 legend powerPlants 的 FUEL_COLORS，
+      // 由 hook 寫進 feature.color）、大小＝即時出力 MW（面積 ∝ 出力，不隨縮放）；描邊由 withPointSpec（B）套 P-2。
+      // 「立體效果」開時 Three.js 光柱疊在上面，平面圓點保留當柱底與點選目標。
+      {
+        suffix: "circle",
+        type: "circle",
+        layout: { "circle-sort-key": ["-", 0, ["coalesce", ["get", "output_mw"], 0]] },
+        paint: (_isDark, params) => ({
+          "circle-radius": powerOutputRadiusExpr(params?.powerGenerationScale ?? 1),
+          "circle-color": ["coalesce", ["get", "color"], "#9ca3af"], // 後備色＝FUEL_FALLBACK_COLOR（hook 已用 fuelColorOf 寫入）
+          "circle-opacity": params?.powerGenerationOpacity ?? 0.7,
+        }),
+      },
       {
         suffix: "hit",
         type: "circle",
@@ -5856,12 +6464,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-rotate": 45,
             "icon-allow-overlap": true,
             "icon-ignore-placement": true,
-            "icon-size": [
-              "interpolate", ["linear"], ["zoom"],
-              6,  ["match", ["get", "class"], "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB, 0.32 * sB],
-              11, ["match", ["get", "class"], "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB, 0.52 * sB],
-              14, ["match", ["get", "class"], "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB, 0.72 * sB],
-            ],
+            // P-5：固定大小（不隨縮放），最大一級＝L 直徑 13px；等級比例保留
+            "icon-size": ["match", ["get", "class"],
+              "EHV_SWITCH", substationIconSize(POINT_ICON_PX.L, 1) * sB,
+              substationIconSize(POINT_ICON_PX.L, 0.72 / 0.9) * sB],
           };
         },
         paint: (_isDark, params) => {
@@ -5909,18 +6515,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-rotate": 45,
             "icon-allow-overlap": true,
             "icon-ignore-placement": true,
-            "icon-size": [
-              "interpolate", ["linear"], ["zoom"],
-              6, ["match", ["get", "class"],
-                  "PS", 0.25 * sS, "DPS", 0.20 * sS, "SS", 0.18 * sS,
-                  "TRACTION", 0.16 * sS, 0.13 * sS],
-              11, ["match", ["get", "class"],
-                   "PS", 0.40 * sS, "DPS", 0.32 * sS, "SS", 0.28 * sS,
-                   "TRACTION", 0.24 * sS, 0.20 * sS],
-              14, ["match", ["get", "class"],
-                   "PS", 0.55 * sS, "DPS", 0.45 * sS, "SS", 0.36 * sS,
-                   "TRACTION", 0.32 * sS, 0.28 * sS],
-            ],
+            // P-5：固定大小（不隨縮放），最大一級（PS）＝M 直徑 9px；等級比例保留
+            "icon-size": ["match", ["get", "class"],
+              "PS", substationIconSize(POINT_ICON_PX.M, 1) * sS,
+              "DPS", substationIconSize(POINT_ICON_PX.M, 0.45 / 0.55) * sS,
+              "SS", substationIconSize(POINT_ICON_PX.M, 0.36 / 0.55) * sS,
+              "TRACTION", substationIconSize(POINT_ICON_PX.M, 0.32 / 0.55) * sS,
+              substationIconSize(POINT_ICON_PX.M, 0.28 / 0.55) * sS],
           };
         },
         paint: (_isDark, params) => {
@@ -6022,12 +6623,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmPowerTowersOpacity", "osmPowerTowersSize"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.osmPowerTowers, intensity: 1, opacity: { layer: "osmPowerTowers", param: "osmPowerTowersOpacity" } }),
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 8,
+        minzoom: DENSE_FROM.osmPowerTowers,
         paint: (isDark, params) => {
-          const o = params?.osmPowerTowersOpacity ?? 0.85;
+          const o = params?.osmPowerTowersOpacity ?? 0.75;
           const s = params?.osmPowerTowersSize ?? 1;
           return {
             "circle-radius": [
@@ -6215,7 +6817,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "fill-color": "#22d3ee",
             "fill-opacity": o,
-            "fill-outline-color": "#67e8f9",
           };
         },
       },
@@ -6573,7 +7174,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-blur": 1,
             "circle-color": mountainRescueColorExpr(),
-            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.85) * 0.16,
+            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.8) * 0.16,
           };
         },
       },
@@ -6583,7 +7184,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.mountainRescueIncidentsScale ?? 1;
-          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.85;
+          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -6796,21 +7397,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: ["==", ["geometry-type"], "Polygon"],
-        paint: (isDark, params) => {
-          const o = params?.parkingOnstreetOpacity ?? 0.6;
+        paint: (_isDark, params) => {
+          const o = params?.parkingOnstreetOpacity ?? 0.8;
           return {
             "fill-color": neutralCapacityColorExpr() as unknown as string,
             "fill-opacity": o,
-            "fill-outline-color": isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)",
           };
         },
+      },
+      {
+        // F-2：分級面外框＝1px 底圖色細縫（取代原本面圖層內建的固定 1px 外框）
+        suffix: "outline",
+        type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (isDark) => ({
+          "line-color": mapSeamColor(isDark),
+          "line-width": GRADED_SEAM.width,
+          "line-opacity": GRADED_SEAM.opacity[isDark ? "dark" : "light"],
+        }),
       },
       {
         suffix: "circle",
         type: "circle",
         filter: ["==", ["geometry-type"], "Point"],
         paint: (isDark, params) => {
-          const o = params?.parkingOnstreetOpacity ?? 0.6;
+          const o = params?.parkingOnstreetOpacity ?? 0.8;
           const scale = params?.parkingOnstreetScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3 * scale, 14, 7 * scale],
@@ -6838,7 +7449,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.parkingOffstreetOpacity ?? 0.9;
+          const o = params?.parkingOffstreetOpacity ?? 0.8;
           const scale = params?.parkingOffstreetScale ?? 1;
           // 半徑隨 total_spaces（log 尺標，兩端 clamp）：小場小圓、大場大圓
           const radius = (zoom6: number, zoom13: number) => [
@@ -6924,7 +7535,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6,  radius(2, 14),
               12, radius(5, 32),
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o,
             "circle-stroke-width": [
               "case", ["==", ["get", "has_realtime"], true], 1.4, 1,
@@ -6963,7 +7574,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "#475569",
             ],
             "fill-opacity": o * 0.35,
-            "fill-outline-color": "#7AAEC0",
           };
         },
       },
@@ -7019,7 +7629,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 4, Math.log10(6000), 26]],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": [
               "*", o,
               ["match", ["get", "status"],
@@ -7031,10 +7641,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-width": 1.2,
             "circle-stroke-color": [
               "match", ["get", "status"],
-              "construction", "#fff500",        // 霓虹電光黃
-              "pre-construction", "#00d4ff",    // 霓虹電光藍
-              "announced", "#a5b4fc",           // 霓虹淡紫藍
-              "#a5b4fc",
+              "construction", FACILITY_STATUS_PAINT_COLORS.construction,        // 霓虹電光黃
+              "pre-construction", FACILITY_STATUS_PAINT_COLORS.preConstruction,    // 霓虹電光藍
+              "announced", FACILITY_STATUS_PAINT_COLORS.announced,           // 霓虹淡紫藍
+              FACILITY_STATUS_PAINT_COLORS.announced,
             ],
             // 注意：mapbox-gl 不支援 circle stroke dasharray
           };
@@ -7065,7 +7675,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 4, Math.log10(6000), 22]],
             ],
-            "circle-color": "#525252",
+            "circle-color": FACILITY_STATUS_PAINT_COLORS.historical,
             "circle-opacity": [
               "*", o,
               ["match", ["get", "status"],
@@ -7075,7 +7685,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
                 0.4],
             ],
             "circle-stroke-width": 1,
-            "circle-stroke-color": "#737373",
+            "circle-stroke-color": FACILITY_STATUS_PAINT_COLORS.historicalStroke,
           };
         },
       },
@@ -7104,7 +7714,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
                 Math.log10(0.5), 3, Math.log10(100), 12]],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o * 0.9,
             "circle-stroke-width": 0.6,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7126,7 +7736,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.facOsmSupplementOpacity ?? 0.7;
+          const o = params?.facOsmSupplementOpacity ?? 0.8;
           const s = params?.facOsmSupplementScale ?? 1;
           return {
             "circle-radius": [
@@ -7135,7 +7745,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 5.5],
             ],
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-color": ["coalesce", ["get", "color"], FACILITY_STATUS_PAINT_COLORS.fallback],
             "circle-opacity": o * 0.75,
             "circle-stroke-width": 0.4,
             "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
@@ -7165,7 +7775,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.gasStationCpcOpacity ?? 0.85;
+          const o = params?.gasStationCpcOpacity ?? 0.8;
           const s = params?.gasStationCpcScale ?? 1.7;
           return {
             "circle-radius": [
@@ -7174,7 +7784,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#41AEF2",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationCpc,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7205,7 +7815,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#22C55E",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationFpcc,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7236,7 +7846,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#F2522E",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationTaisugar,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7267,7 +7877,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#D1D5DB",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationOther,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7289,7 +7899,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.gasStationCanonicalOpacity ?? 0.9;
+          const o = params?.gasStationCanonicalOpacity ?? 0.8;
           const s = params?.gasStationCanonicalScale ?? 1.7;
           return {
             "circle-radius": [
@@ -7298,7 +7908,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 4],
               15, ["*", s, 7],
             ],
-            "circle-color": "#0FBFBF",
+            "circle-color": FOSSIL_PAINT_COLORS.gasStationCanonical,
             "circle-opacity": o,
             "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
@@ -7329,7 +7939,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 5],
               15, ["*", s, 8],
             ],
-            "circle-color": "#F2622E",
+            "circle-color": FOSSIL_PAINT_COLORS.lpgSubpackaging,
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7351,7 +7961,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.lpgRetailersOpacity ?? 0.75;
+          const o = params?.lpgRetailersOpacity ?? 0.8;
           const s = params?.lpgRetailersScale ?? 1.3;
           return {
             "circle-radius": [
@@ -7360,7 +7970,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#D9863D",
+            "circle-color": FOSSIL_PAINT_COLORS.lpgRetailers,
             "circle-opacity": o,
             "circle-stroke-width": 0.5,
             "circle-stroke-color": isDark ? "#1f2937" : "#ffffff",
@@ -7391,7 +8001,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 16],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#F2B84B",
+            "circle-color": FOSSIL_PAINT_COLORS.lngTerminal,
             "circle-opacity": o * 0.35,
           };
         },
@@ -7408,7 +8018,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 8],
             ],
-            "circle-color": "#F2B84B",
+            "circle-color": FOSSIL_PAINT_COLORS.lngTerminal,
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -7433,7 +8043,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineGasOpacity ?? 0.8;
           const w = params?.pipelineGasWidth ?? 2.0;
           return {
-            "line-color": "#F2D64B",
+            "line-color": FOSSIL_PAINT_COLORS.pipelineGas,
             "line-width": w,
             "line-opacity": o,
           };
@@ -7457,7 +8067,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineOilGasOpacity ?? 0.7;
           const w = params?.pipelineOilGasWidth ?? 1.5;
           return {
-            "line-color": "#EDF249",
+            "line-color": FOSSIL_PAINT_COLORS.pipelineOilGas,
             "line-width": w,
             "line-opacity": o,
             "line-dasharray": [2, 2],
@@ -7485,7 +8095,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6 * scale, 10, 18 * scale, 14, 36 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#F97316",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "circle-opacity": o * 0.5,
           };
         },
@@ -7499,7 +8109,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialRefineryScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2 * scale, 10, 5 * scale, 14, 9 * scale],
-            "circle-color": "#F97316",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "circle-opacity": o,
           };
         },
@@ -7511,7 +8121,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
-            "fill-color": "#F97316",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7524,7 +8134,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialRefineryOpacity ?? 0.55;
           const show = (params?.industrialRefineryOutline ?? 1) > 0;
           return {
-            "line-color": "#F97316",
+            "line-color": FOSSIL_PAINT_COLORS.industrialRefinery,
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7551,7 +8161,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5 * scale, 10, 14 * scale, 14, 28 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#06B6D4",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "circle-opacity": o * 0.5,
           };
         },
@@ -7565,7 +8175,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialStorageTankScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5 * scale, 10, 4 * scale, 14, 7 * scale],
-            "circle-color": "#06B6D4",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "circle-opacity": o,
           };
         },
@@ -7577,7 +8187,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           return {
-            "fill-color": "#06B6D4",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7590,7 +8200,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           const show = (params?.industrialStorageTankOutline ?? 1) > 0;
           return {
-            "line-color": "#06B6D4",
+            "line-color": FOSSIL_PAINT_COLORS.industrialStorageTank,
             "line-width": show ? 2 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7617,7 +8227,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7 * scale, 10, 20 * scale, 14, 40 * scale],
             "circle-blur": 0.8,
-            "circle-color": "#D946EF",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "circle-opacity": o * 0.55,
           };
         },
@@ -7631,7 +8241,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const scale = params?.industrialPowerPlantScale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 10, 6 * scale, 14, 10 * scale],
-            "circle-color": "#D946EF",
+            "circle-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "circle-opacity": o,
           };
         },
@@ -7643,7 +8253,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           return {
-            "fill-color": "#D946EF",
+            "fill-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "fill-opacity": o * 0.5,
           };
         },
@@ -7656,7 +8266,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           const show = (params?.industrialPowerPlantOutline ?? 1) > 0;
           return {
-            "line-color": "#D946EF",
+            "line-color": FOSSIL_PAINT_COLORS.industrialPowerPlant,
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -7686,7 +8296,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 13],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#3B82F6",
+            "circle-color": FOSSIL_PAINT_COLORS.coalTerminal,
             "circle-opacity": o * 0.35,
           };
         },
@@ -7703,7 +8313,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 7],
             ],
-            "circle-color": "#3B82F6",
+            "circle-color": FOSSIL_PAINT_COLORS.coalTerminal,
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#fafafa" : "#ffffff",
@@ -7788,7 +8398,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#4b5563",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7799,7 +8408,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.countyBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#9ca3af" : "#374151",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.8 * w, 8, 1.4 * w, 12, 2.4 * w],
             "line-opacity": params?.countyBoundaryOpacity ?? 0.85,
           };
@@ -7821,7 +8430,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#6b7280",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7832,7 +8440,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.townshipBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#94a3b8" : "#4b5563",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5 * w, 11, 1.0 * w, 14, 1.8 * w],
             "line-opacity": params?.townshipBoundaryOpacity ?? 0.75,
           };
@@ -7854,7 +8462,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: () => ({
           "fill-color": "#9ca3af",
           "fill-opacity": 0,
-          "fill-outline-color": "rgba(0,0,0,0)",
         }),
       },
       {
@@ -7865,7 +8472,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const w = params?.villageBoundaryWidth ?? 1;
           return {
-            "line-color": isDark ? "#cbd5e1" : "#6b7280",
+            "line-color": BOUNDARY_GRAY[isDark ? "dark" : "light"],
             "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.4 * w, 14, 0.9 * w, 17, 1.6 * w],
             "line-opacity": params?.villageBoundaryOpacity ?? 0.65,
           };
@@ -8056,12 +8663,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           // 依 highway 分色（catalog: motorway+link 6.9k / trunk 4.2k / primary 16k / secondary 13k / tertiary 37k / others）
           const colorExpr: unknown[] = [
             "match", ["get", "highway"],
-            ["motorway", "motorway_link"], "#fb923c",
-            ["trunk", "trunk_link"], "#f87171",
-            ["primary", "primary_link"], "#fcd34d",
-            ["secondary", "secondary_link"], "#9ca3af",
-            ["tertiary", "tertiary_link"], "#d4d4d4",
-            "#e5e7eb",
+            ["motorway", "motorway_link"], ROAD_DRIVE_PAINT_COLORS.motorway,
+            ["trunk", "trunk_link"], ROAD_DRIVE_PAINT_COLORS.trunk,
+            ["primary", "primary_link"], ROAD_DRIVE_PAINT_COLORS.primary,
+            ["secondary", "secondary_link"], ROAD_DRIVE_PAINT_COLORS.secondary,
+            ["tertiary", "tertiary_link"], ROAD_DRIVE_PAINT_COLORS.tertiary,
+            ROAD_DRIVE_PAINT_COLORS.other,
           ];
           const widthExpr: unknown[] = [
             "interpolate", ["linear"], ["zoom"],
@@ -8131,7 +8738,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.policeStationScale ?? 1;
-        const op = p?.policeStationOpacity ?? 0.85;
+        const op = p?.policeStationOpacity ?? 0.8;
         // 半徑用 (zoom × subtype tier) 二維插值：subtype 帶 baseRadius factor
         const radiusFactor: unknown[] = [
           "match", ["get", "facility_subtype"],
@@ -8205,7 +8812,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.speedCameraScale ?? 1;
-        const op = p?.speedCameraOpacity ?? 0.85;
+        const op = p?.speedCameraOpacity ?? 0.8;
         // limit_kph 字串轉數字後分級 factor
         const limitFactor: unknown[] = [
           "step", ["coalesce", ["to-number", ["get", "limit_kph"]], 60],
@@ -8412,33 +9019,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── 治安態勢 5 layer ──
   {
-    id: "crimeAreaMonthly",
-    sourceUrl: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
-    sourceId: "crime-area-monthly",
-    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 5, maxzoom: 12 },
-    rebuildOnParamChange: ["crimeAreaMonthlyOpacity"],
-    layers: [
-      {
-        suffix: "fill", type: "fill",
-        paint: (_isDark, p) => ({
-          "fill-color": [
-            "interpolate", ["linear"], ["coalesce", ["to-number", ["get", "total_events"]], 0],
-            0, "#fef2f2",
-            100, "#fca5a5",
-            500, "#ef4444",
-            1500, "#991b1b",
-            5000, "#450a0a",
-          ] as unknown as string,
-          "fill-opacity": p?.crimeAreaMonthlyOpacity ?? 0.55,
-        }),
-      },
-      {
-        suffix: "line", type: "line",
-        paint: () => ({ "line-color": "#7f1d1d", "line-width": 0.3, "line-opacity": 0.5 }),
-      },
-    ],
-  },
-  {
     id: "theftTaoyuan",
     sourceUrl: "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson",
     sourceId: "theft-taoyuan",
@@ -8473,7 +9053,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle",
       paint: (_isDark, p) => {
         const s = p?.trafficAccidentYearlyScale ?? 1;
-        const op = p?.trafficAccidentYearlyOpacity ?? 0.85;
+        const op = p?.trafficAccidentYearlyOpacity ?? 0.8;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2 * s, 12, 4 * s, 16, 7 * s] as unknown as number,
           "circle-color": "#fb7185",
@@ -8488,11 +9068,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson",
     sourceId: "accident-taipei",
     rebuildOnParamChange: ["accidentTaipeiOpacity", "accidentTaipeiScale"],
-    layers: [{
-      suffix: "circle", type: "circle", minzoom: 10,
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.accidentTaipei, intensity: 0.05, opacity: { layer: "accidentTaipei", param: "accidentTaipeiOpacity" } }), {
+      suffix: "circle", type: "circle", minzoom: DENSE_FROM.accidentTaipei,
       paint: (_isDark, p) => {
         const s = p?.accidentTaipeiScale ?? 1;
-        const op = p?.accidentTaipeiOpacity ?? 0.7;
+        const op = p?.accidentTaipeiOpacity ?? 0.75;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
           "circle-color": [
@@ -8846,7 +9427,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       suffix: "circle", type: "circle", minzoom: 7,
       paint: (_isDark, p) => {
         const s = p?.civilDefenseShelterScale ?? 1;
-        const op = p?.civilDefenseShelterOpacity ?? 0.7;
+        const op = p?.civilDefenseShelterOpacity ?? 0.75;
         return {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 0.6 * s, 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
           "circle-color": [
@@ -9019,10 +9600,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
     filter: NOISE_ENFORCEMENT_FILTER,
-    layers: [{
-      suffix: "noise-circle", type: "circle", minzoom: 5, maxzoom: 15,
+    layers: [
+      denseHeatmapLayer({ suffix: "noise-heatmap", pointsFromZoom: DENSE_FROM.noiseEnforcementEvents, intensity: 0.3, opacity: { layer: "noiseEnforcementEvents", param: "noiseEnforcementEventsOpacity" } }), {
+      suffix: "noise-circle", type: "circle", minzoom: DENSE_FROM.noiseEnforcementEvents, maxzoom: 15,
       paint: (_isDark, p) => {
-        const op = p?.noiseEnforcementEventsOpacity ?? 0.8;
+        const op = p?.noiseEnforcementEventsOpacity ?? 0.75;
         const moneyRadius: unknown[] = [
           "interpolate", ["linear"],
           ["log10", ["max", 10, ["coalesce", ["to-number", ["get", "penalty_money"]], 10]]],
@@ -9111,6 +9693,331 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     }],
   },
 
+  // ── 水質與污水（環境部／內政部，public/environment 靜態 GeoJSON）──
+  // 水質測站：三類型分色；latest_sample_date 為 null（無讀值）→ 同色中空點。
+  {
+    id: "waterQualityStations",
+    sourceUrl: "./environment/water_quality_stations.geojson",
+    sourceId: "water-quality-stations",
+    rebuildOnParamChange: ["circle"],
+    rebuildOnParamKeys: ["waterQualityStationsTypeIdx"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 7, maxzoom: 19,
+      filter: (p) => waterQualityStationTypeFilter(p?.waterQualityStationsTypeIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.waterQualityStationsOpacity ?? 0.85;
+        const noReading: unknown[] = ["==", ["get", "latest_sample_date"], null];
+        return {
+          "circle-color": WATER_QUALITY_STATION_COLOR_EXPR as unknown as string,
+          "circle-opacity": ["case", noReading, 0, op] as unknown as number,
+          "circle-stroke-color": ["case", noReading, WATER_QUALITY_STATION_COLOR_EXPR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", noReading, 1.6, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // RPI：官方四級語意色；latest_rpi 為 null（無資料）→ 中空灰點，不畫成乾淨。
+  // 疊放：刻意排在 waterQualityStations 之後（registry 順序＝z 序，後者在上），兩層同開時
+  // RPI 等級色不被水質測站蓋住；水質測站切類型會 remove/addLayer 跑到最上層，故 RPI 也監聽
+  // waterQualityStationsTypeIdx，跟著重建回到上方。
+  {
+    id: "riverRpiStations",
+    sourceUrl: "./environment/river_rpi_stations.geojson",
+    sourceId: "river-rpi-stations",
+    rebuildOnParamChange: ["circle"],
+    rebuildOnParamKeys: ["riverRpiStationsClassIdx", "waterQualityStationsTypeIdx"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
+      filter: (p) => riverRpiClassFilter(p?.riverRpiStationsClassIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.riverRpiStationsOpacity ?? 0.9;
+        const noData: unknown[] = ["==", ["get", "latest_rpi"], null];
+        return {
+          "circle-color": ["case", noData, "rgba(148,163,184,0)", RIVER_RPI_COLOR_EXPR] as unknown as string,
+          "circle-opacity": ["case", noData, 0, op] as unknown as number,
+          "circle-stroke-color": ["case", noData, RIVER_RPI_NO_DATA_COLOR, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", noData, 1.8, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // 污水處理廠：Google geocode 只到幾何中心／約略位置的 14 處 → 淡色中空，popup 另標示。
+  {
+    id: "sewageTreatmentPlants",
+    sourceUrl: "./environment/sewage_treatment_plants.geojson",
+    sourceId: "sewage-treatment-plants",
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 6, maxzoom: 19,
+      paint: (isDark, p) => {
+        const op = p?.sewageTreatmentPlantsOpacity ?? 0.9;
+        return {
+          "circle-color": ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants,
+          "circle-opacity": ["case", SEWAGE_UNCERTAIN_EXPR, op * 0.25, op] as unknown as number,
+          "circle-stroke-color": ["case", SEWAGE_UNCERTAIN_EXPR, ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants, isDark ? "#0f172a" : "#ffffff"] as unknown as string,
+          "circle-stroke-width": ["case", SEWAGE_UNCERTAIN_EXPR, 1.8, 1] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // 飲用水水源水質保護區（環境部）：藍色系，刻意與 waterProtectionZones（水利署，emerald）區隔；一定距離用虛線。
+  {
+    id: "drinkingWaterProtectionZones",
+    sourceUrl: "./environment/drinking_water_protection_zones.geojson",
+    sourceId: "drinking-water-protection-zones",
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "fill-opacity": 0.3 * (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65,
+        }),
+      },
+      {
+        suffix: "outline", type: "line",
+        filter: ["!=", ["get", "zone_type"], "一定距離"],
+        paint: (_isDark, p) => ({
+          "line-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": 1.2,
+          "line-opacity": Math.min(1, (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65),
+        }),
+      },
+      {
+        // line-dasharray 不支援 data-driven，取水口一定距離另起一層虛線。
+        suffix: "distance-outline", type: "line",
+        filter: ["==", ["get", "zone_type"], "一定距離"],
+        paint: (_isDark, p) => ({
+          "line-color": DRINKING_WATER_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": 1.2,
+          "line-opacity": Math.min(1, (p?.drinkingWaterProtectionZonesOpacity ?? 0.65) / 0.65),
+          "line-dasharray": [2, 2],
+        }),
+      },
+    ],
+  },
+
+  // ── 環境第二波（2026-10-02）：靜態 5 層 + 即時 4 層 ──
+  // 共通語意：過期／停測／缺值＝中空灰點（envHollowPoint），保留位置但不用顏色暗示數值。
+  ...[
+    envPointOverlay("seaWaterQualityStations", "./environment/sea_water_quality_stations.geojson", "sea-water-quality-stations",
+      SEA_WATER_CLASS_COLOR_EXPR, SEA_WATER_STALE_EXPR),
+    envPointOverlay("pm25ManualStations", "./environment/pm25_manual_stations.geojson", "pm25-manual-stations",
+      envInterpolate("mean_12m_ugm3", PM25_MANUAL_STOPS), PM25_MANUAL_INACTIVE_EXPR),
+    envPointOverlay("dioxinStations", "./environment/dioxin_stations.geojson", "dioxin-stations",
+      envInterpolate("latest_teq_pg_m3", DIOXIN_STATION_STOPS), ["==", ["get", "is_stale"], true]),
+    envPointOverlay("incineratorEmissions", "./environment/incinerator_emissions.geojson", "incinerator-emissions",
+      envInterpolate("nox_ppm", INCINERATOR_NOX_STOPS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "nox_ppm"], null]]),
+    // 即時 4 層：dynamicData，資料由 useEnvironmentLiveLayer setData；RPC 失敗時 source 清空。
+    envPointOverlay("nuscGammaRadiation", "./geo/_empty.geojson", "nusc-gamma-radiation",
+      envInterpolate("dose_usvh", NUSC_GAMMA_STOPS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "dose_usvh"], null]],
+      { dynamicData: true, alertExpr: ["==", ["get", "is_high"], true] }),
+    envPointOverlay("waterEffluentLive", "./geo/_empty.geojson", "water-effluent-live",
+      envStatusColorExpr("status", WATER_EFFLUENT_STATUSES), ["==", ["get", "status"], "stale"], { dynamicData: true }),
+    envPointOverlay("cemsStackLive", "./geo/_empty.geojson", "cems-stack-live",
+      envStatusColorExpr("status", CEMS_STATUSES), ["any", ["==", ["get", "status"], "stale"], ["==", ["get", "status"], "unknown"]], { dynamicData: true }),
+    envPointOverlay("cwaUvDaily", "./geo/_empty.geojson", "cwa-uv-daily",
+      envStatusColorExpr("uv_level", CWA_UV_LEVELS), ["any", ["==", ["get", "is_stale"], true], ["==", ["get", "uv_level"], null]], { dynamicData: true }),
+    // ── 日本氣象廳即時 3 點層（dynamicData，資料由 useJmaLiveLayer setData；警報 choropleth 由 useJmaWarningsLayer 自建）──
+    // AMeDAS：NULL＝中空點（不經 to-number，避免 null 變 0）；雨量／積雪 0 與 >0 分色；積雪模式只畫有積雪計的站（filter → 重建）。
+    {
+      id: "jmaAmedas",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-amedas",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      rebuildOnParamChange: ["circle"],
+      rebuildOnParamKeys: ["jmaAmedasModeIdx"],
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 22,
+        filter: (p) => jmaAmedasFilter(jmaAmedasMode(p?.jmaAmedasModeIdx)) ?? ["all"],
+        paint: (isDark, p) => {
+          const mode = jmaAmedasMode(p?.jmaAmedasModeIdx);
+          const hollow = jmaIsNullExpr(mode.field);
+          const op = p?.jmaAmedasOpacity ?? 0.9;
+          return {
+            "circle-color": jmaAmedasColorExpr(mode) as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 0.8] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 地震：半徑＝規模（泡泡 B）、顏色＝最大震度；規模或震度 NULL → 中空。
+    {
+      id: "jmaQuakes",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-quakes",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaQuakesOpacity ?? 0.85;
+          const s = p?.jmaQuakesScale ?? 1;
+          const hollow: unknown[] = ["any", ["==", ["get", "max_intensity"], null], ["==", ["get", "magnitude"], null]];
+          return {
+            "circle-radius": ["case", ["==", ["get", "magnitude"], null], 4 * s,
+              ["interpolate", ["linear"], ["get", "magnitude"], ...JMA_QUAKE_RADIUS_STOPS.flatMap(([m, px]) => [m, px * s])]] as unknown as number,
+            "circle-color": ["match", ["get", "max_intensity"], ...JMA_INTENSITY_CLASSES.flatMap((c) => [c.value, c.color]), JMA_MISSING_COLOR] as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op * 0.75] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 1] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 火山：噴火警戒レベル 1–5＋未導入レベル。
+    {
+      id: "jmaVolcanoes",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-volcanoes",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaVolcanoesOpacity ?? 0.9;
+          return {
+            "circle-color": ["match", ["get", "level"], ...JMA_VOLCANO_LEVELS.flatMap((l) => [l.value, l.color]), JMA_MISSING_COLOR] as unknown as string,
+            "circle-opacity": op,
+            "circle-stroke-color": mapSeamColor(isDark),
+            "circle-stroke-width": 1,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 日本落雷（LIDEN）：沿用台灣氣象署源樣式（無電流強度 → 半徑只看 zoom），對地／雲放電分色。
+    {
+      id: "jmaLightning",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-lightning",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      rebuildOnParamChange: ["jmaLightningOpacity"],
+      layers: [
+        {
+          suffix: "halo", type: "circle",
+          paint: (_isDark, params) => {
+            const o = params?.jmaLightningOpacity ?? 0.85;
+            const scale = params?.jmaLightningScale ?? 1;
+            return {
+              "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4 * scale, 9, 7 * scale, 12, 12 * scale],
+              "circle-color": ["match", ["get", "strike_type"], 0, "#a78bfa", 1, "#4ade80", "#9ca3af"],
+              "circle-blur": 0.85,
+              "circle-opacity": ["*", o * 0.45, ["coalesce", ["get", "alpha"], 1]],
+            };
+          },
+        },
+        {
+          suffix: "core", type: "circle",
+          paint: (_isDark, params) => {
+            const o = params?.jmaLightningOpacity ?? 0.85;
+            const scale = params?.jmaLightningScale ?? 1;
+            return {
+              "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale],
+              "circle-color": ["match", ["get", "strike_type"], 0, "#a78bfa", 1, "#4ade80", "#9ca3af"],
+              "circle-opacity": ["*", o, ["coalesce", ["get", "alpha"], 1]],
+            };
+          },
+        },
+      ],
+    } satisfies OverlayConfig,
+    // 暑さ指数 WBGT（環境省）：4 段步階色；值 NULL → 中空。出典環境省（非 PDL1.0）。
+    {
+      id: "jmaWbgt",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-wbgt",
+      dynamicData: true,
+      attribution: ENV_WBGT_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaWbgtOpacity ?? 0.9;
+          const s = p?.jmaWbgtScale ?? 1;
+          const hollow = jmaIsNullExpr("wbgt");
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5 * s, 8, 4.5 * s, 12, 7 * s] as unknown as number,
+            "circle-color": envWbgtColorExpr() as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 0.6] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 山頂初冠雪：已觀測＝白點深描邊；未觀測＝灰中空（as-of 已過平年日 → 描邊加粗）。
+    {
+      id: "jmaSnowcap",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-snowcap",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (_isDark, p) => {
+          const op = p?.jmaSnowcapOpacity ?? 0.95;
+          const s = p?.jmaSnowcapScale ?? 1;
+          const observed: unknown[] = ["==", ["get", "state"], "observed"];
+          const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+          const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 4 * s, 8, 6.5 * s, 12, 9 * s] as unknown as number,
+            "circle-color": JMA_SNOWCAP_OBSERVED_COLOR,
+            "circle-opacity": ["case", observed, op, 0] as unknown as number,
+            // 條件分支才是資料編碼（withPointSpec 只換 fallback）：已觀測深描邊、未觀測灰圈、已過平年粗圈
+            "circle-stroke-color": ["case", observed, JMA_SNOWCAP_OBSERVED_STROKE, notObserved, JMA_POINT_HOLLOW_COLOR, JMA_POINT_HOLLOW_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", observed, 1.6, ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 1.4] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }, jmaSeasonalLabelLayer("jmaSnowcapOpacity", 0.95)],
+    } satisfies OverlayConfig,
+    jmaPhenologyOverlay("jmaAutumnLeaves", "jma-autumn-leaves"),
+    jmaPhenologyOverlay("jmaSakura", "jma-sakura"),
+  ],
+
+  // RPI 河段推估（全台 301 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線
+  //（line-dasharray 不支援 data-driven）。中心線來自 OSM → source attribution 必帶 ODbL。
+  {
+    id: "riverRpiSegments",
+    sourceUrl: "./environment/river_rpi_segments.geojson",
+    sourceId: "river-rpi-segments",
+    attribution: OSM_ODBL_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "line", type: "line",
+        filter: ["!", ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, p) => ({
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
+          "line-width": 3,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
+        }),
+      },
+      {
+        suffix: "tidal", type: "line",
+        filter: ["in", ["get", "tidal"], ["literal", [...RIVER_RPI_TIDAL_VALUES]]],
+        layout: { "line-join": "round" },
+        paint: (_isDark, p) => ({
+          "line-color": riverRpiSegmentColorExpr(p?.riverRpiSegmentsModeIdx ?? 0) as unknown as string,
+          "line-width": 3,
+          "line-opacity": p?.riverRpiSegmentsOpacity ?? 0.85,
+          "line-dasharray": [2, 2],
+        }),
+      },
+    ],
+  },
+
   // ══════════════════════════════════════════════════════════════════
   //  環境污染 POLLUTION（PMTiles，來自 taipei-gis-analytics environment/pollution_source）
   //  ⚠️ 語意紅線：EMS_S_01 列管 ≠ 污染源。標籤用「污染潛勢設施」。
@@ -9124,13 +10031,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_facilities.pmtiles",
     sourceId: "pollution-facility",
     pmtiles: { sourceLayer: "pollution_facilities", minzoom: 0, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.pollutionFacility, intensity: 0.1, opacity: { layer: "pollutionFacility", param: "pollutionFacilityOpacity" } }), {
       suffix: "circle",
       type: "circle",
-      minzoom: 0,
+      minzoom: DENSE_FROM.pollutionFacility,
       paint: (_isDark, p) => {
         const s = p?.pollutionFacilityScale ?? 1;
-        const op = p?.pollutionFacilityOpacity ?? 0.8;
+        const op = p?.pollutionFacilityOpacity ?? 0.6;
         return {
           "circle-color": SEVERITY_COLOR_EXPR as unknown as string,
           "circle-radius": [
@@ -9155,14 +10063,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "critical-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyCritical, intensity: 0.3, opacity: { layer: "pollutionPenaltyCritical", param: "pollutionPenaltyOpacity" }, filter: PENALTY_CRITICAL_FILTER }), {
       suffix: "critical-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyCritical,
       filter: PENALTY_CRITICAL_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
           // 大小 ∝ 罰鍰：以 log10(penalty_money) 為主軸，**全 zoom（含拉到全台 z5）都反映金額**。
@@ -9211,14 +10120,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "general-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyGeneral, intensity: 0.1, opacity: { layer: "pollutionPenaltyGeneral", param: "pollutionPenaltyOpacity" }, filter: PENALTY_GENERAL_FILTER }), {
       suffix: "general-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyGeneral,
       filter: PENALTY_GENERAL_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
           "circle-radius": [
@@ -9245,14 +10155,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/pollution_penalties.pmtiles",
     sourceId: "pollution-penalty",
     pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
-    layers: [{
+    layers: [
+      denseHeatmapLayer({ suffix: "mobile-heatmap", pointsFromZoom: DENSE_FROM.pollutionPenaltyMobile, intensity: 0.15, opacity: { layer: "pollutionPenaltyMobile", param: "pollutionPenaltyOpacity" }, filter: PENALTY_MOBILE_FILTER }), {
       suffix: "mobile-circle",
       type: "circle",
-      minzoom: 5,
+      minzoom: DENSE_FROM.pollutionPenaltyMobile,
       filter: PENALTY_MOBILE_FILTER,
       paint: (_isDark, p) => {
         const s = p?.pollutionPenaltyScale ?? 1;
-        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        const op = p?.pollutionPenaltyOpacity ?? 0.6;
         return {
           "circle-color": PENALTY_SEVERITY_COLORS.mobile,
           "circle-radius": [
@@ -9281,7 +10192,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       minzoom: 0,
       paint: (_isDark, p) => {
         const s = p?.pollutionSiteScale ?? 1;
-        const op = p?.pollutionSiteOpacity ?? 0.9;
+        const op = p?.pollutionSiteOpacity ?? 0.8;
         return {
           // 仍列管（is_active=1）用亮紅描邊突顯，已解除用灰
           "circle-color": ["case", ["==", ["coalesce", ["to-number", ["get", "is_active"]], 0], 1], "#dc2626", "#6b7280"] as unknown as string,
@@ -9330,7 +10241,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourAttractionsScale ?? 1;
-          const opacity = p?.tourAttractionsOpacity ?? 0.85;
+          const opacity = p?.tourAttractionsOpacity ?? 0.8;
           const color = p?.tourAttractionsModeIdx === 1 ? TOUR_ATTRACTIONS_HEAT_COLOR : TOUR_ATTRACTIONS_CATEGORY_COLOR;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -9471,7 +10382,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourHeritageScale ?? 1;
-          const opacity = p?.tourHeritageOpacity ?? 0.85;
+          const opacity = p?.tourHeritageOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": TOUR_HERITAGE_CATEGORY_COLOR,
@@ -9496,16 +10407,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/temples.pmtiles",
     sourceId: "religion-temples",
     pmtiles: { sourceLayer: "temples", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["circle"],
+    rebuildOnParamChange: ["heatmap", "circle"],
     attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.religionTemples, intensity: 2, opacity: { layer: "religionTemples", param: "religionTemplesOpacity" }, filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511) }),
       {
         suffix: "circle",
-        type: "circle",
+        type: "circle", minzoom: DENSE_FROM.religionTemples,
         filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511),
         paint: (isDark, p) => {
           const scale = p?.religionTemplesScale ?? 1;
-          const opacity = p?.religionTemplesOpacity ?? 0.8;
+          const opacity = p?.religionTemplesOpacity ?? 0.75;
           return {
             // 1k~10k 級距的密度 baseline（19k 點）：z6 2.5px → z12 5.5px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.5 * scale, 12, 5.5 * scale],
@@ -9532,7 +10444,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => registryModeFilter(p?.religionChurchesRegistryIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.religionChurchesScale ?? 1;
-          const opacity = p?.religionChurchesOpacity ?? 0.85;
+          const opacity = p?.religionChurchesOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": RELIGION_LAYER_COLORS.religionChurches,
@@ -9609,7 +10521,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, p) => {
           const scale = p?.religionOtherWorshipScale ?? 1;
-          const opacity = p?.religionOtherWorshipOpacity ?? 0.85;
+          const opacity = p?.religionOtherWorshipOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": RELIGION_LAYER_COLORS.religionOtherWorship,
@@ -9683,7 +10595,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.funeralFacilitiesScale ?? 1;
-          const opacity = p?.funeralFacilitiesOpacity ?? 0.85;
+          const opacity = p?.funeralFacilitiesOpacity ?? 0.8;
           return {
             // 1k~10k 級距的密度 baseline（3.7k 點）：z6 3px → z12 6px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -9818,7 +10730,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareLtcInstitutionsScale ?? 1;
-          const opacity = p?.welfareLtcInstitutionsOpacity ?? 0.85;
+          const opacity = p?.welfareLtcInstitutionsOpacity ?? 0.8;
           return {
             // 1k~10k 級距的 UX baseline（layer-onboarding Step 3）：z6 3px → z12 6px
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
@@ -9850,7 +10762,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareNursingHomesScale ?? 1;
-          const opacity = p?.welfareNursingHomesOpacity ?? 0.85;
+          const opacity = p?.welfareNursingHomesOpacity ?? 0.8;
           const beds = nursingBedsExpr();
           // sqrt 縮放：床數最大約 450 → sqrt ≈ 21，z12 半徑 3~13.6px。
           // 無床（居家護理所 732）落在基底 3px —— 這是誠實的，不是資料缺漏。
@@ -9883,7 +10795,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => welfareFilter(p?.welfareChildcarePrecisionIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.welfareChildcareScale ?? 1;
-          const opacity = p?.welfareChildcareOpacity ?? 0.85;
+          const opacity = p?.welfareChildcareOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": WELFARE_LAYER_COLORS.welfareChildcare,
@@ -9913,7 +10825,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         ),
         paint: (isDark, p) => {
           const scale = p?.welfareChildServicesScale ?? 1;
-          const opacity = p?.welfareChildServicesOpacity ?? 0.85;
+          const opacity = p?.welfareChildServicesOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": childServiceColorExpr(),
@@ -9940,7 +10852,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => welfareFilter(p?.welfareElderlyHomesPrecisionIdx ?? 0),
         paint: (isDark, p) => {
           const scale = p?.welfareElderlyHomesScale ?? 1;
-          const opacity = p?.welfareElderlyHomesOpacity ?? 0.85;
+          const opacity = p?.welfareElderlyHomesOpacity ?? 0.8;
           const beds = elderlyBedsExpr();
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"],
@@ -10357,6 +11269,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       minzoom: CRAM_PMTILES_MINZOOM,
       maxzoom: CRAM_PMTILES_MAXZOOM,
     },
+    // R5 不套熱區：切片 minzoom 8 且建置時大量抽稀（全台 z8 僅 35 點、z12 1,372 點／17,137），
+    // 熱區密度趨近 0 看不見，維持原本 z8 起畫點（2026-10-02 量測）。
     rebuildOnParamChange: ["circle"],
     layers: [{
       suffix: "circle", type: "circle",
@@ -10576,7 +11490,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourCampingScale ?? 1;
-          const opacity = p?.tourCampingOpacity ?? 0.85;
+          const opacity = p?.tourCampingOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": "#7cb342",
@@ -10597,10 +11511,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "tourHotels",
     sourceUrl: "./tourism/hotels_national.geojson",
     sourceId: "tour-hotels",
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle"],
     layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.tourHotels, intensity: 1.5, opacity: { layer: "tourHotels", param: "tourHotelsOpacity" }, filter: (p) => tourHotelsClassFilter(p) }),
       {
-        suffix: "glow", type: "circle",
+        suffix: "glow", type: "circle", minzoom: DENSE_FROM.tourHotels,
         filter: (p) => tourHotelsClassFilter(p),
         paint: (_isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
@@ -10613,11 +11528,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         },
       },
       {
-        suffix: "circle", type: "circle",
+        suffix: "circle", type: "circle", minzoom: DENSE_FROM.tourHotels,
         filter: (p) => tourHotelsClassFilter(p),
         paint: (isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
-          const opacity = p?.tourHotelsOpacity ?? 0.85;
+          const opacity = p?.tourHotelsOpacity ?? 0.75;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2 * scale, 9, 2.5 * scale, 12, 5 * scale],
             "circle-color": TOUR_HOTELS_CLASS_COLOR,
@@ -10642,7 +11557,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const scale = p?.tourRestaurantsScale ?? 1;
-          const opacity = p?.tourRestaurantsOpacity ?? 0.85;
+          const opacity = p?.tourRestaurantsOpacity ?? 0.8;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
             "circle-color": "#c62828",
@@ -10681,7 +11596,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "official-bridges-new-taipei",
     pmtiles: { sourceLayer: "official_bridges", minzoom: 7, maxzoom: 15 },
     attribution: "新北市政府橋梁清冊",
-    layers: [{ suffix: "line", type: "line", paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "line-color": NETWORK_STRUCTURES_COLORS.official, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * scale, 12, 2.5 * scale, 16, 4 * scale], "line-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "circle-color": NETWORK_STRUCTURES_COLORS.official, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+    layers: [{ suffix: "line", type: "line", paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "line-color": NETWORK_STRUCTURES_COLORS.official, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * scale, 12, 2.5 * scale, 16, 4 * scale], "line-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.8 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "circle-color": NETWORK_STRUCTURES_COLORS.official, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
   {
     id: "bridgeComparisonNewTaipei",
@@ -10690,6 +11605,208 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "bridge-comparison-new-taipei",
     pmtiles: { sourceLayer: "bridge_comparison", minzoom: 7, maxzoom: 15 },
     attribution: "新北市政府橋梁清冊；© OpenStreetMap contributors (ODbL)",
-    layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+    layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.8 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+  },
+  {
+    id: "tainanBridgeInspections",
+    sourceUrl: "./network_structures/tainan_bridge_inspections_20260924.pmtiles",
+    sourceId: "tainan-bridge-inspections",
+    pmtiles: { sourceLayer: "tainan_bridge_inspections", minzoom: 7, maxzoom: 15 },
+    attribution: "臺南市政府工務局橋梁檢測資料（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => {
+      const scale = p?.tainanBridgeInspectionsScale ?? 1;
+      return {
+        "circle-color": "#a855f7",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2.5 * scale, 12, 5 * scale, 16, 8 * scale],
+        "circle-opacity": p?.tainanBridgeInspectionsOpacity ?? 0.8,
+        "circle-stroke-color": "#fff",
+        "circle-stroke-width": 1 * scale,
+      };
+    } }],
+  },
+  {
+    id: "officialBridgesHsinchu",
+    rebuildOnParamChange: ["line", "coincident-endpoints"],
+    sourceUrl: "./network_structures/official_bridges_hsinchu_20260924.pmtiles",
+    sourceId: "official-bridges-hsinchu",
+    pmtiles: { sourceLayer: "official_bridges_hsinchu", minzoom: 8, maxzoom: 15 },
+    attribution: "新竹市政府橋梁清冊（政府資料開放授權條款第 1 版）",
+    layers: [
+      { suffix: "line", type: "line", paint: (_d, p) => ({ "line-color": "#22d3ee", "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * (p?.officialBridgesHsinchuScale ?? 1), 12, 2.5 * (p?.officialBridgesHsinchuScale ?? 1), 16, 4 * (p?.officialBridgesHsinchuScale ?? 1)], "line-opacity": p?.officialBridgesHsinchuOpacity ?? 0.85 }) },
+      { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => ({ "circle-color": "#22d3ee", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.officialBridgesHsinchuScale ?? 1), 14, 7 * (p?.officialBridgesHsinchuScale ?? 1)], "circle-opacity": p?.officialBridgesHsinchuOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) },
+    ],
+  },
+  {
+    id: "taipeiRoadTunnels", sourceUrl: "./network_structures/taipei_road_tunnels_20260924.pmtiles", sourceId: "taipei-road-tunnels",
+    pmtiles: { sourceLayer: "taipei_road_tunnels", minzoom: 7, maxzoom: 15 },
+    attribution: "臺北市政府隧道資訊（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#f59e0b", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.taipeiRoadTunnelsScale ?? 1), 12, 6 * (p?.taipeiRoadTunnelsScale ?? 1), 16, 9 * (p?.taipeiRoadTunnelsScale ?? 1)], "circle-opacity": p?.taipeiRoadTunnelsOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) }],
+  },
+  {
+    id: "tainanRoadTunnels", sourceUrl: "./network_structures/tainan_road_tunnels_20260924.pmtiles", sourceId: "tainan-road-tunnels",
+    pmtiles: { sourceLayer: "tainan_road_tunnels", minzoom: 7, maxzoom: 15 },
+    attribution: "臺南市隧道明細（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#fb923c", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.tainanRoadTunnelsScale ?? 1), 12, 6 * (p?.tainanRoadTunnelsScale ?? 1), 16, 9 * (p?.tainanRoadTunnelsScale ?? 1)], "circle-opacity": p?.tainanRoadTunnelsOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) }],
+  },
+  {
+    id: "changhuaTrafficSignals", sourceUrl: "./network_structures/changhua_traffic_signals_20260924.pmtiles", sourceId: "changhua-traffic-signals",
+    pmtiles: { sourceLayer: "changhua_traffic_signals", minzoom: 7, maxzoom: 15 },
+    attribution: "彰化縣政府號誌清冊（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#84cc16", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2 * (p?.changhuaTrafficSignalsScale ?? 1), 12, 4.5 * (p?.changhuaTrafficSignalsScale ?? 1), 16, 7 * (p?.changhuaTrafficSignalsScale ?? 1)], "circle-opacity": p?.changhuaTrafficSignalsOpacity ?? 0.8, "circle-stroke-color": "#fff", "circle-stroke-width": 0.8 }) }],
   },
 ];
+
+OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
+OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
+OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
+
+/**
+ * atlas 批次 2026-10：26 層點／線／面（原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施）。
+ * 全部 git 管理、dist 供檔（PMTiles 最大約 16MB，比照酒駕事故前例）；資料由
+ * scripts/preprocess/build-atlas-public.py 產出，PMTiles 逐 zoom 稽核筆數（不抽稀不丟點）。
+ * 點位共用公共生活點層 helper；attribution 一律明傳（helper 預設是 OSM）。
+ * PMTiles 點層不畫文字標籤（vector source 的 symbol placement 有 production 崩潰紀錄，見 helper 註解）。
+ */
+const OGDL_ATTR = "政府資料開放授權條款第1版";
+const polygonLayers = (key: string, color: unknown, def: number, minzoom?: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayConfig["layers"] => [
+  { suffix: "fill", type: "fill", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": p?.[`${key}Opacity`] ?? def }) },
+  { suffix: "outline", type: "line", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (dark, p) => ({
+    "line-color": dark ? "#e2e8f0" : color, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 14, 1.4],
+    "line-opacity": Math.min(1, (p?.[`${key}Opacity`] ?? def) + 0.3),
+  }) },
+];
+
+/** 地層下陷等值線：兩層共用 land-subsidence-contours PMTiles，以 contour_type＋期別 select filter 切。
+ *  不掛 level_value 文字標註：PMTiles 上的 symbol 在 production 有 continuePlacement 崩潰前例（見 publicLifePointOverlay），值放 popup／圖例。 */
+const landSubsidenceContourOverlay = (id: "landSubsidenceCumulative" | "landSubsidenceRate", type: ContourType, attribution: string): OverlayConfig => ({
+  id, sourceUrl: "./hazards/land_subsidence_contours.pmtiles", sourceId: "land-subsidence-contours",
+  pmtiles: { sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
+  attribution, rebuildOnParamChange: [`${type}-line`],
+  layers: [{
+    suffix: `${type}-line`, type: "line",
+    filter: (p) => contourFilter(type, p?.[`${id}PeriodIdx`]),
+    layout: { "line-join": "round", "line-cap": "round" },
+    paint: (_dark, p) => ({
+      "line-color": contourColorExpr(type),
+      "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.8, 10, 1.6, 14, 2.6],
+      "line-opacity": p?.[`${id}Opacity`] ?? 0.85,
+    }),
+  }],
+});
+
+const ATLAS_OVERLAYS: OverlayConfig[] = [
+  // ── 原民與農村 ──
+  publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
+  publicLifePointOverlay("indigenousIsolationRisk", "./indigenous_rural/indigenous_isolation_risk_areas.geojson", "indigenous-isolation-risk", matchColorExpr("cause_combo", ISOLATION_CAUSE_OPTIONS), undefined, `原住民族委員會 原住民族地區易成孤島地區（data.gov.tw 170259，114 年度）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),
+  {
+    id: "agriRuralCommunityVillages", sourceUrl: "./indigenous_rural/rural_community_villages.pmtiles", sourceId: "agri-rural-community-villages",
+    pmtiles: { sourceLayer: "rural_community_villages", minzoom: RURAL_MIN_ZOOM, maxzoom: 12 },
+    attribution: `農業部農村發展及水土保持署 農村社區分類（村里）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("agriRuralCommunityVillages", matchColorExpr("community_type", RURAL_COMMUNITY_OPTIONS), 0.45, RURAL_MIN_ZOOM, (p) => atlasMultiSelectFilter("community_type", RURAL_COMMUNITY_OPTIONS, p?.agriRuralCommunityVillagesTypeMask)),
+  },
+  // ── 道路設施 ──
+  publicLifePointOverlay("provincialRoadSigns", "./geo/provincial_road_signs.pmtiles", "provincial-road-signs", matchColorExpr("sign_series", ROAD_SIGN_SERIES_OPTIONS), { sourceLayer: "provincial_road_signs", minzoom: ROAD_SIGNS_TILE_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道標誌清查（data.gov.tw 146233 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("sign_series", ROAD_SIGN_SERIES_OPTIONS, p?.provincialRoadSignsSeriesMask), dense: { pointsFromZoom: ROAD_SIGNS_POINT_MIN_ZOOM, intensity: 1 } }),
+  publicLifePointOverlay("provincialRoadMileposts", "./geo/provincial_road_mileposts.pmtiles", "provincial-road-mileposts", ATLAS_LAYER_COLORS.provincialRoadMileposts, { sourceLayer: "provincial_road_mileposts", minzoom: MILEPOSTS_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道里程牌（data.gov.tw 7040）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("freewayTrafficSigns", "./geo/freeway_traffic_signs.pmtiles", "freeway-traffic-signs", matchColorExpr("sign_group", FREEWAY_SIGN_GROUP_OPTIONS), { sourceLayer: "freeway_traffic_signs", minzoom: FREEWAY_SIGNS_MIN_ZOOM, maxzoom: 14 }, `交通部高速公路局 交通標誌（data.gov.tw 98447）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("sign_group", FREEWAY_SIGN_GROUP_OPTIONS, p?.freewayTrafficSignsGroupMask) }),
+  publicLifePointOverlay("freewayInterchanges", "./geo/freeway_interchanges.geojson", "freeway-interchanges", matchColorExpr("facility_type", INTERCHANGE_TYPE_OPTIONS), undefined, `交通部高速公路局 國道交流道（data.gov.tw 166496）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 10 }),
+  {
+    id: "freewayEcoSensitive", sourceUrl: "./geo/freeway_eco_sensitive_sections.geojson", sourceId: "freeway-eco-sensitive",
+    attribution: `交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("freewayEcoSensitive", ecoLevelColorExpr(), 0.5),
+  },
+  {
+    id: "provincialRoadMonitored", sourceUrl: "./geo/provincial_road_monitored_sections.pmtiles", sourceId: "provincial-road-monitored",
+    pmtiles: { sourceLayer: "provincial_road_monitored_sections", minzoom: MONITORED_MIN_ZOOM, maxzoom: 12 },
+    attribution: `交通部公路局 省道防救災監控路段（data.gov.tw 16193 等）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line", "point"],
+    layers: [
+      { suffix: "line", type: "line", minzoom: MONITORED_MIN_ZOOM, filter: (p) => ["all", ["==", ["geometry-type"], "LineString"], atlasMultiSelectFilter("monitor_series", MONITOR_SERIES_OPTIONS, p?.provincialRoadMonitoredSeriesMask)], paint: (_dark, p) => ({
+        "line-color": matchColorExpr("monitor_series", MONITOR_SERIES_OPTIONS), "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5],
+        "line-opacity": p?.provincialRoadMonitoredOpacity ?? 0.85,
+      }) },
+      { suffix: "point", type: "circle", minzoom: MONITORED_MIN_ZOOM, filter: (p) => ["all", ["==", ["geometry-type"], "Point"], atlasMultiSelectFilter("monitor_series", MONITOR_SERIES_OPTIONS, p?.provincialRoadMonitoredSeriesMask)], paint: (dark, p) => ({
+        "circle-color": matchColorExpr("monitor_series", MONITOR_SERIES_OPTIONS), "circle-radius": 5 * (p?.provincialRoadMonitoredScale ?? 1),
+        "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 1, "circle-opacity": p?.provincialRoadMonitoredOpacity ?? 0.85,
+      }) },
+    ],
+  },
+  {
+    id: "provincialRoadEmergencyBays", sourceUrl: "./geo/provincial_road_emergency_bays.geojson", sourceId: "provincial-road-emergency-bays",
+    attribution: `交通部公路局 省道緊急避車彎（data.gov.tw 99940）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line", "point"],
+    layers: [
+      { suffix: "line", type: "line", filter: ["==", ["geometry-type"], "LineString"], paint: (_dark, p) => ({
+        "line-color": emergencyBayColorExpr(), "line-width": ["interpolate", ["linear"], ["zoom"], 8, 2, 14, 5], "line-opacity": p?.provincialRoadEmergencyBaysOpacity ?? 0.9,
+      }) },
+      { suffix: "point", type: "circle", filter: ["==", ["geometry-type"], "Point"], paint: (dark, p) => ({
+        "circle-color": emergencyBayColorExpr(), "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * (p?.provincialRoadEmergencyBaysScale ?? 1), 14, 6 * (p?.provincialRoadEmergencyBaysScale ?? 1)],
+        "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": 1, "circle-opacity": p?.provincialRoadEmergencyBaysOpacity ?? 0.9,
+      }) },
+    ],
+  },
+  // ── 淹水與災害照片 ──
+  publicLifePointOverlay("floodDisasterPointsNcdr", "./hazards/flood_disaster_points_ncdr.pmtiles", "flood-disaster-points-ncdr", matchColorExpr("info_source", FLOOD_INFO_SOURCE_OPTIONS), { sourceLayer: "flood_disaster_points_ncdr", minzoom: 5, maxzoom: 12 }, `國家災害防救科技中心 淹水災點（data.gov.tw 130016 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", FLOOD_YEARS, p?.floodDisasterPointsNcdrYearMask) }),
+  {
+    id: "taipeiWaterloggingHistory", sourceUrl: "./hazards/taipei_waterlogging_history.geojson", sourceId: "taipei-waterlogging-history",
+    attribution: `臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("taipeiWaterloggingHistory", ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, 0.5),
+  },
+  publicLifePointOverlay("swcbDisasterPhotoPoints", "./hazards/swcb_disaster_photo_points.pmtiles", "swcb-disaster-photo-points", matchColorExpr("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS), { sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 }, `農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("photo_category", SWCB_PHOTO_CATEGORY_OPTIONS, p?.swcbDisasterPhotoPointsCategoryMask), dense: { pointsFromZoom: DENSE_FROM.swcbDisasterPhotoPoints, intensity: 1 } }),
+  // ── 海洋 ──
+  publicLifePointOverlay("cetaceanStrandings", "./marine/cetacean_strandings.geojson", "cetacean-strandings", flaggedColorExpr(matchColorExpr("animal_status", ANIMAL_STATUS_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.cetaceanStrandingsYearMask) }),
+  publicLifePointOverlay("seaTurtleStrandings", "./marine/sea_turtle_strandings.geojson", "sea-turtle-strandings", flaggedColorExpr(matchColorExpr("species_zh", TURTLE_SPECIES_OPTIONS)), undefined, `海洋委員會海洋保育署 MARN 海龜擱淺（data.gov.tw）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasYearFilter("event_year", STRANDING_YEARS, p?.seaTurtleStrandingsYearMask) }),
+  publicLifePointOverlay("beachWaterQuality", "./marine/beach_water_quality.geojson", "beach-water-quality", matchColorExpr("latest_water_level_code", BEACH_LEVEL_OPTIONS), undefined, `環境部 海水浴場水質監測 · ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
+  publicLifePointOverlay("marineMicroplastics", "./marine/marine_microplastics_stations.geojson", "marine-microplastics", microplasticColorExpr(), undefined, `海洋委員會 海洋微塑膠調查（2021–2023）· ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
+  publicLifePointOverlay("marinePollutionIncidents", "./marine/marine_pollution_incidents.geojson", "marine-pollution-incidents", matchColorExpr("case_level", POLLUTION_LEVEL_OPTIONS), undefined, `海洋委員會海洋保育署 海洋污染事件 · ${OGDL_ATTR}`),
+  publicLifePointOverlay("namrEdnaSurveySites", "./marine/namr_edna_survey_sites.geojson", "namr-edna-survey-sites", ATLAS_LAYER_COLORS.namrEdnaSurveySites, undefined, `國家海洋研究院 環境 DNA 調查站位 · ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
+  // ── 地名 ──
+  publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
+  publicLifePointOverlay("triangulationPoints", "./geo/triangulation_points_moi.geojson", "triangulation-points-moi", triangulationColorExpr(), undefined, `內政部國土測繪中心 三角點（data.gov.tw 26485）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
+  // ── 水利設施 ──
+  publicLifePointOverlay("wraFloodgatesCentral", "./geo/wra_floodgates_central.geojson", "wra-floodgates-central", matchColorExpr("gate_kind", GATE_KIND_OPTIONS), undefined, `經濟部水利署 水門位置（data.gov.tw 32722）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("gate_kind", GATE_KIND_OPTIONS, p?.wraFloodgatesCentralKindMask) }),
+  {
+    id: "wraCentralDrainage", sourceUrl: "./geo/wra_central_drainage.geojson", sourceId: "wra-central-drainage",
+    attribution: `經濟部水利署 中央管區域排水設施範圍 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("wraCentralDrainage", ATLAS_LAYER_COLORS.wraCentralDrainage, 0.35),
+  },
+  publicLifePointOverlay("iowStructureMonitoring", "./geo/wra_iow_structure_monitoring.geojson", "iow-structure-monitoring", matchColorExpr("structure_category", STRUCTURE_CATEGORY_OPTIONS), undefined, `經濟部水利署 IoT 水利結構監測站（data.gov.tw 142981 等）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 14 }),
+  publicLifePointOverlay("wraDredgingPoints", "./geo/wra_dredging_points.geojson", "wra-dredging-points", matchColorExpr("status", DREDGING_STATUS_OPTIONS), undefined, `經濟部水利署 河川疏濬工程 · ${OGDL_ATTR}`, [4, 7]),
+  publicLifePointOverlay("wraEcologySurveySites", "./geo/wra_ecology_survey_sites.geojson", "wra-ecology-survey-sites", ecologyColorExpr(), undefined, `經濟部水利署 河川生態調查（1995–2019）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 14 }),  // ── 海域保護與漁業 G08（2026-10-17）：面層低透明、點層共用 helper；魚礁只畫中心點（不由範圍文字推畫圓／帶狀）──
+  {
+    id: "natureReserves", sourceUrl: "./marine/nature_reserves.geojson", sourceId: "nature-reserves",
+    attribution: `農業部林業及自然保育署 自然保留區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("natureReserves", ATLAS_LAYER_COLORS.natureReserves, 0.3),
+  },
+  {
+    id: "wildlifeProtectedAreas", sourceUrl: "./marine/wildlife_protected_areas.geojson", sourceId: "wildlife-protected-areas",
+    attribution: `農業部林業及自然保育署 野生動物保護區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("wildlifeProtectedAreas", ATLAS_LAYER_COLORS.wildlifeProtectedAreas, 0.3),
+  },
+  {
+    id: "coastalAreaExtents", sourceUrl: "./marine/coastal_area_extents.pmtiles", sourceId: "coastal-area-extents",
+    pmtiles: { sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
+    attribution: `內政部國家公園署 111 年海岸地區範圍（data.gov.tw 20821）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("coastalAreaExtents", matchColorExpr("area_type", COASTAL_AREA_TYPE_OPTIONS), 0.25, undefined, (p) => atlasMultiSelectFilter("area_type", COASTAL_AREA_TYPE_OPTIONS, p?.coastalAreaExtentsTypeMask)),
+  },
+  {
+    id: "setNetFishingAreas", sourceUrl: "./marine/set_net_fishing_areas.geojson", sourceId: "set-net-fishing-areas",
+    attribution: "農業部漁業署 定置漁業權區（114-08-05 版）· 網站著作權聲明，未見開放授權", rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("setNetFishingAreas", ATLAS_LAYER_COLORS.setNetFishingAreas, 0.4),
+  },
+  publicLifePointOverlay("openFishingLocations", "./marine/open_fishing_locations.geojson", "open-fishing-locations", ATLAS_LAYER_COLORS.openFishingLocations, undefined, `海洋委員會海洋保育署 開放捕魚點位 · ${OGDL_ATTR}`),
+  publicLifePointOverlay("artificialReefCenters", "./marine/artificial_reef_areas.geojson", "artificial-reef-centers", ATLAS_LAYER_COLORS.artificialReefCenters, undefined, `農業部漁業署 人工魚礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
+  publicLifePointOverlay("protectedReefCenters", "./marine/protected_reef_areas.geojson", "protected-reef-centers", ATLAS_LAYER_COLORS.protectedReefCenters, undefined, `農業部漁業署 保護礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
+  // ── 地層下陷＋海堤 G19（2026-10-17）：測站點（三類分色）、累積／速率等值線共用一個 PMTiles source（suffix 區分）、海堤面 ──
+  publicLifePointOverlay("landSubsidenceStations", "./hazards/land_subsidence_stations.geojson", "land-subsidence-stations", matchColorExpr("station_type", STATION_TYPE_OPTIONS), undefined, `經濟部水利署 地層下陷監測（data.gov.tw 36693／41571／58335）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 12, filter: (p) => atlasMultiSelectFilter("station_type", STATION_TYPE_OPTIONS, p?.landSubsidenceStationsTypeMask) }),
+  landSubsidenceContourOverlay("landSubsidenceCumulative", "cumulative", `經濟部水利署 累積下陷量等值線（data.gov.tw 58361）· ${OGDL_ATTR}`),
+  landSubsidenceContourOverlay("landSubsidenceRate", "rate", `經濟部水利署 平均下陷速率等值線（data.gov.tw 58362）· ${OGDL_ATTR}`),
+  {
+    id: "seawallZones", sourceUrl: "./hazards/seawall_zones.geojson", sourceId: "seawall-zones",
+    attribution: `經濟部水利署 一般性海堤區域（data.gov.tw 129277）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("seawallZones", ATLAS_LAYER_COLORS.seawallZones, 0.5, SEAWALL_MIN_ZOOM),
+  },
+];
+
+OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
+
+// R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
+// 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec).map(withLineFillSpec));

@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { RADIUS } from "../styles/designTokens";
+import { useState, useCallback, useEffect } from "react";
+import { LIGHT, RADIUS } from "../styles/designTokens";
 
 type SheetLevel = "collapsed" | "half" | "full";
 
@@ -7,6 +7,11 @@ const LEVELS: SheetLevel[] = ["collapsed", "half", "full"];
 
 interface Props {
   isLandscape: boolean;
+  /** 跟隨底圖主題（spec §5.5：手機底部面板與桌機面板同一套色票）；暗色維持原樣。 */
+  isDarkTheme?: boolean;
+  /** Another mobile surface opened; keep the map controls mutually exclusive. */
+  forceCollapsed?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   children: (level: SheetLevel) => React.ReactNode;
 }
 
@@ -25,17 +30,29 @@ function getHeight(level: SheetLevel, isLandscape: boolean): number {
   }
 }
 
-export function MobileBottomSheet({ isLandscape, children }: Props) {
+export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollapsed = false, onExpandedChange, children }: Props) {
   const [level, setLevel] = useState<SheetLevel>("collapsed");
 
+  useEffect(() => {
+    if (forceCollapsed) setLevel("collapsed");
+  }, [forceCollapsed]);
+
   const cycleLevel = useCallback(() => {
-    setLevel((prev) => {
-      const idx = LEVELS.indexOf(prev);
-      return LEVELS[(idx + 1) % LEVELS.length]!;
-    });
-  }, []);
+    const idx = LEVELS.indexOf(level);
+    const next = LEVELS[(idx + 1) % LEVELS.length]!;
+    setLevel(next);
+    onExpandedChange?.(next !== "collapsed");
+  }, [level, onExpandedChange]);
 
   const height = getHeight(level, isLandscape);
+
+  // 地圖底部的 Mapbox logo／版權列與資料來源列（attributionBar.css）讀這個變數往上讓位，
+  // 否則 sheet 會蓋住 © Mapbox © OpenStreetMap（Mapbox 條款要求常駐可見）。
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--mobile-sheet-inset", `${height}px`);
+    return () => { root.style.removeProperty("--mobile-sheet-inset"); };
+  }, [height]);
 
   return (
     <div
@@ -47,10 +64,10 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
         height,
         // 統計圖例與地圖控制也在右下角；sheet 必須在其上方，否則會攔截圖層詳情按鈕。
         zIndex: 40,
-        background: "rgba(0,0,0,0.7)",
+        background: isDarkTheme ? "rgba(0,0,0,0.7)" : LIGHT.surfaceStrong,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderTop: "1px solid rgba(255,255,255,0.12)",
+        borderTop: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : LIGHT.border}`,
         borderRadius: "16px 16px 0 0",
         transition: "height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
@@ -69,7 +86,7 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
           display: "flex",
           border: 0,
           background: "transparent",
-          color: "#cbd5e1",
+          color: isDarkTheme ? "#cbd5e1" : LIGHT.textMuted,
           fontSize: 12,
           gap: 8,
           justifyContent: "center",
@@ -85,7 +102,7 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
             width: 36,
             height: 4,
             borderRadius: RADIUS.sm,
-            background: "rgba(255,255,255,0.3)",
+            background: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)",
           }}
         />
       </button>

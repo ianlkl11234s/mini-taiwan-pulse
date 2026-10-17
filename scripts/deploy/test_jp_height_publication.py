@@ -66,6 +66,25 @@ class JpHeightPublicationTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "asset contract invalid"):
                 INSTALL.asset_records(catalog)
 
+    def test_building_grid_budget_matches_browser_loader(self):
+        catalog = {
+            "schema": "jp-height-catalog-v1",
+            "version": "test-v1",
+            "regions": [{
+                "id": "mesh-test",
+                "grid": {
+                    "url": f"./jp-heights/assets/{'0' * 64}.pmtiles",
+                    "sha256": "0" * 64,
+                    "bytes": 5 * 1024 * 1024 + 1,
+                    "sourceLayer": "building_grid",
+                },
+            }],
+        }
+        with self.assertRaisesRegex(ValueError, "byte budget invalid"):
+            PUBLISH._asset_records(catalog)
+        with self.assertRaisesRegex(ValueError, "asset contract invalid"):
+            INSTALL.asset_records(catalog)
+
 
 if __name__ == "__main__":
     unittest.main()

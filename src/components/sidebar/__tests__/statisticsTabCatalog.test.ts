@@ -3,28 +3,48 @@ import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
-import { MOBILE_LAYER_THEMES, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
+import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
+import { JAPAN_THEMES, LAYER_PANELS, WORLD_THEMES } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
+import { ENVIRONMENT_ENABLED_STATISTICS_KEYS } from "../../../data/environmentStatisticsRecipes";
+import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographicsStatisticsRecipes";
+import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../../data/addictionStatisticsRecipes";
+import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../../data/landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../../data/atlasStatisticsRecipes";
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "不動產總市值", "犯罪與治安"] },
-  { title: "交通與運輸 Transport", groups: ["建置量", "使用與營運", "車輛登記存量", "自行車（臺北市，民國 110 年）", "道路安全與監測", "駕照與停車", "航空運輸", "運輸補助", "交通用地"] },
-  { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
-  { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收"] },
+  { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
+  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用"] },
+  { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
+  { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
+  { title: "體育運動 Sports", groups: ["體育經費", "運動參與"] },
+  { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
+  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值"] },
+  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融"] },
+  { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
+  { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
+  { title: "交通用地 Transport Land", groups: ["交通用地"] },
+  { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地", "農村再生"] },
+  { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收", "水質與污水", "空氣品質", "污染與公害", "環境治理"] },
+  { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
+  { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
+  { title: "海洋 Marine", groups: ["海洋動物擱淺", "海洋廢棄物"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
 const layers = STATISTICS_TAB_THEMES.flatMap((theme) => theme.groups.flatMap((group) => group.layers));
 
 const EXPECTED_LAYER_KEYS = [
+  "statsLaborVillageIncomeMedian", "statsLaborCountyAnnualSalaryMedian", "statsLaborCountyLaborForce", "statsLaborCountyEmployment", "statsLaborCountyUnemployment", "statsLaborCountyNonLaborForce", "statsLaborCountyParticipationRate", "statsLaborCountyUnemploymentRate", "statsLaborCountyEmploymentByIndustry",
+  ...DEMOGRAPHICS_ENABLED_STATISTICS_KEYS,
   "statsBirthsTownship",
   ...EDUCATION_PRESENTATION_VIEW_KEYS,
   "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
   "statsHousingTotalCounty", "statsHousingOccupiedCounty", "statsHousingUnoccupiedCounty", "statsHousingOccasionalCounty", "statsHousingOtherUseCounty", "statsHousingUnusedCounty", "statsHousingResidenceOnlyCounty", "statsHousingMixedUseCounty", "statsHousingOccupiedPctCounty", "statsHousingUnusedPctCounty", "statsHousingTotalTownship", "statsHousingOccupiedTownship", "statsHousingUnoccupiedTownship", "statsHousingOccasionalTownship", "statsHousingOtherUseTownship", "statsHousingUnusedTownship", "statsHousingOccupiedPctTownship", "statsHousingUnusedPctTownship",
   "propertyValueAdmin",
-  "crimeAreaMonthly",
+  ...ADDICTION_ENABLED_STATISTICS_KEYS,
   "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
   "statsTaipeiUrbanRentalStations", "statsTaipeiUrbanRentalTrips", "statsTaipeiRiversideRentalStations", "statsTaipeiRiversideBicycles", "statsTaipeiRiversideRentalTrips",
   "statsA1AccidentCount", "statsA1DeathCount", "statsA1InjuryCount", "statsTaipeiTrafficViolationCitations", "statsTaichungRoadNoiseMonitoringStations",
@@ -39,11 +59,14 @@ const EXPECTED_LAYER_KEYS = [
   "statsConiferForestAreaTownship", "statsBroadleafForestAreaTownship", "statsBambooForestAreaTownship", "statsMixedForestAreaTownship",
   "statsPigWaterCounty", "statsWaterSupplyHistorical", "statsResidentialElectricity",
   "statsWasteCounty", "statsRecyclingCounty", "statsWasteRecyclingRate",
+  ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
+  ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
+  ...ATLAS_ENABLED_STATISTICS_KEYS,
   "countyBoundary", "townshipBoundary",
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以五個使用者主題與一致的小群組呈現", () => {
+  it("以十七個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),
@@ -71,11 +94,51 @@ describe("STATISTICS_TAB_THEMES", () => {
   it("將衍生比較留在各原始主題與子群，而非另開比較清單", () => {
     const group = (themeTitle: string, groupTitle: string) => STATISTICS_TAB_THEMES
       .find(theme => theme.title === themeTitle)?.groups.find(candidate => candidate.title === groupTitle)?.layers.map(layer => layer.key) ?? [];
-    expect(group("交通與運輸 Transport", "道路安全與監測")).toEqual(expect.arrayContaining([
+    expect(group("道路與車輛 Roads & Vehicles", "道路安全與監測")).toEqual(expect.arrayContaining([
       "statsComparisonA1DeathCountPer10000Residents", "statsComparisonA2AccidentCountPerKm2",
     ]));
-    expect(group("交通與運輸 Transport", "車輛登記存量")).toContain("statsComparisonAutomobileRegisteredCountPer10000Residents");
-    expect(group("交通與運輸 Transport", "駕照與停車")).toContain("statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents");
+    expect(group("道路與車輛 Roads & Vehicles", "車輛登記存量")).toContain("statsComparisonAutomobileRegisteredCountPer10000Residents");
+    expect(group("道路與車輛 Roads & Vehicles", "駕照與停車")).toContain("statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents");
+    expect(group("公共運輸 Public Transport", "建置量").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("交通用地 Transport Land", "交通用地").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("醫療與長照 Health & Care", "醫療與長照").some(key => key.startsWith("statsComparison"))).toBe(true);
+    expect(group("住宅與不動產 Housing & Property", "住宅存量與使用").some(key => key.startsWith("statsComparison"))).toBe(true);
+    // 成癮與減害：同群組成員相鄰、原始數與縣市在前（群組列只在第一個成員渲染）；第二級毒品／毒防中心不接。
+    const services = group("成癮與減害 Addiction & Harm Reduction", "服務據點");
+    expect(services.slice(0, 4)).toEqual(["statsNeedleEducationStationsCounty", "statsNeedleEducationStationsPer100kCounty", "statsNeedleEducationStationsTownship", "statsNeedleEducationStationsPer100kTownship"]);
+    expect(services).toHaveLength(48);
+    // 地檢署：轄區層（primary）是群組列 lead，排在縣市退化版前面。
+    const enforcement = group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）");
+    expect(enforcement.indexOf("statsProsecutorDrugNewCasesDistrict")).toBeLessThan(enforcement.indexOf("statsProsecutorDrugNewCasesCounty"));
+    expect(group("成癮與減害 Addiction & Harm Reduction", "疾病（HIV）")).toEqual(["statsHivNewCasesCounty", "statsHivPer100kCounty", "statsHivCasesTownship", "statsHivPer100kYearTownship"]);
+    expect(group("成癮與減害 Addiction & Harm Reduction", "執法（毒品、酒駕、地檢署）")).not.toContain("statsDrugGrade2SuspectsCounty");
+    expect(services).not.toContain("statsDrugPreventionCentersCounty");
+    // 崩塌與水土保持：筆數在面積前（群組列只在第一個成員渲染）；崩塌地處理面積（疑混單位離群值）不接。
+    expect(group("崩塌與水土保持 Landslides & Soil Conservation", "崩塌")).toEqual(["statsLandslideCountCounty", "statsLandslideAreaCounty"]);
+    expect(group("崩塌與水土保持 Landslides & Soil Conservation", "治山防災工程")).toEqual(["statsSlopeWorksCostCounty"]);
+    // atlas 批次：同群組成員相鄰、原始數／縣市在前（群組列只在第一個成員渲染）。
+    expect(group("醫療與長照 Health & Care", "傳染病")).toEqual(["statsHealthTbNewCases", "statsHealthTbNewCasesPer100kHrp", "statsHealthTbNewCasesTownship", "statsHealthTbIncidencePer100kTownship", "statsHealthTbDeaths", "statsHealthTbDeathRate"]);
+    expect(group("醫療與長照 Health & Care", "癌症篩檢")).toEqual(["statsHealthBreastScreening2yr", "statsHealthCervicalScreening3yr", "statsHealthColorectalScreening2yr"]);
+    expect(group("財稅與消費 Fiscal & Consumption", "地方財政")).toEqual(["statsFiscalLocalRevenue", "statsFiscalLocalExpenditure"]);
+    expect(group("人口與教育 Population & Education", "原住民保留地")).toEqual(["statsIndigenousReservedLandParcels", "statsIndigenousReservedLandArea"]);
+    expect(group("農林漁牧 Agriculture, Forestry & Fisheries", "農村再生")).toEqual(["statsRuralRegenTraining"]);
+    expect(group("災害風險 Disaster Risk", "社會脆弱度")[0]).toBe("statsSocialVulnerabilityCompositeCounty");
+    expect(group("海洋 Marine", "海洋動物擱淺")).toEqual(["statsCetaceanStrandedCounty", "statsCetaceanStrandedAliveCounty", "statsCetaceanStrandedDeadCounty", "statsSeaTurtleStrandedCounty", "statsSeaTurtleStrandedAliveCounty", "statsSeaTurtleStrandedDeadCounty"]);
+    // 環境統計：raw 必在 ratio 之前（toggle 只在第一個成員渲染）。
+    const pollution = group("環境與資源 Environment & Resources", "污染與公害");
+    expect(pollution.indexOf("statsComplaintsCounty")).toBeLessThan(pollution.indexOf("statsComplaintsPer10kDerivedCounty"));
+    // 人口統計：縣市→鄉鎮→村里，群組列（第一個成員）預設縣市層級（村里 80MB 界線不會因展開群組而預載）。
+    const ageStructure = group("人口與教育 Population & Education", "年齡結構");
+    expect(ageStructure[0]).toBe("statsDemographicsCountyPopAge0To14");
+    expect(ageStructure.indexOf("statsDemographicsCountyShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus"));
+    expect(ageStructure.indexOf("statsDemographicsTownshipShareAge65Plus")).toBeLessThan(ageStructure.indexOf("statsDemographicsVillageShareAge65Plus"));
+    expect(group("人口與教育 Population & Education", "戶籍人口")).toHaveLength(12);
+    expect(group("人口與教育 Population & Education", "原住民")).toContain("statsDemographicsVillageIndigenousShare");
+    // 既有每月出生數併入同名「人口動態」小群組末尾
+    expect(group("人口與教育 Population & Education", "人口動態").slice(-1)).toEqual(["statsBirthsTownship"]);
+    expect(group("人口與教育 Population & Education", "外來人口")).toContain("statsDemographicsCountyNaturalizationCount");
+    expect(group("環境與資源 Environment & Resources", "環境治理")).toEqual(expect.arrayContaining(["statsEnvInspectionsCounty", "statsEnvFineRateCounty"]));
+    expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining(["statsWasteGeneratedCounty", "statsRecyclingPer10kCounty", "statsResponsibleEnterprisesCounty"]));
     expect(group("環境與資源 Environment & Resources", "廢棄物與回收")).toEqual(expect.arrayContaining([
       "statsComparisonWasteTotalVehiclesPerKm2", "statsComparisonWasteRecyclingVehiclesPer10000Residents",
     ]));
@@ -83,9 +146,13 @@ describe("STATISTICS_TAB_THEMES", () => {
 });
 
 describe("Layers 與 Statistics 分頁", () => {
-  it("mobile 圖層頁排除 statistics data themes，統計頁仍使用專屬索引", () => {
+  it("mobile 與桌機同一份四入口（台灣／統計／世界／日本）；四入口合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
     const statisticsDataTitles = new Set(STATISTICS_DATA_THEMES.map(theme => theme.title));
-    expect(MOBILE_LAYER_THEMES).toEqual(THEMES.filter(theme => !statisticsDataTitles.has(theme.title)));
+    expect(MOBILE_LAYER_PANELS).toBe(LAYER_PANELS);
+    expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["台灣", "統計", "世界", "日本"]);
+    expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
+    const nonStatisticsTitles = THEMES.filter(theme => !statisticsDataTitles.has(theme.title)).map(theme => theme.title).sort();
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES)]));
   });
 
@@ -103,7 +170,7 @@ describe("Layers 與 Statistics 分頁", () => {
     for (const key of COMPARISON_STATISTICS_KEYS) expect(mainKeys).not.toContain(key);
     expect(mainKeys).toContain("countyBoundary");
     expect(mainKeys).toContain("townshipBoundary");
-    expect(mainKeys).not.toContain("crimeAreaMonthly");
+    expect(mainKeys).not.toContain("statsCrimeDrugCasesTownship");
     expect(mainKeys).not.toContain("propertyValueAdmin");
   });
 

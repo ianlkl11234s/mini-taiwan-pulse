@@ -1,4 +1,5 @@
 import { withLoading } from "../lib/loadingRegistry";
+import { loadPointPartitions, type PointBbox, type PointSpatialPartitionConfig } from "./pointDatasetPartitions";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const MAX_FEATURES = 20_000;
@@ -11,6 +12,8 @@ export interface PointDatasetConfig {
   idField: string;
   /** Count source records even without usable points; geometry remains null. */
   preserveUnlocatedRecords?: boolean;
+  /** Immutable, source-SHA-bound spatial shards used only for bbox reads. */
+  spatialPartition?: PointSpatialPartitionConfig;
 }
 
 export interface PointDatasetSnapshot {
@@ -18,6 +21,8 @@ export interface PointDatasetSnapshot {
   checksumSha256: string;
   acquiredAt: string;
   bytes: number;
+  downloadedBytes: number;
+  requests: number;
   cacheHit: boolean;
   exclusions: { missing_geometry: number; non_point_geometry: number; invalid_geometry: number };
 }
@@ -68,62 +73,90 @@ function safeValue(value: unknown): string | number | boolean | null | undefined
   return undefined;
 }
 
-function parse(config: PointDatasetConfig, bytes: Uint8Array, checksumSha256: string): PointDatasetSnapshot {
-  if (new TextDecoder().decode(bytes.slice(0, 100)).trimStart().startsWith("<")) throw new Error("DATASET_ASSET_MISSING");
-  let raw: unknown;
-  try { raw = JSON.parse(new TextDecoder().decode(bytes)); } catch { throw new Error("INVALID_DATASET"); }
-  if (!raw || typeof raw !== "object" || Array.isArray(raw) || (raw as { type?: unknown }).type !== "FeatureCollection") throw new Error("INVALID_DATASET");
-  const features = (raw as { features?: unknown }).features;
-  if (!Array.isArray(features) || features.length > MAX_FEATURES) throw new Error("INVALID_DATASET");
+function parseFeatures(config: PointDatasetConfig, features: readonly unknown[], checksumSha256: string, partitioned: boolean): Omit<PointDatasetSnapshot, "checksumSha256" | "acquiredAt" | "bytes" | "downloadedBytes" | "requests" | "cacheHit"> {
+  if (features.length > MAX_FEATURES) throw new Error("INVALID_DATASET");
   const exclusions = { missing_geometry: 0, non_point_geometry: 0, invalid_geometry: 0 };
   const rows: Record<string, unknown>[] = [];
+  const ordinals = new Set<number>();
   for (let index = 0; index < features.length; index++) {
     const feature = features[index];
-    if (!feature || typeof feature !== "object" || Array.isArray(feature) || feature.type !== "Feature"
-      || (feature.properties !== null && (typeof feature.properties !== "object" || Array.isArray(feature.properties)))) throw new Error("INVALID_DATASET");
-    const geometry = feature.geometry;
+    if (!feature || typeof feature !== "object" || Array.isArray(feature) || (feature as { type?: unknown }).type !== "Feature"
+      || ((feature as { properties?: unknown }).properties !== null && (typeof (feature as { properties?: unknown }).properties !== "object" || Array.isArray((feature as { properties?: unknown }).properties)))) throw new Error("INVALID_DATASET");
+    const sourceOrdinal = (feature as { sourceOrdinal?: unknown }).sourceOrdinal;
+    if (partitioned && (!Number.isSafeInteger(sourceOrdinal) || (sourceOrdinal as number) < 0 || ordinals.has(sourceOrdinal as number))) throw new Error("INVALID_PARTITION_ORDINAL");
+    if (partitioned) ordinals.add(sourceOrdinal as number);
+    const geometry = (feature as { geometry?: unknown }).geometry as { type?: unknown; coordinates?: unknown } | null | undefined;
     let point: { type: "Point"; coordinates: number[] } | null = null;
     if (!geometry) exclusions.missing_geometry++;
     else if (geometry.type !== "Point") exclusions.non_point_geometry++;
     else if (!Array.isArray(geometry.coordinates) || !validCoordinate(geometry.coordinates[0], geometry.coordinates[1])) exclusions.invalid_geometry++;
     else point = { type: "Point", coordinates: [geometry.coordinates[0], geometry.coordinates[1]] };
     if (!point && !config.preserveUnlocatedRecords) continue;
-    const source = (feature.properties ?? {}) as Record<string, unknown>;
+    const source = ((feature as { properties?: unknown }).properties ?? {}) as Record<string, unknown>;
     const row: Record<string, unknown> = { geometry: point };
     for (const field of config.safeFields) {
       const value = safeValue(source[field]);
       if (value !== undefined) row[field] = value;
     }
-    row.record_id = `${checksumSha256}-${index}`;
+    row.record_id = `${checksumSha256}-${partitioned ? sourceOrdinal : index}`;
     rows.push(row);
   }
-  return { rows, checksumSha256, acquiredAt: new Date().toISOString(), bytes: bytes.byteLength, cacheHit: false, exclusions };
+  return { rows, exclusions };
 }
 
-export async function loadPointDataset(config: PointDatasetConfig): Promise<PointDatasetSnapshot> {
-  const existing = cache.get(config.datasetId);
-  if (existing) return { ...existing, cacheHit: true };
-  const pending = inFlight.get(config.datasetId);
-  if (pending) return { ...(await pending), cacheHit: true };
+function parse(config: PointDatasetConfig, bytes: Uint8Array, checksumSha256: string): PointDatasetSnapshot {
+  if (new TextDecoder().decode(bytes.slice(0, 100)).trimStart().startsWith("<")) throw new Error("DATASET_ASSET_MISSING");
+  let raw: unknown;
+  try { raw = JSON.parse(new TextDecoder().decode(bytes)); } catch { throw new Error("INVALID_DATASET"); }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw) || (raw as { type?: unknown }).type !== "FeatureCollection") throw new Error("INVALID_DATASET");
+  const features = (raw as { features?: unknown }).features;
+  if (!Array.isArray(features)) throw new Error("INVALID_DATASET");
+  return { ...parseFeatures(config, features, checksumSha256, false), checksumSha256, acquiredAt: new Date().toISOString(), bytes: bytes.byteLength, downloadedBytes: bytes.byteLength, requests: 1, cacheHit: false };
+}
+
+function fullCacheKey(config: PointDatasetConfig): string { return `${config.datasetId}|${config.url}|${config.spatialPartition?.sourceSha256 ?? ""}`; }
+
+async function loadPartitioned(config: PointDatasetConfig, bbox: PointBbox, signal?: AbortSignal): Promise<PointDatasetSnapshot> {
+  if (!config.spatialPartition) throw new Error("INVALID_PARTITION_CONFIG");
+  const partition = await loadPointPartitions(config.spatialPartition, config.url, bbox, signal);
+  return {
+    ...parseFeatures(config, partition.features, config.spatialPartition.sourceSha256, true), checksumSha256: config.spatialPartition.sourceSha256,
+    acquiredAt: new Date().toISOString(), bytes: partition.bytes, downloadedBytes: partition.downloadedBytes, requests: partition.requests, cacheHit: partition.cacheHit,
+  };
+}
+
+export async function loadPointDataset(config: PointDatasetConfig, options: { bbox?: PointBbox; signal?: AbortSignal } = {}): Promise<PointDatasetSnapshot> {
+  if (options.signal?.aborted) throw new DOMException("aborted", "AbortError");
+  if (options.bbox && config.spatialPartition) return withLoading(`research:dataset:${config.datasetId}`, `載入 ${config.datasetId}`, loadPartitioned(config, options.bbox, options.signal));
+  const cacheKey = fullCacheKey(config);
+  const existing = cache.get(cacheKey);
+  if (existing) return { ...existing, downloadedBytes: 0, requests: 0, cacheHit: true };
+  const pending = !options.signal ? inFlight.get(cacheKey) : undefined;
+  if (pending) return { ...(await pending), downloadedBytes: 0, requests: 0, cacheHit: true };
   const request = withLoading(`research:dataset:${config.datasetId}`, `載入 ${config.datasetId}`, (async () => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const onAbort = () => controller.abort();
     try {
+      options.signal?.addEventListener("abort", onAbort, { once: true });
       const response = await fetch(config.url, { signal: controller.signal, credentials: "same-origin", redirect: "error" });
       if (response.status === 404) throw new Error("DATASET_ASSET_MISSING");
       if (!response.ok) throw new Error("DATASET_UNAVAILABLE");
       if (response.headers.get("content-type")?.includes("text/html")) throw new Error("DATASET_ASSET_MISSING");
       const bytes = await boundedBytes(response);
-      const snapshot = parse(config, bytes, await sha256(bytes));
-      cache.set(config.datasetId, snapshot);
+      const checksumSha256 = await sha256(bytes);
+      if (config.spatialPartition && checksumSha256 !== config.spatialPartition.sourceSha256) throw new Error("SOURCE_SHA_MISMATCH");
+      const snapshot = parse(config, bytes, checksumSha256);
+      cache.set(cacheKey, snapshot);
       return snapshot;
     } catch (error) {
+      if (options.signal?.aborted) throw error;
       if (error instanceof Error && error.name === "AbortError") throw new Error("REQUEST_TIMEOUT");
       throw error;
-    } finally { clearTimeout(timer); }
+    } finally { clearTimeout(timer); options.signal?.removeEventListener("abort", onAbort); }
   })());
-  inFlight.set(config.datasetId, request);
-  try { return await request; } finally { inFlight.delete(config.datasetId); }
+  if (!options.signal) inFlight.set(cacheKey, request);
+  try { return await request; } finally { if (!options.signal) inFlight.delete(cacheKey); }
 }
 
 export function clearPointDatasetCache(): void { cache.clear(); inFlight.clear(); }

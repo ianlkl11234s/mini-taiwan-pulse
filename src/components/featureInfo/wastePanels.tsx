@@ -6,56 +6,43 @@ import {
 } from "../../data/wasteLoader";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 
 // ─── 垃圾處理設施 ─────────────────────────────────────────────
 export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr, formatNumber } = i18n;
   const type = String(props.facility_type ?? "");
   const color = WASTE_FACILITY_COLORS[type] ?? "#9ca3af";
-  const label = WASTE_FACILITY_LABELS[type] ?? type;
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
+  const label = enumLabel("wasteFacility", type, WASTE_FACILITY_LABELS[type] ?? type, i18n);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.facility_name ?? "(未命名設施)")}
+          {String(props.facility_name ?? tr("popup.waste.unnamedFacility"))}
         </div>
       </div>
-      <Row label="類型" value={label} color={color} />
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="營運單位" value={String(props.operator ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="處理量" value={props.capacity_tpd != null ? `${props.capacity_tpd} 噸/日` : ""} />
-      <Row label="狀態" value={String(props.status ?? "")} />
-      <Row label="啟用年" value={props.start_year != null ? String(props.start_year) : ""} />
+      <Row field="type" value={label} color={color} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="operatorOrg" value={String(props.operator ?? "")} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row label={tr("popup.waste.capacity")} value={props.capacity_tpd != null ? tr("popup.waste.tonsPerDay", { value: String(props.capacity_tpd) }) : ""} />
+      <Row field="status" value={String(props.status ?? "")} />
+      <Row label={tr("popup.waste.startYear")} value={props.start_year != null ? String(props.start_year) : ""} />
       {props.is_coastal === true && (
         <Row
-          label="距海岸"
+          label={tr("popup.waste.distanceToCoast")}
           value={
             typeof props.distance_to_sea_m === "number"
-              ? `${Math.round(props.distance_to_sea_m).toLocaleString()} m`
+              ? `${formatNumber(Math.round(props.distance_to_sea_m))} m`
               : "—"
           }
           color="#0891b2"
         />
-      )}
-      {sourceUrl && (
-        <div style={{ marginTop: 6 }}>
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: FONT_SIZE.sm,
-              color: t.link,
-              textDecoration: "underline",
-              wordBreak: "break-all",
-            }}
-          >
-            原始資料 ↗
-          </a>
-        </div>
       )}
     </>
   );
@@ -64,29 +51,22 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
 // ─── 清潔隊辦公點 ──────────────────────────────────────────
 export function WasteCleaningSquadPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const phone = props.phone ? String(props.phone) : "";
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22c55e", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.squad_name ?? "(清潔隊)")}
+          {String(props.squad_name ?? tr("popup.waste.squadFallback"))}
         </div>
       </div>
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      {phone && <Row label="電話" value={phone} color={t.link} />}
-      <Row label="主管轄區" value={String(props.jurisdiction ?? "")} />
-      {sourceUrl && (
-        <div style={{ marginTop: 6 }}>
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: FONT_SIZE.sm, color: t.link, textDecoration: "underline", wordBreak: "break-all" }}>
-            原始資料 ↗
-          </a>
-        </div>
-      )}
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.city ?? ""), String(props.district ?? ""), i18n)} />
+      <Row field="address" value={String(props.address ?? "")} />
+      {phone && <Row field="phone" value={phone} color={t.link} />}
+      <Row label={tr("popup.waste.jurisdiction")} value={String(props.jurisdiction ?? "")} />
     </>
   );
 }
@@ -94,13 +74,14 @@ export function WasteCleaningSquadPanel({ props }: { props: Record<string, unkno
 // ─── 垃圾投放點 ─────────────────────────────────────────────
 export function WasteDisposalPointPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const type = String(props.point_type ?? "");
   const color = WASTE_DISPOSAL_COLORS[type] ?? "#9ca3af";
-  const label = WASTE_DISPOSAL_LABELS[type] ?? type;
+  const label = enumLabel("wasteDisposal", type, WASTE_DISPOSAL_LABELS[type] ?? type, i18n);
   const source = String(props.source ?? "");
-  const sourceLabel = WASTE_SOURCE_LABELS[source] ?? source;
+  const sourceLabel = enumLabel("wasteSource", source, WASTE_SOURCE_LABELS[source] ?? source, i18n);
   const badge = WASTE_SOURCE_BADGE_COLORS[source] ?? { bg: "rgba(148,163,184,0.18)", fg: "#94a3b8" };
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
   let categories: string[] = [];
   const rawCats = props.accepts_categories;
   if (Array.isArray(rawCats)) categories = rawCats.map(String);
@@ -116,15 +97,15 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
           {String(props.point_name ?? label)}
         </div>
       </div>
-      <Row label="類型" value={label} color={color} />
-      <Row label="縣市" value={String(props.city ?? "")} />
-      <Row label="行政區" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="管理者" value={String(props.operator ?? "")} />
+      <Row field="type" value={label} color={color} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.city ?? ""), String(props.district ?? ""), i18n)} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row label={tr("popup.waste.manager")} value={String(props.operator ?? "")} />
 
       {/* 來源權威度 badge */}
       <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ color: t.textMuted, fontSize: FONT_SIZE.base, minWidth: 56 }}>來源</span>
+        <span style={{ color: t.textMuted, fontSize: FONT_SIZE.base, minWidth: 56 }}>{tr("popup.field.source")}</span>
         <span
           style={{
             fontSize: FONT_SIZE.sm,
@@ -144,7 +125,7 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
       {categories.length > 0 && (
         <div style={{ marginTop: 8 }}>
           <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base, marginBottom: 4 }}>
-            可投放
+            {tr("popup.waste.accepts")}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
             {categories.map((c) => (
@@ -166,23 +147,6 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
         </div>
       )}
 
-      {sourceUrl && (
-        <div style={{ marginTop: 8 }}>
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: FONT_SIZE.sm,
-              color: t.link,
-              textDecoration: "underline",
-              wordBreak: "break-all",
-            }}
-          >
-            原始資料 ↗
-          </a>
-        </div>
-      )}
     </>
   );
 }
@@ -211,6 +175,8 @@ const WASTE_STOP_VIA_LABELS: Record<string, string> = {
 
 export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const stopName = String(props.stop_name ?? "");
   const city = String(props.city ?? "");
   const district = String(props.district ?? "");
@@ -224,20 +190,20 @@ export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#d97706", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {stopName || "(未命名點位)"}
+          {stopName || tr("popup.waste.unnamedStop")}
         </div>
       </div>
-      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
-      <Row label="清運路線" value={routeName} />
+      <Row field="district" value={[placeName(city, i18n), placeTown(city, district, i18n)].filter(Boolean).join(" ")} />
+      <Row label={tr("popup.waste.collectionRoute")} value={routeName} />
       {Number.isFinite(routesCount) && routesCount > 0 && (
         <Row
-          label="經過路線"
-          value={`${routesCount} 條`}
+          label={tr("popup.waste.routesPassing")}
+          value={tr("popup.waste.routeCount", { count: routesCount })}
           color={routesCount > 1 ? "#f59e0b" : undefined}
         />
       )}
-      <Row label="車種" value={WASTE_VEHICLE_LABELS[vehicle] ?? vehicle} />
-      <Row label="定位來源" value={WASTE_STOP_VIA_LABELS[via] ?? via} color={t.textDim} />
+      <Row label={tr("popup.waste.vehicleType")} value={enumLabel("wasteVehicle", vehicle, WASTE_VEHICLE_LABELS[vehicle] ?? vehicle, i18n)} />
+      <Row label={tr("popup.waste.positionSource")} value={enumLabel("wasteStopVia", via, WASTE_STOP_VIA_LABELS[via] ?? via, i18n)} color={t.textDim} />
     </>
   );
 }
@@ -252,6 +218,8 @@ export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown
  */
 export function WasteTruckPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const vehicleNo = String(props.vehicle_no ?? "");
   const city = String(props.city ?? "");
   const routeId = props.route_id == null ? "" : String(props.route_id);
@@ -260,14 +228,14 @@ export function WasteTruckPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22c55e", flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {vehicleNo || "垃圾車"}
+          {vehicleNo || tr("popup.waste.garbageTruck")}
         </div>
       </div>
-      <Row label="車號" value={vehicleNo} />
-      <Row label="縣市" value={city} />
-      <Row label="路線代碼" value={routeId} />
+      <Row label={tr("popup.waste.vehicleNo")} value={vehicleNo} />
+      <Row field="county" value={placeName(city, i18n)} />
+      <Row label={tr("popup.waste.routeCode")} value={routeId} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
-        GPS 實跡車輛 · 位置隨時間軸插值
+        {tr("popup.waste.truckNote")}
       </div>
     </>
   );

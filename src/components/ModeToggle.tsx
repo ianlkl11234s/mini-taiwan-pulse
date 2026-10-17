@@ -1,5 +1,7 @@
 import type { AppMode } from "../types";
-import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, FONT_CJK } from "../styles/designTokens";
+import { getToolbarPalette } from "./toolbar/toolbarTheme";
+import { useLocale } from "../state/localeStore";
 
 interface Props {
   appMode: AppMode;
@@ -12,31 +14,33 @@ export function ModeToggle({
   isDarkTheme = true,
   onAppModeChange,
 }: Props) {
-  const dark = isDarkTheme;
+  const { t } = useLocale();
   const isHistorical = appMode === "historical";
+  const p = getToolbarPalette(isDarkTheme);
 
   const containerStyle: React.CSSProperties = {
-    display: "flex",
-    gap: 4,
-    padding: 4,
-    background: dark ? "rgba(30,30,30,0.85)" : "rgba(255,255,255,0.92)",
-    border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-    borderRadius: RADIUS.lg,
-    backdropFilter: "blur(8px)",
-    fontFamily: FONT_DATA,
+    display: "inline-flex",
+    height: 26,
+    padding: 2,
+    gap: 2,
+    borderRadius: 5,
+    background: p.controlBg,
+    border: "1px solid transparent",
+    fontFamily: FONT_CJK,
   };
 
   const tab = (active: boolean): React.CSSProperties => ({
-    padding: "4px 12px",
-    fontSize: FONT_SIZE.md,
-    fontWeight: active ? 700 : 400,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "0 9px",
+    fontSize: 11,
+    fontWeight: active ? 600 : 500,
     cursor: "pointer",
     border: "none",
-    borderRadius: RADIUS.md,
-    color: active ? "#4caf50" : dark ? "rgba(220,220,220,0.85)" : "#555",
-    background: active
-      ? "rgba(76,175,80,0.18)"
-      : "transparent",
+    borderRadius: 3,
+    color: active ? p.accent : p.textMuted,
+    background: active ? p.accentFaint : "transparent",
     fontFamily: "inherit",
   });
 
@@ -45,16 +49,25 @@ export function ModeToggle({
       <button
         style={tab(!isHistorical)}
         onClick={() => onAppModeChange("realtime")}
-        title="即時 24 小時內動態"
+        title={t("toolbar.mode.realtimeTitle")}
       >
-        即時
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: COLORS.statusLive,
+            flexShrink: 0,
+          }}
+        />
+        {t("toolbar.mode.realtime")}
       </button>
       <button
         style={tab(isHistorical)}
         onClick={() => onAppModeChange("historical")}
-        title="跨年度長時序資料"
+        title={t("toolbar.mode.historicalTitle")}
       >
-        歷史
+        {t("toolbar.mode.historical")}
       </button>
     </div>
   );

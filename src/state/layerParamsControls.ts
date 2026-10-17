@@ -12,11 +12,19 @@
  */
 
 import {
-  getParamsSpec, MULTI_SELECT_ALL, MULTI_SELECT_NONE, resolveMultiSelectValues, resolveParamValues, resolveSelectOptions,
-  serializeMultiSelectValues, visibleParamsSpec,
+  getParamsSpec, MULTI_SELECT_ALL, MULTI_SELECT_NONE, orderedVisibleParamsSpec, resolveMultiSelectValues, resolveParamValues, resolveSelectOptions,
+  serializeMultiSelectValues,
   type LayerParamValues,
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
+import { paletteById } from "../map/palettes";
+import type { LocaleSnapshot } from "./localeStore";
+import { paletteName, paramText } from "../i18n/paramText";
+import {
+  canRetryLinkedSelect, linkedSelectHiddenFor, linkedSelectSnapshot, retryLinkedSelects, setLinkedSelect, type LinkedSelectStatus,
+} from "./linkedSelect";
+// provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
+import "./statisticsLinkedSelect";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）
@@ -35,7 +43,12 @@ export interface SliderConfig {
    * 判定 slider。
    */
   type?: "slider";
+  /** 舊的整串顯示文字（`透明度 0.80`）；research 端與既有測試仍讀這欄，形狀不變 */
   label: string;
+  /** 控件名稱（標籤欄，不含數值）；前綴結尾的運算符號（`×`／`+`／`≥`）移到 `valueText` */
+  name: string;
+  /** 數值欄：沿用 digits／zeroLabel／displayScale／suffix；字母或中文單位前補一個空白（`+0 m`） */
+  valueText: string;
   value: number;
   min: number;
   max: number;
@@ -69,7 +82,59 @@ export interface MultiSelectConfig {
   onSelectNone: () => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig;
+/** 色盤選單的一個選項：色盤 id ＋ 中文名（色階本身由控件向 `map/palettes.ts` 查） */
+export interface PaletteOption {
+  label: string;
+  value: string;
+}
+
+/** 色盤選單（R7）：值是色盤 id；不進 overlayParams，由 `state/layerPalette.ts` 解析 */
+export interface PaletteConfig {
+  type: "palette";
+  label: string;
+  value: string;
+  /** 「還原預設」的目標 */
+  defaultValue: string;
+  role: "heatmap" | "grid";
+  options: PaletteOption[];
+  onChange: (v: string) => void;
+}
+
+/**
+ * 連動選單（圖層面板統一 C 段）：選項與值來自 provider（`state/linkedSelect.ts`），可能還在載入。
+ * `statusText` 只放在同一 provider 第一個可見的那一列（避免每列都印「載入中」）。
+ */
+export interface LinkedSelectConfig {
+  type: "linkedSelect";
+  label: string;
+  value: string;
+  options: { label: string; value: string; disabled?: boolean }[];
+  status: LinkedSelectStatus;
+  statusText?: string;
+  /** 回 Promise 時（例：群組切換要先預載）控件顯示忙碌直到完成 */
+  onChange: (v: string) => void | Promise<void>;
+  /** 錯誤時的重試（只在 statusText 那一列） */
+  onRetry?: () => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig | LinkedSelectConfig;
+
+/** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
+export const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
+/** 字母／中文開頭的單位才補空白；`×`、`%` 這類符號維持緊貼 */
+const WORD_SUFFIX = /^[\p{L}]/u;
+
+export function splitSliderLabel(
+  labelPrefix: string,
+  shown: string,
+  labelSuffix = "",
+): { name: string; valueText: string } {
+  const match = TRAILING_OPERATOR.exec(labelPrefix);
+  const name = (match ? match[1]! : labelPrefix).trim();
+  const operator = match ? match[2]! : "";
+  const suffix = WORD_SUFFIX.test(labelSuffix) ? ` ${labelSuffix}` : labelSuffix;
+  return { name, valueText: `${operator}${shown}${suffix}` };
+}
 
 /**
  * ⚠️ slider **不帶 `type` 欄位** —— `SliderConfig.type` 是選填，現行手寫 case
@@ -81,13 +146,26 @@ export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSel
 export function buildParamControls(
   key: string,
   values: LayerParamValues = layerParamsStore.getParams(key),
+  /** 面板傳 `useLocale()` 換成目前語系；省略＝中文原文（Agent、黃金快照） */
+  i18n?: Pick<LocaleSnapshot, "active" | "lookup" | "t">,
 ): ParamControl[] | null {
   const spec = getParamsSpec(key);
   if (!spec) return null;
+  const tx = (zh: string) => paramText(zh, i18n);
+  const visible = visibleControlSpecs(key, values);
+  // 每個 provider 第一個可見的連動選單負責顯示載入／錯誤狀態
+  const statusCarriers = new Set<string>();
+  const seenProviders = new Set<string>();
+  for (const s of visible) {
+    if (s.kind !== "linkedSelect" || seenProviders.has(s.provider)) continue;
+    seenProviders.add(s.provider);
+    statusCarriers.add(s.name);
+  }
   // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
   // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
   const resolved = resolveParamValues(spec, values);
-  return visibleParamsSpec(spec, values).map((s) => {
+  // P5（spec §5.11）：資料篩選 → 顏色 → 透明度 → 大小 → 其他外觀；同類保持宣告順序（sort 為穩定排序）。
+  return visible.map((s) => {
     switch (s.kind) {
       case "slider": {
         const v = values[s.name];
@@ -97,11 +175,26 @@ export function buildParamControls(
         const shown = s.zeroLabel !== undefined && value === 0
           ? s.zeroLabel
           : (s.displayScale === undefined ? value : value * s.displayScale).toFixed(s.digits);
+        if (i18n && i18n.active !== "zh-TW") {
+          // 先拆出結尾運算符號（`高度 +`）再翻名稱，不拿整串當 key
+          const op = TRAILING_OPERATOR.exec(s.labelPrefix);
+          const name = paramText((op ? op[1]! : s.labelPrefix).trim(), i18n, { layerKey: key, name: s.name });
+          const prefix = op ? `${name} ${op[2]}` : name;
+          const suffix = tx(s.labelSuffix ?? "");
+          const shownText = s.zeroLabel !== undefined && value === 0 ? tx(s.zeroLabel) : shown;
+          return {
+            label: `${prefix}${s.labelSep ?? " "}${shownText}${suffix}`,
+            ...splitSliderLabel(prefix, shownText, suffix),
+            value, min: s.min, max: s.max, step: s.step,
+            onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
+          };
+        }
         return {
           // 前綴側預設補一個空白（`labelSep` 可改成 ""）；後綴側緊接數字不補空白
           // （`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。兩欄都省略時，
           // 輸出與 P3-1 定的 `${labelPrefix} ${toFixed}` 一位元不變。
           label: `${s.labelPrefix}${s.labelSep ?? " "}${shown}${s.labelSuffix ?? ""}`,
+          ...splitSliderLabel(s.labelPrefix, shown, s.labelSuffix),
           value, min: s.min, max: s.max, step: s.step,
           onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
         };
@@ -112,7 +205,7 @@ export function buildParamControls(
         return {
           type: "toggle" as const,
           // 值相依 label（播放鍵的 ⏸/▶）；查無對應回 `label` 兜底，同 select 的慣例
-          label: s.labelByValue?.[String(value)] ?? s.label,
+          label: s.labelByValue?.[String(value)] !== undefined ? tx(s.labelByValue[String(value)]!) : paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value,
           onChange: (next: boolean) => layerParamsStore.setParam(key, s.name, next),
         };
@@ -124,10 +217,10 @@ export function buildParamControls(
           type: "select" as const,
           // label 隨當前值變的 select（品項 / 作物）；查無對應回 `label` 兜底 ——
           // 與手寫 case 的 `OPTIONS[idx] ?? "全部"` 同語意。
-          label: s.labelByValue?.[value] ?? s.label,
+          label: s.labelByValue?.[value] !== undefined ? tx(s.labelByValue[value]!) : paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value,
           // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
-          options: resolveSelectOptions(s, resolved),
+          options: resolveSelectOptions(s, resolved, i18n ? tx : undefined),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }
@@ -136,9 +229,9 @@ export function buildParamControls(
         const rawValue = typeof current === "string" ? current : s.default;
         return {
           type: "multiSelect" as const,
-          label: s.label,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
           value: resolveMultiSelectValues(rawValue, s.options),
-          options: s.options,
+          options: i18n ? s.options.map((o) => ({ ...o, label: tx(o.label) })) : s.options,
           onChange: (next: readonly string[]) => layerParamsStore.setParam(
             key, s.name, serializeMultiSelectValues(next),
           ),
@@ -146,6 +239,54 @@ export function buildParamControls(
           onSelectNone: () => layerParamsStore.setParam(key, s.name, MULTI_SELECT_NONE),
         };
       }
+      case "palette": {
+        const v = values[s.name];
+        const value = typeof v === "string" && s.options.includes(v) ? v : s.default;
+        return {
+          type: "palette" as const,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
+          value,
+          defaultValue: s.default,
+          role: s.role,
+          options: s.options.flatMap((id) => {
+            const p = paletteById(id);
+            return p ? [{ label: paletteName(p.id, p.zh, i18n), value: p.id }] : [];
+          }),
+          onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
+        };
+      }
+      case "linkedSelect": {
+        const snap = linkedSelectSnapshot(key, s);
+        const carrier = statusCarriers.has(s.name);
+        // 狀態字走介面字串（paramsPanel.json）；沒傳 i18n 時維持中文原文，黃金快照不變
+        const statusText = !carrier ? undefined
+          : snap.status === "loading" ? (i18n ? i18n.t("paramsPanel.loading") : "載入中…")
+            : snap.status === "error"
+              ? (snap.error
+                ? (i18n ? i18n.t("paramsPanel.loadFailedWith", { error: snap.error }) : `載入失敗：${snap.error}`)
+                : (i18n ? i18n.t("paramsPanel.loadFailed") : "載入失敗"))
+              : snap.status === "idle" ? (i18n ? i18n.t("paramsPanel.notLoaded") : "尚未載入") : undefined;
+        return {
+          type: "linkedSelect" as const,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
+          value: snap.value,
+          // `localize` 只給面板用：不傳 i18n（Agent、黃金快照）時拿掉，選項維持原中文與原形狀
+          options: snap.options.map(({ localize, ...o }) => i18n ? { ...o, label: localize?.(i18n) ?? paramText(o.label, i18n) } : o),
+          status: snap.status,
+          ...(statusText ? { statusText } : {}),
+          onChange: (next: string) => setLinkedSelect(key, s, next),
+          ...(carrier && snap.status === "error" && canRetryLinkedSelect(s.provider) ? { onRetry: () => retryLinkedSelects(key, s.provider) } : {}),
+        };
+      }
     }
   });
+}
+
+/**
+ * 面板上實際渲染的控件規格（順序＝`buildParamControls` 輸出順序）。Agent 端（`research/layerControls`）
+ * 靠位置把控件對回 spec，所以兩邊**必須**都經這支（含連動選單的可見規則）。
+ */
+export function visibleControlSpecs(key: string, values: LayerParamValues = layerParamsStore.getParams(key)) {
+  const spec = getParamsSpec(key);
+  return spec ? orderedVisibleParamsSpec(spec, values, linkedSelectHiddenFor(key)) : [];
 }

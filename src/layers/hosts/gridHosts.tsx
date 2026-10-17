@@ -10,16 +10,18 @@
 //     `spatialParams` / `youbikeParams` 六個 useMemo），identity 同樣用
 //    per-key 快照當 deps —— store 保證「只有這個 key 真的變動時才換 identity」。
 
-import { useCallback, useEffect, useMemo, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../../state/timeStore";
 import { updateH3Layer, ensureH3Layers } from "../../map/h3LayerFactory";
 import { ensureYoubikeLayers, updateYoubikeLayer } from "../../map/youbikeLayerFactory";
+import { requireH3 } from "../../map/h3Runtime";
+import { registerLayerDataProvider, summarizeYoubikeCells } from "../../research/layerDataSummary";
 import {
   ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer,
   ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer,
 } from "../../map/demographicsLayerFactory";
-import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "../../map/railTracks";
+import { updateRailTracks, removeRailTracks, setRailTracksVisible, effectiveRailTrackMode } from "../../map/railTracks";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import {
   oneOfParam, paramBool, paramNum, paramStr, useLayerParams,
@@ -66,21 +68,29 @@ function useGridStyleRehydration(
 export const RailTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("railTracks");
   const values = useLayerParams("rail");
-  const railTrackMode = oneOfParam(
-    paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d",
+  // R6 段 3 決議：列車平面時軌道用 2D（有效值，不改寫使用者存的 railTrackMode）
+  const railTrackMode = effectiveRailTrackMode(
+    paramBool(values, "rail", "railTrain3D"),
+    oneOfParam(paramStr(values, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d"),
   );
   const { mapRef, railData, isDarkTheme } = deps;
   const railVisible = deps.layerVisibility.rail;
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+  // 2026-10-10 修正：原本用 isStyleLoaded()（圖磚載入中為 false）且沒有 style.load 重建，
+  // 換底圖後 2D 軌道就消失、平面列車浮在街區裡 → 改用 styleReady＋換底圖重建（同其他 grid host）。
+  const rehydrate = useCallback((map: MapboxMap) => {
     if (railData && railVisible) {
       updateRailTracks(map, railData.allTracks, isDarkTheme);
       setRailTracksVisible(map, railTrackMode === "2d");
     } else {
       removeRailTracks(map);
     }
-  }, [mapRef, railData, isDarkTheme, railVisible, railTrackMode]);
+  }, [railData, isDarkTheme, railVisible, railTrackMode]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map)) return;
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -96,7 +106,7 @@ export const H3PopulationHost: LayerHostComponent = ({ deps }) => {
   const h3Params = useMemo(() => ({
     opacity: paramNum(values, "h3Population", "h3Opacity"),
     extruded: paramBool(values, "h3Population", "h3Extruded"),
-    elevationScale: paramNum(values, "h3Population", "h3ElevationScale"),
+    elevationScale: paramNum(values, "h3Population", "h3ElevationScale") || 1,
     metric: oneOfParam(paramStr(values, "h3Population", "h3Metric"), H3_METRICS, "day"),
     contrast: paramNum(values, "h3Population", "h3Contrast"),
   }), [values]);
@@ -124,7 +134,7 @@ export const PopCountHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "popCount", "pcOpacity"),
     contrast: paramNum(values, "popCount", "pcContrast"),
     extruded: paramBool(values, "popCount", "pcExtruded"),
-    elevationScale: paramNum(values, "popCount", "pcElevationScale"),
+    elevationScale: paramNum(values, "popCount", "pcElevationScale") || 1,
   }), [values]);
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
@@ -155,7 +165,7 @@ export const IndicatorsHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "indicators", "indOpacity"),
     contrast: paramNum(values, "indicators", "indContrast"),
     extruded: paramBool(values, "indicators", "indExtruded"),
-    elevationScale: paramNum(values, "indicators", "indElevationScale"),
+    elevationScale: paramNum(values, "indicators", "indElevationScale") || 1,
   }), [values]);
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
@@ -185,7 +195,7 @@ export const SocioeconomicHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "socioeconomic", "socioOpacity"),
     contrast: paramNum(values, "socioeconomic", "socioContrast"),
     extruded: paramBool(values, "socioeconomic", "socioExtruded"),
-    elevationScale: paramNum(values, "socioeconomic", "socioElevation"),
+    elevationScale: paramNum(values, "socioeconomic", "socioElevation") || 1,
   }), [values]);
 
   const { mapRef, socioDataMap, demoResolution } = deps;
@@ -212,7 +222,7 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "spatialEconomy", "spatialOpacity"),
     contrast: paramNum(values, "spatialEconomy", "spatialContrast"),
     extruded: paramBool(values, "spatialEconomy", "spatialExtruded"),
-    elevationScale: paramNum(values, "spatialEconomy", "spatialElevation"),
+    elevationScale: paramNum(values, "spatialEconomy", "spatialElevation") || 1,
   }), [values]);
 
   const { mapRef, spatialDataMap, demoResolution } = deps;
@@ -230,7 +240,7 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** YouBike 飽和度網格（跟著主時間軸的分鐘粒度更新，`youbikeTimeKey` 由 App 訂 timeStore） */
+/** YouBike 飽和度網格（跟著主時間軸的分鐘粒度更新；Host 自己訂 timeStore，不經 App 重渲） */
 export const YoubikeHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("youbikeFullness");
   const values = useLayerParams("youbikeFullness");
@@ -238,14 +248,31 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     opacity: paramNum(values, "youbikeFullness", "ybOpacity"),
     contrast: paramNum(values, "youbikeFullness", "ybContrast"),
     extruded: paramBool(values, "youbikeFullness", "ybExtruded"),
-    elevationScale: paramNum(values, "youbikeFullness", "ybElevationScale"),
+    elevationScale: paramNum(values, "youbikeFullness", "ybElevationScale") || 1,
     heightMode: oneOfParam(
       paramStr(values, "youbikeFullness", "ybHeightMode"), YB_HEIGHT_MODES, "mixed",
     ),
   }), [values]);
 
-  const { mapRef, getYoubikeCellsForTime, youbikeTimeKey } = deps;
+  const { mapRef, getYoubikeCellsForTime } = deps;
   const visible = deps.layerVisibility.youbikeFullness;
+  // 訂閱 timeStore 分鐘粒度（每 60 秒模擬時間更新一次），只 re-render 本 Host。
+  // 只在圖層開啟時訂閱；重開時先同步到當下分鐘。
+  const [youbikeTimeKey, setYoubikeTimeKey] = useState(
+    () => Math.floor(timeStore.getTime() / 60) * 60,
+  );
+  useEffect(() => {
+    if (!visible) return;
+    let lastMinute = Math.floor(timeStore.getTime() / 60);
+    setYoubikeTimeKey(lastMinute * 60);
+    return timeStore.subscribe((t) => {
+      const minute = Math.floor(t / 60);
+      if (minute !== lastMinute) {
+        lastMinute = minute;
+        setYoubikeTimeKey(minute * 60);
+      }
+    });
+  }, [visible]);
   const rehydrate = useCallback((map: MapboxMap) => {
     ensureYoubikeLayers(map);
     updateYoubikeLayer(map, getYoubikeCellsForTime(timeStore.getTime()), youbikeParams, visible);
@@ -256,5 +283,16 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
     rehydrate(map);
   }, [mapRef, rehydrate, youbikeTimeKey]);
   useGridStyleRehydration(mapRef, rehydrate);
+  // Agent 畫面摘要（AG-1）：H3 多邊形由前端自建 source，改用當下時刻的 cell 資料統計（不打網路）
+  const getCellsRef = useRef(getYoubikeCellsForTime);
+  getCellsRef.current = getYoubikeCellsForTime;
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("youbikeFullness", (bounds) => {
+      let h3: ReturnType<typeof requireH3>;
+      try { h3 = requireH3(); } catch { return { status: "data_not_loaded" }; }
+      return summarizeYoubikeCells(getCellsRef.current(timeStore.getTime()), bounds, (cell) => h3.cellToLatLng(cell));
+    });
+  }, [visible]);
   return null;
 };

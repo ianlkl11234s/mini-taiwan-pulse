@@ -1,0 +1,4605 @@
+{
+  "gates": {
+    "capacity": {
+      "hold": [
+        {
+          "classification": "mental_nursing_home",
+          "reason": "115950 沒有精神護理之家分類或專屬床位欄；不以缺列產生零值。"
+        }
+      ],
+      "status": "READY"
+    },
+    "education": {
+      "source_gate": "PASS"
+    },
+    "health": {
+      "hold": [],
+      "status": "READY"
+    },
+    "housing": {
+      "gate_path": "data/processed/real_estate/housing_use_statistics/source-gate.json",
+      "status": "LOCAL_FRONTEND_READY"
+    },
+    "percapita": {
+      "hold": [],
+      "status": "READY"
+    },
+    "registration": {
+      "source_gate": "PASS: official metadata and CSV saved with immutable TLS receipts; 22 counties and every male/female/total row reconciled.",
+      "status": "READY"
+    }
+  },
+  "health_policy": {
+    "CURRENT": "僅來源新鮮度已驗證時",
+    "DENIED": "不建立 release",
+    "ERROR": "不覆蓋上一成功 release",
+    "PARTIAL": "coverage 必須顯示",
+    "STALE": "歷史或舊快照"
+  },
+  "observation_policy": {
+    "missing": "value null; no zero fill",
+    "not_reported": "value null plus source semantic detail",
+    "observed_zero": "status observed and value 0",
+    "suppressed": "value null; no reverse inference"
+  },
+  "publication": {
+    "cdn_manifest_sha256": "d8aefb0375568a57126283e7fbd3901ee0c46cbb25c68af2c12647a14d35165a",
+    "evidence_path": "docs/handoff/social-statistics-promotion.json",
+    "evidence_sha256": "81bc3659420be2fa1f3c548e3c39bd7d93017d78f95a4e2307d0ac8acc2bbf21",
+    "published_at": "2026-09-15",
+    "status": "PUBLISHED"
+  },
+  "recipes": [
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "institution_count",
+      "label": "機構或學校數",
+      "layer_key": "statsEducationCountyInstitutionCount",
+      "legend": {
+        "breaks": [
+          10,
+          50,
+          150,
+          500
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "所",
+      "release_summary": {
+        "count": 44,
+        "first": {
+          "release_id": "104-preschool-institution_count-ee377a4e5a5a",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "preschool",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-preschool-institution_count-a8aa1f7e2ee6",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-institution_count-2badeea86de5",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-institution_count-0a562b8b6714",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-institution_count-994609f1bfd7",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "teacher_count",
+      "label": "教師數",
+      "layer_key": "statsEducationCountyTeacherCount",
+      "legend": {
+        "breaks": [
+          100,
+          1000,
+          3000,
+          10000
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "人",
+      "release_summary": {
+        "count": 44,
+        "first": {
+          "release_id": "104-preschool-teacher_count-d41c76f8d417",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "preschool",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-preschool-teacher_count-291c61b908cf",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-teacher_count-a4897e551036",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-teacher_count-d4a51988c13b",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-teacher_count-d5c5219515ec",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "staff_count",
+      "label": "職員數",
+      "layer_key": "statsEducationCountyStaffCount",
+      "legend": {
+        "breaks": [
+          10,
+          100,
+          500,
+          1500
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "人",
+      "release_summary": {
+        "count": 44,
+        "first": {
+          "release_id": "104-preschool-staff_count-2d0572800f42",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "preschool",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-preschool-staff_count-82194499e4e7",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-staff_count-61ee04b29a7b",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-staff_count-af2363efadde",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-staff_count-6249388787f4",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "student_count",
+      "label": "學生或幼生數",
+      "layer_key": "statsEducationCountyStudentCount",
+      "legend": {
+        "breaks": [
+          1000,
+          10000,
+          50000,
+          150000
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "人",
+      "release_summary": {
+        "count": 44,
+        "first": {
+          "release_id": "104-preschool-student_count-dc34c317b283",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "preschool",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-preschool-student_count-b6822e22eba0",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-student_count-ba017d835c3a",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-student_count-196d3d9b4df9",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-student_count-3f67a4f99fa5",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "class_count",
+      "label": "班級數",
+      "layer_key": "statsEducationCountyClassCount",
+      "legend": {
+        "breaks": [
+          50,
+          500,
+          2000,
+          5000
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "班",
+      "release_summary": {
+        "count": 33,
+        "first": {
+          "release_id": "104-elementary-class_count-76998528db82",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "elementary",
+            "source_schema": "v1_104_114"
+          }
+        },
+        "education_stages": {
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-class_count-767bb1ea41e8",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-class_count-ef79c00d8453",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-class_count-8a911d1a64cc",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "small_school_count",
+      "label": "12班以下學校數",
+      "layer_key": "statsEducationCountySmallSchoolCount",
+      "legend": {
+        "breaks": [
+          5,
+          20,
+          50,
+          100
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "所",
+      "release_summary": {
+        "count": 11,
+        "first": {
+          "release_id": "104-elementary-small_school_count-22855bc21ba9",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "elementary",
+            "source_schema": "v1_104_114"
+          }
+        },
+        "education_stages": {
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-small_school_count-03411e6d1eaa",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "small_school_share_pct",
+      "label": "12班以下學校占比",
+      "layer_key": "statsEducationCountySmallSchoolSharePct",
+      "legend": {
+        "breaks": [
+          20,
+          40,
+          60,
+          80
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "%",
+      "release_summary": {
+        "count": 11,
+        "first": {
+          "release_id": "104-elementary-small_school_share_pct-ee7389cce017",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "elementary",
+            "source_schema": "v1_104_114"
+          }
+        },
+        "education_stages": {
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-small_school_share_pct-d445260994a0",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "student_teacher_ratio",
+      "label": "生師比",
+      "layer_key": "statsEducationCountyStudentTeacherRatio",
+      "legend": {
+        "breaks": [
+          10,
+          15,
+          20,
+          30
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "學生或幼生/教師",
+      "release_summary": {
+        "count": 33,
+        "first": {
+          "release_id": "104-elementary-student_teacher_ratio-7a6f5faaed28",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "elementary",
+            "source_schema": "v1_104_114"
+          }
+        },
+        "education_stages": {
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-student_teacher_ratio-da7390aa65cf",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-student_teacher_ratio-ed3fa6c79816",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-student_teacher_ratio-7b11597abc4d",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "104",
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "students_per_class",
+      "label": "每班學生數",
+      "layer_key": "statsEducationCountyStudentsPerClass",
+      "legend": {
+        "breaks": [
+          10,
+          20,
+          25,
+          30
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "學生/班",
+      "release_summary": {
+        "count": 33,
+        "first": {
+          "release_id": "104-elementary-students_per_class-5552a0acc286",
+          "period_start": "2015-08-01",
+          "period_end": "2016-07-31",
+          "dimensions": {
+            "academic_year_roc": "104",
+            "education_stage": "elementary",
+            "source_schema": "v1_104_114"
+          }
+        },
+        "education_stages": {
+          "elementary": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-elementary-students_per_class-a09b1154c810",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-junior_high-students_per_class-60c0d674129e",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 11,
+            "latest": {
+              "release_id": "114-senior_high-students_per_class-7388a97a60d1",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "student_year_change",
+      "label": "學生或幼生年增減數",
+      "layer_key": "statsEducationCountyStudentYearChange",
+      "legend": {
+        "breaks": [
+          -1000,
+          -100,
+          0,
+          100,
+          1000
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "人",
+      "release_summary": {
+        "count": 39,
+        "first": {
+          "release_id": "105-preschool-student_year_change-7f9bc86e46a6",
+          "period_start": "2016-08-01",
+          "period_end": "2017-07-31",
+          "dimensions": {
+            "academic_year_roc": "105",
+            "education_stage": "preschool",
+            "previous_academic_year_roc": "104",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 9,
+            "latest": {
+              "release_id": "114-preschool-student_year_change-c910c5434af1",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "previous_academic_year_roc": "113",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-elementary-student_year_change-a7dffbfffdce",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-junior_high-student_year_change-b9ba15fa0f0c",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-senior_high-student_year_change-f2ae46515481",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "education_county_statistics",
+      "disclosure": "統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "education_stage",
+          "options": [
+            "elementary",
+            "junior_high",
+            "preschool",
+            "senior_high"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "source_schema",
+          "options": [
+            "current_111_114",
+            "legacy_104_110",
+            "v1_104_114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "academic_year_roc",
+          "options": [
+            "105",
+            "106",
+            "107",
+            "108",
+            "109",
+            "110",
+            "111",
+            "112",
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "教育與少子化統計",
+      "indicator_id": "student_year_change_pct",
+      "label": "學生或幼生年增減率",
+      "layer_key": "statsEducationCountyStudentYearChangePct",
+      "legend": {
+        "breaks": [
+          -10,
+          -3,
+          0,
+          3,
+          10
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a",
+          "#172554"
+        ],
+        "comparison_rule": "same indicator, stage, unit, source_schema; fixed breaks apply across years",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/education-result.json",
+      "source_gate": "PASS: official CSV archived; exact source-year county rows validated; null/suppressed never become zero.",
+      "subgroup": "學校所在地縣市別",
+      "unit": "%",
+      "release_summary": {
+        "count": 39,
+        "first": {
+          "release_id": "105-preschool-student_year_change_pct-f8cc4cb4f569",
+          "period_start": "2016-08-01",
+          "period_end": "2017-07-31",
+          "dimensions": {
+            "academic_year_roc": "105",
+            "education_stage": "preschool",
+            "previous_academic_year_roc": "104",
+            "source_schema": "legacy_104_110"
+          }
+        },
+        "education_stages": {
+          "preschool": {
+            "count": 9,
+            "latest": {
+              "release_id": "114-preschool-student_year_change_pct-294e6be99820",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "preschool",
+                "previous_academic_year_roc": "113",
+                "source_schema": "current_111_114"
+              }
+            }
+          },
+          "elementary": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-elementary-student_year_change_pct-f9678106dae1",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "elementary",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "junior_high": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-junior_high-student_year_change_pct-90502417229f",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "junior_high",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          },
+          "senior_high": {
+            "count": 10,
+            "latest": {
+              "release_id": "114-senior_high-student_year_change_pct-c5925e228407",
+              "period_start": "2025-08-01",
+              "period_end": "2026-07-31",
+              "dimensions": {
+                "academic_year_roc": "114",
+                "education_stage": "senior_high",
+                "previous_academic_year_roc": "113",
+                "source_schema": "v1_104_114"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "bed_measure",
+          "options": [
+            "installed_capacity"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "hospital_count",
+      "label": "醫院家數",
+      "layer_key": "statsHealthHospitalCount",
+      "legend": {
+        "breaks": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "家",
+      "release_summary": {
+        "count": 2,
+        "first": {
+          "release_id": "2025-hospital_count-c64be467a3ef",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "bed_measure": "installed_capacity",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "bed_measure",
+          "options": [
+            "installed_capacity"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "hospital_bed_total",
+      "label": "醫院病床總數",
+      "layer_key": "statsHealthHospitalBedTotal",
+      "legend": {
+        "breaks": [
+          153,
+          409,
+          777,
+          1434
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "床",
+      "release_summary": {
+        "count": 2,
+        "first": {
+          "release_id": "2025-hospital_bed_total-c64be467a3ef",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "bed_measure": "installed_capacity",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "bed_measure",
+          "options": [
+            "installed_capacity"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "acute_bed_total",
+      "label": "急性病床",
+      "layer_key": "statsHealthAcuteBedTotal",
+      "legend": {
+        "breaks": [
+          60,
+          209,
+          473,
+          811
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "床",
+      "release_summary": {
+        "count": 2,
+        "first": {
+          "release_id": "2025-acute_bed_total-c64be467a3ef",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "bed_measure": "installed_capacity",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "bed_measure",
+          "options": [
+            "installed_capacity"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "icu_bed_total",
+      "label": "加護病床",
+      "layer_key": "statsHealthIcuBedTotal",
+      "legend": {
+        "breaks": [
+          0,
+          14,
+          40,
+          73
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "床",
+      "release_summary": {
+        "count": 2,
+        "first": {
+          "release_id": "2025-icu_bed_total-c64be467a3ef",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "bed_measure": "installed_capacity",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "bed_measure",
+          "options": [
+            "installed_capacity"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "113",
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "hospice_bed_total",
+      "label": "安寧病床",
+      "layer_key": "statsHealthHospiceBedTotal",
+      "legend": {
+        "breaks": [
+          0,
+          0,
+          2,
+          12
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "床",
+      "release_summary": {
+        "count": 2,
+        "first": {
+          "release_id": "2025-hospice_bed_total-c64be467a3ef",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "bed_measure": "installed_capacity",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "health_professional_total",
+      "label": "醫院醫事人員總計",
+      "layer_key": "statsHealthHealthProfessionalTotal",
+      "legend": {
+        "breaks": [
+          117,
+          432,
+          1015,
+          1979
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-health_professional_total-bdeec4626948",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "western_physician_count",
+      "label": "醫院西醫師",
+      "layer_key": "statsHealthWesternPhysicianCount",
+      "legend": {
+        "breaks": [
+          15,
+          53,
+          138,
+          350
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-western_physician_count-bdeec4626948",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "township_reference_20260626_v1",
+      "dataset_id": "medical_resource_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "registered_nurse_count",
+      "label": "醫院護理師",
+      "layer_key": "statsHealthRegisteredNurseCount",
+      "legend": {
+        "breaks": [
+          57,
+          240,
+          606,
+          1184
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "醫院病床與人力",
+      "unit": "人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-registered_nurse_count-bdeec4626948",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "nursing_workforce_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "institution_type",
+          "options": [
+            "general_nursing_home"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "month",
+          "options": [
+            "12"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "nursing_staff_listed_age_sex_sum",
+      "label": "一般護理之家列示護理人員欄位加總",
+      "layer_key": "statsHealthNursingStaffListedAgeSexSum",
+      "legend": {
+        "breaks": [
+          378,
+          378,
+          378,
+          378
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "一般護理之家人力",
+      "unit": "人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-nursing_staff_listed_age_sex_sum-31466795e3d2",
+          "period_start": "2025-12-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "institution_type": "general_nursing_home",
+            "month": "12",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "nursing_workforce_statistics",
+      "disclosure": "病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "institution_type",
+          "options": [
+            "general_nursing_home"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "month",
+          "options": [
+            "12"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "care_worker_listed_sex_sum",
+      "label": "一般護理之家列示照服員欄位加總",
+      "layer_key": "statsHealthCareWorkerListedSexSum",
+      "legend": {
+        "breaks": [
+          154,
+          374,
+          469,
+          1209
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/health-result.json",
+      "subgroup": "一般護理之家人力",
+      "unit": "人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-care_worker_listed_sex_sum-31466795e3d2",
+          "period_start": "2025-12-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "institution_type": "general_nursing_home",
+            "month": "12",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "nursing_facility_capacity",
+      "disclosure": "長照相關住宿護理容量；原始欄位口徑；床數保留官方「一般護理之家-開放床數」欄位口徑，並非即時空床或使用床數。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "capacity_field",
+          "options": [
+            "一般護理之家-開放床數"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "institution_classification",
+          "options": [
+            "general_nursing_home"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "month",
+          "options": [
+            "12"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "general_nursing_home_open_beds",
+      "label": "一般護理之家開放床數",
+      "layer_key": "statsHealthGeneralNursingHomeOpenBeds",
+      "legend": {
+        "breaks": [
+          484,
+          963,
+          1529,
+          4268
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/capacity-result.json",
+      "subgroup": "一般護理之家床位",
+      "unit": "床",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-general_nursing_home_open_beds-0ab4ce4d747a",
+          "period_start": "2025-12-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "capacity_field": "一般護理之家-開放床數",
+            "institution_classification": "general_nursing_home",
+            "month": "12",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "nursing_facility_capacity",
+      "disclosure": "母嬰照護；不得作為高齡長照床位；床數保留官方「產後護理床-開放床數」欄位口徑，並非即時空床或使用床數。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "capacity_field",
+          "options": [
+            "產後護理床-開放床數"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "institution_classification",
+          "options": [
+            "postpartum_nursing_home"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "month",
+          "options": [
+            "12"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "postpartum_nursing_home_open_beds",
+      "label": "產後護理之家開放護理床數",
+      "layer_key": "statsHealthPostpartumNursingHomeOpenBeds",
+      "legend": {
+        "breaks": [
+          0,
+          46,
+          207,
+          518
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/capacity-result.json",
+      "subgroup": "母嬰照護床位",
+      "unit": "床",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-postpartum_nursing_home_open_beds-a163d67157b1",
+          "period_start": "2025-12-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "capacity_field": "產後護理床-開放床數",
+            "institution_classification": "postpartum_nursing_home",
+            "month": "12",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "nursing_facility_capacity",
+      "disclosure": "母嬰照護；不得作為高齡長照床位；床數保留官方「護理類-嬰兒床-開放床數」欄位口徑，並非即時空床或使用床數。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "capacity_field",
+          "options": [
+            "護理類-嬰兒床-開放床數"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "institution_classification",
+          "options": [
+            "postpartum_nursing_home"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "month",
+          "options": [
+            "12"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "postpartum_nursing_home_open_infant_beds",
+      "label": "產後護理之家開放嬰兒床數",
+      "layer_key": "statsHealthPostpartumNursingHomeOpenInfantBeds",
+      "legend": {
+        "breaks": [
+          0,
+          50,
+          215,
+          566
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/capacity-result.json",
+      "subgroup": "母嬰照護床位",
+      "unit": "床",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-postpartum_nursing_home_open_infant_beds-466cb74842b0",
+          "period_start": "2025-12-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "capacity_field": "護理類-嬰兒床-開放床數",
+            "institution_classification": "postpartum_nursing_home",
+            "month": "12",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "COUNTY_MOI_1140318 僅供縣市統計 identity join，不是來源原生 geometry。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "care_worker_registration_statistics",
+      "disclosure": "113 年長照照顧服務員登錄數。縣市與全國均不歸人；不是不重複人數，各職類可能重複；涵蓋多類長照機構及相關機構，排除 C 據點。官方 CSV 無全國列，前端不顯示自行補造的全國值。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "sex",
+          "options": [
+            "total",
+            "male",
+            "female"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "care_worker_registration_count",
+      "label": "照顧服務員登錄數",
+      "layer_key": "statsHealthCareWorkerRegistration",
+      "legend": {
+        "breaks": [
+          273,
+          1117,
+          1993,
+          4785
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/registration-result.json",
+      "subgroup": "長照人員登錄",
+      "unit": "登錄數",
+      "release_summary": {
+        "count": 3,
+        "first": {
+          "release_id": "2024-care-worker-registration-count-b6f3ece7dbe3",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "registration_scope": "long_term_care_2_0_excludes_c_sites",
+            "roc_year": "113",
+            "sex": "total"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "medical_percapita_statistics",
+      "disclosure": "此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "denominator",
+          "options": [
+            "year_end_population"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "denominator_roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "medical_institution_beds_per_10000_population",
+      "label": "醫療院所每萬人口病床數",
+      "layer_key": "statsHealthMedicalInstitutionBedsPer10000Population",
+      "legend": {
+        "breaks": [
+          58.63688497827488,
+          62.645367972967044,
+          75.0618212750678,
+          80.78680287686613
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/percapita-result.json",
+      "subgroup": "每萬人口醫療資源",
+      "unit": "每萬人口床",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-medical_institution_beds_per_10000_population-16c8eb15726e",
+          "period_start": "2025-12-31",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "denominator": "year_end_population",
+            "denominator_roc_year": "114",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "reference boundary；不宣稱歷史原生界線。",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "medical_percapita_statistics",
+      "disclosure": "此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。",
+      "enabled": true,
+      "filters": [
+        {
+          "key": "denominator",
+          "options": [
+            "year_end_population"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "denominator_roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        },
+        {
+          "key": "roc_year",
+          "options": [
+            "114"
+          ],
+          "rule": "only_exact_available_tuples"
+        }
+      ],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "醫療與長照統計",
+      "indicator_id": "practicing_medical_personnel_per_10000_population",
+      "label": "機構每萬人口執業醫事人員數",
+      "layer_key": "statsHealthPracticingMedicalPersonnelPer10000Population",
+      "legend": {
+        "breaks": [
+          115.39419075852612,
+          126.86798328965986,
+          142.65151050295557,
+          181.57507048807358
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_fragment": "output/social-statistics/percapita-result.json",
+      "subgroup": "每萬人口醫療資源",
+      "unit": "每萬人口人",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "2025-practicing_medical_personnel_per_10000_population-ea02f8b139e0",
+          "period_start": "2025-12-31",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "denominator": "year_end_population",
+            "denominator_roc_year": "114",
+            "roc_year": "114"
+          }
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_total",
+      "label": "住宅總數（縣市）",
+      "layer_key": "statsHousingTotalCounty",
+      "legend": {
+        "breaks": [
+          106368,
+          181086,
+          227420,
+          867883
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_total-ae97382b6583",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occupied",
+      "label": "有人經常居住住宅（縣市）",
+      "layer_key": "statsHousingOccupiedCounty",
+      "legend": {
+        "breaks": [
+          77911,
+          130056,
+          165304,
+          685312
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_occupied-8024c657106d",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unoccupied",
+      "label": "無人經常居住住宅（縣市）",
+      "layer_key": "statsHousingUnoccupiedCounty",
+      "legend": {
+        "breaks": [
+          28457,
+          44383,
+          65905,
+          182571
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_unoccupied-d707b184ab55",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occasional",
+      "label": "偶爾自住住宅（縣市）",
+      "layer_key": "statsHousingOccasionalCounty",
+      "legend": {
+        "breaks": [
+          6862,
+          11950,
+          17628,
+          37153
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_occasional-0035278a4eec",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_other_use",
+      "label": "自住以外用途住宅（縣市）",
+      "layer_key": "statsHousingOtherUseCounty",
+      "legend": {
+        "breaks": [
+          4290,
+          7289,
+          12618,
+          33094
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_other_use-788bd4d77f67",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unused",
+      "label": "目前沒有使用住宅（縣市）",
+      "layer_key": "statsHousingUnusedCounty",
+      "legend": {
+        "breaks": [
+          15734,
+          25461,
+          34514,
+          93801
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_unused-5bb394e3589b",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_residence_only",
+      "label": "有人居住住宅－住宅專用（縣市）",
+      "layer_key": "statsHousingResidenceOnlyCounty",
+      "legend": {
+        "breaks": [
+          72137,
+          122058,
+          156309,
+          655478
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_residence_only-a229ac5edd7b",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_mixed_use",
+      "label": "有人居住住宅－兼農工服務業用（縣市）",
+      "layer_key": "statsHousingMixedUseCounty",
+      "legend": {
+        "breaks": [
+          4387,
+          6576,
+          8995,
+          28832
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_mixed_use-e21bb2f3bbd4",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occupied_pct",
+      "label": "經常居住住宅占比（縣市）",
+      "layer_key": "statsHousingOccupiedPctCounty",
+      "legend": {
+        "breaks": [
+          70.81572751024095,
+          72.68665904493888,
+          75.81239178472694,
+          77.71407682954536
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用比例",
+      "unit": "%",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_occupied_pct-47a825c3d989",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unused_pct",
+      "label": "目前未使用住宅占比（縣市）",
+      "layer_key": "statsHousingUnusedPctCounty",
+      "legend": {
+        "breaks": [
+          12.401315789473685,
+          13.263884648045877,
+          13.93481550202666,
+          16.638141023768775
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "county",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用比例",
+      "unit": "%",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-county-housing_unused_pct-9c28678f746d",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_total",
+      "label": "住宅總數（鄉鎮市區）",
+      "layer_key": "statsHousingTotalTownship",
+      "legend": {
+        "breaks": [
+          3624,
+          7736,
+          15154,
+          36299
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_total-2ec42db7ecf1",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occupied",
+      "label": "有人經常居住住宅（鄉鎮市區）",
+      "layer_key": "statsHousingOccupiedTownship",
+      "legend": {
+        "breaks": [
+          2472,
+          5607,
+          10956,
+          27909
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_occupied-3d2bdb4dccad",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unoccupied",
+      "label": "無人經常居住住宅（鄉鎮市區）",
+      "layer_key": "statsHousingUnoccupiedTownship",
+      "legend": {
+        "breaks": [
+          1080,
+          2067,
+          3793,
+          8516
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_unoccupied-79e3da5d4f32",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occasional",
+      "label": "偶爾自住住宅（鄉鎮市區）",
+      "layer_key": "statsHousingOccasionalTownship",
+      "legend": {
+        "breaks": [
+          363,
+          622,
+          976,
+          1998
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_occasional-9aa6860dc8be",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_other_use",
+      "label": "自住以外用途住宅（鄉鎮市區）",
+      "layer_key": "statsHousingOtherUseTownship",
+      "legend": {
+        "breaks": [
+          123,
+          312,
+          742,
+          1748
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_other_use-4d657024d478",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unused",
+      "label": "目前沒有使用住宅（鄉鎮市區）",
+      "layer_key": "statsHousingUnusedTownship",
+      "legend": {
+        "breaks": [
+          526,
+          1047,
+          1915,
+          5106
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用類別",
+      "unit": "宅",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_unused-3f378ac9175f",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_occupied_pct",
+      "label": "經常居住住宅占比（鄉鎮市區）",
+      "layer_key": "statsHousingOccupiedPctTownship",
+      "legend": {
+        "breaks": [
+          65.87341409217977,
+          71.43859649122807,
+          76.01518026565465,
+          79.37330663211215
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用比例",
+      "unit": "%",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_occupied_pct-ee8f2e373368",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    },
+    {
+      "boundary_semantics": "identity join to current reference only; no historical geometry reconstruction",
+      "boundary_version": "TOWN_MOI_1140318",
+      "dataset_id": "housing_use_statistics",
+      "disclosure": "109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。",
+      "enabled": true,
+      "filters": [],
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2,
+        "null": "—",
+        "zero": "0"
+      },
+      "group": "住宅存量與使用",
+      "indicator_id": "housing_unused_pct",
+      "label": "目前未使用住宅占比（鄉鎮市區）",
+      "layer_key": "statsHousingUnusedPctTownship",
+      "legend": {
+        "breaks": [
+          9.540740740740741,
+          12.38276903512955,
+          14.637904468412943,
+          18.028016178356516
+        ],
+        "colors": [
+          "#eff6ff",
+          "#bfdbfe",
+          "#60a5fa",
+          "#2563eb",
+          "#1e3a8a"
+        ],
+        "comparison_rule": "same_indicator_unit_boundary_and_period; no summing ratios/yields",
+        "method": "fixed_breaks",
+        "missing_color": "#9ca3af",
+        "not_reported_label": "未報告",
+        "suppressed_pattern": "diagonal_hatch",
+        "zero_uses_numeric_scale": true
+      },
+      "level": "township",
+      "related_layer_keys": [
+        "realEstateSaleGrid",
+        "realEstateRentalGrid"
+      ],
+      "release_selector": {
+        "default": "latest_period_then_lexical_dimensions",
+        "identity_fields": [
+          "dataset_id",
+          "indicator_id",
+          "release_id",
+          "period_start",
+          "period_end",
+          "boundary_version",
+          "dimensions"
+        ],
+        "options_field": "release_options",
+        "type": "exact_whitelist",
+        "unknown_release": "reject"
+      },
+      "source_family": "housing_census_109",
+      "source_fragment": "output/social-statistics/housing-result.json",
+      "subgroup": "住宅使用比例",
+      "unit": "%",
+      "release_summary": {
+        "count": 1,
+        "first": {
+          "release_id": "20201108-township-housing_unused_pct-8d4a5402fd85",
+          "period_start": "2020-11-08",
+          "period_end": "2020-11-08",
+          "dimensions": {}
+        }
+      }
+    }
+  ],
+  "scope": "production_published",
+  "source_family_count": 6,
+  "sources": {
+    "capacity": {
+      "dataset_id": "nursing_facility_capacity",
+      "raw_receipts": [
+        "data/raw/poi/nursing_facility_capacity/115950_11412_receipt.json"
+      ],
+      "source_matrix": [
+        {
+          "detail": "正常 TLS 200 取得官方 114年12月 CSV；22 縣市、3 個原始開放床數欄位。",
+          "source_dataset_id": "115950",
+          "status": "READY"
+        }
+      ]
+    },
+    "education": {
+      "dataset_id": "education_county_statistics",
+      "raw_receipts": [
+        {
+          "bytes": 12297,
+          "dataset_id": "31448",
+          "license": "政府資料開放授權條款-第1版",
+          "retrieved_at": "2026-09-14T12:51:14.942474+00:00",
+          "sha256": "5ea8a6a203fe902fa71b7b8e1d50e1820d99b71bbbc45e2d67cc735936391d1b",
+          "source_key": "preschool_legacy",
+          "url": "https://stats.moe.gov.tw/files/opendata/edu_B_2_2_1.csv"
+        },
+        {
+          "bytes": 8649,
+          "dataset_id": "31448",
+          "license": "政府資料開放授權條款-第1版",
+          "retrieved_at": "2026-09-14T12:00:00+00:00",
+          "sha256": "516e12889a0396c7634d7f9cd91cf7f9e58c0bf80bbe29a5126650204c291f57",
+          "source_key": "preschool_current",
+          "url": "https://stats.moe.gov.tw/files/opendata/edu_B_2_2_2.csv"
+        },
+        {
+          "bytes": 23752,
+          "dataset_id": "31443",
+          "license": "政府資料開放授權條款-第1版",
+          "retrieved_at": "2026-09-14T12:00:00+00:00",
+          "sha256": "b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75",
+          "source_key": "elementary",
+          "url": "https://stats.moe.gov.tw/files/opendata/edu_B_3_2.csv"
+        },
+        {
+          "bytes": 17680,
+          "dataset_id": "31439",
+          "license": "政府資料開放授權條款-第1版",
+          "retrieved_at": "2026-09-14T12:00:00+00:00",
+          "sha256": "a5ff3b8ba150ba708e23b774f09fad56ce9a884d7c18f06f8b9cd7b21b435ce5",
+          "source_key": "junior_high",
+          "url": "https://stats.moe.gov.tw/files/opendata/edu_B_3_8.csv"
+        },
+        {
+          "bytes": 15527,
+          "dataset_id": "31454",
+          "license": "政府資料開放授權條款-第1版",
+          "retrieved_at": "2026-09-14T12:00:00+00:00",
+          "sha256": "2ebef174d6c298a482448c16908846c2b0587565637c45b75306e1092d607a9e",
+          "source_key": "senior_high",
+          "url": "https://stats.moe.gov.tw/files/opendata/edu_B_4_2.csv"
+        }
+      ],
+      "source_gate": "PASS"
+    },
+    "health": {
+      "source_matrix": [
+        {
+          "detail": "township beds/capacity 114 and 113; raw ZIP receipts",
+          "source_dataset_id": "6473",
+          "status": "READY"
+        },
+        {
+          "detail": "township health-professional total, western physicians, registered nurses; raw 114 ZIP receipt",
+          "source_dataset_id": "6474",
+          "status": "READY"
+        },
+        {
+          "detail": "county general-nursing-home listed workforce fields; official resource caption 114年12月",
+          "source_dataset_id": "173203",
+          "status": "READY"
+        },
+        {
+          "detail": "2026-09-15 acquired 114-12 roster; output/social-statistics/capacity-result.json",
+          "source_dataset_id": "115950",
+          "status": "READY_SEPARATE_FRAGMENT"
+        },
+        {
+          "detail": "113-year non-deduplicated registration counts; output/social-statistics/registration-result.json",
+          "source_dataset_id": "173368",
+          "status": "READY_SEPARATE_FRAGMENT"
+        }
+      ]
+    },
+    "housing": {
+      "source_families": 2
+    },
+    "percapita": {
+      "source_matrix": [
+        {
+          "detail": "民國114年底、22縣市原生每萬人口率；raw XLSX receipt/hash and same-year denominator cross-check",
+          "source_dataset_id": "mohw_statistics_1_6",
+          "status": "READY"
+        },
+        {
+          "detail": "民國114年底、22縣市原生每萬人口率；raw XLSX receipt/hash and same-year denominator cross-check",
+          "source_dataset_id": "mohw_statistics_1_7",
+          "status": "READY"
+        }
+      ]
+    },
+    "registration": {
+      "dataset_id": "173368",
+      "raw_receipts": [
+        "data/raw/poi/care_worker_registration_statistics/173368_csv_fetch_receipt.json",
+        "data/raw/poi/care_worker_registration_statistics/173368_metadata_fetch_receipt.json"
+      ],
+      "source_gate": "PASS: official metadata and CSV saved with immutable TLS receipts; 22 counties and every male/female/total row reconciled.",
+      "source_matrix": [
+        {
+          "detail": "113年全年 county care-worker registration counts; no unique-person claim; source CSV has 22 county rows and no national row",
+          "source_dataset_id": "173368",
+          "status": "READY"
+        }
+      ]
+    }
+  },
+  "target_recipe_count": 45,
+  "version": 1,
+  "catalog_generated_from": "socialStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

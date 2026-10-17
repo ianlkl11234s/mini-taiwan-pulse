@@ -1,0 +1,242 @@
+<title>Pulse 開站動畫</title>
+<style>
+:root{color-scheme:dark;--page:#07070f;--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--line:rgba(255,255,255,.09);--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);--ok:#22c55e;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--text);font:13px/1.65 var(--font-cjk);margin:0;padding-inline:16px;padding-block:0 96px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{margin:28px 0 8px;font-size:22px;font-weight:600;color:var(--strong);text-wrap:balance}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+p{margin:0}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong)}
+.lead{max-width:84ch;color:var(--muted)}.lead b{color:var(--strong);font-weight:600}
+.tag{font:600 12px var(--font-data);color:var(--pick);border:1px solid rgba(100,170,255,.45);border-radius:4px;padding:1px 6px}
+.len{font:12px var(--font-data);color:var(--dim)}
+section{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:22px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+figcaption{font-size:11px;color:var(--dim)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 22px;color:var(--muted);font-size:12.5px}
+.notes b{color:var(--strong);font-weight:600}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(7,7,15,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px}
+.bar-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.bar .lbl{font-size:12px;color:var(--dim)}
+button{font:12px var(--font-cjk);color:var(--muted);background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:4px 11px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+button[aria-pressed="true"]{color:var(--strong);background:var(--pick-faint);border-color:rgba(100,170,255,.45)}
+.seg{display:inline-flex}
+.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0}.seg button+button{border-left:0}
+.clock{font:12px var(--font-data);color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* ── 模擬畫面（顏色取自 src/styles/tokens.css）── */
+.scr{--app:#0a0a14;--strong-s:rgba(10,10,20,.88);--bd:rgba(255,255,255,.10);--bd-mid:rgba(255,255,255,.14);--t-strong:#f3f4f6;--t-dim:#6b7280;--acc:#64aaff;--live:#22c55e;--map:#1b1c20;--road:#2a2b31;--rail:#0a0a14;--grid:rgba(100,170,255,.07);
+--blob:linear-gradient(135deg,#4a4e5c 0%,#1c1d27 45%,#34374a 100%);
+--k:1;container-type:inline-size;position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--app);font-family:var(--font-cjk)}
+.scr.light{--app:#f4f5f7;--strong-s:rgba(255,255,255,.97);--bd:rgba(0,0,0,.10);--bd-mid:rgba(0,0,0,.14);--t-strong:#111827;--acc:#2563eb;--live:#16a34a;--map:#e7e9ed;--road:#ffffff;--rail:#ffffff;--grid:rgba(37,99,235,.08);
+--blob:linear-gradient(135deg,#ffffff 0%,#c9cdd6 50%,#f3f4f6 100%)}
+.layer{position:absolute;inset:0}
+.map{position:absolute;inset:0;opacity:0;background:
+ linear-gradient(115deg,transparent 47%,var(--road) 47.4%,var(--road) 48.2%,transparent 48.6%),
+ linear-gradient(20deg,transparent 60%,var(--road) 60.3%,var(--road) 61%,transparent 61.3%),
+ linear-gradient(170deg,transparent 30%,var(--road) 30.3%,var(--road) 30.9%,transparent 31.2%),var(--map)}
+.grid{position:absolute;inset:0;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/8.33% 12.5%,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/6.25% 10%}
+.c-rail{position:absolute;left:0;top:0;width:7%;height:62%;background:var(--rail);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:7%;padding-top:3%}
+.c-rail i{width:42%;aspect-ratio:1;border-radius:3px;border:1.5px solid var(--t-dim)}
+.c-rail hr{width:60%;border:0;border-top:1px solid var(--bd);margin:0}
+.c-title{position:absolute;left:9%;top:3%;font:700 2.6cqw/1.1 var(--font-data);letter-spacing:.14em;color:var(--t-strong);white-space:nowrap}
+.c-title small{display:block;font:400 .5em/1.6 var(--font-data);letter-spacing:.02em;color:var(--t-dim)}
+.c-tb{position:absolute;left:68%;top:3%;width:30%;height:6.5%;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd)}
+.c-tl{position:absolute;left:8%;top:87.5%;width:21%;height:6.5%;border-radius:99px;background:var(--strong-s);border:1px solid var(--bd)}
+.pill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;height:2.2cqw;min-height:14px;padding:0 8px;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd);font-size:clamp(7px,1.05cqw,11px);color:var(--t-strong);white-space:nowrap;transition:opacity calc(.3s / var(--k))}
+.pill .ring{width:.8em;height:.8em;border:1.5px solid var(--bd-mid);border-top-color:var(--acc);border-radius:50%;animation:spin .9s linear infinite}
+.pill .ok,.pill .d{display:none}.pill .ok{color:var(--live)}
+.s-done .pill .ring,.s-done .pill .l{display:none}.s-done .pill .ok,.s-done .pill .d{display:inline}
+.s-enter .pill{opacity:0}
+.s-reset,.s-reset *{transition:none!important;animation-play-state:paused}
+
+/* ── M1 液態歸位 ── */
+[data-v=liquid] .real{opacity:0;transition:opacity calc(.35s / var(--k))}
+[data-v=liquid] .map{transition:opacity calc(1.4s / var(--k))}
+[data-v=liquid].s-load .map{opacity:.5}[data-v=liquid].s-done .map{opacity:1}
+[data-v=liquid] .goo{position:absolute;inset:0;filter:url(#goo)}
+[data-v=liquid] .b{position:absolute;left:50%;top:44%;width:8cqw;height:8cqw;border-radius:50%;transform:translate(-50%,-50%);background:var(--blob);
+ transition:left var(--t) var(--e),top var(--t) var(--e),width var(--t) var(--e),height var(--t) var(--e),border-radius var(--t) var(--e),transform var(--t) var(--e);--t:calc(.85s / var(--k));--e:cubic-bezier(.55,-.25,.2,1.2)}
+[data-v=liquid] .b0{width:12cqw;height:12cqw}
+[data-v=liquid].s-load .b0{animation:breathe 1.2s ease-in-out infinite}
+[data-v=liquid] .pill{top:62%}
+[data-v=liquid].s-enter .b{transform:none;border-radius:6px}
+[data-v=liquid].s-enter .b0{left:50%;top:44%;width:0;height:0;transform:translate(-50%,-50%)}
+[data-v=liquid].s-enter .b1{left:0;top:0;width:7%;height:62%;border-radius:0;transition-delay:0s}
+[data-v=liquid].s-enter .b2{left:68%;top:3%;width:30%;height:6.5%;transition-delay:calc(.05s / var(--k))}
+[data-v=liquid].s-enter .b3{left:8%;top:87.5%;width:21%;height:6.5%;border-radius:99px;transition-delay:calc(.1s / var(--k))}
+[data-v=liquid].s-enter .b4{left:9%;top:3%;width:21%;height:6%;transition-delay:calc(.15s / var(--k))}
+[data-v=liquid] .goo{transition:opacity calc(.35s / var(--k))}
+[data-v=liquid].s-settle .goo{opacity:0}
+[data-v=liquid].s-settle .real{opacity:1}
+
+/* ── M2 機關展開 ── */
+[data-v=mech] .map{transition:opacity calc(1.4s / var(--k))}
+[data-v=mech].s-load .map{opacity:.6}[data-v=mech].s-done .map{opacity:1}
+[data-v=mech] .c-rail{transform:translateX(-105%)}
+[data-v=mech] .c-tb{transform:translateY(-170%)}
+[data-v=mech] .c-tl{transform:translateY(260%)}
+[data-v=mech] .c-title{transform:translateY(-220%)}
+[data-v=mech] .c-rail i,[data-v=mech] .c-rail hr{transform:scale(0)}
+[data-v=mech] .c-rail,[data-v=mech] .c-tb,[data-v=mech] .c-tl,[data-v=mech] .c-title{transition:transform calc(.55s / var(--k)) cubic-bezier(.34,1.56,.64,1)}
+[data-v=mech] .c-rail i,[data-v=mech] .c-rail hr{transition:transform calc(.3s / var(--k)) cubic-bezier(.34,1.8,.64,1)}
+[data-v=mech].s-enter .c-rail,[data-v=mech].s-enter .c-tb,[data-v=mech].s-enter .c-tl,[data-v=mech].s-enter .c-title,[data-v=mech].s-enter .c-rail i,[data-v=mech].s-enter .c-rail hr{transform:none}
+[data-v=mech].s-enter .c-tb{transition-delay:calc(.08s / var(--k))}
+[data-v=mech].s-enter .c-tl{transition-delay:calc(.16s / var(--k))}
+[data-v=mech].s-enter .c-title{transition-delay:calc(.24s / var(--k))}
+[data-v=mech].s-enter .c-rail hr{transition-delay:calc(.3s / var(--k))}
+[data-v=mech].s-enter .c-rail i:nth-of-type(1){transition-delay:calc(.28s / var(--k))}
+[data-v=mech].s-enter .c-rail i:nth-of-type(2){transition-delay:calc(.34s / var(--k))}
+[data-v=mech].s-enter .c-rail i:nth-of-type(3){transition-delay:calc(.38s / var(--k))}
+[data-v=mech].s-enter .c-rail i:nth-of-type(4){transition-delay:calc(.42s / var(--k))}
+[data-v=mech].s-enter .c-rail i:nth-of-type(5){transition-delay:calc(.46s / var(--k))}
+[data-v=mech].s-settle .c-tb,[data-v=mech].s-settle .c-tl{animation:latch calc(.4s / var(--k)) ease-out}
+
+/* ── M3 掃描顯影 ── */
+[data-v=scan] .reveal{position:absolute;inset:0;clip-path:inset(0 100% 0 0);transition:clip-path calc(.9s / var(--k)) cubic-bezier(.65,0,.25,1)}
+[data-v=scan] .map{opacity:1}
+[data-v=scan] .sweep{position:absolute;left:0;right:0;top:0;height:1px;background:var(--acc);box-shadow:0 0 8px var(--acc);opacity:0}
+[data-v=scan].s-load .sweep{opacity:.5;animation:sweep 1.4s linear infinite}
+[data-v=scan].s-enter .sweep{opacity:0}
+[data-v=scan] .beam{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--acc);box-shadow:0 0 14px 2px var(--acc);opacity:0;transition:left calc(.9s / var(--k)) cubic-bezier(.65,0,.25,1),opacity calc(.25s / var(--k))}
+[data-v=scan].s-enter .reveal{clip-path:inset(0 0 0 0)}
+[data-v=scan].s-enter .beam{left:100%;opacity:1}
+[data-v=scan].s-settle .beam{opacity:0}
+
+/* ── M4 脈動擴散 ── */
+[data-v=pulse] .reveal{position:absolute;inset:0;clip-path:circle(0% at 56% 50%);transition:clip-path calc(1s / var(--k)) cubic-bezier(.7,0,.2,1)}
+[data-v=pulse] .map{opacity:1}
+[data-v=pulse] .dot{position:absolute;left:56%;top:50%;width:1.4cqw;height:1.4cqw;margin:-.7cqw 0 0 -.7cqw;border-radius:50%;background:var(--acc);transition:opacity calc(.3s / var(--k))}
+[data-v=pulse] .dot::before,[data-v=pulse] .dot::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid var(--acc);opacity:0}
+[data-v=pulse].s-load .dot::before{animation:ripple 1.6s ease-out infinite}
+[data-v=pulse].s-load .dot::after{animation:ripple 1.6s ease-out .8s infinite}
+[data-v=pulse] .pill{left:56%;top:62%}
+[data-v=pulse] .wave{position:absolute;left:56%;top:50%;width:0;height:0;border-radius:50%;border:1.5px solid var(--acc);transform:translate(-50%,-50%);opacity:0;transition:width calc(1s / var(--k)) cubic-bezier(.7,0,.2,1),height calc(1s / var(--k)) cubic-bezier(.7,0,.2,1),opacity calc(1s / var(--k)) ease-in}
+[data-v=pulse].s-enter .reveal{clip-path:circle(125% at 56% 50%)}
+[data-v=pulse].s-enter .wave{width:250cqw;height:250cqw;opacity:0;animation:waveOn calc(1s / var(--k)) linear}
+[data-v=pulse].s-enter .dot{opacity:0}
+
+/* ── M5 藍圖描線 ── */
+[data-v=print] .map{transition:opacity calc(.5s / var(--k))}
+[data-v=print] .grid{transition:opacity calc(.5s / var(--k))}
+[data-v=print] .c-rail,[data-v=print] .c-tb,[data-v=print] .c-tl{background:transparent;border:1px dashed var(--acc);clip-path:inset(0 100% 100% 0);transition:clip-path calc(.9s / var(--k)) cubic-bezier(.5,0,.2,1),background calc(.4s / var(--k)),border-color calc(.4s / var(--k))}
+[data-v=print] .c-rail i,[data-v=print] .c-rail hr{opacity:0;transition:opacity calc(.3s / var(--k))}
+[data-v=print] .c-title{color:transparent;-webkit-text-stroke:.6px var(--acc);clip-path:inset(0 100% 0 0);transition:clip-path calc(.9s / var(--k)) cubic-bezier(.5,0,.2,1),color calc(.4s / var(--k))}
+[data-v=print] .c-title small{opacity:0;transition:opacity calc(.3s / var(--k))}
+[data-v=print].s-load .c-rail,[data-v=print].s-load .c-tb,[data-v=print].s-load .c-tl{clip-path:inset(0 0 0 0)}
+[data-v=print].s-load .c-title{clip-path:inset(0 0 0 0)}
+[data-v=print].s-load .c-tb{transition-delay:calc(.25s / var(--k))}
+[data-v=print].s-load .c-tl{transition-delay:calc(.5s / var(--k))}
+[data-v=print].s-load .c-title{transition-delay:calc(.15s / var(--k))}
+[data-v=print].s-enter .map{opacity:1}
+[data-v=print].s-enter .grid{opacity:0}
+[data-v=print].s-enter .c-rail{background:var(--rail);border:1px solid var(--bd);border-width:0 1px 0 0;transition-delay:0s}
+[data-v=print].s-enter .c-tb,[data-v=print].s-enter .c-tl{background:var(--strong-s);border:1px solid var(--bd);transition-delay:0s}
+[data-v=print].s-enter .c-rail i,[data-v=print].s-enter .c-rail hr,[data-v=print].s-enter .c-title small{opacity:1}
+[data-v=print].s-enter .c-title{color:var(--t-strong);-webkit-text-stroke:0 transparent;transition-delay:0s}
+[data-v=print] .pill{top:56%}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{50%{transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes latch{0%{border-color:var(--acc)}100%{border-color:var(--bd)}}
+@keyframes sweep{from{top:0}to{top:100%}}
+@keyframes ripple{from{transform:scale(1);opacity:.8}to{transform:scale(7);opacity:0}}
+@keyframes waveOn{0%{opacity:.9}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.scr *,.scr *::before,.scr *::after{animation:none!important;transition-duration:.01s!important}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></defs></svg>
+
+<div class="bar"><div class="bar-in">
+  <span class="lbl">速度</span>
+  <span class="seg" role="group" aria-label="播放速度">
+    <button type="button" data-speed="1" aria-pressed="true">實際速度</button>
+    <button type="button" data-speed="0.33" aria-pressed="false">慢 3 倍</button>
+  </span>
+  <button type="button" id="all">全部重播</button>
+  <span class="lbl">每段都會自動循環；載入時間固定示意 1.6 秒</span>
+</div></div>
+
+<div class="wrap">
+<header>
+  <h1>開站動畫：五種進場</h1>
+  <p class="lead">共同規則：<b>載入中</b>只有底色＋狀態（S1 同款），地圖畫好後狀態變「✓ 完成」停 0.4 秒，接著各元件用不同方式<b>歸位</b>。每種左暗右淡。動畫只在開站跑一次；系統設定「減少動態」時一律改成直接淡入。</p>
+</header>
+
+<section data-sec="liquid">
+  <h2><span class="tag">M1</span>液態歸位 <span class="len">收尾約 1.2s</span> <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="liquid"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="liquid"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>載入時中央是一顆會呼吸的金屬液滴。完成後液滴分裂成幾顆小水滴，各自拉長、流到側欄／工具列／時間軸／標題的位置，<b>落定後變成真正的元件</b>。</p><p>分裂時水滴之間會像水銀一樣互相黏住再斷開（SVG 融合濾鏡）。</p><p>最特別、最有記憶點；實作要多一層濾鏡圖層，只在開站用一次，效能影響小。</p></div>
+</section>
+
+<section data-sec="mech">
+  <h2><span class="tag">M2</span>機關展開 <span class="len">收尾約 1.2s</span> <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="mech"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="mech"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>先只有底圖慢慢浮現。完成後側欄從左邊滑入、工具列從上方落下、時間軸從下方彈上、標題最後落定，<b>每個都有一點回彈</b>；側欄圖示依序彈出。</p><p>工具列和時間軸卡到定位時邊框閃一下強調色，像機關「喀」一聲卡住。</p><p>就是你描述的第二種；實作最單純（只用位移）。</p></div>
+</section>
+
+<section data-sec="scan">
+  <h2><span class="tag">M3</span>掃描顯影 <span class="len">收尾約 1.1s</span> <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="scan"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="scan"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>載入時是經緯格線，一條細線從上往下反覆掃。完成後一道光束由左往右掃過，<b>光束經過的地方地圖和元件一起顯影</b>。</p><p>像雷達或衛星影像的逐行成像，呼應「即時監測」的主題。</p><p>俐落、不花俏，節奏最快。</p></div>
+</section>
+
+<section data-sec="pulse">
+  <h2><span class="tag">M4</span>脈動擴散 <span class="len">收尾約 1.1s</span> <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="pulse"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="pulse"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>載入時台灣位置有一個跳動的點，一圈圈往外擴（像 Logo 的脈搏）。完成後一道波從那個點擴散出去，<b>波經過的地方整個畫面亮起來</b>，離中心越遠越晚出現。</p><p>直接用上 Pulse 這個名字的意象。</p><p>中心點可以改成使用者上次看的位置。</p></div>
+</section>
+
+<section data-sec="print">
+  <h2><span class="tag">M5</span>藍圖描線 <span class="len">收尾約 0.8s</span> <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="print"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="print"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>載入時在格線上用虛線<b>描出各元件的輪廓</b>，標題是空心字。完成後輪廓填色、標題填滿、地圖浮現，格線退掉。</p><p>像工程藍圖變成實體；等待期間畫面不空，使用者也先知道東西會出現在哪。</p><p>適合載入比較久的時候。</p></div>
+</section>
+</div>
+
+<script>
+(()=>{
+  const TPL={
+    base:'<div class="map"></div><div class="c-rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="c-tb"></div><div class="c-tl"></div><div class="c-title">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div>',
+    pill:'<div class="pill"><span class="ring"></span><span class="ok">✓</span><span class="l">載入地圖</span><span class="d">完成</span></div>'
+  };
+  const html={
+    liquid:()=>'<div class="map"></div><div class="layer real">'+TPL.base.replace('<div class="map"></div>','')+'</div><div class="goo"><div class="b b1"></div><div class="b b2"></div><div class="b b3"></div><div class="b b4"></div><div class="b b0"></div></div>'+TPL.pill,
+    mech:()=>TPL.base+TPL.pill,
+    scan:()=>'<div class="grid"></div><div class="sweep"></div><div class="reveal">'+TPL.base+'</div><div class="beam"></div>'+TPL.pill,
+    pulse:()=>'<div class="grid"></div><div class="reveal">'+TPL.base+'</div><div class="wave"></div><div class="dot"></div>'+TPL.pill,
+    print:()=>'<div class="grid"></div>'+TPL.base+TPL.pill
+  };
+  const STEPS={liquid:[[.05,'s-load'],[1.6,'s-done'],[2.0,'s-enter'],[2.85,'s-settle']],
+    mech:[[.05,'s-load'],[1.6,'s-done'],[2.0,'s-enter'],[2.75,'s-settle']],
+    scan:[[.05,'s-load'],[1.6,'s-done'],[2.0,'s-enter'],[2.9,'s-settle']],
+    pulse:[[.05,'s-load'],[1.6,'s-done'],[2.0,'s-enter'],[3.0,'s-settle']],
+    print:[[.05,'s-load'],[1.6,'s-done'],[2.0,'s-enter'],[2.5,'s-settle']]};
+  const END={liquid:3.2,mech:3.2,scan:3.1,pulse:3.1,print:2.8};
+  let k=1;const ALL=['s-load','s-done','s-enter','s-settle'];
+  const secs=[...document.querySelectorAll('[data-sec]')].map(sec=>{
+    const v=sec.dataset.sec,scenes=[...sec.querySelectorAll('[data-v]')],clock=sec.querySelector('.clock');
+    scenes.forEach(s=>s.innerHTML=html[v]());
+    const st={timers:[],raf:0};
+    function play(){
+      st.timers.forEach(clearTimeout);st.timers=[];cancelAnimationFrame(st.raf);
+      scenes.forEach(s=>{s.style.setProperty('--k',k);s.classList.add('s-reset');s.classList.remove(...ALL)});
+      void scenes[0].offsetWidth;scenes.forEach(s=>s.classList.remove('s-reset'));
+      for(const [t,c] of STEPS[v])st.timers.push(setTimeout(()=>scenes.forEach(s=>s.classList.add(c)),t*1000/k));
+      const t0=performance.now(),tick=()=>{const e=(performance.now()-t0)/1000*k;clock.textContent=Math.min(e,END[v]).toFixed(1)+'s';if(e<END[v])st.raf=requestAnimationFrame(tick)};tick();
+      st.timers.push(setTimeout(play,(END[v]+2.2)*1000/k));
+    }
+    sec.querySelector('[data-replay]').addEventListener('click',play);
+    return play;
+  });
+  const playAll=()=>secs.forEach(p=>p());
+  document.getElementById('all').addEventListener('click',playAll);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{k=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));playAll()}));
+  playAll();
+})();
+</script>

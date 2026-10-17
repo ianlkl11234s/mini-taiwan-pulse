@@ -157,7 +157,7 @@ describe("useGfwFishingEffortLayer", () => {
     expect(state.map.setPaintProperty).toHaveBeenCalledWith(
       GFW_FISHING_EFFORT_FILL_LAYER_ID,
       "fill-opacity",
-      0.6,
+      0.35 * (0.6 / 0.58),
     );
     expect((state.layers.get(GFW_FISHING_EFFORT_FILL_LAYER_ID) as { paint?: { "fill-color"?: unknown } })?.paint?.["fill-color"])
       .toBe(GFW_FISHING_EFFORT_COLOR_EXPRESSION);

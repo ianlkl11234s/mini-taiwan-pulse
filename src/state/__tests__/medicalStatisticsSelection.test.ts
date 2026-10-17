@@ -1,13 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { getStatisticsPeriodNotice, prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { layerVisibilityStore, buildDefaultVisibility } from '../layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../statisticsDisplayModeStore';
 import { layerParamsStore } from '../layerParamsStore';
-import { getSocialRecipe } from '../../data/socialStatisticsRecipes';
-import { getAgriRecipe } from '../../data/agriStatisticsRecipes';
+import { getSocialRecipeDetails } from '../../data/socialStatisticsRecipes';
+import { getAgriRecipeDetails } from '../../data/agriStatisticsRecipes';
+import { ensureStatisticsRecipeDetails } from '../../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
+import { getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 const beds = ['statsHealthHospitalBedTotal', 'statsHealthAcuteBedTotal', 'statsHealthIcuBedTotal', 'statsHealthHospiceBedTotal'] as const;
+beforeAll(() => ensureStatisticsRecipeDetails());
 beforeEach(() => {
   statisticsDisplayModeStore.reset();
   vi.restoreAllMocks();
@@ -16,7 +19,7 @@ beforeEach(() => {
 });
 describe('medical family switching', () => {
   it('maps the 2024 release to the matching target ID, retaining opacity and other overlap layers', () => {
-    const recipe = getSocialRecipe(beds[0])!;
+    const recipe = getSocialRecipeDetails(beds[0])!;
     const old = recipe.release_options.find(option => option.dimensions.roc_year === '113')!;
     regionalStatisticsStore.setSelection(beds[0], { layerKey: beds[0], datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, releaseId: old.release_id, dimensions: old.dimensions });
     statisticsDisplayModeStore.setMode('overlap', layerVisibilityStore.getAll());
@@ -43,7 +46,7 @@ describe('medical family switching', () => {
   it('allows a listed count-to-ratio switch when source_field differs but period matches', () => {
     const from = 'statsHealthAcuteBedTotal' as const;
     const to = 'statsComparisonAcuteBedTotalPer10000PopulationTownship' as const;
-    const source = getSocialRecipe(from)!;
+    const source = getSocialRecipeDetails(from)!;
     const selected = source.release_options.find(option => option.dimensions.roc_year === '113')!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: selected.dimensions });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(true);
@@ -52,7 +55,7 @@ describe('medical family switching', () => {
   it('retains animal and quarter when switching livestock variants', () => {
     const from = 'statsLivestockFarmCountTownship' as const;
     const to = 'statsLivestockHeadCountTownship' as const;
-    const source = getAgriRecipe(from)!;
+    const source = getAgriRecipeDetails(from)!;
     const selected = source.release_options[0]!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: selected.dimensions });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(true);
@@ -61,7 +64,7 @@ describe('medical family switching', () => {
   it('rejects an identity mismatch instead of selecting another livestock tuple', () => {
     const from = 'statsLivestockFarmCountTownship' as const;
     const to = 'statsLivestockHeadCountTownship' as const;
-    const source = getAgriRecipe(from)!;
+    const source = getAgriRecipeDetails(from)!;
     const selected = source.release_options[0]!;
     regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: source.dataset_id, indicatorId: source.indicator_id, level: source.level, releaseId: selected.release_id, dimensions: { ...selected.dimensions, animal: '不存在的畜種', quarter: '2099-Q4' } });
     expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(false);
@@ -99,5 +102,47 @@ describe('medical family switching', () => {
     expect(await prepareMedicalStatisticsVariant(from, to, [from, to], () => false)).toBe(false);
     expect(layerVisibilityStore.getAll()[from]).toBe(true);
     expect(layerVisibilityStore.getAll()[to]).toBe(false);
+  });
+});
+describe('demographics level switching (村里只有 11508 一期)', () => {
+  const county = 'statsDemographicsCountyShareAge65Plus' as const;
+  const township = 'statsDemographicsTownshipShareAge65Plus' as const;
+  const village = 'statsDemographicsVillageShareAge65Plus' as const;
+  const members = [county, township, village] as const;
+  const select = (key: typeof members[number], suffix: string) => {
+    const recipe = getDemographicsRecipe(key)!;
+    const option = recipe.release_options.find(item => item.release_id.endsWith(`-${suffix}`))!;
+    regionalStatisticsStore.setSelection(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, releaseId: option.release_id, dimensions: option.dimensions });
+  };
+  it('falls back to the only village period (11508) when the county period has no village release', () => {
+    select(county, '11412');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [county]: true });
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(village).selection).toMatchObject({ releaseId: 'pas-share-age-65-plus-village-11508', dimensions: { month: '08', roc_year: '115' }, allowReleaseFallback: false });
+    expect(members.filter(key => layerVisibilityStore.getAll()[key])).toEqual([village]);
+    // 期別被改動要明示（guidelines §3：不可靜默跳年份）
+    expect(getStatisticsPeriodNotice(village)).toBe('村里層僅有 115 年 8 月一期，已切換期別。');
+  });
+  it('shows no period notice when the county period already matches the village period, and clears it on switching away', () => {
+    select(county, '11412');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [county]: true });
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeTruthy();
+    expect(selectMedicalStatisticsVariant(village, county, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeUndefined();
+    expect(getStatisticsPeriodNotice(county)).toBeUndefined();
+    select(county, '11508');
+    expect(selectMedicalStatisticsVariant(county, village, members)).toBe(true);
+    expect(getStatisticsPeriodNotice(village)).toBeUndefined();
+  });
+  it('keeps 11508 when switching back from village to county, and still refuses cross-period county→township', () => {
+    select(village, '11508');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [village]: true });
+    expect(selectMedicalStatisticsVariant(village, county, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(county).selection?.releaseId).toBe('pas-share-age-65-plus-county-11508');
+    // 縣市↔鄉鎮仍是同期別切換：11412 對到鄉鎮 11412，不會被村里 fallback 影響。
+    select(county, '11412');
+    expect(selectMedicalStatisticsVariant(county, township, members)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(township).selection?.releaseId).toBe('pas-share-age-65-plus-township-11412');
   });
 });

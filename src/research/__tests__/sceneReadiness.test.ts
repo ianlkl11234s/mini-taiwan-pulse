@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, waitForSceneRender, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, isStyleReady, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, waitForValue, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -9,7 +9,7 @@ class MapEvents implements IdleMap {
   triggerRepaint() {}
   emit(type: string) { for (const callback of this.listeners.get(type) ?? []) callback(); }
 }
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 describe("research readiness", () => {
   it("times out as an error and releases all listeners and loading registrations", () => {
     vi.useFakeTimers();
@@ -44,5 +44,109 @@ describe("research readiness", () => {
     map.emit("render");
     await expect(wait.promise).resolves.toBe("ready");
     expect(loadingRegistry.snapshot()).toEqual([]);
+  });
+  it("retries framing readback on later rendered frames after layout commits", async () => {
+    const map = new MapEvents();
+    const readback = vi.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+    const wait = waitForSceneRender(map, 4, 100, readback);
+    expect(readback).not.toHaveBeenCalled();
+    map.emit("render");
+    map.emit("render");
+    await expect(wait.promise).resolves.toBe("ready");
+    expect(readback).toHaveBeenCalledTimes(2);
+    expect(loadingRegistry.snapshot()).toEqual([]);
+    expect([...map.listeners.values()].every(s => s.size === 0)).toBe(true);
+  });
+  it("keeps a failed framing readback pending until its timeout", async () => {
+    vi.useFakeTimers();
+    const map = new MapEvents(); const readback = vi.fn(() => false);
+    const wait = waitForSceneRender(map, 5, 100, readback);
+    map.emit("render"); map.emit("render");
+    await vi.advanceTimersByTimeAsync(100);
+    await expect(wait.promise).resolves.toBe("error");
+    expect(readback).toHaveBeenCalledTimes(2);
+    expect(loadingRegistry.snapshot()).toEqual([]);
+    expect([...map.listeners.values()].every(s => s.size === 0)).toBe(true);
+  });
+  it("does not wait forever for hidden-document layout frames", async () => {
+    vi.stubGlobal("document", { visibilityState: "hidden" });
+    await expect(waitForLayoutFrame()).resolves.toBe(false);
+  });
+});
+
+
+describe("style replacement", () => {
+  it("waits for the new style and removes listeners", async () => {
+    const events = new MapEvents(); let loaded = false;
+    const map = Object.assign(events, { isStyleLoaded: () => loaded });
+    const wait = waitForMapStyle(map, () => true);
+    events.emit("style.load");
+    loaded = true; events.emit("render");
+    await expect(wait).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+  it("does not revive work superseded while loading", async () => {
+    const events = new MapEvents(); let current = true; let loaded = false;
+    const wait = waitForMapStyle(Object.assign(events, { isStyleLoaded: () => loaded }), () => current);
+    current = false; loaded = true; events.emit("style.load");
+    await expect(wait).resolves.toBe(false);
+  });
+  it("ends on timeout or map removal without reporting success", async () => {
+    vi.useFakeTimers();
+    for (const removed of [false, true]) {
+      const events = new MapEvents();
+      const wait = waitForMapStyle(Object.assign(events, { isStyleLoaded: () => false }), () => true, 100);
+      if (removed) events.emit("remove"); else await vi.advanceTimersByTimeAsync(100);
+      await expect(wait).resolves.toBe(false);
+      expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+    }
+  });
+  // Regression (2026-10-02 live eval): earthquakesGlobal ripples setPaintProperty a data-driven
+  // circle-radius every frame, so Mapbox marks the source "reload" every frame and
+  // isStyleLoaded()/loaded() never turn true. A parsed style must still count as ready.
+  it("treats a parsed style as ready while tiles or an animated source keep loading", async () => {
+    expect(isStyleReady({ isStyleLoaded: () => false, getStyle: () => ({ version: 8 }) })).toBe(true);
+    expect(isStyleReady({ isStyleLoaded: () => false, getStyle: () => { throw new Error("Style is not done loading"); } })).toBe(false);
+    expect(isStyleReady({ isStyleLoaded: () => false })).toBe(false);
+    expect(isStyleReady({ isStyleLoaded: () => true, getStyle: () => { throw new Error("unused"); } })).toBe(true);
+    const events = new MapEvents();
+    const busy = Object.assign(events, { isStyleLoaded: () => false, getStyle: () => ({ version: 8 }) });
+    await expect(waitForMapStyle(busy, () => true, 100)).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+  it("resolves on style.load during a style swap even if tiles never settle", async () => {
+    vi.useFakeTimers();
+    const events = new MapEvents(); let parsed = false;
+    const map = Object.assign(events, { isStyleLoaded: () => false, getStyle: () => { if (!parsed) throw new Error("Style is not done loading"); return { version: 8 }; } });
+    const wait = waitForMapStyle(map, () => true, 5_000);
+    events.emit("render");
+    parsed = true; events.emit("style.load");
+    await expect(wait).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+
+  describe("waitForValue (P3: commands can arrive before the map is prepared)", () => {
+    it("resolves as soon as the value appears", async () => {
+      vi.useFakeTimers();
+      let map: string | null = null;
+      const wait = waitForValue(() => map, () => true, 5_000);
+      await vi.advanceTimersByTimeAsync(300);
+      map = "map";
+      await vi.advanceTimersByTimeAsync(100);
+      await expect(wait).resolves.toBe("map");
+    });
+    it("returns an existing value without waiting", async () => {
+      await expect(waitForValue(() => "map", () => true, 0)).resolves.toBe("map");
+    });
+    it("gives up with null after the bound or when superseded", async () => {
+      vi.useFakeTimers();
+      const timedOut = waitForValue<string>(() => null, () => true, 1_000);
+      let current = true;
+      const superseded = waitForValue<string>(() => null, () => current, 10_000);
+      current = false;
+      await vi.advanceTimersByTimeAsync(1_100);
+      await expect(timedOut).resolves.toBeNull();
+      await expect(superseded).resolves.toBeNull();
+    });
   });
 });

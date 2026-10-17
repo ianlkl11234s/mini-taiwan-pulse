@@ -2,9 +2,11 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import {
-  createBuildingsNightBloomLayer,
   BUILDINGS_NIGHT_BLOOM_LAYER_ID,
-} from "../map/buildingsNightBloomCustomLayer";
+  buildingsNightBloomModule,
+  mountLazyCustomLayer,
+  removeLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 
 /**
  * 夜景燈光 mode 3 的高樓 bloom 疊層。資料來源復用 buildingsGba 的 pmtile source
@@ -32,18 +34,23 @@ export function useBuildingsNightBloomLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    // R6 段 1：不可見（層關／非夜景模式／「立體效果」關）→ 不掛 Three 層，已掛的移除
+    if (!visible) {
+      try { removeLazyCustomLayer(map, BUILDINGS_NIGHT_BLOOM_LAYER_ID); } catch { /* map 可能已銷毀 */ }
+      return;
+    }
 
     const tryMount = () => {
       if (map.getLayer(BUILDINGS_NIGHT_BLOOM_LAYER_ID)) return;
       try {
-        const layer = createBuildingsNightBloomLayer({
+        // C1b：three 模組第一次可見才載入；錨點佔住原位置
+        mountLazyCustomLayer(map, BUILDINGS_NIGHT_BLOOM_LAYER_ID, buildingsNightBloomModule, (m) => m.createBuildingsNightBloomLayer({
           getIsVisible: () => visibleRef.current,
           getOpacity: () => opacityRef.current,
           getMinHeight: () => minHeightRef.current,
           sourceId: "buildings-gba",
           sourceLayer: "buildings",
-        });
-        map.addLayer(layer);
+        }), () => visibleRef.current);
       } catch (e) {
         console.log("[BuildingsNightBloom] addLayer 失敗 → idle 後重試", e);
         map.once("idle", tryMount);

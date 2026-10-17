@@ -12,6 +12,8 @@ import {
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 
 /**
  * IoT 水工結構/環境圖層（5 in 1）
@@ -60,6 +62,10 @@ function radiusByType(scale: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("iotWraStructure", "iotWraStructureOpacity"));
+/** 即時資料光暈上限（pointSpec LIVE_DECORATION_CAP）：透明度 ≤ 0.35 */
+const glowOpacity = (isDark: boolean, opacity: number) => Math.min(0.35, (isDark ? 0.45 : 0.32) * opacity);
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
@@ -73,7 +79,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": ["*", radiusByType(scale), 1.8] as unknown as ExpressionSpecification,
         "circle-color": colorByType(),
         "circle-blur": 0.85,
-        "circle-opacity": (isDark ? 0.45 : 0.32) * opacity,
+        "circle-opacity": glowOpacity(isDark, opacity),
       },
     } as CircleLayer);
   }
@@ -86,9 +92,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": radiusByType(scale),
         "circle-color": colorByType(),
         "circle-opacity": (isDark ? 0.95 : 0.85) * opacity,
-        "circle-stroke-width": 1,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.6 * opacity,
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     } as CircleLayer);
   }
@@ -99,12 +103,15 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
     map.setPaintProperty(LAYER_GLOW, "circle-radius", [
       "*", radiusByType(scale), 1.8,
     ] as unknown as ExpressionSpecification);
-    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.45 : 0.32) * opacity);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", glowOpacity(isDark, opacity));
   }
   if (map.getLayer(LAYER_CIRCLE)) {
     map.setPaintProperty(LAYER_CIRCLE, "circle-radius", radiusByType(scale));
     map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.95 : 0.85) * opacity);
-    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.6 * opacity);
+    const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }
 }
 
@@ -168,6 +175,9 @@ export function useIotWraStructureLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const rowsRef = useRef<IotWraLatestRow[]>([]);
+  // 主題／大小／透明度只走 ref + 下方樣式 effect，不進資料 effect 的 deps（避免重抓／重訂閱）
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
 
   useEffect(() => {
     if (!visible) return;
@@ -188,8 +198,9 @@ export function useIotWraStructureLayer(
     const tryAttach = () => {
       if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
+      const st = styleRef.current;
+      ensureLayers(map, st.isDark, st.scale, st.opacity);
+      updatePaint(map, st.isDark, st.scale, st.opacity);
       setLayerVisibility(map, true);
       if (pollTimer) {
         clearInterval(pollTimer);
@@ -229,8 +240,22 @@ export function useIotWraStructureLayer(
       load();
     });
 
+    // 換底圖（setStyle）會清掉自訂 source/layer：重建後用已快取資料重畫，不重新抓
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      try {
+        const st = styleRef.current;
+        ensureLayers(map, st.isDark, st.scale, st.opacity);
+        updatePaint(map, st.isDark, st.scale, st.opacity);
+        setLayerVisibility(map, true);
+        redraw();
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
+
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
       if (pollTimer) clearInterval(pollTimer);
       unsubDate();
       try {
@@ -239,5 +264,12 @@ export function useIotWraStructureLayer(
         }
       } catch { /* map 可能已銷毀 */ }
     };
-  }, [mapRef, visible, isDark, scale, opacity, showFlow, showGate, showDam, showErosion, showDust, mapTick]);
+  }, [mapRef, visible, showFlow, showGate, showDam, showErosion, showDust, mapTick]);
+
+  // 主題／大小／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, isDark, scale, opacity);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

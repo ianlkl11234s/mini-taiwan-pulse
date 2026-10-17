@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
-  createPowerRegionBarsLayer,
   POWER_REGION_BARS_LAYER_ID,
-} from "../map/powerRegionBarsCustomLayer";
+  powerRegionBarsModule,
+  mountLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 import type { PowerDashboard } from "../data/energyLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -31,13 +32,12 @@ export function usePowerRegionBarsLayer(
 
     const mount = () => {
       if (map.getLayer(POWER_REGION_BARS_LAYER_ID)) return;
-      const layer = createPowerRegionBarsLayer({
+      // C1b：three 模組第一次可見才載入；錨點佔住原位置
+      mountLazyCustomLayer(map, POWER_REGION_BARS_LAYER_ID, powerRegionBarsModule, (m) => m.createPowerRegionBarsLayer({
         getIsVisible: () => visibleRef.current,
         getOpacity: () => opacityRef.current,
         getDashboard: () => dashboardRef.current,
-      });
-      map.addLayer(layer);
-      console.info("[PowerRegionBars] CustomLayer mounted");
+      }), () => visibleRef.current);
     };
 
     if (map.isStyleLoaded()) mount();

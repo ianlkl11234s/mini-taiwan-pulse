@@ -30,6 +30,7 @@ export interface CreateCwaImageryLayerOptions {
   bbox: CwaImageryBBox;
   initialUrl: string;
   opacity: number;
+  resampling: "nearest" | "linear";
   /** beforeId: 放在哪個 layer 下方（未指定則置於最上層） */
   beforeId?: string;
 }
@@ -70,6 +71,7 @@ export function createCwaImageryLayer(
           source: opts.sourceId,
           paint: {
             "raster-opacity": currentOpacity,
+            "raster-resampling": opts.resampling,
             "raster-fade-duration": 0,
           },
           layout: {

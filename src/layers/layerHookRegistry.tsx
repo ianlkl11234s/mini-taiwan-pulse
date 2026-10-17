@@ -34,7 +34,7 @@ import {
   RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
 } from "./hosts/realEstateHosts";
 import {
-  ReservoirStatusHost, RainGaugeHost, FloodSensorHost, FloodSensorIsochroneHost,
+  ReservoirStatusHost, RainGaugeHost, BridgeRainHost, FloodSensorHost, FloodSensorIsochroneHost,
   TaipeiSewerHost, TaipeiEvacuateHost, TaipeiPumbHost, PrecipRasterHost,
   RiverLevelHost, MarineObservationHost, GroundwaterWellsHost, GroundwaterHost,
   IotWraRiverHost, IotWraStructureHost,
@@ -49,8 +49,21 @@ import {
 } from "./hosts/energyHosts";
 import {
   LightningHost, LightningCwaHost, NuclearHost, ErHospitalHost,
-  LibrarySeatsHost, ParkingHost, EarthquakeHost, EarthquakeReplayHost,
+  LibrarySeatsHost, ParkingHost, EarthquakeHost, EarthquakeReplayHost, SoilLiquefactionHost,
 } from "./hosts/hazardHosts";
+import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
+import {
+  NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
+} from "./hosts/environmentHosts";
+import {
+  JmaAmedasHost, JmaQuakesHost, JmaSnowDepthHost, JmaVolcanoesHost, JmaWarningsHost,
+  JmaRadarHost, JmaRasrfHost, JmaRiskLandHost, JmaRiskInundHost, JmaUvIndexHost, JmaSstHost, JmaSeaIceHost, JmaHimawariHost,
+  JmaAnaSnowFirstHost, JmaAnaSnowDaysHost, JmaAnaRainDaysHost, JmaAnaRiskLandHoursHost, JmaAnaRiskInundHoursHost,
+  GibsSnowCoverHost, JmaRiskFloodHost,
+} from "./hosts/jmaHosts";
+import {
+  JmaLightningHost, JmaWbgtHost, JmaSnowcapHost, JmaAutumnLeavesHost, JmaSakuraHost, JmaRainySeasonHost,
+} from "./hosts/jmaPointHosts";
 import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
   GlobalEventsHost,
@@ -114,12 +127,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   },
   { id: "usePropertyValueAdminLayer", keys: ["propertyValueAdmin"], Host: PropertyValueAdminHost },
 
-  // ── 互動裝飾（L781）：跨圖層的點選光暈，不屬於任何單一 layer ──
+  // ── 互動裝飾（L781）：跨圖層的點選選取圈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },
 
   // ── 水資源 / 水利（L784-897）──
   { id: "useReservoirStatusLayer", keys: ["waterReservoirs"], Host: ReservoirStatusHost },
   { id: "useRainGaugeLayer", keys: ["rainGauge"], Host: RainGaugeHost },
+  { id: "useBridgeRainLayer", keys: ["bridgeRainThresholds"], Host: BridgeRainHost },
   { id: "useFloodSensorLayer", keys: ["floodSensor"], Host: FloodSensorHost },
   { id: "useFloodSensorIsochroneLayer", keys: ["floodSensorIsochrone"], Host: FloodSensorIsochroneHost },
   { id: "useTaipeiSewerLayer", keys: ["taipeiSewer"], Host: TaipeiSewerHost },
@@ -216,6 +230,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useLightningLayer:cwa", keys: ["lightningCwa"], Host: LightningCwaHost },
   { id: "useNuclearLayer", keys: ["nuclearRadiation"], Host: NuclearHost },
   { id: "useErHospitalLayer", keys: ["erHospital"], Host: ErHospitalHost },
+  // 環境即時 4 層（migration 419–422）：當下快照，共用 useEnvironmentLiveLayer
+  { id: "useEnvironmentLiveLayer:nuscGammaRadiation", keys: ["nuscGammaRadiation"], Host: NuscGammaRadiationHost },
+  { id: "useEnvironmentLiveLayer:waterEffluentLive", keys: ["waterEffluentLive"], Host: WaterEffluentLiveHost },
+  { id: "useEnvironmentLiveLayer:cemsStackLive", keys: ["cemsStackLive"], Host: CemsStackLiveHost },
+  { id: "useEnvironmentLiveLayer:cwaUvDaily", keys: ["cwaUvDaily"], Host: CwaUvDailyHost },
   { id: "useLibrarySeatsLayer", keys: ["librarySeats"], Host: LibrarySeatsHost },
   { id: "useParkingLayer", keys: ["parkingOnstreet", "parkingOffstreet"], Host: ParkingHost },
 
@@ -223,6 +242,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useNewsTimeline", keys: ["newsEvents"], Host: NewsTimelineHost },
   { id: "useEarthquakeLayer", keys: ["earthquakes"], Host: EarthquakeHost },
   { id: "useEarthquakeReplayLayer", keys: ["earthquakeReplay"], Host: EarthquakeReplayHost },
+  { id: "useSoilLiquefactionLayers", keys: ["soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10", "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites"], Host: SoilLiquefactionHost },
+  { id: "useBssBridgeLayers", keys: ["bssNationalBridgePreview", "bssNationalBridgePointsPreview"], Host: BssBridgeHost },
+  { id: "useBridgeResilienceLayers", keys: ["bridgeResilienceTwinCity"], Host: BridgeResilienceHost },
 
   // ── 全球氣候 / 世界（L1088-1154）──
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
@@ -245,6 +267,33 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpPoliceFacilitiesLayer", keys: ["jpPoliceFacilities"], Host: JpPoliceFacilitiesHost },
   { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
+  // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
+  { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
+  { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
+  { id: "useJmaLiveLayer:jmaQuakes", keys: ["jmaQuakes"], Host: JmaQuakesHost },
+  { id: "useJmaLiveLayer:jmaVolcanoes", keys: ["jmaVolcanoes"], Host: JmaVolcanoesHost },
+  { id: "useLightningLayer:jma", keys: ["jmaLightning"], Host: JmaLightningHost },
+  { id: "useJmaLiveLayer:jmaWbgt", keys: ["jmaWbgt"], Host: JmaWbgtHost },
+  { id: "useJmaLiveLayer:jmaSnowcap", keys: ["jmaSnowcap"], Host: JmaSnowcapHost },
+  { id: "useJmaLiveLayer:jmaAutumnLeaves", keys: ["jmaAutumnLeaves"], Host: JmaAutumnLeavesHost },
+  { id: "useJmaLiveLayer:jmaSakura", keys: ["jmaSakura"], Host: JmaSakuraHost },
+  { id: "useJmaRainySeasonLayer", keys: ["jmaRainySeason"], Host: JmaRainySeasonHost },
+  { id: "useJmaImageryLayer:jmaSnowDepth", keys: ["jmaSnowDepth"], Host: JmaSnowDepthHost },
+  { id: "useJmaImageryLayer:jmaRadar", keys: ["jmaRadar"], Host: JmaRadarHost },
+  { id: "useJmaImageryLayer:jmaRasrf", keys: ["jmaRasrf"], Host: JmaRasrfHost },
+  { id: "useJmaImageryLayer:jmaRiskLand", keys: ["jmaRiskLand"], Host: JmaRiskLandHost },
+  { id: "useJmaImageryLayer:jmaRiskInund", keys: ["jmaRiskInund"], Host: JmaRiskInundHost },
+  { id: "useJmaImageryLayer:jmaUvIndex", keys: ["jmaUvIndex"], Host: JmaUvIndexHost },
+  { id: "useJmaImageryLayer:jmaSst", keys: ["jmaSst"], Host: JmaSstHost },
+  { id: "useJmaImageryLayer:jmaSeaIce", keys: ["jmaSeaIce"], Host: JmaSeaIceHost },
+  { id: "useJmaImageryLayer:jmaHimawari", keys: ["jmaHimawari"], Host: JmaHimawariHost },
+  { id: "useJmaImageryLayer:jmaAnaSnowFirst", keys: ["jmaAnaSnowFirst"], Host: JmaAnaSnowFirstHost },
+  { id: "useJmaImageryLayer:jmaAnaSnowDays", keys: ["jmaAnaSnowDays"], Host: JmaAnaSnowDaysHost },
+  { id: "useJmaImageryLayer:jmaAnaRainDays", keys: ["jmaAnaRainDays"], Host: JmaAnaRainDaysHost },
+  { id: "useJmaImageryLayer:jmaAnaRiskLandHours", keys: ["jmaAnaRiskLandHours"], Host: JmaAnaRiskLandHoursHost },
+  { id: "useJmaImageryLayer:jmaAnaRiskInundHours", keys: ["jmaAnaRiskInundHours"], Host: JmaAnaRiskInundHoursHost },
+  { id: "useGibsSnowCoverLayer", keys: ["gibsSnowCover"], Host: GibsSnowCoverHost },
+  { id: "useJmaRiskFloodLayer", keys: ["jmaRiskFlood"], Host: JmaRiskFloodHost },
   {
     id: "useJpTourismLayers",
     keys: [
@@ -316,7 +365,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useFreewayLayer", keys: ["freewayCongestion"], Host: FreewayHost },
   { id: "useRoadCongestionLayer", keys: ["roadCongestion"], Host: RoadCongestionHost },
   { id: "useFuneralDensityLayer", keys: ["funeralOperatorDensity"], Host: FuneralDensityHost },
-  { id: "useTemperatureGridLayer", keys: ["temperatureGrid"], Host: TemperatureGridHost },
+  // R6 段 1：溫度波「立體效果」關時的平面網格也由這支 host 畫（同一個 Mapbox 層 id）
+  { id: "useTemperatureGridLayer", keys: ["temperatureGrid", "temperatureWave"], Host: TemperatureGridHost },
 
   // ── AR-22 P4 新增：原本是 App.tsx 的 inline useEffect ──────────────
   // 它們吃 `transportParams.<xxx>Params`，留在 App 等於「拖任一 slider →

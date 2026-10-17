@@ -2,6 +2,7 @@ import { loadRegionalStatistics, type RegionalStatisticsResult, type StatisticsR
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
 import { getSocialRecipe } from '../data/socialStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
+import { isLaborStatisticsPresentationSelection } from '../data/laborStatisticsRecipes';
 export interface RegionalStatisticsSnapshot {
   loading: boolean; error: string | null; selection: StatisticsRecipe | null;
   catalog: RegionalStatisticsResult['catalog']; releases: RegionalStatisticsResult['releases'];
@@ -29,7 +30,7 @@ function update(key: string, changes: Partial<RegionalStatisticsSnapshot>) {
 }
 function selectionFingerprint(recipe: StatisticsRecipe): string {
   const dimensions = Object.fromEntries(Object.entries(recipe.dimensions ?? {}).sort(([a], [b]) => a.localeCompare(b)));
-  return JSON.stringify({ datasetId: recipe.datasetId, indicatorId: recipe.indicatorId, level: recipe.level, releaseId: recipe.releaseId ?? null, dimensions, includeHealth: Boolean(recipe.includeHealth) });
+  return JSON.stringify({ datasetId: recipe.datasetId, indicatorId: recipe.indicatorId, level: recipe.level, releaseId: recipe.releaseId ?? null, sourceLayerKey: recipe.sourceLayerKey ?? null, valueTransform: recipe.valueTransform ?? null, dimensions, includeHealth: Boolean(recipe.includeHealth) });
 }
 function cancel(key: string) {
   controllers.get(key)?.abort();
@@ -46,13 +47,14 @@ export const regionalStatisticsStore = {
   registerRecipe(key: string, recipe: StatisticsRecipe) {
     const current = getSnapshot(key).selection;
     const view = getEducationPresentationView(key);
+    const validLaborSelection = (candidate: StatisticsRecipe | null | undefined) => isLaborStatisticsPresentationSelection(key, candidate);
     const validViewSelection = (candidate: StatisticsRecipe | null | undefined) => Boolean(view && candidate?.dimensions?.education_stage === view.stage && view.metrics.some(metric => {
       const source = getSocialRecipe(metric.layerKey) ?? getComparisonRecipe(metric.layerKey);
       return source?.dataset_id === candidate?.datasetId && source?.indicator_id === candidate?.indicatorId;
     }));
-    if (validViewSelection(current) || (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId)) return;
+    if (validViewSelection(current) || validLaborSelection(current) || (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId)) return;
     const saved = persisted[key];
-    const matching = validViewSelection(saved) || (saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId);
+    const matching = validViewSelection(saved) || validLaborSelection(saved) || (saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId);
     const selection = matching && saved ? { ...recipe, ...saved, ...(saved.releaseId && saved.releaseId !== recipe.releaseId ? { allowReleaseFallback: false } : {}) } : recipe;
     const changedMetric = current?.indicatorId !== selection.indicatorId;
     update(key, { ...(changedMetric ? { releases: [], catalog: [] } : {}), selection, data: null, source: null, release: null, health: null });

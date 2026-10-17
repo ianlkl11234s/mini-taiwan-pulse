@@ -16,6 +16,8 @@ import {
   fetchTouristShuttleTrails,
 } from "../data/touristShuttleLoader";
 import { timeStore } from "../state/timeStore";
+import { liveCountStore } from "../state/liveCountStore";
+import { requestThreeRepaint } from "../state/threeRepaintSignal";
 
 const POLL_INTERVAL = 30_000;
 const MAX_CACHED_DAYS = 3;
@@ -32,7 +34,12 @@ export function useTouristShuttleLayer(
 ) {
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
-  const [busCount, setBusCount] = useState(0);
+  /** 非 tick 灌入資料後立即重算一次位置並叫醒 3D —— 暫停中載入完成也看得到（PF-9） */
+  const refreshActiveBuses = () => {
+    if (!engineRef.current) return;
+    activeBusesRef.current = engineRef.current.update(timeStore.getTime());
+    requestThreeRepaint();
+  };
   const [loading, setLoading] = useState(false);
 
   const cacheRef = useRef<CachedDay[]>([]);
@@ -81,6 +88,7 @@ export function useTouristShuttleLayer(
         const positions = await fetchTouristShuttleCurrent();
         if (!cancelled && engineRef.current) {
           engineRef.current.ingestPoll(positions, Date.now() / 1000);
+          refreshActiveBuses();
           console.log(`[TouristShuttle] Poll: ${positions.length} vehicles`);
         }
       } catch (err) {
@@ -120,6 +128,7 @@ export function useTouristShuttleLayer(
     if (cached) {
       loadedDayRef.current = dateStr;
       engineRef.current.ingestTrails(cached.trails);
+      refreshActiveBuses();
       return;
     }
 
@@ -140,6 +149,7 @@ export function useTouristShuttleLayer(
 
       loadedDayRef.current = dateStr;
       engineRef.current.ingestTrails(trails);
+      refreshActiveBuses();
     } catch (err) {
       console.warn("[TouristShuttle] loadDay error:", err);
     } finally {
@@ -167,20 +177,22 @@ export function useTouristShuttleLayer(
       const ts = performance.now();
       if (ts - lastCountUpdate > 500) {
         lastCountUpdate = ts;
-        setBusCount(activeBusesRef.current.length);
+        liveCountStore.set("touristShuttle", activeBusesRef.current.length);
       }
     };
 
     update(timeStore.getTime()); // 初始化
+    requestThreeRepaint(); // 非 tick 換了資料 ref（PF-9）
     return timeStore.subscribe(update);
   }, [enabled, engineRef.current !== null]);
 
   useEffect(() => {
     if (!enabled) {
       activeBusesRef.current = [];
-      setBusCount(0);
+      liveCountStore.set("touristShuttle", 0);
+      requestThreeRepaint();
     }
   }, [enabled]);
 
-  return { busCount, activeBusesRef, loading, loadDay };
+  return { activeBusesRef, loading, loadDay };
 }

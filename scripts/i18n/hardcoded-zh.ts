@@ -1,0 +1,41 @@
+/**
+ * i18n 進度：各區塊還剩多少行寫死的中文（口徑見 src/i18n/__tests__/hardcodedZhScan.ts）。
+ *
+ *   npx tsx scripts/i18n/hardcoded-zh.ts          # 印出進度表
+ *   npx tsx scripts/i18n/hardcoded-zh.ts --write  # 數字下降後鎖住新基準（嚴格區塊只能往下）
+ *   npx tsx scripts/i18n/hardcoded-zh.ts --write --accept translated
+ *       # 把檔案搬進嚴格區塊時用：該區計數會因多收檔案而上升，明確接受一次。
+ *       # 搬進去的檔案剩下的中文必須是資料值或中文正本（enumLabel 的 zhLabel），不是介面字
+ */
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { I18N_AREAS, scanHardcodedZh } from "../../src/i18n/__tests__/hardcodedZhScan";
+
+const root = join(import.meta.dirname, "..", "..");
+const baselinePath = join(root, "src/i18n/__tests__/hardcodedZh.baseline.json");
+const baseline: Record<string, number> = JSON.parse(readFileSync(baselinePath, "utf8"));
+const now = scanHardcodedZh(root);
+
+console.log(["階段", "關卡", "現在", "基準", "差", "區塊"].join("\t"));
+for (const area of I18N_AREAS) {
+  const cur = now[area.id] ?? 0;
+  const base = baseline[area.id] ?? cur;
+  const diff = cur - base;
+  const mark = diff > 0 ? "  ⚠️ 增加" : diff < 0 ? "  ✅ 減少" : "";
+  console.log([area.phase, area.gate === "strict" ? "擋" : "報告", cur, base, diff, `${area.label}${area.kind === "data" ? "（資料）" : ""}${mark}`].join("	"));
+}
+const total = Object.values(now).reduce((a, b) => a + b, 0);
+console.log(`合計 ${total}`);
+
+if (process.argv.includes("--write")) {
+  // 只有 strict 區塊不准往上；report 區塊照實記錄（新圖層的中文名會讓它自然增加）
+  const acceptIndex = process.argv.indexOf("--accept");
+  const accepted = new Set(acceptIndex >= 0 ? (process.argv[acceptIndex + 1] ?? "").split(",") : []);
+  const increased = I18N_AREAS.filter((a) => a.gate === "strict" && !accepted.has(a.id) && (now[a.id] ?? 0) > (baseline[a.id] ?? Infinity));
+  if (increased.length) {
+    console.error(`拒絕寫入：${increased.map((a) => a.id).join(", ")} 比基準多。基準只能往下調。`);
+    process.exit(1);
+  }
+  writeFileSync(baselinePath, JSON.stringify(now, null, 2) + "\n");
+  console.log("已更新基準");
+}

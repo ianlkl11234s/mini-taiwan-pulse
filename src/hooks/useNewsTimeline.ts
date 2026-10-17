@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../state/timeStore";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * 新聞事件時間軸動態顯示 + ripple 脈衝動畫
@@ -18,8 +19,6 @@ const CRITICAL_FRESH_WINDOW = 3600; // 60 分鐘
 const RIPPLE_CYCLE_MS = 2200;
 /** 同時顯示的 ripple 圈數（錯開相位） */
 const RIPPLE_COUNT = 2;
-/** ripple 動畫更新間隔（毫秒），~30fps */
-const FRAME_INTERVAL = 33;
 
 const NEWS_LAYER_IDS = ["news-events-critical-halo", "news-events-glow", "news-events-circle", "news-events-count"];
 
@@ -37,8 +36,6 @@ export function useNewsTimeline(
   timeBased: boolean,
   rippleEnabled: boolean,
 ) {
-  const rafRef = useRef(0);
-  const lastFrameRef = useRef(0);
   const rippleReadyRef = useRef(false);
 
   /** 確保 ripple layers 存在（style 切換後需重建） */
@@ -63,6 +60,14 @@ export function useNewsTimeline(
             "circle-stroke-width": 1.5,
             "circle-stroke-opacity": 0,
             "circle-opacity": 0,
+            // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+            // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+            "circle-radius-transition": { duration: 0, delay: 0 },
+            "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+            "circle-stroke-width-transition": { duration: 0, delay: 0 },
+            "circle-stroke-color-transition": { duration: 0, delay: 0 },
+            "circle-color-transition": { duration: 0, delay: 0 },
+            "circle-opacity-transition": { duration: 0, delay: 0 },
           },
         } as mapboxgl.CircleLayer,
         before,
@@ -133,20 +138,10 @@ export function useNewsTimeline(
       return;
     }
 
-    const animate = () => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    const stop = startThrottledRaf((now) => {
       const map = mapRef.current;
-      if (!map) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      // 節流：~30fps
-      const now = performance.now();
-      if (now - lastFrameRef.current < FRAME_INTERVAL) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastFrameRef.current = now;
+      if (!map) return;
 
       // style 切換後 layers 可能消失，重建
       if (rippleReadyRef.current && !map.getLayer(RIPPLE_IDS[0]!)) {
@@ -187,14 +182,10 @@ export function useNewsTimeline(
           map.setPaintProperty(id, "circle-stroke-color", colorExpr as unknown as string);
         }
       }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
+    });
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      stop();
       rippleReadyRef.current = false;
     };
   }, [visible, rippleEnabled, mapRef, ensureRippleLayers]);

@@ -4,7 +4,7 @@
 
 ## Release / deployment verifying
 
-- [ ] **PV-1 · `verifying`**：確認四份 PMTiles 已上 production `deploy-assets/urban/`，且 `property_value_admin.json` 可由正式站取得。
+- [x] **PV-1 · `verifying`**：確認四份 PMTiles 已上 production `deploy-assets/urban/`，且 `property_value_admin.json` 可由正式站取得。 — 2026-10-16 盤點關閉：PR #295／#296（v1.20.0）；property_value_admin.json 正式站 200
   - Outcome：建物估值、三尺度網格與縣市摘要在 production 可載入，不把本地檔案存在誤當上線證據。
   - Next action：核對 S3 HEAD/checksum、HTTP Range 與 browser 三尺度／兩模式；以無 404、popup/legend 正常為 acceptance。
 

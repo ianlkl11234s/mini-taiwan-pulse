@@ -6,9 +6,9 @@ vi.mock("@supabase/supabase-js", () => ({ createClient }));
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.resetModules(); createClient.mockClear(); });
 
 describe("researchAuth", () => {
-  it("uses a dedicated sessionStorage PKCE client with only the anon key", async () => {
+  it("uses a dedicated localStorage PKCE client with only the anon key", async () => {
     const storage = { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() };
-    vi.stubGlobal("window", { sessionStorage: storage });
+    vi.stubGlobal("window", { localStorage: storage, sessionStorage: { getItem: vi.fn(), setItem: vi.fn(), removeItem: vi.fn() } });
     vi.stubEnv("VITE_SUPABASE_URL", "https://project.supabase.co");
     vi.stubEnv("VITE_SUPABASE_ANON_KEY", "anon-key-only");
     const auth = await import("./authClient");

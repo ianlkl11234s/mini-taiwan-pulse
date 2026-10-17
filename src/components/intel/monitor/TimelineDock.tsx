@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IntelIcon, ICON } from "../IntelIcon";
 import {
-  COLORS, FONT_CJK, FONT_DATA, clockTime,
-  type AlertGroupShort,
+  FONT_CJK, FONT_DATA, clockTime,
 } from "../intelTokens";
+import type { AlertSeriesMap } from "../../../data/alertsLoader";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
+import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
 import { useWallClock } from "../../../hooks/useWallClock";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 interface Props {
   /** 過濾後的當日 events（用於畫直方圖） */
@@ -25,7 +30,7 @@ interface Props {
   onLive: () => void;
   onTogglePlay: () => void;
   /** 警報軌資料（24h × 6 group），無資料時傳空 series */
-  alertSeries: Record<AlertGroupShort, number[]>;
+  alertSeries: AlertSeriesMap;
 }
 
 interface HourlyBucket {
@@ -64,6 +69,10 @@ export function TimelineDock({
   events, dayStartTs, nowTs, playbackTs, isLive, playing,
   onScrub, onLive, onTogglePlay, alertSeries,
 }: Props) {
+  const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const catLabel = (c: { key: string; label: string }) => enumLabel("eventNewsCategory", c.key, c.label, i18n);
+  const theme = useMonitorTheme();
   const [hoverH, setHoverH] = useState<number | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -114,45 +123,50 @@ export function TimelineDock({
     <div
       style={{
         display: "flex", flexDirection: "column", height: "100%",
-        flexShrink: 0, padding: "10px 16px 8px",
-        borderBottom: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(0,0,0,0.28)",
+        flexShrink: 0,
+        ...(v2 ? { padding: "2px 2px 2px" } : {
+          padding: "10px 16px 8px",
+          borderBottom: `1px solid ${theme.p.panelBorder}`,
+          background: "rgba(0,0,0,0.28)",
+        }),
       }}
     >
       {/* top row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexShrink: 0 }}>
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
-            color: COLORS.textMuted, whiteSpace: "nowrap",
-          }}
-        >
-          時間軸 TIMELINE DOCK
-        </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
-          新聞密度 · 每小時
+      <div style={{ display: "flex", alignItems: "center", flexWrap: v2 ? "wrap" : "nowrap", gap: 10, marginBottom: 8, flexShrink: 0 }}>
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "2px",
+              color: theme.p.textMuted, whiteSpace: "nowrap",
+            }}
+          >
+            {i18n.t("monitor.timeline.legacyTitle")}
+          </span>
+        )}
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.p.textFaint, whiteSpace: "nowrap" }}>
+          {i18n.t("monitor.timeline.density")}
         </span>
         <div style={{ flex: 1 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {NEWS_CATEGORIES.map((c) => (
             <span
               key={c.key}
-              title={c.label}
+              title={catLabel(c)}
               style={{
-                width: 8, height: 8, borderRadius: RADIUS.sm, background: c.color, opacity: 0.85,
+                width: 8, height: 8, borderRadius: RADIUS.sm, background: theme.fill(c.color), opacity: 0.85,
               }}
             />
           ))}
         </div>
-        <span style={{ width: 1, height: 16, background: COLORS.borderMid, margin: "0 2px" }} />
+        <span style={{ width: 1, height: 16, background: theme.p.borderMid, margin: "0 2px" }} />
         <button
           onClick={onTogglePlay}
-          title="play/pause"
+          title={v2 ? i18n.t("monitor.timeline.playPause") : "play/pause"}
           style={{
             width: 26, height: 26, borderRadius: RADIUS.lg,
-            border: `1px solid ${COLORS.borderMid}`,
-            background: "rgba(255,255,255,0.05)",
-            color: COLORS.textDefault, cursor: "pointer",
+            border: `1px solid ${theme.p.borderMid}`,
+            background: theme.neutral(0.05),
+            color: theme.p.textDefault, cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
@@ -164,32 +178,32 @@ export function TimelineDock({
         </button>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700,
-            minWidth: 58, textAlign: "center",
-            color: isLive ? COLORS.statusLive : COLORS.statusWarn,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700,
+            minWidth: v2 ? 74 : 58, textAlign: "center",
+            color: isLive ? theme.p.statusLive : theme.p.statusWarn,
           }}
         >
-          {isLive ? "即時 NOW" : clockTime(playbackTs)}
+          {isLive ? (v2 ? i18n.t("monitor.live") : i18n.t("monitor.timeline.nowLegacy")) : clockTime(playbackTs)}
         </span>
         <button
           onClick={onLive}
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
             padding: "4px 10px", borderRadius: RADIUS.lg, cursor: "pointer",
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: "0.5px",
-            background: isLive ? COLORS.statusLiveSoft : "rgba(255,255,255,0.05)",
-            border: isLive ? `1px solid ${COLORS.statusLiveBorder}` : `1px solid ${COLORS.borderMid}`,
-            color: isLive ? COLORS.statusLive : COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 700, letterSpacing: "0.5px",
+            background: isLive ? theme.p.statusLiveSoft : theme.neutral(0.05),
+            border: isLive ? `1px solid ${theme.p.statusLiveBorder}` : `1px solid ${theme.p.borderMid}`,
+            color: isLive ? theme.p.statusLive : theme.p.textMuted,
           }}
         >
           <span
             style={{
               width: 6, height: 6, borderRadius: RADIUS.full,
-              background: isLive ? COLORS.statusLive : COLORS.textDim,
-              boxShadow: isLive ? `0 0 6px ${COLORS.statusLive}` : "none",
+              background: isLive ? theme.p.statusLive : theme.p.textDim,
+              boxShadow: isLive ? `0 0 6px ${theme.p.statusLive}` : "none",
             }}
           />
-          LIVE
+          {v2 ? i18n.t("monitor.timeline.backToLive") : "LIVE"}
         </button>
       </div>
 
@@ -208,7 +222,7 @@ export function TimelineDock({
             key={g}
             style={{
               position: "absolute", left: 0, right: 0, top: `${g * 100}%`,
-              height: 1, background: "rgba(255,255,255,0.05)",
+              height: 1, background: theme.neutral(0.05),
             }}
           />
         ))}
@@ -216,8 +230,8 @@ export function TimelineDock({
           style={{
             position: "absolute", top: 0, bottom: 0,
             left: `${nowFrac * 100}%`, right: 0,
-            background: "rgba(0,0,0,0.32)",
-            borderLeft: "1px dashed rgba(255,255,255,0.12)",
+            background: theme.isDark ? "rgba(0,0,0,0.32)" : theme.neutral(0.05),
+            borderLeft: `1px dashed ${theme.neutral(0.12)}`,
           }}
         />
 
@@ -241,7 +255,7 @@ export function TimelineDock({
                     display: "flex", flexDirection: "column-reverse",
                     height: `${hPct}%`, minHeight: hd.total ? 3 : 0,
                     borderRadius: RADIUS.sm, overflow: "hidden",
-                    outline: isHover ? "1px solid rgba(255,255,255,0.35)" : "none",
+                    outline: isHover ? `1px solid ${theme.neutral(0.35)}` : "none",
                   }}
                 >
                   {NEWS_CATEGORIES.map((c) =>
@@ -250,7 +264,7 @@ export function TimelineDock({
                         key={c.key}
                         style={{
                           height: `${(hd.c[c.key] / hd.total) * 100}%`,
-                          background: c.color, opacity: isHover ? 1 : 0.82,
+                          background: theme.fill(c.color), opacity: isHover ? 1 : 0.82,
                         }}
                       />
                     ) : null,
@@ -265,8 +279,8 @@ export function TimelineDock({
           style={{
             position: "absolute", top: -3, bottom: -3,
             left: `${frac * 100}%`, width: 2, marginLeft: -1,
-            background: isLive ? COLORS.statusLive : COLORS.accent,
-            boxShadow: `0 0 8px ${isLive ? COLORS.statusLive : COLORS.accent}`,
+            background: isLive ? theme.p.statusLive : theme.p.accent,
+            boxShadow: `0 0 8px ${isLive ? theme.p.statusLive : theme.p.accent}`,
             pointerEvents: "none", zIndex: 3,
           }}
         >
@@ -274,7 +288,7 @@ export function TimelineDock({
             style={{
               position: "absolute", top: -4, left: -3,
               width: 8, height: 8, borderRadius: RADIUS.full,
-              background: isLive ? COLORS.statusLive : COLORS.accent,
+              background: isLive ? theme.p.statusLive : theme.p.accent,
             }}
           />
         </span>
@@ -285,8 +299,8 @@ export function TimelineDock({
               position: "absolute", bottom: "100%", marginBottom: 6,
               left: `${((hovered.h + 0.5) / 24) * 100}%`,
               transform: "translateX(-50%)", zIndex: 5,
-              background: "rgba(0,0,0,0.88)",
-              border: `1px solid ${COLORS.borderMid}`, borderRadius: RADIUS.lg,
+              background: theme.isDark ? "rgba(0,0,0,0.88)" : theme.chart.tooltipBg,
+              border: `1px solid ${theme.p.borderMid}`, borderRadius: RADIUS.lg,
               padding: "7px 9px", whiteSpace: "nowrap", pointerEvents: "none",
               backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
               boxShadow: ELEVATION.sm,
@@ -294,11 +308,11 @@ export function TimelineDock({
           >
             <div
               style={{
-                fontFamily: FONT_DATA, fontSize: 10.5,
-                color: "#fff", fontWeight: 700, marginBottom: 4,
+                fontFamily: FONT_DATA, fontSize: fs(v2, 10.5),
+                color: theme.isDark ? "#fff" : theme.p.textStrong, fontWeight: 700, marginBottom: 4,
               }}
             >
-              {String(hovered.h).padStart(2, "0")}:00 · {hovered.total} 則
+              {String(hovered.h).padStart(2, "0")}:00 · {i18n.t("monitor.count.items", { count: hovered.total })}
             </div>
             <div style={{ display: "flex", gap: 7, flexWrap: "wrap", maxWidth: 180 }}>
               {NEWS_CATEGORIES.filter((c) => hovered.c[c.key]).map((c) => (
@@ -306,20 +320,20 @@ export function TimelineDock({
                   key={c.key}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 3,
-                    fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDefault,
+                    fontFamily: FONT_DATA, fontSize: fs(v2, 9.5), color: theme.p.textDefault,
                   }}
                 >
                   <span
                     style={{
-                      width: 6, height: 6, borderRadius: RADIUS.full, background: c.color,
+                      width: 6, height: 6, borderRadius: RADIUS.full, background: theme.fill(c.color),
                     }}
                   />
-                  {c.label} {hovered.c[c.key]}
+                  {catLabel(c)} {hovered.c[c.key]}
                 </span>
               ))}
               {hovered.total === 0 && (
-                <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textFaint }}>
-                  無事件
+                <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: theme.p.textFaint }}>
+                  {i18n.t("monitor.timeline.noEvents")}
                 </span>
               )}
             </div>
@@ -327,7 +341,7 @@ export function TimelineDock({
         )}
       </div>
 
-      <div style={{ position: "relative", height: 14, marginTop: 3, flexShrink: 0 }}>
+      <div style={{ position: "relative", height: v2 ? 18 : 14, marginTop: 3, flexShrink: 0 }}>
         {TICKS.map((t) => (
           <span
             key={t}
@@ -335,7 +349,7 @@ export function TimelineDock({
               position: "absolute", left: `${(t / 24) * 100}%`,
               transform:
                 t === 0 ? "none" : t === 24 ? "translateX(-100%)" : "translateX(-50%)",
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint,
             }}
           >
             {t === 24 ? "23:59" : `${String(t).padStart(2, "0")}:00`}

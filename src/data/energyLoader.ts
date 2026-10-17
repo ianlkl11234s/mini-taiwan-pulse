@@ -125,9 +125,18 @@ export const invalidatePowerPlants = (): void => fetchPowerPlantsCached.invalida
 // ── 24h preload of all plants（238 SSOT RPC，3D beam 用）──────
 // 一次拉 ~23 廠（14 台電 + 6 離岸風場 + 3 離島）× 24h timeseries，scrub 走 client binary search
 
+/** 台電官方四區 + 離島（gis-platform migration 424）；null＝未分區 */
+export type TaipowerRegion = "north" | "central" | "south" | "east" | "offshore_island";
+const TAIPOWER_REGIONS: readonly string[] = ["north", "central", "south", "east", "offshore_island"];
+/** 不認得的值一律當 null（未分區），不預設成某區 */
+export function parseTaipowerRegion(v: unknown): TaipowerRegion | null {
+  return typeof v === "string" && TAIPOWER_REGIONS.includes(v) ? (v as TaipowerRegion) : null;
+}
+
 /** 單廠 24h 時序：每點是 [ts_unix, output_mw] tuple，按 ts 升序 */
 export interface PlantSeries {
   facility_id?: string;
+  taipower_region?: TaipowerRegion | null;
   plant_name: string;
   fuel_type: string | null;
   capacity_mw: number | null;
@@ -150,7 +159,10 @@ async function fetchPowerGeneration24hUncached(): Promise<PowerGenerationDay> {
   if (error) throw error;
   const obj = (data ?? {}) as Partial<PowerGenerationDay>;
   return {
-    plants: obj.plants ?? [],
+    plants: (obj.plants ?? []).map((p) => ({
+      ...p,
+      taipower_region: parseTaipowerRegion((p as { taipower_region?: unknown }).taipower_region),
+    })),
     ts_range: obj.ts_range ?? { lo: 0, hi: 0 },
   };
 }

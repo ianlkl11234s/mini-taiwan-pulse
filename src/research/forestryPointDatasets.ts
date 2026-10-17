@@ -1,0 +1,76 @@
+import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
+
+const source = "林業及自然保育署；固定 2026-06-07 公開資料快照";
+const license = "政府資料開放授權條款-第1版（OGDL-Taiwan-1.0）";
+
+/** Direct-coordinate forestry snapshots.  They are fixed public artifacts, not live safety/status feeds. */
+export const forestryPointAdapters = [
+  createVerifiedPointDatasetAdapter({
+    datasetId: "tw-forest-dam-lakes", label: "國有林堰塞湖資訊",
+    description: "林業及自然保育署 datagov:41364 的 32 筆堰塞湖固定快照。Point 是來源代表座標，不能當作湖泊範圍、蓄水量現況或災害警報。",
+    sourceUrl: "/forestry/dam_lakes_in_forest.geojson",
+    expectedSha256: "de136cb8382f1b1f5fb9eb6c2038315cd0d721f26779b5f1f69fa4b4c285ddb4",
+    expectedSourceRows: 32, expectedSelectedRows: 32, fullSource: true, selection: {}, layerRefs: ["forestDamLakes"],
+    fields: [
+      { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "lake_name", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "found_date", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "updated_date", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "county", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "township", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "summary", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+    ],
+    publisher: `${source}；data.gov.tw/dataset/41364`, license,
+    sourceFieldMap: { lake_name: "名稱", found_date: "發現時間", updated_date: "更新日期", county: "COUNTYNAME", township: "TOWNNAME", summary: "概要說明" },
+    precision: "來源代表座標經既有 pipeline 轉為 WGS84；可作點位查詢，不能推論湖面邊界或水體面積。",
+    coverageDescription: "全臺 32 筆來源代表座標 Point records；上游於 2026-06-07 落地，來源欄位保留發現／更新日期；目前災害狀態 unknown。",
+    sourceLineage: "林業及自然保育署 datagov:41364 -> fixed WGS84 GeoJSON bytes -> SHA/count validation; geometry remains a source representative point.",
+  }),
+  createVerifiedPointDatasetAdapter({
+    datasetId: "tw-mountain-signal-points", label: "山區手機可通訊點",
+    description: "林業及自然保育署 datagov:106640 的 1,416 筆可通訊點固定快照。電信商欄位是來源標示，不能當作即時訊號、連線品質或緊急救援可達性。",
+    sourceUrl: "/forestry/mountain_signal_points.geojson",
+    expectedSha256: "f7845573490c335c31fca096c3a23283cbd995b9a43efcdf6063d9ed144bb139",
+    expectedSourceRows: 1416, expectedSelectedRows: 1416, fullSource: true, selection: {}, layerRefs: ["forestSignalPoints"],
+    fields: [
+      { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "name", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "forest_district", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "site_name", type: "string", nullable: true, nullMeaning: "來源未標示地名。", unit: null },
+      { name: "county", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "cht", type: "string", nullable: true, nullMeaning: "來源未標示該業者服務。", unit: null },
+      { name: "fareastone", type: "string", nullable: true, nullMeaning: "來源未標示該業者服務。", unit: null },
+      { name: "taiwan_mobile", type: "string", nullable: true, nullMeaning: "來源未標示該業者服務。", unit: null },
+      { name: "note", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+    ],
+    publisher: `${source}；data.gov.tw/dataset/106640`, license,
+    sourceFieldMap: { name: "名稱", forest_district: "分署", site_name: "標示地", county: "縣市", cht: "中華電", fareastone: "遠傳", taiwan_mobile: "台哥大", note: "備註" },
+    precision: "來源提供 TWD97 與經緯度；既有 pipeline 轉為 WGS84 Point，未驗證今日訊號涵蓋或現地定位精度。",
+    coverageDescription: "全臺 1,416 筆來源 Point records；上游於 2026-06-07 落地，來源觀測／更新時間 unknown；即時可用性 unknown。",
+    sourceLineage: "林業及自然保育署 datagov:106640 -> fixed WGS84 GeoJSON bytes -> SHA/count validation; carrier labels retain source meaning only.",
+  }),
+  createVerifiedPointDatasetAdapter({
+    datasetId: "tw-mountain-trail-signs", label: "林業署轄區步道山徑路標",
+    description: "林業及自然保育署 datagov:173076 的 3,407 筆路標固定快照。年度保留來源原值，不能推論當前步道開放、路況或導航可行性。",
+    sourceUrl: "/forestry/mountain_trail_signs.geojson",
+    expectedSha256: "fe73e9bd46e40cf952828e86b2b840885e39fd6cb42b9352cbf6c3c7775607a0",
+    expectedSourceRows: 3407, expectedSelectedRows: 3407, fullSource: true, selection: {}, layerRefs: ["forestTrailSigns"],
+    fields: [
+      { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "source_sequence", type: "number", nullable: false, nullMeaning: null, unit: null },
+      { name: "forest_district", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "route_name", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "source_installation_marker", type: "number", nullable: false, nullMeaning: null, unit: null },
+      { name: "source_year", type: "number", nullable: false, nullMeaning: null, unit: null },
+      { name: "source_organization", type: "string", nullable: false, nullMeaning: null, unit: null },
+      { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+    ],
+    publisher: `${source}；data.gov.tw/dataset/173076`, license,
+    sourceFieldMap: { source_sequence: "序號", forest_district: "分署", route_name: "路線名", source_installation_marker: "設置地", source_year: "年度", source_organization: "團體" },
+    precision: "來源提供 TWD97 與經緯度；既有 pipeline 轉為 WGS84 Point，未驗證現場路標存在、可讀性或步道路網連通。",
+    coverageDescription: "林業署轄區 3,407 筆來源 Point records；上游於 2026-06-07 落地；年度與設置地保留來源原值，單位及時間定義待確認；現場狀態 unknown。",
+    sourceLineage: "林業及自然保育署 datagov:173076 -> fixed WGS84 GeoJSON bytes -> SHA/count validation; a route-name record is not a route geometry.",
+  }),
+] as const;

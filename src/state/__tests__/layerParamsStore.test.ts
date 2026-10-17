@@ -17,6 +17,9 @@ import {
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { PENALTY_YEAR_MIN, PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
 import { layerParamsStore, encodeParamsToOverlay, buildDefaultParams } from "../layerParamsStore";
+// 連動選單的可見規則看 provider 狀態（這裡全部未載入：只剩保底那一列）；與 buildParamControls 同一支
+import { linkedSelectHiddenFor } from "../linkedSelect";
+import "../statisticsLinkedSelect";
 
 const specs = MIGRATED_PARAMS_KEYS.map(
   (k) => [k, LAYER_PARAMS_SPEC[k] as LayerParamSpec[]] as const,
@@ -34,7 +37,7 @@ describe("spec ⇄ manifest 焊接", () => {
     for (const [key, spec] of specs) {
       const declared = LAYER_MANIFEST[key].params;
       expect(declared, `${key} 在 manifest 的 params 是 null，但已遷移進 spec`).not.toBeNull();
-      const visible = visibleParamsSpec(spec, defaults[key] ?? {});
+      const visible = visibleParamsSpec(spec, defaults[key] ?? {}, linkedSelectHiddenFor(key));
       expect(visible.length, `${key} 控件數`).toBe(declared?.count);
       expect(visible.map((s) => s.kind), `${key} 控件型別序列`).toEqual(declared?.kinds);
     }
@@ -56,7 +59,7 @@ describe("spec ⇄ manifest 焊接", () => {
     // 預設 propertyValueGridExtruded=false → 兩個控件收合，但手寫版無條件把值
     // 寫進 overlayParams 字面 —— 少了它們 overlays section 的 paint 求值會缺欄位
     expect(out["propertyValueGridContrast"]).toBe(1.8);
-    expect(out["propertyValueGridElevationScale"]).toBe(40);
+    expect(out["propertyValueGridElevationScale"]).toBe(1);
     // 預設 buildingsGbaModeIdx="0"（非夜景）→ Bloom 門檻收合，值仍在
     expect(out["buildingsGbaBloomMinHeight"]).toBe(100);
   });

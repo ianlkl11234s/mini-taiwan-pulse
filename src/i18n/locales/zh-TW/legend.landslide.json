@@ -1,0 +1,10 @@
+{
+  "legend.landslide.dodNote": "年度版本 111–115 年逐年增加處數（36→94），不是同一組範圍；風險等級為來源分級，沒有數值警戒值。",
+  "legend.landslide.areasNote": "{dod}點開看保全住戶與聚落。農業部農村發展及水土保持署（data.gov.tw）· 政府資料開放授權條款第1版。",
+  "legend.landslide.impactNote": "與潛勢區共用年度版本選單；虛線外框＋淡色填色。{dod}",
+  "legend.landslide.highwayNote": "2018 年起通報筆數暴增約 10 倍，疑為通報制度改變，不代表災害增加；跨年比較請留意。2026 年至 10/04 為不完整年度；未通報不等於沒有災情。低縮放以熱區顯示。交通部公路局（data.gov.tw 31020）· 政府資料開放授權條款第1版。",
+  "legend.landslide.annualRow": "所選年份的崩塌地範圍",
+  "legend.landslide.annualZoom": "放大到 10 級以上才顯示（低縮放會遺漏小面）。",
+  "legend.landslide.annualYears": "只有 2017、2018、2023、2024 四年：2019–2022 未納入，2016 以前為林業署另一口徑未納入。",
+  "legend.landslide.annualNote": "{zoom}{years}{v2}農業部農村發展及水土保持署（衛星影像判釋）· 政府資料開放授權條款第1版。"
+}

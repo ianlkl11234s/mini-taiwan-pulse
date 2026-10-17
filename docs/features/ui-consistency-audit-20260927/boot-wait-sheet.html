@@ -1,0 +1,179 @@
+<title>Pulse 開站等待</title>
+<style>
+:root{color-scheme:dark;--page:#07070f;--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--line:rgba(255,255,255,.09);--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--text);font:13px/1.65 var(--font-cjk);margin:0;padding-inline:16px;padding-block:0 96px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:36px}
+h1{margin:28px 0 8px;font-size:22px;font-weight:600;color:var(--strong);text-wrap:balance}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong);display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+p{margin:0}
+.lead{max-width:84ch;color:var(--muted)}.lead b{color:var(--strong);font-weight:600}
+.tag{font:600 12px var(--font-data);color:var(--pick);border:1px solid rgba(100,170,255,.45);border-radius:4px;padding:1px 6px}
+section{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:22px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.pair{grid-template-columns:1fr}}
+figure{margin:0;display:flex;flex-direction:column;gap:6px}
+figcaption{font-size:11px;color:var(--dim)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 22px;color:var(--muted);font-size:12.5px}
+.notes b{color:var(--strong);font-weight:600}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(7,7,15,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px}
+.bar-in{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.bar .lbl{font-size:12px;color:var(--dim)}
+button{font:12px var(--font-cjk);color:var(--muted);background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:4px 11px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+button[aria-pressed="true"]{color:var(--strong);background:var(--pick-faint);border-color:rgba(100,170,255,.45)}
+.seg{display:inline-flex}.seg button{border-radius:0}.seg button:first-child{border-radius:6px 0 0 6px}.seg button:last-child{border-radius:0 6px 6px 0}.seg button+button{border-left:0}
+.clock{font:12px var(--font-data);color:var(--dim);font-variant-numeric:tabular-nums}
+
+.scr{--app:#0a0a14;--strong-s:rgba(10,10,20,.88);--bd:rgba(255,255,255,.10);--bd-mid:rgba(255,255,255,.14);--t-strong:#f3f4f6;--t-dim:#6b7280;--acc:#64aaff;--live:#22c55e;--map:#1b1c20;--road:#2a2b31;--rail:#0a0a14;
+--c-flight:#64aaff;--c-ship:#4ecdc4;--c-rail:#f4a261;--land:rgba(100,170,255,.05);
+--k:1;container-type:inline-size;position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--app);font-family:var(--font-cjk)}
+.scr.light{--app:#f4f5f7;--strong-s:rgba(255,255,255,.97);--bd:rgba(0,0,0,.10);--bd-mid:rgba(0,0,0,.14);--t-strong:#111827;--t-dim:#6b7280;--acc:#2563eb;--live:#16a34a;--map:#e7e9ed;--road:#ffffff;--rail:#ffffff;
+--c-flight:#2563eb;--c-ship:#0f9488;--c-rail:#d9731f;--land:rgba(37,99,235,.06)}
+.map{position:absolute;inset:0;opacity:0;transition:opacity calc(1s / var(--k));background:
+ linear-gradient(115deg,transparent 47%,var(--road) 47.4%,var(--road) 48.2%,transparent 48.6%),
+ linear-gradient(20deg,transparent 60%,var(--road) 60.3%,var(--road) 61%,transparent 61.3%),
+ linear-gradient(170deg,transparent 30%,var(--road) 30.3%,var(--road) 30.9%,transparent 31.2%),var(--map)}
+.c-rail{position:absolute;left:0;top:0;width:7%;height:62%;background:var(--rail);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:7%;padding-top:3%}
+.c-rail i{width:42%;aspect-ratio:1;border-radius:3px;border:1.5px solid var(--t-dim)}
+.c-rail hr{width:60%;border:0;border-top:1px solid var(--bd);margin:0}
+.c-title{position:absolute;left:9%;top:3%;font:700 2.6cqw/1.1 var(--font-data);letter-spacing:.14em;color:var(--t-strong);white-space:nowrap}
+.c-title small{display:block;font:400 .5em/1.6 var(--font-data);letter-spacing:.02em;color:var(--t-dim)}
+.c-tb{position:absolute;left:68%;top:3%;width:30%;height:6.5%;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd)}
+.c-tl{position:absolute;left:8%;top:87.5%;width:21%;height:6.5%;border-radius:99px;background:var(--strong-s);border:1px solid var(--bd)}
+.pill{position:absolute;left:50%;top:92%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;height:2.2cqw;min-height:14px;padding:0 8px;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd);font-size:clamp(7px,1.05cqw,11px);color:var(--t-strong);white-space:nowrap;transition:opacity calc(.3s / var(--k))}
+.pill .ring{width:.8em;height:.8em;border:1.5px solid var(--bd-mid);border-top-color:var(--acc);border-radius:50%;animation:spin .9s linear infinite}
+.pill .ok,.pill .d{display:none}.pill .ok{color:var(--live)}
+.s-done .pill .ring,.s-done .pill .l{display:none}.s-done .pill .ok,.s-done .pill .d{display:inline}
+.s-enter .pill{opacity:0}
+.s-reset,.s-reset *{transition:none!important}
+
+/* M2 進場（定案） */
+.s-done .map{opacity:1}
+.c-rail{transform:translateX(-105%)}.c-tb{transform:translateY(-170%)}.c-tl{transform:translateY(260%)}.c-title{transform:translateY(-220%)}
+.c-rail i,.c-rail hr{transform:scale(0)}
+.c-rail,.c-tb,.c-tl,.c-title{transition:transform calc(.55s / var(--k)) cubic-bezier(.34,1.56,.64,1)}
+.c-rail i,.c-rail hr{transition:transform calc(.3s / var(--k)) cubic-bezier(.34,1.8,.64,1)}
+.s-enter .c-rail,.s-enter .c-tb,.s-enter .c-tl,.s-enter .c-title,.s-enter .c-rail i,.s-enter .c-rail hr{transform:none}
+.s-enter .c-tb{transition-delay:calc(.08s / var(--k))}.s-enter .c-tl{transition-delay:calc(.16s / var(--k))}.s-enter .c-title{transition-delay:calc(.24s / var(--k))}
+.s-enter .c-rail hr{transition-delay:calc(.3s / var(--k))}
+.s-enter .c-rail i:nth-of-type(1){transition-delay:calc(.28s / var(--k))}.s-enter .c-rail i:nth-of-type(2){transition-delay:calc(.34s / var(--k))}.s-enter .c-rail i:nth-of-type(3){transition-delay:calc(.38s / var(--k))}.s-enter .c-rail i:nth-of-type(4){transition-delay:calc(.42s / var(--k))}.s-enter .c-rail i:nth-of-type(5){transition-delay:calc(.46s / var(--k))}
+.s-settle .c-tb,.s-settle .c-tl{animation:latch calc(.4s / var(--k)) ease-out}
+
+/* 等待層 */
+.wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4cqw;transition:opacity calc(.45s / var(--k)) ease,transform calc(.45s / var(--k)) ease}
+.s-done .wait{opacity:0;transform:scale(1.04)}
+.wait svg{height:66%;overflow:visible}
+.wm{font:700 1.5cqw/1 var(--font-data);letter-spacing:.3em;color:var(--t-strong);opacity:.85;margin-top:.4cqw}
+.wm span{color:var(--acc)}
+.tw{fill:var(--land);stroke:var(--acc);stroke-width:.7;stroke-linejoin:round;opacity:.7}
+
+/* W1 心跳輪廓 */
+[data-v=beat] .tw{stroke-dasharray:1;stroke-dashoffset:1}
+[data-v=beat].s-load .tw{animation:draw calc(1.2s / var(--k)) cubic-bezier(.6,0,.3,1) forwards}
+[data-v=beat] .ecg{fill:none;stroke:var(--acc);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:.28 .72;stroke-dashoffset:1;filter:drop-shadow(0 0 2px var(--acc));opacity:0}
+[data-v=beat].s-load .ecg{opacity:1;animation:trace calc(1.3s / var(--k)) linear infinite}
+[data-v=beat] .ecg-base{fill:none;stroke:var(--acc);stroke-width:.5;vector-effect:non-scaling-stroke;opacity:.18}
+
+/* W2 城市脈動 */
+.city{fill:var(--acc)}
+.city-r{fill:none;stroke:var(--acc);stroke-width:.8;vector-effect:non-scaling-stroke;transform-box:fill-box;transform-origin:center;opacity:0}
+[data-v=cities].s-load .city-r{animation:ripple calc(2.1s / var(--k)) ease-out infinite;animation-delay:calc(var(--d) / var(--k))}
+[data-v=cities] .city{transform-box:fill-box;transform-origin:center}
+[data-v=cities].s-load .city{animation:blink calc(2.1s / var(--k)) ease-out infinite;animation-delay:calc(var(--d) / var(--k))}
+.cname{font:5.5px var(--font-cjk);fill:var(--t-dim)}
+
+/* W3 流動運具 */
+.route{fill:none;stroke-width:.6;vector-effect:non-scaling-stroke;stroke-dasharray:2 2;opacity:.45}
+.mover{filter:drop-shadow(0 0 1.5px currentColor)}
+.legend{display:flex;gap:1.6cqw;font-size:clamp(7px,1cqw,11px);color:var(--t-dim)}
+.legend b{display:inline-block;width:.6em;height:.6em;border-radius:50%;margin-right:.35em;vertical-align:.05em}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes trace{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes ripple{0%{transform:scale(1);opacity:.9}70%,100%{transform:scale(6);opacity:0}}
+@keyframes blink{0%{transform:scale(1.8)}25%,100%{transform:scale(1)}}
+@keyframes latch{0%{border-color:var(--acc)}100%{border-color:var(--bd)}}
+@media(prefers-reduced-motion:reduce){.scr *{animation:none!important;transition-duration:.01s!important}}
+</style>
+
+<div class="bar"><div class="bar-in">
+  <span class="lbl">速度</span>
+  <span class="seg" role="group" aria-label="播放速度"><button type="button" data-speed="1" aria-pressed="true">實際速度</button><button type="button" data-speed="0.33" aria-pressed="false">慢 3 倍</button></span>
+  <button type="button" id="all">全部重播</button>
+  <span class="lbl">等待示意 3 秒（實際依地圖載入時間）；完成後都接 M2 機關展開</span>
+</div></div>
+
+<div class="wrap">
+<header>
+  <h1>M2 的等待畫面：三種</h1>
+  <p class="lead">進場沿用你選的 <b>M2 機關展開</b>，只換「等待」這段。三種都以<b>台灣本島輪廓</b>為主角（取自專案的縣市界資料簡化），下方保留 S1 同款狀態。地圖好了之後等待畫面稍微放大淡出，元件從邊界彈進來。</p>
+</header>
+
+<section data-sec="beat">
+  <h2><span class="tag">W1</span>心跳輪廓 <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="beat"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="beat"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>先用一筆把台灣輪廓描出來，接著一段<b>心電圖脈搏</b>一直從島上橫向跑過，就是左上 Logo 那個脈搏圖示放大。</p><p>最直接對應「Pulse」和現有 Logo；畫面最簡潔。</p><p>下方有品牌字，進場後由正式標題接手。</p></div>
+</section>
+
+<section data-sec="cities">
+  <h2><span class="tag">W2</span>城市脈動 <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="cities"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="cities"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>台北、新竹、台中、台南、高雄、花蓮<b>由北往南依序亮起</b>，每個城市亮時擴出一圈波紋，像整座島的心跳一路傳下去。</p><p>城市位置照真實經緯度換算。</p><p>比 W1 熱鬧，但還是安靜的；循環約 2 秒。</p></div>
+</section>
+
+<section data-sec="flow">
+  <h2><span class="tag">W3</span>流動運具 <button type="button" data-replay>重播</button> <span class="clock"></span></h2>
+  <div class="pair"><figure><div class="scr" data-v="flow"></div><figcaption>暗色</figcaption></figure><figure><div class="scr light" data-v="flow"></div><figcaption>淡色</figcaption></figure></div>
+  <div class="notes"><p>三種這個網站最核心的即時資料在島上動：<b>列車</b>沿西部走廊南下、<b>航班</b>從台北飛越海峽弧線到高雄、<b>船舶</b>沿東岸航行。顏色沿用現在開站畫面的類別色（航班藍、船舶青、鐵道橘）。</p><p>最能說明「這個網站在看什麼」。</p><p>路線是示意，不是即時資料。</p></div>
+</section>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <path id="tw" d="M8.2 138.1 L5.8 128.0 L0.0 124.0 L5.3 106.4 L6.9 105.9 L5.4 102.7 L7.2 100.4 L4.7 100.4 L6.2 98.2 L5.6 92.5 L4.4 92.5 L7.0 86.6 L6.6 84.2 L32.2 45.4 L34.8 38.8 L41.9 33.2 L44.7 24.8 L50.6 15.5 L61.3 9.8 L68.8 8.5 L72.0 2.6 L76.3 0.0 L80.3 1.2 L83.0 5.4 L84.6 4.6 L84.9 7.5 L89.9 8.4 L90.7 9.9 L95.9 9.5 L96.2 14.7 L100.0 16.2 L94.0 20.2 L90.9 25.4 L91.6 35.6 L93.9 38.9 L93.2 42.7 L91.5 43.8 L92.7 45.5 L89.6 48.1 L88.2 55.1 L82.6 61.4 L82.7 64.7 L80.4 67.2 L81.9 71.7 L79.8 74.4 L72.7 109.9 L69.2 116.4 L69.3 120.3 L70.6 120.8 L67.5 122.6 L62.7 132.7 L58.7 136.3 L58.0 141.2 L50.9 146.2 L48.0 152.5 L43.9 164.7 L44.2 181.4 L41.1 185.7 L42.4 188.9 L37.3 185.6 L36.0 187.8 L34.5 187.0 L33.2 181.9 L34.8 177.5 L28.5 163.1 L15.4 153.7 L14.4 154.7 L13.1 153.1 L14.9 154.0 L11.6 149.0 L11.9 144.4 L8.2 138.1Z"/>
+  <clipPath id="twclip"><use href="#tw"/></clipPath>
+</defs></svg>
+
+<script>
+(()=>{
+  const base='<div class="map"></div><div class="c-rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="c-tb"></div><div class="c-tl"></div><div class="c-title">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div>';
+  const pill='<div class="pill"><span class="ring"></span><span class="ok">✓</span><span class="l">載入地圖</span><span class="d">完成</span></div>';
+  const wm='<div class="wm">MINI TAIWAN <span>PULSE</span></div>';
+  const TW='<path class="tw" pathLength="1" d="'+document.getElementById('tw').getAttribute('d')+'"/>';
+  const C={台北:[77.4,14.4],新竹:[47.6,27.8],台中:[33,63.9],台南:[9.2,127.8],高雄:[13.8,148.3],花蓮:[79.4,73.3]};
+  const svg=inner=>'<svg viewBox="-12 -6 124 201" role="img" aria-label="台灣輪廓">'+inner+'</svg>';
+  const html={
+    beat:()=>base+'<div class="wait">'+svg(TW+'<g clip-path="url(#twclip)"><path class="ecg-base" d="M-12 95 H112"/><path class="ecg" pathLength="1" d="M-12 95 H30 L34 95 L38 84 L42 106 L47 62 L52 122 L56 95 L60 95 L63 89 L66 95 H112"/></g>')+wm+'</div>'+pill,
+    cities:()=>{const order=['台北','新竹','台中','花蓮','台南','高雄'];return base+'<div class="wait">'+svg('<use href="#tw" class="tw"/>'+order.map((n,i)=>{const [x,y]=C[n];const d=(i*0.28).toFixed(2)+'s';return '<circle class="city-r" style="--d:'+d+'" cx="'+x+'" cy="'+y+'" r="2"/><circle class="city" style="--d:'+d+'" cx="'+x+'" cy="'+y+'" r="1.8"/><text class="cname" x="'+(x+(n==='花蓮'||n==='台北'?4:-4))+'" y="'+(y+1.3)+'" text-anchor="'+(n==='花蓮'||n==='台北'?'start':'end')+'">'+n+'</text>'}).join(''))+wm+'</div>'+pill},
+    flow:()=>{
+      const rail='M77.4 14.4 L47.6 27.8 L33 63.9 L20 100 L9.2 127.8 L13.8 148.3';
+      const air='M77.4 14.4 Q-30 70 13.8 148.3';
+      const sea='M104 20 Q100 70 88 110 Q78 150 52 185';
+      const dot=(p,c,dur,r)=>'<path class="route" d="'+p+'" style="stroke:var('+c+')"/><circle class="mover" r="'+r+'" style="fill:var('+c+');color:var('+c+')"><animateMotion dur="'+dur+'" repeatCount="indefinite" path="'+p+'"/></circle>';
+      return base+'<div class="wait">'+svg('<use href="#tw" class="tw"/>'+dot(rail,'--c-rail','2.2s',2)+dot(air,'--c-flight','2.6s',2.2)+dot(sea,'--c-ship','3.4s',2))+'<div class="legend"><span><b style="background:var(--c-rail)"></b>列車</span><span><b style="background:var(--c-flight)"></b>航班</span><span><b style="background:var(--c-ship)"></b>船舶</span></div></div>'+pill}
+  };
+  const STEPS=[[.05,'s-load'],[3.0,'s-done'],[3.4,'s-enter'],[4.15,'s-settle']],END=4.6;
+  let k=1;const ALL=['s-load','s-done','s-enter','s-settle'];
+  const secs=[...document.querySelectorAll('[data-sec]')].map(sec=>{
+    const v=sec.dataset.sec,scenes=[...sec.querySelectorAll('[data-v]')],clock=sec.querySelector('.clock');
+    scenes.forEach(s=>s.innerHTML=html[v]());
+    const st={timers:[],raf:0};
+    function play(){
+      st.timers.forEach(clearTimeout);st.timers=[];cancelAnimationFrame(st.raf);
+      scenes.forEach(s=>{s.style.setProperty('--k',k);s.classList.add('s-reset');s.classList.remove(...ALL)});
+      void scenes[0].offsetWidth;scenes.forEach(s=>s.classList.remove('s-reset'));
+      for(const [t,c] of STEPS)st.timers.push(setTimeout(()=>scenes.forEach(s=>s.classList.add(c)),t*1000/k));
+      const t0=performance.now(),tick=()=>{const e=(performance.now()-t0)/1000*k;clock.textContent=Math.min(e,END).toFixed(1)+'s';if(e<END)st.raf=requestAnimationFrame(tick)};tick();
+      st.timers.push(setTimeout(play,(END+2)*1000/k));
+    }
+    sec.querySelector('[data-replay]').addEventListener('click',play);
+    return play;
+  });
+  const playAll=()=>secs.forEach(p=>p());
+  document.getElementById('all').addEventListener('click',playAll);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{k=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));playAll()}));
+  playAll();
+})();
+</script>

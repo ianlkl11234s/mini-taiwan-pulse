@@ -40,13 +40,29 @@ export interface CatalogRow {
 }
 
 const cache = new Map<number, CatalogRow>();
-const inFlight = new Map<number, Promise<CatalogRow | null>>();
+const inFlight = new Map<number, Promise<CatalogResult>>();
+
+/** missing = 讀取成功但 UCS 沒有這顆；error = 讀取失敗（兩者文案不同） */
+export type CatalogResult =
+  | { status: "ok"; row: CatalogRow }
+  | { status: "missing" }
+  | { status: "error"; reason: "unconfigured" | "rpc" };
+
+type BatchResult =
+  | { ok: true; rows: CatalogRow[] }
+  | { ok: false; reason: "unconfigured" | "rpc" };
 
 /** 取單顆。已 cache 就同步返回，否則合併到 batch */
-export async function fetchCatalog(norad: number): Promise<CatalogRow | null> {
-  if (cache.has(norad)) return cache.get(norad) ?? null;
-  if (inFlight.has(norad)) return inFlight.get(norad) ?? null;
-  const p = fetchBatch([norad]).then((rows) => rows[0] ?? null);
+export async function fetchCatalog(norad: number): Promise<CatalogResult> {
+  const hit = cache.get(norad);
+  if (hit) return { status: "ok", row: hit };
+  const pending = inFlight.get(norad);
+  if (pending) return pending;
+  const p = fetchBatchResult([norad]).then((r): CatalogResult => {
+    if (!r.ok) return { status: "error", reason: r.reason };
+    const row = r.rows[0];
+    return row ? { status: "ok", row } : { status: "missing" };
+  });
   inFlight.set(norad, p);
   try {
     return await p;
@@ -55,14 +71,19 @@ export async function fetchCatalog(norad: number): Promise<CatalogRow | null> {
   }
 }
 
-/** 批次取多顆（百科卡 batch load 用） */
+/** 批次取多顆（百科卡 batch load 用）；失敗時回 []，要分辨失敗請用 fetchBatchResult */
 export async function fetchBatch(norads: number[]): Promise<CatalogRow[]> {
+  const r = await fetchBatchResult(norads);
+  return r.ok ? r.rows : [];
+}
+
+async function fetchBatchResult(norads: number[]): Promise<BatchResult> {
   const uniq = Array.from(new Set(norads));
   const missing = uniq.filter((n) => !cache.has(n));
   if (missing.length === 0) {
-    return uniq.map((n) => cache.get(n)!).filter(Boolean);
+    return { ok: true, rows: uniq.map((n) => cache.get(n)!).filter(Boolean) };
   }
-  if (!supabaseConfigured) return [];
+  if (!supabaseConfigured) return { ok: false, reason: "unconfigured" };
   const { data, error } = await withLoading(
     `satellite:catalog:${missing.length}`,
     "衛星百科 UCS",
@@ -70,12 +91,15 @@ export async function fetchBatch(norads: number[]): Promise<CatalogRow[]> {
   );
   if (error) {
     console.warn("[satconsole] get_satellite_catalog failed:", error.message);
-    return [];
+    return { ok: false, reason: "rpc" };
   }
   for (const row of (data ?? []) as CatalogRow[]) {
     cache.set(row.norad_number, row);
   }
-  return uniq.map((n) => cache.get(n)).filter((x): x is CatalogRow => !!x);
+  return {
+    ok: true,
+    rows: uniq.map((n) => cache.get(n)).filter((x): x is CatalogRow => !!x),
+  };
 }
 
 /** "14 年 7 個月" 給百科卡 §E "已運作" 欄位用。anchorMs 預設為時間軸當下 */

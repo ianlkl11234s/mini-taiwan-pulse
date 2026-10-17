@@ -264,6 +264,18 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // 讀取 private immutable objects，不得進 public/dist/CDN upload allowlist。
   "PRIVATE_OWNER_ONLY: water.pmtiles",
   "PRIVATE_OWNER_ONLY: extra-water.pmtiles",
+  // 土壤液化（RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED）：同樣只走 owner-authenticated Range sidecar。
+  "PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles",
+  // BSS 橋梁（HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED）：授權 HOLD，只走 owner-authenticated Range sidecar。
+  "PRIVATE_OWNER_ONLY: bss_bridge_location_direction_preview_20261002_v5.pmtiles",
+  // 橋梁韌性（同 HOLD 授權）：僅站主 sidecar。
+  "PRIVATE_OWNER_ONLY: bridge-resilience-20261002-v4.pmtiles",
+  "PRIVATE_OWNER_ONLY: bridge_summary.json",
+  "PRIVATE_OWNER_ONLY: village_impacts.json",
+  "PRIVATE_OWNER_ONLY: village_destinations.json",
+  "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
+  "PRIVATE_OWNER_ONLY: decay_summary.json",
+  "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
 ]);
 
 /**
@@ -287,6 +299,38 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
+  it("research gateway 結果通道（P1）有獨立上傳／下載 location，且 vite 不再有本機結果中介層", () => {
+    const block = (prefix: string) => nginxConf.match(new RegExp(`location \\^~ ${prefix.replace(/\//g, "\\/")} \\{([\\s\\S]*?)\\n    \\}`))?.[1] ?? "";
+    const general = block("/api/research/v1/");
+    const upload = block("/api/research/v1/agent/results/");
+    const download = block("/api/research/v1/browser/results/");
+    // prefix location 不繼承 proxy_pass：每個都要自帶 resolver／gateway／header，否則落到 SPA fallback。
+    for (const location of [general, upload, download]) {
+      expect(location).toContain("include /etc/nginx/research-resolver.conf;");
+      expect(location).toContain('set $research_gateway "research-gateway.zeabur.internal:8080";');
+      expect(location).toContain("proxy_pass http://$research_gateway;");
+      expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+      expect(location).toContain("proxy_set_header X-Real-IP $remote_addr;");
+      expect(location).toContain('proxy_set_header X-Forwarded-For "";');
+      expect(location).toContain('proxy_set_header Cookie "";');
+      expect(location).toContain('add_header Cache-Control "private, no-store" always;');
+      expect(location).toContain('add_header X-Content-Type-Options "nosniff" always;');
+      expect(location).toContain("access_log off;");
+      expect(location).not.toMatch(/root |alias |try_files/);
+    }
+    // timeout 鏈（SPEC §2.8）：一般 30 s（> bridge wait 27 s）、上傳 24m／不緩衝／90 s、下載 60 s。
+    expect(general).toContain("client_max_body_size 32k;");
+    expect(general).toContain("proxy_read_timeout 30s;");
+    expect(upload).toContain("client_max_body_size 24m;");
+    expect(upload).toContain("proxy_request_buffering off;");
+    expect(upload).toContain("proxy_read_timeout 90s;");
+    expect(upload).toContain("proxy_send_timeout 90s;");
+    expect(download).toContain("proxy_read_timeout 60s;");
+    expect(download).toContain("client_max_body_size 32k;");
+    expect(viteConfig).not.toContain("__warehouse-results");
+    expect(viteConfig).not.toContain("serveWarehouseResults");
+  });
+
   it("Japan water 只走 owner-authenticated Range sidecar，不落入公開 static/CDN", () => {
     const location = nginxConf.match(/location ~ \^\/api\/private-research\/jp-water\/\(water\|extra-water\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
     expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
@@ -305,14 +349,56 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(pullScript).not.toContain("private-research/jp-water");
   });
 
+  it("土壤液化只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/soil-liquefaction\/tiles\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/soil-liquefaction \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/soil-liquefaction"');
+    expect(privateResearchServer).toContain('const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction"');
+    expect(pullScript).not.toContain("private-research/soil-liquefaction");
+  });
+
+  it("BSS 橋梁只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bss-bridge\/tiles\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bss-bridge \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bss-bridge"');
+    expect(privateResearchServer).toContain('const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge"');
+    expect(pullScript).not.toContain("private-research/bss-bridge");
+  });
+
+  it("橋梁韌性只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/bridge-resilience\/\(tiles\|summary\|impacts\|destinations\|decay-impacts\|decay-summary\|fingerprint\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bridge-resilience \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bridge-resilience"');
+    expect(privateResearchServer).toContain('const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience"');
+    expect(pullScript).not.toContain("private-research/bridge-resilience");
+  });
+
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
     const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
     expect(match, "public dist fallback missing").not.toBeNull();
     const body = match?.[1] ?? "";
     expect(body).toContain("root /usr/share/nginx/html;");
     expect(nginxConf).toMatch(/server \{[\s\S]*?include mime\.types;[\s\S]*?application\/geo\+json geojson;[\s\S]*?application\/vnd\.pmtiles pmtiles;/);
-    expect(body).toContain("expires 1d;");
-    expect(body).toContain('add_header Cache-Control "public";');
+    expect(body).toContain("add_header Cache-Control $static_cache_control;");
+    expect(body).not.toMatch(/^\s*expires\s/m);
     expect(body).not.toContain("/index.html");
     const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
     expect(gzipTypes).toContain("application/geo+json");
@@ -514,6 +600,19 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const asset of [...production, ...researchOnly]) {
       expect(viteConfig, `Vite build strip 缺 ${asset}`).toContain(`\"${asset}\"`);
       expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);
+    }
+  });
+
+  it("已改 PMTiles 的舊整包 GeoJSON 不進 image（PF-12），且無 runtime 引用", () => {
+    const stripped = [
+      "geo/ookla_fixed_global.geojson",
+      "geo/ookla_mobile_global.geojson",
+      "world/jp_religion_osm.geojson",
+      "geo/waste_stops_static.geojson", // PF-14：聊天改讀 waste_stops_chat_<date>.json
+    ];
+    for (const asset of stripped) {
+      expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);
+      expect(ASSETS.has(`./${asset}`), `${asset} 仍被 manifest 當 runtime 資產引用`).toBe(false);
     }
   });
 

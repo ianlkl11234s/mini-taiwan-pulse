@@ -24,6 +24,25 @@ import {
 import { propagate, splitAtDateline } from "../data/satelliteSGP4";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { POINT_STROKE, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+
+const OPACITY_DEFAULT = Number(paramDefault("satellitesYaogan", "satOpacity"));
+const IS_MANEUVER: ExpressionSpecification = ["==", ["get", "maneuver"], 1];
+
+/**
+ * 點描邊：變軌中（maneuver=1）是資料編碼，維持紅色 2px 外框（另有紅色 pulse ring）；
+ * 其餘衛星用底圖色細縫。建圖層與主題／透明度更新共用。
+ */
+function satellitePointStroke(isDark: boolean, opacity: number) {
+  const seam = pointStrokePaint(isDark, Math.max(0, Math.min(1, opacity)) / OPACITY_DEFAULT);
+  return {
+    "circle-stroke-color": ["case", IS_MANEUVER, "#ef4444", seam["circle-stroke-color"]] as unknown as ExpressionSpecification,
+    "circle-stroke-width": ["case", IS_MANEUVER, 2, POINT_STROKE.width] as unknown as ExpressionSpecification,
+    "circle-stroke-opacity": seam["circle-stroke-opacity"],
+  };
+}
 
 /**
  * 衛星圖層 — 三個 toggle（中國軍事 / 中國遙測 / 台灣），共用 SGP4 計算
@@ -116,6 +135,7 @@ interface UseSatellitesLayerOpts {
     /** 若 true，console 模式失效，全部按 visibility flags 渲染 */
     showAllOrbits: boolean;
   } | null;
+  isDarkTheme?: boolean;
 }
 
 interface PropParsed {
@@ -130,7 +150,7 @@ export function useSatellitesLayer(
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
 
-  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN, consoleFilter = null } = opts;
+  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN, consoleFilter = null, isDarkTheme = true } = opts;
   const consoleFilterRef = useRef(consoleFilter);
   consoleFilterRef.current = consoleFilter;
   const recordsRef = useRef<PropParsed[]>([]);
@@ -150,6 +170,12 @@ export function useSatellitesLayer(
   visibilityRef.current = visibility;
   const trackMinutesRef = useRef(trackMinutes);
   trackMinutesRef.current = trackMinutes;
+  // 主題／透明度：建圖層時讀 ref；變動只走下方 setPaintProperty effect，
+  // 不能進 ensureLayers deps（會重建 timeStore 訂閱、重算軌道）。
+  const isDarkRef = useRef(isDarkTheme);
+  isDarkRef.current = isDarkTheme;
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   // ── 載入 TLE（一次性，6h cache；lazy：anyVisible 為 true 才抓） ──
   useEffect(() => {
@@ -190,12 +216,13 @@ export function useSatellitesLayer(
         type: "line",
         source: SAT_SRC_FOOTPRINT,
         filter: ["==", ["get", "ring"], "outer"],
-        paint: {
+        layout: hookLineLayout("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER),
+        paint: hookLinePaint("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER, {
           "line-color": COLOR_EXPR,
           "line-width": 1,
           "line-opacity": 0.35,
           "line-dasharray": [3, 3],
-        },
+        }, { "line-color": COLOR_EXPR, "line-width": 1, "line-opacity": 0.35, "line-dasharray": [3, 3] }),
       } as LineLayer);
     }
     if (!map.getLayer(SAT_LAYER_FOOTPRINT_INNER)) {
@@ -204,11 +231,10 @@ export function useSatellitesLayer(
         type: "fill",
         source: SAT_SRC_FOOTPRINT,
         filter: ["==", ["get", "ring"], "inner"],
-        paint: {
+        paint: hookFillPaint("satellitesYaogan", SAT_LAYER_FOOTPRINT_INNER, {
           "fill-color": COLOR_EXPR,
           "fill-opacity": 0.35,
-          "fill-outline-color": COLOR_EXPR,
-        },
+        }, { "fill-color": COLOR_EXPR, "fill-opacity": 0.35 }),
       } as FillLayer);
     }
     if (!map.getLayer(SAT_LAYER_TRACK)) {
@@ -216,11 +242,12 @@ export function useSatellitesLayer(
         id: SAT_LAYER_TRACK,
         type: "line",
         source: SAT_SRC_TRACK,
-        paint: {
+        layout: hookLineLayout("satellitesYaogan", SAT_LAYER_TRACK),
+        paint: hookLinePaint("satellitesYaogan", SAT_LAYER_TRACK, {
           "line-color": COLOR_EXPR,
           "line-width": 1.4,
           "line-opacity": 0.5,
-        },
+        }, { "line-color": COLOR_EXPR, "line-width": 1.4, "line-opacity": 0.5 }),
       } as LineLayer);
     }
     if (!map.getLayer(SAT_LAYER_POINT)) {
@@ -232,20 +259,10 @@ export function useSatellitesLayer(
           "circle-color": COLOR_EXPR,
           "circle-radius": [
             "case",
-            ["==", ["get", "maneuver"], 1], 6,
-            4,
+            ["==", ["get", "maneuver"], 1], pointRadius("M"),
+            pointRadius("M", 4 / 6),
           ],
-          "circle-stroke-color": [
-            "case",
-            ["==", ["get", "maneuver"], 1], "#ef4444",
-            "#fff",
-          ],
-          "circle-stroke-width": [
-            "case",
-            ["==", ["get", "maneuver"], 1], 2,
-            1,
-          ],
-          "circle-stroke-opacity": 0.85,
+          ...satellitePointStroke(isDarkRef.current, opacityRef.current),
         },
       } as CircleLayer);
     }
@@ -259,10 +276,11 @@ export function useSatellitesLayer(
         filter: ["==", ["get", "maneuver"], 1],
         paint: {
           "circle-color": "transparent",
-          "circle-radius": 14,
+          "circle-radius": pointRadius("M") * 2,
           "circle-stroke-color": "#ef4444",
           "circle-stroke-width": 1.5,
-          "circle-stroke-opacity": 0.65,
+          "circle-stroke-opacity": 0.35,
+          "circle-blur": 0.6,
         },
       } as CircleLayer);
     }
@@ -499,16 +517,19 @@ export function useSatellitesLayer(
     if (!map || !layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(SAT_LAYER_FOOTPRINT_INNER)) {
-      map.setPaintProperty(SAT_LAYER_FOOTPRINT_INNER, "fill-opacity", 0.35 * o);
+      map.setPaintProperty(SAT_LAYER_FOOTPRINT_INNER, "fill-opacity", hookFillOpacity("satellitesYaogan", SAT_LAYER_FOOTPRINT_INNER, 0.35 * o, 0.35));
     }
     if (map.getLayer(SAT_LAYER_FOOTPRINT_OUTER)) {
-      map.setPaintProperty(SAT_LAYER_FOOTPRINT_OUTER, "line-opacity", 0.35 * o);
+      map.setPaintProperty(SAT_LAYER_FOOTPRINT_OUTER, "line-opacity", hookLineOpacity("satellitesYaogan", SAT_LAYER_FOOTPRINT_OUTER, 0.35 * o, 0.35));
     }
     if (map.getLayer(SAT_LAYER_TRACK)) {
-      map.setPaintProperty(SAT_LAYER_TRACK, "line-opacity", 0.5 * o);
+      map.setPaintProperty(SAT_LAYER_TRACK, "line-opacity", hookLineOpacity("satellitesYaogan", SAT_LAYER_TRACK, 0.5 * o, 0.5));
     }
     if (map.getLayer(SAT_LAYER_POINT)) {
       map.setPaintProperty(SAT_LAYER_POINT, "circle-opacity", 1 * o);
+      for (const [k, v] of Object.entries(satellitePointStroke(isDarkTheme, o))) {
+        map.setPaintProperty(SAT_LAYER_POINT, k as "circle-stroke-color", v as never);
+      }
     }
-  }, [opacity, mapRef, dataReady, mapTick]);
+  }, [opacity, isDarkTheme, mapRef, dataReady, mapTick]);
 }

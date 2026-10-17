@@ -4,7 +4,7 @@
 
 | 候選 | 原始／gzip | consumer／producer 證據 | 改法、不可刪語意、風險 |
 |---|---:|---|---|
-| `forestry/forest_reserve.geojson` | 46,783,425／16,201,818 bytes；522 features；11 properties | manifest 指向 `./forestry/forest_reserve.pmtiles`（`src/data/layerManifest.ts:3774-3781`）；perf 審查記錄 45MB→1.9MB PMTiles（`docs/perf-overhaul-2026-06.md:21-36`）。 | 先確認只剩舊 fallback，再移出 public；若重建 PMTiles，保留 polygon、`種類` filter、popup/來源語意。不要直接刪，因未做 runtime/離線驗收。 |
+| `forestry/forest_reserve.geojson` | 46,783,425／16,201,818 bytes；522 features；11 properties | manifest 指向 `./forestry/forest_reserve.pmtiles`（`src/data/layerManifest.ts:3774-3781`）；perf 審查記錄 45MB→1.9MB PMTiles（`docs/archive/2026-10-04/perf-overhaul-2026-06.md:21-36`）。 | 先確認只剩舊 fallback，再移出 public；若重建 PMTiles，保留 polygon、`種類` filter、popup/來源語意。不要直接刪，因未做 runtime/離線驗收。 |
 | `geo/ookla_fixed_global.geojson` | 23,044,097／2,486,292 bytes；70,666 features；8 properties | manifest 仍直接使用 GeoJSON URL（`src/data/layerManifest.ts:2348`）。本次未找到欄位消費清單，不能把任何欄位判為未用。 | fixed/mobile 共用 quadkey/z 分片或 PMTiles，保留速率、latency、devices/tests、coverage（`tile_count/z/coarse_quadkey`）；不可把聚合 grid 當原始測速點。收益主要來自按視窗載入。 |
 | `geo/waste_stops_static.geojson` | 22,445,099／1,547,400 bytes；73,060 features；9 properties | producer 輸出路徑（`scripts/export/export_waste_stops_static.py:30`），欄位與 `routes_count` 累計（`:88-145`）；manifest URL（`src/data/layerManifest.ts:8198`）。實際 stops runtime consumer 尚待查；先前誤引的 `useWasteCleaningSquadLayer` 是清潔隊辦公點，不能作為 stops 證據。 | 按 city/quadkey 分片或 PMTiles；保留 stop/route identity、名稱、行政區、`vehicle_type/via`、`routes_count` 與缺值語意。不要刪 route 欄位；一站多路與計數會被破壞。producer 可重建，適合第一批實作，但須先補 consumer 驗證。 |
 

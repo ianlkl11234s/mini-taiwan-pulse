@@ -23,7 +23,7 @@
 - 渲染 + shader alpha：`src/three/BusScene.ts`（`onBeforeCompile` 注入 per-instance `aAlpha`）
 - RPC 包裝：`src/data/busLoader.ts`
 - Hook：`src/hooks/useBusLayer.ts`（Live poll + Replay LRU）
-- 完整架構文件：[`docs/bus-layer-design.md`](../../bus-layer-design.md)
+- 完整架構文件：[`docs/features/bus/design.md`](design.md)
 
 ## 核心設計
 
@@ -52,4 +52,4 @@
 ## 相關文件
 
 - 全站 memory：`~/.claude/projects/.../memory/bus-replay-smoothing-status.md`
-- 設計文件：`docs/bus-layer-design.md`
+- 設計文件：`docs/features/bus/design.md`

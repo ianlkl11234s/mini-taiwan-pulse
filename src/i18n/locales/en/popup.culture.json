@@ -1,0 +1,22 @@
+{
+  "popup.culture.branchFallback": "Taipei Public Library",
+  "popup.culture.facilityFallback": "Cultural facility",
+  "popup.culture.museumFallback": "Local cultural museum",
+  "popup.culture.eventFallback": "Arts event",
+  "popup.culture.venueFallback": "Performance venue",
+  "popup.culture.ongoing": "Ongoing",
+  "popup.culture.upcoming": "Upcoming",
+  "popup.culture.categoryCode": "Category code",
+  "popup.culture.showTime": "Showtimes",
+  "popup.culture.eventCount": "Events",
+  "popup.culture.showCount": "Shows",
+  "popup.culture.openAreas": "Open areas",
+  "popup.culture.areasValue": "{open} / {total} areas",
+  "popup.culture.freeSeats": "Available seats",
+  "popup.culture.closed": "Closed",
+  "popup.culture.areaList": "Reading areas ({count})",
+  "popup.culture.trend24h": "24-hour available-seat trend",
+  "popup.culture.closedSuffix": " (closed)",
+  "popup.culture.closedGap": "Closed hours are not shown",
+  "popup.culture.librarySource": "Taipei Public Library · Data refreshes every 10 minutes"
+}

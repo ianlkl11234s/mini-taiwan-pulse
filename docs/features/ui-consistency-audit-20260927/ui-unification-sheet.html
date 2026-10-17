@@ -1,0 +1,401 @@
+<title>Pulse UI 統一設計稿</title>
+<style>
+  /* 頁面本身固定暗色（跟 app 一致）；元件用 .t-dark / .t-light 兩組 token 並排 */
+  :root {
+    color-scheme: dark;
+    --page: #07070f;
+    --page-2: #0d0d18;
+    --page-line: rgba(255,255,255,0.09);
+    --page-text: #d1d5db;
+    --page-strong: #f3f4f6;
+    --page-muted: #9ca3af;
+    --page-dim: #6b7280;
+    --pick: #64aaff;
+    --warn-page: #f59e0b;
+    --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+    --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  /* 元件 token（= tokens-draft.css 的暗／淡兩組） */
+  .t-dark {
+    --surface: rgba(10,10,20,0.88);
+    --surface-solid: #10101b;
+    --map: #151a24;
+    --map-2: #1b2130;
+    --t-strong: #f3f4f6;
+    --t-default: #d8dce3;
+    --t-muted: #9ca3af;
+    --t-dim: #6b7280;
+    --b-soft: rgba(255,255,255,0.06);
+    --b-panel: rgba(255,255,255,0.10);
+    --b-mid: rgba(255,255,255,0.14);
+    --c-bg: rgba(255,255,255,0.06);
+    --c-bg-hover: rgba(255,255,255,0.10);
+    --c-border: rgba(255,255,255,0.12);
+    --accent: #64aaff;
+    --accent-faint: rgba(100,170,255,0.16);
+    --accent-ink: #0a0a14;
+    --link: #7fb2ff;
+    --warn: #ff9800;
+    --shadow: 0 8px 28px rgba(0,0,0,0.5);
+  }
+  .t-light {
+    --surface: rgba(255,255,255,0.95);
+    --surface-solid: #ffffff;
+    --map: #e9ecef;
+    --map-2: #dde2e7;
+    --t-strong: #111827;
+    --t-default: #1f2937;
+    --t-muted: #4b5563;
+    --t-dim: #6b7280;
+    --b-soft: rgba(0,0,0,0.06);
+    --b-panel: rgba(0,0,0,0.10);
+    --b-mid: rgba(0,0,0,0.16);
+    --c-bg: rgba(0,0,0,0.035);
+    --c-bg-hover: rgba(0,0,0,0.08);
+    --c-border: rgba(0,0,0,0.14);
+    --accent: #0b6fd6;
+    --accent-faint: rgba(11,111,214,0.10);
+    --accent-ink: #ffffff;
+    --link: #0284c7;
+    --warn: #c2410c;
+    --shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--page); color: var(--page-text); font: 13px/1.6 var(--font-cjk); padding: 28px 20px 72px; }
+  .wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+  code { font-family: var(--font-data); font-size: 12px; color: var(--page-strong); }
+  header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; color: var(--page-strong); text-wrap: balance; }
+  header p { margin: 0 0 6px; max-width: 74ch; color: var(--page-muted); }
+  .decided { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .decided span { font-size: 11px; color: var(--page-muted); border: 1px solid var(--page-line); border-radius: 3px; padding: 1px 7px; }
+  .howto { margin-top: 10px; color: var(--warn-page); }
+
+  section.blk { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--page-line); padding-top: 20px; }
+  .blk-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+  .blk-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--page-strong); }
+  .num { font-family: var(--font-data); font-size: 12px; color: var(--page-dim); }
+  .tag { font-family: var(--font-data); font-size: 11px; padding: 1px 7px; border-radius: 3px; font-weight: 700; }
+  .tag.pick { background: var(--pick); color: #07070f; }
+  .tag.ok { border: 1px solid var(--page-dim); color: var(--page-muted); font-weight: 500; }
+  .blk-note { margin: 0; max-width: 84ch; color: var(--page-muted); font-size: 12.5px; }
+  .phase { font-size: 11px; color: var(--page-dim); }
+
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 14px; }
+  .board { border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--map); color: var(--t-default); }
+  .board-cap { font-size: 10px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .row-wrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+  .opt { display: flex; flex-direction: column; gap: 6px; }
+  .opt-cap { display: flex; gap: 6px; align-items: baseline; font-size: 11px; color: var(--t-muted); }
+  .opt-cap b { font-family: var(--font-data); color: var(--accent); }
+
+  /* ── Popup（B 版） ── */
+  .pop { position: relative; width: 280px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; padding: 12px 14px; box-shadow: var(--shadow); font-family: var(--font-cjk); }
+  .pop .x { position: absolute; top: 8px; right: 10px; color: var(--t-dim); font-size: 12px; line-height: 1; }
+  .eyebrow { font-size: 9px; letter-spacing: 1.2px; color: var(--t-dim); margin-bottom: 4px; }
+  .ttl { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--t-strong); padding-bottom: 5px; margin-bottom: 4px; border-bottom: 1px solid var(--b-panel); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .r { display: flex; gap: 8px; padding: 3px 0; font-size: 11px; line-height: 1.3; border-bottom: 1px solid var(--b-soft); }
+  .r:last-of-type { border-bottom: 0; }
+  .r .k { width: 56px; flex-shrink: 0; font-size: 10px; padding-top: 1px; color: var(--t-muted); }
+  .r .v { color: var(--t-strong); word-break: break-word; }
+  .d { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .foot { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--b-soft); font-size: 9px; line-height: 1.55; color: var(--t-dim); }
+  .foot a { color: var(--link); text-decoration: none; }
+  .foot .pend { color: var(--warn); }
+  .foot .sub { color: var(--t-dim); opacity: .85; }
+  .foot details summary { cursor: pointer; color: var(--t-muted); }
+
+  /* ── 地圖場景（選取圈） ── */
+  .scene { position: relative; height: 250px; border-radius: 6px; overflow: hidden; border: 1px solid var(--b-panel);
+    background:
+      linear-gradient(90deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 90px 90px,
+      linear-gradient(0deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 90px 90px,
+      var(--map); }
+  .scene .poi { position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--surface-solid); }
+  .scene .pop { position: absolute; right: 10px; bottom: 10px; width: 210px; padding: 9px 11px; }
+  .ring { position: absolute; left: 30%; top: 40%; width: 0; height: 0; }
+  .ring i { position: absolute; left: 0; top: 0; border-radius: 50%; transform: translate(-50%, -50%); display: block; }
+  .ring-1 i:nth-child(1) { width: 26px; height: 26px; border: 2px solid var(--accent); }
+  .ring-1 i:nth-child(2) { width: 36px; height: 36px; border: 1px solid var(--accent); opacity: .45; }
+  .ring-2 i:nth-child(1) { width: 24px; height: 24px; border: 2px solid var(--accent); }
+  .ring-2 i:nth-child(2) { width: 24px; height: 24px; border: 2px solid var(--accent); animation: pulse 1.8s ease-out infinite; }
+  .ring-3 i:nth-child(1) { width: 22px; height: 22px; border: 1.5px solid var(--accent); }
+  .ring-3 i:nth-child(2) { width: 44px; height: 1px; border-radius: 0; background: linear-gradient(90deg, var(--accent) 0 30%, transparent 30% 70%, var(--accent) 70%); }
+  .ring-3 i:nth-child(3) { width: 1px; height: 44px; border-radius: 0; background: linear-gradient(180deg, var(--accent) 0 30%, transparent 30% 70%, var(--accent) 70%); }
+  @keyframes pulse { from { width: 24px; height: 24px; opacity: .8; } to { width: 58px; height: 58px; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ring-2 i:nth-child(2) { animation: none; opacity: .35; width: 36px; height: 36px; } }
+
+  /* ── Layers 群組 ── */
+  .rail { width: 250px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; padding: 10px 0; font-family: var(--font-cjk); box-shadow: var(--shadow); }
+  .rail-macro { font-size: 9px; letter-spacing: 1.4px; color: var(--t-dim); padding: 4px 14px 6px; font-family: var(--font-data); }
+  .li { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--t-default); padding: 4px 14px; }
+  .li .sw { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .li.on { color: var(--t-strong); }
+  .li .cnt { margin-left: auto; font-family: var(--font-data); font-size: 10px; color: var(--t-dim); }
+  .g-now { font-family: var(--font-data); font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--t-muted); padding: 10px 12px 4px 22px; }
+  .g-now + .items .li { padding-left: 22px; }
+  .g-l1 { margin: 6px 0 2px 16px; border-left: 1px solid var(--b-mid); }
+  .g-l1 .g-title { font-size: 10px; font-weight: 600; letter-spacing: .6px; color: var(--t-muted); padding: 2px 12px 3px 10px; }
+  .g-l1 .li { padding-left: 10px; }
+  .g-l2-title { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; letter-spacing: .6px; color: var(--t-muted); padding: 10px 14px 3px; }
+  .g-l2-title::after { content: ""; flex: 1; height: 1px; background: var(--b-soft); }
+  .g-l2 .li { padding-left: 14px; }
+
+  /* ── 活動時間軸 ── */
+  .act { width: 300px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; padding: 12px 14px; box-shadow: var(--shadow); font-family: var(--font-cjk); }
+  .act-h { display: flex; gap: 9px; }
+  .act-h .st { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 6px; flex-shrink: 0; }
+  .act-h .ey { font-size: 9px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .act-h .tt { font-size: 12px; font-weight: 600; color: var(--t-strong); }
+  .act-h .dt { font-size: 11px; color: var(--t-muted); margin-top: 2px; }
+  .hist { list-style: none; margin: 10px 0 0 2px; padding: 0 0 0 12px; border-left: 1px solid var(--b-mid); display: flex; flex-direction: column; gap: 7px; }
+  .hist li { font-size: 11px; color: var(--t-default); line-height: 1.4; }
+  .hist li small { display: block; font-size: 10px; color: var(--t-dim); }
+  .hist .tm { font-family: var(--font-data); font-size: 10px; color: var(--t-dim); margin-right: 6px; }
+
+  /* ── 面板標頭 ── */
+  .panel { width: 300px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); font-family: var(--font-cjk); overflow: hidden; }
+  .ph { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--b-panel); }
+  .ph .x { color: var(--t-dim); font-size: 13px; }
+  .ph-1 { padding: 14px 16px; }
+  .ph-1 h3 { margin: 0; font-size: 18px; font-weight: 600; color: var(--t-strong); }
+  .ph-2 { padding: 10px 14px; }
+  .ph-2 .ey { font-size: 9px; letter-spacing: 1.4px; color: var(--t-dim); }
+  .ph-2 h3 { margin: 1px 0 0; font-size: 13px; font-weight: 700; color: var(--t-strong); }
+  .pb { padding: 10px 14px 12px; font-size: 11px; color: var(--t-muted); display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── 按鈕 CONTROL ── */
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { font: 11px/1 var(--font-cjk); min-height: 28px; padding: 6px 11px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-strong); cursor: pointer; }
+  .btn:hover, .btn.hv { background: var(--c-bg-hover); }
+  .btn:focus-visible, .btn.fc { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn[disabled] { opacity: .55; cursor: not-allowed; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--t-muted); }
+  .c1 .btn.pri { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .c2 .btn.pri { background: var(--accent-faint); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .btn-lab { width: 100%; font-size: 10px; color: var(--t-dim); }
+
+  /* ── research.html ── */
+  .rs-now { background: #f6f5ef; color: #253731; border-radius: 6px; padding: 16px; font-family: "PingFang TC", sans-serif; }
+  .rs-now .br { font: 700 16px Georgia, serif; letter-spacing: .09em; color: #1e4036; }
+  .rs-now .ey { font: 10px monospace; letter-spacing: .16em; color: #71877a; margin-top: 10px; }
+  .rs-now h4 { font-family: "Songti TC", serif; font-size: 20px; font-weight: 500; margin: 6px 0; }
+  .rs-now .b { background: #204f43; color: #f7faf5; padding: 8px 10px; font-size: 11px; margin-top: 8px; }
+  .rs-new { display: grid; grid-template-columns: 170px 1fr; min-height: 230px; border: 1px solid var(--b-panel); border-radius: 6px; overflow: hidden; }
+  .rs-side { background: var(--surface); border-right: 1px solid var(--b-panel); padding: 12px; display: flex; flex-direction: column; gap: 10px; font-family: var(--font-cjk); }
+  .rs-side .br { font-size: 12px; font-weight: 700; color: var(--t-strong); }
+  .rs-side .br span { display: block; font-size: 9px; font-weight: 400; letter-spacing: 1.2px; color: var(--t-dim); }
+  .rs-sec { border-left: 1px solid var(--b-mid); padding-left: 9px; }
+  .rs-sec .ey { font-size: 9px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .rs-sec p { margin: 2px 0 0; font-size: 11px; color: var(--t-default); }
+  .rs-map { background:
+      linear-gradient(90deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 70px 70px,
+      linear-gradient(0deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 70px 70px,
+      var(--map);
+    display: grid; place-items: center; font-size: 11px; color: var(--t-dim); }
+  @media (max-width: 480px) {
+    body { padding-inline: 16px; }
+    .rs-new { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>UI 統一設計稿：Phase B 到 F</h1>
+    <p>每一區左邊暗色、右邊淡色，兩邊用的是同一組 token（<code>tokens-draft.css</code>）。字型一律用系統字：中文 <code>--font-cjk</code>，數字 <code>--font-data</code>。</p>
+    <div class="decided">
+      <span>✔ 全部右下停靠</span><span>✔ 分隔用 border-left</span><span>✔ 系統字</span><span>✔ 開 CONTROL.*</span><span>✔ research.html 一併統一</span><span>✔ SourceFooter 全補</span><span>✔ popup B 版</span><span>✔ 點擊處加選取圈</span><span>✔ eyebrow＝群組 · 圖層</span>
+    </div>
+    <p class="howto">回覆格式：「2-R1、3-F2、4-L1、6-H2、7-C1，5 和 8 OK」。混搭也可以。</p>
+  </header>
+
+  <!-- 1 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">1</span><h2>Popup B 版：暗／淡色</h2><span class="tag ok">確認</span><span class="phase">Phase B、C</span></div>
+    <p class="blk-note">B 版細線緊湊套到暗、淡兩種主題。淡色值是由現有 4 套淡色主題收斂而來（<code>LIGHT_FEATURE</code> 那組）。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-popups></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-popups></div></div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">2</span><h2>點擊處的選取圈</h2><span class="tag pick">選一</span><span class="phase">Phase E</span></div>
+    <p class="blk-note">popup 開著時，地圖上標出點了哪裡；關掉 popup 就消失。全站圖層共用這一種。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-rings></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-rings></div></div>
+    </div>
+    <p class="blk-note">R1 靜態雙圈：安靜，不會分散注意力。R2 呼吸脈衝：比較好找，但會一直動；系統開「減少動態」時會改成靜止。R3 準星：情報感最重，但在點很密的圖層上比較雜。</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">3</span><h2>資料來源 footer</h2><span class="tag pick">選一</span><span class="phase">Phase D</span></div>
+    <p class="blk-note">32 個 panel 要補的就是這一塊。第二排是「來源資訊待補」時的樣子，依 Q6 用警示色標出。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-foots></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-foots></div></div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">4</span><h2>Layers 群組標題</h2><span class="tag pick">選一</span><span class="phase">Phase E</span></div>
+    <p class="blk-note">拿掉「└」後的兩種做法。群組標題改用中文字型，不再整段套等寬字。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-rails></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-rails></div></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">5</span><h2>與 Agent 協作：活動時間軸</h2><span class="tag ok">確認</span><span class="phase">Phase F</span></div>
+    <p class="blk-note">原本的 <code>border-left</code> 保留，改吃 token：時間用等寬字，外框、圓角與 popup 相同（8px）。原本 12px 圓角和 #101010 底會一起換掉。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-acts></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-acts></div></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">6</span><h2>面板標頭</h2><span class="tag pick">選一</span><span class="phase">Phase F</span></div>
+    <p class="blk-note">會員專區（現在 18px 標題）與「與 Agent 協作」（現在 16px）統一成一種。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="row-wrap" data-heads></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="row-wrap" data-heads></div></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">7</span><h2>按鈕（CONTROL.*）</h2><span class="tag pick">選一</span><span class="phase">Phase F</span></div>
+    <p class="blk-note">一般按鈕在兩版都一樣：<code>--control-bg</code> 底加細框。差別只在主要按鈕。取代 research 的綠色 <code>#204f43</code> 和會員專區的青色 hover 框。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div data-btns></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div data-btns></div></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">8</span><h2>research.html 獨立頁</h2><span class="tag ok">確認</span><span class="phase">Phase F</span></div>
+    <p class="blk-note">依 Q5，米色底加 Georgia／宋體的品牌調性拿掉，改成主站的情報風：左欄是面板，右邊是地圖。三個段落改用 <code>border-left</code> 分隔，跟 Layers 用同一種線。頂端的「01／02／03」編號只剩段落順序的意思，建議改成 eyebrow 文字。</p>
+    <div class="pair">
+      <div class="board t-dark" style="background:var(--page-2)"><span class="board-cap">現況（淡色品牌）</span>
+        <div class="rs-now"><div class="br">PULSE <span style="font:500 11px 'PingFang TC';">研究畫布</span></div><div class="ey">RESEARCH / 01</div><h4>從一個問題，開始一張地圖。</h4><div style="font-size:11px;color:#456255">資料處理在本地，成果留在畫布。</div><div class="b">載入合成成果</div></div>
+      </div>
+      <div class="board t-dark"><span class="board-cap">建議（暗色）</span><div data-rs></div></div>
+    </div>
+    <div class="pair">
+      <div class="board t-light"><span class="board-cap">建議（淡色）</span><div data-rs></div></div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const popups = `
+    <div class="pop"><span class="x">✕</span><div class="eyebrow">宗教場所 · 寺廟</div>
+      <div class="ttl"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+      <div class="r"><span class="k">主祀神祇</span><span class="v" style="color:#d09417">觀世音菩薩</span></div>
+      <div class="r"><span class="k">教別</span><span class="v">佛道混合</span></div>
+      <div class="r"><span class="k">登記狀態</span><span class="v">官方登記</span></div>
+      <div class="r"><span class="k">地址</span><span class="v">台北市萬華區廣州街211號</span></div>
+      <div class="foot">資料來源（Tier 1）· 內政部宗教數位資訊網 · <a href="#">原始下載頁 ↗</a></div></div>
+    <div class="pop"><span class="x">✕</span><div class="eyebrow">分析結果 · 人口密度</div>
+      <div class="ttl"><span class="dot" style="background:var(--accent)"></span>大安區</div>
+      <div class="r"><span class="k">資料集</span><span class="v">人口密度網格（2026 Q3）</span></div>
+      <div class="r"><span class="k">原始值</span><span class="v d">18,204 人/km²</span></div>
+      <div class="r"><span class="k">相對倍率</span><span class="v d">1.42×</span></div>
+      <div class="foot">暫時分析結果 · 非完整來源圖層（數值為示意）</div></div>`;
+
+  const ringScene = (cls, id, label) => `
+    <div class="opt" style="flex:1 1 230px;min-width:0"><span class="opt-cap"><b>${id}</b>${label}</span>
+      <div class="scene">
+        <span class="poi" style="left:18%;top:62%;background:#e0a82e"></span>
+        <span class="poi" style="left:44%;top:26%;background:#e0a82e"></span>
+        <span class="poi" style="left:30%;top:40%;background:#e0a82e;transform:translate(-50%,-50%)"></span>
+        <span class="poi" style="left:58%;top:52%;background:#e0a82e"></span>
+        <div class="ring ${cls}"><i></i><i></i><i></i></div>
+        <div class="pop"><div class="eyebrow">宗教場所 · 寺廟</div><div class="ttl" style="font-size:12px"><span class="dot" style="background:#e0a82e"></span>龍山寺</div>
+          <div class="r"><span class="k">主祀神祇</span><span class="v">觀世音菩薩</span></div></div>
+      </div></div>`;
+  const rings = ringScene("ring-1","R1","靜態雙圈") + ringScene("ring-2","R2","呼吸脈衝") + ringScene("ring-3","R3","準星");
+
+  const footBody = (kind, pending) => {
+    if (pending) {
+      return kind === "F3"
+        ? `<div class="foot"><div style="letter-spacing:1.2px;margin-bottom:3px">資料來源</div><div class="pend">來源資訊待補</div></div>`
+        : `<div class="foot"><span class="pend">資料來源 · 來源資訊待補</span></div>`;
+    }
+    if (kind === "F1") return `<div class="foot">內政部宗教數位資訊網 · Tier 1 · <a href="#">原始下載頁 ↗</a></div>`;
+    if (kind === "F2") return `<div class="foot">內政部宗教數位資訊網 · Tier 1 · <a href="#">原始下載頁 ↗</a><div class="sub"><span class="d">OGDL-1.0 · 抓取於 2026-09-20</span></div>
+      <details><summary>溯源 3 筆</summary><div class="sub">MOI 寺廟登記 · OSM 補點 · 文資局</div></details></div>`;
+    return `<div class="foot"><div style="letter-spacing:1.2px;margin-bottom:3px">資料來源 (Tier 1)</div><div>內政部宗教數位資訊網</div><a href="#">原始下載頁 ↗</a><div style="margin-top:2px">OGDL-1.0 · 抓取於 2026-09-20</div></div>`;
+  };
+  const footCard = (kind, label, pending) => `
+    <div class="pop" style="width:240px">${pending ? "" : `<span class="opt-cap" style="margin-bottom:4px"><b>${kind}</b>${label}</span>`}
+      <div class="r"><span class="k">地址</span><span class="v">萬華區廣州街211號</span></div>${footBody(kind, pending)}</div>`;
+  const foots = `
+    <div class="row-wrap">${footCard("F1","一行精簡")}${footCard("F2","一行＋授權列＋可展開溯源")}${footCard("F3","現行多行")}</div>
+    <div class="row-wrap">${footCard("F1","",true)}${footCard("F2","",true)}${footCard("F3","",true)}</div>`;
+
+  const items = (list) => list.map(([n, c, on, k]) => `<div class="li${on ? " on" : ""}"><span class="sw" style="background:${c}"></span>${n}<span class="cnt">${k}</span></div>`).join("");
+  const rel = [["寺廟", "#e0a82e", 1, "12,013"], ["教會", "#8b7ff0", 0, "2,116"], ["宗祠", "#c96b4a", 0, "173"]];
+  const cul = [["博物館", "#f08c3a", 1, "487"], ["表演場館", "#e05a7a", 0, "312"]];
+  const rails = `
+    <div class="opt"><span class="opt-cap"><b>現況</b>└ 字元＋等寬字</span><div class="rail"><div class="rail-macro">LIFE · 生活</div>
+      <div class="g-now">└ 宗教場所</div><div class="items">${items(rel)}</div>
+      <div class="g-now">└ 文化設施</div><div class="items">${items(cul)}</div></div></div>
+    <div class="opt"><span class="opt-cap"><b>L1</b>左線包住整組</span><div class="rail"><div class="rail-macro">LIFE · 生活</div>
+      <div class="g-l1"><div class="g-title">宗教場所</div>${items(rel)}</div>
+      <div class="g-l1"><div class="g-title">文化設施</div>${items(cul)}</div></div></div>
+    <div class="opt"><span class="opt-cap"><b>L2</b>標題後拉一條細線</span><div class="rail"><div class="rail-macro">LIFE · 生活</div>
+      <div class="g-l2"><div class="g-l2-title">宗教場所</div>${items(rel)}</div>
+      <div class="g-l2"><div class="g-l2-title">文化設施</div>${items(cul)}</div></div></div>`;
+
+  const acts = `
+    <div class="act"><div class="act-h"><span class="st"></span><div><div class="ey">與 Agent 協作 · 分析中</div>
+      <div class="tt">比較大安區與信義區的補習班密度</div><div class="dt">正在計算各行政區每萬人家數</div></div></div>
+      <ol class="hist">
+        <li><span class="tm">20:41</span>找到資料：補習班登記（教育部）<small>12,480 筆，含座標</small></li>
+        <li><span class="tm">20:42</span>依行政區彙總<small>12 區，缺值 0</small></li>
+        <li><span class="tm">20:42</span>結果已加到地圖</li>
+      </ol></div>`;
+
+  const panelBody = `<div class="pb"><span>已登入：ian@example.com（示意）</span><div class="btns"><button class="btn" type="button">管理通知</button><button class="btn ghost" type="button">登出</button></div></div>`;
+  const heads = `
+    <div class="opt"><span class="opt-cap"><b>H1</b>18px 標題</span>
+      <div class="panel"><div class="ph ph-1"><h3>會員專區</h3><span class="x">✕</span></div>${panelBody}</div>
+      <div class="panel"><div class="ph ph-1"><h3>與 Agent 協作</h3><span class="x">✕</span></div><div class="pb">已配對 · 等待指令</div></div></div>
+    <div class="opt"><span class="opt-cap"><b>H2</b>eyebrow＋13px 標題（跟 popup 同結構）</span>
+      <div class="panel"><div class="ph ph-2"><div><div class="ey">帳號</div><h3>會員專區</h3></div><span class="x">✕</span></div>${panelBody}</div>
+      <div class="panel"><div class="ph ph-2"><div><div class="ey">研究</div><h3>與 Agent 協作</h3></div><span class="x">✕</span></div><div class="pb">已配對 · 等待指令</div></div></div>`;
+
+  const btnSet = (cls, id, label) => `
+    <div class="opt ${cls}" style="margin-bottom:12px"><span class="opt-cap"><b>${id}</b>${label}</span>
+      <div class="btns"><button class="btn pri" type="button">開始分析</button><button class="btn" type="button">加到地圖</button><button class="btn hv" type="button">hover</button><button class="btn fc" type="button">focus</button><button class="btn" type="button" disabled>停用</button><button class="btn ghost" type="button">取消</button></div></div>`;
+  const btns = btnSet("c1","C1","主要按鈕用 accent 實底") + btnSet("c2","C2","主要按鈕用淡 accent 底＋accent 框（情報風）");
+
+  const rs = `<div class="rs-new"><div class="rs-side"><div class="br">研究畫布<span>MINI TAIWAN PULSE</span></div>
+      <div class="rs-sec"><div class="ey">研究成果</div><p>大安區補習班密度為全市 1.42 倍</p></div>
+      <div class="rs-sec"><div class="ey">畫布內容</div><p>2 個圖層 · 1 個分析結果</p></div>
+      <div class="rs-sec"><div class="ey">來源與方法</div><p>教育部補習班登記 · 依行政區彙總</p></div>
+      <div class="btns c1"><button class="btn pri" type="button">載入成果</button></div></div>
+    <div class="rs-map">地圖區</div></div>`;
+
+  const fill = (sel, html) => document.querySelectorAll(sel).forEach((el) => { el.innerHTML = html; });
+  fill("[data-popups]", popups);
+  fill("[data-rings]", rings);
+  fill("[data-foots]", foots);
+  fill("[data-rails]", rails);
+  fill("[data-acts]", acts);
+  fill("[data-heads]", heads);
+  fill("[data-btns]", btns);
+  fill("[data-rs]", rs);
+  document.querySelectorAll("[data-foots]").forEach((el) => { el.style.flexDirection = "column"; });
+</script>

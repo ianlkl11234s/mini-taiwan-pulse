@@ -14,13 +14,16 @@
 ## 2. 缺值、零值與資料狀態
 
 - observed 0 是真零，使用數值色階；null、來源「-」、not_reported、suppressed 不得補 0。
-- 缺值用灰色、遮蔽用斜線，圖例同時提供文字；不可反推遮蔽資料。
+- 缺值（null、未發布、not_reported）用**透明底＋單向 45° 細斜線**，遮蔽（suppressed）用**透明底＋交叉斜線**，兩者都不上色、不畫成 0；圖例同時提供文字（2026-09-28 地圖圖層規格 F-3 A，對齊 viz-library N1；見 `design-system-map-layers.md` §3.3）。不可反推遮蔽資料。recipe 的 `legend.missing_color` 已不用於地圖與圖例。
 - `PARTIAL`、`STALE`、分子／分母 coverage、未分配量和來源限定範圍必須保留。有值的地區先顯示，不等全臺完整。
 - 讀取失敗顯示錯誤及重試，不能改成「沒有資料」或宣稱全區為零。
 
 ## 3. 清單、群組與操作
 
 - 一般圖層與整合群組共用滑動 toggle；toggle 只控制顯示，箭頭／標題展開詳情，select 切換指標或統計口徑。不要另做文字「開／關」圓鈕。
+- 期別、指標、細項、群組「指標／口徑」一律是共用規格的**連動選單**（`kind: "linkedSelect"`，設計系統 spec §5.37）：由 `data/statisticsParamsSpec.ts` 依 recipe 目錄派生，不在元件裡手寫 select。新增 recipe 時：releaseSelector 要宣告 `dimensionKeys`（＝`resolve` 輸出的鍵與順序，連動的上下游順序）；農業／社會／勞動／比較讀 catalog 的維度鍵順序；群組成員加進 `medicalStatisticsGroups.ts` 就會自動有「指標」列與群組列（`LayerDef.variant`）。
+- 連動規則：上游改變時下游目前值仍合法就保留，否則改成第一個合法值；只有一個值的維度不顯示，目前選擇寫在「說明・來源」。說明・來源固定在展開區最後，含位置口徑、資料限制、來源與處理紀錄。
+- 參考邊界與說明文字裡的邊界代碼顯示中文（`boundaryVersionLabel`／`humanizeStatisticsText`）；新邊界版本要在 `statisticsLabels.ts` 對照表補一列，否則顯示「未命名的參考邊界版本」。
 - 名稱保持主文字色：深色主題白色、淺色主題對應深色。關閉狀態由 toggle 表達，不將名稱變灰；權限鎖定仍保留既有提示。
 - 統計主題 icon 在關閉時仍可辨識；不要用回收／圖層堆疊 icon 當所有統計的預設圖案。
 - 教育固定學制入口維持學校端、老師端、學生端；醫療依機構／病床／人力等群組整理；住宅保留主要使用類型，縣市／鄉鎮與比例在相應群組內切換。

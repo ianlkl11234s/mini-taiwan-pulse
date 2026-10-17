@@ -1,3 +1,4 @@
+import { hookFillOpacity } from "./lineFillSpec";
 // 救援等時圈圖層 factory（PMTiles 向量切片）
 //
 // coverage：全國聚合（county="全台"）+ 各縣市環差分級 5/10/15 分鐘，69 features。
@@ -67,7 +68,7 @@ export function ensureFireIsochroneLayer(map: MapboxMap): void {
       paint: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": COLOR_EXPR as any,
-        "fill-opacity": BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity,
+        "fill-opacity": hookFillOpacity("fireIsochrone", FILL_ID, BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity, BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity),
         "fill-antialias": false,
       },
     });
@@ -81,6 +82,6 @@ export function updateFireIsochroneLayer(
 ): void {
   if (!map.getLayer(FILL_ID)) return;
   map.setLayoutProperty(FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(FILL_ID, "fill-opacity", BASE_OPACITY * params.opacity);
+  map.setPaintProperty(FILL_ID, "fill-opacity", hookFillOpacity("fireIsochrone", FILL_ID, BASE_OPACITY * params.opacity, BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity));
   map.setFilter(FILL_ID, countyFilter(params.countyIdx));
 }

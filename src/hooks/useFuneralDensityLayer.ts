@@ -5,6 +5,7 @@ import { funeralDensityColorExpr, FUNERAL_LAYER_COLORS } from "../data/funeralTy
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 殯葬禮儀業者「區級密度」面量圖（funeralOperatorDensity）。
@@ -117,10 +118,10 @@ export function useFuneralDensityLayer(
           type: "fill",
           source: SOURCE_ID,
           "source-layer": SOURCE_LAYER,
-          paint: {
+          paint: hookFillPaint("funeralOperatorDensity", LAYER_FILL, {
             "fill-color": funeralDensityColorExpr(),
             "fill-opacity": opacityRef.current,
-          },
+          }, { "fill-color": funeralDensityColorExpr(), "fill-opacity": 0.6 }),
         } as unknown as FillLayer, before);
       }
       if (!map.getLayer(LAYER_LINE)) {
@@ -129,11 +130,12 @@ export function useFuneralDensityLayer(
           type: "line",
           source: SOURCE_ID,
           "source-layer": SOURCE_LAYER,
-          paint: {
+          layout: hookLineLayout("funeralOperatorDensity", LAYER_LINE),
+          paint: hookLinePaint("funeralOperatorDensity", LAYER_LINE, {
             "line-color": FUNERAL_LAYER_COLORS.funeralOperatorDensity,
             "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.2, 13, 0.8],
             "line-opacity": opacityRef.current * 0.5,
-          },
+          }, { "line-color": FUNERAL_LAYER_COLORS.funeralOperatorDensity, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.2, 13, 0.8], "line-opacity": 0.3 }),
         } as unknown as LineLayer, before);
       }
       return !!map.getLayer(LAYER_FILL);
@@ -190,7 +192,7 @@ export function useFuneralDensityLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
-    if (map.getLayer(LAYER_FILL)) map.setPaintProperty(LAYER_FILL, "fill-opacity", opacity);
-    if (map.getLayer(LAYER_LINE)) map.setPaintProperty(LAYER_LINE, "line-opacity", opacity * 0.5);
+    if (map.getLayer(LAYER_FILL)) map.setPaintProperty(LAYER_FILL, "fill-opacity", hookFillOpacity("funeralOperatorDensity", LAYER_FILL, opacity, 0.6));
+    if (map.getLayer(LAYER_LINE)) map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("funeralOperatorDensity", LAYER_LINE, opacity * 0.5, 0.3));
   }, [mapRef, visible, opacity, mapTick]);
 }

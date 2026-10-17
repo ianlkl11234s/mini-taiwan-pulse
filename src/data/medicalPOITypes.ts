@@ -13,7 +13,7 @@ import type { LayerVisibility } from "../types";
 
 export interface MedicalPOIType {
   /** 前端 layer 識別（layer id = medical-${id}-circle） */
-  id: string;
+  id: keyof typeof MEDICAL_POI_PAINT_COLORS;
   /** LayerVisibility key */
   visKey: keyof LayerVisibility;
   /** overlayParams 前綴（${prefix}Opacity / ${prefix}Scale） */
@@ -32,6 +32,34 @@ export const MEDICAL_POI_TYPES: MedicalPOIType[] = [
   { id: "aed",      visKey: "medAED",      paramPrefix: "medAED",      matchCats: ["aed"],                   color: "#fbc02d", labelZh: "AED",         labelEn: "AED" },
   { id: "ltc",      visKey: "medLTC",      paramPrefix: "medLTC",      matchCats: ["ltc"],                   color: "#8e24aa", labelZh: "長照機構",     labelEn: "Long-term Care" },
 ];
+
+export const MEDICAL_POI_PAINT_COLORS = {
+  "hospital": {
+    "dark": "#e53935",
+    "light": "#c62828"
+  },
+  "clinic": {
+    "dark": "#42a5f5",
+    "light": "#1565c0"
+  },
+  "pharmacy": {
+    "dark": "#66bb6a",
+    "light": "#2e7d32"
+  },
+  "aed": {
+    "dark": "#fdd835",
+    "light": "#f9a825"
+  },
+  "ltc": {
+    "dark": "#ab47bc",
+    "light": "#7b1fa2"
+  }
+} as const;
+
+/** Exact existing map palette shared by paint and legend. */
+export function medicalPoiColor(id: MedicalPOIType["id"], isDark: boolean): string {
+  return MEDICAL_POI_PAINT_COLORS[id][isDark ? "dark" : "light"];
+}
 
 /** med_cat 值 → 顯示用配色（popup 標題點用） */
 export function medicalColorByCat(medCat: string): string {

@@ -42,27 +42,27 @@ export const MANEUVER_TOKEN = {
   },
 } as const;
 
-/** §B 中國 6 群 metadata */
+/** §B 中國 6 群 metadata（zh 中文主名、alt 外文小字；tier 只供排序，畫面不顯示） */
 export const CN_GROUPS_META = [
-  { key: "china_yaogan", label: "Yaogan 遙感",       layerKey: "satellitesYaogan",  tier: "S", color: SATELLITE_COLORS.china_yaogan,  defaultOn: true },
-  { key: "china_jilin",  label: "Jilin-1 吉林",      layerKey: "satellitesJilin",   tier: "S", color: SATELLITE_COLORS.china_jilin,   defaultOn: true },
-  { key: "china_gaofen", label: "Gaofen 高分",        layerKey: "satellitesGaofen",  tier: "S", color: SATELLITE_COLORS.china_gaofen,  defaultOn: true },
-  { key: "china_tjs",    label: "TJS / TJSW GEO 情報", layerKey: "satellitesTJS",     tier: "A", color: SATELLITE_COLORS.china_tjs,     defaultOn: true },
-  { key: "china_beidou", label: "Beidou 北斗",        layerKey: "satellitesBeidou",  tier: "B", color: SATELLITE_COLORS.china_beidou,  defaultOn: false },
-  { key: "china_shiyan", label: "Shiyan 實踐 / 其他", layerKey: "satellitesShiyan",  tier: "C", color: SATELLITE_COLORS.china_shiyan,  defaultOn: false },
+  { key: "china_yaogan", zh: "遙感", alt: "Yaogan", layerKey: "satellitesYaogan",  tier: "S", color: SATELLITE_COLORS.china_yaogan,  defaultOn: true },
+  { key: "china_jilin",  zh: "吉林一號", alt: "Jilin-1", layerKey: "satellitesJilin",   tier: "S", color: SATELLITE_COLORS.china_jilin,   defaultOn: true },
+  { key: "china_gaofen", zh: "高分", alt: "Gaofen", layerKey: "satellitesGaofen",  tier: "S", color: SATELLITE_COLORS.china_gaofen,  defaultOn: true },
+  { key: "china_tjs",    zh: "通信技術試驗", alt: "TJS / TJSW", layerKey: "satellitesTJS",     tier: "A", color: SATELLITE_COLORS.china_tjs,     defaultOn: true },
+  { key: "china_beidou", zh: "北斗", alt: "Beidou", layerKey: "satellitesBeidou",  tier: "B", color: SATELLITE_COLORS.china_beidou,  defaultOn: false },
+  { key: "china_shiyan", zh: "實踐與其他", alt: "Shiyan", layerKey: "satellitesShiyan",  tier: "C", color: SATELLITE_COLORS.china_shiyan,  defaultOn: false },
 ] as const;
 
 /** §B2 9 國 LEO 遙測 metadata（依 tier 排序） */
 export const INTL_GROUPS_META = [
-  { key: "usa",     label: "🇺🇸 USA",          layerKey: "satellitesUSA",     tier: "S", color: SATELLITE_COLORS.usa,     defaultOn: false },
-  { key: "japan",   label: "🇯🇵 Japan IGS",    layerKey: "satellitesJapan",   tier: "S", color: SATELLITE_COLORS.japan,   defaultOn: false },
-  { key: "russia",  label: "🇷🇺 Russia",       layerKey: "satellitesRussia",  tier: "S", color: SATELLITE_COLORS.russia,  defaultOn: false },
-  { key: "korea",   label: "🇰🇷 Korea KOMPSAT",layerKey: "satellitesKorea",   tier: "A", color: SATELLITE_COLORS.korea,   defaultOn: false },
-  { key: "france",  label: "🇫🇷 France CSO/PLEIADES", layerKey: "satellitesFrance",  tier: "A", color: SATELLITE_COLORS.france,  defaultOn: false },
-  { key: "germany", label: "🇩🇪 Germany SAR-Lupe",    layerKey: "satellitesGermany", tier: "A", color: SATELLITE_COLORS.germany, defaultOn: false },
-  { key: "italy",   label: "🇮🇹 Italy COSMO-SkyMed",  layerKey: "satellitesItaly",   tier: "A", color: SATELLITE_COLORS.italy,   defaultOn: false },
-  { key: "israel",  label: "🇮🇱 Israel Ofeq",         layerKey: "satellitesIsrael",  tier: "A", color: SATELLITE_COLORS.israel,  defaultOn: false },
-  { key: "india",   label: "🇮🇳 India CARTOSAT/RISAT",layerKey: "satellitesIndia",   tier: "B", color: SATELLITE_COLORS.india,   defaultOn: false },
+  { key: "usa",     zh: "美國", alt: "USA", layerKey: "satellitesUSA",     tier: "S", color: SATELLITE_COLORS.usa,     defaultOn: false },
+  { key: "japan",   zh: "日本", alt: "IGS 情報採集衛星", layerKey: "satellitesJapan",   tier: "S", color: SATELLITE_COLORS.japan,   defaultOn: false },
+  { key: "russia",  zh: "俄羅斯", alt: "Russia", layerKey: "satellitesRussia",  tier: "S", color: SATELLITE_COLORS.russia,  defaultOn: false },
+  { key: "korea",   zh: "南韓", alt: "KOMPSAT", layerKey: "satellitesKorea",   tier: "A", color: SATELLITE_COLORS.korea,   defaultOn: false },
+  { key: "france",  zh: "法國", alt: "CSO / Pléiades", layerKey: "satellitesFrance",  tier: "A", color: SATELLITE_COLORS.france,  defaultOn: false },
+  { key: "germany", zh: "德國", alt: "SAR-Lupe", layerKey: "satellitesGermany", tier: "A", color: SATELLITE_COLORS.germany, defaultOn: false },
+  { key: "italy",   zh: "義大利", alt: "COSMO-SkyMed", layerKey: "satellitesItaly",   tier: "A", color: SATELLITE_COLORS.italy,   defaultOn: false },
+  { key: "israel",  zh: "以色列", alt: "Ofeq", layerKey: "satellitesIsrael",  tier: "A", color: SATELLITE_COLORS.israel,  defaultOn: false },
+  { key: "india",   zh: "印度", alt: "CARTOSAT / RISAT", layerKey: "satellitesIndia",   tier: "B", color: SATELLITE_COLORS.india,   defaultOn: false },
 ] as const;
 
 /** RPC cn_group 字串 → category（給 ManeuverRow.cn_group 用） */

@@ -1,10 +1,19 @@
 import { MainMapConnection } from "./research/MainMapConnection";
+import { useAnalysisLegend } from "./research/analysisLegendStore";
+import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
+import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
+import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
+import { useBssBridgePrivateAccess } from "./hooks/useBssBridgePrivateAccess";
+import { useBridgeResiliencePrivateAccess } from "./hooks/useBridgeResiliencePrivateAccess";
+import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, isBridgeResiliencePrivateLayer } from "./data/bridgeResilienceTypes";
+import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
+import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, LAYOUT, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -13,7 +22,7 @@ import { createMapInstanceEvents } from "./map/mapInstanceEvents";
 import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
-import { historicalPeriodSnapshot, restoreTimelineSnapshot, useTimeline, type TimelineModeSnapshot } from "./hooks/useTimeline";
+import { historicalPeriodSnapshot, restoreTimelineSnapshot, useTimeline, useUiTime, type TimelineModeSnapshot } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
 // AR-22 P4：`useLayerParamsRuntime` 已整支退役。參數的消費端各自 per-key 訂閱
@@ -24,11 +33,12 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
 import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
-import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/WasteScheduleScene";
+import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/wasteScheduleConstants";
 import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
   setupWasteMapboxLayers,
+  rebuildWasteMapboxLayers,
   syncWasteMapboxData,
   syncWasteMapboxVisibility,
   syncWasteMapboxParams,
@@ -54,6 +64,7 @@ import { todayTaiwan } from "./lib/supabase";
 // Energy MVP：dashboard 資料源留在 App（dataRef 餵 LayerHost 的 region bars）
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { AqiProductSwitcher } from "./components/AqiProductSwitcher";
+import { JmaKosaPanel } from "./components/JmaKosaPanel";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
@@ -65,51 +76,65 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
+import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
-import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
+import { leftPanelsToClose, type LeftPanelState } from "./state/leftPanelMutex";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
-import { TimelineControls } from "./components/TimelineControls";
+import { LiveTimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
-import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
+import { BasemapMenu } from "./components/toolbar/BasemapMenu";
+import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
+import { ToolbarButton } from "./components/toolbar/ToolbarButton";
+import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
+import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
+import { LanguageMenu } from "./components/toolbar/LanguageMenu";
+import { useLocale, localeStore } from "./state/localeStore";
+import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { UserAvatar } from "./components/auth/UserAvatar";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { useMemberGate, signInWithGoogle } from "./lib/auth";
-import { GATED_LAYERS } from "./components/sidebar/layerCatalog";
+import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCatalog";
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
-import { LoadingIndicator } from "./components/LoadingIndicator";
+import { LoadingStatus } from "./components/LoadingStatus";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
 import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
 import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
+import { restoreLinkedSelects } from "./state/linkedSelect";
 import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
-import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
+import { requestThreeRepaint } from "./state/threeRepaintSignal";
+import { bumpHostRender, type AppLayerHostDeps } from "./layers/layerHostDeps";
 import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
+
+/** 手機標頭 M1 的 30×30 圖示按鈕（圓角 6） */
+const mobileIconButtonStyle = { width: 30, height: 30, borderRadius: RADIUS.lg } as const;
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -157,6 +182,24 @@ export function BasemapLabelToggle({
   );
 }
 
+/** 左上日期時間文字：自己 4Hz 訂閱時間，App 本體不隨時間 tick 重渲（PF-6） */
+function UiDateTimeText() {
+  const currentTime = useUiTime();
+  return (
+    <>
+      {new Date(currentTime * 1000).toLocaleString("zh-TW", {
+        timeZone: "Asia/Taipei",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })}
+    </>
+  );
+}
+
 export default function App() {
   // dev-only render 計數（`window.__layerRenderCounts`）——
   // 第 4 階段（App 端解除全店訂閱）要證明「拖一個 slider 只有那一個 Host 重跑」。
@@ -179,12 +222,18 @@ export default function App() {
   // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
   // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
   const { user: memberUser, tier: memberTier, isOwner, loading: memberAuthLoading } = useMemberGate();
+  // Agent 面板：開發版全開；正式站只給站主（gateway 另有 email 白名單與研究登入）。
+  const agentEnabled = import.meta.env.DEV || isOwner;
   const [memberOpen, setMemberOpen] = useState(false);
+  // 手機版資料來源瀏覽器（桌機在 IconRailSidebar 內；手機沒有 rail，從底部面板進入）
+  const [mobileDataSourceOpen, setMobileDataSourceOpen] = useState(false);
   const memberLibrary = useMemberLibrary();
   const privateViewRef = useRef(false);
   const [memberPlaceGeometry, setMemberPlaceGeometry] = useState<MemberPlaceGeometry | null>(null);
   const previousMemberIdRef = useRef<string | null>(memberUser?.id ?? null);
   const restoringMemberSceneRef = useRef(false);
+  /** 場景還原完成（含連動選單）時把略過項目交回會員面板 */
+  const pendingSceneDoneRef = useRef<((skipped: string[]) => void) | null>(null);
   const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
   const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
   const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
@@ -205,11 +254,11 @@ export default function App() {
   }, [memberAuthLoading]);
   const memberUserRef = useRef(memberUser);
   memberUserRef.current = memberUser;
-  const [gatedNotice, setGatedNotice] = useState(false);
+  const [gatedNotice, setGatedNotice] = useState<string | null>(null);
   const [adminOpen, setAdminOpen] = useState(false);
   useEffect(() => {
     if (!gatedNotice) return;
-    const t = setTimeout(() => setGatedNotice(false), 2600);
+    const t = setTimeout(() => setGatedNotice(null), 2600);
     return () => clearTimeout(t);
   }, [gatedNotice]);
 
@@ -218,6 +267,9 @@ export default function App() {
   const layerGates = useLayerGates();
   const allenCoralAccess = useAllenCoralPrivateAccess();
   const jpWaterPrivateAccess = useJpWaterPrivateAccess();
+  const soilLiquefactionPrivateAccess = useSoilLiquefactionPrivateAccess();
+  const bssBridgePrivateAccess = useBssBridgePrivateAccess();
+  const bridgeResiliencePrivateAccess = useBridgeResiliencePrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -228,10 +280,14 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
+    for (const key of RELEASE_HOLD_LAYERS) s.add(key);
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!soilLiquefactionPrivateAccess.allowed) for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!bssBridgePrivateAccess.allowed) for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!bridgeResiliencePrivateAccess.allowed) for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed, bridgeResiliencePrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -425,7 +481,10 @@ export default function App() {
   const [captureMode, setCaptureMode] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const { t, locale } = useLocale();
   const [chatOpen, setChatOpen] = useState(false);
+  // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
+  const [agentOpen, setAgentOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
 
@@ -453,7 +512,8 @@ export default function App() {
   const researchTimelineRef = useRef<(TimelineSnapshot & TimelineActions) | null>(null);
   const researchHistoricalModeRef = useRef(false);
   researchTimelineRef.current = {
-    currentTime: timeline.currentTime,
+    // App 不訂閱 4Hz 時間（PF-6）；bridge 讀取時直接取 timeStore
+    get currentTime() { return timeStore.getTime(); },
     mode: timeline.timeMode,
     playing: timeline.playing,
     speed: timeline.speed,
@@ -490,8 +550,8 @@ export default function App() {
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
-  // 但下游 useShipData / useAirspaceData 用 apiAvailable.current 守門，
-  // layer 關著時 silent no-op；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
+  // 但下游 useShipData / useAirspaceData 用 enabled + apiAvailable.current 守門，
+  // layer 關著時 silent no-op（不抓資料）；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
   useEffect(() => {
     const handler = (dayStr: string) => {
       if (!dayStr) return;
@@ -519,13 +579,15 @@ export default function App() {
 
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
+  const toolbarPalette = getToolbarPalette(isDarkTheme);
+  const toolbarDivider = <span style={{ width: 1, height: 16, background: toolbarPalette.controlBorder, flexShrink: 0 }} />;
   const showTrails = displayMode === "trails";
 
   // Refs for Three.js render loops
   const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef<Flight[]>([]);
   const shipsRef = useRef(ships);
-  const timeRef = useRef(timeline.currentTime);
+  const timeRef = useRef(timeStore.getTime());
   const renderModeRef = useRef(renderMode);
   const isDarkThemeRef = useRef(isDarkTheme);
   const showTrailsRef = useRef(showTrails);
@@ -560,14 +622,28 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
-  // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
-  useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
+  // 上面這些 ref 餵 3D 圖層；值換了就叫醒重畫一次（PF-9：明確 deps，取代
+  // useThreeJsLayers 以前「無 deps effect 每次 App render 比對 ref」的隱性依賴）
+  useEffect(() => {
+    requestThreeRepaint();
+  }, [
+    displayedFlights, ships, renderMode, isDarkTheme, showTrails, railData, lighthousePositions,
+    thsrPillarData, traPillarData, metroPillarData, airportPillarData, portPillarData,
+    temperatureData, timeline.playing,
+  ]);
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
-  const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
+  // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
+  useEffect(() => {
+    // 訂閱後立刻補讀：useTimeline 的 mount effect 可能已先 setTime，之後的訂閱不會收到舊事件
+    timeRef.current = timeStore.getTime();
+    return timeStore.subscribe((t) => { timeRef.current = t; });
+  }, []);
+
+  const { activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
+  const { activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
+  const { activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
-  const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
+  const { activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
     useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
@@ -591,6 +667,9 @@ export default function App() {
   const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
   const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
   wasteFacilityByTypeRef.current = wasteFacilityByType;
+  const wasteDisposalByTypeRef = useRef(wasteDisposalByType);
+  wasteDisposalByTypeRef.current = wasteDisposalByType;
+  useEffect(() => { requestThreeRepaint(); }, [wasteFacilityByType]);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
@@ -678,7 +757,7 @@ export default function App() {
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
     const s = new Set<number>();
-    for (const m of satManeuvers) s.add(m.norad_id);
+    for (const m of satManeuvers.rows) s.add(m.norad_id);
     return s;
   }, [satManeuvers]);
   // 打開 Console 時：飛去台灣俯瞰 + 自動打開 Taiwan 圖層（其餘 CN 群維持使用者既有設定）
@@ -868,7 +947,7 @@ export default function App() {
     playingRef, layerVisibilityRef,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents, invalidateFeatureRequest } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
   // Allen auth changes first remove the private source in its host. This derived state also
@@ -879,10 +958,22 @@ export default function App() {
     allenCoralAccess.allowed,
     layerVisibility.allenCoralAtlas,
   );
-  const privateUiFeatureInfo = coralUiFeatureInfo && isJpWaterPrivateLayer(coralUiFeatureInfo.layerType)
+  const jpWaterUiFeatureInfo = coralUiFeatureInfo && isJpWaterPrivateLayer(coralUiFeatureInfo.layerType)
     && (!jpWaterPrivateAccess.allowed || !layerVisibility[coralUiFeatureInfo.layerType])
     ? null
     : coralUiFeatureInfo;
+  const soilUiFeatureInfo = jpWaterUiFeatureInfo && isSoilLiquefactionPrivateLayer(jpWaterUiFeatureInfo.layerType)
+    && (!soilLiquefactionPrivateAccess.allowed || !layerVisibility[jpWaterUiFeatureInfo.layerType])
+    ? null
+    : jpWaterUiFeatureInfo;
+  const bssUiFeatureInfo = soilUiFeatureInfo && isBssBridgePrivateLayer(soilUiFeatureInfo.layerType)
+    && (!bssBridgePrivateAccess.allowed || !layerVisibility[soilUiFeatureInfo.layerType])
+    ? null
+    : soilUiFeatureInfo;
+  const privateUiFeatureInfo = bssUiFeatureInfo && isBridgeResiliencePrivateLayer(bssUiFeatureInfo.layerType)
+    && (!bridgeResiliencePrivateAccess.allowed || !layerVisibility[bssUiFeatureInfo.layerType])
+    ? null
+    : bssUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -941,6 +1032,140 @@ export default function App() {
     });
     if (featureInfo && isJpWaterPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, jpWaterPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateSoil = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isSoilLiquefactionPrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateSoil();
+      showTransientNotice("土壤液化私人存取失敗，已清除圖層與選取結果；這不代表該處沒有液化潛勢資料。");
+    };
+    const clearPrivateSoilSelection = () => setFeatureInfo((current) => current && isSoilLiquefactionPrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener(SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT, clearPrivateSoilSelection);
+    return () => {
+      window.removeEventListener(SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener(SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT, clearPrivateSoilSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (soilLiquefactionPrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isSoilLiquefactionPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, soilLiquefactionPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateBss = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isBssBridgePrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateBss();
+      showTransientNotice("橋梁研究私人存取失敗，已清除圖層與選取結果；這不代表該處沒有橋梁。");
+    };
+    const clearPrivateBssSelection = () => setFeatureInfo((current) => current && isBssBridgePrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(BSS_BRIDGE_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener(BSS_BRIDGE_SELECTION_CLEAR_EVENT, clearPrivateBssSelection);
+    return () => {
+      window.removeEventListener(BSS_BRIDGE_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener(BSS_BRIDGE_SELECTION_CLEAR_EVENT, clearPrivateBssSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (bssBridgePrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isBssBridgePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, bssBridgePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateBridgeResilience = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isBridgeResiliencePrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateBridgeResilience();
+      showTransientNotice("橋梁韌性私人存取失敗，已清除圖層與選取結果；這不代表該處沒有橋梁。");
+    };
+    const clearSelection = () => setFeatureInfo((current) => current && isBridgeResiliencePrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener(BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, clearSelection);
+    return () => {
+      window.removeEventListener(BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener(BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, clearSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (bridgeResiliencePrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isBridgeResiliencePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, bridgeResiliencePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+
+  // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
+  useEffect(() => {
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of RELEASE_HOLD_LAYERS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && RELEASE_HOLD_LAYERS.has(featureInfo.layerType as keyof LayerVisibility)) setFeatureInfo(null);
+  }, [featureInfo, setFeatureInfo, setLayerVisibility]);
+
+  // 與 Agent 協作的分析結果點擊 → 共用右下停靠 FeatureInfoPanel。
+  // 刻意不帶 coords：coords 會經 MainMapConnection 的 selection 回報成「使用者選取」給 Agent。
+  // 選取圈改由 useSelectionRing 以最後一次地圖點擊位置補上。null 只關分析結果面板，不動其他圖層的。
+  // G1：分析結果圖例住在「圖例」面板，沒有任何圖層開著時也要讓面板出現。
+  const hasAnalysisLegend = useAnalysisLegend().entries.length > 0;
+  const handleAnalysisResultFeature = useCallback((properties: AnalysisResultPanelProperties | null) => {
+    if (properties) {
+      // 同一次點擊裡 useMapInteraction 可能已啟動 raster／GFW 非同步 probe；分析結果接手面板後作廢它們。
+      invalidateFeatureRequest();
+      setFeatureInfo({ layerType: "analysisResult", properties });
+    } else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
+  }, [setFeatureInfo, invalidateFeatureRequest]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1038,6 +1263,11 @@ export default function App() {
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
 
+  // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
+  useEffect(() => {
+    mapRef.current?.getContainer().style.setProperty(SELECTION_RING_ACCENT_VAR, selectionRingAccent(isDarkTheme));
+  }, [isDarkTheme, mapPrepared]);
+
   // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
   // Lazy setup：任一 wf* toggle 開 + map 已 ready 才建 8 sources + 16 layers
   const wasteMapboxSetupRef = useRef(false);
@@ -1063,6 +1293,26 @@ export default function App() {
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
     syncWasteMapboxData(map, wasteFacilityByType, wasteDisposalByType);
   }, [wasteFacilityByType, wasteDisposalByType]);
+  // G005：換底圖（dark/light）會清掉自訂 layer，setup 旗標卻仍為 true → style.load 後重建
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const onStyleLoad = () => {
+      if (!wasteMapboxSetupRef.current) return;
+      rebuildWasteMapboxLayers(
+        map,
+        { isDark: isDarkThemeRef.current, onFeatureClick: setFeatureInfo },
+        {
+          facilityByType: wasteFacilityByTypeRef.current ?? new Map(),
+          disposalByType: wasteDisposalByTypeRef.current,
+          visibility: layerVisibilityRef.current,
+          params: layerParamRefs.wasteSubParams.current,
+        },
+      );
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [mapPrepared]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
@@ -1154,6 +1404,8 @@ export default function App() {
       onMove: updateCamera,
       onZoomEnd: onZoomH3,
       onClick: (e) => {
+        // 選取圈的單一點擊記錄點（沒有 coords 的面板，例如 Agent 分析結果，靠它定位）
+        recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
         const layer = wasteFacilityLayerRef.current;
         if (!layer) return;
         // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
@@ -1243,23 +1495,7 @@ export default function App() {
   // 人口 / 指標 / 社經 / 空間經濟 四張網格的上圖 effect 已搬進 LayerHost
   //（PopCountHost / IndicatorsHost / SocioeconomicHost / SpatialEconomyHost）
 
-  // YouBike Fullness: sync with main timeline
-  // 訂閱 timeStore 分鐘粒度（不走 React 4Hz re-render），每 60 秒模擬時間更新一次
-  const [youbikeTimeKey, setYoubikeTimeKey] = useState(
-    () => Math.floor(timeStore.getTime() / 60) * 60,
-  );
-  useEffect(() => {
-    let lastMinute = Math.floor(timeStore.getTime() / 60);
-    return timeStore.subscribe((t) => {
-      const minute = Math.floor(t / 60);
-      if (minute !== lastMinute) {
-        lastMinute = minute;
-        setYoubikeTimeKey(minute * 60);
-      }
-    });
-  }, []);
-
-  // YouBike 網格上圖已搬進 LayerHost 的 YoubikeHost（youbikeTimeKey 經 hostDeps 傳入）
+  // YouBike 網格上圖與分鐘粒度時間訂閱都在 LayerHost 的 YoubikeHost（PF-6：不再經 App state）
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -1281,25 +1517,36 @@ export default function App() {
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
-  // allReady 後延遲 600ms 再 unmount LoadingScreen，讓使用者看到 100%
-  const [dismissedLoading, setDismissedLoading] = useState(false);
-  useEffect(() => {
-    if (!allReady) return;
-    const t = setTimeout(() => setDismissedLoading(true), 600);
-    return () => clearTimeout(t);
-  }, [allReady]);
-
-  // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading
+  // 開站畫面（design-system §5.33）：allReady → 「✓ 完成」停一下 → 遮罩淡出＋主畫面元件彈入 → 結束。
+  // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading（直接跳到淡出）。
+  const [bootPhase, setBootPhase] = useState<BootPhase>("loading");
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setLoadingTimedOut(true), 30_000);
     return () => clearTimeout(timer);
   }, []);
+  useEffect(() => {
+    if (bootPhase === "loading" && loadingTimedOut) { setBootPhase("leaving"); return; }
+    if (bootPhase === "loading" && allReady) { setBootPhase("done"); return; }
+    if (bootPhase === "done") {
+      const t = setTimeout(() => setBootPhase("leaving"), BOOT_TIMING.doneHoldMs);
+      return () => clearTimeout(t);
+    }
+    if (bootPhase === "leaving") {
+      setBootAttr("enter");
+      const t = setTimeout(() => setBootPhase("gone"), BOOT_TIMING.fadeMs);
+      return () => clearTimeout(t);
+    }
+    if (bootPhase === "gone") {
+      const t = setTimeout(() => setBootAttr(null), BOOT_TIMING.enterMs);
+      return () => clearTimeout(t);
+    }
+  }, [bootPhase, allReady, loadingTimedOut]);
 
-  // 全部資料載入完成後自動播放
+  // 全部資料載入完成後自動播放（使用者按過暫停就不再自動重啟）
   useEffect(() => {
     if (allReady && timeRange.start > 0) {
-      timeline.play();
+      timeline.autoPlay();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReady, timeRange.start]);
@@ -1312,9 +1559,29 @@ export default function App() {
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
 
+  // Z1 左側浮動面板互斥：Agent／會員／即時情報／衛星 已由 closeExternalPanels 與上方 handler 互關；
+  // 地震回放是圖層旗標、開啟路徑很多，所以在這裡補上「剛打開一個 → 關掉其他」。只看由關變開，不會連鎖觸發。
+  const earthquakeReplayOpen = layerVisibility.earthquakeReplay;
+  const leftPanelsPrevRef = useRef<LeftPanelState>({ agent: false, earthquakeReplay: false, intel: false, satellite: false, member: false });
+  useEffect(() => {
+    const next: LeftPanelState = { agent: agentOpen, earthquakeReplay: earthquakeReplayOpen, intel: intelOpen, satellite: satConsoleOpen, member: memberOpen };
+    const toClose = leftPanelsToClose(leftPanelsPrevRef.current, next);
+    // B1：地震回放從 Layers 清單打開時，比照即時情報／衛星收起左側 rail 面板，避免兩者重疊
+    const earthquakeJustOpened = next.earthquakeReplay && !leftPanelsPrevRef.current.earthquakeReplay;
+    leftPanelsPrevRef.current = next;
+    if (earthquakeJustOpened) setRailCloseEpoch((value) => value + 1);
+    for (const key of toClose) {
+      if (key === "agent") setAgentOpen(false);
+      else if (key === "earthquakeReplay") setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }));
+      else if (key === "intel") setIntelOpen(false);
+      else if (key === "satellite") satelliteConsoleStore.setOpen(false);
+      else setMemberOpen(false);
+    }
+  }, [agentOpen, earthquakeReplayOpen, intelOpen, satConsoleOpen, memberOpen, setLayerVisibility]);
+
   const markPrivateView = useCallback(() => {
     privateViewRef.current = true;
-    window.history.replaceState(null, "", window.location.pathname);
+    window.history.replaceState(null, "", cleanUrl(window.location.pathname, localeStore.getSnapshot().locale));
   }, []);
   const captureMemberScene = (): MemberSceneSnapshot => {
     const map = mapRef.current;
@@ -1332,15 +1599,21 @@ export default function App() {
     if (!result.ok) throw new Error(result.errors.join("；"));
     return result.value;
   };
-  const restoreMemberScene = (snapshot: MemberSceneSnapshot): string[] => {
+  /**
+   * 回傳的 Promise 在連動選單（統計期別、細項）也還原完才 resolve：那些值要等圖層開啟、選項載入後
+   * 才能驗證（`restoreLinkedSelects`），不合法或逾時的列一併列進「略過項目」。
+   */
+  const restoreMemberScene = (snapshot: MemberSceneSnapshot): Promise<string[]> => {
     const validated = validateScene(snapshot);
     if (!validated.ok) throw new Error(validated.errors.join("；"));
     if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
     const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
     markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
+    pendingSceneDoneRef.current?.(resolved.skipped);
+    const done = new Promise<string[]>((resolve) => { pendingSceneDoneRef.current = resolve; });
     setPendingMemberScene(validated.value); setAppMode(validated.value.time.mode);
     setHistoricalPlaying(false);
-    return resolved.skipped;
+    return done;
   };
   useEffect(() => {
     if (!pendingMemberScene || appMode !== pendingMemberScene.time.mode) return;
@@ -1357,6 +1630,8 @@ export default function App() {
     mapRef.current?.jumpTo({ center: [scene.camera.lng, scene.camera.lat], zoom: scene.camera.zoom, pitch: scene.camera.pitch, bearing: scene.camera.bearing });
     setFeatureInfo(null); setExpandedLayer(null);
     restoringMemberSceneRef.current = false; setPendingMemberScene(null);
+    const done = pendingSceneDoneRef.current; pendingSceneDoneRef.current = null;
+    void restoreLinkedSelects(resolved.linked).then((linkedSkipped) => done?.([...resolved.skipped, ...linkedSkipped]));
   }, [pendingMemberScene, appMode, knownMemberKeys, setLayerVisibility, setFeatureInfo, timeline]);
 
   const captureMemberPlace = (kind: "center" | "selection" | "bounds"): MemberPlaceGeometry => {
@@ -1390,9 +1665,10 @@ export default function App() {
     const userId = memberUser?.id ?? null;
     if (previousMemberIdRef.current !== userId) {
       setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
+      pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
         mapRef.current?.jumpTo({ center: [121.5318, 25.0464], zoom: 12.5, pitch: 0, bearing: 0 });
-        window.history.replaceState(null, "", window.location.pathname);
+        window.history.replaceState(null, "", cleanUrl(window.location.pathname, localeStore.getSnapshot().locale));
       }
       // Keep private URL/telemetry suppression until an explicit Share action.
       previousMemberIdRef.current = userId;
@@ -1423,23 +1699,24 @@ export default function App() {
   // ── Sidebar props 穩定化（讓 IconRailSidebar / LayersPanel 能用 React.memo） ──
 
   const sidebarCounts = useMemo(() => ({
-    flights: displayedFlights.length,
-    ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-    trains: trainCount,
-    buses: busCount,
-    busesIntercity: busIntercityCount,
+    // 航班／船舶／列車／公車／客運計數走 liveCountStore（側欄 row 自己 per-key 訂閱，PF-6；
+    // 航班、船舶於圖層關閉時歸零，PF-11／PF-13）
     wasteTrucks: wasteCount,
-  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
+  }), [wasteCount]);
 
   // owner-only 圖層：非 owner 的開啟意圖一律攔截（回 true = 呼叫端直接 return no-op）。
   // 未登入 → 導 Google 登入；已登入非 owner → 顯示「私人圖層」提示。
   const handleGatedIntercept = useCallback((layer: keyof LayerVisibility): boolean => {
     // lockedKeys 已內含 tier 判定（owner / 授權 tier → 不在集合）
     if (!lockedKeysRef.current.has(layer)) return false;
+    if (RELEASE_HOLD_LAYERS.has(layer)) {
+      setGatedNotice("圖層授權或再散布條件尚未驗證，目前暫停啟用");
+      return true;
+    }
     if (!memberUserRef.current) {
       void signInWithGoogle().catch((err) => console.error("[owner-gate] signIn failed", err));
     } else {
-      setGatedNotice(true);
+      setGatedNotice("私人圖層，僅擁有者可檢視");
     }
     return true;
   }, []);
@@ -1480,23 +1757,10 @@ export default function App() {
     setTooltipInfo(null);
   }, [setTooltipInfo]);
 
-  const handleHideTransport = useCallback(() => {
-    setExpandedLayer((prevExpanded) => {
-      if (prevExpanded) {
-        sessionTracker.logWithSnapshot("layer_toggle", { layer: prevExpanded, on: false }, layerVisibilityRef.current);
-        setLayerVisibility((prev) => ({ ...prev, [prevExpanded]: false }));
-      }
-      return null;
-    });
-  }, [setLayerVisibility, layerVisibilityRef]);
-
   const handleAllOff = useCallback(() => {
     sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
-    setLayerVisibility((prev) => {
-      const next = { ...prev };
-      for (const k in next) next[k as keyof typeof next] = false;
-      return next;
-    });
+    // 與逐一關閉同一條路徑（統計面經 statisticsDisplayModeStore 關閉），結果一致
+    setLayerVisibility((prev) => statisticsDisplayModeStore.allOff(prev));
     // FeatureInfo 自帶 selected-feature halo；全部關閉時不可留下孤立光暈／popup。
     setFeatureInfo(null);
     setExpandedLayer(null);
@@ -1582,7 +1846,7 @@ export default function App() {
 
   // ── EM-19 網址雙向同步（分享用）────────────────────────────────────────
   //
-  // 三個必守的點（見 docs/proposal/embed-dynamic-layers.md 討論）：
+  // 三個必守的點（見 docs/features/embeddable-map/dynamic-layers-plan.md 討論）：
   // 1. **replaceState 不是 pushState** —— pushState 會讓拖曳地圖塞爆上一頁歷史，
   //    使用者要按上千次才能離開。
   // 2. **綁 moveend 不綁 move** —— move 是每幀觸發（60fps），瀏覽器對 history API
@@ -1628,6 +1892,7 @@ export default function App() {
         style: mapStyleId,
         date,
         hour,
+        lang: localeStore.getSnapshot().locale,
       },
       window.location.pathname,
     );
@@ -1643,7 +1908,7 @@ export default function App() {
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     return () => { map.off("moveend", onMoveEnd); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode]);
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
@@ -1687,18 +1952,20 @@ export default function App() {
   // 讓 Mapbox + Three.js 場景在 loading 期間於底下平行初始化；
   // 舊版 early return 會讓地圖等 loading 收掉才開始載，造成進場後動態點空窗。
   //
-  // 一次性：只在初次 mount 顯示，dismissedLoading=true 後絕不重開。
+  // 一次性：只在初次 mount 顯示，bootPhase 到 gone 後絕不重開。
   // 之後使用者 toggle 動態圖層的 loading 由 loadingRegistry 的小型 indicator 處理，
   // 不再用 full-screen splash 蓋整個畫面（會打斷已經在用地圖的使用者）。
-  const showLoadingScreen = !loadingTimedOut && !dismissedLoading;
+  const showLoadingScreen = bootPhase !== "gone";
 
   // ── LayerHost 的跨切面依賴（AR-22 P1）────────────────────────────
   // 圖層自己的參數**不在這裡** —— 每個 Host 用 `useLayerParams(key)` 自己訂閱。
-  // ⚠️ 刻意不 memo：Host 沒有 React.memo，identity 換不換都會重跑，
-  //    加 memo 只是多一份 deps 清單要維護（且漏一項就是靜默不更新）。
-  const hostDeps: LayerHostDeps = {
+  // ⚠️ 刻意不 useMemo：LayerHosts 是 React.memo 並對本物件逐欄位 shallow compare
+  //    （PF-6），欄位身分沒變就跳過 104 個 Host；因此新增欄位時務必給穩定身分
+  //    （useCallback / useMemo / ref），不要傳 inline 函式或每次新建的物件。
+  // ⚠️ layerVisibility 不在這裡（PF-8）：各 Host 經 HostSlot 只訂閱自己讀到的 key，
+  //    開關一層不會讓 LayerHosts 整批重跑。
+  const hostDeps: AppLayerHostDeps = {
     mapRef,
-    layerVisibility,
     isDarkTheme,
     mapStyleId,
     timeMode: timeline.timeMode,
@@ -1742,14 +2009,12 @@ export default function App() {
     socioDataMap,
     spatialDataMap,
     getYoubikeCellsForTime,
-    youbikeTimeKey,
   };
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
+      {showLoadingScreen && <LoadingScreen phase={bootPhase as Exclude<BootPhase, "gone">} isDarkTheme={isDarkTheme} />}
       <TransientNotice />
-      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
         <div
@@ -1758,6 +2023,7 @@ export default function App() {
             bottom: 28,
             left: "50%",
             transform: "translateX(-50%)",
+            // 特例：與 TransientNotice 同值 3000，必須高於「資料更新中」遮罩（1000），不用 Z_INDEX.toast（見 design-system/spec.md 層級章節）
             zIndex: 3000,
             padding: "9px 16px",
             background: "rgba(0,0,0,0.82)",
@@ -1767,13 +2033,13 @@ export default function App() {
             borderRadius: 10,
             color: "#E5E7EB",
             fontSize: 13,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             pointerEvents: "none",
             boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
           }}
         >
-          私人圖層，僅擁有者可檢視
+          {gatedNotice}
         </div>
       )}
       {/* Day-loading overlay — 半透明遮罩 */}
@@ -1821,6 +2087,21 @@ export default function App() {
         showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
+      {agentEnabled && <MainMapConnection
+        bridge={chatBridge}
+        map={mapPrepared ? mapRef.current : null}
+        labels={memberLabels}
+        locked={lockedKeysRef.current}
+        selection={featureInfo?.coords ?? null}
+        timeline={researchTimeline}
+        isDarkTheme={isDarkTheme}
+        open={agentOpen && !captureMode}
+        onOpenChange={setAgentOpen}
+        showToggle={false}
+        uiHidden={captureMode}
+        onAnalysisResultFeature={handleAnalysisResultFeature}
+        analysisResultSelected={featureInfo?.layerType === "analysisResult"}
+      />}
 
       {/* ── 拍攝模式 vignette + 標題 ── */}
       {captureMode && (
@@ -1829,7 +2110,7 @@ export default function App() {
             style={{
               position: "absolute",
               inset: 0,
-              zIndex: 20,
+              zIndex: Z_INDEX.floatingPanel,
               pointerEvents: "none",
               background:
                 "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.6) 100%)",
@@ -1840,7 +2121,7 @@ export default function App() {
               position: "absolute",
               top: isMobile ? 16 : 32,
               left: isMobile ? 16 : 32,
-              zIndex: 21,
+              zIndex: Z_INDEX.toolbar,
               pointerEvents: "none",
             }}
           >
@@ -1859,7 +2140,7 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.xl,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 fontWeight: 600,
                 color: COLORS.textDefault,
                 letterSpacing: 2,
@@ -1872,28 +2153,21 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.lg,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
               }}
             >
-              {new Date(timeline.currentTime * 1000).toLocaleString("zh-TW", {
-                timeZone: "Asia/Taipei",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              })}
+              <UiDateTimeText />
             </div>
             <CameraHud
               store={cameraHud}
               style={{
                 fontSize: FONT_SIZE.lg,
                 fontFamily: FONT_DATA,
+                fontVariantNumeric: "tabular-nums",
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1901,97 +2175,172 @@ export default function App() {
               }}
             />
           </div>
-          <button
-            onClick={() => setCaptureMode(false)}
-            style={isMobile ? {
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 21,
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              background: "rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "#fff",
-              fontSize: FONT_SIZE.xxl,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backdropFilter: "blur(8px)",
-            } : {
-              position: "absolute",
-              bottom: 32,
-              right: 32,
-              zIndex: 21,
-              padding: "4px 12px",
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: RADIUS.md,
-              color: COLORS.textDim,
-              fontSize: FONT_SIZE.base,
-              fontFamily: FONT_DATA,
-              cursor: "pointer",
-            }}
-          >
-            {isMobile ? "✕" : "ESC"}
-          </button>
+          {isMobile ? (
+            <button
+              onClick={() => setCaptureMode(false)}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                zIndex: Z_INDEX.toolbar,
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                background: "rgba(0,0,0,0.4)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: FONT_SIZE.xxl,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              ✕
+            </button>
+          ) : (
+            <CaptureExitHint onExit={() => setCaptureMode(false)} />
+          )}
         </>
       )}
 
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* Row 1: 標題 + 樣式 + 地點跳轉 */}
+          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊 */}
           <div
             style={{
               position: "absolute",
               top: 16,
               left: sidebarWidth + 16,
-              zIndex: 10,
+              right: 16,
+              // toolbar（25）：高於浮動面板層（Agent 活動卡、rail、右下 popup），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
-              gap: 10,
+              justifyContent: "space-between",
               alignItems: "center",
+              gap: 10,
+              flexWrap: "wrap",
               transition: "left 0.2s ease",
             }}
           >
-            <h1
+            <div data-boot-part="title" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: 20,
+                    color: isDarkTheme ? "#fff" : "#333",
+                    fontFamily: FONT_DATA,
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                  }}
+                >
+                  Mini Taiwan Pulse
+                </h1>
+
+                {loading && (
+                  <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
+                    Loading...
+                  </span>
+                )}
+              </div>
+              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD */}
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                }}
+              />
+            </div>
+
+            <div
+              data-boot-part="toolbar"
               style={{
-                margin: 0,
-                fontSize: FONT_SIZE.xl,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontFamily: FONT_DATA,
-                letterSpacing: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: 3,
+                borderRadius: 7,
+                background: toolbarPalette.surfaceBg,
+                border: `1px solid ${toolbarPalette.borderPanel}`,
+                boxShadow: toolbarPalette.shadow,
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+                // 窄寬度時整條 Row 1 換行：toolbar 掉到第二行時，若沒有 marginLeft: auto，
+                // space-between 對「單一子項」的那一行會把它推去 flex-start。auto margin
+                // 讓它即使獨佔一行也維持靠右；HUD 已併入左側品牌欄，換行後 toolbar 落在
+                // 整欄下方，兩者不會再互相重疊。
+                marginLeft: "auto",
               }}
             >
-              Mini Taiwan Pulse
-            </h1>
-
-            <StyleSelector
-              selected={mapStyleId}
-              isDarkTheme={isDarkTheme}
-              onChange={setMapStyleId}
-            />
-            <BasemapLabelToggle
-              isDarkTheme={isDarkTheme}
-              visible={showBasemapLabels}
-              onToggle={() => setShowBasemapLabels((visible) => !visible)}
-              title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
-            />
-
-            {loading && (
-              <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
-                Loading...
-              </span>
-            )}
+              <ModeToggle
+                appMode={appMode}
+                isDarkTheme={isDarkTheme}
+                onAppModeChange={(mode: AppMode) => {
+                  sessionTracker.log("mode_switch", { from: appMode, to: mode });
+                  setAppMode(mode);
+                }}
+              />
+              {toolbarDivider}
+              <BasemapMenu
+                selected={mapStyleId}
+                onChange={setMapStyleId}
+                isDarkTheme={isDarkTheme}
+                showLabels={showBasemapLabels}
+                onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
+              />
+              {toolbarDivider}
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title={t("toolbar.share")}
+                onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
+              >
+                <Share2 size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title={t("toolbar.help")}
+                onClick={() => setShowInfo(true)}
+              >
+                <CircleHelp size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary={chatOpen}
+                title={t("toolbar.ai")}
+                onClick={() => setChatOpen((v) => !v)}
+              >
+                <MessageSquare size={13} />
+                AI
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary
+                title={t("toolbar.captureTitle")}
+                onClick={() => setCaptureMode(true)}
+              >
+                <Camera size={13} />
+                {t("toolbar.capture")}
+              </ToolbarButton>
+              {toolbarDivider}
+              <LanguageMenu isDarkTheme={isDarkTheme} />
+              <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
+            </div>
           </div>
 
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
             <IconRailSidebar
               isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
@@ -1999,7 +2348,9 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
-              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} timeline={researchTimeline} isDarkTheme={isDarkTheme} /> : undefined}
+              agentAvailable={agentEnabled}
+              agentActive={agentOpen}
+              onAgentToggle={() => setAgentOpen(value => !value)}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
@@ -2009,7 +2360,6 @@ export default function App() {
               onToggleVisibility={handleToggleVisibility}
               onViewModeChange={setViewMode}
               onDisplayModeChange={handleDisplayModeChange}
-              onHideTransport={handleHideTransport}
               onAllOff={handleAllOff}
               onBulkSetVisibility={handleBulkSetVisibility}
 
@@ -2040,6 +2390,7 @@ export default function App() {
               }}
               satelliteActive={satConsole.open}
               externalCloseEpoch={railCloseEpoch}
+              startClosed={earthquakeReplayOpen || intelOpen || satConsole.open || memberOpen || agentOpen}
               onMonitorSplitToggle={() => {
                 if (monitorOpen && monitorMode === "split") {
                   setMonitorOpen(false);
@@ -2068,11 +2419,13 @@ export default function App() {
 
           {/* 衛星情報 Satellite Console */}
           <SatelliteConsole
+            maneuvers={satManeuvers}
             open={satConsole.open}
             onClose={() => satelliteConsoleStore.setOpen(false)}
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
+            isDarkTheme={isDarkTheme}
           />
 
           {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}
@@ -2097,6 +2450,7 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat, zoom) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: zoom ?? 12, speed: 1.2 });
             }}
@@ -2109,6 +2463,7 @@ export default function App() {
             onClose={() => setMonitorOpen(false)}
             mode={monitorMode}
             onModeChange={setMonitorMode}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
             }}
@@ -2117,11 +2472,9 @@ export default function App() {
 
           {/* 時間軸：依 mode 切換 realtime / historical */}
           {appMode === "realtime" ? (
-            <TimelineControls
+            <LiveTimelineControls
               playing={timeline.playing}
               speed={timeline.speed}
-              progress={timeline.progress}
-              currentTime={timeline.currentTime}
               timeMode={timeline.timeMode}
               selectedDate={timeline.selectedDate}
               rangeDays={timeline.rangeDays}
@@ -2169,244 +2522,13 @@ export default function App() {
             />
           )}
 
-          {/* 右上角按鈕群 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <ModeToggle
-              appMode={appMode}
-              isDarkTheme={isDarkTheme}
-              onAppModeChange={(mode: AppMode) => {
-                sessionTracker.log("mode_switch", { from: appMode, to: mode });
-                setAppMode(mode);
-              }}
-            />
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Share
-            </button>
-            <button
-              onClick={() => setCaptureMode(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Capture
-            </button>
-            <button
-              onClick={() => {
-                if (!monitorOpen) {
-                  setMemberOpen(false);
-                  setIntelOpen(false);
-                  satelliteConsoleStore.setOpen(false);
-                  // 2026-08-20 起開啟一律進 split（原本是 dock）——
-                  // 會連帶觸發 MONITOR_SPLIT_CAMERA 的自動定位，即為預期行為
-                  setMonitorMode("split");
-                }
-                setMonitorOpen((v) => !v);
-              }}
-              title="監看模式 Monitor"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: monitorOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${monitorOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: monitorOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <svg
-                width={13} height={13} viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth={1.8}
-                strokeLinecap="round" strokeLinejoin="round"
-              >
-                <path d="M3 3h7v7H3z" />
-                <path d="M14 3h7v7h-7z" />
-                <path d="M14 14h7v7h-7z" />
-                <path d="M3 14h7v7H3z" />
-              </svg>
-              Monitor
-              <span
-                style={{
-                  marginLeft: 2,
-                  padding: "1px 5px",
-                  borderRadius: RADIUS.md,
-                  background: monitorOpen
-                    ? "rgba(4,18,31,0.18)"
-                    : "rgba(255,152,0,0.18)",
-                  border: `1px solid ${monitorOpen ? "rgba(4,18,31,0.35)" : "rgba(255,152,0,0.55)"}`,
-                  fontSize: FONT_SIZE.xs,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: monitorOpen ? "#04121f" : "#ff9800",
-                }}
-              >
-                BETA
-              </span>
-            </button>
-            <button
-              onClick={() => setChatOpen((v) => !v)}
-              title="AI 助手 BYOK Chat"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: chatOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: chatOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: chatOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <MessageSquare size={13} />
-              AI
-            </button>
-          </div>
-
-          {/* 右上角第二排 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 52,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <button
-              onClick={() => setShowInfo(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Info
-            </button>
-            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
-          </div>
-
-          {/* 操作提示 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 84,
-              right: 16,
-              zIndex: 10,
-              color: isDarkTheme ? COLORS.textFaint : "rgba(0,0,0,0.2)",
-              fontSize: FONT_SIZE.sm,
-              fontFamily: FONT_DATA,
-              letterSpacing: 0.5,
-              textAlign: "right",
-            }}
-          >
-            Right-drag to rotate · Scroll to zoom
-          </div>
-
-          {/* 統計 + 相機角度 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 48,
-              left: sidebarWidth + 16,
-              zIndex: 10,
-              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
-              borderRadius: RADIUS.lg,
-              padding: "4px 10px",
-              transition: "left 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            >
-              {displayedFlights.length} flights
-              {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-              {layerVisibility.rail && ` · ${trainCount} trains`}
-              {layerVisibility.busLive && ` · ${busCount} buses`}
-              {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
-              {layerVisibility.touristShuttleLive && ` · ${touristShuttleCount} 台灣好行`}
-              {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
-              {viewMode === "time-window" && " (±12h)"}
-            </div>
-            <CameraHud
-              store={cameraHud}
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            />
-          </div>
         </>
       )}
 
       {/* ── 手機版 UI ── */}
       {!captureMode && isMobile && (
         <>
-          {/* Compact Header */}
+          {/* Compact Header（M1）：品牌＋座標｜AI、拍攝模式、⋯ 更多、帳號；其餘收進「⋯」 */}
           <div
             style={{
               position: "absolute",
@@ -2414,157 +2536,109 @@ export default function App() {
               left: 0,
               right: 0,
               height: 44,
-              zIndex: 10,
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
               alignItems: "center",
-              gap: 2,
-              padding: "0 6px",
+              gap: 4,
+              padding: "0 8px",
               paddingTop: "env(safe-area-inset-top, 0px)",
-              background: "rgba(0,0,0,0.5)",
+              background: isDarkTheme ? SURFACE.strong : LIGHT.surfaceStrong,
+              borderBottom: `1px solid ${toolbarPalette.borderPanel}`,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1 }}>
-              MTP
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1, marginRight: 4 }}>
+              <span style={{ color: toolbarPalette.textStrong, fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1.5, lineHeight: 1.2 }}>
+                MTP
+              </span>
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: toolbarPalette.textDim,
+                  fontSize: FONT_SIZE.xs,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              />
+            </div>
 
-            <div style={{ flex: 1, minWidth: 0 }} />
-
-            <button
-              onClick={() => setShowInfo(true)}
-              aria-label="資訊"
-              title="資訊"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CircleHelp size={17} />
-            </button>
-
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              aria-label="分享目前畫面 / 取得嵌入碼"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-              }}
-            >
-              <Share2 size={17} />
-            </button>
-
-            <button
-              onClick={() => setCaptureMode(true)}
-              title="截圖"
-              aria-label="截圖"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Camera size={17} />
-            </button>
-
-            <button
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary={chatOpen}
+              title={t("toolbar.aiShort")}
               onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
-              title="AI 助手"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: chatOpen ? "#64aaff" : "rgba(80,140,255,0.25)",
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                color: chatOpen ? "#04121f" : "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              style={mobileIconButtonStyle}
             >
               <MessageSquare size={16} />
-            </button>
-
-            <button
-              onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
-              style={{
-                height: 36,
-                width: 36,
-                borderRadius: RADIUS.xl,
-                background: renderMode === "3d"
-                  ? "rgba(80,140,255,0.25)"
-                  : "rgba(255,170,68,0.25)",
-                border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            </ToolbarButton>
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary
+              title={t("toolbar.captureTitleMobile")}
+              onClick={() => setCaptureMode(true)}
+              style={mobileIconButtonStyle}
             >
-              {renderMode === "3d" ? "3D" : "2D"}
-            </button>
-
-            <button aria-label="會員專區" title="會員專區" onClick={handleMemberToggle} style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid #577184", background: memberOpen ? "#285563" : "rgba(0,0,0,.45)", color: "white", display: "grid", placeItems: "center" }}><UserRound size={17} /></button>
-            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
+              <Camera size={16} />
+            </ToolbarButton>
+            <MobileMoreMenu
+              palette={toolbarPalette}
+              isDarkTheme={isDarkTheme}
+              buttonStyle={mobileIconButtonStyle}
+              items={[
+                { key: "info", label: t("toolbar.help"), icon: <CircleHelp size={15} />, onSelect: () => setShowInfo(true) },
+                {
+                  key: "share",
+                  label: t("toolbar.share"),
+                  icon: <Share2 size={15} />,
+                  onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); },
+                },
+                {
+                  key: "render",
+                  label: t("toolbar.render3d2d"),
+                  icon: <Box size={15} />,
+                  onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
+                  trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
+                },
+                ...(agentEnabled
+                  ? [{ key: "agent", label: t("toolbar.agent"), icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
+                  : []),
+                { key: "member", label: t("toolbar.member"), icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
+              ]}
+            />
+            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
           </div>
 
-          {/* Timeline */}
+          {/* Timeline — 時間軸屬地圖控制列，刻意維持 mapOverlay（10），在浮動面板之下 */}
           <div
             style={{
               position: "absolute",
               top: 44,
               left: 0,
               right: 0,
-              zIndex: 10,
+              zIndex: Z_INDEX.mapOverlay,
               padding: "8px 12px",
-              background: "rgba(0,0,0,0.4)",
+              background: isDarkTheme ? "rgba(0,0,0,0.4)" : LIGHT.surfaceStrong,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
             {appMode === "realtime" ? (
-              <TimelineControls
+              <LiveTimelineControls
                 playing={timeline.playing}
                 speed={timeline.speed}
-                progress={timeline.progress}
-                currentTime={timeline.currentTime}
                 timeMode={timeline.timeMode}
                 selectedDate={timeline.selectedDate}
                 rangeDays={timeline.rangeDays}
                 windowStart={timeline.windowStart}
                 windowEnd={timeline.windowEnd}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onToggle={timeline.toggle}
                 onSpeedChange={timeline.setSpeed}
@@ -2584,7 +2658,7 @@ export default function App() {
                 playing={historicalPlaying}
                 speed={historicalSpeed}
                 granularity={historicalGranularity}
-                isDarkTheme={true}
+                isDarkTheme={isDarkTheme}
                 isMobile={true}
                 onTogglePlay={() => setHistoricalPlaying((v) => !v)}
                 onSpeedChange={setHistoricalSpeed}
@@ -2599,7 +2673,12 @@ export default function App() {
           </div>
 
           {/* Bottom Sheet */}
-          <MobileBottomSheet isLandscape={isLandscape}>
+          <MobileBottomSheet
+            isLandscape={isLandscape}
+            isDarkTheme={isDarkTheme}
+            forceCollapsed={agentOpen}
+            onExpandedChange={(expanded) => { if (expanded) setAgentOpen(false); }}
+          >
             {(level) => (
               <>
                 {(level === "half" || level === "full") && (
@@ -2614,27 +2693,18 @@ export default function App() {
                       expandedLayer={expandedLayer}
                       viewMode={viewMode}
                       displayMode={displayMode}
-                      isDarkTheme={true}
+                      isDarkTheme={isDarkTheme}
                       isMobile={true}
                       counts={{
-                        flights: displayedFlights.length,
-                        ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                        trains: trainCount,
-                        buses: busCount,
-                        busesIntercity: busIntercityCount,
                         wasteTrucks: wasteCount,
                       }}
                       onLayerClick={handleLayerClick}
                       onToggleVisibility={handleToggleVisibility}
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-                      onHideTransport={() => {
-                        if (expandedLayer) {
-                          setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
-                          setExpandedLayer(null);
-                        }
-                      }}
                       onBulkSetVisibility={handleBulkSetVisibility}
+                      onAllOff={handleAllOff}
+                      onJapanOpen={() => mapRef.current?.flyTo({ center: JAPAN_CAMERA.center, zoom: JAPAN_CAMERA.zoom, pitch: JAPAN_CAMERA.pitch, bearing: JAPAN_CAMERA.bearing, speed: 1.0 })}
                     />
                   </div>
                 )}
@@ -2642,21 +2712,21 @@ export default function App() {
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>Style</span>
+                      <span style={{ color: isDarkTheme ? COLORS.textMuted : LIGHT.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>Style</span>
                       <StyleSelector
                         selected={mapStyleId}
-                        isDarkTheme={true}
+                        isDarkTheme={isDarkTheme}
                         onChange={setMapStyleId}
                       />
                       <BasemapLabelToggle
-                        isDarkTheme={true}
+                        isDarkTheme={isDarkTheme}
                         visible={showBasemapLabels}
                         onToggle={() => setShowBasemapLabels((visible) => !visible)}
                         showPointerCursor={false}
                       />
                     </div>
                     <LocationJump
-                      isDarkTheme={true}
+                      isDarkTheme={isDarkTheme}
                       currentId={selectedAirport}
                       onJump={(id) => {
                         const p = getPresetById(id);
@@ -2672,11 +2742,41 @@ export default function App() {
                         }
                       }}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setMobileDataSourceOpen(true)}
+                      style={{
+                        alignSelf: "flex-start", padding: "6px 12px", borderRadius: RADIUS.md, cursor: "pointer",
+                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                        background: isDarkTheme ? "rgba(255,255,255,0.06)" : LIGHT.fillStrong,
+                        color: isDarkTheme ? COLORS.textDefault : LIGHT.textDefault,
+                        border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : LIGHT.border}`,
+                      }}
+                    >
+                      資料來源與授權
+                    </button>
                   </div>
                 )}
               </>
             )}
           </MobileBottomSheet>
+          {mobileDataSourceOpen && (
+            <div
+              role="dialog"
+              aria-label="資料來源"
+              style={{
+                position: "fixed", inset: 0, top: 44, zIndex: Z_INDEX.modal, overflowY: "auto",
+                background: isDarkTheme ? SURFACE.solid : LIGHT.surfaceSolid,
+              }}
+            >
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={(key) => { handleBulkSetVisibility([key], true); setMobileDataSourceOpen(false); }}
+                onClose={() => setMobileDataSourceOpen(false)}
+              />
+            </div>
+          )}
         </>
       )}
 
@@ -2687,7 +2787,7 @@ export default function App() {
             position: "absolute",
             left: tooltipInfo.x + 12,
             top: tooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(100,170,255,0.4)",
@@ -2721,7 +2821,7 @@ export default function App() {
             position: "absolute",
             left: trainTooltipInfo.x + 12,
             top: trainTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${trainTooltipInfo.train.color}66`,
@@ -2755,7 +2855,7 @@ export default function App() {
             position: "absolute",
             left: busTooltipInfo.x + 12,
             top: busTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${busTooltipInfo.bus.color}66`,
@@ -2797,7 +2897,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.9)",
               backdropFilter: "blur(12px)",
               border: `1px solid ${accent}66`,
@@ -2871,7 +2971,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.92)",
               backdropFilter: "blur(12px)",
               border: "1px solid #a78bfa66",
@@ -2949,11 +3049,12 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          bottom: 64,
+          // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
+          bottom: LAYOUT.mapBottomInset,
           right: splitActive
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : 16,
-          zIndex: 30,
+          zIndex: Z_INDEX.floatingPanel,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
@@ -2983,34 +3084,34 @@ export default function App() {
             />
           </div>
         )}
+        {/* 黃砂予測：上游是燒好底圖的 PNG，做成圖片面板（非地圖疊加），圖層開啟時才掛 */}
+        {layerVisibility.jmaKosa && (
+          <div style={{ pointerEvents: "auto" }}>
+            <JmaKosaPanel isDark={isDarkTheme} />
+          </div>
+        )}
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          {Object.values(layerVisibility).some(Boolean) && (
+          {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (
             <Suspense fallback={<span role="status">圖例載入中…</span>}>
-              <LegendPanel isDarkTheme={isDarkTheme} />
+              {/* LG-9：停靠 popup 開著時圖例轉精簡（只留標題與色票） */}
+              <LegendPanel isDarkTheme={isDarkTheme} compact={!!privateUiFeatureInfo} />
             </Suspense>
           )}
         </div>
       </div>
 
-      {/* ── 全域 loading 指示器 ── */}
-      <LoadingIndicator
-        isDarkTheme={isDarkTheme}
-        rightOffset={splitActive
-          ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
-          : "16px"}
-      />
-
-      <MemberPanel key={memberUser?.id ?? "guest"} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
-        userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
-        authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
-        onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
-        captureScene={captureMemberScene} restoreScene={restoreMemberScene} capturePlace={captureMemberPlace} restorePlace={restoreMemberPlace} />
-
-      {/* ── Info Modal ── */}
-      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
-      {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
+      {/* ── 全域載入狀態條（§5.30）：工具列正下方；拍攝模式只隱藏、不卸載（保留進行中任務） ── */}
+        <LoadingStatus
+          hidden={captureMode}
+          isDarkTheme={isDarkTheme}
+          top={isMobile ? 52 : 60}
+          playing={timeline.playing || eqReplayPlaying || historicalPlaying}
+          rightOffset={splitActive
+            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+            : isMobile ? "10px" : "16px"}
+        />
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel
@@ -3023,8 +3124,18 @@ export default function App() {
         compact={featureInfo !== null}
       />
 
-      {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
-      {!memberOpen && <DataSourceBrowser isDarkTheme={isDarkTheme} lockedKeys={lockedKeys} onActivateLayer={(key) => handleBulkSetVisibility([key], true)} />}
+      <MemberPanel key={memberUser?.id ?? "guest"} isOwner={isOwner} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
+        userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
+        authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
+        onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
+        captureScene={captureMemberScene} restoreScene={restoreMemberScene} capturePlace={captureMemberPlace} restorePlace={restoreMemberPlace} />
+
+      {/* ── 置中視窗（Z_INDEX.modal）──
+          ChatPanel、手機 MemberPanel 與置中視窗同為 modal 層，同層前後靠 DOM 順序：
+          對話浮層 → 會員面板 → 說明／分享視窗（最後渲染＝最上層）。不要把這幾個往上搬。 */}
+      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
+      {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
 
       {/*
         ── 圖層掛載（AR-22 P1）────────────────────────────────────

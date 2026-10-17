@@ -28,17 +28,36 @@ function matchedBounds(rows: readonly Row[]): Bounds | null {
 
 export async function describeDatasetLayerStatistics(layerKey: string, locked: ReadonlySet<string>): Promise<Record<string, unknown>> {
   const descriptor = await datasetForLayer(layerKey, locked); assertAggregateReady(descriptor);
+  const pointSubset = descriptor.adapterId === "registered-layer-geojson-v1";
   return {
     schemaVersion: "pulse-layer-statistics/2", layerKey, datasetId: descriptor.datasetId, label: descriptor.label,
     countUnit: descriptor.recordGrain, recordGrain: descriptor.recordGrain, sourceRefs: descriptor.versions,
-    scope: "完整 adapter snapshot；不受目前 viewport、zoom 或顯示 filter 影響。",
+    scope: pointSubset
+      ? "已驗證 Point 子集的完整 adapter snapshot；非 Point 與無效 geometry 另列排除，不代表原始 GeoJSON 全部圖徵。不受目前 viewport、zoom 或顯示 filter 影響。"
+      : "完整 adapter snapshot；不受目前 viewport、zoom 或顯示 filter 影響。",
     coverage: descriptor.coverage, freshness: descriptor.versions.length ? "unknown" : "unknown", license: descriptor.license,
     geometry: descriptor.geometry, semantics: descriptor.valueSemantics,
-    capabilities: { count: true, groupBy: true, filterEquals: true, pagination: true, bounds: descriptor.geometry.type === "Point", area: false, spatialJoin: false },
+    capabilities: { count: true, groupBy: true, filterEquals: true, pagination: true, bounds: descriptor.geometry.spatialAnalysisEligible && descriptor.geometry.type === "Point", area: false, spatialJoin: false },
     fields: descriptor.fields.filter(field => descriptor.access.query.fields.includes(field.name)).map(field => ({ name: field.name, type: field.type, nullable: field.nullable, nullMeaning: field.nullMeaning, unit: field.unit, filterable: descriptor.access.query.filters.includes(field.name) })),
     limits: descriptor.access.limits,
-    limitations: ["計數單位是 descriptor recordGrain，不等於唯一實體、服務量能或現實母體完整度。", "來源版本、coverage、缺值與 exclusions 必須與結果一起解讀。", "不從 PMTiles viewport、raster pixels、scene objects 或 render features 推算完整來源數量。"],
+    limitations: ["計數單位是 descriptor recordGrain，不等於唯一實體、服務量能或現實母體完整度。", "來源版本、coverage、缺值與 exclusions 必須與結果一起解讀。", ...(pointSubset ? ["此共用 reader 僅查已驗證 Point 子集；非 Point 圖徵不在分母內，須讀排除數。"] : []), "不從 PMTiles viewport、raster pixels、scene objects 或 render features 推算完整來源數量。"],
   };
+}
+
+/** Release-scoped (statistics) datasets require an exact releaseId: use the caller's, else the registered release with the latest observedAt. */
+export function releaseParameters(descriptor: DatasetDescriptor, requested: unknown): Record<string, Scalar> | undefined {
+  const spec = descriptor.parameters?.find(parameter => parameter.name === "releaseId");
+  if (!spec) return undefined;
+  const options = (spec.options ?? []).filter((option): option is string => typeof option === "string");
+  if (requested !== undefined) {
+    if (typeof requested !== "string" || !options.includes(requested)) throw new Error("RELEASE_NOT_ALLOWED");
+    return { releaseId: requested };
+  }
+  if (!spec.required) return undefined;
+  const observed = new Map(descriptor.versions.map(version => [version.versionId, version.observedAt ?? ""]));
+  const latest = [...options].sort((a, b) => (observed.get(a) ?? "").localeCompare(observed.get(b) ?? ""))[options.length - 1];
+  if (!latest) throw new Error("RELEASE_NOT_ALLOWED");
+  return { releaseId: latest };
 }
 
 export async function summarizeDatasetLayer(input: LayerSummaryInput, locked: ReadonlySet<string>): Promise<Record<string, unknown>> {
@@ -46,8 +65,10 @@ export async function summarizeDatasetLayer(input: LayerSummaryInput, locked: Re
   const fields = fieldNames(descriptor); const filterable = new Set(descriptor.access.query.filters);
   const filters = input.filters ?? []; const groupBy = input.groupBy ?? [];
   if (filters.some(filter => !fields.has(filter.field) || !filterable.has(filter.field)) || groupBy.some(field => !fields.has(field) || field === "geometry")) throw new Error("INVALID_STATISTICS_INPUT");
+  const parameters = releaseParameters(descriptor, input.releaseId);
   const execution = await queryRecordsDetailed({
     datasetId: descriptor.datasetId,
+    ...(parameters ? { parameters } : {}),
     select: [...new Set([...groupBy, "geometry"].filter(field => fields.has(field)))],
     filters: filters.map(filter => ({ field: filter.field, op: "eq" as const, value: filter.value as Scalar })),
     limit: 1,
@@ -67,7 +88,7 @@ export async function summarizeDatasetLayer(input: LayerSummaryInput, locked: Re
     schemaVersion: "pulse-layer-statistics/2", operation: "count", layerKey: input.layerKey, datasetId: descriptor.datasetId,
     countUnit: descriptor.recordGrain, recordGrain: descriptor.recordGrain, totalMatched: execution.materializedRows.length,
     groups: page, totalGroups: allGroups.length, offset, limit, truncated: offset + page.length < allGroups.length, nextOffset: offset + page.length < allGroups.length ? offset + page.length : null,
-    bounds: matchedBounds(execution.materializedRows), sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
+    bounds: descriptor.geometry.spatialAnalysisEligible ? matchedBounds(execution.materializedRows) : null, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
     excludedByReason: execution.envelope.excludedByReason, semantics: execution.envelope.semantics, access: execution.envelope.access, limits: execution.envelope.limits, cost: execution.envelope.cost,
     limitations: ["完整 adapter snapshot 不等於現實母體完整。", "count 保留來源 record grain；未去重、未推論服務量能。", "null、missing、suppressed、zero 與 stale 不互換。"],
   };

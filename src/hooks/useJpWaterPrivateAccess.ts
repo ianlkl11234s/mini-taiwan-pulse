@@ -46,7 +46,12 @@ export function useJpWaterPrivateAccess() {
             // without surfacing a global failure for a layer they never opened.
             return false;
           }
-          if (!response.ok) throw new Error(`日本水資源私人服務尚未就緒（HTTP ${response.status}）`);
+          if (!response.ok) {
+            const localHint = response.status === 500
+              ? "；本地開發請重啟 npm run research:local:start，或確認 npm run dev:private-research 已啟動"
+              : "";
+            throw new Error(`日本水資源私人服務尚未就緒（HTTP ${response.status}）${localHint}`);
+          }
           const access = await response.json() as { allowed?: unknown };
           return access.allowed === true;
         };

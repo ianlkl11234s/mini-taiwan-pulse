@@ -18,8 +18,11 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookLineLayout, hookLineOpacity, hookLinePaint, hookLineWidth } from "../map/lineFillSpec";
 import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
+import { startThrottledRaf } from "../utils/throttledRaf";
+import { badgeLabelLayout, labelHaloPaint } from "../map/mapStyleScale";
 
 const SOURCE_ID = "global-events-current";
 export const GLOBAL_EVENTS_LAYER_ID = "global-events-current-circle";
@@ -103,14 +106,15 @@ function ensurePointImage(map: MapboxMap): void {
   if (!map.hasImage(POINT_IMAGE_ID)) map.addImage(POINT_IMAGE_ID, globalEventPointImage(), { sdf: true, pixelRatio: 2 });
 }
 
-function ensureLayers(map: MapboxMap): void {
+function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
   ensurePointImage(map);
   for (const id of [RELATIONS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
   }
   if (!map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) map.addLayer({
     id: GLOBAL_EVENTS_RELATIONS_LAYER_ID, type: "line", source: RELATIONS_SOURCE_ID,
-    paint: { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 },
+    layout: hookLineLayout("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID),
+    paint: hookLinePaint("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }, { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 }),
   });
   if (!map.getLayer(CONNECTORS_LAYER_ID)) map.addLayer({
     // Keep legacy IDs, but render only the actual shared location, never an offset line endpoint.
@@ -160,6 +164,13 @@ function ensureLayers(map: MapboxMap): void {
         ],
         "circle-stroke-width": 2.5,
         "circle-stroke-opacity": 0,
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-width-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
@@ -169,8 +180,12 @@ function ensureLayers(map: MapboxMap): void {
   });
   if (!map.getLayer(CLUSTER_LABEL_LAYER_ID)) map.addLayer({
     id: CLUSTER_LABEL_LAYER_ID, type: "symbol", source: CLUSTERS_SOURCE_ID,
-    layout: { "text-field": ["to-string", ["get", "point_count"]], "text-size": 11, "text-allow-overlap": true },
-    paint: { "text-color": "#f8fafc" },
+    layout: {
+      "text-field": ["to-string", ["get", "point_count"]],
+      ...badgeLabelLayout(),
+      "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+    },
+    paint: { "text-color": "#f8fafc", ...labelHaloPaint(isDarkTheme) },
   });
 }
 
@@ -202,6 +217,7 @@ export function useGlobalEventsLayer(
   category = "all",
   minSeverity = 0,
   taiwanOnly = false,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const allEventsRef = useRef<GlobalEventRecord[]>([]);
@@ -211,8 +227,9 @@ export function useGlobalEventsLayer(
   const signatureRef = useRef("");
   const listSignatureRef = useRef("");
   const requestRef = useRef(0);
-  const rafRef = useRef(0);
+  const stopPulseLoopRef = useRef<(() => void) | null>(null);
   const opacityRef = useRef(opacity);
+  const themeRef = useRef(isDarkTheme);
   const relationsRef = useRef(showRelations);
   relationsRef.current = showRelations;
   const selectedRef = useRef(selectedEventId);
@@ -220,6 +237,7 @@ export function useGlobalEventsLayer(
   const displayedRowsRef = useRef<GlobalEventPoint[]>([]);
   const expandedGroupsRef = useRef(new Set<string>());
   opacityRef.current = opacity;
+  themeRef.current = isDarkTheme;
 
   const applyPaint = useCallback((map: MapboxMap) => {
     const safeOpacity = Math.max(0, Math.min(1, opacityRef.current));
@@ -232,20 +250,25 @@ export function useGlobalEventsLayer(
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
       map.setLayoutProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "visibility", relationsRef.current ? "visible" : "none");
-      map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-opacity", ["case", ["==", ["get", "event_id"], selected], safeOpacity * 0.9, safeOpacity * 0.22]);
-      map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-width", ["case", ["==", ["get", "event_id"], selected], 2.5, 1]);
+      map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-opacity", hookLineOpacity("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID, ["case", ["==", ["get", "event_id"], selected], safeOpacity * 0.9, safeOpacity * 0.22], ["case", ["==", ["get", "event_id"], ""], 0.9, 0.22]));
+      map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-width", hookLineWidth("globalEvents", GLOBAL_EVENTS_RELATIONS_LAYER_ID, ["case", ["==", ["get", "event_id"], selected], 2.5, 1], ["case", ["==", ["get", "event_id"], ""], 2.5, 1]));
     }
     if (map.getLayer(CONNECTORS_LAYER_ID)) map.setPaintProperty(CONNECTORS_LAYER_ID, "circle-opacity", safeOpacity * 0.5);
     if (map.getLayer(GLOBAL_EVENTS_CLUSTER_LAYER_ID)) {
       map.setPaintProperty(GLOBAL_EVENTS_CLUSTER_LAYER_ID, "circle-opacity", safeOpacity);
       map.setPaintProperty(GLOBAL_EVENTS_CLUSTER_LAYER_ID, "circle-stroke-opacity", safeOpacity);
     }
-    if (map.getLayer(CLUSTER_LABEL_LAYER_ID)) map.setPaintProperty(CLUSTER_LABEL_LAYER_ID, "text-opacity", safeOpacity);
+    if (map.getLayer(CLUSTER_LABEL_LAYER_ID)) {
+      map.setPaintProperty(CLUSTER_LABEL_LAYER_ID, "text-opacity", safeOpacity);
+      const halo = labelHaloPaint(themeRef.current);
+      map.setPaintProperty(CLUSTER_LABEL_LAYER_ID, "text-halo-color", halo["text-halo-color"]);
+      map.setPaintProperty(CLUSTER_LABEL_LAYER_ID, "text-halo-width", halo["text-halo-width"]);
+    }
   }, []);
 
   const stopPulse = useCallback((map?: MapboxMap) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = 0;
+    stopPulseLoopRef.current?.();
+    stopPulseLoopRef.current = null;
     if (map?.getLayer(GLOBAL_EVENTS_PULSE_LAYER_ID)) {
       map.setPaintProperty(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-stroke-opacity", 0);
     }
@@ -255,10 +278,11 @@ export function useGlobalEventsLayer(
     stopPulse(map);
     if (transitions.size === 0 || prefersReducedMotion()) return;
     const startedAt = performance.now();
-    const animate = (now: number) => {
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    stopPulseLoopRef.current = startThrottledRaf((now) => {
       if (!map.getLayer(GLOBAL_EVENTS_PULSE_LAYER_ID)) {
-        rafRef.current = 0;
-        return;
+        stopPulseLoopRef.current = null;
+        return false;
       }
       // RAF timestamps mark the frame start and can precede performance.now() sampled
       // later in that same frame. Clamp both ends before deriving Mapbox paint values.
@@ -269,13 +293,12 @@ export function useGlobalEventsLayer(
         "circle-stroke-opacity",
         Math.sin(Math.PI * phase) * Math.max(0, Math.min(1, opacityRef.current)),
       );
-      if (phase < 1) rafRef.current = requestAnimationFrame(animate);
-      else {
-        rafRef.current = 0;
+      if (phase >= 1) {
+        stopPulseLoopRef.current = null;
         map.setPaintProperty(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-stroke-opacity", 0);
+        return false;
       }
-    };
-    rafRef.current = requestAnimationFrame(animate);
+    });
   }, [stopPulse]);
 
   useEffect(() => {
@@ -291,7 +314,7 @@ export function useGlobalEventsLayer(
     // 是否要清空既有 rows／entries。effect 重掛（view/includeAI/timeMode 切換）
     // 會拿到全新的 closure，等同重置為 null，自然視為「新 window」。
     let lastWindowKey: string | null = null;
-    ensureLayers(map);
+    ensureLayers(map, themeRef.current);
     setLayerVisibility(map, true);
     applyPaint(map);
     previousTimeRef.current = timeStore.getTime();
@@ -430,7 +453,7 @@ export function useGlobalEventsLayer(
     };
 
     const onStyleLoad = () => {
-      ensureLayers(map);
+      ensureLayers(map, themeRef.current);
       setLayerVisibility(map, true);
       feed(displayedRowsRef.current);
       applyPaint(map);
@@ -495,5 +518,5 @@ export function useGlobalEventsLayer(
     const map = mapRef.current;
     if (!map) return;
     if (visible) applyPaint(map);
-  }, [mapRef, mapTick, opacity, visible, showRelations, selectedEventId, view, timeMode, applyPaint]);
+  }, [mapRef, mapTick, opacity, visible, showRelations, selectedEventId, view, timeMode, isDarkTheme, applyPaint]);
 }

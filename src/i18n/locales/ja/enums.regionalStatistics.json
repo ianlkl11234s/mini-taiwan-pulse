@@ -1,0 +1,17 @@
+{
+  "enum.regionalStatisticsInput.official_complete_county_sum": "22県市の同種合計",
+  "enum.regionalStatisticsInput.numerator": "分子",
+  "enum.regionalStatisticsInput.denominator": "分母",
+  "enum.regionalStatisticsInput.numerator_hectares": "同種の面積（ha）",
+  "enum.regionalStatisticsInput.denominator_hectares": "行政面積（ha）",
+  "enum.regionalStatisticsInput.admin_area_km2": "行政面積（km²）",
+  "enum.regionalStatisticsInput.local_category_ha": "当地の同種面積（ha）",
+  "enum.regionalStatisticsInput.local_admin_ha": "当地の行政面積（ha）",
+  "enum.regionalStatisticsInput.national_category_ha": "全台の同種面積（ha）",
+  "enum.regionalStatisticsInput.national_admin_ha": "全台の行政面積（ha）",
+  "enum.regionalStatisticsInput.denominator_population": "分母人口",
+  "enum.regionalStatisticsInput.population": "分母人口",
+  "enum.regionalStatisticsInput.heads": "飼養頭羽数",
+  "enum.regionalStatisticsInput.farms": "飼養場数",
+  "enum.regionalStatisticsInput.source_participation_rate_pct": "出典の労働力率（%）"
+}

@@ -1,0 +1,10 @@
+{
+  "popup.allenCoral.region": "研究區域",
+  "popup.allenCoral.window": "研究窗口",
+  "popup.allenCoral.sourceArea": "來源完整要素面積",
+  "popup.allenCoral.resolution": "名目解析度",
+  "popup.allenCoral.geometryRole": "幾何角色",
+  "popup.allenCoral.warning": "珊瑚／藻類為合併分類，不代表活珊瑚覆蓋率、健康或物種。金門與馬祖無製圖要素，不代表沒有珊瑚。取得日期不是觀測日期；名目 5m 解析度不是定位精度。",
+  "popup.allenCoral.areaNote": "來源完整要素面積未裁切，不能視為研究區珊瑚總面積。取得日 {date}，不是觀測日。",
+  "popup.allenCoral.attribution": "© Allen Coral Atlas Partnership / Arizona State University · CC BY 4.0 · 本人私人非商業研究"
+}

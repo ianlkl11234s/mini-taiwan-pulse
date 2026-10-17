@@ -18,7 +18,7 @@ describe("memberSceneAdapter", () => {
   it("略過已下架與未授權圖層，並將不相容參數改回安全預設", () => {
     const restored = resolveSceneRestore(scene, new Set(["cctv", "aqi"]), new Set(["aqi"]), ["dark", "standard"]);
     expect(restored.layers).toEqual(["cctv"]);
-    expect(restored.params.cctv?.cctvOpacity).toBe(0.7);
+    expect(restored.params.cctv?.cctvOpacity).toBe(0.8);
     expect(restored.basemap).toBe("dark");
     expect(restored.skipped.join("\n")).toContain("removedLayer：已下架");
     expect(restored.skipped.join("\n")).toContain("aqi：目前未授權");

@@ -7,7 +7,10 @@ vi.mock("../../lib/supabase", () => ({
   supabase: { rpc: source.rpc },
 }));
 
-import { fetchNewsEventsDayClusters, fetchNewsEventsDayClustersStrict } from "../newsEventsLoader";
+import {
+  fetchNewsEventsDayClusters, fetchNewsEventsDayClustersStrict,
+  isNewsEventSourceStale, latestNewsEventDay,
+} from "../newsEventsLoader";
 
 afterEach(() => {
   source.configured = false;
@@ -39,5 +42,24 @@ describe("news event research reader", () => {
     const validCluster = { lon: 121.5, lat: 25, events: [{ id: 1, title: "最小合法事件", published_ts: 0 }] };
     source.rpc.mockResolvedValueOnce({ data: [validCluster], error: null });
     await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).resolves.toEqual([validCluster]);
+  });
+});
+
+describe("news event source freshness", () => {
+  it("finds the latest valid day without trusting RPC order", () => {
+    expect(latestNewsEventDay([
+      { day: "2026-09-08", event_count: 10 },
+      { day: "invalid", event_count: 99 },
+      { day: "2026-09-10", event_count: 1 },
+      { day: "2026-09-09", event_count: 5 },
+    ])).toBe("2026-09-10");
+    expect(latestNewsEventDay([])).toBeNull();
+  });
+
+  it("allows a one-day rollover gap but flags older located news", () => {
+    expect(isNewsEventSourceStale("2026-09-28", "2026-09-27")).toBe(false);
+    expect(isNewsEventSourceStale("2026-09-28", "2026-09-26")).toBe(true);
+    expect(isNewsEventSourceStale("2026-09-28", null)).toBe(true);
+    expect(isNewsEventSourceStale("invalid", "2026-09-28")).toBe(true);
   });
 });

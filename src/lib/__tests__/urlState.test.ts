@@ -5,9 +5,9 @@
  * 圖層改名/下架/上鎖之後，舊網址必須安靜降級而不是炸掉整個 iframe。
  */
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { parseUrlState, buildUrl, URL_STATE_VERSION } from "../urlState";
+import { parseUrlState, buildUrl, cleanUrl, URL_STATE_VERSION } from "../urlState";
 import { RAIL_CODES, resolveRailCodes } from "../../constants/railLines";
-import { LAYER_COLORS, GATED_LAYERS } from "../../components/sidebar/layerCatalog";
+import { LAYER_COLORS, GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../../types";
 
 const V = `v=${URL_STATE_VERSION}`;
@@ -110,6 +110,12 @@ describe("parseUrlState — 圖層安全過濾", () => {
     }
   });
 
+  it("授權 HOLD 圖層不可從 URL 還原", () => {
+    for (const key of RELEASE_HOLD_LAYERS) {
+      expect(parseUrlState(`?${V}&layers=${key}`).layers, `${key} 不該通過`).toBeUndefined();
+    }
+  });
+
   it("allowedLayers 白名單再收一層（/embed 用）", () => {
     const s = parseUrlState(`?${V}&layers=aquaculturePonds,aquacultureZone`, {
       allowedLayers: new Set(["aquaculturePonds"]),
@@ -165,7 +171,7 @@ describe("parseUrlState — Statistics mode", () => {
   });
 
   it("舊網址沒有 sm 時保留 undefined，消費端可依統計 layers 採 documented safe fallback", () => {
-    expect(parseUrlState(`?${V}&layers=statsWasteCounty,crimeAreaMonthly`).statisticsMode).toBeUndefined();
+    expect(parseUrlState(`?${V}&layers=statsWasteCounty,statsCrimeDrugCasesTownship`).statisticsMode).toBeUndefined();
   });
 });
 
@@ -352,6 +358,26 @@ describe("resolveRailCodes — rsys 代碼語意", () => {
     }
     // 系統級與其線路混用時，系統級勝出（all 不會被線路收斂回去）
     expect(lines(["krtc-r", "krtc"], "krtc")!.all).toBe(true);
+  });
+});
+
+describe("lang", () => {
+  it("非中文才寫入網址，並可 round-trip", () => {
+    for (const lang of ["en", "ja"] as const) {
+      const url = buildUrl({ lang }, "https://example.com");
+      expect(url).toBe(`https://example.com?${V}&lang=${lang}`);
+      expect(parseUrlState(url.split("?")[1]!).lang).toBe(lang);
+    }
+  });
+  it("zh-TW 是預設，不寫入", () => {
+    expect(buildUrl({ lang: "zh-TW" }, "https://example.com")).toBe(`https://example.com?${V}`);
+  });
+  it("壞值丟棄，不影響其他欄位", () => {
+    expect(parseUrlState(`${V}&lang=xx`).lang).toBeUndefined();
+  });
+  it("cleanUrl：中文回乾淨路徑，外文保留語系", () => {
+    expect(cleanUrl("/", "zh-TW")).toBe("/");
+    expect(cleanUrl("/", "en")).toBe(`/?${V}&lang=en`);
   });
 });
 

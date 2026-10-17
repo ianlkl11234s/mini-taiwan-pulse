@@ -1,7 +1,11 @@
+import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
+import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
+import { AnalysisResultPanel } from "./analysisResultPanels";
+import { LiquefactionMonitoringSitePanel, SoilLiquefactionPotentialPanel, WEAK_SOIL_PANELS } from "./soilLiquefactionPanels";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -16,11 +20,11 @@ import {
   ServiceAreaPanel, ServiceAreaPolygonPanel, TaxiStandPanel,
 } from "./infraPanels";
 import {
-  WeatherStationPanel, BikeStationPanel, BusStationPanel, RailStationPanel, ShipPanel,
+  WeatherStationPanel, BikeStationPanel, BusStationPanel, RailStationPanel, RailRoutesPanel, ShipPanel,
 } from "./transportPanels";
 import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
-  RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel,
+  RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel, BridgeRainPanel,
   WaterReservoirPolyPanel, LakesPondsPanel,
   IotWraRiverPanel, IotWraStructurePanel,
   WaterBasinsPanel, WaterRiversPanel, WaterLeveesPanel, WaterCanalsPanel,
@@ -60,7 +64,8 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
+import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
+import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
@@ -132,7 +137,7 @@ import {
 import {
   PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
   CourtPanel, ProsecutorsOfficePanel, CorrectionalFacilityPanel, CourtJurisdictionPanel,
-  CrimeAreaMonthlyPanel, TheftTaoyuanPanel, TrafficAccidentYearlyPanel, AccidentTaipeiPanel,
+  TheftTaoyuanPanel, TrafficAccidentYearlyPanel, AccidentTaipeiPanel,
   A1AccidentRealtimePanel,
   InvestigationBureauPanel, AntiCorruptionOfficePanel, ImmigrationOfficePanel, CoastGuardStationPanel,
   CivilDefenseShelterPanel,
@@ -146,9 +151,21 @@ import {
   OfficialNoiseMonitoringPanel, NoiseCaptureGridPanel, NoiseControlZonesPanel,
   AviationNoiseZonesPanel, NoiseEnforcementEventsPanel, SoundCameraLocationsPanel,
 } from "./noisePanels";
+import {
+  RiverRpiStationsPanel, WaterQualityStationsPanel, SewageTreatmentPlantsPanel, DrinkingWaterProtectionZonesPanel,
+  SeaWaterQualityStationsPanel, RiverRpiSegmentsPanel, Pm25ManualStationsPanel, DioxinStationsPanel, IncineratorEmissionsPanel,
+  NuscGammaRadiationPanel, WaterEffluentLivePanel, CemsStackLivePanel, CwaUvDailyPanel,
+} from "./environmentLayerPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
+import {
+  HarmReductionHivSelftestPanel, HarmReductionHivTestingPanel, HarmReductionNeedlePanel, HarmReductionPreventionCenterPanel, HarmReductionTreatmentPanel,
+  HarmReductionAlcoholPanel, HarmReductionPrepPanel, HarmReductionInternetAddictionPanel, HarmReductionAftercarePanel, HarmReductionSmokingCessationPanel, HarmReductionAntiDrugPharmacyPanel, HarmReductionCondomOutletPanel, HarmReductionTherapeuticCommunityPanel, HarmReductionDuiCrashPanel,
+} from "./harmReductionPanels";
+import { HighwayDisasterPanel, LandslideAnnualPanel, LandslideDodAreaPanel, LandslideDodImpactPanel } from "./landslidePanels";
+import { ATLAS_HEADER_LABELS, ATLAS_PANELS } from "./atlasPanels";
+import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -195,6 +212,30 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
+  harmReductionNeedle: HarmReductionNeedlePanel,
+  harmReductionTreatment: HarmReductionTreatmentPanel,
+  harmReductionHivSelftest: HarmReductionHivSelftestPanel,
+  harmReductionHivTesting: HarmReductionHivTestingPanel,
+  harmReductionPreventionCenters: HarmReductionPreventionCenterPanel,
+  harmReductionAlcohol: HarmReductionAlcoholPanel,
+  harmReductionPrep: HarmReductionPrepPanel,
+  harmReductionInternetAddiction: HarmReductionInternetAddictionPanel,
+  harmReductionAftercare: HarmReductionAftercarePanel,
+  harmReductionSmokingCessation: HarmReductionSmokingCessationPanel,
+  harmReductionAntiDrugPharmacies: HarmReductionAntiDrugPharmacyPanel,
+  harmReductionCondomOutlets: HarmReductionCondomOutletPanel,
+  harmReductionTherapeuticCommunities: HarmReductionTherapeuticCommunityPanel,
+  harmReductionDuiCrashes: HarmReductionDuiCrashPanel,
+  drinkingWaterPoints: PublicLifeOsmPanel,
+  publicWasteBaskets: PublicLifeOsmPanel,
+  materialRecyclingPoints: PublicLifeOsmPanel,
+  disasterShelters: DisasterShelterPanel,
+  playgrounds: PublicLifeOsmPanel,
+  accessibleParkFacilities: AccessibleParkFacilitiesPanel,
+  bicycleSupport: PublicLifeOsmPanel,
+  nationalParks: NationalParkPanel,
+  visitorCentres: PublicLifeOsmPanel,
+  publicLifeOsmCoverage: PublicLifeOsmCoveragePanel,
   weatherStation: WeatherStationPanel,
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
@@ -203,6 +244,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpHistoricalFlightTrails: HistoricalFlightTrailPanel,
   lighthouse: LighthousePanel,
   railStation: RailStationPanel,
+  railRoutes: RailRoutesPanel,
   port: PortPanel,
   airport: AirportPanel,
   cctv: CctvPanel,
@@ -236,6 +278,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   waterDetentionBasin: WaterDetentionBasinPanel,
   lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
+  bridgeRainThresholds: BridgeRainPanel,
   riverLevel: RiverLevelPanel,
   marineObservation: MarineObservationPanel,
   // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
@@ -281,6 +324,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPOI: ForestryGenericPanel,
   mountainHut: MountainHutPanel,
   mountainRescueIncident: MountainRescuePanel,
+  landslideDodArea: LandslideDodAreaPanel,
+  landslideDodImpact: LandslideDodImpactPanel,
+  highwayDisaster: HighwayDisasterPanel,
+  landslideAnnual: LandslideAnnualPanel,
+  ...ATLAS_PANELS,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -376,6 +424,15 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
   jpPoliceFacilities: JpPoliceFacilitiesPanel,
+  jmaAmedas: JmaAmedasPanel,
+  jmaWarnings: JmaWarningsPanel,
+  jmaQuakes: JmaQuakesPanel,
+  jmaVolcanoes: JmaVolcanoesPanel,
+  jmaWbgt: JmaWbgtPanel,
+  jmaSnowcap: JmaSnowcapPanel,
+  jmaAutumnLeaves: JmaAutumnLeavesPanel,
+  jmaSakura: JmaSakuraPanel,
+  jmaRainySeason: JmaRainySeasonPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   jpWaterLakes: JpWaterPanel,
@@ -390,6 +447,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpWaterLocalFacilities: JpWaterPanel,
   jpWaterQualityStations: JpWaterPanel,
   jpWaterLevelStations: JpWaterPanel,
+  // 土壤液化 owner-only（6 個弱層共用一個 panel 工廠，依圖層決定深度）
+  soilLiquefactionPotential: SoilLiquefactionPotentialPanel,
+  ...WEAK_SOIL_PANELS,
+  liquefactionMonitoringSites: LiquefactionMonitoringSitePanel,
   jpAccommodationCanonical: JpTourismPanel,
   jpAccommodationDensity: JpAccommodationDensityPanel,
   jpAccommodationJta: JpTourismPanel,
@@ -413,6 +474,14 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   osmBridgeFootprints: OsmBridgeFootprintPanel,
   officialBridgesNewTaipei: OfficialBridgeNewTaipeiPanel,
   bridgeComparisonNewTaipei: BridgeComparisonNewTaipeiPanel,
+  tainanBridgeInspections: TainanBridgeInspectionsPanel,
+  officialBridgesHsinchu: OfficialBridgeHsinchuPanel,
+  taipeiRoadTunnels: TaipeiRoadTunnelPanel,
+  tainanRoadTunnels: TainanRoadTunnelPanel,
+  changhuaTrafficSignals: ChanghuaTrafficSignalPanel,
+  bssNationalBridgePreview: BssNationalBridgePreviewPanel,
+  bssNationalBridgePointsPreview: BssNationalBridgePreviewPanel,
+  bridgeResilienceTwinCity: BridgeResiliencePanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -439,7 +508,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   correctionalFacility: CorrectionalFacilityPanel,
   courtJurisdiction: CourtJurisdictionPanel,
   regionalStatistic: RegionalStatisticsPanel,
-  crimeAreaMonthly: CrimeAreaMonthlyPanel,
   theftTaoyuan: TheftTaoyuanPanel,
   trafficAccidentYearly: TrafficAccidentYearlyPanel,
   accidentTaipei: AccidentTaipeiPanel,
@@ -467,8 +535,23 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aviationNoiseZones: AviationNoiseZonesPanel,
   noiseEnforcementEvents: NoiseEnforcementEventsPanel,
   soundCameraLocations: SoundCameraLocationsPanel,
+  riverRpiStations: RiverRpiStationsPanel,
+  waterQualityStations: WaterQualityStationsPanel,
+  sewageTreatmentPlants: SewageTreatmentPlantsPanel,
+  drinkingWaterProtectionZones: DrinkingWaterProtectionZonesPanel,
+  seaWaterQualityStations: SeaWaterQualityStationsPanel,
+  riverRpiSegments: RiverRpiSegmentsPanel,
+  pm25ManualStations: Pm25ManualStationsPanel,
+  dioxinStations: DioxinStationsPanel,
+  incineratorEmissions: IncineratorEmissionsPanel,
+  nuscGammaRadiation: NuscGammaRadiationPanel,
+  waterEffluentLive: WaterEffluentLivePanel,
+  cemsStackLive: CemsStackLivePanel,
+  cwaUvDaily: CwaUvDailyPanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
+  // 與 Agent 協作：暫時分析結果
+  analysisResult: AnalysisResultPanel,
   // 🐷 畜牧
   livestockFarm: LivestockFarmPanel,
   livestockSlaughter: LivestockSlaughterPanel,
@@ -544,7 +627,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
-  jpWaterLakes: "湖沼 湖沼（W09・2005）",
+  jpWaterLakes: "湖沼 湖沼（2005）",
   jpWaterDams: "水壩 ダム（2014）",
   jpWaterRivers: "河川流路 河川（2006–2009）",
   jpWaterSupplyFacilities: "上水道相關設施（2010）",
@@ -557,6 +640,14 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpWaterLocalFacilities: "高松供排水相關設施 高松市",
   jpWaterQualityStations: "水質測定地点（2024）",
   jpWaterLevelStations: "橫濱水位站 横浜市",
+  soilLiquefactionPotential: "土壤液化潛勢",
+  weakSoilClay0To5: "弱層黏土 0–5m",
+  weakSoilSand0To5: "弱層砂土 0–5m",
+  weakSoilClay5To10: "弱層黏土 5–10m",
+  weakSoilSand5To10: "弱層砂土 5–10m",
+  weakSoilClay10To20: "弱層黏土 10–20m",
+  weakSoilSand10To20: "弱層砂土 10–20m",
+  liquefactionMonitoringSites: "土壤液化監測站",
   regionalStatistic: "區域統計",
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -587,12 +678,37 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
+  harmReductionNeedle: "清潔針具據點",
+  harmReductionTreatment: "替代療法與藥癮戒治",
+  harmReductionHivSelftest: "愛滋自我篩檢通路",
+  harmReductionHivTesting: "愛滋篩檢與指定醫療",
+  harmReductionPreventionCenters: "毒品危害防制中心",
+  harmReductionAlcohol: "酒癮治療與酒駕酒癮評估",
+  harmReductionPrep: "PrEP 服務醫院",
+  harmReductionInternetAddiction: "網路成癮治療資源",
+  harmReductionAftercare: "更生保護會",
+  harmReductionSmokingCessation: "戒菸服務機構",
+  harmReductionAntiDrugPharmacies: "社區藥局反毒站",
+  harmReductionCondomOutlets: "保險套販售點",
+  harmReductionTherapeuticCommunities: "治療性社區與中途之家",
+  harmReductionDuiCrashes: "酒駕肇事事故",
+  drinkingWaterPoints: "飲水點",
+  publicWasteBaskets: "公共垃圾桶",
+  materialRecyclingPoints: "資源回收點",
+  disasterShelters: "預定收容處所",
+  playgrounds: "遊戲場",
+  accessibleParkFacilities: "無障礙設施探索",
+  bicycleSupport: "自行車支援設施",
+  nationalParks: "國家公園",
+  visitorCentres: "遊客中心",
+  publicLifeOsmCoverage: "公共生活 OSM 映射密度",
   weatherStation: "氣象站",
   bikeStation: "公共自行車站",
   busStation: "公車站",
   ship: "船舶",
   lighthouse: "燈塔",
   railStation: "車站",
+  railRoutes: "軌道路線",
   port: "港口",
   airport: "機場",
   cctv: "道路攝影機",
@@ -621,6 +737,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterDetentionBasin: "滯洪池",
   lakesPondsOsm: "湖泊/埤塘",
   rainGauge: "即時雨量站",
+  bridgeRainThresholds: "一級監控橋梁參考雨量",
   riverLevel: "河川水位站",
   marineObservation: "海洋固定站觀測",
   groundwater: "地下水井",
@@ -678,6 +795,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPOI: "林業點位 (POI)",
   mountainHut: "山屋・高山營地",
   mountainRescueIncident: "山域事故",
+  landslideDodArea: "大規模崩塌潛勢區",
+  landslideDodImpact: "大規模崩塌影響範圍",
+  highwayDisaster: "省道歷史災情",
+  landslideAnnual: "年度崩塌地",
+  ...ATLAS_HEADER_LABELS,
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
@@ -834,6 +956,15 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   historicalFlightTrails: "歷史航班軌跡（台灣）",
   jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "警察設施 警察施設",
+  jmaAmedas: "AMeDAS 即時觀測 アメダス",
+  jmaWarnings: "警報・注意報",
+  jmaQuakes: "地震 地震情報",
+  jmaVolcanoes: "火山警戒 噴火警戒レベル",
+  jmaWbgt: "暑熱指數 WBGT 暑さ指数",
+  jmaSnowcap: "山頂初冠雪 初冠雪",
+  jmaAutumnLeaves: "紅葉・黃葉前線 紅葉前線",
+  jmaSakura: "櫻花前線 桜前線",
+  jmaRainySeason: "梅雨入梅・出梅 梅雨入り・明け",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",
   jpAccommodationCanonical: "旅宿去重總覽 宿泊施設の統合一覧",
@@ -859,6 +990,14 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   osmBridgeFootprints: "OSM 橋梁輪廓",
   officialBridgesNewTaipei: "新北市轄管橋梁",
   bridgeComparisonNewTaipei: "新北橋梁 OSM 比對",
+  tainanBridgeInspections: "臺南橋梁定期檢測紀錄",
+  officialBridgesHsinchu: "新竹市橋梁清冊",
+  taipeiRoadTunnels: "臺北市道路隧道",
+  tainanRoadTunnels: "臺南市道路隧道",
+  changhuaTrafficSignals: "彰化縣道路號誌",
+  bssNationalBridgePreview: "全臺橋梁方向候選（進行中）",
+  bssNationalBridgePointsPreview: "全臺橋梁清冊點位（進行中）",
+  bridgeResilienceTwinCity: "雙北跨河橋梁韌性（研究中）",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
@@ -882,7 +1021,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   prosecutorsOffice: "檢察署",
   correctionalFacility: "矯正機關",
   courtJurisdiction: "法院管轄區",
-  crimeAreaMonthly: "鄉鎮犯罪統計",
   theftTaoyuan: "桃園竊盜點",
   trafficAccidentYearly: "A1 死亡事故（年度）",
   accidentTaipei: "北市事故點",
@@ -894,8 +1032,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   civilDefenseShelter: "防空避難所",
   aviationControl: "飛航情報/終端管制",
   aviationRestricted: "機場管制/限航/危險",
-  droneNoFlyZone: "無人機禁航區",
-  droneRestrictedZone: "無人機限航區",
+  droneNoFlyZone: "無人機紅區／未分類快照",
+  droneRestrictedZone: "無人機黃區快照",
   // 警察覆蓋分析
   policeIsoSubstation: "派出所等時圈",
   policeIsoPrecinct: "分局等時圈",
@@ -911,6 +1049,21 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aviationNoiseZones: "航空噪音法定里別",
   noiseEnforcementEvents: "噪音裁處事件",
   soundCameraLocations: "聲音照相設備／路段",
+  riverRpiStations: "河川污染指數測站",
+  waterQualityStations: "水質監測站",
+  sewageTreatmentPlants: "公共污水處理廠",
+  drinkingWaterProtectionZones: "飲用水水源水質保護區（環境部）",
+  seaWaterQualityStations: "海域水質測站",
+  riverRpiSegments: "河川污染指數河段（推估）",
+  pm25ManualStations: "PM2.5 手動採樣站",
+  dioxinStations: "環境空氣戴奧辛測站",
+  incineratorEmissions: "焚化廠空污監測",
+  nuscGammaRadiation: "環境輻射（核安會）",
+  waterEffluentLive: "放流水連線監測",
+  cemsStackLive: "煙道 CEMS 連線監測",
+  cwaUvDaily: "紫外線（前一天最大值）",
   // AI 助手標記點
   chatHighlight: "地圖標記",
+  // 與 Agent 協作：暫時分析結果
+  analysisResult: "分析結果",
 };

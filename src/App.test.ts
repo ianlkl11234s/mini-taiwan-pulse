@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { BasemapLabelToggle } from "./App";
 
 describe("BasemapLabelToggle", () => {
-  it("keeps the desktop label, pressed state, and contextual title", () => {
+  it("keeps the light-theme label, pressed state, and contextual title", () => {
     const html = renderToStaticMarkup(createElement(BasemapLabelToggle, {
       isDarkTheme: false,
       visible: true,

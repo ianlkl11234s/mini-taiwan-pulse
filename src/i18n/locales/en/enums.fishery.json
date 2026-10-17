@@ -1,0 +1,15 @@
+{
+  "enum.fisheryMoaTier.confirmed": "Confirmed",
+  "enum.fisheryMoaTier.solar_symbiotic": "Fishery-solar co-location",
+  "enum.fisheryMoaTier.unverified": "Unverified",
+  "enum.fisheryMoaTier.ambiguous": "Ambiguous",
+  "enum.fisheryMoaTier.mountain_suspect": "Suspected terrain shadow",
+  "enum.fisheryUnionTier.both": "In both versions",
+  "enum.fisheryUnionTier.moa_only": "Official-label version only",
+  "enum.fisheryUnionTier.osm_only": "Old OSM version only",
+  "enum.fisheryUnionSource.moa": "Official-label version (MOA)",
+  "enum.fisheryUnionSource.osm_satellite": "Old satellite-detection version (OSM)",
+  "enum.fisheryIntegratedSource.ponds": "Individual fish ponds (OSM)",
+  "enum.fisheryIntegratedSource.satellite": "Satellite detection supplement",
+  "enum.fisheryIntegratedSource.production": "Production zone"
+}

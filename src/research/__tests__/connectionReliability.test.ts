@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { BridgeError } from "../bridgeClient";
-import { acquireConnectionLease, classifyConnectionFailure, mustClearStoredConnection, nextPollDelay } from "../connectionReliability";
+import { acquireConnectionLease, classifyConnectionFailure, nextPollDelay } from "../connectionReliability";
 
 describe("connection reliability", () => {
   it("separates owner auth, expiry, rate limiting, timeout, and scene failures", () => {
@@ -34,10 +34,6 @@ describe("connection reliability", () => {
       expect(next).not.toBeNull();
       next!.release();
     } finally { vi.unstubAllGlobals(); }
-  });
-  it("requires stored state to be cleared when verified session metadata is inactive", () => {
-    expect(mustClearStoredConnection({ active: false })).toBe(true);
-    expect(mustClearStoredConnection({ active: true })).toBe(false);
   });
   it("surfaces Web Locks rejection instead of leaving recovery pending", async () => {
     vi.stubGlobal("navigator", { locks: { request: () => Promise.reject(new Error("locks unavailable")) } });

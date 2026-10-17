@@ -147,6 +147,18 @@ export const statisticsDisplayModeStore = {
     return next;
   },
 
+  /**
+   * All Off：結果必須與「逐一關閉每個開著的圖層」完全一致 —— 統計面走 setVisible(false)
+   * （同步清掉 recency 紀錄），其餘 key 一律 false。
+   */
+  allOff(current: LayerVisibility): LayerVisibility {
+    const visibleStatistics = STATISTICS_CHOROPLETH_KEYS.filter((key) => current[key]);
+    let next = this.setBulk(visibleStatistics, false, current);
+    next = { ...next };
+    for (const key of Object.keys(next) as (keyof LayerVisibility)[]) next[key] = false;
+    return next;
+  },
+
   setMode(mode: StatisticsDisplayMode, current: LayerVisibility): LayerVisibility {
     publish({ ...snapshot, mode });
     return this.admitVisibility(current);

@@ -20,6 +20,18 @@ const JP_WATER_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/
 const JP_WATER_PATH = "/api/private-research/jp-water";
 const JP_WATER_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const JP_WATER_S3_PREFIX = "private-research/jp-water";
+const SOIL_LIQUEFACTION_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/output/soil_liquefaction_private";
+const SOIL_LIQUEFACTION_PATH = "/api/private-research/soil-liquefaction";
+const SOIL_LIQUEFACTION_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const SOIL_LIQUEFACTION_S3_PREFIX = "private-research/soil-liquefaction";
+const BSS_BRIDGE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/transportation/bridge_resilience/bss-bridge-location-direction-preview-20261002-v5";
+const BSS_BRIDGE_PATH = "/api/private-research/bss-bridge";
+const BSS_BRIDGE_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const BSS_BRIDGE_S3_PREFIX = "private-research/bss-bridge";
+const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/.worktrees/bridge-resilience-73-20261002/bridge-resilience.local/bridge-display-bundle-20261002-v4";
+const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
+const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -43,6 +55,77 @@ const JP_WATER_ASSETS = Object.freeze({
     filename: "extra-water.pmtiles",
     size: 31656052,
     sha256: "e41775f0ae3d33c04866896b0002002d20338937d11f124c51461017409a5bf9",
+  }),
+});
+// TODO: fill size/sha256 from soil-liquefaction.receipt.json once the PMTiles is produced.
+export const SOIL_LIQUEFACTION_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "soil-liquefaction.pmtiles",
+    size: 9291762,
+    sha256: "2571e4f56c6df43a30da8ac679cb28005c55bc77cb4d2a1d5b308086a2f0fd7f",
+  }),
+});
+
+// BSS 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+// v5（OSM 橋實體幾何）。回滾：改回 v4 bss_bridge_location_direction_preview_20260927_v4.pmtiles
+// size 63367460、sha256 2d71de78be8b4c3c19b8a683946a1f083f37e160182b8932cd288fdbe713072f（S3 物件保留）。
+export const BSS_BRIDGE_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "bss_bridge_location_direction_preview_20261002_v5.pmtiles",
+    size: 79869337,
+    sha256: "a7f1ea3fca7bc5331912f3fca5e94d09c1fdb3e21e696bc9e117d7957a046400",
+  }),
+});
+
+// 橋梁韌性 授權 HOLD_BSS_BULK_REUSE_RIGHTS_UNCONFIRMED：僅站主、不公開。
+// v4（bridge-display-bundle-20261002-v4）：73 座＝26 座人工複核＋47 座自動選入（validated=false，待複核）。
+// 回滾到 v3（26 座；S3 物件保留在 private-research/bridge-resilience/<sha256>/<filename>，未刪除）：
+//   tiles bridge-resilience-20261001-v3.pmtiles 2091890 61b6859f551856eeef555883a3a8d51967e2ad254d617baf6050386fe3ad64cc
+//   summary bridge_summary.json 63004 4b04d5bbcf5c76f7f3249fb0afe6b939dc1c02734e622ddb88188cfea9481574
+//   impacts village_impacts.json 1333831 4df8f4cb0b96d4fe2b2a1f75eae0c5d8da9b9d344e56cec21960aa4319f02764
+//   destinations village_destinations.json 6425352 d2da42284a26e7b14c76228bfd5cb901579dd8fe63621104a543eb56fb2864b5
+//   decay-impacts decay_village_impacts.json 864533 a251cf706f7fe0cb394bbbf4c2680990de943c56155f9bf36f7d0c7ce3060873
+//   decay-summary decay_summary.json 55424 29d3582c4e5e6c11ee8e74256e77cba38219c69cbf55b137ca6aeacbf623d3f0
+//   fingerprint bridge_fingerprint.json 54886 263f4f8c9894bffe8e334a39adfa80475460e59d2a4ee0f95473e5cca74753a4
+// 回滾時前端 src/data/bridgeResilienceTypes.ts 的 BRIDGE_RESILIENCE_ASSETS 要同步改回（以 git revert 本次 PR 最簡單）。
+export const BRIDGE_RESILIENCE_ASSETS = Object.freeze({
+  tiles: Object.freeze({
+    filename: "bridge-resilience-20261002-v4.pmtiles",
+    size: 2676761,
+    sha256: "417bb96b171b215afb6441c9a96bb2407a94f090f20eabc6357e6876311efeeb",
+  }),
+  summary: Object.freeze({
+    filename: "bridge_summary.json",
+    size: 361546,
+    sha256: "1df50ae635f90e9c7e5ce4e9ae54314e5303ed8a3a041a3d595a168331b8628f",
+  }),
+  impacts: Object.freeze({
+    filename: "village_impacts.json",
+    size: 3338743,
+    sha256: "fea835ee1fa905c1dfdb5800e1b725b05ec3e6ea1b662fe5aed0f7ef54558697",
+  }),
+  // 10.0 MB > MAX_RANGE_BYTES（8 MiB）：前端分段 Range 讀取（fetchPrivateJson），sidecar 上限不變。
+  destinations: Object.freeze({
+    filename: "village_destinations.json",
+    size: 10034240,
+    sha256: "532266b41a992586ba9f8b71116764d1b97e08ded732fbdff00a5d6dd04230a8",
+  }),
+  // 距離遞減版：村里 decay_mean_dT_s（原檔）與橋層級精簡摘要（τ=20＋τ=10／30 名次；每 mode 帶 status）。
+  "decay-impacts": Object.freeze({
+    filename: "decay_village_impacts.json",
+    size: 2106225,
+    sha256: "f230ac1ab2666678a614050509dc9d0300e4b043be37df821d2277a33155bf2d",
+  }),
+  "decay-summary": Object.freeze({
+    filename: "decay_summary.json",
+    size: 137261,
+    sha256: "713ade9e59cf19767c97ba3e033c820c1fcb00e8a38fb3b8ff32956ca40819f3",
+  }),
+  // 四維 fingerprint v2（analytics bridge-fingerprint-20261002-v2/fingerprint.json 原檔）：73 座內百分位＋原 26 座內百分位，不合成總分。
+  fingerprint: Object.freeze({
+    filename: "bridge_fingerprint.json",
+    size: 229172,
+    sha256: "a0791406d0b44763f8bb85321bb90bd6d2a8371c8f6fe65fe9b18779d7f54280",
   }),
 });
 
@@ -479,6 +562,45 @@ export function createJpWaterS3Gateway(config, options = {}) {
   });
 }
 
+export function createSoilLiquefactionGateway(root = firstConfigured(process.env.SOIL_LIQUEFACTION_PRIVATE_ROOT) ?? SOIL_LIQUEFACTION_ROOT, assets = SOIL_LIQUEFACTION_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createSoilLiquefactionS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: SOIL_LIQUEFACTION_ASSETS,
+    prefix: SOIL_LIQUEFACTION_S3_PREFIX,
+    bucket: SOIL_LIQUEFACTION_S3_BUCKET,
+    ...options,
+  });
+}
+
+export function createBssBridgeGateway(root = firstConfigured(process.env.BSS_BRIDGE_PRIVATE_ROOT) ?? BSS_BRIDGE_ROOT, assets = BSS_BRIDGE_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createBssBridgeS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: BSS_BRIDGE_ASSETS,
+    prefix: BSS_BRIDGE_S3_PREFIX,
+    bucket: BSS_BRIDGE_S3_BUCKET,
+    ...options,
+  });
+}
+
+export function createBridgeResilienceGateway(root = firstConfigured(process.env.BRIDGE_RESILIENCE_PRIVATE_ROOT) ?? BRIDGE_RESILIENCE_ROOT, assets = BRIDGE_RESILIENCE_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createBridgeResilienceS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: BRIDGE_RESILIENCE_ASSETS,
+    prefix: BRIDGE_RESILIENCE_S3_PREFIX,
+    bucket: BRIDGE_RESILIENCE_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -532,7 +654,13 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
   const url = new URL(request.url);
   const family = url.pathname.startsWith(`${JP_WATER_PATH}/`)
     ? { path: JP_WATER_PATH, assets: JP_WATER_ASSETS }
-    : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+    : url.pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`)
+      ? { path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS }
+      : url.pathname.startsWith(`${BSS_BRIDGE_PATH}/`)
+        ? { path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS }
+        : url.pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`)
+          ? { path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS }
+          : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
   const asset = family.assets[assetName];
   const record = {
@@ -679,13 +807,41 @@ export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
   });
 }
 
-export async function handleJpWaterRequest(request, dependencies = {}) {
+export function handleJpWaterRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: JP_WATER_PATH, assets: JP_WATER_ASSETS, label: "Japan water",
+    createGateway: (config) => config.storage === "s3" ? createJpWaterS3Gateway(config) : createJpWaterGateway(),
+  });
+}
+
+export function handleSoilLiquefactionRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: SOIL_LIQUEFACTION_PATH, assets: SOIL_LIQUEFACTION_ASSETS, label: "soil liquefaction",
+    createGateway: (config) => config.storage === "s3" ? createSoilLiquefactionS3Gateway(config) : createSoilLiquefactionGateway(),
+  });
+}
+
+export function handleBssBridgeRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS, label: "bss bridge",
+    createGateway: (config) => config.storage === "s3" ? createBssBridgeS3Gateway(config) : createBssBridgeGateway(),
+  });
+}
+
+export function handleBridgeResilienceRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS, label: "bridge resilience",
+    createGateway: (config) => config.storage === "s3" ? createBridgeResilienceS3Gateway(config) : createBridgeResilienceGateway(),
+  });
+}
+
+async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
-  const assetName = url.pathname.startsWith(`${JP_WATER_PATH}/`)
-    ? url.pathname.slice(JP_WATER_PATH.length + 1)
+  const assetName = url.pathname.startsWith(`${family.path}/`)
+    ? url.pathname.slice(family.path.length + 1)
     : "";
-  const asset = JP_WATER_ASSETS[assetName];
-  if (!asset || url.pathname !== `${JP_WATER_PATH}/${assetName}`) return response(404, new Headers());
+  const asset = Object.hasOwn(family.assets, assetName) ? family.assets[assetName] : undefined;
+  if (!asset || url.pathname !== `${family.path}/${assetName}`) return response(404, new Headers());
 
   const config = dependencies.config ?? getAllenCoralAtlasConfig();
   const emptyCors = new Headers();
@@ -713,17 +869,15 @@ export async function handleJpWaterRequest(request, dependencies = {}) {
   if (revoked) return json(401, cors, { error: "unauthorized" });
   if (request.method === "GET" && url.searchParams.get("access") === "1") return json(200, cors, { allowed: true });
 
-  const gateway = dependencies.gateway ?? (config.storage === "s3"
-    ? createJpWaterS3Gateway(config)
-    : createJpWaterGateway());
+  const gateway = dependencies.gateway ?? family.createGateway(config);
   let metadata;
   try {
     metadata = await gateway.head(asset, request.signal);
   } catch {
-    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+    return json(502, cors, { error: `private ${family.label} asset integrity check failed` });
   }
   if (metadata.contentLength !== asset.size || metadata.etag !== `\"${asset.sha256}\"`) {
-    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+    return json(502, cors, { error: `private ${family.label} asset integrity check failed` });
   }
   if (request.method === "HEAD") {
     return response(200, cors, null, {
@@ -736,11 +890,11 @@ export async function handleJpWaterRequest(request, dependencies = {}) {
   try {
     object = await gateway.get(asset, range, request.signal);
   } catch {
-    return json(502, cors, { error: "private Japan water asset unavailable" });
+    return json(502, cors, { error: `private ${family.label} asset unavailable` });
   }
   if (object.contentLength !== range.length || object.contentRange !== `bytes ${range.start}-${range.end}/${asset.size}` || object.etag !== metadata.etag) {
     if (typeof object.body?.cancel === "function") await object.body.cancel().catch(() => undefined);
-    return json(502, cors, { error: "private Japan water asset range check failed" });
+    return json(502, cors, { error: `private ${family.label} asset range check failed` });
   }
   return response(206, cors, object.body, {
     "Content-Length": String(range.length), "Content-Range": object.contentRange,
@@ -832,11 +986,26 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const jpWaterGateway = dependencies.jpWaterGateway ?? (config.storage === "s3"
     ? createJpWaterS3Gateway(config)
     : createJpWaterGateway());
+  const soilLiquefactionGateway = dependencies.soilLiquefactionGateway ?? (config.storage === "s3"
+    ? createSoilLiquefactionS3Gateway(config)
+    : createSoilLiquefactionGateway());
+  const bssBridgeGateway = dependencies.bssBridgeGateway ?? (config.storage === "s3"
+    ? createBssBridgeS3Gateway(config)
+    : createBssBridgeGateway());
+  const bridgeResilienceGateway = dependencies.bridgeResilienceGateway ?? (config.storage === "s3"
+    ? createBridgeResilienceS3Gateway(config)
+    : createBridgeResilienceGateway());
   const allenDependencies = { ...dependencies, config, gateway: allenGateway };
   const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
+  const soilLiquefactionDependencies = { ...dependencies, config, gateway: soilLiquefactionGateway };
+  const bssBridgeDependencies = { ...dependencies, config, gateway: bssBridgeGateway };
+  const bridgeResilienceDependencies = { ...dependencies, config, gateway: bridgeResilienceGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
+    soilLiquefaction: { ready: false, failed: false },
+    bssBridge: { ready: false, failed: false },
+    bridgeResilience: { ready: false, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -860,6 +1029,9 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const warmup = (async () => {
     await warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS);
     await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
+    await warmFamily(readiness.soilLiquefaction, soilLiquefactionGateway, SOIL_LIQUEFACTION_ASSETS);
+    await warmFamily(readiness.bssBridge, bssBridgeGateway, BSS_BRIDGE_ASSETS);
+    await warmFamily(readiness.bridgeResilience, bridgeResilienceGateway, BRIDGE_RESILIENCE_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -874,21 +1046,31 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const revokeRequest = pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
       const isAllen = pathname.startsWith(`${ALLEN_CORAL_ATLAS_PATH}/`);
       const isJpWater = pathname.startsWith(`${JP_WATER_PATH}/`);
-      const familyState = isJpWater ? readiness.jpWater : readiness.allen;
-      if (!isAllen && !isJpWater) {
+      const isSoil = pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`);
+      const isBss = pathname.startsWith(`${BSS_BRIDGE_PATH}/`);
+      const isBridgeResilience = pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`);
+      const familyState = isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isJpWater
-          ? await handleJpWaterRequest(request, jpWaterDependencies)
-          : await handleAllenCoralAtlasRequest(request, allenDependencies);
+        output = isBridgeResilience
+          ? await handleBridgeResilienceRequest(request, bridgeResilienceDependencies)
+          : isBss
+          ? await handleBssBridgeRequest(request, bssBridgeDependencies)
+          : isSoil
+          ? await handleSoilLiquefactionRequest(request, soilLiquefactionDependencies)
+          : isJpWater
+            ? await handleJpWaterRequest(request, jpWaterDependencies)
+            : await handleAllenCoralAtlasRequest(request, allenDependencies);
       } else {
         const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
         output = !cors
           ? json(403, new Headers(), { error: "origin forbidden" })
           : json(503, cors, {
             error: familyState.failed
-              ? (isJpWater ? "private Japan water sidecar unavailable" : "private Allen sidecar unavailable")
-              : (isJpWater ? "private Japan water sidecar is warming up" : "private Allen sidecar is warming up"),
+              ? `private ${familyLabel} sidecar unavailable`
+              : `private ${familyLabel} sidecar is warming up`,
           });
       }
       await writeAllenAuditRecord(request, output, config, dependencies.audit);

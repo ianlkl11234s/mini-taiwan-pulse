@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import { LAYER_SEARCH_INDEX } from "../../lib/layerSearch";
+import { Slider } from "../../components/controls/Slider";
+import { LIGHT } from "../../styles/designTokens";
 import {
   fingerprintSearchIndex,
   parseJevRunReceipt,
@@ -204,15 +206,18 @@ export function LayerScreeningApp() {
             </div>
             <div className="jev-threshold-control">
               <label htmlFor="jev-threshold">判定門檻 <span>THRESHOLD</span></label>
-              <input
+              <Slider
                 id="jev-threshold"
-                type="range"
-                min="0"
-                max="1"
-                step="0.05"
+                min={0}
+                max={1}
+                step={0.05}
                 value={relevanceThreshold}
-                onChange={(event) => setRelevanceThreshold(Number(event.target.value))}
-                aria-valuetext={relevanceThreshold.toFixed(2)}
+                onChange={setRelevanceThreshold}
+                ariaValueText={relevanceThreshold.toFixed(2)}
+                trackColor={LIGHT.sliderTrack}
+                fillColor="var(--amber)"
+                thumbColor="var(--amber)"
+                accentColor="var(--amber)"
               />
               <output htmlFor="jev-threshold">{relevanceThreshold.toFixed(2)}</output>
             </div>

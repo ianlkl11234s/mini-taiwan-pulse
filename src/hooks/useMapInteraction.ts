@@ -1,11 +1,11 @@
-import { pickHistoricalFlightTrail } from "../map/historicalFlightTrails";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
-import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
+// C1b：3D 模組按需載入 —— 未載入代表該圖層從沒開過，點擊時直接跳過
+import { historicalFlightTrailsModule, realEstatePointsModule } from "../map/lazyThreeLayers";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
@@ -13,7 +13,9 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
-import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
+import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection } from "../map/flatMovingController";
+import { layerParamRefs } from "../state/layerParamRefs";
+import { reservoirFeatureProps } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
@@ -21,6 +23,9 @@ import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, ne
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
+import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
+import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
+import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -112,6 +117,9 @@ export function useMapInteraction(
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
   const featureRequestRef = useRef(0);
+  /** 另一個點擊擁有者（例如分析結果面板）接手了這次點擊：作廢 raster／GFW 等仍在路上的非同步 probe，
+   *  免得它們晚回來把面板蓋掉。以 ref 保存，呼叫端拿到的是穩定 identity。 */
+  const invalidateFeatureRequestRef = useRef(() => { ++featureRequestRef.current; });
 
   const bindEvents = (map: MapboxMap) => {
     if (clickBoundRef.current) return;
@@ -129,7 +137,7 @@ export function useMapInteraction(
       for (const country of ["TW", "JP"] as const) {
         const layerType = country === "TW" ? "historicalFlightTrails" : "jpHistoricalFlightTrails";
         if (!vis?.[layerType]) continue;
-        const hit = pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h);
+        const hit = historicalFlightTrailsModule.get()?.pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h) ?? null;
         if (hit) {
           setFeatureInfo(country === "TW"
             ? { layerType: "historicalFlightTrails", properties: hit.properties ?? {} }
@@ -142,11 +150,16 @@ export function useMapInteraction(
       }
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
+      // R6 段 3：立體效果關時 RailScene 不再更新（位置是舊的），改從 Mapbox 平面層拾取；tooltip 相同
       if (vis?.rail) {
         const railScene = railSceneRef?.current;
-        if (railScene) {
-          const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
+        const flat = !layerParamRefs.railTrain3D.current;
+        if (flat || railScene) {
+          const train = flat
+            ? pickFlatTrain(map, e.point.x, e.point.y)
+            : railScene!.pickTrain(e.point.x, e.point.y, w, h);
           if (train) {
+            setFlatMovingSelection("rail", railTrainKey(train));
             setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
             return;
@@ -177,9 +190,14 @@ export function useMapInteraction(
       // `ship` 分支。座標用點擊位置（pickTruck 只回 row，不回插值後的經緯）。
       if (vis?.wasteTruck) {
         const truckScene = wasteTruckSceneRef?.current;
-        if (truckScene) {
-          const row = truckScene.pickTruck(e.point.x, e.point.y, w, h);
+        // R6 段 3：立體效果關時改從 Mapbox 平面層拾取（Scene 不再更新）；featureInfo 相同
+        const flat = !layerParamRefs.wasteTruck3D.current;
+        if (flat || truckScene) {
+          const row = flat
+            ? pickFlatWasteTruck(map, e.point.x, e.point.y)
+            : truckScene!.pickTruck(e.point.x, e.point.y, w, h);
           if (row) {
+            setFlatMovingSelection("wasteTruck", row.vehicle_no);
             setFeatureInfo({
               layerType: "wasteTruck",
               properties: {
@@ -290,23 +308,15 @@ export function useMapInteraction(
         }
       }
 
-      // 嘗試拾取水庫 3D 水位計（僅在 waterReservoirs 圖層開啟時）
-      if (vis?.waterReservoirs) {
+      // 嘗試拾取水庫 3D 水位計（waterReservoirs 開且立體效果開；R6 段 2：關掉立體後 scene 仍在，
+      // 隱形水位計不可攔截點擊 —— 平面圓點由下方 GIS_LAYERS 的 water-reservoir-status-circle 接手）
+      if (vis?.waterReservoirs && layerParamRefs.waterReservoirs3D.current) {
         const reservoirScene = reservoirSceneRef?.current;
         if (reservoirScene) {
           const hit = reservoirScene.pickReservoir(e.point.x, e.point.y, w, h);
           if (hit) {
-            const compareId = compareIdFromReservoirId(hit.reservoir_id);
-            setFeatureInfo({
-              layerType: "waterDam",
-              properties: {
-                kind: "reservoir",
-                name: hit.name,
-                compare_id: compareId,
-                capacity_m3: (hit.effective_capacity_wan ?? 0) * 10000,
-                is_reservoir: true,
-              },
-            });
+            // 與平面圓點同一組欄位（容量用萬 m³ 原值，舊版 ×10000 後被面板標成萬 m³）
+            setFeatureInfo({ layerType: "waterDam", properties: reservoirFeatureProps(hit) });
             setTooltipInfo(null);
             setTrainTooltipInfo(null);
             setBusTooltipInfo(null);
@@ -321,7 +331,7 @@ export function useMapInteraction(
       // 這裡用 CPU 端逐點投影補回（見 RealEstatePointsScene.pickPoint）。
       // ⚠️ 只帶 buffer 內真實存在的欄位；地址／行政區／總價／坪數不在二進位格式裡。
       if (vis?.realEstateRentalPoint || vis?.realEstateSalePoint || vis?.realEstatePresalePoint) {
-        const reScene = getRealEstatePointsScene();
+        const reScene = realEstatePointsModule.get()?.getRealEstatePointsScene() ?? null;
         if (reScene) {
           const hit = reScene.pickPoint(e.point.x, e.point.y, w, h);
           if (hit) {
@@ -412,11 +422,29 @@ export function useMapInteraction(
           // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
           // feature 進來會 vessel_count 對不上而變成「驗證失敗」面板。dominant 為 null
           // （資料窗外已完全淡出）時視為沒命中，讓點擊落到下一個 GIS_LAYERS 條目。
-          const features = type === "gfwHourlyGrid"
+          let features = type === "gfwHourlyGrid"
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
+          if (type === "bridgeResilienceTwinCity") {
+            // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢
+            const bridgeHits = queried.filter((feature) => feature.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill);
+            features = bridgeHits.length > 0 || !existingIds.includes(BRIDGE_RESILIENCE_LAYER_IDS.villageFill)
+              ? bridgeHits
+              : map.queryRenderedFeatures(e.point, { layers: [BRIDGE_RESILIENCE_LAYER_IDS.villageFill] });
+          }
           if (features.length > 0) {
-            const f = features[0]!;
+            // 橋梁韌性：橋線優先於村里面；命中村里面＝進入目的地視角，不換 popup、不取消選橋。
+            const f = type === "bridgeResilienceTwinCity"
+              ? (features.find((item) => item.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill) ?? features[0]!)
+              : features[0]!;
+            if (type === "bridgeResilienceTwinCity" && f.layer?.id === BRIDGE_RESILIENCE_LAYER_IDS.villageFill) {
+              const code = String(f.properties?.VILLCODE ?? "");
+              if (!code) continue;
+              selectBridgeResilienceOrigin(code);
+              sessionTracker.log("feature_click", { layerType: "bridgeResilienceVillage" });
+              found = true;
+              break;
+            }
             let coords: [number, number] | undefined;
             const g = f.geometry as GeoJSON.Geometry | undefined;
             if (g && g.type === "Point") {
@@ -491,6 +519,30 @@ export function useMapInteraction(
             break;
           }
         }
+        // 目的地視角中點到空白處：只清起點（回到起點視角），橋與 popup 維持；再點一次空白才照舊關閉。
+        if (!found && bridgeResilienceOrigin.get()) {
+          bridgeResilienceOrigin.clear();
+          found = true;
+        }
+        const sampleClimateFallback = (lng: number, lat: number) => {
+          if (!vis?.windField && !vis?.oceanCurrents) { setFeatureInfo(null); return; }
+          void sampleClimateFields(
+            { wind: !!vis.windField, currents: !!vis.oceanCurrents },
+            lng, lat,
+          ).then((sample) => {
+            if (featureRequest !== featureRequestRef.current) return;
+            if (sample) {
+              setFeatureInfo({
+                layerType: "climateField",
+                properties: { wind: sample.wind, currents: sample.currents },
+                coords: [lng, lat],
+              });
+              sessionTracker.log("feature_click", { layerType: "climateField" });
+            } else {
+              setFeatureInfo(null);
+            }
+          });
+        };
         // 沒命中任何向量 feature → 值編碼 raster 開啟時改讀像素物理值（W2）。
         // 排在氣候 UV 場之前：熱島／樹冠是台灣本島的層，風場／海流是全球場，
         // 同時開啟時使用者點台灣要的是前者（後者在台灣任一點都讀得到值，會整碗端走）。
@@ -512,33 +564,13 @@ export function useMapInteraction(
               });
               sessionTracker.log("feature_click", { layerType: "rasterProbe" });
             } else {
-              setFeatureInfo(null);
+              sampleClimateFallback(lng, lat);
             }
           });
         }
         // 沒命中任何向量 feature → 風場/海流開啟時改讀氣候 UV 場（nullschool 式點擊讀值）
         if (!found) {
-          if (vis?.windField || vis?.oceanCurrents) {
-            const lng = e.lngLat.lng;
-            const lat = e.lngLat.lat;
-            void sampleClimateFields(
-              { wind: !!vis?.windField, currents: !!vis?.oceanCurrents },
-              lng, lat,
-            ).then((sample) => {
-              if (sample) {
-                setFeatureInfo({
-                  layerType: "climateField",
-                  properties: { wind: sample.wind, currents: sample.currents },
-                  coords: [lng, lat],
-                });
-                sessionTracker.log("feature_click", { layerType: "climateField" });
-              } else {
-                setFeatureInfo(null);
-              }
-            });
-          } else {
-            setFeatureInfo(null);
-          }
+          sampleClimateFallback(e.lngLat.lng, e.lngLat.lat);
         }
       }
     });
@@ -586,6 +618,14 @@ export function useMapInteraction(
     }
     // 點 hover 暫時移除：point 已改 WebGL CustomLayer，不支援 queryRenderedFeatures（待補 GPU/空間索引 picking）
   };
+
+  // R6 段 3：平面模式只替「點選中」的列車／垃圾車畫近段軌跡；tooltip／資訊卡關掉就清掉
+  useEffect(() => {
+    if (!trainTooltipInfo) setFlatMovingSelection("rail", null);
+  }, [trainTooltipInfo]);
+  useEffect(() => {
+    if (featureInfo?.layerType !== "wasteTruck") setFlatMovingSelection("wasteTruck", null);
+  }, [featureInfo]);
 
   // Esc 結束目前地圖選取。用 microtask 讓已開啟的 modal／FeatureInfoPanel 先攔截：
   // modal 優先於地圖狀態，避免關 modal 時意外連同底下的地圖選取清掉。
@@ -664,5 +704,6 @@ export function useMapInteraction(
     featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,
+    invalidateFeatureRequest: invalidateFeatureRequestRef.current,
   };
 }

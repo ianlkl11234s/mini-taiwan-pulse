@@ -70,6 +70,10 @@
 > ⭐ **搬到鏡像結構後**（見 `06_DEPLOY_ASSETS_MIGRATION.md`）：加新大檔只要「丟進對應 S3 資料夾」，
 > pull 整夾 sync、nginx 整夾路由都已涵蓋 → **第 2~4 步幾乎不用改**，GAP-1 類漏接永久消失。
 
+> 🗄️ **快取由檔名決定**（`nginx.conf` 頂端 `map $uri $static_cache_control`，S3 端 `cache_control_for()` 同規則）：
+> 檔名含 `_YYYYMMDD` 或 `.<hex8+>.<ext>` → 1 年 immutable（**要換內容就換檔名，不可原地覆寫**）；
+> `*manifest*.json` / `*_current.*` → 5 分鐘 + must-revalidate；其餘 → 1 天。`index.html` → `no-cache`。
+
 ---
 
 ## 三、上線前 30 秒總驗（任何新資料都跑）

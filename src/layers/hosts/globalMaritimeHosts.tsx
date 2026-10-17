@@ -18,6 +18,7 @@ export const GlobalMaritimeHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.gfwVesselPresence,
     paramNum(aisValues, "aisstreamVessels", "aisstreamVesselsOpacity"),
     paramNum(gfwValues, "gfwVesselPresence", "gfwVesselPresenceOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -29,6 +30,7 @@ export const GfwHourlyGridHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.gfwHourlyGrid,
     paramNum(values, "gfwHourlyGrid", "gfwHourlyGridOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };
@@ -85,6 +87,7 @@ export const GfwDarkVesselsHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.gfwDarkVessels,
     paramNum(values, "gfwDarkVessels", "gfwDarkVesselsOpacity"),
+    deps.isDarkTheme,
   );
   return null;
 };

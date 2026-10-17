@@ -51,6 +51,7 @@ function normalize(value: string): string {
   return value
     .normalize("NFKC")
     .toLocaleLowerCase()
+    .replace(/臺/g, "台")
     .replace(/[\s_\-/.]+/g, " ")
     .trim();
 }

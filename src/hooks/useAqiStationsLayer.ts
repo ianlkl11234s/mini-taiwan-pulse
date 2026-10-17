@@ -15,9 +15,12 @@ import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import { fetchAqiStationsAt, buildStationsGeoJSON } from "../data/aqiStationsLoader";
 import { buildAqiStepExpression } from "../map/aqiColorScale";
 import { timeStore } from "../state/timeStore";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { keepLoadingUntilMapIdle, loadingRegistry } from "../lib/loadingRegistry";
 import type { AqiStation } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { isStyleReady } from "../research/sceneReadiness";
+import { registerLayerDataProvider, summarizeAqiStations } from "../research/layerDataSummary";
 
 const SOURCE_ID = "aqi-stations-src";
 const LAYER_GLOW = "aqi-stations-glow";
@@ -37,10 +40,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": [
-          "interpolate", ["linear"], ["zoom"],
-          6, 8, 10, 14, 14, 22, 17, 32,
-        ],
+        "circle-radius": pointRadius("L") * 2,
         "circle-color": buildAqiStepExpression("aqi"),
         "circle-blur": 1,
         "circle-opacity": isDark ? 0.35 : 0.3,
@@ -54,13 +54,9 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": [
-          "interpolate", ["linear"], ["zoom"],
-          6, 3, 10, 5, 14, 8, 17, 12,
-        ],
+        "circle-radius": pointRadius("L"),
         "circle-color": buildAqiStepExpression("aqi"),
-        "circle-stroke-width": 1,
-        "circle-stroke-color": isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.95,
       },
     } as CircleLayer);
@@ -85,6 +81,9 @@ export function useAqiStationsLayer(
   const stationsRef = useRef<AqiStation[]>([]);
   const fetchingKeyRef = useRef<string>("");
   const lastKeyRef = useRef<string>("");
+  // 主題只改樣式：資料 effect 讀 ref，不把 isDark 放進 deps（避免重訂閱 timeStore）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
 
   // ── 根據當前時刻（或最新）抓測站資料 + 寫到 Mapbox source ──
   useEffect(() => {
@@ -119,8 +118,8 @@ export function useAqiStationsLayer(
     const refresh = (currentTimeSec: number) => {
       const m = mapRef.current;
       if (!m) return;
-      if (!m.isStyleLoaded()) return;
-      ensureLayers(m, isDark);
+      if (!isStyleReady(m)) return;
+      ensureLayers(m, isDarkRef.current);
 
       // 粒度對齊到小時（避免每分鐘 refetch）
       const hourMs = Math.floor((currentTimeSec * 1000) / 3600000) * 3600000;
@@ -129,6 +128,8 @@ export function useAqiStationsLayer(
       if (key === fetchingKeyRef.current) return;
 
       fetchingKeyRef.current = key;
+      const fetchTask = "aqi-stations-fetch";
+      loadingRegistry.start(fetchTask, "空品測站 載入中");
       const targetDate = new Date(hourMs + 3600000); // 查該小時結束時刻
       fetchAqiStationsAt(targetDate)
         .then((list) => {
@@ -146,6 +147,7 @@ export function useAqiStationsLayer(
           console.warn(`[AQI Stations] fetch failed:`, err);
         })
         .finally(() => {
+          loadingRegistry.end(fetchTask);
           if (fetchingKeyRef.current === key) fetchingKeyRef.current = "";
         });
     };
@@ -155,15 +157,34 @@ export function useAqiStationsLayer(
       return timeStore.subscribeThrottled(5000, refresh);
     };
 
+    // 換底圖（setStyle）清掉自訂圖層：重建後用已抓的測站資料重畫（不重抓）
+    const onStyleLoad = () => {
+      if (cancelled) return;
+      ensureLayers(map, isDarkRef.current);
+      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+      if (src && stationsRef.current.length) src.setData(buildStationsGeoJSON(stationsRef.current));
+    };
+    map.on("style.load", onStyleLoad);
+
     let unsub: (() => void) | null = null;
-    if (!map.isStyleLoaded()) {
-      const onLoad = () => {
+    if (!isStyleReady(map)) {
+      // map.once("load") never re-fires once the map has loaded; with heavy layers open isStyleLoaded()
+      // stays false for ~10 s, so poll the style-parsed check instead and show it in the loading list.
+      const waitTask = "aqi-stations-wait";
+      loadingRegistry.start(waitTask, "空品測站 等待地圖");
+      let waitTimer: ReturnType<typeof setTimeout> | null = null;
+      const poll = () => {
+        waitTimer = null;
+        if (cancelled) return;
+        if (!isStyleReady(map)) { waitTimer = setTimeout(poll, 100); return; }
+        loadingRegistry.end(waitTask);
         unsub = startSubscription();
       };
-      map.once("load", onLoad);
+      waitTimer = setTimeout(poll, 100);
       return () => {
         cancelled = true;
-        map.off("load", onLoad);
+        if (waitTimer) { clearTimeout(waitTimer); loadingRegistry.end(waitTask); }
+        map.off("style.load", onStyleLoad);
         if (unsub) unsub();
       };
     }
@@ -171,9 +192,16 @@ export function useAqiStationsLayer(
     unsub = startSubscription();
     return () => {
       cancelled = true;
+      map.off("style.load", onStyleLoad);
       if (unsub) unsub();
     };
-  }, [mapRef, visible, isDark, mapTick]);
+  }, [mapRef, visible, mapTick]);
+
+  // ── Agent 畫面摘要（AG-1）：自繪 source 讀不到 rendered features，改讀已抓的測站資料 ──
+  useEffect(() => {
+    if (!visible) return;
+    return registerLayerDataProvider("aqiStations", (bounds) => summarizeAqiStations(stationsRef.current, bounds));
+  }, [visible]);
 
   // ── 主題變更時刷新 paint ──
   useEffect(() => {
@@ -184,11 +212,9 @@ export function useAqiStationsLayer(
       map.setPaintProperty(LAYER_GLOW, "circle-opacity", isDark ? 0.35 : 0.3);
     }
     if (map.getLayer(LAYER_CIRCLE)) {
-      map.setPaintProperty(
-        LAYER_CIRCLE,
-        "circle-stroke-color",
-        isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
-      );
+      for (const [k, v] of Object.entries(pointStrokePaint(isDark))) {
+        map.setPaintProperty(LAYER_CIRCLE, k as "circle-stroke-color", v as never);
+      }
     }
   }, [mapRef, isDark, visible, mapTick]);
 }

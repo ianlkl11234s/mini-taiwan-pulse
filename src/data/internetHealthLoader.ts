@@ -57,6 +57,11 @@ export interface InternetHealthTimelinePoint {
   value: number | null;
   state: InternetHealthTimelinePointState;
   sampleCount: number | null;
+  /**
+   * 該桶自己的預期探針數（RPC `metadata.expected_probe_count`，只有 ripe_atlas 的列有）。
+   * 只在 5 分鐘原值桶出現；7D／30D 多桶加權拿不到逐桶值，省略。缺值時呼叫端退回寫死值。
+   */
+  expectedProbeCount?: number;
 }
 
 export interface InternetHealthTimelineSeries {
@@ -819,6 +824,8 @@ interface ParsedTimelineRow {
   sourceUpdatedAt: number | null;
   value: number | null;
   sampleCount: number | null;
+  /** metadata.expected_probe_count（正整數；缺值或非法為 null） */
+  expectedProbeCount: number | null;
   state: InternetHealthMeasurementQualityState;
 }
 
@@ -904,6 +911,11 @@ function parseTimelineRow(
     && raw.sample_count >= 0
     ? raw.sample_count
     : null;
+  const expectedProbeCount = typeof metadata.expected_probe_count === "number"
+    && Number.isInteger(metadata.expected_probe_count)
+    && metadata.expected_probe_count > 0
+    ? metadata.expected_probe_count
+    : null;
   const rawValue = typeof raw.value === "number" && Number.isFinite(raw.value) ? raw.value : null;
   const value = validMeasurementValue(rawValue, request.unit);
   const qualityFlags = isRecord(raw.quality_flags) ? raw.quality_flags : null;
@@ -923,6 +935,7 @@ function parseTimelineRow(
     sourceUpdatedAt,
     value: ready ? value : null,
     sampleCount,
+    expectedProbeCount,
     state: ready
       ? "ready"
       : state === "partial" || qualityFailure
@@ -998,11 +1011,14 @@ function buildTimelineSeries(
     const sampleCount = readyRows.length > 0
       ? readyRows.reduce((sum, row) => sum + (row.sampleCount ?? 0), 0)
       : null;
+    // 預期探針數只帶 5 分鐘原值桶（一桶一列）；多桶加權拿不到逐桶值，維持不帶
+    const expectedProbeCount = expectedSubslotsPerBucket === 1 ? bucketRows[0]?.expectedProbeCount ?? null : null;
     points.push({
       at: request.fromMs / 1000 + index * request.bucketSeconds,
       value,
       state,
       sampleCount,
+      ...(expectedProbeCount !== null ? { expectedProbeCount } : {}),
     });
   }
   return {

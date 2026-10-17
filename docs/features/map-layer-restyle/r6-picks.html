@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R6 平面模式選擇</title>
+<style>
+/* 外框、token、互動照 docs/features/layer-panel-unify/picks.html；地圖數值照 docs/design-system/map-layers.md §3（P-1 點三階、P-2 描邊、P-5 icon）；底圖陸地色照 §1.1（暗 #262626／淡 #f5f5f3）。 */
+:root{color-scheme:dark;--page:#07070f;--panel:#0e0e19;--bar:rgba(7,7,15,.92);--line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.16);--text:#d1d5db;--strong:#f3f4f6;--muted:#9ca3af;--dim:#6b7280;--pick:#64aaff;--pick-faint:rgba(100,170,255,.14);--on-pick:#07070f;--ok:#22c55e;--warn:#ff9800;--err:#ef4444;
+--font-cjk:"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",system-ui,sans-serif;--font-data:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+--surface-strong:rgba(10,10,20,.88);--border-panel:rgba(255,255,255,.10);--border-mid:rgba(255,255,255,.14);--border-soft:rgba(255,255,255,.06);
+--text-strong:#f3f4f6;--text-default:#d8dce3;--text-muted:#9ca3af;--text-dim:#6b7280;--accent:#64aaff;--accent-faint:rgba(100,170,255,.16);
+--control-bg:rgba(255,255,255,.06);--control-border:rgba(255,255,255,.12);--slider-track:rgba(255,255,255,.14);--slider-fill:rgba(255,255,255,.55);--slider-thumb:#f3f4f6;
+--sw-on-track:#ffffff;--sw-on-dot:#111827;--sw-off-track:#4b5563;--elevation-lg:0 12px 40px rgba(0,0,0,.45);--lpc-line:var(--border-mid)}
+body.lt{color-scheme:light;--page:#f4f4f2;--panel:#ffffff;--bar:rgba(244,244,242,.92);--line:rgba(0,0,0,.09);--line-2:rgba(0,0,0,.16);--text:#1f2937;--strong:#111827;--muted:#4b5563;--dim:#6b7280;--pick:#0b6fd6;--pick-faint:rgba(11,111,214,.10);--on-pick:#ffffff;--ok:#15803d;--warn:#c2410c;--err:#dc2626;
+--surface-strong:rgba(255,255,255,.97);--border-panel:rgba(0,0,0,.10);--border-mid:rgba(0,0,0,.16);--border-soft:rgba(0,0,0,.06);
+--text-strong:#111827;--text-default:#1f2937;--text-muted:#4b5563;--text-dim:#6b7280;--accent:#0b6fd6;--accent-faint:rgba(11,111,214,.10);
+--control-bg:rgba(0,0,0,.035);--control-border:rgba(0,0,0,.14);--slider-track:rgba(0,0,0,.12);--slider-fill:rgba(0,0,0,.45);--slider-thumb:#111827;
+--sw-on-track:#1f2937;--sw-on-dot:#ffffff;--sw-off-track:#d1d5db;--elevation-lg:0 12px 40px rgba(0,0,0,.18);--lpc-line:rgba(0,0,0,.12)}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{background:var(--page);color:var(--text);font:13px/1.6 var(--font-cjk);margin:0;padding-inline:16px;padding-block:0 80px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+h1{margin:18px 0 6px;font-size:22px;font-weight:600;color:var(--strong)}
+h2{margin:0;font-size:17px;font-weight:600;color:var(--strong)}
+h3{margin:0;font-size:14px;font-weight:600;color:var(--strong)}
+p{margin:0}
+.lead{max-width:92ch;color:var(--muted)}
+.lead b{color:var(--strong);font-weight:600}
+code{font-family:var(--font-data);font-size:12px;color:var(--strong)}
+.bar{position:sticky;top:0;z-index:5;background:var(--bar);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar .brand{font-weight:600;color:var(--strong)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:3px 12px;font:12px var(--font-cjk);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--pick-faint);color:var(--pick)}
+.seg button:focus-visible{outline:2px solid var(--pick);outline-offset:-2px}
+.nav{display:flex;flex-wrap:wrap;gap:4px}
+.nav a{font:11px var(--font-data);color:var(--muted);text-decoration:none;padding:2px 7px;border-radius:4px;border:1px solid var(--line)}
+.nav a.done{color:var(--ok);border-color:currentColor}
+.count{margin-left:auto;font:12px var(--font-data);color:var(--muted)}
+.count b{color:var(--pick)}
+/* 盤點 */
+.audit{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card ul{margin:0;padding-left:18px;color:var(--muted);font-size:12.5px}
+.card li b{color:var(--strong);font-weight:600}
+.card .work{font-size:12.5px;color:var(--muted)}.card .work b{color:var(--strong)}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th,.tbl td{border-top:1px solid var(--line);padding:3px 6px;text-align:left;vertical-align:top}
+.tbl th{color:var(--muted);font-weight:400}
+.tbl td:first-child{color:var(--strong);white-space:nowrap}
+.tbl td.n{font-family:var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cv{display:block;width:100%;border-radius:8px;border:1px solid var(--line)}
+.cap{font-size:12px;color:var(--dim)}
+.fn{font-size:12px;color:var(--dim);max-width:110ch}
+/* 題目 */
+section.q{display:flex;flex-direction:column;gap:14px;scroll-margin-top:64px;border-top:1px solid var(--line-2);padding-top:22px;min-width:0}
+.q-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.tag{font:700 12px var(--font-data);padding:1px 8px;border-radius:4px;background:var(--pick);color:var(--on-pick)}
+.q-now{color:var(--muted);font-size:12.5px;max-width:110ch}
+.q-now b{color:var(--strong);font-weight:600}
+.q-rec{color:var(--muted);font-size:12.5px;max-width:110ch;border-left:2px solid var(--pick);padding-left:10px}
+.q-rec b{color:var(--strong)}
+.sub{display:flex;flex-direction:column;gap:10px;scroll-margin-top:64px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.sub-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;min-width:0}
+.opt{display:flex;flex-direction:column;gap:6px;min-width:0;cursor:pointer;border:1px solid var(--line-2);border-radius:8px;padding:10px 12px;background:transparent;transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--pick)}
+.opt:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+.opt[aria-pressed="true"]{border-color:var(--pick);background:var(--pick-faint);box-shadow:inset 0 0 0 1px var(--pick)}
+.opt-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px}
+.ol{font:700 12px var(--font-data);color:var(--pick)}
+.ot{font-weight:600;color:var(--strong)}
+.os{font-size:12.5px;color:var(--muted)}
+.os b{color:var(--strong);font-weight:600}
+.rb{font-size:11px;color:var(--pick);border:1px solid currentColor;border-radius:4px;padding:0 6px}
+.chk{margin-left:auto;font:11px var(--font-data);color:var(--pick);visibility:hidden}
+.opt[aria-pressed="true"] .chk{visibility:visible}
+.note-in{width:100%;min-width:0;background:transparent;border:1px solid var(--line-2);border-radius:5px;color:var(--strong);font:12px var(--font-cjk);padding:5px 9px}
+.pick-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pbtn{all:unset;cursor:pointer;font:12px var(--font-cjk);padding:4px 10px;border-radius:5px;border:1px solid var(--line-2);color:var(--text)}
+.pbtn[aria-pressed="true"]{background:var(--pick);border-color:var(--pick);color:var(--on-pick);font-weight:600}
+.pbtn:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+#outText{width:100%;min-height:260px;background:var(--panel);border:1px solid var(--line-2);border-radius:8px;color:var(--strong);font:12.5px/1.7 var(--font-data);padding:12px 14px}
+.hint{font-size:12px;color:var(--dim)}
+.copy{all:unset;cursor:pointer;font:600 12px var(--font-cjk);padding:5px 14px;border-radius:5px;background:var(--pick);color:var(--on-pick)}
+.copy:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+/* Q3 動態示意 */
+.q3grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
+.demo{display:flex;flex-direction:column;gap:8px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.q3list{display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (min-width:980px){.q3grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}.demo{position:sticky;top:60px}}
+#animCap{font-size:12px;color:var(--muted)}
+#animCap b{color:var(--strong);font-weight:600}
+/* 面板示意（IconRailSidebar LayersPanel 縮小版，同 layer-panel-unify/picks.html） */
+.mp{width:100%;max-width:280px;background:var(--surface-strong);border:1px solid var(--border-panel);border-radius:8px;box-shadow:var(--elevation-lg);font-family:var(--font-cjk);color:var(--text-default);padding-bottom:4px}
+.mp-hd{display:flex;align-items:baseline;gap:6px;padding:8px 12px 7px;border-bottom:1px solid var(--border-panel)}
+.mp-hd b{font-size:13px;font-weight:700;color:var(--text-strong)}
+.mp-hd .en,.mp-th .en{font-size:10px;color:var(--text-dim)}
+.mp-tools{display:flex;flex-direction:column;gap:5px;padding:6px 10px;border-bottom:1px solid var(--border-panel)}
+.mp-glob{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-strong);border:1px solid var(--border-mid);border-radius:6px;padding:4px 8px;background:var(--control-bg)}
+.mp-glob span{flex:1}
+.mp-th{display:flex;align-items:center;gap:6px;padding:7px 10px}
+.mp-th b{font-size:12.5px;font-weight:700;color:var(--text-strong)}
+.mp-th .ct{margin-left:auto;font:10px var(--font-data);color:var(--text-muted)}
+.mp-l{position:relative;display:flex;align-items:center;gap:7px;padding:5px 10px;min-height:27px}
+.mp-l.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--lc)}
+.mp-l .ic{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--lc);box-shadow:0 0 0 1px var(--border-mid)}
+.mp-l .nm{flex:1;min-width:0;font-size:12px;color:var(--text-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-l .nm small{font-size:10px;color:var(--text-dim)}
+.chev{width:12px;height:12px;flex-shrink:0;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transform:rotate(90deg)}
+.sw{width:28px;height:16px;border-radius:9999px;background:var(--sw-off-track);position:relative;flex-shrink:0}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.sw.on{background:var(--sw-on-track)}.sw.on::after{left:14px;background:var(--sw-on-dot)}
+.lpc-area{display:flex;flex-direction:column;gap:6px;min-width:0;margin:2px 10px 8px 20px;padding:2px 0 2px 10px;border-left:1px solid var(--lpc-line)}
+.lpc-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k v" "c c";align-items:center;column-gap:8px;row-gap:2px;min-width:0;border-radius:4px}
+.lpc-row.hl{box-shadow:0 0 0 3px var(--accent-faint);background:var(--accent-faint)}
+.lpc-k{grid-area:k;min-width:0;font:10px/1.35 var(--font-cjk);color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lpc-v{grid-area:v;font:10px/1.35 var(--font-cjk);color:var(--text-default);text-align:right;white-space:nowrap}
+.lpc-v.num{font-family:var(--font-data)}
+.lpc-c{grid-area:c;min-width:0}
+.sl{position:relative;height:14px}
+.sl::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;border-radius:1px;background:linear-gradient(90deg,var(--slider-fill) var(--p),var(--slider-track) var(--p))}
+.sl::after{content:"";position:absolute;top:2px;left:calc(var(--p) - 5px);width:10px;height:10px;border-radius:50%;background:var(--slider-thumb)}
+.cbtn{display:flex;align-items:center;width:100%;height:20px;padding:0 7px;border:1px solid var(--control-border);border-radius:4px;background:var(--control-bg)}
+.ramp{display:block;flex:1;height:8px;border-radius:2px}
+.sg{display:inline-flex;border:1px solid var(--control-border);border-radius:4px;padding:1px;gap:1px;max-width:100%}
+.sg span{padding:1px 6px;font-size:10px;color:var(--text-muted);border-radius:3px;white-space:nowrap}
+.sg span.on{background:var(--accent-faint);color:var(--accent);font-weight:600}
+/* 切分 */
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
+.risk{display:inline-block;font:11px var(--font-data);padding:0 6px;border-radius:4px;border:1px solid currentColor;margin-left:6px;font-weight:400}
+.risk.lo{color:var(--ok)}.risk.md{color:var(--warn)}.risk.hi{color:var(--err)}.risk.na{color:var(--dim)}
+.pr{font-size:12px;color:var(--pick)}
+footer{border-top:1px solid var(--line-2);padding-top:16px;color:var(--dim);font-size:12px}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="brand">R6 立體／平面</span>
+  <span class="seg" role="group" aria-label="主題"><button type="button" data-th="dk" aria-pressed="true">暗色</button><button type="button" data-th="lt" aria-pressed="false">淡色</button></span>
+  <nav class="nav" id="nav"></nav>
+  <span class="count" id="count"></span>
+</div>
+<div class="wrap">
+<header>
+  <h1>Three.js 圖層加「平面點線面」模式：逐題決定</h1>
+  <p class="lead"><b>R6 是什麼：</b>把現在只用 Three.js 立體效果畫的圖層，補一個用 Mapbox 原生圓點、線、面畫同一份資料的「平面模式」，數值照 <code>map-layers.md</code> §3 的分階（09-28 拍板 G-1），立體版保留為可切換的選項。先看盤點，再逐題點選項卡片；頁尾會整理成一段文字，可一鍵複製貼回對話。右上可切暗色／淡色，整頁與所有示意一起切。完整盤點見同目錄 <code>R6-inventory.md</code>。</p>
+</header>
+
+<section class="q" id="sec-audit" style="border-top:0;padding-top:0">
+  <div class="q-head"><span class="tag">盤點</span><h2>15 層依平面化工作量分四類</h2></div>
+  <p class="fn">數量標「註解」者引自程式註解、未實測。每張示意左邊是現在的立體效果、右邊是平面模式（點半徑照 P-1：小 3px、標準 4.5px、強調 6.5px；描邊照 P-2：暗 <code>#0a0a14</code>、淡 <code>#ffffff</code>，1px）。</p>
+  <div class="audit" id="audit"></div>
+  <p class="fn"><b>範圍外但規格有列：</b>風場、洋流（裸 WebGL 粒子線，不是 Three.js），見 Q1e。</p>
+</section>
+
+<div id="qs" style="display:flex;flex-direction:column;gap:34px;min-width:0"></div>
+
+<section class="q" id="sec-plan">
+  <div class="q-head"><span class="tag">切分</span><h2>實作切分（依建議答案）</h2></div>
+  <p class="fn">以下假設每題都選「建議」；Q1 選法不同時，段落會增減。每段一支 PR（base <code>develop</code>），PR 前先跑 <code>npx tsc -b</code> 與 <code>npm test</code>（含 <code>layerConsistency</code>、<code>designSystemGuard</code>），並附一頁改前／改後真實截圖對照。</p>
+  <div class="split" id="planCards"></div>
+</section>
+
+<section class="q" id="out">
+  <div class="q-head"><span class="tag">彙整</span><h2>我的選擇</h2></div>
+  <textarea id="outText" readonly aria-label="我的選擇"></textarea>
+  <div class="pick-row"><button type="button" class="copy" id="copy">複製</button><span class="hint" id="copyHint">複製後貼回對話即可。選擇會記在這個瀏覽器。</span></div>
+</section>
+
+<footer>示意圖為簡化繪製，不是實際畫面；位置、數量、路徑都是假的，只用來比較畫法。每段實作前後會另附真實截圖對照頁。</footer>
+</div>
+
+<script>
+"use strict";
+const dk = () => !document.body.classList.contains("lt");
+const MC = () => dk()
+  ? { land: "#262626", water: "#161618", road: "rgba(255,255,255,.11)", stroke: "rgba(10,10,20,.8)", label: "rgba(255,255,255,.85)", labelBg: "rgba(0,0,0,.55)", div: "rgba(255,255,255,.22)", ring: "#ffffff", tower: "#9ca3af" }
+  : { land: "#f5f5f3", water: "#d9e0e4", road: "rgba(0,0,0,.12)", stroke: "rgba(255,255,255,.9)", label: "rgba(17,24,39,.9)", labelBg: "rgba(255,255,255,.85)", div: "rgba(0,0,0,.18)", ring: "#111827", tower: "#6b7280" };
+const COL = { light: "#facc15", power: "#f97316", estate: "#ec407a", ship: "#38bdf8", plane: "#a78bfa", fire: "#ef4444" };
+function rgba(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ── canvas 共用 ──
+function fit(cv) {
+  const r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  const w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+  if (cv.width !== w * d || cv.height !== h * d) { cv.width = w * d; cv.height = h * d; }
+  const ctx = cv.getContext("2d"); ctx.setTransform(d, 0, 0, d, 0, 0); return { ctx, w, h };
+}
+const LAND = [[.06, .2], [.3, .06], [.62, .1], [.9, .2], [.96, .5], [.86, .86], [.55, .95], [.22, .9], [.05, .66]];
+function base(ctx, x, y, w, h, tf) {
+  const c = MC(); ctx.fillStyle = c.water; ctx.fillRect(x, y, w, h);
+  ctx.beginPath(); LAND.forEach(([u, v], i) => { let px = x + u * w, py = y + v * h; if (tf) [px, py] = tf(px, py); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+  ctx.closePath(); ctx.fillStyle = c.land; ctx.fill();
+}
+function label(ctx, text, x, y, align = "left") {
+  const c = MC(); ctx.font = "11px " + getComputedStyle(document.body).getPropertyValue("--font-cjk");
+  const tw = ctx.measureText(text).width, bx = align === "right" ? x - tw - 10 : x;
+  ctx.fillStyle = c.labelBg; ctx.fillRect(bx, y, tw + 10, 17); ctx.fillStyle = c.label; ctx.textBaseline = "middle"; ctx.fillText(text, bx + 5, y + 9);
+}
+function dot(ctx, x, y, r, col, a = 0.85) {
+  ctx.globalAlpha = a; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.globalAlpha = 1;
+  ctx.lineWidth = 1; ctx.strokeStyle = MC().stroke; ctx.stroke();
+}
+function arrow(ctx, x, y, s, ang, col) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.beginPath();
+  ctx.moveTo(s / 2, 0); ctx.lineTo(-s / 2, -s * .42); ctx.lineTo(-s * .22, 0); ctx.lineTo(-s / 2, s * .42); ctx.closePath();
+  ctx.globalAlpha = .9; ctx.fillStyle = col; ctx.fill(); ctx.globalAlpha = 1; ctx.lineWidth = 1; ctx.strokeStyle = MC().stroke; ctx.stroke(); ctx.restore();
+}
+function glow(ctx, x, y, r, col, a = 1) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r * 3);
+  g.addColorStop(0, rgba("#ffffff", a)); g.addColorStop(.2, rgba(col, a)); g.addColorStop(1, rgba(col, 0));
+  ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 3, 0, 7); ctx.fill(); ctx.restore();
+}
+// 左立體、右平面的框
+function splitFrame(ctx, w, h, lcap, rcap) {
+  base(ctx, 0, 0, w / 2, h); base(ctx, w / 2, 0, w / 2, h);
+  ctx.fillStyle = MC().div; ctx.fillRect(w / 2 - .5, 0, 1, h);
+  label(ctx, "立體", 6, 6); label(ctx, "平面", w / 2 + 6, 6); label(ctx, "示意", w - 6, 6, "right");
+  if (lcap) label(ctx, lcap, 6, h - 23); if (rcap) label(ctx, rcap, w / 2 + 6, h - 23);
+}
+
+// ── 四類示意 ──
+const DRAW = {
+  c1(ctx, w, h) { // 燈塔光束 vs 圓點
+    splitFrame(ctx, w, h, "旋轉光束", "強調 L 6.5px 圓點");
+    const P = [[.22, .42, .3], [.55, .68, 2.2], [.78, .36, 4.1]], hw = w / 2;
+    P.forEach(([u, v, a]) => {
+      const x = u * hw, y = v * h, ly = y - 12, L = Math.min(hw, h) * .55;
+      const g = ctx.createRadialGradient(x, ly, 0, x, ly, L); g.addColorStop(0, rgba(COL.light, .6)); g.addColorStop(1, rgba(COL.light, 0));
+      ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x, ly); ctx.arc(x, ly, L, a - .22, a + .22); ctx.closePath(); ctx.fill(); ctx.restore();
+      ctx.fillStyle = MC().tower; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + 4, y); ctx.lineTo(x + 2, ly); ctx.lineTo(x - 2, ly); ctx.closePath(); ctx.fill();
+      glow(ctx, x, ly, 3, COL.light);
+      dot(ctx, hw + x, y - 4, 6.5, COL.light);
+    });
+  },
+  c2(ctx, w, h) { // 機組出力光柱 vs 圓點大小＋圖例
+    splitFrame(ctx, w, h, "柱高＝出力", "圓點大小＝出力＋圖例");
+    const U = [[.18, .62, 300], [.38, .78, 900], [.55, .5, 1200], [.72, .72, 520], [.86, .55, 150]], hw = w / 2, max = 1200;
+    U.forEach(([u, v, val]) => {
+      const x = u * hw, y = v * h, H = val / max * h * .4;
+      const g = ctx.createLinearGradient(0, y, 0, y - H); g.addColorStop(0, rgba(COL.power, .95)); g.addColorStop(1, rgba(COL.power, .08));
+      ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g; ctx.fillRect(x - 4, y - H, 8, H); ctx.restore();
+      ctx.fillStyle = rgba(COL.power, .5); ctx.beginPath(); ctx.ellipse(x, y, 6, 2.5, 0, 0, 7); ctx.fill();
+    });
+    const rad = val => 3 + 9 * Math.sqrt(val / max);
+    U.forEach(([u, v, val]) => dot(ctx, hw + u * hw * .78, v * h - 8, rad(val), COL.power));
+    // 圖例
+    const lx = w - 66, ly = h - 82; ctx.fillStyle = MC().labelBg; ctx.fillRect(lx - 6, ly - 8, 68, 70);
+    [[200, 0], [600, 1], [1200, 2]].forEach(([val, i]) => { const r = rad(val); dot(ctx, lx + 8, ly + 6 + i * 22, r, COL.power); ctx.fillStyle = MC().label; ctx.font = "10px " + getComputedStyle(document.body).getPropertyValue("--font-data"); ctx.textBaseline = "middle"; ctx.fillText(val + " MW", lx + 22, ly + 6 + i * 22); });
+  },
+  c3(ctx, w, h) { // 大量點雲
+    splitFrame(ctx, w, h, "GPU 點雲（36.5 萬）", "全畫小 3px 圓點會糊成一片");
+    const hw = w / 2, R = rng(7), C = [[.3, .4], [.62, .55], [.45, .72], [.7, .3]];
+    const pts = []; for (let i = 0; i < 900; i++) { const c = C[i % 4], a = R() * 7, d = Math.pow(R(), 1.6) * .22; pts.push([c[0] + Math.cos(a) * d, c[1] + Math.sin(a) * d * 1.2]); }
+    ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = rgba(COL.estate, .55);
+    pts.forEach(([u, v]) => { ctx.beginPath(); ctx.arc(u * hw, v * h, 1.1, 0, 7); ctx.fill(); }); ctx.restore();
+    pts.forEach(([u, v]) => dot(ctx, hw + u * hw, v * h, 3, COL.estate, .6));
+  },
+  c4(ctx, w, h) { // 移動物件
+    splitFrame(ctx, w, h, "發光球＋拖尾", "圓點／箭頭（見 Q3 動畫）");
+    const hw = w / 2, T = [[.2, .7, -.5], [.5, .45, .2], [.72, .72, -1.2]];
+    T.forEach(([u, v, a]) => {
+      const x = u * hw, y = v * h;
+      for (let k = 14; k >= 1; k--) { ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = rgba(COL.ship, .35 * (1 - k / 15)); ctx.beginPath(); ctx.arc(x - Math.cos(a) * k * 3, y - Math.sin(a) * k * 3, 3.5 * (1 - k / 18), 0, 7); ctx.fill(); ctx.restore(); }
+      glow(ctx, x, y, 4, COL.ship);
+      if (u < .4) dot(ctx, hw + x, y, 4.5, COL.ship); else arrow(ctx, hw + x, y, 13, a, COL.ship);
+    });
+  },
+};
+// Q4 開站畫面
+function openScreen(ctx, w, h, v) {
+  base(ctx, 0, 0, w, h); const R = rng(11);
+  const staticFlat = v !== "C", moving3d = v !== "A";
+  for (let i = 0; i < 9; i++) { const x = (.15 + R() * .7) * w, y = (.2 + R() * .65) * h; if (staticFlat) dot(ctx, x, y, 4.5, COL.fire); else { ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; const g = ctx.createLinearGradient(0, y, 0, y - 22); g.addColorStop(0, rgba(COL.fire, .9)); g.addColorStop(1, rgba(COL.fire, 0)); ctx.fillStyle = g; ctx.fillRect(x - 2.5, y - 22, 5, 22); ctx.restore(); } }
+  for (let i = 0; i < 12; i++) {
+    const x = (.1 + R() * .8) * w, y = (.12 + R() * .76) * h, a = R() * 7, col = i % 2 ? COL.ship : COL.plane;
+    if (moving3d) { for (let k = 10; k >= 1; k--) { ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = rgba(col, .3 * (1 - k / 11)); ctx.beginPath(); ctx.arc(x - Math.cos(a) * k * 2.6, y - Math.sin(a) * k * 2.6, 3 * (1 - k / 14), 0, 7); ctx.fill(); ctx.restore(); } glow(ctx, x, y, 3.2, col); }
+    else dot(ctx, x, y, 3, col);
+  }
+  label(ctx, { A: "飛機、船、公車也是圓點", B: "移動物件立體、其他平面", C: "全部立體（≈ 現況觀感）" }[v], 6, 6);
+  label(ctx, "示意", w - 6, h - 23, "right");
+}
+
+// ── 盤點資料（R6-inventory.md 總覽精簡） ──
+const AUDIT = [
+  { h: "一、已有同資料平面版", sub: "立體是疊加效果，popup 多掛在平面層", draw: "c1", work: "統一成「立體效果」開關、預設關；幾乎不新做圖層。",
+    rows: [["地震漣漪（全球）", "~3.7k", ""], ["消防站", "677", "已有立體開關"], ["燈塔", "36", ""], ["輸電線發光", "~2,305", "註解"], ["建物夜景發光", "≤4,096", ""], ["電廠發光", "209", ""], ["超高壓變電所發光", "38", ""], ["車站光柱", "828 根", "已預設關（#393）"], ["溫度波", "~8k", "已有立體開關＋平面姊妹層"], ["地下水監測井", "574", "立體與平面並存"]] },
+  { h: "二、數值只畫在立體裡", sub: "靜態／低頻，缺平面版", draw: "c2", work: "新做圓點（大小或顏色帶數值）＋圖例。",
+    rows: [["機組出力柱", "~23", "跟時間軸"], ["水庫水位", "~40", "跟時間軸；平面只有蓄水範圍"], ["區域用電柱", "4", "側欄無入口，疑孤兒（待複核）"], ["垃圾設施五類", "275", "焚化 30／掩埋 154／濱海 23／轉運 28／醫療 40；無平面、無圖例"]] },
+  { h: "三、大量靜態點／線", sub: "當初改 Three.js 就是為了效能", draw: "c3", work: "需 PMTiles 或抽樣，最貴。",
+    rows: [["實價登錄 買賣／租賃／預售", "365,219", "時間淡出在 GPU"], ["歷史航跡（台灣，日本版共用）", "56 萬點", "898 班"]] },
+  { h: "四、移動物件", sub: "皆無平面版；插值寫在 Scene 內", draw: "c4", work: "先把插值抽成純函式，再輸出給 Mapbox；上萬點需降級（LOD）或降頻。",
+    rows: [["垃圾車", "≤500", ""], ["台鐵列車", "數百", "軌道已有平面"], ["飛機", "每日數百", ""], ["公車三層（市區／公路客運／觀光）", "≤5,000／層", ""], ["船", "1.2 萬", "含拖尾"], ["垃圾車班表", "≤2 萬", ""], ["漁船軌跡", "82,492", "實測"]] },
+];
+
+// ── 題目 ──
+const CHEVD = '<svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>';
+const lpc = (k, v, c, hl) => `<div class="lpc-row${hl ? " hl" : ""}"><span class="lpc-k">${k}</span>${v ? `<span class="lpc-v${/^[\d.%]+$/.test(v) ? " num" : ""}">${v}</span>` : ""}${c ? `<div class="lpc-c">${c}</div>` : ""}</div>`;
+function panel(kind) {
+  const glob = kind !== "A" ? `<div class="mp-tools"><div class="mp-glob"><span>立體效果（全站）</span><span class="sw"></span></div></div>` : "";
+  const mode = kind === "A" ? lpc("顯示方式", `<span class="sg"><span class="on">平面</span><span>立體</span></span>`, "", 1)
+    : kind === "C" ? lpc("顯示方式", `<span class="sg"><span class="on">跟隨全站</span><span>平面</span><span>立體</span></span>`, "", 1) : "";
+  return `<div class="mp"><div class="mp-hd"><b>台灣</b><span class="en">Taiwan</span></div>${glob}
+<div class="mp-th">${CHEVD}<b>交通</b><span class="en">Transport</span><span class="ct">1/8</span><span class="sw on"></span></div>
+<div class="mp-l on" style="--lc:${COL.ship}"><span class="ic"></span><span class="nm">船舶 <small>Ships</small></span><span class="sw on"></span></div>
+<div class="lpc-area">${lpc("顏色", "", `<span class="cbtn"><span class="ramp" style="background:${COL.ship}"></span></span>`)}${mode}${lpc("透明度", "85%", '<div class="sl" style="--p:85%"></div>')}${lpc("大小", "1.0", '<div class="sl" style="--p:50%"></div>')}</div>
+<div class="mp-l" style="--lc:${COL.plane}"><span class="ic"></span><span class="nm">飛機 <small>Flights</small></span><span class="sw"></span></div></div>`;
+}
+const cvs = (name, ratio = "16/9") => `<canvas class="cv" data-draw="${name}" style="aspect-ratio:${ratio}" aria-hidden="true"></canvas>`;
+
+const GROUPS = [
+  { id: "Q1", title: "範圍：這輪處理哪些圖層", intro: "對應上方四類＋範圍外的風場洋流，各自單選。" },
+  { id: "Q2", title: "「立體／平面」開關放哪裡", intro: "下方是面板示意（站內 token 重建，不是截圖）；藍底那一列就是開關的位置。" },
+  { id: "Q3", title: "移動物件的平面模式長什麼樣", intro: "左邊動畫可直接切換對照；點下面任何選項卡片，動畫會切到那個樣子。" },
+  { id: "Q4", title: "開站時預設哪種模式", intro: "這題不給建議。<b>A 照 09-28 拍板 G-1「預設平面」，但會改變開站時飛機、船、公車的外觀，影響最大。</b>每個選項附開站畫面示意。" },
+  { id: "Q5", title: "大量移動物件的效能", intro: "公車 ≤5,000／層、船 1.2 萬、垃圾車班表 ≤2 萬、漁船軌跡 8.2 萬點，平面模式每幀更新會很吃力。" },
+];
+const Q = [
+  { id: "Q1a", g: "Q1", title: "一類：已有平面版（立體是疊加效果）", desc: "地震漣漪、消防站、燈塔、輸電線／夜景／電廠／變電所發光、車站光柱、溫度波。", opts: [
+    { c: "A", t: "統一成每層一個「立體效果」開關、預設關", s: "幾乎不新做圖層；消防站、溫度波、車站光柱已有類似開關，改成同名同位置。", rec: 1 },
+    { c: "B", t: "維持現狀不動", s: "各層開關有無、名稱、預設值維持不一致。" },
+    { c: "C", t: "移除立體效果", s: "程式最少，但放棄 G-1「保留立體為選項」的方向。" }] },
+  { id: "Q1b", g: "Q1", title: "二類：數值只在立體裡", desc: "機組出力、水庫水位、區域用電、垃圾設施五類。垃圾設施現在沒有圖例。", opts: [
+    { c: "A", t: "本輪做平面版＋補圖例", s: "新做圓點，大小或顏色帶數值；立體保留為切換。", rec: 1 },
+    { c: "B", t: "維持立體", s: "數值仍只有立體模式看得到。" }] },
+  { id: "Q1c", g: "Q1", title: "三類：大量靜態點／線", desc: "實價登錄 36.5 萬點、歷史航跡 56 萬點。", opts: [
+    { c: "A", t: "本輪不做、維持立體", s: "延後到之後獨立一段。", rec: 1 },
+    { c: "B", t: "做（需 PMTiles 或抽樣，獨立一段）", s: "最貴：要重產資料或訂抽樣規則；依 P-4，>10 萬點低縮放要用熱區。" }] },
+  { id: "Q1d", g: "Q1", title: "四類：移動物件", desc: "七層，從 ≤500 到 8.2 萬點不等。", opts: [
+    { c: "A", t: "分兩段：先小量（垃圾車 ≤500、台鐵列車、飛機）再大量（公車三層、船 1.2 萬、垃圾車班表 ≤2 萬、漁船軌跡 8.2 萬）", s: "小量段先把插值抽成共用函式，大量段再處理效能（Q5）。", rec: 1 },
+    { c: "B", t: "只做小量", s: "大量層維持立體，G-1 對它們暫不落實。" },
+    { c: "C", t: "全部維持立體", s: "Q3、Q5 等於不用答。" }] },
+  { id: "Q1e", g: "Q1", title: "風場、洋流（不是 Three.js，是粒子線）", desc: "規格的 13 層有列，但技術上不是 Three.js。", opts: [
+    { c: "A", t: "不納入 R6", s: "粒子線本身就接近平面畫法。", rec: 1 },
+    { c: "B", t: "納入", s: "要另想平面版長什麼樣（例：箭頭格網）。" }] },
+  { id: "Q2", g: "Q2", title: "開關位置", desc: "", opts: [
+    { c: "A", t: "每層設定一個「立體／平面」切換，放顏色附近（R8 設定區順序）", s: "沿用現成的切換元件（先例：軌道 2D／3D、消防站立體）。", rec: 1, f: () => panel("A") },
+    { c: "B", t: "全站一個總開關", s: "一鍵切；但不能只把船改立體、飛機留平面。", f: () => panel("B") },
+    { c: "C", t: "兩者都有（總開關一鍵全切，每層可個別覆寫）", s: "最彈性；每層多一個「跟隨全站」狀態，場景存檔與 Agent 控制要多處理一種值。", f: () => panel("C") }] },
+  { id: "Q3a", g: "Q3", title: "移動方式", desc: "", opts: [
+    { c: "A", t: "每幀插值平滑移動（量大時降頻）", s: "符合「平滑過渡＝資料插值」偏好；和立體版現在的移動方式一致。", rec: 1, anim: { move: "interp" } },
+    { c: "B", t: "每秒跳一次", s: "最省；但會一格一格跳。", anim: { move: "jump" } }] },
+  { id: "Q3b", g: "Q3", title: "尾巴", desc: "", opts: [
+    { c: "A", t: "不畫", s: "最乾淨，看不出剛從哪裡來。", anim: { tail: "none" } },
+    { c: "B", t: "短尾線（漸隱）", s: "看得出方向與速度；量大時畫面變雜。", anim: { tail: "short" } },
+    { c: "C", t: "只有點選的物件畫軌跡", s: "平常乾淨，點了才看路線；選取圈照 R2。", rec: 1, anim: { tail: "selected" } }] },
+  { id: "Q3c", g: "Q3", title: "方向", desc: "", opts: [
+    { c: "A", t: "純圓點", s: "照 P-5 預設 circle；看不出方向。", anim: { dir: "dot" } },
+    { c: "B", t: "一律箭頭依航向旋轉", s: "P-5 限 icon ≤5k 點，船 1.2 萬、垃圾車班表、漁船軌跡超過，拉遠會擠成一團。", anim: { dir: "arrow" } },
+    { c: "C", t: "拉遠圓點、拉近換箭頭", s: "拉遠用小 3px 圓點、拉近換 13px 箭頭（P-5 強調階）。", rec: 1, anim: { dir: "byZoom" } }] },
+  { id: "Q4", g: "Q4", title: "預設模式", desc: "", opts: [
+    { c: "A", t: "全部預設平面（照 09-28 拍板 G-1）", s: "與規格一致；開站畫面變化最大。", f: () => cvs("o4A", "4/3") },
+    { c: "B", t: "移動物件預設立體、其他預設平面", s: "保留招牌的發光移動效果；規格要補一條例外。", f: () => cvs("o4B", "4/3") },
+    { c: "C", t: "全部預設立體（維持現有觀感）", s: "開站不變；與 G-1「預設 Mapbox 模式」相反，要改規格。", f: () => cvs("o4C", "4/3") }] },
+  { id: "Q5", g: "Q5", title: "效能做法", desc: "", opts: [
+    { c: "A", t: "拉遠自動抽樣／聚合（LOD）", s: "注意 P-4 拍板「低縮放用熱區、不用聚合」，移動物件的降級規則要另定。" },
+    { c: "B", t: "平面模式降更新頻率（如每秒 2 次）", s: "點數不變，只是動得比較不順。" },
+    { c: "C", t: "兩者都用", s: "拉遠抽樣、拉近全量但限頻。", rec: 1 },
+    { c: "D", t: "量大的層不提供平面模式", s: "最省事；與 G-1「每層都要有平面模式」衝突。" }] },
+];
+const PLAN = [
+  { h: "段 1　開關機制＋一類", risk: ["lo", "低"], items: ["定義每層「立體／平面」切換（沿用現成切換元件，不新增控制項種類；先例 <code>railTrackMode</code>、<code>fireStations3D</code>、<code>tempExtruded</code>）。", "一類 10 層統一成「立體效果」開關、預設關；幾乎不新做圖層。", "順便解掉發光層同時只能開一個的限制（夜景／電廠／變電所互斥）。"] },
+  { h: "段 2　二類", risk: ["md", "中"], items: ["機組出力、水庫水位、區域用電、垃圾設施五類新做圓點（大小或顏色帶數值）＋圖例。", "先複核區域用電是否真的沒有入口。", "四鐵則：透明度、圖例、popup、選取都要兩種模式一致。"] },
+  { h: "段 3　小量移動物件", risk: ["md", "中"], items: ["把插值從各 Scene 抽成純函式（加測試），立體與平面共用。", "垃圾車、台鐵列車、飛機輸出到 Mapbox 圓點／箭頭；點選改用 Mapbox 點擊＋R2 選取圈。", "Q3 選定的移動、尾巴、方向在這段定型。"] },
+  { h: "段 4　大量移動物件", risk: ["hi", "高"], items: ["公車三層、船、垃圾車班表、漁船軌跡。", "照 Q5：拉遠抽樣、拉近限頻；先量實際每幀耗時再定數字。", "可能需要再拆成兩支 PR（公車／船分開）。"] },
+  { h: "延後　三類", risk: ["na", "本輪不做"], items: ["實價登錄 36.5 萬點、歷史航跡 56 萬點維持立體。", "之後獨立一段：PMTiles 重產或抽樣規則；低縮放依 P-4 用熱區。"] },
+];
+
+// ── 狀態 ──
+const KEY = "mtp-r6-picks-v1"; let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+
+// ── 動畫狀態（對應 Q3） ──
+const A = { mode: "3d", move: "interp", tail: "none", dir: "dot", zoom: "far" };
+const PRESETS = [
+  { k: "3d", t: "立體", s: { mode: "3d" } },
+  { k: "smooth", t: "平面・平滑移動", s: { mode: "flat", move: "interp", tail: "none", dir: "dot" } },
+  { k: "jump", t: "平面・每秒跳", s: { mode: "flat", move: "jump", tail: "none", dir: "dot" } },
+  { k: "tail", t: "平面＋短尾線", s: { mode: "flat", move: "interp", tail: "short", dir: "dot" } },
+  { k: "arrow", t: "平面＋方向箭頭", s: { mode: "flat", move: "interp", tail: "none", dir: "arrow" } },
+];
+
+function render() {
+  document.getElementById("audit").innerHTML = AUDIT.map(a => `<div class="card"><h3>${a.h}</h3><p class="cap">${a.sub}</p>
+<div style="overflow-x:auto"><table class="tbl"><tr><th>圖層</th><th>量</th><th>備註</th></tr>${a.rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td>${r[2]}</td></tr>`).join("")}</table></div>
+<p class="work"><b>R6 工作：</b>${a.work}</p>${cvs(a.draw, "2/1")}</div>`).join("");
+  const sub = q => `<div class="sub" id="q-${q.id}"><div class="sub-h"><span class="tag">${q.id}</span><h3>${q.title}</h3></div>${q.desc ? `<p class="q-now">${q.desc}</p>` : ""}
+<div class="opts">${q.opts.map(o => `<div class="opt" role="button" tabindex="0" aria-pressed="false" data-q="${q.id}" data-c="${o.c}"><div class="opt-h"><span class="ol">${o.c}</span><span class="ot">${o.t}</span>${o.rec ? '<span class="rb">建議</span>' : ""}<span class="chk">已選</span></div><p class="os">${o.s}</p>${o.f ? o.f() : ""}</div>`).join("")}</div>
+<input class="note-in" id="note-${q.id}" data-q="${q.id}" placeholder="備註（選填）" aria-label="${q.id} 備註"></div>`;
+  document.getElementById("qs").innerHTML = GROUPS.map(g => {
+    const subs = Q.filter(q => q.g === g.id).map(sub).join("");
+    const body = g.id === "Q3" ? `<div class="q3grid"><div class="demo"><h3>移動物件動態示意</h3>
+<canvas id="anim" class="cv" style="aspect-ratio:16/10" aria-label="移動物件動態示意"></canvas>
+<div class="pick-row" id="presets">${PRESETS.map(p => `<button type="button" class="pbtn" data-p="${p.k}" aria-pressed="false">${p.t}</button>`).join("")}</div>
+<div class="pick-row"><span class="seg" role="group" aria-label="縮放"><button type="button" data-z="far" aria-pressed="true">拉遠</button><button type="button" data-z="near" aria-pressed="false">拉近</button></span><span id="animCap"></span></div>
+<p class="cap">拉遠：小 3px 圓點、箭頭 9px；拉近：標準 4.5px 圓點、箭頭 13px。描邊 1px 底圖色（P-2）。「只畫點選的軌跡」時，有選取圈的那個物件當作被點選。</p></div><div class="q3list">${subs}</div></div>` : subs;
+    return `<section class="q" id="sec-${g.id}"><div class="q-head"><span class="tag">${g.id}</span><h2>${g.title}</h2></div><p class="q-rec">${g.intro}</p>${body}</section>`;
+  }).join("");
+  document.getElementById("planCards").innerHTML = PLAN.map(p => `<div class="card"><h3>${p.h}<span class="risk ${p.risk[0]}">風險 ${p.risk[1]}</span></h3><ul>${p.items.map(i => `<li>${i}</li>`).join("")}</ul>${p.risk[0] === "na" ? "" : '<p class="pr">一支 PR；前後附真實截圖對照頁</p>'}</div>`).join("");
+  document.getElementById("nav").innerHTML = '<a href="#sec-audit">盤點</a>' + GROUPS.map(g => `<a href="#sec-${g.id}" id="nav-${g.id}">${g.id}</a>`).join("") + '<a href="#sec-plan">切分</a><a href="#out">彙整</a>';
+}
+function drawStatics() {
+  document.querySelectorAll("canvas[data-draw]").forEach(cv => {
+    const n = cv.dataset.draw, { ctx, w, h } = fit(cv);
+    if (DRAW[n]) DRAW[n](ctx, w, h); else if (n.startsWith("o4")) openScreen(ctx, w, h, n.slice(2));
+  });
+}
+function sync() {
+  let n = 0;
+  Q.forEach(q => {
+    const s = state[q.id] || {}; if (s.c) n++;
+    document.querySelectorAll(`.opt[data-q="${q.id}"]`).forEach(b => b.setAttribute("aria-pressed", String(b.dataset.c === s.c)));
+    const ni = document.getElementById("note-" + q.id); if (ni && document.activeElement !== ni) ni.value = s.note || "";
+  });
+  GROUPS.forEach(g => { const a = document.getElementById("nav-" + g.id); if (a) a.classList.toggle("done", Q.filter(q => q.g === g.id).every(q => (state[q.id] || {}).c)); });
+  document.getElementById("count").innerHTML = `已選 <b>${n}</b> / ${Q.length}`;
+  document.getElementById("outText").value = "R6 Three.js 圖層平面模式選擇\n" + Q.map(q => {
+    const s = state[q.id] || {}, o = q.opts.find(x => x.c === s.c);
+    return `${q.id}: ${o ? o.c + " " + o.t : "未選"}${s.note && s.note.trim() ? "\n備註：" + s.note.trim() : ""}`;
+  }).join("\n");
+}
+function syncAnimUI() {
+  PRESETS.forEach(p => { const m = Object.keys(p.s).every(k => A[k] === p.s[k]) && (p.k === "3d" ? A.mode === "3d" : A.mode === "flat"); const b = document.querySelector(`[data-p="${p.k}"]`); if (b) b.setAttribute("aria-pressed", String(m)); });
+  document.querySelectorAll("[data-z]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === A.zoom)));
+  const cap = document.getElementById("animCap"); if (!cap) return;
+  cap.innerHTML = A.mode === "3d" ? "目前：<b>立體</b>（發光球＋漸隱拖尾）"
+    : `目前：<b>平面</b>・${A.move === "jump" ? "每秒跳一次" : "每幀插值"}・${{ none: "無尾巴", short: "短尾線", selected: "只畫點選的軌跡" }[A.tail]}・${{ dot: "純圓點", arrow: "一律箭頭", byZoom: "拉遠圓點／拉近箭頭" }[A.dir]}`;
+}
+
+// ── 移動物件動畫 ──
+const PATHS = (() => {
+  const R = rng(42), C = [[.3, .35, .2, .14], [.62, .42, .24, .2], [.45, .68, .3, .14], [.74, .66, .14, .18], [.36, .5, .12, .3]];
+  return C.map(([cx, cy, rx, ry], j) => { const pts = []; for (let i = 0; i < 64; i++) { const a = i / 64 * Math.PI * 2, k = 1 + (Math.sin(a * 3 + j) * .12) + (R() - .5) * .04; pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]); } return pts; });
+})();
+const OBJS = (() => { const R = rng(5), o = []; for (let i = 0; i < 64; i++) o.push({ p: i % PATHS.length, u0: R(), sp: (.012 + R() * .02) * (i % 3 ? 1 : -1) }); return o; })();
+const SEL = 4; // 被點選的物件：走中央那條路徑，拉近時仍在畫面內
+const animEl = () => document.getElementById("anim");
+function pathAt(p, u) { const P = PATHS[p], N = P.length; u = ((u % 1) + 1) % 1; const f = u * N, i = Math.floor(f), t = f - i, a = P[i], b = P[(i + 1) % N]; return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
+function drawAnim(t) {
+  const cv = animEl(); if (!cv) return; const { ctx, w, h } = fit(cv), c = MC(), near = A.zoom === "near", Z = near ? 2.6 : 1, cx = w * .5, cy = h * .5;
+  const tf = (x, y) => [(x - cx) * Z + cx, (y - cy) * Z + cy], P = (p, u) => { const q = pathAt(p, u); return tf(q[0] * w, q[1] * h); };
+  base(ctx, 0, 0, w, h, tf);
+  ctx.strokeStyle = c.road; ctx.lineWidth = near ? 2 : 1;
+  PATHS.forEach((pt, j) => { ctx.beginPath(); for (let i = 0; i <= 64; i++) { const [x, y] = P(j, i / 64); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); });
+  const flat = A.mode === "flat", tt = flat && A.move === "jump" ? Math.floor(t) : t, col = COL.ship;
+  const useArrow = A.dir === "arrow" || (A.dir === "byZoom" && near), r = near ? 4.5 : 3, as = near ? 13 : 9;
+  const S = OBJS.map((o, i) => { const u = o.u0 + o.sp * tt, [x, y] = P(o.p, u), [x2, y2] = P(o.p, u + Math.sign(o.sp) * .003); return { o, i, u, x, y, ang: Math.atan2(y2 - y, x2 - x) }; });
+  const trail = (s, len, steps, width, alpha) => { const d = -Math.sign(s.o.sp) * len / steps; for (let k = 0; k < steps; k++) { const [x1, y1] = P(s.o.p, s.u + d * k), [x2, y2] = P(s.o.p, s.u + d * (k + 1)); ctx.strokeStyle = rgba(col, alpha * (1 - k / steps)); ctx.lineWidth = width; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); } };
+  if (!flat) {
+    S.forEach(s => { const d = -Math.sign(s.o.sp) * .004; ctx.save(); if (dk()) ctx.globalCompositeOperation = "lighter"; for (let k = 16; k >= 1; k--) { const [x, y] = P(s.o.p, s.u + d * k); ctx.fillStyle = rgba(col, .4 * (1 - k / 17)); ctx.beginPath(); ctx.arc(x, y, (near ? 6 : 3.5) * (1 - k / 20), 0, 7); ctx.fill(); } ctx.restore(); glow(ctx, s.x, s.y, near ? 5 : 3.2, col); });
+  } else {
+    if (A.tail === "short") S.forEach(s => trail(s, .035, 8, near ? 2.5 : 1.5, .8));
+    if (A.tail === "selected") trail(S[SEL], .45, 40, 2.5, .95);
+    S.forEach(s => useArrow ? arrow(ctx, s.x, s.y, as, s.ang, col) : dot(ctx, s.x, s.y, r, col));
+    if (A.tail === "selected") { const s = S[SEL]; ctx.lineWidth = 2; ctx.strokeStyle = c.ring; ctx.beginPath(); ctx.arc(s.x, s.y, (useArrow ? as / 2 : r) + 5, 0, 7); ctx.stroke(); label(ctx, "點選中", s.x + 12, s.y - 8); }
+  }
+  label(ctx, A.mode === "3d" ? "立體" : "平面", 6, 6); label(ctx, (near ? "拉近" : "拉遠") + "・示意", w - 6, 6, "right");
+}
+let raf = 0, inView = true;
+function frame(ts) { raf = 0; drawAnim(ts / 1000); loop(); }
+function loop() { if (!raf && inView && document.visibilityState === "visible") raf = requestAnimationFrame(frame); }
+function halt() { if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+// ── 事件 ──
+function pickOpt(el) {
+  const q = Q.find(x => x.id === el.dataset.q), o = q.opts.find(x => x.c === el.dataset.c);
+  const s = state[q.id] || (state[q.id] = {}); s.c = s.c === o.c ? "" : o.c; save(); sync();
+  if (o.anim) { Object.assign(A, { mode: "flat" }, o.anim); syncAnimUI(); }
+}
+document.getElementById("qs").addEventListener("click", e => {
+  const p = e.target.closest("[data-p]"); if (p) { Object.assign(A, PRESETS.find(x => x.k === p.dataset.p).s); syncAnimUI(); return; }
+  const z = e.target.closest("[data-z]"); if (z) { A.zoom = z.dataset.z; syncAnimUI(); return; }
+  if (e.target.closest(".note-in")) return;
+  const o = e.target.closest(".opt"); if (o) pickOpt(o);
+});
+document.getElementById("qs").addEventListener("keydown", e => { const o = e.target.closest(".opt"); if (o && e.target === o && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pickOpt(o); } });
+document.getElementById("qs").addEventListener("input", e => { const i = e.target.closest(".note-in"); if (!i) return; const s = state[i.dataset.q] || (state[i.dataset.q] = {}); s.note = i.value; save(); sync(); });
+document.querySelectorAll("[data-th]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-th]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  document.body.classList.toggle("lt", b.dataset.th === "lt"); drawStatics();
+}));
+document.getElementById("copy").addEventListener("click", () => {
+  const ta = document.getElementById("outText"), h = document.getElementById("copyHint");
+  const fallback = () => { ta.select(); try { h.textContent = document.execCommand("copy") ? "已複製。" : "請按 ⌘C 複製。"; } catch (e) { h.textContent = "請按 ⌘C 複製。"; } };
+  if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(() => { h.textContent = "已複製。"; }).catch(fallback); else fallback();
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") loop(); else halt(); });
+let rt = 0; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(drawStatics, 120); });
+
+render(); sync(); syncAnimUI(); drawStatics();
+if ("IntersectionObserver" in window && animEl()) new IntersectionObserver(es => { inView = es[0].isIntersecting; inView ? loop() : halt(); }).observe(animEl());
+loop();
+</script>
+</body>
+</html>

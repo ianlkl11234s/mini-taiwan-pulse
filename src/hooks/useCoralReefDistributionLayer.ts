@@ -5,6 +5,7 @@ import { loadingRegistry } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 export const CORAL_SOURCE_ID = "coral-reef-distribution";
 const FILL = "coral-reef-distribution-fill";
@@ -70,11 +71,13 @@ export function mountCoralReefDistribution(
     if (source) (source as unknown as { attribution: string }).attribution = CORAL_REEF_ATTRIBUTION;
     map.addLayer({ id: FILL, type: "fill", source: CORAL_SOURCE_ID,
       "source-layer": "coral_reef_distribution",
-      paint: { "fill-color": CORAL_REEF_COLOR, "fill-opacity": opacity } });
+      paint: hookFillPaint("coralReefDistribution", FILL, { "fill-color": CORAL_REEF_COLOR, "fill-opacity": opacity }, { "fill-color": CORAL_REEF_COLOR, "fill-opacity": 0.55 }) });
     map.addLayer({ id: LINE, type: "line", source: CORAL_SOURCE_ID,
       "source-layer": "coral_reef_distribution",
-      paint: { "line-color": CORAL_REEF_COLOR, "line-opacity": opacity,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.4, 10, 1] } });
+      layout: hookLineLayout("coralReefDistribution", LINE),
+      paint: hookLinePaint("coralReefDistribution", LINE, { "line-color": CORAL_REEF_COLOR, "line-opacity": opacity,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.4, 10, 1] }, { "line-color": CORAL_REEF_COLOR, "line-opacity": 0.55,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.4, 10, 1] }) });
   } catch {
     fail();
   }
@@ -116,8 +119,8 @@ export function useCoralReefDistributionLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !enabled) return;
-    if (map.getLayer(FILL)) map.setPaintProperty(FILL, "fill-opacity", opacity);
-    if (map.getLayer(LINE)) map.setPaintProperty(LINE, "line-opacity", opacity);
+    if (map.getLayer(FILL)) map.setPaintProperty(FILL, "fill-opacity", hookFillOpacity("coralReefDistribution", FILL, opacity, 0.55));
+    if (map.getLayer(LINE)) map.setPaintProperty(LINE, "line-opacity", hookLineOpacity("coralReefDistribution", LINE, opacity, 0.55));
   }, [mapRef, enabled, opacity, mapTick]);
   return state;
 }

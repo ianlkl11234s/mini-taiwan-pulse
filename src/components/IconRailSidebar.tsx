@@ -1,72 +1,34 @@
-import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
-import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
-import { StatisticsDetails } from "./sidebar/StatisticsDetails";
-import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
-import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
-import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { useState, useEffect, useMemo, useRef, type ComponentType } from "react";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, ELEVATION, LAYOUT } from "../styles/designTokens";
 import {
-  // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
-  //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
-  //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
-  //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star, Bot,
+  // 以下 import 沒有一顆是餵圖層的 —— 全是本元件自己的 UI（rail 按鈕 / 展開箭頭 / 搜尋框…）。
+  // 圖層 icon 由 layerManifest 派生（sidebar/LayersPanel.tsx 的 LAYER_ICONS），新增圖層請改 manifest 的 `icon` 欄。
+  Activity, Layers, ChartColumn, MapPin, User, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
-  Lock,        // gated 圖層鎖頭
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
+  Database,    // 資料來源 rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
   LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode,
 } from "../types";
-// AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
-// 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
-import { buildParamControls } from "../state/layerParamsControls";
-import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
-// 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
-import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
-import { searchLayers } from "../lib/layerSearch";
-import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
-import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
+import { searchLocationPresets } from "../lib/locationSearch";
+import { DataSourcePanel } from "./sidebar/DataSourcePanel";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
+// 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
+import { useLocale } from "../state/localeStore";
+import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
+import { LAYER_PANELS, type LayerPanelId } from "./sidebar/layerPanels";
+import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 
-// 「世界」rail tab 與桌機主 Layers panel 的主題分流：
-// - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
-// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題，順序照該陣列
-const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
-const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
-export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
-
-// ── Color Config ──
-
-/**
- * 手寫 icon 殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
- * `Omit<…, ManifestKey>` 退化成 `{}` 的護欄語意說明見 layerCatalog 的
- * HANDWRITTEN_LAYER_COLORS（含「spread 不觸發 excess property check」那條）。
- */
-const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  // （空 —— Phase 2 全數搬完）
-};
-
-/**
- * icon 全集 —— 手寫殘量 + manifest 派生。型別維持
- * `Record<keyof LayerVisibility, LucideIcon>`（tsc 護欄不弱化）。
- * export：AR-22 黃金快照（layerGoldenSnapshot.test.ts）要逐 key 讀 icon 名稱比對。
- */
-export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
-  ...HANDWRITTEN_LAYER_ICONS,
-  ...manifestIcons(),
-};
+// 既有 export 維持原路徑（測試與其他模組從這裡 import）
+export { LAYER_ICONS } from "./sidebar/LayersPanel";
+export { MAIN_THEMES, getThemeLayerKeys } from "./sidebar/layerPanels";
 
 // ── Props ──
 
@@ -79,12 +41,12 @@ interface IconRailSidebarProps {
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
-  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; wasteTrucks?: number; windPlan?: number };
+  /** 航班／船舶／列車／公車／客運的即時計數不在這裡：row 以 `useLayerLiveCount` per-key 訂閱 liveCountStore */
+  counts: { wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onAllOff: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
@@ -102,6 +64,8 @@ interface IconRailSidebarProps {
   satelliteActive?: boolean;
   /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
   externalCloseEpoch?: number;
+  /** 掛載時已有外部左側面板開著（例如手機開了地震回放後 resize 到桌機）→ rail 不預設展開 Layers，維持互斥 */
+  startClosed?: boolean;
   /** 監測模式 Monitor split（右半邊）toggle */
   onMonitorSplitToggle?: () => void;
   monitorSplitActive?: boolean;
@@ -114,104 +78,46 @@ interface IconRailSidebarProps {
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
-  /** DEV-only 本地研究 Agent；保持 mounted，切換其他 rail app 不會中斷配對。 */
-  agentPanel?: ReactNode;
+  /** DEV-only 本地研究 Agent 的單一常駐實例由 App 持有；rail 僅提供開關。 */
+  agentAvailable?: boolean;
+  agentActive?: boolean;
+  onAgentToggle?: () => void;
 }
 
-// ── Shared Styles ──
 
-interface RailPalette {
-  ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string;
-  BORDER: string; DIM: string; INACTIVE_TEXT: string;
-  TEXT_STRONG: string; SUB_LABEL: string; BANNER_BG: string; SEARCH_BG: string;
-  TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
-  ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
-  CTRL_ACTIVE_BG: string; CTRL_INACTIVE_BG: string; CTRL_ACTIVE_BORDER: string; CTRL_INACTIVE_BORDER: string;
-  SELECT_BG: string; OPTION_BG: string; ALLOFF_BG: string; ALLOFF_BORDER: string;
-  COLOR_SCHEME: 'light' | 'dark';
-}
-
-const DARK_PALETTE: RailPalette = {
-  ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: "#0D0E10", BG_PANEL: "rgba(0,0,0,0.45)",
-  BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
-  TEXT_STRONG: "#fff", SUB_LABEL: "#D1D5DB", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
-  TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
-  ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
-  CTRL_ACTIVE_BG: "rgba(255,255,255,0.12)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.4)",
-  CTRL_ACTIVE_BORDER: "rgba(255,255,255,0.25)", CTRL_INACTIVE_BORDER: "rgba(255,255,255,0.15)",
-  SELECT_BG: "rgba(0,0,0,0.5)", OPTION_BG: "#1a1a1a", ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
-  COLOR_SCHEME: 'dark',
-};
-
-const LIGHT_PALETTE: RailPalette = {
-  ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: "rgba(255,255,255,0.92)",
-  BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
-  TEXT_STRONG: "#111827", SUB_LABEL: "#4B5563", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
-  TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
-  ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
-  CTRL_ACTIVE_BG: "rgba(0,0,0,0.10)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.03)",
-  CTRL_ACTIVE_BORDER: "rgba(0,0,0,0.22)", CTRL_INACTIVE_BORDER: "rgba(0,0,0,0.12)",
-  SELECT_BG: "#FFFFFF", OPTION_BG: "#FFFFFF", ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
-  COLOR_SCHEME: 'light',
-};
-
-const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
-const useRailTheme = () => useContext(RailThemeContext);
-
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "agent";
+type PanelId = LayerPanelId | "locations" | "datasource";
 
 // ── Main Component ──
 
 const RAIL_WIDTH = 56;
 const PANEL_WIDTH = 288;
 
-export function getThemeLayerKeys(themes: ThemeDef[]): (keyof LayerVisibility)[] {
-  return themes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)));
-}
-
 export function IconRailSidebar({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
+  onViewModeChange, onDisplayModeChange, onAllOff,
   onBulkSetVisibility,
   currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
   externalCloseEpoch,
+  startClosed = false,
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onJapanOpen,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
-  agentPanel,
+  agentAvailable, agentActive, onAgentToggle,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
-  const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
-  const { BG_RAIL, BORDER, BG_PANEL } = palette;
-  const agentTheme = {
-    "--agent-text": palette.TEXT_STRONG,
-    "--agent-muted": palette.SUB_LABEL,
-    "--agent-accent": palette.ACCENT,
-    "--agent-border": palette.BORDER,
-    "--agent-control-bg": palette.CTRL_INACTIVE_BG,
-    "--agent-control-hover": palette.CTRL_ACTIVE_BG,
-    "--agent-control-border": palette.CTRL_INACTIVE_BORDER,
-  } as CSSProperties;
-  const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
+  const palette = railPalette(isDarkTheme);
+  const { t } = useLocale();
+  const { BG_RAIL, BORDER, BG_PANEL, PANEL_BORDER } = palette;
+  const [activePanel, setActivePanel] = useState<PanelId | null>(startClosed ? null : "layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
-  const [layerSearch, setLayerSearch] = useState("");
-  const [statisticsSearch, setStatisticsSearch] = useState("");
-  const [worldSearch, setWorldSearch] = useState("");
-  const [japanSearch, setJapanSearch] = useState("");
-  const [comingSoon, setComingSoon] = useState(false);
-
-  // 齒輪「規劃中」提示：顯示後 2 秒自動消失
-  useEffect(() => {
-    if (!comingSoon) return;
-    const t = setTimeout(() => setComingSoon(false), 2000);
-    return () => clearTimeout(t);
-  }, [comingSoon]);
+  // 四個入口各自保留搜尋字（P9：各面板搜自己）
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "" });
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -222,6 +128,7 @@ export function IconRailSidebar({
   }, [externalCloseEpoch]);
 
   const closeExternalPanels = () => {
+    if (agentActive && onAgentToggle) onAgentToggle();
     if (memberActive && onMemberToggle) onMemberToggle();
     if (intelActive && onIntelToggle) onIntelToggle();
     if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
@@ -237,11 +144,11 @@ export function IconRailSidebar({
         lastExplorationPanel.current = panel;
         closeExternalPanels();
         setActivePanel(panel);
-      } else setActivePanel(current => current === "agent" ? lastExplorationPanel.current : current);
+      } else setActivePanel(current => current ?? lastExplorationPanel.current);
     };
     window.addEventListener("pulse:explore-layers", onExplore);
     return () => window.removeEventListener("pulse:explore-layers", onExplore);
-  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle]);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
 
   const panelOpen = activePanel !== null;
 
@@ -273,11 +180,6 @@ export function IconRailSidebar({
 
   const getCount = (key: keyof LayerVisibility): number | undefined => {
     switch (key) {
-      case "flights": return counts.flights;
-      case "ships": return counts.ships;
-      case "rail": return counts.trains;
-      case "busLive": return counts.buses;
-      case "busIntercityLive": return counts.busesIntercity;
       case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;
@@ -289,22 +191,18 @@ export function IconRailSidebar({
   const cityPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "city"), []);
 
   const filteredCities = useMemo(() => {
-    if (!locationSearch) return cityPresets;
-    const q = locationSearch.toLowerCase();
-    return cityPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(cityPresets, locationSearch);
   }, [cityPresets, locationSearch]);
 
   const filteredOverviews = useMemo(() => {
-    if (!locationSearch) return overviewPresets;
-    const q = locationSearch.toLowerCase();
-    return overviewPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(overviewPresets, locationSearch);
   }, [overviewPresets, locationSearch]);
 
   return (
     <RailThemeContext.Provider value={palette}>
     <div style={{ position: "relative", height: "100%", pointerEvents: "auto" }}>
       {/* ── Icon Rail ── */}
-      <div data-viewport-occluder="icon-rail"
+      <div data-viewport-occluder="icon-rail" data-boot-part="rail"
         style={{
           width: RAIL_WIDTH,
           background: BG_RAIL,
@@ -329,7 +227,7 @@ export function IconRailSidebar({
           icon={Layers}
           active={activePanel === "layers"}
           onClick={() => togglePanel("layers")}
-          tooltip="Layers"
+          tooltip={t("panel.layers.title")}
           badge={!layersBadgeSeen}
         />
 
@@ -338,7 +236,7 @@ export function IconRailSidebar({
           icon={StatisticsGlyph}
           active={activePanel === "statistics"}
           onClick={() => togglePanel("statistics")}
-          tooltip="統計 Statistics"
+          tooltip={t("panel.statistics.title")}
         />
 
         {/* 🌍 世界 World（維持獨立 rail，排在 Layers 之後） */}
@@ -346,7 +244,7 @@ export function IconRailSidebar({
           icon={WorldGlyph}
           active={activePanel === "world"}
           onClick={() => togglePanel("world")}
-          tooltip="世界 World"
+          tooltip={t("panel.world.title")}
         />
 
         {/* 🗾 日本 Japan（clone 世界 tab；打開自動飛日本） */}
@@ -354,7 +252,7 @@ export function IconRailSidebar({
           icon={JapanGlyph}
           active={activePanel === "japan"}
           onClick={() => togglePanel("japan")}
-          tooltip="日本 Japan"
+          tooltip={t("panel.japan.title")}
         />
 
         {/* Locations */}
@@ -365,12 +263,20 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
-        {agentPanel && (
+        {/* 資料來源（Phase K：收進側邊欄，取代右下浮動 ⓘ 抽屜） */}
+        <RailIcon
+          icon={Database}
+          active={activePanel === "datasource"}
+          onClick={() => togglePanel("datasource")}
+          tooltip={t("rail.datasource")}
+        />
+
+        {agentAvailable && onAgentToggle && (
           <RailIcon
             icon={Bot}
-            active={activePanel === "agent"}
-            onClick={() => togglePanel("agent")}
-            tooltip="本地 Agent"
+            active={!!agentActive}
+            onClick={() => { if (!agentActive) { closePanel(); closeExternalPanels(); } onAgentToggle(); }}
+            tooltip={t("toolbar.agent")}
           />
         )}
 
@@ -380,10 +286,10 @@ export function IconRailSidebar({
             icon={Radio}
             active={!!intelActive}
             onClick={() => {
-              if (!intelActive) closePanel();
+              if (!intelActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onIntelToggle();
             }}
-            tooltip="即時情報 Intel"
+            tooltip={t("rail.intel")}
           />
         )}
 
@@ -393,10 +299,10 @@ export function IconRailSidebar({
             icon={Satellite}
             active={!!satelliteActive}
             onClick={() => {
-              if (!satelliteActive) closePanel();
+              if (!satelliteActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onSatelliteToggle();
             }}
-            tooltip="衛星情報 Satellite"
+            tooltip={t("rail.satellite")}
           />
         )}
 
@@ -405,8 +311,8 @@ export function IconRailSidebar({
           <RailIcon
             icon={PanelRight}
             active={!!monitorSplitActive}
-            onClick={onMonitorSplitToggle}
-            tooltip="監測模式 Monitor"
+            onClick={() => { if (!monitorSplitActive && agentActive) onAgentToggle?.(); onMonitorSplitToggle(); }}
+            tooltip={t("rail.monitor")}
           />
         )}
 
@@ -414,45 +320,15 @@ export function IconRailSidebar({
           <RailIcon
             icon={User}
             active={!!memberActive}
-            onClick={() => { if (!memberActive) closePanel(); onMemberToggle(); }}
-            tooltip="會員專區"
+            onClick={() => { if (!memberActive) { closePanel(); if (agentActive) onAgentToggle?.(); } onMemberToggle(); }}
+            tooltip={t("toolbar.member")}
           />
         )}
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Settings（規劃中） */}
-        <RailIcon icon={Settings} active={false} onClick={() => setComingSoon(true)} tooltip="Settings" />
       </div>
 
-      {/* 齒輪「規劃中」提示 */}
-      {comingSoon && (
-        <div
-          style={{
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            bottom: 12,
-            padding: "8px 14px",
-            background: "rgba(17,24,39,0.92)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: RADIUS.xl,
-            color: "#fff",
-            fontSize: FONT_SIZE.lg,
-            whiteSpace: "nowrap",
-            zIndex: 5,
-            pointerEvents: "none",
-            animation: "panelFadeIn 0.2s ease-out",
-          }}
-        >
-          ⚙️ 設定功能規劃中
-        </div>
-      )}
-
       {/* ── Floating Panel ── */}
-      {panelOpen && activePanel !== "agent" && (
+      {panelOpen && (
         <>
           <style>{`
             @keyframes panelFadeIn {
@@ -464,10 +340,12 @@ export function IconRailSidebar({
             style={{
               position: "absolute",
               left: RAIL_WIDTH + 8,
-              top: 92,
+              top: LAYOUT.leftDockTop,
               width: compactLayers ? MONITOR_SPLIT_DOCK.layersWidth : PANEL_WIDTH,
               maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : "70vh",
               background: BG_PANEL,
+              border: `1px solid ${PANEL_BORDER}`,
+              boxShadow: ELEVATION.lg,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
               borderRadius: RADIUS.xl,
@@ -479,12 +357,21 @@ export function IconRailSidebar({
               animation: "panelFadeIn 0.25s ease-out",
             }}
           >
-            {activePanel === "layers" && (
+            {LAYER_PANELS.map((panel) => activePanel === panel.id && (
               <LayersPanel
-                search={layerSearch}
-                onSearchChange={setLayerSearch}
-                themes={MAIN_THEMES}
-                showMacroGroups
+                key={panel.id}
+                panelId={panel.id}
+                onSearchInPanel={(target, query) => {
+                  setPanelSearch((prev) => ({ ...prev, [target]: query }));
+                  togglePanel(target);
+                }}
+                search={panelSearch[panel.id]}
+                onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
+                themes={panel.themes}
+                title={t(`panel.${panel.id}.title`)}
+                macroGroups={panel.macroGroups}
+                allOffKeys={panel.allOffKeys}
+                statisticsModeControl={panel.statisticsModeControl}
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -495,88 +382,13 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
                 onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
-            )}
-            {activePanel === "world" && (
-              <LayersPanel
-                search={worldSearch}
-                onSearchChange={setWorldSearch}
-                themes={WORLD_THEMES}
-                title="世界 World"
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
-            {activePanel === "statistics" && (
-              <LayersPanel
-                search={statisticsSearch}
-                onSearchChange={setStatisticsSearch}
-                themes={STATISTICS_TAB_THEMES}
-                allOffKeys={[...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])]}
-                title="統計 Statistics"
-                statisticsModeControl
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
-            {activePanel === "japan" && (
-              <LayersPanel
-                search={japanSearch}
-                onSearchChange={setJapanSearch}
-                themes={JAPAN_THEMES}
-                title="日本 Japan"
-                visibility={visibility}
-                lockedKeys={lockedKeys}
-                expandedLayer={expandedLayer}
-                viewMode={viewMode}
-                displayMode={displayMode}
-                getCount={getCount}
-                onLayerClick={onLayerClick}
-                onToggleVisibility={onToggleVisibility}
-                onViewModeChange={onViewModeChange}
-                onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
-                onAllOff={onAllOff}
-                onBulkSetVisibility={onBulkSetVisibility}
-                favoriteKeys={favoriteKeys}
-                onToggleFavorite={onToggleFavorite}
-                onClose={closePanel}
-              />
-            )}
+            ))}
             {activePanel === "locations" && (
               <LocationsPanel
                 search={locationSearch}
@@ -588,36 +400,18 @@ export function IconRailSidebar({
                 onClose={closePanel}
               />
             )}
+            {activePanel === "datasource" && (
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={onBulkSetVisibility ? (key) => onBulkSetVisibility([key], true) : undefined}
+                onClose={closePanel}
+              />
+            )}
           </div>
         </>
       )}
 
-      {agentPanel && (
-        <div
-          style={{
-            ...agentTheme,
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            top: 92,
-            width: PANEL_WIDTH,
-            maxWidth: "calc(100vw - 80px)",
-            maxHeight: "70vh",
-            background: BG_PANEL,
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderRadius: RADIUS.xl,
-            display: activePanel === "agent" ? "flex" : "none",
-            flexDirection: "column",
-            overflow: "hidden",
-            zIndex: 3,
-            pointerEvents: "auto",
-            animation: "panelFadeIn 0.25s ease-out",
-          }}
-        >
-          <PanelHeader title="本地 Agent" onClose={closePanel} />
-          {agentPanel}
-        </div>
-      )}
     </div>
     </RailThemeContext.Provider>
   );
@@ -674,7 +468,7 @@ function JapanGlyph({ size = 20 }: { size?: number }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: Math.round(badge * 0.5),
           fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
-          fontFamily: "Inter, system-ui, sans-serif",
+          fontFamily: FONT_CJK,
         }}
       >
         JP
@@ -739,804 +533,6 @@ function RailIcon({
   );
 }
 
-// ── Panel Header ──
-
-function PanelHeader({
-  title, onClose,
-}: {
-  title: string; onClose: () => void;
-}) {
-  const { BORDER, DIM, TEXT_STRONG } = useRailTheme();
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "12px 12px 10px",
-        borderBottom: `1px solid ${BORDER}`,
-        flexShrink: 0,
-      }}
-    >
-      <span style={{ color: TEXT_STRONG, fontSize: FONT_SIZE.lg, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
-        {title}
-      </span>
-      <div style={{ flex: 1 }} />
-      <button
-        onClick={onClose}
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: RADIUS.md,
-          border: "none",
-          background: "transparent",
-          color: DIM,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          padding: 0,
-        }}
-      >
-        <X size={14} />
-      </button>
-    </div>
-  );
-}
-
-
-// ── Toggle Switch ──
-
-function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
-  const { ACCENT_TOGGLE, TOGGLE_OFF, TOGGLE_KNOB_ON, TOGGLE_KNOB_OFF } = useRailTheme();
-  return <LayerToggleSwitch on={on} onChange={onChange} label={label} ACCENT_TOGGLE={ACCENT_TOGGLE} TOGGLE_OFF={TOGGLE_OFF} TOGGLE_KNOB_ON={TOGGLE_KNOB_ON} TOGGLE_KNOB_OFF={TOGGLE_KNOB_OFF} />;
-}
-
-// ══════════════════════════════════
-//  LAYERS PANEL
-// ══════════════════════════════════
-
-interface LayersPanelProps {
-  search: string;
-  onSearchChange: (v: string) => void;
-  /** 只渲染這批主題（預設全部 THEMES）。世界 tab 傳世界主題、主 Layers panel 傳非世界主題。 */
-  themes?: ThemeDef[];
-  /** PanelHeader 標題（預設 "Layers"）。 */
-  title?: string;
-  /** 是否顯示 Layers 的第一層大分類；World rail 本身就是獨立分類，故不顯示。 */
-  showMacroGroups?: boolean;
-  visibility: LayerVisibility;
-  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
-  expandedLayer: ExpandableLayerKey | null;
-  viewMode: ViewMode;
-  displayMode: DisplayMode;
-  getCount: (key: keyof LayerVisibility) => number | undefined;
-  onLayerClick: (layer: keyof LayerVisibility) => void;
-  onToggleVisibility: (layer: keyof LayerVisibility) => void;
-  onViewModeChange: (mode: ViewMode) => void;
-  onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
-  onAllOff: () => void;
-  allOffKeys?: (keyof LayerVisibility)[];
-  /** 僅 Statistics rail panel 顯示單一／重疊模式。 */
-  statisticsModeControl?: boolean;
-  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  favoriteKeys?: ReadonlySet<string>;
-  onToggleFavorite?: (key: string) => void;
-  onClose: () => void;
-}
-
-// 單一 layer row — memo 後只在該 row 的 props 真變動時才 re-render。
-// 這讓 LayersPanel 每次被動 re-render（例如 count 變動）時，
-// 大多數 row 跳過、只有 count 變化的少數 row 重繪。
-interface LayerRowProps {
-  layerKey: keyof LayerVisibility;
-  label: string;
-  expandable: boolean;
-  active: boolean;
-  /** owner-only 私人圖層且當前 viewer 非 owner → 顯示鎖頭、禁 toggle */
-  locked: boolean;
-  color: string;
-  count: number | undefined;
-  isExpanded: boolean;
-  Icon: LucideIcon;
-  onLayerClick: (layer: keyof LayerVisibility) => void;
-  onToggleVisibility: (layer: keyof LayerVisibility) => void;
-}
-
-const LayerRow = memo(function LayerRow({
-  layerKey, label, expandable, active, locked, color, count, isExpanded, Icon,
-  onLayerClick, onToggleVisibility,
-}: LayerRowProps) {
-  const { DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER } = useRailTheme();
-  // locked：點整列一律走 onToggleVisibility → App 端 gate（未登入導登入 / 已登入顯示提示）
-  const handleClick = () =>
-    locked ? onToggleVisibility(layerKey)
-      : expandable ? onLayerClick(layerKey) : onToggleVisibility(layerKey);
-  const handleToggle = () => onToggleVisibility(layerKey);
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      aria-expanded={expandable ? isExpanded : undefined}
-      aria-pressed={!expandable ? active : undefined}
-      onClick={handleClick}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleClick();
-        }
-      }}
-      title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "5px 12px 5px 0",
-        cursor: "pointer",
-        borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
-        paddingLeft: 10,
-        opacity: locked ? 0.5 : 1,
-        transition: "background 0.1s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.background = ROW_HOVER;
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.background = "transparent";
-      }}
-    >
-      <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
-      <span
-        style={{
-          flex: 1,
-          fontSize: FONT_SIZE.md,
-          fontFamily: "Inter, system-ui, sans-serif",
-          color: TEXT_STRONG,
-          transition: "color 0.15s",
-        }}
-      >
-        {label}
-      </span>
-      {count != null && count > 0 && !locked && (
-        <span
-          style={{
-            fontFamily: FONT_DATA,
-            fontSize: FONT_SIZE.base,
-            color: active ? color : INACTIVE_TEXT,
-            marginRight: 4,
-          }}
-        >
-          {count.toLocaleString()}
-        </span>
-      )}
-      {expandable && !locked && (
-        <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-          {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        </span>
-      )}
-      {locked
-        ? <Lock size={13} color={DIM} style={{ flexShrink: 0 }} />
-        : <ToggleSwitch on={active} onChange={handleToggle} />}
-    </div>
-  );
-});
-
-function ThemeBanner({
-  title, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
-}: {
-  title: string;
-  isCollapsed: boolean;
-  onCount: number;
-  totalCount: number;
-  onToggleCollapse: () => void;
-  onBulkToggle: () => void;
-}) {
-  const { DIM, BORDER, TEXT_STRONG, INACTIVE_TEXT, BANNER_BG } = useRailTheme();
-  const allOn = onCount === totalCount;
-  const someOn = onCount > 0;
-  // tri-state visual: 全開 / 部分開 / 全關
-  const indicatorColor = allOn ? TEXT_STRONG : someOn ? INACTIVE_TEXT : DIM;
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-expanded={!isCollapsed}
-      onClick={onToggleCollapse}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onToggleCollapse();
-        }
-      }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        padding: "8px 12px",
-        // sticky：滾到該 theme 內容時 banner 黏在頂部，直到下一個 theme banner 把它推出
-        position: "sticky",
-        top: 0,
-        zIndex: 2,
-        background: BANNER_BG,
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        borderTop: `1px solid ${BORDER}`,
-        borderBottom: isCollapsed ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
-        cursor: "pointer",
-        userSelect: "none",
-      }}
-    >
-      <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-      </span>
-      <span
-        style={{
-          flex: 1,
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.md,
-          fontWeight: 700,
-          letterSpacing: 1.5,
-          color: TEXT_STRONG,
-          textTransform: "uppercase",
-        }}
-      >
-        {title}
-      </span>
-      <span
-        style={{
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.xs,
-          color: indicatorColor,
-          marginRight: 4,
-        }}
-      >
-        {onCount}/{totalCount}
-      </span>
-      <ToggleSwitch on={someOn} onChange={onBulkToggle} />
-    </div>
-  );
-}
-
-function SubGroupLabel({ children }: { children: string }) {
-  const { SUB_LABEL } = useRailTheme();
-  return (
-    <div
-      style={{
-        color: SUB_LABEL,
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.sm,
-        fontWeight: 600,
-        letterSpacing: 1.2,
-        padding: "10px 12px 4px 22px",
-      }}
-    >
-      └ {children}
-    </div>
-  );
-}
-
-function MacroGroupLabel({ title }: { title: string }) {
-  const { BORDER, DIM } = useRailTheme();
-  return (
-    <div
-      style={{
-        color: DIM,
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        fontWeight: 700,
-        letterSpacing: 1.6,
-        padding: "16px 12px 6px",
-        borderBottom: `1px solid ${BORDER}`,
-        textTransform: "uppercase",
-      }}
-    >
-      {title}
-    </div>
-  );
-}
-
-function LayersPanel({
-  search, onSearchChange, themes, title = "Layers",
-  showMacroGroups = false,
-  visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
-  getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
-  onAllOff, onBulkSetVisibility, onClose,
-  favoriteKeys, onToggleFavorite, allOffKeys,
-  statisticsModeControl = false,
-}: LayersPanelProps) {
-  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
-  const q = search.trim().toLowerCase();
-  const themesToRender = themes ?? THEMES;
-  const searchContext = useMemo(() => {
-    const context = new Map<string, string>();
-    for (const theme of themesToRender) {
-      for (const group of theme.groups) {
-        for (const layer of group.layers) context.set(layer.key, `${theme.title} ${group.title}`);
-      }
-    }
-    return context;
-  }, [themesToRender]);
-  const searchResults = searchLayers(search, {
-    favoriteKeys,
-    scopeKeys: new Set(searchContext.keys()),
-    contextByKey: searchContext,
-    lockedKeys,
-  });
-  const visibleSearchResults = searchResults.slice(0, 50);
-  // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
-  const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
-    () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
-  );
-
-  const toggleTheme = (title: string) => {
-    setCollapsedThemes((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title); else next.add(title);
-      return next;
-    });
-  };
-
-  return (
-    <>
-      <PanelHeader title={title} onClose={onClose} />
-      <div style={{ padding: "4px 12px 4px" }}>
-        <button
-          onClick={() => {
-            if (allOffKeys && onBulkSetVisibility) onBulkSetVisibility(allOffKeys, false);
-            else onAllOff();
-          }}
-          style={{
-            width: "100%",
-            padding: "5px 0",
-            background: ALLOFF_BG,
-            border: `1px solid ${ALLOFF_BORDER}`,
-            borderRadius: RADIUS.lg,
-            color: INACTIVE_TEXT,
-            fontSize: FONT_SIZE.base,
-            cursor: "pointer",
-            fontFamily: "Inter, system-ui, sans-serif",
-          }}
-        >
-          All Off
-        </button>
-      </div>
-      {/* Search Bar（仿 Locations，主題感知）*/}
-      <div style={{ padding: "0 12px 4px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            background: SEARCH_BG,
-            borderRadius: RADIUS.lg,
-            padding: "6px 8px",
-          }}
-        >
-          <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
-          <input
-            type="text"
-            aria-label="搜尋圖層"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="搜尋圖層… Search layers…"
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              color: TEXT_STRONG,
-              fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
-            }}
-          />
-        </div>
-      </div>
-      {statisticsModeControl && <StatisticsModeControl />}
-      <div
-        className="layer-sidebar-scroll"
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "0 0 8px",
-        }}
-      >
-        {q ? (
-          searchResults.length === 0 ? (
-            <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
-          ) : <>
-            <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
-              找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
-            </div>
-            {visibleSearchResults.map((result) => {
-            const locked = !!lockedKeys?.has(result.key);
-            const active = visibility[result.key];
-            const favorite = favoriteKeys?.has(result.key) ?? false;
-            return (
-              <div key={result.key} style={{ display: "flex", gap: 4, padding: "7px 10px", borderBottom: `1px solid ${ALLOFF_BORDER}` }}>
-                <button
-                  onClick={() => locked ? onToggleVisibility(result.key) : (active ? onLayerClick(result.key) : onToggleVisibility(result.key))}
-                  title={locked ? "此圖層受權限限制" : result.description}
-                  style={{ flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", color: TEXT_STRONG, textAlign: "left", cursor: "pointer" }}
-                >
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: FONT_SIZE.md, fontWeight: 600 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: LAYER_COLORS[result.key], flexShrink: 0 }} />
-                    {result.label}{locked && <Lock size={12} color={DIM} />}
-                  </div>
-                  <div style={{ marginTop: 2, color: INACTIVE_TEXT, fontSize: FONT_SIZE.base, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{result.description}</div>
-                  <div style={{ marginTop: 2, color: DIM, fontSize: FONT_SIZE.xs, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{result.topics.join("、")} · {result.source}</div>
-                </button>
-                {onToggleFavorite && (
-                  <button aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: 2 }}>
-                    <Star size={15} fill={favorite ? "currentColor" : "none"} />
-                  </button>
-                )}
-              </div>
-            );
-            })}
-          </>
-        ) : themesToRender.map((theme, themeIndex) => {
-          const isCollapsed = q ? false : collapsedThemes.has(theme.title);
-          const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
-          const onCount = allKeys.filter((k) => visibility[k]).length;
-          const someOn = onCount > 0;
-
-          const groups = theme.groups;
-
-          const handleBulkToggle = () => {
-            // 有任何一個 on → 全部 off；全部 off → 全部 on
-            if (onBulkSetVisibility) {
-              onBulkSetVisibility(allKeys, !someOn);
-            } else {
-              // fallback: 逐一 toggle 還沒對齊的 key
-              for (const k of allKeys) {
-                if (visibility[k] === someOn) continue;
-                if ((!someOn && !visibility[k]) || (someOn && visibility[k])) {
-                  onToggleVisibility(k);
-                }
-              }
-            }
-          };
-
-          const macroGroup = showMacroGroups ? themeMacroGroup(theme.title) : null;
-          const previousMacroGroup = showMacroGroups && themeIndex > 0
-            ? themeMacroGroup(themesToRender[themeIndex - 1]!.title)
-            : null;
-          const macroTitle = macroGroup
-            ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
-            : null;
-
-          return (
-            <div key={theme.title}>
-              {macroTitle && macroGroup !== previousMacroGroup && <MacroGroupLabel title={macroTitle} />}
-              <ThemeBanner
-                title={theme.title}
-                isCollapsed={isCollapsed}
-                onCount={onCount}
-                totalCount={allKeys.length}
-                onToggleCollapse={() => toggleTheme(theme.title)}
-                onBulkToggle={handleBulkToggle}
-              />
-              {!isCollapsed && groups.map((group) => (
-                <div key={group.title}>
-                  <SubGroupLabel>{group.title}</SubGroupLabel>
-                    {group.layers.map(({ key, label, expandable }) => {
-                      const medicalGroup = getMedicalStatisticsGroup(key);
-                      if (medicalGroup) {
-                        if (medicalGroup.options[0]?.key !== key) return null;
-                        return (
-                          <MedicalStatisticsGroupControls
-                            key={medicalGroup.key}
-                            groupKey={key}
-                            visibility={visibility}
-                            expandedLayer={expandedLayer}
-                            onLayerClick={onLayerClick}
-                            textColor={TEXT_STRONG}
-                            dimColor={DIM}
-                            colorScheme={COLOR_SCHEME}
-                            renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
-                            renderControls={(selectedKey) => (
-                              <ExpandedControls
-                                layerKey={selectedKey as ExpandableLayerKey}
-                                isTransport={false}
-                                displayMode={displayMode}
-                                onDisplayModeChange={onDisplayModeChange}
-                                onHide={onHideTransport}
-                              />
-                            )}
-                          />
-                        );
-                      }
-                      const active = visibility[key];
-                    const isExpanded = expandedLayer === key;
-                    const isTransport = key in TRANSPORT_LABELS;
-                    return (
-                      <div key={key}>
-                        <LayerRow
-                          layerKey={key}
-                          label={label}
-                          expandable={!!expandable}
-                          active={active}
-                          locked={!!lockedKeys?.has(key)}
-                          color={LAYER_COLORS[key]}
-                          count={getCount(key)}
-                          isExpanded={isExpanded}
-                          Icon={LAYER_ICONS[key]}
-                          onLayerClick={onLayerClick}
-                          onToggleVisibility={onToggleVisibility}
-                        />
-                        {isExpanded && expandable && (
-                          <ExpandedControls
-                            layerKey={key as ExpandableLayerKey}
-                            isTransport={isTransport}
-                            displayMode={displayMode}
-                            onDisplayModeChange={onDisplayModeChange}
-                            onHide={onHideTransport}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-// ── Expanded Controls (param sliders / toggles / selects) ──
-
-interface ExpandedControlsProps {
-  layerKey: ExpandableLayerKey;
-  isTransport: boolean;
-  displayMode: DisplayMode;
-  onDisplayModeChange: (mode: DisplayMode) => void;
-  onHide: () => void;
-}
-
-function ExpandedControls({
-  layerKey, isTransport, displayMode,
-  onDisplayModeChange, onHide,
-}: ExpandedControlsProps) {
-  // per-key 訂閱：只有這一層的參數變動才重繪本元件
-  const paramValues = useLayerParams(layerKey);
-  const controls = buildParamControls(layerKey, paramValues) ?? [];
-  const {
-    TEXT_STRONG, CTRL_ACTIVE_BG, CTRL_INACTIVE_BG, CTRL_ACTIVE_BORDER, CTRL_INACTIVE_BORDER,
-    SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE, COLOR_SCHEME,
-  } = useRailTheme();
-  const btnBase: CSSProperties = {
-    fontSize: FONT_SIZE.xs,
-    padding: "2px 6px",
-    borderRadius: RADIUS.md,
-    fontFamily: FONT_DATA,
-    cursor: "pointer",
-    border: "1px solid transparent",
-  };
-
-  const activeBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_ACTIVE_BG,
-    border: `1px solid ${CTRL_ACTIVE_BORDER}`,
-    color: TEXT_STRONG,
-  };
-
-  const inactiveBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_INACTIVE_BG,
-    color: INACTIVE_TEXT,
-  };
-
-  return (
-    <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
-      {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
-      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={TEXT_STRONG === DARK_PALETTE.TEXT_STRONG} />}
-      {/* Display mode (flights only) + Hide */}
-      {isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-          {layerKey === "flights" && (
-            <>
-              <button
-                style={displayMode === "status" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("status")}
-              >
-                Live Status
-              </button>
-              <button
-                style={displayMode === "trails" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("trails")}
-              >
-                Trails
-              </button>
-            </>
-          )}
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-      {!isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-
-      {/* Controls */}
-      {controls.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {controls.map((ctrl) => {
-            if (ctrl.type === "multiSelect") {
-              const selected = new Set(ctrl.value);
-              return (
-                <details
-                  key={ctrl.label}
-                  onClick={(event) => event.stopPropagation()}
-                  style={{ color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA }}
-                >
-                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
-                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
-                  </summary>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
-                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
-                    </div>
-                    {ctrl.options.map((option) => (
-                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(option.value)}
-                          disabled={option.disabled}
-                          onChange={() => {
-                            const next = new Set(selected);
-                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
-                            ctrl.onChange([...next]);
-                          }}
-                        />
-                        {option.label}
-                      </label>
-                    ))}
-                  </div>
-                </details>
-              );
-            }
-
-            if (ctrl.type === "select") {
-              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
-              if (ctrl.options.length > 3) {
-                return (
-                  <div
-                    key={ctrl.label}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 4,
-                      color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                    }}
-                  >
-                    <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                    <select
-                      value={ctrl.value}
-                      onChange={(e) => ctrl.onChange(e.target.value)}
-                      style={{
-                        flex: 1, fontSize: FONT_SIZE.sm, padding: "1px 6px",
-                        background: SELECT_BG, color: TEXT_STRONG,
-                        border: `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        borderRadius: RADIUS.md, fontFamily: FONT_DATA,
-                      }}
-                    >
-                      {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value} disabled={opt.disabled} style={{ background: OPTION_BG }}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  {ctrl.options.map((opt) => (
-                    <button
-                      key={opt.value}
-                      disabled={opt.disabled}
-                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
-                      style={{
-                        ...btnBase,
-                        fontSize: FONT_SIZE.xs,
-                        padding: "1px 8px",
-                        background: ctrl.value === opt.value
-                          ? CTRL_ACTIVE_BG
-                          : CTRL_INACTIVE_BG,
-                        border: ctrl.value === opt.value
-                          ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                          : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        color: ctrl.value === opt.value ? TEXT_STRONG : DIM,
-                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
-                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              );
-            }
-
-            if (ctrl.type === "toggle") {
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  <button
-                    onClick={() => ctrl.onChange(!ctrl.value)}
-                    style={{
-                      ...btnBase,
-                      fontSize: FONT_SIZE.xs,
-                      padding: "1px 8px",
-                      background: ctrl.value ? CTRL_ACTIVE_BG : CTRL_INACTIVE_BG,
-                      border: ctrl.value
-                        ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                        : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                      color: ctrl.value ? TEXT_STRONG : DIM,
-                    }}
-                  >
-                    {ctrl.value ? "ON" : "OFF"}
-                  </button>
-                </div>
-              );
-            }
-
-            // Slider
-            const s = ctrl;
-            return (
-              <label
-                key={s.label}
-                style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                }}
-              >
-                <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>
-                <input
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={s.value}
-                  onChange={(e) => s.onChange(Number(e.target.value))}
-                  style={{
-                    flex: 1, height: 3,
-                    accentColor: ACCENT_TOGGLE,
-                    cursor: "pointer",
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ══════════════════════════════════
 //  LOCATIONS PANEL
 // ══════════════════════════════════
@@ -1583,7 +579,7 @@ function CollapsibleSection({
           : <ChevronRight size={12} color={DIM} />}
         <span style={{
           fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: 1.5,
-          color: DIM, fontFamily: "Inter, system-ui, sans-serif",
+          color: DIM, fontFamily: FONT_CJK,
         }}>
           {title}
         </span>
@@ -1603,7 +599,7 @@ function LocationsPanel({
   const { DIM, SEARCH_BG, TEXT_STRONG, BORDER } = useRailTheme();
   return (
     <>
-      <PanelHeader title="Locations" onClose={onClose} />
+      <RailPanelHeader title="Locations" onClose={onClose} />
 
       {/* Search Bar */}
       <div style={{ padding: "8px 12px" }}>
@@ -1630,7 +626,7 @@ function LocationsPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1719,7 +715,7 @@ function LocationItem({
             fontSize: FONT_SIZE.md,
             fontWeight: 600,
             color: active ? TEXT_STRONG : INACTIVE_TEXT,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",

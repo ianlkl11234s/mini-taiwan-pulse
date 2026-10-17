@@ -6,11 +6,12 @@
  *   - 全國單一資料源，無 city / sub_authorities 過濾
  */
 
-import type { BusRouteData, BusRouteGeometry, BusPosition, BusDateInfo, BusTrail, TrailPoint } from "../types";
+import type { BusRouteData, BusPosition, BusDateInfo, BusTrail, TrailPoint } from "../types";
 import { TOURIST_SHUTTLE_ROUTES_JSON } from "../types";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { dedupRpc } from "../lib/rpcDebounce";
+import { buildBusRouteData, type RawBusRouteGeometry } from "./busLoader";
 
 let routeCache: BusRouteData | null = null;
 let routeFetching: Promise<BusRouteData> | null = null;
@@ -39,21 +40,11 @@ export async function loadTouristShuttleRoutes(): Promise<BusRouteData> {
     "台灣好行路線",
     fetch(TOURIST_SHUTTLE_ROUTES_JSON).then((r) => {
       if (!r.ok) throw new Error(`Tourist shuttle routes: ${r.status}`);
-      return r.json() as Promise<Record<string, BusRouteGeometry>>;
+      return r.json() as Promise<Record<string, RawBusRouteGeometry>>;
     }),
   ).then((raw) => {
-    const routes = new Map<string, BusRouteGeometry>();
-    const routeIndex = new Map<string, string[]>();
-
-    for (const [key, val] of Object.entries(raw)) {
-      routes.set(key, val);
-      const uid = val.routeUid;
-      if (!routeIndex.has(uid)) routeIndex.set(uid, []);
-      routeIndex.get(uid)!.push(key);
-    }
-
-    console.log(`[TouristShuttle] Loaded ${routes.size} route shapes`);
-    const result: BusRouteData = { routes, routeIndex };
+    const { data: result, normalizeMs } = buildBusRouteData(raw);
+    console.log(`[TouristShuttle] Loaded ${result.routes.size} route shapes (cumDist ${normalizeMs.toFixed(1)}ms)`);
     routeCache = result;
     routeFetching = null;
     return result;

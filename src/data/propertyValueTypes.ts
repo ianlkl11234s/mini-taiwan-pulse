@@ -223,12 +223,13 @@ export function scaleFromGridId(gridId: unknown): PropertyValueScale {
 export const PROPERTY_VALUE_GRID_BANDS: GridColorBand[] = PROPERTY_VALUE_SCALES[0]!.bands;
 
 /** 總市值網格 fill-color：依該尺度 9 級 step 上色（0 值格靠 opacity 淡出，不另給色） */
-export function propertyValueGridColorExpr(scaleIdx: number): unknown[] {
+export function propertyValueGridColorExpr(scaleIdx: number, colors: readonly string[] = PROPERTY_VALUE_INFERNO_9): unknown[] {
+  // R7：`colors`（9 階）由 state/layerPalette 依色盤選單＋底圖給；斷點仍取各尺度 bands
   const bands = resolvePropertyValueScale(scaleIdx).bands;
   const val: unknown[] = ["to-number", ["get", "v_mkt"], 0];
-  const step: unknown[] = ["step", val, bands[0]!.color];
+  const step: unknown[] = ["step", val, colors[0]];
   for (let i = 1; i < bands.length; i++) {
-    step.push(bands[i - 1]!.max as number, bands[i]!.color);
+    step.push(bands[i - 1]!.max as number, colors[i]);
   }
   return step;
 }
@@ -312,14 +313,15 @@ export function resolvePropertyValueGridMode(scaleIdx: number, modeIdx: number):
  * 人均市值 fill-color：pop < 門檻（含 0）→ 灰；否則依 `v_mkt / pop` 8 級 viridis step。
  * 除法只發生在 pop ≥ 門檻的分支，不會除以 0。
  */
-export function propertyValueGridPerCapitaColorExpr(): unknown[] {
+export function propertyValueGridPerCapitaColorExpr(colors: readonly string[] = PROPERTY_VALUE_VIRIDIS_8): unknown[] {
+  // R7：`colors`（8 階）由 state/layerPalette 依色盤選單＋底圖給
   const bands = PROPERTY_VALUE_PER_CAPITA_BANDS;
   const perCapita: unknown[] = [
     "/", ["to-number", ["get", "v_mkt"], 0], ["to-number", ["get", "pop"], 0],
   ];
-  const step: unknown[] = ["step", perCapita, bands[0]!.color];
+  const step: unknown[] = ["step", perCapita, colors[0]];
   for (let i = 1; i < bands.length; i++) {
-    step.push(bands[i - 1]!.max as number, bands[i]!.color);
+    step.push(bands[i - 1]!.max as number, colors[i]);
   }
   return [
     "case",

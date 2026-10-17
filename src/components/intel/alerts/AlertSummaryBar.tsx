@@ -1,9 +1,13 @@
 import { IntelIcon } from "../IntelIcon";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import {
-  COLORS, FONT_CJK, FONT_DATA, MICON,
+  FONT_CJK, FONT_DATA, MICON,
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
+  withAlpha, SLOTS, slotParts,
   type AlertGroupShort,
 } from "../intelTokens";
+import { neutralFill, useIntelTheme } from "../intelTheme";
 import type { AlertTally } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
@@ -21,15 +25,18 @@ interface Props {
 export function AlertSummaryBar({
   tally, status, lastSuccessAt, expanded, onToggle, activeGroups, onPickGroup,
 }: Props) {
+  const palette = useIntelTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const { total, severe, byGroup } = tally;
 
   if (status !== "ready") {
-    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
+    const label = status === "denied" ? t("alerts.summary.denied") : status === "error" ? t("alerts.summary.error") : t("alerts.summary.loading");
     const at = status === "error" && lastSuccessAt
-      ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}`
+      ? ` · ${t("alerts.lastSuccess", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })}`
       : "";
     return (
-      <div style={{ flexShrink: 0, padding: "6px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+      <div style={{ flexShrink: 0, padding: "6px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: palette.textMuted, borderBottom: `1px solid ${palette.borderSoft}` }}>
         {label}{at}
       </div>
     );
@@ -44,22 +51,24 @@ export function AlertSummaryBar({
           display: "flex", alignItems: "center", gap: 6,
           padding: "6px 14px",
           fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-          color: COLORS.textFaint,
-          borderBottom: `1px solid ${COLORS.borderSoft}`,
+          color: palette.textFaint,
+          borderBottom: `1px solid ${palette.borderSoft}`,
         }}
       >
-        <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
-        <span>目前全國無 active 警報</span>
+        <IntelIcon d={MICON.check!} size={12} color={palette.statusLive} />
+        <span>{t("alerts.allClear")}</span>
       </div>
     );
   }
+
+  const severeParts = slotParts(t("alerts.summary.severe", { n: SLOTS[0] }));
 
   return (
     <div
       style={{
         flexShrink: 0,
-        borderBottom: `1px solid ${COLORS.panelBorder}`,
-        background: severe > 0 ? "rgba(239,68,68,0.04)" : "transparent",
+        borderBottom: `1px solid ${palette.panelBorder}`,
+        background: severe > 0 ? withAlpha(palette.statusErr, 0.04) : "transparent",
       }}
     >
       <button
@@ -70,7 +79,7 @@ export function AlertSummaryBar({
           padding: "9px 14px",
           background: "transparent",
           border: "none",
-          color: COLORS.textDefault,
+          color: palette.textDefault,
           cursor: "pointer",
           textAlign: "left",
         }}
@@ -78,24 +87,24 @@ export function AlertSummaryBar({
         <IntelIcon
           d={MICON.warn!}
           size={14}
-          color={severe > 0 ? "#ef4444" : COLORS.statusWarn}
+          color={severe > 0 ? palette.statusErr : palette.statusWarn}
         />
-        <span style={{ fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700, color: COLORS.textStrong }}>
-          {total} 則警報
+        <span style={{ fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700, color: palette.textStrong }}>
+          {t("alerts.summary.count", { count: total })}
         </span>
         {severe > 0 && (
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
               padding: "1px 7px", borderRadius: RADIUS.md,
-              background: "rgba(239,68,68,0.18)",
-              border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
-              color: "#ef4444",
+              background: "transparent",
+              border: `1px solid ${withAlpha(palette.statusErr, 0.5)}`,
+              fontFamily: FONT_CJK, fontSize: 9.5, fontWeight: 700,
+              color: palette.statusErr,
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
           >
-            含 {severe} 則嚴重
+            {severeParts[0]}<span style={{ fontFamily: FONT_DATA }}>{severe}</span>{severeParts[1]}
           </span>
         )}
         {!expanded && (
@@ -108,7 +117,7 @@ export function AlertSummaryBar({
               return (
                 <span
                   key={g}
-                  title={`${def.label} ${s.count}`}
+                  title={`${enumLabel("intel.alertGroup", def.id, def.label, i18n)} ${s.count}`}
                   style={{
                     width: 7, height: 7, borderRadius: RADIUS.full,
                     background: def.color,
@@ -124,7 +133,7 @@ export function AlertSummaryBar({
         <IntelIcon
           d={(expanded ? MICON.chevUp : MICON.chevDown)!}
           size={12}
-          color={COLORS.textMuted}
+          color={palette.textMuted}
         />
       </button>
 
@@ -157,11 +166,11 @@ export function AlertSummaryBar({
                   padding: "6px 8px",
                   borderRadius: RADIUS.lg,
                   background: active
-                    ? "rgba(100,170,255,0.14)"
+                    ? withAlpha(palette.accent, 0.14)
                     : dim
-                      ? "rgba(255,255,255,0.02)"
-                      : "rgba(255,255,255,0.05)",
-                  border: `1px solid ${active ? COLORS.borderAccent : COLORS.borderMid}`,
+                      ? neutralFill(0.02, palette.isDark)
+                      : neutralFill(0.05, palette.isDark),
+                  border: `1px solid ${active ? palette.borderAccent : palette.borderMid}`,
                   cursor: dim ? "default" : "pointer",
                   opacity: dim ? 0.38 : 1,
                   animation: sev > 0 ? "alertBreathe 3s ease-in-out infinite" : undefined,
@@ -171,16 +180,16 @@ export function AlertSummaryBar({
                 <span
                   style={{
                     fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
-                    color: COLORS.textDefault, whiteSpace: "nowrap",
+                    color: palette.textDefault, whiteSpace: "nowrap",
                   }}
                 >
-                  {def.label}
+                  {enumLabel("intel.alertGroup", def.id, def.label, i18n)}
                 </span>
                 <div style={{ flex: 1 }} />
                 <span
                   style={{
                     fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
-                    color: sev > 0 ? "#ef4444" : COLORS.textStrong,
+                    color: sev > 0 ? palette.statusErr : palette.textStrong,
                   }}
                 >
                   {cnt}

@@ -289,6 +289,23 @@ describe("useMapInteraction GFW v4 current-frame track picking", () => {
     expect(harness.setFeatureInfo).not.toHaveBeenCalledWith(expect.objectContaining({ layerType: "gfwHourlyTrack" }));
   });
 
+  it("drops an in-flight pick once another owner (analysis result) takes the click", async () => {
+    let resolveFirst!: (value: ReturnType<typeof picked>) => void;
+    const first = new Promise<ReturnType<typeof picked>>((resolve) => { resolveFirst = resolve; });
+    const epoch = Date.parse("2026-08-21T12:30:00Z") / 1000;
+    harness.trackPick.mockReturnValueOnce({ generation: 3, frameEpoch: epoch, pointIndex: 0, coords: [121, 25], result: first });
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    const interaction = useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 }, undefined, undefined, undefined, { current: { gfwHourlyTracks: true } } as never);
+    interaction.bindEvents(map as never);
+
+    harness.click()?.({ point: { x: 5, y: 6 }, lngLat: { lng: 121, lat: 25 } });
+    interaction.invalidateFeatureRequest();
+    resolveFirst(picked(epoch));
+    await Promise.resolve();
+    expect(harness.hydrateTrack).not.toHaveBeenCalled();
+    expect(harness.setFeatureInfo).not.toHaveBeenCalledWith(expect.objectContaining({ layerType: "gfwHourlyTrack" }));
+  });
+
   it("drops a pick when playback advances the applied frame before its reply", async () => {
     const epoch = Date.parse("2026-08-21T12:30:00Z") / 1000;
     harness.trackPick.mockReturnValue({

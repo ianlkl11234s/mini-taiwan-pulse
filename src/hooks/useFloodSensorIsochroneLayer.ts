@@ -5,6 +5,7 @@ import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { fetchFloodSensorLatest, type FloodSensorRow } from "../data/floodSensorLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 雙北 USWG 3-min 步行等時圈
@@ -82,6 +83,8 @@ export function useFloodSensorIsochroneLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const latestRowsRef = useRef<FloodSensorRow[]>([]);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   useEffect(() => {
     if (!visible) {
@@ -118,11 +121,11 @@ export function useFloodSensorIsochroneLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 8,
           filter: TAIPEI_FILTER,
-          paint: {
+          paint: hookFillPaint("floodSensorIsochrone", FILL_ID, {
             "fill-color": buildColorExpression(latestRowsRef.current),
-            "fill-opacity": 0.45 * opacity,
+            "fill-opacity": 0.45 * opacityRef.current,
             "fill-antialias": false,
-          },
+          }, { "fill-color": buildColorExpression([]), "fill-opacity": 0.45 * 0.55, "fill-antialias": false }),
         });
       }
       if (!map.getLayer(LINE_ID)) {
@@ -133,11 +136,12 @@ export function useFloodSensorIsochroneLayer(
           "source-layer": SOURCE_LAYER,
           minzoom: 10,
           filter: TAIPEI_FILTER,
-          paint: {
+          layout: hookLineLayout("floodSensorIsochrone", LINE_ID),
+          paint: hookLinePaint("floodSensorIsochrone", LINE_ID, {
             "line-color": "#1f2937",
             "line-width": 0.5,
-            "line-opacity": 0.5 * opacity,
-          },
+            "line-opacity": 0.5 * opacityRef.current,
+          }, { "line-color": "#1f2937", "line-width": 0.5, "line-opacity": 0.5 * 0.55 }),
         });
       }
       map.setLayoutProperty(FILL_ID, "visibility", "visible");
@@ -174,5 +178,13 @@ export function useFloodSensorIsochroneLayer(
         if (map.getLayer(LINE_ID)) map.setLayoutProperty(LINE_ID, "visibility", "none");
       } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 透明度只更新 paint；不可讓 slider 重新掛 source、重抓 latest 或重設計時器。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    if (map.getLayer(FILL_ID)) map.setPaintProperty(FILL_ID, "fill-opacity", hookFillOpacity("floodSensorIsochrone", FILL_ID, 0.45 * opacity, 0.45 * 0.55));
+    if (map.getLayer(LINE_ID)) map.setPaintProperty(LINE_ID, "line-opacity", hookLineOpacity("floodSensorIsochrone", LINE_ID, 0.5 * opacity, 0.5 * 0.55));
   }, [mapRef, visible, opacity, mapTick]);
 }

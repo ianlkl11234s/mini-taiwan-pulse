@@ -1,10 +1,10 @@
 # Backlog — urban-zoning
 
-> 本檔只保留 current residual；UZ-0/UZ-6 的接線完成但 PR pending，移到 verifying 區。
+> 本檔只保留 current residual；UZ-0/UZ-6 已隨 PR #73/#100 上線並勾選。
 
 ## Release blocker
 
-- [ ] **UZ-4**：deploy 前上傳 3 個 PMTiles（都計 2 個 + 非都市 1 個 37.5MB）。
+- [x] **UZ-4**：deploy 前上傳 3 個 PMTiles（都計 2 個 + 非都市 1 個 37.5MB）。 — 2026-10-16 盤點關閉：三個 PMTiles 正式站 HTTP 206
   - Outcome：正式站可載入兩套分區資料，不因 gitignored asset 缺失而 404。
   - Next action：執行 `upload-deploy-assets.sh`，核對 S3 HEAD/checksum、HTTP Range 與 browser 兩群 layer。
 
@@ -28,9 +28,9 @@
 
 ## Release verification（完成施工，尚未證明 release）
 
-- [ ] **UZ-0 · `verifying`**：北市＋新北 2 層接線（commit `8a8de4b`）。
+- [x] **UZ-0 · `verifying`**：北市＋新北 2 層接線（commit `8a8de4b`）。 — 2026-10-16 盤點關閉：PR #73（v1.9.0）
   - Acceptance：PR/merge、production asset、browser 兩層 render 與 popup/legend。
-- [ ] **UZ-6 · `verifying`**：非都市土地使用分區 68,220 面／18 縣市接線。
+- [x] **UZ-6 · `verifying`**：非都市土地使用分區 68,220 面／18 縣市接線。 — 2026-10-16 盤點關閉：PR #100（v1.11.0）
   - Acceptance：PR/merge、production asset、全國 coverage、dropdown 與專屬 popup。
 
 ## 已放棄 / 延後（決策紀錄）

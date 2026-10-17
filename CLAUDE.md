@@ -8,7 +8,7 @@
 
 ## Session 記憶迴圈
 
-SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
+**主題經驗總集（踩坑、best practice、網站哲學、小實驗）先看 [`docs/LESSONS.md`](./docs/LESSONS.md)**，新教訓寫進正本後在那裡加一行。SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
 
 ## 常用指令
 
@@ -27,7 +27,7 @@ SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES�
 `npx tsc -b`（project references，禁用 `--noEmit`）— commit 前必跑。
 
 ### 2. 資料來源管理
-資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `realtime.*`）→ [`docs/development-rules.md`](./docs/development-rules.md) §1
+資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `live.*`（舊 `realtime` schema 已併入 `live`））→ [`docs/development-rules.md`](./docs/development-rules.md) §1
 
 統計新增／整合／UI 調整另見 [統計圖層規則](./docs/statistics-layer-guidelines.md)：配色與 icon 使用共用規則，保留來源語意，**同步補齊資料來源總覽**，包含原始與衍生選項。
 
@@ -44,13 +44,21 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 ### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
 圖層 UX 四鐵則（opacity / 圖例 / popup / select）→ development-rules §4a + layer-onboarding Step 3-4
 
+### 5b. 新資料層 Agent 查詢關卡
+新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析，詳見 [PLAN-warehouse-20260926](./docs/features/general-analysis/PLAN-warehouse-20260926.md)。系統驗收以已接受來源版本為基準，確認查詢與計算忠實使用原座標；來源定位的真實世界限制要標示，但不因一般不確定性反覆重審既有資料。地圖可見不等於分析可用；純展示、權利或幾何受限者明標 `DISPLAY_ONLY`／HOLD 與解鎖條件。
+
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
-動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
+動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8（正本）+ [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 
-## Git Workflow（GitHub Flow）
+### 7. UI 規範（Design System）⚠️
+任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run design:baseline` 降低基準。
 
-- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge。此規則依使用者 2026-09-15 指示取代舊 squash 慣例，適用後續所有 PR（含 hotfix）。未經明確要求，不壓縮、合併或改寫既有 commit。
+## Git Workflow（develop → master，2026-10-04 起）
 
+- **`develop` 是所有 PR 的 base**（`gh pr create --base develop`）；`master` = 正式站，只收 develop 的發布合併與 `hotfix/*`。GitHub 預設分支已是 develop（2026-10-04 起）。
+- **`develop → master` 會觸發 Zeabur 正式部署，須使用者拍板**；發布步驟、版號（SemVer）、tag 與 GitHub Release → [`docs/RELEASING.md`](./docs/RELEASING.md)
+- 每個 user-facing PR 在根目錄 [`CHANGELOG.md`](./CHANGELOG.md) 的 `## [Unreleased]` 加一行
+- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge（使用者 2026-09-15 指示）。未經明確要求，不壓縮、合併或改寫既有 commit。
 - branch 命名 / PR 流程 / hotfix 判準 → [`docs/git-workflow.md`](./docs/git-workflow.md)
 - PR 描述用 `.github/pull_request_template.md`（`gh pr create` 自動帶入）
 - commit 遵循 Conventional Commits；本專案特例 `memory:` 用於 `.claude/memory` 更新
@@ -61,7 +69,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 1. taipei-gis-analytics：pipeline 改 + `docs/handoff/<slug>.md` 更新 + push
 2. gis-platform：migration 補 + push
 3. data-collectors：若涉 collector 改 + push
-4. mini-taiwan-pulse：前端接線 + `docs/features/<slug>/handoff.md` 反向引用 + PR
+4. mini-taiwan-pulse：前端接線 + `docs/features/<slug>/handoff.md` 反向引用 + PR 到 `develop`（上游部署完才發布到 master）
 
 反向亂序會造成「上線時前端硬依賴的欄位不存在」。
 
@@ -92,12 +100,13 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 
 | 類型 | 路徑 | 用途 |
 |---|---|---|
+| 經驗 | [`docs/LESSONS.md`](./docs/LESSONS.md) | 主題經驗總集（主入口） |
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
-| 參考 | [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) | RPC 效能盤點 |
-| 參考 | [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) | 公車 progress-based 全台擴展 |
-| 參考 | [`docs/known-issues.md`](./docs/known-issues.md) | 歷史 bug + 診斷指令 |
+| 參考 | [`docs/audit/supabase-rpc-audit-2026-04-09.md`](./docs/audit/supabase-rpc-audit-2026-04-09.md) | RPC 效能盤點 |
+| 參考 | [`docs/features/bus/design.md`](./docs/features/bus/design.md) | 公車 progress-based 全台擴展 |
+| 參考 | [`.claude/memory/INCIDENTS.md`](./.claude/memory/INCIDENTS.md) | 歷史 bug + 診斷指令（舊 known-issues 已併入，2026-10-16） |
 | 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
 | 關聯 repo | `../gis-platform` | Supabase migrations |
 | 關聯 repo | `../data-collectors` | 資料收集 + SQL 範本 |

@@ -32,7 +32,7 @@ function setup(overrides: Partial<Record<"ack" | "manual" | "pause" | "sync", Re
     sync: overrides.sync ?? vi.fn().mockResolvedValue(state(0)),
     report,
   };
-  const connection = { client, studyId: "study-1", tabId: "tab-1", pairingId: "pair-1" } as unknown as BridgeConnectionContext;
+  const connection = { client, studyId: "study-1", tabId: "tab-1" } as unknown as BridgeConnectionContext;
   const render = vi.fn<(scene: Scene, revision: number) => Promise<"ready" | "error">>().mockResolvedValue("ready");
   const onError = vi.fn();
   return { controller: new StudyController(connection, render, onError), client, render, onError };
@@ -49,6 +49,23 @@ describe("StudyController", () => {
     renderGate.resolve("ready"); await Promise.resolve();
     expect(client.report).not.toHaveBeenCalled();
     ackGate.resolve(state(1)); await vi.waitFor(() => expect(client.report).toHaveBeenCalledWith("study-1", "tab-1", 1, "ready"));
+  });
+
+  it("manual before the first successful render keeps the gateway results; afterwards local is authoritative", async () => {
+    const results = { items: [{ resultId: "wh-1" }] } as unknown as NonNullable<Scene["results"]>;
+    const stored = state(0, { scene: { ...baseScene, results } });
+    const { controller, client, render } = setup();
+    render.mockResolvedValueOnce("error");
+    controller.receive(stored);
+    await Promise.resolve(); await Promise.resolve();
+    controller.manual({ ...baseScene, results: null });
+    await vi.waitFor(() => expect(client.manual).toHaveBeenCalledTimes(1));
+    expect(client.manual.mock.calls[0]![3].results).toBe(results);
+    await vi.waitFor(() => expect(client.report).toHaveBeenCalled());
+    await vi.waitFor(() => expect(controller["everReady"]).toBe(true));
+    controller.manual({ ...baseScene, results: null });
+    await vi.waitFor(() => expect(client.manual).toHaveBeenCalledTimes(2));
+    expect(client.manual.mock.calls[1]![3].results).toBeNull();
   });
 
   it("manual clear scene renders and reports ready", async () => {
@@ -151,5 +168,77 @@ describe("StudyController", () => {
     renderGate.resolve("ready"); ackGate.resolve(state(1));
     await Promise.resolve(); await Promise.resolve();
     expect(client.report).not.toHaveBeenCalled();
+  });
+});
+
+describe("StudyController with the P2 long poll", () => {
+  it("replays a snapshot received while busy once idle, because the long poll will not resend it", async () => {
+    const ackGate = deferred<StudyState>();
+    const ack = vi.fn().mockImplementationOnce(() => ackGate.promise).mockResolvedValue(state(2));
+    const { controller, render } = setup({ ack });
+    controller.receive(state(0, { pendingCommand: pending("command-1", 0) }));
+    expect(render).toHaveBeenCalledTimes(1);
+    controller.receive(state(1, { pendingCommand: pending("command-2", 1) }));
+    expect(render).toHaveBeenCalledTimes(1);
+    ackGate.resolve(state(1));
+    await vi.waitFor(() => expect(ack).toHaveBeenCalledWith("study-1", "tab-1", "command-2", 1));
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("drops a deferred snapshot that is older than the acknowledged state", async () => {
+    const ackGate = deferred<StudyState>();
+    const { controller, render } = setup({ ack: vi.fn(() => ackGate.promise) });
+    controller.receive(state(0, { pendingCommand: pending() }));
+    controller.receive(state(0, { pendingCommand: pending() }));
+    ackGate.resolve(state(1)); await Promise.resolve(); await Promise.resolve();
+    expect(render).toHaveBeenCalledTimes(1);
+  });
+
+  it("replays a snapshot received during a map gesture after the manual scene is flushed", async () => {
+    const { controller, render, client } = setup({ manual: vi.fn().mockResolvedValue(state(1)) });
+    controller.receive(state(0));
+    controller.beginManual();
+    controller.receive(state(1, { pendingCommand: pending("command-9", 1) }));
+    expect(client.ack).not.toHaveBeenCalled();
+    controller.manual(baseScene);
+    await vi.waitFor(() => expect(client.ack).toHaveBeenCalledWith("study-1", "tab-1", "command-9", 1));
+    expect(render).toHaveBeenCalled();
+  });
+
+  it("represent() re-renders a snapshot whose render failed before the map was prepared", async () => {
+    // Reload restore: the long poll delivers the snapshot once; it must not be lost when render gives up.
+    const { controller, render } = setup();
+    render.mockRejectedValueOnce(new Error("MAP_NOT_READY"));
+    const restored = state(18, { view: { revision: 18, phase: "ready" }, scene: { ...baseScene, results: { items: [{ resultId: "wh-3", visible: true, groupId: null }], groups: [] } } as Scene });
+    controller.receive(restored);
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(1));
+    await Promise.resolve(); await Promise.resolve();
+    controller.represent();
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(2));
+    expect(render).toHaveBeenLastCalledWith(restored.scene, 18);
+    await Promise.resolve(); await Promise.resolve();
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("represent() re-renders the applied scene after a command render failed, and is a no-op once settled", async () => {
+    const { controller, client, render } = setup();
+    render.mockRejectedValueOnce(new Error("MAP_NOT_READY"));
+    controller.receive(state(0, { pendingCommand: pending() }));
+    await vi.waitFor(() => expect(client.report).toHaveBeenCalledWith("study-1", "tab-1", 1, "error"));
+    controller.represent();
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(client.report).toHaveBeenLastCalledWith("study-1", "tab-1", 1, "ready"));
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("represent() does nothing when the last render was ready", async () => {
+    const { controller, render } = setup();
+    controller.receive(state(1));
+    await vi.waitFor(() => expect(render).toHaveBeenCalledTimes(1));
+    await Promise.resolve();
+    controller.represent();
+    expect(render).toHaveBeenCalledTimes(1);
   });
 });

@@ -2,15 +2,27 @@ import { statisticsVisualColors } from "./statisticsVisuals";
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
+import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
+import { ADDICTION_STATISTICS_RECIPES_BY_KEY, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
+import { LANDSLIDE_STATISTICS_RECIPES_BY_KEY, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasDefaultDimensions, atlasRenderScale, getAtlasRecipe, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsDisplayLabel, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
+import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
 export interface StatisticsReleaseOption {
   releaseId: string;
   dimensions: Record<string, string>;
 }
 
 export interface StatisticsReleaseSelector {
+  /**
+   * The dimension keys `resolve` emits, in emitted order (= the cascade order of the panel's
+   * linked selects; layer-panel-unify C). Declared statically so the controls spec exists before releases load.
+   */
+  readonly dimensionKeys: readonly string[];
   /** Only derives choices from public releases, never invents a dimensions tuple. */
   resolve(release: { release_id: string; period_start: string; period_end?: string }): StatisticsReleaseOption | null;
 }
@@ -24,6 +36,7 @@ const MARITIME_FUND_BY_RELEASE_PREFIX: Record<string, string> = {
 };
 
 export const maritimeSubsidyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'agency_fund'],
   resolve(release) {
     const matched = /^(\d{4})-(\d{2})-01-([0-9a-f]{12})-/.exec(release.release_id);
     if (!matched) return null;
@@ -47,6 +60,7 @@ const CIVIL_AERONAUTICS_SUBSIDY_DIMENSIONS: Record<string, Record<string, string
 
 /** Only exposes the three immutable 112Q4 bundles verified by analytics. */
 export const civilAeronauticsSubsidyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'quarter', 'budget_type', 'value_basis'],
   resolve(release) {
     const dimensions = CIVIL_AERONAUTICS_SUBSIDY_DIMENSIONS[release.release_id];
     if (!dimensions || release.period_start !== '2023-01-01') return null;
@@ -56,6 +70,7 @@ export const civilAeronauticsSubsidyReleaseSelector: StatisticsReleaseSelector =
 
 /** Release years are derived from public period fields, never synthesized from an opaque id. */
 export const countyTransportSupplyReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year'],
   resolve(release) {
     const matched = /^(2023|2024)-01-01$/.exec(release.period_start);
     if (!matched || release.period_end !== `${matched[1]}-12-31`) return null;
@@ -97,6 +112,7 @@ const TAIPEI_TRAFFIC_VIOLATION_ARTICLE_BY_RELEASE: Record<string, string> = {
 };
 
 export const taipeiTrafficViolationCitationReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'law_article', 'geographic_coverage'],
   resolve(release) {
     const lawArticle = TAIPEI_TRAFFIC_VIOLATION_ARTICLE_BY_RELEASE[release.release_id];
     if (!lawArticle || release.period_start !== '2025-01-01' || release.period_end !== '2025-12-31') return null;
@@ -113,6 +129,7 @@ const TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE: Record<string, string> = {
 
 /** Only the four immutable 2024-Q3 source classes are selectable. */
 export const taichungRoadNoiseMonitoringReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'quarter', 'control_zone_class', 'geographic_coverage'],
   resolve(release) {
     const controlZoneClass = TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE[release.release_id];
     if (!controlZoneClass || release.period_start !== '2024-07-01' || release.period_end !== '2024-09-30') return null;
@@ -133,6 +150,7 @@ const BUS_OPERATION_SOURCE_FIELD_BY_RELEASE: Record<string, string> = {
 
 /** Only the eight manifest-listed 114Y SEGIS fields are selectable. */
 export const busOperationReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'source_field', 'geographic_coverage'],
   resolve(release) {
     const sourceField = BUS_OPERATION_SOURCE_FIELD_BY_RELEASE[release.release_id];
     if (!sourceField || release.period_start !== '2025-01-01' || release.period_end !== '2025-12-31') return null;
@@ -142,6 +160,7 @@ export const busOperationReleaseSelector: StatisticsReleaseSelector = {
 
 /** Only the manifest-listed 2025-12 facility-crosswalk release is selectable. */
 export const tmrtStationOutboundReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'system_id', 'geographic_semantics'],
   resolve(release) {
     if (release.release_id !== '2025-12-tmrt-station-outbound-2412a544-4ace434cfa54' || release.period_start !== '2025-12-01' || release.period_end !== '2025-12-31') return null;
     return { releaseId: release.release_id, dimensions: { roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' } };
@@ -155,28 +174,37 @@ const TAIPEI_BICYCLE_DIMENSIONS: Record<string, Record<string, string>> = {
   '2021-110-column6-e086f1f0d13b': { roc_year: '110', source_field: 'COLUMN6', geographic_coverage: 'taipei_township_only' },
   '2021-110-column7-789178e51f5b': { roc_year: '110', source_field: 'COLUMN7', geographic_coverage: 'taipei_township_only' },
 };
-export const taipeiBicycleReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const taipeiBicycleReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'source_field', 'geographic_coverage'], resolve(release) {
   const dimensions = TAIPEI_BICYCLE_DIMENSIONS[release.release_id];
   return dimensions && release.period_start === '2021-01-01' && release.period_end === '2021-12-31' ? { releaseId: release.release_id, dimensions } : null;
 } };
 
 const A1_DIMENSIONS = { year: '2025', accident_class: 'A1', geographic_coverage: 'county_location' };
 const A1_RELEASES = new Set(['2025-a1_accident_count-a4edcb32fca1', '2025-a1_death_count-6c2ddae0632c', '2025-a1_injury_count-bef1310f8549']);
-export const a1AccidentReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const a1AccidentReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['year', 'accident_class', 'geographic_coverage'], resolve(release) {
   return A1_RELEASES.has(release.release_id) && release.period_start === '2025-01-01' && release.period_end === '2025-12-31' ? { releaseId: release.release_id, dimensions: A1_DIMENSIONS } : null;
 } };
 
 const CAA_AIRPORT_DIMENSIONS = { roc_year: '115', month: '07', geographic_semantics: 'facility_location_activity', health: 'CURRENT', coverage: 'PARTIAL' };
 const CAA_AIRPORT_RELEASES = new Set(['2026-07-caa-airport-takeoffs_landings_count-21a7e7f4-152b35d71cab', '2026-07-caa-airport-airport_passenger_movements-21a7e7f4-f3d8707e7740', '2026-07-caa-airport-airport_cargo_tonnes-21a7e7f4-b53d2f849a96']);
-export const caaAirportActivityReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const caaAirportActivityReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['roc_year', 'month', 'geographic_semantics', 'health', 'coverage'], resolve(release) {
   return CAA_AIRPORT_RELEASES.has(release.release_id) && release.period_start === '2026-07-01' && release.period_end === '2026-07-31' ? { releaseId: release.release_id, dimensions: CAA_AIRPORT_DIMENSIONS } : null;
 } };
 
 const TAOYUAN_AIRPORT_DIMENSIONS = { year: '2022', airport_iata: 'TPE', airport_icao: 'RCTP', geographic_semantics: 'facility_location_activity', health: 'STALE', refresh: 'manual' };
 const TAOYUAN_AIRPORT_RELEASES = new Set(['2022-taoyuan-airport-airport_arrivals_count-d6d399a1-98c10b4dc1a8', '2022-taoyuan-airport-airport_departures_count-d6d399a1-e978ed456827', '2022-taoyuan-airport-airport_transit_count-d6d399a1-93ef361ca2f6', '2022-taoyuan-airport-airport_passenger_movements-d6d399a1-3fea2b07f916']);
-export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = { resolve(release) {
+export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = {
+  dimensionKeys: ['year', 'airport_iata', 'airport_icao', 'geographic_semantics', 'health', 'refresh'], resolve(release) {
   return TAOYUAN_AIRPORT_RELEASES.has(release.release_id) && release.period_start === '2022-01-01' && release.period_end === '2022-12-31' ? { releaseId: release.release_id, dimensions: TAOYUAN_AIRPORT_DIMENSIONS } : null;
 } };
+
+/** Same wording as the full-recipe rule: count > 1 → 完整選項；otherwise the first delivered option's period. */
+function releaseSummaryFrequency(summary: StatisticsReleaseSummary): string {
+  return summary.count > 1 ? "依已公開完整選項" : `${summary.first?.period_start ?? "已公開"} 至 ${summary.first?.period_end ?? ""}`;
+}
 
 export const STATISTICS_RECIPES = {
   ...Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
@@ -334,10 +362,9 @@ export const STATISTICS_RECIPES = {
     level: recipe.level as StatisticsLevel,
     label: recipe.label,
     unit: recipe.unit,
-    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
-    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    frequency: releaseSummaryFrequency(recipe.release_summary),
+    dimensions: recipe.release_summary.first?.dimensions ?? {},
     includeHealth: true,
-    releaseOptions: recipe.release_options,
     provenance: {
       boundaryVersion: recipe.boundary_version,
       sourceStatisticalBoundaryVersion: recipe.source_statistical_boundary_version,
@@ -350,9 +377,31 @@ export const STATISTICS_RECIPES = {
     colors: recipe.legend.colors,
   }])) as Record<keyof typeof AGRI_STATISTICS_RECIPES_BY_KEY, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
-    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
   ...Object.fromEntries(Object.entries(SOCIAL_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: releaseSummaryFrequency(recipe.release_summary),
+    dimensions: recipe.release_summary.first?.dimensions ?? {},
+    includeHealth: true,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+      sourceFamily: recipe.source_family,
+    },
+    breaks: recipe.legend.breaks,
+    colors: recipe.legend.colors,
+  }])) as Record<SocialStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  ...Object.fromEntries(Object.entries(LABOR_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
     dataset_id: recipe.dataset_id,
     indicator_id: recipe.indicator_id,
     level: recipe.level as StatisticsLevel,
@@ -365,16 +414,130 @@ export const STATISTICS_RECIPES = {
     provenance: {
       boundaryVersion: recipe.boundary_version,
       boundarySemantics: recipe.boundary_semantics,
+      locationSemantics: recipe.location_semantics,
       disclosure: recipe.disclosure,
       relatedLayerKeys: recipe.related_layer_keys,
-      fragmentContext: recipe.fragment_context,
-      sourceFamily: recipe.source_family,
     },
     breaks: recipe.legend.breaks,
     colors: recipe.legend.colors,
-  }])) as Record<SocialStatisticsLayerKey, {
+  }])) as Record<LaborStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 環境統計：不放 releaseId，loader 由 exact whitelist 取最新公開期別與預設 dimension（總計）。
+  ...Object.fromEntries(Object.entries(ENVIRONMENT_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => {
+    const periods = new Set(recipe.release_options.map(option => option.release_id));
+    const only = recipe.release_options[0];
+    return [key, {
+      dataset_id: recipe.dataset_id,
+      indicator_id: recipe.indicator_id,
+      level: recipe.level as StatisticsLevel,
+      label: recipe.label,
+      unit: recipe.unit,
+      frequency: periods.size > 1 ? `年度（${periods.size} 個已公開期別）` : `${only?.period_start ?? "已公開"} 至 ${only?.period_end ?? ""}`,
+      dimensions: environmentDefaultDimensions(recipe),
+      includeHealth: true,
+      provenance: {
+        boundaryVersion: recipe.boundary_version,
+        locationSemantics: recipe.location_semantics,
+        disclosure: recipe.disclosure,
+      },
+      breaks: recipe.legend.breaks,
+      colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+    }];
+  })) as Record<EnvironmentStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 人口統計：不放 releaseId，loader 由 exact whitelist 取最新公開期別；首屏 dimensions 用最新交付期別。
+  ...Object.fromEntries(Object.entries(DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: demographicsDisplayLabel(recipe),
+    unit: recipe.unit,
+    frequency: `${recipe.release_options.length} 個已交付期別`,
+    dimensions: demographicsLatestOption(recipe)?.dimensions ?? {},
+    includeHealth: true,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      locationSemantics: recipe.location_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+    },
+    breaks: recipe.legend.breaks,
+    colors: statisticsVisualColors(key, demographicsDisplayLabel(recipe), recipe.legend.breaks),
+  }])) as Record<DemographicsStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 成癮與減害：不放 releaseId，loader 由 exact whitelist 取最新公開期別（本家族無 dimensions）。
+  ...Object.fromEntries(Object.entries(ADDICTION_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => {
+    const only = recipe.release_options[0];
+    return [key, {
+      dataset_id: recipe.dataset_id,
+      indicator_id: recipe.indicator_id,
+      level: recipe.level as StatisticsLevel,
+      label: recipe.label,
+      unit: recipe.unit,
+      frequency: recipe.release_options.length > 1 ? `${recipe.release_options.length} 個已交付期別` : `${only?.period_start ?? "已公開"} 至 ${only?.period_end ?? ""}`,
+      dimensions: {},
+      includeHealth: true,
+      provenance: {
+        boundaryVersion: recipe.boundary_version,
+        locationSemantics: recipe.location_semantics,
+        disclosure: recipe.disclosure,
+      },
+      breaks: recipe.legend.breaks,
+      colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+    }];
+  })) as Record<AddictionStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // 崩塌與水土保持：同成癮與減害，不放 releaseId，loader 由 exact whitelist 取最新公開期別（無 dimensions）。
+  ...Object.fromEntries(Object.entries(LANDSLIDE_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: `${recipe.release_options.length} 個已交付年度`,
+    dimensions: {},
+    includeHealth: true,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      locationSemantics: recipe.location_semantics,
+      disclosure: recipe.disclosure,
+    },
+    breaks: recipe.legend.breaks,
+    colors: statisticsVisualColors(key, recipe.label, recipe.legend.breaks),
+  }])) as Record<LandslideStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  // atlas 六家族（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋）：不放 releaseId，loader 由 exact whitelist
+  // 取最新公開期別＋layer-plan 預設維度；門檻與色階方向依目前維度組合（statisticsRenderRecipe 第三參數）。
+  ...Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: `${new Set(recipe.release_options.map((option) => `${option.period_start}|${option.period_end}`)).size} 個已交付期別`,
+    dimensions: atlasDefaultDimensions(recipe),
+    includeHealth: true,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      locationSemantics: recipe.location_semantics,
+      disclosure: recipe.disclosure,
+    },
+    breaks: recipe.legend.breaks,
+    colors: statisticsVisualColors(recipe.layer_key, recipe.label, recipe.legend.breaks, recipe.legend.direction),
+  }])) as Record<AtlasStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
   }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
@@ -383,19 +546,45 @@ export type StatisticsRenderKey = StatisticsLayerKey | EducationPresentationView
 export const STATISTICS_RENDER_KEYS = [...STATISTICS_KEYS, ...EDUCATION_PRESENTATION_VIEW_KEYS] as StatisticsRenderKey[];
 export function isStatisticsRenderLayer(key: string): key is StatisticsRenderKey { return isStatisticsLayer(key) || Boolean(getEducationPresentationView(key)); }
 export function statisticsBaseKey(key: StatisticsRenderKey, selectedIndicator?: string): StatisticsLayerKey {
+  const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
+  if (laborMetric) return laborMetric.sourceLayerKey;
   const view = getEducationPresentationView(key);
   if (!view) return key as StatisticsLayerKey;
   return view.metrics.find(metric => STATISTICS_RECIPES[metric.layerKey].indicator_id === selectedIndicator)?.layerKey ?? view.metrics[0]!.layerKey;
 }
 function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
-  const source = getSocialRecipe(key) ?? getComparisonRecipe(key);
-  return source?.release_options.filter(option => option.dimensions.education_stage === stage)
+  // Social catalog carries the precomputed latest option per stage (same sort as below).
+  const social = getSocialRecipe(key);
+  if (social) return social.release_summary.education_stages?.[stage]?.latest;
+  return getComparisonRecipe(key)?.release_options.filter(option => option.dimensions.education_stage === stage)
     .sort((a, b) => b.period_end.localeCompare(a.period_end) || b.period_start.localeCompare(a.period_start))[0];
 }
-export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string) {
+/**
+ * @param selectedDimensions 目前選擇的維度（atlas 家族用）：癌別、行業等量級差很大的組合各有固定門檻，
+ *   社會脆弱度子指標依正負號反轉色階；map 與圖例都經過這裡，確保兩者一致。其他家族忽略。
+ */
+export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string, selectedDimensions?: Record<string, unknown>) {
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const source = STATISTICS_RECIPES[baseKey];
+  const atlasScale = getAtlasRecipe(baseKey) ? atlasRenderScale(baseKey, selectedDimensions) : undefined;
+  if (atlasScale) {
+    return { ...source, breaks: atlasScale.breaks, colors: statisticsVisualColors(baseKey, source.label, atlasScale.breaks, atlasScale.direction) };
+  }
   const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
+  const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);
+  if (laborMetric?.valueTransform) {
+    const breaks = [...(laborMetric.breaks ?? source.breaks)];
+    const label = laborMetric.presentationLabel ?? source.label;
+    return {
+      ...base,
+      label,
+      breaks,
+      colors: statisticsVisualColors(baseKey, label, breaks),
+      sourceLayerKey: laborMetric.sourceLayerKey,
+      valueTransform: laborMetric.valueTransform,
+      derivationFormula: laborMetric.formula,
+    };
+  }
   const view = getEducationPresentationView(key);
   if (!view) return base;
   const initial = educationMetricInitial(baseKey, view.stage);

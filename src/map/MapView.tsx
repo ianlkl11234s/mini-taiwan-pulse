@@ -1,10 +1,11 @@
 import { attachRegionalStatistics } from "./regionalStatisticsMap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { useOverlayParams } from "../layers/layerParamsAccess";
+import { useHeatmapStackFactor } from "../state/layerPalette";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay } from "./overlayManager";
@@ -30,6 +31,11 @@ import {
   ensureAgriPOILayers, updateAgriPOILayer,
 } from "./agricultureLayerFactory";
 import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
+import { resolvedCjkFont } from "../styles/designTokens";
+import { AttributionHostControl, BasemapAttributionControl } from "./attribution/mapAttribution";
+import { AttributionBar } from "../components/AttributionBar";
+import { localeStore } from "../state/localeStore";
+import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -63,20 +69,21 @@ function agriPOIParamsFrom(params: Record<string, number>) {
   };
 }
 
-function ensureAllAgricultureLayers(map: mapboxgl.Map): void {
+function ensureAllAgricultureLayers(map: mapboxgl.Map, isDarkTheme: boolean): void {
   ensureAgricultureLayers(map);
   ensureAgriSoilLayers(map);
   ensureAgriSoilFertilityLayers(map);
   ensureAgriLeisureFarmZonesLayers(map);
   ensureAgriRuralRegenLayers(map);
   ensureAgriCropSuitabilityLayers(map);
-  ensureAgriPOILayers(map);
+  ensureAgriPOILayers(map, isDarkTheme);
 }
 
 function updateAllAgricultureLayers(
   map: mapboxgl.Map,
   vis: LayerVisibility,
   params: Record<string, number>,
+  isDarkTheme: boolean,
 ): void {
   updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params));
   updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"));
@@ -84,7 +91,7 @@ function updateAllAgricultureLayers(
   updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"));
   updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"));
   updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params));
-  updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params));
+  updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params), isDarkTheme);
 }
 
 interface MapViewProps {
@@ -139,6 +146,20 @@ function setupTerrain(map: mapboxgl.Map) {
     });
   }
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
+}
+
+/**
+ * 地形只在傾斜視角（pitch > 0）時才掛：正俯視看不出高程，卻要多抓 DEM 圖磚，
+ * 而且地圖要等 DEM 回來才算 idle，會拖慢開站畫面收起。傾斜後掛上就不再拿掉，
+ * 避免來回切換造成地面跳動；切底圖（style.load）會清掉 terrain，由這裡重新判斷。
+ */
+function ensureTerrainIfTilted(map: mapboxgl.Map) {
+  if (map.getPitch() <= 0 || map.getTerrain()) return;
+  try {
+    setupTerrain(map);
+  } catch {
+    // 切底圖途中 style 還沒就緒時 addSource 會丟錯；style.load 會再判斷一次
+  }
 }
 
 /** 把 Mapbox 內建底圖（dark-v11 等）整套配色壓到「純黑」：
@@ -218,6 +239,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   // hook 無條件呼叫；embed 情境下這份訂閱是惰性的（embed 從不寫 store）。
   const storeOverlayParams = useOverlayParams();
   const overlayParams = overlayParamsProp ?? storeOverlayParams;
+  // R7 Q6 B：熱區疊放倍率來自可見性（不經 overlayParams），變動時要重套 paint。
+  // 色盤選單是字串參數、也不進 overlayParams，但改值會換掉 storeOverlayParams 的 identity，同一個 effect 會重跑。
+  const heatmapStack = useHeatmapStackFactor();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -234,6 +258,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
   const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
+  // 右下資料來源列（attribution-compact）：map 建好後才有 host 節點，用 state 觸發 portal 渲染
+  const [attribution, setAttribution] = useState<{ map: mapboxgl.Map; host: HTMLElement } | null>(null);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -258,19 +284,40 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       pitch: presetRef.current.pitch,
       bearing: presetRef.current.bearing,
       antialias: true,
+      // T-1：中文字用系統字（與 UI 同 stack），不向伺服器要 glyph
+      localIdeographFontFamily: resolvedCjkFont(),
+      // 版權列改自行加入：內建控制項只顯示底圖版權，圖層來源收進 AttributionBar（見 mapAttribution.ts）
+      attributionControl: false,
+      // 底圖地名跟著介面語系（zh-Hant／en／ja）；之後切語系走 bindBasemapLanguage（只重抓 tile，不重載 style）
+      language: basemapLabelLanguage(localeStore.getSnapshot().locale),
     });
+    const unbindBasemapLanguage = bindBasemapLanguage(map, localeStore);
+    // 順序有意義：host 先加、版權列後加 → 版權列在最右，host 浮在它左側同一行。
+    // compact: false：窄螢幕也不收成 ⓘ，© Mapbox © OpenStreetMap／Improve this map 常駐可見。
+    const attributionHost = new AttributionHostControl("pulse-attrib-host");
+    map.addControl(attributionHost, "bottom-right");
+    map.addControl(new BasemapAttributionControl({ compact: false }), "bottom-right");
+    setAttribution({ map, host: attributionHost.element });
     const jpHeightLifecycle = createJpHeightLifecycle(map);
     jpHeightLifecycleRef.current = jpHeightLifecycle;
 
+    map.on("pitch", () => ensureTerrainIfTilted(map));
+
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
+      // 全域防線：style 根層 transition 歸零（預設 300ms）。本專案的「平滑過渡」是資料插值，
+      // 不靠 GL 淡入；預設 transition 會讓每次 setPaintProperty／關閉圖層後多 render 一段時間，
+      // 甚至在圖層中途隱藏時卡住 hasTransitions()。明寫 `*-transition` 的圖層不受影響。
+      // Mapbox GL v3 沒有公開的 Map.setTransition，只能用 Style.setTransition（d.ts 有型別、非底線私有）；
+      // 每次 style.load（切底圖）都會換新 Style，所以要在這裡重設。
+      map.style?.setTransition({ duration: 0, delay: 0 });
       jpHeightLifecycle.resume();
       // Pure Black 配色：在加 overlay 前先壓 Mapbox 原生底圖層
       if (pureBlackRef.current) applyPureBlackTheme(map);
       // style 切換後，僅重設我們曾隱藏的底圖文字標籤記錄。
       hiddenBasemapLabelLayerIdsRef.current.clear();
       setBasemapLabelsVisible(map, showBasemapLabelsRef.current, hiddenBasemapLabelLayerIdsRef.current);
-      setupTerrain(map);
+      ensureTerrainIfTilted(map);
 
       // PMTiles SourceType 須在任何 pmtiles source addSource 前註冊（水利層走 overlayRegistry）
       registerPmtilesSourceTypeOnce();
@@ -306,7 +353,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current, is3d);
       if (is3d) {
         const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
-        setStaticTrailsOpacity(map, line, glow);
+        setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
       }
 
       // Live Status 模式：隱藏 2D 軌跡
@@ -319,8 +366,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
-      ensureAllAgricultureLayers(map);
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      ensureAllAgricultureLayers(map, isDarkThemeRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
@@ -362,10 +409,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
-      ensureAllAgricultureLayers(map);
+      ensureAllAgricultureLayers(map, isDarkThemeRef.current);
       // AR-21：同 style.load —— visibility 讀 store 的最新值
       const vis = layerVisibilityStore.getAll();
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       ensureMedicalIsochroneLayers(map);
@@ -384,8 +431,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       onMapReadyRef.current?.(map);
     });
 
-    const detachStatistics = attachRegionalStatistics(map);
+    const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
+      setAttribution(null);
+      unbindBasemapLanguage();
       detachStatistics();
       jpHeightLifecycle.dispose();
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;
@@ -451,7 +500,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     updateStaticTrails(map, flights, isDarkTheme, is3d);
     if (is3d) {
       const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkTheme);
-      setStaticTrailsOpacity(map, line, glow);
+      setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
     }
   }, [renderMode, flights, isDarkTheme]);
 
@@ -463,7 +512,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const onZoom = () => {
       if (!map.isStyleLoaded()) return;
       const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
-      setStaticTrailsOpacity(map, line, glow);
+      setStaticTrailsOpacity(map, line, glow, isDarkThemeRef.current);
     };
     map.on("zoom", onZoom);
     return () => { map.off("zoom", onZoom); };
@@ -488,7 +537,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams, vis);
     jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
-    updateAllAgricultureLayers(map, vis, overlayParams);
+    updateAllAgricultureLayers(map, vis, overlayParams, isDarkTheme);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
     updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParams));
     // 醫療等時圈 + 醫療沙漠
@@ -497,7 +546,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     //    visibility 改由下方 store 訂閱驅動後那些 dep 是多餘的 —— 訂閱路徑
     //    (applyOverlayVisibility) 會呼叫同樣這三個 update 函式，故 agriculture
     //    的開/關依舊會即時反映；此處只保留主題 / params 這兩個觸發源。
-  }, [isDarkTheme, overlayParams]);
+  }, [isDarkTheme, overlayParams, heatmapStack]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
   // AR-21：visibility 不再是 prop，改訂閱 layerVisibilityStore —— toggle 直接跑
@@ -516,7 +565,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       }
       jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
       // OVERLAY_REGISTRY 之外的專屬圖層
-      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current, isDarkThemeRef.current);
       // 等時圈開/關層
       updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       // 醫療等時圈 + 醫療沙漠開/關
@@ -536,9 +585,13 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   ]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-    />
+    <>
+      <div
+        ref={containerRef}
+        className={`pulse-map ${isDarkTheme ? "pulse-map--dark" : "pulse-map--light"}`}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+      />
+      <AttributionBar map={attribution?.map ?? null} host={attribution?.host ?? null} isDark={isDarkTheme} />
+    </>
   );
 }

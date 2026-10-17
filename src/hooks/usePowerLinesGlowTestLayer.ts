@@ -76,6 +76,23 @@ function safeIsStyleLoaded(map: MapboxMap): boolean {
   try { return map.isStyleLoaded(); } catch { return false; }
 }
 
+const PASSES: Array<[string, number, number, number]> = [
+  ["halo-far",  14, 22, 0.15],
+  ["halo-mid",   6, 10, 0.28],
+  ["halo-near",  2,  4, 0.50],
+  ["core",       0,  1.5, 0.95],
+];
+
+/** 透明度／線寬倍率只改 paint，不進資料／生命週期 effect 的 deps */
+function applyPaint(map: MapboxMap, opacity: number, widthMul: number) {
+  for (const [suffix, , width, alpha] of PASSES) {
+    const id = `power-lines-glow-${suffix}`;
+    if (!map.getLayer(id)) continue;
+    map.setPaintProperty(id, "line-opacity", Math.min(1, alpha * opacity));
+    map.setPaintProperty(id, "line-width", ["*", width * widthMul, WIDTH_MUL_FACTOR] as unknown as ExpressionSpecification);
+  }
+}
+
 export function usePowerLinesGlowTestLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -84,6 +101,9 @@ export function usePowerLinesGlowTestLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+
+  const styleRef = useRef({ opacity, widthMul });
+  styleRef.current = { opacity, widthMul };
 
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
@@ -132,13 +152,8 @@ export function usePowerLinesGlowTestLayer(
         src.setData(fcRef.current);
       }
 
-      const passes: Array<[string, number, number, number]> = [
-        ["halo-far",  14, 22, 0.15],
-        ["halo-mid",   6, 10, 0.28],
-        ["halo-near",  2,  4, 0.50],
-        ["core",       0,  1.5, 0.95],
-      ];
-      for (const [suffix, blur, width, alpha] of passes) {
+      const { opacity, widthMul } = styleRef.current;
+      for (const [suffix, blur, width, alpha] of PASSES) {
         const id = `power-lines-glow-${suffix}`;
         const paintOpacity = Math.min(1, alpha * opacity);
         const paintWidth: ExpressionSpecification = [
@@ -156,11 +171,9 @@ export function usePowerLinesGlowTestLayer(
               "line-opacity": paintOpacity,
             },
           });
-        } else {
-          map.setPaintProperty(id, "line-opacity", paintOpacity);
-          map.setPaintProperty(id, "line-width", paintWidth);
         }
       }
+      applyPaint(map, opacity, widthMul);
 
       for (const id of LAYER_IDS) setVis(map, id, visible);
       console.log("[PowerLinesGlowTest] Mapbox stacked layers ready");
@@ -176,23 +189,34 @@ export function usePowerLinesGlowTestLayer(
     retry();
     if (!map || !safeIsStyleLoaded(map)) retryTimer = setInterval(retry, 200);
     const onStyleLoad = () => { if (!cancelled) setTimeout(retry, 0); };
-    const bindTimer = setInterval(() => {
-      const nextMap = mapRef.current;
-      if (!nextMap || nextMap === map) return;
-      map?.off("style.load", onStyleLoad);
-      map = nextMap;
-      map.on("style.load", onStyleLoad);
-      retry();
-    }, 200);
+    // bindTimer 只在圖層可見時建立（同 useDroneRestrictedZonesLayer）：偵測 mapRef 換新實例好重綁 style.load；
+    // 不可見時沒有畫面需求，visible 轉真 effect 會重跑自然重建
+    let bindTimer: ReturnType<typeof setInterval> | null = null;
+    if (visible) {
+      bindTimer = setInterval(() => {
+        const nextMap = mapRef.current;
+        if (!nextMap || nextMap === map) return;
+        map?.off("style.load", onStyleLoad);
+        map = nextMap;
+        map.on("style.load", onStyleLoad);
+        retry();
+      }, 200);
+    }
     const initialMap = map as MapboxMap | null;
     if (initialMap) initialMap.on("style.load", onStyleLoad);
 
     return () => {
       cancelled = true;
       if (retryTimer) clearInterval(retryTimer);
-      clearInterval(bindTimer);
+      if (bindTimer) clearInterval(bindTimer);
       map?.off("style.load", onStyleLoad);
       try { if (map) for (const id of LAYER_IDS) setVis(map, id, false); } catch { /* map 可能已銷毀 */ }
     };
+  }, [mapRef, visible, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !safeIsStyleLoaded(map)) return;
+    applyPaint(map, opacity, widthMul);
   }, [mapRef, visible, opacity, widthMul, mapTick]);
 }

@@ -58,7 +58,7 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
   factory_locations: {
     count: 90652,
-    sha256: "69eb8b02945717efdc84d8eecdfecda8750011d9ee89faaa7851d79e8feca23a",
+    sha256: "d2e2abf0ea7cc48cbd4453fb6b68e03e66a27dbdb3e9c65fa935d30ef0843f9d",
     fields: [
       "factory_id", "factory_name", "uniform_no", "factory_address", "county",
       "org_type", "registered_date", "industry_categories", "main_products", "geocode_precision",
@@ -79,7 +79,7 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
   regulated_facilities: {
     count: 80732,
-    sha256: "dc2f1e1dae80246ebffac638e238d3978e157ba34adc3e39b0f9cfcb40af2678",
+    sha256: "0fd869c5e56b51f5e2e558cd4bc35db2942f69dde7cb8c8d0526b33bac3d9be0",
     fields: [
       "emsno", "facility_name", "uniform_no", "facility_address", "county", "township",
       "industry_area_name", "industry_group", "industry_name", "isair", "iswater", "iswaste",
@@ -89,7 +89,7 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
   manufacturing_company_points: {
     count: 184944,
-    sha256: "4ca87ad9dd39d95139ffd033dfff1be97ec223b04f5ffeaf64c0155d61880712",
+    sha256: "638cb57c795ff3fdfa04780c598a7b587b56a2a52e98528f0e33d425bc377d40",
     fields: [
       "company_name", "capital_total", "capital_q", "is_manufacturing", "categories", "industry_mid",
       "setup_year", "county", "addr_mismatch", "is_listed", "has_trademark",

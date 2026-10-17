@@ -127,6 +127,7 @@ export function useEarthquakeReplayLayer(
   selectedEventId: string | null,
   playing: boolean,
   onEnded?: () => void,
+  isDark = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -139,6 +140,8 @@ export function useEarthquakeReplayLayer(
   playingRef.current = playing;
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
 
@@ -195,7 +198,7 @@ export function useEarthquakeReplayLayer(
       return;
     }
 
-    if (!ensureEarthquakeReplayLayers(map, opacityRef.current)) return;
+    if (!ensureEarthquakeReplayLayers(map, opacityRef.current, isDarkRef.current)) return;
 
     const tl = buildTimeline(detail);
     timelineRef.current = tl;
@@ -216,7 +219,7 @@ export function useEarthquakeReplayLayer(
     lastTownBucketRef.current = -1;
 
     setEarthquakeReplayVisible(map, true);
-    setReplayStationOpacity(map, opacityRef.current);
+    setReplayStationOpacity(map, opacityRef.current, isDarkRef.current);
     setReplayGridOpacity(map, opacityRef.current, 1);
     setReplayTownOpacity(map, opacityRef.current, 0);
 
@@ -351,11 +354,11 @@ export function useEarthquakeReplayLayer(
     earthquakeReplayClock.clear();
   }, [mapRef, visible, mapTick]);
 
-  // ── 透明度 slider ──
+  // ── 透明度 slider／主題（站點描邊底圖色）──
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
-    setReplayStationOpacity(map, opacity);
+    setReplayStationOpacity(map, opacity, isDark);
     setReplayGridOpacity(map, opacity, 1 - 0.55 * clamp01(lastTownBucketRef.current / 40));
-  }, [mapRef, opacity, visible, detail, mapTick]);
+  }, [mapRef, opacity, isDark, visible, detail, mapTick]);
 }

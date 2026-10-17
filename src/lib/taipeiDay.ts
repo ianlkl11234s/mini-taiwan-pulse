@@ -47,10 +47,14 @@ export function padTaipeiDaily<Row, Day>(
   days: number,
   getDateKey: (row: Row) => string,
   toDay: (dateKey: string, row: Row | undefined) => Day,
+  opts: { anchor?: "last" | "today"; nowMs?: number } = {},
 ): Day[] {
   if (rows.length === 0) return [];
   const byDate = new Map(rows.map((r) => [getDateKey(r), r]));
-  const anchorMidnightMs = taipeiMidnightMs(getDateKey(rows[rows.length - 1]!));
+  // anchor "today"（監看 v2）：停更時最後一筆之後的天仍會出現，由 toDay 對缺列的天給值（通常 null＝灰樁）
+  const anchorMidnightMs = opts.anchor === "today"
+    ? taipeiMidnightMs(taipeiDateKeyFromMs(opts.nowMs ?? Date.now()))
+    : taipeiMidnightMs(getDateKey(rows[rows.length - 1]!));
   const result: Day[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const key = taipeiDateKeyFromMs(anchorMidnightMs - i * MS_PER_DAY);

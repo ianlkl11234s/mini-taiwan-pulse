@@ -1,4 +1,10 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
+import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
+import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
+import type { AddictionStatisticsLayerKey } from '../data/addictionStatisticsRecipes';
+import type { LandslideStatisticsLayerKey } from '../data/landslideStatisticsRecipes';
+import type { AtlasStatisticsLayerKey } from '../data/atlasStatisticsRecipes';
+import type { DemographicsStatisticsLayerKey } from '../data/demographicsStatisticsRecipes';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
@@ -105,12 +111,23 @@ export type ExpandableLayerKey =
   | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
+  | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+  | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
+  | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
+  | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
   | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
+  | "landslideDodAreas" | "landslideDodImpact" | "highwayDisasterHistory" | "landslideAnnual"
+  // atlas 批次 2026-10（26 層點／線／面）
+  | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
+  // 海域保護與漁業 G08（2026-10-17，7 層）
+  | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+  // 地層下陷＋海堤 G19（2026-10-17，4 層）
+  | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -167,6 +184,9 @@ export type ExpandableLayerKey =
   | "aqiMicroSensors"
   | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
   | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
+  | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
+  | "seaWaterQualityStations" | "riverRpiSegments" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
+  | "nuscGammaRadiation" | "waterEffluentLive" | "cemsStackLive" | "cwaUvDaily"
   | "earthquakes"
   | "earthquakeReplay"
   | "earthquakesGlobal"
@@ -193,6 +213,7 @@ export type ExpandableLayerKey =
   | "waterFloodExtreme"
   | "waterDetentionBasins"
   | "rainGauge"
+  | "bridgeRainThresholds"
   | "riverLevel"
   | "groundwater"
   | "groundwaterWells"
@@ -348,7 +369,7 @@ export type ExpandableLayerKey =
   // 警政司法民防 17 layer（slider 接 useLayerParamsRuntime）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
-  | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+  | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
   | "a1AccidentRealtime"
   | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
   | "civilDefenseShelter"
@@ -371,6 +392,8 @@ export type ExpandableLayerKey =
   | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
   | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
+  | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -379,8 +402,10 @@ export type ExpandableLayerKey =
   | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
   | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
-  | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
-  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
+  | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
+  | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+  | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -418,6 +443,8 @@ export interface RailTrain {
   color: string;
   status: "running" | "stopped";
   trainTypeCode?: string; // TRA 車種代碼 "PP" | "TC" | "CK" | "LC" 等
+  /** 行進方位角（度，正北 0 順時針；R6 段 3 平面箭頭用）。算不出時 null。 */
+  bearing?: number | null;
 }
 
 export interface RailSystem {
@@ -551,7 +578,7 @@ export const WASTE_GROUP_CITIES: Record<BusGroup, string[]> = {
 };
 
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
-  Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
+  Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes_v2.json" },
   NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
   Taoyuan:          { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
   Taichung:         { label: "台中", jsonFile: "./bus/taichung_bus_routes.json" },
@@ -566,7 +593,7 @@ export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string 
   NantouCounty:     { label: "南投", jsonFile: "./bus/nantoucounty_bus_routes.json" },
   YunlinCounty:     { label: "雲林", jsonFile: "./bus/yunlincounty_bus_routes.json" },
   ChiayiCounty:     { label: "嘉義縣", jsonFile: "./bus/chiayicounty_bus_routes.json" },
-  PingtungCounty:   { label: "屏東", jsonFile: "./bus/pingtungcounty_bus_routes.json" },
+  PingtungCounty:   { label: "屏東", jsonFile: "./bus/pingtungcounty_bus_routes_v2.json" },
   YilanCounty:      { label: "宜蘭", jsonFile: "./bus/yilancounty_bus_routes.json" },
   HualienCounty:    { label: "花蓮", jsonFile: "./bus/hualiencounty_bus_routes.json" },
   TaitungCounty:    { label: "台東", jsonFile: "./bus/taitungcounty_bus_routes.json" },
@@ -576,10 +603,10 @@ export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string 
 };
 
 /** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */
-export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes.json";
+export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes_v2.json";
 
 /** 台灣好行（Tourist Shuttle）路線靜態檔路徑（全國單一檔案，無 city 切換） */
-export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes.json";
+export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes_v2.json";
 
 export interface BusRouteGeometry {
   routeUid: string;
@@ -650,7 +677,7 @@ export interface BusTrail {
 
 export interface OverlayLayerSpec {
   suffix: string;
-  type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol" | "raster";
+  type: "line" | "fill" | "circle" | "heatmap" | "fill-extrusion" | "symbol" | "raster";
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
@@ -677,6 +704,11 @@ export interface OverlayConfig {
   geojsonTransform?: "centroid";
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
+  /**
+   * 指定後，`rebuildOnParamChange` 只在這些參數的值改變時重建；其他 paint／theme
+   * 變動走 diff 式 `setPaintProperty`。適合只有 callback filter 需要重建的 layer。
+   */
+  rebuildOnParamKeys?: string[];
   filter?: unknown[];
   /**
    * 設定後 sourceUrl 視為 PMTiles 切片（HTTP Range Request 按需載入），
@@ -693,9 +725,10 @@ export interface OverlayConfig {
    */
   dynamicData?: boolean;
   /**
-   * MapLibre/Mapbox source 的 `attribution` 欄位 —— 帶上後由地圖引擎內建的
-   * AttributionControl 自動彙整顯示（常駐，不需額外 UI）。ODbL / 政府開放資料
-   * 授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * MapLibre/Mapbox source 的 `attribution` 欄位。主站由右下「資料來源 N」列
+   *（`AttributionBar`，讀可見 source 的 attribution）依授權分組顯示；/embed 自繪。
+   * ODbL / 政府開放資料授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * 慣用格式「機關 資料名（data.gov.tw nid）· 授權」，解析規則見 src/map/attribution/attributionParse.ts。
    */
   attribution?: string;
 }
@@ -714,13 +747,17 @@ export interface FeatureInfo {
   layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
+    | "harmReductionNeedle" | "harmReductionTreatment" | "harmReductionHivSelftest" | "harmReductionHivTesting" | "harmReductionPreventionCenters"
+    | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
+    | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
+    | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
-    | "provincialRoad" | "highway" | "cyclingRoute"
+    | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
@@ -770,7 +807,7 @@ export interface FeatureInfo {
     | "parkingOnstreet" | "parkingOffstreet"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
-    | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
+    | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "marineObservation"
     | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
@@ -779,7 +816,7 @@ export interface FeatureInfo {
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
-    // ⚠️ 勿與 orphan 的 `wasteStop` layer key 混淆：這是靜態全台 73,060 清運點位
+    // 靜態全台 73,060 清運點位
     | "wasteStopsStatic"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
@@ -795,6 +832,10 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "mountainHut" | "mountainRescueIncident"
+    | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
+    | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
+    | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+    | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -829,7 +870,7 @@ export interface FeatureInfo {
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
     | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
-    | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+    | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
     | "a1AccidentRealtime"
     | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
     | "civilDefenseShelter"
@@ -838,6 +879,11 @@ export interface FeatureInfo {
     // 噪音／聲響（觀測、公民科學、法定區、裁處、設備清單六種獨立語意）
     | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
     | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
+    // 水質與污水（環境部 RPI 測站／水質測站／污水處理廠／飲用水水源水質保護區）
+    | "riverRpiStations" | "waterQualityStations" | "sewageTreatmentPlants" | "drinkingWaterProtectionZones"
+    // 環境第二波：海域水質／RPI 河段推估／PM2.5 手動站／戴奧辛／焚化廠＋即時 4 層（核安會輻射、放流水、CEMS、紫外線）
+    | "seaWaterQualityStations" | "riverRpiSegments" | "pm25ManualStations" | "dioxinStations" | "incineratorEmissions"
+    | "nuscGammaRadiation" | "waterEffluentLive" | "cemsStackLive" | "cwaUvDaily"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
     | "coralReefDistribution"
@@ -847,6 +893,8 @@ export interface FeatureInfo {
     | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
     | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
+  | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -859,9 +907,13 @@ export interface FeatureInfo {
     | "jpRamsarSites" | "jpMarineEbsaCoastal"
     // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
     | "jpRailways"
-    | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
+    | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
+    // 日本氣象廳即時 4 層
+    | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+    // 日本氣象廳／環境省 時間軸點位與區域（P4）
+    | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
     | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
@@ -871,7 +923,9 @@ export interface FeatureInfo {
     // 警察覆蓋分析 (PMTiles, 帶 overlap_count)
     | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept"
     // AI 助手 highlight_point tool 標記點（通用標籤 + 座標）
-    | "chatHighlight";
+    | "chatHighlight"
+    // 與 Agent 協作：暫時分析結果（MainMapConnection 點擊 → 停靠面板；非 manifest 圖層）
+    | "analysisResult";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -879,7 +933,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -1007,6 +1061,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   historicalFlightTrails: boolean;
   ships: boolean;
   rail: boolean;
+  railRoutes: boolean;
   stationsTHSR: boolean;
   stationsTRA: boolean;
   stationsMetro: boolean;
@@ -1065,6 +1120,33 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   animalWelfarePoints: boolean;
   retailMarkets: boolean;
   publicToilets: boolean;
+  // 減害服務（清潔針具／替代療法與藥癮戒治／愛滋自我篩檢／愛滋篩檢與指定醫療／毒品危害防制中心）
+  harmReductionNeedle: boolean;
+  harmReductionTreatment: boolean;
+  harmReductionHivSelftest: boolean;
+  harmReductionHivTesting: boolean;
+  harmReductionPreventionCenters: boolean;
+  // 減害服務第二批（酒癮／PrEP／網路成癮／更生保護／戒菸／反毒藥局／保險套／治療性社區／酒駕事故）
+  harmReductionAlcohol: boolean;
+  harmReductionPrep: boolean;
+  harmReductionInternetAddiction: boolean;
+  harmReductionAftercare: boolean;
+  harmReductionSmokingCessation: boolean;
+  harmReductionAntiDrugPharmacies: boolean;
+  harmReductionCondomOutlets: boolean;
+  harmReductionTherapeuticCommunities: boolean;
+  harmReductionDuiCrashes: boolean;
+  // 公共生活 OSM snapshot（非完整官方清冊；unknown 不等於 false）
+  drinkingWaterPoints: boolean;
+  publicWasteBaskets: boolean;
+  materialRecyclingPoints: boolean;
+  disasterShelters: boolean;
+  playgrounds: boolean;
+  accessibleParkFacilities: boolean;
+  bicycleSupport: boolean;
+  nationalParks: boolean;
+  visitorCentres: boolean;
+  publicLifeOsmCoverage: boolean;
   submarineCables: boolean;
   landingStations: boolean;
   internetExchangePoints: boolean;
@@ -1101,10 +1183,67 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   gfwDarkVessels: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
+  soilLiquefactionPotential: boolean;
+  weakSoilClay0To5: boolean;
+  weakSoilSand0To5: boolean;
+  weakSoilClay5To10: boolean;
+  weakSoilSand5To10: boolean;
+  weakSoilClay10To20: boolean;
+  weakSoilSand10To20: boolean;
+  liquefactionMonitoringSites: boolean;
+  /** 全臺橋梁方向候選線／清冊點位（進行中；站主限定私人 PMTiles） */
+  bssNationalBridgePreview: boolean;
+  bssNationalBridgePointsPreview: boolean;
+  bridgeResilienceTwinCity: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
   mountainRescueIncidents: boolean;
+  /** 崩塌：大規模崩塌潛勢區／影響範圍（111–115 年版）、省道歷史災情 16,163 點、年度全島崩塌地（4 年） */
+  landslideDodAreas: boolean;
+  landslideDodImpact: boolean;
+  highwayDisasterHistory: boolean;
+  landslideAnnual: boolean;
+  /** atlas 批次 2026-10：原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施 26 層 */
+  indigenousTribes: boolean;
+  indigenousIsolationRisk: boolean;
+  agriRuralCommunityVillages: boolean;
+  provincialRoadSigns: boolean;
+  provincialRoadMileposts: boolean;
+  freewayTrafficSigns: boolean;
+  freewayInterchanges: boolean;
+  freewayEcoSensitive: boolean;
+  provincialRoadMonitored: boolean;
+  provincialRoadEmergencyBays: boolean;
+  floodDisasterPointsNcdr: boolean;
+  taipeiWaterloggingHistory: boolean;
+  swcbDisasterPhotoPoints: boolean;
+  cetaceanStrandings: boolean;
+  seaTurtleStrandings: boolean;
+  beachWaterQuality: boolean;
+  marineMicroplastics: boolean;
+  marinePollutionIncidents: boolean;
+  namrEdnaSurveySites: boolean;
+  placeNames: boolean;
+  triangulationPoints: boolean;
+  wraFloodgatesCentral: boolean;
+  wraCentralDrainage: boolean;
+  iowStructureMonitoring: boolean;
+  wraDredgingPoints: boolean;
+  wraEcologySurveySites: boolean;
+  /** 海域保護與漁業 G08（2026-10-17）：保留區／保護區（含陸域）、開放捕魚點、海岸地區範圍（111 年版）、魚礁中心點、定置漁業權區 */
+  natureReserves: boolean;
+  wildlifeProtectedAreas: boolean;
+  openFishingLocations: boolean;
+  coastalAreaExtents: boolean;
+  artificialReefCenters: boolean;
+  protectedReefCenters: boolean;
+  setNetFishingAreas: boolean;
+  /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
+  landSubsidenceStations: boolean;
+  landSubsidenceCumulative: boolean;
+  landSubsidenceRate: boolean;
+  seawallZones: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
@@ -1130,6 +1269,19 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   aviationNoiseZones: boolean;
   noiseEnforcementEvents: boolean;
   soundCameraLocations: boolean;
+  riverRpiStations: boolean;
+  waterQualityStations: boolean;
+  sewageTreatmentPlants: boolean;
+  drinkingWaterProtectionZones: boolean;
+  seaWaterQualityStations: boolean;
+  riverRpiSegments: boolean;
+  pm25ManualStations: boolean;
+  dioxinStations: boolean;
+  incineratorEmissions: boolean;
+  nuscGammaRadiation: boolean;
+  waterEffluentLive: boolean;
+  cemsStackLive: boolean;
+  cwaUvDaily: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
   touristShuttleLive: boolean;
@@ -1144,6 +1296,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   waterFloodExtreme: boolean;
   waterDetentionBasins: boolean;
   rainGauge: boolean;
+  bridgeRainThresholds: boolean;
   riverLevel: boolean;
   groundwater: boolean;
   groundwaterWells: boolean;
@@ -1323,8 +1476,6 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   wasteScheduleNote: boolean;
   wasteStopsStatic: boolean;
   wasteCleaningSquads: boolean;
-  wasteRoute: boolean;
-  wasteStop: boolean;
   // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
   // monitoring/recycling/scrap/other 走 Mapbox circle）
   wfIncinerator: boolean;
@@ -1442,7 +1593,6 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   prosecutorsOffice: boolean;         // 29 檢察署
   correctionalFacility: boolean;      // 51 矯正機關（監獄/看守所/戒治所/少觀所/矯正學校）
   courtJurisdiction: boolean;         // 22 法院管轄縣市範圍（MultiPolygon PMTiles）
-  crimeAreaMonthly: boolean;          // 368 鄉鎮犯罪統計（Polygon PMTiles，11 年累計 39 萬事件）
   theftTaoyuan: boolean;              // 1,423 桃園竊盜點（住宅/機車/自行車/汽車）
   trafficAccidentYearly: boolean;     // 1,600 A1 死亡事故年度累積（114 年靜態）
   accidentTaipei: boolean;            // 22,918 北市事故點（A1+A2 多年累積）
@@ -1454,8 +1604,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   civilDefenseShelter: boolean;       // 62,695 防空避難（PMTiles，z≥10 才顯示）
   aviationControl: boolean;           // ✈️ 飛航情報/終端管制（FIR 3 + TMA 6，FIR 只邊框）
   aviationRestricted: boolean;        // ⛔ 禁/限航 + 危險 + 機場管制（CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT 72）
-  droneNoFlyZone: boolean;            // 🚫 無人機禁航區 紅+未分類 5,633（共用 drone_restricted_zones.pmtiles）
-  droneRestrictedZone: boolean;       // ⚠️ 無人機限航區 黃 108（需申請）
+  droneNoFlyZone: boolean;            // 🚫 2026-06-30 歷史紅+未分類參考面 5,635（共用 drone_restricted_zones.pmtiles）
+  droneRestrictedZone: boolean;       // ⚠️ 2026-06-30 歷史黃區參考面 108
   // 警察覆蓋分析（isochrone PMTiles，帶 overlap_count）
   policeIsoSubstation: boolean;       // 派出所 isochrone（步行/開車 × 5/10 min）
   policeIsoPrecinct: boolean;         // 分局 isochrone（步行/開車 × 15/30 min）
@@ -1510,8 +1660,40 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   osmBridgeFootprints: boolean;
   officialBridgesNewTaipei: boolean;
   bridgeComparisonNewTaipei: boolean;
+  tainanBridgeInspections: boolean;
+  officialBridgesHsinchu: boolean;
+  taipeiRoadTunnels: boolean;
+  tainanRoadTunnels: boolean;
+  changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
+  jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
+  jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
+  jmaVolcanoes: boolean;  // 日本火山噴火警戒
+  jmaLightning: boolean;  // 日本落雷（氣象廳 LIDEN，get_lightning_day p_source=jma，7 天熱層）
+  jmaWbgt: boolean;       // 日本暑さ指数 WBGT（環境省實況，整點，30 天）
+  jmaSnowcap: boolean;    // 日本山頂初冠雪（44 山，as-of 日期）
+  jmaAutumnLeaves: boolean; // 日本紅葉・黃葉前線（生物季節觀測，as-of 日期）
+  jmaSakura: boolean;     // 日本櫻花前線（生物季節觀測，as-of 日期）
+  jmaRainySeason: boolean; // 日本梅雨入り・明け（12 地方，縣界 choropleth）
+  jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
+  jmaRadar: boolean;      // 日本雨雲雷達（ナウキャスト解析，5 分一幀）
+  jmaRasrf: boolean;      // 日本解析雨量（1 小時雨量，30 分一幀）
+  jmaRiskLand: boolean;   // 日本土砂キキクル（30 分一幀）
+  jmaRiskInund: boolean;  // 日本浸水キキクル（30 分一幀）
+  jmaUvIndex: boolean;    // 日本紫外線 UV 指數解析（06–18 JST 每小時）
+  jmaSst: boolean;        // 日本近海日別海面水溫（每日）
+  jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
+  jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
+  jmaAnaSnowFirst: boolean; // 日本初雪日（積雪季首次 ≥5 cm 的日序，每日一張）
+  jmaAnaSnowDays: boolean; // 日本積雪日數（積雪季累計，每日一張）
+  jmaAnaRainDays: boolean; // 日本當月雨日數（解析雨量 ≥1 mm/h，每日一張）
+  jmaAnaRiskLandHours: boolean; // 日本當月土砂キキクル警戒以上時數（每日一張）
+  jmaAnaRiskInundHours: boolean; // 日本當月浸水キキクル警戒以上時數（每日一張）
+  gibsSnowCover: boolean; // NASA GIBS 衛星雪覆蓋 NDSI（每日，瀏覽器直連上游）
+  jmaRiskFlood: boolean;  // 洪水キキクル（向量 pbf，瀏覽器直連 JMA，只提供即時）
+  jmaKosa: boolean;       // 黃砂予測（圖片面板，非地圖疊加）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

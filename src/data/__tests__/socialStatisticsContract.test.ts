@@ -1,16 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   SOCIAL_ENABLED_STATISTICS_KEYS,
   SOCIAL_ENABLED_STATISTICS_RECIPES,
   SOCIAL_STATISTICS_SCOPE,
-  getSocialRecipe,
+  getSocialRecipeDetails,
   resolveSocialRelease,
+  socialEnabledRecipeDetails,
   socialReleaseOptions,
 } from "../socialStatisticsRecipes";
-import type { SocialStatisticsScope } from "../socialStatisticsRecipes";
+import type { SocialRecipe, SocialStatisticsScope } from "../socialStatisticsRecipes";
+import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
-const asRelease = (recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], option: (typeof recipe.release_options)[number]): StatisticsRelease => ({
+const asRelease = (recipe: SocialRecipe, option: SocialRecipe["release_options"][number]): StatisticsRelease => ({
   dataset_id: recipe.dataset_id,
   indicator_id: recipe.indicator_id,
   release_id: option.release_id,
@@ -21,6 +23,8 @@ const asRelease = (recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], o
 });
 
 describe("social statistics adapter contract", () => {
+  beforeAll(() => ensureStatisticsRecipeDetails());
+
   it("retains the local frontend wiring handoff scope literal", () => {
     const localHandoffScope: SocialStatisticsScope = "local_frontend_wiring_ready_not_production";
     expect(localHandoffScope).toBe("local_frontend_wiring_ready_not_production");
@@ -35,13 +39,13 @@ describe("social statistics adapter contract", () => {
     expect(new Set(SOCIAL_ENABLED_STATISTICS_KEYS).size).toBe(45);
     expect(SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.layer_key).sort()).toEqual([...SOCIAL_ENABLED_STATISTICS_KEYS].sort());
     // Registration exposes total/male/female selectors over one bundle; selectors remain exact when bundles are reused.
-    expect(new Set(SOCIAL_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options.map((option) => option.release_id))).size).toBe(414);
-    expect(SOCIAL_ENABLED_STATISTICS_RECIPES.reduce((count, recipe) => count + recipe.release_options.length, 0)).toBe(416);
+    expect(new Set(socialEnabledRecipeDetails().flatMap((recipe) => recipe.release_options.map((option) => option.release_id))).size).toBe(414);
+    expect(socialEnabledRecipeDetails().reduce((count, recipe) => count + recipe.release_options.length, 0)).toBe(416);
     expect(SOCIAL_ENABLED_STATISTICS_RECIPES.every((recipe) => recipe.enabled && recipe.related_layer_keys.every((key) => typeof key === "string"))).toBe(true);
   });
 
   it("intersects every exact tuple with the public release identity and rejects altered identity", () => {
-    for (const recipe of SOCIAL_ENABLED_STATISTICS_RECIPES) {
+    for (const recipe of socialEnabledRecipeDetails()) {
       const releases = recipe.release_options.map((option) => asRelease(recipe, option));
       expect(socialReleaseOptions(recipe.layer_key, releases)).toHaveLength(recipe.release_options.length);
       for (const option of recipe.release_options) {
@@ -57,22 +61,22 @@ describe("social statistics adapter contract", () => {
   });
 
   it("keeps dependent filters and semantic representatives exact", () => {
-    const education = getSocialRecipe("statsEducationCountyStudentYearChange")!;
+    const education = getSocialRecipeDetails("statsEducationCountyStudentYearChange")!;
     expect(education.filters.find((filter) => filter.key === "academic_year_roc")?.options).toEqual(["105", "106", "107", "108", "109", "110", "111", "112", "113", "114"]);
     expect(education.release_options.some((option) => option.dimensions.education_stage === "elementary" && option.dimensions.academic_year_roc === "105" && option.dimensions.previous_academic_year_roc === "104")).toBe(true);
 
-    const nursing = getSocialRecipe("statsHealthNursingStaffListedAgeSexSum")!;
+    const nursing = getSocialRecipeDetails("statsHealthNursingStaffListedAgeSexSum")!;
     expect(nursing.release_options[0]?.dimensions).toEqual({ institution_type: "general_nursing_home", month: "12", roc_year: "114" });
     expect(nursing.release_options[0]?.coverage).toMatchObject({ expected: { county_count: 22 }, observed: { status: "PARTIAL" } });
 
-    const beds = getSocialRecipe("statsHealthGeneralNursingHomeOpenBeds")!;
+    const beds = getSocialRecipeDetails("statsHealthGeneralNursingHomeOpenBeds")!;
     expect(beds.release_options[0]?.dimensions.capacity_field).toBe("一般護理之家-開放床數");
     expect(beds.format.zero).toBe("0");
 
-    const registration = getSocialRecipe("statsHealthCareWorkerRegistration")!;
+    const registration = getSocialRecipeDetails("statsHealthCareWorkerRegistration")!;
     expect(registration.filters.find((filter) => filter.key === "sex")?.options).toEqual(["total", "male", "female"]);
 
-    const housing = getSocialRecipe("statsHousingUnusedPctCounty")!;
+    const housing = getSocialRecipeDetails("statsHousingUnusedPctCounty")!;
     expect(housing.label).not.toContain("空屋率");
     expect(housing.disclosure).toContain("無人經常居住");
     expect(housing.disclosure).toContain("不能全稱空屋");

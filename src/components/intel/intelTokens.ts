@@ -5,8 +5,25 @@
  * 字型：CJK 用系統，數字 / 時間用 mono。
  */
 
-export const FONT_CJK = `"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif`;
-export const FONT_DATA = `"JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace`;
+import type { CSSProperties } from "react";
+import { localeStore, type LocaleSnapshot } from "../../state/localeStore";
+
+// 全站不載入 web font：stack 只列各平台實際內建的字（macOS → PingFang TC / SF Mono）。
+// 與 src/styles/tokens.css 的 --font-cjk / --font-data 同值，改一邊要同步另一邊。
+// zh 預設字族（字面值）：給無法解析 CSS 變數的場合（Mapbox localIdeographFontFamily、canvas ctx.font）。
+export const FONT_CJK_LITERAL = `"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif`;
+// DOM 用：走 --font-cjk，讓 :root:lang(ja) 的日文字族生效；未載入 tokens.css 的入口靠 fallback。
+export const FONT_CJK = `var(--font-cjk, ${FONT_CJK_LITERAL})`;
+/** 非 DOM 場合（canvas、Mapbox 選項）用：讀 :root 目前的 --font-cjk，跟隨 <html lang>；讀不到回字面值。 */
+export function resolvedCjkFont(): string {
+  if (typeof document === "undefined") return FONT_CJK_LITERAL;
+  try {
+    return getComputedStyle(document.documentElement).getPropertyValue("--font-cjk").trim() || FONT_CJK_LITERAL;
+  } catch {
+    return FONT_CJK_LITERAL;
+  }
+}
+export const FONT_DATA = `ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
 
 /** 半透明 / 邊框 token */
 export const COLORS = {
@@ -64,16 +81,58 @@ export const COUNTY_OPTIONS = [
   "澎湖縣", "金門縣", "連江縣", "全國",
 ];
 
-export function relTime(ts: number, now: number): string {
+/** #rrggbb（或 3 碼 #rgb）→ rgba()；非 hex（例如已是 rgba() 字串）原樣回傳，呼叫端保底用純 hex。 */
+export function withAlpha(color: string, alpha: number): string {
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(color)?.[1];
+  if (!hex) return color;
+  const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+  const n = parseInt(full, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
+/**
+ * 分類徽章：淡底色（14% alpha）＋ 該色字，無框。
+ * `textColor` 預設＝`color`（暗色不變）；淡色主題底色偏淺（黃／淺綠…）時，
+ * 呼叫端應改傳 `intelTheme.ts` 的 `chipText(color, palette)` 加深字色以維持對比（design-system/spec.md §5.21）。
+ */
+export function chipTint(color: string, textColor: string = color): CSSProperties {
+  return { background: withAlpha(color, 0.14), color: textColor };
+}
+
+/** 程度／狀態徽章：外框（50% alpha）＋ 該色字，透明底。`textColor` 用法同 `chipTint`。 */
+export function chipOutline(color: string, textColor: string = color): CSSProperties {
+  return { background: "transparent", border: `1px solid ${withAlpha(color, 0.5)}`, color: textColor };
+}
+
+/**
+ * relTime() 回傳中英混排字串（如「3 分鐘前」）；拆成片段供呼叫端把數字包 FONT_DATA、
+ * 文字維持外層 FONT_CJK。不改 relTime() 本身（多處共用，含 Monitor 卡片）。
+ */
+export function splitRelTimeParts(text: string): Array<{ text: string; mono: boolean }> {
+  return text.split(/(\d+)/g).filter((p) => p !== "").map((p) => ({ text: p, mono: /^\d+$/.test(p) }));
+}
+
+/**
+ * 把「含數字樣式節點的句子」拆成文字片段：`t(key, { n: SLOTS[0] })` 之後 `slotParts()`，
+ * 元件在片段之間放帶 FONT_DATA 的數字節點。各語系語序不同時，數字位置跟著譯文走。
+ */
+export const SLOTS = ["\u0001", "\u0002", "\u0003"] as const;
+export function slotParts(text: string): string[] {
+  return text.split(/[\u0001-\u0003]/);
+}
+
+/** `i18n` 不傳＝以 localeStore 目前語系為準（Monitor 卡片等尚未傳入的呼叫端）。 */
+export function relTime(ts: number, now: number, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
+  const { t } = i18n;
   const d = Math.max(0, now - ts);
-  if (d < 60) return "剛剛";
-  if (d < 3600) return `${Math.floor(d / 60)} 分鐘前`;
+  if (d < 60) return t("intel.time.justNow");
+  if (d < 3600) return t("intel.time.minutesAgo", { n: Math.floor(d / 60) });
   if (d < 86400) {
     const h = Math.floor(d / 3600);
     const m = Math.floor((d % 3600) / 60);
-    return m ? `${h} 小時 ${m} 分前` : `${h} 小時前`;
+    return m ? t("intel.time.hoursMinutesAgo", { h, m }) : t("intel.time.hoursAgo", { h });
   }
-  return `${Math.floor(d / 86400)} 天前`;
+  return t("intel.time.daysAgo", { n: Math.floor(d / 86400) });
 }
 
 export function clockTime(ts: number): string {
@@ -163,7 +222,7 @@ export interface AlertGroupDef {
 }
 
 // 警示語意色 — 以 LAYER_COLORS（地圖色）為基準對齊，讓地圖、warning bar、popup
-// 三處同色（design-system.md §3）。earthquake / flood 從原 magenta / teal 改為紅色。
+// 三處同色（design-system/spec.md §3）。earthquake / flood 從原 magenta / teal 改為紅色。
 // weather / transit / lifeline / safety 在 LAYER_COLORS 無對應 layer，沿用原色保留視覺多樣性。
 export const ALERT_GROUPS_DEF: Record<AlertGroupShort, AlertGroupDef> = {
   earthquake: { id: "earthquake", label: "地震", en: "EQ",       color: "#ff3b30", iconKey: "quake" },

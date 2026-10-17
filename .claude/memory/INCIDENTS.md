@@ -3,6 +3,8 @@
 遇到問題並解決後記錄。格式：`## YYYY-MM-DD 標題` → 現象 / 根因 / 對策。
 
 > 只 append，不修改舊條目。長篇紀錄放到 `.claude/pitfalls/` 後這裡附 link。
+>
+> 2026-10-16 盤點：舊條目只加 `> 2026-10-16 補註` 引言，不改原文。引用 PRINCIPLES 一律寫**段標題**，不寫行號或日期（行號會漂）。`docs/known-issues.md` 已併入本檔末段並歸檔。
 
 ---
 
@@ -140,6 +142,7 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 - **本機（資料秒載）永遠重現不了這種 race** → prod 級驗證要等 map load（30s+）再斷言
 - Access log 看 pmtiles「只有 16384 header 讀取、無後續 range」= 圖層沒真的在畫
 - 已進 PRINCIPLES：**Map effect 禁用 isStyleLoaded() guard**（L454）
+  > 2026-10-16 補註：該段已併入 PRINCIPLES「Mapbox 掛載與 isStyleLoaded（三段合一）」，行號不再適用。
 
 **Long-form**：`~/.claude/projects/.../memory/_archive/perf-overhaul-2026-06.md`（含 8 commits 完整清單 + tippecanoe 坑 + Feature/Legend registry 化）
 
@@ -184,6 +187,8 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 - PRINCIPLES：RPC 建立後一律補 GRANT
 
 **Long-form**：[.claude/pitfalls/2026-04-07-empty-ships-flights.md](../pitfalls/2026-04-07-empty-ships-flights.md)
+
+> 2026-10-16 補註：同日其實是**兩件事**，long-form 講的是另一件。(a) 本條：RPC 未 GRANT anon → 前端拿空陣列；(b) pitfall 正本：data-collectors（Zeabur）4/4–4/6 斷線約 61 小時＋`base.py` naive `datetime.now()` 造成 `collected_at` +8h，修正後從 S3 回填 3/9–4/6。看「船舶／航班全空」以 pitfall 為正本；(a) 的 GRANT 規則現在見 PRINCIPLES「Supabase RLS 安全鐵則」「RLS policy 角色完整性」。
 
 ---
 
@@ -517,7 +522,7 @@ App 被 error boundary 接住白畫面。
 - 月固定成本 +1 個輕量 nginx service（< 50MB image，~50MB RAM）
 - PRINCIPLES：跨 Zeabur project 通訊一律 public + auth gateway
 
-**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14
+**Long-form**：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14
 
 ---
 
@@ -534,7 +539,7 @@ App 被 error boundary 接住白畫面。
 - 月度 PBF 更新若想 force re-match 可手動 `TRUNCATE realtime.waste_match_attempts`
 - 設計教訓：所有「寫成功才標記」的批次處理都該補「寫 attempt」marker，避免 transient failure 變死循環
 
-**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14「補充：5/9 上午 attempt marker 機制根本修」
+**Long-form**：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14「補充：5/9 上午 attempt marker 機制根本修」
 
 ---
 
@@ -994,7 +999,7 @@ control 的互動態 background，不是 panel 背景」，列出 IconRailSideba
 LayerSidebar:368/439/476/514、IntelFilters:128/147/176 共 10 處。
 
 **處理**：全數還原回原 hardcoded 值，加 `IconRailSidebar` 的 SURFACE import 變 orphan
-就刪掉。design-system.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
+就刪掉。design-system/spec.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
 等互動態背景不用 SURFACE，即使數值相同」。
 
 **PRINCIPLES**：semantic ≠ value，token spec 必須明確界定**語意邊界**而不只是「值對映」。
@@ -1241,7 +1246,7 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 
 ## 2026-07-03 架構審計 session（P0 止血 + AR-11 影像上 CDN）— 3 技術事件
 
-> 時序上早於上方「BYOK/會員 session」（本 session 的 #46~#50 在 master，BYOK #51~#53 疊在其上）。完整脈絡見 `docs/research/architecture-audit-2026-07-02.md` + `docs/proposal/architecture-overhaul-plan.md`。起因：用戶要求「數百人規模」架構審計 → 5 面向平行審計 → 五階段計畫 → P0 止血全做完 + P1 第一槍 AR-11 上線。
+> 時序上早於上方「BYOK/會員 session」（本 session 的 #46~#50 在 master，BYOK #51~#53 疊在其上）。完整脈絡見 `docs/archive/2026-10-16/research/architecture-audit-2026-07-02.md` + `docs/proposal/architecture-overhaul-plan.md`。起因：用戶要求「數百人規模」架構審計 → 5 面向平行審計 → 五階段計畫 → P0 止血全做完 + P1 第一槍 AR-11 上線。
 
 **事件 1｜lightning_events 雙 unique index → 單目標 ON CONFLICT 炸整批**
 - `realtime.lightning_events` 有 `uk_eventid`(event_id) + `uk_dedup`(dedup_hash) 兩個 unique index（雙保險設計）。writer 的 do_nothing 策略只下 `ON CONFLICT (event_id) DO NOTHING` → feed 用**新 event_id 重發同一筆落雷**時，dedup_hash 撞第二個 index → 整批 INSERT 失敗。
@@ -1334,7 +1339,7 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 **教訓**：→ PRINCIPLES sticky 原則 + quota 上網驗證；寫死外部資源 ID 前先 oembed 驗身分（三立候選實為單場直播,寫死必殭屍）。
 
 ### 事件 D：KHH 機場無資料 = collector ENDPOINTS 漏收 + VM 手動部署陷阱
-高雄 KHH1（入境）/KHH5（出境）端點從未列入 ENDPOINTS（前端/RPC 都正確；curl 驗證端點活著格式一致）。補上後本地跑一輪 1,289 筆進 DB、commit `a2f158a` 已 push。⚠ 生產實跑的是 HiCloud VM（210.61.15.74）cron 版，檔案手動 SCP 不接 git——**git push 不會生效**；Zeabur 版因移民署 API 擋國際雲商 IP 而 enabled=false。VM 更新待用戶執行（G013），未更新前 KHH 只有 7/26 一次性資料。
+高雄 KHH1（入境）/KHH5（出境）端點從未列入 ENDPOINTS（前端/RPC 都正確；curl 驗證端點活著格式一致）。補上後本地跑一輪 1,289 筆進 DB、commit `a2f158a` 已 push。⚠ 生產實跑的是 HiCloud VM（<VM_HOST>）cron 版，檔案手動 SCP 不接 git——**git push 不會生效**；Zeabur 版因移民署 API 擋國際雲商 IP 而 enabled=false。VM 更新待用戶執行（G013），未更新前 KHH 只有 7/26 一次性資料。
 **教訓**：`external/` 目錄的 collector 先讀部署說明再談上線；「push 了」≠「部署了」。
 
 ---
@@ -1682,12 +1687,12 @@ ships 移植的背景 agent 一啟動就斷線，實際工作**尚未開始**。
 新版上線後狀態轉 EXPIRED→200 自癒，沒有真的壞掉，但白等了一段。
 
 ⚠️ 與既有那條「Cloudflare **Cache Rule** 用固定 TTL 會連 404/5xx 一起快取」
-（PRINCIPLES 2026-08-05）**是不同機制**：那條是自訂規則覆寫 cache-control，
+（PRINCIPLES 2026-08-05）**是不同機制**（2026-10-16 補註：實為 PRINCIPLES「Zeabur 正式上線 + Cloudflare（2026-06-02 教訓）」）：那條是自訂規則覆寫 cache-control，
 這條是 CF **預設**對特定副檔名的 negative cache，沒設任何規則也會發生。兩條互補。
 
 → 規則：**deploy 完成前探測任何新 URL，一律加 cache-buster**（`?cb=$(date +%s)`）。
 本專案唯一的 purge 腳本是 `purge_everything`（會連 297MB 底圖一起清），
-**沒有 scoped purge** → 一旦快取到壞值，代價不對稱（→ G020）。
+**沒有 scoped purge** → 一旦快取到壞值，代價不對稱（→ G017，舊編號 G020）。
 
 ### 事件 C：Zeabur `deployment list` 的 RUNNING 標籤會滯後 → 不能用來判 cutover
 舊 deployment 在數小時後仍被標成 RUNNING，照它判斷會以為新版沒上去（或反之）。
@@ -2095,3 +2100,109 @@ Statistics snapshot 已上 R2，`current.json` 的 R2 object metadata 明確是
 1. mutable pointer 與 content-hashed objects 必須使用不同 cache scope，禁止 broad parent-path rule。
 2. 發布驗收同時查 origin object metadata 與 public edge headers；任一邊不能替另一邊作證。
 3. 至少讀回一個 pointer、一個 artifact 與一個大 geometry；Cloudflare dashboard 設定成功不是 runtime evidence。
+
+## 2026-10-02 Agent 回歸測試第一次接真地圖：四個潛藏 bug 一次現形
+
+### 現象
+
+舊回歸測試只開倉庫工具，上圖工具全部列入 disallowed，所以「有沒有畫圖」從來沒被測過。第一次接上真地圖（本機免授權配對＋無頭瀏覽器）就連續失敗：
+
+- 帶樣式的結果全部 `GATEWAY_REJECTED`；
+- 打開全球地震圖層後，所有地圖指令都報 MAP_NOT_READY；
+- Agent 猜錯一次圖層代號，整個 study 之後全部 SCENE_ERROR；
+- 快取偶發 `WAREHOUSE_FETCH_FAILED`。
+
+### 根因
+
+1. **gateway 樣式驗證落後**：gis-platform `6c059c3` 用完全比對的欄位白名單，只認 4 種舊樣式。MCP phase A／B（`6956078`、`443ac28`）新增欄位和類型後，一律回 400。relayClient 又把錯誤碼蓋成 GATEWAY_REJECTED。正式站同版也受影響，只是沒人接地圖測過。
+2. **地震漣漪讓 `map.loaded()` 永遠 false**：每一幀改依資料計算的 `circle-radius`，Mapbox 3.18 就把整份 source 標成重載。研究地圖用 `map.loaded()` 判斷 ready。
+3. **錯誤會黏住 study**：gateway 在瀏覽器回 ack 時，就把指令合進 study 狀態，不管有沒有畫成功；之後每次重畫都帶著那個未知的圖層代號，整批丟錯。
+4. **快取暫存檔名撞名**：`store.ts` 用 `<pid>.tmp`，同一程序並行寫入時 rename 會 ENOENT。
+
+### 修正
+
+- gis-platform #134 放寬樣式驗證，錯誤碼原樣回傳。
+- mini 改用 `isStyleReady()`；漣漪改成 Three.js 自繪。
+- 未知圖層代號只讓那一道指令失敗；MCP 端送出前先驗證代號。
+- 快取暫存檔名改成唯一。
+
+### 下次守門
+
+1. 回歸測試要有「接真地圖」的模式（`--live-map --reset-cmd`），並把「上圖」列為評分維度；沒接地圖的分數不能代表使用者體驗。
+2. 前後端契約是白名單驗證的，MCP 改 payload 時必須同時改 gateway 驗證和測試 fixture。用 MCP 實際輸出當 fixture，不要手寫。
+3. 逐幀動畫不能改依資料計算的 paint 或 filter，要用 feature-state 或自繪圖層。
+
+## 2026-10-03 監看模式：壓力指數永遠「更新中斷」、18 格停更看不出來
+
+### 現象
+
+- 戰情概覽的壓力指數一直顯示「更新中斷」，沒人發現是前端讀錯欄位。
+- 24 格監看卡只有 5 格自己判斷過期；在監（上游停 2026-05-15）、機場、公衛等停更或落後時，畫面仍像正常資料。
+- 多處缺值被畫成 0：地震規模 M0.0、公衛年增 +0%、警訊序列失敗畫成 24 格 0、機場停更顯示「0 人」。
+
+### 根因
+
+1. `intelLoaders.ts` 讀 `row.asof`，RPC 實際回 `updated_at`；`per_signal` 是物件卻被 `asArray` 轉成空陣列。
+2. 共用 `MonitorDataStatus` 只看傳輸狀態（連不連得上），不看資料多舊；卡片標題的時間有幾格還退回「瀏覽器收到的時間」。
+3. loader／RPC 習慣用 `?? 0`、`COALESCE(…,0)`、`ELSE 0` 兜底。
+
+### 修正
+
+- mini #500：`monitorFreshness.ts` 依每格週期判斷即時／延遲／過期／停更／無資料／收盤；缺值保留 null；壓力指數讀 `updated_at`。
+- gis-platform 425（#135）＋mini #503：新聞 RPC 回傳彙整時間 `aggregated_at`；公衛 yoy、change_pct、壓力比較缺值回 NULL。
+
+### 下次守門
+
+1. 「ready」只代表傳輸成功；每個監看格都要用資料本身的時間判斷新鮮度。
+2. 新 loader／RPC 不准用 0 兜底缺值；COUNT 類「沒有列＝真 0」才保留 0。
+3. 新卡上線時，至少在瀏覽器看一次「來源停更」時的畫面，而不只看有資料時。
+
+## 2026-10-02 R5 校正子代理兩度停滯 600 秒：同名 agent-browser daemon 互卡
+
+### 症狀
+
+R5 熱區強度校正的子代理連續兩個在截圖階段無回應，被 stream watchdog 停掉；第二個完全沒有新 commit。
+
+### 根因
+
+前一個 worker 的 agent-browser 呼叫逾時後重試，開出第二個**同名 session（`r5`）**的 daemon。兩個 daemon 搶同一個 session socket，之後所有 `agent-browser` 呼叫都卡住；接手的 worker 沿用同名 session，一開瀏覽器就停住。
+
+### 修正
+
+只 kill 本 session 自己開的兩個 `r5` daemon（用 `ps eww` 看 `AGENT_BROWSER_SESSION` 與 cwd 確認歸屬，其他 session 的 `pulse-int` 不動）；第三個 worker 改用新 session 名、每個呼叫包 `perl -e 'alarm 60; exec @ARGV' --`、分小批、每階段 commit，順利完成。
+
+### 下次守門
+
+1. 派 worker 用 agent-browser 時，prompt 指定**唯一 session 名**、每個呼叫 60 秒上限（macOS 無 `timeout`，用 perl alarm）、連續兩次逾時就關自己的 daemon 換名重開。
+2. 長批次分小批、背景跑、每階段 commit；worker 停滯時先查有無同名 daemon。
+3. 截到空白圖（平均亮度等於底圖）多半是瀏覽器卡住，不要當成「圖層沒畫出來」的 bug 去修。
+
+---
+
+## 2026-10-16 併入：原 `docs/known-issues.md`（2026-04 早期事故＋診斷指令）
+
+`docs/known-issues.md` 內容與本檔重複（2026-04-07 船舶全空、2026-04-09 IO 爆表），定位又像使用者向清單，2026-10-16 併入本檔後歸檔到 [`docs/archive/2026-10-16/known-issues.md`](../../docs/archive/2026-10-16/known-issues.md)。已重複的不重抄，只留指標與本檔沒有的部分。
+
+**已在別處的（只留指標）**
+- 資料斷層＋Zeabur 重啟、`base.py` +8h 時區 bug 與 S3 回填 → 本檔「2026-04-07 Supabase 遷移後 ship / flight 全空」的補註＋pitfall `2026-04-07-empty-ships-flights.md`
+- Supabase pooler 2 分鐘 timeout → `docs/supabase-optimization.md` 關鍵坑 1
+- 2026-04-09 IO／CPU 爆表 → 本檔「2026-04-09 gis-platform 整台 DB 掛掉」（known-issues 版本的費用寫 ~$5，本檔寫 ~$5.23，以本檔為準）
+- Disk IO 後續（2026-09／10 三輪，pg_stat_io 口徑）→ gis-platform `docs/research/2026-10-12-disk-io-round2.md`
+
+**本檔原本沒有的**
+- 前端在 collector 斷線時段會顯示 0 ships／flights，**不是時區 bug**；Timeline 已改為「今天從當前時間開始」，避免從午夜空等無資料時段。
+- 回填腳本 `data-collectors/scripts/backfill_ship_flight.py`：ship `_fetch_time` 是台灣時間 → 加 `+08:00`；flight `fetch_time` 是 UTC → 加 `+00:00`。
+- 2026-04-09 事件保留的診斷資源：`data-collectors/docs/sql/cron_throttle.sql`（降頻＋錯開＋移除廢棄 MV cron）、`data-collectors/docs/sql/diagnose_resource.sql`（9 段資源爆表診斷查詢）。
+- 診斷指令（值不要印出；`set -a; source <GIS>/data-collectors/.env; set +a` 後使用）：
+
+```bash
+# 查看船舶可用日期（快速確認斷層）
+curl -s "$SUPABASE_URL/rest/v1/rpc/get_ship_dates" \
+  -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" | python3 -m json.tool
+
+# 查 pg_cron 運行狀態
+psql "$SUPABASE_DB_URL" -X -c "SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;"
+```
+
+（原檔還有一條用 service_role key 直查 `ship_positions` 的指令；表已搬到 `live` schema 且前端不可直讀，不再收錄。）
+

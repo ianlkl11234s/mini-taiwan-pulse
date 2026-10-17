@@ -1,0 +1,6 @@
+npx tsc -b initial: exit 1 (TS2532 in new test)
+npx tsc -b restored: exit 0
+npm test initial full: exit 1 (29 timeouts, 2 worker RPC timeouts)
+npm test -- --maxWorkers=2 full retry: exit 143 (stopped after repeated timeouts)
+npm test final targeted: exit 0, 4 files / 412 tests passed
+git diff --check: exit 0

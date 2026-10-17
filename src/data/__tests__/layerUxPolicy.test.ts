@@ -20,8 +20,9 @@ const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
-  "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteRoute", "wasteScheduleNote",
-  "wasteStop", "windPlan",
+  "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteScheduleNote",
+  "windPlan",
+  "jmaKosa", // 黃砂予測是圖片面板（非地圖疊加），沒有可調的地圖外觀；時刻選單在面板內
 ].sort();
 
 function hasOpacityControl(specs: readonly LayerParamSpec[]): boolean {
@@ -84,7 +85,11 @@ describe("Layer UX policy baseline", () => {
   it("popup 缺口由既有完整性 ledger 顯式凍結，不能以 null 靜默擴張", () => {
     const missing = MANIFEST_KEYS.filter((key) => LAYER_MANIFEST[key].popup === null);
     // jpWaterFloodHazard 是外部 XYZ raster 背景，沒有 feature attributes 可供 popup。
-    expect(missing).toHaveLength(33);
+    // jmaSnowDepth 是 JMA 發布幀 image source（PNG 只存等級值），同 cwaRadarImagery 無 feature 可點。
+    // 2026-10-15：+8 JMA 發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、海面水溫、海冰、向日葵雲圖），同 jmaSnowDepth。
+    // 2026-10-15：+5 JMA 分析圖（count_la_v1 每日一張），同 jmaSnowDepth。
+    // 2026-10-15：+3 上游直連（GIBS 雪覆蓋 raster、洪水キキクル line、黃砂圖片面板）。
+    expect(missing).toHaveLength(48); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {
@@ -134,6 +139,14 @@ describe("Layer UX policy baseline", () => {
       industrialRefinery: "industrialRefineryScale",
       industrialStorageTank: "industrialStorageTankScale",
       industrialPowerPlant: "industrialPowerPlantScale",
+      drinkingWaterPoints: "drinkingWaterPointsScale",
+      publicWasteBaskets: "publicWasteBasketsScale",
+      materialRecyclingPoints: "materialRecyclingPointsScale",
+      disasterShelters: "disasterSheltersScale",
+      playgrounds: "playgroundsScale",
+      accessibleParkFacilities: "accessibleParkFacilitiesScale",
+      bicycleSupport: "bicycleSupportScale",
+      visitorCentres: "visitorCentresScale",
     } as const;
 
     for (const [id, param] of Object.entries(pointSizeParams)) {
@@ -147,6 +160,16 @@ describe("Layer UX policy baseline", () => {
         expect(radiusAtTwo, `${id}/${layer.suffix} 大小控件必須影響半徑`).not.toEqual(radiusAtOne);
       }
     }
+  });
+
+  it("國家公園只畫官方計畫範圍，不產生邊界點位", () => {
+    const overlay = OVERLAY_REGISTRY.find((entry) => entry.id === "nationalParks");
+    expect(overlay).toBeDefined();
+    expect(overlay!.layers.map((layer) => [layer.suffix, layer.type])).toEqual([
+      ["fill", "fill"],
+      ["outline", "line"],
+    ]);
+    expect(hasPointSizeControl(LAYER_PARAMS_SPEC.nationalParks)).toBe(false);
   });
 
   it("海事邊界以單一寬度控制同步縮放線與 basepoint", () => {

@@ -158,6 +158,35 @@ function resolveFilter(
 // 每個 map instance 一份「上次套用的 paint 快照」（layer id → serialized paint）。
 // style 切換時 layer 會被清掉重建，addOverlay 會重設對應快照，所以不會殘留髒值。
 const paintCacheByMap = new WeakMap<OverlayMap, Map<string, SerializedPaint>>();
+/**
+ * 隱藏中、主題／參數已過期的 overlay（2026-10-01 效能）：updateAllOverlayThemes 不再逐一替
+ * 隱藏圖層計算並暫存 paint（全關時一次換主題約 280ms 全花在這裡），只記成過期；
+ * setOverlayVisible 打開時再用當下主題與參數補套一次。
+ */
+const staleThemeByMap = new WeakMap<OverlayMap, Set<OverlayConfig>>();
+function staleThemeOf(map: OverlayMap): Set<OverlayConfig> {
+  let set = staleThemeByMap.get(map);
+  if (!set) {
+    set = new Set();
+    staleThemeByMap.set(map, set);
+  }
+  return set;
+}
+const rebuildParamCacheByMap = new WeakMap<OverlayMap, Map<string, string>>();
+
+function rebuildParamCacheOf(map: OverlayMap): Map<string, string> {
+  let cache = rebuildParamCacheByMap.get(map);
+  if (!cache) {
+    cache = new Map();
+    rebuildParamCacheByMap.set(map, cache);
+  }
+  return cache;
+}
+
+function rebuildParamSignature(config: OverlayConfig, params?: Record<string, number>): string | null {
+  if (!config.rebuildOnParamKeys?.length) return null;
+  return JSON.stringify(config.rebuildOnParamKeys.map((key) => params?.[key] ?? null));
+}
 
 function paintCacheOf(map: OverlayMap): Map<string, SerializedPaint> {
   let cache = paintCacheByMap.get(map);
@@ -222,7 +251,7 @@ export function addOverlay(
       // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
       // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。
       // dynamicData：由對應 loader/hook 按日 setData 餵入。
-      // attribution：帶上後由地圖引擎內建的 AttributionControl 自動彙整顯示。
+      // attribution：帶上後由右下 AttributionBar 收集顯示（src/map/attribution/）。
       map.addSource(config.sourceId, {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,
@@ -262,7 +291,13 @@ export function addOverlay(
     } as mapboxgl.AnyLayer);
     // __filter 併入快照僅供 rebuild 變更偵測比對用，不會送進 mapbox（見下方 updateOverlayTheme）
     cache.set(id, snapshotPaint({ ...paint, ...(filter ? { __filter: filter } : {}) }));
+    // style reload 後 layer 是全新的 → 舊 layer 隱藏期間延後的 paint 作廢
+    dropPendingPaint(map, id);
   }
+  const rebuildSignature = rebuildParamSignature(config, params);
+  if (rebuildSignature !== null) rebuildParamCacheOf(map).set(config.sourceId, rebuildSignature);
+  // 剛建好的 layer 已是當下主題與參數
+  staleThemeByMap.get(map)?.delete(config);
 }
 
 /** 更新單一 overlay 主題（深淺色 + params）— diff 式，只動真正改變的 paint key */
@@ -279,6 +314,10 @@ export function updateOverlayTheme(
 
   // 需要 rebuild 的 layers（如 station points 的 circle-radius）
   if (config.rebuildOnParamChange) {
+    const rebuildSignature = rebuildParamSignature(config, params);
+    const rebuildParamCache = rebuildSignature === null ? null : rebuildParamCacheOf(map);
+    const previousRebuildSignature = rebuildParamCache?.get(config.sourceId);
+    if (rebuildSignature !== null) rebuildParamCache!.set(config.sourceId, rebuildSignature);
     // 先比對 paint 是否真的變了；沒變就完全不 rebuild（避免 slider 拖動時整層重建）
     let needRebuild = false;
     const nextSnapshots = new Map<string, SerializedPaint>();
@@ -292,9 +331,12 @@ export function updateOverlayTheme(
       const filterObj = resolveFilter(spec, params);
       const snapshot = snapshotPaint({ ...paintObj, ...layoutObj, ...(filterObj ? { __filter: filterObj } : {}) });
       nextSnapshots.set(id, snapshot);
-      if (!map.getLayer(id) || !paintSnapshotEquals(cache.get(id), snapshot)) {
+      if (!map.getLayer(id) || (rebuildSignature === null && !paintSnapshotEquals(cache.get(id), snapshot))) {
         needRebuild = true;
       }
+    }
+    if (rebuildSignature !== null && (previousRebuildSignature === undefined || previousRebuildSignature !== rebuildSignature)) {
+      needRebuild = true;
     }
 
     if (needRebuild) {
@@ -305,6 +347,7 @@ export function updateOverlayTheme(
         if (map.getLayer(id)) {
           if (map.getLayoutProperty(id, "visibility") === "none") wasHidden = true;
           map.removeLayer(id);
+          dropPendingPaint(map, id);
         }
       }
       for (const spec of config.layers) {
@@ -338,7 +381,7 @@ export function updateOverlayTheme(
 
     // 非 rebuild layers 仍走 diff 式 setPaintProperty
     for (const spec of config.layers) {
-      if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
+      if (config.rebuildOnParamChange.includes(spec.suffix) && (rebuildSignature === null || needRebuild)) continue;
       applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
       if (typeof spec.layout === "function") {
         const layout = spec.layout(isDark, params);
@@ -374,7 +417,10 @@ export function releaseOverlaySnapshots(map: OverlayMap, config: OverlayConfig) 
     const id = layerId(config, spec.suffix);
     paintCacheByMap.get(map)?.delete(id);
     layoutCacheByMap.get(map)?.delete(id);
+    dropPendingPaint(map, id);
   }
+  rebuildParamCacheByMap.get(map)?.delete(config.sourceId);
+  staleThemeByMap.get(map)?.delete(config);
 }
 
 function applyLayoutDiff(
@@ -399,6 +445,7 @@ function applyLayoutDiff(
     }
   }
   cache.set(id, next);
+  if (layout.visibility !== "none") flushPendingPaint(map, id);
 }
 
 function applyPaintDiff(
@@ -411,10 +458,64 @@ function applyPaintDiff(
   const { changed, serialized } = diffPaint(cache.get(id), paint);
   // 無快照（理論上 addOverlay 都會建立）→ 保守全套用
   for (const [key, value] of changed) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    map.setPaintProperty(id, key as any, value);
+    setPaintPropertyGuarded(map, id, key, value);
   }
   cache.set(id, serialized);
+}
+
+/** 隱藏 layer 被延後的 paint：layerId → { prop → value }；layer 變回可見時補套。 */
+const pendingPaintByMap = new WeakMap<object, Map<string, Map<string, unknown>>>();
+
+/**
+ * setPaintProperty，但 `visibility: none` 的 layer 延後到變回可見才真的寫入。
+ *
+ * 背景（A0）：Mapbox 對 layer 改任一 paint 值，會替該 layer **所有** transitionable
+ * paint 建 transition prior（預設 300ms）；prior 只在 layer recalculate 時才清掉，而
+ * 隱藏 layer 不 recalculate → prior 永遠留著、`style.hasTransitions()` 恆 true →
+ * 全關＋暫停時地圖仍無限重畫。只把該屬性的 `-transition` 設 0 擋不住（其他屬性一樣
+ * 會拿到 prior），所以隱藏時乾脆不寫，交給 `flushPendingPaint` 在顯示時補上。
+ * 可見 layer 直接寫入，並清掉同屬性的待補值（避免之後被舊值蓋回）。
+ */
+export function setPaintPropertyGuarded(
+  map: Pick<OverlayMap, "getLayoutProperty" | "setPaintProperty">,
+  id: string,
+  name: string,
+  value: unknown,
+): void {
+  let pendingById = pendingPaintByMap.get(map);
+  if (map.getLayoutProperty(id, "visibility") === "none") {
+    if (!pendingById) {
+      pendingById = new Map();
+      pendingPaintByMap.set(map, pendingById);
+    }
+    let pending = pendingById.get(id);
+    if (!pending) {
+      pending = new Map();
+      pendingById.set(id, pending);
+    }
+    pending.set(name, value);
+    return;
+  }
+  pendingById?.get(id)?.delete(name);
+  map.setPaintProperty(id, name, value);
+}
+
+/** layer 已設為可見後呼叫：補套隱藏期間延後的 paint。 */
+export function flushPendingPaint(
+  map: Pick<OverlayMap, "getLayer" | "getLayoutProperty" | "setPaintProperty">,
+  id: string,
+): void {
+  const pendingById = pendingPaintByMap.get(map);
+  const pending = pendingById?.get(id);
+  if (!pending) return;
+  if (!map.getLayer(id) || map.getLayoutProperty(id, "visibility") === "none") return;
+  pendingById!.delete(id);
+  for (const [name, value] of pending) map.setPaintProperty(id, name, value);
+}
+
+/** layer 被移除／重建（paint 隨 addLayer 重給）時丟掉待補值。 */
+function dropPendingPaint(map: object, id: string): void {
+  pendingPaintByMap.get(map)?.delete(id);
 }
 
 // ── Static GeoJSON lazy hydration ──
@@ -545,6 +646,10 @@ export function setOverlayVisible(
   isDark = false,
   params?: Record<string, number>,
 ) {
+  // 隱藏期間跳過的主題／參數更新，打開前補套（呼叫端一律傳入當下主題與參數）
+  if (visible && staleThemeByMap.get(map)?.delete(config)) {
+    updateOverlayTheme(map, config, isDark, params, true);
+  }
   for (const spec of config.layers) {
     const id = layerId(config, spec.suffix);
     if (map.getLayer(id)) {
@@ -554,6 +659,7 @@ export function setOverlayVisible(
       const modeAllows = resolvedLayout?.visibility !== "none";
       const v = visible && modeAllows ? "visible" : "none";
       map.setLayoutProperty(id, "visibility", v);
+      if (v === "visible") flushPendingPaint(map, id);
     }
   }
 }
@@ -585,12 +691,12 @@ export function updateAllOverlayThemes(
   visibility?: LayerVisibility,
 ) {
   for (const config of registry) {
-    updateOverlayTheme(
-      map,
-      config,
-      isDark,
-      params,
-      visibility ? isOverlayVisible(config, visibility, params) : true,
-    );
+    const visible = visibility ? isOverlayVisible(config, visibility, params) : true;
+    if (!visible) {
+      // 不替隱藏圖層計算／暫存 paint；打開時由 setOverlayVisible 補套
+      staleThemeOf(map).add(config);
+      continue;
+    }
+    updateOverlayTheme(map, config, isDark, params, true);
   }
 }

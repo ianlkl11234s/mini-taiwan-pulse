@@ -8,6 +8,22 @@ export function requestLayerExploration(layerKeys?: string[]): void {
   window.dispatchEvent(new CustomEvent("pulse:explore-layers", { detail: Array.isArray(layerKeys) ? { layerKeys: layerKeys.filter(key => typeof key === "string") } : {} }));
 }
 
+/**
+ * Layer keys that should surface the Layers rail panel: only when *this* scene update's patch
+ * explicitly carried a `layers` instruction (an Agent-issued `pulse_set_layers`-style command).
+ * A results-only patch (presenting an analysis result) or an undefined patch (resync/recover/
+ * report replay) must never force the panel open, even if the resolved `scene.layers` differs
+ * from the previously rendered snapshot for unrelated reasons.
+ */
+export function explorationLayerKeys(
+  sceneLayers: Record<string, boolean> | undefined,
+  previousLayers: Record<string, boolean> | undefined,
+  patchLayers: Record<string, boolean> | undefined,
+): string[] {
+  if (patchLayers === undefined) return [];
+  return Object.entries(sceneLayers ?? {}).filter(([key, on]) => on && previousLayers?.[key] !== true).map(([key]) => key);
+}
+
 function keysForThemes(themes: readonly typeof THEMES[number][]): Set<string> {
   return new Set(themes.flatMap(theme => theme.groups.flatMap(group => group.layers.map(layer => layer.key))));
 }

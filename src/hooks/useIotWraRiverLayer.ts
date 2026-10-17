@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMapReadyTick } from "./useMapReadyTick";
 import type {
   Map as MapboxMap,
@@ -14,6 +14,8 @@ import {
   startTimelineSliceController,
   type TimelineSliceLayerConfig,
 } from "./factories/timelineSliceLayer";
+import { paramDefault } from "../data/layerParamsSpec";
+import { pointStrokePaint } from "../map/mapStyleScale";
 
 /**
  * IoT 河川水位（補強既有 riverLevel；migration 063 預聚合表）
@@ -71,6 +73,10 @@ function radiusExpression(scale: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+const OPACITY_DEFAULT = Number(paramDefault("iotWraRiver", "iotWraRiverOpacity"));
+/** 即時資料光暈上限（pointSpec LIVE_DECORATION_CAP）：透明度 ≤ 0.35 */
+const glowOpacity = (isDark: boolean, opacity: number) => Math.min(0.35, (isDark ? 0.45 : 0.35) * opacity);
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
@@ -84,7 +90,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": ["*", radiusExpression(scale), 1.9] as unknown as ExpressionSpecification,
         "circle-color": colorExpression(),
         "circle-blur": 0.9,
-        "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
+        "circle-opacity": glowOpacity(isDark, opacity),
       },
     } as CircleLayer);
   }
@@ -97,9 +103,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
         "circle-radius": radiusExpression(scale),
         "circle-color": colorExpression(),
         "circle-opacity": (isDark ? 0.95 : 0.85) * opacity,
-        "circle-stroke-width": 1,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.5 * opacity,
+        ...pointStrokePaint(isDark, opacity / OPACITY_DEFAULT),
       },
     } as CircleLayer);
   }
@@ -110,12 +114,15 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
     map.setPaintProperty(LAYER_GLOW, "circle-radius", [
       "*", radiusExpression(scale), 1.9,
     ] as unknown as ExpressionSpecification);
-    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.45 : 0.35) * opacity);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", glowOpacity(isDark, opacity));
   }
   if (map.getLayer(LAYER_CIRCLE)) {
     map.setPaintProperty(LAYER_CIRCLE, "circle-radius", radiusExpression(scale));
     map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.95 : 0.85) * opacity);
-    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.5 * opacity);
+    const stroke = pointStrokePaint(isDark, opacity / OPACITY_DEFAULT);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }
 }
 
@@ -205,6 +212,10 @@ export function useIotWraRiverLayer(
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
 
+  // 主題／大小／透明度只走 ref + 下方樣式 effect，不進 controller effect 的 deps（避免重抓／重訂閱）
+  const styleRef = useRef({ isDark, scale, opacity });
+  styleRef.current = { isDark, scale, opacity };
+
   // showMeasured / showForecast 會進 loadDay 的 filter（且在 deps 內觸發重載），
   // CONFIG 無法是純模組常數 → 在 effect 內組 config，編排仍走 factory controller
   useEffect(() => {
@@ -213,9 +224,36 @@ export function useIotWraRiverLayer(
     if (!map) return;
     const config: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
       ...BASE_CONFIG,
-      loadDay: async (dateKey) =>
-        buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast),
+      loadDay: async (dateKey) => {
+        return buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast);
+      },
     };
-    return startTimelineSliceController(map, config, isDark, scale, opacity);
-  }, [mapRef, visible, isDark, scale, opacity, showMeasured, showForecast, mapTick]);
+    const st = styleRef.current;
+    const dispose = startTimelineSliceController(map, config, st.isDark, st.scale, st.opacity);
+
+    // 換底圖（setStyle）會清掉自訂 source/layer：這裡只補圖層與樣式；資料由 factory controller
+    // 依它自己的「目前請求」快取重畫（不在此寫 stale 的日期／篩選切片）
+    const onStyleLoad = () => {
+      try {
+        const cur = styleRef.current;
+        ensureLayers(map, cur.isDark, cur.scale, cur.opacity);
+        updatePaint(map, cur.isDark, cur.scale, cur.opacity);
+        for (const id of BASE_CONFIG.layerIds) {
+          if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
+        }
+      } catch { /* style 尚未就緒，下次 style.load 再試 */ }
+    };
+    map.on("style.load", onStyleLoad);
+    return () => {
+      map.off("style.load", onStyleLoad);
+      dispose();
+    };
+  }, [mapRef, visible, showMeasured, showForecast, mapTick]);
+
+  // 主題／大小／透明度：只改 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    updatePaint(map, isDark, scale, opacity);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

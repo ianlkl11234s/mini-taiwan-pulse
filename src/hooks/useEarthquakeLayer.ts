@@ -1,8 +1,9 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import type { Map as MapboxMap, ExpressionSpecification, FilterSpecification, CircleLayer } from "mapbox-gl";
 import { fetchEarthquakes, earthquakesToGeoJSON, type EarthquakeEvent } from "../data/earthquakeLoader";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { startThrottledRaf } from "../utils/throttledRaf";
 
 /**
  * 地震事件 timeline 動態顯示
@@ -25,7 +26,6 @@ const PRE_WINDOW = 1800; // 30 分鐘
 /** 剛發生視窗：擴散動畫持續多久（秒，timeline 時間） */
 const FRESH_WINDOW = 1200; // 20 分鐘
 const RIPPLE_CYCLE_MS = 2400;
-const FRAME_INTERVAL = 33;
 
 /** 給定 unix 秒，回傳「該時間在台灣時區所屬日」的 [00:00, 隔日 00:00) unix 秒區間 */
 function taipeiDayBounds(ts: number): { dayStart: number; dayEnd: number } {
@@ -108,6 +108,13 @@ function buildLayers(map: MapboxMap) {
         "circle-stroke-color": COLOR_EXPR,
         "circle-stroke-width": 2,
         "circle-stroke-opacity": 0,
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+        "circle-stroke-width-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
@@ -127,8 +134,8 @@ export function useEarthquakeLayer(
   const eventsRef = useRef<EarthquakeEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
-  const rafRef = useRef(0);
-  const lastFrameRef = useRef(0);
+  /** 資料到位後 +1，讓 filter effect 重跑（ripple 是否需要 RAF 取決於資料） */
+  const [dataTick, setDataTick] = useState(0);
 
   // 載入一次（lazy：visible 為 true 才抓，之後不重抓）
   useEffect(() => {
@@ -141,6 +148,7 @@ export function useEarthquakeLayer(
         dataReadyRef.current = true;
         const map = mapRef.current;
         if (map && map.isStyleLoaded()) ensureSource(map);
+        setDataTick((v) => v + 1);
       })
       .catch((err) => console.warn("[Earthquake] load failed:", err));
     return () => { cancelled = true; };
@@ -161,6 +169,18 @@ export function useEarthquakeLayer(
     return layersReadyRef.current;
   }, []);
 
+  // 換底圖 setStyle() 會移除 source／layers；無漣漪時沒有 RAF 在檢查，這裡以 style.load 觸發重建
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    const onStyleLoad = () => {
+      layersReadyRef.current = false;
+      setDataTick((v) => v + 1);
+    };
+    map.on("style.load", onStyleLoad);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [visible, mapRef, mapTick]);
+
   // 更新 filter（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
     const map = mapRef.current;
@@ -173,6 +193,41 @@ export function useEarthquakeLayer(
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v);
     }
     if (!visible) return;
+
+    // ripple RAF 只在「有正在播放的漣漪」時跑：時間窗內有新地震 → 啟動；沒有 → 停止
+    let cancelRaf: (() => void) | null = null;
+    const setRippleActive = (on: boolean) => {
+      if (on && !cancelRaf) cancelRaf = startThrottledRaf(rippleTick);
+      else if (!on && cancelRaf) {
+        cancelRaf();
+        cancelRaf = null;
+      }
+    };
+    const rippleTick = (now: number) => {
+      const m = mapRef.current;
+      if (!m) return;
+      // style 切換後 layers 可能消失
+      if (layersReadyRef.current && !m.getLayer(RIPPLE_IDS[0]!)) layersReadyRef.current = false;
+      if (!layersReadyRef.current) ensureSource(m);
+      if (!layersReadyRef.current) return;
+      for (let i = 0; i < RIPPLE_COUNT; i++) {
+        const id = RIPPLE_IDS[i]!;
+        if (!m.getLayer(id)) continue;
+        const phase =
+          ((now + i * (RIPPLE_CYCLE_MS / RIPPLE_COUNT)) % RIPPLE_CYCLE_MS) / RIPPLE_CYCLE_MS;
+        const eased = 1 - Math.pow(1 - phase, 2);
+        // 規模越大，擴散範圍越大
+        const baseR = 6;
+        const maxAdd = 60;
+        m.setPaintProperty(id, "circle-radius", [
+          "+",
+          ["*", ["get", "magnitude"], 2],
+          baseR + maxAdd * eased,
+        ] as unknown as ExpressionSpecification);
+        m.setPaintProperty(id, "circle-stroke-opacity", 0.7 * (1 - eased));
+        m.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
+      }
+    };
 
     const applyFilter = (currentTime: number) => {
       // History 模式：顯示所有歷史地震（直到 currentTime），不限當日
@@ -215,11 +270,27 @@ export function useEarthquakeLayer(
         if (map.getLayer(id))
           map.setFilter(id, rippleFilter as unknown as FilterSpecification);
       }
+
+      // 與 rippleFilter 同條件：有符合的地震才需要 RAF
+      const bounds = showHistory ? null : taipeiDayBounds(currentTime);
+      const lo = currentTime - FRESH_WINDOW;
+      setRippleActive(
+        eventsRef.current.some(
+          (e) =>
+            e.occurred_ts <= currentTime &&
+            e.occurred_ts > lo &&
+            (!bounds || (e.occurred_ts >= bounds.dayStart && e.occurred_ts < bounds.dayEnd)),
+        ),
+      );
     };
 
     applyFilter(timeStore.getTime()); // 初始化
-    return timeStore.subscribeThrottled(500, applyFilter);
-  }, [visible, showHistory, ensureSource, mapRef, mapTick]);
+    const unsub = timeStore.subscribeThrottled(500, applyFilter);
+    return () => {
+      unsub();
+      setRippleActive(false);
+    };
+  }, [visible, showHistory, ensureSource, mapRef, mapTick, dataTick]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）
   useEffect(() => {
@@ -234,55 +305,5 @@ export function useEarthquakeLayer(
     if (map.getLayer(LAYER_PRE)) {
       map.setPaintProperty(LAYER_PRE, "circle-stroke-opacity", 0.25 * o);
     }
-  }, [opacity, visible, mapRef, mapTick]);
-
-  // ripple 動畫
-  useEffect(() => {
-    if (!visible) return;
-
-    const animate = () => {
-      const map = mapRef.current;
-      if (!map) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      const now = performance.now();
-      if (now - lastFrameRef.current < FRAME_INTERVAL) {
-        rafRef.current = requestAnimationFrame(animate);
-        return;
-      }
-      lastFrameRef.current = now;
-
-      // style 切換後 layers 可能消失
-      if (layersReadyRef.current && !map.getLayer(RIPPLE_IDS[0]!)) {
-        layersReadyRef.current = false;
-      }
-      if (!layersReadyRef.current) ensureSource(map);
-
-      if (layersReadyRef.current) {
-        for (let i = 0; i < RIPPLE_COUNT; i++) {
-          const id = RIPPLE_IDS[i]!;
-          if (!map.getLayer(id)) continue;
-          const phase =
-            ((now + i * (RIPPLE_CYCLE_MS / RIPPLE_COUNT)) % RIPPLE_CYCLE_MS) / RIPPLE_CYCLE_MS;
-          const eased = 1 - Math.pow(1 - phase, 2);
-          // 規模越大，擴散範圍越大
-          const baseR = 6;
-          const maxAdd = 60;
-          map.setPaintProperty(id, "circle-radius", [
-            "+",
-            ["*", ["get", "magnitude"], 2],
-            baseR + maxAdd * eased,
-          ] as unknown as ExpressionSpecification);
-          map.setPaintProperty(id, "circle-stroke-opacity", 0.7 * (1 - eased));
-          map.setPaintProperty(id, "circle-stroke-width", 2.5 * (1 - eased * 0.5));
-        }
-      }
-
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [visible, ensureSource, mapRef, mapTick]);
+  }, [opacity, visible, mapRef, mapTick, dataTick]);
 }

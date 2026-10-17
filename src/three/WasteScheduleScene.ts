@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { TRIP_BREAK_S } from "./wasteScheduleConstants";
 import { toMercator } from "../utils/coordinates";
 import {
   WASTE_SCHEDULE_COLOR,
@@ -93,8 +94,10 @@ const MIN_MOVE_S        = 60;
  * 真班次切換 (1.5-3 hr) 仍能識別。
  *
  * 60x 下大 gap 視為 movement 會「線性飄 N 視覺秒」，但比「整段 invisible」好。
+ *
+ * 常數本體放在 wasteScheduleConstants.ts（不 import three），讓 App 除錯面板取用時不把 three 拉進首屏。
  */
-export const TRIP_BREAK_S = 1500;
+export { TRIP_BREAK_S };
 
 // ── 時間工具 ──────────────────────────────────────────────
 

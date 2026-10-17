@@ -1,0 +1,16 @@
+{
+  "enum.marineMetric.tide_height": "Tide level",
+  "enum.marineMetric.tide_twvd": "Tide level",
+  "enum.marineMetric.tide_cdl": "Tide level",
+  "enum.marineMetric.tide_ref": "Tide level",
+  "enum.marineMetric.wave_height": "Significant wave height",
+  "enum.marineMetric.wave_period": "Wave period",
+  "enum.marineMetric.wave_direction_deg": "Wave direction",
+  "enum.marineMetric.sea_temperature": "Sea temperature",
+  "enum.marineMetric.station_pressure": "Station pressure",
+  "enum.marineMetric.wind_speed": "Wind speed",
+  "enum.marineMetric.wind_direction_deg": "Wind direction",
+  "enum.marineMetric.max_wind_speed": "Maximum wind speed",
+  "enum.marineMetric.current_speed": "Current speed",
+  "enum.marineMetric.current_direction_deg": "Current direction"
+}

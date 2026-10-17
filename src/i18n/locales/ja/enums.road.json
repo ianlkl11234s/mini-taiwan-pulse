@@ -1,0 +1,20 @@
+{
+  "enum.roadClass2.9420101": "国道（高速道路）",
+  "enum.roadClass2.9420102": "国道（快速道路）",
+  "enum.roadClass2.9420201": "一般省道",
+  "enum.roadClass2.9420801": "一般市街地道路",
+  "enum.roadClass2.9421001": "ランプ",
+  "enum.roadClass2.9440100": "トンネル",
+  "enum.roadClass2.9440202": "道路橋",
+  "enum.roadStruct.0": "一般平面",
+  "enum.roadStruct.1": "橋",
+  "enum.roadStruct.2": "トンネル",
+  "enum.roadStruct.3": "ランプ",
+  "enum.roadStruct.4": "高架",
+  "enum.roadStruct.5": "洗い越し",
+  "enum.roadStruct.6": "地下区間",
+  "enum.roadClass1.HW": "国道",
+  "enum.roadClass1.HU": "国道付属道路（ランプ・サービスエリア）",
+  "enum.roadClass1.1W": "省道",
+  "enum.roadClass1.1U": "省道重複区間"
+}

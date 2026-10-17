@@ -3,7 +3,14 @@ import { fetchMarineObservationHistory } from "../../data/marineObservationLoade
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { Row, formatTaiwanTime } from "./shared";
+import { Row, formatTaiwanMinute } from "./shared";
+import { localeStore, useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import type { MessageKey } from "../../i18n/keys";
+
+type I18n = LocaleSnapshot;
+/** 匯出的純函式不收 hook；測試與非元件呼叫端不傳就用目前語系。 */
+const currentI18n = (): I18n => localeStore.getSnapshot();
 
 type HistoryRange = "24h" | "7d";
 type UnknownRecord = Record<string, unknown>;
@@ -73,9 +80,9 @@ const METRIC_LABELS: Record<string, string> = {
 };
 
 const NETWORK_META = {
-  cwa: { label: "CWA", description: "中央氣象署海洋固定站（上游約每小時更新）", color: "#22d3ee", gapSec: 3 * 3600 },
-  isohe: { label: "ISOHE", description: "港區海氣象固定站（上游約每 10 分鐘更新）", color: "#a78bfa", gapSec: 30 * 60 },
-} as const;
+  cwa: { label: "CWA", descriptionKey: "popup.marine.networkCwa", color: "#22d3ee", gapSec: 3 * 3600 },
+  isohe: { label: "ISOHE", descriptionKey: "popup.marine.networkIsohe", color: "#a78bfa", gapSec: 30 * 60 },
+} as const satisfies Record<string, { label: string; descriptionKey: MessageKey; color: string; gapSec: number }>;
 
 function str(value: unknown): string {
   return value == null || value === "" ? "" : String(value);
@@ -235,41 +242,42 @@ export function marineHistorySeries(rows: unknown[], expectedDatum: string): {
   };
 }
 
-function metricLabel(metricCode: string): string {
-  return METRIC_LABELS[metricCode] ?? metricCode.replace(/_/g, " ");
+function metricLabel(metricCode: string, i18n: I18n): string {
+  const zh = METRIC_LABELS[metricCode];
+  return zh ? enumLabel("marineMetric", metricCode, zh, i18n) : metricCode.replace(/_/g, " ");
 }
 
 function isTideMetric(metricCode: string): boolean {
   return metricCode === "tide_height" || metricCode.startsWith("tide_");
 }
 
-export function marineMetricDatumLabel(metricCode: string, verticalDatum: string): string {
-  return verticalDatum || (isTideMetric(metricCode) ? "未提供" : "");
+export function marineMetricDatumLabel(metricCode: string, verticalDatum: string, i18n: I18n = currentI18n()): string {
+  return verticalDatum || (isTideMetric(metricCode) ? i18n.t("popup.common.notProvided") : "");
 }
 
-function formatValue(metric: MarineMetricView): string {
-  if (metric.isMissing) return "缺值";
-  if (!metric.isValid || metric.valueNumeric == null) return "無效";
+function formatValue(metric: MarineMetricView, { t, formatNumber }: I18n): string {
+  if (metric.isMissing) return t("popup.common.missingValue");
+  if (!metric.isValid || metric.valueNumeric == null) return t("popup.marine.invalid");
   const digits = Math.abs(metric.valueNumeric) >= 100 ? 1 : 3;
-  return metric.valueNumeric.toLocaleString("zh-TW", { maximumFractionDigits: digits });
+  return formatNumber(metric.valueNumeric, { maximumFractionDigits: digits });
 }
 
-function formatAge(seconds: number | null): string {
-  if (seconds == null || seconds < 0) return "尚無有效觀測";
-  if (seconds < 60) return `${Math.round(seconds)} 秒`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)} 分鐘`;
-  if (seconds < 86400) return `${(seconds / 3600).toFixed(seconds < 10 * 3600 ? 1 : 0)} 小時`;
-  return `${(seconds / 86400).toFixed(1)} 天`;
+function formatAge(seconds: number | null, { t }: I18n): string {
+  if (seconds == null || seconds < 0) return t("popup.marine.noValidObs");
+  if (seconds < 60) return t("popup.marine.ageSeconds", { value: Math.round(seconds) });
+  if (seconds < 3600) return t("popup.marine.ageMinutes", { value: Math.round(seconds / 60) });
+  if (seconds < 86400) return t("popup.marine.ageHours", { value: (seconds / 3600).toFixed(seconds < 10 * 3600 ? 1 : 0) });
+  return t("popup.marine.ageDays", { value: (seconds / 86400).toFixed(1) });
 }
 
-function qualitySummary(metric: MarineMetricView): string {
-  if (metric.isMissing) return metric.missingReason ? `缺值：${metric.missingReason}` : "缺值";
-  if (!metric.isValid) return metric.missingReason ? `無效：${metric.missingReason}` : "無效";
+function qualitySummary(metric: MarineMetricView, { t }: I18n): string {
+  if (metric.isMissing) return metric.missingReason ? t("popup.marine.missingWithReason", { reason: metric.missingReason }) : t("popup.common.missingValue");
+  if (!metric.isValid) return metric.missingReason ? t("popup.marine.invalidWithReason", { reason: metric.missingReason }) : t("popup.marine.invalid");
   const extra = Object.entries(metric.qualityFlags).flatMap(([key, value]) => {
     if (key === "valid" || key === "missing" || value === false || value == null || value === "") return [];
     return [value === true ? key : `${key}: ${String(value)}`];
   });
-  return extra.length ? `有效 · ${extra.join(" · ")}` : "有效";
+  return extra.length ? t("popup.marine.validWith", { extra: extra.join(" · ") }) : t("popup.marine.valid");
 }
 
 function field(props: UnknownRecord, camel: string, snake: string): string {
@@ -288,15 +296,17 @@ function MetricCard({
   onSelect: () => void;
 }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const unit = metric.unitCanonical || metric.unitSource;
-  const datumLabel = marineMetricDatumLabel(metric.metricCode, metric.verticalDatum);
+  const datumLabel = marineMetricDatumLabel(metric.metricCode, metric.verticalDatum, i18n);
   const statusColor = metric.isMissing || !metric.isValid ? "#f97316" : "#22c55e";
   return (
     <div style={{ marginTop: 7, padding: "7px 8px", borderRadius: RADIUS.md, background: t.bgSubtle, border: `1px solid ${selected ? accent : t.border}` }}>
       <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
-        <span style={{ color: t.textStrong, fontSize: FONT_SIZE.base, fontWeight: 700 }}>{metricLabel(metric.metricCode)}</span>
+        <span style={{ color: t.textStrong, fontSize: FONT_SIZE.base, fontWeight: 700 }}>{metricLabel(metric.metricCode, i18n)}</span>
         <span style={{ marginLeft: "auto", color: metric.isMissing || !metric.isValid ? statusColor : accent, fontSize: FONT_SIZE.lg, fontWeight: 700 }}>
-          {formatValue(metric)}
+          {formatValue(metric, i18n)}
         </span>
         {unit && !metric.isMissing && metric.isValid && <span style={{ color: t.textMuted, fontSize: FONT_SIZE.xs }}>{unit}</span>}
       </div>
@@ -305,11 +315,11 @@ function MetricCard({
         <span> · depth {metric.depthKey}</span>
         {datumLabel && <span> · datum {datumLabel}</span>}
         {metric.unitSource && metric.unitCanonical && metric.unitSource !== metric.unitCanonical && (
-          <span> · 原始單位 {metric.unitSource}</span>
+          <span> · {tr("popup.marine.sourceUnit", { unit: metric.unitSource })}</span>
         )}
       </div>
-      <div style={{ marginTop: 2, color: statusColor, fontSize: FONT_SIZE.xs }}>{qualitySummary(metric)}</div>
-      {metric.observedAt && <div style={{ marginTop: 2, color: t.textDim, fontSize: FONT_SIZE.xs }}>觀測 {formatTaiwanTime(metric.observedAt).slice(0, 16)}</div>}
+      <div style={{ marginTop: 2, color: statusColor, fontSize: FONT_SIZE.xs }}>{qualitySummary(metric, i18n)}</div>
+      {metric.observedAt && <div style={{ marginTop: 2, color: t.textDim, fontSize: FONT_SIZE.xs }}>{tr("popup.marine.observed", { time: formatTaiwanMinute(metric.observedAt) })}</div>}
       <button
         type="button"
         aria-pressed={selected}
@@ -325,7 +335,7 @@ function MetricCard({
           fontSize: FONT_SIZE.xs,
         }}
       >
-        {selected ? "已選取趨勢" : "查看 24h 趨勢"}
+        {selected ? tr("popup.marine.trendSelected") : tr("popup.marine.trendView")}
       </button>
     </div>
   );
@@ -344,13 +354,15 @@ const rangeButton = (active: boolean, accent: string, border: string, textMuted:
 /** Shared popup for CWA and ISOHE; the network remains explicit in every rendered panel. */
 export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
   const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const stationUid = field(props, "stationUid", "station_uid");
   const sourceNetwork = field(props, "sourceNetwork", "source_network").toLowerCase();
   const network = sourceNetwork === "isohe"
     ? NETWORK_META.isohe
     : sourceNetwork === "cwa"
       ? NETWORK_META.cwa
-      : { label: sourceNetwork || "未知來源", description: "來源網路未標示", color: "#94a3b8", gapSec: undefined };
+      : { label: sourceNetwork || tr("popup.marine.unknownNetwork"), descriptionKey: "popup.marine.networkUnlabeled" as const, color: "#94a3b8", gapSec: undefined };
   const sourceStationId = field(props, "sourceStationId", "source_station_id");
   const metrics = useMemo(() => parseMarineMetrics(props.metrics), [props.metrics]);
   const [selection, setSelection] = useState<MarineHistorySelection | null>(null);
@@ -394,7 +406,7 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
   const latestSourceStatus = field(props, "latestSourceStatus", "latest_source_status");
   const stationSourceStatus = field(props, "sourceStatus", "source_status");
   const freshnessStatus = field(props, "freshnessStatus", "freshness_status");
-  const name = field(props, "nameZh", "name_zh") || field(props, "nameEn", "name_en") || sourceStationId || "海洋觀測站";
+  const name = field(props, "nameZh", "name_zh") || field(props, "nameEn", "name_en") || sourceStationId || tr("popup.marine.stationFallback");
   const hasTideMetric = metrics.some((metric) => isTideMetric(metric.metricCode));
 
   return (
@@ -404,23 +416,23 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
         <div style={{ color: t.textStrong, fontSize: FONT_SIZE.lg, fontWeight: 700, lineHeight: 1.25 }}>{name}</div>
         <span style={{ marginLeft: "auto", color: network.color, fontSize: FONT_SIZE.xs, fontWeight: 700 }}>{network.label}</span>
       </div>
-      <Row label="測站代碼" value={sourceStationId || stationUid} color={t.textDim} />
-      <Row label="來源網路" value={sourceNetwork || network.label.toLowerCase()} color={network.color} />
-      <Row label="感測／管理" value={field(props, "originOrg", "origin_org")} />
-      <Row label="資料分發" value={field(props, "distributionOrg", "distribution_org")} />
-      <Row label="測站類型" value={field(props, "stationType", "station_type")} />
-      <Row label="最新觀測" value={latestObservedAt ? formatTaiwanTime(latestObservedAt).slice(0, 16) : "尚無有效觀測"} />
-      <Row label="資料年齡" value={formatAge(latestAgeSeconds)} />
-      <Row label="Freshness" value={freshnessStatus || "未分類"} />
-      <Row label="測站狀態" value={stationSourceStatus || "未標示"} />
-      <Row label="觀測狀態" value={latestSourceStatus || "未標示"} />
-      <div style={{ marginTop: 7, color: t.textDim, fontSize: FONT_SIZE.xs, lineHeight: 1.45 }}>{network.description}</div>
+      <Row label={tr("popup.marine.stationCode")} value={sourceStationId || stationUid} color={t.textDim} />
+      <Row label={tr("popup.marine.sourceNetwork")} value={sourceNetwork || network.label.toLowerCase()} color={network.color} />
+      <Row label={tr("popup.marine.originOrg")} value={field(props, "originOrg", "origin_org")} />
+      <Row label={tr("popup.marine.distributionOrg")} value={field(props, "distributionOrg", "distribution_org")} />
+      <Row label={tr("popup.marine.stationType")} value={field(props, "stationType", "station_type")} />
+      <Row label={tr("popup.marine.latestObs")} value={latestObservedAt ? formatTaiwanMinute(latestObservedAt) : tr("popup.marine.noValidObs")} />
+      <Row field="dataAge" value={formatAge(latestAgeSeconds, i18n)} />
+      <Row label={tr("popup.marine.freshness")} value={freshnessStatus || tr("popup.common.unclassified")} />
+      <Row label={tr("popup.marine.stationStatus")} value={stationSourceStatus || tr("popup.marine.unlabeled")} />
+      <Row label={tr("popup.marine.obsStatus")} value={latestSourceStatus || tr("popup.marine.unlabeled")} />
+      <div style={{ marginTop: 7, color: t.textDim, fontSize: FONT_SIZE.xs, lineHeight: 1.45 }}>{tr(network.descriptionKey)}</div>
 
       <div style={{ marginTop: 10, color: t.textMuted, fontSize: FONT_SIZE.xs, letterSpacing: 0.6 }}>
-        最新指標（{metrics.length}）
+        {tr("popup.marine.latestMetrics", { n: metrics.length })}
       </div>
       {metrics.length === 0 ? (
-        <div style={{ marginTop: 6, color: t.textDim, fontSize: FONT_SIZE.sm }}>此站目前沒有 freshness 範圍內的有效讀值。</div>
+        <div style={{ marginTop: 6, color: t.textDim, fontSize: FONT_SIZE.sm }}>{tr("popup.marine.noMetrics")}</div>
       ) : metrics.map((metric) => {
         const key = `${metric.metricCode}:${metric.depthKey}:${metric.verticalDatum}`;
         const selectedKey = selection ? `${selection.metricCode}:${selection.depthKey}:${selection.verticalDatum}` : "";
@@ -446,35 +458,35 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
 
       {hasTideMetric && (
         <div style={{ marginTop: 8, color: "#f59e0b", fontSize: FONT_SIZE.xs, lineHeight: 1.45 }}>
-          潮位 datum 保留原始定義；datum 未提供或不同的數值不可直接比較或合併。
+          {tr("popup.marine.datumWarning")}
         </div>
       )}
 
       {selection && (
         <div style={{ marginTop: 11, paddingTop: 8, borderTop: `1px solid ${t.border}` }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ color: t.textMuted, fontSize: FONT_SIZE.xs }}>{metricLabel(selection.metricCode)}趨勢</span>
+            <span style={{ color: t.textMuted, fontSize: FONT_SIZE.xs }}>{tr("popup.marine.trendTitle", { metric: metricLabel(selection.metricCode, i18n) })}</span>
             <span style={{ color: t.textDim, fontSize: FONT_SIZE.xs }}>depth {selection.depthKey}</span>
-            {marineMetricDatumLabel(selection.metricCode, selection.verticalDatum) && (
+            {marineMetricDatumLabel(selection.metricCode, selection.verticalDatum, i18n) && (
               <span style={{ color: "#f59e0b", fontSize: FONT_SIZE.xs }}>
-                datum {marineMetricDatumLabel(selection.metricCode, selection.verticalDatum)}
+                datum {marineMetricDatumLabel(selection.metricCode, selection.verticalDatum, i18n)}
               </span>
             )}
             <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
               <button type="button" onClick={() => setRange("24h")} style={rangeButton(range === "24h", network.color, t.border, t.textMuted)}>24h</button>
-              <button type="button" onClick={() => setRange("7d")} style={rangeButton(range === "7d", network.color, t.border, t.textMuted)}>7 天</button>
+              <button type="button" onClick={() => setRange("7d")} style={rangeButton(range === "7d", network.color, t.border, t.textMuted)}>{tr("popup.marine.days7")}</button>
             </div>
           </div>
           {history == null ? (
-            <div style={{ padding: "10px 4px", textAlign: "center", color: t.textDim, fontSize: FONT_SIZE.sm }}>載入歷史觀測…</div>
+            <div style={{ padding: "10px 4px", textAlign: "center", color: t.textDim, fontSize: FONT_SIZE.sm }}>{tr("popup.marine.historyLoading")}</div>
           ) : historyError ? (
-            <div style={{ padding: "10px 4px", color: "#f97316", fontSize: FONT_SIZE.sm }}>歷史觀測載入失敗，請稍後再試。</div>
+            <div style={{ padding: "10px 4px", color: "#f97316", fontSize: FONT_SIZE.sm }}>{tr("popup.marine.historyError")}</div>
           ) : historyView.datumConflict ? (
             <div style={{ padding: "10px 4px", color: "#f97316", fontSize: FONT_SIZE.sm }}>
-              歷史資料含多個 vertical datum（{historyView.datums.join("、")}），為避免錯誤比較，本圖不合併繪製。
+              {tr("popup.marine.datumConflict", { datums: historyView.datums.join(tr("popup.common.listSeparator")) })}
             </div>
           ) : historyView.points.length === 0 ? (
-            <div style={{ padding: "10px 4px", color: t.textDim, fontSize: FONT_SIZE.sm }}>此時間窗沒有有效數值；missing／invalid 不補 0。</div>
+            <div style={{ padding: "10px 4px", color: t.textDim, fontSize: FONT_SIZE.sm }}>{tr("popup.marine.noWindowData")}</div>
           ) : (
             <TimeseriesSparkline
               data={historyView.points}
@@ -487,7 +499,7 @@ export function MarineObservationPanel({ props }: { props: UnknownRecord }) {
           )}
           {history != null && historyView.excludedCount > 0 && !historyError && (
             <div style={{ marginTop: 3, color: t.textDim, fontSize: FONT_SIZE.xs }}>
-              {historyView.excludedCount} 筆 missing／invalid／datum 不符資料未納入曲線，未轉成 0。
+              {tr("popup.marine.excluded", { n: historyView.excludedCount })}
             </div>
           )}
         </div>

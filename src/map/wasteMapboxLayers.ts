@@ -6,8 +6,10 @@
  *   - 不需要 3D 戲劇感（焚化爐/掩埋場/轉運站/醫療用 Three.js scene 處理）
  *   - Mapbox 原生 circle event 處理 click 比 Three.js picking 快又穩
  *
- * 8 個 sub-layer：
+ * 13 個 sub-layer：
  *   facility:  wfRecycling / wfMonitoring / wfScrapYard / wfOther
+ *              wfIncinerator / wfLandfill / wfLandfillCoastal / wfTransfer / wfMedical
+ *              （R6 段 2，2026-10-06：五類設施的平面版，預設顯示；「立體效果」開啟時 Three.js 造型疊在上面）
  *   disposal:  wdClothes / wdMixed / wdRecyclingContainer / wdBattery
  *
  * Z 軸 slider 對 Mapbox circle 為偽 3D（circle-translate Y 像素偏移），
@@ -22,9 +24,11 @@ import {
   type WasteFacilityRow,
   type WasteDisposalPointRow,
 } from "../data/wasteLoader";
+import { pointRadius, pointStrokePaint } from "./mapStyleScale";
 
 export type WasteMapboxLayerKey =
   | "wfRecycling" | "wfMonitoring" | "wfScrapYard" | "wfOther"
+  | "wfIncinerator" | "wfLandfill" | "wfLandfillCoastal" | "wfTransfer" | "wfMedical"
   | "wdClothes" | "wdMixed" | "wdRecyclingContainer" | "wdBattery";
 
 /** sub-toggle key → facility_type 過濾 */
@@ -33,7 +37,18 @@ const FACILITY_TYPES_BY_KEY: Record<string, string[]> = {
   wfMonitoring: ["monitoring_well"],
   wfScrapYard: ["scrap_yard"],
   wfOther: ["other", "food_waste_processing", "repair_shop"],
+  wfIncinerator: ["incinerator"],
+  wfLandfill: ["landfill"],
+  wfLandfillCoastal: ["landfill_coastal"],
+  wfTransfer: ["transfer_station"],
+  wfMedical: ["medical_waste"],
 };
+
+/** R6 段 2：五類設施的平面圓點（類別色＝WASTE_FACILITY_COLORS，與圖例同一常數） */
+export const WASTE_FACILITY_FLAT_KEYS = [
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical",
+] as const;
+const FLAT_KEY_SET: ReadonlySet<string> = new Set(WASTE_FACILITY_FLAT_KEYS);
 
 /** sub-toggle key → point_type 過濾 */
 const DISPOSAL_TYPES_BY_KEY: Record<string, string[]> = {
@@ -43,16 +58,39 @@ const DISPOSAL_TYPES_BY_KEY: Record<string, string[]> = {
   wdBattery: ["battery"],
 };
 
-/** 每個 layer 的預設 base 半徑（zoom 中段） */
-const BASE_RADII: Record<WasteMapboxLayerKey, number> = {
-  wfRecycling: 4,
-  wfMonitoring: 3.5,
-  wfScrapYard: 6,
-  wfOther: 3,
-  wdClothes: 3,
-  wdMixed: 3,
-  wdRecyclingContainer: 3.5,
-  wdBattery: 5,
+/** 大小滑桿的預設值；半徑以此正規化，預設顯示一律為 M=4.5px。 */
+const SIZE_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
+  wfRecycling: 1,
+  wfMonitoring: 1,
+  wfScrapYard: 1,
+  wfOther: 1,
+  wfIncinerator: 1,
+  wfLandfill: 1,
+  wfLandfillCoastal: 1,
+  wfTransfer: 1,
+  wfMedical: 1,
+  wdClothes: 1,
+  wdMixed: 1,
+  wdRecyclingContainer: 1,
+  wdBattery: 1.5,
+};
+
+/** 透明度滑桿預設值；描邊以滑桿倍率而非主體色的既有 alpha 正規化。 */
+const OPACITY_DEFAULTS: Record<WasteMapboxLayerKey, number> = {
+  wfRecycling: 0.85,
+  wfMonitoring: 0.7,
+  wfScrapYard: 0.85,
+  wfOther: 0.7,
+  // R6 段 2：五類設施的預設值沿用 Three.js 調校（layerParamsSpec wasteSubSliders），平面以此正規化成 P-3 0.85
+  wfIncinerator: 0.85,
+  wfLandfill: 0.45,
+  wfLandfillCoastal: 0.55,
+  wfTransfer: 0.85,
+  wfMedical: 0.85,
+  wdClothes: 0.7,
+  wdMixed: 0.7,
+  wdRecyclingContainer: 0.85,
+  wdBattery: 0.9,
 };
 
 /** 各 layer 的代表顏色（fallback；點選 source feature property 也有 color 欄） */
@@ -61,6 +99,11 @@ const LAYER_COLOR: Record<WasteMapboxLayerKey, string> = {
   wfMonitoring: WASTE_FACILITY_COLORS.monitoring_well!,
   wfScrapYard: WASTE_FACILITY_COLORS.scrap_yard!,
   wfOther: WASTE_FACILITY_COLORS.other!,
+  wfIncinerator: WASTE_FACILITY_COLORS.incinerator!,
+  wfLandfill: WASTE_FACILITY_COLORS.landfill!,
+  wfLandfillCoastal: WASTE_FACILITY_COLORS.landfill_coastal!,
+  wfTransfer: WASTE_FACILITY_COLORS.transfer_station!,
+  wfMedical: WASTE_FACILITY_COLORS.medical_waste!,
   wdClothes: WASTE_DISPOSAL_COLORS.clothes_box!,
   wdMixed: WASTE_DISPOSAL_COLORS.mixed!,
   wdRecyclingContainer: WASTE_DISPOSAL_COLORS.recycling_container!,
@@ -69,6 +112,7 @@ const LAYER_COLOR: Record<WasteMapboxLayerKey, string> = {
 
 const ALL_KEYS: WasteMapboxLayerKey[] = [
   "wfRecycling", "wfMonitoring", "wfScrapYard", "wfOther",
+  ...WASTE_FACILITY_FLAT_KEYS,
   "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
 ];
 
@@ -81,6 +125,26 @@ const EMPTY_FC: GeoJSON.FeatureCollection = {
   type: "FeatureCollection",
   features: [],
 };
+
+// setup / param store / theme store are intentionally separate imperative paths（App.tsx 三處各自呼叫）。
+// 為了讓 slider 更新保留描邊透明度、換主題保留 slider 倍率，需要跨呼叫記住兩個值；
+// 不改三個 export 的簽名（App.tsx 不在本次範圍），改成「每張 map 一份」而不是模組全域。
+interface WasteMapboxStyleState {
+  isDark: boolean;
+  opacityFactors: Record<WasteMapboxLayerKey, number>;
+}
+const wasteMapboxStyleStates = new WeakMap<MapboxMap, WasteMapboxStyleState>();
+function styleStateOf(map: MapboxMap): WasteMapboxStyleState {
+  let st = wasteMapboxStyleStates.get(map);
+  if (!st) {
+    st = {
+      isDark: true,
+      opacityFactors: Object.fromEntries(ALL_KEYS.map((k) => [k, 1])) as Record<WasteMapboxLayerKey, number>,
+    };
+    wasteMapboxStyleStates.set(map, st);
+  }
+  return st;
+}
 
 /** facility / disposal 通用：dataset id → "facility" or "disposal"（給 popup 用） */
 function isFacilityKey(k: WasteMapboxLayerKey): boolean {
@@ -115,6 +179,9 @@ function rowsToFeatures(
             status: r.status,
             start_year: r.start_year,
             source_url: r.source_url,
+            // 與 Three.js 點選（facilityRowToFeatureInfo）同欄位，兩種模式 popup 一致
+            is_coastal: r.is_coastal,
+            distance_to_sea_m: r.distance_to_sea_m,
           },
         });
       }
@@ -185,12 +252,12 @@ export function setupWasteMapboxLayers(
   map: MapboxMap,
   opts: WasteMapboxOptions,
 ) {
+  styleStateOf(map).isDark = opts.isDark;
   for (const k of ALL_KEYS) {
     if (!map.getSource(sourceId(k))) {
       map.addSource(sourceId(k), { type: "geojson", data: EMPTY_FC });
     }
     const color = LAYER_COLOR[k];
-    const baseR = BASE_RADII[k];
     if (!map.getLayer(glowLayerId(k))) {
       map.addLayer({
         id: glowLayerId(k),
@@ -198,13 +265,11 @@ export function setupWasteMapboxLayers(
         source: sourceId(k),
         layout: { visibility: "none" },
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, baseR * 0.8, 10, baseR * 1.6, 14, baseR * 3, 17, baseR * 5,
-          ],
+          "circle-radius": pointRadius("M"),
           "circle-color": color,
           "circle-blur": 1,
-          "circle-opacity": opts.isDark ? 0.18 : 0.22,
+          // 靜態清冊；core 才是 click target，glow 保留但隱藏。
+          "circle-opacity": 0,
         },
       });
     }
@@ -215,16 +280,9 @@ export function setupWasteMapboxLayers(
         source: sourceId(k),
         layout: { visibility: "none" },
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, baseR * 0.4, 10, baseR * 0.8, 14, baseR * 1.5, 17, baseR * 2.4,
-          ],
+          "circle-radius": pointRadius("M"),
           "circle-color": color,
-          "circle-stroke-color": opts.isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
-          "circle-stroke-width": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 0, 10, 0.4, 14, 0.7,
-          ],
+          ...pointStrokePaint(opts.isDark),
           "circle-opacity": opts.isDark ? 0.85 : 0.75,
         },
       });
@@ -260,6 +318,27 @@ export function setupWasteMapboxLayers(
     map.on("mouseleave", coreId, handlers.mouseleave);
     boundHandlers.set(coreId, handlers);
   }
+}
+
+/**
+ * 換底圖（setStyle）會清掉所有自訂 source / layer，但 App 的 lazy-setup 旗標仍是 true、不會重建（G005）。
+ * style.load 後呼叫：冪等地重建 source / layer，並把目前資料、顯示、參數同步回去。
+ */
+export function rebuildWasteMapboxLayers(
+  map: MapboxMap,
+  opts: WasteMapboxOptions,
+  state: {
+    facilityByType: Map<string, WasteFacilityRow[]>;
+    disposalByType: Map<string, WasteDisposalPointRow[]>;
+    visibility: LayerVisibility;
+    params: Partial<Record<string, { size: number; opacity: number; altitude: number }>>;
+  },
+) {
+  setupWasteMapboxLayers(map, opts);
+  syncWasteMapboxData(map, state.facilityByType, state.disposalByType);
+  syncWasteMapboxVisibility(map, state.visibility);
+  syncWasteMapboxParams(map, state.params);
+  syncWasteMapboxTheme(map, opts.isDark);
 }
 
 /**
@@ -304,43 +383,52 @@ export function syncWasteMapboxParams(
   map: MapboxMap,
   params: Partial<Record<string, { size: number; opacity: number; altitude: number }>>,
 ) {
+  const st = styleStateOf(map);
   for (const k of ALL_KEYS) {
     const p = params[k];
     if (!p) continue;
-    const baseR = BASE_RADII[k];
-    const sizeMul = p.size; // 0.5 ~ 3
+    const sizeMul = p.size / SIZE_DEFAULTS[k]; // 0.5 ~ 3，依規格預設值正規化
     const opacity = p.opacity; // 0.2 ~ 1
+    st.opacityFactors[k] = opacity / OPACITY_DEFAULTS[k];
     const altitudePx = -Math.max(0, p.altitude) * 0.4; // alt(0~500) → translate Y(0~-200)px
     if (map.getLayer(glowLayerId(k))) {
-      map.setPaintProperty(glowLayerId(k), "circle-radius", [
-        "interpolate", ["linear"], ["zoom"],
-        6, baseR * 0.8 * sizeMul, 10, baseR * 1.6 * sizeMul,
-        14, baseR * 3 * sizeMul, 17, baseR * 5 * sizeMul,
-      ]);
-      map.setPaintProperty(glowLayerId(k), "circle-opacity", 0.22 * opacity);
+      // 靜態資料的 glow 維持透明，以免把散點誤讀成即時讀值。
+      map.setPaintProperty(glowLayerId(k), "circle-opacity", 0);
       map.setPaintProperty(glowLayerId(k), "circle-translate", [0, altitudePx]);
     }
     if (map.getLayer(coreLayerId(k))) {
-      map.setPaintProperty(coreLayerId(k), "circle-radius", [
-        "interpolate", ["linear"], ["zoom"],
-        6, baseR * 0.4 * sizeMul, 10, baseR * 0.8 * sizeMul,
-        14, baseR * 1.5 * sizeMul, 17, baseR * 2.4 * sizeMul,
-      ]);
-      map.setPaintProperty(coreLayerId(k), "circle-opacity", 0.85 * opacity);
+      map.setPaintProperty(coreLayerId(k), "circle-radius", pointRadius("M", sizeMul));
+      map.setPaintProperty(coreLayerId(k), "circle-opacity", wasteFlatOpacity(k, opacity));
+      map.setPaintProperty(
+        coreLayerId(k),
+        "circle-stroke-opacity",
+        pointStrokePaint(st.isDark, st.opacityFactors[k])["circle-stroke-opacity"],
+      );
       map.setPaintProperty(coreLayerId(k), "circle-translate", [0, altitudePx]);
     }
   }
 }
 
+/**
+ * 主體點透明度。R6 段 2 的五類設施以滑桿預設值正規化（預設＝P-3 0.85）；
+ * 其餘 8 類維持既有「0.85 × 滑桿值」。
+ */
+export function wasteFlatOpacity(k: WasteMapboxLayerKey, opacity: number): number {
+  return FLAT_KEY_SET.has(k) ? Math.min(1, 0.85 * (opacity / OPACITY_DEFAULTS[k])) : 0.85 * opacity;
+}
+
 /** 切換 dark / light 樣式 */
 export function syncWasteMapboxTheme(map: MapboxMap, isDark: boolean) {
+  const st = styleStateOf(map);
+  st.isDark = isDark;
   for (const k of ALL_KEYS) {
     if (map.getLayer(coreLayerId(k))) {
-      map.setPaintProperty(
-        coreLayerId(k),
-        "circle-stroke-color",
-        isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
-      );
+      {
+        const stroke = pointStrokePaint(isDark, st.opacityFactors[k]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(coreLayerId(k), "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+      }
     }
   }
 }

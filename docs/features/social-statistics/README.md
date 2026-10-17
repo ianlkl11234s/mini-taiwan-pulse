@@ -25,7 +25,7 @@ VITE_SOCIAL_STATISTICS_PREVIEW=true npm run dev -- --host 127.0.0.1 --port 3758
 
 ## 契約與檢查
 
-精確配方保存在 `src/data/socialStatisticsRecipes.json`，內容來自交付SSOT。沿用既有store/loader/geometry cache/map/legend/popup，不另建資料API。
+精確配方保存在 `src/data/socialStatisticsRecipes.json`，內容來自交付SSOT。首屏只載由它派生的 `socialStatisticsRecipes.catalog.json`（不含 `release_options`／`fragment_context`），完整配方經 `ensureStatisticsRecipeDetails('social')` 按需載入（只下載社會明細）；更新交付 JSON 後必跑 `scripts/statistics/build_statistics_recipe_catalogs.ts`。沿用既有store/loader/geometry cache/map/legend/popup，不另建資料API。
 
 ```sh
 SOCIAL_STATISTICS_DATA_ROOT=/private/tmp/statistics-social-ready-20260914 npx vitest run src/data/__tests__/socialStatisticsDelivery.test.ts

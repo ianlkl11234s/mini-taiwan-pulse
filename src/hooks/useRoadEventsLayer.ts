@@ -9,12 +9,16 @@ import type {
 } from "mapbox-gl";
 import {
   fetchRoadEventsDay,
+  isRoadEventActive,
   roadEventsToGeoJSON,
   type RoadEvent,
 } from "../data/roadEventsLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * TDX 即時路況事件 timeline 圖層
@@ -38,7 +42,17 @@ interface CachedDay {
   accessedAt: number;
 }
 
-function buildLayers(map: MapboxMap): boolean {
+function activeSetKey(events: RoadEvent[], currentTime: number): string {
+  let key = "";
+  for (const event of events) {
+    if (isRoadEventActive(event, currentTime)) key += event.event_id + event.source + "|";
+  }
+  return key;
+}
+
+const OPACITY_DEFAULT = Number(paramDefault("roadEvents", "reOpacity"));
+
+function buildLayers(map: MapboxMap, isDark: boolean): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
   const activeFilter = ["==", ["get", "active"], 1] as unknown as FilterSpecification;
@@ -52,10 +66,10 @@ function buildLayers(map: MapboxMap): boolean {
         activeFilter,
         ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
       ] as unknown as FilterSpecification,
-      paint: {
+      paint: hookFillPaint("roadEvents", LAYER_FILL, {
         "fill-color": ["get", "color"] as unknown as ExpressionSpecification,
         "fill-opacity": 0.22,
-      },
+      }, { "fill-color": ["get", "color"] as unknown as ExpressionSpecification, "fill-opacity": 0.22 }),
     } as FillLayer);
   }
 
@@ -68,12 +82,12 @@ function buildLayers(map: MapboxMap): boolean {
         activeFilter,
         ["match", ["geometry-type"], ["LineString", "MultiLineString", "Polygon", "MultiPolygon"], true, false],
       ] as unknown as FilterSpecification,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
+      layout: hookLineLayout("roadEvents", LAYER_LINE),
+      paint: hookLinePaint("roadEvents", LAYER_LINE, {
         "line-color": ["get", "color"] as unknown as ExpressionSpecification,
         "line-width": 2,
         "line-opacity": 0.9,
-      },
+      }, { "line-color": ["get", "color"] as unknown as ExpressionSpecification, "line-width": 2, "line-opacity": 0.9 }),
     } as LineLayer);
   }
 
@@ -90,14 +104,13 @@ function buildLayers(map: MapboxMap): boolean {
         "circle-radius": [
           "case",
           // severity 1-3 freeway events 較大
-          [">=", ["get", "severity"], 1], 7,
+          [">=", ["get", "severity"], 1], pointRadius("M"),
           // event_city 預告較小
-          ["==", ["get", "source"], "event_city"], 5,
-          6,
+          ["==", ["get", "source"], "event_city"], pointRadius("M") * 5 / 7,
+          pointRadius("M") * 6 / 7,
         ] as unknown as ExpressionSpecification,
         "circle-color": ["get", "color"] as unknown as ExpressionSpecification,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-width": 1.5,
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.9,
       },
     } as CircleLayer);
@@ -110,6 +123,7 @@ export function useRoadEventsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number = 1,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -118,6 +132,9 @@ export function useRoadEventsLayer(
   const activeDayRef = useRef<RoadEvent[] | null>(null);
   const activeDateRef = useRef<string>("");
   const layersReadyRef = useRef(false);
+  // 主題走 ref：ensureLayers 保持穩定，切主題不會重建 timeStore 訂閱（paint 由 opacity effect 更新）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
   const visibleRef = useRef(visible);
@@ -147,7 +164,7 @@ export function useRoadEventsLayer(
       });
     }
     if (!layersReadyRef.current || !map.getLayer(LAYER_FILL)) {
-      layersReadyRef.current = buildLayers(map);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current);
     }
     return layersReadyRef.current;
   }, []);
@@ -169,9 +186,13 @@ export function useRoadEventsLayer(
         cached.accessedAt = Date.now();
         activeDayRef.current = cached.data;
         activeDateRef.current = dateStr;
-        lastActiveSetRef.current = "";
         const map = mapRef.current;
-        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+        const currentTime = timeStore.getTime();
+        // 只有真的寫進 source 才記下 key；地圖未就緒／隱藏時留給之後的 tick 重畫，否則同 key 永遠不刷新
+        if (map && visibleRef.current && ensureLayers(map)) {
+          lastActiveSetRef.current = activeSetKey(cached.data, currentTime);
+          refreshSource(map, currentTime);
+        }
         return;
       }
 
@@ -182,10 +203,11 @@ export function useRoadEventsLayer(
           if (fetchingRef.current !== dateStr) return;
           activeDayRef.current = events;
           activeDateRef.current = dateStr;
-          lastActiveSetRef.current = "";
           const map = mapRef.current;
+          const currentTime = timeStore.getTime();
           if (map && visibleRef.current && ensureLayers(map)) {
-            refreshSource(map, timeStore.getTime());
+            lastActiveSetRef.current = activeSetKey(events, currentTime);
+            refreshSource(map, currentTime);
             keepLoadingUntilMapIdle(map, `road-events-render:${dateStr}`, "即時路況 渲染中", SOURCE_ID);
           }
         })
@@ -231,16 +253,13 @@ export function useRoadEventsLayer(
       const day = activeDayRef.current;
       if (!day) return;
 
-      let key = "";
-      for (const e of day) {
-        const isActive =
-          (e.start_ts === 0 || currentTime >= e.start_ts) &&
-          (e.end_ts == null || currentTime < e.end_ts);
-        if (isActive) key += e.event_id + e.source + "|";
-      }
+      const key = activeSetKey(day, currentTime);
       if (key !== lastActiveSetRef.current) {
+        // 尚未畫過＝請求先完成、地圖晚就緒的延後路徑：此刻才 setData，渲染期間也要登記 loading
+        const firstRender = lastActiveSetRef.current === "";
         lastActiveSetRef.current = key;
         refreshSource(m, currentTime);
+        if (firstRender) keepLoadingUntilMapIdle(m, `road-events-render:${activeDateRef.current}`, "即時路況 渲染中", SOURCE_ID);
       }
     };
 
@@ -255,14 +274,19 @@ export function useRoadEventsLayer(
     if (!layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(LAYER_FILL)) {
-      map.setPaintProperty(LAYER_FILL, "fill-opacity", 0.22 * o);
+      map.setPaintProperty(LAYER_FILL, "fill-opacity", hookFillOpacity("roadEvents", LAYER_FILL, 0.22 * o, 0.22 * OPACITY_DEFAULT));
     }
     if (map.getLayer(LAYER_LINE)) {
-      map.setPaintProperty(LAYER_LINE, "line-opacity", 0.9 * o);
+      map.setPaintProperty(LAYER_LINE, "line-opacity", hookLineOpacity("roadEvents", LAYER_LINE, 0.9 * o, 0.9 * OPACITY_DEFAULT, isDark));
     }
     if (map.getLayer(LAYER_POINT)) {
       map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.9 * o);
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", o);
+      {
+        const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-color", stroke["circle-stroke-color"]);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-width", stroke["circle-stroke-width"]);
+        map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+      }
     }
-  }, [opacity, visible, mapRef, mapTick]);
+  }, [opacity, isDark, visible, mapRef, mapTick]);
 }

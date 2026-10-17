@@ -15,12 +15,21 @@ import {
   createAllenCoralAtlasGateway,
   createAllenCoralAtlasS3Gateway,
   createJpWaterS3Gateway,
+  createSoilLiquefactionS3Gateway,
+  createBssBridgeS3Gateway,
+  BSS_BRIDGE_ASSETS,
+  handleBssBridgeRequest,
+  createBridgeResilienceS3Gateway,
+  BRIDGE_RESILIENCE_ASSETS,
+  handleBridgeResilienceRequest,
+  SOIL_LIQUEFACTION_ASSETS,
   createAllenSessionDenylist,
   getAllenCoralAtlasConfig,
   getConfig,
   handleAllenCoralAtlasRequest,
   handleCoralRequest,
   handleJpWaterRequest,
+  handleSoilLiquefactionRequest,
   parseRange,
   startAllenCoralAtlasServer,
   writeAllenAuditRecord,
@@ -79,6 +88,18 @@ function allenRequest(asset = "benthic", options = {}) {
 
 function jpWaterRequest(asset = "water", options = {}) {
   return request(`/api/private-research/jp-water/${asset}`, options);
+}
+
+function soilRequest(asset = "tiles", options = {}) {
+  return request(`/api/private-research/soil-liquefaction/${asset}`, options);
+}
+
+function bridgeResilienceRequest(asset = "tiles", options = {}) {
+  return request(`/api/private-research/bridge-resilience/${asset}`, options);
+}
+
+function bssRequest(asset = "tiles", options = {}) {
+  return request(`/api/private-research/bss-bridge/${asset}`, options);
 }
 
 test("Range accepts exactly one bounded byte range", () => {
@@ -404,6 +425,397 @@ test("sidecar routes Japan water through the shared owner session revoke boundar
   } finally {
     if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
+});
+
+test("soil liquefaction assets enforce owner, probe, range and unknown asset boundaries", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) { calls.head += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
+  assert.equal((await handleSoilLiquefactionRequest(soilRequest(), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleSoilLiquefactionRequest(soilRequest(), deps(async () => ({ status: 403 })))).status, 403);
+  const probe = await handleSoilLiquefactionRequest(request("/api/private-research/soil-liquefaction/tiles?access=1"), deps(allenOwner));
+  assert.equal(probe.status, 200);
+  assert.deepEqual(await probe.json(), { allowed: true });
+  assert.equal(calls.head, 0);
+  // Range needs the real asset size; it stays skipped while the size/sha256 placeholder is unfilled.
+  if (SOIL_LIQUEFACTION_ASSETS.tiles.size > 0) {
+    const range = await handleSoilLiquefactionRequest(soilRequest("tiles", { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
+    assert.equal(range.status, 206);
+    assert.equal(range.headers.get("content-range"), `bytes 0-3/${SOIL_LIQUEFACTION_ASSETS.tiles.size}`);
+    assert.equal(range.headers.get("cache-control"), "private, no-store");
+    assert.equal((await range.arrayBuffer()).byteLength, 4);
+    assert.equal(calls.get, 1);
+  }
+  assert.equal((await handleSoilLiquefactionRequest(soilRequest("unknown"), deps(allenOwner))).status, 404);
+  assert.equal((await handleSoilLiquefactionRequest(soilRequest("constructor"), deps(allenOwner))).status, 404);
+});
+
+test("soil liquefaction S3 gateway uses immutable private keys", async () => {
+  const bytes = Buffer.from("soil-liquefaction");
+  const asset = Object.freeze({
+    filename: "soil-liquefaction.pmtiles",
+    size: bytes.length,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  });
+  const calls = [];
+  const gateway = createSoilLiquefactionS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    assets: { tiles: asset },
+  });
+  await gateway.head(asset);
+  assert.deepEqual(calls, [{
+    Bucket: "migu-private-research-ap-southeast-2",
+    Key: `private-research/soil-liquefaction/${asset.sha256}/soil-liquefaction.pmtiles`,
+    ChecksumMode: "ENABLED",
+  }]);
+});
+
+test("soil liquefaction warmup is independent and shares the revoke boundary", async () => {
+  const okGateway = {
+    async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const failing = { async head() { throw new Error("missing"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: okGateway, jpWaterGateway: failing, soilLiquefactionGateway: okGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    // A missing Japan water object must not affect the other families.
+    const jp = await fetch(`${root}/jp-water/water`, { headers });
+    assert.equal(jp.status, 503);
+    assert.equal((await jp.json()).error, "private Japan water sidecar unavailable");
+    const allen = await fetch(`${root}/allen-coral-atlas/benthic`, { headers });
+    assert.equal(allen.status, 206);
+    const soil = await fetch(`${root}/soil-liquefaction/tiles?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(soil.status, 200);
+    await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
+    assert.equal((await fetch(`${root}/soil-liquefaction/tiles`, { headers })).status, 401);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("soil liquefaction failed warmup fails closed without affecting other families", async () => {
+  const okGateway = { async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; }, async get() { throw new Error("unused"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig, authenticate: allenOwner,
+    gateway: okGateway, jpWaterGateway: okGateway,
+    soilLiquefactionGateway: { async head() { throw new Error("missing"); } }, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const soil = await fetch(`${root}/soil-liquefaction/tiles?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(soil.status, 503);
+    assert.equal((await soil.json()).error, "private soil liquefaction sidecar unavailable");
+    const jp = await fetch(`${root}/jp-water/water?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(jp.status, 200);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bss bridge assets enforce owner, probe, range and unknown asset boundaries", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) { calls.head += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
+  assert.equal((await handleBssBridgeRequest(bssRequest(), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleBssBridgeRequest(bssRequest(), deps(async () => ({ status: 403 })))).status, 403);
+  const probe = await handleBssBridgeRequest(request("/api/private-research/bss-bridge/tiles?access=1"), deps(allenOwner));
+  assert.equal(probe.status, 200);
+  assert.deepEqual(await probe.json(), { allowed: true });
+  assert.equal(calls.head, 0);
+  {
+    const range = await handleBssBridgeRequest(bssRequest("tiles", { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
+    assert.equal(range.status, 206);
+    assert.equal(range.headers.get("content-range"), `bytes 0-3/${BSS_BRIDGE_ASSETS.tiles.size}`);
+    assert.equal(range.headers.get("cache-control"), "private, no-store");
+    assert.equal((await range.arrayBuffer()).byteLength, 4);
+    assert.equal(calls.get, 1);
+  }
+  assert.equal((await handleBssBridgeRequest(bssRequest("unknown"), deps(allenOwner))).status, 404);
+  assert.equal((await handleBssBridgeRequest(bssRequest("constructor"), deps(allenOwner))).status, 404);
+});
+
+test("bss bridge S3 gateway uses immutable private keys", async () => {
+  const bytes = Buffer.from("bss-bridge");
+  const asset = Object.freeze({
+    filename: "bss_bridge_location_direction_preview_20261002_v5.pmtiles",
+    size: bytes.length,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  });
+  const calls = [];
+  const gateway = createBssBridgeS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    assets: { tiles: asset },
+  });
+  await gateway.head(asset);
+  assert.deepEqual(calls, [{
+    Bucket: "migu-private-research-ap-southeast-2",
+    Key: `private-research/bss-bridge/${asset.sha256}/bss_bridge_location_direction_preview_20261002_v5.pmtiles`,
+    ChecksumMode: "ENABLED",
+  }]);
+});
+
+test("bss bridge warmup is independent and shares the revoke boundary", async () => {
+  const okGateway = {
+    async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const failing = { async head() { throw new Error("missing"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: okGateway, jpWaterGateway: failing, bssBridgeGateway: okGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    // A missing Japan water object must not affect the other families.
+    const jp = await fetch(`${root}/jp-water/water`, { headers });
+    assert.equal(jp.status, 503);
+    assert.equal((await jp.json()).error, "private Japan water sidecar unavailable");
+    const allen = await fetch(`${root}/allen-coral-atlas/benthic`, { headers });
+    assert.equal(allen.status, 206);
+    const bss = await fetch(`${root}/bss-bridge/tiles?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(bss.status, 200);
+    await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
+    assert.equal((await fetch(`${root}/bss-bridge/tiles`, { headers })).status, 401);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bss bridge failed warmup fails closed without affecting other families", async () => {
+  const okGateway = { async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; }, async get() { throw new Error("unused"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig, authenticate: allenOwner,
+    gateway: okGateway, jpWaterGateway: okGateway,
+    bssBridgeGateway: { async head() { throw new Error("missing"); } }, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const bss = await fetch(`${root}/bss-bridge/tiles?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(bss.status, 503);
+    assert.equal((await bss.json()).error, "private bss bridge sidecar unavailable");
+    const jp = await fetch(`${root}/jp-water/water?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(jp.status, 200);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bridge resilience assets enforce owner, probe, range and unknown asset boundaries", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) { calls.head += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
+  assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest(), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest(), deps(async () => ({ status: 403 })))).status, 403);
+  for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary", "fingerprint"]) {
+    const probe = await handleBridgeResilienceRequest(request(`/api/private-research/bridge-resilience/${name}?access=1`), deps(allenOwner));
+    assert.equal(probe.status, 200);
+    assert.deepEqual(await probe.json(), { allowed: true });
+  }
+  assert.equal(calls.head, 0);
+  let expectedGets = 0;
+  for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary", "fingerprint"]) {
+    const range = await handleBridgeResilienceRequest(bridgeResilienceRequest(name, { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
+    assert.equal(range.status, 206);
+    assert.equal(range.headers.get("content-range"), `bytes 0-3/${BRIDGE_RESILIENCE_ASSETS[name].size}`);
+    assert.equal(range.headers.get("cache-control"), "private, no-store");
+    assert.equal((await range.arrayBuffer()).byteLength, 4);
+    expectedGets += 1;
+    assert.equal(calls.get, expectedGets);
+  }
+  assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest("unknown"), deps(allenOwner))).status, 404);
+  assert.equal((await handleBridgeResilienceRequest(bridgeResilienceRequest("constructor"), deps(allenOwner))).status, 404);
+});
+
+test("bridge resilience S3 gateway uses immutable private keys", async () => {
+  for (const [name, filename] of [
+    ["tiles", "bridge-resilience-20261002-v4.pmtiles"],
+    ["summary", "bridge_summary.json"],
+    ["impacts", "village_impacts.json"],
+    ["destinations", "village_destinations.json"],
+    ["decay-impacts", "decay_village_impacts.json"],
+    ["decay-summary", "decay_summary.json"],
+    ["fingerprint", "bridge_fingerprint.json"],
+  ]) {
+    assert.equal(BRIDGE_RESILIENCE_ASSETS[name].filename, filename);
+    const bytes = Buffer.from(`bridge-resilience-${name}`);
+    const asset = Object.freeze({
+      filename,
+      size: bytes.length,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+    });
+    const calls = [];
+    const gateway = createBridgeResilienceS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      assets: { [name]: asset },
+    });
+    await gateway.head(asset);
+    assert.deepEqual(calls, [{
+      Bucket: "migu-private-research-ap-southeast-2",
+      Key: `private-research/bridge-resilience/${asset.sha256}/${filename}`,
+      ChecksumMode: "ENABLED",
+    }]);
+  }
+});
+
+test("bridge resilience warmup is independent and shares the revoke boundary", async () => {
+  const okGateway = {
+    async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const failing = { async head() { throw new Error("missing"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: okGateway, jpWaterGateway: failing, bridgeResilienceGateway: okGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    // A missing Japan water object must not affect the other families.
+    const jp = await fetch(`${root}/jp-water/water`, { headers });
+    assert.equal(jp.status, 503);
+    assert.equal((await jp.json()).error, "private Japan water sidecar unavailable");
+    const allen = await fetch(`${root}/allen-coral-atlas/benthic`, { headers });
+    assert.equal(allen.status, 206);
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary", "fingerprint"]) {
+      const br = await fetch(`${root}/bridge-resilience/${name}?access=1`, { headers: { Authorization: "Bearer owner" } });
+      assert.equal(br.status, 200);
+    }
+    await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary", "fingerprint"]) {
+      assert.equal((await fetch(`${root}/bridge-resilience/${name}`, { headers })).status, 401);
+    }
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bridge resilience failed warmup fails closed without affecting other families", async () => {
+  const okGateway = { async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; }, async get() { throw new Error("unused"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig, authenticate: allenOwner,
+    gateway: okGateway, jpWaterGateway: okGateway,
+    bridgeResilienceGateway: { async head() { throw new Error("missing"); } }, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    for (const name of ["tiles", "summary", "impacts", "destinations", "decay-impacts", "decay-summary", "fingerprint"]) {
+      const br = await fetch(`${root}/bridge-resilience/${name}?access=1`, { headers: { Authorization: "Bearer owner" } });
+      assert.equal(br.status, 503);
+      assert.equal((await br.json()).error, "private bridge resilience sidecar unavailable");
+    }
+    const jp = await fetch(`${root}/jp-water/water?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(jp.status, 200);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bridge resilience assets pin filename, size and sha256", () => {
+  const expected = {
+    tiles: ["bridge-resilience-20261002-v4.pmtiles", 2676761, "417bb96b171b215afb6441c9a96bb2407a94f090f20eabc6357e6876311efeeb"],
+    summary: ["bridge_summary.json", 361546, "1df50ae635f90e9c7e5ce4e9ae54314e5303ed8a3a041a3d595a168331b8628f"],
+    impacts: ["village_impacts.json", 3338743, "fea835ee1fa905c1dfdb5800e1b725b05ec3e6ea1b662fe5aed0f7ef54558697"],
+    destinations: ["village_destinations.json", 10034240, "532266b41a992586ba9f8b71116764d1b97e08ded732fbdff00a5d6dd04230a8"],
+    "decay-impacts": ["decay_village_impacts.json", 2106225, "f230ac1ab2666678a614050509dc9d0300e4b043be37df821d2277a33155bf2d"],
+    "decay-summary": ["decay_summary.json", 137261, "713ade9e59cf19767c97ba3e033c820c1fcb00e8a38fb3b8ff32956ca40819f3"],
+    fingerprint: ["bridge_fingerprint.json", 229172, "a0791406d0b44763f8bb85321bb90bd6d2a8371c8f6fe65fe9b18779d7f54280"],
+  };
+
+  assert.deepEqual(Object.keys(BRIDGE_RESILIENCE_ASSETS).sort(), Object.keys(expected).sort());
+  for (const [name, [filename, size, sha256]] of Object.entries(expected)) {
+    assert.deepEqual({ ...BRIDGE_RESILIENCE_ASSETS[name] }, { filename, size, sha256 });
+  }
+  assert.ok(Object.isFrozen(BRIDGE_RESILIENCE_ASSETS));
 });
 
 test("private archive warmup buffers at most one immutable snapshot at a time", async () => {

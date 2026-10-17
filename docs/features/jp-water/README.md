@@ -1,6 +1,6 @@
 # 日本水資源圖層
 
-狀態：四個既有 GeoJSON 為 `PRODUCTION_VERIFIED`；全國八個 PMTiles 圖層已改為 `OWNER_ONLY_PRIVATE_PENDING_RELEASE`。後者不進 public/CDN，只能透過同域認證 Range API 讀取；代碼、資產上傳、部署與 production 瀏覽器驗收分開記錄。
+狀態（2026-09-29）：四個既有 GeoJSON 為 `PRODUCTION_VERIFIED`（公開）；全國八個 PMTiles 圖層為 `OWNER_ONLY`（站主限定，同土壤液化／BSS 橋梁），正式站站主目視待驗。後者不進 public/CDN，只能透過同域認證 Range API 讀取；代碼、資產上傳、部署與 production 瀏覽器驗收分開記錄。
 
 | layer key | geometry | source snapshot | 語意 |
 |---|---|---|---|
@@ -37,3 +37,9 @@
 - 只允許 `/api/private-research/jp-water/{water|extra-water}`；回應 `private, no-store`，無公開物件 URL、無 nginx static fallback，也不進 share/embed/snapshot/replay。
 - 資產依然是靜態 PMTiles，不查 Supabase 地理資料；Supabase 只做身分驗證。
 - 「只有本人可讀」可把實際外流面降很低，但不會自動消除來源條款解釋的不確定性，也無法防止 owner 自己共享帳號或 token。
+
+## 2026-09-29 改回站主限定
+
+- 2026-09-22 `fix: fail closed unverified layer releases` 把八個全國層放進 `RELEASE_HOLD_LAYERS`，連站主也鎖死；依站主 2026-09-29 決定（同 #432 對 RIGHTS_HOLD 研究用途的規則）移出，改為與土壤液化、BSS 橋梁相同的站主限定。
+- 非站主：sidebar 顯示鎖頭、點擊導登入或提示「私人圖層」；`GATED_LAYERS` 仍擋 URL 還原與 embed；私人 Range API 未授權一律 401。
+- 公開的四個 GeoJSON 不受影響。細節見 [handoff.md](./handoff.md#2026-09-29-owner-only-reinstated)。

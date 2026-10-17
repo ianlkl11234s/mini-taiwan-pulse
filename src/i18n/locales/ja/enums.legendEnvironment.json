@@ -1,0 +1,7 @@
+{
+  "enum.envRpiSegmentMode.latest": "直近の採水",
+  "enum.envRpiSegmentMode.mean12m": "直近12か月平均",
+  "enum.aviationNoiseZone.1": "第1級",
+  "enum.aviationNoiseZone.2": "第2級",
+  "enum.aviationNoiseZone.3": "第3級"
+}

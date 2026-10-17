@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ship } from "../types";
 import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates } from "../data/shipLoader";
 import type { ShipDateInfo } from "../data/shipLoader";
+import { liveCountStore } from "../state/liveCountStore";
+import { timeStore } from "../state/timeStore";
 
 /** LRU 快取上限（天數） */
 const CACHE_MAX = 7;
@@ -171,6 +173,9 @@ export function useShipData(enabled: boolean): UseShipDataReturn {
         setShips(data.ships);
         setTimeRange(tr);
         console.log(`[Ship] Initial: ${data.ships.length} ships, date=${dateStr}`);
+        // 初始載入的是「最新可用日」；若使用者當下選的日期不同（例：關閉圖層期間切過日），改載選定日
+        const selected = timeStore.getDateKey();
+        if (selected && selected !== dateStr && dates.some((d) => d.date === selected)) loadDateData(selected);
       } catch (err) {
         if (cancelled) return;
         console.warn("[Ship] Failed to load ship data:", err);
@@ -179,17 +184,26 @@ export function useShipData(enabled: boolean): UseShipDataReturn {
     })();
 
     return () => { cancelled = true; };
-  }, [enabled]);
+  }, [enabled, loadDateData]);
+
+  // 圖層關閉後不再因切日／預載而抓資料（App 的 subscribeDate 訂閱是常駐的）
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
 
   const loadDay = useCallback((date: Date) => {
-    if (!apiAvailable.current) return;
+    if (!enabledRef.current || !apiAvailable.current) return;
     loadDateData(formatDate(date));
   }, [loadDateData]);
 
   const prefetch = useCallback((date: Date) => {
-    if (!apiAvailable.current) return;
+    if (!enabledRef.current || !apiAvailable.current) return;
     prefetchDate(formatDate(date));
   }, [prefetchDate]);
+
+  // 側欄船舶數：圖層關閉（含 All Off）即歸零，比照航班（PF-13）
+  useEffect(() => {
+    liveCountStore.set("ships", enabled ? ships.length : 0);
+  }, [enabled, ships.length]);
 
   return { ships, timeRange, loading, dayLoading, availableDates, loadDay, prefetch, activeDate };
 }

@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { CircleLayer, FillLayer, LineLayer, ExpressionSpecification, Map as MapboxMap } from "mapbox-gl";
 import { fetchJpAirports } from "../data/jpAirportsLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
+
+const DEFAULT_OPACITY = Number(paramDefault("jpAirports", "jpAirportsOpacity") ?? 1);
 
 const SOURCE_ID = "jp-airports";
 const FILL_LAYER_ID = "jp-airports-fill";
@@ -16,12 +21,6 @@ const LINE_WIDTH: ExpressionSpecification = [
   14, 2,
 ] as unknown as ExpressionSpecification;
 
-const CIRCLE_RADIUS: ExpressionSpecification = [
-  "interpolate", ["linear"], ["zoom"],
-  6, 4,
-  12, 8,
-] as unknown as ExpressionSpecification;
-
 export type JpAirportsDisplayMode = "point" | "polygon";
 
 function clampOpacity(opacity: number): number {
@@ -34,10 +33,7 @@ function fillLayer(opacity: number): FillLayer {
     type: "fill",
     source: SOURCE_ID,
     layout: { visibility: "none" },
-    paint: {
-      "fill-color": COLOR,
-      "fill-opacity": clampOpacity(opacity),
-    },
+    paint: hookFillPaint("jpAirports", FILL_LAYER_ID, { "fill-color": COLOR, "fill-opacity": clampOpacity(opacity) }, { "fill-color": COLOR, "fill-opacity": DEFAULT_OPACITY }),
   } as FillLayer;
 }
 
@@ -46,27 +42,22 @@ function lineLayer(): LineLayer {
     id: LINE_LAYER_ID,
     type: "line",
     source: SOURCE_ID,
-    layout: { visibility: "none" },
-    paint: {
-      "line-color": COLOR,
-      "line-opacity": 0.6,
-      "line-width": LINE_WIDTH,
-    },
+    layout: { visibility: "none", ...hookLineLayout("jpAirports", LINE_LAYER_ID) },
+    paint: hookLinePaint("jpAirports", LINE_LAYER_ID, { "line-color": COLOR, "line-opacity": 0.6, "line-width": LINE_WIDTH }, { "line-color": COLOR, "line-opacity": 0.6, "line-width": LINE_WIDTH }),
   } as LineLayer;
 }
 
-function circleLayer(opacity: number): CircleLayer {
+function circleLayer(opacity: number, isDark: boolean): CircleLayer {
   return {
     id: CIRCLE_LAYER_ID,
     type: "circle",
     source: POINT_SOURCE_ID,
     layout: { visibility: "none" },
     paint: {
-      "circle-radius": CIRCLE_RADIUS,
+      "circle-radius": pointRadius("M"),
       "circle-color": COLOR,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": "rgba(15, 23, 42, 0.45)",
-      "circle-stroke-width": 0.35,
+      ...pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY),
     },
   } as CircleLayer;
 }
@@ -97,6 +88,7 @@ export function useJpAirportsLayer(
   visible: boolean,
   opacity: number,
   displayMode: JpAirportsDisplayMode,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -129,6 +121,7 @@ export function useJpAirportsLayer(
     if (!dataRef.current || !pointDataRef.current) return;
 
     const mount = () => {
+      const isDark = isDarkTheme;
       if (!dataRef.current || !pointDataRef.current) return;
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, { type: "geojson", data: dataRef.current });
@@ -138,12 +131,12 @@ export function useJpAirportsLayer(
       }
       if (!map.getLayer(FILL_LAYER_ID)) map.addLayer(fillLayer(opacity));
       if (!map.getLayer(LINE_LAYER_ID)) map.addLayer(lineLayer());
-      if (!map.getLayer(CIRCLE_LAYER_ID)) map.addLayer(circleLayer(opacity));
+      if (!map.getLayer(CIRCLE_LAYER_ID)) map.addLayer(circleLayer(opacity, isDark));
 
       const showPolygon = displayMode === "polygon";
       if (map.getLayer(FILL_LAYER_ID)) {
         map.setLayoutProperty(FILL_LAYER_ID, "visibility", showPolygon ? "visible" : "none");
-        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", clampOpacity(opacity));
+        map.setPaintProperty(FILL_LAYER_ID, "fill-opacity", hookFillOpacity("jpAirports", FILL_LAYER_ID, clampOpacity(opacity), DEFAULT_OPACITY));
       }
       if (map.getLayer(LINE_LAYER_ID)) {
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", showPolygon ? "visible" : "none");
@@ -151,11 +144,14 @@ export function useJpAirportsLayer(
       if (map.getLayer(CIRCLE_LAYER_ID)) {
         map.setLayoutProperty(CIRCLE_LAYER_ID, "visibility", showPolygon ? "none" : "visible");
         map.setPaintProperty(CIRCLE_LAYER_ID, "circle-opacity", clampOpacity(opacity));
+        map.setPaintProperty(CIRCLE_LAYER_ID, "circle-radius", pointRadius("M"));
+        const stroke = pointStrokePaint(isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
+        for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(CIRCLE_LAYER_ID, prop, stroke[prop]);
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, displayMode, mapTick, dataTick]);
+  }, [mapRef, visible, opacity, displayMode, isDarkTheme, mapTick, dataTick]);
 }

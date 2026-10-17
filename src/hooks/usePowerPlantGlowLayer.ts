@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import {
-  createPowerPlantGlowLayer,
   POWER_PLANT_GLOW_LAYER_ID,
-} from "../map/powerPlantGlowCustomLayer";
+  powerPlantGlowModule,
+  mountLazyCustomLayer,
+} from "../map/lazyThreeLayers";
 import {
   fetchFacPrimary,
   type FacilityPoint,
@@ -44,14 +45,13 @@ export function usePowerPlantGlowLayer(
     const tryMount = () => {
       if (map.getLayer(POWER_PLANT_GLOW_LAYER_ID)) return;
       try {
-        const layer = createPowerPlantGlowLayer({
+        // C1b：three 模組第一次可見才載入；錨點佔住原位置
+        mountLazyCustomLayer(map, POWER_PLANT_GLOW_LAYER_ID, powerPlantGlowModule, (m) => m.createPowerPlantGlowLayer({
           getIsVisible: () => visibleRef.current,
           getOpacity: () => opacityRef.current,
           getSizeMul: () => sizeMulRef.current,
           getPlants: () => plantsRef.current,
-        });
-        map.addLayer(layer);
-        console.log("[PowerPlantGlow] CustomLayer mounted ✓");
+        }), () => visibleRef.current);
       } catch (e) {
         console.log("[PowerPlantGlow] addLayer 失敗 → idle 後重試", e);
         map.once("idle", tryMount);

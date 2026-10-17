@@ -1,13 +1,19 @@
 /**
- * Weekly Audit — D 組「文件與結構」收集器（D1 / D2 / D3 / D4 / D5 / D7 / D8）
+ * Weekly Audit — D 組「文件與結構」收集器（D1 / D2 / D3 / D4 / D7 / D8）
+ *   D5（PMTILES_STATUS.md 對帳）2026-10-17 移除：該狀態檔已於 2026-10-16 歸檔、不再維護。
  *
  * 見 docs/proposal/weekly-audit-2026-08-21/README.md §2 D 組、§3.1 陷阱。
  * D6（豁免名單健康度）不在本腳本範圍——維持 🤝 人工判讀，等 v2。
  *
- *   D1 README 數字對帳：直接 import manifest 與 production `THEMES`（不 grep 硬解析），
- *      分開計算 registry total、正式環境 sidebar toggle、orphan、dataClass A-D 與 features 資料夾數，
- *      用正則抽出的敘述數字逐項 diff。
- *
+ *   D1 README 數字對帳：直接 import manifest 與 production `THEMES`／`GATED_LAYERS`／`LAYER_MACRO_GROUPS`
+ *      （不 grep 硬解析），對 2026-10 表格版 README 的「圖層規模」表逐項 diff：
+ *      layer key 總數＋資料路徑 A/B/C/D、側欄主題數／大分類數、側欄圖層開關（不重複 key）、
+ *      站主限定圖層、六大分類逐類「主題數／圖層開關數」，以及專案結構的 Loader／CustomLayer／Scene 檔案數。
+ *      README 2026-10 改版後不再列的數字（orphan 內部 key、完整主題清單表、上游 dataset 數、
+ *      collector 數、nginx location 數、docs/features 資料夾數）不再報 error，
+ *      記在 metrics.d1.skipped（reason：README 2026-10 改版後不再列此數字）。
+ *      L2 可分析數來自 layer-status-summary 生成檔，不在本腳本範圍。
+
  *   D7 params spec 漂移：⚠️ 陷阱 1 —— `layerParamsSpec.ts` 含非文字位元組，BSD grep
  *      會判成 binary 而**靜默回傳空結果**。本腳本一律用 `import` 直接讀，不 grep。
  *
@@ -23,7 +29,8 @@
  *      finding 註明分類可能偏誤，不讓整支腳本因此掛掉）。
  *
  * 輸出：.claude/.cache/weekly-audit/docs.json（不進版控）
- * 執行：npx tsx scripts/audit/weekly/check_docs.ts
+ * 執行：npx vite-node scripts/audit/weekly/check_docs.ts
+ *       （不能用 tsx：THEMES → src/state/localeStore.ts 用了 import.meta.glob，tsx 不支援）
  *
  * 硬約束：純讀，不寫任何專案檔；任何子檢查失敗進 errors[] 但不中斷整支；
  *         report 只列不動；不輸出密鑰（本腳本不碰任何連線字串，但仍保留 redact
@@ -36,7 +43,7 @@ import { fileURLToPath } from "node:url";
 
 import { LAYER_MANIFEST } from "../../../src/data/layerManifest";
 import { MIGRATED_PARAMS_KEYS } from "../../../src/data/layerParamsSpec";
-import { THEMES } from "../../../src/components/sidebar/layerCatalog";
+import { GATED_LAYERS, LAYER_MACRO_GROUPS, THEMES, themeMacroGroup } from "../../../src/components/sidebar/layerCatalog";
 
 // ── 路徑 ──────────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -47,7 +54,6 @@ const OUT_FILE = path.join(OUT_DIR, "docs.json");
 
 const FEATURES_DIR = path.join(ROOT, "docs/features");
 const README_PATH = path.join(ROOT, "README.md");
-const PMTILES_STATUS_PATH = path.join(ROOT, ".claude/memory/PMTILES_STATUS.md");
 const GLOBAL_MEMORY_PATH =
   "/Users/migu/.claude-migu/projects/-Users-migu-Desktop-----gen-ai-try-ichef-----GIS-mini-taiwan-pulse/memory/MEMORY.md";
 
@@ -144,24 +150,6 @@ function daysSince(dateStr: string, now: Date): number {
   return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function walkFiles(dir: string, matchExt: (name: string) => boolean, acc: string[] = []): string[] {
-  let entries: import("node:fs").Dirent[];
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc;
-  }
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      walkFiles(full, matchExt, acc);
-    } else if (matchExt(entry.name)) {
-      acc.push(full);
-    }
-  }
-  return acc;
-}
-
 function listFeatureFolders(): string[] {
   try {
     return readdirSync(FEATURES_DIR, { withFileTypes: true })
@@ -170,21 +158,6 @@ function listFeatureFolders(): string[] {
       .sort();
   } catch {
     return [];
-  }
-}
-
-/** 從 linked worktree 回到主 repo 所在 workspace，避免用 ROOT/.. 誤落在 .claude/worktrees。 */
-function resolveSiblingRepo(name: string): string | null {
-  try {
-    const commonGitDir = execFileSync(
-      "git",
-      ["rev-parse", "--path-format=absolute", "--git-common-dir"],
-      { cwd: ROOT, encoding: "utf8" },
-    ).trim();
-    const mainRepoRoot = path.dirname(commonGitDir);
-    return path.resolve(mainRepoRoot, "..", name);
-  } catch {
-    return null;
   }
 }
 
@@ -197,7 +170,7 @@ async function main() {
   const metrics: Record<string, unknown> = {};
 
   // ══════════════════════════════════════════════════════════════
-  // D1 — README 數字對帳
+  // D1 — README 數字對帳（對齊 2026-10 表格版 README）
   // ══════════════════════════════════════════════════════════════
   {
     const entries = Object.entries(LAYER_MANIFEST) as [string, { section: unknown; dataClass: string }][];
@@ -208,405 +181,156 @@ async function main() {
     const actualDataClass: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
     for (const [, v] of entries) actualDataClass[v.dataClass] = (actualDataClass[v.dataClass] ?? 0) + 1;
     const actualFeatures = listFeatureFolders().length;
+    const actualGated = GATED_LAYERS.size;
+    const actualThemeCount = THEMES.length;
+    const actualMacroCount = LAYER_MACRO_GROUPS.length;
+    // 大分類逐類：主題數／圖層開關數（組內不重複 key）
+    const actualMacro: Record<string, { zh: string; themes: number; toggles: number }> = {};
+    for (const g of LAYER_MACRO_GROUPS) actualMacro[g.key] = { zh: g.zh, themes: 0, toggles: 0 };
+    const macroKeys = new Map<string, Set<string>>(LAYER_MACRO_GROUPS.map((g) => [g.key, new Set<string>()]));
+    for (const theme of THEMES) {
+      const mk = themeMacroGroup(theme.title);
+      actualMacro[mk]!.themes += 1;
+      for (const grp of theme.groups) for (const l of grp.layers) macroKeys.get(mk)!.add(String(l.key));
+    }
+    for (const [mk, set] of macroKeys) actualMacro[mk]!.toggles = set.size;
+
+    const countDir = (dir: string, suffix: string): number | null => {
+      try {
+        return readdirSync(path.join(ROOT, dir), { withFileTypes: true }).filter((d) => d.isFile() && d.name.endsWith(suffix)).length;
+      } catch (e) {
+        errors.push({ step: "D1", message: `無法列出 ${dir}：${String(e)}` });
+        return null;
+      }
+    };
+    const actualLoaders = countDir("src/data", "Loader.ts");
+    const actualCustomLayers = countDir("src/map", "CustomLayer.ts");
+    const actualScenes = countDir("src/three", "Scene.ts");
 
     const readme = readFileSafe(README_PATH);
     if (readme === null) {
       errors.push({ step: "D1", message: `無法讀取 ${README_PATH}` });
     } else {
-      const claims: { key: string; label: string; regex: RegExp; actual: number; lineHint: string }[] = [
-        {
-          key: "total",
-          label: "layer key 總數",
-          regex: /\*\*(\d+)\s*個\s*layer key\*\*/,
-          actual: actualTotal,
-          lineHint: "README §能看到什麼",
-        },
-        {
-          key: "themed",
-          label: "有 sidebar toggle 的 layer 數",
-          regex: /(?:其中|正式環境有)\s*(\d+)\s*個\s*(?:有\s*)?sidebar toggle/,
-          actual: actualThemed,
-          lineHint: "README §能看到什麼",
-        },
-        {
-          key: "orphan",
-          label: "無 sidebar toggle 的內部 key 數",
-          regex: /(\d+)\s*個是沒有\s*toggle 的內部 key/,
-          actual: actualOrphan,
-          lineHint: "README §能看到什麼",
-        },
-        {
-          key: "dataClassA",
-          label: "dataClass A 層數",
-          regex: /\|\s*\*\*A\*\*\s*\|[^|]*\|\s*(\d+)\s*\|/,
-          actual: actualDataClass.A ?? 0,
-          lineHint: "README §資料怎麼進到前端 表格",
-        },
-        {
-          key: "dataClassB",
-          label: "dataClass B 層數",
-          regex: /\|\s*\*\*B\*\*\s*\|[^|]*\|\s*(\d+)\s*\|/,
-          actual: actualDataClass.B ?? 0,
-          lineHint: "README §資料怎麼進到前端 表格",
-        },
-        {
-          key: "dataClassC",
-          label: "dataClass C 層數",
-          regex: /\|\s*\*\*C\*\*\s*\|[^|]*\|\s*(\d+)\s*\|/,
-          actual: actualDataClass.C ?? 0,
-          lineHint: "README §資料怎麼進到前端 表格",
-        },
-        {
-          key: "dataClassD",
-          label: "dataClass D 層數",
-          regex: /\|\s*\*\*D\*\*\s*\|[^|]*\|\s*(\d+)\s*\|/,
-          actual: actualDataClass.D ?? 0,
-          lineHint: "README §資料怎麼進到前端 表格",
-        },
-      ];
-
       const d1Detail: Record<string, unknown> = {
-        actual: { total: actualTotal, themed: actualThemed, orphan: actualOrphan, dataClass: actualDataClass, features: actualFeatures },
-        claimed: {},
+        actual: {
+          total: actualTotal,
+          dataClass: actualDataClass,
+          themeCount: actualThemeCount,
+          macroCount: actualMacroCount,
+          themed: actualThemed,
+          gated: actualGated,
+          macro: actualMacro,
+          loaderFiles: actualLoaders,
+          customLayerFiles: actualCustomLayers,
+          sceneFiles: actualScenes,
+          // 以下 README 已不寫，僅留參考
+          orphan: actualOrphan,
+          features: actualFeatures,
+        },
+        claimed: {} as Record<string, number>,
+        skipped: [] as { key: string; reason: string }[],
       };
+      const claimedMap = d1Detail.claimed as Record<string, number>;
+      const skipped = d1Detail.skipped as { key: string; reason: string }[];
 
-      for (const c of claims) {
-        const m = readme.match(c.regex);
-        if (!m || !m[1]) {
-          errors.push({ step: "D1", message: `正則失配，抓不到「${c.label}」的 README 敘述（${c.lineHint}），需人工核對正則是否被改寫` });
-          continue;
-        }
-        const claimed = Number(m[1]);
-        (d1Detail.claimed as Record<string, number>)[c.key] = claimed;
-        if (claimed === c.actual) {
-          findings.push({
-            id: "D1",
-            level: "green",
-            title: `README「${c.label}」與現況一致`,
-            detail: `${claimed} = ${claimed}`,
-            evidence: `${c.lineHint}`,
-          });
+      const reportClaim = (key: string, label: string, claimed: number, actual: number | null, hint: string) => {
+        claimedMap[key] = claimed;
+        if (actual === null) return;
+        if (claimed === actual) {
+          findings.push({ id: "D1", level: "green", title: `README「${label}」與現況一致`, detail: `${claimed} = ${actual}`, evidence: hint });
         } else {
           findings.push({
             id: "D1",
             level: "yellow",
-            title: `README「${c.label}」已過期`,
-            detail: `README 說 ${claimed}、實際 ${c.actual}（差 ${c.actual - claimed >= 0 ? "+" : ""}${c.actual - claimed}）`,
-            evidence: c.lineHint,
+            title: `README「${label}」已過期`,
+            detail: `README 說 ${claimed}、實際 ${actual}（差 ${actual - claimed >= 0 ? "+" : ""}${actual - claimed}）`,
+            evidence: hint,
           });
         }
-      }
+      };
+      const mismatch = (label: string, hint: string) =>
+        errors.push({ step: "D1", message: `正則失配，抓不到「${label}」的 README 敘述（${hint}），需人工核對正則是否被改寫` });
 
-      // features 資料夾數：README 兩處都提到（§121 敘事句、§403 索引表），同一個 metric 合併成一筆 finding
-      const featuresRegexes = [
-        { where: "README 敘事句（docs/features 段）", regex: /的\s*(\d+)\s*個資料夾裡/ },
-        { where: "README 索引表（相關資源）", regex: /\[`docs\/features\/`\]\(docs\/features\/\)\s*\|\s*(\d+)\s*個功能領域/ },
-      ];
-      const featuresClaims: { where: string; value: number }[] = [];
-      for (const fr of featuresRegexes) {
-        const m = readme.match(fr.regex);
-        if (m && m[1]) featuresClaims.push({ where: fr.where, value: Number(m[1]) });
-        else errors.push({ step: "D1", message: `正則失配，抓不到「features 資料夾數」（${fr.where}），需人工核對正則是否被改寫` });
-      }
-      (d1Detail.claimed as Record<string, unknown>).features = featuresClaims;
-      if (featuresClaims.length > 0) {
-        const allMatch = featuresClaims.every((c) => c.value === actualFeatures);
-        const evidence = featuresClaims.map((c) => `${c.where}＝${c.value}`).join("；") + `；實際 ${actualFeatures} 夾`;
-        if (allMatch) {
-          findings.push({
-            id: "D1",
-            level: "green",
-            title: "README「docs/features 資料夾數」與現況一致",
-            detail: `${featuresClaims[0]!.value} = ${actualFeatures}`,
-            evidence,
-          });
-        } else {
-          findings.push({
-            id: "D1",
-            level: "yellow",
-            title: "README「docs/features 資料夾數」已過期",
-            detail: `README 兩處敘述 vs 實際 ${actualFeatures} 夾（排除 _TEMPLATE）`,
-            evidence,
-          });
-        }
-      }
-
-      // ── 擴充：6 類新增數字對帳（主題數／主題表逐列／上游 dataset／Loader／collector／nginx location／Three.js Scene）──
-      const themeCounts = new Map<string, number>();
-      for (const theme of THEMES) {
-        themeCounts.set(theme.title, theme.groups.reduce((sum, group) => sum + group.layers.length, 0));
-      }
-      const actualThemeCount = themeCounts.size;
-
-      // 1) 主題數（開場句 + <summary>完整 N 主題清單</summary> 兩處）
+      // 1) 圖層規模表：layer key 總數＋資料路徑 A/B/C/D（同一格）
       {
-        const themeCountRegexes = [
-          { where: "README 開場句（**N 個正式環境主題**）", regex: /\*\*(\d+)\s*個(?:正式環境)?主題/ },
-          { where: "README <summary>完整 N 主題清單</summary>", regex: /<summary>完整\s*(\d+)\s*主題清單<\/summary>/ },
-        ];
-        const claims: { where: string; value: number }[] = [];
-        for (const r of themeCountRegexes) {
-          const m = readme.match(r.regex);
-          if (m && m[1]) claims.push({ where: r.where, value: Number(m[1]) });
-          else errors.push({ step: "D1", message: `正則失配，抓不到「主題數」（${r.where}），需人工核對正則是否被改寫` });
-        }
-        (d1Detail.claimed as Record<string, unknown>).themeCount = claims;
-        (d1Detail.actual as Record<string, unknown>).themeCount = actualThemeCount;
-        if (claims.length > 0) {
-          const allMatch = claims.every((c) => c.value === actualThemeCount);
-          const evidence = claims.map((c) => `${c.where}＝${c.value}`).join("；") + `；實際 ${actualThemeCount} 個主題`;
-          findings.push({
-            id: "D1",
-            level: allMatch ? "green" : "yellow",
-            title: allMatch ? "README「主題數」與現況一致" : "README「主題數」已過期",
-            detail: allMatch
-              ? `${claims[0]!.value} = ${actualThemeCount}`
-              : `README 兩處敘述 vs 實際 ${actualThemeCount} 個正式環境主題（THEMES）`,
-            evidence,
-          });
+        const hint = "README §功能總覽／圖層規模 表 vs LAYER_MANIFEST";
+        const m = readme.match(/\|\s*manifest 登記的 layer key\s*\|\s*(\d+)（資料路徑\s*A\s*(\d+)／B\s*(\d+)／C\s*(\d+)／D\s*(\d+)）/);
+        if (!m) {
+          mismatch("layer key 總數與資料路徑 A/B/C/D", hint);
+        } else {
+          reportClaim("total", "layer key 總數", Number(m[1]), actualTotal, hint);
+          (["A", "B", "C", "D"] as const).forEach((cls, i) =>
+            reportClaim(`dataClass${cls}`, `dataClass ${cls} 層數`, Number(m[i + 2]), actualDataClass[cls] ?? 0, hint),
+          );
         }
       }
 
-      // 2) 主題表逐列比對（完整清單 <details> 區塊，非前十大簡表）
+      // 2) 側欄主題數＋大分類數
       {
-        const blockMatch = readme.match(/<summary>完整[^<]*主題清單<\/summary>([\s\S]*?)<\/details>/);
-        if (!blockMatch) {
-          errors.push({ step: "D1", message: "正則失配，抓不到「完整主題清單」<details> 區塊，需人工核對格式是否被改寫" });
+        const hint = "README §圖層規模 表 vs THEMES / LAYER_MACRO_GROUPS";
+        const m = readme.match(/\|\s*側欄主題\s*\|\s*(\d+)\s*個，分\s*(\d+)\s*大分類/);
+        if (!m) mismatch("側欄主題數／大分類數", hint);
+        else {
+          reportClaim("themeCount", "側欄主題數", Number(m[1]), actualThemeCount, hint);
+          reportClaim("macroCount", "大分類數", Number(m[2]), actualMacroCount, hint);
+        }
+      }
+
+      // 3) 側欄圖層開關（不重複 key）
+      {
+        const hint = "README §圖層規模 表 vs THEMES 內不重複 layer key";
+        const m = readme.match(/\|\s*側欄圖層開關（不重複 key）\s*\|\s*(\d+)\s*\|/);
+        if (!m) mismatch("側欄圖層開關數", hint);
+        else reportClaim("themed", "側欄圖層開關數（不重複 key）", Number(m[1]), actualThemed, hint);
+      }
+
+      // 4) 站主限定圖層
+      {
+        const hint = "README §圖層規模 表 vs GATED_LAYERS.size";
+        const m = readme.match(/\|\s*站主限定圖層\s*\|\s*(\d+)\s*\|/);
+        if (!m) mismatch("站主限定圖層數", hint);
+        else reportClaim("gated", "站主限定圖層數", Number(m[1]), actualGated, hint);
+      }
+
+      // 5) 六大分類逐類「主題數／圖層開關數」
+      {
+        const hint = "README §圖層規模下方「六大分類（主題數／圖層開關數）」 vs LAYER_MACRO_GROUPS + THEMES";
+        const line = readme.match(/六大分類（主題數／圖層開關數）[：:][^\n]*/)?.[0];
+        if (!line) {
+          mismatch("六大分類逐類主題數／圖層開關數", hint);
         } else {
-          const rowRe = /^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*$/gm;
-          const readmeThemeRows = [...blockMatch[1].matchAll(rowRe)].map((m) => ({ theme: m[1]!, count: Number(m[2]) }));
-          const readmeThemeMap = new Map(readmeThemeRows.map((r) => [r.theme, r.count]));
-
-          const mismatched: { theme: string; readme: number; actual: number }[] = [];
-          const missingInReadme: string[] = [];
-          for (const [theme, count] of themeCounts) {
-            const claimed = readmeThemeMap.get(theme);
-            if (claimed === undefined) missingInReadme.push(theme);
-            else if (claimed !== count) mismatched.push({ theme, readme: claimed, actual: count });
-          }
-          const extraInReadme = readmeThemeRows.map((r) => r.theme).filter((t) => !themeCounts.has(t));
-
-          (d1Detail.actual as Record<string, unknown>).themeTable = Object.fromEntries(themeCounts);
-          (d1Detail.claimed as Record<string, unknown>).themeTable = readmeThemeRows;
-
-          if (mismatched.length === 0 && missingInReadme.length === 0 && extraInReadme.length === 0) {
-            findings.push({
-              id: "D1",
-              level: "green",
-              title: `README 主題表逐列層數與現況一致（${readmeThemeRows.length} 列）`,
-              detail: "完整主題清單表格每一列的層數皆與 manifest 分組計數相符",
-              evidence: "README §完整主題清單 <details> vs production THEMES 分組計數",
-            });
-          } else {
-            const detailParts: string[] = [];
-            if (mismatched.length > 0) {
-              detailParts.push(
-                `層數不符：${mismatched.map((m) => `${m.theme}（README ${m.readme} vs 實際 ${m.actual}）`).join("、")}`,
-              );
+          for (const g of LAYER_MACRO_GROUPS) {
+            const m = line.match(new RegExp(`${g.zh}\\s*(\\d+)／(\\d+)`));
+            if (!m) {
+              mismatch(`大分類「${g.zh}」主題數／圖層開關數`, hint);
+              continue;
             }
-            if (missingInReadme.length > 0) {
-              detailParts.push(`manifest 有但表格沒有（新主題未收錄）：${missingInReadme.join("、")}`);
-            }
-            if (extraInReadme.length > 0) {
-              detailParts.push(`表格有但 manifest 已無此主題：${extraInReadme.join("、")}`);
-            }
-            findings.push({
-              id: "D1",
-              level: "yellow",
-              title: `README 主題表逐列層數已過期（${mismatched.length + missingInReadme.length + extraInReadme.length} 處落差）`,
-              detail: detailParts.join("\n"),
-              evidence: "README §完整主題清單 <details> vs production THEMES 分組計數",
-            });
+            reportClaim(`macro.${g.key}.themes`, `大分類「${g.zh}」主題數`, Number(m[1]), actualMacro[g.key]!.themes, hint);
+            reportClaim(`macro.${g.key}.toggles`, `大分類「${g.zh}」圖層開關數`, Number(m[2]), actualMacro[g.key]!.toggles, hint);
           }
         }
       }
 
-      // 3) 上游 dataset 數
+      // 6) 專案結構：Loader／CustomLayer／Scene 檔案數
       {
-        const dsEntries = Object.entries(LAYER_MANIFEST) as [string, { upstream: { datasets: { datasetId: string }[] } }][];
-        const datasetIds = new Set<string>();
-        for (const [, v] of dsEntries) for (const d of v.upstream.datasets) datasetIds.add(d.datasetId);
-        const actualDatasets = datasetIds.size;
-        (d1Detail.actual as Record<string, unknown>).upstreamDatasets = actualDatasets;
+        const hint = "README §專案結構 vs src/ 檔案數";
+        const m1 = readme.match(/\*Loader\.ts（(\d+)\s*個）/);
+        if (!m1) mismatch("Loader 數", hint);
+        else reportClaim("loaderFiles", "Loader 數", Number(m1[1]), actualLoaders, hint);
 
-        const m = readme.match(/\*\*(\d+)\s*個不同的上游\s*dataset\*\*/);
-        if (!m || !m[1]) {
-          errors.push({ step: "D1", message: "正則失配，抓不到「上游 dataset 數」的 README 敘述（README §資料來源），需人工核對正則是否被改寫" });
-        } else {
-          const claimed = Number(m[1]);
-          (d1Detail.claimed as Record<string, unknown>).upstreamDatasets = claimed;
-          findings.push({
-            id: "D1",
-            level: claimed === actualDatasets ? "green" : "yellow",
-            title: claimed === actualDatasets ? "README「上游 dataset 數」與現況一致" : "README「上游 dataset 數」已過期",
-            detail:
-              claimed === actualDatasets
-                ? `${claimed} = ${actualDatasets}`
-                : `README 說 ${claimed}、實際 ${actualDatasets}（差 ${actualDatasets - claimed >= 0 ? "+" : ""}${actualDatasets - claimed}）`,
-            evidence: "README §資料來源／血緣 vs LAYER_MANIFEST upstream.datasets[].datasetId unique 數",
-          });
-        }
+        const m2 = readme.match(/\*CustomLayer\.ts（(\d+)\s*個）/);
+        if (!m2) mismatch("CustomLayer 數", hint);
+        else reportClaim("customLayerFiles", "CustomLayer 數", Number(m2[1]), actualCustomLayers, hint);
+
+        const m3 = readme.match(/（(\d+)\s*個\s*\*Scene\.ts）/);
+        if (!m3) mismatch("Three.js Scene 數", hint);
+        else reportClaim("sceneFiles", "Three.js Scene 數（*Scene.ts）", Number(m3[1]), actualScenes, hint);
       }
 
-      // 4) Loader 數
-      {
-        let actualLoaders = 0;
-        let readOk = true;
-        try {
-          actualLoaders = readdirSync(path.join(ROOT, "src/data"), { withFileTypes: true }).filter(
-            (d) => d.isFile() && d.name.endsWith("Loader.ts"),
-          ).length;
-        } catch (e) {
-          readOk = false;
-          errors.push({ step: "D1", message: `無法列出 src/data/*Loader.ts：${String(e)}` });
-        }
-        (d1Detail.actual as Record<string, unknown>).loaderFiles = actualLoaders;
-
-        const m = readme.match(/(\d+)\s*個\s*\*Loader\.ts/);
-        if (!m || !m[1]) {
-          errors.push({ step: "D1", message: "正則失配，抓不到「Loader 數」的 README 敘述（README §目錄結構），需人工核對正則是否被改寫" });
-        } else if (readOk) {
-          const claimed = Number(m[1]);
-          (d1Detail.claimed as Record<string, unknown>).loaderFiles = claimed;
-          findings.push({
-            id: "D1",
-            level: claimed === actualLoaders ? "green" : "yellow",
-            title: claimed === actualLoaders ? "README「Loader 數」與現況一致" : "README「Loader 數」已過期",
-            detail:
-              claimed === actualLoaders
-                ? `${claimed} = ${actualLoaders}`
-                : `README 說 ${claimed}、實際 ${actualLoaders}（差 ${actualLoaders - claimed >= 0 ? "+" : ""}${actualLoaders - claimed}）`,
-            evidence: "README §目錄結構 vs src/data/*Loader.ts 檔案數",
-          });
-        }
-      }
-
-      // 5) collector 數（sibling repo，不存在就跳過不讓整支失敗）
-      {
-        const siblingRoot = resolveSiblingRepo("data-collectors");
-        const collectorsDir = siblingRoot ? path.join(siblingRoot, "collectors") : "";
-        if (!existsSync(collectorsDir)) {
-          errors.push({ step: "D1", message: `sibling repo 不存在（${collectorsDir || "無法解析"}），略過 collector 數對帳` });
-        } else {
-          let actualCollectors = 0;
-          let readOk = true;
-          try {
-            actualCollectors = readdirSync(collectorsDir, { withFileTypes: true }).filter(
-              (d) => d.isFile() && d.name.endsWith(".py") && !d.name.startsWith("__"),
-            ).length;
-          } catch (e) {
-            readOk = false;
-            errors.push({ step: "D1", message: `無法列出 ${collectorsDir}：${String(e)}` });
-          }
-          (d1Detail.actual as Record<string, unknown>).collectors = {
-            count: actualCollectors,
-            criteria: "頂層 .py 檔、排除 __ 開頭（__init__.py／__pycache__），不遞迴子目錄（如 global_climate/、pla_tracks/）",
-          };
-
-          const m = readme.match(/(\d+)\+?\s*收集器/);
-          if (!m || !m[1]) {
-            errors.push({ step: "D1", message: "正則失配，抓不到「收集器數」的 README 敘述（README §生態系關係），需人工核對正則是否被改寫" });
-          } else if (readOk) {
-            const claimedBase = Number(m[1]);
-            (d1Detail.claimed as Record<string, unknown>).collectors = claimedBase;
-            const severelyUnder = actualCollectors >= claimedBase * 2;
-            findings.push({
-              id: "D1",
-              level: severelyUnder ? "yellow" : "green",
-              title: severelyUnder ? `README「${claimedBase}+ 收集器」嚴重低估` : `README「${claimedBase}+ 收集器」仍在合理範圍`,
-              detail: `README 開放式寫法「${claimedBase}+ 收集器」；實際 ${actualCollectors} 個（口徑見 evidence）${severelyUnder ? "，達宣稱值 2 倍以上" : ""}`,
-              evidence: "../data-collectors/collectors/ 頂層 .py 檔、排除 __ 開頭與子目錄",
-            });
-          }
-        }
-      }
-
-      // 6) nginx location 數
-      {
-        const nginxPath = path.join(ROOT, "nginx.conf");
-        const nginxContent = readFileSafe(nginxPath);
-        if (nginxContent === null) {
-          errors.push({ step: "D1", message: `無法讀取 ${nginxPath}` });
-        } else {
-          const actualLocations = (nginxContent.match(/^\s*location\s/gm) ?? []).length;
-          (d1Detail.actual as Record<string, unknown>).nginxLocations = actualLocations;
-
-          const m = readme.match(/(?:約\s*)?(\d+)\s*個\s*location/);
-          if (!m || !m[1]) {
-            errors.push({ step: "D1", message: "正則失配，抓不到「nginx location 數」的 README 敘述（README §部署），需人工核對正則是否被改寫" });
-          } else {
-            const claimed = Number(m[1]);
-            (d1Detail.claimed as Record<string, unknown>).nginxLocations = claimed;
-            const diffRatio = claimed > 0 ? Math.abs(actualLocations - claimed) / claimed : Infinity;
-            const overThreshold = diffRatio > 0.3;
-            findings.push({
-              id: "D1",
-              level: overThreshold ? "yellow" : "green",
-              title: overThreshold ? "README「約 N 個 location」落差超過 30%" : "README「約 N 個 location」仍在合理範圍",
-              detail: `README 說約 ${claimed}、實際 ${actualLocations}（差 ${Math.round(diffRatio * 1000) / 10}%）`,
-              evidence: "nginx.conf 中 /^\\s*location\\s/ 開頭的指令行（排除註解行）",
-            });
-          }
-        }
-      }
-
-      // 7) Three.js Scene 數（措辭歧義：檔案／子目錄項目數 vs *Scene.ts 數）
-      {
-        const threeDir = path.join(ROOT, "src/three");
-        let totalEntries = 0;
-        let sceneFiles = 0;
-        let readOk = true;
-        try {
-          const dirents = readdirSync(threeDir, { withFileTypes: true });
-          totalEntries = dirents.length;
-          sceneFiles = dirents.filter((d) => d.isFile() && d.name.endsWith("Scene.ts")).length;
-        } catch (e) {
-          readOk = false;
-          errors.push({ step: "D1", message: `無法列出 ${threeDir}：${String(e)}` });
-        }
-        (d1Detail.actual as Record<string, unknown>).threeScene = { totalEntries, sceneFiles };
-
-        const claims = [...readme.matchAll(/(\d+)\s*個\s*Scene/g)].map((m) => Number(m[1]));
-        (d1Detail.claimed as Record<string, unknown>).threeScene = claims;
-        if (claims.length === 0) {
-          errors.push({ step: "D1", message: "正則失配，抓不到「Three.js Scene 數」的 README 敘述，需人工核對正則是否被改寫" });
-        } else if (readOk) {
-          // 判準是「README 宣稱的 Scene 數是否等於實際 *Scene.ts 數」，
-          // 不是「目錄裡有沒有非 Scene 檔」——支援檔／shaders 子目錄本來就該存在，
-          // 拿 totalEntries !== sceneFiles 當紅線會讓這條永遠是 yellow，變成每週噪音。
-          const allMatchScenes = claims.every((c) => c === sceneFiles);
-          const claimsTotalEntries = claims.some((c) => c === totalEntries && totalEntries !== sceneFiles);
-          if (allMatchScenes) {
-            findings.push({
-              id: "D1",
-              level: "green",
-              title: "README「Three.js Scene 數」與現況一致",
-              detail:
-                `README ${claims.length} 處都寫 ${sceneFiles}，等於 src/three/ 實際的 *Scene.ts 數；` +
-                `目錄另有 ${totalEntries - sceneFiles} 個支援檔／子目錄，措辭已區分清楚。`,
-              evidence: "README「N 個 Scene」敘述 vs src/three/ 的 *Scene.ts 數",
-            });
-          } else if (claimsTotalEntries) {
-            findings.push({
-              id: "D1",
-              level: "yellow",
-              title: `README「Three.js Scene 數」措辭有歧義（寫 ${totalEntries}，實際只有 ${sceneFiles} 個 *Scene.ts）`,
-              detail:
-                `README 寫的 ${claims.join(" / ")} 是 src/three/ 的總項目數，不是 Scene 數；` +
-                `實際 ${sceneFiles} 個 *Scene.ts、${totalEntries - sceneFiles} 個支援檔／子目錄。` +
-                `建議改成「${sceneFiles} 個 Scene + ${totalEntries - sceneFiles} 個支援檔」之類的明確寫法。`,
-              evidence: `README「${claims.join(" / ")} 個 Scene」vs src/three/ 實際 ${sceneFiles} 個 *Scene.ts`,
-            });
-          } else {
-            findings.push({
-              id: "D1",
-              level: "yellow",
-              title: `README「Three.js Scene 數」已過期（寫 ${claims.join(" / ")}、實際 ${sceneFiles}）`,
-              detail: `src/three/ 實際有 ${sceneFiles} 個 *Scene.ts（另有 ${totalEntries - sceneFiles} 個支援檔／子目錄）。`,
-              evidence: `README「${claims.join(" / ")} 個 Scene」vs 實際 ${sceneFiles}`,
-            });
-          }
-        }
+      // 7) README 2026-10 改版後不再寫的數字：記 skipped，不當 error
+      const SKIP_REASON = "README 2026-10 改版後不再列此數字";
+      for (const key of ["orphan", "themeTable", "upstreamDatasets", "collectors", "nginxLocations", "featuresFolders"]) {
+        skipped.push({ key, reason: SKIP_REASON });
       }
 
       metrics.d1 = d1Detail;
@@ -652,7 +376,9 @@ async function main() {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // D2 — feature 四檔齊全度
+  // D2 — feature README 齊全度
+  // 依 docs/features/README.md「最小文件契約」：只有 README.md 必備；handoff／backlog／changelog
+  // 視需要才建（不得為湊模板建空檔），缺這三份只記在 metrics，不報黃燈。
   // ══════════════════════════════════════════════════════════════
   const featureFolders = listFeatureFolders();
   {
@@ -661,26 +387,27 @@ async function main() {
       const missing = FEATURE_FILES.filter((f) => !existsSync(path.join(FEATURES_DIR, folder, f)));
       if (missing.length > 0) incomplete.push({ folder, missing });
     }
+    const missingReadme = incomplete.filter((i) => i.missing.includes("README.md")).map((i) => i.folder);
     metrics.d2 = {
       total_folders: featureFolders.length,
-      incomplete_count: incomplete.length,
-      incomplete: incomplete.map((i) => ({ folder: i.folder, missing: i.missing })),
+      missing_readme: missingReadme,
+      optional_missing: incomplete.map((i) => ({ folder: i.folder, missing: i.missing })),
     };
-    if (incomplete.length === 0) {
+    if (missingReadme.length === 0) {
       findings.push({
         id: "D2",
         level: "green",
-        title: `所有 ${featureFolders.length} 個 feature 夾四檔齊全`,
-        detail: "README.md / backlog.md / changelog.md / handoff.md 全數存在",
-        evidence: "docs/features/*/",
+        title: `所有 ${featureFolders.length} 個 feature 夾都有 README.md`,
+        detail: "handoff／backlog／changelog 依契約視需要建立，缺件清單見 metrics.d2.optional_missing",
+        evidence: "docs/features/*/README.md 存在性掃描（契約：docs/features/README.md）",
       });
     } else {
       findings.push({
         id: "D2",
         level: "yellow",
-        title: `${incomplete.length} 個 feature 夾缺件（共 ${featureFolders.length} 夾）`,
-        detail: incomplete.map((i) => `${i.folder}：缺 ${i.missing.join("、")}`).join("\n"),
-        evidence: "docs/features/*/{README,backlog,changelog,handoff}.md 存在性掃描",
+        title: `${missingReadme.length} 個 feature 夾缺 README.md（共 ${featureFolders.length} 夾）`,
+        detail: missingReadme.join("\n"),
+        evidence: "docs/features/*/README.md 存在性掃描（契約：docs/features/README.md）",
       });
     }
   }
@@ -860,59 +587,6 @@ async function main() {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // D5 — PMTiles 狀態檔過期
-  // ══════════════════════════════════════════════════════════════
-  {
-    const statusContent = readFileSafe(PMTILES_STATUS_PATH);
-    let actualCount = 0;
-    try {
-      actualCount = walkFiles(path.join(ROOT, "public"), (name) => /\.pmtiles$/i.test(name)).length;
-    } catch (e) {
-      errors.push({ step: "D5", message: `掃描 public/**/*.pmtiles 失敗：${String(e)}` });
-    }
-
-    if (statusContent === null) {
-      errors.push({ step: "D5", message: `無法讀取 ${PMTILES_STATUS_PATH}` });
-    } else {
-      // 狀態檔是自由文字敘事，非結構化表格。用「候選總數：N」+ 各 heading「N 個 (combined) PMTiles」
-      // 標題加總估算宣稱數——這是敘事文本能做到的最佳近似，抓不到任何一個 pattern 就進 errors。
-      const claimedParts: { label: string; value: number }[] = [];
-      const totalMatch = statusContent.match(/候選總數[：:]\s*(\d+)/);
-      if (totalMatch && totalMatch[1]) claimedParts.push({ label: "候選總數", value: Number(totalMatch[1]) });
-
-      const headingRe = /^##.*?(\d+)\s*個\s*(?:combined\s*)?PMTiles/gm;
-      let hm: RegExpExecArray | null;
-      while ((hm = headingRe.exec(statusContent)) !== null) {
-        if (hm[1]) claimedParts.push({ label: hm[0].replace(/^##\s*/, "").trim(), value: Number(hm[1]) });
-      }
-
-      if (claimedParts.length === 0) {
-        errors.push({ step: "D5", message: "正則失配，PMTILES_STATUS.md 抓不到任何「候選總數」或「N 個 PMTiles」標題，需人工核對格式是否被改寫" });
-      } else {
-        const claimedTotal = claimedParts.reduce((s, p) => s + p.value, 0);
-        metrics.d5 = { claimed_total: claimedTotal, claimed_parts: claimedParts, actual_total: actualCount };
-        if (claimedTotal === actualCount) {
-          findings.push({
-            id: "D5",
-            level: "green",
-            title: "PMTILES_STATUS.md 宣稱數與實際檔數一致",
-            detail: `${claimedTotal} = ${actualCount}`,
-            evidence: ".claude/memory/PMTILES_STATUS.md vs find public -iname '*.pmtiles'",
-          });
-        } else {
-          findings.push({
-            id: "D5",
-            level: "yellow",
-            title: "PMTILES_STATUS.md 已過期",
-            detail: `狀態檔宣稱約 ${claimedTotal} 個（${claimedParts.map((p) => `${p.label}=${p.value}`).join("；")}）、實際 ${actualCount} 個`,
-            evidence: ".claude/memory/PMTILES_STATUS.md vs public/**/*.pmtiles 實測",
-          });
-        }
-      }
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════
   // D8 — 更新頻率欄位覆蓋率
   // ══════════════════════════════════════════════════════════════
   {
@@ -923,7 +597,7 @@ async function main() {
     for (const folder of featureFolders) {
       const handoffPath = path.join(FEATURES_DIR, folder, "handoff.md");
       const content = readFileSafe(handoffPath);
-      if (content === null) continue; // 缺 handoff.md 的夾已由 D2 抓，不重複計入分母
+      if (content === null) continue; // 缺 handoff.md 的夾不計入分母（handoff 依契約視需要才建）
       total++;
       if (freqRegex.test(content)) withFreq++;
       else missing.push(folder);

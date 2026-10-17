@@ -1,6 +1,12 @@
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
-import { type MouseEvent as ReactMouseEvent } from "react";
+import { useMonitorV2 } from "./monitorStyle";
+import { MonitorMetric, MonitorNote, MonitorSub } from "./MonitorMetric";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
+import { fs } from "./monitorFont";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { useMonitorTheme } from "./monitorTheme";
+import { useLayoutEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import {
@@ -10,6 +16,8 @@ import {
 } from "../../../data/intelLoaders";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+import { useLocale, localeStore, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
 export function PressureRing({
@@ -25,6 +33,9 @@ export function PressureRing({
   stale?: boolean;
   size?: number;
 }) {
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
   const r = 52;
   const c = 2 * Math.PI * r;
   const sweep = 0.75; // 270°
@@ -35,7 +46,8 @@ export function PressureRing({
   const animStyle = animName ? { animation: `${animName} ${level.period}s ease-in-out infinite` } : {};
   const hasGlow = level.glow !== "rgba(255,59,48,0)" && level.glow !== "rgba(255,152,0,0)" && level.glow !== "rgba(76,175,80,0)" && level.glow !== "rgba(234,179,8,0)";
   return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+    // v2：旋轉後的 SVG 外接框比環大 27px，會撐出卡片 body 的捲動高度 → 裁在環的方框內
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0, overflow: v2 ? "hidden" : undefined }}>
       <svg
         width={size}
         height={size}
@@ -43,11 +55,11 @@ export function PressureRing({
         style={{ transform: "rotate(135deg)", overflow: "visible", ...animStyle }}
       >
         <circle
-          cx="66" cy="66" r={r} fill="none" stroke="rgba(255,255,255,0.07)"
+          cx="66" cy="66" r={r} fill="none" stroke={theme.neutral(0.07)}
           strokeWidth="9" strokeDasharray={`${track} ${c}`} strokeLinecap="round"
         />
         <circle
-          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? level.color : COLORS.textMuted}
+          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? theme.fill(level.color) : theme.p.textMuted}
           strokeWidth="9" strokeDasharray={`${val} ${c}`} strokeLinecap="round"
           style={{
             transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1), stroke .4s",
@@ -63,38 +75,43 @@ export function PressureRing({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 40, fontWeight: 700, lineHeight: 1,
-            color: "#fff", letterSpacing: "-1px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, 40), fontWeight: 700, lineHeight: 1,
+            color: theme.isDark ? "#fff" : status === "ready" || stale ? theme.text(level.color) : theme.p.textMuted, letterSpacing: "-1px",
           }}
         >
           {status === "ready" || stale ? Math.round(score) : "—"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
-          {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? theme.text(level.color) : theme.p.textMuted }}>
+          {status === "ready" ? enumLabel("monitorPressureLevel", level.key, level.label, i18n) : status === "denied" ? i18n.t("monitor.power.ringDenied") : status === "error" ? i18n.t("monitor.power.ringError") : i18n.t("monitor.power.ringUnknown")}
         </span>
-        <span
-          style={{ fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "2px", color: COLORS.textFaint }}
-        >
-          {status === "ready" ? level.en : "DATA"}
-        </span>
+        {/* 英文等級字只在舊版（v2 字級放大後會和中文疊在一起；§6.1 標籤一律中文） */}
+        {!v2 && (
+          <span
+            style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "2px", color: theme.p.textFaint }}
+          >
+            {status === "ready" ? level.en : "DATA"}
+          </span>
+        )}
       </div>
     </div>
   );
 }
 
-export function CompareLine({ delta, label, muted = false }: { delta: number; label: string; muted?: boolean }) {
-  const up = delta >= 0;
+export function CompareLine({ delta, label, muted = false }: { delta: number | null; label: string; muted?: boolean }) {
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const up = delta !== null && delta >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, width: 40,
-          color: muted ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, ...(v2 ? { minWidth: 40 } : { width: 40 }),
+          color: muted || delta === null ? theme.p.textMuted : up ? theme.p.statusWarn : theme.p.statusLive,
         }}
       >
-        {up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}
+        {delta === null ? "—" : <>{up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}</>}
       </span>
-      <span style={{ fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textMuted, whiteSpace: "nowrap" }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 10.5), color: theme.p.textMuted, whiteSpace: "nowrap" }}>
         {label}
       </span>
     </div>
@@ -103,9 +120,53 @@ export function CompareLine({ delta, label, muted = false }: { delta: number; la
 
 const EMPTY_MARKET_HISTORY: MarketIndexDailyPoint[] = [];
 
+/** v2：走勢圖寬度隨容器縮放（ResizeObserver 量容器寬後傳給 Sparkline 的 w） */
+export function FluidSparkline({
+  fallbackW, ...rest
+}: { fallbackW: number } & Omit<React.ComponentProps<typeof Sparkline>, "w">) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(fallbackW);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const cw = Math.floor(el.clientWidth);
+      if (cw > 0) setW(cw);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{ flex: 1, minWidth: 0, maxWidth: "100%" }}>
+      <Sparkline {...rest} w={w} />
+    </div>
+  );
+}
+
+/**
+ * 加權指數的資料時間：RPC 只回 "HH:MM"、沒有日期 → 日期取歷史序列最後一筆的 trade_date
+ * （日線盤中最後一點為當日即時值，所以它就是這個 HH:MM 所屬的交易日）。
+ * 歷史尚未載入或沒有日期、或 HH:MM 格式不符 → null（不拿今天日期硬套）。
+ */
+export function marketDataMs(tradeDate: string | null | undefined, hhmm: string | null | undefined): number | null {
+  const m = /^(\d{1,2}):(\d{2})/.exec(hhmm ?? "");
+  if (!m || !tradeDate || !/^\d{4}-\d{2}-\d{2}$/.test(tradeDate)) return null;
+  const t = Date.parse(`${tradeDate}T${m[1]!.padStart(2, "0")}:${m[2]}:00+08:00`);
+  return Number.isNaN(t) ? null : t;
+}
+
 export function TwseTicker({
-  data, status, lastSuccessAt, open,
-}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
+  data, status, lastSuccessAt, open, i18n = localeStore.getSnapshot(),
+}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean; i18n?: LocaleSnapshot }) {
+  // 不在這裡呼叫 useLocale()：測試直接呼叫本函式；語系切換時父層會重繪，再讀一次目前語系
+  const { t } = i18n;
+  const lastOkText = status === "error" && lastSuccessAt
+    ? t("monitor.power.twseLastOk", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })
+    : t("monitor.power.twseNoJudge");
+  const statusText = data.status ? enumLabel("monitorTwseStatus", data.status, data.status, i18n) : null;
   // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
   const historyQuery = useMonitorResource({ open, queryKey: "market-history:30d", intervalMs: 10 * 60_000, emptyData: EMPTY_MARKET_HISTORY, load: fetchMarketIndexHistory });
   const history = historyQuery.data;
@@ -121,9 +182,65 @@ export function TwseTicker({
   const histFirst = history[0];
   const histLast = history[history.length - 1];
   const histUp = (histLast?.close ?? 0) >= (histFirst?.close ?? 0);
+
+  // v2：資料時間＝歷史序列最後一筆日期＋RPC 的 HH:MM；收盤／休市只出中性 pill（paused，資料超過 4 天會改成過期）
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  const dataMs = available && data.time ? marketDataMs(histLast?.trade_date, data.time) : null;
+  const fresh = useMonitorFreshness("taiex", {
+    time: dataMs,
+    paused: closed && !!data.status,
+    pausedLabel: statusText ?? undefined,
+    reason: status === "denied" ? t("monitor.power.twseDenied") : undefined,
+  });
+  if (v2) {
+    // 新版：主數字＝指數＋漲跌；高低量走副資訊；30 日走勢用有時間軸的 TimeseriesSparkline（std）
+    const tone = stale ? "neutral" : up ? "up" : "down"; // 台股慣例：漲紅跌綠
+    const points: SparklinePoint[] = history
+      .map((p) => ({ t: Date.parse(`${p.trade_date}T00:00:00+08:00`) / 1000, v: p.close }))
+      .filter((p) => Number.isFinite(p.t));
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
+        <MonitorDataStatus label={t("monitor.power.twseHistory")} query={historyQuery} />
+        <MonitorMetric
+          value={has ? data.index.toLocaleString() : "—"}
+          muted={stale || fresh.muted}
+          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}${data.change_pct == null ? "" : t("monitor.power.twsePct", { pct: `${up ? "+" : ""}${data.change_pct}` })}` : undefined}
+          tone={tone}
+        />
+        <MonitorSub items={[
+          `${t("monitor.power.twseHigh")} ${has && data.high !== null ? data.high.toLocaleString() : "—"}`,
+          `${t("monitor.power.twseLow")} ${has && data.low !== null ? data.low.toLocaleString() : "—"}`,
+          `${t("monitor.power.twseVolume")} ${has ? data.turnover ?? "—" : "—"}`,
+        ]} />
+        {status !== "ready" && (
+          <MonitorNote>
+            {lastOkText}
+          </MonitorNote>
+        )}
+        {fresh.reason && (status === "ready" || status === "error" || status === "denied") && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+        )}
+        {points.length >= 2 && (
+          // 交易日序列有週末／連假空檔：gapSec 10 天只在超長假（春節）才斷線
+          <TimeseriesSparkline
+            data={points}
+            unit={t("monitor.power.twseUnitPoint")}
+            lineColor={histUp ? theme.p.statusErr : theme.p.statusLive}
+            heightTier="std"
+            gapSec={10 * 86400}
+            showTooltip
+            tooltipDateFormat="date"
+            seriesLabel={t("monitor.power.twseSeries")}
+            compactYAxis
+          />
+        )}
+      </div>
+    );
+  }
   return (
     <div
-      style={{
+      style={v2 ? { display: "flex", flexDirection: "column", gap: 6, minWidth: 0 } : {
         borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
@@ -131,82 +248,87 @@ export function TwseTicker({
         display: "flex", flexDirection: "column", gap: 6, minWidth: 208,
       }}
     >
-      <MonitorDataStatus label="行情歷史" query={historyQuery} />
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <MonitorDataStatus label={t("monitor.power.twseHistory")} query={historyQuery} />
+      {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px",
+            fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.2px",
             color: COLORS.textDim, whiteSpace: "nowrap",
           }}
         >
-          TAIEX 加權指數
+          {t("monitor.power.twseHeader")}
         </span>
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint,
+            fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: COLORS.textFaint,
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
           }}
         >
-          {status === "ready" ? `${data.status ?? "—"} ${data.time ?? ""}` : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中"}
+          {status === "ready" ? `${statusText ?? "—"} ${data.time ?? ""}` : status === "denied" ? t("monitor.power.ringDenied") : status === "error" ? t("monitor.power.twseInterrupted") : t("monitor.power.twseLoading")}
         </span>
-      </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
+      </div>}
+      <div style={v2 ? { display: "flex", alignItems: "baseline", gap: "2px 9px", flexWrap: "wrap" } : { display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 24, fontWeight: 700, lineHeight: 1,
+            fontFamily: FONT_DATA, fontSize: fs(v2, 24), fontWeight: 700, lineHeight: 1,
             color: closed ? "rgba(255,255,255,0.92)" : "#fff",
+            whiteSpace: "nowrap",
           }}
         >
           {has ? data.index.toLocaleString() : "—"}
         </span>
         {has && (
           <>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: mk }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, color: mk }}>
-              {up ? "+" : ""}{data.change_pct}%
-            </span>
+            {data.change_pct != null && (
+              <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: mk, whiteSpace: "nowrap" }}>
+                {up ? "+" : ""}{data.change_pct}%
+              </span>
+            )}
           </>
         )}
       </div>
       <div
         style={{
-          display: "flex", gap: 12, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-          color: COLORS.textDim, whiteSpace: "nowrap",
+          display: "flex", gap: v2 ? "2px 12px" : 12, fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs),
+          color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
-        <span>H <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
-        <span>L <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
-        <span>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? t("monitor.power.twseHigh") : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high != null ? data.high.toLocaleString() : "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? t("monitor.power.twseLow") : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low != null ? data.low.toLocaleString() : "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{t("monitor.power.twseVolume")} <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
-      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
-        {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
+      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>
+        {lastOkText}
       </span>}
       {closes.length >= 2 && histFirst && histLast && (
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "1.5px",
+              ...(v2
+                ? { fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs) }
+                : { fontFamily: FONT_DATA, fontSize: fs(v2, 7.5), letterSpacing: "1.5px" }),
               color: COLORS.textFaint, whiteSpace: "nowrap",
             }}
           >
-            30D
+            {v2 ? t("monitor.power.twse30d") : "30D"}
           </span>
           {/* 2026-08-10 起 TAIEX 是獨立 widget（不再擠在戰情概覽右側），日線給得起 360×48。
               上限抓 360 是因為 Sparkline 固定寬 + flexShrink:0：grid 模式最窄（容器 1100px）
               時 w5 格內可用寬約 380px，再大就會溢出讓格子橫向捲動。
               逐點 hover 取代原本整段區間的 HTML title。 */}
-          <Sparkline
-            data={closes}
-            color={histUp ? "#ff4d4f" : "#16c784"}
-            w={360}
-            h={48}
-            showTooltip
-            labelAt={(i) => history[i]?.trade_date ?? ""}
-            unit="點"
-          />
+            <Sparkline
+              data={closes}
+              color={histUp ? "#ff4d4f" : "#16c784"}
+              w={360}
+              h={48}
+              showTooltip
+              labelAt={(i) => history[i]?.trade_date ?? ""}
+              unit={t("monitor.power.twseUnitPoint")}
+            />
         </div>
       )}
     </div>
@@ -324,6 +446,16 @@ export function Sparkline({
 }
 
 export function SectionLabel({ children, color }: { children: React.ReactNode; color?: string }) {
+  const v2 = useMonitorV2();
+  const theme = useMonitorTheme();
+  // v2：卡片標題由 MonitorCardFrame 畫；卡內的 SectionLabel 只當小節標（中文、不轉大寫、非等寬）
+  if (v2) {
+    return (
+      <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), fontWeight: 600, color: theme.p.textMuted }}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
       <span
@@ -333,7 +465,7 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
       />
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
+          fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px",
           color: COLORS.textDefault, textTransform: "uppercase",
         }}
       >
@@ -346,6 +478,11 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
 export function Widget({
   children, style,
 }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const v2 = useMonitorV2();
+  // v2：框由 MonitorCardFrame 畫，這層只排版
+  if (v2) {
+    return <div style={{ display: "flex", flexDirection: "column", minWidth: 0, ...style, border: undefined, background: undefined, padding: 0, borderRadius: undefined }}>{children}</div>;
+  }
   return (
     <div
       style={{

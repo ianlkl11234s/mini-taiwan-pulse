@@ -234,6 +234,8 @@ export interface NuclearSummary {
   alarm_count: number;
   /** 異常站列名（觀察 + 警戒，劑量降序，最多 3 站） */
   anomalies: { name: string; dose: number; level: "warning" | "alarm" }[];
+  /** 有回報站（非停報）中最新的觀測時間（unix 秒）；全部停報時 null。停報站不算，否則會落回停報那天 */
+  latest_observed_ts: number | null;
 }
 
 /** 站列表 → 卡片摘要（純函式，給測試用） */
@@ -242,11 +244,13 @@ export function summariseNuclear(rows: NuclearStation[]): NuclearSummary {
   let sum = 0;
   let max = -Infinity;
   let maxStation: string | null = null;
+  let latestObs: number | null = null;
   const anomalies: { name: string; dose: number; level: "warning" | "alarm" }[] = [];
   for (const r of valid) {
     const d = Number(r.dose_usvh);
     sum += d;
     if (d > max) { max = d; maxStation = r.station_name; }
+    if (Number.isFinite(r.observed_ts) && (latestObs === null || r.observed_ts > latestObs)) latestObs = r.observed_ts;
     const level = classifyNuclearDose(d, false);
     if (level === "warning" || level === "alarm") {
       anomalies.push({ name: r.station_name, dose: d, level });
@@ -262,6 +266,7 @@ export function summariseNuclear(rows: NuclearStation[]): NuclearSummary {
     warning_count: anomalies.filter((a) => a.level === "warning").length,
     alarm_count: anomalies.filter((a) => a.level === "alarm").length,
     anomalies: anomalies.slice(0, 3),
+    latest_observed_ts: latestObs,
   };
 }
 
@@ -326,8 +331,8 @@ export interface NuclearDoseDay {
   meanUsvh: number | null;
   /** 全站最大劑量率；當日無資料時 null */
   maxUsvh: number | null;
-  /** 當日有回報的站數；當日無資料時補 0 */
-  stationCount: number;
+  /** 當日有回報的站數；當日無資料時 null（不是 0 站） */
+  stationCount: number | null;
 }
 
 interface NuclearDailyRpcRow {
@@ -343,13 +348,19 @@ const DEFAULT_NUCLEAR_DAILY_DAYS = 14;
  * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
  * 右界錨在 rows 最後一筆的 reading_date（不是 todayTaiwan()，理由見檔頭）。
  */
-function padNuclearDaily(rows: NuclearDailyRpcRow[], days: number): NuclearDoseDay[] {
+function padNuclearDaily(rows: NuclearDailyRpcRow[], days: number, anchorToday = false): NuclearDoseDay[] {
   return padTaipeiDaily(rows, days, (r) => r.reading_date, (dateKey, r) => ({
     dateKey,
     meanUsvh: r?.mean_usvh ?? null,
     maxUsvh: r?.max_usvh ?? null,
-    stationCount: r?.station_count ?? 0,
-  }));
+    stationCount: r?.station_count ?? null,
+  }), anchorToday ? { anchor: "today" } : undefined);
+}
+
+/** cache key：`14`（預設錨最後一列）或 `14:today`（監看 v2 錨今天） */
+function parseDailyKey(key: string): { days: number; anchorToday: boolean } {
+  const [d, mode] = key.split(":");
+  return { days: clampDailyDays(d ?? ""), anchorToday: mode === "today" };
 }
 
 function clampDailyDays(daysKey: string): number {
@@ -357,11 +368,12 @@ function clampDailyDays(daysKey: string): number {
 }
 
 async function fetchNuclearDailyUncached(daysKey: string): Promise<NuclearDoseDay[]> {
+  const { days: dayCount, anchorToday } = parseDailyKey(daysKey);
   const { data, error } = await supabase.rpc("get_nuclear_radiation_daily", {
-    p_days: clampDailyDays(daysKey),
+    p_days: dayCount,
   });
   if (error) throw error;
-  return padNuclearDaily((data ?? []) as NuclearDailyRpcRow[], clampDailyDays(daysKey));
+  return padNuclearDaily((data ?? []) as NuclearDailyRpcRow[], dayCount, anchorToday);
 }
 
 const fetchNuclearDailyCached = cachedByKey<NuclearDoseDay[]>(
@@ -376,6 +388,7 @@ const fetchNuclearDailyCached = cachedByKey<NuclearDoseDay[]>(
  */
 export const fetchNuclearDaily = (
   days: number = DEFAULT_NUCLEAR_DAILY_DAYS,
-): Promise<NuclearDoseDay[]> => fetchNuclearDailyCached(String(days));
+  opts: { anchorToday?: boolean } = {},
+): Promise<NuclearDoseDay[]> => fetchNuclearDailyCached(opts.anchorToday ? `${days}:today` : String(days));
 
 export const invalidateNuclearDaily = (): void => fetchNuclearDailyCached.invalidate();

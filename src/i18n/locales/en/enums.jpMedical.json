@@ -1,0 +1,13 @@
+{
+  "enum.jpMedicalCategory.hospital": "Hospital",
+  "enum.jpMedicalCategory.clinic": "Clinic",
+  "enum.jpMedicalCategory.dental": "Dental clinic",
+  "enum.jpMedicalCategory.maternity": "Midwifery clinic",
+  "enum.jpMedicalCategory.pharmacy": "Pharmacy",
+  "enum.jpMedicalCareGroup.jpCarePlanning": "Care consultation / planning",
+  "enum.jpMedicalCareGroup.jpCareHomeVisit": "Home-visit services",
+  "enum.jpMedicalCareGroup.jpCareDayServices": "Day services",
+  "enum.jpMedicalCareGroup.jpCareResidential": "Residential / short-stay",
+  "enum.jpMedicalCareGroup.jpCareCombined": "Combined services",
+  "enum.jpMedicalCareGroup.jpCareEquipment": "Welfare equipment"
+}

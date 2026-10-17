@@ -2,7 +2,7 @@
  * 特殊船舶（Vessel Watch）分類色票 —— **loader / 圖例 / popup 三邊的單一出處**
  *
  * 來源：`live.vessel_watch_registry.rule_class`（gis-platform migration 339），
- * 分類規則與實測校正見 `docs/proposal/vessel-watch-layer.md` §4。
+ * 分類規則與實測校正見 `docs/archive/2026-10-04/proposal/vessel-watch-layer.md` §4。
  *
  * ⚠️ **命名地雷（絕不可簡寫成「海巡」）**
  *    `HAIXUN`「海巡」是**中國海事局**的船（MID 412/413/414），

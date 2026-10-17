@@ -17,7 +17,7 @@
 1. 先開 `docs/features/<slug>/` 資料夾（`cp -r docs/features/_TEMPLATE ...`）
 2. 若涉資料契約 → 先開 `taipei-gis-analytics/docs/handoff/<slug>.md`
 3. 若涉架構決策 → 開 ADR `taipei-gis-analytics/docs/adr/NNNN-*.md`
-4. 走 GitHub Flow branch：`feat/<slug>` / `fix/<slug>` / `perf/<slug>`（見 CLAUDE.md §Git Workflow）
+4. 從 `develop` 開 `feat/<slug>` / `fix/<slug>` / `perf/<slug>`，PR base 為 `develop`（見 CLAUDE.md §Git Workflow、`docs/git-workflow.md`）。**例外**：正式站層級緊急事故（例如 layer 全消失）走 `hotfix/<slug>`：從 `master` 開、PR 到 `master`、再合回 `develop`（見 [`docs/git-workflow.md`](../../docs/git-workflow.md) §何時開 hotfix）
 
 **Why**：層層漏項是最常見 bug 根因（PMTiles keep_attrs / LAYER_COLORS / legend / popup / cross-repo drift）。
 **How to apply**：Session 開頭讀到本條 = 之後任何 layer 對話都先觸發 skill。
@@ -41,16 +41,18 @@
 - **Python / pip**：一律 `python3` / `pip3`，不是 `python` / `pip`
 - **TypeScript 驗證**：`npx tsc -b`（project references），**不要**用 `tsc --noEmit`（漏檢）
 - **Commit 前必跑** `npx tsc -b`
-- **Commit 前必跑 `git branch --show-current`**：SessionStart auto-memory-cherry-pick hook
-  會在 session 中段把 HEAD 切回 master 而不通知。任何 commit / 跨 phase 切換 / 上次互動隔了
-  幾分鐘都先確認分支。reflog 連續看到 `cherry-pick: memory:` + `checkout: moving from <feat>
-  to master` = hook 觸發，立刻 `git checkout <feat>`。（2026-06-19 Energy v2 事件）
+- **Commit 前必跑 `git branch --show-current`**：平行 session 會在同一個 worktree 切分支，
+  `gh pr merge --delete-branch` 也會把本機切回 base branch。任何 commit／跨 phase 切換／
+  上次互動隔了幾分鐘都先確認分支。（起因是 2026-06-19 Energy v2 事件的 auto-memory-cherry-pick
+  hook；該 hook 已移除，2026-10-16 確認 `.claude/settings.json` 的 SessionStart 只剩
+  `load-session.sh`。規則保留，原因改為上述兩者。）
 - **layerConsistency-class ratchet → 拆 commit 限制**：純資料層 commit 若會讓
   layerConsistency / featureInfo registry / LegendPanel 等 ratchet 測試紅燈，
   必須與「UI 接線 commit」合成一次（例：B.1 types/loader + B.2 Legend/Panel/params
-  一同送）。事前盤點：新 layer key 進 LayerVisibility → 自動觸發 5 條 ratchet（LAYER_COLORS
-  / SECTIONS / LEGEND_REGISTRY 或 BASELINE / PANEL_REGISTRY 或 BASELINE / useTransportParams
-  case 或 BASELINE），缺一 fail。
+  一同送）。事前盤點：新 layer key 進 LayerVisibility → 觸發 manifest 契約測試（`layerConsistency`：
+  manifest entry、`NO_PARAMS_LEDGER`／`NO_LEGEND_LEDGER`／`NO_POPUP_LEDGER`；`registry.test`：
+  `PANEL_REGISTRY`／`HEADER_LABELS`；`layerManifest.test`：params／legend／section 宣告與實作一致），
+  缺一 fail。（2026-10-16 更新：舊 BASELINE 機制與 `useTransportParams` 已退役。）
 - **Commit message**：繁體中文 + conventional commits prefix（feat/fix/docs/refactor）
 - **Inline styles**：UI 用 inline styles，所有元件支援 `isDarkTheme`
 - **Shell 腳本不依賴 jq**：macOS 預設無 jq（需 Homebrew 另裝）。組 JSON 一律用
@@ -71,38 +73,16 @@
 
 ## 資料來源管理
 
-- **動態資料**（時序 / 即時）→ Supabase RPC（`public.*`）
-- **靜態資料** → `public/*.geojson`（由 S3 deploy-assets 管理，**扁平檔名契約**不要改路徑）
-- **前端禁止直接打** `realtime.*` schema，一律透過 `public` RPC wrapper
-- Schema 分工：
-  - `realtime`（時序）
-  - `reference`（參考表，如時刻表、水庫 metadata）
-  - `spatial`（空間分析，H3 等）
-  - `public`（對外 RPC + 靜態空間表）
-- `VITE_DATA_SOURCE=supabase` 啟用 Supabase；否則用 Pulse API（FastAPI+DuckDB 備援）
+正本：[`docs/development-rules.md` §1](../../docs/development-rules.md#1-資料來源管理)（動態走 `public.*` RPC、Statistics 走 R2 snapshot、靜態走 `public/<domain>/` CDN 資產、前端禁直打 `live.*`）。
+本檔只補一句：舊 `realtime` schema 已併入 `live`（ADR-0010／migration 312，2026-08-17）；本檔與 INCIDENTS 舊段落出現的 `realtime.*` 一律讀作 `live.*`。
 
 ## Loading UI 強制（⚠ P0）
 
-**所有** Supabase 非同步載入都必須透過 `src/lib/loadingRegistry.ts`：
-
-- 初次載入 / 切換 timeline 日期 / Toggle 圖層都要註冊 loading task
-- Loader 包 `withLoading(id, label, promise)` 或手動 `start()` / `complete()`
-- 範例：`src/data/freewayLoader.ts` + `src/hooks/useFreewayLayer.ts`
-- **禁止**靜默 `supabase.rpc().then()`
+所有非同步載入都要註冊 `src/lib/loadingRegistry.ts`（`withLoading`），禁止靜默 `supabase.rpc().then()`。正本與範例：[`docs/development-rules.md` §2](../../docs/development-rules.md#2-資料載入規範必配-loading-ui)。
 
 ## 動態圖層時間訂閱（⚠ P0）
 
-動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps，
-**必須**透過 `src/state/timeStore.ts` 訂閱：
-
-| 場景 | API |
-|---|---|
-| RAF / per-frame 動畫 | `timeStore.getTime()` 同步讀 |
-| Filter / lookup | `timeStore.subscribeThrottled(ms, cb)` |
-| 跨日重載資料 | `timeStore.subscribeDate(cb)` |
-| UI 顯示 | `useSyncExternalStore` + `subscribeThrottled(250)` |
-
-Hook 參數表**不收** `currentTime`。理由與節流表見 `docs/development-rules.md#8`。
+`currentTime` 禁入 React deps，一律走 `src/state/timeStore.ts`（RAF 用 `getTime()`、篩選用 `subscribeThrottled`、跨日用 `subscribeDate`、UI 用 `useSyncExternalStore`）。正本：[`docs/development-rules.md` §8](../../docs/development-rules.md#8-動態圖層時間訂閱external-time-store)；架構與實作狀態：[`docs/TIMELINE_ARCHITECTURE.md`](../../docs/TIMELINE_ARCHITECTURE.md#timestore外部時間來源)。
 
 ## render body 禁止寫入被訂閱的外部 store（⚠ P0，2026-07-22 教訓）
 
@@ -119,7 +99,7 @@ Hook 參數表**不收** `currentTime`。理由與節流表見 `docs/development
 ```sql
 SELECT DISTINCT ON (station_id, date_trunc('hour', observed_at))
     ...
-FROM realtime.xxx
+FROM live.xxx
 WHERE ...
 ORDER BY station_id, date_trunc('hour', observed_at), observed_at DESC
 ```
@@ -203,32 +183,8 @@ case 一查就知道用哪招。
 
 ## Supabase 優化（Pre-aggregate Pattern）
 
-RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
-
-- 普通 table + per-day refresh function + pg_cron + 薄 SELECT RPC
-- 先跑 `EXPLAIN (ANALYZE, BUFFERS)` 確認是 plan 問題還是資料量
-- SQL 範本：`../data-collectors/docs/sql/matview_*.sql`
-- Supabase pooler 強制 2min timeout **不能繞**，只有 pg_cron 例外
-- 完整 pattern + 坑點：`docs/supabase-optimization.md`
-
-**效能守則**（2026-04-10 bus trails OOM 教訓）：
-
-- refresh function 的 WHERE + ORDER BY **必須有對應索引**（缺索引 = 全表 sort = OOM）
-  - 必須有 `(id_column, collected_at)` 複合索引
-  - 必須有 `(collected_at)` 單欄索引
-  - 常用條件（如 city）考慮 partial index
-- today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
-- 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
-- 加 `SET work_mem TO '64MB'` 減少 disk spill
-- cron 排程必須錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
-
-**⚠️ pg_cron target_day 一律用台北時區**（2026-06-17 教訓，7 dataset 全炸）：
-
-- **禁用** `current_date` / `CURRENT_DATE` 在 `cron.schedule` 內
-- **必用** `(now() AT TIME ZONE 'Asia/Taipei')::date`
-- **Why**：Supabase DB session timezone = UTC → `current_date` 是 UTC 日 → 台北 00:00~08:00 那 8 小時 UTC 還停在昨天 → cron 只 refresh 台北昨天 + 前天，**從不 refresh 台北今天** → 前端在早上 8 小時窗口看不到資料
-- **實證**：2026-06-17 07:50 (Taipei) ship / flight / freeway / youbike / disaster / temperature / iot-wra 七 dataset 全空 → 修法 `gis-platform/migrations/208_fix_cron_taipei_tz.sql`
-- **Code review 規則**：`cron.schedule(...)` 內看到 `current_date` → 一律改為 `(now() AT TIME ZONE 'Asia/Taipei')::date`
+RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern（普通 table + per-day refresh function + pg_cron + 薄 SELECT RPC）。
+正本（含 OOM 守則 5 條、pg_cron 台北時區、`statement_timeout` 慣例）：[`docs/supabase-optimization.md`](../../docs/supabase-optimization.md#關鍵坑必讀)。2026-10-16 起 OOM 5 條與 cron 台北時區從本段搬過去，不再兩處維護。
 
 ## ⚠️ P0 「已完成」必有工具佐證（2026-07-03，幻覺教訓）
 
@@ -241,29 +197,18 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 1. **新建 table 必 `ENABLE ROW LEVEL SECURITY` + read policy**。Supabase 建表 default 把 ALL 授 anon/authenticated；忘開 RLS = anon 拿公開 key 可 SELECT/INSERT/UPDATE/DELETE（本 session 踩 public 22 張 + reference 6 張 + profiles，migration 270/271/272）。
 2. **要 column 級權限先 `REVOKE ALL FROM anon,authenticated` 再授最小集**——表級 UPDATE 蓋過 column-level GRANT（profiles 的 tier 一度可自升級）。
 3. **Exposed schemas 只留 `public`+`graphql_public`**（+ 有前端直讀的才留，如 reference 因 airports/ports app）。**改 Exposed schemas 前必 grep 全生態所有前端 repo**（DB 共用，一度只掃單 repo 差點弄壞其他 app）。
-4. **改線上 DB 前自查 ground truth**（psql SELECT），改用 `SET ROLE anon` + anon key curl 實測讀/寫（讀通/寫擋）。migration 加 `to_regclass` 守衛防不存在表 ERROR。
+4. **改線上 DB 前自查 ground truth**（psql SELECT），改用交易內 `SET LOCAL ROLE anon`（見下方「驗 anon 權限一律用 SET LOCAL」）+ anon key curl 實測讀/寫（讀通/寫擋）。migration 加 `to_regclass` 守衛防不存在表 ERROR。
 5. SECURITY DEFINER function 必 `SET search_path`。
 
 ## 新增 Layer 強制順序
 
-1. `src/types/index.ts` → `LayerVisibility` 加 key
-2. `src/data/xxxLoader.ts` → loader + loadingRegistry
-3. `src/hooks/useXxxLayer.ts` → React hook
-4. `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts`
-5. `src/components/LayerSidebar.tsx` → UI toggle + **`LAYER_COLORS` 補 key**（漏了會 tsc error）
-6. `src/App.tsx` → 接線
-7. `src/hooks/useLayerVisibility.ts` → 預設可見性
+> 2026-10-16 改寫：舊版 7 步（手補 `LAYER_COLORS`／`IconRailSidebar` 圖示表／3 張 exhaustive Record）已被 AR-22 Phase 4 的 manifest 派生取代。
 
-可用 slash command `/new-layer <name>` 自動產生骨架。
+現行：`/new-layer` 產骨架 → 只寫 `layerManifest.ts` 一筆＋`layerParamsSpec.ts` 一筆＋實質邏輯（loader／hook／overlay）→ `layer-onboarding` skill 驗收。完整觸點表：[`docs/development-rules.md` §4](../../docs/development-rules.md#4-新增-layer-流程manifest-first-觸點表)；面板規則見下方「圖層面板只用共用元件」。
 
-**3 張 exhaustive Record 必須同步補 key（缺一即 tsc TS2739/TS2739，2026-05-25 教訓）**：
-① `LAYER_COLORS`（`sidebar/layerCatalog.ts`，`Record<keyof LayerVisibility>`）
-② `IconRailSidebar.tsx` 圖示表（`Record<keyof LayerVisibility, LucideIcon>`，**不在 layerCatalog，易漏**；
-   手機 `LayerSidebar` 吃 SECTIONS 文字無此 Record）
-③ `FeatureInfoPanel.tsx` 的 `HEADER_LABELS`（`Record<FeatureInfo["layerType"]>`，有接 popup 才需）。
-tsc -b 一張一張抓，補完再跑會冒下一張。
+以下兩條 development-rules 沒寫，保留：
 
-**機制選擇（第 4 步）**：大型 geojson 散點（>數 MB，如 fireHydrants 70k 點 / 農企業登記 60k 點）
+**機制選擇（overlay 或 factory）**：大型 geojson 散點（>數 MB，如 fireHydrants 70k 點 / 農企業登記 60k 點）
 走 **`overlayRegistry`**（宣告式，generic overlay loop 自動處理 visibility/theme/params，**MapView 完全不用改**）；
 小型或需特殊渲染（PMTiles / 3D / 客製 paint）才用 `agricultureLayerFactory` 之類 factory。
 同一分區（如 AGRICULTURE）**可混用兩種機制**——分區歸屬只看 `layerCatalog.ts` SECTIONS，與渲染機制無關。
@@ -274,26 +219,8 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
 
 ## 圖層 UX 四鐵則（⚠ P0，2026-05-23 加）
 
-任何新 layer 必須**同時**通過四條，缺一不可。違反 reviewer 應退件。
-**詳細 rationale + 範例見 `docs/development-rules.md#4a`，本檔僅摘要**。
-
-1. **透明度 slider 必備** — `useTransportParams.ts` 加 opacity slider
-2. **分類 ≥ 2 種 → 必寫圖例** — paint 用 `match` / `step` / `interpolate by 屬性`
-   分出 2+ 顏色時，**必須**在 `src/components/LegendPanel.tsx` 加 sub-component。
-   類型表抽到 `src/data/xxxTypes.ts` 給 factory paint / FeatureInfoPanel / LegendPanel
-   三處共用（範例：`agriPOITypes.ts` / `agriSoilFertilityMetrics.ts`）
-3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊
-   就要接：`useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
-   `FeatureInfoPanel.tsx` 加 sub-panel。`GIS_LAYERS` 是 first-hit-wins → 細節小範圍排前面、
-   大背景排後面。PMTiles `keep_attrs` 必須先補齊（見 PB-14）否則 panel 拿到 undefined
-4. **Select control options ≥ 4 → 原生 `<select>` dropdown** —
-   `LayerSidebar` / `IconRailSidebar` 內 `ctrl.options.length > 3` 自動切。
-   中文標籤 4 個就溢出 240px sidebar。Layer 多參數時用 dropdown 切 "mode"
-   而非並排多個 slider（範例：土壤肥力 6 metric → 一個 dropdown）
-
-豁免條件：純單色 + opacity 由 attribute 自動調節（如 FTW confidence_mean） →
-可豁免「圖例」。若 polygon 單格無實用屬性（如 FTW 田區僅 confidence） →
-可豁免「click popup」。其他情況一律接，select 無豁免。
+透明度／圖例／popup／select 不溢出，缺一不可；缺口不得用 manifest `null` 靜默豁免，要補實作或寫可驗證理由。
+正本（規則、豁免、哪條有測試守門）：[`docs/development-rules.md` §4a](../../docs/development-rules.md#4a-圖層-ux-標配四大鐵則)。2026-10-16 起本段不再重抄實作路徑（舊版指向已退役的 `useTransportParams.ts`、`useMapInteraction.ts`）。
 
 ## 大面積覆蓋／等時圈圖層（⚠ P0，2026-05-26 加）
 
@@ -310,10 +237,7 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
 
 ## 視覺層 debug（2026-04-22 教訓）
 
-- **Mapbox custom layer 掛載用 polling，不要 `map.once('load')`**
-  - load event 可能已經 fire 過 → 永不觸發
-  - 改：`setInterval(tryAttach, 200)` 直到 `isStyleLoaded()`
-  - 範例：`src/hooks/useReservoirStatusLayer.ts`
+- **Mapbox custom layer 掛載不要 `map.once('load')`，也不要信 `isStyleLoaded()`** → 統一規則見下方「Mapbox 掛載與 isStyleLoaded（三段合一）」
 
 - **視覺層代碼 `tsc -b` 通過 ≠ 能動**
   - Three.js / Mapbox custom layer / WebGL 是多層非同步 gate
@@ -332,6 +256,8 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
   - 靜態幾何只在資料變動時需重畫
   - 改由 hook 在 `setStatuses` / `setActiveOps` / `heightScale` / `isDark` / `visible` 變動時主動觸發
   - 動畫型圖層（flight/bus/rail per-frame 位置插值）才需要 render 內 triggerRepaint
+  - 2026-09-30 更新：動畫型圖層也只在「時間真的變動」時重畫（`subscribeTimeRepaint` 訂閱 timeStore），暫停即 0；資料變動走 `threeRepaintSignal`。驗收標準：全關＋暫停 5 秒 map render＝0
+- **不要對隱藏圖層 `setPaintProperty`**（2026-09-30）：Mapbox 會替該圖層所有 paint 屬性建 transition，隱藏圖層不 recalc → `hasTransitions()` 恆 true → 地圖永不 idle。overlay 走 `setPaintPropertyGuarded`；每幀改 paint 的圖層 transition 設 0。見 `.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md`
 
 - **InstancedMesh 的 fast path**
   - 站點組不變時只更 matrix/color，不 dispose/recreate meshes
@@ -371,36 +297,21 @@ tsc -b 一張一張抓，補完再跑會冒下一張。
 **判準**：100m 內配對率 > 90% = 重複（停一邊）；< 30% = 互補（兩邊都留）。
 
 實例：iot_wra groundwater 95% 配對 → 完全重複（停 iot 子端點）；iot_wra river 16% → 互補。
-詳見 `docs/research/iot-wra-integration-study.md` § 3 + PB-09。
+詳見 `docs/features/water-resources/iot-wra-integration-study.md` § 3 + PB-09。
 
-## 一前端兩 Sidebar 同步改（2026-04-26 教訓）
+## 圖層面板只用共用元件（2026-10-03 取代「一前端兩 Sidebar 同步改」）
 
-本專案前端有 `LayerSidebar.tsx`（舊版）+ `IconRailSidebar.tsx`（實際渲染）。新增 layer 時必須**兩個都改**：
+R8 面板統一（#509／#511／#513／#514）後，桌機四個入口（台灣／統計／世界／日本）、手機、資料來源、Agent 分析結果、衛星、我的、醫療統計群組，全部改用 `src/components/sidebar/` 的共用元件（圖層列、主題列、大分類、展開區；面板定義在 `layerPanels.ts`）。
 
-- `LAYER_COLORS`（兩檔都要）
-- `LAYER_ICONS`（IconRailSidebar 才有）
-- `SECTIONS` 列表（兩檔都要）
-
-漏改 IconRailSidebar = `tsc -b` 過但前端看不到 toggle。
-
-`FeatureInfoPanel.tsx` 的 `HEADER_LABELS` 也要補（type narrowing 要過）。
-
-PB-01「新增 Layer 強制順序」第 5 步已點明，但這次仍漏改 → 列為 P0 提醒。
+- 新增圖層只寫 `layerManifest.ts`（名稱用 `layerName({ zh, alt, qualifier })`）＋`layerParamsSpec.ts`；不再到兩個 sidebar 各補 `LAYER_COLORS`／`SECTIONS`。
+- 不准在任何面板另畫一份圖層列或控制項：`layerConsistency.test.ts` 會擋；設定區順序（資料篩選→顏色→透明度→大小→其他外觀→說明・來源）由 `layerParamsOrder.test` 鎖住。
+- 新控制項型別照 `palette`（R7）／`linkedSelect`（R8 C 段）接 6 個點：spec 聯集型別、`layerParamsControls.ts`、`LayerParamControls.tsx`、manifest `params.kinds`、`research/layerControls.ts`、`memberSceneAdapter.ts`，並同步 MCP 工具說明。
+- 主題與小分組標題要有中文、不得露內部代碼（`layerConsistency` 擋）。
+- 演進：2026-04-26 版本要求兩個 sidebar 同步改（漏改 IconRailSidebar 就看不到 toggle），已由共用元件取代。
 
 ## boolean 透過 overlayParams 一律 0/1 中介（2026-04-26 教訓）
 
-`overlayParams: Record<string, number>` 嚴格只收 number。新增 boolean 控制要：
-
-```ts
-// useTransportParams.ts
-const overlayParams = useMemo<Record<string, number>>(() => ({
-  ...
-  myBool: myBoolState ? 1 : 0,  // 仿 metroPillar3d
-}));
-
-// App.tsx 讀時
-!!(transportParams.overlayParams.myBool ?? 1)
-```
+`overlayParams: Record<string, number>` 嚴格只收 number。2026-10-16 現況：boolean 控制在 `layerParamsSpec.ts` 宣告 `kind: "toggle"`，`encodeParamsToOverlay()`（`src/state/layerParamsStore.ts`）自動編成 0/1，不再手寫 `myBool ? 1 : 0`；讀端照舊 `!!(overlayParams.myBool ?? 1)`。（原範例在已退役的 `useTransportParams.ts`。）
 
 **動既有型別前先看相同類型 state 怎麼處理**（pattern matching > 改型別）。
 這次本能改 union type 結果下游 8 個錯，看到 `metroPillar3d: metroPillarVisible ? 1 : 0` 才知道既有 pattern。
@@ -419,7 +330,8 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 
 - **Zeabur env var 變更後 service 不會自動 reload**：要 trigger redeploy 一律改檔（`README.md` 加一行）+ commit + push。
   - **Empty commit (`git commit --allow-empty`) Zeabur 不會 trigger build**（webhook 看 file diff 為空視為無變化）
-  - 不要靠 `npx zeabur@latest service restart`（API 不穩定，連續 503）
+  - 觸發 redeploy 不要靠 `npx zeabur@latest service restart`（API 不穩定，連續 503）
+  - 但 **env 變數是在部署之後才設的**，運行中的容器不會重讀，這時要 restart（或改檔觸發新部署）才生效；在新 build 開始前設的變數不必 restart（INCIDENTS 2026-08-07 事件 C）
 
 - **含 `${}` 的 env value 不能用 zeabur CLI 設**：CLI 的 `-k` flag 用 Cobra `StringToStringVar` parser，對 `${VAR}` 會 mangle ([cli#201](https://github.com/zeabur/cli/issues/201))。
   - cross-service reference variable 一律走 Zeabur dashboard
@@ -452,7 +364,8 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 - overview 必須涵蓋全部 **resolved** records，並記錄 source denominator、resolved count、miss count；overview feature count 是 occupied cells，不可冒充原始資料筆數。
 - overview 只帶渲染與稽核必要的聚合欄位，不帶公司名稱、地址、識別碼或 member list；detail 才依 publication whitelist 帶可公開欄位。
 - 未選圖層時 overview 與 detail 都必須 `visibility: none`；切換層、opacity、z-order、scale 與 legend 需對兩個 source 一起驗收。
-- 目前基準：公司 z4–11 overview / z12+ detail；工廠 z4–10 overview / z11+ detail。工廠 overview 只聚合 90,652 筆 resolved factories，不納入 9,972 geocode misses，也不得用公司座標補位。
+- 目前基準：公司 z4–11 overview / z12+ detail。工廠原為 z4–10 overview / z11+ detail，2026-10-03 起改為單一 allzoom PMTiles＋R5 熱區（z<10 熱區、z≥10 點）；工廠只用 90,652 筆 resolved factories，不納入 9,972 geocode misses，也不得用公司座標補位。
+- **R5 通則（2026-10-03，#498）**：全台點數 ≥1 萬的點圖層低縮放一律改熱區（10k–100k：z<10；>100k：z<12；原本點 minzoom 較高者保留原值，熱區補在其下），熱區與點共用 filter 與同一支透明度滑桿、不可點擊；強度逐層目視校正。已有 overview／密度格網的層（`powerPoles`、`companyPoints`、`jpMedical*`／`jpCare*`）保留原做法。熱區配色預設新版 magma，可從 17 組色盤換（R7，#510）。規格：`docs/design-system/map-layers.md` §3.1 P-3／P-4、§3.4 G-2。
 
 ## Business Registry publication whitelist（2026-08-19）
 
@@ -504,18 +417,19 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 與 factory BASE 目錄，比對 nginx + pull 覆蓋，漏接直接紅。
 教訓成本：FORESTRY 6/7 上線只接了 upload，容器上大檔 404 一週沒人發現。
 
-## Map effect 禁用 isStyleLoaded() guard（2026-06-12，toggle race）
+## Mapbox 掛載與 isStyleLoaded（三段合一，2026-10-16）
 
-**禁止**在 visibility / params 類 effect 用 `map.isStyleLoaded()` 當 guard 丟棄更新：
-任何 tile 還在載入它就回 false（production 首載 30-47s + busy 期間長期 false），
-更新被靜默丟棄且不重試 → 「toggle 顯示 ON 但圖層沒畫」。
+> 合併自三段：2026-04-22「視覺層 debug」的 polling 掛載、2026-06-12「Map effect 禁用 isStyleLoaded() guard」、2026-06-18「寫獨立 3D／CustomLayer hook 前先讀 pitfall」。三段原本口徑不一（舊版教「poll 直到 isStyleLoaded()」），以下為統一口徑。事件長文：[`.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`](../pitfalls/2026-04-22-mapbox-load-once-fired.md)（含 2026-06-18 第二次踩）。
 
-- `setLayoutProperty` / `setPaintProperty` 對已存在的 layer 任何時刻都安全，
-  layer 不存在時各 update 函式自帶 `getLayer` no-op
-- map `load` 前的狀態變更（mapRef 尚未設定）必須在 load handler 用 ref 重放
-  （見 MapView.tsx load handler 的補發區塊）
-- 線上排障：網址加 `?debug` → `window.__map`；access log 看 pmtiles 只有
-  16384 header 讀取、無後續 range = 圖層沒真的在畫
+**一句話**：`isStyleLoaded()` 不可信（任何 tile 在載入就回 false，動態 source swap 時 racy），`load`／`style.load` 只 fire 一次，所以既不能拿它當 guard，也不能拿它當掛載條件。
+
+1. **掛載獨立 CustomLayer／Three.js hook**（toggle ON 才 addLayer 的）：`try { map.addLayer(layer) } catch { map.once("idle", retry) }`，另掛 `map.on("style.load", tryMount)` 處理底圖切換；cleanup 要 `off` 掉。**禁** `if (isStyleLoaded()) mount; else map.on("style.load", mount)`，也禁 `map.once('load')`。mount 預先加 checkpoint log（entry／try addLayer／catch／success ✓）。
+2. **visibility／params 類 effect**：**禁止**用 `isStyleLoaded()` 當 guard 丟棄更新（production 首載 30–47s 期間長期 false → 「toggle 顯示 ON 但圖層沒畫」）。
+   - `setLayoutProperty`／`setPaintProperty` 對已存在的 layer 任何時刻都安全，layer 不存在時各 update 函式自帶 `getLayer` no-op
+   - map `load` 前的狀態變更（mapRef 尚未設定）必須在 load handler 用 ref 重放（見 MapView.tsx load handler 的補發區塊）
+   - 線上排障：網址加 `?debug` → `window.__map`；access log 看 pmtiles 只有 16384 header 讀取、無後續 range＝圖層沒真的在畫
+
+3. **觸發詞**：看到「3D 圖層／Three.js／CustomLayer／addLayer」先讀上面的 pitfall 再寫。Debug 信號：toggle ON 但畫面沒東西、console 沒 setData log → 先看 mount log 有沒有到 `mounted ✓`。
 
 ## `git add -A` 危險（2026-06-13 教訓）
 
@@ -578,39 +492,9 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 
 ## Design System / inline style + token（2026-06-18）
 
-> 規範文件 SSOT 在 `docs/design-system.md`，本節僅摘要不重複。
+> 2026-10-16 縮成指標：本段原是 2026-06-18 快照（DS-1~7 清單、「未開 `CONTROL.*`」），spec 早已補上 `CONTROL.*` 與共用元件。
 
-**核心決策**：**不引入 CSS 框架**（Tailwind / CSS Modules / styled-components）。
-理由：60+ 元件已走 inline `style={{}}`、Mapbox paint property 吃字串、Three.js 吃 hex、
-30-40% 樣式是動態（LAYER_COLORS 95 色 / opacity slider / time-based fade），框架反成負擔。
-
-**token SSOT**：`src/styles/designTokens.ts`（單向 import `intel/intelTokens.ts`）。
-新元件 / 重構元件**禁止**在 inline style 寫 hex / rgba / px scale，一律 import token：
-
-| 屬性 | token |
-|---|---|
-| 面板背景 | `SURFACE.app / subtle / panel / strong / solid` |
-| 文字色 | `COLORS.textStrong / textDefault / textMuted / textDim / textFaint / textGhost` |
-| 邊框 | `BORDER.soft / panel / mid / strong / accent` |
-| 圓角 | `RADIUS.sm:2 / md:4 / lg:6 / xl:8 / pill / full` |
-| 字級 | `FONT_SIZE.xs:9 / sm:10 / base:11 / md:12 / lg:13 / xl:18 / xxl:22` |
-| 字體 | `FONT_DATA`（數據 / 時間）/ `FONT_CJK`（中文） |
-| 陰影 | `ELEVATION.sm / md / lg / dock` |
-| 圖層代表色 | `LAYER_COLORS[layerKey]`（已被 `layerConsistency` 測試保護，不收進 designTokens） |
-| 關閉鈕 | `<X size={14} />` from lucide-react |
-
-**KEEP OUT**：
-- ❌ 不引入 CSS 框架
-- ❌ 不抽 `Button` / `Card` 通用元件庫（業務元件深耦合 Mapbox / timeStore，抽出 over-abstract）
-- ❌ 不在新元件 inline 寫死 hex / rgba / px font size
-- ❌ 不反向把 `intelTokens` 改成 re-export from `designTokens`（會 circular dep）
-- ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**
-  （即使數值相同 `rgba(0,0,0,0.4)`，語意不同 — 未來開 `CONTROL.*` 群組，見 DS-3）
-
-**寫新元件 checklist**：見 `docs/design-system.md` §9（5 段 code template 可直接抄）。
-
-**未抽 token 範圍**（DS-1~7）：Z_INDEX / transition / state colors / breakpoint / control sizing /
-intelTokens 退役 / LayerSidebar 亮側。**沒有真實痛點不開**，痛點出現再進 BACKLOG。
+正本：[`docs/design-system/spec.md`](../../docs/design-system/spec.md)（§1 原則、§6 文案、§7 禁止、§8 PR checklist、§9 guard）。仍成立的核心決策：不引入 CSS 框架、token 優先（`src/styles/designTokens.ts`）、新元件不寫死 hex／rgba／px，`SURFACE.*` 只給容器底、互動態用 `CONTROL.*`。
 
 ## 跨 repo 新管線必過 5 處（2026-06-17）
 
@@ -624,33 +508,19 @@ intelTokens 退役 / LayerSidebar 亮側。**沒有真實痛點不開**，痛點
 4. `storage/supabase_tables.py` — 加表對應（`history` / `current` / `columns` / `upsert_key` / `upsert_strategy`）
 5. `storage/supabase_writer.py` — 加 `_transform_<name>` 方法 **AND** 註冊到 `TRANSFORMERS` dict（容易忘第二步！）
 
-**對應 gis-platform**：1 個 migration 建 `realtime.<name>_history` + `realtime.<name>_current` + `public.get_<name>_xxx()` RPC + RLS + grant anon
+**對應 gis-platform**：1 個 migration 建 `live.<name>_history` + `live.<name>_current` + `public.get_<name>_xxx()` RPC + RLS + grant anon
 
 **對應前端**：`src/data/<name>Loader.ts` 用 `withLoading()` 包 supabase.rpc
 
 **Why**：本 session yt_live_video_resolver 第一次跑出現「Supabase 寫入 ✓ 但 DB 0 rows」— 因為漏了 `supabase_writer.py` 的 transformer 註冊（只加 supabase_tables 不夠）。collector run 不會報錯，靜默失敗。
 
-**How to apply**：開新 collector 時把這 5 處貼成 task checklist，逐項打勾才算完。Supabase pre-ship smoke：`psql -c "SELECT count(*) FROM realtime.<name>_current"` 第一輪跑完應該 > 0，否則回頭查 transformer。
+**How to apply**：開新 collector 時把這 5 處貼成 task checklist，逐項打勾才算完。Supabase pre-ship smoke：`psql -c "SELECT count(*) FROM live.<name>_current"` 第一輪跑完應該 > 0，否則回頭查 transformer。
 
 ---
 
 ## 寫獨立 3D / CustomLayer hook 前先讀 pitfall（2026-06-18）
 
-**規則**：任何**獨立 Three.js / Mapbox CustomLayer hook**（toggle ON 才 addLayer 的、非 addAllLayers 同步加的）開工前必跑：
-
-```bash
-grep -l "isStyleLoaded\|style.load\|addLayer" .claude/pitfalls/
-```
-
-**Why**：2026-04-22 水庫圖層、2026-06-18 能源 beam 兩次踩同一個 `isStyleLoaded() race + style.load 不會二次 fire` 的坑。第二次又花 4 輪 debug 才回想起來。Pitfall 檔早就有，**SessionStart 不 inline pitfalls 內容、只 inline STATUS/BACKLOG/PRINCIPLES**，要主動 grep 才看到。
-
-**How to apply**：
-- 看到「3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene」這幾個觸發詞，**立刻**讀 `.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`
-- 預設 mount 用 `try map.addLayer + catch → map.once("idle", retry)` 模式
-- **禁** `if (isStyleLoaded()) mount; else map.on("style.load", mount)` — 這個是經典陷阱
-- mount 函式預先加 5 個 checkpoint log（mount entry / try addLayer / catch / success ✓）
-
-**Debug 信號**：用戶說「3D 圖層 toggle ON 但畫面沒東西 + console 沒 setData log」→ 跳過視覺調整，直接看 mount log 有沒到 `mounted ✓`。沒到就是這個 race。
+> 2026-10-16 併入上方「Mapbox 掛載與 isStyleLoaded（三段合一）」。
 
 ---
 
@@ -806,14 +676,14 @@ find ~ -name "*.osm.pbf" -size +50M 2>/dev/null | head -5
 - Fallback 圓 buffer 語意：「假設路網完整、可到理論半徑」— overestimates 但比錯位置好，也比 None 好（避免山區完全消失）
 - 修法後掃全台：drive 6 變體「polygon 不含 station」raw feature 從 100+ 降到 23（<1.5%），視作邊界誤差可接受
 
-## Realtime schema 表要驗證 collector 是否真的在跑（2026-07-01）
+## live（舊 realtime）schema 表要驗證 collector 是否真的在跑（2026-07-01）
 
-**規則**：apply `realtime.*` schema migration 後，smoke test 不能只驗 RPC 語法，要**驗表內 row count + max timestamp**。
+**規則**：apply `live.*`（舊 `realtime.*`）schema migration 後，smoke test 不能只驗 RPC 語法，要**驗表內 row count + max timestamp**。
 
 **Why**：`realtime.prison_population_daily` migration 258 存在，但 `data-collectors/collectors/correctional_daily_snapshot.py` 沒在跑 → 全表只 1 row（2026-05-15，已 1 個多月沒更新）。前端 Monitor PrisonCard 開了顯示空白。
 
 **How to apply**：
-- migration apply 後跑：`psql -c "SELECT count(*), max(observed_date) FROM realtime.xxx;"`
+- migration apply 後跑：`psql -c "SELECT count(*), max(observed_date) FROM live.xxx;"`
 - 0 rows / max 太舊 → 記 BACKLOG 「collector 補跑」而非上線
 - Front-end panel 加「無資料時的 fallback UI」提示，不留白
 
@@ -904,7 +774,8 @@ Python `json` 與 `jq` 都接受 `Infinity` / `-Infinity` / `NaN` 非標準 lite
 ## 共用 worktree 有平行 session 時的 git 紀律（2026-07-24 教訓）
 
 同一 repo 主 worktree 可能多個 session 同時動工（本次 canopy commit 因本 session checkout feature branch 而落錯 branch）：
-- 開工先 `git status`：發現非預期 WIP → 當作「另一 session 進行中」處理，**只 stash 自己必要的檔**、用畢即 pop，不做超出必要的清理
+- 開工先 `git status`：發現非預期 WIP → 當作「另一 session 進行中」處理，不做超出必要的清理。要暫存自己的改動優先用暫時 WIP commit；非 stash 不可時用 `git stash push -u -m <唯一標籤>`＋記下 SHA＋`git stash apply <sha>`（stash stack 是所有 worktree 共用的，裸 `stash pop` 可能彈到別人的）
+- **絕不對正站著的分支 `git reset --hard`**：平行 session 的未 staged 改動會被靜默清掉，reflog 救不回。退分支用 `git reset --keep <target>`（衝突時 exit 128 拒絕執行）或 `git switch -c <新分支>` + `git branch -f <舊分支> <target>`（不碰工作區）。事件見 INCIDENTS「2026-08-05/06 殯葬圖層＋跨 repo 分支整合」事件 H
 - commit 前**逐檔驗 diff**（`git show <hash> -- <file>`），確認沒吞到別人的 hunks
 - branch 手術（rebase / 拆 commit / 組乾淨血統）**絕不在主 worktree 做**：`git worktree add`（scratch）操作 + `git push origin <sha>:refs/heads/<branch>` 推乾淨結果，主 worktree 與對方 WIP 全程不碰（呼應 PLAYBOOKS 混合 WIP 拆分 SOP + PB-29）
 
@@ -944,11 +815,12 @@ offset 不變；`["raster-value"]` 與 `raster-color` stop 一律寫物理值。
 
 ## Stacked PR merge 順序（2026-07-31 教訓）
 
-GitHub squash merge + **刪除 base branch** 時，以該 branch 為 base 的 stacked PR 會被
-**自動 CLOSED**（不會 retarget 到 master），內容不會進 master——#93 因此蒸發、靠手動重發 #94 補回。
+> 2026-10-16 改寫：原文以 squash merge、base master 敘述；現行一律 merge commit、PR base `develop`（CLAUDE.md §Git Workflow）。
 
-- Stacked PR 一律**由底往上依序 merge**；每 merge 一層，立刻把上層
-  `git rebase --onto origin/master <舊 base 尖>` 落到最新 master 再更新/重發 PR。
+merge **並刪除 base branch** 時，以該 branch 為 base 的 stacked PR 會被
+**自動 CLOSED**（不會 retarget），內容不會進 develop——#93 因此蒸發、靠手動重發 #94 補回。
+
+- Stacked PR 一律**由底往上依序 merge**（`gh pr merge --merge`）；每 merge 一層，把上層 PR 的 base 改成 `develop`，必要時 `git merge origin/develop` 解衝突後再推（不 rebase 改寫已推的歷史）。
 - 或 merge base PR 時**先不刪 branch**，等整條鏈 merge 完再清。
 - 看到 PR 莫名 CLOSED + CONFLICTING：先查 base branch 是否已被刪，不要急著解衝突。
 
@@ -1223,7 +1095,7 @@ Cloudflare **預設**就會 negative-cache 404，最長 **4 小時**，且只對
 
 - 探測一律 `curl -I "<url>?cb=$(date +%s)"`
 - 代價不對稱是重點：本專案唯一的 purge 腳本是 `purge_everything`，
-  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G020）
+  會連 297MB 底圖一起清，**沒有 scoped purge**（→ BACKLOG G017，舊編號 G020）
 - 內容雜湊 / 含日期的檔名讓「上線後」不必 purge，但**擋不住「上線前」自己種的 404**
 
 → 通則：只讀的探測看起來零風險，但**探測本身會改變 CDN 狀態**。對還沒存在的資源尤其如此。
@@ -1432,3 +1304,61 @@ chardet 猜測**，中文 UTF-8 位元組常被猜成西里爾單位元組碼頁
 - retention 天數下限 = 前端/RPC 實際回看窗口（從 RPC body 的 `now()-interval` / 參數預設 + 呼叫端實傳值推）；設低於它會弄壞現有卡（例：er_hospital `get_er_wait_total_14d` → ≥14 天）。
 - 影像類（base64 存 DB）加 retention 前**必須先 R2 雙寫**，cleanup 一律加 `image_key IS NOT NULL` 守衛只刪已備份的（cwa/aqi pattern）；沒副本刪了救不回。
 - 改收集器寫入語意（如 dedup 讓表變稀疏）前，先 grep 全 repo 找該表**所有時間窗讀取端**確認 blast radius；稀疏化後下游查詢須改 as-of（≤T 最新 + LOCF），不能假設每槽有列。
+
+## 題庫答案必須用查詢驗證過，Agent 的分數不能拿未驗證的答案判（2026-10-02）
+
+- 回歸測試的預期值一律用唯讀查詢重算，SQL 存檔並寫進該題 notes，才能寫入題庫。2026-10-02 抓到三題標準答案本身是錯的：
+  - A14 鄉鎮代碼轉 BIGINT 掉了開頭的 0，漏算金門馬祖；
+  - A05 即時事故資料是一位當事人一列，被重複計算；
+  - A18 用 UTC 切週，切斷了台灣時間的連續週。
+- Agent 答案和題庫不同時，先驗算雙方再判誰錯；不要直接改 skill 去迎合題庫。
+- 題目要能重現：時間用封閉區間，不寫「以來」；有多種合理算法時，題庫列出各口徑（`values:[{value,basis}]`）；只檢查題目真正問的數字。
+- 遇到 Agent 和題庫用了不同資料時，先查資料目錄的搜尋結果與題目字面，判斷是題目含糊、目錄引導錯，還是 Agent 選錯；修根因（題目、目錄、配方），不要只放寬檢查。
+
+## 監看卡：資料本身的時間、缺值不補 0、顏色走主題、舊版不動（2026-10-03）
+
+- 標題列時間與新鮮度只用資料本身的時間（觀測、發布、報表日、管線彙整時間），不用瀏覽器收到的時間；拿不到就顯示無資料，不假裝即時。卡片用 `useMonitorFreshness(widgetId, …)`，週期登記在 `monitorCardMeta.ts`（spec §5.35）。
+- 缺值保留 null（折線斷線＋斜線、柱灰樁、數值「—」）；只有 COUNT 類「沒有列＝當天真的沒有」才是 0。RPC 同樣不准 `COALESCE(…,0)` 兜缺值。
+- 新版顏色一律 `useMonitorTheme()`（`p`／`chart`／`fill`／`text`／`neutral`），暗色值與舊字面值相同；字級用 `fs`／`MF`；數值列與走勢用共用元件。
+- 舊版（`mtp-monitor-style=legacy`）畫面不改；只在舊版路徑的問題記下來不修。
+- 演進：取代 §5.21 舊的「監看模式刻意全暗」（P5 起新版跟底圖主題）。
+
+## 跨主題工作原則（2026-10-16 從 REFLECTIONS 升級）
+
+> 這些教訓在 REFLECTIONS 出現兩次以上卻一直沒升級，2026-10-16 盤點時集中寫進來。每條附 REFLECTIONS 出處（段標題日期），細節回原段看。
+
+**量測與驗證**
+- **先量再改，不要推論**：效能、版面高度與寬度、對位問題，一律實機量測再決定做法；估算一律標「估算」。（REFLECTIONS 2026-08-10 監看八／九版、2026-08-21/22 Monitor 微調、2026-09-01 儲存稽核、2026-10-02～04 效能 P1／P2、2026-10-06～15 R6）
+- **同一問題試過 3 個方案還沒解，就停下來量分布**（median／p90／max）找根因，不要「再換一個門檻試試」。（2026-05-10 Schedule 7 方案、2026-06-21~22 加油站 coverage）
+- **視覺尺寸要在多個縮放各看一次**：低（z5–8）、中（z10–12）、近（z13+）；只在單一縮放調參幾乎必錯。（2026-04-23 BL-5、2026-06-19 能源 MVP、2026-09-18~20 航跡）
+- **「沒有」的結論先驗量測手段看不看得到**：Resource Timing 只留 250 筆、lazy chunk 沒載入、headless 沒外網、本機 `grep` 會吞輸出，都會造成假的「0」。（2026-07-02 全球氣候、2026-07-22 夜景、2026-08-05/06、2026-08-07、2026-09-09/10）
+- **驗證網址用產品真正產生的 URL**（分享連結、完整 `?v=1&...&style=light`），不要自己拼。（2026-08-07、2026-10-03～04 監看 P4、2026-10-04 衛星）
+- **Mapbox expression／filter 的合法性是 runtime 契約**：tsc 與 unit test 不保證，必跑 style-spec 驗證或真地圖。（2026-05-24 消防、2026-08-20 動物福利、2026-08-29 catalog）
+- **驗收指標要問「它的反面有沒有量」**；截圖要指名目標並確認目標真的在畫面內。（2026-08-10 監看、2026-10-03～04 監看 P4）
+- **測試大量逾時先單獨重跑失敗檔再判斷**（先看機器負載）；flake 當場存檔，不調高 timeout、不改基準。（2026-08-10 監看、2026-08-12 晚場、2026-10-04 衛星）
+
+**資料與跨 repo**
+- **修既有資料前先確認寫入端已部署新版**：修 code → 部署 → 確認不再產生壞資料 → 才修資料。（2026-08-01/02 共機、2026-08-21/22 Monitor 微調）
+- **migration 取號前 `git fetch` 看 origin 的最大號**；先備好、還沒 apply 的號隨時可能被別人用掉。（2026-08-21/22、2026-09-01）
+- **未知風險先做最小 POC**（唯讀查詢、單一縣市、10 個邊界樣本），再定設計或跑全量。（2026-06-21~22、2026-07-01/02 PI-1、2026-07-04、2026-08-06~09 EM-16、2026-08-20 VW-9）
+- **「之後再做」先問等待期間有沒有資料正在消失**（retention、上游下架）。（2026-08-06~09 EM-16）
+
+**派工與協作（子代理、平行 session）**
+- **平行派工前先分檔案所有權＋禁改清單**，共用檔（manifest、spec、fixture、登記簿）由主 agent 最後串行接線。（2026-07-04、2026-07-29~31 地震回放、2026-10-02～04、2026-10-03～04、2026-10-04 衛星）
+- **會改邏輯的子代理工作要附可量化的驗收關卡**（筆數相等、對數、diff 只動某幾行），不收「我測過了」；批次腳本的成功計數不是證據。（2026-07-04、2026-08-20 VW-9）
+- **長跑子代理的 prompt 內建「每個子階段先 commit」「發現前提錯就停下回報」**。（2026-08-10 結構稽核、2026-08-11/12、2026-08-12 晚場、2026-10-02～03 Agent v2）
+- **不轉述子代理或稽核的二手結論**：色階名、檔案在哪個分支、前提狀態，抽最貴的幾條自己重驗。2026-10-16 盤點時「檔案不存在」類判斷抽驗 6 條錯 1 條。（2026-04-26、2026-07-03、2026-08-10 結構稽核、2026-10-02～04）
+- **子代理會自行擴大範圍、漏出內部用語**：交付前列出「使用者沒選過的改動」，UI 由主 agent 自己目視。（2026-07-26/27、2026-10-02～04、2026-10-04 衛星）
+- **給使用者的選擇題先白話＋說明畫面會看到什麼**；設計類用「選擇頁＋代號一次貼回」，題目多時只問核心 2 題；選項中立呈現，不暗推自己想做的。（2026-07-01 警政、2026-08-12 晚場、2026-10-02～04、2026-10-04 衛星、2026-10-06～15）
+- **使用者說「不合理」「不是有現成的？」「之前為什麼可以」是強訊號**：先 diff 或補檢查維度，不辯護。（2026-06-21~22、2026-07-01 警政、2026-07-01/02 PI-1、2026-08-20 VW-9）
+
+**收尾與發布**
+- **合併前等 CI 檢查出現並跑完**：PR 顯示 CLEAN 不代表 CI 已跑完；`gh pr merge --delete-branch` 會把本機切回 base，遠端結果以 merge SHA 為準。（2026-08-21/22、2026-08-29/30 GFW、2026-10-02～04、2026-10-04 衛星）
+- **收尾前重抓事實**：SHA、PR 編號、正式站版號、文件中的「預期數字」都會過時，不沿用對話裡的舊結論。（2026-08-05/06、2026-08-24、2026-10-06～15）
+- **修完 bug 主動掃同類**，並回頭看自己新寫的程式有沒有同一個模式。（2026-07-22 夜景、2026-08-21/22）
+- **worktree 開工先補 `.env*` 鍵名存在性、node_modules、gitignored 資產**；Vite ready ≠ app 已 mount；新增 runtime 產物要 `git check-ignore -v` 確認，本機有檔 ≠ clean checkout 有。（2026-08-05/06、2026-08-13、2026-08-19、2026-08-29）
+
+**從 feature 文件升級的三條**
+- React StrictMode 下 effect 會跑兩次，`disposedRef` 這類旗標**要在 effect 開頭重設為 false**，否則第二次 mount 一開始就被當成已卸載。（`docs/features/imagery/backlog.md`）
+- `gisClickRegistry` 是 first-hit-wins：不只「點在前、面在後」，**面層之間也要小面在前、大面在後**。（`docs/features/jp-core-layers/deferred-handoff.md`）
+- 一次性的預先計算要處理「依賴的資料晚到」，不能依賴呼叫順序。（`docs/features/bus/backlog.md`）

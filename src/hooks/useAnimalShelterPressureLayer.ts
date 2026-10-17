@@ -4,6 +4,7 @@ import { fetchAnimalShelterPressureLatest, type AnimalShelterPressureRow } from 
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * 借用既有 NLSC 22 縣市界 PMTiles：資料只給月報數值，不另載全國 polygon。
@@ -108,15 +109,16 @@ export function useAnimalShelterPressureLayer(
     if (!map.getLayer(FILL_LAYER)) {
       map.addLayer({
         id: FILL_LAYER, type: "fill", source: SOURCE_ID, "source-layer": SOURCE_LAYER, minzoom: 4,
-        paint: { "fill-color": UTILIZATION_COLOR, "fill-opacity": opacity, "fill-outline-color": "rgba(0,0,0,0)" },
+        paint: hookFillPaint("animalShelterPressure", FILL_LAYER, { "fill-color": UTILIZATION_COLOR, "fill-opacity": opacity }, { "fill-color": UTILIZATION_COLOR, "fill-opacity": 0.78 }),
       } as unknown as FillLayer, before);
-    } else map.setPaintProperty(FILL_LAYER, "fill-opacity", opacity);
+    } else map.setPaintProperty(FILL_LAYER, "fill-opacity", hookFillOpacity("animalShelterPressure", FILL_LAYER, opacity, 0.78));
     if (!map.getLayer(LINE_LAYER)) {
       map.addLayer({
         id: LINE_LAYER, type: "line", source: SOURCE_ID, "source-layer": SOURCE_LAYER, minzoom: 4,
-        paint: { "line-color": "#9a3412", "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 10, 1.2], "line-opacity": opacity * 0.7 },
+        layout: hookLineLayout("animalShelterPressure", LINE_LAYER),
+        paint: hookLinePaint("animalShelterPressure", LINE_LAYER, { "line-color": "#9a3412", "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 10, 1.2], "line-opacity": opacity * 0.7 }, { "line-color": "#9a3412", "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 10, 1.2], "line-opacity": 0.78 * 0.7 }),
       } as unknown as LineLayer, before);
-    } else map.setPaintProperty(LINE_LAYER, "line-opacity", opacity * 0.7);
+    } else map.setPaintProperty(LINE_LAYER, "line-opacity", hookLineOpacity("animalShelterPressure", LINE_LAYER, opacity * 0.7, 0.78 * 0.7));
     setVisible(map, true);
 
     const flush = () => {

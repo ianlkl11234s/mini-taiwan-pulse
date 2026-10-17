@@ -1,7 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap");
-
 :root {
-  font-family: "JetBrains Mono", "Noto Sans TC", ui-monospace, monospace;
+  font-family: var(--font-data), var(--font-cjk);
   color: #14161a;
   background: #edeff2;
   font-variant-numeric: tabular-nums;
@@ -45,7 +43,7 @@ button { cursor: pointer; }
 .jev-logo circle { fill: var(--green); }
 .jev-title-lockup p { margin: 0 0 7px; color: #6b7480; font-size: 12px; letter-spacing: 2.6px; }
 .jev-title-lockup > div > div { display: flex; align-items: baseline; gap: 12px; }
-.jev-title-lockup h1 { margin: 0; font-family: "Noto Sans TC", sans-serif; font-size: 34px; font-weight: 700; letter-spacing: .4px; }
+.jev-title-lockup h1 { margin: 0; font-family: var(--font-cjk); font-size: 34px; font-weight: 700; letter-spacing: .4px; }
 .jev-title-lockup div span { color: #5b6470; font-size: 14px; letter-spacing: 2.4px; white-space: nowrap; }
 .jev-statuses { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 10px; }
 .jev-statuses > span { display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px; border: 1px solid #d5dae2; border-radius: 7px; color: #5b6470; background: #f7f8fa80; font-size: 12px; letter-spacing: 1.3px; white-space: nowrap; }
@@ -94,7 +92,7 @@ button { cursor: pointer; }
 .jev-relevant-card { display: flex; flex-direction: column; justify-content: space-between; height: 72px; min-width: 0; padding: 9px 12px; border: 1px solid #0f8f5257; border-radius: 9px; background: #0f8f5212; animation: deal-up 300ms cubic-bezier(.16,.9,.3,1) both; }
 .jev-relevant-card > div { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
 .jev-relevant-card strong, .jev-relevant-card small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.jev-relevant-card strong { color: #123d27; font-family: "Noto Sans TC", sans-serif; font-size: 17px; font-weight: 500; }
+.jev-relevant-card strong { color: #123d27; font-family: var(--font-cjk); font-size: 17px; font-weight: 500; }
 .jev-relevant-card b { flex: 0 0 auto; color: var(--green); font-size: 19px; }
 .jev-relevant-card small { color: #3f6b53; font-size: 11px; }
 .jev-relevant-card .jev-score-bar { color: var(--green); }
@@ -102,7 +100,7 @@ button { cursor: pointer; }
 .jev-score-bar i { display: block; height: 100%; border-radius: inherit; background: currentColor; animation: grow-x 260ms ease-out both; }
 .jev-excluded-grid { display: flex; flex-wrap: wrap; gap: 7px; align-content: flex-start; height: calc(100% - 34px); margin-top: 10px; padding-right: 4px; overflow-y: auto; scrollbar-gutter: stable; }
 .jev-excluded-chip { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: calc(20% - 6px); height: 32px; min-width: 120px; padding: 0 9px; border: 1px solid #b3323f42; border-radius: 7px; color: #6e5a5e; background: #b3323f0d; animation: deal-down 260ms cubic-bezier(.16,.9,.3,1) both; }
-.jev-excluded-chip span { overflow: hidden; font-family: "Noto Sans TC", sans-serif; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.jev-excluded-chip span { overflow: hidden; font-family: var(--font-cjk); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .jev-excluded-chip b { color: #8a6169; font-size: 13px; font-weight: 500; }
 
 .jev-dealer { display: grid; grid-template-columns: 176px minmax(300px, 452px) minmax(170px, 1fr); align-items: center; gap: 18px; padding: 14px; border: 1px solid #cbd5ea; border-radius: 10px; background: #f5f7f9; }
@@ -113,7 +111,7 @@ button { cursor: pointer; }
 .jev-current-card > div { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .jev-current-card > div span { flex: 0 0 auto; padding: 3px 7px; border: 1px solid #c6cfe0; border-radius: 5px; color: #5b6470; font-size: 11px; letter-spacing: 1.4px; }
 .jev-current-card strong, .jev-current-card small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.jev-current-card strong { font-family: "Noto Sans TC", sans-serif; font-size: 22px; }
+.jev-current-card strong { font-family: var(--font-cjk); font-size: 22px; }
 .jev-current-card small { color: #3f6b53; font-size: 13px; letter-spacing: .6px; }
 .jev-current-card.is-complete strong, .jev-current-card.is-complete small { color: var(--green); }
 .corner { position: absolute; width: 8px; height: 8px; opacity: .8; }
@@ -151,7 +149,7 @@ button { cursor: pointer; }
 .jev-stream { display: flex; flex: 1; flex-direction: column; min-height: 0; padding-right: 4px; overflow-y: auto; scrollbar-gutter: stable; }
 .jev-stream article { display: grid; grid-template-columns: 52px minmax(0, 1fr) 130px 44px; flex: 0 0 40px; gap: 10px; align-items: center; height: 40px; animation: row-in 200ms ease-out both; }
 .jev-stream article > span { overflow: hidden; color: #6b7480; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.jev-stream article > strong { overflow: hidden; color: #5b6470; font-family: "Noto Sans TC", sans-serif; font-size: 15px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.jev-stream article > strong { overflow: hidden; color: #5b6470; font-family: var(--font-cjk); font-size: 15px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
 .jev-stream article > b { color: #8a6169; font-size: 16px; text-align: right; }
 .jev-stream article.is-relevant > strong, .jev-stream article.is-relevant > b { color: #123d27; }
 .jev-stream article.is-relevant { color: var(--green); }
@@ -160,7 +158,7 @@ button { cursor: pointer; }
 .jev-shortlist { display: grid; grid-template-rows: repeat(4, 32px); flex: 1; overflow: hidden; }
 .jev-shortlist > div { display: grid; grid-template-columns: 22px minmax(0, 1fr) 110px 40px; gap: 10px; align-items: center; height: 32px; }
 .jev-shortlist span { color: #6b7480; font-size: 12px; }
-.jev-shortlist strong { overflow: hidden; color: #123d27; font-family: "Noto Sans TC", sans-serif; font-size: 16px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.jev-shortlist strong { overflow: hidden; color: #123d27; font-family: var(--font-cjk); font-size: 16px; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
 .jev-shortlist b { color: var(--green); font-size: 17px; text-align: right; }
 .jev-shortlist .jev-score-bar { color: var(--green); background: #e3e7ec; }
 .jev-shortlist-foot { display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 12px; border: 1px solid #0f8f5273; border-radius: 8px; color: var(--green); background: #0f8f5217; font-size: 14px; }

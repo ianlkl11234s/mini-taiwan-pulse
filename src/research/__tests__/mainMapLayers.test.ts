@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { applyMainMapLayers, captureLayerOverrides } from "../mainMapLayers";
+import { applyMainMapLayers, captureLayerOverrides, planMainMapLayers } from "../mainMapLayers";
 import type { MapBridge } from "../../chat/types";
 function setup() {
   const visible = new Set(["schools"]);
@@ -22,6 +22,25 @@ describe("main map layer adapter", () => {
       expect(() => applyMainMapLayers(layers, new Set(["schools", "aqi"]), new Set(["aqi"]), bridge)).toThrow();
     }
     expect(write).not.toHaveBeenCalled();
+  });
+  // Regression (2026-10-02 live): set_layers {bus:true} (real key busLive) was merged into the
+  // study scene on ack, and every later set_camera/show_result re-rendered it and failed.
+  it("skips an unknown key inherited from the study scene instead of failing later commands", () => {
+    const { visible, bridge } = setup();
+    const known = new Set(["schools", "busLive"]);
+    const stored = { schools: true, bus: true };
+    expect(() => applyMainMapLayers(stored, known, new Set(), bridge)).toThrow("UNKNOWN_OR_LOCKED_LAYER");
+    const later = planMainMapLayers(stored, undefined, known, new Set());
+    expect(later).toEqual({ usable: { schools: true }, ignored: ["bus"], rejected: [] });
+    expect(() => applyMainMapLayers(later.usable, known, new Set(), bridge)).not.toThrow();
+    expect([...visible]).toEqual(["schools"]);
+  });
+  it("reports only the current command's own unknown or locked keys as rejected", () => {
+    const known = new Set(["schools", "aqi", "busLive"]);
+    expect(planMainMapLayers({ schools: true, bus: true, busLive: true }, { bus: true, busLive: true }, known, new Set()))
+      .toEqual({ usable: { schools: true, busLive: true }, ignored: ["bus"], rejected: ["bus"] });
+    expect(planMainMapLayers({ aqi: true, schools: false }, { aqi: true }, known, new Set(["aqi"])).rejected).toEqual(["aqi"]);
+    expect(planMainMapLayers({ aqi: false }, { aqi: false }, known, new Set(["aqi"])).usable).toEqual({ aqi: false });
   });
   it("does not claim success when the existing handler rejects a switch", () => {
     const { bridge } = setup(); bridge.bulkSetVisibility = vi.fn();

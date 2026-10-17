@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchWasteCleaningSquads, type WasteCleaningSquadRow } from "../data/wasteLoader";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -30,10 +31,11 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       source: SOURCE_ID,
       minzoom: 6,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 10, 6, 14, 10, 17, 16],
+        "circle-radius": pointRadius("L"),
         "circle-color": color,
         "circle-blur": 0.7,
-        "circle-opacity": isDark ? 0.35 : 0.25,
+        // 靜態清潔隊據點；glow 不參與點擊，保留子圖層但不顯示。
+        "circle-opacity": 0,
       },
     });
   }
@@ -44,10 +46,9 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       source: SOURCE_ID,
       minzoom: 6,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 10, 2.5, 14, 4, 17, 6],
+        "circle-radius": pointRadius("L"),
         "circle-color": color,
-        "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)",
-        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 12, 0.6, 16, 1.2],
+        ...pointStrokePaint(isDark),
         "circle-opacity": 0.95,
       },
     });
@@ -92,6 +93,11 @@ export function useWasteCleaningSquadLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
 
   const loadedRef = useRef(false);
+  // 最近一次成功載入的資料：換底圖（style.load → run）後用它重畫，不重抓
+  const rowsRef = useRef<WasteCleaningSquadRow[] | null>(null);
+  // 主題只改樣式：資料 effect 讀 ref，不把 isDarkTheme 放進 deps
+  const isDarkRef = useRef(isDarkTheme);
+  isDarkRef.current = isDarkTheme;
 
   useEffect(() => {
     const map = mapRef.current;
@@ -115,7 +121,15 @@ export function useWasteCleaningSquadLayer(
         return;
       }
       try {
-        ensureLayer(map, isDarkTheme);
+        ensureLayer(map, isDarkRef.current);
+        if (map.getLayer(CORE_LAYER_ID)) {
+          {
+            const stroke = pointStrokePaint(isDarkRef.current);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+            map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+          }
+        }
       } catch {
         scheduleRetry();
         return;
@@ -123,8 +137,12 @@ export function useWasteCleaningSquadLayer(
       if (!loadedRef.current) {
         const rows = await fetchWasteCleaningSquads();
         if (cancelled) return;
+        rowsRef.current = rows;
         setData(map, rows);
         loadedRef.current = true;
+      } else if (rowsRef.current) {
+        // 換底圖後 source 被清空：用快取重畫
+        setData(map, rowsRef.current);
       }
       setVisible(map, true);
     };
@@ -137,5 +155,15 @@ export function useWasteCleaningSquadLayer(
       map.off("style.load", run);
       if (retryPending) map.off("idle", retry);
     };
+  }, [mapRef, visible, mapTick]);
+
+  // 主題：只改描邊 paint
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.getLayer(CORE_LAYER_ID)) return;
+    const stroke = pointStrokePaint(isDarkTheme);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+    map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
   }, [mapRef, visible, isDarkTheme, mapTick]);
 }

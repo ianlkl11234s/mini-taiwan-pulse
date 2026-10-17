@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { RADIUS } from "../../../styles/designTokens";
+import { FONT_CJK, FONT_DATA } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { MONITOR_DENSE_CARD_ZOOM } from "./monitorLayout";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
@@ -10,11 +10,19 @@ import {
 } from "../../../data/intelLoaders";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorV2 } from "./monitorStyle";
+import { fs } from "./monitorFont";
+import { useMonitorTheme } from "./monitorTheme";
+import { useMonitorFreshness } from "./monitorFreshness";
+import { MonitorMetric, MonitorSub, MonitorNote, MonitorRows } from "./MonitorMetric";
+import { MF } from "./monitorFont";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import type { MessageKey } from "../../../i18n/keys";
 
 /**
  * 特殊船舶接近帶 —— 中國公務船距 24 浬鄰接區外界線的每日態勢。
  *
- * 設計 SSOT：`docs/proposal/vessel-zone-watch.md`（VZ-4）
+ * 設計 SSOT：`docs/features/vessel-watch/zone-watch-design.md`（VZ-4）
  *
  * **為什麼主視覺是「接近帶」而不是「進入鄰接區」**（POC 實測後改的方向）：
  * 174 天裡真正進入 24 浬只有 8 天，近 60 天更是 59 天為 0 —— 畫成連續趨勢圖
@@ -42,11 +50,19 @@ const ZONE_LEVEL: Record<VesselZoneName, number> = {
   territorial: 3,
 };
 
-const ZONE_LABEL: Record<VesselZoneName, string> = {
-  approach_12: "接近（24 浬線外 6–12 浬）",
-  approach_6: "貼線（24 浬線外 0–6 浬）",
-  contiguous: "進入鄰接區（12–24 浬）",
-  territorial: "進入領海（12 浬內）",
+const ZONE_LABEL: Record<VesselZoneName, MessageKey> = {
+  approach_12: "monitor.vessel.zoneApproach12",
+  approach_6: "monitor.vessel.zoneApproach6",
+  contiguous: "monitor.vessel.zoneContiguous",
+  territorial: "monitor.vessel.zoneTerritorial",
+};
+
+/** v2 小倍數列的分帶名（四列並排，用短名） */
+const ZONE_SHORT: Record<VesselZoneName, MessageKey> = {
+  approach_12: "monitor.vessel.shortApproach12",
+  approach_6: "monitor.vessel.shortApproach6",
+  contiguous: "monitor.vessel.shortContiguous",
+  territorial: "monitor.vessel.shortTerritorial",
 };
 
 /** 分帶時間軸的排序：由深到淺（越危險的帶排越前面） */
@@ -55,16 +71,21 @@ const ZONE_ORDER: VesselZoneName[] = ["territorial", "contiguous", "approach_6",
 /** level → 色。越接近台灣越紅，與海域界線圖層的 12 浬紅／24 浬紫系不衝突 */
 const ZONE_COLORS = ["#fbbf24", "#fb923c", "#ef4444", "#b91c1c"];
 
-const CLASS_SHORT: Record<string, string> = {
-  中國海警: "海警",
-  中國海事局: "海事局",
-  中國科研船: "科研船",
+const CLASS_SHORT: Record<string, MessageKey> = {
+  中國海警: "monitor.vessel.classCoastGuard",
+  中國海事局: "monitor.vessel.classMsa",
+  中國科研船: "monitor.vessel.classResearch",
 };
 
 interface DayAgg {
   day: string;
   /** 該日接近帶總艘數（見下方 mergeDay 的計算與其保守性說明） */
   ships: number;
+  /**
+   * 該日艘數缺值：RPC 有列但 ships 全是 NULL（09-26~29 實際發生），或停更後補的尾段。
+   * `ships` 仍是 0（舊版沿用），v2 畫成灰樁（缺值）而不是 0 底線。
+   */
+  unknown: boolean;
   /** 該日最深分帶 */
   level: number;
   deepestZone: VesselZoneName;
@@ -98,12 +119,19 @@ interface DayAgg {
 function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
   const perDay = new Map<string, Map<string, Map<VesselZoneName, number>>>();
   const minDist = new Map<string, number>();
+  // 每日 ships 缺值統計：有列但全部 ships 為 NULL → 該日缺值
+  const rowCount = new Map<string, number>();
+  const knownCount = new Map<string, number>();
 
   for (const r of rows) {
     if (!WATCH_CLASSES.includes(r.vesselClass as (typeof WATCH_CLASSES)[number])) continue;
     const classes = perDay.get(r.day) ?? new Map();
     const zones = classes.get(r.vesselClass) ?? new Map<VesselZoneName, number>();
-    zones.set(r.zone, Math.max(zones.get(r.zone) ?? 0, r.ships ?? 0));
+    rowCount.set(r.day, (rowCount.get(r.day) ?? 0) + 1);
+    if (r.ships !== null) {
+      knownCount.set(r.day, (knownCount.get(r.day) ?? 0) + 1);
+      zones.set(r.zone, Math.max(zones.get(r.zone) ?? 0, r.ships));
+    }
     classes.set(r.vesselClass, zones);
     perDay.set(r.day, classes);
 
@@ -135,18 +163,24 @@ function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
       byClass.set(cls, clsShips);
       ships += clsShips; // 跨分類相加是安全的
     }
-    out.push({ day, ships, level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone });
+    out.push({
+      day, ships, // 任一列 ships 缺值 → 當日總數不完整，視為未知（不把子集當完整總數）
+      unknown: (rowCount.get(day) ?? 0) > 0 && (knownCount.get(day) ?? 0) < (rowCount.get(day) ?? 0),
+      level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone,
+    });
   }
   out.sort((a, b) => a.day.localeCompare(b.day));
   return out;
 }
 
 /** 把日期補齊成連續序列 —— 沒有列的日子代表當天沒有船進入接近帶（真的 0，不是缺資料） */
-function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
+function fillDays(aggs: DayAgg[], windowDays: number, tail?: { toDay: string }): DayAgg[] {
   const lastAgg = aggs[aggs.length - 1];
   if (!lastAgg) return [];
   const byDay = new Map(aggs.map((a) => [a.day, a]));
-  const last = new Date(`${lastAgg.day}T00:00:00Z`);
+  // v2 來源過期／停更時，視窗錨在今天：最後一列之後的日子是「不知道」（缺值），不是「真的沒船」
+  const anchorDay = tail && tail.toDay > lastAgg.day ? tail.toDay : lastAgg.day;
+  const last = new Date(`${anchorDay}T00:00:00Z`);
   const out: DayAgg[] = [];
   for (let i = windowDays - 1; i >= 0; i--) {
     const d = new Date(last);
@@ -156,6 +190,7 @@ function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
       byDay.get(key) ?? {
         day: key,
         ships: 0,
+        unknown: key > lastAgg.day,
         level: 0,
         deepestZone: "approach_12",
         minDistNm: null,
@@ -168,35 +203,54 @@ function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
 }
 
 const fmtDay = (day: string) => `${day.slice(5, 7)}/${day.slice(8, 10)}`;
-const fmtDist = (nm: number | null) =>
-  nm === null ? "—" : nm < 0 ? `線內 ${Math.abs(nm).toFixed(1)} 浬` : `${nm.toFixed(1)} 浬`;
+const fmtDist = (nm: number | null, t: LocaleSnapshot["t"]) =>
+  nm === null ? "—" : nm < 0 ? t("monitor.vessel.distInside", { nm: Math.abs(nm).toFixed(1) }) : t("monitor.vessel.dist", { nm: nm.toFixed(1) });
 
 export function VesselZoneCard({ open = true }: { open?: boolean }) {
+  const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const classShort = (c: string) => (CLASS_SHORT[c] ? t(CLASS_SHORT[c]) : c);
   const [windowDays, setWindowDays] = useState<WindowDays>(90);
   const loadRows = useCallback(() => fetchVesselZoneDaily(120), []);
   const rowsQuery = useMonitorResource({ open, queryKey: "vessel-zone", intervalMs: 30 * 60_000, emptyData: EMPTY_VESSEL_ZONE, load: loadRows });
   const rows = rowsQuery.data;
   const hasReadableData = rowsQuery.status === "ready" || rowsQuery.lastSuccessAt !== null;
 
+  const v2 = useMonitorV2();
   const aggs = useMemo(() => aggregateByDay(rows), [rows]);
-  const windowed = useMemo(() => fillDays(aggs, windowDays), [aggs, windowDays]);
+
+  // 資料期別＝RPC 最新一日（含 0 艘日不在列內，取有列的最後一天）；資料日期＝該日台灣 00:00
+  const lastAggDay = aggs.length ? aggs[aggs.length - 1]!.day : null;
+  const lastAggMs = lastAggDay ? Date.parse(`${lastAggDay}T00:00:00+08:00`) : NaN;
+  const fresh = useMonitorFreshness("vesselZone", {
+    timeText: lastAggDay ? fmtDay(lastAggDay) : null,
+    dataMs: Number.isNaN(lastAggMs) ? null : lastAggMs,
+  });
+  const freshStale = fresh.state === "stale" || fresh.state === "stopped";
+  const windowed = useMemo(
+    () => fillDays(aggs, windowDays, v2 && freshStale ? { toDay: new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10) } : undefined),
+    [aggs, windowDays, v2, freshStale],
+  );
 
   const bars: HazardBar[] = useMemo(
     () =>
       windowed.map((a) => ({
         label: fmtDay(a.day),
         key: a.day,
-        value: a.ships || null, // 0 艘畫成灰樁底線，與有量的日子拉開
+        // v2：0 艘＝底線（真的沒船），缺值（unknown）才是灰樁；舊版維持 0 艘畫成灰樁
+        value: v2 ? (a.unknown ? null : a.ships) : a.ships || null,
         level: a.level,
         note: a.ships
           ? [
-              ZONE_LABEL[a.deepestZone],
-              `最近 ${fmtDist(a.minDistNm)}`,
-              [...a.byClass].map(([c, n]) => `${CLASS_SHORT[c] ?? c} ${n}`).join(" · "),
+              t(ZONE_LABEL[a.deepestZone]),
+              t("monitor.vessel.nearest", { dist: fmtDist(a.minDistNm, t) }),
+              [...a.byClass].map(([c, n]) => `${classShort(c)} ${n}`).join(" · "),
             ].join("｜")
-          : "無船進入接近帶",
+          : v2 && a.unknown ? t("monitor.vessel.noteUnknown") : t("monitor.vessel.noteNone"),
       })),
-    [windowed],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [windowed, v2, i18n],
   );
 
   // 頭部：最新「有量」的一日
@@ -211,21 +265,128 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
   }, [windowed]);
   const enterDays = useMemo(() => windowed.filter((a) => a.level >= 2).length, [windowed]);
 
+  if (v2) {
+    const statusText = rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t("monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable");
+    const deepestShips = latest ? latest.byZone.get(latest.deepestZone) ?? 0 : 0;
+    const latestColor = latest ? ZONE_COLORS[latest.level] : undefined;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, fontFamily: FONT_CJK }}>
+        <MonitorDataStatus label={t("monitor.vessel.dataLabel")} query={rowsQuery} />
+        {latest && latestColor && (
+          <>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
+              <span
+                style={{
+                  fontSize: MF.label, padding: "1px 8px", borderRadius: RADIUS.pill, whiteSpace: "nowrap",
+                  background: `${theme.fill(latestColor)}22`, color: theme.text(latestColor), border: `1px solid ${theme.fill(latestColor)}55`,
+                }}
+              >
+                {t(ZONE_LABEL[latest.deepestZone])}
+              </span>
+            </div>
+            <MonitorMetric
+              value={deepestShips}
+              unit={t("monitor.vessel.unitShips")}
+              color={latestColor}
+              muted={fresh.muted}
+              delta={`${fmtDay(latest.day)} · ${t("monitor.vessel.nearest", { dist: fmtDist(latest.minDistNm, t) })}`}
+            />
+          </>
+        )}
+        {!latest && <MonitorNote>{statusText}</MonitorNote>}
+
+        {hasReadableData ? (
+          <>
+            <div style={{ display: "flex", gap: 4 }}>
+              {WINDOWS.map((w) => (
+                <button
+                  key={w}
+                  onClick={() => setWindowDays(w)}
+                  style={{
+                    fontSize: MF.label, padding: "2px 8px", borderRadius: RADIUS.sm, cursor: "pointer", fontFamily: FONT_DATA,
+                    background: w === windowDays ? theme.p.accentFaint : "transparent",
+                    color: w === windowDays ? theme.p.textStrong : theme.p.textDim,
+                    border: `1px solid ${w === windowDays ? theme.p.borderStrong : theme.p.borderSoft}`,
+                  }}
+                >
+                  {w}D
+                </button>
+              ))}
+            </div>
+            <HazardTrendBars
+              bars={bars}
+              levelColors={ZONE_COLORS}
+              heightTier="lg"
+              unit={t("monitor.vessel.unitShips")}
+              caption={t("monitor.vessel.captionV2", { days: windowDays })}
+              footer={
+                peak
+                  ? `${t("monitor.vessel.footerPeak", { count: peak })}${closest !== null ? t("monitor.vessel.footerNearest", { dist: fmtDist(closest, t) }) : ""}${enterDays ? t("monitor.vessel.footerEnter", { count: enterDays }) : ""}`
+                  : undefined
+              }
+            />
+            <MonitorRows
+              rows={ZONE_ORDER.map((zone) => {
+                // 四列同一把尺：取所有分帶在視窗內的單日最高
+                const sharedMax = Math.max(1, ...windowed.flatMap((a) => ZONE_ORDER.map((z) => a.byZone.get(z) ?? 0)));
+                const zBars: HazardBar[] = windowed.map((a) => {
+                  const n = a.byZone.get(zone) ?? 0;
+                  return {
+                    label: fmtDay(a.day),
+                    key: a.day,
+                    // fillDays 補的是「當天該帶真的沒有船」→ 0（底線）；當日艘數缺值／停更尾段才是缺值（灰樁）
+                    value: a.unknown ? null : n,
+                    level: 0,
+                    note: n ? t("monitor.vessel.zoneNote", { zone: t(ZONE_LABEL[zone]), count: n }) : t("monitor.vessel.zoneNoShips"),
+                  };
+                });
+                const zDays = windowed.filter((a) => (a.byZone.get(zone) ?? 0) > 0).length;
+                return {
+                  label: t(ZONE_SHORT[zone]),
+                  title: t(ZONE_LABEL[zone]),
+                  chart: <HazardTrendBars bars={zBars} levelColors={[ZONE_COLORS[ZONE_LEVEL[zone]]!]} heightTier="mini" unit={t("monitor.vessel.unitShips")} bare maxValue={sharedMax} />,
+                  value: zDays,
+                  unit: t("monitor.vessel.rowUnit"),
+                };
+              })}
+            />
+            <MonitorSub
+              items={WATCH_CLASSES.map((cls) => {
+                const days = windowed.filter((a) => (a.byClass.get(cls) ?? 0) > 0).length;
+                return t("monitor.vessel.classDays", { cls: classShort(cls), days });
+              })}
+            />
+          </>
+        ) : (
+          <MonitorNote>{t("monitor.vessel.noInference")}</MonitorNote>
+        )}
+        {fresh.reason && fresh.state !== "none" && (
+          <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
+        )}
+        <MonitorNote>
+          {t("monitor.vessel.limits")}
+        </MonitorNote>
+      </div>
+    );
+  }
+
   return (
     // zoom：同 PlaBoard —— 本卡內文是 9~12px 字面值（含 HazardTrendBars 的 8~8.5px 軸標），
     // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
-    <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
-      <MonitorDataStatus label="特殊船舶接近帶" query={rowsQuery} />
+    <div style={{ zoom: v2 ? undefined : MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
+      <MonitorDataStatus label={t("monitor.vessel.dataLabel")} query={rowsQuery} />
       {/* 頭 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textStrong }}>
-          特殊船舶接近帶
-        </span>
+        {!v2 && (
+          <span style={{ fontSize: fs(v2, FONT_SIZE.md), fontWeight: 600, color: theme.p.textStrong }}>
+            {t("monitor.vessel.dataLabel")}
+          </span>
+        )}
         {latest ? (
           <>
             <span
               style={{
-                fontSize: 10,
+                fontSize: fs(v2, FONT_SIZE.sm),
                 padding: "1px 6px",
                 borderRadius: RADIUS.pill,
                 background: `${ZONE_COLORS[latest.level]}22`,
@@ -233,15 +394,15 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
                 border: `1px solid ${ZONE_COLORS[latest.level]}55`,
               }}
             >
-              {ZONE_LABEL[latest.deepestZone]}
+              {t(ZONE_LABEL[latest.deepestZone])}
             </span>
-            <span style={{ fontSize: 11, color: COLORS.textMuted, fontFamily: FONT_DATA }}>
-              {fmtDay(latest.day)} · {latest.ships} 艘 · 最近 {fmtDist(latest.minDistNm)}
+            <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textMuted, fontFamily: FONT_DATA }}>
+              {t("monitor.vessel.legacyHead", { day: fmtDay(latest.day), ships: latest.ships, dist: fmtDist(latest.minDistNm, t) })}
             </span>
           </>
         ) : (
-          <span style={{ fontSize: 11, color: COLORS.textDim }}>
-            {rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用"}
+          <span style={{ fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDim }}>
+            {rowsQuery.status === "unknown" ? t("monitor.vessel.loading") : rowsQuery.status === "ready" ? t("monitor.vessel.noObservation", { days: windowDays }) : t("monitor.vessel.unavailable")}
           </span>
         )}
       </div>
@@ -254,14 +415,14 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             key={w}
             onClick={() => setWindowDays(w)}
             style={{
-              fontSize: 9,
+              fontSize: fs(v2, FONT_SIZE.xs),
               padding: "2px 7px",
               borderRadius: RADIUS.sm,
               cursor: "pointer",
               fontFamily: FONT_DATA,
-              background: w === windowDays ? COLORS.accentFaint : "transparent",
-              color: w === windowDays ? COLORS.textStrong : COLORS.textDim,
-              border: `1px solid ${w === windowDays ? COLORS.borderStrong : COLORS.borderSoft}`,
+              background: w === windowDays ? theme.p.accentFaint : "transparent",
+              color: w === windowDays ? theme.p.textStrong : theme.p.textDim,
+              border: `1px solid ${w === windowDays ? theme.p.borderStrong : theme.p.borderSoft}`,
             }}
           >
             {w}D
@@ -273,12 +434,12 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
         bars={bars}
         levelColors={ZONE_COLORS}
         height={52}
-        unit="艘"
-        caption={`${windowDays}D · 接近帶艘數（柱）／最深分帶（色）`}
+        unit={t("monitor.vessel.unitShips")}
+        caption={t("monitor.vessel.captionLegacy", { days: windowDays })}
         footer={
           peak
-            ? `單日最高 ${peak} 艘${closest !== null ? ` · 最近 ${fmtDist(closest)}` : ""}${
-                enterDays ? ` · 進入鄰接區 ${enterDays} 天` : ""
+            ? `${t("monitor.vessel.footerPeak", { count: peak })}${closest !== null ? t("monitor.vessel.footerNearest", { dist: fmtDist(closest, t) }) : ""}${
+                enterDays ? t("monitor.vessel.footerEnter", { count: enterDays }) : ""
               }`
             : undefined
         }
@@ -305,7 +466,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
               // 單色盤只有 index 0，這裡不能傳 zone 的 level（會超出範圍取到最後一色，
               // 剛好也是同一色所以看不出來，但語意錯了）
               level: 0,
-              note: n ? `${ZONE_LABEL[zone]}｜${n} 艘` : "該帶當日無船",
+              note: n ? t("monitor.vessel.zoneNote", { zone: t(ZONE_LABEL[zone]), count: n }) : t("monitor.vessel.zoneNoShips"),
             };
           });
           const zDays = windowed.filter((a) => (a.byZone.get(zone) ?? 0) > 0).length;
@@ -317,9 +478,9 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
               // 單色盤：這條線只畫這一帶，柱色不該再變動
               levelColors={[ZONE_COLORS[lv]!]}
               height={34}
-              unit="艘"
-              caption={ZONE_LABEL[zone]}
-              footer={zDays ? `${zDays} 天有船 · 單日最高 ${zPeak} 艘` : `${windowDays} 天內未出現`}
+              unit={t("monitor.vessel.unitShips")}
+              caption={t(ZONE_LABEL[zone])}
+              footer={zDays ? t("monitor.vessel.zoneFooter", { days: zDays, peak: zPeak }) : t("monitor.vessel.zoneAbsent", { days: windowDays })}
             />
           );
         })}
@@ -331,38 +492,38 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           const days = windowed.filter((a) => (a.byClass.get(cls) ?? 0) > 0).length;
           const pct = windowed.length ? (days / windowed.length) * 100 : 0;
           return (
-            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10 }}>
-              <span style={{ width: 52, color: COLORS.textMuted, flexShrink: 0 }}>
-                {CLASS_SHORT[cls]}
+            <div key={cls} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: fs(v2, FONT_SIZE.sm) }}>
+              <span style={{ width: v2 ? 64 : 52, color: theme.p.textMuted, flexShrink: 0 }}>
+                {classShort(cls)}
               </span>
               <div
                 style={{
                   flex: 1,
                   height: 6,
-                  background: COLORS.borderSoft,
+                  background: theme.p.borderSoft,
                   borderRadius: RADIUS.sm,
                   overflow: "hidden",
                 }}
               >
-                <div style={{ width: `${pct}%`, height: "100%", background: COLORS.accent }} />
+                <div style={{ width: `${pct}%`, height: "100%", background: theme.p.accent }} />
               </div>
-              <span style={{ width: 46, textAlign: "right", color: COLORS.textDim, fontFamily: FONT_DATA }}>
-                {days} 天
+              <span style={{ width: v2 ? 58 : 46, textAlign: "right", whiteSpace: v2 ? "nowrap" : undefined, color: theme.p.textDim, fontFamily: FONT_DATA }}>
+                {t("monitor.vessel.daysCount", { days })}
               </span>
             </div>
           );
         })}
       </div>
       </> : (
-        <div style={{ fontSize: 10, color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
+        <div style={{ fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textDim }}>{t("monitor.vessel.noInference")}</div>
       )}
 
       {/*
         誠實限制。與共機卡的關鍵差異：那邊是國防部官方全量通報，這邊是船自願廣播的 AIS。
         不寫清楚會讓讀者把「AIS 看到的」當成「實際發生的」。
       */}
-      <div style={{ fontSize: 9, color: COLORS.textFaint, lineHeight: 1.5 }}>
-        AIS 自願廣播 · 觀測下限非全量 · 僅臺灣本島（含澎湖）· 金馬烏坵東引無公告基線不可判定
+      <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, lineHeight: 1.5 }}>
+        {t("monitor.vessel.limits")}
       </div>
     </div>
   );

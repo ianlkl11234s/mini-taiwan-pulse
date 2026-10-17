@@ -6,6 +6,7 @@ import { loadingRegistry } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { useAllenCoralPrivateAccess, allenCoralAccessToken } from "./useAllenCoralPrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 
 type LoadState = "loading" | "ready" | "error";
 /** Own one thematic source at a time. A failed range removes every owned map resource. */
@@ -99,7 +100,7 @@ export function mountAllenCoralAtlas(
     const mounted = map.getSource(source.sourceId);
     if (mounted) (mounted as unknown as { attribution: string }).attribution = ALLEN_CORAL_ATTRIBUTION;
     map.addLayer({ id: fill, type: "fill", source: source.sourceId, "source-layer": source.sourceLayer,
-      filter: allenCoralFilter(view, region), paint: { "fill-color": allenCoralColor(view), "fill-opacity": opacity } });
+      filter: allenCoralFilter(view, region), paint: hookFillPaint("allenCoralAtlas", fill, { "fill-color": allenCoralColor(view), "fill-opacity": opacity }, { "fill-color": allenCoralColor(view), "fill-opacity": 0.65 }) });
   } catch (error) { failSetup(error); }
   return () => {
     disposed = true; finish();
@@ -130,7 +131,7 @@ export function useAllenCoralAtlasLayer(
   }, [mapRef, enabled, mapTick, access.userId, view, region]);
   useEffect(() => {
     const map = mapRef.current; const fill = `${allenCoralSource(view).sourceId}-fill`;
-    if (map && enabled && map.getLayer(fill)) map.setPaintProperty(fill, "fill-opacity", opacity);
+    if (map && enabled && map.getLayer(fill)) map.setPaintProperty(fill, "fill-opacity", hookFillOpacity("allenCoralAtlas", fill, opacity, 0.65));
   }, [mapRef, enabled, opacity, view, mapTick]);
   return state;
 }

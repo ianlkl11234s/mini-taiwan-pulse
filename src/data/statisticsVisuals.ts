@@ -1,17 +1,68 @@
 import {
+  Activity,
+  Anchor,
+  Brain,
+  CloudRain,
+  CreditCard,
+  Dumbbell,
+  Landmark,
+  Microscope,
+  PiggyBank,
+  Receipt,
+  ShieldAlert,
+  Sprout,
+  Turtle,
   Baby,
+  Construction,
+  Mountain,
+  Cigarette,
+  HandHeart,
+  Leaf,
+  MapPin,
+  Pill,
+  Ribbon,
+  Smartphone,
+  Syringe,
+  TestTube,
+  Wine,
+  Briefcase,
+  CalendarClock,
   BedDouble,
   Beef,
   Bike,
   Bus,
   Car,
   ChartNoAxesCombined,
+  ClipboardCheck,
   Droplets,
+  Factory,
+  Feather,
+  Flower2,
+  Gem,
+  Globe,
+  IdCard,
+  ArrowLeftRight,
+  TrendingUpDown,
+  Flame,
+  FlaskConical,
+  Gauge,
+  Gavel,
+  Megaphone,
+  Shovel,
+  Utensils,
+  Waves,
+  Wind,
   Fish,
   GraduationCap,
   HeartHandshake,
   Hospital,
+  Hourglass,
   House,
+  HousePlus,
+  PersonStanding,
+  Scale,
+  Users,
+  UsersRound,
   Plane,
   Presentation,
   Recycle,
@@ -51,9 +102,16 @@ const THEMES = {
   forestry: { theme: '林業', accent: '#74c476', colors: ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'] },
   environment: { theme: '環境', accent: '#8c96c6', colors: ['#edf8fb', '#b3cde3', '#8c96c6', '#8856a7', '#810f7c'] },
   utilities: { theme: '公用事業', accent: '#7bccc4', colors: ['#f0f9e8', '#bae4bc', '#7bccc4', '#43a2ca', '#0868ac'] },
+  income: { theme: '所得', accent: '#8d8778', colors: ['#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e'] },
+  labor: { theme: '工作與所得', accent: '#2a9d8f', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] },
+  // 人口統計：ColorBrewer RdPu（淺粉→深紫）。序列色只表數量高低；老化、性比例都不是好壞，不用紅綠。
+  population: { theme: '人口', accent: '#c51b8a', colors: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'] },
   security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
   fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
 } as const satisfies Record<string, StatisticsTheme>;
+
+/** 五階序列色（低 → 高）供點圖層漸層共用；與 Statistics 同一組 ColorBrewer 色，不另造色號。 */
+export const STATISTICS_SEQUENTIAL_SCHEMES = THEMES;
 
 const textFor = (key: string, label?: string, group?: string) => `${key} ${label ?? ''} ${group ?? ''}`.toLocaleLowerCase();
 const has = (text: string, terms: readonly string[]) => terms.some(term => text.includes(term.toLocaleLowerCase()));
@@ -98,11 +156,162 @@ function visual(theme: StatisticsTheme, icon: LucideIcon): StatisticsVisual {
   return { ...theme, icon };
 }
 
+type ThemeName = keyof typeof THEMES;
+/**
+ * 環境統計 37 層（environmentStatisticsRecipes）以 key 明確指定，避免「機車」「水」等
+ * 字詞落入交通或供水分支。環境＝BuPu；自來水／污水下水道屬公用事業＝GnBu。
+ * 刻意不 import recipe，維持本檔無循環依賴。
+ */
+const ENVIRONMENT_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = {
+  statsComplaintsCounty: ['environment', Megaphone], statsComplaintsPer10kDerivedCounty: ['environment', Megaphone],
+  statsComplaintTargetCounty: ['environment', Megaphone], statsComplaintCasesPndCounty: ['environment', Megaphone],
+  statsComplaintPopulationCounty: ['environment', Megaphone], statsComplaintsPer10kCounty: ['environment', Megaphone],
+  statsBurningComplaintsCounty: ['environment', Flame], statsBurningComplaintsPer10kCounty: ['environment', Flame],
+  statsSoilControlAreaCounty: ['environment', Shovel], statsSoilRemediationAreaCounty: ['environment', Shovel],
+  statsEnvInspectionsCounty: ['environment', ClipboardCheck], statsEnvInspectionsPerFacilityCounty: ['environment', ClipboardCheck],
+  statsEnvFineCasesCounty: ['environment', Gavel], statsEnvFineRateCounty: ['environment', Gavel],
+  statsEnvFineAmountCounty: ['environment', Gavel], statsEnvFineCollectedCounty: ['environment', Gavel],
+  statsAqiPoorRatioCounty: ['environment', Wind],
+  statsMotorArrivalRateCounty: ['environment', Gauge], statsMotorNotifiedCounty: ['environment', Gauge], statsMotorTestedCounty: ['environment', Gauge],
+  statsBodGeneratedCounty: ['environment', FlaskConical], statsBodDischargedCounty: ['environment', FlaskConical], statsBodDischargedPerKm2County: ['environment', FlaskConical],
+  statsWasteGeneratedCounty: ['environment', Trash2], statsWasteGeneratedPer10kCounty: ['environment', Trash2], statsWastePerCapitaCounty: ['environment', Trash2],
+  statsGeneralGarbageCounty: ['environment', Trash2], statsGeneralGarbagePer10kCounty: ['environment', Trash2],
+  statsFoodWasteCounty: ['environment', Utensils],
+  statsRecyclingAmountCounty: ['environment', Recycle], statsRecyclingPer10kCounty: ['environment', Recycle],
+  statsResponsibleEnterprisesCounty: ['environment', Factory],
+  statsTapWaterTestsCounty: ['utilities', Droplets], statsTapWaterFailuresCounty: ['utilities', Droplets], statsTapWaterFailureRateCounty: ['utilities', Droplets],
+  statsSewerConnectionCounty: ['utilities', Waves], statsSewageTreatmentCounty: ['utilities', Waves],
+};
+
+/**
+ * 成癮與減害統計（addictionStatisticsRecipes）以 key 明確指定，避免「酒駕」「HIV」「據點」落入
+ * 交通或 fallback 分支。疾病／行為調查／服務據點＝醫療 BuGn；執法（警政、地檢署）＝既有治安 Reds
+ * （同犯罪統計，色相只是主題提示，不表示好壞）。不新增色票；刻意不 import recipe。
+ */
+const ADDICTION_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
+  [/^statsHiv(?:NewCases|Per100k|Cases|Per100kYear)(?:County|Township)$/, 'health', Ribbon],
+  [/^statsDrug(?:Use|Grade1|Grade2)?SuspectsCounty$|^statsDrug(?:Use|Grade1|Grade2)?SuspectsPer100kCounty$/, 'security', Pill],
+  [/^statsDui(?:Cases|Rate|Enforcement|EnforcementPer100k)County$/, 'security', Wine],
+  [/^statsProsecutor/, 'security', Gavel],
+  [/^statsAdultSmokingRateCounty$/, 'health', Cigarette],
+  [/^statsAdultBetelRateCounty$/, 'health', Leaf],
+  [/^statsNeedle(?:EducationStations|VendingMachines|ReturnBins|SitesTotal)/, 'health', Syringe],
+  [/^statsDrugTreatmentFacilities|^statsSubstitutionTreatmentSites/, 'health', Pill],
+  [/^statsAlcoholTreatmentFacilities/, 'health', Wine],
+  [/^statsHivTestingSites/, 'health', TestTube],
+  [/^statsHivSelftestOutlets/, 'health', TestTube],
+  [/^statsPrepServiceSites/, 'health', HandHeart],
+  [/^statsSmokingCessationProviders/, 'health', Cigarette],
+  [/^statsInternetAddictionServices/, 'health', Smartphone],
+  [/^statsDrugPreventionCenters/, 'health', MapPin],
+];
+
+function addictionVisual(key: string): StatisticsVisual | undefined {
+  const match = ADDICTION_KEY_ICONS.find(([pattern]) => pattern.test(key));
+  return match ? visual(THEMES[match[1]], match[2]) : undefined;
+}
+
+/**
+ * 崩塌與水土保持統計（landslideStatisticsRecipes）以 key 明確指定：地表與水土保持屬環境主題＝既有 BuPu，
+ * 不新增色票（色相只是主題提示，不表示好壞）；icon 區分崩塌／治山工程／災害損失。刻意不 import recipe。
+ */
+const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = {
+  statsLandslideCountCounty: ['environment', Mountain], statsLandslideAreaCounty: ['environment', Mountain],
+  statsSlopeWorksCostCounty: ['environment', Construction], statsSlopeWorksCollapsedLandCounty: ['environment', Construction],
+  statsSwcDisasterLossCounty: ['environment', TriangleAlert],
+};
+
+/**
+ * atlas 批次六家族（atlasStatisticsRecipes）以 key 明確指定，避免「出生」「所得」「水」等字詞落入其他分支。
+ * 不新增色票：疾病與健康＝醫療 BuGn；財稅與消費＝工作與所得；原住民保留地＝人口 RdPu；農村再生＝農業 YlGn；
+ * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu；治安＝治安 Reds。刻意不 import recipe。
+ */
+const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
+  [/^statsHealthTb/, 'health', Microscope],
+  [/^statsHealthCancer/, 'health', Ribbon],
+  [/^statsHealth(?:Breast|Cervical|Colorectal)Screening/, 'health', ClipboardCheck],
+  [/^statsHealth(?:LiveBirths|LowBirthWeight|BirthSexRatio)/, 'health', Baby],
+  [/^statsHealthImmunization/, 'health', Syringe],
+  [/^statsHealthMentalOutpatient/, 'health', Brain],
+  [/^statsHealthOutpatientVisit/, 'health', Stethoscope],
+  [/^statsHealthHospitalAlos$/, 'health', BedDouble],
+  [/^statsFiscalLocal/, 'labor', Landmark],
+  [/^statsIncomeTax/, 'labor', Briefcase],
+  [/^statsVat/, 'labor', Receipt],
+  [/^statsCreditCard/, 'labor', CreditCard],
+  [/^statsEinvoice/, 'labor', Receipt],
+  [/^statsCensus/, 'labor', Factory],
+  [/^statsBank(?:Deposits|Loans)$/, 'labor', PiggyBank],
+  [/^statsIndigenousReservedLand/, 'population', Feather],
+  [/^statsRuralRegenTraining$/, 'agriculture', Sprout],
+  [/^statsSportsBudget/, 'education', Dumbbell],
+  [/^statsExerciseParticipationRate$|^statsRegularExerciseRate$/, 'education', Activity],
+  [/^statsDebrisFlow/, 'environment', CloudRain],
+  [/^statsSocialVulnerability/, 'environment', ShieldAlert],
+  [/^statsCetaceanStranded/, 'fishery', Fish],
+  [/^statsSeaTurtleStranded/, 'fishery', Turtle],
+  [/^statsMarineDebrisFishingGear/, 'fishery', Anchor],
+  [/^statsMarineDebris/, 'fishery', Waves],
+  // 治安（G17，取代 crimeAreaMonthly）：沿用治安 Reds 色票（同成癮統計的查緝類），icon 依案類。
+  [/^statsCrimeDrug/, 'security', Pill],
+  [/^statsCrimeResidentialBurglary/, 'security', House],
+  [/^statsCrimeMotorcycleTheft/, 'security', Bike],
+  [/^statsCrimeCarTheft/, 'security', Car],
+  [/^statsCrime(?:Robbery|Snatching)/, 'security', ShieldAlert],
+  [/^statsCrimeSexualAssault/, 'security', TriangleAlert],
+  [/^statsCrimeOrganizedCrime/, 'security', Gavel],
+  [/^statsTelecomFraud/, 'security', Smartphone],
+];
+
+function atlasVisual(key: string): StatisticsVisual | undefined {
+  const match = ATLAS_KEY_ICONS.find(([pattern]) => pattern.test(key));
+  return match ? visual(THEMES[match[1]], match[2]) : undefined;
+}
+
+/**
+ * 人口統計（demographicsStatisticsRecipes）以 key 前綴 `statsDemographics` 明確指定，避免未來
+ * 「出生」「死亡」等標籤落入出生登記（公用事業）分支；icon 依 key 的指標段。
+ * 可正可負的指標（自然增加、淨遷徙及其率；recipe 門檻對稱於 0）由 statisticsVisualColors 走 PuOr 雙向色階。
+ */
+const DEMOGRAPHICS_KEY = /^statsDemographics(?:County|Township|Village)(.+)$/;
+const DEMOGRAPHICS_ICONS: ReadonlyArray<readonly [RegExp, LucideIcon]> = [
+  [/^Household/, HousePlus],
+  [/^PopulationDensity$/, UsersRound],
+  [/^(?:PopAge|ShareAge)/, PersonStanding],
+  [/^(?:AgingIndex|DependencyRatio|ChildDependencyRatio|OldDependencyRatio)$/, Hourglass],
+  [/^SexRatio$/, Scale],
+  [/^MedianAge$/, CalendarClock],
+  [/^(?:Births|CrudeBirthRate)/, Baby],
+  [/^(?:Deaths|CrudeDeathRate)/, Flower2],
+  [/^NaturalIncrease/, TrendingUpDown],
+  [/^(?:Marriages|Divorces|CrudeMarriageRate|CrudeDivorceRate)/, Gem],
+  [/^(?:In|Out|Net)Migration/, ArrowLeftRight],
+  [/^Indigenous/, Feather],
+  [/^ForeignOrigin/, Globe],
+  [/^Naturalization/, IdCard],
+];
+
+function demographicsVisual(key: string): StatisticsVisual | undefined {
+  const metric = DEMOGRAPHICS_KEY.exec(key)?.[1];
+  if (!metric) return undefined;
+  return visual(THEMES.population, DEMOGRAPHICS_ICONS.find(([pattern]) => pattern.test(metric))?.[1] ?? Users);
+}
+
 /**
  * Presentation semantics only. This deliberately does not import recipe or manifest
  * modules, so the statistics registry can consume it without a dependency cycle.
  */
 export function getStatisticsVisual(key: string, label?: string, group?: string): StatisticsVisual {
+  const environment = ENVIRONMENT_KEY_VISUALS[key];
+  if (environment) return visual(THEMES[environment[0]], environment[1]);
+  const demographics = demographicsVisual(key);
+  if (demographics) return demographics;
+  const addiction = addictionVisual(key);
+  if (addiction) return addiction;
+  const landslide = LANDSLIDE_KEY_VISUALS[key];
+  if (landslide) return visual(THEMES[landslide[0]], landslide[1]);
+  const atlas = atlasVisual(key);
+  if (atlas) return atlas;
   const text = textFor(key, label, group);
 
   if (has(text, ['教育', 'education', '學校', '學院', '幼兒園', '國小', '國中', '高中'])) {
@@ -126,7 +335,6 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
   if (has(text, ['垃圾', '廢棄物', 'waste', '污染', 'pollution'])) return visual(THEMES.environment, Trash2);
 
   if (has(text, ['事故', 'accident', '違規', 'violation'])) return visual(THEMES.transport, TriangleAlert);
-  // crimeAreaMonthly retains its existing red renderer; this only supplies sidebar semantics.
   if (has(text, ['治安', 'crime', '警政', '犯罪'])) return visual(THEMES.security, Shield);
   if (has(text, ['公車', 'bus', '客運'])) return visual(THEMES.transport, Bus);
   if (has(text, ['自行車', 'bicycle', 'bike', 'youbike'])) return visual(THEMES.transport, Bike);
@@ -138,6 +346,11 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
 
   if (has(text, ['住宅', 'housing', '住戶', '空屋', '居住', '建物'])) {
     return visual(THEMES.housing, House);
+  }
+
+  if (has(text, ['statslaborvillageincomemedian', '綜合所得'])) return visual(THEMES.income, Briefcase);
+  if (has(text, ['勞動', '所得', '薪資', '就業', '失業', 'labor', 'employment', 'salary', 'income'])) {
+    return visual(THEMES.labor, Briefcase);
   }
 
   if (has(text, ['漁業', 'fishery', 'aquaculture', '水產', '養殖'])) return visual(THEMES.fishery, Fish);
@@ -153,8 +366,15 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
  * Returns one colour per Mapbox step interval. Negative-valued metrics use the
  * six-class ColorBrewer PuOr diverging scheme; zero remains the break between
  * adjacent classes, rather than an invented neutral class.
+ *
+ * `direction`（只有 recipe 明確宣告方向時才傳，例如社會脆弱度 Z 分數）：不論正負都用主題序列色；
+ * `descending` 反轉（值越低越深＝能力構面越弱越深）。圖例必須同時寫出反轉，不可只靠顏色。
  */
-export function statisticsVisualColors(key: string, label: string, breaks: readonly number[]): string[] {
+export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending'): string[] {
+  if (direction) {
+    const sequential = resample(getStatisticsVisual(key, label).colors, breaks.length + 1);
+    return direction === 'descending' ? sequential.reverse() : sequential;
+  }
   const palette = breaks.some(value => value < 0) ? PU_OR_6 : getStatisticsVisual(key, label).colors;
   return resample(palette, breaks.length + 1);
 }

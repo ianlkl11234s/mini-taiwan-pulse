@@ -1,11 +1,15 @@
 import { IntelIcon, ICON } from "../IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
+import { neutralFill, useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
 import type { NewsFilter } from "../../../data/newsEventsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+import { useMonitorV2 } from "./monitorStyle";
+import { fs, MF } from "./monitorFont";
+import { useLocale } from "../../../state/localeStore";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -27,48 +31,64 @@ interface Props {
   nowTs: number;
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
+  message?: string | null;
 }
 
-export function NewsFeedPanel({
+/**
+ * 主題由 MonitorPanel 的 `IntelThemeProvider` 決定（P5：新版跟底圖主題、舊版一律暗），
+ * 重用的 `IntelCard`／`IntelFilters` 直接吃外層 context。
+ */
+export function NewsFeedPanel(props: Props) {
+  return <NewsFeedPanelInner {...props} />;
+}
+
+function NewsFeedPanelInner({
   events, cats, onToggleCat, onResetCats,
   timeRange, onTimeRange, county, onCounty,
   filter, onFilterChange,
   selectedId, expandedId, onSelectCard, onToggleExpand,
-  isTrendingFor, nowTs, status, lastSuccessAt,
+  isTrendingFor, nowTs, status, lastSuccessAt, message,
 }: Props) {
-  const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
+  const palette = useIntelTheme();
+  const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const statusLabel = status === "ready" ? (v2 ? i18n.t("monitor.live") : "LIVE") : status === "denied" ? i18n.t("monitor.newsFeed.restricted") : status === "error" ? i18n.t("monitor.status.error") : i18n.t("monitor.status.loading");
   const statusVisual = status === "ready"
-    ? { color: COLORS.statusLive, background: COLORS.statusLiveSoft, border: COLORS.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
+    ? { color: palette.statusLive, background: palette.statusLiveSoft, border: palette.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
     : status === "denied"
-      ? { color: COLORS.statusWarn, background: COLORS.statusWarnSoft, border: COLORS.statusWarnBorder, animation: "none" }
+      ? { color: palette.statusWarn, background: palette.statusWarnSoft, border: palette.statusWarnBorder, animation: "none" }
       : status === "error"
-        ? { color: COLORS.statusErr, background: "rgba(239,68,68,0.16)", border: "rgba(239,68,68,0.45)", animation: "none" }
-        : { color: COLORS.textMuted, background: "rgba(255,255,255,0.05)", border: COLORS.borderMid, animation: "none" };
+        ? { color: palette.statusErr, background: withAlpha(palette.statusErr, 0.16), border: withAlpha(palette.statusErr, 0.45), animation: "none" }
+        : { color: palette.textMuted, background: neutralFill(0.05, palette.isDark), border: palette.borderMid, animation: "none" };
   return (
     <div
       style={{
         height: "100%", minHeight: 0,
         display: "flex", flexDirection: "column", overflow: "hidden",
-        borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,255,255,0.022)",
+        ...(v2 ? {} : {
+          borderRadius: RADIUS.xl, border: `1px solid ${palette.panelBorder}`,
+          background: neutralFill(0.022, palette.isDark),
+        }),
       }}
     >
       <div
         style={{
           flexShrink: 0,
           display: "flex", alignItems: "center", gap: 8,
-          padding: "11px 14px 9px",
+          padding: v2 ? "6px 14px 6px" : "11px 14px 9px",
         }}
       >
-        <IntelIcon d={ICON.radio} size={15} color={COLORS.accent} />
-        <span
-          style={{
-            fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
-            color: COLORS.textStrong, whiteSpace: "nowrap",
-          }}
-        >
-          新聞 Feed
-        </span>
+        {!v2 && <IntelIcon d={ICON.radio} size={15} color={palette.accent} />}
+        {!v2 && (
+          <span
+            style={{
+              fontFamily: FONT_CJK, fontSize: fs(v2, 12.5), fontWeight: 700,
+              color: palette.textStrong, whiteSpace: "nowrap",
+            }}
+          >
+            {i18n.t("monitor.newsFeed.title")}
+          </span>
+        )}
         <span
           style={{
             display: "inline-flex", alignItems: "center", gap: 4,
@@ -87,7 +107,7 @@ export function NewsFeedPanel({
           />
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), fontWeight: 700,
               color: statusVisual.color,
             }}
           >
@@ -95,14 +115,14 @@ export function NewsFeedPanel({
           </span>
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>
-          {events.length} 則
+        <span style={{ fontFamily: FONT_DATA, fontSize: v2 ? MF.body : 10.5, color: palette.textMuted }}>
+          {i18n.t("monitor.count.items", { count: events.length })}
         </span>
       </div>
 
       {status !== "ready" && (
-        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
-          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: palette.textMuted }}>
+          {status === "denied" ? i18n.t("monitor.newsFeed.denied") : status === "error" ? (message ?? (lastSuccessAt ? i18n.t("monitor.newsFeed.interruptedAt", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) }) : i18n.t("monitor.newsFeed.interrupted"))) : i18n.t("monitor.newsFeed.reading")}
         </div>
       )}
 
@@ -134,12 +154,12 @@ export function NewsFeedPanel({
               height: "100%", gap: 8, textAlign: "center", padding: 24,
             }}
           >
-            <IntelIcon d={ICON.radio} size={26} color={COLORS.textGhost} />
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-              目前無符合條件的事件
+            <IntelIcon d={ICON.radio} size={26} color={palette.textGhost} />
+            <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), color: palette.textMuted }}>
+              {status === "error" ? i18n.t("monitor.newsFeed.emptyError") : i18n.t("monitor.newsFeed.empty")}
             </div>
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-              調整分類 / 縣市，或回到即時
+            <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>
+              {status === "error" ? (message ?? i18n.t("monitor.newsFeed.errorHint")) : i18n.t("monitor.newsFeed.emptyHint")}
             </div>
           </div>
         ) : (
@@ -148,7 +168,7 @@ export function NewsFeedPanel({
               style={{
                 position: "absolute", left: 12, top: 6, bottom: 6,
                 width: 1.5,
-                background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                background: `linear-gradient(${palette.borderMid}, ${palette.borderSoft} 90%, transparent)`,
               }}
             />
             {events.map((e) => (

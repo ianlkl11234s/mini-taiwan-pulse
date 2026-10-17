@@ -1,0 +1,779 @@
+layerKey,label,queryRegistration,sourceKinds,declaredFormats,declaredPaths,localScan,geometryCounts
+a1AccidentRealtime,A1 即時事故 A1 Realtime,unknown_or_unavailable,supabase,,,not_scanned,{}
+accidentTaipei,北市事故點 Taipei Dots,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson,missing_local,{}
+activeFaults,活動斷層 Fault Zone,metadata_candidate_requires_readback,geojson,.geojson,./geo/active_faults.geojson,missing_local,{}
+agriCropSuitability,作物適栽 Crop Suitability,unknown_or_unavailable,custom,.pmtiles,./agriculture/crop_suitability_132.pmtiles,not_scanned,{}
+agriculture,農田範圍 FTW Fields 2025,unknown_or_unavailable,custom,.pmtiles,./agriculture/ftw_fields_2025.pmtiles,not_scanned,{}
+agriLeisureFarmZones,休閒農業區 Leisure Farm Zones,unknown_or_unavailable,custom,.pmtiles,./agriculture/leisure_farm_zones_2025.pmtiles,not_scanned,{}
+agriPOI,休農場 / 田媽媽 / 特色農旅 POI,unknown_or_unavailable,custom,.geojson,./agriculture/agriculture_pois.geojson,not_scanned,{}
+agriProduceWholesale,蔬果批發商 Produce Wholesale,unknown_or_unavailable,pmtiles,.pmtiles,./agriculture/produce_wholesale_companies.pmtiles,not_scanned,{}
+agriRetail,農產零售商 Retail,unknown_or_unavailable,pmtiles,.pmtiles,./agriculture/agri_retail_companies.pmtiles,not_scanned,{}
+agriRuralRegen,農村再生社區 Rural Regen,unknown_or_unavailable,custom,.pmtiles,./agriculture/rural_regen_communities_2025.pmtiles,not_scanned,{}
+agriSoil,全台土壤分類 Soil Map,unknown_or_unavailable,custom,.pmtiles,./agriculture/soil_map_national.pmtiles,not_scanned,{}
+agriSoilFertility,土壤肥力 250m Soil Fertility,unknown_or_unavailable,custom,.pmtiles,./agriculture/soil_fertility_grid_250m.pmtiles,not_scanned,{}
+agriWholesaleMarket,農產批發市場 Wholesale Market,metadata_candidate_requires_readback,geojson,.geojson,./agriculture/agri_wholesale_market_companies.geojson,missing_local,{}
+airports,機場 Airport,unknown_or_unavailable,geojson,.geojson,./geo/airports.geojson|./geo/airports.geojson,not_scanned,{}
+aisstreamVessels,AISStream 船舶 AISStream Vessels,unknown_or_unavailable,custom,,,not_scanned,{}
+allenCoralAtlas,珊瑚礁棲地分類 Allen Coral Atlas（私人研究）,unknown_or_unavailable,custom,,,not_scanned,{}
+anfrWirelessSites,法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview,metadata_candidate_requires_readback,geojson,.geojson,./geo/anfr_wireless_sites.geojson,parsed,"{""Point"": 8000}"
+animalAdoption,待認領養動物 Animal Adoption,unknown_or_unavailable,custom,,,not_scanned,{}
+animalShelterPressure,收容壓力 Shelter Pressure,unknown_or_unavailable,custom,,,not_scanned,{}
+animalWelfarePoints,動物服務據點 Animal Services,unknown_or_unavailable,custom,,,not_scanned,{}
+antiCorruptionOffice,廉政署 AAC,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson,missing_local,{}
+aqiImagery,空氣品質色階 AQI Raster,unknown_or_unavailable,custom,,,not_scanned,{}
+aqiMicroSensors,LASS 微型感測 Micro Sensor,unknown_or_unavailable,custom,,,not_scanned,{}
+aqiStations,空氣品質測站 AQI Station,unknown_or_unavailable,custom,,,not_scanned,{}
+aquacultureCageNet,海上箱網 Cage Net,metadata_candidate_requires_readback,geojson,.geojson,./fishery/aquaculture_cage_net.geojson,parsed,"{""Polygon"": 42}"
+aquacultureIntegrated,養殖漁業整合 Integrated,unknown_or_unavailable,pmtiles,.pmtiles,./fishery/aquaculture_integrated.pmtiles,not_scanned,{}
+aquaculturePonds,逐口魚塭 Aquaculture Ponds,unknown_or_unavailable,pmtiles,.pmtiles,./fishery/aquaculture_ponds_osm.pmtiles,not_scanned,{}
+aquacultureWaterSatellite,衛星偵測養殖水體 Satellite Detected,unknown_or_unavailable,pmtiles,.pmtiles,./fishery/aquaculture_water_satellite.pmtiles,not_scanned,{}
+aquacultureWaterSatelliteMoa,魚塭·官方標籤版(2026-07) MOA Labeled,unknown_or_unavailable,pmtiles,.pmtiles,./fishery/aquaculture_water_satellite_moa.pmtiles,not_scanned,{}
+aquacultureWaterUnion,魚塭·整合版 (官方∪衛星) Union,unknown_or_unavailable,pmtiles,.pmtiles,./fishery/aquaculture_water_sat_union.pmtiles,not_scanned,{}
+aquacultureZone,養殖漁業生產區 Production Zone,metadata_candidate_requires_readback,geojson,.geojson,./fishery/aquaculture_production_zone.geojson,parsed,"{""Polygon"": 56, ""MultiPolygon"": 6}"
+artsEvents,藝文活動 Arts Events,metadata_candidate_requires_readback,geojson,.geojson,./culture/arts_events_national.geojson,parsed,"{""Point"": 6121}"
+aspectVector,坡向分級 Aspect 8向,unknown_or_unavailable,custom,.pmtiles,./base_map/aspect_vector.pmtiles,not_scanned,{}
+aviationControl,飛航情報/終端管制 ✈️ FIR + TMA,unknown_or_unavailable,custom,.pmtiles,./coverage/aviation_airspace.pmtiles,not_scanned,{}
+aviationNoiseZones,航空噪音法定里別 Aviation Zones,metadata_candidate_requires_readback,geojson,.geojson,./environment/aviation_noise_zones.geojson,parsed,"{""Polygon"": 76}"
+aviationRestricted,機場管制/限航/危險 ⛔ CTR+RCR+DANGER,unknown_or_unavailable,custom,.pmtiles,./coverage/aviation_airspace.pmtiles,not_scanned,{}
+aviationRestrictedGlow,機場管制/限航 Rim Glow 測試 ⛔✨,unknown_or_unavailable,custom,.pmtiles,./coverage/aviation_airspace.pmtiles,not_scanned,{}
+bikeStations,公共自行車 Bike Station,metadata_candidate_requires_readback,geojson,.geojson,./geo/bike_stations.geojson,missing_local,{}
+bridgeComparisonNewTaipei,新北橋梁 OSM 比對,unknown_or_unavailable,pmtiles,.pmtiles,./network_structures/bridge_comparison_new_taipei_20260906.pmtiles,not_scanned,{}
+buildingsGba,建物輪廓 Buildings,unknown_or_unavailable,pmtiles,.pmtiles,./urban/buildings_value_taiwan.pmtiles,not_scanned,{}
+busIntercityLive,公路客運 Intercity,unknown_or_unavailable,custom,,,not_scanned,{}
+busLive,公車 Bus,registered,custom,,,not_scanned,{}
+busStationsCity,市區公車站 City Bus,unknown_or_unavailable,pmtiles,.pmtiles,./geo/bus_stations_city.pmtiles,not_scanned,{}
+busStationsIntercity,公路客運站 Intercity,metadata_candidate_requires_readback,geojson,.geojson,./geo/bus_stations_intercity.geojson,missing_local,{}
+canopyGiants,樹冠巨木 Canopy Giants,metadata_candidate_requires_readback,geojson,.geojson,./forestry/canopy_giants_taiwan.geojson,parsed,"{""Point"": 7823}"
+canopyHeight,樹冠高度 Canopy Height,unknown_or_unavailable,pmtiles,.pmtiles,./forestry/canopy_height_rgb_taiwan.pmtiles,not_scanned,{}
+cctv,道路攝影機 CCTV,metadata_candidate_requires_readback,geojson,.geojson,./geo/cctv.geojson,parsed,"{""Point"": 6129}"
+cemeteryOsm,墓區範圍 OSM Cemeteries,unknown_or_unavailable,pmtiles,.pmtiles,./funeral/cemetery_osm.pmtiles,not_scanned,{}
+cemeteryZoning,都計墓葬用地 Zoning（北北）,metadata_candidate_requires_readback,geojson,.geojson,./funeral/cemetery_zoning.geojson,parsed,"{""MultiPolygon"": 114}"
+civilDefenseShelter,防空避難 Civil Defense Shelters,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles,not_scanned,{}
+coalTerminal,煤炭碼頭 Coal Terminal,unknown_or_unavailable,supabase,,,not_scanned,{}
+coastGuardStation,海巡 Coast Guard,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson,missing_local,{}
+commonRegistrationAddresses,共同登記地址 Shared Address,metadata_candidate_requires_readback,geojson,.geojson,./business_registry/common_registration_addresses_202608_r2.geojson,missing_local,{}
+communityCenters,活動中心（部分縣市） Community Center,metadata_candidate_requires_readback,geojson,.geojson,./civic_facilities/community_centers_national.geojson,parsed,"{""Point"": 1794}"
+companyAgeStructure,公司年齡結構 Company Age,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/company_demographics_grid_1500m_202608.pmtiles|./business_registry/company_demographics_grid_450m_202608.pmtiles,not_scanned,{}
+companyCapitalGrid,公司資本額網格 Company Capital Grid,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/company_capital_grid_150m_202608_r2.pmtiles|./business_registry/company_capital_grid_450m_202608_r2.pmtiles|./business_registry/company_capital_grid_1500m_202608_r2.pmtiles,not_scanned,{}
+companyIndustryDistribution,登記產業分布 Company Industry,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/company_demographics_grid_1500m_202608.pmtiles|./business_registry/company_demographics_grid_450m_202608.pmtiles,not_scanned,{}
+companyPoints,公司登記分布 Company Registry,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/company_capital_grid_1500m_202608_r2.pmtiles|./business_registry/company_capital_grid_450m_202608_r2.pmtiles|./business_registry/company_points_202608_r2.pmtiles,not_scanned,{}
+contour25k,等高線 Contour 25k (10m),unknown_or_unavailable,pmtiles,.pmtiles,./base_map/contour_25k.pmtiles,not_scanned,{}
+contourDtm20,等高線 Contour DTM20 (20m),unknown_or_unavailable,pmtiles,.pmtiles,./base_map/contour_dtm20.pmtiles,not_scanned,{}
+convenienceStores,超商 Convenience Store,registered,geojson,.geojson,./geo/convenience_stores.geojson,not_scanned,{}
+coralReefDistribution,珊瑚礁歷史分布 Historical Coral Reefs,unknown_or_unavailable,custom,,,not_scanned,{}
+correctionalFacility,矯正機關 Correctional,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/correctional_facilities/correctional_facilities_20260626.geojson,missing_local,{}
+countyBoundary,縣市界 County,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/county_boundary.pmtiles,not_scanned,{}
+court,法院 Courts,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/courts/courts_20260626.geojson,missing_local,{}
+courtJurisdiction,法院管轄區 Jurisdiction,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/court_jurisdictions/court_jurisdictions.pmtiles,not_scanned,{}
+crimeAreaMonthly,鄉鎮市區犯罪統計,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/crime_area_monthly/crime_area_monthly.pmtiles,not_scanned,{}
+culturalFacilities,文化設施 Cultural Facilities,metadata_candidate_requires_readback,geojson,.geojson,./culture/cultural_facilities_national.geojson,parsed,"{""Point"": 787}"
+culturalMuseums,地方文化館 Local Museums,metadata_candidate_requires_readback,geojson,.geojson,./culture/local_cultural_museums_national.geojson,parsed,"{""Point"": 252}"
+cwaCloudImagery,衛星雲圖 Cloud Imagery,unknown_or_unavailable,custom,,,not_scanned,{}
+cwaRadarImagery,雷達回波 Radar Imagery,unknown_or_unavailable,custom,,,not_scanned,{}
+cyclingRoutes,自行車道 Cycling Route,metadata_candidate_requires_readback,geojson,.geojson,./geo/cycling_routes.geojson,missing_local,{}
+droneNoFlyZone,無人機禁航區 🚫 Drone NFZ,unknown_or_unavailable,custom,.pmtiles,./coverage/drone_restricted_zones.pmtiles,not_scanned,{}
+droneRestrictedZone,無人機限航區 ⚠️ Drone Restricted,unknown_or_unavailable,custom,.pmtiles,./coverage/drone_restricted_zones.pmtiles,not_scanned,{}
+dustForecast,沙塵預報 Dust Forecast,unknown_or_unavailable,custom,,,not_scanned,{}
+earthquakeReplay,地震回放 EQ Replay,registered,custom,.pmtiles,./base_map/township_boundary.pmtiles,not_scanned,{}
+earthquakes,地震 Earthquake,unknown_or_unavailable,custom,,,not_scanned,{}
+earthquakesGlobal,全球地震 USGS Earthquake,unknown_or_unavailable,custom,,,not_scanned,{}
+ecoNetworkZones,國土綠網分區 Eco Network Zones,unknown_or_unavailable,pmtiles,.pmtiles,./agriculture/eco_network_zones.pmtiles,not_scanned,{}
+eduAfterschoolCare,兒童課後照顧中心 Afterschool Care,metadata_candidate_requires_readback,geojson,.geojson,./education/afterschool_care.geojson,missing_local,{}
+eduCampusArea,校地面積 Campus Size,unknown_or_unavailable,pmtiles,.pmtiles,./education/campus_polygon.pmtiles,not_scanned,{}
+eduCampusPolygon,校地範圍 Campus Area,unknown_or_unavailable,pmtiles,.pmtiles,./education/campus_polygon.pmtiles,not_scanned,{}
+eduCramSchool,短期補習班 Cram School,unknown_or_unavailable,pmtiles,.pmtiles,./education/cram_schools.pmtiles,not_scanned,{}
+eduDistrictElementary,國小學區 Elementary District,unknown_or_unavailable,pmtiles,.pmtiles,./education/school_district_k12.pmtiles,not_scanned,{}
+eduDistrictJunior,國中學區 Junior High District,unknown_or_unavailable,pmtiles,.pmtiles,./education/school_district_k12.pmtiles,not_scanned,{}
+eduDistrictSenior,高中就學區（縣市級） Senior High District,metadata_candidate_requires_readback,geojson,.geojson,./education/school_district_senior.geojson,missing_local,{}
+eduKindergarten,幼兒園 Kindergarten,metadata_candidate_requires_readback,geojson,.geojson,./education/kindergartens.geojson,missing_local,{}
+eduMutualCare,互助教保服務中心 Mutual Care,metadata_candidate_requires_readback,geojson,.geojson,./education/mutual_care.geojson,missing_local,{}
+eduRemoteSchools,偏遠地區學校 Remote Schools,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduSchoolElementary,國小 Elementary,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduSchoolJunior,國中 Junior High,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduSchoolSenior,高中職 Senior High,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduSchoolSpecial,特教 Special Education,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduSchoolUniversity,大專 University,metadata_candidate_requires_readback,geojson,.geojson,./education/schools.geojson,missing_local,{}
+eduUniversityStudents,大專學生數 University Students,metadata_candidate_requires_readback,geojson,.geojson,./education/university_students.geojson,missing_local,{}
+erHospital,急診壅塞 ER,unknown_or_unavailable,supabase,,,not_scanned,{}
+etcGantry,ETC 收費門架 Gantry,metadata_candidate_requires_readback,geojson,.geojson,./geo/etc_gantry.geojson,parsed,"{""Point"": 341}"
+evChargingStations,電動車充電站 EV Charging,unknown_or_unavailable,supabase,,,not_scanned,{}
+evIsland,充電站 最近距離 EV Island,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/taiwan_ev_nearest.pmtiles,not_scanned,{}
+facHistorical,發電廠 歷史・退役 Historical,unknown_or_unavailable,supabase,,,not_scanned,{}
+facOffshore,facOffshore,unknown_or_unavailable,supabase,,,not_scanned,{}
+facOsmSupplement,發電廠 OSM 補充 Supplement,unknown_or_unavailable,supabase,,,not_scanned,{}
+facPlanned,發電廠 未來規劃 Planned,unknown_or_unavailable,supabase,,,not_scanned,{}
+facPrimary,發電廠 主要・運轉中 Primary,unknown_or_unavailable,supabase,,,not_scanned,{}
+facSecondary,發電廠 小型分散 Secondary,unknown_or_unavailable,supabase,,,not_scanned,{}
+factoryDensityGrid,生產中工廠密度 Factory Density,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/factory_density_1500m_202606.pmtiles|./business_registry/factory_density_450m_202606.pmtiles,not_scanned,{}
+factoryLocations,生產中工廠登記 Factory Locations,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/factory_locations_202606_allzoom.pmtiles,not_scanned,{}
+farmRoads,農路 Farm Roads,unknown_or_unavailable,pmtiles,.pmtiles,./agriculture/farm_roads.pmtiles,not_scanned,{}
+fireEvents,火災歷史 Fire History,unknown_or_unavailable,custom,,,not_scanned,{}
+fireHydrants,消防栓 Hydrant,unknown_or_unavailable,pmtiles,.pmtiles,./geo/fire_hydrants.pmtiles,not_scanned,{}
+fireIsochrone,救援等時圈 Isochrone,unknown_or_unavailable,custom,,,not_scanned,{}
+fireLatest,火災最新年度 Latest,unknown_or_unavailable,custom,,,not_scanned,{}
+fireStations,消防分隊 Fire Station,metadata_candidate_requires_readback,geojson,.geojson,./geo/fire_stations.geojson,missing_local,{}
+flights,航班 Flight,unknown_or_unavailable,custom,,,not_scanned,{}
+floodAlerts,水文防汛 Flood Alerts,unknown_or_unavailable,custom,,,not_scanned,{}
+floodSensor,都市淹水感測 USWG,unknown_or_unavailable,custom,,,not_scanned,{}
+floodSensorIsochrone,淹水 3 分步行圈 Isochrone (雙北),unknown_or_unavailable,custom,.pmtiles,./flood/uswg_isochrone_3min.pmtiles,not_scanned,{}
+forestAlishanRail,阿里山鐵路 Alishan Rail,metadata_candidate_requires_readback,geojson,.geojson,./forestry/wildlife_distribution_3rd_alt.geojson,parsed,"{""Point"": 25}"
+forestCompartments,林班 Compartments,unknown_or_unavailable,pmtiles,.pmtiles,./forestry/national_forest_compartments.pmtiles,not_scanned,{}
+forestDamLakes,堰塞湖 Dam Lakes,metadata_candidate_requires_readback,geojson,.geojson,./forestry/dam_lakes_in_forest.geojson,parsed,"{""Point"": 32}"
+forestEducationCenters,自然教育中心 Natural Education Centers,metadata_candidate_requires_readback,geojson,.geojson,./forestry/forest_education_centers.geojson,parsed,"{""Point"": 8}"
+forestFlatParks,平地森林 Flat Parks,metadata_candidate_requires_readback,geojson,.geojson,./forestry/flat_forest_parks.geojson,parsed,"{""Point"": 3}"
+forestRecreation,森林遊樂區 Recreation,metadata_candidate_requires_readback,geojson,.geojson,./forestry/forest_recreation_areas.geojson,parsed,"{""Polygon"": 19, ""MultiPolygon"": 4}"
+forestReserve,保安林 Reserve,unknown_or_unavailable,pmtiles,.pmtiles,https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles,not_scanned,{}
+forestRoads,林道 Forest Roads,unknown_or_unavailable,pmtiles,.pmtiles,./forestry/forest_roads.pmtiles,not_scanned,{}
+forestSignalPoints,通訊點 Signal Points,metadata_candidate_requires_readback,geojson,.geojson,./forestry/mountain_signal_points.geojson,parsed,"{""Point"": 1416}"
+forestTrailSigns,步道路標 Trail Signs,metadata_candidate_requires_readback,geojson,.geojson,./forestry/mountain_trail_signs.geojson,parsed,"{""Point"": 3407}"
+forestTreatmentWorks,治理工程 Treatment Works,metadata_candidate_requires_readback,geojson,.geojson,./forestry/forestry_treatment_works.geojson,parsed,"{""Point"": 6213}"
+forestWildlife,野生動物分布 Wildlife,metadata_candidate_requires_readback,geojson,.geojson,./forestry/wildlife_distribution_3rd.geojson,parsed,"{""Point"": 1241}"
+fossilFuelInfra,石化能源設施 Fossil Fuel (legacy),unknown_or_unavailable,supabase,,,not_scanned,{}
+freewayCongestion,國道壅塞 Congestion,unknown_or_unavailable,custom,,,not_scanned,{}
+funeralFacilities,殯葬設施 Facilities,metadata_candidate_requires_readback,geojson,.geojson,./funeral/funeral_facilities.geojson,parsed,"{""Point"": 3707}"
+funeralOperatorDensity,業者密度 Operator Density,unknown_or_unavailable,custom,.pmtiles,./base_map/township_boundary.pmtiles,not_scanned,{}
+funeralOperators,禮儀業者 Operators,metadata_candidate_requires_readback,geojson,.geojson,./funeral/funeral_operators.geojson,parsed,"{""Point"": 6233}"
+gasCoverageAll,加油站 最近距離 Coverage All,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/taiwan_all_gas_nearest.pmtiles,not_scanned,{}
+gasCoverageCpc,中油 最近距離 Coverage CPC,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/taiwan_cpc_nearest.pmtiles,not_scanned,{}
+gasCoverageFpcc,台塑 最近距離 Coverage FPCC,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/taiwan_fpcc_nearest.pmtiles,not_scanned,{}
+gasCoverageTaisugar,台糖 最近距離 Coverage Taisugar,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/taiwan_taisugar_nearest.pmtiles,not_scanned,{}
+gasStationCanonical,加油站 SSOT 合併 Canonical,unknown_or_unavailable,supabase,,,not_scanned,{}
+gasStationCpc,加油站 中油 CPC,unknown_or_unavailable,supabase,,,not_scanned,{}
+gasStationFpcc,加油站 台塑 FPCC,unknown_or_unavailable,supabase,,,not_scanned,{}
+gasStationOther,加油站 其他 / 私營 Other,unknown_or_unavailable,supabase,,,not_scanned,{}
+gasStationTaisugar,加油站 台糖 Taisugar,unknown_or_unavailable,supabase,,,not_scanned,{}
+geothermalWells,地熱井 Geothermal,unknown_or_unavailable,supabase,,,not_scanned,{}
+gfwDarkVessels,GFW SAR 未匹配 AIS Unmatched Detections,unknown_or_unavailable,custom,,,not_scanned,{}
+gfwFishingEffort,GFW 每日捕撈活動 Fishing Effort,unknown_or_unavailable,custom,,,not_scanned,{}
+gfwHourlyGrid,GFW 小時船舶網格 Hourly Grid,unknown_or_unavailable,custom,.json,./gfw_hourly_grid_poc/manifest.json,not_scanned,{}
+gfwHourlyTracks,GFW 小時近似航跡 Hourly Tracks,unknown_or_unavailable,custom,.json,./gfw_hourly_tracks_poc/manifest.json,not_scanned,{}
+gfwVesselPresence,GFW 舊版每日船舶 Historical Presence,unknown_or_unavailable,custom,,,not_scanned,{}
+globalEvents,全球重大事件 Global Events,unknown_or_unavailable,custom,,,not_scanned,{}
+govServiceOffices,機關便民據點 Gov Service Office,metadata_candidate_requires_readback,geojson,.geojson,./civic_facilities/gov_service_offices_national.geojson,parsed,"{""Point"": 702}"
+groundwater,地下水井 Groundwater,unknown_or_unavailable,custom,,,not_scanned,{}
+groundwaterWells,水井點位 Wells,unknown_or_unavailable,custom,,,not_scanned,{}
+h3Population,人流模擬 Pop. Flow,unknown_or_unavailable,custom,,,not_scanned,{}
+highways,國道 Highway,unknown_or_unavailable,pmtiles,.pmtiles,./geo/national_highway.pmtiles,not_scanned,{}
+hikingTrails,全台步道 Hiking Trails,unknown_or_unavailable,pmtiles,.pmtiles,./forestry/hiking_trails.pmtiles,not_scanned,{}
+hillshade,山體陰影 Hillshade,unknown_or_unavailable,custom,.png,./base_map/hillshade.png,not_scanned,{}
+historicalFlightTrails,歷史航班軌跡 Taiwan,unknown_or_unavailable,custom,.json,./flight-trails/manifest.json,not_scanned,{}
+immigrationOffice,移民署 Immigration,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/immigration_offices/immigration_offices_20260626.geojson,missing_local,{}
+indicators,人口指標 Indicators,unknown_or_unavailable,custom,,,not_scanned,{}
+industrialParkBoundaries,產業園區邊界 Industrial Parks,unknown_or_unavailable,pmtiles,.pmtiles,./industrial_zone/industrial_park_boundaries_20260818.pmtiles,not_scanned,{}
+industrialParkComparison,園區商工比較 Industrial Park Metrics,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/industrial_park_comparison_20260818.pmtiles,not_scanned,{}
+industrialPowerPlant,火力廠 polygon Thermal Plant,unknown_or_unavailable,supabase,,,not_scanned,{}
+industrialRefinery,煉油 / 化工廠 Refinery,unknown_or_unavailable,supabase,,,not_scanned,{}
+industrialStorageTank,油氣儲槽 Storage Tank,unknown_or_unavailable,supabase,,,not_scanned,{}
+internetExchangePoints,網際網路交換中心 Internet Exchange,metadata_candidate_requires_readback,geojson,.geojson,./geo/internet_exchange_points.geojson,parsed,"{""Point"": 892}"
+investigationBureau,調查局 MJIB,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/investigation_bureau/investigation_bureau_20260626.geojson,missing_local,{}
+iotWraRiver,IoT 河川 IoT River,unknown_or_unavailable,custom,,,not_scanned,{}
+iotWraStructure,IoT 水工結構 IoT Structure,unknown_or_unavailable,custom,,,not_scanned,{}
+iPostBoxes,i郵箱 iPost Box,metadata_candidate_requires_readback,geojson,.geojson,./civic_facilities/ibox_national.geojson,parsed,"{""Point"": 2345}"
+islandPowerGrid,islandPowerGrid,unknown_or_unavailable,supabase,,,not_scanned,{}
+isobath,海底等深線 Isobath,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/gebco_isobath.pmtiles,not_scanned,{}
+jpAccommodationCanonical,旅宿去重總覽 宿泊施設の統合一覧,unknown_or_unavailable,custom,.pmtiles,./world/jp_accommodation_canonical_allzoom_20260910.pmtiles,not_scanned,{}
+jpAccommodationDensity,旅宿密度網格 宿泊施設密度グリッド,unknown_or_unavailable,pmtiles,.pmtiles,./world/jp_accommodation_density_450m_20260910.pmtiles|./world/jp_accommodation_density_1500m_20260910.pmtiles,not_scanned,{}
+jpAccommodationJta,觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館,unknown_or_unavailable,custom,.geojson,./world/jp_accommodation_jta_20260331.geojson,not_scanned,{}
+jpAccommodationLocal,地方旅館業許可 地方自治体の旅館業許可,unknown_or_unavailable,custom,.geojson,./world/jp_accommodation_local_20260910.geojson,not_scanned,{}
+jpAccommodationOsm,OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ,unknown_or_unavailable,custom,.pmtiles,./world/jp_accommodation_osm_allzoom_20260910.pmtiles,not_scanned,{}
+jpAdminBoundaries,市區町村界 市区町村境,unknown_or_unavailable,custom,.pmtiles,./world/jp_admin_boundaries.pmtiles,not_scanned,{}
+jpAdminPrefecture,都道府縣界 都道府県境,unknown_or_unavailable,custom,.pmtiles,./world/jp_admin_boundaries_prefecture.pmtiles,not_scanned,{}
+jpAirports,機場 空港,unknown_or_unavailable,custom,.geojson,./world/jp_airports.geojson,not_scanned,{}
+jpBuildingHeight,建物高度 PLATEAU,unknown_or_unavailable,pmtiles,.pmtiles,./jp-heights/building_grid.pmtiles|./jp-heights/buildings.pmtiles,not_scanned,{}
+jpCanopyHeight,樹冠高度 CHMv2,unknown_or_unavailable,pmtiles,.pmtiles,./jp-heights/canopy.pmtiles,not_scanned,{}
+jpCareCombined,複合服務 訪問・通い・宿泊の組合せ,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpCareDayServices,日間服務 施設に通う,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpCareEquipment,福祉用具 福祉用具,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpCareHomeVisit,到宅服務 自宅に訪問,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpCarePlanning,照護諮詢／計畫 介護の相談・ケアプラン,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpCareResidential,住宿／短期入住 施設で生活・宿泊,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpHistoricalFlightTrails,歷史航班軌跡 Japan,unknown_or_unavailable,custom,.json,./flight-trails/manifest.json,not_scanned,{}
+jpMarineEbsaCoastal,沿岸生態重要海域 沿岸EBSA（2015）,unknown_or_unavailable,custom,.pmtiles,./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles,not_scanned,{}
+jpMedicalAreasPrimary,一次醫療圈 一次医療圏 · 2020,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalAreasSecondary,二次醫療圈 二次医療圏 · 2020,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalAreasTertiary,三次醫療圈 三次医療圏 · 2020,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalClinics,診所 診療所,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalDental,牙科 歯科,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalHospitals,醫院 病院,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalMaternity,助產所 助産所,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpMedicalPharmacies,藥局 薬局,unknown_or_unavailable,custom,.json,./jp-medical/current.json,not_scanned,{}
+jpNaturalParksNational,國立公園 国立公園（A10 2010）,unknown_or_unavailable,custom,.pmtiles,./world/jp_natural_parks_ksj_2010.pmtiles,not_scanned,{}
+jpNaturalParksPrefectural,都道府縣立自然公園 都道府県立自然公園（A10 2010）,unknown_or_unavailable,custom,.pmtiles,./world/jp_natural_parks_ksj_2010.pmtiles,not_scanned,{}
+jpNaturalParksQuasiNational,國定公園 国定公園（A10 2010）,unknown_or_unavailable,custom,.pmtiles,./world/jp_natural_parks_ksj_2010.pmtiles,not_scanned,{}
+jpNatureConservationArea,自然保育地域 自然保全地域（A11 2015）,unknown_or_unavailable,custom,.pmtiles,./world/jp_nature_conservation_ksj_2015.pmtiles,not_scanned,{}
+jpNatureConservationSpecialDistrict,自然保育特別地區 自然保全特別地区（A11 2015）,unknown_or_unavailable,custom,.pmtiles,./world/jp_nature_conservation_ksj_2015.pmtiles,not_scanned,{}
+jpPoliceFacilities,警察設施 警察施設,unknown_or_unavailable,custom,.pmtiles,./world/jp_police_facilities.pmtiles,not_scanned,{}
+jpPopulationMesh1km,人口網格 人口メッシュ,unknown_or_unavailable,custom,.pmtiles,./world/jp_population_mesh_1km.pmtiles,not_scanned,{}
+jpPrimitiveNatureEnvironmentArea,原生自然環境地域 原生自然環境保全地域（A11 2015）,unknown_or_unavailable,custom,.pmtiles,./world/jp_nature_conservation_ksj_2015.pmtiles,not_scanned,{}
+jpRailways,鐵道路線 鉄道路線,unknown_or_unavailable,custom,.pmtiles,./world/jp_railways.pmtiles,not_scanned,{}
+jpRamsarSites,拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点,unknown_or_unavailable,custom,.geojson,./world/jp_ramsar_moe_current.geojson,not_scanned,{}
+jpReligionGsi,宗教設施 宗教施設（国土地理院）,unknown_or_unavailable,custom,.pmtiles,./world/jp_religion_gsi.pmtiles,not_scanned,{}
+jpReligionOsm,宗教設施 宗教施設（OpenStreetMap）,unknown_or_unavailable,custom,.geojson,./world/jp_religion_osm.geojson,not_scanned,{}
+jpReligionWikidata,宗教設施 宗教施設（Wikidata）,unknown_or_unavailable,custom,.geojson,./world/jp_religion_wikidata.geojson,not_scanned,{}
+jpSchools,學校 学校,unknown_or_unavailable,custom,.pmtiles,./world/jp_schools.pmtiles,not_scanned,{}
+jpStations,車站 駅,unknown_or_unavailable,custom,.geojson,./world/jp_stations.geojson,not_scanned,{}
+jpWaterAgriculturalPonds,農業蓄水池（2026-03）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: extra-water.pmtiles,not_scanned,{}
+jpWaterDams,水壩 ダム（2014）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: water.pmtiles,not_scanned,{}
+jpWaterFloodHazard,洪水浸水想定（最大規模）,unknown_or_unavailable,custom,,,not_scanned,{}
+jpWaterGroundwaterSites,地下水等觀測點（24縣）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: extra-water.pmtiles,not_scanned,{}
+jpWaterLakes,湖沼 湖沼（W09・2005）,unknown_or_unavailable,custom,.json,./world/jp_water/release.json,not_scanned,{}
+jpWaterLevelStations,橫濱水位站 横浜市,unknown_or_unavailable,custom,.json,./world/jp_water/release.json,not_scanned,{}
+jpWaterLocalFacilities,高松供排水相關設施 高松市,unknown_or_unavailable,custom,.json,./world/jp_water/release.json,not_scanned,{}
+jpWaterNilimDams,NILIM 水壩位置（46縣）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: extra-water.pmtiles,not_scanned,{}
+jpWaterQualityStations,水質測定地点 水質測定地点（2024）,unknown_or_unavailable,custom,.json,./world/jp_water/release.json,not_scanned,{}
+jpWaterRivers,河川流路 河川（2006–2009）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: water.pmtiles,not_scanned,{}
+jpWaterSewerFacilities,下水道設施（2012）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: water.pmtiles,not_scanned,{}
+jpWaterSupplyAreas,給水區域 給水区域（2010）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: water.pmtiles,not_scanned,{}
+jpWaterSupplyFacilities,上水道相關設施（2010）,unknown_or_unavailable,custom,.pmtiles,PRIVATE_OWNER_ONLY: water.pmtiles,not_scanned,{}
+jpWildlifeProtectionNational,國家指定鳥獸保護區 国指定鳥獣保護区,unknown_or_unavailable,custom,.pmtiles,./world/jp_wildlife_protection_moe_202504.pmtiles,not_scanned,{}
+jpWildlifeSpecialProtectionDesignatedArea,鳥獸特別保護指定區域 特別保護指定区域,unknown_or_unavailable,custom,.pmtiles,./world/jp_wildlife_protection_moe_202504.pmtiles,not_scanned,{}
+jpWildlifeSpecialProtectionDistrict,鳥獸特別保護地區 鳥獣保護区特別保護地区,unknown_or_unavailable,custom,.pmtiles,./world/jp_wildlife_protection_moe_202504.pmtiles,not_scanned,{}
+jpWorldHeritageCultural,UNESCO 文化遺產代表點 UNESCO 文化遺産代表点,unknown_or_unavailable,custom,.geojson,./world/jp_world_heritage_unesco_current.geojson,not_scanned,{}
+jpWorldHeritageNatural,UNESCO 自然遺產代表點 UNESCO 自然遺産代表点,unknown_or_unavailable,custom,.geojson,./world/jp_world_heritage_unesco_current.geojson,not_scanned,{}
+jpWorldNaturalHeritageHistorical,世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）,unknown_or_unavailable,custom,.geojson,./world/jp_world_natural_heritage_ksj_2011.geojson,not_scanned,{}
+lakesPondsOsm,湖泊 / 埤塘 Lakes & Ponds,unknown_or_unavailable,pmtiles,.pmtiles,./water_resources/lakes_ponds_osm.pmtiles,not_scanned,{}
+landingStations,OSM 海纜登陸站 Landing Station,metadata_candidate_requires_readback,geojson,.geojson,./geo/landing_stations.geojson,parsed,"{""Point"": 58}"
+librarySeats,圖書館即時座位 Library Seats,unknown_or_unavailable,supabase,,,not_scanned,{}
+lifelineAlerts,民生中斷 Lifeline,unknown_or_unavailable,custom,,,not_scanned,{}
+lighthouses,燈塔 Lighthouse,metadata_candidate_requires_readback,geojson,.geojson,./geo/lighthouse.geojson,parsed,"{""Point"": 36}"
+lightning,落雷 Lightning 60min（台電）,unknown_or_unavailable,supabase,,,not_scanned,{}
+lightningCwa,落雷 Lightning 60min（氣象署）,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmCattle,畜禽飼養場·牛 Cattle Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmChicken,畜禽飼養場·雞 Chicken Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmDuck,畜禽飼養場·鴨 Duck Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmGoose,畜禽飼養場·鵝 Goose Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmOther,畜禽飼養場·其他 Other Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmPig,畜禽飼養場·豬 Pig Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFarmSheep,畜禽飼養場·羊 Sheep/Goat Farms,unknown_or_unavailable,supabase,,,not_scanned,{}
+livestockFeed,飼料廠 Feed Factories,metadata_candidate_requires_readback,geojson,.geojson,./agriculture/feed_factories.geojson,missing_local,{}
+livestockMarket,拍賣/批發市場 Markets,metadata_candidate_requires_readback,geojson,.geojson,./agriculture/livestock_markets.geojson,missing_local,{}
+livestockSlaughter,屠宰場 Slaughterhouses,unknown_or_unavailable,supabase,,,not_scanned,{}
+lngTerminal,LNG 接收站 Terminal,unknown_or_unavailable,supabase,,,not_scanned,{}
+lpgRetailers,LPG 加氣站 / 瓦斯行 Retailer,unknown_or_unavailable,supabase,,,not_scanned,{}
+lpgSubpackaging,LPG 分裝 / 儲存場 Subpackaging,unknown_or_unavailable,supabase,,,not_scanned,{}
+manufacturingCompanyDensityGrid,製造業公司登記密度 Manufacturing Registry Density,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/manufacturing_company_density_1500m_202608.pmtiles|./business_registry/manufacturing_company_density_450m_202608.pmtiles,not_scanned,{}
+manufacturingCompanyPoints,製造業公司登記點位 Manufacturing Registry,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/manufacturing_company_points_202608_allzoom.pmtiles,not_scanned,{}
+marineObservationCwa,CWA 海洋觀測站 CWA Marine,unknown_or_unavailable,custom,,,not_scanned,{}
+marineObservationIsohe,ISOHE 港區海氣象 ISOHE Port,unknown_or_unavailable,custom,,,not_scanned,{}
+maritimeBoundary,領海界線 Maritime Boundary,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/maritime_boundary.pmtiles,not_scanned,{}
+medAED,AED 點位 AED,unknown_or_unavailable,pmtiles,.pmtiles,./geo/medical_aed.pmtiles,not_scanned,{}
+medClinic,診所 / 其他醫療 Clinic,unknown_or_unavailable,pmtiles,.pmtiles,./geo/medical_clinics.pmtiles,not_scanned,{}
+medDesert,醫療沙漠 Desert,unknown_or_unavailable,custom,.pmtiles,./medical/medical_isochrone.pmtiles,not_scanned,{}
+medHospital,醫院 Hospital,registered,geojson,.geojson,./geo/medical_hospitals.geojson,not_scanned,{}
+medICUBeds,medICUBeds,unknown_or_unavailable,custom,,,not_scanned,{}
+medIsochrone,醫療等時圈 Isochrone,unknown_or_unavailable,custom,.pmtiles,./medical/medical_isochrone.pmtiles,not_scanned,{}
+medLTC,長照機構 LTC,unknown_or_unavailable,pmtiles,.pmtiles,./geo/medical_ltc.pmtiles,not_scanned,{}
+medPharmacy,藥局 Pharmacy,unknown_or_unavailable,pmtiles,.pmtiles,./geo/medical_pharmacies.pmtiles,not_scanned,{}
+mountainHuts,山屋・高山營地 Mountain Huts,metadata_candidate_requires_readback,geojson,.geojson,./forestry/mountain_huts.geojson,parsed,"{""Point"": 136}"
+mountainRescueIncidents,山域事故 Mountain Rescue,metadata_candidate_requires_readback,geojson,.geojson,./hazards/mountain_rescue_incidents.geojson,parsed,"{""Point"": 2465}"
+newsEvents,新聞事件 News Events,registered,supabase,,,not_scanned,{}
+noiseCaptureGrid,NoiseCapture 公民格網,unknown_or_unavailable,pmtiles,.pmtiles,./environment/noise_capture_grid.pmtiles|./environment/noise_capture_grid.pmtiles|./environment/noise_capture_grid.pmtiles,not_scanned,{}
+noiseControlZones,噪音管制區 Control Zones,unknown_or_unavailable,pmtiles,.pmtiles,./environment/noise_control_zones.pmtiles,not_scanned,{}
+noiseEnforcementEvents,噪音裁處事件 Enforcement,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_penalties.pmtiles,not_scanned,{}
+nonUrbanZoning,非都市土地使用分區 Non-Urban Zoning,unknown_or_unavailable,pmtiles,.pmtiles,./urban/non_urban_zoning.pmtiles,not_scanned,{}
+nuclearRadiation,核安輻射 Radiation,unknown_or_unavailable,supabase,,,not_scanned,{}
+oceanCurrents,海流 Ocean Currents,unknown_or_unavailable,custom,,,not_scanned,{}
+officialBridgesNewTaipei,新北市轄管橋梁,unknown_or_unavailable,pmtiles,.pmtiles,./network_structures/official_bridges_new_taipei_20260906.pmtiles,not_scanned,{}
+officialNoiseMonitoring,官方噪音測站 Official Monitoring,metadata_candidate_requires_readback,geojson,.geojson,./environment/official_noise_monitoring.geojson,parsed,"{""Point"": 415, ""null"": 11}"
+offshoreWindZones,離岸風場 Offshore Wind,unknown_or_unavailable,supabase,,,not_scanned,{}
+ooklaFixedPerformance,Ookla 固定網路效能格網 Fixed Performance Grid,metadata_candidate_requires_readback,geojson,.geojson,./geo/ookla_fixed_global.geojson,over_5MiB,{}
+ooklaFixedTaiwan,Ookla 台灣固定網路細格 Taiwan Fixed Fine Grid,unknown_or_unavailable,pmtiles,.pmtiles,./geo/ookla_tw_z14.pmtiles|./geo/ookla_tw_z16.pmtiles,not_scanned,{}
+ooklaMobilePerformance,Ookla 行動網路效能格網 Mobile Performance Grid,metadata_candidate_requires_readback,geojson,.geojson,./geo/ookla_mobile_global.geojson,over_5MiB,{}
+ooklaMobileTaiwan,Ookla 台灣行動細格 Taiwan Mobile Fine Grid,unknown_or_unavailable,pmtiles,.pmtiles,./geo/ookla_tw_z14.pmtiles|./geo/ookla_tw_z16.pmtiles,not_scanned,{}
+osmBridgeCarriers,OSM 橋梁承載線,unknown_or_unavailable,pmtiles,.pmtiles,./network_structures/osm_bridge_carriers_20260906.pmtiles,not_scanned,{}
+osmBridgeFootprints,OSM 橋梁輪廓,unknown_or_unavailable,pmtiles,.pmtiles,./network_structures/osm_bridge_footprints_20260906.pmtiles,not_scanned,{}
+osmCommunicationSites,OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates,metadata_candidate_requires_readback,geojson,.geojson,./geo/osm_communication_sites.geojson,parsed,"{""Point"": 916}"
+osmExpressway,快速道路 Expressway,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/osm_expressway.pmtiles,not_scanned,{}
+osmPowerLines,高壓輸電線 Power Lines,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmPowerPlantsStatic,osmPowerPlantsStatic,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmPowerTowers,高壓鐵塔 Power Towers,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmRoadDrive,OSM 道路 OSM Roads,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/osm_road_drive.pmtiles,not_scanned,{}
+osmSolarFarms,osmSolarFarms,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmSubstations,變電所 區域 Substation,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmSubstationsEhv,變電所 超高壓 EHV,unknown_or_unavailable,supabase,,,not_scanned,{}
+osmWindTurbines,風機 Wind Turbines,unknown_or_unavailable,supabase,,,not_scanned,{}
+parkingOffstreet,場外停車場 Off-street,unknown_or_unavailable,supabase,,,not_scanned,{}
+parkingOnstreet,路邊停車 On-street,unknown_or_unavailable,supabase,,,not_scanned,{}
+parksTaipei,公園 Parks,metadata_candidate_requires_readback,geojson,.geojson,./urban/parks_taipei.geojson,missing_local,{}
+performingVenues,表演場館 Performing Venues,metadata_candidate_requires_readback,geojson,.geojson,./culture/performing_venues_national.geojson,parsed,"{""Point"": 857}"
+pipelineGas,天然氣主幹線 Gas Pipeline,unknown_or_unavailable,supabase,,,not_scanned,{}
+pipelineOilGas,油氣管線 OSM Oil/Gas Pipeline,unknown_or_unavailable,supabase,,,not_scanned,{}
+plaActivity,共機活動區 PLA Activity,unknown_or_unavailable,custom,,,not_scanned,{}
+policeIsoCityDept,縣市警局 30/60 min,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/isochrone/police_iso_police_dept_combined.pmtiles,not_scanned,{}
+policeIsoPrecinct,分局 15/30 min,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/isochrone/police_iso_precinct_combined.pmtiles,not_scanned,{}
+policeIsoSubstation,派出所 5/10 min,unknown_or_unavailable,pmtiles,.pmtiles,./police_justice/isochrone/police_iso_substation_combined.pmtiles,not_scanned,{}
+policeStation,警察機關 Police,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/police_stations/police_stations_20260626.geojson,missing_local,{}
+pollutionFacility,污染潛勢設施 Facility,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_facilities.pmtiles,not_scanned,{}
+pollutionPenaltyCritical,重大裁處 Critical Penalty,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_penalties.pmtiles,not_scanned,{}
+pollutionPenaltyGeneral,一般裁處 General Penalty,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_penalties.pmtiles,not_scanned,{}
+pollutionPenaltyMobile,移動污染 Mobile Penalty,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_penalties.pmtiles,not_scanned,{}
+pollutionSite,污染場址 Site,unknown_or_unavailable,pmtiles,.pmtiles,./geo/pollution_sites.pmtiles,not_scanned,{}
+popCount,人口數 Population,unknown_or_unavailable,custom,,,not_scanned,{}
+ports,港口 Port,unknown_or_unavailable,geojson,.geojson,./geo/port_polygons.geojson|./geo/port_polygons.geojson,not_scanned,{}
+postOffices,郵局 Post Office,metadata_candidate_requires_readback,geojson,.geojson,./civic_facilities/post_offices_national.geojson,parsed,"{""Point"": 1278}"
+powerGenerationUnit,機組即時出力 Live Output,unknown_or_unavailable,supabase,,,not_scanned,{}
+powerLinesGlow,高壓輸電線 Bloom 測試 ⚡✨,unknown_or_unavailable,custom,,,not_scanned,{}
+powerPlantGlow,發電廠 Bloom 測試 ✨,unknown_or_unavailable,custom,,,not_scanned,{}
+powerPlants,powerPlants,unknown_or_unavailable,supabase,,,not_scanned,{}
+powerPoles,電桿 Power Poles (2.96M),unknown_or_unavailable,custom,.pmtiles,./coverage/power_poles.pmtiles,not_scanned,{}
+powerRegionDemand,powerRegionDemand,unknown_or_unavailable,custom,,,not_scanned,{}
+powerStatusHud,powerStatusHud,unknown_or_unavailable,custom,,,not_scanned,{}
+precipRaster,累積雨量柵格 Precip Raster,unknown_or_unavailable,custom,,,not_scanned,{}
+propertyValueAdmin,不動產總市值行政區 Property Value,unknown_or_unavailable,custom,.json|.pmtiles,./urban/property_value_admin.json|./base_map/county_boundary.pmtiles|./base_map/township_boundary.pmtiles,not_scanned,{}
+propertyValueGrid,不動產總市值網格 Value Grid,unknown_or_unavailable,pmtiles,.pmtiles,./urban/property_value_grid_150m.pmtiles|./urban/property_value_grid_450m.pmtiles|./urban/property_value_grid_1500m.pmtiles,not_scanned,{}
+prosecutorsOffice,檢察署 Prosecutors,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson,missing_local,{}
+protectedTreesNational,受保護樹木 Protected Trees,metadata_candidate_requires_readback,geojson,.geojson,./urban/protected_trees_national.geojson,missing_local,{}
+provincialRoads,省道 Provincial Road,unknown_or_unavailable,pmtiles,.pmtiles,./geo/provincial_road.pmtiles,not_scanned,{}
+publicLibraries,公共圖書館 Public Library,registered,geojson,.geojson,./culture/public_libraries_national.geojson,not_scanned,{}
+publicToilets,公廁 Public Toilet,metadata_candidate_requires_readback,geojson,.geojson,./environment/public_toilets_national.geojson,parsed,"{""Point"": 13281}"
+rail,鐵道 Rail,unknown_or_unavailable,custom,,,not_scanned,{}
+rainGauge,即時雨量 Rain Gauge,unknown_or_unavailable,custom,,,not_scanned,{}
+realEstatePresaleGrid,預售熱力圖 Presale Grid,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/real_estate_grid.pmtiles,not_scanned,{}
+realEstatePresalePoint,預售交易點 Presale Point,unknown_or_unavailable,custom,.bin,./coverage/real_estate_points_buffer.bin,not_scanned,{}
+realEstateRentalGrid,租賃熱力圖 Rental Grid,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/real_estate_grid.pmtiles,not_scanned,{}
+realEstateRentalPoint,租賃交易點 Rental Point,unknown_or_unavailable,custom,.bin,./coverage/real_estate_points_buffer.bin,not_scanned,{}
+realEstateSaleGrid,買賣熱力圖 Sale Grid,unknown_or_unavailable,pmtiles,.pmtiles,./coverage/real_estate_grid.pmtiles,not_scanned,{}
+realEstateSalePoint,買賣交易點 Sale Point,unknown_or_unavailable,custom,.bin,./coverage/real_estate_points_buffer.bin,not_scanned,{}
+regulatedFacilities,列管設施 Regulated Facilities,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/regulated_facilities_20260818_allzoom.pmtiles,not_scanned,{}
+regulatedFacilityDensityGrid,列管設施密度 Regulated Facility Density,unknown_or_unavailable,pmtiles,.pmtiles,./business_registry/regulated_facility_density_1500m_20260818.pmtiles|./business_registry/regulated_facility_density_450m_20260818.pmtiles,not_scanned,{}
+religionAncestralHalls,宗祠 Ancestral Halls,metadata_candidate_requires_readback,geojson,.geojson,./religion/ancestral_halls.geojson,parsed,"{""Point"": 173}"
+religionChurches,教會 Churches,metadata_candidate_requires_readback,geojson,.geojson,./religion/churches.geojson,parsed,"{""Point"": 2116}"
+religionFoundations,宗教基金會 Foundations,metadata_candidate_requires_readback,geojson,.geojson,./religion/foundations.geojson,parsed,"{""Point"": 165}"
+religionOtherWorship,其他宗教場所 Other Worship,metadata_candidate_requires_readback,geojson,.geojson,./religion/other_worship.geojson,parsed,"{""Point"": 1319}"
+religionTemples,寺廟 Temples,unknown_or_unavailable,pmtiles,.pmtiles,./religion/temples.pmtiles,not_scanned,{}
+religionTop100,宗教百景 Top 100,metadata_candidate_requires_readback,geojson,.geojson,./religion/top100.geojson,parsed,"{""Point"": 100}"
+renewablePermitsTaipei,北市再生能源許可 Renewable Permits,unknown_or_unavailable,supabase,,,not_scanned,{}
+retailMarkets,公有市場 Public Market,metadata_candidate_requires_readback,geojson,.geojson,./poi/public_retail_markets_national.geojson,parsed,"{""Point"": 731}"
+ripeAtlasProbes,RIPE Atlas 連線量測節點 Connected Probes,metadata_candidate_requires_readback,geojson,.geojson,./geo/ripe_atlas_probes.geojson,parsed,"{""Point"": 3000}"
+riverLevel,河川水位 River Level,unknown_or_unavailable,custom,,,not_scanned,{}
+riversideTreesTaipei,河濱喬木 Riverside Trees,metadata_candidate_requires_readback,geojson,.geojson,./urban/riverside_trees_taipei.geojson,missing_local,{}
+roadCongestion,省道路況 Provincial v1,unknown_or_unavailable,custom,.pmtiles,./road/road_congestion_highway.pmtiles,not_scanned,{}
+roadEvents,即時路況 Road Events,unknown_or_unavailable,custom,,,not_scanned,{}
+safetyAlerts,安全環境 Safety Alerts,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesBeidou,北斗 BD-3 PNT,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesFrance,🇫🇷 France · CSO / PLEIADES / ELISA,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesGaofen,Gaofen 高分,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesGermany,🇩🇪 Germany · SAR-Lupe / SARah,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesIndia,🇮🇳 India · CARTOSAT / RISAT / EOS,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesIsrael,🇮🇱 Israel · Ofeq / EROS,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesItaly,🇮🇹 Italy · COSMO-SkyMed,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesJapan,🇯🇵 Japan · IGS / ALOS,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesJilin,Jilin 吉林,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesKorea,🇰🇷 Korea · KOMPSAT,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesRussia,🇷🇺 Russia · PERSONA / RESURS / COSMOS,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesShiyan,Shiyan / Shijian 試驗,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesTaiwan,台灣 FORMOSAT / TRITON / IRIS-C,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesTJS,TJS / TJSW GEO 情報,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesUSA,🇺🇸 USA · KH / BlackSky / Planet,unknown_or_unavailable,custom,,,not_scanned,{}
+satellitesYaogan,Yaogan 遙感,unknown_or_unavailable,custom,,,not_scanned,{}
+schools,學校總覽 All Schools,registered,geojson,.geojson,./education/schools.geojson,not_scanned,{}
+serviceArea,國道服務區 Service Area,metadata_candidate_requires_readback,geojson,.geojson,./geo/service_area.geojson,parsed,"{""Point"": 22}"
+serviceAreaPolygon,國道服務區範圍 SA Area,metadata_candidate_requires_readback,geojson,.geojson,./geo/service_area_polygon.geojson,parsed,"{""Polygon"": 18, ""MultiPolygon"": 1}"
+ships,船舶 Ship,unknown_or_unavailable,custom,,,not_scanned,{}
+slopeVector,坡度分級 Slope 6級,unknown_or_unavailable,custom,.pmtiles,./base_map/slope_vector.pmtiles,not_scanned,{}
+socioeconomic,社經面貌 Socio-Econ,unknown_or_unavailable,custom,,,not_scanned,{}
+soundCameraLocations,聲音照相設備 Sound Camera,metadata_candidate_requires_readback,geojson,.geojson,./environment/sound_camera_locations.geojson,parsed,"{""null"": 66, ""Point"": 267}"
+spatialEconomy,空間經濟 Spatial-Econ,unknown_or_unavailable,custom,,,not_scanned,{}
+speedCamera,測速照相 Speed Camera,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/speed_cameras/speed_cameras_20260626.geojson,missing_local,{}
+speedZoneSegment,區間測速 Speed Zone,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson,missing_local,{}
+sportsCenter,國民運動中心 Sports Center,metadata_candidate_requires_readback,geojson,.geojson,./sports/all_venues.geojson,missing_local,{}
+sportsPark,運動公園/開放空間 Park,metadata_candidate_requires_readback,geojson,.geojson,./sports/all_venues.geojson,missing_local,{}
+sportsPrivate,民營場館 Private Venues,metadata_candidate_requires_readback,geojson,.geojson,./sports/all_venues.geojson,missing_local,{}
+sportsPublicOther,其他公共場館 Other Public Venues,metadata_candidate_requires_readback,geojson,.geojson,./sports/all_venues.geojson,missing_local,{}
+sportsSchool,學校場館 School,metadata_candidate_requires_readback,geojson,.geojson,./sports/all_venues.geojson,missing_local,{}
+stationsMetro,捷運站 Metro Station,metadata_candidate_requires_readback,geojson,.geojson,./geo/station_points.geojson,parsed,"{""Point"": 503}"
+stationsTHSR,高鐵站 THSR Station,unknown_or_unavailable,geojson,.geojson,./geo/station_polygons.geojson|./geo/station_polygons.geojson,not_scanned,{}
+stationsTRA,台鐵站 TRA Station,unknown_or_unavailable,geojson,.geojson,./geo/station_polygons.geojson|./geo/station_polygons.geojson|./geo/station_points.geojson,not_scanned,{}
+statsA1AccidentCount,A1 交通事故件數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsA1DeathCount,A1 交通事故死亡人數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsA1InjuryCount,A1 交通事故受傷人數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAgriculturalFacilityAreaTownship,農業生產設施用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAirportCargoTonnes,機場所在地貨運量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAirportLandAreaTownship,機場用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAirportPassengerMovements,機場所在地旅客人次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAirportTakeoffsLandings,機場所在地起降架次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAquacultureAreaCounty,水產養殖面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAquacultureLandAreaTownship,水產養殖用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAutomobileLicenseHoldersCount,汽車駕照持有人數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsAutomobileRegisteredCount,汽車登記數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBambooForestAreaTownship,竹林用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBirthsTownship,每月出生數（歷史快照）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBroadleafForestAreaTownship,闊葉林用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusAccessibleVehicleCount,期末無障礙車輛,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusApprovedRouteCount,核定路線數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusElectricVehicleCount,期末電動車輛,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusOperatingRouteLengthKm,期末營業里程,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusOperatingTripCount,營業行車次數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusOperatingVehicleCount,期末營業車輛,unknown_or_unavailable,custom,,,not_scanned,{}
+statsBusOperatingVehicleKm,營業行車里程,unknown_or_unavailable,custom,,,not_scanned,{}
+statsCivilAeronauticsSubsidyCounty,民航局獎補助費（受補助對象所在地）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1A2AccidentCount,A1＋A2 事故件數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1A2AccidentCountPer10000Residents,A1＋A2 事故件數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1A2AccidentCountPerKm2,A1＋A2 事故件數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1AccidentCountPer10000Residents,A1交通事故件數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1AccidentCountPerKm2,A1交通事故件數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1DeathCountPer10000Residents,A1交通事故死亡人數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1DeathCountPerKm2,A1交通事故死亡人數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1InjuryCountPer10000Residents,A1交通事故受傷人數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA1InjuryCountPerKm2,A1交通事故受傷人數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2AccidentCount,A2 事故件數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2AccidentCountPer10000Residents,A2 事故件數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2AccidentCountPerKm2,A2 事故件數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2InjuryCount,A2 事故受傷人數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2InjuryCountPer10000Residents,A2 事故受傷人數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonA2InjuryCountPerKm2,A2 事故受傷人數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAcuteBedTotalPer10000PopulationTownship,急性病床（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAcuteBedTotalPerKm2Township,急性病床（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityCountyAreaSharePct,農業生產設施用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityCountyLq,農業生產設施用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityCountyNationalSharePct,農業生產設施用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityCountyTotalHectare,農業生產設施用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityNationalSharePct,農業生產設施用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct,農業生產設施用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAgriculturalFacilityTownshipOfCountySharePct,農業生產設施用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandCountyAreaSharePct,機場用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandCountyLq,機場用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandCountyNationalSharePct,機場用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandCountyTotalHectare,機場用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandNationalSharePct,機場用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandTownshipAdminAreaSharePct,機場用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAirportLandTownshipOfCountySharePct,機場用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandCountyAreaSharePct,水產養殖用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandCountyLq,水產養殖用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandCountyNationalSharePct,水產養殖用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandCountyTotalHectare,水產養殖用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandNationalSharePct,水產養殖用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandTownshipAdminAreaSharePct,水產養殖用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAquacultureLandTownshipOfCountySharePct,水產養殖用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAutomobileLicenseHoldersCountPer10000Residents,領有汽車駕照人數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonAutomobileRegisteredCountPer10000Residents,汽車登記數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestCountyAreaSharePct,竹林用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestCountyLq,竹林用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestCountyNationalSharePct,竹林用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestCountyTotalHectare,竹林用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestNationalSharePct,竹林用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestTownshipAdminAreaSharePct,竹林用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBambooForestTownshipOfCountySharePct,竹林用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestCountyAreaSharePct,闊葉林用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestCountyLq,闊葉林用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestCountyNationalSharePct,闊葉林用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestCountyTotalHectare,闊葉林用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestNationalSharePct,闊葉林用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestTownshipAdminAreaSharePct,闊葉林用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBroadleafForestTownshipOfCountySharePct,闊葉林用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusAccessibleVehicleCountPer10000Residents,期末無障礙車輛－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusAccessibleVehicleCountPerKm2,期末無障礙車輛－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusApprovedRouteCountPer10000Residents,核定路線數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusApprovedRouteCountPerKm2,核定路線數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusElectricSharePct,電動公車占營業車比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusElectricVehicleCountPer10000Residents,期末電動車輛－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusElectricVehicleCountPerKm2,期末電動車輛－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingRouteLengthKmPer10000Residents,期末營業里程－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingRouteLengthKmPerKm2,期末營業里程－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingTripCountPer10000Residents,營業行車次數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingTripCountPerKm2,營業行車次數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingVehicleCountPer10000Residents,期末營業車輛－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingVehicleCountPerKm2,期末營業車輛－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingVehicleKmPer10000Residents,營業行車里程－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonBusOperatingVehicleKmPerKm2,營業行車里程－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonCareWorkerRegistrationCountPer65plus1000County,照顧服務員登錄數（人口比較）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestCountyAreaSharePct,針葉林用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestCountyLq,針葉林用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestCountyNationalSharePct,針葉林用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestCountyTotalHectare,針葉林用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestNationalSharePct,針葉林用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestTownshipAdminAreaSharePct,針葉林用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonConiferForestTownshipOfCountySharePct,針葉林用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldCountyAreaSharePct,旱田用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldCountyLq,旱田用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldCountyNationalSharePct,旱田用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldCountyTotalHectare,旱田用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldNationalSharePct,旱田用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldTownshipAdminAreaSharePct,旱田用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonDryFieldTownshipOfCountySharePct,旱田用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationClassCountPer10000Residents,班級數（每萬名居民）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationClassCountPerKm2,班級數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationInstitutionCountPer10000Residents,機構或學校數（每萬名居民）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationInstitutionCountPerKm2,機構或學校數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationStaffCountPer10000Residents,職員數（每萬名居民）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationStaffCountPerKm2,職員數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationStudentCountPer10000Residents,學生或幼生數（每萬名居民）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationStudentCountPerKm2,學生或幼生數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationTeacherCountPer10000Residents,教師數（每萬名居民）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonEducationTeacherCountPerKm2,教師數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonFisheryProductionTonnesNationalSharePctCounty,漁業生產量－縣市占全臺比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonFisheryValueThousandNationalSharePctCounty,漁業生產值－縣市占全臺比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County,一般護理之家開放床數（人口比較）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHealthProfessionalTotalPer10000PopulationTownship,醫院醫事人員總計（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHealthProfessionalTotalPerKm2Township,醫院醫事人員總計（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospiceBedTotalPer10000PopulationTownship,安寧病床（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospiceBedTotalPerKm2Township,安寧病床（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospitalBedTotalPer10000PopulationTownship,醫院病床總數（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospitalBedTotalPerKm2Township,醫院病床總數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospitalCountPer10000PopulationTownship,醫院家數（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHospitalCountPerKm2Township,醫院家數（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty,有人居住住宅中的混合用途占比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingOccasionalSharePctCounty,偶爾自住住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingOccasionalSharePctTownship,偶爾自住住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingOtherUseSharePctCounty,其他使用住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingOtherUseSharePctTownship,其他使用住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingUnoccupiedSharePctCounty,無人經常居住住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonHousingUnoccupiedSharePctTownship,無人經常居住住宅占總住宅比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonIcuBedTotalPer10000PopulationTownship,加護病床（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonIcuBedTotalPerKm2Township,加護病床（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingCountyAreaSharePct,畜禽舍用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingCountyLq,畜禽舍用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingCountyNationalSharePct,畜禽舍用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingCountyTotalHectare,畜禽舍用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingNationalSharePct,畜禽舍用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingTownshipAdminAreaSharePct,畜禽舍用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockBuildingTownshipOfCountySharePct,畜禽舍用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonLivestockHeadsPerFarmTownship,畜禽每場在養數量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestCountyAreaSharePct,混合林用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestCountyLq,混合林用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestCountyNationalSharePct,混合林用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestCountyTotalHectare,混合林用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestNationalSharePct,混合林用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestTownshipAdminAreaSharePct,混合林用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMixedForestTownshipOfCountySharePct,混合林用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMotorcycleLicenseHoldersCountPer10000Residents,領有機車駕照人數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonMotorcycleRegisteredCountPer10000Residents,機車登記數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路外停車位－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路邊停車位－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardCountyAreaSharePct,果園用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardCountyLq,果園用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardCountyNationalSharePct,果園用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardCountyTotalHectare,果園用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardNationalSharePct,果園用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardTownshipAdminAreaSharePct,果園用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonOrchardTownshipOfCountySharePct,果園用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandCountyAreaSharePct,水田用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandCountyLq,水田用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandCountyNationalSharePct,水田用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandCountyTotalHectare,水田用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandNationalSharePct,水田用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandTownshipAdminAreaSharePct,水田用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPaddyLandTownshipOfCountySharePct,水田用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureCountyAreaSharePct,牧場用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureCountyLq,牧場用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureCountyNationalSharePct,牧場用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureCountyTotalHectare,牧場用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureNationalSharePct,牧場用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureTownshipAdminAreaSharePct,牧場用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPastureTownshipOfCountySharePct,牧場用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandCountyAreaSharePct,港口用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandCountyLq,港口用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandCountyNationalSharePct,港口用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandCountyTotalHectare,港口用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandNationalSharePct,港口用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandTownshipAdminAreaSharePct,港口用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPortLandTownshipOfCountySharePct,港口用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County,產後護理之家開放護理床數（人口比較）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County,產後護理之家開放嬰兒床數（人口比較）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandCountyAreaSharePct,鐵路用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandCountyLq,鐵路用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandCountyNationalSharePct,鐵路用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandCountyTotalHectare,鐵路用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandNationalSharePct,鐵路用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandTownshipAdminAreaSharePct,鐵路用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRailLandTownshipOfCountySharePct,鐵路用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRegisteredNurseCountPer10000PopulationTownship,醫院護理師（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRegisteredNurseCountPerKm2Township,醫院護理師（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandCountyAreaSharePct,道路用地面積－占縣市行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandCountyLq,道路用地面積－縣市相對集中度 LQ,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandCountyNationalSharePct,道路用地面積－縣市占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandCountyTotalHectare,道路用地面積－縣市面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandNationalSharePct,道路用地面積－鄉鎮占全臺同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandTownshipAdminAreaSharePct,道路用地面積－占鄉鎮行政面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonRoadLandTownshipOfCountySharePct,道路用地面積－鄉鎮占所屬縣市同類比,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonUrbanBusOperatorCountPer10000Residents,市區客運業家數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonUrbanBusOperatorCountPerKm2,市區客運業家數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWasteRecyclingVehiclesPer10000Residents,資源（含廚餘）回收車輛數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWasteRecyclingVehiclesPerKm2,資源（含廚餘）回收車輛數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWasteTotalVehiclesPer10000Residents,垃圾清運車輛總數－每萬名居民,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWasteTotalVehiclesPerKm2,垃圾清運車輛總數－每平方公里,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWesternPhysicianCountPer10000PopulationTownship,醫院西醫師（每萬人口）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsComparisonWesternPhysicianCountPerKm2Township,醫院西醫師（每平方公里）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsConiferForestAreaTownship,針葉林用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsCropHarvestedAreaTownship,作物收穫面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsCropPlantedAreaTownship,作物種植面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsCropProductionTownship,作物收量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsCropYieldTownship,每公頃收穫量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsDryFieldAreaTownship,旱田用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationCountyClassCount,班級數,registered,custom,,,not_scanned,{}
+statsEducationCountyInstitutionCount,機構或學校數,registered,custom,,,not_scanned,{}
+statsEducationCountySmallSchoolCount,12班以下學校數,registered,custom,,,not_scanned,{}
+statsEducationCountySmallSchoolSharePct,12班以下學校占比,registered,custom,,,not_scanned,{}
+statsEducationCountyStaffCount,職員數,registered,custom,,,not_scanned,{}
+statsEducationCountyStudentCount,學生或幼生數,registered,custom,,,not_scanned,{}
+statsEducationCountyStudentsPerClass,每班學生數,registered,custom,,,not_scanned,{}
+statsEducationCountyStudentTeacherRatio,生師比,registered,custom,,,not_scanned,{}
+statsEducationCountyStudentYearChange,學生或幼生年增減數,registered,custom,,,not_scanned,{}
+statsEducationCountyStudentYearChangePct,學生或幼生年增減率,registered,custom,,,not_scanned,{}
+statsEducationCountyTeacherCount,教師數,registered,custom,,,not_scanned,{}
+statsEducationElementarySchool,國小－學校端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationElementaryStudent,國小－學生端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationElementaryTeacher,國小－老師端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationJuniorHighSchool,國中－學校端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationJuniorHighStudent,國中－學生端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationJuniorHighTeacher,國中－老師端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationPreschoolSchool,幼兒園－學校端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationPreschoolStudent,幼兒園－學生端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationPreschoolTeacher,幼兒園－老師端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationSeniorHighSchool,高中－學校端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationSeniorHighStudent,高中－學生端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsEducationSeniorHighTeacher,高中－老師端,unknown_or_unavailable,custom,,,not_scanned,{}
+statsFisheryProductionCounty,漁業生產量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsFisheryProductionValueCounty,漁業生產值,unknown_or_unavailable,custom,,,not_scanned,{}
+statsHealthAcuteBedTotal,急性病床,registered,custom,,,not_scanned,{}
+statsHealthCareWorkerListedSexSum,一般護理之家列示照服員欄位加總,registered,custom,,,not_scanned,{}
+statsHealthCareWorkerRegistration,照顧服務員登錄數,registered,custom,,,not_scanned,{}
+statsHealthGeneralNursingHomeOpenBeds,一般護理之家開放床數,registered,custom,,,not_scanned,{}
+statsHealthHealthProfessionalTotal,醫院醫事人員總計,registered,custom,,,not_scanned,{}
+statsHealthHospiceBedTotal,安寧病床,registered,custom,,,not_scanned,{}
+statsHealthHospitalBedTotal,醫院病床總數,registered,custom,,,not_scanned,{}
+statsHealthHospitalCount,醫院家數,registered,custom,,,not_scanned,{}
+statsHealthIcuBedTotal,加護病床,registered,custom,,,not_scanned,{}
+statsHealthMedicalInstitutionBedsPer10000Population,醫療院所每萬人口病床數,registered,custom,,,not_scanned,{}
+statsHealthNursingStaffListedAgeSexSum,一般護理之家列示護理人員欄位加總,registered,custom,,,not_scanned,{}
+statsHealthPostpartumNursingHomeOpenBeds,產後護理之家開放護理床數,registered,custom,,,not_scanned,{}
+statsHealthPostpartumNursingHomeOpenInfantBeds,產後護理之家開放嬰兒床數,registered,custom,,,not_scanned,{}
+statsHealthPracticingMedicalPersonnelPer10000Population,機構每萬人口執業醫事人員數,registered,custom,,,not_scanned,{}
+statsHealthRegisteredNurseCount,醫院護理師,registered,custom,,,not_scanned,{}
+statsHealthWesternPhysicianCount,醫院西醫師,registered,custom,,,not_scanned,{}
+statsHousingMixedUseCounty,有人居住住宅－兼農工服務業用（縣市）,registered,custom,,,not_scanned,{}
+statsHousingOccasionalCounty,偶爾自住住宅（縣市）,registered,custom,,,not_scanned,{}
+statsHousingOccasionalTownship,偶爾自住住宅（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingOccupiedCounty,有人經常居住住宅（縣市）,registered,custom,,,not_scanned,{}
+statsHousingOccupiedPctCounty,經常居住住宅占比（縣市）,registered,custom,,,not_scanned,{}
+statsHousingOccupiedPctTownship,經常居住住宅占比（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingOccupiedTownship,有人經常居住住宅（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingOtherUseCounty,自住以外用途住宅（縣市）,registered,custom,,,not_scanned,{}
+statsHousingOtherUseTownship,自住以外用途住宅（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingResidenceOnlyCounty,有人居住住宅－住宅專用（縣市）,registered,custom,,,not_scanned,{}
+statsHousingTotalCounty,住宅總數（縣市）,registered,custom,,,not_scanned,{}
+statsHousingTotalTownship,住宅總數（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingUnoccupiedCounty,無人經常居住住宅（縣市）,registered,custom,,,not_scanned,{}
+statsHousingUnoccupiedTownship,無人經常居住住宅（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingUnusedCounty,目前沒有使用住宅（縣市）,registered,custom,,,not_scanned,{}
+statsHousingUnusedPctCounty,目前未使用住宅占比（縣市）,registered,custom,,,not_scanned,{}
+statsHousingUnusedPctTownship,目前未使用住宅占比（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsHousingUnusedTownship,目前沒有使用住宅（鄉鎮市區）,registered,custom,,,not_scanned,{}
+statsLivestockBuildingAreaTownship,畜禽舍用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsLivestockFarmCountTownship,畜禽飼養場數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsLivestockHeadCountTownship,畜禽在養數量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsMaritimeSubsidyCounty,航港局獎補助金額（受補助對象所在地）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsMixedForestAreaTownship,混合林用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsMotorcycleLicenseHoldersCount,機車駕照持有人數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsMotorcycleRegisteredCount,機車登記數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsOffstreetSmallCarParkingSpacesCount,小型汽車路外停車位,unknown_or_unavailable,custom,,,not_scanned,{}
+statsOnstreetSmallCarParkingSpacesCount,小型汽車路邊停車位,unknown_or_unavailable,custom,,,not_scanned,{}
+statsOrchardAreaTownship,果園用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsPaddyLandAreaTownship,水田用地面積,registered,custom,,,not_scanned,{}
+statsPastureAreaTownship,牧場用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsPigWaterCounty,養豬用水量（歷史統計）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsPortLandAreaTownship,港口用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsRailLandAreaTownship,鐵路用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsRecyclingCounty,資源回收車輛數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsResidentialElectricity,住宅每月售電量,unknown_or_unavailable,custom,,,not_scanned,{}
+statsRiceHarvest,全年稻作收穫面積（複種計次）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsRoadLandAreaTownship,道路用地面積,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaichungRoadNoiseMonitoringStations,臺中市道路交通噪音監測站數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiRiversideBicycles,河濱公園自行車數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiRiversideRentalStations,河濱公園租借站數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiRiversideRentalTrips,河濱公園年租借次數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiTrafficViolationCitations,臺北市交通違規舉發筆數（法條）,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiUrbanRentalStations,市區自行車租借站數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaipeiUrbanRentalTrips,市區自行車年租借次數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaoyuanAirportArrivals,桃園機場所在地入境旅客人次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaoyuanAirportDepartures,桃園機場所在地出境旅客人次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaoyuanAirportPassengerMovements,桃園機場所在地旅客人次總計,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTaoyuanAirportTransit,桃園機場所在地過境旅客人次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsTmrtStationOutboundCounty,中捷車站所在地出站人次,unknown_or_unavailable,custom,,,not_scanned,{}
+statsUrbanBusOperatorCount,市區客運業家數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsWasteCounty,垃圾清運車輛數,unknown_or_unavailable,custom,,,not_scanned,{}
+statsWasteRecyclingRate,一般廢棄物回收率,unknown_or_unavailable,custom,,,not_scanned,{}
+statsWaterSupplyHistorical,供水普及率（2015 年，7 縣市）,unknown_or_unavailable,custom,,,not_scanned,{}
+streetTreesNational,行道樹全國 Street Trees TW,unknown_or_unavailable,pmtiles,.pmtiles,./urban/street_trees_national.pmtiles,not_scanned,{}
+streetTreesTaipei3epoch,行道樹三時點 Street Tree 3-Epoch,unknown_or_unavailable,pmtiles,.pmtiles,./urban/street_trees_taipei_3epoch.pmtiles,not_scanned,{}
+streetTreesTaipeiDiff,行道樹變化 Street Tree Diff,unknown_or_unavailable,pmtiles,.pmtiles,./urban/street_trees_taipei_diff.pmtiles,not_scanned,{}
+submarineCables,OSM 通訊海纜 Submarine Cable,metadata_candidate_requires_readback,geojson,.geojson,./geo/submarine_cables.geojson,parsed,"{""MultiLineString"": 2, ""LineString"": 102}"
+substationEhvGlow,變電所 EHV Bloom 測試 ⚡✨,unknown_or_unavailable,custom,,,not_scanned,{}
+taipeiEvacuate,北市疏散門 Evacuate Gate (TP),unknown_or_unavailable,custom,,,not_scanned,{}
+taipeiPumb,北市抽水站 Pump Station (TP),unknown_or_unavailable,custom,,,not_scanned,{}
+taipeiSewer,北市下水道水位 Sewer (TP),unknown_or_unavailable,custom,,,not_scanned,{}
+taxiStand,計程車招呼站 Taxi Stand,metadata_candidate_requires_readback,geojson,.geojson,./geo/taxi_stand.geojson,parsed,"{""Point"": 224}"
+temperatureGrid,溫度網格 Temperature Grid,unknown_or_unavailable,custom,,,not_scanned,{}
+temperatureWave,溫度波 Temperature Wave,unknown_or_unavailable,custom,,,not_scanned,{}
+theftTaoyuan,桃園竊盜 Theft Taoyuan,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson,missing_local,{}
+tourAmusementParks,民營遊樂園 Amusement Parks,metadata_candidate_requires_readback,geojson,.geojson,./tourism/amusement_parks_national.geojson,parsed,"{""Point"": 26}"
+tourAttractions,觀光景點 Attractions,metadata_candidate_requires_readback,geojson,.geojson,./tourism/attractions_national.geojson,missing_local,{}
+tourCamping,露營場 Campgrounds,metadata_candidate_requires_readback,geojson,.geojson,./tourism/camping_national.geojson,parsed,"{""Point"": 1737}"
+tourEvents,觀光活動・節慶 Tourism Events,metadata_candidate_requires_readback,geojson,.geojson,./tourism/activities_national.geojson,parsed,"{""Point"": 828}"
+tourFactories,觀光工廠 Tourism Factories,metadata_candidate_requires_readback,geojson,.geojson,./tourism/tourism_factories_national.geojson,parsed,"{""Point"": 158}"
+tourHeritage,文化資產 Heritage,metadata_candidate_requires_readback,geojson,.geojson,./tourism/heritage_national.geojson,parsed,"{""Point"": 2894}"
+tourHotels,旅宿 Hotels & B&Bs,metadata_candidate_requires_readback,geojson,.geojson,./tourism/hotels_national.geojson,missing_local,{}
+tourHotSprings,溫泉露頭 Hot Springs,metadata_candidate_requires_readback,geojson,.geojson,./tourism/hot_springs_national.geojson,parsed,"{""Point"": 150}"
+tourHotSpringZones,溫泉露頭區 Hot Spring Zones,metadata_candidate_requires_readback,geojson,.geojson,./tourism/hot_spring_zones_national.geojson,parsed,"{""Polygon"": 16}"
+touristShuttleLive,台灣好行 Tourist Shuttle,unknown_or_unavailable,custom,,,not_scanned,{}
+tourRestaurants,觀光餐飲 Restaurants,metadata_candidate_requires_readback,geojson,.geojson,./tourism/restaurants_national.geojson,missing_local,{}
+tourScenicAreas,國家風景區 Scenic Areas,metadata_candidate_requires_readback,geojson,.geojson,./tourism/national_scenic_areas_national.geojson,parsed,"{""MultiPolygon"": 8, ""Polygon"": 4}"
+townshipBoundary,鄉鎮市區界 Township,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/township_boundary.pmtiles,not_scanned,{}
+trafficAccidentYearly,A1 死亡事故 Fatal Accident,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson,missing_local,{}
+transitAlerts,交通阻斷 Transit Alerts,unknown_or_unavailable,custom,,,not_scanned,{}
+treePitsTaipei,人行道樹穴 Tree Pits,unknown_or_unavailable,pmtiles,.pmtiles,./urban/tree_pits_taipei.pmtiles,not_scanned,{}
+typhoonTracks,颱風軌跡 Typhoon Track,unknown_or_unavailable,custom,,,not_scanned,{}
+urbanFormGrid,都市紋理網格 Urban Form,unknown_or_unavailable,pmtiles,.pmtiles,./urban/urban_form_grid_500m.pmtiles,not_scanned,{}
+urbanHeat,都市熱島 Urban Heat,unknown_or_unavailable,pmtiles,.pmtiles,./environment/urban_heat_lst_taiwan.pmtiles,not_scanned,{}
+urbanZoningNewTaipei,新北土地使用分區 New Taipei Zoning,unknown_or_unavailable,pmtiles,.pmtiles,./urban/urban_zoning_newtaipei.pmtiles,not_scanned,{}
+urbanZoningTaipei,北市土地使用分區 Taipei Zoning,unknown_or_unavailable,pmtiles,.pmtiles,./urban/urban_zoning_taipei.pmtiles,not_scanned,{}
+vesselWatch,特殊船舶 Vessel Watch,unknown_or_unavailable,custom,,,not_scanned,{}
+villageBoundary,村里界 Village,unknown_or_unavailable,pmtiles,.pmtiles,./base_map/village_boundary.pmtiles,not_scanned,{}
+wasteCleaningSquads,清潔隊 Squads,unknown_or_unavailable,custom,,,not_scanned,{}
+wasteRoute,wasteRoute,unknown_or_unavailable,custom,,,not_scanned,{}
+wasteSchedule,垃圾車（表定） Schedule,unknown_or_unavailable,custom,,,not_scanned,{}
+wasteScheduleNote,　└ 表定音符 Notes 🎵,unknown_or_unavailable,custom,,,not_scanned,{}
+wasteStop,wasteStop,unknown_or_unavailable,custom,,,not_scanned,{}
+wasteStopsStatic,全台清運點位 Stops (靜態),metadata_candidate_requires_readback,geojson,.geojson,./geo/waste_stops_static.geojson,over_5MiB,{}
+wasteTruck,垃圾車 Truck (含音符),unknown_or_unavailable,custom,,,not_scanned,{}
+waterBasins,流域 Basin,metadata_candidate_requires_readback,geojson,.geojson,./geo/water_basins.geojson,missing_local,{}
+waterCanals,灌排渠道 Canal,unknown_or_unavailable,pmtiles,.pmtiles,./geo/water_canals.pmtiles,not_scanned,{}
+waterDetentionBasins,滯洪池 Detention,metadata_candidate_requires_readback,geojson,.geojson,./geo/water_detention_basins.geojson,missing_local,{}
+waterFacilities,水利設施 Facility,metadata_candidate_requires_readback,geojson,.geojson,./geo/water_facilities.geojson,missing_local,{}
+waterFloodExtreme,淹水潛勢 Flood 650mm/24h,unknown_or_unavailable,pmtiles,.pmtiles,./geo/water_flood_extreme.pmtiles,not_scanned,{}
+waterLevees,堤防 Levee,unknown_or_unavailable,pmtiles,.pmtiles,./geo/water_levees.pmtiles,not_scanned,{}
+waterMonitorStations,監測站 Monitor,metadata_candidate_requires_readback,geojson,.geojson,./geo/water_monitor_stations.geojson,missing_local,{}
+waterProtectionZones,管制區 Protection,metadata_candidate_requires_readback,geojson,.geojson,./geo/water_protection_zones.geojson,missing_local,{}
+waterReservoirs,水庫 Reservoir,unknown_or_unavailable,geojson|pmtiles,.geojson|.pmtiles,./geo/water_reservoirs.pmtiles|./geo/water_dams.geojson,not_scanned,{}
+waterRivers,河川 River,unknown_or_unavailable,pmtiles,.pmtiles,./geo/water_river_polygons.pmtiles|./geo/water_rivers.pmtiles,not_scanned,{}
+wdBattery,電池回收 Battery,unknown_or_unavailable,custom,,,not_scanned,{}
+wdClothes,衣物回收箱 Clothes,unknown_or_unavailable,custom,,,not_scanned,{}
+wdMixed,混合投放點 Mixed,unknown_or_unavailable,custom,,,not_scanned,{}
+wdRecyclingContainer,街頭資收桶 Container,unknown_or_unavailable,custom,,,not_scanned,{}
+weatherAlerts,氣象特報 Weather Alerts,unknown_or_unavailable,custom,,,not_scanned,{}
+weatherStations,氣象站 Weather Station,metadata_candidate_requires_readback,geojson,.geojson,./geo/weather_stations.geojson,missing_local,{}
+welfareCenters,社福中心 Welfare Center,metadata_candidate_requires_readback,geojson,.geojson,./civic_facilities/welfare_centers_national.geojson,parsed,"{""Point"": 157}"
+welfareChildcare,托嬰中心 Childcare,metadata_candidate_requires_readback,geojson,.geojson,./welfare/childcare_centers_national.geojson,parsed,"{""Point"": 1578}"
+welfareChildServices,兒少服務 Child Services,metadata_candidate_requires_readback,geojson,.geojson,./welfare/child_services_national.geojson,parsed,"{""Point"": 1396}"
+welfareDisability,身障福利機構 Disability,metadata_candidate_requires_readback,geojson,.geojson,./welfare/disability_facilities_national.geojson,parsed,"{""Point"": 334}"
+welfareElderlyHomes,老人住宿機構 Elderly Homes,metadata_candidate_requires_readback,geojson,.geojson,./welfare/elderly_care_homes_national.geojson,parsed,"{""Point"": 1160}"
+welfareGovOffices,公部門社福據點 Gov Offices,metadata_candidate_requires_readback,geojson,.geojson,./welfare/welfare_gov_offices_national.geojson,parsed,"{""Point"": 151}"
+welfareLtcInstitutions,長照立案機構 LTC Institutions,metadata_candidate_requires_readback,geojson,.geojson,./welfare/ltc_institutions_national.geojson,parsed,"{""Point"": 3117}"
+welfareMentalHealth,心理衛生機構 Mental Health,metadata_candidate_requires_readback,geojson,.geojson,./welfare/mental_health_facilities_national.geojson,parsed,"{""Point"": 70}"
+welfareNursingHomes,護理機構 Nursing Homes,metadata_candidate_requires_readback,geojson,.geojson,./welfare/nursing_homes_national.geojson,parsed,"{""Point"": 1611}"
+welfareSocialWorkOrgs,社福團體 Social Work Orgs,metadata_candidate_requires_readback,geojson,.geojson,./welfare/social_work_orgs_national.geojson,parsed,"{""Point"": 587}"
+wfIncinerator,焚化爐 Incinerator,unknown_or_unavailable,custom,,,not_scanned,{}
+wfLandfill,衛生掩埋場 Landfill,unknown_or_unavailable,custom,,,not_scanned,{}
+wfLandfillCoastal,濱海掩埋場 Coastal,unknown_or_unavailable,custom,,,not_scanned,{}
+wfMedical,醫療廢棄物 Medical,unknown_or_unavailable,custom,,,not_scanned,{}
+wfMonitoring,地下水監測井 Monitor,unknown_or_unavailable,custom,,,not_scanned,{}
+wfOther,其他事廢設施 Other,unknown_or_unavailable,custom,,,not_scanned,{}
+wfRecycling,資源回收廠 Recycling,unknown_or_unavailable,custom,,,not_scanned,{}
+wfScrapYard,廢車 / 廢金屬 Scrap,unknown_or_unavailable,custom,,,not_scanned,{}
+wfTransfer,轉運站 Transfer,unknown_or_unavailable,custom,,,not_scanned,{}
+windField,風場 Wind Field 10m,unknown_or_unavailable,custom,,,not_scanned,{}
+windPlan,風電場規劃 Wind Plan,metadata_candidate_requires_readback,geojson,.geojson,./geo/wind_plan.geojson,parsed,"{""MultiPolygon"": 26}"
+womenChildWarning,婦幼警示點 Women/Child Warning,metadata_candidate_requires_readback,geojson,.geojson,./police_justice/women_child_warning/women_child_warning_20260626.geojson,missing_local,{}
+worldTrashDebris,垃圾與殘骸觀測 Trash & Debris Observations,unknown_or_unavailable,custom,.geojson,./world/trash_debris.geojson,not_scanned,{}
+youbikeFullness,YouBike 有車率 Fullness,unknown_or_unavailable,custom,,,not_scanned,{}

@@ -1,0 +1,23 @@
+{
+  "popup.medical.medicalSite": "Medical facility",
+  "popup.medical.specialties": "Departments",
+  "popup.medical.nhiPharmacy": "NHI-contracted pharmacy",
+  "popup.medical.placeType": "Venue type",
+  "popup.medical.aedLocation": "AED location",
+  "popup.medical.emergencyPhone": "Emergency phone",
+  "popup.medical.openBeds": "Open beds",
+  "popup.medical.driveToNearest": "Drive to nearest major hospital",
+  "popup.medical.minutes": "{value} min",
+  "popup.medical.nearestHospital": "Nearest hospital",
+  "popup.medical.hospitalTier": "Hospital tier",
+  "popup.medical.erHospital": "Emergency hospital",
+  "popup.medical.erCongestion": "ER congestion",
+  "popup.medical.erCongestionValue": "{level} (waiting for a general bed: {count})",
+  "popup.medical.waitSee": "Waiting to be seen",
+  "popup.medical.waitBed": "Waiting for admission",
+  "popup.medical.waitIcu": "Waiting for ICU",
+  "popup.medical.informFlag": "Notification flag (inform)",
+  "popup.medical.trend": "24h trend: waiting for general bed",
+  "popup.medical.bedGap": "beds short",
+  "popup.medical.severe": "Severe"
+}

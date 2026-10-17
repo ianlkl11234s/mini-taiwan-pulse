@@ -16,6 +16,10 @@ import { ALERT_GROUP_KEYS, type AlertGroupKey } from "../data/disasterAlertTypes
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { paramDefault } from "../data/layerParamsSpec";
+import { startThrottledRaf } from "../utils/throttledRaf";
+import { hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -43,10 +47,9 @@ const CACHE_MAX = 7;
  */
 const PULSE_IDS = ["disaster-alert-pulse-0", "disaster-alert-pulse-1"];
 const PULSE_CYCLE_MS = 2200;
-const PULSE_FRAME_MS = 40;
 const PULSE_R_MIN = 7;
-const PULSE_R_MAX = 30;
-const PULSE_PEAK_OPACITY = 0.85;
+const PULSE_R_MAX = 9;
+const PULSE_PEAK_OPACITY = 0.35;
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined"
@@ -94,7 +97,9 @@ interface CachedDay {
   accessedAt: number;
 }
 
-function buildLayers(map: MapboxMap): boolean {
+const OPACITY_DEFAULT = Number(paramDefault("lifelineAlerts", "daOpacity"));
+
+function buildLayers(map: MapboxMap, isDark: boolean): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
   for (const group of ALERT_GROUP_KEYS) {
@@ -114,10 +119,10 @@ function buildLayers(map: MapboxMap): boolean {
         type: "fill",
         source: SOURCE_ID,
         filter: polyFilter,
-        paint: {
+        paint: hookFillPaint(group, ids.fill, {
           "fill-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
           "fill-opacity": SEVERITY_FILL_OPACITY,
-        },
+        }, { "fill-color": ["get", "tcolor"] as unknown as ExpressionSpecification, "fill-opacity": SEVERITY_FILL_OPACITY }),
       } as FillLayer);
     }
 
@@ -127,12 +132,12 @@ function buildLayers(map: MapboxMap): boolean {
         type: "line",
         source: SOURCE_ID,
         filter: polyFilter,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
+        layout: hookLineLayout(group, ids.line),
+        paint: hookLinePaint(group, ids.line, {
           "line-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
           "line-width": 1.5,
           "line-opacity": 0.9,
-        },
+        }, { "line-color": ["get", "tcolor"] as unknown as ExpressionSpecification, "line-width": 1.5, "line-opacity": 0.9 }),
       } as LineLayer);
     }
 
@@ -143,15 +148,9 @@ function buildLayers(map: MapboxMap): boolean {
         source: SOURCE_ID,
         filter: ptFilter,
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 3.5,
-            10, 5.5,
-            14, 7,
-          ] as unknown as ExpressionSpecification,
+          "circle-radius": pointRadius("M"),
           "circle-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 1.2,
+          ...pointStrokePaint(isDark),
           "circle-opacity": 0.85,
         },
       } as CircleLayer);
@@ -173,6 +172,15 @@ function buildLayers(map: MapboxMap): boolean {
         "circle-stroke-color": ["get", "color"] as unknown as ExpressionSpecification,
         "circle-stroke-width": 2.5,
         "circle-stroke-opacity": 0,
+        "circle-blur": 0.6,
+        // 動畫由 RAF 逐幀改寫：本層所有可過渡 paint 屬性都關掉 GL transition。任一 setPaintProperty 會替
+        // 整層每個屬性重建 transition，隱藏層不再 recalculate → 未設 0 的屬性會卡住 hasTransitions() 持續 render
+        "circle-radius-transition": { duration: 0, delay: 0 },
+        "circle-stroke-opacity-transition": { duration: 0, delay: 0 },
+        "circle-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-color-transition": { duration: 0, delay: 0 },
+        "circle-stroke-width-transition": { duration: 0, delay: 0 },
+        "circle-blur-transition": { duration: 0, delay: 0 },
       },
     } as CircleLayer);
   }
@@ -184,6 +192,7 @@ export function useDisasterAlertLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visibility: Record<AlertGroupKey, boolean>,
   opacity: number = 1,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
@@ -198,6 +207,9 @@ export function useDisasterAlertLayer(
   const [hasPulse, setHasPulse] = useState(false);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  // 主題走 ref：ensureLayers 保持穩定，切主題不會重建 timeStore 訂閱（paint 由 opacity effect 更新）
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
 
   const anyVisible = ALERT_GROUP_KEYS.some((k) => visibility[k]);
   // effect dep 用的穩定 key（避免物件 identity 每 render 變動）
@@ -232,7 +244,7 @@ export function useDisasterAlertLayer(
     }
     const probe = layerIds(ALERT_GROUP_KEYS[0]!).fill;
     if (!layersReadyRef.current || !map.getLayer(probe)) {
-      layersReadyRef.current = buildLayers(map);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current);
     }
     return layersReadyRef.current;
   }, []);
@@ -369,15 +381,10 @@ export function useDisasterAlertLayer(
       return;
     }
 
-    let raf = 0;
-    let lastFrame = 0;
-    const animate = () => {
-      raf = requestAnimationFrame(animate);
+    // 節流 ~20fps（RIPPLE_FRAME_MS）；相位以時間計算，速度不受節流影響
+    const stop = startThrottledRaf((now) => {
       const m = mapRef.current;
       if (!m) return;
-      const now = performance.now();
-      if (now - lastFrame < PULSE_FRAME_MS) return;
-      lastFrame = now;
 
       for (let i = 0; i < PULSE_IDS.length; i++) {
         const id = PULSE_IDS[i]!;
@@ -392,10 +399,9 @@ export function useDisasterAlertLayer(
           (1 - phase) * PULSE_PEAK_OPACITY * opacityRef.current,
         );
       }
-    };
-    raf = requestAnimationFrame(animate);
+    });
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
       const m = mapRef.current;
       if (!m) return;
       try {
@@ -422,11 +428,16 @@ export function useDisasterAlertLayer(
         ] as unknown as ExpressionSpecification);
       }
       if (map.getLayer(ids.line)) {
-        map.setPaintProperty(ids.line, "line-opacity", 0.9 * o);
+        map.setPaintProperty(ids.line, "line-opacity", hookLineOpacity(group, ids.line, 0.9 * o, 0.9 * OPACITY_DEFAULT, isDark));
       }
       if (map.getLayer(ids.point)) {
         map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
-        map.setPaintProperty(ids.point, "circle-stroke-opacity", o);
+        {
+          const stroke = pointStrokePaint(isDark, o / OPACITY_DEFAULT);
+          map.setPaintProperty(ids.point, "circle-stroke-color", stroke["circle-stroke-color"]);
+          map.setPaintProperty(ids.point, "circle-stroke-width", stroke["circle-stroke-width"]);
+          map.setPaintProperty(ids.point, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
+        }
       }
     }
     // pulse 的 opacity 平常由 rAF 每幀寫（讀 opacityRef），只有 reduced-motion
@@ -436,5 +447,5 @@ export function useDisasterAlertLayer(
         if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-opacity", 0.5 * o);
       }
     }
-  }, [opacity, visKey, mapRef, mapTick]);
+  }, [opacity, isDark, visKey, mapRef, mapTick]);
 }

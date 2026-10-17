@@ -1,0 +1,18 @@
+{
+  "popup.jpMedical.sourceNavii": "厚生労働省 Navii",
+  "popup.jpMedical.parentGroup": "上位分類",
+  "popup.jpMedical.rawServiceType": "原始服務類型",
+  "popup.jpMedical.sourceH17": "厚生労働省 H17",
+  "popup.jpMedical.sourceSnapshot": "來源快照",
+  "popup.jpMedical.coLocated": "同位置、目前篩選下 {count} 筆服務登記",
+  "popup.jpMedical.service": "服務",
+  "popup.jpMedical.areasTitle": "醫療圈 · 2020 歷史版",
+  "popup.jpMedical.dataStatus": "資料狀態",
+  "popup.jpMedical.staleValue": "STALE：2020 歷史版",
+  "popup.jpMedical.sourceAreas": "国土数値情報 医療圏データ（2020）",
+  "popup.jpMedical.purpose": "用途",
+  "popup.jpMedical.purposeText": "行政規劃邊界；不是設施服務範圍或即時就醫可達圈",
+  "popup.jpMedical.geometryGrain": "幾何粒度",
+  "popup.jpMedical.geometryGrainText": "來源 polygon part；不可依此加總人口、面積或圈數",
+  "popup.jpMedical.sourceFields": "來源欄位"
+}

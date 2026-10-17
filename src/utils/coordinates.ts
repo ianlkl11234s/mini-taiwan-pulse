@@ -1,7 +1,7 @@
 /**
  * 經緯度 → Mercator 座標（Three.js CustomLayer 用）
  *
- * ⚠️ **引擎顯式注入**（EM-16 / docs/proposal/embed-dynamic-layers.md §9-4）
+ * ⚠️ **引擎顯式注入**（EM-16 / docs/features/embeddable-map/dynamic-layers-plan.md §9-4）
  *
  * 本檔原本 `import mapboxgl from "mapbox-gl"`，導致任何用到 Three 場景的入口
  * 都會硬拖進整包 mapbox-gl。`/embed` 走 MapLibre、且**不得**載入 mapbox-gl
