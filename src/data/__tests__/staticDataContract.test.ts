@@ -544,6 +544,9 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   "marine/artificial_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],
   "marine/protected_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],
   "marine/set_net_fishing_areas.geojson": [{ field: "county", type: "string" }, { field: "license_no", type: "string", nullable: true }],
+  // 🕳️ 地層下陷＋海堤 G19（2026-10-17）：popup／RPC 依賴欄（id＝RPC p_station_id；obs_count 0 不打 RPC）。
+  "hazards/land_subsidence_stations.geojson": [{ field: "id", type: "string" }, { field: "station_type", type: "string" }, { field: "obs_count", type: "number" }, { field: "trend_per_year", type: "number", nullable: true }],
+  "hazards/seawall_zones.geojson": [{ field: "name", type: "string" }, { field: "org_label", type: "string" }],
 };
 
 /**

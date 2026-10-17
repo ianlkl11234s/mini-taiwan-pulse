@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""地層下陷＋海堤靜態圖層（G19）：taipei-gis-analytics water_resources 成品 → public/water/。
+"""地層下陷＋海堤靜態圖層（G19）：taipei-gis-analytics water_resources 成品 → public/hazards/（nginx／S3 pull 已有 hazards 目錄，不另開新目錄）。
 
 只做「瘦身 + 補來源欄」，不改資料語意（規格 SSOT：analytics docs/topic-research/land_subsidence/layer-plan.md）：
   - 地層下陷測站（113 → 112 點）→ land_subsidence_stations.geojson
@@ -25,7 +25,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT_DIR = ROOT / "public" / "water"
+OUT_DIR = ROOT / "public" / "hazards"
 OGDL = "政府資料開放授權條款第1版"
 WRA = "經濟部水利署"
 FETCHED = "2026-10-17"

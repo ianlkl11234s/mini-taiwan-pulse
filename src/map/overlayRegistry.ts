@@ -11706,7 +11706,7 @@ const polygonLayers = (key: string, color: unknown, def: number, minzoom?: numbe
 /** 地層下陷等值線：兩層共用 land-subsidence-contours PMTiles，以 contour_type＋期別 select filter 切。
  *  不掛 level_value 文字標註：PMTiles 上的 symbol 在 production 有 continuePlacement 崩潰前例（見 publicLifePointOverlay），值放 popup／圖例。 */
 const landSubsidenceContourOverlay = (id: "landSubsidenceCumulative" | "landSubsidenceRate", type: ContourType, attribution: string): OverlayConfig => ({
-  id, sourceUrl: "./water/land_subsidence_contours.pmtiles", sourceId: "land-subsidence-contours",
+  id, sourceUrl: "./hazards/land_subsidence_contours.pmtiles", sourceId: "land-subsidence-contours",
   pmtiles: { sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
   attribution, rebuildOnParamChange: [`${type}-line`],
   layers: [{
@@ -11822,11 +11822,11 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("artificialReefCenters", "./marine/artificial_reef_areas.geojson", "artificial-reef-centers", ATLAS_LAYER_COLORS.artificialReefCenters, undefined, `農業部漁業署 人工魚礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
   publicLifePointOverlay("protectedReefCenters", "./marine/protected_reef_areas.geojson", "protected-reef-centers", ATLAS_LAYER_COLORS.protectedReefCenters, undefined, `農業部漁業署 保護礁禁漁區（中心位置，非範圍）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 11 }),
   // ── 地層下陷＋海堤 G19（2026-10-17）：測站點（三類分色）、累積／速率等值線共用一個 PMTiles source（suffix 區分）、海堤面 ──
-  publicLifePointOverlay("landSubsidenceStations", "./water/land_subsidence_stations.geojson", "land-subsidence-stations", matchColorExpr("station_type", STATION_TYPE_OPTIONS), undefined, `經濟部水利署 地層下陷監測（data.gov.tw 36693／41571／58335）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 12, filter: (p) => atlasMultiSelectFilter("station_type", STATION_TYPE_OPTIONS, p?.landSubsidenceStationsTypeMask) }),
+  publicLifePointOverlay("landSubsidenceStations", "./hazards/land_subsidence_stations.geojson", "land-subsidence-stations", matchColorExpr("station_type", STATION_TYPE_OPTIONS), undefined, `經濟部水利署 地層下陷監測（data.gov.tw 36693／41571／58335）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 12, filter: (p) => atlasMultiSelectFilter("station_type", STATION_TYPE_OPTIONS, p?.landSubsidenceStationsTypeMask) }),
   landSubsidenceContourOverlay("landSubsidenceCumulative", "cumulative", `經濟部水利署 累積下陷量等值線（data.gov.tw 58361）· ${OGDL_ATTR}`),
   landSubsidenceContourOverlay("landSubsidenceRate", "rate", `經濟部水利署 平均下陷速率等值線（data.gov.tw 58362）· ${OGDL_ATTR}`),
   {
-    id: "seawallZones", sourceUrl: "./water/seawall_zones.geojson", sourceId: "seawall-zones",
+    id: "seawallZones", sourceUrl: "./hazards/seawall_zones.geojson", sourceId: "seawall-zones",
     attribution: `經濟部水利署 一般性海堤區域（data.gov.tw 129277）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("seawallZones", ATLAS_LAYER_COLORS.seawallZones, 0.5, SEAWALL_MIN_ZOOM),
   },
