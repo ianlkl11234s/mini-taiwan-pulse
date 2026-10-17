@@ -27,7 +27,7 @@
 | repo / system | 現況 |
 |---|---|
 | **mini-taiwan-pulse** | #539（GD-1、AU-3 契約測試）、#540（倉庫覆蓋率 L2 795／982）、#541（OSRM token 遮蔽、AU-1 結案改列 DS-COLOR）、#542（圖層新鮮度總表 `build-layer-freshness.mjs`）、#543（R5-1／R5-2／R8-2／AG-6／G005）、#544（BACKLOG 健檢）已合併；**v2.6.0** 已發布（#545／#546，tag 打在 master `65c90691`），正式站 main-*.js 顯示 2.6.0。 |
-| **mini-pulse-gis-mcp** | #45（入倉支援 gzip／純屬性表）、#46（題庫第二輪：58/60、提醒 10/10）、#47（評估工具重置修正：台／臺、COMMAND_PENDING、鏡頭歸位）、#48（reset-cmd 用 `--session`）已合併；analysis-prod/mcp 在 `ad85eb2`。 |
+| **mini-pulse-gis-mcp** | MCP 已到 #63（2026-10-17）：查證關卡 #56–#59、數字口徑 #60、醫療院所去重與排名不上網 #62、地震只用正式目錄 #63；正式 MCP（.worktrees/analysis-prod/mcp）在 cbb3348。現況入口：`.gis-agent-system/roadmap/status/ai-mcp.md`。 |
 | **R2 倉庫** | latest `20261005T051814Z`（+14 資料集；前一版 `20261004T145742Z`）。 |
 | **gis-data-collectors** | #126（TD-1：時刻表 240 分鐘＋degraded fallback；調查報告）、#127（GD-2：只對 `ncdr_alerts` 擋西里爾亂碼）、#128（OSRM token 改讀 env）已合併並部署。 |
 | **taipei-gis-analytics** | #141（9 份 manifest 補入倉 provenance）、#142（OSRM token 改讀 env）。 |

@@ -54,7 +54,8 @@
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
 | AG-5 | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
-| AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd`（`run.mts` runResetCommand）改成重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-7 | P3 | done | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | Done 2026-10-17。驗收條件已達成：MCP #56 重置後明確關掉殘留圖層，2026-10-16／10-17 eval 每題起始圖層都是「無」。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-12 | P2 | done | 上網查證關卡：何時上網、何時先問（pulse-conductor＋pulse-verify＋server 指示）。 | Done 2026-10-17。MCP #56–#59 上線；後續數字口徑 #60、醫療院所去重與排名不上網 #62、地震只用正式目錄 #63。現況看 `.gis-agent-system/roadmap/status/ai-mcp.md`。 | 見 `.gis-agent-system/roadmap/status/ai-mcp.md`。 |
 | AG-10 | P2 | blocked | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | owner decision：要不要做「面板偵測新版本並提示重新整理」（目前 src 沒有任何版本偵測，2026-10-05 查）。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
 | AG-2 | P2 | ready | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | 2026-10-05 倉庫已切到 20261005T051814Z（update_store.py 增量），但 wh_catalog 牧場標題仍是「肉品拍賣/批發市場（21 家）」。先查清楚 update_store 為何沒套用 analytics #134 的 manifest title 與 build_warehouse 修正，必要時對 livestock_ranch 全量重建，之後再刪 override。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
