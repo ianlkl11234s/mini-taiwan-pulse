@@ -186,7 +186,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| SEO-5 | P1 | conditional | 讓 Google／Bing 開始收錄正式站。 | Trigger: #609 隨下一版發布到 master。Owner: 使用者（DNS TXT 驗證網域）＋ Claude。First action: Search Console 驗證網域、提交 sitemap、請求首頁建立索引；1–2 週後重搜。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
+| SEO-5 | P1 | verifying | 讓 Google／Bing 開始收錄正式站。 | 2026-10-17 已完成：#609 隨 v2.9.0 上線；Search Console 以「網域」資源驗證 `itsmigu.com`（Cloudflare 自動加 TXT，勿刪 `google-site-verification` 紀錄）、提交 sitemap（找到 3 個網址）、首頁已要求建立索引（Google 上次檢索為 2026-09-20 的空白首頁）。Next: 約 2026-10-31 查 `site:` 與 Search Console「網頁」報表；Bing 可從 Search Console 匯入（選做）。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
 | SEO-4 | P2 | waiting_external | 社群分享預覽圖。 | 需要一張 1200×630 站圖（`public/` 目前沒有適合的），到位後補 og:image 與 `twitter:card=summary_large_image`。 | 分享連結出現預覽圖。 |
 | SEO-6 | P2 | conditional | 讓爬蟲讀到實質內容（預渲染或靜態「關於／資料來源／主題導覽」頁）。 | Trigger: SEO-5 收錄兩週後的結果。Owner: 使用者決定投入。First action: 與 SEO-7（英日文實體頁）、AEO-3（FAQ）同一包規劃。 | 重點說明頁有實體 HTML 並被收錄。 |
 | PERF-1 | P2 | ready | 首屏 JS 由 gzip 2.11 MB 降到 1 MB 內（2026-10-16 本機 Lighthouse 行動版效能 0.26、LCP 15.9 s，機器負載偏高）。 | `statisticsText`（322 KB gz）、`JpMedicalStatus`（124 KB gz）改為使用時才載入；PERF-3 清查未使用 JS（Lighthouse 估可省 904 KiB）。 | 本機 Lighthouse 行動版 LCP 明顯下降，同設定跑 3 次取中位數。 |
