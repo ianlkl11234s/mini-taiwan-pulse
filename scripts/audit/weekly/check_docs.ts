@@ -1,5 +1,6 @@
 /**
- * Weekly Audit — D 組「文件與結構」收集器（D1 / D2 / D3 / D4 / D5 / D7 / D8）
+ * Weekly Audit — D 組「文件與結構」收集器（D1 / D2 / D3 / D4 / D7 / D8）
+ *   D5（PMTILES_STATUS.md 對帳）2026-10-17 移除：該狀態檔已於 2026-10-16 歸檔、不再維護。
  *
  * 見 docs/proposal/weekly-audit-2026-08-21/README.md §2 D 組、§3.1 陷阱。
  * D6（豁免名單健康度）不在本腳本範圍——維持 🤝 人工判讀，等 v2。
@@ -11,7 +12,7 @@
  *      README 2026-10 改版後不再列的數字（orphan 內部 key、完整主題清單表、上游 dataset 數、
  *      collector 數、nginx location 數、docs/features 資料夾數）不再報 error，
  *      記在 metrics.d1.skipped（reason：README 2026-10 改版後不再列此數字）。
- *      L2 可分析數（660／864）來自 layer-status-summary 生成檔，不在本腳本範圍。
+ *      L2 可分析數來自 layer-status-summary 生成檔，不在本腳本範圍。
 
  *   D7 params spec 漂移：⚠️ 陷阱 1 —— `layerParamsSpec.ts` 含非文字位元組，BSD grep
  *      會判成 binary 而**靜默回傳空結果**。本腳本一律用 `import` 直接讀，不 grep。
@@ -53,7 +54,6 @@ const OUT_FILE = path.join(OUT_DIR, "docs.json");
 
 const FEATURES_DIR = path.join(ROOT, "docs/features");
 const README_PATH = path.join(ROOT, "README.md");
-const PMTILES_STATUS_PATH = path.join(ROOT, "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md");
 const GLOBAL_MEMORY_PATH =
   "/Users/migu/.claude-migu/projects/-Users-migu-Desktop-----gen-ai-try-ichef-----GIS-mini-taiwan-pulse/memory/MEMORY.md";
 
@@ -148,24 +148,6 @@ function lastSubstantiveDate(pathspecs: string[]): { date: string | null; usedFa
 function daysSince(dateStr: string, now: Date): number {
   const d = new Date(`${dateStr}T00:00:00`);
   return Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function walkFiles(dir: string, matchExt: (name: string) => boolean, acc: string[] = []): string[] {
-  let entries: import("node:fs").Dirent[];
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc;
-  }
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      walkFiles(full, matchExt, acc);
-    } else if (matchExt(entry.name)) {
-      acc.push(full);
-    }
-  }
-  return acc;
 }
 
 function listFeatureFolders(): string[] {
@@ -394,7 +376,9 @@ async function main() {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // D2 — feature 四檔齊全度
+  // D2 — feature README 齊全度
+  // 依 docs/features/README.md「最小文件契約」：只有 README.md 必備；handoff／backlog／changelog
+  // 視需要才建（不得為湊模板建空檔），缺這三份只記在 metrics，不報黃燈。
   // ══════════════════════════════════════════════════════════════
   const featureFolders = listFeatureFolders();
   {
@@ -403,26 +387,27 @@ async function main() {
       const missing = FEATURE_FILES.filter((f) => !existsSync(path.join(FEATURES_DIR, folder, f)));
       if (missing.length > 0) incomplete.push({ folder, missing });
     }
+    const missingReadme = incomplete.filter((i) => i.missing.includes("README.md")).map((i) => i.folder);
     metrics.d2 = {
       total_folders: featureFolders.length,
-      incomplete_count: incomplete.length,
-      incomplete: incomplete.map((i) => ({ folder: i.folder, missing: i.missing })),
+      missing_readme: missingReadme,
+      optional_missing: incomplete.map((i) => ({ folder: i.folder, missing: i.missing })),
     };
-    if (incomplete.length === 0) {
+    if (missingReadme.length === 0) {
       findings.push({
         id: "D2",
         level: "green",
-        title: `所有 ${featureFolders.length} 個 feature 夾四檔齊全`,
-        detail: "README.md / backlog.md / changelog.md / handoff.md 全數存在",
-        evidence: "docs/features/*/",
+        title: `所有 ${featureFolders.length} 個 feature 夾都有 README.md`,
+        detail: "handoff／backlog／changelog 依契約視需要建立，缺件清單見 metrics.d2.optional_missing",
+        evidence: "docs/features/*/README.md 存在性掃描（契約：docs/features/README.md）",
       });
     } else {
       findings.push({
         id: "D2",
         level: "yellow",
-        title: `${incomplete.length} 個 feature 夾缺件（共 ${featureFolders.length} 夾）`,
-        detail: incomplete.map((i) => `${i.folder}：缺 ${i.missing.join("、")}`).join("\n"),
-        evidence: "docs/features/*/{README,backlog,changelog,handoff}.md 存在性掃描",
+        title: `${missingReadme.length} 個 feature 夾缺 README.md（共 ${featureFolders.length} 夾）`,
+        detail: missingReadme.join("\n"),
+        evidence: "docs/features/*/README.md 存在性掃描（契約：docs/features/README.md）",
       });
     }
   }
@@ -602,59 +587,6 @@ async function main() {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // D5 — PMTiles 狀態檔過期
-  // ══════════════════════════════════════════════════════════════
-  {
-    const statusContent = readFileSafe(PMTILES_STATUS_PATH);
-    let actualCount = 0;
-    try {
-      actualCount = walkFiles(path.join(ROOT, "public"), (name) => /\.pmtiles$/i.test(name)).length;
-    } catch (e) {
-      errors.push({ step: "D5", message: `掃描 public/**/*.pmtiles 失敗：${String(e)}` });
-    }
-
-    if (statusContent === null) {
-      errors.push({ step: "D5", message: `無法讀取 ${PMTILES_STATUS_PATH}` });
-    } else {
-      // 狀態檔是自由文字敘事，非結構化表格。用「候選總數：N」+ 各 heading「N 個 (combined) PMTiles」
-      // 標題加總估算宣稱數——這是敘事文本能做到的最佳近似，抓不到任何一個 pattern 就進 errors。
-      const claimedParts: { label: string; value: number }[] = [];
-      const totalMatch = statusContent.match(/候選總數[：:]\s*(\d+)/);
-      if (totalMatch && totalMatch[1]) claimedParts.push({ label: "候選總數", value: Number(totalMatch[1]) });
-
-      const headingRe = /^##.*?(\d+)\s*個\s*(?:combined\s*)?PMTiles/gm;
-      let hm: RegExpExecArray | null;
-      while ((hm = headingRe.exec(statusContent)) !== null) {
-        if (hm[1]) claimedParts.push({ label: hm[0].replace(/^##\s*/, "").trim(), value: Number(hm[1]) });
-      }
-
-      if (claimedParts.length === 0) {
-        errors.push({ step: "D5", message: "正則失配，PMTILES_STATUS.md 抓不到任何「候選總數」或「N 個 PMTiles」標題，需人工核對格式是否被改寫" });
-      } else {
-        const claimedTotal = claimedParts.reduce((s, p) => s + p.value, 0);
-        metrics.d5 = { claimed_total: claimedTotal, claimed_parts: claimedParts, actual_total: actualCount };
-        if (claimedTotal === actualCount) {
-          findings.push({
-            id: "D5",
-            level: "green",
-            title: "PMTILES_STATUS.md 宣稱數與實際檔數一致",
-            detail: `${claimedTotal} = ${actualCount}`,
-            evidence: "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md vs find public -iname '*.pmtiles'",
-          });
-        } else {
-          findings.push({
-            id: "D5",
-            level: "yellow",
-            title: "PMTILES_STATUS.md 已過期",
-            detail: `狀態檔宣稱約 ${claimedTotal} 個（${claimedParts.map((p) => `${p.label}=${p.value}`).join("；")}）、實際 ${actualCount} 個`,
-            evidence: "docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md vs public/**/*.pmtiles 實測",
-          });
-        }
-      }
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════
   // D8 — 更新頻率欄位覆蓋率
   // ══════════════════════════════════════════════════════════════
   {
@@ -665,7 +597,7 @@ async function main() {
     for (const folder of featureFolders) {
       const handoffPath = path.join(FEATURES_DIR, folder, "handoff.md");
       const content = readFileSafe(handoffPath);
-      if (content === null) continue; // 缺 handoff.md 的夾已由 D2 抓，不重複計入分母
+      if (content === null) continue; // 缺 handoff.md 的夾不計入分母（handoff 依契約視需要才建）
       total++;
       if (freqRegex.test(content)) withFreq++;
       else missing.push(folder);
