@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101919" />
+    <title>信義走廊｜CCTV 車流立體觀測</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="brand-copy"><span class="eyebrow">CITY / FIELD STUDY 01</span><strong>信義走廊</strong><span class="brand-sub">CCTV 車流立體觀測</span></div>
+        <div class="topbar-right"><span class="mode-chip">三處十字路口示意・未校正</span><span class="top-clock" id="capture-time">資料載入中</span></div>
+      </header>
+
+      <main class="workspace">
+        <section class="main-stage" aria-labelledby="stage-title">
+          <div class="stage-head">
+            <div><div class="eyebrow accent">01 / SPATIAL VIEW</div><h1 id="stage-title">從三個視角，看一段路。</h1><p>信義路四段東西向 × 三處南北交叉道路 · 相對位置示意</p></div>
+            <div class="stage-actions"><a href="./validation.html" class="button">單路口驗證工作台 ↗</a>
+            <button id="focus-all" class="button button-quiet" type="button">全走廊</button><button id="focus-selected" class="button button-quiet" type="button">聚焦鏡頭</button></div>
+          </div>
+          <div class="visual-pair">
+            <div class="viewport-wrap">
+              <div id="scene" role="img" aria-label="信義路四段三支攝影機位置與觀測車輛的三維示意"></div>
+              <div class="view-label view-label-top"><span class="live-dot"></span><span id="scene-status">等待觀測資料</span><span class="fps" id="scene-fps">畫面 — FPS</span></div>
+              <div class="scene-mode-badge" id="scene-mode-badge">觀測重建・鏡頭局部</div>
+              <div class="road-direction-key">N ↑ <span>北</span>　E → <span>東</span></div>
+              <div class="view-label view-label-bottom">拖曳旋轉 · 滾輪縮放 · 右鍵平移</div>
+              <div class="compass" aria-hidden="true"><span>N</span><i></i><span>S</span></div>
+              <div class="viewport-empty" id="viewport-empty" hidden><span>目前沒有可繪製的車輛觀測</span><small>攝影機與道路位置仍可瀏覽；未取得的影像不會補成車流。</small></div>
+            </div>
+            <section class="comparison-panel" aria-labelledby="comparison-title">
+              <div class="comparison-head"><div><span class="eyebrow accent">02 / FRAME MATCH</span><h2 id="comparison-title">影格 ↔ 立體場景</h2></div><span class="comparison-camera" id="comparison-camera">—</span></div>
+              <div class="frame-stage"><img id="matched-frame" alt="所選攝影機的回放影格" /><svg id="frame-overlay" aria-label="影格辨識框、ROI 與計數線" preserveAspectRatio="xMidYMid meet"></svg><div class="frame-fallback" id="frame-fallback">影格讀取中</div></div>
+              <div class="frame-ended" id="frame-ended" hidden>片段結束・非即時</div>
+              <div class="frame-meta"><strong id="frame-time">相對影格 —</strong><span id="frame-source-status">來源時戳未知</span></div>
+              <div class="frame-overlay-key"><span><i class="key-roi"></i>人工 ROI</span><span><i class="key-line"></i>計數線</span><span><i class="key-quad"></i>透視示意</span></div>
+              <p class="frame-caveat" id="frame-caveat">以不晚於回放時間的最近影格比對。</p>
+              <div class="analytics-head"><span class="eyebrow">CAMERA-LOCAL METRICS</span><span class="analytics-badge">全類計數</span></div>
+              <div class="analytics-grid"><div><span>ROI 占用</span><strong id="roi-occupancy">待設定</strong></div><div><span>跨線 A→B</span><strong id="crossing-ab">待設定</strong></div><div><span>跨線 B→A</span><strong id="crossing-ba">待設定</strong></div></div>
+              <div class="class-counts" id="class-counts">各車種占用：待設定 ROI</div>
+              <div class="class-counts" id="class-crossings">各車種累計跨線：待設定計數線</div>
+              <div class="speed-calibration">道路速度 <strong id="calibration-speed">待地面尺度校正</strong></div>
+            </section>
+          </div>
+          <div class="stage-foot">
+            <div class="legend"><span><i class="legend-swatch observed"></i>3D 觀測軌跡</span><span><i class="legend-swatch stationary"></i>低位移</span><span><i class="legend-swatch predicted"></i>短時延續・非觀測</span><span><i class="legend-swatch scenario"></i>走廊假設</span></div>
+            <p id="method-summary">影格是逐幀原始辨識，3D 連續軌跡經相鄰影格重建；鏡頭間未同步。道路、車體尺寸與方向仍為示意。</p>
+          </div>
+        </section>
+
+        <aside class="side-panel" aria-label="觀測與播放控制">
+          <section class="readout">
+            <div class="eyebrow">OBSERVATION / REPLAY</div>
+            <div class="readout-title"><h2>短片觀測回放</h2><span id="data-mode" class="small-chip">資料載入中</span></div>
+            <div class="metrics"><div><span class="metric-number" id="observed-count">—</span><span class="metric-label">移動辨識</span></div><div><span class="metric-number stationary-number" id="stationary-count">—</span><span class="metric-label">停留／低位移</span></div><div><span class="metric-number prediction-number" id="predicted-count">—</span><span class="metric-label">短時延續標記</span></div><div><span class="metric-number scenario-number" id="scenario-count">—</span><span class="metric-label">假設粒子</span></div></div>
+            <p class="counts-basis">上方計數含全部車種；篩選僅改變影格框與立體車。</p>
+            <p class="source-note" id="source-note">正在讀取擷取資料。</p>
+            <p class="source-note" id="filter-note"></p>
+          </section>
+
+          <section class="controls" aria-labelledby="playback-title">
+            <div class="section-title"><span class="eyebrow">02 / TIME CONTROL</span><h2 id="playback-title">觀測時間</h2></div>
+            <div class="select-row"><label for="class-filter">畫面車種篩選</label><select id="class-filter"><option value="all">全部車種</option><option value="car">小客車 car</option><option value="motorcycle">機車 motorcycle</option><option value="bus">公車 bus</option><option value="truck">貨車 truck</option></select><small>影像框用原始分類，3D 用軌跡穩定分類；總計數仍為全類。</small></div>
+            <div class="select-row"><label for="view-mode">呈現方式</label><select id="view-mode"><option value="observed">觀測重建・鏡頭局部</option><option value="corridor">同向走廊假設・非跨鏡追蹤</option></select></div>
+            <div class="transport"><button id="play-toggle" class="play-button" type="button" aria-label="播放" disabled><span id="play-icon">▶</span></button><div class="timeline-wrap"><div class="timeline-times"><span id="time-current">00:00</span><span id="time-total">00:00</span></div><input id="timeline" type="range" min="0" max="1" value="0" step="0.05" aria-label="回放位置" disabled /></div></div>
+            <div class="control-row corridor-only" hidden><label for="speed">假設速度 <strong id="speed-value">30 km/h</strong></label><input id="speed" type="range" min="0" max="60" value="30" step="5" /></div>
+            <div class="control-row observed-only"><label for="horizon">缺口延續上限 <strong id="horizon-value">0.8 秒</strong></label><input id="horizon" type="range" min="0" max="0.8" value="0.8" step="0.1" /></div>
+            <div class="select-row corridor-only" hidden><label for="corridor-direction">走廊假設方向</label><select id="corridor-direction"><option value="E">向東</option><option value="W">向西</option></select></div>
+            <label class="toggle-row observed-only"><span><strong>平滑回放</strong><small>相鄰影格之間插值；可切回原始比較</small></span><input id="smooth-motion" type="checkbox" checked /><i aria-hidden="true"></i></label>
+            <label class="toggle-row observed-only"><span><strong>顯示停留／低位移</strong><small>影像位移低，不判定是否停車</small></span><input id="show-stationary" type="checkbox" checked /><i aria-hidden="true"></i></label>
+            <label class="toggle-row observed-only"><span><strong>顯示短時延續</strong><small>琥珀色，影格缺口內推估・非觀測</small></span><input id="show-prediction" type="checkbox" checked /><i aria-hidden="true"></i></label>
+            <label class="toggle-row"><span><strong>模擬單鏡頭斷訊</strong><small>選定鏡頭片段中點起斷訊</small></span><input id="simulate-outage" type="checkbox" /><i aria-hidden="true"></i></label>
+          </section>
+
+          <section class="camera-section" aria-labelledby="camera-title"><div class="section-title"><span class="eyebrow">03 / CAMERA SOURCES</span><h2 id="camera-title">攝影機視角 <span class="section-count">03</span></h2></div><div id="camera-list" class="camera-list"><div class="camera-loading">讀取攝影機資料中…</div></div></section>
+          <div class="provenance"><span class="eyebrow">METHOD NOTE</span><p>信義路一般車東向，公車可反向；南北交叉道路雙向，個別車方向仍依影像軌跡示意。原始框只屬於各自影格。道路座標、速度與走廊粒子均未校正；沒有跨鏡追蹤或量測車流。</p><div id="model-note">模型資訊待載入</div></div>
+        </aside>
+      </main>
+      <footer class="footer"><span>TAIPEI / XINYI ROAD SECTION 4</span><span>OBSERVATION STUDY · LOCAL POC</span></footer>
+    </div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

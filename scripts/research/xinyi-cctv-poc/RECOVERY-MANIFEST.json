@@ -1,0 +1,179 @@
+{
+  "source": "Codex session JSONL logs recovered as data; no historical shell commands executed",
+  "files": {
+    "capture.py": {
+      "sha256": "9793b3c473d07bb00562709e865af48eb77f353def4000573aa32e1751e9667f"
+    },
+    "compare_stages.py": {
+      "sha256": "b04787f55d6e732a73a7413c73997c15c94c92a6b7e08a4edaa760fc732bf320"
+    },
+    "track_ablation.py": {
+      "sha256": "04e58afb68648e21105b1e8feff199dde0c433f0312146a2f7ad1ae2f3e4825f"
+    },
+    "traffic.js": {
+      "sha256": "40931bdd4c2dca3e3cccf03c473f7aa029cb09d6b9e909ee9758edae9fff5863"
+    },
+    "traffic.test.js": {
+      "sha256": "47ba0999f2781f8f5a07be568485da2b328105e960aaf233cb3bfd1601eae96a"
+    },
+    "analytics.js": {
+      "sha256": "f12acf5e3e76cbc9affa76cb440738d2ccb54199505c17a0ee8456ba2658048a"
+    },
+    "analytics.test.js": {
+      "sha256": "446ae65efdaeb550f97101457674a568f7879b7fbfd3727c55cc089d4c5f9537"
+    },
+    "calibration.js": {
+      "sha256": "a5eddf07c48252d7db95e86990e8cf4ce87019c0b9f512c90e93ccc6d2da2196"
+    },
+    "calibration.test.js": {
+      "sha256": "f5cfd78f71daaf12807a91eb4cc20a0ffd28e898f7805b4f19888218cf03a934"
+    },
+    "projection.js": {
+      "sha256": "754f1a7d650caeef763a5bbc850ce5a6ad98a72420f5582a5eb5abf5532c3d42"
+    },
+    "projection.test.js": {
+      "sha256": "0ba6be86b11be9e36af0c095f6116d0cff245b8a5e7dc53d2ebbbd1def21272d"
+    },
+    "camera-configs.js": {
+      "sha256": "d4dd5010daab182e6010f4f2760533edeac5481bc990ae5af1d5e5573efe8b83"
+    },
+    "index.html": {
+      "sha256": "18470ed1711e61b333a2f0015643e24294cc389d9c9b27bd045be9cbde79399f"
+    },
+    "main.js": {
+      "sha256": "f973d2ca30f36a4933e05a587d62823624b1254103fd77c2db36fb22371ab326"
+    },
+    "start.sh": {
+      "sha256": "6c5b5fa5431266de7295af2a3a74c4ff2e15dcba4cfac31c19a3c218ccc7c264"
+    },
+    "style.css": {
+      "sha256": "e055218a1ffb191ce8e4e453ad52f692f2e8a29050633772c79ddca5effae8c2"
+    },
+    "validation.css": {
+      "sha256": "855e8541caca768673708c4eec128e28f77497eb056bf880d427330b7431adb0"
+    },
+    "validation.html": {
+      "sha256": "62b56a6c480a65cf648db5e7f708933e61d3968ab01f71775c1837e26e2b2dea"
+    },
+    "validation.js": {
+      "sha256": "9bb1237447f3f5bfa2a464eceec4cc5f76e287d8666fb67fc197baaa07889785"
+    },
+    "verify_capture.py": {
+      "sha256": "1128f89dacea0d444e2722296d68c4d5ce22d4a532064f52802e84df0aa059be"
+    },
+    "vite.config.js": {
+      "sha256": "506237509d10f6e97411105bd6ec26f35cdbd04dbbf48fa70429e2ee209ce2df"
+    }
+  },
+  "sourceOrdinals": {
+    "capture.py": {
+      "session": "2026-09-27T21-59-36 xinyi_capture",
+      "stdoutBase": [
+        1061,
+        1066
+      ],
+      "patches": [
+        1080,
+        1087
+      ],
+      "localCorrection": "Removed zero-frame captureStartedAt/captureEndedAt fallback after recovery",
+      "logPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-59-36-01a0e32a-013b-71b1-b3d3-e333eef7f135.jsonl"
+    },
+    "compare_stages.py": {
+      "session": "2026-09-27T21-30-35 root",
+      "heredoc": 2542,
+      "logPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "track_ablation.py": {
+      "session": "2026-09-28T10-12-04 xinyi_motion_v2",
+      "add": 1022,
+      "patches": [
+        1045,
+        1066
+      ],
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl"
+    },
+    "traffic.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        1323,
+        1345
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "traffic.test.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        1323
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "analytics.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log"
+    },
+    "analytics.test.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log"
+    },
+    "calibration.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        2558
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "calibration.test.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        2558
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "projection.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        1646
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    },
+    "projection.test.js": {
+      "logPath": "/Users/migu/.codex/sessions/2026/09/28/rollout-2026-09-28T10-12-04-01a0e5c8-9b84-7350-8cf4-b9e8c3fefc0d.jsonl",
+      "method": "Strictly whitelisted FileChange content and sequential unified diffs; see specific history in log",
+      "additionalRootOrdinals": [
+        1646
+      ],
+      "additionalRootLogPath": "/Users/migu/.codex/sessions/2026/09/27/rollout-2026-09-27T21-30-35-01a0e30f-6f64-77f3-9a18-c2710b0b2674.jsonl"
+    }
+  },
+  "checks": [
+    "python3 -m py_compile capture.py compare_stages.py track_ablation.py",
+    "compare_stages synthetic empty and single-match checks",
+    "node --test traffic.test.js analytics.test.js calibration.test.js projection.test.js (39/39 pass)"
+  ],
+  "runtimeDependencies": [
+    "ffmpeg executable",
+    "OpenCV cv2",
+    "numpy",
+    "requests",
+    "ultralytics",
+    "PyYAML for track_ablation",
+    "YOLO weights file for capture"
+  ],
+  "cameraConfig": "capture.py embeds three camera IDs and does not read camera config JSON",
+  "notRecovered": [
+    "Original 2026-09-28 image and observation batches",
+    "Original evidence artifacts; current evidence regenerated"
+  ],
+  "rebuildAdjustments": [
+    "Persistent models default path",
+    "Bound Ultralytics CPU threads before setup_model resets them",
+    "Independent npm dependencies and lockfile",
+    "New capture integrity verifier and restart script"
+  ]
+}
