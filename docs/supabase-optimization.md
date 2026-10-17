@@ -25,7 +25,7 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 1. **普通 table**（不是 MATERIALIZED VIEW，一次 build 會 sort 爆炸）
 2. **per-day refresh function**（DELETE + INSERT 一天，含 `pg_advisory_xact_lock`）
 3. **cleanup function**（`0 18 * * *` UTC 清超過 7 天）
-4. **pg_cron 排程**（`*/15 * * * *` refresh today + yesterday，**同一個 job 循序跑**；分鐘要和其他 job 錯開，見 `data-collectors/docs/sql/cron_throttle.sql`）
+4. **pg_cron 排程**（today 與 yesterday **拆成兩個 job**：today 定期 refresh，yesterday 每日一次；分鐘要和其他 job 錯開，見 `data-collectors/docs/sql/cron_throttle.sql` 與 §7）
 
 ## 權限慣例（2026-10 定案，新函式／新表必寫）
 
@@ -145,7 +145,7 @@ function 簽名改變後必須 `NOTIFY pgrst, 'reload schema';`，否則前端�
 
 ### 7. refresh function 的 OOM 守則（2026-04-10 bus trails OOM 教訓）
 - WHERE + ORDER BY **必須有對應索引**（缺索引＝全表 sort＝OOM）：`(id_column, collected_at)` 複合索引＋`(collected_at)` 單欄索引；常用條件（如 city）考慮 partial index
-- today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
+- today 與 yesterday（date-1）**拆成兩個 cron job**（2026-07-23 起，`gis-platform/migrations/302_refresh_cron_detangle.sql`）：today job 每 30 分並錯開分鐘偏移，yesterday 另設獨立每日一次 job（`refresh-*-yesterday`，17:xx UTC = 台北 01:xx）。昨日資料不再變動，不必每輪重算；舊做法「同一 job 循序跑」會自我重疊、卡 1-2 小時而引發 Disk IO 死亡螺旋（見 data-collectors `.claude/pitfalls/2026-07-23-disk-io-cron-spiral.md`）
 - 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
 - 加 `SET work_mem TO '64MB'` 減少 disk spill
 - cron 排程錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
