@@ -36,6 +36,12 @@ const AGENCY_COLOR: ExpressionSpecification = [
   "#94a3b8",
 ] as unknown as ExpressionSpecification;
 
+/** 時刻 t 每家「issued_at ≤ t 的最新一版」：[valid_from, valid_until) 包住 t */
+function activeAt(t: number, ...extra: unknown[]): FilterSpecification {
+  return ["all", ["<=", ["get", "valid_from"], t], [">", ["get", "valid_until"], t], ...extra] as unknown as FilterSpecification;
+}
+const IS_LAST = ["==", ["get", "is_last"], true];
+
 const LINE_WIDTH = ["interpolate", ["linear"], ["zoom"], 3, 1.5, 8, 3] as unknown as ExpressionSpecification;
 
 export function useTyphoonAgencyForecastsLayer(
@@ -72,6 +78,8 @@ export function useTyphoonAgencyForecastsLayer(
   const ensureSource = useCallback((map: MapboxMap) => {
     if (!dataReadyRef.current) return false;
     const { lines, points } = agencyForecastsToGeoJSON(tracksRef.current);
+    // 建圖層時就帶時間 filter：不然在第一次 applyFilter 之前會短暫畫出所有舊版
+    const t0 = timeStore.getTime();
     if (!map.getSource(SRC_LINES)) map.addSource(SRC_LINES, { type: "geojson", data: lines });
     if (!map.getSource(SRC_POINTS)) map.addSource(SRC_POINTS, { type: "geojson", data: points });
     if (!map.getLayer(LAYER_LINE)) {
@@ -79,6 +87,7 @@ export function useTyphoonAgencyForecastsLayer(
         id: LAYER_LINE,
         type: "line",
         source: SRC_LINES,
+        filter: activeAt(t0),
         layout: hookLineLayout("typhoonAgencyForecasts", LAYER_LINE),
         paint: hookLinePaint("typhoonAgencyForecasts", LAYER_LINE, {
           "line-color": AGENCY_COLOR,
@@ -92,6 +101,7 @@ export function useTyphoonAgencyForecastsLayer(
         id: LAYER_POINTS,
         type: "circle",
         source: SRC_POINTS,
+        filter: activeAt(t0),
         paint: {
           "circle-radius": pointRadius("S"),
           "circle-color": AGENCY_COLOR,
@@ -105,7 +115,7 @@ export function useTyphoonAgencyForecastsLayer(
         id: LAYER_LABEL,
         type: "symbol",
         source: SRC_POINTS,
-        filter: ["==", ["get", "is_last"], true],
+        filter: activeAt(t0, IS_LAST),
         layout: {
           "text-field": ["get", "label"],
           ...badgeLabelLayout(),
@@ -132,12 +142,9 @@ export function useTyphoonAgencyForecastsLayer(
     }
     if (!visible) return;
     const applyFilter = (t: number) => {
-      const active = ["all", ["<=", ["get", "valid_from"], t], [">", ["get", "valid_until"], t]];
-      if (map.getLayer(LAYER_LINE)) map.setFilter(LAYER_LINE, active as unknown as FilterSpecification);
-      if (map.getLayer(LAYER_POINTS)) map.setFilter(LAYER_POINTS, active as unknown as FilterSpecification);
-      if (map.getLayer(LAYER_LABEL)) {
-        map.setFilter(LAYER_LABEL, [...active, ["==", ["get", "is_last"], true]] as unknown as FilterSpecification);
-      }
+      if (map.getLayer(LAYER_LINE)) map.setFilter(LAYER_LINE, activeAt(t));
+      if (map.getLayer(LAYER_POINTS)) map.setFilter(LAYER_POINTS, activeAt(t));
+      if (map.getLayer(LAYER_LABEL)) map.setFilter(LAYER_LABEL, activeAt(t, IS_LAST));
     };
     applyFilter(timeStore.getTime());
     return timeStore.subscribeThrottled(500, applyFilter);

@@ -9,7 +9,10 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
-import { isTyphoonAgency, type TyphoonAgency } from "./typhoonTypes";
+import { TYPHOON_AGENCY_ORG, isTyphoonAgency, type TyphoonAgency } from "./typhoonTypes";
+
+/** 實際資料端點（layer-plan §3）；彈窗 SourceFooter 的原始下載頁 */
+const NCDR_SOURCE_URL = "https://satis.ncdr.nat.gov.tw/kml/multityroute.aspx";
 
 export interface TyphoonAgencyForecastRow {
   agency: TyphoonAgency;
@@ -169,6 +172,8 @@ export function agencyForecastsToGeoJSON(tracks: AgencyForecastTrack[]): {
       storm_key: t.storm_key,
       matched_name_en: t.matched_name_en,
       label: `${t.agency.toUpperCase()} ${t.issued_label}`,
+      source_org: TYPHOON_AGENCY_ORG,
+      source_url: NCDR_SOURCE_URL,
     };
     if (t.points.length >= 2) {
       lines.push({

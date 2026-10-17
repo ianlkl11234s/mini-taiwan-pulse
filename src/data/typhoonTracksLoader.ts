@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedByKey, cachedOnce } from "../lib/loaderCache";
 import { padTaipeiDaily } from "../lib/taipeiDay";
+import { TYPHOON_SOURCE_ORG, type TyphoonTrackSource } from "./typhoonTypes";
 
 /** CWA 四象限風圈（km）；只有 CWA 分析點有。缺象限時只用 all */
 export interface WindRadiiQuadrants {
@@ -506,6 +507,8 @@ export function typhoonPointsToGeoJSON(rawPts: TyphoonPoint[]): TyphoonGeoJSON {
       prob70_radius_km: p.prob70_radius_km ?? null,
       storm_key: keyOf(p),
       primary: isPrimary(p),
+      // popup SourceFooter 讀 source_org（缺則退回 source 代碼）
+      source_org: TYPHOON_SOURCE_ORG[p.source as TyphoonTrackSource] ?? p.source,
     };
   }
 }

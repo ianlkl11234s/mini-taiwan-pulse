@@ -112,7 +112,8 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
         color={isFcst ? "#c084fc" : "#a855f7"}
       />
       <Row field="dataSource" value={sourceLabel} />
-      {adv != null && <Row label="Advisory" value={`#${adv}`} />}
+      {/* CWA／JMA 的 advisory_number 是 collector 由發佈時刻編的版次鍵（如 29871000），不是報數，不顯示 */}
+      {adv != null && adv < 10_000 && <Row label="Advisory" value={`#${adv}`} />}
       <Row
         label={i18n.t("popup.globalClimate.maxWind")}
         value={windMs != null
