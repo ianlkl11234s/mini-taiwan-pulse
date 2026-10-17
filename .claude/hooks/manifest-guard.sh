@@ -2,7 +2,15 @@
 # PostToolUse 守門：layerManifest.ts / layerParamsSpec.ts 被 Edit/Write 後
 # 立即跑 manifest 三道守門測試，紅燈以 exit 2 把錯誤回饋給 Claude（護欄前移到秒級）。
 # 設計：檔案過濾在腳本內做（matcher 只鎖 Edit|Write），非目標檔零成本快速退出。
-f=$(jq -r '.tool_input.file_path // empty' 2>/dev/null)
+# 解析 stdin JSON：優先 jq，沒裝 jq 就退回 python3（避免沒有 jq 的機器上守門靜默失效）
+input=$(cat)
+if command -v jq >/dev/null 2>&1; then
+  f=$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
+else
+  f=$(printf '%s' "$input" | python3 -c 'import json,sys
+try: print(json.load(sys.stdin).get("tool_input",{}).get("file_path","") or "")
+except Exception: pass' 2>/dev/null)
+fi
 case "$f" in
   */src/data/layerManifest.ts|*/src/data/layerParamsSpec.ts) ;;
   *) exit 0 ;;
