@@ -108,4 +108,4 @@
 - `get_waste_trails` 的 `p_since_minutes` 無上限，且函式 timeout 為自設值，屬 anon 可呼叫的昂貴 RPC，新增或改寫時要在函式內 clamp。
 - 075 有兩個同號 migration（`075_waste_facilities_full_rpc.sql` 與 `075_waste_match_attempts.sql`）。
 - 臺南 GPS 資料重複率高（458 前），既有 `waste_trails_daily` 的臺南軌跡點約重複 2.5 倍；458 的附錄 B 說明重算方式，是否已重算：**（未查到）**。
-- `wasteRoute`／`wasteStop` 是無 consumer 的殘留 key，不要與 `wasteStopsStatic` 混淆。
+- 舊的殘留 key `wasteRoute`／`wasteStop`（無 consumer）已於 2026-10-17 移除；清運點位請用 `wasteStopsStatic`。
