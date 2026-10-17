@@ -9,7 +9,7 @@
 
 ## 圖層（layer key）
 
-`wasteTruck`、`wasteSchedule`、`wasteScheduleNote`、`wasteCleaningSquads`、`wasteStopsStatic`、`wasteRoute`、`wasteStop`、`wdClothes`、`wdMixed`、`wdRecyclingContainer`、`wdBattery` 等（見 `src/data/layerManifest.ts`）。
+`wasteTruck`、`wasteSchedule`、`wasteScheduleNote`、`wasteCleaningSquads`、`wasteStopsStatic`、`wdClothes`、`wdMixed`、`wdRecyclingContainer`、`wdBattery` 等（見 `src/data/layerManifest.ts`）。
 
 ## 主要檔案
 

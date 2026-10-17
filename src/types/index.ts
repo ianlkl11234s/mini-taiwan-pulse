@@ -811,7 +811,7 @@ export interface FeatureInfo {
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
-    // ⚠️ 勿與 orphan 的 `wasteStop` layer key 混淆：這是靜態全台 73,060 清運點位
+    // 靜態全台 73,060 清運點位
     | "wasteStopsStatic"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
@@ -1456,8 +1456,6 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   wasteScheduleNote: boolean;
   wasteStopsStatic: boolean;
   wasteCleaningSquads: boolean;
-  wasteRoute: boolean;
-  wasteStop: boolean;
   // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
   // monitoring/recycling/scrap/other 走 Mapbox circle）
   wfIncinerator: boolean;

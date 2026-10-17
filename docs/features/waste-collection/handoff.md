@@ -70,7 +70,7 @@
 
 - Loader：`src/data/wasteLoader.ts`（`get_waste_current`、`get_waste_stops`、`get_waste_trails`、`get_waste_trails_day`、`get_waste_trails_matched_day`、`get_waste_facilities`、`get_waste_disposal_points`、`get_waste_cleaning_squads`；後三者走 `staticRpc`）、`src/data/wasteScheduleLoader.ts`（`get_waste_schedule_day`）
 - Hook：`useWasteLayer`（live 近 60 分鐘、60s 輪詢；replay 整日優先讀 matched，無資料或失敗退回 GPS trail）、`useWasteScheduleLayer`（訂閱 `timeStore.subscribeDate` 取 dow，不把 currentTime 放進 deps）、`useWasteFacilityLayer`、`useWasteDisposalPointLayer`、`useWasteCleaningSquadLayer`（開啟才抓、之後永久 cache）
-- Manifest layer key（`src/data/layerManifest.ts`）：`wasteTruck`（dataClass D，Three.js）、`wasteSchedule`、`wasteScheduleNote`、`wasteCleaningSquads`、`wasteStopsStatic`（pmtiles `./geo/waste_stops_static_20260930.pmtiles`，source-layer `waste_stops`，minzoom 6／maxzoom 14）、`wdClothes`、`wdMixed`、`wdRecyclingContainer`、`wdBattery`；`wasteRoute`／`wasteStop` 為無 consumer 的殘留（manifest 自己註明）
+- Manifest layer key（`src/data/layerManifest.ts`）：`wasteTruck`（dataClass D，Three.js）、`wasteSchedule`、`wasteScheduleNote`、`wasteCleaningSquads`、`wasteStopsStatic`（pmtiles `./geo/waste_stops_static_20260930.pmtiles`，source-layer `waste_stops`，minzoom 6／maxzoom 14）、`wdClothes`、`wdMixed`、`wdRecyclingContainer`、`wdBattery`
 - 聊天工具：`src/chat/tools/rpcTools.ts` 允許呼叫 `get_waste_facility_counts`、`get_waste_disposal_point_counts`
 
 ## 5. 硬依賴欄位（改一定爆）
@@ -108,4 +108,4 @@
 - `get_waste_trails` 的 `p_since_minutes` 無上限，且函式 timeout 為自設值，屬 anon 可呼叫的昂貴 RPC，新增或改寫時要在函式內 clamp。
 - 075 有兩個同號 migration（`075_waste_facilities_full_rpc.sql` 與 `075_waste_match_attempts.sql`）。
 - 臺南 GPS 資料重複率高（458 前），既有 `waste_trails_daily` 的臺南軌跡點約重複 2.5 倍；458 的附錄 B 說明重算方式，是否已重算：**（未查到）**。
-- `wasteRoute`／`wasteStop` 是無 consumer 的殘留 key，不要與 `wasteStopsStatic` 混淆。
+- 舊的殘留 key `wasteRoute`／`wasteStop`（無 consumer）已於 2026-10-17 移除；清運點位請用 `wasteStopsStatic`。

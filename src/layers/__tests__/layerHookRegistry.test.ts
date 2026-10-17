@@ -235,10 +235,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   "agriCropSuitability", "agriLeisureFarmZones", "agriPOI", "agriRuralRegen", "agriSoil",
   "agriSoilFertility", "agriculture", "fireIsochrone", "medDesert", "medIsochrone",
 
-  // ── 尚無渲染實作 / 無程式碼引用（3；三者皆在 layerConsistency 的 ORPHAN_LEDGER）──
+  // ── 尚無渲染實作 / 無程式碼引用（1；在 layerConsistency 的 ORPHAN_LEDGER）──
   // medICUBeds：Phase 3 未實作渲染，幽靈 toggle 已自 sidebar 移除
-  // wasteRoute / wasteStop：除了 types 與 manifest，src/ 內零引用（保留 key 供 internal use）
-  "medICUBeds", "wasteRoute", "wasteStop",
+  "medICUBeds",
   // Versioned statistics renderer is attached directly by MapView; it is not a
   // React layer hook and must remain outside the hook registry.
   "statsWasteCounty", "statsRecyclingCounty", "statsWaterSupplyHistorical", "statsPigWaterCounty", "statsWasteRecyclingRate", "statsResidentialElectricity", "statsRiceHarvest", "statsBirthsTownship",
