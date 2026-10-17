@@ -31,7 +31,7 @@ interface Point { t: number; v: number }
 function TrendChart({ points, color, unit }: { points: Point[]; color: string; unit: string }) {
   const theme = useFeatureTheme();
   const { formatNumber } = useLocale();
-  const W = 280, H = 130, L = 40, R = 8, T = 8, B = 20;
+  const W = 280, H = 130, L = 40, R = 14, T = 8, B = 20;
   const view = useMemo(() => {
     if (points.length === 0) return null;
     const t0 = points[0]!.t, t1 = points[points.length - 1]!.t;
