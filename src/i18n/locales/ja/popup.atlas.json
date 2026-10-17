@@ -169,7 +169,7 @@
   "popup.atlas.lsCautionPile": "深層杭の値は提供元が単位を記載していません。単一観測点は地域全体を代表せず、他の種類とは比較できません",
   "popup.atlas.lsUnitMm": "mm",
   "popup.atlas.lsUnitCmYr": "cm/年",
-  "popup.atlas.lsPeriodValue": "{fromAd}–{toAd}年",
+  "popup.atlas.lsPeriodValue": "{from}–{to}年",
   "popup.atlas.lsLevelCumulative": "累積沈下量",
   "popup.atlas.lsLevelRate": "平均沈下速度",
   "popup.atlas.lsPeriod": "期間",

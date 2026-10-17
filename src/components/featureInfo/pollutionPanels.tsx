@@ -74,7 +74,7 @@ function toxicPeriod(period: string, i18n: LocaleSnapshot): string {
   const [year, season] = period.split("-");
   const roc = Number(year);
   if (!Number.isFinite(roc)) return period;
-  return i18n.t("popup.pollution.toxicPeriodValue", { roc: String(roc), ad: String(roc + 1911), season: season ?? "" });
+  return i18n.t("popup.pollution.toxicPeriodValue", { year: String(i18n.active === "zh-TW" ? roc : roc + 1911), season: season ?? "" });
 }
 
 /**

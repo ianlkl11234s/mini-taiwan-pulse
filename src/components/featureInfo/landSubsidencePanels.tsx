@@ -182,7 +182,9 @@ function ContourPanel({ props, layer }: Props & { layer: "landSubsidenceCumulati
   const color = useMemo(() => contourColor(type, value), [type, value]);
   const from = num(props.year_from), to = num(props.year_to);
   const periodText = from != null && to != null
-    ? t("popup.atlas.lsPeriodValue", { from: String(from), to: String(to), fromAd: String(from + 1911), toAd: String(to + 1911) }) : str(props.period_label);
+    ? t("popup.atlas.lsPeriodValue", i18n.active === "zh-TW"
+      ? { from: String(from), to: String(to) }
+      : { from: String(from + 1911), to: String(to + 1911) }) : str(props.period_label);
   return <>
     <Title color={ATLAS_LAYER_COLORS[layer]}>{`${county(props.county, i18n)} ${periodText}`}</Title>
     <Row label={t(type === "cumulative" ? "popup.atlas.lsLevelCumulative" : "popup.atlas.lsLevelRate")} value={value == null ? "" : `${formatNumber(value)} ${unit}`} color={color} mono />

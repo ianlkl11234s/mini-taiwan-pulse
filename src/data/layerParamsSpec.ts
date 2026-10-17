@@ -3004,14 +3004,14 @@ export const LAYER_PARAMS_SPEC = {
   ],
   landSubsidenceCumulative: [
     {
-      kind: "select", name: "landSubsidenceCumulativePeriod", label: "期別", default: CONTOUR_LATEST,
+      kind: "select", name: "landSubsidenceCumulativePeriod", label: "期別", category: "data", default: CONTOUR_LATEST,
       options: CUMULATIVE_PERIOD_OPTIONS, out: "landSubsidenceCumulativePeriodIdx", encode: CUMULATIVE_PERIOD_OPTIONS.map((option) => option.value),
     },
     opacitySlider("landSubsidenceCumulativeOpacity", 0.85),
   ],
   landSubsidenceRate: [
     {
-      kind: "select", name: "landSubsidenceRatePeriod", label: "期別", default: CONTOUR_LATEST,
+      kind: "select", name: "landSubsidenceRatePeriod", label: "期別", category: "data", default: CONTOUR_LATEST,
       options: RATE_PERIOD_OPTIONS, out: "landSubsidenceRatePeriodIdx", encode: RATE_PERIOD_OPTIONS.map((option) => option.value),
     },
     opacitySlider("landSubsidenceRateOpacity", 0.85),

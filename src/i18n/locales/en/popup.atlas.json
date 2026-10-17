@@ -169,7 +169,7 @@
   "popup.atlas.lsCautionPile": "Deep pile values have no unit stated by the source; a single station does not represent the whole area and is not comparable with other station types",
   "popup.atlas.lsUnitMm": "mm",
   "popup.atlas.lsUnitCmYr": "cm/yr",
-  "popup.atlas.lsPeriodValue": "{fromAd}–{toAd}",
+  "popup.atlas.lsPeriodValue": "{from}–{to}",
   "popup.atlas.lsLevelCumulative": "Cumulative subsidence",
   "popup.atlas.lsLevelRate": "Mean subsidence rate",
   "popup.atlas.lsPeriod": "Period",

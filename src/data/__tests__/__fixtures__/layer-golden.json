@@ -90726,15 +90726,6 @@
     ],
     "landSubsidenceCumulative": [
       {
-        "label": "透明度 0.85",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.85,
-        "valueText": "0.85"
-      },
-      {
         "label": "期別",
         "options": [
           {
@@ -90904,9 +90895,7 @@
         ],
         "type": "select",
         "value": "latest"
-      }
-    ],
-    "landSubsidenceRate": [
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -90915,7 +90904,9 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
-      },
+      }
+    ],
+    "landSubsidenceRate": [
       {
         "label": "期別",
         "options": [
@@ -91122,6 +91113,15 @@
         ],
         "type": "select",
         "value": "latest"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "landSubsidenceStations": [
