@@ -77,6 +77,11 @@ PMTiles → `nginx.conf` ＋ 兩支 deploy 腳本清單。
 - 用戶沒指定類型 → 問「是 static GeoJSON 還是 dynamic 時序？」
 - 用戶沒指定色碼 → 從既有 `LAYER_COLORS` 找未使用色系，或給 3 個選項問
 - 資料來源是 Supabase → loader 用 `supabase.rpc()`，先用 `/check-rpc` 確認 RPC 存在
+  - 若要新寫 RPC／表（migration 在 `../gis-platform`），權限照 `docs/supabase-optimization.md` §權限慣例：
+    前端 RPC `REVOKE EXECUTE … FROM PUBLIC; GRANT EXECUTE … TO anon, authenticated;`；cron／內部函式
+    `REVOKE EXECUTE … FROM PUBLIC, anon, authenticated;`；前端讀的表／view 只 `GRANT SELECT … TO anon, authenticated;`；
+    `SECURITY DEFINER` 一律 `SET search_path`；時間範圍參數在函式內 clamp。2026-10 起 public 的 default privileges
+    已收回，漏寫 GRANT 前端會 permission denied → 回報時列進「需要人工確認」
 - 資料來源是 GeoJSON → loader 改用 `fetch("./xxx.geojson")`
 
 ## 完成後回報格式
