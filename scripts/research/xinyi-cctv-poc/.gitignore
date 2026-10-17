@@ -1,0 +1,8 @@
+node_modules/
+dist/
+data/*
+!data/.gitkeep
+evidence/*
+!evidence/.gitkeep
+models/
+__pycache__/
