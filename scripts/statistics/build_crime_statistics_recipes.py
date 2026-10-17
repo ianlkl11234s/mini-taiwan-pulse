@@ -44,6 +44,7 @@ CASES: dict[str, tuple[str, str]] = {
     "statsCrimeOrganizedCrime": ("組織犯罪", "刑案發生"),
     "statsTelecomFraud": ("電信詐欺", "詐欺"),
 }
+BREAK_OVERRIDES: dict[str, list[float]] = {"statsCrimeOrganizedCrimeCasesTownship": [1, 2]}
 LEVEL_LABEL = {"township": "鄉鎮", "county": "縣市"}
 LEVEL_ORDER = {"township": 0, "county": 1}
 
@@ -136,9 +137,10 @@ def main() -> None:
         if unexpected:
             raise SystemExit(f"{key}: statuses {sorted(unexpected)} have no legend label")
         status_labels = {kind: label for kind, label in status_labels.items() if statuses.get(kind)}
-        breaks = layer["breaks"]
-        if sorted(set(breaks)) != breaks or not breaks or breaks[0] <= 0:
-            raise SystemExit(f"{key}: breaks must be strictly increasing and positive")
+        # 交付門檻可手調（layer-plan §3）：只有一個門檻的稀疏層補一級，維持 atlas「至少兩個門檻」契約（0／1／≥2）。
+        breaks = BREAK_OVERRIDES.get(key, layer["breaks"])
+        if sorted(set(breaks)) != breaks or len(breaks) < 2 or breaks[0] <= 0:
+            raise SystemExit(f"{key}: breaks must be strictly increasing, ≥2 and positive")
 
         notes = list(legend_notes)
         note = BREAK_NOTES.get((base, level)) or BREAK_NOTES.get((base, None))

@@ -3631,7 +3631,8 @@
       "legend": {
         "method": "fixed_breaks",
         "breaks": [
-          1
+          1,
+          2
         ],
         "direction": "ascending",
         "scale_note": null,
