@@ -26,5 +26,6 @@
   "popup.pollution.toxicEdate": "許可效期至",
   "popup.pollution.toxicPeriod": "資料期",
   "popup.pollution.toxicPeriodValue": "民國{year}年第{season}季",
-  "popup.pollution.toxicSource": "出典：環境部 毒性及關注化學物質運作（EMS_S_05，data.gov.tw 161616）· 政府資料開放授權條款第1版。化學物質與運作行為為該設施最新一季申報。"
+  "popup.pollution.toxicSource": "出典：環境部 毒性及關注化學物質運作（EMS_S_05，data.gov.tw 161616）· 政府資料開放授權條款第1版。化學物質與運作行為為該設施最新一季申報。",
+  "popup.pollution.toxicPeriodAnnual": "民國{year}年（年度釋放量申報）"
 }

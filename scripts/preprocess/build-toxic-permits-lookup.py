@@ -9,7 +9,8 @@
 規則（analytics docs/topic-research/land_subsidence/layer-plan.md §4、toxic-vs-ems-comparison.md）：
   - 鍵＝upper(trim(ems_no))；座標不帶（以污染設施為準）；統編 unino、許可文號、數量不帶。
   - 化學物質／運作行為：取該設施「最新出現的 (roc_year, season)」那一季的去重清單；period 記該季。
-  - 有效許可數＝全歷史 per_status=='有效' 的 per_no 去重數；latest_edate＝那些列 edate 最大值。
+  - 有效許可數＝同一最新季中 per_status=='有效' 的 per_no 去重數；latest_edate＝那些列 edate 最大值。
+    per_status 是「該季申報當下」的狀態，跨季累加會把已過期的許可算進「有效」，所以只取最新季。
     per_status 空值是「使用／輸入」等申報類的正常狀態，不是缺值。
   - 合併：舊全量 CSV（2026-07 抓）只取 ≤ 114 年第 3 季；115 年第 1、2 季用 2026-10-17 重抓檔
     （舊檔 115-1 只有 21,751 列，重抓 26,792 列＝舊檔該季不完整）。
@@ -47,9 +48,7 @@ def rows(raw: Path):
 
 def main(raw: Path) -> None:
     latest: dict[str, tuple[int, int]] = {}
-    by_season: dict[tuple[str, tuple[int, int]], dict[str, set]] = defaultdict(lambda: {"chems": set(), "acts": set()})
-    permits: dict[str, set] = defaultdict(set)
-    edate: dict[str, str] = {}
+    by_season: dict[tuple[str, tuple[int, int]], dict] = defaultdict(lambda: {"chems": set(), "acts": set(), "permits": set(), "edate": ""})
     chem_names: dict[str, str] = {}
     total = 0
     max_period = (0, 0)
@@ -71,9 +70,9 @@ def main(raw: Path) -> None:
         if row["emi_type"].strip():
             bucket["acts"].add(row["emi_type"].strip())
         if row["per_status"].strip() == "有效":
-            permits[ems].add(row["per_no"].strip())
-            if row["edate"] > edate.get(ems, ""):
-                edate[ems] = row["edate"]
+            bucket["permits"].add(row["per_no"].strip())
+            if row["edate"] > bucket["edate"]:
+                bucket["edate"] = row["edate"]
     chem_list = sorted(chem_names)
     chem_index = {name: i for i, name in enumerate(chem_list)}
     shards: dict[str, dict] = defaultdict(dict)
@@ -82,8 +81,8 @@ def main(raw: Path) -> None:
         shards[ems[0]][ems] = [
             sorted(chem_index[c] for c in bucket["chems"]),
             sorted(bucket["acts"]),
-            len(permits.get(ems, ())),
-            edate.get(ems) or None,
+            len(bucket["permits"]),
+            bucket["edate"] or None,
             f"{key[0]}-{key[1]}",
         ]
     OUT_DIR.mkdir(parents=True, exist_ok=True)

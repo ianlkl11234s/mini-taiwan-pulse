@@ -4441,6 +4441,7 @@ export type GeneratedStaticKey =
   | "popup.pollution.toxicChemsMore"
   | "popup.pollution.toxicEdate"
   | "popup.pollution.toxicPeriod"
+  | "popup.pollution.toxicPeriodAnnual"
   | "popup.pollution.toxicPeriodValue"
   | "popup.pollution.toxicPermitCount"
   | "popup.pollution.toxicPermitNone"

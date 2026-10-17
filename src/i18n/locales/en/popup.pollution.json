@@ -26,5 +26,6 @@
   "popup.pollution.toxicEdate": "Permit valid until",
   "popup.pollution.toxicPeriod": "Data period",
   "popup.pollution.toxicPeriodValue": "{year} Q{season}",
-  "popup.pollution.toxicSource": "Source: Ministry of Environment, toxic and concerned chemical substance operations (EMS_S_05, data.gov.tw 161616) · Open Government Data License, version 1.0. Chemicals and activities are from the facility's latest quarterly filing."
+  "popup.pollution.toxicSource": "Source: Ministry of Environment, toxic and concerned chemical substance operations (EMS_S_05, data.gov.tw 161616) · Open Government Data License, version 1.0. Chemicals and activities are from the facility's latest quarterly filing.",
+  "popup.pollution.toxicPeriodAnnual": "{year} (annual release report)"
 }

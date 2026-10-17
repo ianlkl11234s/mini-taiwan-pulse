@@ -71,10 +71,13 @@ const TOXIC_CHEMS_SHOWN = 6;
 
 /** 「民國年-季」→ 目前語系的資料期（中文「民國115年第2季」；英日「2026 Q2」）。 */
 function toxicPeriod(period: string, i18n: LocaleSnapshot): string {
-  const [year, season] = period.split("-");
-  const roc = Number(year);
+  const [rocText, season] = period.split("-");
+  const roc = Number(rocText);
   if (!Number.isFinite(roc)) return period;
-  return i18n.t("popup.pollution.toxicPeriodValue", { year: String(i18n.active === "zh-TW" ? roc : roc + 1911), season: season ?? "" });
+  const year = String(i18n.active === "zh-TW" ? roc : roc + 1911);
+  // season 0＝年度釋放量申報（上游只有 emi_type「釋放量」用 0），不是第 0 季
+  if (season === "0") return i18n.t("popup.pollution.toxicPeriodAnnual", { year });
+  return i18n.t("popup.pollution.toxicPeriodValue", { year, season: season ?? "" });
 }
 
 /**
