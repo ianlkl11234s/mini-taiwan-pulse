@@ -288,7 +288,6 @@ export function EmbedApp() {
       q.set("z", String(cam.zoom));
     }
     if (layerKeys.length) q.set("layers", layerKeys.join(","));
-    // 完整站台沿用嵌入頁的語系（中文是預設，不寫進網址）
     if (locale !== "zh-TW") q.set("lang", locale);
     u.search = q.toString();
     return u.toString();
