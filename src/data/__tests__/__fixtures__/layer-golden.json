@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1197,
+    "keyCount": 1195,
     "sections": [
       "gisLayers",
       "overlays",
@@ -124764,7 +124764,6 @@
       }
     ],
     "wasteCleaningSquads": [],
-    "wasteRoute": [],
     "wasteSchedule": [
       {
         "label": "雙北",
@@ -124844,7 +124843,6 @@
       }
     ],
     "wasteScheduleNote": [],
-    "wasteStop": [],
     "wasteStopsStatic": [
       {
         "defaultValue": "magma",

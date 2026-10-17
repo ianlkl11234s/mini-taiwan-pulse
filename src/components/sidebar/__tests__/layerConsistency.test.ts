@@ -80,8 +80,6 @@ const allLayerKeys = Object.keys(LAYER_COLORS);
  * internal use / API gate / 子 UI 控制」。真的要刪層是另一件事，走刪除流程。
  */
 const ORPHAN_LEDGER = new Set([
-  // wasteRoute / wasteStop：由 wasteTruck 的子 UI 控制，不各給一個 toggle
-  "wasteRoute", "wasteStop",
   // medICUBeds：Phase 3 尚未實作渲染，幽靈 toggle 已自 sidebar 移除（2026-06-10）
   "medICUBeds",
   // Energy MVP：KPI 性質，已整合到 monitor 面板（LayerVisibility key 保留）
@@ -116,7 +114,6 @@ const NO_PARAMS_LEDGER = new Set([
   // wasteScheduleNote：Three.js ShaderMaterial 音符特效，opacity 要動 shader uniform，
   // 屬裝飾性圖層 → 有意識地不做（2026-06-10 決定）
   "wasteScheduleNote",
-  "wasteRoute", "wasteStop",     // 由 wasteTruck 子 UI 控制
   "jmaKosa",           // 黃砂予測：不畫在地圖上，時刻選單在 JmaKosaPanel 面板內
   "wasteCleaningSquads",         // 單色綠 POI，無 size/opacity slider（透過 isDark 自動配色）
   // powerStatusHud / powerRegionDemand：搬 monitor 面板，不在 sidebar（見 ORPHAN_LEDGER）
@@ -162,7 +159,7 @@ const NO_LEGEND_LEDGER = new Set([
   "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteSchedule", // wasteTruck：R6 段 3 補圖例，移出 ledger
-  "wasteScheduleNote", "wasteCleaningSquads", "wasteRoute", "wasteStop",
+  "wasteScheduleNote", "wasteCleaningSquads",
   // R6 段 2：焚化爐／掩埋場／濱海掩埋／轉運站／醫療已有類別圖例（WasteFacilityLegend），移出 ledger
   "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
@@ -247,7 +244,7 @@ const NO_POPUP_LEDGER = new Set([
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
   "substationEhvGlow", "windPlan",
   // orphan（無 sidebar toggle，見 ORPHAN_LEDGER）
-  "powerStatusHud", "powerRegionDemand", "medICUBeds", "wasteRoute", "wasteStop",
+  "powerStatusHud", "powerRegionDemand", "medICUBeds",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

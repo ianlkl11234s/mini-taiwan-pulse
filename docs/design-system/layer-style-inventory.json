@@ -18,13 +18,13 @@
   ]
  },
  "summary": {
-  "layerKeys": 1197,
+  "layerKeys": 1195,
   "overlayConfigs": 385,
   "runtimeSublayers": 707,
   "byResolution": {
    "runtime": 360,
    "static-scan": 183,
-   "unresolved": 36,
+   "unresolved": 34,
    "shared-renderer": 618
   },
   "byGeometry": {
@@ -41,7 +41,7 @@
   "unresolvedReasons": {
    "有渲染檔但無 paint 字面值": 19,
    "Three.js／WebGL CustomLayer": 10,
-   "無 hook／factory（App 掛載或尚無實作）": 7
+   "無 hook／factory（App 掛載或尚無實作）": 5
   },
   "legendEntries": 942,
   "legendTypes": {
@@ -80,9 +80,7 @@
     "powerStatusHud",
     "submarineCables",
     "wasteCleaningSquads",
-    "wasteRoute",
     "wasteScheduleNote",
-    "wasteStop",
     "windPlan"
    ],
    "missingPointSize": [
@@ -91,11 +89,11 @@
     "officialNoiseMonitoring",
     "soundCameraLocations"
    ],
-   "noLegend": 90,
+   "noLegend": 88,
    "categoricalWithoutLegend": [
     "waterLevees"
    ],
-   "noPopup": 50
+   "noPopup": 48
   }
  },
  "stats": {
@@ -2700,10 +2698,8 @@
   "villageBoundary": {"label":"村里界 Village","theme":"底圖 Base Map","dataClass":"B","color":"#9ca3af","legend":null,"legendType":null,"popup":"villageBoundary","params":{"opacity":{"name":"villageBoundaryOpacity","default":0.65,"min":0.1,"max":1},"lineWidth":{"name":"villageBoundaryWidth","default":1,"min":0.3,"max":4},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts:8451"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":11,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#9ca3af"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":11,"values":{"line-width":{"z10":0.5,"z14":1},"line-opacity":0.85,"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
   "visitorCentres": {"label":"遊客中心 Visitor Centres","theme":"觀光 Tourism","dataClass":"A","color":"#6366f1","legend":"visitorCentres","legendType":"dot-swatch","popup":"visitorCentres","params":{"opacity":{"name":"visitorCentresOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"visitorCentresScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6366f1"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#6366f1"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "wasteCleaningSquads": {"label":"清潔隊 Squads","theme":"廢棄物 Waste","dataClass":"D","color":"#22c55e","legend":null,"legendType":null,"popup":"wasteCleaningSquad","params":{"controls":0},"hooks":["useWasteCleaningSquadLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useWasteCleaningSquadLayer.ts:34,35,36,38,49,50,52","src/map/mapStyleScale.ts:32,33,34,54,55,56,92,93,…"],"staticValues":{"circle-blur":[0.7],"circle-color":["non-literal @src/hooks/useWasteCleaningSquadLayer.ts:35","non-literal @src/hooks/useWasteCleaningSquadLayer.ts:50"],"circle-opacity":[0,0.95],"circle-radius":["non-literal @src/hooks/useWasteCleaningSquadLayer.ts:34","non-literal @src/hooks/useWasteCleaningSquadLayer.ts:49"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts:32","non-literal @src/map/mapStyleScale.ts:54"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts:34","non-literal @src/map/mapStyleScale.ts:56"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts:33","non-literal @src/map/mapStyleScale.ts:55"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts:227"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts:225"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts:228"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts:226"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts:224"],"line-color":["non-literal @src/map/mapStyleScale.ts:92"],"line-opacity":["non-literal @src/map/mapStyleScale.ts:94"],"line-width":["non-literal @src/map/mapStyleScale.ts:93"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts:284"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts:285"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts:275","non-literal @src/map/mapStyleScale.ts:279"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":false,"legend":false,"popup":true}},
-  "wasteRoute": {"label":null,"theme":null,"dataClass":"D","color":"#84cc16","legend":null,"legendType":null,"popup":null,"params":{"controls":0},"hooks":[],"resolution":"unresolved","unresolvedReason":"無 LAYER_HOOK_REGISTRY entry（App.tsx 掛載或 factory／尚無實作，見 src/layers/__tests__/layerHookRegistry.test.ts HOOKS_IN_APP_LEDGER／NO_HOOK_LEDGER）","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":false,"legend":false,"popup":false}},
   "wasteSchedule": {"label":"垃圾車（表定） Schedule","theme":"廢棄物 Waste","dataClass":"D","color":"#fbbf24","legend":null,"legendType":null,"popup":null,"params":{"opacity":{"name":"wasteScheduleOpacity","default":1,"min":0.1,"max":1},"size":{"name":"wasteOrbScale","default":0.15,"min":0.01,"max":0.8},"height":{"name":"wasteNoteZOffset","default":70,"min":0,"max":250},"controls":12},"hooks":[],"resolution":"unresolved","unresolvedReason":"找不到 paint 字面值（src/hooks/useWasteScheduleLayer.ts）","evidence":["src/hooks/useWasteScheduleLayer.ts"],"geometry":[],"render":[],"ironRules":{"opacity":true,"legend":false,"popup":false}},
   "wasteScheduleNote": {"label":"表定音符 Notes","theme":"廢棄物 Waste","dataClass":"D","color":"#fff8d6","legend":null,"legendType":null,"popup":null,"params":{"controls":0},"hooks":[],"resolution":"unresolved","unresolvedReason":"無 LAYER_HOOK_REGISTRY entry（App.tsx 掛載或 factory／尚無實作，見 src/layers/__tests__/layerHookRegistry.test.ts HOOKS_IN_APP_LEDGER／NO_HOOK_LEDGER）","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":false,"legend":false,"popup":false}},
-  "wasteStop": {"label":null,"theme":null,"dataClass":"D","color":"#65a30d","legend":null,"legendType":null,"popup":null,"params":{"controls":0},"hooks":[],"resolution":"unresolved","unresolvedReason":"無 LAYER_HOOK_REGISTRY entry（App.tsx 掛載或 factory／尚無實作，見 src/layers/__tests__/layerHookRegistry.test.ts HOOKS_IN_APP_LEDGER／NO_HOOK_LEDGER）","evidence":[],"geometry":[],"render":["unknown"],"ironRules":{"opacity":false,"legend":false,"popup":false}},
   "wasteStopsStatic": {"label":"全台清運點位（靜態） Stops","theme":"廢棄物 Waste","dataClass":"B","color":"#fbbf24","legend":"wasteStopsStatic","legendType":"gradient+dot-swatch","popup":"wasteStopsStatic","params":{"opacity":{"name":"wasteStopsStaticOpacity","default":1,"min":0.1,"max":1},"size":{"name":"wasteStopsStaticScale","default":1,"min":0.3,"max":3},"height":{"name":"wasteStopsStaticZ","default":0,"min":0,"max":100},"controls":5},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts:4365"],"sublayers":[{"suffix":"waste-stops-heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.3,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"waste-stops-glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":0.8,"z14":2},"circle-opacity":0,"circle-blur":0.6},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#fbbf24"],"lightDiffers":true,"light":["#d97706"]}},"themeDiff":["circle-color"]},{"suffix":"waste-stops-fill","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#fbbf24"],"lightDiffers":true,"light":["#d97706"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "wasteTruck": {"label":"垃圾車（含音符） Truck","theme":"廢棄物 Waste","dataClass":"D","color":"#fbbf24","legend":"wasteTruck","legendType":"dot-swatch","popup":"wasteTruck","params":{"opacity":{"name":"wasteTruckOpacity","default":1,"min":0.1,"max":1},"size":{"name":"wasteOrbScale","default":0.15,"min":0.01,"max":0.8},"height":{"name":"wasteNoteZOffset","default":70,"min":0,"max":250},"controls":5},"hooks":[],"resolution":"unresolved","unresolvedReason":"找不到 paint 字面值（src/hooks/useWasteLayer.ts）","evidence":["src/hooks/useWasteLayer.ts"],"geometry":[],"render":[],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "waterBasins": {"label":"流域 Basin","theme":"水資源 Water","dataClass":"A","color":"#4dd0e1","legend":null,"legendType":null,"popup":"waterBasins","params":{"opacity":{"name":"waterBasinOpacity","default":1,"min":0,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts:3742"],"sublayers":[{"suffix":"glow","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":8,"z14":8},"line-blur":{"z10":5,"z14":5},"line-opacity":0},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#4dd0e1"],"lightDiffers":true,"light":["#0891b2"]}},"themeDiff":["line-color"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":1},"line-opacity":0.6,"line-dasharray":[2,2],"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#4dd0e1"],"lightDiffers":true,"light":["#0891b2"]}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},

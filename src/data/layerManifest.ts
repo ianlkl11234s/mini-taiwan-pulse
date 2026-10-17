@@ -12791,9 +12791,9 @@ export const LAYER_MANIFEST = {
   //      App.tsx 909 行以 `||` 合成 energyDashboardActive 驅動 usePowerDashboard。
   //      ⚠️ 它們的 `UPSTREAM_REGISTRY` note 寫 "stale/unused color" 是**過時的**，
   //      manifest 照抄（搬移零失真）但在 entry 就地註明實況。
-  //   ③ 真的沒有渲染（3）：medICUBeds / wasteRoute / wasteStop。
+  //   ③ 真的沒有渲染（1）：medICUBeds（wasteRoute / wasteStop 已於無 consumer 確認後移除）。
   //
-  // ⚠️ **legend 有 7 個非 null**（只有 medICUBeds / wasteRoute / wasteStop 是 null），
+  // ⚠️ **legend 有 7 個非 null**（只有 medICUBeds 是 null），
   // 而且 3 個的家族首 key 在 THEMES 裡
   // （islandPowerGrid → offshoreWindZones、osmSolarFarms / osmPowerPlantsStatic →
   // osmWindTurbines）；反過來 `powerPlants` 自己是首 key，THEMES 裡的
@@ -13021,53 +13021,6 @@ export const LAYER_MANIFEST = {
     params: null,
     description: "急重症床位壓力（規劃中，尚未實作渲染）",
     topics: ["醫療", "即時", "orphan", "未實作"],
-  },
-
-  wasteRoute: {
-    key: "wasteRoute",
-    section: null,
-    color: "#84cc16",
-    icon: Route,
-    upstream: {
-      status: "pulse_only",
-      datasets: [],
-      note: "not in active THEMES (stale/unused color)",
-    },
-    dataClass: "D",
-    source: {
-      kind: "custom",
-      // ⚠️ 現況出入（本次不動）：layerConsistency 的註解寫「由 wasteTruck 子 UI 控制」，
-      //    但逐檔 grep 全 repo，除了 types 宣告與三張全量表之外**沒有任何 consumer**
-      //    —— 沒有 wasteTruck 子 UI 讀它。照現況登記並註明，修對應是另一件事。
-      note: "無 consumer：layerConsistency 註解稱「由 wasteTruck 子 UI 控制」，但實際 grep 不到任何讀取端（僅 types 宣告 + 三張全量表）。廢棄物主題真正在用的是 wasteStopsStatic（批 7 已搬）。",
-    },
-    legend: null,
-    popup: null,
-    params: null,
-    description: "清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）",
-    topics: ["廢棄物", "orphan", "未實作"],
-  },
-
-  wasteStop: {
-    key: "wasteStop",
-    section: null,
-    color: "#65a30d",
-    icon: MapPinned,
-    upstream: {
-      status: "pulse_only",
-      datasets: [],
-      note: "not in active THEMES (stale/unused color)",
-    },
-    dataClass: "D",
-    source: {
-      kind: "custom",
-      note: "無 consumer，同 wasteRoute。⚠️ 雙生字：與批 7 已搬的 `wasteStopsStatic`（有 OVERLAY_REGISTRY entry、3 個控件、真的在渲染）只差幾個字，一律用精確錨定分開數。",
-    },
-    legend: null,
-    popup: null,
-    params: null,
-    description: "清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）",
-    topics: ["廢棄物", "orphan", "未實作"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
