@@ -1,0 +1,21 @@
+{
+  "enum.envWbgtLevel.caution": "Caution (below 25)",
+  "enum.envWbgtLevel.warning": "Warning (25 to under 28)",
+  "enum.envWbgtLevel.severe": "Severe warning (28 to under 31)",
+  "enum.envWbgtLevel.danger": "Danger (31 or higher)",
+  "enum.jmaDiffClass.much_early": "7+ days early",
+  "enum.jmaDiffClass.early": "3–6 days early",
+  "enum.jmaDiffClass.normal": "Near normal (±2 days)",
+  "enum.jmaDiffClass.late": "3–6 days late",
+  "enum.jmaDiffClass.much_late": "7+ days late",
+  "enum.jmaRainyPhase.before": "Before the rainy season",
+  "enum.jmaRainyPhase.in": "In the rainy season",
+  "enum.jmaRainyPhase.after": "Rainy season over",
+  "enum.jmaRainyPhase.unspecified": "Could not be determined",
+  "enum.jmaPhenomenon.004": "Cherry blossoms open",
+  "enum.jmaPhenomenon.005": "Cherry blossoms in full bloom",
+  "enum.jmaPhenomenon.013": "Ginkgo turns yellow",
+  "enum.jmaPhenomenon.014": "Ginkgo leaves fall",
+  "enum.jmaPhenomenon.015": "Maple turns red",
+  "enum.jmaPhenomenon.016": "Maple leaves fall"
+}

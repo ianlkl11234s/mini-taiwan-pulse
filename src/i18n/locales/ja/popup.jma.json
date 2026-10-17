@@ -61,5 +61,7 @@
   "popup.jma.warningUpdated": "5分ごとに更新。最新の発表時刻（control_datetime）を基準とします。",
   "popup.jma.quakeNote": "同じ地震は最新の1報のみ表示します。震度速報の段階では震源の座標がないため、地図には描画されません。直近7日間、2分ごとに更新。",
   "popup.jma.reading": "読み方",
-  "popup.jma.volcanoNote": "警戒レベルは原文の「レベルN」またはコード11〜15から取得しています。レベル未導入の火山は警報の原文に従います。"
+  "popup.jma.volcanoNote": "警戒レベルは原文の「レベルN」またはコード11〜15から取得しています。レベル未導入の火山は警報の原文に従います。",
+  "popup.jma.activeKinds": "発表中",
+  "popup.jma.kindSep": "、"
 }

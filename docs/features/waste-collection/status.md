@@ -1,5 +1,7 @@
 # 垃圾清運圖層 — Status
 
+> ⚠️ **過時（2026-10-17 標注）**：本檔停在 2026-05-06，多處已與現況不符（例：表已從 `realtime.waste_*` 搬到 `live`〔migration 312〕、設施筆數、「migration 069 待執行」「P0 OSRM 待做」都已完成）。現行契約看 [handoff.md](./handoff.md)；本檔保留為決策與執行紀錄。
+>
 > 最後更新：2026-05-06
 > 分支：`feat/historical-mode`（之後可拆 `feat/waste-collection`）
 > 主城策略：**高雄**（24h GPS 8,374 筆 / 157 車 / 1,399 路線 / 32,422 停靠點 — 完整度第一）
@@ -65,7 +67,7 @@
 
 | 優先 | 項目 | 觸發條件 | 備註 |
 |---|---|---|---|
-| **P0** | **Phase 3：OSRM map-matching（沿馬路走）** | 用戶 approved 2026-05-07 | 完整設計：`docs/research/waste-osrm-mapmatching-plan.md`。需 Docker OSRM + Taiwan OSM PBF + batch script + spatial.waste_trails_matched 表 + RPC v2。預估 1.5~2 工作天。多城市無額外成本（Taiwan OSM 已全島覆蓋） |
+| **P0** | **Phase 3：OSRM map-matching（沿馬路走）** | 用戶 approved 2026-05-07 | 完整設計：`docs/features/waste-collection/research/osrm-mapmatching-plan.md`。需 Docker OSRM + Taiwan OSM PBF + batch script + spatial.waste_trails_matched 表 + RPC v2。預估 1.5~2 工作天。多城市無額外成本（Taiwan OSM 已全島覆蓋） |
 | P1 | **聲音版本（方案 C）** | 視覺 ship 之後加 | 8-bit 給愛麗絲 1 秒 loop，Web Audio PannerNode 3D 音源，camera < 200m 距離隨距變音量。彩蛋等級。|
 | P1 | **wasteFacility geocode** | TGOS 批次完成 | 463 筆焚化爐/掩埋場/轉運站等地址 → 座標。寫進 `spatial.waste_facilities` |
 | P1 | **wasteCleaningSquads 隊部圖層** | 等 geocode | 1,106 隊；先做 hover 詳情，圖層 P2 |
@@ -119,7 +121,7 @@
 - ✅ 用戶要求新功能（同日）：
   - 光點大小 slider（0.3~4 倍）+ 音符大小 slider（0.5~3 倍）— wasteTruck 改 expandable 加 controls
   - 音符顏色染琥珀 #fbbf24（匹配 wasteTruck 主視覺，shader uColor uniform）
-- ✅ Phase 3 OSRM map-matching 完整設計文件：`docs/research/waste-osrm-mapmatching-plan.md`（approved，跨日工程進 Backlog）
+- ✅ Phase 3 OSRM map-matching 完整設計文件：`docs/features/waste-collection/research/osrm-mapmatching-plan.md`（approved，跨日工程進 Backlog）
 - ✅ Phase 3 程式碼骨架：
   - `gis-platform` migration 074：`realtime.waste_trails_matched_daily` + `get_waste_trails_matched_day`
   - `data-collectors` `waste_match`：重建 trip、呼叫 OSRM `/match`、寫入 matched progress timeline
@@ -141,9 +143,9 @@
 
 ## 5. 參考文件
 
-- `docs/bus-layer-design.md` — 公車 progress-based 架構（Path A 抄這個）
-- `docs/research/water-layer-cookbook.md` — Layer 群組 + LegendPanel pattern
-- `docs/research/iot-wra-integration-study.md` — 細項 toggle + overlayParams 0/1
+- `docs/features/bus/design.md` — 公車 progress-based 架構（Path A 抄這個）
+- `docs/features/water-resources/layer-cookbook.md` — Layer 群組 + LegendPanel pattern
+- `docs/features/water-resources/iot-wra-integration-study.md` — 細項 toggle + overlayParams 0/1
 - `docs/supabase-optimization.md` — 若需 pre-aggregate 看這份
 - `../gis-platform/migrations/065_waste_management.sql` — waste schema 起源
 - `../gis-platform/migrations/063_iot_wra_pre_aggregate.sql` — pre-aggregate 範本

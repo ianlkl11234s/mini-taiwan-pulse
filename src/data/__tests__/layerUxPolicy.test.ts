@@ -22,6 +22,7 @@ const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
   "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteRoute", "wasteScheduleNote",
   "wasteStop", "windPlan",
+  "jmaKosa", // 黃砂予測是圖片面板（非地圖疊加），沒有可調的地圖外觀；時刻選單在面板內
 ].sort();
 
 function hasOpacityControl(specs: readonly LayerParamSpec[]): boolean {
@@ -84,7 +85,11 @@ describe("Layer UX policy baseline", () => {
   it("popup 缺口由既有完整性 ledger 顯式凍結，不能以 null 靜默擴張", () => {
     const missing = MANIFEST_KEYS.filter((key) => LAYER_MANIFEST[key].popup === null);
     // jpWaterFloodHazard 是外部 XYZ raster 背景，沒有 feature attributes 可供 popup。
-    expect(missing).toHaveLength(33);
+    // jmaSnowDepth 是 JMA 發布幀 image source（PNG 只存等級值），同 cwaRadarImagery 無 feature 可點。
+    // 2026-10-15：+8 JMA 發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、海面水溫、海冰、向日葵雲圖），同 jmaSnowDepth。
+    // 2026-10-15：+5 JMA 分析圖（count_la_v1 每日一張），同 jmaSnowDepth。
+    // 2026-10-15：+3 上游直連（GIBS 雪覆蓋 raster、洪水キキクル line、黃砂圖片面板）。
+    expect(missing).toHaveLength(50);
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

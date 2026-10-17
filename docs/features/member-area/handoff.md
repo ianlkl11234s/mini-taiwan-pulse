@@ -1,6 +1,6 @@
 # 會員專區、共用搜尋與私人保存 v1
 
-2026-09-06。主站＋未來 App 共用的收藏／場景／地點基礎。總計畫：[foundation review](../../audit/foundation-2026-09-06/README.md)。
+2026-09-06。主站＋未來 App 共用的收藏／場景／地點基礎。總計畫：[foundation review](../../archive/2026-10-16/audit/foundation-2026-09-06/README.md)。
 
 ## 交付狀態
 
@@ -12,7 +12,7 @@
 | DB schema／RLS／quota／CAS | migration 408 已在隔離 PostgreSQL 17 驗證 |
 | 正式 Supabase migration | **408 已套用**；三表 RLS／policy／indexes 回讀；anon REST 401／42501，service role limit=0 回讀 200 |
 | Google OAuth 真實帳號、多實體裝置、正式 browser | 尚未驗收；合成 Auth 不替代這些證據 |
-| 原子 commit | 前端 6 筆、上游 1 筆；見 [提交對照](../../audit/foundation-2026-09-06/evidence/atomic-commits.md) |
+| 原子 commit | 前端 6 筆、上游 1 筆；見 [提交對照](../../archive/2026-10-16/audit/foundation-2026-09-06/evidence/atomic-commits.md) |
 | push／merge／部署 | 上游 [PR #98](https://github.com/ianlkl11234s/gis-platform/pull/98) 已合併 3166c4a；前端 [PR #220](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/220) 已合併 `9124d1f`，真實登入與正式操作仍需獨立驗收 |
 
 ## 使用流程
@@ -71,16 +71,16 @@ flowchart LR
 
 這是使用者自行保存的資料，不需 analytics pipeline 或 collector，不新增 TABLE_MAP、cron、AI 分析 job 或 Storage bucket。GIS 運算、會員計費、通知規則、Capture 圖片雲端保存屬後續批次。
 
-驗收詳見 [批次 1–2 evidence](../../audit/foundation-2026-09-06/evidence/batch-1-2-validation.md)。
+驗收詳見 [批次 1–2 evidence](../../archive/2026-10-16/audit/foundation-2026-09-06/evidence/batch-1-2-validation.md)。
 
 ## 與統計圖層整合（2026-09-06）
 
 保留統計 PR #219（482b45a）的入口、8 指標與犯罪 PMTiles 修正；會員入口與統計入口同時存在，統計搜尋也支援收藏。統計 All Off 仍只關閉其範圍。統計 releaseId 目前由 regionalStatisticsStore 存在此瀏覽器，**不包含於會員場景快照／URL／跨裝置同步**；保存場景不保證重現統計期別。批次 3 前應擴充並驗證版本化快照，不能把目前的本機期別保存描述為雲端同步。
 
-正式會員證據：[member408-production.json](../../audit/foundation-2026-09-06/evidence/member408-production.json)。初次 REST 404 為 schema cache 尚未刷新；後續權限拒絕與管理角色空查詢均已確認。未讀取或改動既有會員 rows。
+正式會員證據：[member408-production.json](../../archive/2026-10-16/audit/foundation-2026-09-06/evidence/member408-production.json)。初次 REST 404 為 schema cache 尚未刷新；後續權限拒絕與管理角色空查詢均已確認。未讀取或改動既有會員 rows。
 
 ## 2026-09-07 收整
 
 會員功能已在 master 與本次整合分支，不需要再從 member-audit worktree 重複搬入。此次匿名 `limit=0` 回讀收藏／場景／地點三表皆 401／42501；只證明匿名被拒絕，不能替代 Google OAuth 與兩帳號隔離／跨裝置驗收。會員 row 不列入公開資料 S3 封存清單。
 
-圖層 gate 補上已知敏感 key 在 RPC 清單缺漏時的 owner fallback，與無效 tier／lock metadata 防護；沒有放寬為任意登入可讀，也沒有套用新 migration。整體狀態與可保留 worktree 見 [近期成果對帳](../../audit/recent-delivery-2026-09-07/README.md)。
+圖層 gate 補上已知敏感 key 在 RPC 清單缺漏時的 owner fallback，與無效 tier／lock metadata 防護；沒有放寬為任意登入可讀，也沒有套用新 migration。整體狀態與可保留 worktree 見 [近期成果對帳](../../archive/2026-10-16/audit/recent-delivery-2026-09-07/README.md)。

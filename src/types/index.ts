@@ -400,7 +400,8 @@ export type ExpandableLayerKey =
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
-  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes";
+  | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+  | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -905,6 +906,8 @@ export interface FeatureInfo {
     | "jpPoliceFacilities" | "jpSchools"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
+    // 日本氣象廳／環境省 時間軸點位與區域（P4）
+    | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
     | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
@@ -1652,6 +1655,29 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）
   jmaVolcanoes: boolean;  // 日本火山噴火警戒
+  jmaLightning: boolean;  // 日本落雷（氣象廳 LIDEN，get_lightning_day p_source=jma，7 天熱層）
+  jmaWbgt: boolean;       // 日本暑さ指数 WBGT（環境省實況，整點，30 天）
+  jmaSnowcap: boolean;    // 日本山頂初冠雪（44 山，as-of 日期）
+  jmaAutumnLeaves: boolean; // 日本紅葉・黃葉前線（生物季節觀測，as-of 日期）
+  jmaSakura: boolean;     // 日本櫻花前線（生物季節觀測，as-of 日期）
+  jmaRainySeason: boolean; // 日本梅雨入り・明け（12 地方，縣界 choropleth）
+  jmaSnowDepth: boolean;  // 日本解析積雪深（JMA 發布幀 PNG，time-axis raster）
+  jmaRadar: boolean;      // 日本雨雲雷達（ナウキャスト解析，5 分一幀）
+  jmaRasrf: boolean;      // 日本解析雨量（1 小時雨量，30 分一幀）
+  jmaRiskLand: boolean;   // 日本土砂キキクル（30 分一幀）
+  jmaRiskInund: boolean;  // 日本浸水キキクル（30 分一幀）
+  jmaUvIndex: boolean;    // 日本紫外線 UV 指數解析（06–18 JST 每小時）
+  jmaSst: boolean;        // 日本近海日別海面水溫（每日）
+  jmaSeaIce: boolean;     // 鄂霍次克海海冰（每日，12–5 月）
+  jmaHimawari: boolean;   // 向日葵 B13 紅外雲圖（每小時，灰階 JPEG）
+  jmaAnaSnowFirst: boolean; // 日本初雪日（積雪季首次 ≥5 cm 的日序，每日一張）
+  jmaAnaSnowDays: boolean; // 日本積雪日數（積雪季累計，每日一張）
+  jmaAnaRainDays: boolean; // 日本當月雨日數（解析雨量 ≥1 mm/h，每日一張）
+  jmaAnaRiskLandHours: boolean; // 日本當月土砂キキクル警戒以上時數（每日一張）
+  jmaAnaRiskInundHours: boolean; // 日本當月浸水キキクル警戒以上時數（每日一張）
+  gibsSnowCover: boolean; // NASA GIBS 衛星雪覆蓋 NDSI（每日，瀏覽器直連上游）
+  jmaRiskFlood: boolean;  // 洪水キキクル（向量 pbf，瀏覽器直連 JMA，只提供即時）
+  jmaKosa: boolean;       // 黃砂予測（圖片面板，非地圖疊加）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
   jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
   jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格

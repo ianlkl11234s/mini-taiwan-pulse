@@ -4,7 +4,7 @@
 
 ## Release / verifying
 
-- [ ] **LM-REL-1** · `release` · P1 · `verifying`：確認 manifest 接線所涵蓋的 gitignored assets 已經實際部署。
+- [ ] **LM-REL-1** · `release` · P1 · `verifying`（2026-10-16 盤點：與核心 BACKLOG Release-assets 重疊，HTTP 層 10-05 已全 200/206，僅剩 browser 抽樣）：確認 manifest 接線所涵蓋的 gitignored assets 已經實際部署。
   - Outcome：不把 `deployContract.test.ts` 綠燈誤當 S3/production 完成。
   - Next action：在當期 release merge 後，依 manifest 跑 object readback、HTTP/Range 與抽樣 browser 驗收。
   - Acceptance：本機 contract、S3 checksum/size、production HTTP 與 browser evidence 分開記錄且全數通過。

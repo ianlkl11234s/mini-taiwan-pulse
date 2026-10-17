@@ -4,6 +4,7 @@ import { FONT_CJK, FONT_DATA } from "./intelTokens";
 import { neutralFill, useIntelTheme } from "./intelTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, getNewsCategoryDef, type NewsCategory } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
@@ -288,7 +289,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {enumLabel("intel.county", r.county, r.county, i18n)}
+                      {enumLabel("intel.county", r.county, placeName(r.county, i18n), i18n)}
                     </span>
                     <div
                       style={{

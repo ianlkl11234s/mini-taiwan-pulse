@@ -9,14 +9,16 @@
 export const DEFAULT_LOCALE = "zh-TW" as const;
 
 export const LOCALES = {
-  "zh-TW": { label: "中文", htmlLang: "zh-Hant-TW", intl: "zh-TW", fallback: [], status: "complete" },
-  en: { label: "EN", htmlLang: "en", intl: "en-US", fallback: ["zh-TW"], status: "complete" },
-  ja: { label: "日本語", htmlLang: "ja", intl: "ja-JP", fallback: ["en", "zh-TW"], status: "complete" },
+  "zh-TW": { label: "中文", aiLanguage: "繁體中文", htmlLang: "zh-Hant-TW", intl: "zh-TW", fallback: [], status: "complete" },
+  en: { label: "EN", aiLanguage: "英文（English）", htmlLang: "en", intl: "en-US", fallback: ["zh-TW"], status: "complete" },
+  ja: { label: "日本語", aiLanguage: "日文（日本語）", htmlLang: "ja", intl: "ja-JP", fallback: ["en", "zh-TW"], status: "complete" },
 } as const satisfies Record<string, LocaleInfo>;
 
 interface LocaleInfo {
   /** 切換器上顯示的名稱（用該語言自己的寫法） */
   label: string;
+  /** AI 對話的回答語言（寫進中文系統提示，所以用中文稱呼，括號附原文） */
+  aiLanguage: string;
   /** 寫進 `<html lang>`，同時驅動 CSS `:lang()` 字型堆疊 */
   htmlLang: string;
   /** Intl.NumberFormat / DateTimeFormat 用的 locale */

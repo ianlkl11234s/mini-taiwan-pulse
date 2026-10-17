@@ -3,11 +3,13 @@ import type { ExpressionSpecification, FillLayer, LineLayer, Map as MapboxMap } 
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { fetchJmaWarnings, invalidateJmaWarnings, type JmaWarningsSnapshot, type JmaWarningArea } from "../data/jmaLiveLoaders";
+import { fetchJmaWarningsAt, filterJmaWarningsByKind, invalidateJmaTimed, setLatestJmaWarnings, type JmaWarningsSnapshot, type JmaWarningArea } from "../data/jmaLiveLoaders";
+import { useJmaTimeDriver } from "./useJmaTimeDriver";
 import { JMA_ATTRIBUTION, jmaWarningColor } from "../data/jmaTypes";
 
 /**
- * 日本警報・注意報 choropleth — 當下快照（5 分鐘輪詢，不接 timeStore）。
+ * 日本警報・注意報 choropleth — 跟時間軸走：現在＝jma_warnings_current（5 分鐘輪詢）；
+ * 往回拉＝get_jma_warnings_at(t)（10 分桶，涵蓋期外顯示「未涵蓋」並清空）。
  *
  * 界線沿用既有 `public/world/jp_admin_boundaries.pmtiles`（市区町村界，admin_code＝5 碼 JIS），
  * 不另下載界線。對法：
@@ -69,6 +71,7 @@ export function useJmaWarningsLayer(
   visible: boolean,
   opacity: number,
   isDarkTheme: boolean,
+  kindCode: string | null = null,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const snapshotRef = useRef<JmaWarningsSnapshot | null>(null);
@@ -95,7 +98,7 @@ export function useJmaWarningsLayer(
         const src = map.getSource(JMA_WARNINGS_SOURCE_ID) as any;
         if (src) src.attribution = JMA_ATTRIBUTION;
       }
-      const snapshot = snapshotRef.current;
+      const snapshot = filterJmaWarningsByKind(snapshotRef.current, kindCode);
       const color = jmaWarningsColorExpr(snapshot);
       const filter = jmaWarningsFilter(snapshot);
       if (!map.getLayer(JMA_WARNINGS_FILL_LAYER_ID)) {
@@ -124,28 +127,20 @@ export function useJmaWarningsLayer(
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
-  }, [mapRef, visible, opacity, mapTick, isDarkTheme]);
+  }, [mapRef, visible, opacity, mapTick, isDarkTheme, kindCode]);
 
-  // 載入與輪詢
-  useEffect(() => {
-    if (!visible) return;
-    let cancelled = false;
-    const load = () => {
-      fetchJmaWarnings()
-        .then((snapshot) => {
-          if (cancelled) return;
-          snapshotRef.current = snapshot;
-          applyRef.current();
-        })
-        .catch((err) => {
-          if (cancelled) return;
-          console.warn("[jmaWarnings] load failed:", err);
-          snapshotRef.current = null;
-          applyRef.current();
-        });
-    };
-    load();
-    const id = window.setInterval(() => { invalidateJmaWarnings(); load(); }, POLL_MS);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [visible, mapTick]);
+  // 載入、時間軸與輪詢
+  useJmaTimeDriver({
+    visible,
+    key: "jmaWarnings",
+    pollMs: POLL_MS,
+    tick: mapTick,
+    fetch: (req) => fetchJmaWarningsAt(req.cacheKey),
+    invalidate: (req) => invalidateJmaTimed("jmaWarnings", req.cacheKey),
+    apply: (snapshot) => {
+      snapshotRef.current = snapshot;
+      setLatestJmaWarnings(snapshot);
+      applyRef.current();
+    },
+  });
 }

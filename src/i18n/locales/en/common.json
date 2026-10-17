@@ -85,5 +85,6 @@
   "attribution.basemap": "Map: {credit}",
   "attribution.close": "Close",
   "attribution.other": "Other",
-  "attribution.openSource": "Open source page (new tab)"
+  "attribution.openSource": "Open source page (new tab)",
+  "embed.openInSite": "Open in Mini Taiwan Pulse"
 }

@@ -4,6 +4,7 @@ import type { PanelProps } from "./registry";
 import { Badge, Row } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { PENALTY_SEVERITY_LABELS, type PollutionPenaltySeverity } from "../../data/pollutionTypes";
 
 type L = ReturnType<typeof useLocale>;
@@ -103,7 +104,7 @@ export function OfficialNoiseMonitoringPanel({ props }: PanelProps) {
     <div>
       <Row field="station" value={text(props.station_name)} />
       <Row label={t("popup.noise.stationId")} value={text(props.station_id)} />
-      <Row field="county" value={text(props.county)} />
+      <Row field="county" value={placeName(text(props.county), i18n)} />
       <Row field="address" value={text(props.address)} />
       <Row label={t("popup.noise.stationType")} value={text(props.station_type)} />
       <Row field="stationStatus" value={text(props.station_status)} />
@@ -180,7 +181,7 @@ export function NoiseControlZonesPanel({ props }: PanelProps) {
     <div>
       <Row label={t("popup.noise.zoneName")} value={text(props.zone_name)} />
       <Row field="category" value={zoneClassLabel} />
-      <Row field="county" value={text(props.county)} />
+      <Row field="county" value={placeName(text(props.county), i18n)} />
       <Row label={t("popup.noise.legalVersion")} value={text(props.legal_version)} />
       <Row label={t("popup.noise.announceYearRoc")} value={text(props.effective_year_roc, t("popup.noise.notStated"))} />
       <Row label={t("popup.noise.announceYear")} value={text(props.effective_year, t("popup.noise.notStated"))} />
@@ -205,7 +206,7 @@ export function AviationNoiseZonesPanel({ props }: PanelProps) {
   const measured = yes(props.is_measured_contour);
   return (
     <div>
-      <Row field="village" value={`${text(props.county)} ${text(props.town)} ${text(props.village)}`} />
+      <Row field="village" value={`${placeName(text(props.county), i18n)} ${placeTown(String(props.county ?? ""), text(props.town), i18n)} ${text(props.village)}`} />
       <Row label={t("popup.noise.villageCode")} value={text(props.village_code)} />
       <Row label={t("popup.noise.displayLevel")} value={t("popup.noise.levelN", { level: text(props.display_zone_level) })} />
       <Row label={t("popup.noise.allLevels")} value={text(props.zone_levels)} />
@@ -236,7 +237,7 @@ export function NoiseEnforcementEventsPanel({ props }: PanelProps) {
   return (
     <div>
       <Row label={t("popup.noise.respondent")} value={text(props.fac_name)} />
-      <Row field="county" value={text(props.county)} />
+      <Row field="county" value={placeName(text(props.county), i18n)} />
       <Row field="penaltyDate" value={text(props.penalty_date)} />
       <Row field="penaltyType" value={text(props.transgress_type)} />
       <Row field="lawViolated" value={text(props.transgress_law)} />
@@ -266,15 +267,15 @@ export function SoundCameraLocationsPanel({ props }: PanelProps) {
   return (
     <div>
       <Row field="name" value={text(props.location_name)} />
-      <Row field="county" value={text(props.county)} />
-      <Row label={t("popup.noise.expectedTown")} value={text(props.expected_town, t("popup.common.notProvided"))} />
+      <Row field="county" value={placeName(text(props.county), i18n)} />
+      <Row label={t("popup.noise.expectedTown")} value={placeTown(String(props.county ?? ""), text(props.expected_town, t("popup.common.notProvided")), i18n)} />
       <Row label={t("popup.noise.rawLocation")} value={text(props.raw_location)} />
       <Row label={t("popup.noise.fullAddress")} value={text(props.full_address)} />
       <Row field="positionAccuracy" value={precisionLabel(precision)} />
       <Row label={t("popup.noise.geocodeMethod")} value={text(props.geocode_method, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.geocodeReference")} value={text(props.geocode_reference, t("popup.common.notProvided"))} />
       <Row label={t("popup.noise.spatialValidation")} value={text(props.spatial_validation_status)} />
-      <Row label={t("popup.noise.boundaryLocation")} value={[props.boundary_county, props.boundary_town, props.boundary_village].filter((v) => v != null && v !== "").join(" ") || t("popup.common.notProvided")} />
+      <Row label={t("popup.noise.boundaryLocation")} value={[placeName(String(props.boundary_county ?? ""), i18n), placeTown(String(props.boundary_county ?? ""), String(props.boundary_town ?? ""), i18n), props.boundary_village == null ? "" : String(props.boundary_village)].filter((v) => v !== "").join(" ") || t("popup.common.notProvided")} />
       <Row label={t("popup.noise.equipmentStatus")} value={equipmentStatus === "not_provided" ? t("popup.noise.equipmentNotProvided") : equipmentStatus} />
       <Row label={t("popup.noise.renderable")} value={renderable ? t("popup.common.yes") : t("popup.noise.renderableNo")} />
       <Row label={t("popup.noise.listMeaning")} value={props.represents ? t("popup.noise.listMeaningValue") : t("popup.common.notProvided")} />

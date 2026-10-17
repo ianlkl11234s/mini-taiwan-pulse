@@ -4,6 +4,8 @@
 
 import type { MapBridge } from "./types";
 import { THEMES } from "../components/sidebar/layerCatalog";
+import { LOCALES, type Locale } from "../i18n/locales";
+import { localeStore } from "../state/localeStore";
 
 // ── 靜態段（一次算好，跨 turn 不變）──
 const THEME_INDEX = THEMES.map(
@@ -13,7 +15,7 @@ const THEME_INDEX = THEMES.map(
 const STATIC_PROMPT = `你是「Mini Taiwan Pulse」的地圖助手。這是一個把台灣多種即時 / 時序資料（交通、環境、災害、能源…）疊在 3D 地圖上的視覺化站台，你可以依使用者需求開關圖層、移動鏡頭、查詢圖層目錄。
 
 # 回答規範
-- 一律用繁體中文，簡潔、口語、不囉嗦。
+- 簡潔、口語、不囉嗦；回答語言照最後「回答語言」一節。
 - 不知道就查（用工具），不要憑空猜測或杜撰數字 / 圖層名。
 - 回答盡量附上資料脈絡（例如來自哪個主題、目前開了哪些圖層）。
 
@@ -40,6 +42,15 @@ ${THEME_INDEX}
 4. 最後主動呼叫 set_layers 把建議的圖層組合實際開起來，讓建議上圖。`;
 
 // ── 動態段（每 turn 依現況組）──
+// 回答語言放動態段：靜態段跨語系相同，prompt cache 不因切換語言失效
+function buildLanguageRule(locale: Locale): string {
+  const lang = LOCALES[locale].aiLanguage;
+  return `# 回答語言
+- 使用者目前的介面語言是${lang}，請用${lang}回答。
+- 例外：使用者明顯用另一種語言發問時，改用他發問的語言。${locale === "zh-TW" ? "" : `
+- 工具回傳的圖層名、地名、機關名多是中文：直接翻成${lang}，必要時括號附中文原名；不要因此改用中文回答。`}`;
+}
+
 function buildDynamicContext(bridge: MapBridge): string {
   const visible = bridge.getVisibleLayerKeys();
   const cam = bridge.getCamera();
@@ -50,6 +61,6 @@ function buildDynamicContext(bridge: MapBridge): string {
 - 相機位置：lng ${cam.lng.toFixed(3)}, lat ${cam.lat.toFixed(3)}, zoom ${cam.zoom.toFixed(1)}`;
 }
 
-export function buildSystemPrompt(bridge: MapBridge): string {
-  return `${STATIC_PROMPT}\n\n${buildDynamicContext(bridge)}`;
+export function buildSystemPrompt(bridge: MapBridge, locale: Locale = localeStore.getSnapshot().active): string {
+  return `${STATIC_PROMPT}\n\n${buildDynamicContext(bridge)}\n\n${buildLanguageRule(locale)}`;
 }

@@ -36,6 +36,8 @@ import { useMapReadyTick } from "./useMapReadyTick";
 const SRC_LIGHTNING = "hazard-lightning";
 /** 氣象署源用獨立 source（migration 338 雙源）—— 兩個圖層可同時開著互相對照 */
 const SRC_LIGHTNING_CWA = "hazard-lightning-cwa";
+/** 日本氣象廳源（LIDEN）：日本落雷圖層 jmaLightning 的 source */
+export const SRC_LIGHTNING_JMA = "jma-lightning";
 const SRC_NUCLEAR = "hazard-nuclear";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -85,7 +87,7 @@ export function useLightningLayer(
   source: LightningSource = DEFAULT_LIGHTNING_SOURCE,
 ) {
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
-  const srcId = source === "cwa" ? SRC_LIGHTNING_CWA : SRC_LIGHTNING;
+  const srcId = source === "cwa" ? SRC_LIGHTNING_CWA : source === "jma" ? SRC_LIGHTNING_JMA : SRC_LIGHTNING;
   const feed = useSourceFeed(mapRef, visible, srcId, fcRef);
   // 整天 events buffer，scrub / minutes 變動只在這份上 client-side filter
   const dayBufferRef = useRef<LightningStrike[]>([]);

@@ -30,13 +30,13 @@
 
 | 項目 | 數量 | 來源 |
 |---|---:|---|
-| manifest 登記的 layer key | 864（資料路徑 A 139／B 112／C 56／D 557） | `LAYER_MANIFEST` |
-| 側欄主題 | 68 個，分 6 大分類 | `THEMES` + `LAYER_MACRO_GROUPS` |
-| 側欄圖層開關（不重複 key） | 854 | `THEMES` 內的圖層 |
+| manifest 登記的 layer key | 1197（資料路徑 A 173／B 123／C 64／D 837） | `LAYER_MANIFEST` |
+| 側欄主題 | 79 個，分 6 大分類 | `THEMES` + `LAYER_MACRO_GROUPS` |
+| 側欄圖層開關（不重複 key） | 1187 | `THEMES` 內的圖層 |
 | 站主限定圖層 | 54 | `GATED_LAYERS` |
-| Agent 倉庫可分析（L2） | 660／864 | [`layer-status-summary.md`](docs/features/general-analysis/layer-status-summary.md)（腳本產生） |
+| Agent 倉庫可分析（L2） | 954／1174（2026-10-12 產生） | [`layer-status-summary.md`](docs/features/general-analysis/layer-status-summary.md)（腳本產生） |
 
-六大分類（主題數／圖層開關數）：基準 2／17、移動與城市 12／147、公共生活 16／329、安全與治理 8／63、環境與資源 26／272、情報 4／26。
+六大分類（主題數／圖層開關數）：基準 2／19、移動與城市 15／300、公共生活 19／426、安全與治理 9／111、環境與資源 30／305、情報 4／26。
 側欄目錄的登記不等於正式站全部可見：統計比較由 build flag `VITE_STATISTICS_COMPARISONS_ENABLED` 控制，站主限定圖層對一般訪客顯示鎖頭、不下載資料。
 
 ### 主站各區
@@ -215,7 +215,7 @@ npx tsc -b                # 型別檢查（commit 前必跑，禁用 --noEmit）
 ```
 mini-taiwan-pulse/
 ├── src/
-│   ├── data/          *Loader.ts（84 個）＋ layerManifest / layerParamsSpec
+│   ├── data/          *Loader.ts（85 個）＋ layerManifest / layerParamsSpec
 │   ├── hooks/         use*Layer.ts 圖層 hook
 │   ├── layers/        layerHookRegistry —— 圖層掛載總表
 │   ├── map/           Mapbox 容器、overlayRegistry、gisClickRegistry、*CustomLayer.ts（19 個）、樣式分階

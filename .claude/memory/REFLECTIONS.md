@@ -2,6 +2,11 @@
 
 每次 `/wrap-up` 追加一篇。格式：What worked / What didn't / Next-time rules / Memory 產出。
 
+> **2026-10-16 盤點索引**（只加註，不改舊段）
+> - 本檔**不是時間序**（開頭是 06-19、06-18，之後才從 04-22 起排），格式換過四代；找段落請用 `rg -n '^## '`。
+> - 反覆出現的 next-time rules 已升級到 PRINCIPLES「跨主題工作原則（2026-10-16 從 REFLECTIONS 升級）」；網站哲學與小實驗整理在 [`docs/LESSONS.md`](../../docs/LESSONS.md) §6、§7。
+> - **已被推翻、勿再照做**的舊反思：「兩個 sidebar 都要改」（04-26 iot_wra 段；已由共用面板取代，見 PRINCIPLES「圖層面板只用共用元件」）；pnpm worktree＋`npm install --package-lock-only`（07-03 段；現行 npm 唯一）；「SessionStart hook inline STATUS／BACKLOG／PRINCIPLES」（06-19 能源段；現行只給短路由）；squash merge／base master（多段；現行 merge commit、base develop）；Claude review workflow 改短 prompt（06-13/14 段；已改原生 Codex review）；EM-16「Three.js 圖層不做」（08-06~09 段已自行翻案）；raster-color-mix 推導（07-29/31 段；以像素取樣為準）。
+
 ---
 
 ## 2026-06-19 Energy v2 Phase A + B autonomous run
@@ -364,7 +369,7 @@
 
 - **Source data quirks 一條一條打**：weekday_pattern 4 種格式 / 跨日 24:11 /
   departure 空字串 / 同 stop 重複 / 時間倒退 / 班次切換 / dwell=0 共 7 種，
-  每踩到一個就量化 + 寫進 docs/research/waste-schedule-data-quirks.md。
+  每踩到一個就量化 + 寫進 docs/features/waste-collection/research/schedule-data-quirks.md。
   下次 22 城擴展前直接跑 sanity SQL 檢查。
 - **picking + debug tooltip 救了視覺打磨**：用戶看到「閃現」我猜不到原因，
   加 click → 顯示 route_id / stop_seq / arrival / departure / gap，
@@ -624,7 +629,7 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 
 - **「先規劃 / 再 phase 切 / 再動手」分三段**：用戶問「規劃衛星圖層」時，沒
   急著寫 code，先進 plan mode 寫 `/Users/migu/.claude/plans/icon-curried-locket.md`
-  + 提案文件 `docs/proposal/satellite-console.md`。提案完整後再動手，整個衛星
+  + 提案文件 `docs/features/satellite-console-restyle/proposal.md`。提案完整後再動手，整個衛星
   10 commit 一氣呵成、無重做。
 - **用戶要求「先診斷不要修」**：閃爍 bug 用戶明示「先確認原因，先不要急著改」，
   迫使我把 3 個嫌疑點全列出（殭屍 closure / effect 重綁 / listener 洩漏）
@@ -1297,7 +1302,7 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 ### 下次要改的
 
 1. **自己寫的結論會過期；翻案要靠逐檔實測，不是重讀文件。**
-   `docs/proposal/embed-dynamic-layers.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
+   `docs/features/embeddable-map/dynamic-layers-plan.md` §6-1 白紙黑字寫「Three.js 圖層不做」，
    而正確做法是把那份結論當**假設**重驗一次：實測後發現三顆引擎（171/314/741 行）
    全是純 TS 零渲染依賴、渲染層對 mapbox 的**執行期**綁定只有 `coordinates.ts` 一支
    （`customLayer.ts` 是 type-only import）。
@@ -2083,4 +2088,29 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `STATUS.md`：加一段衛星情報改版現況（保留平行工作線內容）。
 - `BACKLOG.md`：SAT-Z3 已隨 #533 合入（本次不再改）。
+
+## 2026-10-06～15 R6 Three.js 圖層平面模式（段 1–3）
+
+### What worked
+
+- 沿用「盤點 → 選擇頁 → 提案 → 分段 PR＋前後對照頁」；選擇題過多時只問核心 2 題，其餘照建議、對照頁再調，使用者反應良好。
+- 使用者回饋「箭頭沒對到軌道」先量測（列車與最近軌道距離 <0.4px）再找根因：真正原因是 `RailTracksHost` 換底圖不重建，不是座標問題。
+- 疊加分支（s1→s2→s3）衝突由下往上逐段解，每段 tsc＋全套測試後再推。
+
+### Friction / limits
+
+- 合併 develop 時重跑 `build-layer-status.mjs` 會依本機倉庫目錄把已入倉的層退回 `dataset_not_in_warehouse`；改為採 develop 版、只補回本分支自己改的列。
+- develop 新增 CI「Design layer inventory up to date」，連 evidence 行號位移都會擋；疊加分支要由最底層開始重產並往上合。
+- zsh 迴圈 `for pair in "a b c"; set -- $pair` 不會拆字，`cd` 失敗後指令在錯的 worktree 執行（幸好沒造成改動）；多參數迴圈改用 `bash -c`。
+- 誤用 `echo >> .git` 想忽略暫時檔，worktree 的 `.git` 是指標檔，整個 worktree 立刻失效；用 `sed` 刪掉多出的行即恢復。要忽略暫時檔請寫 `$(git rev-parse --git-path info/exclude)`。
+- 另一個 session 在 10/15 發布 v2.8.0 時把 R6 一起帶上正式站，本 session 的記憶仍寫「未發布」；收尾時以正式站 main-*.js 版號為準更正。
+
+### 下次
+
+- 收尾前一律讀 origin/master 與正式站版號再寫上線狀態，不沿用對話裡的舊結論。
+
+### Memory output
+
+- `BACKLOG.md`：新增 R6-V（正式站目視）；R6-4 段 4 已於 #578 登記。
+- `STATUS.md`：最上方加 R6 現況段（保留其他段）。
 

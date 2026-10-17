@@ -4,7 +4,7 @@
 
 ## Release / verifying
 
-- [ ] **STD-0 · `verifying`**：確認 `streetTreesTaipeiDiff` 的 PR、merge 與 production PMTiles asset。
+- [x] **STD-0 · `verifying`**：確認 `streetTreesTaipeiDiff` 的 PR、merge 與 production PMTiles asset。 — 2026-10-16 盤點關閉：PR #65／#67（v1.8.0）
   - Outcome：台北行道樹 diff 在正式環境可載入，不把 changelog 的「PR pending」誤當完成 release。
   - Next action：核對 PR/CI、S3/HTTP Range 與 browser status 三色、renumber、filter；以無 404 與 popup/legend 可用為 acceptance。
 

@@ -4,6 +4,8 @@
 `gisClickRegistry.ts` 與各自的契約測試仍各自管理實作細節；本文件定義它們共同
 必須滿足的使用者體驗，不以「目前已接了什麼」反推規則。
 
+> 分工（2026-10-16）：開發規則正本是 [`development-rules.md` §4a 四鐵則](./development-rules.md#4a-圖層-ux-標配四大鐵則)，該節有一張表對齊本文件五項能力與四鐵則、並註明哪些有測試守門；視覺驗收步驟在 [`design-system/map-layers.md`](./design-system/map-layers.md) §1.3。本文件的政策由 `src/data/__tests__/layerUxPolicy.test.ts` 實作。
+
 ## 基本政策
 
 | 能力 | 預設要求 | 不適用的唯一情況 |
@@ -16,7 +18,7 @@
 
 ## 控件語言
 
-- UI 一律使用繁中：`不透明度`、`點位大小`、`類別`、`全選`、`全關`。
+- 控件文字跟著目前介面語系（2026-10-12 起支援 zh-TW／en／ja，見 [`design-system/spec.md` §6.1、§6.6](./design-system/spec.md#61-標籤用目前語系)）；中文介面用繁中：`不透明度`、`點位大小`、`類別`、`全選`、`全關`。（原寫「UI 一律使用繁中」，多語系上線後改寫。）
 - 內部參數 key 維持既有 English camelCase，例如 `fooOpacity`、`fooScale`。
 - 分類篩選使用同一個多選面板：預設全選、逐類 checkbox、全選與全關。
 - 公車保留既有群組預設；其他採多選的分類 layer 預設全選。
@@ -34,7 +36,9 @@
 
 `Modal → FeatureInfo popup/選取狀態 → flight follow → capture mode`。
 
-## 目前基線（2026-08-29）
+## 目前基線（2026-08-29 快照）
+
+> ⚠️ 過時（2026-10-16）：下列數字是 2026-08-29 的快照，已漂移（例：`popup: null` 由 32 增為約 49）。現值以測試檔內的基線清單（`layerUxPolicy.test.ts` 的 `*_BACKLOG`、`layerConsistency.test.ts` 的 `NO_*_LEDGER`）與 `docs/design-system/layer-style-inventory.json` 為準；本段只保留當時的決策脈絡。
 
 - 初始 21 個 opacity 缺口已全數補齊：Mapbox layer 統一以 `opacityParam` 乘上
   原本 paint alpha；自訂 renderer（即時運具、垃圾車、車站／港口光柱）也各自保留

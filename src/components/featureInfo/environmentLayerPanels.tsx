@@ -6,6 +6,7 @@ import type { PanelProps } from "./registry";
 import { PopupDetails, PopupScroll, Row, SourceFooter, Title, formatTaiwanTime } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import {
   DRINKING_WATER_ZONE_TYPES, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR,
   SEWAGE_GEOCODE_QUALITY_LABELS, SEWAGE_UNCERTAIN_QUALITIES, WATER_QUALITY_STATION_TYPE_LABELS, WATER_QUALITY_STATION_TYPES,
@@ -49,8 +50,8 @@ function measured(i18n: L, value: unknown, censored: unknown, unit: string): str
   return `${censored === "<" ? "<" : ""}${fmt(i18n, parsed)} ${unit}`;
 }
 
-function place(...parts: unknown[]): string {
-  return parts.map((part) => text(part)).filter(Boolean).join(" ");
+function place(county: unknown, township: unknown, i18n: L): string {
+  return [placeName(text(county), i18n), placeTown(text(county), text(township), i18n)].filter(Boolean).join(" ");
 }
 
 function licenseText(i18n: L): string {
@@ -78,7 +79,7 @@ export function RiverRpiStationsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.mean12m")} value={mean == null ? t("popup.environmentLayer.noSampleNotClean") : t("popup.environmentLayer.meanWithSamples", { count: samples, mean: fmt(i18n, mean) })} />
     <Row field="river" value={text(props.river)} />
     <Row field="basin" value={text(props.basin)} />
-    <Row field="countyTownship" value={place(props.county, props.township)} />
+    <Row field="countyTownship" value={place(props.county, props.township, i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.gradeRule")} value={t("popup.environmentLayer.gradeRuleText")} />
       {anyCensored && <Row label={t("popup.environmentLayer.censoredLabel")} value={t("popup.environmentLayer.censoredText")} />}
@@ -105,7 +106,7 @@ export function WaterQualityStationsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.managingOrg")} value={text(props.agency)} />
     <Row field="river" value={text(props.river)} />
     <Row label={t("popup.environmentLayer.basinZone")} value={text(props.basin)} />
-    <Row field="countyTownship" value={place(props.county, props.township)} />
+    <Row field="countyTownship" value={place(props.county, props.township, i18n)} />
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcWaterStation", { agency: text(props.agency, t("popup.environmentLayer.agencyDefault")) }), license: licenseText(i18n), fetched_at: day(props.retrieved_at) }} />
   </>;
 }
@@ -119,7 +120,7 @@ export function SewageTreatmentPlantsPanel({ props }: PanelProps) {
   return <>
     <Title color={ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants}>{text(props.name, t("popup.environmentLayer.sewageDefault"))}</Title>
     {uncertain && <Row field="location" value={t("popup.environmentLayer.sewageUncertain")} color={RIVER_RPI_NO_DATA_COLOR} />}
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <Row field="address" value={text(props.address)} />
     <Row field="positionAccuracy" value={qualityLabel == null ? t("popup.common.notProvided") : enumLabel("envGeocodeQuality", quality, qualityLabel, i18n)} />
     <SourceFooter props={{ source_org: t("popup.environmentLayer.srcSewage"), source_url: "https://data.gov.tw/dataset/26496", license: licenseText(i18n), fetched_at: day(props.retrieved_at) }} />
@@ -136,7 +137,7 @@ export function DrinkingWaterProtectionZonesPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.delineation")} value={text(props.delineation)} />
     <Row label={t("popup.environmentLayer.waterBodyClass")} value={text(props.water_body_class)} />
     <Row label={t("popup.environmentLayer.intake")} value={text(props.intake_name)} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <Row field="basin" value={text(props.basin)} />
     <Row field="legalBasis" value={text(props.legal_basis)} />
     <Row label={t("popup.environmentLayer.reminder")} value={t("popup.environmentLayer.drinkingNote")} />
@@ -192,7 +193,7 @@ export function SeaWaterQualityStationsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.dissolvedOxygen")} value={flagged(i18n, props.do_ele_mgl, props.do_ele_mgl_flag, "mg/L")} title={t("popup.environmentLayer.doElectrodeNote")} />
     <Row label={t("popup.environmentLayer.suspendedSolids")} value={flagged(i18n, props.ss_mgl, props.ss_mgl_flag, "mg/L")} />
     <Row label={t("popup.environmentLayer.ammoniaN")} value={flagged(i18n, props.nh3_n_mgl, props.nh3_n_mgl_flag, "mg/L", 3)} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row field="classification" value={t("popup.environmentLayer.seaClassNote")} />
       <Row field="updated" value={t("popup.environmentLayer.seaUpdated")} />
@@ -298,7 +299,7 @@ export function Pm25ManualStationsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.validSamples")} value={nValid == null ? "" : t("popup.environmentLayer.validSamplesValue", { count: nValid, n: fmt(i18n, nValid, 0), window: text(props.mean_12m_window) })} />
     <Row label={t("popup.environmentLayer.latestRecord")} value={latest == null ? t("popup.environmentLayer.noValidValue") : withNote(i18n, `${fmt(i18n, latest, 1)} μg/m3`, day(props.latest_valid_date))} />
     <Row field="stationStatus" value={active === true ? t("popup.environmentLayer.sampling") : active === false ? t("popup.environmentLayer.stoppedHollow") : ""} color={active === false ? ENV_STALE_COLOR : undefined} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <Row field="location" value={text(props.location_note, t("popup.environmentLayer.pm25Coordinates"))} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.samplingLabel")} value={text(props.sampling_note, t("popup.environmentLayer.pm25Sampling"))} />
@@ -321,7 +322,7 @@ export function DioxinStationsPanel({ props }: PanelProps) {
     {stale && <Row field="status" value={t("popup.environmentLayer.dioxinStale")} color={ENV_STALE_COLOR} />}
     <Row label={t("popup.environmentLayer.sampleAddress")} value={text(props.sample_address)} />
     <Row field="sampleCount" value={timesSince(i18n, props.n_samples, props.first_sample_date)} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <Row field="location" value={text(props.location_note)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.samplingLabel")} value={text(props.sampling_note, t("popup.environmentLayer.dioxinSampling"))} />
@@ -364,7 +365,7 @@ export function IncineratorEmissionsPanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.dioxinMax")} value={max == null ? t("popup.environmentLayer.noValidTest") : `${fmt(i18n, max, 3)} ng-TEQ/Nm3`} />
     {incineratorFurnaces(i18n, props).map((row) => <Row key={row.no} label={`　${row.label}`} value={row.value} />)}
     {unusual != null && <Row label={t("popup.environmentLayer.unusualReport")} value={unusual ? t("popup.environmentLayer.reportedThatMonth") : t("popup.environmentLayer.noneThatMonth")} color={unusual ? ENV_ALERT_COLOR : undefined} />}
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row field="updated" value={t("popup.environmentLayer.incineratorUpdated")} />
       <Row label={t("popup.environmentLayer.compare")} value={t("popup.environmentLayer.compareText")} />
@@ -441,7 +442,7 @@ export function WaterEffluentLivePanel({ props }: PanelProps) {
     <Row field="status" value={status === "stale" ? t("popup.environmentLayer.effluentStale") : meta ? enumLabel("envEffluentStatus", meta.value, meta.label, i18n) : t("popup.common.unknown")} color={status === "stale" ? ENV_STALE_COLOR : meta?.color} />
     <Row field="observedAt" value={formatTaiwanTime(text(props.observed_at) || null) || t("popup.common.none")} mono />
     <Row field="measurement" value={t("popup.environmentLayer.effluentSummary", { items: fmt(i18n, number(props.item_count) ?? 0, 0), exceed: fmt(i18n, number(props.exceed_count) ?? 0, 0), abnormal: fmt(i18n, number(props.abnormal_count) ?? 0, 0) })} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <Row field="coordSource" value={coordLabel == null ? t("popup.common.notProvided") : enumLabel("envEffluentCoord", text(props.coord_source), coordLabel, i18n)} />
     {error && <Row field="measurementDetails" value={t("popup.environmentLayer.liveError")} color={ENV_ALERT_COLOR} />}
     {!error && items == null && <Row field="measurementDetails" value={t("popup.common.loading")} />}
@@ -489,7 +490,7 @@ export function CemsStackLivePanel({ props }: PanelProps) {
     <Row label={t("popup.environmentLayer.operatingStatus")} value={summary} />
     <Row field="measurement" value={t("popup.environmentLayer.cemsSummary", { items: fmt(i18n, number(props.item_count) ?? 0, 0), exceed: fmt(i18n, number(props.exceed_count) ?? 0, 0) })} />
     <Row label={t("popup.environmentLayer.monitorType")} value={text(props.sources).split("、").map((src) => (CEMS_SOURCE_LABELS[src] == null ? src : enumLabel("envCemsSource", src, CEMS_SOURCE_LABELS[src], i18n))).join(comma)} />
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     {error && <Row field="measurementDetails" value={t("popup.environmentLayer.liveError")} color={ENV_ALERT_COLOR} />}
     {!error && items == null && <Row field="measurementDetails" value={t("popup.common.loading")} />}
     {exceedItems.map((item, index) => cemsItemRow(i18n, item, index))}
@@ -516,7 +517,7 @@ export function CwaUvDailyPanel({ props }: PanelProps) {
     <Row field="level" value={level ? enumLabel("envUvLevel", level.value, level.label, i18n) : missing} color={level?.color} />
     <Row field="date" value={t("popup.environmentLayer.uvDate", { date: day(props.obs_date) })} />
     {stale && <Row field="status" value={t("popup.environmentLayer.uvStale")} color={ENV_STALE_COLOR} />}
-    <Row field="county" value={text(props.county)} />
+    <Row field="county" value={placeName(text(props.county), i18n)} />
     <PopupDetails summary={t("popup.common.notesAndLimits")}>
       <Row label={t("popup.environmentLayer.dataLabel")} value={t("popup.environmentLayer.uvText")} />
       <Row field="updated" value={t("popup.environmentLayer.uvUpdated")} />

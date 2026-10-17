@@ -2,6 +2,11 @@ import { BridgeError, type BridgeClient, type BridgeConnectionContext, type Stud
 import { BrowserChannel } from "./browserChannel";
 import { acquireConnectionLease, classifyConnectionFailure, isBackgroundDocument, nextPollDelay, type ConnectionLease } from "./connectionReliability";
 import type { QueryHandler } from "./QueryResponder";
+import { localeStore } from "../state/localeStore";
+import type { MessageKey } from "../i18n/keys";
+
+/** 狀態訊息在產生當下依目前語系翻（只顯示在面板，不回傳給 Agent） */
+const msg = (key: MessageKey) => localeStore.getSnapshot().t(key);
 
 /**
  * P3 (SPEC-prod-connect §2.5, §6.4): a signed-in tab owns one study automatically — no
@@ -36,18 +41,18 @@ export function sessionTabStorage(storage: Pick<Storage, "getItem" | "setItem" |
 
 export function connectionErrorMessage(error: unknown): string {
   const failure = classifyConnectionFailure(error);
-  if (failure.code === "AUTH_REQUIRED") return "登入驗證已失效，或此帳號尚未獲准使用研究連線；請重新登入。";
-  if (failure.code === "AUTH_UPSTREAM_FAILED") return "登入驗證服務暫時無法連線，將稍後重試。";
-  if (failure.code === "CONNECTION_LOCK_UNAVAILABLE") return "此瀏覽器不支援安全的分頁連線，請改用最新版 Chrome、Edge 或 Safari。";
-  if (failure.kind === "rate") return "連線請求過多，正在依服務要求放慢重試。";
-  if (failure.kind === "timeout") return "連線逾時，將以較慢頻率重試。";
-  if (failure.kind === "scene") return "地圖呈現尚未完成；連線仍會繼續同步。";
-  return "連線服務暫時無法更新，將以較慢頻率重試。";
+  if (failure.code === "AUTH_REQUIRED") return msg("research.session.authRequired");
+  if (failure.code === "AUTH_UPSTREAM_FAILED") return msg("research.session.authUpstream");
+  if (failure.code === "CONNECTION_LOCK_UNAVAILABLE") return msg("research.session.lockUnavailable");
+  if (failure.kind === "rate") return msg("research.session.rateLimited");
+  if (failure.kind === "timeout") return msg("research.session.timeout");
+  if (failure.kind === "scene") return msg("research.session.sceneNotReady");
+  return msg("research.session.serviceUnavailable");
 }
 
-const WAITING = "等待 Agent 連線：在 Claude Code 使用地圖工具時，會自動接上這個分頁。";
-const CONNECTED = "Agent 已連線，可以開始探索圖層。";
-const PAUSED = "操作已暫停；Agent 仍綁定這個分頁。";
+const WAITING = () => msg("research.session.waiting");
+const CONNECTED = () => msg("research.session.connected");
+const PAUSED = () => msg("research.session.paused");
 /** Study gone on the gateway (revoked elsewhere, cleaned up): rebuild instead of stopping. */
 const STUDY_GONE = new Set(["STUDY_DENIED", "SESSION_REVOKED", "SESSION_EXPIRED", "NOT_FOUND"]);
 const MAX_REBUILDS = 3;
@@ -71,7 +76,7 @@ export class AgentTabSession {
   private lease: ConnectionLease | null = null;
   private channel: BrowserChannel | null = null;
   private study: { studyId: string; tabId: string } | null = null;
-  private view: AgentTabView = { status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: "正在準備這個分頁…" };
+  private view: AgentTabView = { status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: msg("research.session.preparing") };
   private failures = 0;
   private rebuilds = 0;
   private cancelRetry: (() => void) | null = null;
@@ -95,8 +100,8 @@ export class AgentTabSession {
       const next = await this.client.pause(study.studyId, study.tabId, !this.view.paused);
       if (this.stopped || this.study !== study) return;
       this.options.onState(next);
-      this.emit({ ...this.view, paused: next.paused, message: next.paused ? "已暫停網站操作。" : "已恢復網站操作。" });
-    } catch { this.emit({ ...this.view, message: "暫停狀態未確認，請重試。" }); }
+      this.emit({ ...this.view, paused: next.paused, message: next.paused ? msg("research.session.pausedSite") : msg("research.session.resumedSite") });
+    } catch { this.emit({ ...this.view, message: msg("research.session.pauseUnconfirmed") }); }
   }
 
   /** Owner revokes the agent: the study is revoked (agent gets SESSION_REVOKED) and a fresh study takes its place. */
@@ -104,11 +109,11 @@ export class AgentTabSession {
     const study = this.study;
     if (!study) return false;
     try { await this.client.revoke(study.studyId); }
-    catch { this.emit({ ...this.view, message: "中斷尚未確認，請重試。" }); return false; }
+    catch { this.emit({ ...this.view, message: msg("research.session.disconnectUnconfirmed") }); return false; }
     if (this.stopped || this.study !== study) return true;
     this.detach(); this.options.storage.clear();
     this.rebuilds = 0;
-    this.emit({ status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: "已中斷 Agent，正在準備新的連線…" });
+    this.emit({ status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: msg("research.session.reconnecting") });
     void this.open();
     return true;
   }
@@ -195,7 +200,7 @@ export class AgentTabSession {
     const { client } = this.options;
     this.study = study;
     const tabLabel = tabLabelOf(study.tabId);
-    this.emit({ status: "waiting", tabLabel, paused: false, deviceLabel: null, message: WAITING });
+    this.emit({ status: "waiting", tabLabel, paused: false, deviceLabel: null, message: WAITING() });
     this.options.onConnection({ client, studyId: study.studyId, tabId: study.tabId });
     const channel = new BrowserChannel({
       client, studyId: study.studyId, tabId: study.tabId, queryHandler: this.options.queryHandler ?? null,
@@ -203,10 +208,10 @@ export class AgentTabSession {
         if (this.channel !== channel) return;
         this.rebuilds = 0;
         const connected = snapshot.connected;
-        this.emit({ status: connected ? "connected" : "waiting", tabLabel, paused: snapshot.paused, deviceLabel: connected ? agent.deviceLabel : null, message: snapshot.paused ? PAUSED : snapshot.view.phase === "error" ? "地圖呈現尚未完成；連線仍會繼續同步。" : connected ? CONNECTED : WAITING });
+        this.emit({ status: connected ? "connected" : "waiting", tabLabel, paused: snapshot.paused, deviceLabel: connected ? agent.deviceLabel : null, message: snapshot.paused ? PAUSED() : snapshot.view.phase === "error" ? msg("research.session.sceneNotReady") : connected ? CONNECTED() : WAITING() });
         this.options.onState(snapshot);
       },
-      onRecovered: () => { if (this.channel === channel) this.emit({ ...this.view, message: this.view.status === "connected" ? CONNECTED : WAITING }); },
+      onRecovered: () => { if (this.channel === channel) this.emit({ ...this.view, message: this.view.status === "connected" ? CONNECTED() : WAITING() }); },
       onFailure: (error, _failures, terminal) => {
         if (this.channel !== channel) return;
         const failure = classifyConnectionFailure(error);

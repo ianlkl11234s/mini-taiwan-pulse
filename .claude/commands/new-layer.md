@@ -185,6 +185,11 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review
 
 - Skill：`layer-onboarding`（驗收 + UX + 跨 repo）— **本 command 結束後必跑**
 - Skill：`supabase-optimize`（若 RPC > 1s）
+- 新增 Supabase RPC／表時（`--source=supabase`）：權限照 `docs/supabase-optimization.md` §權限慣例——
+  給前端的 RPC `REVOKE EXECUTE … FROM PUBLIC; GRANT EXECUTE … TO anon, authenticated;`；
+  cron／內部函式 `REVOKE EXECUTE … FROM PUBLIC, anon, authenticated;`；前端讀的表／view 只 `GRANT SELECT … TO anon, authenticated;`；
+  `SECURITY DEFINER` 一律 `SET search_path`；時間範圍參數在函式內 clamp 上限。
+  原因：2026-10 起 public schema 的 default privileges 已收回，新物件不會自動開放給 anon，漏寫 GRANT 前端會 permission denied。
 - Skill：`three-3d-component`（若走 3D CustomLayer）
 - Rules：`CLAUDE.md §5 §5a §Git Workflow`、`docs/development-rules.md §4 §4a`
 - 工程紀錄：`docs/features/layer-manifest/`（manifest 為什麼長這樣、豁免 ledger 的由來）

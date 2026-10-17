@@ -3,6 +3,8 @@
 **建立日期**：2026-07-01
 **目的**：把過去每次新 layer 上線常漏的坑集中一處，作為 `layer-onboarding` skill 的補充。
 
+> 2026-10-16 更新：A2（public/ 目錄契約）與 B 段改成 AR-22 Phase 4 manifest-first 現況；`pnpm` 改 `npm`。規則正本見 `docs/development-rules.md` §4／§4a。
+
 ---
 
 ## A. 資料完整性類（Step 1 常漏）
@@ -13,11 +15,12 @@
 - **Fix**：回上游檢查產出腳本，補齊 `keep_attrs` 白名單，重跑並 S3 覆蓋
 - **預防**：Step 1 用 `tippecanoe-decode` 抽 tile 檢查屬性
 
-### A2. 扁平檔名契約斷了 → 404
+### A2. 已發布的資產 URL 被搬動 → 404
 - **Symptom**：nginx 或 Zeabur volume 找不到檔
-- **Root cause**：在 `public/` 底下開子資料夾（例如 `public/water/xxx.pmtiles`）
-- **Fix**：檔名一律 flat 放 `public/`（例如 `public/water_xxx.pmtiles`）
-- **預防**：CLAUDE.md 已規定「扁平檔名契約不要改路徑」
+- **Root cause**：整理目錄時搬動了已發布的 `public/<domain>/…` 路徑，或新子目錄沒在 nginx／deploy 腳本接線
+- **Fix**：靜態資產放 `public/<domain>/`；**URL 與 manifest `source` 是契約**，既有資產不可任意搬路徑；新子目錄三處同步接線（`scripts/deploy/upload-deploy-assets.sh`、`pull-deploy-assets.sh`、`nginx.conf`）
+- **預防**：CLAUDE.md §目錄規則；`src/map/__tests__/deployContract.test.ts` 會擋 nginx／pull 漏接
+- （2026-10-16 改寫：原文要求「一律扁平放 `public/`」，2026-04 起已改為分子目錄，見 CLAUDE.md）
 
 ### A3. 座標系統沒轉 → 點全掉海裡
 - **Symptom**：點位落在赤道附近 / 完全偏移
@@ -35,28 +38,29 @@
 
 ## B. UX 設定類（Step 3 / Step 4 常漏）
 
-### B1. layerCatalog.ts 漏 `LAYER_COLORS` key → TS2739
+### B1. 漏 manifest entry → TS2739／layerConsistency 紅
 - **Symptom**：`npx tsc -b` 報 `Property 'xxx' is missing in type ... but required in type '...'`
-- **Root cause**：新 layer 加了 `LayerVisibility` key 但沒補 `LAYER_COLORS`
-- **Fix**：`layerCatalog.ts` `LAYER_COLORS` 加對應 key
+- **Root cause**：新 layer 加了 `LayerVisibility` key 但沒寫 manifest entry
+- **Fix**：在 `src/data/layerManifest.ts` 加一筆（`LAYER_COLORS` 由 manifest 派生，**不手改** `layerCatalog.ts`）
 - **預防**：走 `/new-layer` command 自動產
 
 ### B2. LEGEND_REGISTRY 沒加 → `layerConsistency` test fail
-- **Symptom**：`pnpm test` 掛在 `layerConsistency`
+- **Symptom**：`npm test` 掛在 `layerConsistency`
 - **Root cause**：分色 ≥ 2 種但沒寫 legend
 - **Fix**：`LegendPanel.tsx` sub-component + `LEGEND_REGISTRY` 加行
 - **參考**：四鐵則 #2
 
 ### B3. Popup 沒接 → 點得到但沒反應
 - **Symptom**：點 feature 沒 popup
-- **Root cause**：`useMapInteraction.ts` 沒 register + `featureInfo/registry.tsx` 沒對應 renderer
-- **Fix**：兩處各加行
+- **Root cause**：`src/map/gisClickRegistry.ts` 的 `GIS_LAYERS` 沒加條目（原在 `useMapInteraction.ts`）+ `featureInfo/registry.tsx` 沒對應 renderer
+- **Fix**：兩處各加行，manifest 的 `popup` 填 layerType
+- **注意**：`GIS_LAYERS` 漏加條目**沒有測試會擋**，要實際點一次
 - **參考**：四鐵則 #3
 
 ### B4. Select options ≥ 4 用 button row → sidebar 爆版
 - **Symptom**：sidebar 窄欄橫向按鈕擠成一坨
-- **Root cause**：`ctrl.options.length > 3` 沒切成原生 `<select>` dropdown
-- **Fix**：改用 dropdown
+- **Root cause**：在面板另畫了一份控制項，沒走共用 `sidebar/LayerParamControls.tsx`（閾值 `ctrl.options.length > 3` 只寫在那裡）
+- **Fix**：控件一律由 `layerParamsSpec.ts` 宣告、共用元件渲染（`layerConsistency` 鐵則 4 會擋另畫）
 - **參考**：四鐵則 #4
 
 ### B5. 點層太密沒 cluster / 沒抽稀 → 低 zoom 爆量
@@ -67,8 +71,8 @@
 
 ### B6. 透明度 slider 忘記加 → UX 不一致
 - **Symptom**：其他 layer 都有，新 layer 沒
-- **Root cause**：`useTransportParams.ts` 沒補 opacity control
-- **Fix**：補上
+- **Root cause**：`layerParamsSpec.ts` 該 key 沒放 `opacitySlider(...)`（原寫在已退役的 `useTransportParams.ts`）
+- **Fix**：補上；`layerUxPolicy.test.ts` 會擋
 - **參考**：四鐵則 #1
 
 ---
@@ -79,7 +83,7 @@
 - **Symptom**：時間軸播放時整站掉幀
 - **Root cause**：hook 用 React state 塞 currentTime
 - **Fix**：改走 `timeStore.subscribeThrottled(ms, cb)` 或 `getTime()` 同步讀
-- **參考**：CLAUDE.md §6 + `feedback_dynamic_layer_principle.md`
+- **參考**：CLAUDE.md §6 + `docs/development-rules.md` §8（原引用的 `feedback_dynamic_layer_principle.md` 已歸檔進全域 memory `_archive/`）
 
 ### C2. 沒 loadingRegistry → 切日時黑屏無提示
 - **Symptom**：切 timeline 日期時畫面卡住無反饋

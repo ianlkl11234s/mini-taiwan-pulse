@@ -7,6 +7,7 @@ import { FOSSIL_PAINT_COLORS } from "./layerPaintColors";
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
+import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { fireStationColorMatch } from "../data/fireTypes";
 import { withPointSpec } from "./pointSpec";
@@ -1161,6 +1162,63 @@ function envPointOverlay(
       },
     }],
   };
+}
+
+// ── JMA／環境省 時間軸點位（P4）共用：季節類標籤（已觀測「10/3 +2」；未觀測「(10/3)」＝平年日）──
+const JMA_SEASONAL_LABEL_MINZOOM = 6;
+function jmaSeasonalLabelLayer(opacityParam: string, opacityDefault: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayLayerSpec {
+  return {
+    suffix: "label", type: "symbol", minzoom: JMA_SEASONAL_LABEL_MINZOOM,
+    layout: {
+      "text-field": ["get", "label"],
+      ...poiLabelLayout(),
+      "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+      "text-variable-anchor": ["top", "bottom", "left", "right"],
+      "text-radial-offset": .8,
+      "text-optional": true,
+    },
+    ...(filter ? { filter } : {}),
+    paint: (dark, p) => ({
+      "text-color": dark ? "#f8fafc" : "#0f172a",
+      ...labelHaloPaint(dark),
+      "text-opacity": p?.[opacityParam] ?? opacityDefault,
+    }),
+  };
+}
+
+/** 物候前線：已觀測＝與平年差發散色實心；未觀測＝圖層色中空（as-of 已過平年日 → 描邊加粗）。 */
+function jmaPhenologyOverlay(key: JmaPhenologyLayerKey, sourceId: string): OverlayConfig {
+  const idxParam = `${key}PhenomenonIdx`;
+  const filter = (p?: Record<string, number>): unknown[] => ["==", ["get", "phenomenon_code"], jmaPhenologyCode(key, p?.[idxParam])];
+  const observed: unknown[] = ["==", ["get", "state"], "observed"];
+  const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+  const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
+  return {
+    id: key,
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId,
+    dynamicData: true,
+    attribution: JMA_ATTRIBUTION,
+    rebuildOnParamChange: ["circle", "label"],
+    rebuildOnParamKeys: [idxParam],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+      filter,
+      paint: (isDark, p) => {
+        const op = p?.[`${key}Opacity`] ?? 0.9;
+        const s = p?.[`${key}Scale`] ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 3.5 * s, 8, 6 * s, 12, 9 * s] as unknown as number,
+          "circle-color": jmaDiffColorExpr(JMA_POINT_LAYER_COLORS[key]) as unknown as string,
+          "circle-opacity": ["case", observed, op, 0] as unknown as number,
+          // withPointSpec 會把 case 的 fallback 換成標準描邊 → 資料編碼一律寫在條件分支（未觀測／已過平年），fallback 給已觀測
+          "circle-stroke-color": ["case", notObserved, JMA_POINT_LAYER_COLORS[key], mapSeamColor(isDark)] as unknown as string,
+          "circle-stroke-width": ["case", ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 0.8] as unknown as number,
+          "circle-stroke-opacity": op,
+        };
+      },
+    }, jmaSeasonalLabelLayer(`${key}Opacity`, 0.9, filter)],
+  } satisfies OverlayConfig;
 }
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
@@ -9863,6 +9921,95 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         },
       }],
     } satisfies OverlayConfig,
+    // 日本落雷（LIDEN）：沿用台灣氣象署源樣式（無電流強度 → 半徑只看 zoom），對地／雲放電分色。
+    {
+      id: "jmaLightning",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-lightning",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      rebuildOnParamChange: ["jmaLightningOpacity"],
+      layers: [
+        {
+          suffix: "halo", type: "circle",
+          paint: (_isDark, params) => {
+            const o = params?.jmaLightningOpacity ?? 0.85;
+            const scale = params?.jmaLightningScale ?? 1;
+            return {
+              "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4 * scale, 9, 7 * scale, 12, 12 * scale],
+              "circle-color": ["match", ["get", "strike_type"], 0, "#a78bfa", 1, "#4ade80", "#9ca3af"],
+              "circle-blur": 0.85,
+              "circle-opacity": ["*", o * 0.45, ["coalesce", ["get", "alpha"], 1]],
+            };
+          },
+        },
+        {
+          suffix: "core", type: "circle",
+          paint: (_isDark, params) => {
+            const o = params?.jmaLightningOpacity ?? 0.85;
+            const scale = params?.jmaLightningScale ?? 1;
+            return {
+              "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale],
+              "circle-color": ["match", ["get", "strike_type"], 0, "#a78bfa", 1, "#4ade80", "#9ca3af"],
+              "circle-opacity": ["*", o, ["coalesce", ["get", "alpha"], 1]],
+            };
+          },
+        },
+      ],
+    } satisfies OverlayConfig,
+    // 暑さ指数 WBGT（環境省）：4 段步階色；值 NULL → 中空。出典環境省（非 PDL1.0）。
+    {
+      id: "jmaWbgt",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-wbgt",
+      dynamicData: true,
+      attribution: ENV_WBGT_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 22,
+        paint: (isDark, p) => {
+          const op = p?.jmaWbgtOpacity ?? 0.9;
+          const s = p?.jmaWbgtScale ?? 1;
+          const hollow = jmaIsNullExpr("wbgt");
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 2.5 * s, 8, 4.5 * s, 12, 7 * s] as unknown as number,
+            "circle-color": envWbgtColorExpr() as unknown as string,
+            "circle-opacity": ["case", hollow, 0, op] as unknown as number,
+            "circle-stroke-color": ["case", hollow, JMA_MISSING_COLOR, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 1.6, 0.6] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }],
+    } satisfies OverlayConfig,
+    // 山頂初冠雪：已觀測＝白點深描邊；未觀測＝灰中空（as-of 已過平年日 → 描邊加粗）。
+    {
+      id: "jmaSnowcap",
+      sourceUrl: "./geo/_empty.geojson",
+      sourceId: "jma-snowcap",
+      dynamicData: true,
+      attribution: JMA_ATTRIBUTION,
+      layers: [{
+        suffix: "circle", type: "circle", minzoom: 3, maxzoom: 22,
+        paint: (_isDark, p) => {
+          const op = p?.jmaSnowcapOpacity ?? 0.95;
+          const s = p?.jmaSnowcapScale ?? 1;
+          const observed: unknown[] = ["==", ["get", "state"], "observed"];
+          const notObserved: unknown[] = ["!=", ["get", "state"], "observed"];
+          const pastNormal: unknown[] = ["!=", ["get", "days_past_normal"], null];
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 4 * s, 8, 6.5 * s, 12, 9 * s] as unknown as number,
+            "circle-color": JMA_SNOWCAP_OBSERVED_COLOR,
+            "circle-opacity": ["case", observed, op, 0] as unknown as number,
+            // 條件分支才是資料編碼（withPointSpec 只換 fallback）：已觀測深描邊、未觀測灰圈、已過平年粗圈
+            "circle-stroke-color": ["case", observed, JMA_SNOWCAP_OBSERVED_STROKE, notObserved, JMA_POINT_HOLLOW_COLOR, JMA_POINT_HOLLOW_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", observed, 1.6, ["all", notObserved, pastNormal], 2.4, notObserved, 1.4, 1.4] as unknown as number,
+            "circle-stroke-opacity": op,
+          };
+        },
+      }, jmaSeasonalLabelLayer("jmaSnowcapOpacity", 0.95)],
+    } satisfies OverlayConfig,
+    jmaPhenologyOverlay("jmaAutumnLeaves", "jma-autumn-leaves"),
+    jmaPhenologyOverlay("jmaSakura", "jma-sakura"),
   ],
 
   // RPI 河段推估（全台 301 段）：與 riverRpiStations 同一組官方四級色；感潮段另一層虛線

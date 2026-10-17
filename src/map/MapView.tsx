@@ -34,6 +34,8 @@ import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data
 import { resolvedCjkFont } from "../styles/designTokens";
 import { AttributionHostControl, BasemapAttributionControl } from "./attribution/mapAttribution";
 import { AttributionBar } from "../components/AttributionBar";
+import { localeStore } from "../state/localeStore";
+import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -286,7 +288,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       localIdeographFontFamily: resolvedCjkFont(),
       // 版權列改自行加入：內建控制項只顯示底圖版權，圖層來源收進 AttributionBar（見 mapAttribution.ts）
       attributionControl: false,
+      // 底圖地名跟著介面語系（zh-Hant／en／ja）；之後切語系走 bindBasemapLanguage（只重抓 tile，不重載 style）
+      language: basemapLabelLanguage(localeStore.getSnapshot().locale),
     });
+    const unbindBasemapLanguage = bindBasemapLanguage(map, localeStore);
     // 順序有意義：host 先加、版權列後加 → 版權列在最右，host 浮在它左側同一行。
     // compact: false：窄螢幕也不收成 ⓘ，© Mapbox © OpenStreetMap／Improve this map 常駐可見。
     const attributionHost = new AttributionHostControl("pulse-attrib-host");
@@ -429,6 +434,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
       setAttribution(null);
+      unbindBasemapLanguage();
       detachStatistics();
       jpHeightLifecycle.dispose();
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;

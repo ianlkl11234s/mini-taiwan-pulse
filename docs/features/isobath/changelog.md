@@ -4,6 +4,11 @@
 
 格式：
 ```
+## 2026-10-16 — 盤點關閉
+
+- ISO-1 gebco_isobath.pmtiles 落地：PR #160（v1.15.0），正式站 `/base_map/gebco_isobath.pmtiles` 回 206。
+- ISO-2 上游 handoff：`taipei-gis-analytics/docs/handoff/gebco_isobath.md` 已存在（雙向欄位校對未逐項重驗）。
+
 ## YYYY-MM-DD — PR #NN <squash commit hash>
 - <what changed>
 - <why (optional)>

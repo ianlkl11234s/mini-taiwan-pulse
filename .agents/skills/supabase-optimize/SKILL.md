@@ -67,7 +67,7 @@ description: 為 Supabase RPC 產生 pre-aggregate pattern SQL 範本。當響�
    time psql "$SUPABASE_DB_URL" -c "SELECT count(*) FROM public.get_<new>_day(current_date);"
    psql "$SUPABASE_DB_URL" -c "SELECT * FROM cron.job_run_details WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'refresh-<new>') ORDER BY start_time DESC LIMIT 3;"
    ```
-6. 更新 `docs/supabase_rpc_audit.md`
+6. 更新 `docs/audit/supabase-rpc-audit-2026-04-09.md`
 
 ## 關鍵檢查點（產生 SQL 時必含）
 

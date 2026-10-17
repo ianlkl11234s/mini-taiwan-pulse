@@ -1,4 +1,5 @@
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { Row, formatTaiwanTime } from "./shared";
 import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { ROAD_CONGESTION_COLORS, ROAD_CONGESTION_LABELS } from "../../data/roadCongestionLoader";
@@ -189,7 +190,7 @@ function MoiRoadBody({ props, isHighway }: { props: Record<string, unknown>; isH
       {briTun && <Row label={tr("popup.road.bridgeTunnel")} value={briTun} />}
       {class1 && <Row label={tr("popup.road.routeClass")} value={ROADCLASS1_LABELS[class1] ? enumLabel("roadClass1", class1, ROADCLASS1_LABELS[class1], i18n) : class1} />}
       {num1 && <Row label={tr("popup.road.concurrentNo")} value={num1} />}
-      {county && <Row field="county" value={county} />}
+      {county && <Row field="county" value={placeName(county, i18n)} />}
       {surveyed && <Row label={tr("popup.road.surveyMonth")} value={surveyed} />}
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         {tr("popup.road.moiSource")}
@@ -226,7 +227,8 @@ function validFinishedDate(raw: unknown): string {
 }
 
 export function CyclingRoutePanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   // 空值在這層是 `""` 或字串 "NULL"（GeoJSON 保留 key），與 PMTiles 的「key 消失」不同
   const clean = (v: unknown) => {
     const s = String(v ?? "").trim();
@@ -250,7 +252,7 @@ export function CyclingRoutePanel({ props }: { props: Record<string, unknown> })
       <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, marginBottom: 6 }}>
         {routeName || tr("popup.road.cyclingRoute")}
       </div>
-      {(city || town) && <Row field="district" value={[city, town].filter(Boolean).join(" ")} />}
+      {(city || town) && <Row field="district" value={[placeName(city, i18n), placeTown(city, town, i18n)].filter(Boolean).join(" ")} />}
       {(from || to) && <Row label={tr("popup.road.fromTo")} value={`${from || "—"} → ${to || "—"}`} />}
       {lengthLabel && <Row field="length" value={lengthLabel} />}
       {direction && <Row label={tr("popup.road.travelDirection")} value={direction} />}

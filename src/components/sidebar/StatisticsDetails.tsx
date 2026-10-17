@@ -24,6 +24,7 @@ import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelectio
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
 import type { MessageKey } from '../../i18n/keys';
 import { statisticsFrequency, statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
+import { statisticsLicense, statisticsPublisher } from '../../i18n/agencyText';
 
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
 
@@ -145,14 +146,14 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {social?.disclosure && <span>{humanizeStatisticsText(social.disclosure)}</span>}
         {social && <span>{t('statistics.details.refBoundary', { boundary: boundaryVersionLabel(social.boundary_version, i18n), semantics: humanizeStatisticsText(social.boundary_semantics) ?? t('statistics.details.refBoundaryDefault') })}</span>}
         {labor && <span>{t('statistics.details.displayBoundary', { boundary: boundaryVersionLabel(labor.boundary_version, i18n), semantics: humanizeStatisticsText(labor.boundary_semantics) ?? '' })}</span>}
-        {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: environment.publisher, boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}
+        {environment && <span>{t('statistics.details.sourceDatasetBoundary', { title: environment.source_title ?? t('statistics.notProvided'), publisher: statisticsPublisher(environment.publisher, i18n), boundary: boundaryVersionLabel(environment.boundary_version, i18n) })}</span>}
         {environment?.derived && <span>{t('statistics.details.derivedEnvironment')}</span>}
-        {addiction && <span>{t('statistics.details.sourceDatasetLicense', { title: addiction.source_title, publisher: addiction.publisher, license: addiction.license, boundary: boundaryVersionLabel(addiction.boundary_version, i18n) })}</span>}
+        {addiction && <span>{t('statistics.details.sourceDatasetLicense', { title: addiction.source_title, publisher: statisticsPublisher(addiction.publisher, i18n), license: statisticsLicense(addiction.license, i18n), boundary: boundaryVersionLabel(addiction.boundary_version, i18n) })}</span>}
         {addiction?.derived && <span>{t(addictionDerivedKey(addiction))}</span>}
-        {landslide && <span>{t('statistics.details.sourceDatasetLicense', { title: landslide.source_title, publisher: landslide.publisher, license: landslide.license, boundary: boundaryVersionLabel(landslide.boundary_version, i18n) })}</span>}
-        {atlas && <span>{t('statistics.details.sourceDatasetLicense', { title: atlas.source_title, publisher: atlas.publisher, license: atlas.license, boundary: boundaryVersionLabel(atlas.boundary_version, i18n) })}</span>}
+        {landslide && <span>{t('statistics.details.sourceDatasetLicense', { title: landslide.source_title, publisher: statisticsPublisher(landslide.publisher, i18n), license: statisticsLicense(landslide.license, i18n), boundary: boundaryVersionLabel(landslide.boundary_version, i18n) })}</span>}
+        {atlas && <span>{t('statistics.details.sourceDatasetLicense', { title: atlas.source_title, publisher: statisticsPublisher(atlas.publisher, i18n), license: statisticsLicense(atlas.license, i18n), boundary: boundaryVersionLabel(atlas.boundary_version, i18n) })}</span>}
         {atlas?.derived && <span>{t('statistics.details.derivedAddiction')}</span>}
-        {demographics && <span>{t('statistics.details.sourceDemographics', { provider: demographicsSource(demographics).provider, license: demographicsSource(demographics).license, boundary: boundaryVersionLabel(demographics.boundary_version, i18n), semantics: humanizeStatisticsText(demographics.boundary_semantics) ?? '' })}</span>}
+        {demographics && <span>{t('statistics.details.sourceDemographics', { provider: statisticsPublisher(demographicsSource(demographics).provider, i18n), license: statisticsLicense(demographicsSource(demographics).license, i18n), boundary: boundaryVersionLabel(demographics.boundary_version, i18n), semantics: humanizeStatisticsText(demographics.boundary_semantics) ?? '' })}</span>}
         {labor?.layer_key === 'statsLaborCountyEmploymentByIndustry' && <span>{t('statistics.details.laborIndustryNote')}</span>}
         {selectedLaborMetric?.formula && <span>{t('statistics.details.derivationFormula', { formula: selectedLaborMetric.formula })}</span>}
         <span>{t('statistics.details.levelUnit', { level: statisticsLevelLabel(recipe.level, i18n), unit: statisticsUnit(recipe.unit, i18n) })}</span>
@@ -173,13 +174,13 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
         {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
       </div>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
-        <span>{t('statistics.details.publisher', { value: String(source.publisher ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.publisher', { value: source.publisher == null ? t('statistics.notProvided') : statisticsPublisher(String(source.publisher), i18n) })}</span>
         <span>{t('statistics.details.publishedAt', { value: source.published_at ? String(source.published_at) : t('statistics.details.noPublishedAt') })}</span>
         <span>{t('statistics.details.retrievedAt', { value: String(source.retrieved_at ?? t('statistics.notProvided')) })}</span>
         <span>{t('statistics.details.period', { start: String(source.period_start ?? ''), end: String(source.period_end ?? '') })}</span>
         <span>{t('statistics.details.updateFrequency', { value: statisticsFrequency(recipe.frequency, i18n) })}</span>
         <span>{t('statistics.details.lastChecked', { value: freshness?.last_checked_at ?? t('statistics.details.notChecked'), note: freshness?.outcome === 'failed' ? t('statistics.details.checkFailed') : freshness?.outcome === 'unchanged' ? t('statistics.details.checkUnchanged') : '' })}</span>
-        <span>{t('statistics.details.license', { value: String(source.license ?? t('statistics.notProvided')) })}</span>
+        <span>{t('statistics.details.license', { value: source.license == null ? t('statistics.notProvided') : statisticsLicense(String(source.license), i18n) })}</span>
         <span>{t('statistics.details.processing', { value: humanizeStatisticsText(String((source.processing_summary as { processing_description?: string } | undefined)?.processing_description ?? source.method_version ?? t('statistics.notProvided'))) })}</span>
         <span>{t('statistics.details.rawSha', { value: String(source.raw_sha256 ?? t('statistics.notProvided')) })}</span>
         <span>{t('statistics.details.boundary', { value: boundaryVersionLabel(source.boundary_version, i18n) })}</span>
@@ -219,7 +220,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(layerKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
-    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
+    <span>{state.release ? (demographics ? demographicsPeriodLabel(baseKey, state.release, i18n) : undefined) ?? statisticsPeriodLabel(state.release, i18n) : tr('statistics.legend.notLoaded')} · {statisticsUnit(recipe.unit, i18n)}</span>
     {'freshness' in recipe && <span>{tr('statistics.legend.freshness', { value: String(recipe.freshness), frequency: statisticsFrequency(recipe.frequency, i18n) })}</span>}
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}

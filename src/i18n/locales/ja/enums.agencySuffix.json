@@ -1,0 +1,17 @@
+{
+  "enum.agencySuffix.政府": "政府",
+  "enum.agencySuffix.環保局": "環境保護局",
+  "enum.agencySuffix.環境保護局": "環境保護局",
+  "enum.agencySuffix.消防局": "消防局",
+  "enum.agencySuffix.交通局": "交通局",
+  "enum.agencySuffix.衛生局": "衛生局",
+  "enum.agencySuffix.教育局": "教育局",
+  "enum.agencySuffix.民政局": "民政局",
+  "enum.agencySuffix.城鄉發展局": "都市農村発展局",
+  "enum.agencySuffix.都市發展局": "都市発展局",
+  "enum.agencySuffix.產業發展局": "産業発展局",
+  "enum.agencySuffix.資訊局": "情報局",
+  "enum.agencySuffix.工務局": "工務局",
+  "enum.agencySuffix.建設局": "建設局",
+  "enum.agencySuffix.交通處": "交通処"
+}

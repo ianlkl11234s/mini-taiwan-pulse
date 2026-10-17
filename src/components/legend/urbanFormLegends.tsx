@@ -24,6 +24,7 @@ import { NON_URBAN_ZONING_CODES } from "../../data/nonUrbanZoningTypes";
 import { DenseHeatmapLegendRow, FireCatRows, UrbanDotRow } from "./legendShared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import type { MessageKey } from "../../i18n/keys";
 
 type LocaleI18n = ReturnType<typeof useLocale>;
@@ -150,7 +151,7 @@ export function ProtectedTreesNationalLegend({ colorModeIdx = 0 }: { colorModeId
   const t = useLegendTheme();
   const i18n = useLocale();
   const rows = colorModeIdx === 1
-    ? PROTECTED_TREE_CITIES.map((c) => ({ color: c.color, label: dataLabel(c.name, i18n) }))
+    ? PROTECTED_TREE_CITIES.map((c) => ({ color: c.color, label: placeName(c.name, i18n) }))
     : [
         ...PROTECTED_TREE_AGE_BANDS.map((b) => ({ color: b.color, label: dataLabel(b.label, i18n) })),
         { color: URBAN_MISSING_COLOR, label: i18n.t("legend.urban.ageUnknown") },

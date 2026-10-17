@@ -1,6 +1,6 @@
 # 部署 Runbook（明早逐步執行）
 
-> 每一步都標可逆方式。遇到 🟡 決策點先看 `05_MORNING_REPORT.md`。
+> 每一步都標可逆方式。遇到 🟡 決策點先看 `../archive/2026-10-16/launch/05_MORNING_REPORT.md`。
 > Zeabur 一律用 `npx zeabur@latest`。**不刪檔、不 rm、key 異動先確認。**
 
 ---

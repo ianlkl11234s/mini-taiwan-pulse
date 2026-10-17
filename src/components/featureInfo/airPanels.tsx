@@ -7,6 +7,7 @@ import { Row, numOrNull, formatNum } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 
 /** 允許負值的數值解析（shared 的 numOrNull 把負數當無效，溫度不適用） */
 function finiteOrNull(v: unknown): number | null {
@@ -47,7 +48,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
           AQI {enumLabel("airAqiStatus", String(props.status ?? ""), String(props.status ?? ""), i18n)}
         </span>
       </div>
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.air.mainPollutant")} value={String(props.pollutant ?? "")} />
       <Row label="PM2.5" value={formatNum(numOrNull(props.pm25), "µg/m³")} mono />
       <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />

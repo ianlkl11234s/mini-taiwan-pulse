@@ -4,6 +4,10 @@
 
 ---
 
+## 2026-10-16 — 盤點關閉
+
+- IMG-cwa-r2-cors 過期關閉：2026-10-16 實測 `data.itsmigu.com` GET／OPTIONS 皆回 `access-control-allow-origin: *`，「R2 尚未提供 CORS」前提不成立；剩餘工作（正式站目視、重做 #428、migration 344）併入核心 BACKLOG AR-11e。
+
 ## 2026-09-01 — aqi_imagery R2 雙寫 + backfill（AR-11f；data-collectors #70 / gis-platform #82 migration 387+388，已上線驗證）
 
 - **背景**：`aqi_imagery_frames`（base64 影像）無 R2 副本、無 retention。用戶 2026-09-01 拍板 A 案：先備份 R2 再清。

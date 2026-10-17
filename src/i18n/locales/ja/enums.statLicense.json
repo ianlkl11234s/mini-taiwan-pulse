@@ -1,0 +1,18 @@
+{
+  "enum.statLicense.政府網站資料開放宣告（未逐字確認；上線前補查）": "政府ウェブサイトのデータ公開宣言（原文未確認。公開前に再確認予定）",
+  "enum.statLicense.衍生計數；點位來源授權：unspecified": "派生した件数。地点データの出典ライセンス：未表示",
+  "enum.statLicense.衍生計數；點位來源授權：unspecified (CDC page has no license statement)": "派生した件数。地点データの出典ライセンス：未表示（疾管署のページにライセンス表示なし）",
+  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified": "派生した件数。地点データの出典ライセンス：OGDL-1.0-TW（data.gov.tw の3件）、衛福部 PDF は未表示",
+  "enum.statLicense.衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW": "派生した件数。地点データの出典ライセンス：疾管署ページは未表示、新北市 124119/125549 は OGDL-1.0-TW",
+  "enum.statLicense.衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）": "派生した件数。地点データの出典ライセンス：未表示（公式サイトの検索結果をエクスポート。政府公開情報、再利用前に要確認）",
+  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW": "派生した件数。地点データの出典ライセンス：OGDL-1.0-TW",
+  "enum.statLicense.unverified：RIS API license 欄位為 \"1\"，尚未以 data.gov.tw 資料集頁確認是否為政府資料開放授權條款；未確認前不得標示 OGDL": "未確認：RIS API の license 欄は「1」で、data.gov.tw のデータセットページで政府データオープンライセンスかどうか確認していないため、OGDL とは表示しない",
+  "enum.statLicense.政府資料開放授權條款-第1版（data.gov.tw 127528／62563 頁面標示，2026-10-04 實查）": "政府データオープンライセンス第1版（data.gov.tw の127528／62563ページに表示、2026-10-04確認）",
+  "enum.statLicense.政府資料開放授權條款-第1版（data.gov.tw）；data.cdc.gov.tw 標示 CC0": "政府データオープンライセンス第1版（data.gov.tw）。data.cdc.gov.tw は CC0 表示",
+  "enum.statLicense.政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）": "政府データオープンライセンス第1版（法務部のデータ公開宣言 https://www.moj.gov.tw/2807/2817/33911/ ）",
+  "enum.statLicense.公眾領域貢獻宣告（CC0）（data.cdc.gov.tw）": "パブリックドメイン提供宣言（CC0）（data.cdc.gov.tw）",
+  "enum.statLicense.政府資料開放授權條款（docs/data-catalog/demographics/village_comprehensive.md 記載；SEGIS 下載頁本次未重新核對）": "政府データオープンライセンス（docs/data-catalog/demographics/village_comprehensive.md の記載による。SEGIS ダウンロードページは今回再確認していない）",
+  "enum.statLicense.政府資料開放授權條款第1版（data.gov.tw 7438）": "政府データオープンライセンス第1版（data.gov.tw 7438）",
+  "enum.statLicense.授權條款待確認（RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認；不標示為政府資料開放授權條款）": "ライセンス要確認（RIS API の license 欄は data.gov.tw のデータセットページで未確認のため、政府データオープンライセンスとは表示しない）",
+  "enum.statLicense.ogdlDatasetPage": "政府データオープンライセンス第1版（data.gov.tw データセット {id} のページに表示）"
+}

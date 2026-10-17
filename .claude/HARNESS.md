@@ -7,17 +7,18 @@
 > - [`../CLAUDE.md`](../CLAUDE.md) = **規則層**（不變的開發規則）
 > - **本檔** = **這台機器上這個專案的 harness 全景 + 維運節奏**（含 hook / MCP / Codex 鏡像，FRAMEWORK.md 不涵蓋的部分）
 >
-> 最後校準：2026-07-03
+> 最後校準：2026-07-03（全文）；2026-10-16 只更新 L1 開場注入、L3 工具表與 hooks。§4 MCP、§5 體檢表仍是 2026-07-03 快照，MCP 現況（例如 pulse-research）以 `claude mcp list` 為準。
 
 ---
 
 ## 0. 一分鐘心智模型
 
-harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專用工具 → 收工用 `/wrap-up` 把學到的寫回記憶」的閉環，外掛 4 個 MCP server 補強。分 6 層：
+harness = 「每次開 session 給一句短路由、按需查記憶 → 開發中用一組 GIS 專用工具 → 收工用 `/wrap-up` 把學到的寫回記憶」的閉環，外掛 MCP server 補強（2026-07-03 時是 4 個，現況以 `claude mcp list` 為準）。分 6 層：
 
 ```
 ┌─ L0 規則層      CLAUDE.md（+ docs/development-rules.md…）── 不變規則，人維護
-├─ L1 開場注入    .claude/memory/load-session.sh (SessionStart hook) ── 每 session 自動
+├─ L1 開場注入    .claude/memory/load-session.sh (SessionStart hook) ── 每 session 自動，只給短路由
+│               .claude/hooks/manifest-guard.sh (PostToolUse Edit|Write，90s) ── 改 manifest 時跑守門測試
 ├─ L2 記憶層      .claude/memory/ README routing + 核心／選讀檔 + /wrap-up ── 跨 session 狀態，半自動
 ├─ L3 工具層      commands/ + agents/ + skills/ ── GIS 圖層生命週期
 ├─ L4 MCP 層      codebase-memory / dev-orchestrator / graphiti / pencil ── 全域註冊
@@ -34,10 +35,10 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 |---|---|
 | 觸發 | SessionStart（`.claude/settings.json`，Claude 端）+ `.codex/hooks.json`（Codex 端，同一支腳本） |
 | 腳本 | `.claude/memory/load-session.sh` |
-| 做什麼 | 用 `python3`（不依賴 jq）產 JSON：STATUS 取檔頭+最新段（≤8k 字元）、BACKLOG/PRINCIPLES 只給標題索引+行號、加 `docs/features/` 索引，塞進 `additionalContext` |
-| 設計重點 | 舊版全文 inline ≈25k tokens → 新版 ~6k 字元，**省 >90% context**，每段有上限防膨脹 |
+| 做什麼 | 用 `python3`（不依賴 jq）輸出**一句**路由字串進 `additionalContext`：依 AGENTS.md／CLAUDE.md 工作、有接手需求才查 `memory/README.md` 或 `docs/features`、不整包載入 STATUS／BACKLOG／PRINCIPLES、圖層接線用 layer-onboarding |
+| 設計重點 | 演進：全文 inline ≈25k tokens（2026-04）→ 標題索引 ~6k 字元（2026-07）→ 一句短路由（現行）。記憶改為按需查，不預載 |
 
-**怎麼驗證它還活著**：開新 session，看開場有沒有出現「Mini Taiwan Pulse — Session 記憶已載入」那段。沒出現 → 檢查 `settings.json` hook 設定或 `load-session.sh` 執行權限。
+**怎麼驗證它還活著**：開新 session，看開場的 SessionStart context 有沒有出現「Mini Taiwan Pulse：依 AGENTS.md／CLAUDE.md 做本次工作…」那句。沒出現 → 檢查 `settings.json` hook 設定或 `load-session.sh` 執行權限。
 
 **維護**：STATUS 內容由 `/wrap-up` 維護，腳本本身幾乎不用動。若 memory 檔改名/搬位置，要同步改腳本裡的路徑。
 
@@ -66,15 +67,17 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 
 | 類型 | 名稱 | 用途 |
 |---|---|---|
-| command | `/new-layer <name>` | 產新 layer 完整骨架（走強制順序 7 步）+ 觸發 layer-onboarding |
+| command | `/new-layer <name>` | 產新 layer 骨架（manifest 一筆＋spec 一筆＋實質邏輯檔）+ 觸發 layer-onboarding |
 | command | `/check-rpc <name>` | 對 RPC 跑 EXPLAIN，判斷要不要套 pre-aggregate |
 | command | `/handoff <slug>` | 產跨 repo commit 對照表 |
-| agent | `layer-creator` | `/new-layer` 背後的骨架產生器（含 LAYER_COLORS + tsc -b） |
+| agent | `layer-creator` | `/new-layer` 背後的骨架產生器（manifest／spec／邏輯檔 + tsc -b + vitest）；Codex 端鏡像在 `.codex/agents/layer-creator.toml` |
 | skill | `layer-onboarding` | layer 上線**驗收** SOP + UX baseline |
 | skill | `supabase-optimize` | 產 pre-aggregate pattern SQL 範本 |
 | skill | `three-3d-component` | Three.js×Mapbox 立體圖層接線手冊 |
 | skill | `accessibility-analysis` / `service-coverage` | 服務可達性分析（同一實作，兩個觸發口吻） |
 | skill | `wrap-up` | README routing＋selective reads，scope/evidence/release matrix 對帳，核准後 path-scoped atomic 寫回 |
+| skill | `weekly-audit` | 每週稽核（文件／儲存／Supabase／正式站探測，`scripts/audit/weekly/`） |
+| hook | `manifest-guard.sh` | PostToolUse：改到 manifest 相關檔時跑守門測試（90s 上限） |
 
 **維護**：新增/改 layer 一律先跑 `layer-onboarding` skill（P0 規則）。skill 若某次漏抓事，照 FRAMEWORK.md「Skill 自我優化」回頭改 SKILL.md。
 
