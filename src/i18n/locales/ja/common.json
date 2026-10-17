@@ -79,5 +79,6 @@
   "loading.failed": "読み込み失敗",
   "loading.inProgress": "読み込み中",
   "auth.signIn": "ログイン",
-  "auth.signInWithGoogle": "Google でログイン"
+  "auth.signInWithGoogle": "Google でログイン",
+  "embed.openInSite": "Mini Taiwan Pulse で開く"
 }

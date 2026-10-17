@@ -79,5 +79,6 @@
   "loading.failed": "Failed to load",
   "loading.inProgress": "Loading",
   "auth.signIn": "Sign in",
-  "auth.signInWithGoogle": "Sign in with Google"
+  "auth.signInWithGoogle": "Sign in with Google",
+  "embed.openInSite": "Open in Mini Taiwan Pulse"
 }
