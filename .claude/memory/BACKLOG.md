@@ -54,7 +54,8 @@
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
 | AG-5 | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
-| AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd`（`run.mts` runResetCommand）改成重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-7 | P3 | done | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | Done 2026-10-17。驗收條件已達成：MCP #56 重置後明確關掉殘留圖層，2026-10-16／10-17 eval 每題起始圖層都是「無」。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-12 | P2 | done | 上網查證關卡：何時上網、何時先問（pulse-conductor＋pulse-verify＋server 指示）。 | Done 2026-10-17。MCP #56–#59 上線；後續數字口徑 #60、醫療院所去重與排名不上網 #62、地震只用正式目錄 #63。現況看 `.gis-agent-system/roadmap/status/ai-mcp.md`。 | 見 `.gis-agent-system/roadmap/status/ai-mcp.md`。 |
 | AG-10 | P2 | blocked | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | owner decision：要不要做「面板偵測新版本並提示重新整理」（目前 src 沒有任何版本偵測，2026-10-05 查）。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
 | AG-2 | P2 | ready | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | 2026-10-05 倉庫已切到 20261005T051814Z（update_store.py 增量），但 wh_catalog 牧場標題仍是「肉品拍賣/批發市場（21 家）」。先查清楚 update_store 為何沒套用 analytics #134 的 manifest title 與 build_warehouse 修正，必要時對 livestock_ranch 全量重建，之後再刪 override。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
@@ -186,7 +187,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| SEO-5 | P1 | conditional | 讓 Google／Bing 開始收錄正式站。 | Trigger: #609 隨下一版發布到 master。Owner: 使用者（DNS TXT 驗證網域）＋ Claude。First action: Search Console 驗證網域、提交 sitemap、請求首頁建立索引；1–2 週後重搜。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
+| SEO-5 | P1 | verifying | 讓 Google／Bing 開始收錄正式站。 | 2026-10-17 已完成：#609 隨 v2.9.0 上線；Search Console 以「網域」資源驗證 `itsmigu.com`（Cloudflare 自動加 TXT，勿刪 `google-site-verification` 紀錄）、提交 sitemap（找到 3 個網址）、首頁已要求建立索引（Google 上次檢索為 2026-09-20 的空白首頁）。Next: 約 2026-10-31 查 `site:` 與 Search Console「網頁」報表；Bing 可從 Search Console 匯入（選做）。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
 | SEO-4 | P2 | waiting_external | 社群分享預覽圖。 | 需要一張 1200×630 站圖（`public/` 目前沒有適合的），到位後補 og:image 與 `twitter:card=summary_large_image`。 | 分享連結出現預覽圖。 |
 | SEO-6 | P2 | conditional | 讓爬蟲讀到實質內容（預渲染或靜態「關於／資料來源／主題導覽」頁）。 | Trigger: SEO-5 收錄兩週後的結果。Owner: 使用者決定投入。First action: 與 SEO-7（英日文實體頁）、AEO-3（FAQ）同一包規劃。 | 重點說明頁有實體 HTML 並被收錄。 |
 | PERF-1 | P2 | ready | 首屏 JS 由 gzip 2.11 MB 降到 1 MB 內（2026-10-16 本機 Lighthouse 行動版效能 0.26、LCP 15.9 s，機器負載偏高）。 | `statisticsText`（322 KB gz）、`JpMedicalStatus`（124 KB gz）改為使用時才載入；PERF-3 清查未使用 JS（Lighthouse 估可省 904 KiB）。 | 本機 Lighthouse 行動版 LCP 明顯下降，同設定跑 3 次取中位數。 |
