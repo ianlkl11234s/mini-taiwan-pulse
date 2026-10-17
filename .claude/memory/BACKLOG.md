@@ -48,6 +48,7 @@
 | OG-1 | P2 | waiting_external | Bound anon-key abuse cost. | Confirm and set Supabase Spend Cap; self-zone Cloudflare rate limits do not protect Supabase. | Dashboard setting and alert threshold are recorded. [Owner-gated backlog](../../docs/features/owner-gated-layers/backlog.md) |
 | G016 | P2 | waiting_external | Revoke the obsolete `weather_change` AWS credential. | Repo-side references appear gone (2026-10-05: no `weather_change` hit in data-collectors origin/main; local `.env` not inspected). An AWS administrator must deactivate the `gis-data-collectors` key ending `E7PK`. | Old credential fails through STS and retirement is recorded without exposing secret material. |
 | JP-1 | P2 | ready | Verify the Japan religion view hardening through the real PostgREST write path. | Migration 374 readback proves SELECT-only grants, `security_invoker=true` and anon reads; perform bounded anon/authenticated REST write attempts without modifying valid rows. | Reads remain 200 and INSERT/UPDATE/DELETE attempts are rejected by PostgREST; evidence records status/error without logging secrets. |
+| SEC-6 | P2 | deferred | 決定 data-collectors 服務的其他秘密要不要輪換（2026-10-17 資安稽核後續）。 | 2026-10-17 使用者決定先不處理（也未開額外存取紀錄）。已處理：外洩的 API key 已換、相關漏洞已修。脈絡、影響範圍、甲／乙／丙選項與代價只記在私有 repo（本 repo 公開，不寫細節）：gis-platform `docs/research/2026-10-17-security-audit.md` §回家要處理 1。重啟條件：發現異常存取或資料異動、或要做其他金鑰維護時順便做。 | 使用者選定選項並執行完畢，或明確結案。 |
 
 ## Cross-cutting platform work
 
