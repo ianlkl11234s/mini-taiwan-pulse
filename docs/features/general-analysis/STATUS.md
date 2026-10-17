@@ -1,6 +1,8 @@
-# Pulse Agent 分析：總進度（唯一的最新進度頁）
+# Pulse Agent 分析：2026-10-04 以前的進度頁（歷史）
 
-> **最後更新：2026-10-04。** 進度以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
+> ⚠️ 2026-10-17 起，Agent 分析能力（MCP 查證關卡、數字口徑、eval 迭代）的現況改看 `.gis-agent-system/roadmap/status/ai-mcp.md` 的「Agent 分析能力迭代」段；每輪分數與失敗分類看 mini-pulse-gis-mcp `eval/agent-regression/README.md`。本頁以下內容停在 2026-10-04，只留作歷史。
+
+> **最後更新：2026-10-04（已凍結）。** 2026-10-04 當時以本頁為準；其他計劃文件（PLAN-round3、PLAN-warehouse）保留當時的脈絡，不再追加進度。
 > 每次合併重要 PR 後，更新本頁的「能做什麼」「指標」「待辦」三節。
 
 ## 2026-10-04 現況（Agent × MCP）
