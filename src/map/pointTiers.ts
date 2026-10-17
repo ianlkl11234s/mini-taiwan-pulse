@@ -343,6 +343,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   taipeiEvacuate: "M", // 北市疏散門 Evacuate Gate (TP) · src/hooks/useTaipeiEvacuateLayer.ts
   taipeiPumb: "M", // 北市抽水站 Pump Station (TP) · src/hooks/useTaipeiPumbLayer.ts
   taipeiSewer: "M", // 北市下水道水位 Sewer (TP) · src/hooks/useTaipeiSewerLayer.ts
+  typhoonAgencyForecasts: "S", // 各國颱風預報 Agency Forecasts · src/hooks/useTyphoonAgencyForecastsLayer.ts
   typhoonTracks: "M", // 颱風軌跡 Typhoon Track · src/hooks/useTyphoonTracksLayer.ts
   vesselWatch: "M", // 特殊船舶 Vessel Watch · src/hooks/useVesselWatchLayer.ts
   wasteCleaningSquads: "L", // 清潔隊 Squads · src/hooks/useWasteCleaningSquadLayer.ts

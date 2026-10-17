@@ -9,7 +9,7 @@
 // 呼叫端現況長這樣：
 //   `transportParams.overlayParams.iotWraRiverScale ?? 1`
 //   `!!(transportParams.overlayParams.iotWraRiverShowMeasured ?? 1)`
-//   `(["all","jma","jtwc"][transportParams.overlayParams.typhoonSourceIdx ?? 0] ?? "all")`
+//   `(["all","jma","jtwc","cwa"][transportParams.overlayParams.typhoonSourceIdx ?? 0] ?? "all")`
 //
 // `overlayParams` 是**編碼後**的 `Record<string, number>`：toggle 編成 0/1、
 // select 編成選項索引、key 是 spec 的 `out` 而不是參數名。直接改讀 store 原始值

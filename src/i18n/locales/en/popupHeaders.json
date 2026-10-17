@@ -92,5 +92,6 @@
   "popupHeader.isobathBand": "Seafloor Depth Bands",
   "popupHeader.pollutionPenalty": "Pollution Penalty Cases",
   "popupHeader.chatHighlight": "Map Marker",
-  "popupHeader.analysisResult": "Analysis Result"
+  "popupHeader.analysisResult": "Analysis Result",
+  "popupHeader.typhoonAgencyForecast": "Agency Typhoon Forecasts"
 }

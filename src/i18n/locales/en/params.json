@@ -574,6 +574,7 @@
   "param.資料源": "Data source",
   "param.JMA 日本": "JMA (Japan)",
   "param.JTWC 美軍": "JTWC (US military)",
+  "param.CWA 氣象署": "CWA (Taiwan)",
   "param.即時水位": "Live water level",
   "param.預測水位 (12-19h)": "Forecast water level (12–19 h)",
   "param.累計流量": "Cumulative flow",

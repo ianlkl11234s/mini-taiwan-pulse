@@ -1,4 +1,8 @@
 // Legend sub-components (hazardLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
+import { useEffect, useState } from "react";
+import { timeStore } from "../../state/timeStore";
+import { activeAgencyVersions, fetchTyphoonAgencyForecasts, groupAgencyTracks, type AgencyForecastTrack } from "../../data/typhoonAgencyForecastsLoader";
+import { TYPHOON_AGENCIES, TYPHOON_AGENCY_COLORS, TYPHOON_AGENCY_LABELS, TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR } from "../../data/typhoonTypes";
 import { useLocale } from "../../state/localeStore";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { enumLabel } from "../../i18n/dataText";
@@ -478,7 +482,7 @@ export function TyphoonTrackLegend() {
   const i18n = useLocale();
   return (
     <div>
-      <LegendTitle zh={localizeLayerName("typhoonTracks", LAYER_MANIFEST.typhoonTracks.name, i18n).primary} en="JMA / JTWC" />
+      <LegendTitle zh={localizeLayerName("typhoonTracks", LAYER_MANIFEST.typhoonTracks.name, i18n).primary} en="JMA / JTWC / CWA" />
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <SwatchLine color="#a855f7" width={3} />
@@ -499,7 +503,48 @@ export function TyphoonTrackLegend() {
           <SwatchDot color={"transparent"} stroke="#fde047" strokeWidth={1.5} glow="#f0abfc" />
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{i18n.t("legend.hazard.typCurrent")}</span>
         </div>
+        <LegendRow swatch={<SwatchSquare color={TYPHOON_GALE_COLOR} opacity={0.45} stroke={TYPHOON_GALE_COLOR} />}>{i18n.t("legend.hazard.typGale")}</LegendRow>
+        <LegendRow swatch={<SwatchSquare color={TYPHOON_STORM_COLOR} opacity={0.6} stroke={TYPHOON_STORM_COLOR} />}>{i18n.t("legend.hazard.typStorm")}</LegendRow>
+        <LegendRow swatch={<SwatchLine color="#38bdf8" width={1.5} dash={[3, 3]} />}>{i18n.t("legend.hazard.typProb70")}</LegendRow>
       </div>
+      <LegendNote>{i18n.t("legend.hazard.typAllNote")}</LegendNote>
+    </div>
+  );
+}
+
+// ── 各國颱風預報（NCDR 五家）Legend：每家一色＋目前時間軸上顯示的那一版發佈時間 ──
+
+export function TyphoonAgencyForecastLegend() {
+  const i18n = useLocale();
+  const [tracks, setTracks] = useState<AgencyForecastTrack[] | null>(null);
+  const [nowTs, setNowTs] = useState(() => timeStore.getTime());
+  useEffect(() => {
+    let cancelled = false;
+    fetchTyphoonAgencyForecasts()
+      .then((rows) => { if (!cancelled) setTracks(groupAgencyTracks(rows)); })
+      .catch(() => { if (!cancelled) setTracks([]); });
+    const unsub = timeStore.subscribeThrottled(1000, (tm) => setNowTs(tm));
+    return () => { cancelled = true; unsub(); };
+  }, []);
+  const active = tracks ? activeAgencyVersions(tracks, nowTs) : [];
+  const issuedBy = new Map(active.map((tr) => [tr.agency, tr.issued_label]));
+  return (
+    <div>
+      <LegendTitle zh={localizeLayerName("typhoonAgencyForecasts", LAYER_MANIFEST.typhoonAgencyForecasts.name, i18n).primary} en="NCDR" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {TYPHOON_AGENCIES.map((a) => {
+          const label = issuedBy.get(a);
+          return (
+            <LegendRow key={a} swatch={<SwatchLine color={TYPHOON_AGENCY_COLORS[a]} width={2.5} />}>
+              {enumLabel("typhoonAgency", a, TYPHOON_AGENCY_LABELS[a], i18n)}
+              {" · "}
+              {label ? i18n.t("legend.hazard.typAgencyIssued", { label }) : i18n.t("legend.hazard.typAgencyNone")}
+            </LegendRow>
+          );
+        })}
+      </div>
+      {tracks !== null && active.length === 0 && <LegendNote>{i18n.t("legend.hazard.typAgencyEmpty")}</LegendNote>}
+      <LegendNote>{i18n.t("legend.hazard.typAgencyNote")}</LegendNote>
     </div>
   );
 }

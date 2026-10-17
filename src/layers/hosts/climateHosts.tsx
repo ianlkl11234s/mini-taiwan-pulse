@@ -4,6 +4,7 @@ import { GLOBAL_EVENT_CATEGORIES } from "../../data/globalEventsTypes";
 
 import { useEarthquakesGlobalLayer } from "../../hooks/useEarthquakesGlobalLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "../../hooks/useTyphoonTracksLayer";
+import { useTyphoonAgencyForecastsLayer } from "../../hooks/useTyphoonAgencyForecastsLayer";
 import { useWorldTrashDebrisLayer } from "../../hooks/useWorldTrashDebrisLayer";
 import { useGlobalEventsLayer } from "../../hooks/useGlobalEventsLayer";
 import { useJpReligionLayers } from "../../hooks/useJpReligionLayers";
@@ -38,7 +39,7 @@ export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 颱風路徑（JMA / JTWC 雙源，select 切換） */
+/** 颱風路徑（JMA / JTWC / CWA，select 切換；「全部」同 storm_key 只畫一家） */
 export const TyphoonTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useTyphoonTracksLayer");
   const p = useKeyOverlayParams("typhoonTracks");
@@ -46,7 +47,20 @@ export const TyphoonTracksHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.typhoonTracks,
     p.typhoonTracksOpacity ?? 0.9,
-    (["all", "jma", "jtwc"][p.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
+    (["all", "jma", "jtwc", "cwa"][p.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+/** 各國颱風預報（NCDR 五家路徑，跟時間軸取各家最新一版） */
+export const TyphoonAgencyForecastsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useTyphoonAgencyForecastsLayer");
+  const p = useKeyOverlayParams("typhoonAgencyForecasts");
+  useTyphoonAgencyForecastsLayer(
+    deps.mapRef,
+    deps.layerVisibility.typhoonAgencyForecasts,
+    p.typhoonAgencyForecastsOpacity ?? 0.9,
     deps.isDarkTheme,
   );
   return null;

@@ -92,5 +92,6 @@
   "popupHeader.isobathBand": "海底深度帯",
   "popupHeader.pollutionPenalty": "汚染違反の処分案件",
   "popupHeader.chatHighlight": "地図マーカー",
-  "popupHeader.analysisResult": "分析結果"
+  "popupHeader.analysisResult": "分析結果",
+  "popupHeader.typhoonAgencyForecast": "各国の台風予報"
 }

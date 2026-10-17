@@ -1195,5 +1195,6 @@
   "layer.landSubsidenceStations": "地盤沈下観測点",
   "layer.landSubsidenceCumulative": "累積沈下量等値線",
   "layer.landSubsidenceRate": "平均沈下速度等値線",
-  "layer.seawallZones": "一般海岸堤防区域"
+  "layer.seawallZones": "一般海岸堤防区域",
+  "layer.typhoonAgencyForecasts": "各国の台風予報"
 }

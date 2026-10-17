@@ -1,15 +1,32 @@
-// 颱風軌跡 loader（from public.typhoon_positions，migration 261）
+// 颱風軌跡 loader（from public.typhoon_positions，migration 261；476 加 CWA 與風圈欄）
 // time-point decomposed schema：一筆 row = 一個颱風在一個時刻的位置
 //   point_type='observed' → 過去軌跡實線
-//   point_type='forecast' → 未來預報虛線（取最新 advisory_number）
+//   point_type='forecast' → 未來預報虛線（每個 storm×source 只留最新一版，見 keepLatestForecast）
+// 來源：jma（気象庁）／jtwc（美軍）／cwa（交通部中央氣象署，476 起）
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedByKey, cachedOnce } from "../lib/loaderCache";
 import { padTaipeiDaily } from "../lib/taipeiDay";
 
+/** CWA 四象限風圈（km）；只有 CWA 分析點有。缺象限時只用 all */
+export interface WindRadiiQuadrants {
+  all?: number | null;
+  ne?: number | null;
+  se?: number | null;
+  sw?: number | null;
+  nw?: number | null;
+}
+
+/** `wind_radii` jsonb（mig 476）。JMA 預報點的 storm_warning_area 是暴風警戒域、不是暴風半徑，前端不畫 */
+export interface WindRadii {
+  unit?: string;
+  gale?: WindRadiiQuadrants | null;
+  storm?: WindRadiiQuadrants | null;
+}
+
 export interface TyphoonPoint {
   storm_id: string;
-  source: string;            // 'jma' / 'jtwc'
+  source: string;            // 'jma' / 'jtwc' / 'cwa'
   point_type: "observed" | "forecast";
   advisory_number: number | null;
   valid_ts: number;          // unix seconds
@@ -19,6 +36,18 @@ export interface TyphoonPoint {
   center_lon: number;
   center_pressure: number | null;
   max_wind_kt: number | null;
+  /** 跨來源颱風鍵 YYYY:NAME（mig 476）；TD 序數名為 null */
+  storm_key?: string | null;
+  /** 7 級風（15 m/s）半徑 km；NULL＝來源沒給，不可當 0 */
+  gale_radius_km?: number | null;
+  /** 10 級風（25 m/s）半徑 km */
+  storm_radius_km?: number | null;
+  /** 預報點 70% 機率圈半徑 km（CWA、JMA） */
+  prob70_radius_km?: number | null;
+  wind_radii?: WindRadii | null;
+  /** CWA 原值 m/s（max_wind_kt 為換算） */
+  max_wind_ms?: number | null;
+  max_gust_ms?: number | null;
 }
 
 interface RawRow {
@@ -33,7 +62,20 @@ interface RawRow {
   center_lon: number | null;
   center_pressure_hpa: number | null;
   max_wind_kt: number | null;
+  storm_key?: string | null;
+  gale_radius_km?: number | null;
+  storm_radius_km?: number | null;
+  prob70_radius_km?: number | null;
+  wind_radii?: WindRadii | null;
+  max_wind_ms?: number | null;
+  max_gust_ms?: number | null;
 }
+
+const numOrNull = (v: unknown): number | null => {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
 
 /**
  * observed 列的「未來容忍度」。上游 JTWC 實測有 `point_type='observed'` 卻 `valid_at`
@@ -68,11 +110,11 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
   const untilIso = new Date((nowSec + FORECAST_HORIZON_SEC) * 1000).toISOString();
   const { data, error } = await withLoading(
     "typhoon-positions",
-    "颱風軌跡 JMA/JTWC",
+    "颱風軌跡 JMA/JTWC/CWA",
     supabase
       .from("typhoon_positions")
       .select(
-        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
+        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt,storm_key,gale_radius_km,storm_radius_km,prob70_radius_km,wind_radii,max_wind_ms,max_gust_ms",
       )
       .gte("valid_at", sinceIso)
       .lte("valid_at", untilIso)
@@ -106,6 +148,13 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
       center_lon: Number(r.center_lon),
       center_pressure: r.center_pressure_hpa == null ? null : Number(r.center_pressure_hpa),
       max_wind_kt: r.max_wind_kt == null ? null : Number(r.max_wind_kt),
+      storm_key: r.storm_key ?? null,
+      gale_radius_km: numOrNull(r.gale_radius_km),
+      storm_radius_km: numOrNull(r.storm_radius_km),
+      prob70_radius_km: numOrNull(r.prob70_radius_km),
+      wind_radii: r.wind_radii && typeof r.wind_radii === "object" ? r.wind_radii : null,
+      max_wind_ms: numOrNull(r.max_wind_ms),
+      max_gust_ms: numOrNull(r.max_gust_ms),
     });
   }
   console.log(
@@ -220,10 +269,127 @@ function dedupeSameTimestamp(pts: TyphoonPoint[]): TyphoonPoint[] {
   }));
 }
 
-export function typhoonPointsToGeoJSON(
-  rawPts: TyphoonPoint[],
-): { lines: GeoJSON.FeatureCollection; points: GeoJSON.FeatureCollection; current: GeoJSON.FeatureCollection } {
-  const pts = dedupeSameTimestamp(rawPts);
+/**
+ * 預報只留最新一版：每個 storm×source 只保留 advisory_number 最大的 forecast 列。
+ * W0 發現舊版會把各版同一 valid_ts 的預報合成質心（dedupeSameTimestamp 不分版次），
+ * 畫出的虛線是好幾版平均、哪一版都不是。advisory_number 全為 null 的來源維持原樣。
+ */
+export function keepLatestForecast(pts: TyphoonPoint[]): TyphoonPoint[] {
+  const latest = new Map<string, number>();
+  for (const p of pts) {
+    if (p.point_type !== "forecast" || p.advisory_number == null) continue;
+    const k = `${p.storm_id}::${p.source}`;
+    const cur = latest.get(k);
+    if (cur == null || p.advisory_number > cur) latest.set(k, p.advisory_number);
+  }
+  return pts.filter((p) => {
+    if (p.point_type !== "forecast") return true;
+    const max = latest.get(`${p.storm_id}::${p.source}`);
+    return max == null || p.advisory_number === max;
+  });
+}
+
+/**
+ * 「全部」模式下同一颱風只畫一套軌跡的來源優先序。
+ * CWA 排第一：它是唯一帶 7／10 級風圈與 70% 機率圈的來源，主軌跡用 CWA 時風圈、
+ * 機率圈與軌跡同源對得上；DB 端接近度 RPC 用 JMA＞CWA＞JTWC 是為了跨年代一致
+ * （CWA 2026-10 才開始收），兩者用途不同。
+ */
+export const TYPHOON_SOURCE_PRIORITY: readonly string[] = ["cwa", "jma", "jtwc"];
+const sourceRank = (src: string): number => {
+  const i = TYPHOON_SOURCE_PRIORITY.indexOf(src);
+  return i < 0 ? TYPHOON_SOURCE_PRIORITY.length : i;
+};
+
+/**
+ * 每個 storm×source 的颱風層級鍵：該來源任一列非 null 的 storm_key（TD 階段 JTWC
+ * 序數名為 null，命名後才有；同 public.typhoon_storm_key() 的語意）。
+ */
+function stormLevelKeys(pts: TyphoonPoint[]): Map<string, string> {
+  const keys = new Map<string, string>();
+  for (const p of pts) {
+    if (p.storm_key) keys.set(`${p.storm_id}::${p.source}`, p.storm_key);
+  }
+  return keys;
+}
+
+/**
+ * 每個 storm×source 是否為「全部」模式下要畫的那一套：同 storm_key 的來源只留
+ * 優先序最高者；storm_key 為 null（配不到）一律照畫，不靠名稱硬配。
+ */
+function primaryFlags(pts: TyphoonPoint[], keys: Map<string, string>): Map<string, boolean> {
+  const best = new Map<string, string>(); // storm_key → source
+  for (const p of pts) {
+    const k = keys.get(`${p.storm_id}::${p.source}`);
+    if (!k) continue;
+    const cur = best.get(k);
+    if (cur == null || sourceRank(p.source) < sourceRank(cur)) best.set(k, p.source);
+  }
+  const flags = new Map<string, boolean>();
+  for (const p of pts) {
+    const id = `${p.storm_id}::${p.source}`;
+    if (flags.has(id)) continue;
+    const k = keys.get(id);
+    flags.set(id, !k || best.get(k) === p.source);
+  }
+  return flags;
+}
+
+// ── 風圈幾何（geodesic，球面目的點公式；不為此加 turf 依賴） ─────────────
+const EARTH_KM = 6371;
+const ARC_STEP_DEG = 6;
+
+function destination(lon: number, lat: number, km: number, bearingDeg: number): [number, number] {
+  const d = km / EARTH_KM;
+  const b = (bearingDeg * Math.PI) / 180;
+  const la1 = (lat * Math.PI) / 180;
+  const lo1 = (lon * Math.PI) / 180;
+  const la2 = Math.asin(Math.sin(la1) * Math.cos(d) + Math.cos(la1) * Math.sin(d) * Math.cos(b));
+  const lo2 = lo1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(la1), Math.cos(d) - Math.sin(la1) * Math.sin(la2));
+  return [(lo2 * 180) / Math.PI, (la2 * 180) / Math.PI];
+}
+
+const QUADRANTS: readonly (keyof WindRadiiQuadrants)[] = ["ne", "se", "sw", "nw"];
+
+/**
+ * 風圈外環：四象限各用自己的半徑畫 90° 弧（NE＝方位 0–90°…），缺任一象限就退回單一半徑圓。
+ * 半徑全缺回 null（不畫，不當 0）。
+ */
+export function windRadiusRing(
+  lon: number,
+  lat: number,
+  quadrants: WindRadiiQuadrants | null | undefined,
+  fallbackKm: number | null | undefined,
+): number[][] | null {
+  const q = QUADRANTS.map((k) => numOrNull(quadrants?.[k]));
+  const all = numOrNull(quadrants?.all) ?? numOrNull(fallbackKm);
+  const useQuadrants = q.every((v) => v != null && v > 0);
+  if (!useQuadrants && (all == null || all <= 0)) return null;
+  const ring: number[][] = [];
+  for (let i = 0; i < 4; i++) {
+    const r = useQuadrants ? q[i]! : all!;
+    for (let b = i * 90; b <= (i + 1) * 90; b += ARC_STEP_DEG) ring.push(destination(lon, lat, r, b));
+  }
+  ring.push(ring[0]!);
+  return ring;
+}
+
+export interface TyphoonGeoJSON {
+  lines: GeoJSON.FeatureCollection;
+  points: GeoJSON.FeatureCollection;
+  current: GeoJSON.FeatureCollection;
+  /** 觀測點 7／10 級風圈（polygon，帶與 current 相同的 [valid_ts, valid_until) 區間） */
+  radii: GeoJSON.FeatureCollection;
+  /** 最新一版預報點的 70% 機率圈（polygon） */
+  prob70: GeoJSON.FeatureCollection;
+}
+
+export function typhoonPointsToGeoJSON(rawPts: TyphoonPoint[]): TyphoonGeoJSON {
+  const pts = dedupeSameTimestamp(keepLatestForecast(rawPts));
+  const stormKeys = stormLevelKeys(rawPts);
+  const primary = primaryFlags(pts, stormKeys);
+  const isPrimary = (p: { storm_id: string; source: string }) => primary.get(`${p.storm_id}::${p.source}`) ?? true;
+  const keyOf = (p: { storm_id: string; source: string }) => stormKeys.get(`${p.storm_id}::${p.source}`) ?? null;
   const groups = new Map<string, TyphoonPoint[]>();
   for (const p of pts) {
     const key = `${p.storm_id}::${p.source}::${p.point_type}`;
@@ -237,6 +403,7 @@ export function typhoonPointsToGeoJSON(
   // 現在位置：每個觀測點帶有效區間 [valid_ts, valid_until)，由圖層 filter 挑
   // 「區間包住 currentTime」的那一點（見 ACTIVE_WINDOW_SEC）
   const currentFeatures: GeoJSON.Feature[] = [];
+  const radiiFeatures: GeoJSON.Feature[] = [];
   for (const [key, arr] of groups) {
     const [stormId, source, pointType] = key.split("::");
     const head = arr[0]!;
@@ -253,6 +420,8 @@ export function typhoonPointsToGeoJSON(
           name_local: head.name_local,
           seg_start_ts: seg.t0,
           seg_end_ts: seg.t1,
+          storm_key: keyOf(head),
+          primary: isPrimary(head),
         },
       });
     }
@@ -270,23 +439,57 @@ export function typhoonPointsToGeoJSON(
         type: "Feature",
         geometry: { type: "Point", coordinates: [p.center_lon, p.center_lat] },
         properties: {
-          storm_id: p.storm_id,
-          source: p.source,
-          point_type: p.point_type,
-          valid_ts: p.valid_ts,
+          ...pointProps(p),
           valid_until: validUntil,
-          name_en: p.name_en,
-          name_local: p.name_local,
-          center_pressure: p.center_pressure,
-          max_wind_kt: p.max_wind_kt,
         },
       });
+      // 風圈：10 級（storm）先、7 級（gale）後，同一個 [valid_ts, valid_until) 區間
+      for (const kind of ["gale", "storm"] as const) {
+        const ring = windRadiusRing(
+          p.center_lon, p.center_lat,
+          p.wind_radii?.[kind] ?? null,
+          kind === "gale" ? p.gale_radius_km : p.storm_radius_km,
+        );
+        if (!ring) continue;
+        radiiFeatures.push({
+          type: "Feature",
+          geometry: { type: "Polygon", coordinates: [ring] },
+          properties: {
+            ...pointProps(p),
+            radius_kind: kind,
+            valid_until: validUntil,
+          },
+        });
+      }
     }
+  }
+  const prob70Features: GeoJSON.Feature[] = [];
+  for (const p of pts) {
+    if (p.point_type !== "forecast") continue;
+    const ring = windRadiusRing(p.center_lon, p.center_lat, null, p.prob70_radius_km);
+    if (!ring) continue;
+    prob70Features.push({
+      type: "Feature",
+      geometry: { type: "Polygon", coordinates: [ring] },
+      properties: pointProps(p),
+    });
   }
   const pointFeatures: GeoJSON.Feature[] = pts.map((p) => ({
     type: "Feature",
     geometry: { type: "Point", coordinates: [p.center_lon, p.center_lat] },
-    properties: {
+    properties: pointProps(p),
+  }));
+  return {
+    lines: { type: "FeatureCollection", features: lineFeatures },
+    points: { type: "FeatureCollection", features: pointFeatures },
+    current: { type: "FeatureCollection", features: currentFeatures },
+    radii: { type: "FeatureCollection", features: radiiFeatures },
+    prob70: { type: "FeatureCollection", features: prob70Features },
+  };
+
+  /** popup 用的點屬性（Mapbox properties 不收 null 以外的物件，wind_radii 不帶） */
+  function pointProps(p: TyphoonPoint): Record<string, unknown> {
+    return {
       storm_id: p.storm_id,
       source: p.source,
       point_type: p.point_type,
@@ -296,13 +499,15 @@ export function typhoonPointsToGeoJSON(
       name_local: p.name_local,
       center_pressure: p.center_pressure,
       max_wind_kt: p.max_wind_kt,
-    },
-  }));
-  return {
-    lines: { type: "FeatureCollection", features: lineFeatures },
-    points: { type: "FeatureCollection", features: pointFeatures },
-    current: { type: "FeatureCollection", features: currentFeatures },
-  };
+      max_wind_ms: p.max_wind_ms ?? null,
+      max_gust_ms: p.max_gust_ms ?? null,
+      gale_radius_km: p.gale_radius_km ?? null,
+      storm_radius_km: p.storm_radius_km ?? null,
+      prob70_radius_km: p.prob70_radius_km ?? null,
+      storm_key: keyOf(p),
+      primary: isPrimary(p),
+    };
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -341,6 +546,9 @@ export interface TyphoonActiveRow {
   center_lon: number | null;
   center_pressure_hpa: number | null;
   max_wind_kt: number | null;
+  /** 颱風層級鍵（view 用 public.typhoon_storm_key()，TD 階段後命名也會帶出）；null＝配不到 */
+  storm_key?: string | null;
+  gale_radius_km?: number | null;
 }
 
 // 台灣本島四極 + 中心錨點，取最近距離當「距台灣」
@@ -373,7 +581,8 @@ const CROSS_SOURCE_RADIUS_KM = 500;
 
 /**
  * 挑目前最靠近台灣的活躍颱風（純函式，給測試用）。
- * JMA / JTWC 同一颱風 storm_id 不同、名稱相同 → 依名稱聚合來源。
+ * JMA / JTWC / CWA 同一颱風 storm_id 不同 → 優先依 storm_key（mig 476 跨來源鍵）聚合，
+ * storm_key 為 null 才退回名稱；之後仍套 500 km 同系統檢查。
  */
 export function pickActiveTyphoon(
   rawRows: TyphoonActiveRow[],
@@ -389,7 +598,7 @@ export function pickActiveTyphoon(
   // 依名稱聚合（同颱風不同來源）
   const groups = new Map<string, TyphoonActiveRow[]>();
   for (const r of rows) {
-    const k = (r.name_en || r.name_local || r.storm_id).toLowerCase();
+    const k = r.storm_key ? `key:${r.storm_key}` : (r.name_en || r.name_local || r.storm_id).toLowerCase();
     const arr = groups.get(k);
     if (arr) arr.push(r);
     else groups.set(k, [r]);
@@ -410,9 +619,10 @@ export function pickActiveTyphoon(
 
   // 只留「與代表點同一個系統」的列（見 CROSS_SOURCE_RADIUS_KM）
   const repCoord: [number, number] = [Number(best.rep.center_lon), Number(best.rep.center_lat)];
-  const sameStorm = best.group.filter(
-    (r) => haversineKm(repCoord, [Number(r.center_lon), Number(r.center_lat)]) <= CROSS_SOURCE_RADIUS_KM,
-  );
+  // 名稱優先取 CWA（中文名「薔琵」），再 JMA、JTWC（見 TYPHOON_SOURCE_PRIORITY）
+  const sameStorm = best.group
+    .filter((r) => haversineKm(repCoord, [Number(r.center_lon), Number(r.center_lat)]) <= CROSS_SOURCE_RADIUS_KM)
+    .sort((a, b) => sourceRank(a.source) - sourceRank(b.source));
 
   // 名稱 / 氣壓 / 風速跨來源補齊（單一來源最新觀測點常缺值：氣壓取最低、風速取最大）
   let nameEn = "";
@@ -454,7 +664,7 @@ async function fetchTyphoonSummaryUncached(): Promise<TyphoonSummary | null> {
   const { data, error } = await supabase
     .from("typhoons_active")
     .select(
-      "storm_id,source,valid_at,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
+      "storm_id,source,valid_at,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt,storm_key,gale_radius_km",
     );
   if (error) throw error;
   return pickActiveTyphoon((data ?? []) as TyphoonActiveRow[], Math.floor(Date.now() / 1000));

@@ -5,6 +5,10 @@ import { useFeatureTheme } from "./featureTheme";
 import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES, globalEventCategoryLabel, globalEventSeverityLabel } from "../../data/globalEventsTypes";
 import { FONT_SIZE } from "../../styles/designTokens";
+import {
+  TYPHOON_AGENCY_COLORS, TYPHOON_AGENCY_LABELS, TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR, TYPHOON_AGENCY_ORG, TYPHOON_SOURCE_ORG, TYPHOON_WIND_AVERAGING,
+  isTyphoonAgency, type TyphoonTrackSource,
+} from "../../data/typhoonTypes";
 
 type I18n = ReturnType<typeof useLocale>;
 
@@ -72,14 +76,27 @@ export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown
   );
 }
 
+const finiteNum = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+
+function isTrackSource(v: unknown): v is TyphoonTrackSource {
+  return v === "cwa" || v === "jma" || v === "jtwc";
+}
+
 export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const pointType = String(props.point_type ?? "");
   const isFcst = pointType === "forecast";
-  const wind = typeof props.max_wind_kt === "number" ? props.max_wind_kt : null;
-  const pressure = typeof props.center_pressure === "number" ? props.center_pressure : null;
-  const adv = typeof props.advisory_number === "number" ? props.advisory_number : null;
+  const wind = finiteNum(props.max_wind_kt);
+  const windMs = finiteNum(props.max_wind_ms);
+  const gustMs = finiteNum(props.max_gust_ms);
+  const pressure = finiteNum(props.center_pressure);
+  const adv = finiteNum(props.advisory_number);
+  const gale = finiteNum(props.gale_radius_km);
+  const storm = finiteNum(props.storm_radius_km);
+  const prob70 = finiteNum(props.prob70_radius_km);
+  const src = isTrackSource(props.source) ? props.source : null;
   const sourceLabel = String(props.source ?? "—").toUpperCase();
+  const km = (v: number) => i18n.t("popup.globalClimate.typRadiusValue", { km: v.toFixed(0) });
   return (
     <div>
       <Row
@@ -98,9 +115,21 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
       {adv != null && <Row label="Advisory" value={`#${adv}`} />}
       <Row
         label={i18n.t("popup.globalClimate.maxWind")}
-        value={wind != null ? i18n.t("popup.globalClimate.maxWindValue", { kt: wind.toFixed(0), kmh: (wind * 1.852).toFixed(0) }) : "—"}
+        value={windMs != null
+          ? i18n.t("popup.globalClimate.maxWindMsValue", { ms: windMs.toFixed(0), kt: (wind ?? windMs * 1.943844).toFixed(0) })
+          : wind != null ? i18n.t("popup.globalClimate.maxWindValue", { kt: wind.toFixed(0), kmh: (wind * 1.852).toFixed(0) }) : "—"}
         color={wind != null && wind >= 64 ? "#dc2626" : undefined}
       />
+      {src && (
+        <Row
+          label={i18n.t("popup.globalClimate.typWindAveraging")}
+          value={i18n.t(TYPHOON_WIND_AVERAGING[src] === "1min" ? "popup.globalClimate.typWind1min" : "popup.globalClimate.typWind10min")}
+        />
+      )}
+      {gustMs != null && <Row label={i18n.t("popup.globalClimate.typMaxGust")} value={`${gustMs.toFixed(0)} m/s`} />}
+      {gale != null && <Row label={i18n.t("popup.globalClimate.typGaleRadius")} value={km(gale)} color={TYPHOON_GALE_COLOR} />}
+      {storm != null && <Row label={i18n.t("popup.globalClimate.typStormRadius")} value={km(storm)} color={TYPHOON_STORM_COLOR} />}
+      {prob70 != null && <Row label={i18n.t("popup.globalClimate.typProb70Radius")} value={km(prob70)} />}
       <Row
         label={i18n.t("popup.globalClimate.centerPressure")}
         value={pressure != null ? `${pressure.toFixed(0)} hPa` : "—"}
@@ -108,6 +137,35 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
       />
       <Row label={i18n.t("popup.globalClimate.positionTime")} value={fmtTime(props.valid_ts, i18n)} />
       <Row field="age" value={fmtAge(props.valid_ts, i18n)} />
+      {src && <Row field="attribution" value={enumLabel("typhoonSourceOrg", src, TYPHOON_SOURCE_ORG[src], i18n)} />}
+    </div>
+  );
+}
+
+/** NCDR 各國颱風預報：一點＝某家某版的某個預報時距 */
+export function TyphoonAgencyForecastPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const agency = isTyphoonAgency(props.agency) ? props.agency : null;
+  const lead = finiteNum(props.lead_hour);
+  const matched = typeof props.matched_name_en === "string" && props.matched_name_en ? props.matched_name_en : null;
+  return (
+    <div>
+      <Row
+        label={i18n.t("popup.globalClimate.typAgency")}
+        value={agency ? enumLabel("typhoonAgency", agency, TYPHOON_AGENCY_LABELS[agency], i18n) : String(props.agency ?? "—")}
+        color={agency ? TYPHOON_AGENCY_COLORS[agency] : undefined}
+      />
+      <Row label={i18n.t("popup.globalClimate.typIssuedAt")} value={String(props.issued_label ?? "—")} />
+      {lead != null && (
+        <Row
+          label={i18n.t("popup.globalClimate.typLeadHour")}
+          value={lead === 0 ? i18n.t("popup.globalClimate.typLeadZero") : i18n.t("popup.globalClimate.typLeadValue", { h: lead.toFixed(0) })}
+        />
+      )}
+      <Row label={i18n.t("popup.globalClimate.typValidAt")} value={fmtTime(props.valid_ts, i18n)} />
+      <Row field="name" value={matched ?? i18n.t("popup.globalClimate.typUnmatched")} />
+      <Row field="description" value={i18n.t("popup.globalClimate.typAgencyNote")} />
+      <Row field="attribution" value={enumLabel("typhoonAgencyOrg", "ncdr", TYPHOON_AGENCY_ORG, i18n)} />
     </div>
   );
 }
