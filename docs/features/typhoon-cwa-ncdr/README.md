@@ -3,7 +3,7 @@
 > **Slug**：`typhoon-cwa-ncdr`（analytics topic：`typhoon_tracks`；Roadmap 第一批 G02 方向 A＋B）
 > **狀態**：dev（PR 到 develop，未發布 master）
 > **上線日期**：未發布
-> **相關 PR**：#638
+> **相關 PR**：#638（merge 5328d829）
 > **規格 SSOT**：analytics `docs/topic-research/typhoon_tracks/layer-plan.md`（另有 `_status.md`、`PLAN.md`、`registry-spec.yaml`）；欄位以 gis-platform `migrations/476_typhoon_cwa_wind_radii_agency_forecasts.sql` 為準
 
 ## 一句話說明
