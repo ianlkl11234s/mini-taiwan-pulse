@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1241,
+    "keyCount": 1242,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1253,9 +1253,17 @@
     },
     {
       "layers": [
+        "typhoon-agency-forecasts-points",
+        "typhoon-agency-forecasts-line"
+      ],
+      "type": "typhoonAgencyForecast"
+    },
+    {
+      "layers": [
         "typhoon-tracks-current-ring",
         "typhoon-tracks-current-dot",
-        "typhoon-tracks-points"
+        "typhoon-tracks-points",
+        "typhoon-tracks-radii-fill"
       ],
       "type": "typhoonTrack"
     },
@@ -127980,6 +127988,17 @@
         "valueText": "1.0"
       }
     ],
+    "typhoonAgencyForecasts": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
     "typhoonTracks": [
       {
         "label": "資料源",
@@ -127995,6 +128014,10 @@
           {
             "label": "JTWC 美軍",
             "value": "jtwc"
+          },
+          {
+            "label": "CWA 氣象署",
+            "value": "cwa"
           }
         ],
         "type": "select",
