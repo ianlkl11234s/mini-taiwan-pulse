@@ -3,7 +3,7 @@
 > **Slug**：`crime-statistics`（analytics `docs/topic-research/crime_statistics/`）
 > **狀態**：dev（PR 到 develop，未發布 master）
 > **上線日期**：未發布
-> **相關 PR**：見 changelog.md
+> **相關 PR**：#634（見 changelog.md）
 
 ## 一句話說明
 
