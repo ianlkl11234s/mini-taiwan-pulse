@@ -188,5 +188,6 @@
   "enum.statVariant.醫院醫事人員總計": "病院の医事従事者合計",
   "enum.statVariant.電動公車占營業車比": "電気バスの営業車両に占める割合",
   "enum.statVariant.領有機車駕照人數": "二輪車運転免許保有者数",
-  "enum.statVariant.領有汽車駕照人數": "自動車運転免許保有者数"
+  "enum.statVariant.領有汽車駕照人數": "自動車運転免許保有者数",
+  "enum.statVariant.每十萬人": "人口10万人あたり"
 }

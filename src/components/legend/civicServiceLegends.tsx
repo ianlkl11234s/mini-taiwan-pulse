@@ -558,7 +558,6 @@ const POLICE_JUSTICE_LEGEND: { key: keyof LayerVisibility; color: string; labelK
   { key: "prosecutorsOffice", color: "#a855f7", labelKey: "legend.civic.pjProsecutorsOffice", shape: "circle" },
   { key: "correctionalFacility", color: "#374151", labelKey: "legend.civic.pjCorrectionalFacility", shape: "circle" },
   { key: "courtJurisdiction", color: "#c4b5fd", labelKey: "legend.civic.pjCourtJurisdiction", shape: "square" },
-  { key: "crimeAreaMonthly", color: "#991b1b", labelKey: "legend.civic.pjCrimeAreaMonthly", shape: "square" },
   { key: "theftTaoyuan", color: "#f59e0b", labelKey: "legend.civic.pjTheftTaoyuan", shape: "circle" },
   { key: "trafficAccidentYearly", color: "#fb7185", labelKey: "legend.civic.pjTrafficAccidentYearly", shape: "circle" },
   { key: "accidentTaipei", color: "#fda4af", labelKey: "legend.civic.pjAccidentTaipei", shape: "circle" },

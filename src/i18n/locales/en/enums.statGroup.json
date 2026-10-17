@@ -1,0 +1,11 @@
+{
+  "enum.statGroup.毒品": "Drugs",
+  "enum.statGroup.住宅竊盜": "Residential burglary",
+  "enum.statGroup.機車竊盜": "Motorcycle theft",
+  "enum.statGroup.汽車竊盜": "Car theft",
+  "enum.statGroup.強盜": "Robbery",
+  "enum.statGroup.搶奪": "Snatching",
+  "enum.statGroup.強制性交": "Sexual assault",
+  "enum.statGroup.組織犯罪": "Organized crime",
+  "enum.statGroup.電信詐欺": "Telecom fraud"
+}

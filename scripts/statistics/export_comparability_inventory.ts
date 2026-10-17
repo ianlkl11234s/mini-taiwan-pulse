@@ -25,7 +25,7 @@ const comparisons = COMPARISON_ENABLED_RECIPES.map(recipe => {
   return { ...recipe, formula: processing.formula, interpretation: recipe.disclosure };
 });
 const inventory = { status: 'REBUILT_FROM_IMPLEMENTED_REGISTRY_20260917', originalRecipeCount: original.length,
-  referenceEntries: ['crimeAreaMonthly', 'countyBoundary', 'townshipBoundary'], original, educationViews: EDUCATION_PRESENTATION_VIEWS,
+  referenceEntries: ['countyBoundary', 'townshipBoundary'], original, educationViews: EDUCATION_PRESENTATION_VIEWS,
   groups: STATISTICS_TOGGLE_GROUPS, comparisons, unavailable: ['national education accessibility', 'county VKT and A3', 'age-population education coverage', 'incomplete aquaculture/production national shares'] };
 writeFileSync(`${folder}/inventory.json`, JSON.stringify(inventory, null, 2)+'\n');
 const lines = ['# 統計圖層盤點與整合對照', '', '2026-09-17 依恢復後 registry 與本地 immutable 資料重建；不是原遺失盤點檔的逐位元備份。完整驗收與限制見 [acceptance.md](./acceptance.md)。', '', '## 教育固定入口', ''];

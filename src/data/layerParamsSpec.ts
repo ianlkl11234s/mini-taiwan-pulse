@@ -2451,9 +2451,6 @@ export const LAYER_PARAMS_SPEC = {
   statsMotorcycleLicenseHoldersCount: [opacitySlider("statsMotorcycleLicenseHoldersCountOpacity", 0.55)],
   statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
   statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
-  crimeAreaMonthly: [
-    { kind: "slider", name: "crimeAreaMonthlyOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
-  ],
   theftTaoyuan: [scaleSlider("theftTaoyuanScale", 1), opacitySlider("theftTaoyuanOpacity", densePointOpacity(1_423))],
   trafficAccidentYearly: [
     scaleSlider("trafficAccidentYearlyScale", 1),

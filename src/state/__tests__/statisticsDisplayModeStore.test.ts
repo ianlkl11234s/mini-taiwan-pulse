@@ -136,13 +136,13 @@ describe("statisticsDisplayModeStore", () => {
     expect(layerVisibilityStore.getVisibility(C!)).toBe(false);
   });
 
-  it("crimeAreaMonthly 與 recipes 都受互斥，行政邊界不受影響", () => {
+  it("治安統計（取代 crimeAreaMonthly）與 recipes 都受互斥，行政邊界不受影響", () => {
     layerVisibilityStore.setVisibility("countyBoundary", true);
     apply(statisticsDisplayModeStore.enable(A!, layerVisibilityStore.getAll()));
-    apply(statisticsDisplayModeStore.enable("crimeAreaMonthly", layerVisibilityStore.getAll()));
+    apply(statisticsDisplayModeStore.enable("statsCrimeDrugCasesTownship", layerVisibilityStore.getAll()));
 
     expect(layerVisibilityStore.getVisibility(A!)).toBe(false);
-    expect(layerVisibilityStore.getVisibility("crimeAreaMonthly")).toBe(true);
+    expect(layerVisibilityStore.getVisibility("statsCrimeDrugCasesTownship")).toBe(true);
     expect(layerVisibilityStore.getVisibility("countyBoundary")).toBe(true);
   });
 

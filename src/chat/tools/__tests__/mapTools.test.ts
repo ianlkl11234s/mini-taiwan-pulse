@@ -17,9 +17,9 @@ describe("mapTools.set_layers", () => {
         if (!on) keys.forEach((key) => visible.delete(key));
         else {
           // 模擬 single-mode admission：crime choropleth 替換既有 recipe，但 boundary 留下。
-          if (keys.includes("crimeAreaMonthly")) {
+          if (keys.includes("statsCrimeDrugCasesTownship")) {
             visible.delete("statsWasteCounty");
-            visible.add("crimeAreaMonthly");
+            visible.add("statsCrimeDrugCasesTownship");
           }
           if (keys.includes("countyBoundary")) visible.add("countyBoundary");
         }
@@ -40,11 +40,11 @@ describe("mapTools.set_layers", () => {
       }>;
     };
 
-    const result = await tool.execute({ keys: ["crimeAreaMonthly", "countyBoundary"], visible: true });
+    const result = await tool.execute({ keys: ["statsCrimeDrugCasesTownship", "countyBoundary"], visible: true });
 
-    expect(result.visibleStatistics).toEqual(["crimeAreaMonthly"]);
+    expect(result.visibleStatistics).toEqual(["statsCrimeDrugCasesTownship"]);
     expect(result.replacedStatistics).toEqual(["statsWasteCounty"]);
-    expect(result.visibleNow).toEqual(expect.arrayContaining(["crimeAreaMonthly", "countyBoundary"]));
+    expect(result.visibleNow).toEqual(expect.arrayContaining(["statsCrimeDrugCasesTownship", "countyBoundary"]));
   });
 
   it("render ref 尚未更新時仍從同步 store 回報 post-write 結果", async () => {
@@ -53,8 +53,8 @@ describe("mapTools.set_layers", () => {
     const bridge: MapBridge = {
       bulkSetVisibility: (keys, on) => {
         let next = layerVisibilityStore.getAll();
-        if (on && keys.includes("crimeAreaMonthly")) {
-          next = statisticsDisplayModeStore.enable("crimeAreaMonthly", next);
+        if (on && keys.includes("statsCrimeDrugCasesTownship")) {
+          next = statisticsDisplayModeStore.enable("statsCrimeDrugCasesTownship", next);
         }
         if (on && keys.includes("countyBoundary")) next = { ...next, countyBoundary: true };
         layerVisibilityStore.setAll(next);
@@ -75,11 +75,11 @@ describe("mapTools.set_layers", () => {
       }>;
     };
 
-    const result = await tool.execute({ keys: ["crimeAreaMonthly", "countyBoundary"], visible: true });
+    const result = await tool.execute({ keys: ["statsCrimeDrugCasesTownship", "countyBoundary"], visible: true });
 
     // 模擬 React 尚未 re-render：舊 ref 還是過去狀態，不能當 tool 的 readback。
     expect(renderLaggedVisibility.statsWasteCounty).toBe(true);
-    expect(result.visibleStatistics).toEqual(["crimeAreaMonthly"]);
+    expect(result.visibleStatistics).toEqual(["statsCrimeDrugCasesTownship"]);
     expect(result.replacedStatistics).toEqual(["statsWasteCounty"]);
   });
 });

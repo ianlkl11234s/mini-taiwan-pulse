@@ -171,7 +171,7 @@ describe("parseUrlState — Statistics mode", () => {
   });
 
   it("舊網址沒有 sm 時保留 undefined，消費端可依統計 layers 採 documented safe fallback", () => {
-    expect(parseUrlState(`?${V}&layers=statsWasteCounty,crimeAreaMonthly`).statisticsMode).toBeUndefined();
+    expect(parseUrlState(`?${V}&layers=statsWasteCounty,statsCrimeDrugCasesTownship`).statisticsMode).toBeUndefined();
   });
 });
 

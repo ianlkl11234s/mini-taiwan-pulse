@@ -1,4 +1,4 @@
-// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）的共用接點。
+// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）的共用接點。
 // 資料照主題拆成六個家族檔（health／fiscal／indigenousRural／sports／hazard／marine，各自 json＋catalog），
 // 執行期的查詢、期別白名單、維度、圖例與目錄分組由本檔統一提供，共用檔（loader、selection、linkedSelect、
 // manifest、圖例、Details）只接這一個入口，不再逐家族串接。
@@ -10,6 +10,7 @@ import { INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS, INDIGENOUS_RURAL_STATISTICS_D
 import { SPORTS_ENABLED_STATISTICS_KEYS, SPORTS_STATISTICS_DOCUMENT } from "./sportsStatisticsRecipes";
 import { HAZARD_ENABLED_STATISTICS_KEYS, HAZARD_STATISTICS_DOCUMENT } from "./hazardStatisticsRecipes";
 import { MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT } from "./marineStatisticsRecipes";
+import { CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT } from "./crimeStatisticsRecipes";
 
 export type { AtlasRecipe, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
 
@@ -20,11 +21,13 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument]>
   [SPORTS_ENABLED_STATISTICS_KEYS, SPORTS_STATISTICS_DOCUMENT],
   [HAZARD_ENABLED_STATISTICS_KEYS, HAZARD_STATISTICS_DOCUMENT],
   [MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT],
+  [CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...HEALTH_ENABLED_STATISTICS_KEYS, ...FISCAL_ENABLED_STATISTICS_KEYS, ...INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS,
   ...SPORTS_ENABLED_STATISTICS_KEYS, ...HAZARD_ENABLED_STATISTICS_KEYS, ...MARINE_ENABLED_STATISTICS_KEYS,
+  ...CRIME_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -34,6 +37,7 @@ export const ATLAS_TAB_THEME_TITLES = {
   sports: "體育運動 Sports",
   hazard: "災害風險 Disaster Risk",
   marine: "海洋 Marine",
+  crime: "犯罪與治安 Crime & Safety",
 } as const;
 
 /** 依各家族宣告的 key 順序（群組內原始數在前）；交付缺 key 或未啟用即報錯。 */
@@ -97,13 +101,37 @@ export function atlasReleaseOptions(key: string, releases: readonly StatisticsRe
 }
 
 /**
+ * 預設期別：recipe 的 default_release_id 有公開就用它（治安：最新全年 2025，而不是排第一的 2026 年 1–6 月部分期別）；
+ * 否則取最新期別。既有 atlas 家族 default 恰為最新期別，行為不變。
+ */
+export function atlasDefaultReleaseOption<T extends { releaseId: string }>(key: string, options: readonly T[]): T | undefined {
+  const preferred = getAtlasRecipe(key)?.default_release_id;
+  return (preferred ? options.find((option) => option.releaseId === preferred) : undefined) ?? options[0];
+}
+
+const PARTIAL_PERIODS = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options)
+  .filter((option) => option.partial_period_label).map((option) => [option.release_id, option]));
+
+/**
+ * 部分期別（非全年，例如治安 2026 年 1–6 月、2018 年 10–12 月）：依 release_id（全站唯一）回年與起訖月，
+ * 期間也須相符；全年或非 atlas 回 undefined。
+ */
+export function atlasPartialPeriod(release: { release_id?: unknown; period_start: string; period_end: string }): { year: string; from: string; to: string } | undefined {
+  const option = typeof release.release_id === "string" ? PARTIAL_PERIODS.get(release.release_id) : undefined;
+  if (!option || option.period_start !== release.period_start || option.period_end !== release.period_end) return undefined;
+  return { year: option.period_start.slice(0, 4), from: String(Number(option.period_start.slice(5, 7))), to: String(Number(option.period_end.slice(5, 7))) };
+}
+
+/**
  * 群組切換（medicalStatisticsSelection）用的視圖：dimensions 為預設組合，release_options 依「新期別、預設組合在前」排序，
  * 讓從無維度指標（例如癌症新發生數）切到有維度指標時落在 layer-plan 預設組合，而不是交付順序的第一筆。
  */
 export function atlasSelectionRecipe(key: string) {
   const recipe = getAtlasRecipe(key);
   if (!recipe) return undefined;
-  const release_options = [...recipe.release_options].sort((a, b) => b.period_end.localeCompare(a.period_end)
+  const isDefault = (option: { release_id: string }) => (option.release_id === recipe.default_release_id ? 0 : 1);
+  const release_options = [...recipe.release_options].sort((a, b) => isDefault(a) - isDefault(b)
+    || b.period_end.localeCompare(a.period_end)
     || b.period_start.localeCompare(a.period_start)
     || compareRank(dimensionRank(recipe, a.dimensions), dimensionRank(recipe, b.dimensions)));
   return { dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: atlasDefaultDimensions(recipe), release_options };

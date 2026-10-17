@@ -224,7 +224,7 @@ const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = 
 /**
  * atlas 批次六家族（atlasStatisticsRecipes）以 key 明確指定，避免「出生」「所得」「水」等字詞落入其他分支。
  * 不新增色票：疾病與健康＝醫療 BuGn；財稅與消費＝工作與所得；原住民保留地＝人口 RdPu；農村再生＝農業 YlGn；
- * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu。刻意不 import recipe。
+ * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu；治安＝治安 Reds。刻意不 import recipe。
  */
 const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
   [/^statsHealthTb/, 'health', Microscope],
@@ -252,6 +252,15 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsSeaTurtleStranded/, 'fishery', Turtle],
   [/^statsMarineDebrisFishingGear/, 'fishery', Anchor],
   [/^statsMarineDebris/, 'fishery', Waves],
+  // 治安（G17，取代 crimeAreaMonthly）：沿用治安 Reds 色票（同成癮統計的查緝類），icon 依案類。
+  [/^statsCrimeDrug/, 'security', Pill],
+  [/^statsCrimeResidentialBurglary/, 'security', House],
+  [/^statsCrimeMotorcycleTheft/, 'security', Bike],
+  [/^statsCrimeCarTheft/, 'security', Car],
+  [/^statsCrime(?:Robbery|Snatching)/, 'security', ShieldAlert],
+  [/^statsCrimeSexualAssault/, 'security', TriangleAlert],
+  [/^statsCrimeOrganizedCrime/, 'security', Gavel],
+  [/^statsTelecomFraud/, 'security', Smartphone],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {
@@ -326,7 +335,6 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
   if (has(text, ['垃圾', '廢棄物', 'waste', '污染', 'pollution'])) return visual(THEMES.environment, Trash2);
 
   if (has(text, ['事故', 'accident', '違規', 'violation'])) return visual(THEMES.transport, TriangleAlert);
-  // crimeAreaMonthly retains its existing red renderer; this only supplies sidebar semantics.
   if (has(text, ['治安', 'crime', '警政', '犯罪'])) return visual(THEMES.security, Shield);
   if (has(text, ['公車', 'bus', '客運'])) return visual(THEMES.transport, Bus);
   if (has(text, ['自行車', 'bicycle', 'bike', 'youbike'])) return visual(THEMES.transport, Bike);
