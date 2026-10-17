@@ -34,7 +34,6 @@ const EXEMPT: Record<string, string> = {
   "wicTaipeiLoader.ts:fetchTaipeiSewerTimeseries": "popup sparkline on-demand",
   "wicTaipeiLoader.ts:fetchTaipeiPumbTimeseries": "popup sparkline on-demand",
   "wicTaipeiLoader.ts:fetchTaipeiEvacuateTimeseries": "popup sparkline on-demand",
-  "cwaImageryLoader.ts:fetchCwaImageryBytes": "popup/單幀 on-demand",
   "energyLoader.ts:_fetchProvenance": "popup 溯源 lazy（已有 promise cache）",
   "dataCatalogLoader.ts:results": "popup『資料來源』面板 lazy",
   "dataCatalogLoader.ts:fetchDataCatalogByTheme": "popup『資料來源』面板 lazy",
