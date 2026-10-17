@@ -24,5 +24,5 @@
 - [handoff-r4-legend.md](./handoff-r4-legend.md)、[R4-report.md](./R4-report.md)：R4 圖例對齊交接與驗收
 - [R6-inventory.md](./R6-inventory.md)：Three.js／CustomLayer 圖層盤點
 - [R6-PROPOSAL.md](./R6-PROPOSAL.md)：R6 使用者決定與分段
-- [handoff-r6.md](./handoff-r6.md)：R6 交接（2026-10-04 版，狀態行已落後 CHANGELOG）
+- [handoff-r6.md](./handoff-r6.md)：R6 交接（2026-10-04 版，狀態行 2026-10-17 已更新）
 - 對照頁：[r2-tiers.html](./r2-tiers.html)、[r3-tiers.html](./r3-tiers.html)、[r3b-tiers.html](./r3b-tiers.html)、[r3b-compare.html](./r3b-compare.html)、[r4-legend-after.html](./r4-legend-after.html)、[r5-compare.html](./r5-compare.html)、[r5-all.html](./r5-all.html)、[r6-picks.html](./r6-picks.html)、[r6-s1-compare.html](./r6-s1-compare.html)、[r6-s2-compare.html](./r6-s2-compare.html)、[r6-s3-compare.html](./r6-s3-compare.html)

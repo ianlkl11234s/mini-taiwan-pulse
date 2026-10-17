@@ -1,6 +1,8 @@
 # R6 交接：Three.js 圖層加「基本點線面」模式
 
-> 狀態：🚧 段 1 PR #547 待合；段 2（機組、水庫、五類設施）與段 3（台鐵列車、垃圾車 GPS）完成並疊加在段 1 之上（對照頁 [`r6-s2-compare.html`](./r6-s2-compare.html)、[`r6-s3-compare.html`](./r6-s3-compare.html)）；段 4（船、公車、垃圾車班表、漁船軌跡）未開始；飛機不動。2026-10-04 交接
+> 狀態（2026-10-17 更新）：段 1–3（#547／#572／#573）已隨 v2.8.0〔2026-10-15〕上正式站，待正式站目視（BACKLOG R6-V）；段 4 使用者 2026-10-12 決定暫不碰（BACKLOG R6-4）；飛機不動。以下為 2026-10-04 交接原文。
+>
+> 原狀態：🚧 段 1 PR #547 待合；段 2（機組、水庫、五類設施）與段 3（台鐵列車、垃圾車 GPS）完成並疊加在段 1 之上（對照頁 [`r6-s2-compare.html`](./r6-s2-compare.html)、[`r6-s3-compare.html`](./r6-s3-compare.html)）；段 4（船、公車、垃圾車班表、漁船軌跡）未開始；飛機不動。2026-10-04 交接
 > 進度總表：[`docs/design-system/README.md`](../../design-system/README.md)「目前進度」。規格：[`map-layers.md`](../../design-system/map-layers.md) §3.4 **G-1**。
 
 ## 1. 要做什麼
