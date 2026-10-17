@@ -4,7 +4,7 @@
 
 ---
 
-## 2026-10-17 — 首批（PR 待補，併入 develop 後補 merge hash）
+## 2026-10-17 — 首批（PR #624，併入 develop 後補 merge hash）
 
 - 新增海洋 › 海域保護與漁業 7 層（面 4、點 3），資料檔 git 追蹤、dist 供檔
 - 海岸地區範圍切 PMTiles（0.9MB，z5–12，依面積設 feature minzoom，逐 zoom 稽核通過）；7 面退化面（< 1 m²）不上圖
