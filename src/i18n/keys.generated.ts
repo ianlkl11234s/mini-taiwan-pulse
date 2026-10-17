@@ -243,6 +243,7 @@ export type GeneratedStaticKey =
   | "dataSources.unspecifiedPublisher"
   | "dataSources.upstreamCount"
   | "dataSources.upstreamPeriod"
+  | "embed.openInSite"
   | "intel.card.confidence"
   | "intel.card.copy"
   | "intel.card.gisRelevance"

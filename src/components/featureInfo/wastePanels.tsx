@@ -8,6 +8,7 @@ import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 
 // ─── 垃圾處理設施 ─────────────────────────────────────────────
 export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }) {
@@ -26,7 +27,7 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
         </div>
       </div>
       <Row field="type" value={label} color={color} />
-      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="operatorOrg" value={String(props.operator ?? "")} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row label={tr("popup.waste.capacity")} value={props.capacity_tpd != null ? tr("popup.waste.tonsPerDay", { value: String(props.capacity_tpd) }) : ""} />
@@ -61,8 +62,8 @@ export function WasteCleaningSquadPanel({ props }: { props: Record<string, unkno
           {String(props.squad_name ?? tr("popup.waste.squadFallback"))}
         </div>
       </div>
-      <Row field="county" value={String(props.city ?? "")} />
-      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.city ?? ""), String(props.district ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       {phone && <Row field="phone" value={phone} color={t.link} />}
       <Row label={tr("popup.waste.jurisdiction")} value={String(props.jurisdiction ?? "")} />
@@ -97,8 +98,8 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
         </div>
       </div>
       <Row field="type" value={label} color={color} />
-      <Row field="county" value={String(props.city ?? "")} />
-      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.city ?? ""), String(props.district ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row label={tr("popup.waste.manager")} value={String(props.operator ?? "")} />
 
@@ -192,7 +193,7 @@ export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown
           {stopName || tr("popup.waste.unnamedStop")}
         </div>
       </div>
-      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[placeName(city, i18n), placeTown(city, district, i18n)].filter(Boolean).join(" ")} />
       <Row label={tr("popup.waste.collectionRoute")} value={routeName} />
       {Number.isFinite(routesCount) && routesCount > 0 && (
         <Row
@@ -231,7 +232,7 @@ export function WasteTruckPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       <Row label={tr("popup.waste.vehicleNo")} value={vehicleNo} />
-      <Row field="county" value={city} />
+      <Row field="county" value={placeName(city, i18n)} />
       <Row label={tr("popup.waste.routeCode")} value={routeId} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
         {tr("popup.waste.truckNote")}

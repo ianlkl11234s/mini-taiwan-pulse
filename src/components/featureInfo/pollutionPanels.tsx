@@ -3,6 +3,7 @@
 import type { PanelProps } from "./registry";
 import { Row, Badge } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import type { I18nContext } from "../../i18n/layerText";
 import {
@@ -42,7 +43,7 @@ export function PollutionFacilityPanel({ props }: PanelProps) {
   return (
     <div>
       <Row field="name" value={String(props.name ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="industry" value={String(props.industry_macro ?? "")} />
       <Row label={t("popup.pollution.maxSeverity")} value={sevLabel(maxSev, i18n)} color={SEVERITY_BANDS.find((b) => b.sev === maxSev)?.color} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 6 }}>
@@ -77,7 +78,7 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
   return (
     <div>
       <Row label={t("popup.pollution.penalized")} value={String(props.fac_name ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={t("popup.pollution.medium")} value={enumLabel("pollutionMedium", medium, POLLUTION_MEDIUM_LABELS[medium] ?? medium, i18n)} color={POLLUTION_MEDIUM_COLORS[medium]} />
       <Row label={t("popup.pollution.tier")} value={enumLabel("pollutionPenaltySeverity", severity, PENALTY_SEVERITY_LABELS[severity] ?? severity, i18n)} color={PENALTY_SEVERITY_COLORS[severity]} />
       {reason && <Row field="severityReason" value={reason} />}
@@ -106,13 +107,14 @@ export function PollutionPenaltyPanel({ props }: PanelProps) {
 }
 
 export function PollutionSitePanel({ props }: PanelProps) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const active = Number(props.is_active ?? 0) === 1;
   return (
     <div>
       <Row label={t("popup.pollution.siteName")} value={String(props.site_name ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
-      <Row field="district" value={String(props.township ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)} />
       <Row field="type" value={String(props.site_type ?? "")} />
       <Row label={t("popup.pollution.controlType")} value={String(props.controltype ?? "")} />
       <Row label={t("popup.pollution.announceDate")} value={String(props.anno_date ?? "")} />

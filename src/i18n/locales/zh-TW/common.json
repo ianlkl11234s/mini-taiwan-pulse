@@ -79,5 +79,6 @@
   "loading.failed": "載入失敗",
   "loading.inProgress": "載入中",
   "auth.signIn": "登入",
-  "auth.signInWithGoogle": "使用 Google 登入"
+  "auth.signInWithGoogle": "使用 Google 登入",
+  "embed.openInSite": "在 Mini Taiwan Pulse 開啟"
 }

@@ -5,6 +5,7 @@ import { PopupDetails, PopupScroll, Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
+import { placeNameList, placeTown } from "../../i18n/placeText";
 
 type L = ReturnType<typeof useLocale>;
 
@@ -200,7 +201,7 @@ export function BssNationalBridgePreviewPanel({ props }: { props: Record<string,
     <PopupScroll>
       <Row field="status" value={t("popup.networkStructures.statusValue")} />
       <Row label={t("popup.networkStructures.stage1")} value={stage1StatusText} />
-      <Row label={t("popup.networkStructures.countyType")} value={`${text(props.county_memberships)}・${text(props.bridge_type)}`} />
+      <Row label={t("popup.networkStructures.countyType")} value={`${placeNameList(text(props.county_memberships), i18n)}・${text(props.bridge_type)}`} />
       <Row field="length" value={isLine ? t("popup.networkStructures.lengthValueLine", { registered: registeredLength, drawn: drawnLength }) : t("popup.networkStructures.lengthValuePoint", { registered: registeredLength })} />
       {isLine
         ? <Row label={t("popup.networkStructures.lineBasis")} value={stage1SourceGroupText} />
@@ -313,7 +314,7 @@ export function OfficialBridgeNewTaipeiPanel({ props }: { props: Record<string, 
   return <>
     <Title color={NETWORK_STRUCTURES_COLORS.official}>{text(props.name, t("popup.networkStructures.ntTitle"))}</Title>
     <Row label={t("popup.networkStructures.officialId")} value={text(props.official_id)} />
-    <Row field="district" value={text(props.town)} />
+    <Row field="district" value={placeTown(isMissing(props.county) ? "" : String(props.county), text(props.town), i18n)} />
     <Row field="level" value={text(props.grade)} />
     <Row label={t("popup.networkStructures.registeredLength")} value={numberText(props.official_length_m, " m")} />
     <GeometryRow role={props.geometry_role} />
@@ -353,7 +354,7 @@ export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, 
     <Title color="#a855f7">{text(props.name, t("popup.networkStructures.tnTitle"))}</Title>
     <Row label={t("popup.networkStructures.inspectionYear")} value={isMissing(props.inspection_year_roc) ? t("popup.common.notProvided") : t("popup.networkStructures.inspectionYearValue", { year: displayRocYear(text(props.inspection_year_roc), i18n) })} />
     <Row label={t("popup.networkStructures.inspectorComment")} value={text(props.inspection_comment)} />
-    <Row field="district" value={text(props.town)} />
+    <Row field="district" value={placeTown(isMissing(props.county) ? "" : String(props.county), text(props.town), i18n)} />
     <Row field="authority" value={text(props.competent_authority)} />
     <Row label={t("popup.networkStructures.maintenanceAuthority")} value={text(props.maintenance_authority)} />
     <Row label={t("popup.networkStructures.totalLength")} value={numberText(props.bridge_total_length_m, " m")} />
@@ -426,7 +427,7 @@ export function ChanghuaTrafficSignalPanel({ props }: { props: Record<string, un
     <Row label={t("popup.networkStructures.sourceRecordId")} value={text(props.source_record_id)} />
     <Row label={t("popup.networkStructures.signalKind")} value={text(props.signal_kind)} />
     <Row label={t("popup.networkStructures.responsibleAuthority")} value={text(props.responsible_authority)} />
-    <Row label={t("popup.networkStructures.district")} value={text(props.district)} />
+    <Row label={t("popup.networkStructures.district")} value={placeTown("", text(props.district), i18n)} />
     <GeometryRow role={props.geometry_role} />
     <Row field="dataLimits" value={t("popup.networkStructures.chLimits")} />
     <SourceRows props={props} />

@@ -3,6 +3,7 @@ import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES, CULTURE_MISSING_COLOR,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -19,14 +20,15 @@ function intOrEmpty(v: unknown, fmt: (n: number) => string): string {
 
 /** 文化設施（787 點）：名稱 + 類型（染色）+ 城市 + 地址 */
 export function CulturalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const type = String(props.facility_type ?? "");
   const color = CULTURAL_FACILITY_TYPES.find((c) => c.name === type)?.color ?? CULTURE_MISSING_COLOR;
   return (
     <>
       <Title color={color}>{String(props.name ?? t("popup.culture.facilityFallback"))}</Title>
       <Row field="type" value={type} color={color} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
     </>
   );
@@ -34,14 +36,15 @@ export function CulturalFacilitiesPanel({ props }: { props: Record<string, unkno
 
 /** 地方文化館（252 點）：名稱 + 類型（染色）+ 城市 + 地址 + 官網（純文字） */
 export function CulturalMuseumsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const type = String(props.type ?? "");
   const color = CULTURAL_MUSEUM_TYPES.find((c) => c.name === type)?.color ?? CULTURE_MISSING_COLOR;
   return (
     <>
       <Title color={color}>{String(props.name ?? t("popup.culture.museumFallback"))}</Title>
       <Row field="type" value={type} color={color} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="website" value={String(props.website ?? "")} />
     </>
@@ -81,11 +84,12 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
 
 /** 表演場館（857 點）：場館名 + 城市 + 地址 + 活動數 + 場次數 */
 export function PerformingVenuesPanel({ props }: { props: Record<string, unknown> }) {
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   return (
     <>
       <Title color={PERFORMING_VENUE_COLOR}>{String(props.venue_name ?? t("popup.culture.venueFallback"))}</Title>
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row label={t("popup.culture.eventCount")} value={intOrEmpty(props.event_count, formatNumber)} />
       <Row label={t("popup.culture.showCount")} value={intOrEmpty(props.show_count, formatNumber)} />

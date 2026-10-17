@@ -3,11 +3,13 @@ import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLa
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 
 export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
   const casualty = deaths > 0 || injuries > 0;
@@ -19,7 +21,7 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
     const p2 = (n: number) => String(n).padStart(2, "0");
     timeStr = `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())} ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}`;
   }
-  const loc = [props.county, props.township].filter(Boolean).map(String).join(" ");
+  const loc = [props.county ? placeName(String(props.county), i18n) : "", props.township ? placeTown(String(props.county ?? ""), String(props.township), i18n) : ""].filter(Boolean).join(" ");
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -51,8 +53,8 @@ export function FireStationPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row field="type" value={enumLabel("fireStationType", String(props.type ?? cat), String(props.type ?? cat), i18n)} color={accentColor} />
-      <Row field="county" value={String(props.county ?? "")} />
-      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.county ?? ""), String(props.district ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
     </>
@@ -74,8 +76,8 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row label={tr("popup.fire.hydrantType")} value={enumLabel("fireHydrantType", String(props.type ?? cat), String(props.type ?? cat), i18n)} color={accentColor} />
-      <Row field="county" value={String(props.county ?? "")} />
-      <Row field="district" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="district" value={placeTown(String(props.county ?? ""), String(props.district ?? ""), i18n)} />
       <Row field="number" value={String(props.id ?? "")} />
     </>
   );
@@ -97,7 +99,7 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
           {[5, 10, 15].includes(minutes) ? enumLabel("fireIsochrone", minutes, fireIsochroneLabel(minutes), i18n) : tr("popup.fire.minutesLabel", { minutes })}
         </div>
       </div>
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.fire.reachTime")} value={tr("popup.fire.withinMinutes", { minutes })} color={accentColor} />
       <Row label={tr("popup.fire.cumulativeArea")} value={cumulative} />
       <Row label={tr("popup.fire.ringArea")} value={ring} />

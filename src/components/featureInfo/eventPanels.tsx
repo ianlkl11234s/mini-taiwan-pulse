@@ -5,6 +5,7 @@ import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 
 /** 等同 toLocaleString 預設的完整日期時間（台北時區由 formatDateTime 處理） */
@@ -30,7 +31,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t: tr, formatDateTime } = i18n;
   const eventCount = Number(props.event_count ?? 1);
-  const location = String(props.location_name ?? props.county ?? "");
+  const location = props.location_name != null ? String(props.location_name) : placeName(String(props.county ?? ""), i18n);
   const events = parseEvents(props.events_json);
 
   // 單則：維持原本簡潔版型（向後相容）

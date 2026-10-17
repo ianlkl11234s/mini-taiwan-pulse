@@ -4,6 +4,7 @@ import {
 } from "../../data/landslideTypes";
 import { useLocale } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import type { LocaleSnapshot } from "../../state/localeStore";
 
 /**
@@ -20,7 +21,8 @@ const fmt = (v: unknown, digits: number, unit: string, { formatNumber }: LocaleS
 };
 /** ISO（+08:00）→「2014-06-05 06:52」；不經瀏覽器時區轉換。 */
 const localTime = (v: unknown): string => str(v).replace("T", " ").slice(0, 16);
-const admin = (props: Record<string, unknown>) => [props.county, props.town, props.village].map(str).join("");
+const admin = (props: Record<string, unknown>, i18n: LocaleSnapshot) =>
+  [placeName(`${str(props.county)}${str(props.town)}`, i18n), str(props.village)].filter(Boolean).join(i18n.active === "zh-TW" ? "" : " ");
 const risk = (v: unknown, i18n: LocaleSnapshot) => (str(v) ? enumLabel("landslideRisk", str(v), `${str(v)}風險`, i18n) : "");
 
 export function LandslideDodAreaPanel({ props }: Props) {
@@ -34,7 +36,7 @@ export function LandslideDodAreaPanel({ props }: Props) {
     <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
     <Row label={t("popup.landslide.residents")} value={[dwelling != null ? t("popup.landslide.households", { count: dwelling, value: formatNumber(dwelling) }) : "", str(props.res_class)].filter(Boolean).join("（") + (dwelling != null && str(props.res_class) ? "）" : "")} />
     <Row label={t("popup.landslide.type")} value={str(props.landslide_type)} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row label={t("popup.landslide.landmark")} value={str(props.landmark)} />
     <Row label={t("popup.landslide.accessRoad")} value={str(props.road_name)} />
     <Row field="basin" value={[props.basin, props.sub_basin].map(str).filter(Boolean).join("／")} />
@@ -54,7 +56,7 @@ export function LandslideDodImpactPanel({ props }: Props) {
     <Row label={t("popup.landslide.riskLevel")} value={risk(props.risk, i18n)} color={color} />
     <Row label={t("popup.landslide.householdsCount")} value={fmt(props.total_res, 0, t("popup.landslide.unitHousehold"), i18n)} />
     <Row label={t("popup.landslide.householdClass")} value={str(props.res_class)} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row field="area" value={fmt(props.geom_area_ha, 2, t("popup.landslide.unitHectare"), i18n)} />
     <Row field="authority" value={str(props.authority)} />
   </>;
