@@ -4,7 +4,7 @@
 
 ---
 
-## 2026-10-17 — 首批（PR 待開，併入 develop 後補 merge hash）
+## 2026-10-17 — 首批 PR #628（併入 develop 後補 merge hash）
 
 - 水資源新群組「地層下陷與海堤」4 層：測站 112 點、累積／速率等值線 696 條（單一 PMTiles，z9 起完整）、一般性海堤區域 239 面；資料放 `public/hazards/`
 - 測站彈窗：RPC `get_land_subsidence_timeseries`（mig 474）月平均 10 年趨勢；GNSS 相對首月 mm、磁環可換環、深層樁標單位未註明、0 筆顯示「無監測資料」
