@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -29,7 +30,6 @@ OUT = Path(__file__).resolve().parents[2] / "src/data/crimeStatisticsRecipes.jso
 
 DATA_THEME = "治安統計 Crime Statistics"
 TAB_THEME = "犯罪與治安 Crime & Safety"
-BOUNDARY = "縣市以內政部 114 年 3 月縣市界顯示、鄉鎮以內政部 114 年 3 月鄉鎮市區界顯示；歷年數字都畫在現行界上，不做面積重分配。"
 MISSING = "無資料（來源未列，不是 0）"
 
 # toggle_group 去掉層級尾綴 → (group, group_label, subgroup)；順序＝側欄順序
@@ -54,6 +54,25 @@ BREAK_NOTES: dict[tuple[str, str | None], str] = {
     ("statsCrimeMotorcycleTheft", "township"): "斷點：鄉鎮層 2015–2024 約 55% 只登記到縣市，2025 起跳升是登記口徑改變，不是案件增加（縣市層口徑一致）。",
     ("statsCrimeResidentialBurglary", None): "全國件數 2023 年起連年倍增（1,268 → 2,340 → 5,427 件），原因未查明。",
 }
+
+
+def location_semantics(base: str, delivered: str) -> str:
+    """交付 36 個 recipe 共用同一句（含「毒品案多為查獲地」）；只有毒品保留查獲地，電信詐欺依 disclosure.md 註明地點語意未說明。"""
+    if delivered != "案件發生地（鄉鎮市區精度）；毒品案多為查獲地":
+        raise SystemExit(f"unexpected location_semantics: {delivered}")
+    if base == "statsCrimeDrug":
+        return delivered
+    if base == "statsTelecomFraud":
+        return "案件發生地點（鄉鎮市區精度；來源未說明是受騙地或報案地）"
+    return "案件發生地（鄉鎮市區精度）"
+
+
+def public_disclosure(text: str) -> str:
+    """交付的口徑說明照用，只拿掉內部註記（決策日期、reconciliation 欄名）；邊界說明交付已含，不再重複。"""
+    cleaned = re.sub(r"（使用者 \d{4}-\d{2}-\d{2} 決定）", "", text).replace("（見 reconciliation）", "（圖例「覆蓋狀態」列出未分配件數）").replace("缺值為 null（不補 0）", "缺值標示為無資料（不補 0）")
+    if "使用者" in cleaned or "reconciliation" in cleaned or "null" in cleaned:
+        raise SystemExit(f"internal note left in disclosure: {cleaned}")
+    return cleaned
 
 
 def period_label(start: str, end: str) -> str | None:
@@ -175,8 +194,8 @@ def main() -> None:
             "status_labels": status_labels,
             "format": {"locale": "zh-TW", "maximumFractionDigits": 2 if rate else 0},
             "derived": rate,
-            "location_semantics": layer["location_semantics"],
-            "disclosure": f"{layer['disclosure']}{BOUNDARY}",
+            "location_semantics": location_semantics(base, layer["location_semantics"]),
+            "disclosure": public_disclosure(layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
             "source_title": f"{release['source_metadata']['dataset_title']}（data.gov.tw {layer['source']['landing_url'].rsplit('/', 1)[-1]}）",
