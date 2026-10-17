@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from capture import ORIGIN, probe_camera
+from cctv_source import ORIGIN, probe_camera
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "training-cameras.json"
@@ -63,6 +63,7 @@ def grab(url, number, count, spacing, width, height, jpeg_quality):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--probe", action="store_true", help="only check each configured camera's stream")
+    parser.add_argument("--force", action="store_true", help="capture even outside taipeiHours")
     args = parser.parse_args()
     config = json.loads(CONFIG.read_text())
     now = datetime.now(TZ)
@@ -71,6 +72,10 @@ def main():
     stop_after = datetime.fromisoformat(config["stopAfter"])
     if not args.probe and now > stop_after:
         print(f"stopAfter {stop_after.isoformat()} passed; nothing captured. Unload the launchd job.")
+        return
+    hours = config.get("taipeiHours")
+    if not args.probe and not args.force and hours and now.hour not in hours:
+        print(f"{now.isoformat()} Taipei hour {now.hour} not in taipeiHours; skipped.")
         return
     s = config["sampling"]
     run_id = now.strftime("%Y%m%dT%H%M%S")

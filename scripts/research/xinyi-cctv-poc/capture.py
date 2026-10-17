@@ -28,7 +28,7 @@ from ultralytics.utils import torch_utils as ultralytics_torch_utils
 
 
 ROOT = Path(__file__).resolve().parent
-ORIGIN = "https://hls.bote.gov.taipei"
+from cctv_source import ORIGIN, probe_camera  # noqa: E402  (shared with collect_training)
 CAMERAS = (
     ("T000354", "354", 121.54833, 25.03318, "W"),
     ("T000330", "330", 121.55281, 25.03316, "E"),
@@ -50,37 +50,6 @@ def percentile(values, p):
     position = (len(ordered) - 1) * p
     lower = int(position)
     return ordered[lower] + (ordered[min(lower + 1, len(ordered) - 1)] - ordered[lower]) * (position - lower)
-
-
-def probe_camera(number):
-    """Follow the public player's getCameraInfo -> longTermPath branch."""
-    page = f"{ORIGIN}/live/index.html?id={number}"
-    response = requests.get(f"{ORIGIN}/live/_api/camera/by-ccd/{number}", timeout=(5, 8))
-    response.raise_for_status()
-    info = response.json()
-    if info.get("state") != "Responding":
-        raise RuntimeError(f"official state: {info.get('state', 'unknown')}")
-    if not info.get("isLongTerm") or not info.get("longTermPath"):
-        raise RuntimeError("official player has no long-term stream path")
-    url = urljoin(page, info["longTermPath"])
-    parsed = urlparse(url)
-    if parsed.scheme != "https" or parsed.netloc != urlparse(ORIGIN).netloc or not parsed.path.endswith(".m3u8"):
-        raise RuntimeError("official stream path is outside the expected HTTPS origin")
-    headers = {"Referer": page, "Origin": ORIGIN}
-    playlist = requests.get(url, headers=headers, timeout=(5, 8))
-    playlist.raise_for_status()
-    if not playlist.text.startswith("#EXTM3U"):
-        raise RuntimeError("official stream did not return an HLS playlist")
-    return url, {
-        "cameraId": number,
-        "pageUrl": page,
-        "state": info["state"],
-        "streamKind": "long_term_hls",
-        "playlistUrl": url,
-        "playlistHttpStatus": playlist.status_code,
-        "playlistContentType": playlist.headers.get("Content-Type"),
-        "playlistCheckedAt": utc_now(),
-    }
 
 
 @dataclass
