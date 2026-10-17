@@ -20,7 +20,8 @@
 
 | 文件 | 用途 |
 |---|---|
-| [status.md](./status.md) | 背景決策、任務清單、backlog、執行紀錄（主入口） |
+| [status.md](./status.md) | 背景決策、任務清單、執行紀錄（停在 2026-05-06，已過時；現況看 handoff.md） |
+| [handoff.md](./handoff.md) | 跨 repo 資料契約：來源、表、RPC、collector、接線、改動順序 |
 | [research/survey.md](./research/survey.md) | 22 縣市清運資料盤點與擴展策略 |
 | [research/roadmap.md](./research/roadmap.md) | 全臺多城擴展進度表 |
 | [research/progress.md](./research/progress.md) | 全臺資料整合進度紀錄（資料源 hwms） |
