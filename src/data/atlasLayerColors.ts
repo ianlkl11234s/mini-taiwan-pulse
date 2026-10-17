@@ -29,4 +29,12 @@ export const ATLAS_LAYER_COLORS = {
   iowStructureMonitoring: "#4338ca",
   wraDredgingPoints: "#a16207",
   wraEcologySurveySites: "#15803d",
+  // 海域保護與漁業 G08（2026-10-17）
+  natureReserves: "#166534",
+  wildlifeProtectedAreas: "#65a30d",
+  openFishingLocations: "#0891b2",
+  coastalAreaExtents: "#64748b",
+  artificialReefCenters: "#ea580c",
+  protectedReefCenters: "#b45309",
+  setNetFishingAreas: "#7c3aed",
 } as const;

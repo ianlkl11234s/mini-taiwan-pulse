@@ -15,5 +15,11 @@
   "legend.atlas.noteSource": "{note} {source} · Open Government Data License, version 1.0.",
   "legend.atlas.sourceIds": "{org} (data.gov.tw {ids})",
   "legend.atlas.sourceIdsEtc": "{org} (data.gov.tw {ids}, etc.)",
-  "legend.atlas.idSeparator": ", "
+  "legend.atlas.idSeparator": ", ",
+  "legend.atlas.noteSourceLicense": "{note} {source} · {license}.",
+  "legend.atlas.licenseFaCopyright": "website copyright notice, no open license found",
+  "legend.atlas.protectedAreaWithLand": "Protected extent (incl. land)",
+  "legend.atlas.fishingPoint": "Open fishing location (not an indication of access or safety)",
+  "legend.atlas.reefCenter": "Center position, not the extent",
+  "legend.atlas.setNetArea": "Set-net fishery right extent"
 }

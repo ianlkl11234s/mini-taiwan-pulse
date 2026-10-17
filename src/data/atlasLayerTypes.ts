@@ -263,6 +263,18 @@ export function ecologyColorExpr(): unknown[] {
     ...ECOLOGY_SPECIES_STEPS.slice(1).flatMap((step) => [step.min, step.color])];
 }
 
+// ── 海域保護與漁業 G08（2026-10-17）─────────────────────────────────────
+
+/** 海岸地區範圍（111 年版）：來源 area_type 為中文字串，直接當 value。 */
+export const COASTAL_AREA_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "濱海陸地", label: "濱海陸地", color: "#a8a29e" },
+  { value: "近岸海域", label: "近岸海域", color: "#64748b" },
+];
+/** G08 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*），併入 atlasLegends 的 ORGS。 */
+export const MARINE_PROTECTION_ORGS = {
+  forestry: "農業部林業及自然保育署", fa: "農業部漁業署", nps: "內政部國家公園署",
+} as const;
+
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
 export const ATLAS_NOTES = {
@@ -292,4 +304,11 @@ export const ATLAS_NOTES = {
   iowStructureMonitoring: "水利署 IoT 堤防與閘門結構安全監測站（站點基底，非即時數值）。",
   wraDredgingPoints: "河川疏濬工程點位（快照）；多數座標只到小數 2 位（約 ±1 km），點開看精度。數量單位來源未註明。",
   wraEcologySurveySites: "水利署河川生態調查站（1995–2019，2019 後停更）；顏色是物種數。",
+  natureReserves: "全國自然保留區（含陸域，不限海域）；日期為法定公告日，不是資料新鮮度。僅供參考，不構成法規適用判斷。",
+  wildlifeProtectedAreas: "全國野生動物保護區（含陸域，不限海域）；同名多面為不同分區。僅供參考，不構成法規適用判斷。",
+  openFishingLocations: "海洋保育署公布的開放捕魚點位；點位不是範圍，不代表可進入或安全。僅供參考，不構成法規適用判斷。",
+  coastalAreaExtents: "111 年版（2022-09-13）海岸地區範圍，非現行海岸線或管制；7 筆來源面積不到 1 m² 的退化面（金門）未上圖，小島礁放大後才出現。僅供參考，不構成法規適用判斷。",
+  artificialReefCenters: "中心位置，非範圍：依公告座標文字解析的人工魚礁禁漁區中心點，範圍規則見彈窗文字；部分點是所列頂點平均（非官方中心）。僅供參考，不構成法規適用判斷。",
+  protectedReefCenters: "中心位置，非範圍：依公告座標文字解析的保護礁禁漁區中心點（多為 A、B 兩點連線中點）；1 筆來源僅有地名描述，未上圖。僅供參考，不構成法規適用判斷。",
+  setNetFishingAreas: "定置漁業權區（114-08-05 版），來源座標系統已轉為經緯度；不代表現行許可、可否進入或航行安全。僅供參考，不構成法規適用判斷。",
 } as const satisfies Record<AtlasLayerKey, string>;

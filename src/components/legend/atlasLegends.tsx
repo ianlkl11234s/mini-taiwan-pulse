@@ -6,7 +6,7 @@ import {
   ECOLOGY_SPECIES_STEPS, ECO_SENSITIVE_LEVEL_OPTIONS, EMERGENCY_BAY_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS,
   GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MICROPLASTIC_STEPS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS,
   POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS,
-  TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -31,13 +31,16 @@ const ORGS = {
   ncdr: "國家災害防救科技中心", taipeiHydraulic: "臺北市政府工務局水利工程處", marn: "海洋委員會海洋保育署 MARN",
   oca: "海洋委員會海洋保育署", moenv: "環境部", oac: "海洋委員會", namr: "國家海洋研究院",
   landAdmin: "內政部地政司", nlsc: "內政部國土測繪中心", wra: "經濟部水利署",
+  ...MARINE_PROTECTION_ORGS,
 } as const;
 type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
 
 /** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
-function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title }: {
+function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, license }: {
   layer: AtlasLayerKey; en: string; rows: readonly Row[]; kind?: Swatch; source: Source; domain?: string; title?: StaticMessageKey;
+  /** 非 OGDL 的授權說明（例：定置漁業權區＝漁業署網站著作權聲明）；未給時沿用 OGDL 模板。 */
+  license?: StaticMessageKey;
 }) {
   const i18n = useLocale();
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layer]?.name;
@@ -51,7 +54,9 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title }: {
   return <div>
     <LegendTitle zh={heading} en={en} />
     {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={swatchOf(kind, row.color)}>{labelOf(row)}</LegendRow>)}
-    <LegendNote>{i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>
+    <LegendNote>{license
+      ? i18n.t("legend.atlas.noteSourceLicense", { note, source: sourceText, license: i18n.t(license) })
+      : i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>
   </div>;
 }
 
@@ -89,4 +94,12 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   iowStructureMonitoring: () => <AtlasLegend layer="iowStructureMonitoring" en="IoW Structure Monitoring" source={src("wra", ["142981"], true)} domain="atlasStructure" rows={STRUCTURE_CATEGORY_OPTIONS} />,
   wraDredgingPoints: () => <AtlasLegend layer="wraDredgingPoints" en="River Dredging" source={src("wra")} domain="atlasDredging" rows={DREDGING_STATUS_OPTIONS} />,
   wraEcologySurveySites: () => <AtlasLegend layer="wraEcologySurveySites" title="legend.atlas.titleEcology" en="River Ecology Survey Sites" source={src("wra")} domain="atlasSpecies" rows={stepRows(ECOLOGY_SPECIES_STEPS)} />,
+  // 海域保護與漁業 G08（2026-10-17）
+  natureReserves: () => <AtlasLegend layer="natureReserves" en="Nature Reserves" kind="square" source={src("forestry")} rows={single("natureReserves", "legend.atlas.protectedAreaWithLand")} />,
+  wildlifeProtectedAreas: () => <AtlasLegend layer="wildlifeProtectedAreas" en="Wildlife Protected Areas" kind="square" source={src("forestry")} rows={single("wildlifeProtectedAreas", "legend.atlas.protectedAreaWithLand")} />,
+  openFishingLocations: () => <AtlasLegend layer="openFishingLocations" en="Open Fishing Locations" source={src("oca")} rows={single("openFishingLocations", "legend.atlas.fishingPoint")} />,
+  coastalAreaExtents: () => <AtlasLegend layer="coastalAreaExtents" en="Coastal Area Extents (2022 edition)" kind="square" source={src("nps", ["20821"])} domain="atlasCoastal" rows={COASTAL_AREA_TYPE_OPTIONS} />,
+  artificialReefCenters: () => <AtlasLegend layer="artificialReefCenters" en="Artificial Reef Areas (centers)" source={src("fa")} rows={single("artificialReefCenters", "legend.atlas.reefCenter")} />,
+  protectedReefCenters: () => <AtlasLegend layer="protectedReefCenters" en="Protected Reef Areas (centers)" source={src("fa")} rows={single("protectedReefCenters", "legend.atlas.reefCenter")} />,
+  setNetFishingAreas: () => <AtlasLegend layer="setNetFishingAreas" en="Set-net Fishery Right Areas" kind="square" source={src("fa")} license="legend.atlas.licenseFaCopyright" rows={single("setNetFishingAreas", "legend.atlas.setNetArea")} />,
 };
