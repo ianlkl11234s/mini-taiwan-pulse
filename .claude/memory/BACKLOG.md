@@ -45,16 +45,18 @@
 |---|---|---|---|---|---|
 | D3 | P1 | blocked | Reduce anonymous PostgREST surface to the intended schemas. | First confirm no other gis-platform consumer relies on direct REST access to the schemas being removed (2026-10-05 still exposed reference, spatial, metadata, opendata, fire, maritime, rail, safety, demographics, intel; merged with former AR-41 on 2026-10-16). Include mini-taiwan-info, terrain-art, weather_change and tree-report in the consumer scan. | `public`/`graphql_public` only, regression checks for shared consumers, and reversible dashboard evidence. [Launch hardening](../../docs/launch/08_POST_LAUNCH_HARDENING.md) |
 | BC-4b | P1 | waiting_external | Production auth + enforcing-CSP step (the header/privacy-page prerequisites stay in the BYOK backlog as BC-4; renamed BC-4b on 2026-10-16 to keep IDs unique). | Configure production OAuth URLs in Supabase/Google; then collect browser CSP violations before changing Report-Only to enforcing (2026-10-05: production root still serves the main policy as `Content-Security-Policy-Report-Only`). | Production Google login works; all key flows have no CSP violations before enforcement. [BYOK backlog](../../docs/features/byok-chat/backlog.md) |
-| OG-1 | P2 | waiting_external | Bound anon-key abuse cost. | Confirm and set Supabase Spend Cap; self-zone Cloudflare rate limits do not protect Supabase. | Dashboard setting and alert threshold are recorded. [Owner-gated backlog](../../docs/features/owner-gated-layers/backlog.md) |
+| OG-1 | P2 | done | Bound anon-key abuse cost. | 2026-10-17 使用者確認 Supabase Spend Cap 已開啟（超額時專案會變慢或唯讀，不會加收費用）。Supabase Data API 沒有可設定的每 IP 限流；DB 保護靠 RPC clamp 與 statement_timeout。 | Dashboard setting and alert threshold are recorded. [Owner-gated backlog](../../docs/features/owner-gated-layers/backlog.md) |
 | G016 | P2 | waiting_external | Revoke the obsolete `weather_change` AWS credential. | Repo-side references appear gone (2026-10-05: no `weather_change` hit in data-collectors origin/main; local `.env` not inspected). An AWS administrator must deactivate the `gis-data-collectors` key ending `E7PK`. | Old credential fails through STS and retirement is recorded without exposing secret material. |
 | JP-1 | P2 | ready | Verify the Japan religion view hardening through the real PostgREST write path. | Migration 374 readback proves SELECT-only grants, `security_invoker=true` and anon reads; perform bounded anon/authenticated REST write attempts without modifying valid rows. | Reads remain 200 and INSERT/UPDATE/DELETE attempts are rejected by PostgREST; evidence records status/error without logging secrets. |
+| SEC-6 | P2 | deferred | 決定 data-collectors 服務的其他秘密要不要輪換（2026-10-17 資安稽核後續）。 | 2026-10-17 使用者決定先不處理（也未開額外存取紀錄）。已處理：外洩的 API key 已換、相關漏洞已修。脈絡、影響範圍、甲／乙／丙選項與代價只記在私有 repo（本 repo 公開，不寫細節）：gis-platform `docs/research/2026-10-17-security-audit.md` §回家要處理 1。重啟條件：發現異常存取或資料異動、或要做其他金鑰維護時順便做。 | 使用者選定選項並執行完畢，或明確結案。 |
 
 ## Cross-cutting platform work
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
 | AG-5 | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
-| AG-7 | P3 | ready | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | eval `--reset-cmd`（`run.mts` runResetCommand）改成重整前先全部關閉（或 gateway scene 清空）。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-7 | P3 | done | 回歸測試每題重置只重整分頁，前題開的圖層會殘留（拖慢載入、畫面雜）。 | Done 2026-10-17。驗收條件已達成：MCP #56 重置後明確關掉殘留圖層，2026-10-16／10-17 eval 每題起始圖層都是「無」。 | 每題開始時 visibleLayerKeys 只有預設圖層。 |
+| AG-12 | P2 | done | 上網查證關卡：何時上網、何時先問（pulse-conductor＋pulse-verify＋server 指示）。 | Done 2026-10-17。MCP #56–#59 上線；後續數字口徑 #60、醫療院所去重與排名不上網 #62、地震只用正式目錄 #63。現況看 `.gis-agent-system/roadmap/status/ai-mcp.md`。 | 見 `.gis-agent-system/roadmap/status/ai-mcp.md`。 |
 | AG-10 | P2 | blocked | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | owner decision：要不要做「面板偵測新版本並提示重新整理」（目前 src 沒有任何版本偵測，2026-10-05 查）。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
 | AG-2 | P2 | ready | 倉庫重建後收尾：移除 mcp 牧場標題覆寫，讓 build 階段的 ST_MakeValid 生效。 | 2026-10-05 倉庫已切到 20261005T051814Z（update_store.py 增量），但 wh_catalog 牧場標題仍是「肉品拍賣/批發市場（21 家）」。先查清楚 update_store 為何沒套用 analytics #134 的 manifest title 與 build_warehouse 修正，必要時對 livestock_ranch 全量重建，之後再刪 override。 | 重建後搜「畜牧場」第一名是點位資料且標題不是「肉品拍賣」；刪掉 `datasetLabelOverrides.json` 的牧場項後測試綠；淹水面交集不需要 MakeValid 也正確。 |
@@ -186,7 +188,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| SEO-5 | P1 | conditional | 讓 Google／Bing 開始收錄正式站。 | Trigger: #609 隨下一版發布到 master。Owner: 使用者（DNS TXT 驗證網域）＋ Claude。First action: Search Console 驗證網域、提交 sitemap、請求首頁建立索引；1–2 週後重搜。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
+| SEO-5 | P1 | verifying | 讓 Google／Bing 開始收錄正式站。 | 2026-10-17 已完成：#609 隨 v2.9.0 上線；Search Console 以「網域」資源驗證 `itsmigu.com`（Cloudflare 自動加 TXT，勿刪 `google-site-verification` 紀錄）、提交 sitemap（找到 3 個網址）、首頁已要求建立索引（Google 上次檢索為 2026-09-20 的空白首頁）。Next: 約 2026-10-31 查 `site:` 與 Search Console「網頁」報表；Bing 可從 Search Console 匯入（選做）。 | `site:mini-taiwan-pulse.itsmigu.com` 出現首頁與語言版本。報告 §3 |
 | SEO-4 | P2 | waiting_external | 社群分享預覽圖。 | 需要一張 1200×630 站圖（`public/` 目前沒有適合的），到位後補 og:image 與 `twitter:card=summary_large_image`。 | 分享連結出現預覽圖。 |
 | SEO-6 | P2 | conditional | 讓爬蟲讀到實質內容（預渲染或靜態「關於／資料來源／主題導覽」頁）。 | Trigger: SEO-5 收錄兩週後的結果。Owner: 使用者決定投入。First action: 與 SEO-7（英日文實體頁）、AEO-3（FAQ）同一包規劃。 | 重點說明頁有實體 HTML 並被收錄。 |
 | PERF-1 | P2 | ready | 首屏 JS 由 gzip 2.11 MB 降到 1 MB 內（2026-10-16 本機 Lighthouse 行動版效能 0.26、LCP 15.9 s，機器負載偏高）。 | `statisticsText`（322 KB gz）、`JpMedicalStatus`（124 KB gz）改為使用時才載入；PERF-3 清查未使用 JS（Lighthouse 估可省 904 KiB）。 | 本機 Lighthouse 行動版 LCP 明顯下降，同設定跑 3 次取中位數。 |
@@ -194,6 +196,9 @@
 | A11Y-1 | P2 | ready | 移除 viewport 的 `user-scalable=no`（Lighthouse 無障礙唯一未過項）。 | 先確認地圖雙指縮放不受影響。 | Lighthouse 無障礙 ≥ 0.95。 |
 | OPS-1 | P2 | ready | 無 WebGL 時顯示說明，而不是整個畫面空白。 | 加初始化失敗提示與 ErrorBoundary。 | 無 WebGL 環境看得到提示與替代連結。 |
 | PRIV-1 | P3 | ready | 新增隱私說明頁。 | 寫清楚登入走 Supabase 與 Google、BYOK 金鑰留在瀏覽器、AI 對話送往的服務、Mapbox 載圖請求。 | 頁面存在，內容與 PRIV-2 的第三方清單一致。 |
+| SEC-3 | P2 | ready | 公開 RPC 收回多餘的 PUBLIC EXECUTE，只留需要的角色。 | gis-platform 473（2026-10-17 已套用）加上限時刻意沒 REVOKE PUBLIC：交易內實測收回會讓 15 個只靠 PUBLIC 的服務角色失權（gis_monitor_hermes、global_events_publisher、supabase_read_only_user、air_ticket_writer、cloud_agent_ro 等）。First action: 盤點這些角色實際呼叫哪些函式，先明確 GRANT 給它們，再 REVOKE PUBLIC。 | 收回後各服務角色呼叫正常、anon 只剩前端用到的函式。 |
+| SEC-4 | P3 | ready | `get_rain_basin_accumulated` 本身太慢（查 1 天約 13.6 s、7 天約 29 s），473 的 30 天上限擋不住。 | 目前無前端呼叫者。二選一：pre-aggregate／加索引優化，或確認無人使用後收回 anon／authenticated 權限。 | 1 天查詢 < 1 s，或 anon 已不能執行。 |
+| SEC-5 | P3 | ready | 公開 RPC 在上限內仍可重複拖慢 DB（例：`get_waste_trails` 上限 180 分一次約 8 s，前端只用 60 分約 1 s）。 | 二選一：上限再收緊（垃圾車 180→120 分）或在上層加限流（PostgREST／Cloudflare）。稽核報告見 473 檔頭與 PR gis-platform #174。 | 單次最大範圍查詢 < 3 s，或同 IP 頻率受限。 |
 
 ## Weekly audit findings
 

@@ -1,5 +1,7 @@
 # 垃圾清運圖層 — Status
 
+> ⚠️ **過時（2026-10-17 標注）**：本檔停在 2026-05-06，多處已與現況不符（例：表已從 `realtime.waste_*` 搬到 `live`〔migration 312〕、設施筆數、「migration 069 待執行」「P0 OSRM 待做」都已完成）。現行契約看 [handoff.md](./handoff.md)；本檔保留為決策與執行紀錄。
+>
 > 最後更新：2026-05-06
 > 分支：`feat/historical-mode`（之後可拆 `feat/waste-collection`）
 > 主城策略：**高雄**（24h GPS 8,374 筆 / 157 車 / 1,399 路線 / 32,422 停靠點 — 完整度第一）

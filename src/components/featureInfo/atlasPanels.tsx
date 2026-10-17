@@ -8,9 +8,11 @@ import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
   PLACE_CATEGORY_OPTIONS, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS,
-  SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
+import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
+import { LAND_SUBSIDENCE_PANELS } from "./landSubsidencePanels";
 
 /**
  * atlas 批次 2026-10 的 26 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（每筆都帶
@@ -488,6 +490,98 @@ function EcologyPanel({ props }: Props) {
   </>;
 }
 
+// ── 海域保護與漁業 G08（2026-10-17）──────────────────────────────────────
+// 每層尾端固定兩列：該層專屬警語＋「僅供參考，不構成法規適用判斷」。出典與授權由 SourceFooter 掛。
+
+/** 全群組免責（逐字）：放在每個 popup 最後。 */
+const MarineDisclaimer = ({ note }: { note?: string }) => {
+  const { t } = useLocale();
+  return <>
+    {note ? <Row field="caution" value={note} /> : null}
+    <Row field="dataLimits" value={t("popup.atlas.marineDisclaimer")} />
+  </>;
+};
+
+function ProtectedAreaPanel({ props, layer }: Props & { layer: "natureReserves" | "wildlifeProtectedAreas" }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const area = fmt(props.source_area_ha, 2, t("popup.atlas.unitHectares"), i18n);
+  return <>
+    <Title color={ATLAS_LAYER_COLORS[layer]}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.subarea")} value={str(props.subarea_name)} />
+    <Row field="managingAgency" value={str(props.manager)} />
+    <Row label={t("popup.atlas.legalEstablished")} value={str(props.legal_established_date)} mono />
+    <Row label={t("popup.atlas.legalAnnounced")} value={str(props.legal_announced_date)} mono />
+    <Row label={t("popup.atlas.sourceAreaHa")} value={area ? t("popup.atlas.sourceValue", { value: area }) : ""} />
+    <Row field="sourceVersion" value={str(props.source_edition)} />
+    <DataDate props={props} />
+    <MarineDisclaimer note={t("popup.atlas.includesLand")} />
+  </>;
+}
+const NatureReservePanel = ({ props }: Props) => <ProtectedAreaPanel props={props} layer="natureReserves" />;
+const WildlifeProtectedPanel = ({ props }: Props) => <ProtectedAreaPanel props={props} layer="wildlifeProtectedAreas" />;
+
+function OpenFishingPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.openFishingLocations}>{t("popup.atlas.openFishingTitle", { county: placeName(str(props.county), i18n) })}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row field="longitude" value={str(props.source_xpos)} mono />
+    <Row field="latitude" value={str(props.source_ypos)} mono />
+    <DataDate props={props} />
+    <MarineDisclaimer note={t("popup.atlas.fishingPointCaution")} />
+  </>;
+}
+
+function CoastalAreaPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(COASTAL_AREA_TYPE_OPTIONS, props.area_type);
+  const type = enumOf("atlasCoastal", props.area_type, props.area_type, i18n);
+  return <>
+    <Title color={color}>{`${placeName(str(props.county), i18n)} ${type}`}</Title>
+    <Row field="type" value={type} color={color} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row field="version" value={t("popup.atlas.coastalEdition")} />
+    <MarineDisclaimer note={t("popup.atlas.coastalCaution")} />
+  </>;
+}
+
+function ReefCenterPanel({ props, layer }: Props & { layer: "artificialReefCenters" | "protectedReefCenters" }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const basis = enumOf("atlasReefBasis", props.point_basis, props.point_basis_label, i18n);
+  return <>
+    <Title color={ATLAS_LAYER_COLORS[layer]}>{str(props.name)}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.reefDepth")} value={str(props.depth_text)} />
+    <Row label={t("popup.atlas.announceDate")} value={str(props.announce_date)} mono />
+    <Row label={t("popup.atlas.rangeRule")} value={str(props.range_text)} />
+    <Row label={t("popup.atlas.coordinateText")} value={str(props.coordinate_text)} mono />
+    <Row label={t("popup.atlas.pointMeaning")} value={basis} />
+    <DataDate props={props} />
+    <MarineDisclaimer note={t("popup.atlas.reefCenterCaution")} />
+  </>;
+}
+const ArtificialReefPanel = ({ props }: Props) => <ReefCenterPanel props={props} layer="artificialReefCenters" />;
+const ProtectedReefPanel = ({ props }: Props) => <ReefCenterPanel props={props} layer="protectedReefCenters" />;
+
+function SetNetPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.setNetFishingAreas}>{[str(props.fishery_name), str(props.area_name)].filter(Boolean).join(t("popup.atlas.dot")) || t("popup.atlas.setNetTitle")}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.fisheryName")} value={str(props.fishery_name)} />
+    <Row field="place" value={str(props.area_name)} />
+    <Row label={t("popup.atlas.licenseNo")} value={str(props.license_no)} mono />
+    <Row field="license" value={t("popup.atlas.setNetLicense")} />
+    <DataDate props={props} />
+    <MarineDisclaimer note={t("popup.atlas.setNetCaution")} />
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -515,7 +609,19 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   iowStructureMonitoring: IowPanel,
   wraDredgingPoints: DredgingPanel,
   wraEcologySurveySites: EcologyPanel,
+  natureReserves: NatureReservePanel,
+  wildlifeProtectedAreas: WildlifeProtectedPanel,
+  openFishingLocations: OpenFishingPanel,
+  coastalAreaExtents: CoastalAreaPanel,
+  artificialReefCenters: ArtificialReefPanel,
+  protectedReefCenters: ProtectedReefPanel,
+  setNetFishingAreas: SetNetPanel,
+  ...LAND_SUBSIDENCE_PANELS,
 };
+
+function manifestZh(key: AtlasLayerKey): string {
+  return (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name?.zh ?? key;
+}
 
 /** 說明框標題列 */
 export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
@@ -545,4 +651,16 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   iowStructureMonitoring: "水利結構監測站",
   wraDredgingPoints: "河川疏濬工程",
   wraEcologySurveySites: "河川生態調查站",
+  // 海域保護與漁業 G08：標題借 manifest 圖層名（中文正本只寫一處；英日文走 layers.json）
+  natureReserves: manifestZh("natureReserves"),
+  wildlifeProtectedAreas: manifestZh("wildlifeProtectedAreas"),
+  openFishingLocations: manifestZh("openFishingLocations"),
+  coastalAreaExtents: manifestZh("coastalAreaExtents"),
+  artificialReefCenters: manifestZh("artificialReefCenters"),
+  protectedReefCenters: manifestZh("protectedReefCenters"),
+  setNetFishingAreas: manifestZh("setNetFishingAreas"),
+  landSubsidenceStations: manifestZh("landSubsidenceStations"),
+  landSubsidenceCumulative: manifestZh("landSubsidenceCumulative"),
+  landSubsidenceRate: manifestZh("landSubsidenceRate"),
+  seawallZones: manifestZh("seawallZones"),
 };

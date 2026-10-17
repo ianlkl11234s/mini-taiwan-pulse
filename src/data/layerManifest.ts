@@ -119,7 +119,7 @@ import {
   Syringe, TestTube, ShieldPlus,
   // 💉 減害服務第二批（HeartPulse / ShieldCheck 已在上方 import 復用）
   Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront,
-  Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle,
+  Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle, TrendingDown, BrickWall,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7467,6 +7467,107 @@ export const LAYER_MANIFEST = {
     description: "國家海洋研究院環境 DNA 調查站位。",
     topics: ["海洋", "環境DNA", "調查"],
   },
+  // ── 海域保護與漁業 G08（2026-10-17）：analytics data/processed/marine → build-atlas-public.py → public/marine/ ──
+  natureReserves: {
+    key: "natureReserves", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.natureReserves, icon: TreePine,
+    upstream: { status: "verified", datasets: [{ datasetId: "nature_reserves", confidence: "HIGH" }], note: "農業部林業及自然保育署 自然保留區（24 面，全國含陸域）；日期為法定公告日。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "nature-reserves", url: "./marine/nature_reserves.geojson" },
+    legend: "natureReserves", popup: "natureReserves", params: { count: 1, kinds: ["slider"] },
+    description: "全國自然保留區範圍（含陸域，不限海域）；僅供參考，不構成法規適用判斷。",
+    topics: ["海洋", "保護區", "自然保留區", "保育"],
+  },
+  wildlifeProtectedAreas: {
+    key: "wildlifeProtectedAreas", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.wildlifeProtectedAreas, icon: Leaf,
+    upstream: { status: "verified", datasets: [{ datasetId: "wildlife_protected_areas", confidence: "HIGH" }], note: "農業部林業及自然保育署 野生動物保護區（32 面，同名多面為分區，全國含陸域）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "wildlife-protected-areas", url: "./marine/wildlife_protected_areas.geojson" },
+    legend: "wildlifeProtectedAreas", popup: "wildlifeProtectedAreas", params: { count: 1, kinds: ["slider"] },
+    description: "全國野生動物保護區與分區（含陸域，不限海域）；僅供參考，不構成法規適用判斷。",
+    topics: ["海洋", "保護區", "野生動物", "保育"],
+  },
+  openFishingLocations: {
+    key: "openFishingLocations", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "開放捕魚點", alt: "Open Fishing Locations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.openFishingLocations, icon: Fish,
+    upstream: { status: "verified", datasets: [{ datasetId: "open_fishing_locations", confidence: "HIGH" }], note: "海洋委員會海洋保育署 開放捕魚點位（155 點，資源更新 2026-07-22）；點位不是範圍。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "open-fishing-locations", url: "./marine/open_fishing_locations.geojson" },
+    legend: "openFishingLocations", popup: "openFishingLocations", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "海洋保育署公布的開放捕魚點位；點位不代表可進入或安全。",
+    topics: ["海洋", "釣魚", "釣點", "開放捕魚"],
+  },
+  coastalAreaExtents: {
+    key: "coastalAreaExtents", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.coastalAreaExtents, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "coastal_area_extents", confidence: "HIGH" }], note: "內政部國家公園署 111 年海岸地區範圍（data.gov.tw 20821，343 面；7 面面積 < 1 m² 的退化面未上圖）。PMTiles z5–12，小島礁依面積延後出現，z12 起 336 面完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "coastal-area-extents", url: "./marine/coastal_area_extents.pmtiles", sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
+    legend: "coastalAreaExtents", popup: "coastalAreaExtents", params: { count: 2, kinds: ["multiSelect", "slider"] },
+    description: "111 年版海岸地區範圍，分濱海陸地與近岸海域；不是現行海岸線或管制。",
+    topics: ["海洋", "海岸", "海岸地區", "近岸海域"],
+  },
+  artificialReefCenters: {
+    key: "artificialReefCenters", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "人工魚礁區（中心位置）", alt: "Artificial Reef Areas (centers)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.artificialReefCenters, icon: Anchor,
+    upstream: { status: "verified", datasets: [{ datasetId: "artificial_reef_areas", confidence: "HIGH" }], note: "農業部漁業署 人工魚礁禁漁區（88 處）；依公告座標文字解析的中心位置，非範圍（10 處為頂點平均）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "artificial-reef-centers", url: "./marine/artificial_reef_areas.geojson" },
+    legend: "artificialReefCenters", popup: "artificialReefCenters", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "人工魚礁禁漁區的中心位置（非範圍）；範圍規則見彈窗文字。",
+    topics: ["海洋", "漁業", "人工魚礁", "禁漁區"],
+  },
+  protectedReefCenters: {
+    key: "protectedReefCenters", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "保護礁區（中心位置）", alt: "Protected Reef Areas (centers)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.protectedReefCenters, icon: Hexagon,
+    upstream: { status: "verified", datasets: [{ datasetId: "protected_reef_areas", confidence: "HIGH" }], note: "農業部漁業署 保護礁禁漁區（68 處，67 處有點；1 處來源僅有地名描述未上圖）；中心位置，非範圍。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "protected-reef-centers", url: "./marine/protected_reef_areas.geojson" },
+    legend: "protectedReefCenters", popup: "protectedReefCenters", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "保護礁禁漁區的中心位置（非範圍，多為 A、B 兩點連線中點）。",
+    topics: ["海洋", "漁業", "保護礁", "禁漁區"],
+  },
+  setNetFishingAreas: {
+    key: "setNetFishingAreas", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "定置漁業權區", alt: "Set-net Fishery Right Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.setNetFishingAreas, icon: Grid3x3,
+    upstream: { status: "verified", datasets: [{ datasetId: "set_net_fishing_areas", confidence: "HIGH" }], note: "農業部漁業署 定置漁業權區（65 面，114-08-05 版；來源 EPSG:3857 已轉經緯度）。授權：漁業署網站著作權聲明，未見開放授權。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "set-net-fishing-areas", url: "./marine/set_net_fishing_areas.geojson" },
+    legend: "setNetFishingAreas", popup: "setNetFishingAreas", params: { count: 1, kinds: ["slider"] },
+    description: "定置漁業權區範圍（114-08-05 版）；不代表現行許可、可否進入或航行安全。",
+    topics: ["海洋", "漁業", "定置網", "漁業權"],
+  },
+  // ── 地層下陷＋海堤 G19（2026-10-17）：analytics data/processed/water_resources → build-land-subsidence-public.py → public/hazards/ ──
+  landSubsidenceStations: {
+    key: "landSubsidenceStations", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landSubsidenceStations, icon: TrendingDown,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢走 RPC get_land_subsidence_timeseries（mig 474）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "land-subsidence-stations", url: "./hazards/land_subsidence_stations.geojson" },
+    legend: "landSubsidenceStations", popup: "landSubsidenceStations", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "水利署地層下陷監測站（GNSS、磁環分層監測井、深層水準樁）；點開看長期趨勢。單站量測不代表整個地區。",
+    topics: ["地層下陷", "水資源", "地下水", "GNSS", "監測站"],
+  },
+  landSubsidenceCumulative: {
+    key: "landSubsidenceCumulative", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "累積下陷量等值線", alt: "Cumulative Subsidence Contours" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landSubsidenceCumulative, icon: Spline,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_contours", confidence: "HIGH" }], note: "經濟部水利署 累積下陷量等值線（data.gov.tw 58361）507 條；預設各縣市最新期 125 條。PMTiles z5–13，z9 起 696 條完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "land-subsidence-contours", url: "./hazards/land_subsidence_contours.pmtiles", sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
+    legend: "landSubsidenceCumulative", popup: "landSubsidenceCumulative", params: { count: 2, kinds: ["select", "slider"] },
+    description: "各縣市累積地層下陷量等值線（mm，負值＝下陷），可切換期別。",
+    topics: ["地層下陷", "等值線", "累積下陷量", "水資源"],
+  },
+  landSubsidenceRate: {
+    key: "landSubsidenceRate", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "平均下陷速率等值線", alt: "Subsidence Rate Contours" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.landSubsidenceRate, icon: Spline,
+    upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_contours", confidence: "HIGH" }], note: "經濟部水利署 平均下陷速率等值線（data.gov.tw 58362）189 條；預設各縣市最新期 41 條。缺 2015–2017、2018–2019 全台圖。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "land-subsidence-contours", url: "./hazards/land_subsidence_contours.pmtiles", sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
+    legend: "landSubsidenceRate", popup: "landSubsidenceRate", params: { count: 2, kinds: ["select", "slider"] },
+    description: "各縣市平均地層下陷速率等值線（cm/年，負值＝下陷），可切換期別。",
+    topics: ["地層下陷", "等值線", "下陷速率", "水資源"],
+  },
+  seawallZones: {
+    key: "seawallZones", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "一般性海堤區域", alt: "Seawall Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.seawallZones, icon: BrickWall,
+    upstream: { status: "verified", datasets: [{ datasetId: "seawall_zones_wra", confidence: "HIGH" }], note: "經濟部水利署 一般性海堤區域（data.gov.tw 129277）239 面，上游建置 2024-06-12；管理單位統一為第N河川分署。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "seawall-zones", url: "./hazards/seawall_zones.geojson" },
+    legend: "seawallZones", popup: "seawallZones", params: { count: 1, kinds: ["slider"] },
+    description: "水利署一般性海堤區域範圍（海堤名、海岸段、管理分署）。",
+    topics: ["海堤", "海岸", "水資源", "防洪"],
+  },
   placeNames: {
     key: "placeNames", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,
     color: ATLAS_LAYER_COLORS.placeNames, icon: MapPin,
@@ -12791,9 +12892,9 @@ export const LAYER_MANIFEST = {
   //      App.tsx 909 行以 `||` 合成 energyDashboardActive 驅動 usePowerDashboard。
   //      ⚠️ 它們的 `UPSTREAM_REGISTRY` note 寫 "stale/unused color" 是**過時的**，
   //      manifest 照抄（搬移零失真）但在 entry 就地註明實況。
-  //   ③ 真的沒有渲染（3）：medICUBeds / wasteRoute / wasteStop。
+  //   ③ 真的沒有渲染（1）：medICUBeds（wasteRoute / wasteStop 已於無 consumer 確認後移除）。
   //
-  // ⚠️ **legend 有 7 個非 null**（只有 medICUBeds / wasteRoute / wasteStop 是 null），
+  // ⚠️ **legend 有 7 個非 null**（只有 medICUBeds 是 null），
   // 而且 3 個的家族首 key 在 THEMES 裡
   // （islandPowerGrid → offshoreWindZones、osmSolarFarms / osmPowerPlantsStatic →
   // osmWindTurbines）；反過來 `powerPlants` 自己是首 key，THEMES 裡的
@@ -13021,53 +13122,6 @@ export const LAYER_MANIFEST = {
     params: null,
     description: "急重症床位壓力（規劃中，尚未實作渲染）",
     topics: ["醫療", "即時", "orphan", "未實作"],
-  },
-
-  wasteRoute: {
-    key: "wasteRoute",
-    section: null,
-    color: "#84cc16",
-    icon: Route,
-    upstream: {
-      status: "pulse_only",
-      datasets: [],
-      note: "not in active THEMES (stale/unused color)",
-    },
-    dataClass: "D",
-    source: {
-      kind: "custom",
-      // ⚠️ 現況出入（本次不動）：layerConsistency 的註解寫「由 wasteTruck 子 UI 控制」，
-      //    但逐檔 grep 全 repo，除了 types 宣告與三張全量表之外**沒有任何 consumer**
-      //    —— 沒有 wasteTruck 子 UI 讀它。照現況登記並註明，修對應是另一件事。
-      note: "無 consumer：layerConsistency 註解稱「由 wasteTruck 子 UI 控制」，但實際 grep 不到任何讀取端（僅 types 宣告 + 三張全量表）。廢棄物主題真正在用的是 wasteStopsStatic（批 7 已搬）。",
-    },
-    legend: null,
-    popup: null,
-    params: null,
-    description: "清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）",
-    topics: ["廢棄物", "orphan", "未實作"],
-  },
-
-  wasteStop: {
-    key: "wasteStop",
-    section: null,
-    color: "#65a30d",
-    icon: MapPinned,
-    upstream: {
-      status: "pulse_only",
-      datasets: [],
-      note: "not in active THEMES (stale/unused color)",
-    },
-    dataClass: "D",
-    source: {
-      kind: "custom",
-      note: "無 consumer，同 wasteRoute。⚠️ 雙生字：與批 7 已搬的 `wasteStopsStatic`（有 OVERLAY_REGISTRY entry、3 個控件、真的在渲染）只差幾個字，一律用精確錨定分開數。",
-    },
-    legend: null,
-    popup: null,
-    params: null,
-    description: "清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）",
-    topics: ["廢棄物", "orphan", "未實作"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

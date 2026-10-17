@@ -15,5 +15,17 @@
   "popup.pollution.pollutant": "汚染物質",
   "popup.pollution.stillControlled": "管理中",
   "popup.pollution.released": "管理解除",
-  "popup.pollution.siteNote": "EMS_S_07 確認済み汚染サイト（重大度 S4）。"
+  "popup.pollution.siteNote": "EMS_S_07 確認済み汚染サイト（重大度 S4）。",
+  "popup.pollution.toxicTitle": "毒性化学物質の取扱い（環境部届出）",
+  "popup.pollution.toxicChems": "化学物質",
+  "popup.pollution.toxicChemsMore": "{list} など計 {n} 種",
+  "popup.pollution.toxicActivities": "取扱い区分",
+  "popup.pollution.toxicPermits": "有効な許可",
+  "popup.pollution.toxicPermitCount": "{n} 件",
+  "popup.pollution.toxicPermitNone": "有効な許可の記録なし",
+  "popup.pollution.toxicEdate": "許可期限",
+  "popup.pollution.toxicPeriod": "データ期間",
+  "popup.pollution.toxicPeriodValue": "{year}年第{season}四半期",
+  "popup.pollution.toxicSource": "出典：環境部 毒性及び懸念化学物質取扱い（EMS_S_05、data.gov.tw 161616）· 政府資料開放授權條款第1版。化学物質と取扱い区分は当該施設の最新四半期の届出です。",
+  "popup.pollution.toxicPeriodAnnual": "{year}年（年間排出量届出）"
 }

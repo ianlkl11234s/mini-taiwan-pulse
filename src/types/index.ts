@@ -124,6 +124,10 @@ export type ExpandableLayerKey =
   | "landslideDodAreas" | "landslideDodImpact" | "highwayDisasterHistory" | "landslideAnnual"
   // atlas 批次 2026-10（26 層點／線／面）
   | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
+  // 海域保護與漁業 G08（2026-10-17，7 層）
+  | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+  // 地層下陷＋海堤 G19（2026-10-17，4 層）
+  | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -721,9 +725,10 @@ export interface OverlayConfig {
    */
   dynamicData?: boolean;
   /**
-   * MapLibre/Mapbox source 的 `attribution` 欄位 —— 帶上後由地圖引擎內建的
-   * AttributionControl 自動彙整顯示（常駐，不需額外 UI）。ODbL / 政府開放資料
-   * 授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * MapLibre/Mapbox source 的 `attribution` 欄位。主站由右下「資料來源 N」列
+   *（`AttributionBar`，讀可見 source 的 attribution）依授權分組顯示；/embed 自繪。
+   * ODbL / 政府開放資料授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   * 慣用格式「機關 資料名（data.gov.tw nid）· 授權」，解析規則見 src/map/attribution/attributionParse.ts。
    */
   attribution?: string;
 }
@@ -811,7 +816,7 @@ export interface FeatureInfo {
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
-    // ⚠️ 勿與 orphan 的 `wasteStop` layer key 混淆：這是靜態全台 73,060 清運點位
+    // 靜態全台 73,060 清運點位
     | "wasteStopsStatic"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
@@ -829,6 +834,8 @@ export interface FeatureInfo {
     | "mountainHut" | "mountainRescueIncident"
     | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
+    | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+    | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1224,6 +1231,19 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   iowStructureMonitoring: boolean;
   wraDredgingPoints: boolean;
   wraEcologySurveySites: boolean;
+  /** 海域保護與漁業 G08（2026-10-17）：保留區／保護區（含陸域）、開放捕魚點、海岸地區範圍（111 年版）、魚礁中心點、定置漁業權區 */
+  natureReserves: boolean;
+  wildlifeProtectedAreas: boolean;
+  openFishingLocations: boolean;
+  coastalAreaExtents: boolean;
+  artificialReefCenters: boolean;
+  protectedReefCenters: boolean;
+  setNetFishingAreas: boolean;
+  /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
+  landSubsidenceStations: boolean;
+  landSubsidenceCumulative: boolean;
+  landSubsidenceRate: boolean;
+  seawallZones: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
@@ -1456,8 +1476,6 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   wasteScheduleNote: boolean;
   wasteStopsStatic: boolean;
   wasteCleaningSquads: boolean;
-  wasteRoute: boolean;
-  wasteStop: boolean;
   // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
   // monitoring/recycling/scrap/other 走 Mapbox circle）
   wfIncinerator: boolean;

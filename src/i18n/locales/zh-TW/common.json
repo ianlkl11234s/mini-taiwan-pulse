@@ -80,5 +80,11 @@
   "loading.inProgress": "載入中",
   "auth.signIn": "登入",
   "auth.signInWithGoogle": "使用 Google 登入",
+  "attribution.sources": "資料來源",
+  "attribution.title": "目前圖層的資料來源",
+  "attribution.basemap": "地圖：{credit}",
+  "attribution.close": "關閉",
+  "attribution.other": "其他",
+  "attribution.openSource": "開啟原始頁（新分頁）",
   "embed.openInSite": "在 Mini Taiwan Pulse 開啟"
 }

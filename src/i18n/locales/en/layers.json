@@ -1185,5 +1185,16 @@
   "layer.jmaSnowcap": "First Snowcap on Summits",
   "layer.jmaAutumnLeaves": "Autumn Foliage Front",
   "layer.jmaSakura": "Cherry Blossom Front",
-  "layer.jmaRainySeason": "Rainy Season Onset and End"
+  "layer.jmaRainySeason": "Rainy Season Onset and End",
+  "layer.natureReserves": "Nature Reserves",
+  "layer.wildlifeProtectedAreas": "Wildlife Protected Areas",
+  "layer.openFishingLocations": "Open Fishing Locations",
+  "layer.coastalAreaExtents": "Coastal Area Extents (2022 edition)",
+  "layer.artificialReefCenters": "Artificial Reef Areas (center positions)",
+  "layer.protectedReefCenters": "Protected Reef Areas (center positions)",
+  "layer.setNetFishingAreas": "Set-net Fishery Right Areas",
+  "layer.landSubsidenceStations": "Land Subsidence Monitoring Stations",
+  "layer.landSubsidenceCumulative": "Cumulative Subsidence Contours",
+  "layer.landSubsidenceRate": "Subsidence Rate Contours",
+  "layer.seawallZones": "Seawall Zones"
 }

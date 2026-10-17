@@ -20,8 +20,8 @@ const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
-  "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteRoute", "wasteScheduleNote",
-  "wasteStop", "windPlan",
+  "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteScheduleNote",
+  "windPlan",
   "jmaKosa", // 黃砂予測是圖片面板（非地圖疊加），沒有可調的地圖外觀；時刻選單在面板內
 ].sort();
 
@@ -89,7 +89,7 @@ describe("Layer UX policy baseline", () => {
     // 2026-10-15：+8 JMA 發布幀影像（雨雲雷達、解析雨量、土砂／浸水キキクル、紫外線、海面水溫、海冰、向日葵雲圖），同 jmaSnowDepth。
     // 2026-10-15：+5 JMA 分析圖（count_la_v1 每日一張），同 jmaSnowDepth。
     // 2026-10-15：+3 上游直連（GIBS 雪覆蓋 raster、洪水キキクル line、黃砂圖片面板）。
-    expect(missing).toHaveLength(50);
+    expect(missing).toHaveLength(48); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

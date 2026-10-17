@@ -30,7 +30,7 @@
 
 | 項目 | 數量 | 來源 |
 |---|---:|---|
-| manifest 登記的 layer key | 1197（資料路徑 A 173／B 123／C 64／D 837） | `LAYER_MANIFEST` |
+| manifest 登記的 layer key | 1195（資料路徑 A 173／B 123／C 64／D 835） | `LAYER_MANIFEST` |
 | 側欄主題 | 79 個，分 6 大分類 | `THEMES` + `LAYER_MACRO_GROUPS` |
 | 側欄圖層開關（不重複 key） | 1187 | `THEMES` 內的圖層 |
 | 站主限定圖層 | 54 | `GATED_LAYERS` |

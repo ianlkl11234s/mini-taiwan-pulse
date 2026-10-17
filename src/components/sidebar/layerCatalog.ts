@@ -1671,6 +1671,18 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("namrEdnaSurveySites"),
         ],
       },
+      {
+        title: "海域保護與漁業 Protected Areas & Fisheries",
+        layers: [
+          fromManifest("natureReserves"),
+          fromManifest("wildlifeProtectedAreas"),
+          fromManifest("coastalAreaExtents"),
+          fromManifest("openFishingLocations"),
+          fromManifest("artificialReefCenters"),
+          fromManifest("protectedReefCenters"),
+          fromManifest("setNetFishingAreas"),
+        ],
+      },
     ],
   },
 
@@ -1721,6 +1733,15 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("iowStructureMonitoring"),
           fromManifest("wraDredgingPoints"),
           fromManifest("wraEcologySurveySites"),
+        ],
+      },
+      {
+        title: "地層下陷與海堤 Land Subsidence & Seawalls",
+        layers: [
+          fromManifest("landSubsidenceStations"),
+          fromManifest("landSubsidenceCumulative"),
+          fromManifest("landSubsidenceRate"),
+          fromManifest("seawallZones"),
         ],
       },
       {

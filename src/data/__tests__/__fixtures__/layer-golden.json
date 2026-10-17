@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1197,
+    "keyCount": 1206,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2369,6 +2369,46 @@
     },
     {
       "layers": [
+        "open-fishing-locations-circle",
+        "open-fishing-locations-glow"
+      ],
+      "type": "openFishingLocations"
+    },
+    {
+      "layers": [
+        "artificial-reef-centers-circle",
+        "artificial-reef-centers-glow"
+      ],
+      "type": "artificialReefCenters"
+    },
+    {
+      "layers": [
+        "protected-reef-centers-circle",
+        "protected-reef-centers-glow"
+      ],
+      "type": "protectedReefCenters"
+    },
+    {
+      "layers": [
+        "land-subsidence-stations-circle",
+        "land-subsidence-stations-glow"
+      ],
+      "type": "landSubsidenceStations"
+    },
+    {
+      "layers": [
+        "land-subsidence-contours-cumulative-line"
+      ],
+      "type": "landSubsidenceCumulative"
+    },
+    {
+      "layers": [
+        "land-subsidence-contours-rate-line"
+      ],
+      "type": "landSubsidenceRate"
+    },
+    {
+      "layers": [
         "wra-ecology-survey-sites-circle",
         "wra-ecology-survey-sites-glow"
       ],
@@ -3535,10 +3575,45 @@
     },
     {
       "layers": [
+        "set-net-fishing-areas-fill",
+        "set-net-fishing-areas-outline"
+      ],
+      "type": "setNetFishingAreas"
+    },
+    {
+      "layers": [
+        "seawall-zones-fill",
+        "seawall-zones-outline"
+      ],
+      "type": "seawallZones"
+    },
+    {
+      "layers": [
+        "wildlife-protected-areas-fill",
+        "wildlife-protected-areas-outline"
+      ],
+      "type": "wildlifeProtectedAreas"
+    },
+    {
+      "layers": [
+        "nature-reserves-fill",
+        "nature-reserves-outline"
+      ],
+      "type": "natureReserves"
+    },
+    {
+      "layers": [
         "agri-rural-community-villages-fill",
         "agri-rural-community-villages-outline"
       ],
       "type": "agriRuralCommunityVillages"
+    },
+    {
+      "layers": [
+        "coastal-area-extents-fill",
+        "coastal-area-extents-outline"
+      ],
+      "type": "coastalAreaExtents"
     },
     {
       "layers": [
@@ -77050,6 +77125,1607 @@
       ],
       "sourceId": "wra-ecology-survey-sites",
       "sourceUrl": "./geo/wra_ecology_survey_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "natureReserves",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#166534",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#166534",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#166534",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "nature-reserves",
+      "sourceUrl": "./marine/nature_reserves.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "wildlifeProtectedAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#65a30d",
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": "#65a30d",
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#65a30d",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "wildlife-protected-areas",
+      "sourceUrl": "./marine/wildlife_protected_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "coastalAreaExtents",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.25
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.25
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "area_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "area_type"
+                ],
+                "濱海陸地",
+                "#a8a29e",
+                "近岸海域",
+                "#64748b",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.55,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "coastal_area_extents"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "coastal-area-extents",
+      "sourceUrl": "./marine/coastal_area_extents.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "setNetFishingAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#7c3aed",
+              "fill-opacity": 0.4
+            },
+            "light": {
+              "fill-color": "#7c3aed",
+              "fill-opacity": 0.4
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.7,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#7c3aed",
+              "line-opacity": 0.7,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "set-net-fishing-areas",
+      "sourceUrl": "./marine/set_net_fishing_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "openFishingLocations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "open-fishing-locations",
+      "sourceUrl": "./marine/open_fishing_locations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "artificialReefCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ea580c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#ea580c",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ea580c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#ea580c",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "artificial-reef-centers",
+      "sourceUrl": "./marine/artificial_reef_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "protectedReefCenters",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#b45309",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#b45309",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#b45309",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#b45309",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "protected-reef-centers",
+      "sourceUrl": "./marine/protected_reef_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landSubsidenceStations",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "station_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "gnss",
+                "#0ea5e9",
+                "magnetic_ring",
+                "#a855f7",
+                "deep_pile",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "gnss",
+                "#0ea5e9",
+                "magnetic_ring",
+                "#a855f7",
+                "deep_pile",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "station_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "gnss",
+                "#0ea5e9",
+                "magnetic_ring",
+                "#a855f7",
+                "deep_pile",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "station_type"
+                ],
+                "gnss",
+                "#0ea5e9",
+                "magnetic_ring",
+                "#a855f7",
+                "deep_pile",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "station_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "land-subsidence-stations",
+      "sourceUrl": "./hazards/land_subsidence_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landSubsidenceCumulative",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "contour_type"
+              ],
+              "cumulative"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "is_latest"
+              ],
+              true
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "level_value"
+                  ],
+                  0
+                ],
+                -200,
+                "#7f1d1d",
+                -100,
+                "#dc2626",
+                -50,
+                "#f97316",
+                -10,
+                "#fdba74",
+                0,
+                "#9ca3af",
+                50,
+                "#60a5fa",
+                150,
+                "#1d4ed8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                10,
+                1.6,
+                14,
+                2.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "level_value"
+                  ],
+                  0
+                ],
+                -200,
+                "#7f1d1d",
+                -100,
+                "#dc2626",
+                -50,
+                "#f97316",
+                -10,
+                "#fdba74",
+                0,
+                "#9ca3af",
+                50,
+                "#60a5fa",
+                150,
+                "#1d4ed8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                10,
+                1.6,
+                14,
+                2.6
+              ]
+            }
+          },
+          "suffix": "cumulative-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 5,
+        "sourceLayer": "contours"
+      },
+      "rebuildOnParamChange": [
+        "cumulative-line"
+      ],
+      "sourceId": "land-subsidence-contours",
+      "sourceUrl": "./hazards/land_subsidence_contours.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landSubsidenceRate",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "contour_type"
+              ],
+              "rate"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "is_latest"
+              ],
+              true
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "level_value"
+                  ],
+                  0
+                ],
+                -10,
+                "#7f1d1d",
+                -5,
+                "#dc2626",
+                -3,
+                "#f97316",
+                -1,
+                "#fdba74",
+                0,
+                "#9ca3af",
+                1,
+                "#60a5fa",
+                2,
+                "#1d4ed8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                10,
+                1.6,
+                14,
+                2.6
+              ]
+            },
+            "light": {
+              "line-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "level_value"
+                  ],
+                  0
+                ],
+                -10,
+                "#7f1d1d",
+                -5,
+                "#dc2626",
+                -3,
+                "#f97316",
+                -1,
+                "#fdba74",
+                0,
+                "#9ca3af",
+                1,
+                "#60a5fa",
+                2,
+                "#1d4ed8"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.8,
+                10,
+                1.6,
+                14,
+                2.6
+              ]
+            }
+          },
+          "suffix": "rate-line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 5,
+        "sourceLayer": "contours"
+      },
+      "rebuildOnParamChange": [
+        "rate-line"
+      ],
+      "sourceId": "land-subsidence-contours",
+      "sourceUrl": "./hazards/land_subsidence_contours.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "seawallZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "fill-color": "#0f766e",
+              "fill-opacity": 0.5
+            },
+            "light": {
+              "fill-color": "#0f766e",
+              "fill-opacity": 0.5
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#0f766e",
+              "line-opacity": 0.8,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "seawall-zones",
+      "sourceUrl": "./hazards/seawall_zones.geojson"
     }
   ],
   "params": {
@@ -78809,6 +80485,26 @@
         "valueText": "0.35"
       }
     ],
+    "artificialReefCenters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "artsEvents": [
       {
         "label": "狀態",
@@ -80004,6 +81700,35 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "coastalAreaExtents": [
+      {
+        "label": "範圍類型",
+        "options": [
+          {
+            "label": "濱海陸地",
+            "value": "濱海陸地"
+          },
+          {
+            "label": "近岸海域",
+            "value": "近岸海域"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "濱海陸地",
+          "近岸海域"
+        ]
+      },
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.25,
+        "valueText": "0.25"
       }
     ],
     "commonRegistrationAddresses": [
@@ -88999,6 +90724,449 @@
         "valueText": "0.50"
       }
     ],
+    "landSubsidenceCumulative": [
+      {
+        "label": "期別",
+        "options": [
+          {
+            "label": "各縣市最新期",
+            "value": "latest"
+          },
+          {
+            "label": "全部期別（重疊）",
+            "value": "all"
+          },
+          {
+            "label": "嘉義縣 民國80–104年",
+            "value": "CY80104"
+          },
+          {
+            "label": "嘉義縣 民國80–109年",
+            "value": "CY80109"
+          },
+          {
+            "label": "嘉義縣 民國80–110年",
+            "value": "CY80110"
+          },
+          {
+            "label": "嘉義縣 民國80–111年",
+            "value": "CY80111"
+          },
+          {
+            "label": "嘉義縣 民國80–112年",
+            "value": "CY80112"
+          },
+          {
+            "label": "嘉義縣 民國80–113年",
+            "value": "CY80113"
+          },
+          {
+            "label": "宜蘭縣 民國81–103年",
+            "value": "IL81103"
+          },
+          {
+            "label": "宜蘭縣 民國81–112年",
+            "value": "IL81112"
+          },
+          {
+            "label": "屏東縣 民國83–104年",
+            "value": "PT83104"
+          },
+          {
+            "label": "屏東縣 民國83–110年",
+            "value": "PT83110"
+          },
+          {
+            "label": "屏東縣 民國83–111年",
+            "value": "PT83111"
+          },
+          {
+            "label": "屏東縣 民國83–112年",
+            "value": "PT83112"
+          },
+          {
+            "label": "屏東縣 民國83–113年",
+            "value": "PT83113"
+          },
+          {
+            "label": "屏東縣 民國90–109年",
+            "value": "PT90109"
+          },
+          {
+            "label": "彰化縣 民國81–104年",
+            "value": "CH81104"
+          },
+          {
+            "label": "彰化縣 民國81–109年",
+            "value": "CH81109"
+          },
+          {
+            "label": "彰化縣 民國81–110年",
+            "value": "CH81110"
+          },
+          {
+            "label": "彰化縣 民國81–111年",
+            "value": "CH81111"
+          },
+          {
+            "label": "彰化縣 民國81–112年",
+            "value": "CH81112"
+          },
+          {
+            "label": "彰化縣 民國81–113年",
+            "value": "CH81113"
+          },
+          {
+            "label": "桃園市 民國91–99年",
+            "value": "TY9199"
+          },
+          {
+            "label": "桃園市 民國91–110年",
+            "value": "TY91110"
+          },
+          {
+            "label": "臺北市 民國83–103年",
+            "value": "TP83103"
+          },
+          {
+            "label": "臺北市 民國83–109年",
+            "value": "TP83109"
+          },
+          {
+            "label": "臺北市 民國83–112年",
+            "value": "TP83112"
+          },
+          {
+            "label": "臺北市 民國83–113年",
+            "value": "TP83113"
+          },
+          {
+            "label": "臺南市 民國90–103年",
+            "value": "TN90103"
+          },
+          {
+            "label": "臺南市 民國90–112年",
+            "value": "TN90112"
+          },
+          {
+            "label": "苗栗縣 民國96–111年",
+            "value": "ML96111"
+          },
+          {
+            "label": "雲林縣 民國81–104年",
+            "value": "YL81104"
+          },
+          {
+            "label": "雲林縣 民國81–109年",
+            "value": "YL81109"
+          },
+          {
+            "label": "雲林縣 民國81–110年",
+            "value": "YL81110"
+          },
+          {
+            "label": "雲林縣 民國81–111年",
+            "value": "YL81111"
+          },
+          {
+            "label": "雲林縣 民國81–112年",
+            "value": "YL81112"
+          },
+          {
+            "label": "雲林縣 民國81–113年",
+            "value": "YL81113"
+          },
+          {
+            "label": "高雄市 民國91–98年",
+            "value": "KH9198"
+          },
+          {
+            "label": "高雄市 民國95–104年",
+            "value": "KH95104"
+          },
+          {
+            "label": "高雄市 民國95–109年",
+            "value": "KH95109"
+          },
+          {
+            "label": "高雄市 民國95–113年",
+            "value": "KH95113"
+          }
+        ],
+        "type": "select",
+        "value": "latest"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "landSubsidenceRate": [
+      {
+        "label": "期別",
+        "options": [
+          {
+            "label": "各縣市最新期",
+            "value": "latest"
+          },
+          {
+            "label": "全部期別（重疊）",
+            "value": "all"
+          },
+          {
+            "label": "全台 民國90–91年",
+            "value": "TW9091"
+          },
+          {
+            "label": "全台 民國91–92年",
+            "value": "TW9192"
+          },
+          {
+            "label": "全台 民國92–93年",
+            "value": "TW9293"
+          },
+          {
+            "label": "全台 民國93–94年",
+            "value": "TW9394"
+          },
+          {
+            "label": "全台 民國94–95年",
+            "value": "TW9495"
+          },
+          {
+            "label": "全台 民國95–96年",
+            "value": "TW9596"
+          },
+          {
+            "label": "全台 民國96–97年",
+            "value": "TW9697"
+          },
+          {
+            "label": "全台 民國97–98年",
+            "value": "TW9798"
+          },
+          {
+            "label": "全台 民國98–99年",
+            "value": "TW9899"
+          },
+          {
+            "label": "全台 民國99–100年",
+            "value": "TW9900"
+          },
+          {
+            "label": "全台 民國100–101年",
+            "value": "TW0001"
+          },
+          {
+            "label": "全台 民國101–102年",
+            "value": "TW0102"
+          },
+          {
+            "label": "全台 民國102–103年",
+            "value": "TW0203"
+          },
+          {
+            "label": "全台 民國103–104年",
+            "value": "TW0304"
+          },
+          {
+            "label": "全台 民國106–107年",
+            "value": "TW0607"
+          },
+          {
+            "label": "全台 民國108–109年",
+            "value": "TW108109"
+          },
+          {
+            "label": "嘉義縣 民國106–107年",
+            "value": "CY106107"
+          },
+          {
+            "label": "嘉義縣 民國108–109年",
+            "value": "CY108109"
+          },
+          {
+            "label": "嘉義縣 民國109–110年",
+            "value": "CY109110"
+          },
+          {
+            "label": "嘉義縣 民國110–111年",
+            "value": "CY110111"
+          },
+          {
+            "label": "嘉義縣 民國111–112年",
+            "value": "CY111112"
+          },
+          {
+            "label": "嘉義縣 民國112–113年",
+            "value": "CY112113"
+          },
+          {
+            "label": "宜蘭縣 民國106–107年",
+            "value": "IL106107"
+          },
+          {
+            "label": "宜蘭縣 民國107–112年",
+            "value": "IL107112"
+          },
+          {
+            "label": "屏東縣 民國106–107年",
+            "value": "PT106107"
+          },
+          {
+            "label": "屏東縣 民國108–109年",
+            "value": "PT108109"
+          },
+          {
+            "label": "屏東縣 民國109–110年",
+            "value": "PT109110"
+          },
+          {
+            "label": "屏東縣 民國110–111年",
+            "value": "PT110111"
+          },
+          {
+            "label": "屏東縣 民國111–112年",
+            "value": "PT111112"
+          },
+          {
+            "label": "屏東縣 民國112–113年",
+            "value": "PT112113"
+          },
+          {
+            "label": "彰化縣 民國106–107年",
+            "value": "CH106107"
+          },
+          {
+            "label": "彰化縣 民國108–109年",
+            "value": "CH108109"
+          },
+          {
+            "label": "彰化縣 民國109–110年",
+            "value": "CH109110"
+          },
+          {
+            "label": "彰化縣 民國110–111年",
+            "value": "CH110111"
+          },
+          {
+            "label": "彰化縣 民國111–112年",
+            "value": "CH111112"
+          },
+          {
+            "label": "彰化縣 民國112–113年",
+            "value": "CH112113"
+          },
+          {
+            "label": "臺中市 民國107–111年",
+            "value": "TC107111"
+          },
+          {
+            "label": "臺北市 民國111–112年",
+            "value": "TP111112"
+          },
+          {
+            "label": "臺北市 民國112–113年",
+            "value": "TP112113"
+          },
+          {
+            "label": "臺南市 民國108–112年",
+            "value": "TN108112"
+          },
+          {
+            "label": "苗栗縣 民國107–111年",
+            "value": "ML107111"
+          },
+          {
+            "label": "雲林縣 民國106–107年",
+            "value": "YL106107"
+          },
+          {
+            "label": "雲林縣 民國108–109年",
+            "value": "YL108109"
+          },
+          {
+            "label": "雲林縣 民國109–110年",
+            "value": "YL109110"
+          },
+          {
+            "label": "雲林縣 民國110–111年",
+            "value": "YL110111"
+          },
+          {
+            "label": "雲林縣 民國111–112年",
+            "value": "YL111112"
+          },
+          {
+            "label": "雲林縣 民國112–113年",
+            "value": "YL112113"
+          },
+          {
+            "label": "高雄市 民國109–113年",
+            "value": "KH109113"
+          }
+        ],
+        "type": "select",
+        "value": "latest"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "landSubsidenceStations": [
+      {
+        "label": "測站類型",
+        "options": [
+          {
+            "label": "GNSS 測站",
+            "value": "gnss"
+          },
+          {
+            "label": "磁環分層監測井",
+            "value": "magnetic_ring"
+          },
+          {
+            "label": "深層水準樁",
+            "value": "deep_pile"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gnss",
+          "magnetic_ring",
+          "deep_pile"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "landingStations": [
       {
         "label": "透明度 1.00",
@@ -90468,6 +92636,17 @@
         "valueText": "0.50"
       }
     ],
+    "natureReserves": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
+      }
+    ],
     "newsEvents": [
       {
         "label": "相關度",
@@ -91024,6 +93203,26 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "openFishingLocations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "osmBridgeCarriers": [
@@ -93141,6 +95340,26 @@
         "valueText": "1.0"
       }
     ],
+    "protectedReefCenters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "protectedTreesNational": [
       {
         "label": "城市",
@@ -95232,6 +97451,17 @@
         "valueText": "1.0"
       }
     ],
+    "seawallZones": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
     "serviceArea": [
       {
         "label": "透明度 0.85",
@@ -95279,6 +97509,17 @@
         "step": 0.5,
         "value": 1.5,
         "valueText": "1.5"
+      }
+    ],
+    "setNetFishingAreas": [
+      {
+        "label": "透明度 0.40",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.4,
+        "valueText": "0.40"
       }
     ],
     "sewageTreatmentPlants": [
@@ -124764,7 +127005,6 @@
       }
     ],
     "wasteCleaningSquads": [],
-    "wasteRoute": [],
     "wasteSchedule": [
       {
         "label": "雙北",
@@ -124844,7 +127084,6 @@
       }
     ],
     "wasteScheduleNote": [],
-    "wasteStop": [],
     "wasteStopsStatic": [
       {
         "defaultValue": "magma",
@@ -126217,6 +128456,17 @@
         "step": 10,
         "value": 0,
         "valueText": "0 m"
+      }
+    ],
+    "wildlifeProtectedAreas": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "windField": [

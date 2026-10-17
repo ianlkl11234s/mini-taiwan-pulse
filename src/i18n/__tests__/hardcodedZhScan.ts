@@ -38,7 +38,7 @@ export const I18N_AREAS: I18nArea[] = [
     id: "translated", phase: "✓", label: "已翻完（嚴格）", kind: "ui", gate: "strict",
     paths: [
       "src/components/toolbar/BasemapMenu.tsx", "src/components/toolbar/LanguageMenu.tsx", "src/components/toolbar/MobileMoreMenu.tsx", "src/components/toolbar/ToolbarButton.tsx",
-      "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx",
+      "src/components/ModeToggle.tsx", "src/components/AttributionBar.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx",
       "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx",
       "src/components/sidebar/LayerRow.tsx", "src/components/sidebar/LayersPanel.tsx", "src/components/sidebar/LayerToggleSwitch.tsx", "src/components/sidebar/PanelHeader.tsx",
       "src/components/sidebar/ThemeBanner.tsx", "src/components/sidebar/sectionText.ts", "src/components/sidebar/railTheme.ts", "src/components/sidebar/layerIcons.ts",
@@ -99,7 +99,7 @@ export const I18N_AREAS: I18nArea[] = [
       "src/components/sidebar/PropertyValueStatisticsDetails.tsx", "src/components/sidebar/HistoricalFlightTrailControls.tsx", "src/components/sidebar/LayerInfoLine.tsx",
     ],
   },
-  { id: "shell", phase: "P0", label: "工具列、外框", kind: "ui", gate: "report", paths: ["src/App.tsx", "src/main.tsx", "src/components/toolbar/", "src/components/ModeToggle.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx", "src/components/InfoModal.tsx", "src/components/ShareModal.tsx", "src/components/MobileBottomSheet.tsx", "src/components/StyleSelector.tsx"] },
+  { id: "shell", phase: "P0", label: "工具列、外框", kind: "ui", gate: "report", paths: ["src/App.tsx", "src/main.tsx", "src/components/toolbar/", "src/components/ModeToggle.tsx", "src/components/AttributionBar.tsx", "src/components/LoadingScreen.tsx", "src/components/LoadingStatus.tsx", "src/components/CameraHud.tsx", "src/components/InfoModal.tsx", "src/components/ShareModal.tsx", "src/components/MobileBottomSheet.tsx", "src/components/StyleSelector.tsx"] },
   { id: "sidebar", phase: "P0", label: "側欄", kind: "ui", gate: "report", paths: ["src/components/sidebar/", "src/components/IconRailSidebar.tsx", "src/components/LayerSidebar.tsx"] },
   { id: "popup", phase: "P1", label: "點擊說明框", kind: "ui", gate: "report", paths: ["src/components/featureInfo/", "src/components/FeatureInfoPanel.tsx"] },
   { id: "legend", phase: "P2", label: "圖例", kind: "ui", gate: "report", paths: ["src/components/LegendPanel.tsx", "src/components/legend/"] },

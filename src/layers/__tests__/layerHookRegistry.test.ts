@@ -204,6 +204,10 @@ const NO_HOOK_LEDGER = new Set<string>([
   "cetaceanStrandings", "seaTurtleStrandings", "beachWaterQuality", "marineMicroplastics", "marinePollutionIncidents", "namrEdnaSurveySites",
   "placeNames", "triangulationPoints",
   "wraFloodgatesCentral", "wraCentralDrainage", "iowStructureMonitoring", "wraDredgingPoints", "wraEcologySurveySites",
+  // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas",
+  // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
+  "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 
@@ -235,10 +239,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   "agriCropSuitability", "agriLeisureFarmZones", "agriPOI", "agriRuralRegen", "agriSoil",
   "agriSoilFertility", "agriculture", "fireIsochrone", "medDesert", "medIsochrone",
 
-  // ── 尚無渲染實作 / 無程式碼引用（3；三者皆在 layerConsistency 的 ORPHAN_LEDGER）──
+  // ── 尚無渲染實作 / 無程式碼引用（1；在 layerConsistency 的 ORPHAN_LEDGER）──
   // medICUBeds：Phase 3 未實作渲染，幽靈 toggle 已自 sidebar 移除
-  // wasteRoute / wasteStop：除了 types 與 manifest，src/ 內零引用（保留 key 供 internal use）
-  "medICUBeds", "wasteRoute", "wasteStop",
+  "medICUBeds",
   // Versioned statistics renderer is attached directly by MapView; it is not a
   // React layer hook and must remain outside the hook registry.
   "statsWasteCounty", "statsRecyclingCounty", "statsWaterSupplyHistorical", "statsPigWaterCounty", "statsWasteRecyclingRate", "statsResidentialElectricity", "statsRiceHarvest", "statsBirthsTownship",
