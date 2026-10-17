@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { longestRunStart, addBox, boxesFromDetections, deleteBox, moveBox, newReviewFrame, resizeBox, selectFrames, summarize } from './box-edit.js';
+import { longestRunStart, addBox, cycleEmergency, boxesFromDetections, deleteBox, moveBox, newReviewFrame, resizeBox, selectFrames, summarize } from './box-edit.js';
 
 test('selects evenly spaced distinct frames inside the window', () => {
   const frames = Array.from({ length: 50 }, (_, i) => ({ t: 150 + i, duplicateOfPrevious: i % 5 === 1 }));
@@ -26,7 +26,7 @@ test('delete remembers model boxes; add and reclassify are summarized', () => {
   deleteBox(frame, 'm1');
   addBox(frame, [.7, .7, .8, .8], 'bus');
   const s = summarize({ frames: [frame] });
-  assert.deepEqual(s, { frames: 1, reviewed: 0, boxes: 2, added: 1, deleted: 1, reclassified: 1, unconfirmedSuggestions: 0 });
+  assert.deepEqual(s, { frames: 1, reviewed: 0, boxes: 2, added: 1, deleted: 1, reclassified: 1, unconfirmedSuggestions: 0, emergency: 0 });
   assert.equal(frame.deletedModelBoxes[0].modelClassName, 'car');
   assert.equal(boxesFromDetections([{ bbox: [0, 0, NaN, 1] }]).length, 0);
 });
@@ -35,4 +35,14 @@ test('finds the longest unbroken distinct run', () => {
   const dup = [false, true, false, false, false, true, false, false];
   const frames = dup.map((d, i) => ({ t: i, duplicateOfPrevious: d }));
   assert.deepEqual(longestRunStart(frames), { start: 2, length: 3 });
+});
+
+test('emergency tag cycles and is counted without changing the class', () => {
+  const frame = newReviewFrame({ detectorDetections: [{ className: 'car', confidence: .8, bbox: [.1, .1, .3, .3] }] }, 0);
+  const box = frame.boxes[0];
+  assert.deepEqual([cycleEmergency(box), cycleEmergency(box), cycleEmergency(box)], ['ambulance', 'police', 'fire']);
+  assert.equal(summarize({ frames: [frame] }).emergency, 1);
+  assert.equal(cycleEmergency(box), null);
+  assert.equal('emergency' in box, false);
+  assert.equal(box.className, 'car');
 });

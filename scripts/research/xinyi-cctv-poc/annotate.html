@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>修正辨識框｜T000354</title>
+  <title>修正辨識框</title>
   <style>
     :root{font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#eee9db;background:#0b1417}
     *{box-sizing:border-box}body{margin:0;background:#0b1417}
@@ -49,6 +49,7 @@
       <div class="box-card">
         <strong id="selected-label">沒有選取框</strong>
         <div class="classes" id="classes"></div>
+        <button id="emergency" type="button" disabled>緊急車輛：無（按 E 切換）</button>
         <button id="delete" type="button" class="danger" disabled>刪除這個框 <kbd>Delete</kbd></button>
       </div>
       <div class="box-card muted">
@@ -56,6 +57,7 @@
         <span>・拖曳框的四個角：調整大小</span>
         <span>・在空白處拖曳：新增漏掉的車（用上方選的車種）</span>
         <span>・鍵盤 <kbd>1</kbd>–<kbd>4</kbd> 改車種，<kbd>←</kbd><kbd>→</kbd> 換張</span>
+        <span>・救護車、警車、消防車：車種照樣選（多半是汽車或貨車），再按 <kbd>E</kbd> 切換標記</span>
       </div>
       <button id="reset" type="button">這張還原成電腦原本的框</button>
       <p class="muted" id="summary">—</p>

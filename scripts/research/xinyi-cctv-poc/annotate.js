@@ -1,4 +1,4 @@
-import { longestRunStart, DEFAULT_REVIEW, TRUTH_CLASSES, TRUTH_SCHEMA, addBox, deleteBox, moveBox, newReviewFrame, resizeBox, selectFrames, summarize } from './box-edit.js';
+import { longestRunStart, DEFAULT_REVIEW, TRUTH_CLASSES, cycleEmergency, TRUTH_SCHEMA, addBox, deleteBox, moveBox, newReviewFrame, resizeBox, selectFrames, summarize } from './box-edit.js';
 
 const CAMERA_ID = 'T000354';
 // ?batch=<id> loads data/training-batches/<id>.json (pre-labelled training stills) instead of a replay batch.
@@ -8,6 +8,8 @@ const BATCH_ID = (new URLSearchParams(location.search).get('batch') || '').repla
 const REQUESTED_COUNT = Math.max(1, Math.min(200, Number(new URLSearchParams(location.search).get('count')) || 0)) || null;
 const DATA_FILE = (new URLSearchParams(location.search).get('data') || 'validation-observations.json').replace(/[^\w.-]/g, '');
 const LABELS = { car: '汽車', motorcycle: '機車', bus: '公車', truck: '貨車' };
+const EMERGENCY_LABELS = { ambulance: '救護車', police: '警車', fire: '消防車' };
+const EMERGENCY_COLOR = '#ff5a4f';
 const COLORS = { car: '#6ee0cf', motorcycle: '#ff8fd0', bus: '#f3be72', truck: '#b9a4ff' };
 const $ = id => document.getElementById(id);
 const svg = $('overlay');
@@ -44,7 +46,8 @@ function render() {
     svg.appendChild(rect);
     const label = el('text', { x: x1 * W + 3, y: Math.max(12, y1 * H - 4), fill: color, 'font-size': 13, 'font-weight': 800, 'pointer-events': 'none',
       'paint-order': 'stroke', stroke: '#071619', 'stroke-width': 3 });
-    label.textContent = box.suggested ? `${LABELS[box.className]}?` : LABELS[box.className] + (box.edited || box.origin === 'added' ? ' ✎' : '');
+    label.textContent = box.suggested ? `${LABELS[box.className]}?` : LABELS[box.className] + (box.emergency ? `・${EMERGENCY_LABELS[box.emergency]}` : '') + (box.edited || box.origin === 'added' ? ' ✎' : '');
+    if (box.emergency) { rect.setAttribute('stroke', EMERGENCY_COLOR); label.setAttribute('fill', EMERGENCY_COLOR); }
     svg.appendChild(label);
     if (selected) for (const corner of ['nw', 'ne', 'sw', 'se']) {
       svg.appendChild(el('rect', { x: (corner.includes('w') ? x1 : x2) * W - 6, y: (corner.includes('n') ? y1 : y2) * H - 6, width: 12, height: 12,
@@ -80,8 +83,10 @@ function renderPanel() {
     b.addEventListener('click', () => setClass(c)); return b;
   }));
   $('delete').disabled = !box;
+  $('emergency').disabled = !box;
+  $('emergency').textContent = `緊急車輛：${box?.emergency ? EMERGENCY_LABELS[box.emergency] : '無'}（按 E 切換）`;
   const s = summarize(state.review);
-  $('summary').textContent = `已完成 ${s.reviewed}/${s.frames} 張・改車種 ${s.reclassified}・刪除 ${s.deleted}・新增 ${s.added}`;
+  $('summary').textContent = `已完成 ${s.reviewed}/${s.frames} 張・改車種 ${s.reclassified}・刪除 ${s.deleted}・新增 ${s.added}${s.emergency ? `・緊急車輛 ${s.emergency}` : ''}`;
 }
 
 function setClass(className) {
@@ -89,6 +94,12 @@ function setClass(className) {
   if (box) { box.className = className; box.edited = true; box.suggested = false; save(); }
   else state.drawClass = className;
   render();
+}
+function toggleEmergency() {
+  const box = selectedBox();
+  if (!box) return;
+  const tag = cycleEmergency(box); box.edited = true; box.suggested = false; save(); render();
+  message(tag ? `標記為${EMERGENCY_LABELS[tag]}（車種維持${LABELS[box.className]}）。` : '已取消緊急車輛標記。');
 }
 function removeSelected() {
   if (!state.selected) return;
@@ -132,6 +143,7 @@ svg.addEventListener('pointerup', () => {
 });
 
 $('delete').addEventListener('click', removeSelected);
+$('emergency').addEventListener('click', toggleEmergency);
 $('prev').addEventListener('click', () => go(state.current - 1));
 $('next').addEventListener('click', () => {
   reviewFrame().reviewed = true; save();
@@ -156,6 +168,7 @@ document.addEventListener('keydown', event => {
   if (!state.review || event.target.closest?.('input,textarea,select')) return;
   if (event.key === 'Delete' || event.key === 'Backspace') { event.preventDefault(); removeSelected(); }
   else if (/^[1-4]$/.test(event.key)) setClass(TRUTH_CLASSES[Number(event.key) - 1]);
+  else if (event.key === 'e' || event.key === 'E') toggleEmergency();
   else if (event.key === 'ArrowLeft') go(state.current - 1);
   else if (event.key === 'ArrowRight') go(state.current + 1);
   else if (event.key === 'Escape') { state.selected = null; render(); }

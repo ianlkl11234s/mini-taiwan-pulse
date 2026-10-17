@@ -3,6 +3,8 @@
  */
 export const TRUTH_SCHEMA = 'frame-box-truth';
 export const TRUTH_CLASSES = ['car', 'motorcycle', 'bus', 'truck'];
+// Emergency-vehicle tag rides on a normal box (class stays car/truck/bus); kept for a later crop classifier.
+export const EMERGENCY_TAGS = ['ambulance', 'police', 'fire'];
 // 160.0–173.8s is an unbroken run of 70 distinct-content frames in the 9/29 354 batch.
 export const DEFAULT_REVIEW = { start: 160, end: 220, count: 15, consecutive: true };
 const MIN_SIZE = .006;
@@ -87,6 +89,13 @@ export function addBox(reviewFrame, bbox, className = 'car') {
   return box;
 }
 
+/** E key: none → ambulance → police → fire → none. */
+export function cycleEmergency(box) {
+  const next = EMERGENCY_TAGS[EMERGENCY_TAGS.indexOf(box.emergency ?? null) + 1] ?? null;
+  if (next) box.emergency = next; else delete box.emergency;
+  return box.emergency ?? null;
+}
+
 export function summarize(review) {
   const frames = review.frames;
   return {
@@ -96,5 +105,6 @@ export function summarize(review) {
     deleted: frames.reduce((n, f) => n + f.deletedModelBoxes.length, 0),
     reclassified: frames.reduce((n, f) => n + f.boxes.filter(b => b.origin === 'model' && b.className !== b.modelClassName).length, 0),
     unconfirmedSuggestions: frames.reduce((n, f) => n + f.boxes.filter(b => b.suggested).length, 0),
+    emergency: frames.reduce((n, f) => n + f.boxes.filter(b => b.emergency).length, 0),
   };
 }
