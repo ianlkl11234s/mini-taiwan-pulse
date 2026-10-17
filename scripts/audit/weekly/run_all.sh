@@ -33,7 +33,7 @@ COLLECTORS=(
   "production|bash|scripts/audit/weekly/probe_production.sh|1"
   "runtime|tsx|scripts/audit/weekly/probe_runtime.ts|1"
   "storage|bash|scripts/audit/weekly/collect_storage.sh|1"
-  "docs|tsx|scripts/audit/weekly/check_docs.ts|0"
+  "docs|vite-node|scripts/audit/weekly/check_docs.ts|0"
   "hygiene|bash|scripts/audit/weekly/check_hygiene.sh|0"
 )
 
@@ -53,7 +53,12 @@ for entry in "${COLLECTORS[@]}"; do
 
   echo ">>  $name ..."
   t0=$(date +%s)
-  if [ "$runner" = "tsx" ]; then npx tsx "$script"; else bash "$script"; fi
+  # check_docs 會 import THEMES → localeStore 的 import.meta.glob，tsx 不支援，改用 vite-node
+  case "$runner" in
+    tsx) npx tsx "$script" ;;
+    vite-node) npx vite-node "$script" ;;
+    *) bash "$script" ;;
+  esac
   rc=$?
   t1=$(date +%s)
 
