@@ -27,9 +27,23 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 3. **cleanup function**（`0 18 * * *` UTC 清超過 7 天）
 4. **pg_cron 排程**（`*/15 * * * *` refresh today + yesterday，**同一個 job 循序跑**；分鐘要和其他 job 錯開，見 `data-collectors/docs/sql/cron_throttle.sql`）
 
+## 權限慣例（2026-10 定案，新函式／新表必寫）
+
+**為什麼要寫**：2026-10 起 gis-platform 已收回 `public` schema 的 default privileges，新建的函式、表、view **不會再自動開放給 `anon`**。漏寫 GRANT，前端呼叫會回 `permission denied`；反過來，cron／內部函式若沒有 REVOKE，`PUBLIC` 預設的 EXECUTE 會讓任何人都能用公開的 anon key 呼叫。
+
+| 物件 | 寫法 |
+|---|---|
+| 給前端呼叫的 RPC | `REVOKE EXECUTE ON FUNCTION public.f(<參數型別>) FROM PUBLIC;`<br>`GRANT EXECUTE ON FUNCTION public.f(<參數型別>) TO anon, authenticated;` |
+| cron／refresh／cleanup 等內部函式 | `REVOKE EXECUTE ON FUNCTION public.f(<參數型別>) FROM PUBLIC, anon, authenticated;`（不 GRANT 給任何前端角色） |
+| 前端直接讀的表／view | `GRANT SELECT ON <schema>.t TO anon, authenticated;`（只給 SELECT，不給 INSERT／UPDATE／DELETE） |
+| `SECURITY DEFINER` 函式 | 一律加 `SET search_path = ''`（或明列需要的 schema，例如 `SET search_path = public, pg_temp`），函式內表名寫完整 `schema.table` |
+| 有時間範圍或天數參數的函式 | 在函式內 clamp 上下限，例：`LEAST(GREATEST(p_days, 1), 30)`、`end_ts - start_ts` 超過上限就截斷；不能只靠前端傳合理值 |
+
+函式簽名要寫完整參數型別（例：`public.get_xxx_day(date)`），GRANT／REVOKE 才會套到對的 overload。
+
 ## SQL 範本
 
-全部存在 `../data-collectors/docs/sql/matview_*.sql`，直接複製套用。
+全部存在 `../data-collectors/docs/sql/matview_*.sql`，直接複製套用（舊範本可能還沒有下方的 REVOKE／GRANT，照本節補上）。
 
 ```sql
 -- 1) Table
@@ -60,15 +74,21 @@ BEGIN
     RETURN inserted_count;
 END; $$;
 
--- 3) Cleanup
+-- 內部函式：只給 cron／postgres 跑，收回所有前端角色的執行權
+REVOKE EXECUTE ON FUNCTION public.refresh_xxx_daily(date) FROM PUBLIC, anon, authenticated;
+
+-- 3) Cleanup（keep_days 在函式內 clamp：負數或 0 不能把整張表刪光）
 CREATE OR REPLACE FUNCTION public.cleanup_xxx_daily(keep_days int DEFAULT 7)
 RETURNS integer LANGUAGE plpgsql AS $$
 DECLARE deleted_count integer;
 BEGIN
-    DELETE FROM live.xxx_daily WHERE day < ((now() AT TIME ZONE 'Asia/Taipei')::date - keep_days);
+    DELETE FROM live.xxx_daily
+    WHERE day < ((now() AT TIME ZONE 'Asia/Taipei')::date - GREATEST(keep_days, 1));
     GET DIAGNOSTICS deleted_count = ROW_COUNT;
     RETURN deleted_count;
 END; $$;
+
+REVOKE EXECUTE ON FUNCTION public.cleanup_xxx_daily(int) FROM PUBLIC, anon, authenticated;
 
 -- 4) 薄 RPC（簽名不變，前端零改動）
 CREATE OR REPLACE FUNCTION public.get_xxx_day(target_date date)
@@ -79,7 +99,11 @@ AS $$
     SELECT ... FROM live.xxx_daily WHERE day = target_date ORDER BY ...
 $$;
 
+-- 給前端的 RPC：先收回 PUBLIC，再明確開給 anon／authenticated（見「權限慣例」）
+REVOKE EXECUTE ON FUNCTION public.get_xxx_day(date) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_xxx_day(date) TO anon, authenticated;
+-- 本 RPC 不是 SECURITY DEFINER，會以呼叫者身分讀 live.xxx_daily → 該表也要給讀取權（只給 SELECT）
+GRANT SELECT ON live.xxx_daily TO anon, authenticated;
 
 -- 5) pg_cron 排程
 SELECT cron.schedule('refresh-xxx', '*/15 * * * *',
