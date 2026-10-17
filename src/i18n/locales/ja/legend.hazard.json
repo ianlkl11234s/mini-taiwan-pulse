@@ -121,5 +121,13 @@
   "legend.hazard.erSevere": "深刻 > {n}",
   "legend.hazard.erNoData": "データなし",
   "legend.hazard.erIcu": "⚪ 白枠＝集中治療室（ICU）待ちあり",
-  "legend.hazard.erCalib": "区分は wait_general_cnt の37日分の履歴で校正"
+  "legend.hazard.erCalib": "区分は wait_general_cnt の37日分の履歴で校正",
+  "legend.hazard.typGale": "強風域（15 m/s、台湾気象署）",
+  "legend.hazard.typStorm": "暴風域（25 m/s、台湾気象署）",
+  "legend.hazard.typProb70": "70% 確率円（予報点、破線）",
+  "legend.hazard.typAllNote": "「すべて」では同じ台風を 1 機関のみ描画します（台湾気象署＞気象庁＞JTWC）。風域は台湾気象署のみ提供。",
+  "legend.hazard.typAgencyIssued": "{label} 発表",
+  "legend.hazard.typAgencyNone": "この時刻の予報なし",
+  "legend.hazard.typAgencyEmpty": "この時刻にはどの機関の予報もありません。",
+  "legend.hazard.typAgencyNote": "各機関とも選択時刻での最新版のみ描画。発表時刻は台湾時間。出典：台湾 国家災害防救科技センター（NCDR）。"
 }

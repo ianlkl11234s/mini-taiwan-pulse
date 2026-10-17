@@ -113,5 +113,22 @@
   "popup.globalClimate.currentSpeedValue": "{ms} m/s（{kt} kt）",
   "popup.globalClimate.currentDir": "流向",
   "popup.globalClimate.currentDirValue": "{deg}°（{dir}向き）",
-  "popup.globalClimate.currentTime": "海流の時刻"
+  "popup.globalClimate.currentTime": "海流の時刻",
+  "popup.globalClimate.maxWindMsValue": "{ms} m/s（{kt} kt）",
+  "popup.globalClimate.typWindAveraging": "風速の平均時間",
+  "popup.globalClimate.typWind10min": "10 分間平均",
+  "popup.globalClimate.typWind1min": "1 分間平均（10 分間平均より約 12–15% 大きい）",
+  "popup.globalClimate.typMaxGust": "最大瞬間風速",
+  "popup.globalClimate.typGaleRadius": "15 m/s 以上の強風域半径",
+  "popup.globalClimate.typStormRadius": "25 m/s 以上の暴風域半径",
+  "popup.globalClimate.typProb70Radius": "70% 確率円半径",
+  "popup.globalClimate.typRadiusValue": "{km} km",
+  "popup.globalClimate.typAgency": "予報機関",
+  "popup.globalClimate.typIssuedAt": "発表時刻",
+  "popup.globalClimate.typLeadHour": "予報時間",
+  "popup.globalClimate.typLeadZero": "0 時間（各機関自身の解析位置）",
+  "popup.globalClimate.typLeadValue": "+{h} 時間",
+  "popup.globalClimate.typValidAt": "予報対象時刻",
+  "popup.globalClimate.typUnmatched": "台風と対応付けできず（名称なし）",
+  "popup.globalClimate.typAgencyNote": "台湾 NCDR がまとめた各機関の予報。各機関 24 時間ごとに 1 点で、各機関の元の予報より粗く、進路の比較用です。"
 }

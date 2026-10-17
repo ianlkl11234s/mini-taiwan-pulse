@@ -1804,6 +1804,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("earthquakesGlobal"),
           fromManifest("typhoonTracks"),
+          fromManifest("typhoonAgencyForecasts"),
         ],
       },
       {

@@ -191,6 +191,7 @@ export type ExpandableLayerKey =
   | "earthquakeReplay"
   | "earthquakesGlobal"
   | "typhoonTracks"
+  | "typhoonAgencyForecasts"
   | "dustForecast"
   | "oceanCurrents"
   | "windField"
@@ -856,7 +857,7 @@ export interface FeatureInfo {
     | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
     | "evIsland"
     | "lightningStrike" | "nuclearStation"
-    | "earthquakes" | "earthquakeGlobal" | "typhoonTrack" | "climateField"
+    | "earthquakes" | "earthquakeGlobal" | "typhoonTrack" | "typhoonAgencyForecast" | "climateField"
     // 地震回放：測站逐顆亮起 / 368 鄉鎮面量圖（皆走 feature-state 上色）
     | "earthquakeReplayStation" | "earthquakeReplayTown"
     | "temperatureGrid"
@@ -1246,7 +1247,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   seawallZones: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
-  typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
+  typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）
+  typhoonAgencyForecasts: boolean; // NCDR 各國颱風預報（JTWC/JMA/NMC/CWA/KMA 五家路徑）
   dustForecast: boolean;         // CAMS 沙塵預報（PMTiles 待出，stub）
   oceanCurrents: boolean;        // CMEMS 海流（u/v 粒子動畫，PMTiles 待出，stub）
   windField: boolean;            // NOAA GFS 10m 風場（u/v 粒子動畫，PMTiles 待出，stub）

@@ -2,12 +2,13 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import type {
   Map as MapboxMap,
   LineLayer,
+  FillLayer,
   CircleLayer,
   ExpressionSpecification,
   FilterSpecification,
 } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { timeStore } from "../state/timeStore";
 import {
   fetchTyphoonPoints,
@@ -17,6 +18,7 @@ import {
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import { registerLayerDataProvider, summarizeTyphoons } from "../research/layerDataSummary";
+import { TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR } from "../data/typhoonTypes";
 
 // 颱風軌跡 — observed 實線 + forecast 虛線 + 軌跡點 + 現在位置光圈。
 //
@@ -25,11 +27,20 @@ import { registerLayerDataProvider, summarizeTyphoons } from "../research/layerD
 //   · forecast 線段：整段在 currentTime 之後才畫（還沒到的預報虛線）
 //   · 軌跡點：observed 取 ≤ currentTime、forecast 取 > currentTime
 //   · 現在位置光圈：挑 [valid_ts, valid_until) 包住 currentTime 的觀測點 → 沿軌跡移動
-// 三個 source 的 feature 都在 loader 端就帶好時間欄位，這裡只 setFilter，不 setData。
+//   · 7／10 級風圈（mig 476，目前只有 CWA 給）：與光圈同一個 [valid_ts, valid_until) 區間
+//   · 70% 機率圈：最新一版預報點，只畫 currentTime 之後的
+// 「全部」模式：同 storm_key 只畫優先序最高的一家（feature 帶 primary 旗標，見 loader
+//  TYPHOON_SOURCE_PRIORITY）；風圈不受 primary 限制（只有 CWA 有，主軌跡換來源也照畫）。
+// 所有 source 的 feature 都在 loader 端就帶好時間欄位，這裡只 setFilter，不 setData。
 
 const SRC_LINES = "typhoon-tracks-lines";
 const SRC_POINTS = "typhoon-tracks-points";
 const SRC_CURRENT = "typhoon-tracks-current";
+const SRC_RADII = "typhoon-tracks-radii";
+const SRC_PROB70 = "typhoon-tracks-prob70";
+const LAYER_RADII_FILL = "typhoon-tracks-radii-fill";
+const LAYER_RADII_LINE = "typhoon-tracks-radii-line";
+const LAYER_PROB70 = "typhoon-tracks-prob70-line";
 const LAYER_LINE_OBS = "typhoon-tracks-line-observed";
 const LAYER_LINE_FCST = "typhoon-tracks-line-forecast";
 const LAYER_POINTS = "typhoon-tracks-points";
@@ -37,11 +48,13 @@ const LAYER_CURRENT_HALO = "typhoon-tracks-current-halo";
 const LAYER_CURRENT_RING = "typhoon-tracks-current-ring";
 const LAYER_CURRENT_DOT = "typhoon-tracks-current-dot";
 const CURRENT_LAYER_IDS = [LAYER_CURRENT_HALO, LAYER_CURRENT_RING, LAYER_CURRENT_DOT];
-const ALL_LAYER_IDS = [LAYER_LINE_OBS, LAYER_LINE_FCST, LAYER_POINTS, ...CURRENT_LAYER_IDS];
+const ALL_LAYER_IDS = [LAYER_RADII_FILL, LAYER_RADII_LINE, LAYER_PROB70, LAYER_LINE_OBS, LAYER_LINE_FCST, LAYER_POINTS, ...CURRENT_LAYER_IDS];
 
 // 實際=紫 #a855f7（粗實線 / 實心點）；預測=藍 #38bdf8（細疏虛線 / 空心點）— 拉開差異
 const OBS_COLOR = "#a855f7";
 const FCST_COLOR = "#38bdf8";
+const RADII_COLOR: ExpressionSpecification = ["match", ["get", "radius_kind"], "storm", TYPHOON_STORM_COLOR, TYPHOON_GALE_COLOR];
+const RADII_FILL_OPACITY: ExpressionSpecification = ["match", ["get", "radius_kind"], "storm", 0.22, 0.12];
 
 const OPACITY_DEFAULT = Number(paramDefault("typhoonTracks", "typhoonTracksOpacity"));
 const IS_FORECAST: ExpressionSpecification = ["==", ["get", "point_type"], "forecast"];
@@ -59,7 +72,7 @@ function typhoonPointStroke(isDark: boolean, opacityFactor: number) {
   };
 }
 
-export type TyphoonSource = "all" | "jma" | "jtwc";
+export type TyphoonSource = "all" | "jma" | "jtwc" | "cwa";
 
 export function useTyphoonTracksLayer(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -100,7 +113,7 @@ export function useTyphoonTracksLayer(
 
   const ensureSource = useCallback((map: MapboxMap) => {
     if (!dataReadyRef.current) return false;
-    const { lines, points, current } = typhoonPointsToGeoJSON(dataRef.current);
+    const { lines, points, current, radii, prob70 } = typhoonPointsToGeoJSON(dataRef.current);
     if (!map.getSource(SRC_LINES)) {
       map.addSource(SRC_LINES, { type: "geojson", data: lines });
     }
@@ -109,6 +122,51 @@ export function useTyphoonTracksLayer(
     }
     if (!map.getSource(SRC_CURRENT)) {
       map.addSource(SRC_CURRENT, { type: "geojson", data: current });
+    }
+    if (!map.getSource(SRC_RADII)) {
+      map.addSource(SRC_RADII, { type: "geojson", data: radii });
+    }
+    if (!map.getSource(SRC_PROB70)) {
+      map.addSource(SRC_PROB70, { type: "geojson", data: prob70 });
+    }
+    // 風圈與機率圈先加（壓在軌跡線下）；10 級在 7 級之上靠 feature 順序（loader 先 gale 後 storm）
+    if (!map.getLayer(LAYER_RADII_FILL)) {
+      map.addLayer({
+        id: LAYER_RADII_FILL,
+        type: "fill",
+        source: SRC_RADII,
+        paint: hookFillPaint("typhoonTracks", LAYER_RADII_FILL, {
+          "fill-color": RADII_COLOR,
+          "fill-opacity": RADII_FILL_OPACITY,
+        }, { "fill-color": RADII_COLOR, "fill-opacity": RADII_FILL_OPACITY }),
+      } as FillLayer);
+    }
+    if (!map.getLayer(LAYER_RADII_LINE)) {
+      map.addLayer({
+        id: LAYER_RADII_LINE,
+        type: "line",
+        source: SRC_RADII,
+        layout: hookLineLayout("typhoonTracks", LAYER_RADII_LINE),
+        paint: hookLinePaint("typhoonTracks", LAYER_RADII_LINE, {
+          "line-color": RADII_COLOR,
+          "line-width": 1.5,
+          "line-opacity": 0.85,
+        }, { "line-color": RADII_COLOR, "line-width": 1.5, "line-opacity": 0.85 }),
+      } as LineLayer);
+    }
+    if (!map.getLayer(LAYER_PROB70)) {
+      map.addLayer({
+        id: LAYER_PROB70,
+        type: "line",
+        source: SRC_PROB70,
+        layout: { ...hookLineLayout("typhoonTracks", LAYER_PROB70), "line-cap": "butt" },
+        paint: hookLinePaint("typhoonTracks", LAYER_PROB70, {
+          "line-color": FCST_COLOR,
+          "line-width": 1,
+          "line-opacity": 0.6,
+          "line-dasharray": [3, 3],
+        }, { "line-color": FCST_COLOR, "line-width": 1, "line-opacity": 0.6, "line-dasharray": [3, 3] }),
+      } as LineLayer);
     }
     if (!map.getLayer(LAYER_LINE_OBS)) {
       map.addLayer({
@@ -210,11 +268,14 @@ export function useTyphoonTracksLayer(
     }
     if (!visible) return;
 
-    // 資料源篩選（全部 / JMA / JTWC）：與時間條件一起併進同一個 ["all", ...]
-    const srcCond: unknown[] | null =
+    // 資料源篩選（全部 / JMA / JTWC / CWA）：與時間條件一起併進同一個 ["all", ...]
+    // 「全部」＝同 storm_key 只畫 primary 那家（同一颱風畫成一個）
+    const srcCond: unknown[] =
+      sourceFilter === "all" ? ["==", ["get", "primary"], true] : ["==", ["get", "source"], sourceFilter];
+    const radiiSrcCond: unknown[] | null =
       sourceFilter === "all" ? null : ["==", ["get", "source"], sourceFilter];
     const compose = (...conds: (unknown[] | null)[]): FilterSpecification =>
-      ["all", ...conds.filter(Boolean), ...(srcCond ? [srcCond] : [])] as unknown as FilterSpecification;
+      ["all", ...conds.filter(Boolean), srcCond] as unknown as FilterSpecification;
     const setF = (id: string, ...conds: (unknown[] | null)[]) => {
       if (map.getLayer(id)) map.setFilter(id, compose(...conds));
     };
@@ -245,6 +306,17 @@ export function useTyphoonTracksLayer(
           [">", ["get", "valid_until"], currentTime],
         );
       }
+      // 風圈：同光圈的區間；不套 primary（主軌跡換來源時風圈仍畫）
+      const radiiFilter = [
+        "all",
+        ["<=", ["get", "valid_ts"], currentTime],
+        [">", ["get", "valid_until"], currentTime],
+        ...(radiiSrcCond ? [radiiSrcCond] : []),
+      ] as unknown as FilterSpecification;
+      for (const id of [LAYER_RADII_FILL, LAYER_RADII_LINE]) {
+        if (map.getLayer(id)) map.setFilter(id, radiiFilter);
+      }
+      setF(LAYER_PROB70, [">", ["get", "valid_ts"], currentTime]);
     };
 
     applyFilter(timeStore.getTime()); // 初始化
@@ -275,5 +347,9 @@ export function useTyphoonTracksLayer(
     if (map.getLayer(LAYER_CURRENT_HALO)) map.setPaintProperty(LAYER_CURRENT_HALO, "circle-opacity", 0.16 * o);
     if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.35 * Math.min(1, o / 0.9));
     if (map.getLayer(LAYER_CURRENT_DOT)) map.setPaintProperty(LAYER_CURRENT_DOT, "circle-opacity", 1 * o);
+    const radiiFillO = ["match", ["get", "radius_kind"], "storm", 0.22 * o, 0.12 * o] as unknown as ExpressionSpecification;
+    if (map.getLayer(LAYER_RADII_FILL)) map.setPaintProperty(LAYER_RADII_FILL, "fill-opacity", hookFillOpacity("typhoonTracks", LAYER_RADII_FILL, radiiFillO, RADII_FILL_OPACITY));
+    if (map.getLayer(LAYER_RADII_LINE)) map.setPaintProperty(LAYER_RADII_LINE, "line-opacity", hookLineOpacity("typhoonTracks", LAYER_RADII_LINE, 0.85 * o, 0.85 * 0.9));
+    if (map.getLayer(LAYER_PROB70)) map.setPaintProperty(LAYER_PROB70, "line-opacity", hookLineOpacity("typhoonTracks", LAYER_PROB70, 0.6 * o, 0.6 * 0.9));
   }, [opacity, isDark, visible, mapRef, mapTick, dataTick]);
 }

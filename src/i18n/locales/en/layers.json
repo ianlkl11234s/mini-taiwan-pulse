@@ -1195,5 +1195,6 @@
   "layer.landSubsidenceStations": "Land Subsidence Monitoring Stations",
   "layer.landSubsidenceCumulative": "Cumulative Subsidence Contours",
   "layer.landSubsidenceRate": "Subsidence Rate Contours",
-  "layer.seawallZones": "Seawall Zones"
+  "layer.seawallZones": "Seawall Zones",
+  "layer.typhoonAgencyForecasts": "Agency Typhoon Forecasts"
 }

@@ -11,5 +11,14 @@
   "enum.globalEventSeverity.1": "注目",
   "enum.globalEventSeverity.2": "重大",
   "enum.globalEventSeverity.3": "深刻",
-  "enum.globalEventSeverity.unknown": "不明"
+  "enum.globalEventSeverity.unknown": "不明",
+  "enum.typhoonAgency.cwa": "台湾 CWA",
+  "enum.typhoonAgency.jma": "日本 JMA",
+  "enum.typhoonAgency.jtwc": "米軍 JTWC",
+  "enum.typhoonAgency.nmc": "中国 NMC",
+  "enum.typhoonAgency.kma": "韓国 KMA",
+  "enum.typhoonSourceOrg.cwa": "台湾 交通部中央気象署",
+  "enum.typhoonSourceOrg.jma": "気象庁",
+  "enum.typhoonSourceOrg.jtwc": "JTWC",
+  "enum.typhoonAgencyOrg.ncdr": "台湾 国家災害防救科技センター（NCDR）"
 }

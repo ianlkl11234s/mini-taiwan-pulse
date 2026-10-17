@@ -124,7 +124,7 @@ import {
   EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import {
-  EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
+  EarthquakeGlobalPanel, TyphoonTrackPanel, TyphoonAgencyForecastPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
   AisstreamVesselPanel, GfwVesselPresencePanel, GfwHourlyGridPanel, GfwHourlyTrackPanel, GfwFishingEffortPanel, GfwDarkVesselPanel,
 } from "./globalClimatePanels";
 import {
@@ -395,6 +395,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeGlobal: EarthquakeGlobalPanel,
   globalEvent: GlobalEventPanel,
   typhoonTrack: TyphoonTrackPanel,
+  typhoonAgencyForecast: TyphoonAgencyForecastPanel,
   climateField: ClimateFieldPanel,
   rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
@@ -919,6 +920,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeGlobal: "全球地震 USGS",
   globalEvent: "全球重要事件",
   typhoonTrack: "颱風軌跡",
+  typhoonAgencyForecast: "各國颱風預報",
   climateField: "氣候場讀值",
   rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
