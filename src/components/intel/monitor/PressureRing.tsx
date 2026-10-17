@@ -16,6 +16,8 @@ import {
 } from "../../../data/intelLoaders";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+import { useLocale, localeStore, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
 export function PressureRing({
@@ -33,6 +35,7 @@ export function PressureRing({
 }) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const r = 52;
   const c = 2 * Math.PI * r;
   const sweep = 0.75; // 270°
@@ -79,7 +82,7 @@ export function PressureRing({
           {status === "ready" || stale ? Math.round(score) : "—"}
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.lg), fontWeight: 700, color: status === "ready" ? theme.text(level.color) : theme.p.textMuted }}>
-          {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
+          {status === "ready" ? enumLabel("monitorPressureLevel", level.key, level.label, i18n) : status === "denied" ? i18n.t("monitor.power.ringDenied") : status === "error" ? i18n.t("monitor.power.ringError") : i18n.t("monitor.power.ringUnknown")}
         </span>
         {/* 英文等級字只在舊版（v2 字級放大後會和中文疊在一起；§6.1 標籤一律中文） */}
         {!v2 && (
@@ -156,8 +159,14 @@ export function marketDataMs(tradeDate: string | null | undefined, hhmm: string 
 }
 
 export function TwseTicker({
-  data, status, lastSuccessAt, open,
-}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
+  data, status, lastSuccessAt, open, i18n = localeStore.getSnapshot(),
+}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean; i18n?: LocaleSnapshot }) {
+  // 不在這裡呼叫 useLocale()：測試直接呼叫本函式；語系切換時父層會重繪，再讀一次目前語系
+  const { t } = i18n;
+  const lastOkText = status === "error" && lastSuccessAt
+    ? t("monitor.power.twseLastOk", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })
+    : t("monitor.power.twseNoJudge");
+  const statusText = data.status ? enumLabel("monitorTwseStatus", data.status, data.status, i18n) : null;
   // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
   const historyQuery = useMonitorResource({ open, queryKey: "market-history:30d", intervalMs: 10 * 60_000, emptyData: EMPTY_MARKET_HISTORY, load: fetchMarketIndexHistory });
   const history = historyQuery.data;
@@ -181,8 +190,8 @@ export function TwseTicker({
   const fresh = useMonitorFreshness("taiex", {
     time: dataMs,
     paused: closed && !!data.status,
-    pausedLabel: data.status ?? undefined,
-    reason: status === "denied" ? "無權限讀取行情" : undefined,
+    pausedLabel: statusText ?? undefined,
+    reason: status === "denied" ? t("monitor.power.twseDenied") : undefined,
   });
   if (v2) {
     // 新版：主數字＝指數＋漲跌；高低量走副資訊；30 日走勢用有時間軸的 TimeseriesSparkline（std）
@@ -192,21 +201,21 @@ export function TwseTicker({
       .filter((p) => Number.isFinite(p.t));
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
-        <MonitorDataStatus label="行情歷史" query={historyQuery} />
+        <MonitorDataStatus label={t("monitor.power.twseHistory")} query={historyQuery} />
         <MonitorMetric
           value={has ? data.index.toLocaleString() : "—"}
           muted={stale || fresh.muted}
-          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}${data.change_pct == null ? "" : `（${up ? "+" : ""}${data.change_pct}%）`}` : undefined}
+          delta={has ? `${up ? "▲ +" : "▼ "}${data.change.toLocaleString()}${data.change_pct == null ? "" : t("monitor.power.twsePct", { pct: `${up ? "+" : ""}${data.change_pct}` })}` : undefined}
           tone={tone}
         />
         <MonitorSub items={[
-          `高 ${has && data.high !== null ? data.high.toLocaleString() : "—"}`,
-          `低 ${has && data.low !== null ? data.low.toLocaleString() : "—"}`,
-          `量 ${has ? data.turnover ?? "—" : "—"}`,
+          `${t("monitor.power.twseHigh")} ${has && data.high !== null ? data.high.toLocaleString() : "—"}`,
+          `${t("monitor.power.twseLow")} ${has && data.low !== null ? data.low.toLocaleString() : "—"}`,
+          `${t("monitor.power.twseVolume")} ${has ? data.turnover ?? "—" : "—"}`,
         ]} />
         {status !== "ready" && (
           <MonitorNote>
-            {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
+            {lastOkText}
           </MonitorNote>
         )}
         {fresh.reason && (status === "ready" || status === "error" || status === "denied") && (
@@ -216,13 +225,13 @@ export function TwseTicker({
           // 交易日序列有週末／連假空檔：gapSec 10 天只在超長假（春節）才斷線
           <TimeseriesSparkline
             data={points}
-            unit="點"
+            unit={t("monitor.power.twseUnitPoint")}
             lineColor={histUp ? theme.p.statusErr : theme.p.statusLive}
             heightTier="std"
             gapSec={10 * 86400}
             showTooltip
             tooltipDateFormat="date"
-            seriesLabel="加權指數"
+            seriesLabel={t("monitor.power.twseSeries")}
             compactYAxis
           />
         )}
@@ -239,7 +248,7 @@ export function TwseTicker({
         display: "flex", flexDirection: "column", gap: 6, minWidth: 208,
       }}
     >
-      <MonitorDataStatus label="行情歷史" query={historyQuery} />
+      <MonitorDataStatus label={t("monitor.power.twseHistory")} query={historyQuery} />
       {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
@@ -247,7 +256,7 @@ export function TwseTicker({
             color: COLORS.textDim, whiteSpace: "nowrap",
           }}
         >
-          TAIEX 加權指數
+          {t("monitor.power.twseHeader")}
         </span>
         <div style={{ flex: 1 }} />
         <span
@@ -256,7 +265,7 @@ export function TwseTicker({
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
           }}
         >
-          {status === "ready" ? `${data.status ?? "—"} ${data.time ?? ""}` : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中"}
+          {status === "ready" ? `${statusText ?? "—"} ${data.time ?? ""}` : status === "denied" ? t("monitor.power.ringDenied") : status === "error" ? t("monitor.power.twseInterrupted") : t("monitor.power.twseLoading")}
         </span>
       </div>}
       <div style={v2 ? { display: "flex", alignItems: "baseline", gap: "2px 9px", flexWrap: "wrap" } : { display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
@@ -288,12 +297,12 @@ export function TwseTicker({
           color: COLORS.textDim, ...(v2 ? { flexWrap: "wrap" as const } : { whiteSpace: "nowrap" as const }),
         }}
       >
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "高" : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high != null ? data.high.toLocaleString() : "—" : "—"}</b></span>
-        <span style={{ whiteSpace: "nowrap" }}>{v2 ? "低" : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low != null ? data.low.toLocaleString() : "—" : "—"}</b></span>
-        <span style={{ whiteSpace: "nowrap" }}>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? t("monitor.power.twseHigh") : "H"} <b style={{ color: COLORS.textDefault }}>{has ? data.high != null ? data.high.toLocaleString() : "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{v2 ? t("monitor.power.twseLow") : "L"} <b style={{ color: COLORS.textDefault }}>{has ? data.low != null ? data.low.toLocaleString() : "—" : "—"}</b></span>
+        <span style={{ whiteSpace: "nowrap" }}>{t("monitor.power.twseVolume")} <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
       {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textMuted }}>
-        {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
+        {lastOkText}
       </span>}
       {closes.length >= 2 && histFirst && histLast && (
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -305,7 +314,7 @@ export function TwseTicker({
               color: COLORS.textFaint, whiteSpace: "nowrap",
             }}
           >
-            {v2 ? "近 30 日" : "30D"}
+            {v2 ? t("monitor.power.twse30d") : "30D"}
           </span>
           {/* 2026-08-10 起 TAIEX 是獨立 widget（不再擠在戰情概覽右側），日線給得起 360×48。
               上限抓 360 是因為 Sparkline 固定寬 + flexShrink:0：grid 模式最窄（容器 1100px）
@@ -318,7 +327,7 @@ export function TwseTicker({
               h={48}
               showTooltip
               labelAt={(i) => history[i]?.trade_date ?? ""}
-              unit="點"
+              unit={t("monitor.power.twseUnitPoint")}
             />
         </div>
       )}

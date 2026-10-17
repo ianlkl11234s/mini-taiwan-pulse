@@ -7,8 +7,10 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, AlertTriangle, Info } from "lucide-react";
 import type { ChatModelOption, ChatProviderId } from "../../chat/types";
+import type { MessageKey } from "../../i18n/keys";
 import { chatStore, useChatStore, type PersistChoice } from "../../state/chatStore";
 import { keyVault } from "../../lib/keyVault";
+import { useLocale } from "../../state/localeStore";
 import {
   SURFACE, COLORS, BORDER, RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, SPACING, WHITE_ALPHA,
 } from "../../styles/designTokens";
@@ -35,10 +37,20 @@ const PROVIDER_OPTIONS: { id: ChatProviderId; label: string }[] = [
   { id: "google", label: "Google Gemini" },
 ];
 
-const PERSIST_OPTIONS: { id: PersistChoice; label: string; hint: string }[] = [
-  { id: "memory", label: "僅本次", hint: "重新整理頁面就會消失" },
-  { id: "session", label: "本分頁記住", hint: "分頁關閉前有效" },
-  { id: "local", label: "此瀏覽器記住", hint: "永久保存，需手動刪除" },
+/** 模型顯示名（不翻）；檔位文字（快速・預設／進階）依語系組合，MODEL_OPTIONS.label 維持中文給其他呼叫端。 */
+const MODEL_NAMES: Record<string, string> = {
+  "claude-haiku-4-5": "Claude Haiku 4.5",
+  "claude-sonnet-5": "Claude Sonnet 5",
+  "gpt-5-mini": "GPT-5 mini",
+  "gpt-5": "GPT-5",
+  "gemini-2.5-flash": "Gemini 2.5 Flash",
+  "gemini-2.5-pro": "Gemini 2.5 Pro",
+};
+
+const PERSIST_OPTIONS: { id: PersistChoice; labelKey: MessageKey; hintKey: MessageKey }[] = [
+  { id: "memory", labelKey: "chat.key.persist.memory", hintKey: "chat.key.persist.memoryHint" },
+  { id: "session", labelKey: "chat.key.persist.session", hintKey: "chat.key.persist.sessionHint" },
+  { id: "local", labelKey: "chat.key.persist.local", hintKey: "chat.key.persist.localHint" },
 ];
 
 interface KeySettingsProps {
@@ -68,6 +80,7 @@ function pillStyle(active: boolean): React.CSSProperties {
 
 export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
   const { provider, model, persistChoice } = useChatStore();
+  const { t } = useLocale();
   const [draftKey, setDraftKey] = useState(() => keyVault.get(provider) ?? "");
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -112,7 +125,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
     } catch (err) {
       setTestResult({
         ok: false,
-        message: err instanceof Error ? err.message : "測試連線失敗",
+        message: err instanceof Error ? err.message : t("chat.error.testFailed"),
       });
     } finally {
       setTesting(false);
@@ -130,11 +143,11 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong }}>
-          金鑰設定
+          {t("chat.key.title")}
         </span>
         <div style={{ flex: 1 }} />
         <button onClick={onDone} style={{ ...pillStyle(false), display: "inline-flex", alignItems: "center", gap: 4 }}>
-          <ArrowLeft size={13} /> 返回對話
+          <ArrowLeft size={13} /> {t("chat.key.back")}
         </button>
       </div>
 
@@ -172,12 +185,12 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
         >
           {models.map((m) => (
             <option key={m.id} value={m.id} style={{ background: SURFACE.app }}>
-              {m.label}
+              {MODEL_NAMES[m.id] ? t(m.tier === "advanced" ? "chat.key.modelAdvanced" : "chat.key.modelDefault", { name: MODEL_NAMES[m.id]! }) : m.label}
             </option>
           ))}
         </select>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-          統計、比較、顧問式問題建議用進階檔；輕量檔快但可能偷懶。
+          {t("chat.key.modelHint")}
         </span>
       </div>
 
@@ -190,7 +203,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
           type="password"
           value={draftKey}
           onChange={(e) => handleKeyChange(e.target.value)}
-          placeholder="貼上你的 API key"
+          placeholder={t("chat.key.placeholder")}
           autoComplete="off"
           style={{
             padding: "8px 10px", borderRadius: RADIUS.lg,
@@ -200,7 +213,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
         />
         {draftKey && (
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-            已設定・末 4 碼 ****{last4}
+            {t("chat.key.saved", { last4 })}
           </span>
         )}
       </div>
@@ -208,22 +221,22 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
       {/* 儲存位置 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
-          儲存位置
+          {t("chat.key.storage")}
         </span>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {PERSIST_OPTIONS.map((opt) => (
             <button
               key={opt.id}
               onClick={() => handlePersistChange(opt.id)}
-              title={opt.hint}
+              title={t(opt.hintKey)}
               style={pillStyle(persistChoice === opt.id)}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-          {PERSIST_OPTIONS.find((o) => o.id === persistChoice)?.hint}
+          {(() => { const o = PERSIST_OPTIONS.find((x) => x.id === persistChoice); return o ? t(o.hintKey) : null; })()}
         </span>
       </div>
 
@@ -238,7 +251,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
             cursor: !draftKey || testing ? "not-allowed" : "pointer",
           }}
         >
-          {testing ? "測試中…" : "測試連線"}
+          {testing ? t("chat.key.testing") : t("chat.key.test")}
         </button>
         <button
           onClick={handleDelete}
@@ -250,7 +263,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
             color: draftKey ? COLORS.statusErr : COLORS.textMuted,
           }}
         >
-          刪除金鑰
+          {t("chat.key.delete")}
         </button>
         {testResult && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
@@ -281,9 +294,7 @@ export function KeySettings({ onTestKey, onDone }: KeySettingsProps) {
       >
         <Info size={14} color={COLORS.textFaint} style={{ marginTop: 2, flexShrink: 0 }} />
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, lineHeight: 1.6 }}>
-          金鑰只存在你的瀏覽器（依上方選擇存在記憶體 / sessionStorage / localStorage），對話時直接連到對應服務商的
-          API，本站伺服器不會經手也不會記錄金鑰內容。建議另外申請一把使用額度較低的專用 key（例如 OpenAI 專案 key
-          設定月花費上限、Anthropic workspace key、或 Gemini 免費額度），降低外洩時的風險。
+          {t("chat.key.risk")}
         </span>
       </div>
     </div>

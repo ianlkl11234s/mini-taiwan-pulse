@@ -22,7 +22,8 @@ import {
   type ManeuverSeverity,
 } from "../../data/satelliteManeuversLoader";
 import { useManeuverImpacts, type ManeuverImpactState } from "../../hooks/useManeuverImpacts";
-import { ctrlButton, resolveManeuverListScope, severityColor, SEVERITY_VIEW } from "./maneuverAlertKit";
+import { ctrlButton, localizeManeuverDetail, localizeRelTime, maneuverTypeLabel, resolveManeuverListScope, rich, severityColor, severityLabel } from "./maneuverAlertKit";
+import { useLocale } from "../../state/localeStore";
 
 interface Props {
   maneuvers: ManeuversState;
@@ -42,9 +43,12 @@ const SECTION_PAD = "0 14px";
 export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCompare, isHistory = false }: Props) {
   const [expandedGrey, setExpandedGrey] = useState(false);
   const p = useIntelTheme();
+  const { t } = useLocale();
   const SECTION_STYLE = { borderBottom: `1px solid ${p.borderSoft}`, paddingBottom: 12 } as const;
   const maneuvers = state.rows;
   const scope = resolveManeuverListScope(isHistory);
+  // 資料層的提示是中文固定句；有提示才顯示，文字依語系
+  const scopeNotice = scope.notice ? t("satelliteConsole.alert.historyNotice") : null;
 
   const { cnCount, twCount, intlCount, sortedRed, sortedOrange, sortedGrey, sortedUnknown } = useMemo(() => {
     let cn = 0, tw = 0, intl = 0;
@@ -81,8 +85,8 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
     const tone = isEmpty ? p.statusLive : isError ? p.statusErr : p.textDim;
     return (
       <div style={SECTION_STYLE}>
-        <SubGroupLabel>變軌警報</SubGroupLabel>
-        <ScopeNotice text={scope.notice} />
+        <SubGroupLabel>{t("satelliteConsole.alert.title")}</SubGroupLabel>
+        <ScopeNotice text={scopeNotice} />
         <div style={{ padding: "4px 14px 0" }}>
           <div role="status" style={{
             padding: "6px 10px",
@@ -97,7 +101,10 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
             gap: 8,
           }}>
             <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: tone, flexShrink: 0 }} />
-            {banner.text}
+            {state.status === "loading" ? t("satelliteConsole.alert.bannerLoading")
+              : state.status === "error" ? (state.errorReason === "unconfigured" ? t("satelliteConsole.alert.bannerUnconfigured") : t("satelliteConsole.loadFailed"))
+              : isError ? t("satelliteConsole.alert.bannerStale")
+              : t("satelliteConsole.alert.bannerEmpty")}
           </div>
         </div>
       </div>
@@ -121,15 +128,17 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
 
   return (
     <div style={SECTION_STYLE}>
-      <SubGroupLabel>變軌警報</SubGroupLabel>
-      <ScopeNotice text={scope.notice} />
+      <SubGroupLabel>{t("satelliteConsole.alert.title")}</SubGroupLabel>
+      <ScopeNotice text={scopeNotice} />
       {state.stale && (
         <div role="status" style={{ padding: "0 14px 4px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.statusWarn }}>
-          更新中斷，目前顯示的是上次讀取的資料
+          {t("satelliteConsole.alert.staleNote")}
         </div>
       )}
       <div style={{ padding: "0 14px", fontSize: FONT_SIZE.sm, color: p.textDim }}>
-        近 24 小時 · 共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span> 筆
+        {rich(t("satelliteConsole.alert.total", { count: total, n: "{n}" }), {
+          n: <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{total}</span>,
+        })}
       </div>
 
       <div style={{ padding: "6px 14px 0" }}>
@@ -142,11 +151,11 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
         </div>
         {/* 國別計數 */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 6, fontSize: FONT_SIZE.sm, color: p.textMuted }}>
-          <CountryCount zh="中國" n={cnCount} hot />
+          <CountryCount label={t("satelliteConsole.alert.countryCn")} n={cnCount} hot />
           <span style={{ color: p.textFaint }}>·</span>
-          <CountryCount zh="國際" n={intlCount} />
+          <CountryCount label={t("satelliteConsole.alert.countryIntl")} n={intlCount} />
           <span style={{ color: p.textFaint }}>·</span>
-          <CountryCount zh="台灣" n={twCount} />
+          <CountryCount label={t("satelliteConsole.alert.countryTw")} n={twCount} />
         </div>
       </div>
 
@@ -167,8 +176,12 @@ export function ManeuverAlertSection({ maneuvers: state, onSelectNorad, onOpenCo
             >
               {expandedGrey ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
               <span>
-                例行調整 <span style={{ fontFamily: FONT_DATA }}>{sortedGrey.length}</span> 筆
-                {sortedUnknown.length > 0 && <>、無法判定 <span style={{ fontFamily: FONT_DATA }}>{sortedUnknown.length}</span> 筆</>}
+                {rich(t("satelliteConsole.alert.routine", { count: sortedGrey.length, n: "{n}" }), {
+                  n: <span style={{ fontFamily: FONT_DATA }}>{sortedGrey.length}</span>,
+                })}
+                {sortedUnknown.length > 0 && rich(t("satelliteConsole.alert.undetermined", { count: sortedUnknown.length, n: "{n}" }), {
+                  n: <span style={{ fontFamily: FONT_DATA }}>{sortedUnknown.length}</span>,
+                })}
               </span>
             </button>
             {expandedGrey && (
@@ -195,7 +208,7 @@ function ScopeNotice({ text }: { text: string | null }) {
 
 function SevCell({ severity, count }: { severity: ManeuverSeverity; count: number }) {
   const p = useIntelTheme();
-  const v = SEVERITY_VIEW[severity];
+  const i18n = useLocale();
   const hot = count > 0 && (severity === "red" || severity === "orange");
   return (
     <div style={{
@@ -208,16 +221,16 @@ function SevCell({ severity, count }: { severity: ManeuverSeverity; count: numbe
       }}>
         {count}
       </div>
-      <div style={{ fontSize: FONT_SIZE.sm, color: p.textMuted, whiteSpace: "nowrap" }}>{v.zh}</div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: p.textMuted, whiteSpace: "nowrap" }}>{severityLabel(severity, i18n)}</div>
     </div>
   );
 }
 
-function CountryCount({ zh, n, hot }: { zh: string; n: number; hot?: boolean }) {
+function CountryCount({ label, n, hot }: { label: string; n: number; hot?: boolean }) {
   const p = useIntelTheme();
   return (
     <span style={{ whiteSpace: "nowrap" }}>
-      {zh}{" "}
+      {label}{" "}
       <span style={{
         fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums",
         fontWeight: n > 0 ? 600 : 400,
@@ -237,7 +250,8 @@ interface RowProps {
 
 function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }: RowProps) {
   const p = useIntelTheme();
-  const sev = SEVERITY_VIEW[severity];
+  const i18n = useLocale();
+  const { t } = i18n;
   const typeToken = MANEUVER_TOKEN[row.maneuver_type];
   if (!typeToken) return null;
 
@@ -249,7 +263,7 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
           <button
             type="button"
             onClick={() => onSelectNorad(row.norad_id)}
-            title={`查看 ${row.name} 的衛星百科`}
+            title={t("satelliteConsole.alert.openEncyclopedia", { name: row.name })}
             style={{
               flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", textAlign: "left", cursor: "pointer",
               fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: p.textStrong,
@@ -259,18 +273,18 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
           >
             {row.name}
           </button>
-          <span style={{ flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
+          <span style={{ flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.textDim }}>{localizeRelTime(formatRelTime(row.curr_fetched_at), i18n)}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", fontSize: FONT_SIZE.sm, color: p.textMuted }}>
-          <span style={{ whiteSpace: "nowrap" }}>{sev.zh} · {typeToken.zh}</span>
-          <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{formatManeuverDetail(row)}</span>
+          <span style={{ whiteSpace: "nowrap" }}>{severityLabel(severity, i18n)} · {maneuverTypeLabel(row.maneuver_type, i18n)}</span>
+          <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{localizeManeuverDetail(formatManeuverDetail(row), i18n)}</span>
           <ImpactText impact={impact} />
         </div>
       </div>
       <button
         type="button"
-        title="看覆蓋變化"
-        aria-label="看覆蓋變化"
+        title={t("satelliteConsole.alert.viewCoverage")}
+        aria-label={t("satelliteConsole.alert.viewCoverage")}
         onClick={() => onOpenCompare(row)}
         style={ctrlButton(p, { width: 26, height: 26, padding: 0, flexShrink: 0, color: p.textMuted })}
       >
@@ -283,9 +297,10 @@ function ManeuverRowItem({ row, severity, impact, onSelectNorad, onOpenCompare }
 /** 台灣過境影響：有變化用 warn 色 chipOutline，其餘淡字 */
 function ImpactText({ impact: state }: { impact: ManeuverImpactState | undefined }) {
   const p = useIntelTheme();
+  const { t } = useLocale();
   const plain = { whiteSpace: "nowrap", fontSize: FONT_SIZE.sm, color: p.textDim } as const;
-  if (state?.kind === "unavailable") return <span style={plain}>台灣過境 · 無法計算</span>;
-  if (!state) return <span style={plain}>台灣過境計算中…</span>;
+  if (state?.kind === "unavailable") return <span style={plain}>{t("satelliteConsole.alert.impactUnavailable")}</span>;
+  if (!state) return <span style={plain}>{t("satelliteConsole.alert.impactComputing")}</span>;
   const { impact } = state;
   if (impact.affectsTw) {
     return (
@@ -294,11 +309,14 @@ function ImpactText({ impact: state }: { impact: ManeuverImpactState | undefined
         display: "inline-flex", alignItems: "center", padding: "1px 5px", borderRadius: 3,
         fontSize: FONT_SIZE.sm, lineHeight: 1.2, whiteSpace: "nowrap",
       }}>
-        台灣過境 <Num>{impact.passBefore}</Num>→<Num>{impact.passAfter}</Num> 次
+        {rich(t("satelliteConsole.alert.impactChanged", { count: impact.passAfter, a: "{a}", b: "{b}" }), {
+          a: <Num>{impact.passBefore}</Num>,
+          b: <Num>{impact.passAfter}</Num>,
+        })}
       </span>
     );
   }
-  return <span style={plain}>台灣過境不變（<Num>{impact.passBefore}</Num> 次）</span>;
+  return <span style={plain}>{rich(t("satelliteConsole.alert.impactSame", { count: impact.passBefore, a: "{a}" }), { a: <Num>{impact.passBefore}</Num> })}</span>;
 }
 
 function Num({ children }: { children: number }) {

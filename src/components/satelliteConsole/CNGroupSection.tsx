@@ -21,6 +21,9 @@ import * as satellite from "satellite.js";
 import { Satellite as SatelliteIcon } from "lucide-react";
 import { ListRow, LayerNameLine } from "../sidebar/LayerRow";
 import { SubGroupLabel } from "../sidebar/ThemeBanner";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { rich } from "./maneuverAlertKit";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -47,6 +50,8 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
   const [loadState, setLoadState] = useState<"loading" | "ok" | "error">("loading");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const { p, fill, text, neutral } = useSatelliteTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
 
   useEffect(() => {
     let alive = true;
@@ -113,22 +118,26 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
     const manCount = maneuverCountByCat.get(g.key) ?? 0;
     const layerKey = g.layerKey as keyof LayerVisibility;
     const layerOn = !!layerVisibility[layerKey];
+    // 群組名走 enum；外文小字在外文介面只留名稱裡沒有的部分（避免「Yaogan Yaogan」）
+    const groupName = enumLabel("satelliteGroup", g.key, g.zh, i18n);
+    const groupAltRaw = enumLabel("satelliteGroupAlt", g.key, g.alt, i18n);
+    const groupAlt = i18n.active !== "zh-TW" && groupName.toLowerCase().includes(groupAltRaw.toLowerCase()) ? undefined : groupAltRaw;
     return (
       <div key={g.key} style={{ borderTop: `1px solid ${p.borderSoft}` }}>
         {/* 共用圖層列（layer-panel-unify P8）：icon・名稱＋等級徽章・顆數・chevron・黑白列開關（開關移到 chevron 後） */}
         <ListRow
-          ariaLabel={g.zh}
-          label={<LayerNameLine name={{ zh: g.zh, alt: g.alt }} />}
+          ariaLabel={groupName}
+          label={<LayerNameLine name={{ zh: groupName, alt: groupAlt }} />}
           icon={<SatelliteIcon size={14} color={layerOn ? fill(g.color) : p.textDim} style={{ flexShrink: 0 }} />}
           meta={<>
             {manCount > 0 && (
-              <span title="近 24 小時變軌" style={{ marginLeft: 6, alignSelf: "center", ...CHIP_BASE, ...chipOutline(p.statusErr) }}>
-                變軌 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{manCount}</span>
+              <span title={t("satelliteConsole.maneuver24h")} style={{ marginLeft: 6, alignSelf: "center", ...CHIP_BASE, ...chipOutline(p.statusErr) }}>
+                {t("satelliteConsole.maneuver")} <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{manCount}</span>
               </span>
             )}
           </>}
           count={list.length}
-          countUnit="顆"
+          countUnit={t("satelliteConsole.unit.sat", { count: list.length })}
           // SC2：左緣線／icon 補到對白 3:1，計數字走 chipText（暗色皆原色）
           accent={fill(g.color)}
           countColor={text(g.color)}
@@ -136,13 +145,13 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
           expandable
           expanded={isOpen}
           onClick={() => toggle(g.key)}
-          toggle={{ on: layerOn, onChange: () => setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>), label: `${g.zh} 顯示` }}
+          toggle={{ on: layerOn, onChange: () => setLayerVisibility({ [layerKey]: !layerOn } as Partial<LayerVisibility>), label: t("satelliteConsole.group.toggleLabel", { name: groupName }) }}
         />
         {isOpen && (
           <div style={{ padding: "0 14px 8px" }}>
             {list.length === 0 ? (
               <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: p.textFaint, padding: "4px 0" }}>
-                {loadState === "loading" ? "讀取中…" : loadState === "error" ? "資料讀取失敗" : layerOn ? "尚無資料" : "尚未開啟此圖層"}
+                {loadState === "loading" ? t("satelliteConsole.loading") : loadState === "error" ? t("satelliteConsole.loadFailed") : layerOn ? t("satelliteConsole.group.noData") : t("satelliteConsole.group.layerOff")}
               </div>
             ) : (
               <div style={{ maxHeight: 200, overflowY: "auto" }} className="mtp-scroll">
@@ -168,14 +177,17 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
                         </span>
                       )}
                       {isManeuver && (
-                        <span title="近 24 小時變軌" style={{ ...CHIP_BASE, ...chipOutline(p.statusErr) }}>變軌</span>
+                        <span title={t("satelliteConsole.maneuver24h")} style={{ ...CHIP_BASE, ...chipOutline(p.statusErr) }}>{t("satelliteConsole.maneuver")}</span>
                       )}
                     </div>
                   );
                 })}
                 {list.length > 80 && (
                   <div style={{ padding: "4px 0", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: p.textFaint, textAlign: "center" }}>
-                    共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{list.length}</span> 顆，只列前 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>80</span> 顆
+                    {rich(t("satelliteConsole.group.listCap", { count: list.length, n: "{n}", max: "{max}" }), {
+                      n: <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{list.length}</span>,
+                      max: <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>80</span>,
+                    })}
                   </div>
                 )}
               </div>
@@ -189,12 +201,12 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
   // 群組列色票由 SatelliteConsole 的 RailThemeContext（railPalette(isDarkTheme)）提供
   return (
     <div style={{ borderBottom: `1px solid ${p.borderSoft}` }}>
-      <SubGroupLabel>中國</SubGroupLabel>
+      <SubGroupLabel>{t("satelliteConsole.group.china")}</SubGroupLabel>
       {CN_GROUPS_META.map(renderGroup)}
 
       {/* 國際偵察區 */}
       <div style={{ marginTop: 4, borderTop: `1px solid ${p.borderSoft}` }}>
-        <SubGroupLabel>國際偵察</SubGroupLabel>
+        <SubGroupLabel>{t("satelliteConsole.group.intlRecon")}</SubGroupLabel>
       </div>
       {INTL_GROUPS_META.map(renderGroup)}
     </div>

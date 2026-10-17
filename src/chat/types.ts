@@ -13,6 +13,8 @@ export interface ChatToolCallSummary {
   name: string;
   /** 給 UI chip 顯示的一行摘要，例如「開啟 2 個圖層」「查詢 police_stations：2065 筆」 */
   summary: string;
+  /** 工具執行失敗。summary 會併回對話歷史給 AI（維持中文），畫面依此另外顯示目前語系的提示 */
+  failed?: boolean;
 }
 
 export interface ChatMessage {

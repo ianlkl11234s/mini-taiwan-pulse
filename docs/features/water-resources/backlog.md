@@ -4,7 +4,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **WR-1 · `verifying`**：確認 `lakesPondsOsm` 的 PR、merge/push 與 production asset 狀態。
+- [x] **WR-1 · `verifying`**：確認 `lakesPondsOsm` 的 PR、merge/push 與 production asset 狀態。 — 2026-10-16 盤點關閉：lakes_ponds_osm.pmtiles 正式站 206，manifest 已在 develop
   - Outcome：52,314 面湖泊／埤塘正式可載入，且不把 README 的 dev 狀態誤當 shipped。
   - Next action：核對 branch/PR、PMTiles S3/HTTP Range、browser map/legend/popup；以無 404、ODbL attribution 與 aquaculture overlap filter 正常為 acceptance。
 

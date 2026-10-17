@@ -1,9 +1,55 @@
 <!doctype html>
-<html lang="zh-TW">
+<html lang="zh-Hant-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-    <title>Mini Taiwan Pulse</title>
+    <title>Mini Taiwan Pulse｜台灣即時脈動地圖</title>
+    <link rel="canonical" href="https://mini-taiwan-pulse.itsmigu.com/" />
+    <link rel="alternate" hreflang="zh-Hant-TW" href="https://mini-taiwan-pulse.itsmigu.com/" />
+    <link rel="alternate" hreflang="en" href="https://mini-taiwan-pulse.itsmigu.com/?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://mini-taiwan-pulse.itsmigu.com/?lang=ja" />
+    <link rel="alternate" hreflang="x-default" href="https://mini-taiwan-pulse.itsmigu.com/" />
+    <meta name="description" content="用開放資料，把台灣畫成一張會呼吸的地圖。 Taiwan as a living map, drawn from open data: flights, ships, trains, buses and more on one 3D map and timeline." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mini Taiwan Pulse｜台灣即時脈動地圖" />
+    <meta property="og:url" content="https://mini-taiwan-pulse.itsmigu.com/" />
+    <meta property="og:site_name" content="Mini Taiwan Pulse" />
+    <meta property="og:description" content="用開放資料，把台灣畫成一張會呼吸的地圖。 Taiwan as a living map, drawn from open data: flights, ships, trains, buses and more on one 3D map and timeline." />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
+    <meta name="twitter:card" content="summary" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://mini-taiwan-pulse.itsmigu.com/#website",
+            "url": "https://mini-taiwan-pulse.itsmigu.com/",
+            "name": "Mini Taiwan Pulse",
+            "alternateName": "台灣即時脈動地圖",
+            "description": "用開放資料，把台灣畫成一張會呼吸的地圖。",
+            "inLanguage": ["zh-Hant-TW", "en", "ja"]
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://mini-taiwan-pulse.itsmigu.com/#app",
+            "name": "Mini Taiwan Pulse",
+            "url": "https://mini-taiwan-pulse.itsmigu.com/",
+            "description": "把航班、船舶、列車、公車與能源、農業、水資源、統計等台灣開放資料，疊在同一張 3D 地圖與時間軸上的互動網站。",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any (web browser)",
+            "browserRequirements": "Requires JavaScript and WebGL",
+            "inLanguage": ["zh-Hant-TW", "en", "ja"],
+            "isAccessibleForFree": true,
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TWD" },
+            "license": "https://github.com/ianlkl11234s/mini-taiwan-pulse/blob/develop/LICENSE",
+            "sameAs": ["https://github.com/ianlkl11234s/mini-taiwan-pulse"]
+          }
+        ]
+      }
+    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%230a0a14'/><path d='M8 22 Q16 6 24 20' stroke='%2364aaff' stroke-width='1.5' fill='none' opacity='0.7'/><path d='M10 24 Q16 10 22 22' stroke='%231ad9e5' stroke-width='1.2' fill='none' opacity='0.6'/><path d='M12 25 Q16 14 20 23' stroke='%23ee6c00' stroke-width='1' fill='none' opacity='0.5'/><circle cx='16' cy='14' r='2' fill='%23ffd54f' opacity='0.8'/></svg>">
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +62,24 @@
     </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- 爬蟲與 AI 助理看得到的靜態說明；React createRoot().render 掛載後會整段取代。 -->
+      <main style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;overflow:auto;color:#c8d0e0;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;line-height:1.7;text-align:center">
+        <div style="max-width:560px">
+          <h1 style="font-size:22px;font-weight:600;color:#e8eefc;margin-bottom:12px">Mini Taiwan Pulse｜台灣即時脈動地圖</h1>
+          <p style="font-size:14px;margin-bottom:10px">用開放資料，把台灣畫成一張會呼吸的地圖。航班、船舶、列車、公車等會動的運具，與能源、農業、水資源、廢棄物、社福長照、衛星、區域統計等開放資料，全部疊在同一張 3D 地圖與同一條時間軸上。</p>
+          <p style="font-size:14px;margin-bottom:10px">資料幾乎全部來自政府開放資料與公開資料源（內政部、交通部 TDX、中央氣象署、環境部等，以及 OpenStreetMap），每個圖層的來源可在站上的「資料來源」面板查看。</p>
+          <ul style="font-size:14px;list-style:none;margin-bottom:10px">
+            <li>即時與回放的航班、船舶、軌道、公車</li>
+            <li>區域統計圖層與統計比較</li>
+            <li>監看模式與 AI 地圖分析</li>
+            <li>介面支援繁體中文、English、日本語</li>
+          </ul>
+          <p style="font-size:13px;color:#8a94ab">地圖載入中⋯⋯ <a href="https://github.com/ianlkl11234s/mini-taiwan-pulse" style="color:#64aaff">GitHub</a></p>
+          <noscript><p style="font-size:13px;color:#ffd54f;margin-top:8px">此網站是互動式 3D 地圖，需要啟用 JavaScript 與 WebGL 才能使用。</p></noscript>
+        </div>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

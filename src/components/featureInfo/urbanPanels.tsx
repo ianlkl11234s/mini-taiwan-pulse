@@ -1,5 +1,6 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import { Row, Title } from "./shared";
 import { DARK_FEATURE, useFeatureTheme } from "./featureTheme";
@@ -78,11 +79,14 @@ export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, un
 
 /** 受保護樹木（全國 6,544 點）：樹種 + 學名斜體 + 城市/地址 + 尺寸 + 推估樹齡 + 管理單位 */
 export function ProtectedTreesNationalPanel({ props }: { props: Record<string, unknown> }) {
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const sci = typeof props.species_scientific === "string" ? props.species_scientific : "";
   const city = String(props.city ?? "");
   const district = String(props.district ?? "");
-  const cityValue = city && district ? t("popup.urban.nameWithSub", { main: city, sub: district }) : city || district;
+  const cityZh = placeName(city, i18n);
+  const districtZh = placeTown(city, district, i18n);
+  const cityValue = city && district ? t("popup.urban.nameWithSub", { main: cityZh, sub: districtZh }) : cityZh || districtZh;
   return (
     <>
       <Title color="#00695c">{String(props.species ?? t("popup.urban.protectedTree"))}</Title>
@@ -223,7 +227,8 @@ export function StreetTreesNationalPanel({ props }: { props: Record<string, unkn
   const speciesColor = STREET_TREE_NATIONAL_SPECIES.find((s) => s.names.includes(species))?.color ?? "#43a047";
   const cityEntry = STREET_TREE_NATIONAL_CITIES.find((c) => c.value === props.city);
   const cityLabel = cityEntry ? enumLabel("streetTreeCity", cityEntry.value, cityEntry.label, i18n) : String(props.city ?? "");
-  const district = String(props.district ?? "");
+  // city 是代碼（taipei／taichung），只能用區名單獨查
+  const district = placeTown("", String(props.district ?? ""), i18n);
   const cityValue = cityLabel && district ? t("popup.urban.nameWithSub", { main: cityLabel, sub: district }) : cityLabel || district;
   return (
     <>
@@ -367,14 +372,15 @@ export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown
  *    相減沒有意義（上游 admin_value.json meta.field_notes 明文警告）。
  */
 export function PropertyValueAdminPanel({ props }: { props: Record<string, unknown> }) {
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const level = props.admin_level === "township" ? t("popup.urban.levelTownship") : t("popup.urban.levelCounty");
   const value = Number(props.value_market_corrected);
   return (
     <>
       <Title color="#ec7014">{String(props.admin_name ?? t("popup.urban.propertyValueDefault"))}</Title>
       <Row label={t("popup.urban.adminLevel")} value={level} />
-      {props.county_name && props.county_name !== props.admin_name ? <Row label={t("popup.urban.ownCounty")} value={String(props.county_name)} /> : null}
+      {props.county_name && props.county_name !== props.admin_name ? <Row label={t("popup.urban.ownCounty")} value={placeName(String(props.county_name), i18n)} /> : null}
       <Row label={t("popup.urban.totalMarketValue")} value={formatPropertyValueTwd(value)} color="#ec7014" />
       <Row label={t("popup.urban.valuedBuildings")} value={numUnit(props.n_buildings, t("popup.urban.unitBuilding"), formatNumber)} />
       <Row label={t("popup.urban.totalFloorArea")} value={numUnit(props.gfa_m2, "m²", formatNumber)} />
@@ -478,8 +484,8 @@ export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> 
     <>
       <Title color={color}>{title}</Title>
       <Row field="code" value={code} color={color} />
-      <Row field="county" value={zoneText(props.county)} />
-      {town ? <Row field="township" value={town} /> : null}
+      <Row field="county" value={placeName(zoneText(props.county), i18n)} />
+      {town ? <Row field="township" value={placeTown(zoneText(props.county), town, i18n)} /> : null}
       {/* zone_category（agricultural / slope_conservation…）是英文粗分類，跟 zone_name 資訊重複
           且未中文化，不入 popup —— 11 碼的中文名本身就是分類 */}
     </>
@@ -501,7 +507,7 @@ export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="classification" value={categoryLabel} color={color} />
       <Row label={t("popup.urban.shortName")} value={zoneText(props.zone_short)} />
       <Row field="code" value={zoneText(props.zone_code)} />
-      <Row field="city" value={zoneText(props.city)} />
+      <Row field="city" value={placeName(zoneText(props.city), i18n)} />
       <Row label={t("popup.urban.planLevel")} value={zoneText(props.plan_level)} />
     </>
   );

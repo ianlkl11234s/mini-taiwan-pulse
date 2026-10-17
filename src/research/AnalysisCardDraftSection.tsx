@@ -6,6 +6,7 @@
 import { lazy, Suspense, useState } from "react";
 import { AnalysisCard, CardMapFallback } from "../card/AnalysisCard";
 import { taipeiDate } from "../card/cardStyle";
+import { localeStore, useLocale, type LocaleSnapshot } from "../state/localeStore";
 import { publishAnalysisCard, type CardActionResult } from "../lib/analysisCardApi";
 import type { AnalysisCardDraft } from "./analysisCardDraft";
 import "../card/card.css";
@@ -16,8 +17,8 @@ export type Publish = (payload: unknown) => Promise<CardActionResult<{ slug: str
 export type PublishState = { phase: "idle" } | { phase: "publishing" } | { phase: "published"; url: string; expiresAt: string } | { phase: "error"; message: string };
 
 /** 「發布連結」的狀態轉移（抽出來讓測試不需 DOM）。閘門不通過時不呼叫 RPC。 */
-export async function publishDraft(draft: AnalysisCardDraft, publish: Publish): Promise<PublishState> {
-  if (!draft.gate.publishable) return { phase: "error", message: draft.gate.message || "這份結果的資料還不能公開分享。" };
+export async function publishDraft(draft: AnalysisCardDraft, publish: Publish, i18n: LocaleSnapshot = localeStore.getSnapshot()): Promise<PublishState> {
+  if (!draft.gate.publishable) return { phase: "error", message: draft.gate.message || i18n.t("analysisCard.draft.gateBlocked") };
   const result = await publish(draft.payload);
   return result.ok ? { phase: "published", url: result.value.url, expiresAt: result.value.expiresAt } : { phase: "error", message: result.message };
 }
@@ -30,32 +31,34 @@ export function AnalysisCardDraftSection({ draft, onDiscard, publish = publishAn
   showMap?: boolean;
   initialState?: PublishState;
 }) {
+  const i18n = useLocale();
+  const { t } = i18n;
   const [state, setState] = useState<PublishState>(initialState);
   const [copied, setCopied] = useState(false);
   const run = async () => {
     setState({ phase: "publishing" });
-    setState(await publishDraft(draft, publish));
+    setState(await publishDraft(draft, publish, i18n));
   };
   const copy = async (url: string) => {
     try { await navigator.clipboard.writeText(url); setCopied(true); } catch { setCopied(false); }
   };
-  const mapSlot = showMap ? <Suspense fallback={<CardMapFallback message="地圖載入中" />}><CardMap payload={draft.payload} /></Suspense> : <CardMapFallback message="地圖預覽" />;
-  return <section className="agent-analysis-results agent-card-draft" aria-label="卡片草稿">
-    <h3>卡片草稿</h3>
-    <p>{draft.gate.message || "這份結果的來源都可以公開分享。"}</p>
-    <AnalysisCard payload={draft.payload} mapSlot={mapSlot} expiresAt={null} expiryNote="發布後 30 天到期" variant="preview" />
+  const mapSlot = showMap ? <Suspense fallback={<CardMapFallback message={t("analysisCard.mapLoading")} />}><CardMap payload={draft.payload} /></Suspense> : <CardMapFallback message={t("analysisCard.mapPreview")} />;
+  return <section className="agent-analysis-results agent-card-draft" aria-label={t("analysisCard.draft.title")}>
+    <h3>{t("analysisCard.draft.title")}</h3>
+    <p>{draft.gate.message || t("analysisCard.draft.gateDefault")}</p>
+    <AnalysisCard payload={draft.payload} mapSlot={mapSlot} expiresAt={null} expiryNote={t("analysisCard.draft.expiryNote")} variant="preview" />
     {state.phase === "published" ? <div className="agent-card-draft__link" role="status">
-      <label>分享連結<input readOnly value={state.url} onFocus={event => event.currentTarget.select()} /></label>
-      <small>連結到期：{taipeiDate(state.expiresAt) ?? "30 天後"}；可在「會員專區 › 卡片」撤銷。</small>
+      <label>{t("analysisCard.draft.shareLink")}<input readOnly value={state.url} onFocus={event => event.currentTarget.select()} /></label>
+      <small>{t("analysisCard.draft.linkExpiry", { date: taipeiDate(state.expiresAt) ?? t("analysisCard.draft.daysLater") })}</small>
       <div className="agent-card-draft__actions">
-        <button type="button" onClick={() => void copy(state.url)}>{copied ? "已複製" : "複製連結"}</button>
-        <button type="button" onClick={onDiscard}>關閉草稿</button>
+        <button type="button" onClick={() => void copy(state.url)}>{copied ? t("analysisCard.draft.copied") : t("analysisCard.draft.copy")}</button>
+        <button type="button" onClick={onDiscard}>{t("analysisCard.draft.closeDraft")}</button>
       </div>
     </div> : <div className="agent-card-draft__actions">
-      <button type="button" className="agent-card-draft__primary" disabled={!draft.gate.publishable || state.phase === "publishing"} onClick={() => void run()}>{state.phase === "publishing" ? "發布中" : "發布連結"}</button>
-      <button type="button" disabled={state.phase === "publishing"} onClick={onDiscard}>捨棄</button>
+      <button type="button" className="agent-card-draft__primary" disabled={!draft.gate.publishable || state.phase === "publishing"} onClick={() => void run()}>{state.phase === "publishing" ? t("analysisCard.draft.publishing") : t("analysisCard.draft.publish")}</button>
+      <button type="button" disabled={state.phase === "publishing"} onClick={onDiscard}>{t("analysisCard.draft.discard")}</button>
     </div>}
     {state.phase === "error" && <p className="agent-card-draft__error" role="alert">{state.message}</p>}
-    <small className="agent-card-draft__note">發布後任何拿到連結的人都能看這張卡片（不能點開完整地圖）；Agent 無法代為發布。</small>
+    <small className="agent-card-draft__note">{t("analysisCard.draft.note")}</small>
   </section>;
 }

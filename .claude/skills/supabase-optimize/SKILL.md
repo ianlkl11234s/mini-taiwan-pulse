@@ -32,7 +32,7 @@ description: 為 Supabase RPC 產生 pre-aggregate pattern SQL 範本。當響�
 1. **Table 定義**（普通 table，不是 MV）
 2. **Refresh function**（含 `pg_advisory_xact_lock` + `SET statement_timeout TO '0'`）
 3. **Cleanup function**
-4. **RPC rewrite**（薄 SELECT，`SET statement_timeout TO '60s'`，`GRANT EXECUTE` TO anon）
+4. **RPC rewrite**（薄 SELECT，`SET statement_timeout TO '60s'`，`REVOKE … FROM PUBLIC` 後 `GRANT EXECUTE` TO anon, authenticated；refresh／cleanup `REVOKE … FROM PUBLIC, anon, authenticated`）——權限慣例正本見 `docs/supabase-optimization.md` §權限慣例
 5. **pg_cron 排程**（refresh today + yesterday；cleanup 每日 18:00 UTC）
 6. **Backfill 指令**
 7. **PostgREST schema reload** (`NOTIFY pgrst, 'reload schema'`)
@@ -67,14 +67,17 @@ description: 為 Supabase RPC 產生 pre-aggregate pattern SQL 範本。當響�
    time psql "$SUPABASE_DB_URL" -c "SELECT count(*) FROM public.get_<new>_day(current_date);"
    psql "$SUPABASE_DB_URL" -c "SELECT * FROM cron.job_run_details WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'refresh-<new>') ORDER BY start_time DESC LIMIT 3;"
    ```
-6. 更新 `docs/supabase_rpc_audit.md`
+6. 更新 `docs/audit/supabase-rpc-audit-2026-04-09.md`
 
 ## 關鍵檢查點（產生 SQL 時必含）
 
 - [ ] Refresh function 有 `pg_advisory_xact_lock(hashtext('refresh_xxx:' || target_day::text))`
 - [ ] Refresh function 屬性 `SET statement_timeout TO '0'`
 - [ ] RPC function 屬性 `SET statement_timeout TO '60s'`（payload 傳輸）
-- [ ] RPC 有 `GRANT EXECUTE ... TO anon, authenticated`
+- [ ] RPC 有 `REVOKE EXECUTE ... FROM PUBLIC` ＋ `GRANT EXECUTE ... TO anon, authenticated`（2026-10 起 public 的 default privileges 已收回，漏寫前端會 permission denied）
+- [ ] refresh／cleanup 函式有 `REVOKE EXECUTE ... FROM PUBLIC, anon, authenticated`
+- [ ] SECURITY INVOKER 的 RPC 讀的表有 `GRANT SELECT ... TO anon, authenticated`（只給 SELECT）
+- [ ] `SECURITY DEFINER` 函式有 `SET search_path`；cleanup 的 `keep_days` 等天數／時間範圍參數在函式內 clamp
 - [ ] PK 包含 `day` + 分組 key
 - [ ] 有 `CREATE INDEX xxx_day_idx ON xxx (day)`
 - [ ] Time window 用 `+08` timezone literal（非 naive timestamp）

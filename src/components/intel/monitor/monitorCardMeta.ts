@@ -4,6 +4,8 @@
  */
 import type { MonitorWidgetId } from "./monitorLayout";
 import type { MonitorFreshnessSpec } from "./monitorFreshness";
+import { enumLabel } from "../../../i18n/dataText";
+import type { LocaleSnapshot } from "../../../state/localeStore";
 
 export interface MonitorCardMeta {
   title: string;
@@ -44,3 +46,8 @@ export const MONITOR_CARD_META: Record<MonitorWidgetId, MonitorCardMeta> = {
   traDelay: { title: "台鐵誤點", en: "TRA delay", fresh: { cadence: "days", staleDays: 3 } },
   internetHealth: { title: "網路觀察", en: "RIPE NCC", fresh: { cadence: "stream", periodMin: 5 } },
 };
+
+/** 目前語系的卡片標題；中文以上表 `title` 為準，外文查 `enum.monitorCard.<id>`（enums.monitorB.json） */
+export function monitorCardTitle(id: MonitorWidgetId, i18n: LocaleSnapshot): string {
+  return enumLabel("monitorCard", id, MONITOR_CARD_META[id].title, i18n);
+}

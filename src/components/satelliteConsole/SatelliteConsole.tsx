@@ -25,6 +25,7 @@ import { useSatelliteRecords } from "../../hooks/useSatelliteRecords";
 import { satelliteConsoleStore, useSatelliteConsole } from "../../state/satelliteConsoleStore";
 import { useTimeStoreTime, isHistoryMode } from "../../hooks/useTimeStoreTime";
 import type { LayerVisibility } from "../../types";
+import { useLocale } from "../../state/localeStore";
 
 interface Props {
   /** 變軌資料（App 持有的單一來源，面板不自己輪詢） */
@@ -40,6 +41,7 @@ interface Props {
 }
 
 export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, setLayerVisibility, onFlyTo, isDarkTheme = true }: Props) {
+  const { t } = useLocale();
   const p = getIntelPalette(isDarkTheme);
   const featurePalette = isDarkTheme ? DARK_FEATURE : LIGHT_FEATURE;
   const shadow = isDarkTheme ? ELEVATION.lg : LIGHT.elevationLg;
@@ -136,7 +138,7 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
             style={{ color: consoleState.showAllOrbits ? p.textDefault : p.textMuted }}
           >
             <span className="lpc-sw" aria-hidden="true" />
-            <span>顯示全部軌道</span>
+            <span>{t("satelliteConsole.console.showAllOrbits")}</span>
           </button>
         </div>
 
@@ -149,18 +151,18 @@ export function SatelliteConsole({ maneuvers, open, onClose, layerVisibility, se
           lineHeight: 1.5,
           color: p.textDim,
         }}>
-          {([["UCS 衛星資料庫", SATELLITE_SOURCE_URLS.ucs], ["Space-Track 軌道資料", SATELLITE_SOURCE_URLS.spaceTrack]] as const).map(([name, url]) => (
+          {([[t("satelliteConsole.console.sourceUcs"), SATELLITE_SOURCE_URLS.ucs], [t("satelliteConsole.console.sourceSpaceTrack"), SATELLITE_SOURCE_URLS.spaceTrack]] as const).map(([name, url]) => (
             <div key={name}>
-              {name} · <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: featurePalette.link, textDecoration: "none" }}>原始下載頁 ↗</a>
+              {name} · <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: featurePalette.link, textDecoration: "none" }}>{t("satelliteConsole.console.sourcePage")}</a>
             </div>
           ))}
           {(tle.fetchedAt != null || maneuvers.fetchedAt != null) && (
             <div role="status" style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>
-              {tle.fetchedAt != null && <>抓取於 {formatTaipeiDateClock(tle.fetchedAt)}</>}
-              {tleExpired && <span style={{ color: p.statusWarn, fontFamily: FONT_CJK }}> · 資料過期</span>}
-              {maneuvers.fetchedAt != null && <>{tle.fetchedAt != null ? " · " : ""}變軌 {formatTaipeiClock(maneuvers.fetchedAt)}</>}
+              {tle.fetchedAt != null && <>{t("satelliteConsole.console.fetchedAt")} {formatTaipeiDateClock(tle.fetchedAt)}</>}
+              {tleExpired && <span style={{ color: p.statusWarn, fontFamily: FONT_CJK }}>{` · ${t("satelliteConsole.console.dataExpired")}`}</span>}
+              {maneuvers.fetchedAt != null && <>{tle.fetchedAt != null ? " · " : ""}{t("satelliteConsole.maneuver")} {formatTaipeiClock(maneuvers.fetchedAt)}</>}
               {maneuvers.fetchedAt != null && maneuvers.stale && (
-                <span style={{ color: p.statusWarn, fontFamily: FONT_CJK }}> · 變軌更新中斷</span>
+                <span style={{ color: p.statusWarn, fontFamily: FONT_CJK }}>{` · ${t("satelliteConsole.console.maneuverStale")}`}</span>
               )}
             </div>
           )}

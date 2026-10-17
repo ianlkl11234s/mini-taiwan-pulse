@@ -1,0 +1,8 @@
+{
+  "enum.license.ogdl": "政府データオープンライセンス第1版（台湾 OGDL）",
+  "enum.license.ccBy": "CC BY 4.0（表示）",
+  "enum.license.ccBySa": "CC BY-SA（表示-継承）",
+  "enum.license.odbl": "オープンデータベースライセンス（ODbL）1.0",
+  "enum.license.unspecified": "未表示",
+  "enum.license.unverified": "未確認"
+}

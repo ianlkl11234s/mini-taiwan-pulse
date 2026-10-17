@@ -2,6 +2,7 @@ import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeNameList, placeTown } from "../../i18n/placeText";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import {
   schoolLevelGroupOf, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS,
@@ -106,7 +107,7 @@ export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
       {isRegionType(regionType) ? (
         <Row label={t("popup.education.remoteArea")} value={enumLabel("educationRegionType", regionType, regionType, i18n)} color={REGION_TYPE_COLORS[regionType]} />
       ) : null}
-      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[placeName(city, i18n), placeTown(city, district, i18n)].filter(Boolean).join(" ")} />
       <Row field="address" value={str(props.address)} />
       <Row field="phone" value={str(props.phone)} />
       <Row label={t("popup.education.website")} value={str(props.website)} />
@@ -135,7 +136,7 @@ export function EduCampusPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={accentColor}>{str(props.school_name) || t("popup.education.campusDefault")}</Title>
       <Row label={t("popup.education.schoolSystem")} value={levelLabel} color={accentColor} />
       {areaHa != null ? <Row label={t("popup.education.campusArea")} value={t("popup.education.hectares", { value: areaHa.toFixed(2) })} /> : null}
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       {isBranch ? <Row label={t("popup.education.branchCampus")} value={t("popup.common.yes")} /> : null}
       <Note><Rich text={t("popup.education.campusNote")} /></Note>
     </>
@@ -174,7 +175,7 @@ export function EduDistrictK12Panel({ props }: { props: Record<string, unknown> 
         value={level === "junior" ? t("popup.education.juniorDistrict") : t("popup.education.elementaryDistrict")}
         color={accentColor}
       />
-      <Row field="county" value={county} />
+      <Row field="county" value={placeName(county, i18n)} />
       {villageCount != null ? <Row label={t("popup.education.villageCoverage")} value={t("popup.education.villageCount", { count: villageCount })} /> : null}
       <Row label={t("popup.education.villageNames")} value={str(props.villages)} />
       <Row
@@ -219,7 +220,7 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
       </Title>
       <Row
         label={t("popup.education.coveredCounties")}
-        value={counties && countyCount != null ? t("popup.education.countiesWithCount", { counties, count: countyCount }) : counties}
+        value={counties && countyCount != null ? t("popup.education.countiesWithCount", { counties: placeNameList(counties, i18n), count: countyCount }) : placeNameList(counties, i18n)}
       />
       {areaKm2 != null ? <Row field="area" value={`${areaKm2.toFixed(2)} km²`} /> : null}
       {rules ? (
@@ -271,7 +272,7 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
     <>
       <Title color={accentColor}>{str(props["學校名稱"]) || t("popup.education.kindergartenDefault")}</Title>
       {ownership ? <Row label={t("popup.education.ownership")} value={enumLabel("educationOwnership", ownership, ownership, i18n)} color={accentColor} /> : null}
-      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[placeName(city, i18n), placeTown(city, district, i18n)].filter(Boolean).join(" ")} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row field="phone" value={str(props["電話"])} />
       <Row field="code" value={str(props["代碼"] ?? props["學校代碼"])} />
@@ -288,13 +289,14 @@ export function EduKindergartenPanel({ props }: { props: Record<string, unknown>
  * ⚠️ `立案時間` 是 6-7 位**民國** YYYMMDD 數字 → 走 licenseDateLabel()。
  */
 export function EduAfterschoolCarePanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const accentColor = EDUCATION_LAYER_COLORS.eduAfterschoolCare;
 
   return (
     <>
       <Title color={accentColor}>{str(props["名稱"]) || t("popup.education.afterschoolDefault")}</Title>
-      <Row field="county" value={str(props["縣市"])} />
+      <Row field="county" value={placeName(str(props["縣市"]), i18n)} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row field="phone" value={str(props["電話"])} />
       <Row label={t("popup.education.licensedAt")} value={licenseDateLabel(props["立案時間"])} />
@@ -329,7 +331,7 @@ export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }
           : category ? enumLabel("educationCramCategory", category, category, i18n) : ""}
         color={accentColor}
       />
-      <Row field="county" value={str(props.county) || str(props["地區縣市"])} />
+      <Row field="county" value={placeName(str(props.county) || str(props["地區縣市"]), i18n)} />
       <Row field="address" value={stripBracketPrefix(props["地址"])} />
       <Row label={t("popup.education.licensedAt")} value={licenseDateLabel(props["立案時間"])} />
       <Row label={t("popup.education.email")} value={str(props["電子郵件"])} />
@@ -369,7 +371,7 @@ export function EduUniversityStudentsPanel({ props }: { props: Record<string, un
     <>
       <Title color={accentColor}>{str(props.school_name) || t("popup.education.universityDefault")}</Title>
       <Row label={t("popup.education.schoolSystem")} value={str(props.school_level)} />
-      <Row field="district" value={[city, district].filter(Boolean).join(" ")} />
+      <Row field="district" value={[placeName(city, i18n), placeTown(city, district, i18n)].filter(Boolean).join(" ")} />
       <Row label={t("popup.education.studentCount")} value={totalLabel} color={accentColor} />
       {academicYear ? <Row label={t("popup.education.academicYear")} value={t("popup.education.academicYearValue", { year: displayRocYear(academicYear, i18n) })} /> : null}
       {total == null ? (

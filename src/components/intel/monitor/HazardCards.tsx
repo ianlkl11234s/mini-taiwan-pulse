@@ -18,6 +18,8 @@ import { FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
 import { useMonitorTheme } from "./monitorTheme";
@@ -70,10 +72,11 @@ function HazardShell({
   query?: MonitorQuery;
   dailyQuery?: MonitorQuery;
 }) {
+  const { t } = useLocale();
   const queries = [query, dailyQuery].filter((q): q is MonitorQuery => q != null);
   const denied = queries.some((q) => q.status === "denied");
   const failed = queries.some((q) => q.status === "error");
-  const healthTitle = denied ? "資料無權限讀取" : failed ? "資料更新中斷" : title;
+  const healthTitle = denied ? t("monitor.hazard.denied") : failed ? t("monitor.hazard.failed") : title;
   const theme = useMonitorTheme();
   const healthDot = denied || failed ? theme.p.textDim : dot;
   const v2 = useMonitorV2();
@@ -135,7 +138,7 @@ function HazardShell({
         </div>
         )}
         {query && <MonitorDataStatus label={label} query={query} />}
-        {dailyQuery && <MonitorDataStatus label={`${label} 趨勢`} query={dailyQuery} />}
+        {dailyQuery && <MonitorDataStatus label={t("monitor.hazard.trendLabel", { label })} query={dailyQuery} />}
         {children}
         <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim }}>{footer}</div>
       </div>
@@ -278,13 +281,14 @@ function TyphoonTrendSection({
 }) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const { t } = useLocale();
   const distBars: HazardBar[] = days.map((d) => ({
     key: d.dateKey,
     label: d.dateKey.slice(5).replace("-", "/"),
     value: proximityHeight(d.nearestKm),
     level: proximityLevel(d.nearestKm),
     note: d.nearestKm == null
-      ? "無觀測"
+      ? t("monitor.hazard.noObs")
       : `${d.name ?? d.stormId ?? "—"} ${Math.round(d.nearestKm).toLocaleString("zh-TW")} km`
         + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
   }));
@@ -296,7 +300,7 @@ function TyphoonTrendSection({
       label: d.dateKey.slice(5).replace("-", "/"),
       value: n,
       level: Math.min(n ?? 0, 2),
-      note: n == null ? "無觀測" : `${n} 顆在 1000km 內`,
+      note: n == null ? t("monitor.hazard.noObs") : t("monitor.hazard.typNearby", { count: n }),
     };
   });
   const picked = pickedDate != null ? days.find((d) => d.dateKey === pickedDate) ?? null : null;
@@ -310,11 +314,11 @@ function TyphoonTrendSection({
       <HazardTrendBars
         bars={distBars}
         levelColors={proximityColors(theme.p)}
-        caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 接近程度（柱越高越近）／距離（色）· 可點`}
-        footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
+        caption={`${v2 ? t("monitor.hazard.recent", { days: TYPHOON_TREND_DAYS }) : `${TYPHOON_TREND_DAYS}D`} · ${t("monitor.hazard.typProxCaption")}`}
+        footer={closestKm != null ? t("monitor.hazard.typClosest", { km: Math.round(closestKm).toLocaleString("zh-TW") }) : undefined}
         height={34}
         heightTier="std"
-        unit=" km（距 1500 圈）"
+        unit={` ${t("monitor.hazard.typProxUnit")}`}
         onSelectBar={onSelectBar}
         selectedKey={pickedDate}
       />
@@ -322,10 +326,10 @@ function TyphoonTrendSection({
       <HazardTrendBars
         bars={nearbyBars}
         levelColors={nearbyColors(theme.p)}
-        caption={`${v2 ? `近 ${TYPHOON_TREND_DAYS} 天` : `${TYPHOON_TREND_DAYS}D`} · 1000km 內颱風數`}
+        caption={`${v2 ? t("monitor.hazard.recent", { days: TYPHOON_TREND_DAYS }) : `${TYPHOON_TREND_DAYS}D`} · ${t("monitor.hazard.typNearbyCaption")}`}
         height={26}
         heightTier="std"
-        unit=" 顆"
+        unit={` ${t("monitor.hazard.unitStorms")}`}
         onSelectBar={onSelectBar}
         selectedKey={pickedDate}
       />
@@ -335,11 +339,10 @@ function TyphoonTrendSection({
           <Note color={theme.p.textDefault}>
             {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
             {(picked.stormsNearby ?? 0) > 0
-              ? `${picked.stormsNearby} 顆在 1000km 內`
+              ? t("monitor.hazard.typNearby", { count: picked.stormsNearby ?? 0 })
               : picked.nearestKm == null
-                ? "當天無颱風觀測"
-                : `無颱風在 1000km 內（最近 ${picked.name ?? "—"} `
-                  + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km）`}
+                ? t("monitor.hazard.typPickedNone")
+                : t("monitor.hazard.typPickedFar", { name: picked.name ?? "—", km: Math.round(picked.nearestKm).toLocaleString("zh-TW") })}
           </Note>
           {/* 一顆一行 —— 說「2 顆」卻只列得出最近那顆，另一顆是誰看不到 */}
           {picked.nearby.map((n) => (
@@ -358,6 +361,8 @@ function TyphoonTrendSection({
 export function TyphoonCard({ open, nowTs }: Props) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const summaryQuery = useMonitorResource<TyphoonSummary | null>({
     open, queryKey: "typhoon-summary", intervalMs: 30 * 60_000, emptyData: null,
     load: fetchTyphoonSummary,
@@ -376,17 +381,17 @@ export function TyphoonCard({ open, nowTs }: Props) {
     const k = b.key ?? b.label;
     setPickedDate((prev) => (prev === k ? null : k));
   };
-  const label = "颱風 · TYPHOON";
+  const label = t("monitor.hazard.labelTyphoon");
   const tint = "rgba(56,189,248,0.06)";
-  const footer = "來源：JMA / JTWC 颱風路徑 · 活躍判定 24h";
+  const footer = t("monitor.hazard.typSource");
 
   if (summaryQuery.lastSuccessAt === null) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.textDim} title="活躍颱風（載入中）" status="載入中" footer={footer}
+        dot={theme.p.textDim} title={t("monitor.hazard.typLoadingTitle")} status={t("monitor.hazard.loading")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        {summaryQuery.status === "error" && <Note>查詢失敗，非「無活躍颱風」。</Note>}
+        {summaryQuery.status === "error" && <Note>{t("monitor.hazard.typFailed")}</Note>}
       </HazardShell>
     );
   }
@@ -399,10 +404,10 @@ export function TyphoonCard({ open, nowTs }: Props) {
     // 沒資料（RPC 失敗或窗內真的零觀測）才退回純一句話的空狀態。
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.statusLive} title="目前無活躍颱風" status="目前無活躍颱風" footer={footer}
+        dot={theme.p.statusLive} title={t("monitor.hazard.typNone")} status={t("monitor.hazard.typNone")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        <Note>JMA / JTWC 近 24 小時無颱風觀測回報。</Note>
+        <Note>{t("monitor.hazard.typNoneNote")}</Note>
         {days.length > 0 && (
           <TyphoonTrendSection days={days} pickedDate={pickedDate} onSelectBar={pickBar} />
         )}
@@ -420,14 +425,14 @@ export function TyphoonCard({ open, nowTs }: Props) {
     <HazardShell
       label={label} labelColor={theme.p.accent} tint={tint}
       dot={remote ? theme.p.statusLive : tone.dot}
-      title={remote ? "無颱風接近" : name} status={remote ? "無颱風接近" : name}
+      title={remote ? t("monitor.hazard.typFar") : name} status={remote ? t("monitor.hazard.typFar") : name}
       query={summaryQuery} dailyQuery={dailyQuery}
       badges={data.sources} footer={footer}
     >
       <MetricRow>
         <Metric
           value={data.distance_km.toLocaleString("zh-TW")}
-          unit={remote ? `km · 最近的是 ${name}` : "km 距台灣"}
+          unit={remote ? t("monitor.hazard.typFarUnit", { name }) : t("monitor.hazard.typNearUnit")}
           color={remote ? theme.p.textStrong : tone.distColor}
         />
       </MetricRow>
@@ -435,8 +440,8 @@ export function TyphoonCard({ open, nowTs }: Props) {
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
-        left={`最大風速 ${data.max_wind_kt ?? "—"} kt${windMs != null ? ` · ${windMs} m/s` : ""}`}
-        right={v2 ? relTime(data.valid_ts, nowTs) : `${data.storm_id} · ${relTime(data.valid_ts, nowTs)}`}
+        left={`${t("monitor.hazard.typMaxWind", { kt: data.max_wind_kt ?? "—" })}${windMs != null ? ` · ${windMs} m/s` : ""}`}
+        right={v2 ? relTime(data.valid_ts, nowTs, i18n) : `${data.storm_id} · ${relTime(data.valid_ts, nowTs, i18n)}`}
       />
     </HazardShell>
   );
@@ -464,6 +469,8 @@ const fetchEqDaily = () => fetchEarthquakeDaily(TREND_DAYS);
 export function EarthquakeCard({ open, nowTs }: Props) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const summaryQuery = useMonitorResource<EarthquakeSummary | null>({
     open, queryKey: "earthquake-summary", intervalMs: 15 * 60_000, emptyData: null,
     load: fetchEarthquakeSummary,
@@ -476,17 +483,17 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     open, queryKey: "earthquake-daily-14d", intervalMs: 15 * 60_000, emptyData: EMPTY_EARTHQUAKE_DAILY,
     load: fetchEqDaily,
   });
-  const label = "地震 · SEISMIC";
+  const label = t("monitor.hazard.labelQuake");
   const tint = "rgba(255,152,0,0.05)";
-  const footer = "來源：中央氣象署 CWA 地震報告";
+  const footer = t("monitor.hazard.quakeSource");
 
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.textDim} title="最新有感地震（載入中）" status="載入中" footer={footer}
+        dot={theme.p.textDim} title={t("monitor.hazard.quakeLoadingTitle")} status={t("monitor.hazard.loading")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        {summaryQuery.status === "error" && <Note>查詢失敗，非「無地震紀錄」。</Note>}
+        {summaryQuery.status === "error" && <Note>{t("monitor.hazard.quakeFailed")}</Note>}
       </HazardShell>
     );
   }
@@ -495,10 +502,10 @@ export function EarthquakeCard({ open, nowTs }: Props) {
   if (!latest) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.statusLive} title="無地震紀錄" status="無地震紀錄" footer={footer}
+        dot={theme.p.statusLive} title={t("monitor.hazard.quakeNone")} status={t("monitor.hazard.quakeNone")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        <Note>資料庫中查無地震事件。</Note>
+        <Note>{t("monitor.hazard.quakeNoneNote")}</Note>
       </HazardShell>
     );
   }
@@ -513,13 +520,13 @@ export function EarthquakeCard({ open, nowTs }: Props) {
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.count,
     level: magLevel(d.maxMag),
-    note: d.maxMag != null ? `最大 M${d.maxMag.toFixed(1)}` : "無地震",
+    note: d.maxMag != null ? t("monitor.hazard.quakeMax", { mag: d.maxMag.toFixed(1) }) : t("monitor.hazard.quakeNoQuake"),
   }));
   const eqTotal = dailyQuery.data.reduce((s, d) => s + d.count, 0);
   return (
     <HazardShell
       label={label} labelColor={theme.p.accent} tint={tint}
-      dot={color} title="最新有感地震" footer={footer} query={summaryQuery} dailyQuery={dailyQuery}
+      dot={color} title={t("monitor.hazard.quakeTitle")} footer={footer} query={summaryQuery} dailyQuery={dailyQuery}
     >
       {v2 ? (
         // 「M」前綴放進 value：unit 欄位是尾綴，要保持「M5.9」慣用寫法只能放前面；規模色走 color
@@ -533,7 +540,7 @@ export function EarthquakeCard({ open, nowTs }: Props) {
           </span>
         </div>
         <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
-          深度 {(depth ?? 0).toFixed(1)} km
+          {t("monitor.hazard.depth", { depth: (depth ?? 0).toFixed(1) })}
         </div>
       </MetricRow>
       )}
@@ -541,17 +548,17 @@ export function EarthquakeCard({ open, nowTs }: Props) {
       <HazardTrendBars
         bars={eqBars}
         levelColors={eqLevelColors(theme.p)}
-        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／規模（色）`}
-        footer={eqTotal ? `共 ${eqTotal} 次` : undefined}
+        caption={`${v2 ? t("monitor.hazard.recent", { days: TREND_DAYS }) : `${TREND_DAYS}D`} · ${t("monitor.hazard.quakeCaption")}`}
+        footer={eqTotal ? t("monitor.hazard.quakeTotal", { n: eqTotal }) : undefined}
         heightTier="std"
-        unit=" 次"
+        unit={` ${t("monitor.hazard.unitTimes")}`}
       />
       {v2 ? (
-        <MonitorSub items={[`深度 ${depthText} km`, `24h 內 ${data.count24h} 次`, relTime(latest.occurred_ts, nowTs)]} />
+        <MonitorSub items={[t("monitor.hazard.depth", { depth: depthText }), t("monitor.hazard.within24h", { n: data.count24h }), relTime(latest.occurred_ts, nowTs, i18n)]} />
       ) : (
       <MetaRow
-        left={`24h 內 ${data.count24h} 次`}
-        right={relTime(latest.occurred_ts, nowTs)}
+        left={t("monitor.hazard.within24h", { n: data.count24h })}
+        right={relTime(latest.occurred_ts, nowTs, i18n)}
       />
       )}
     </HazardShell>
@@ -582,6 +589,7 @@ const fetchNuclearTrendToday = () => fetchNuclearDaily(TREND_DAYS, { anchorToday
 export function RadiationCard({ open }: Props) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const { t } = useLocale();
   const summaryQuery = useMonitorResource<NuclearSummary | null>({
     open, queryKey: "nuclear-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchNuclearSummary,
@@ -597,17 +605,17 @@ export function RadiationCard({ open }: Props) {
     emptyData: EMPTY_NUCLEAR_DAILY,
     load: staleNow ? fetchNuclearTrendToday : fetchNuclearTrend,
   });
-  const label = "輻射 · RADIATION";
+  const label = t("monitor.hazard.labelRadiation");
   const tint = "rgba(34,197,94,0.05)";
-  const footer = "來源：全國環境輻射即時監測站 · 自然背景 0.039–0.072 µSv/h";
+  const footer = t("monitor.hazard.radSource");
 
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.textDim} title="全國環境輻射（載入中）" status="載入中" footer={footer}
+        dot={theme.p.textDim} title={t("monitor.hazard.radLoadingTitle")} status={t("monitor.hazard.loading")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        {summaryQuery.status === "error" && <Note>查詢失敗，非「上游未回報任何監測站」。</Note>}
+        {summaryQuery.status === "error" && <Note>{t("monitor.hazard.radFailed")}</Note>}
       </HazardShell>
     );
   }
@@ -615,10 +623,10 @@ export function RadiationCard({ open }: Props) {
   if (data.total === 0) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.textDim} title="全國環境輻射" footer={footer}
+        dot={theme.p.textDim} title={t("monitor.hazard.radTitle")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        <Note>上游未回報任何監測站。</Note>
+        <Note>{t("monitor.hazard.radNoStations")}</Note>
       </HazardShell>
     );
   }
@@ -632,23 +640,23 @@ export function RadiationCard({ open }: Props) {
     value: d.meanUsvh == null ? null : Number(d.meanUsvh.toFixed(3)),
     level: doseLevel(d.meanUsvh),
     // 沒有資料的天（日序列補到今天後的尾段）不寫「0 站」；舊版維持原本寫法
-    note: d.stationCount == null && v2 ? "無資料" : `最高 ${fmtDose(d.maxUsvh)} · ${d.stationCount ?? 0} 站`,
+    note: d.stationCount == null && v2 ? t("monitor.hazard.noData") : t("monitor.hazard.radBarNote", { dose: fmtDose(d.maxUsvh), n: d.stationCount ?? 0 }),
   }));
   return (
     <HazardShell
       label={label} labelColor={theme.p.accent} tint={tint}
-      dot={dot} title="全國環境輻射" badges={[`${data.reporting}/${data.total} 站`]} footer={footer}
+      dot={dot} title={t("monitor.hazard.radTitle")} badges={[t("monitor.hazard.radStations", { r: data.reporting, t: data.total })]} footer={footer}
       query={summaryQuery} dailyQuery={dailyQuery}
     >
       {v2 ? (
         <>
           <Metric
             value={fresh.state === "none" ? "—" : fmtDose(data.avg_usvh)}
-            unit="µSv/h 平均" muted={fresh.muted}
+            unit={t("monitor.hazard.radAvgUnit")} muted={fresh.muted}
           />
           <MonitorSub items={[
-            `最高 ${fmtDose(data.max_usvh)}${data.max_station ? ` · ${data.max_station}` : ""}`,
-            `${data.reporting}/${data.total} 站回報`,
+            `${t("monitor.hazard.radMax", { dose: fmtDose(data.max_usvh) })}${data.max_station ? ` · ${data.max_station}` : ""}`,
+            t("monitor.hazard.radReporting", { r: data.reporting, t: data.total }),
           ]} />
           {fresh.reason && (
             <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
@@ -656,29 +664,29 @@ export function RadiationCard({ open }: Props) {
         </>
       ) : (
       <MetricRow>
-        <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
+        <Metric value={fmtDose(data.avg_usvh)} unit={t("monitor.hazard.radAvgUnit")} />
         <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
-          最高 {fmtDose(data.max_usvh)}{data.max_station ? ` · ${data.max_station}` : ""}
+          {t("monitor.hazard.radMax", { dose: fmtDose(data.max_usvh) })}{data.max_station ? ` · ${data.max_station}` : ""}
         </div>
       </MetricRow>
       )}
       {alarm ? (
         <Note color={theme.p.statusErr}>
-          警戒 {data.alarm_count} 站：
-          {data.anomalies.filter((a) => a.level === "alarm").map((a) => `${a.name}(${a.dose.toFixed(2)})`).join("、")}
+          {t("monitor.hazard.radAlarm", { n: data.alarm_count })}
+          {data.anomalies.filter((a) => a.level === "alarm").map((a) => `${a.name}(${a.dose.toFixed(2)})`).join(t("monitor.hazard.listSep"))}
         </Note>
       ) : watch ? (
         <Note color={theme.p.statusWarn}>
-          觀察 {data.warning_count} 站：
-          {data.anomalies.map((a) => `${a.name}(${a.dose.toFixed(2)})`).join("、")}
+          {t("monitor.hazard.radWatch", { n: data.warning_count })}
+          {data.anomalies.map((a) => `${a.name}(${a.dose.toFixed(2)})`).join(t("monitor.hazard.listSep"))}
         </Note>
       ) : (
-        <MetaRow left="全部正常（無站超過 0.2 µSv/h）" />
+        <MetaRow left={t("monitor.hazard.radAllOk")} />
       )}
       <HazardTrendBars
         bars={doseBars}
         levelColors={doseLevelColors(theme.p)}
-        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 全站平均（柱）／水位（色）`}
+        caption={`${v2 ? t("monitor.hazard.recent", { days: TREND_DAYS }) : `${TREND_DAYS}D`} · ${t("monitor.hazard.radCaption")}`}
         heightTier="std"
         unit=" µSv/h"
       />
@@ -710,6 +718,8 @@ const fetchLightningTrendToday = () => fetchLightningDaily(TREND_DAYS, { anchorT
 export function LightningCard({ open, nowTs }: Props) {
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const summaryQuery = useMonitorResource<LightningSummary | null>({
     open, queryKey: "lightning-summary", intervalMs: 5 * 60_000, emptyData: null,
     load: fetchLightningSummary,
@@ -722,17 +732,21 @@ export function LightningCard({ open, nowTs }: Props) {
     emptyData: EMPTY_LIGHTNING_DAILY,
     load: v2 ? fetchLightningTrendToday : fetchLightningTrend,
   });
-  const label = "落雷 · LIGHTNING";
+  const lightningTypeText = (strikeType: number): string => {
+    const zh = LIGHTNING_TYPE_LABELS[strikeType];
+    return zh == null ? t("monitor.hazard.ltnUnknownType") : enumLabel("monitorLightning", strikeType, zh, i18n);
+  };
+  const label = t("monitor.hazard.labelLightning");
   const tint = "rgba(251,146,60,0.05)";
-  const footer = "來源：氣象署 CWA 落雷觀測（滾動 1h，無電流強度）";
+  const footer = t("monitor.hazard.ltnSource");
 
   if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={theme.p.accent} tint={tint}
-        dot={theme.p.textDim} title="全國落雷（載入中）" status="載入中" footer={footer}
+        dot={theme.p.textDim} title={t("monitor.hazard.ltnLoadingTitle")} status={t("monitor.hazard.loading")} footer={footer}
         query={summaryQuery} dailyQuery={dailyQuery}
       >
-        {summaryQuery.status === "error" && <Note>查詢失敗，非「無落雷」。</Note>}
+        {summaryQuery.status === "error" && <Note>{t("monitor.hazard.ltnFailed")}</Note>}
       </HazardShell>
     );
   }
@@ -756,10 +770,10 @@ export function LightningCard({ open, nowTs }: Props) {
   // 台電源 2026-07-10 起端點活著但永遠回空 → 明說斷供，不混進主數字
   const fb = data.fallbackCountDay;
   const fallbackNote = fb == null && v2
-    ? "台電源 今日計數無法取得"
+    ? t("monitor.hazard.ltnFbUnknown")
     : (fb ?? 0) > 0
-      ? `台電源 今日 ${(fb ?? 0).toLocaleString("zh-TW")} 筆`
-      : "台電源 上游斷供中（端點回空）";
+      ? t("monitor.hazard.ltnFbCount", { n: (fb ?? 0).toLocaleString("zh-TW") })
+      : t("monitor.hazard.ltnFbDown");
   const dayCounts = dailyQuery.data.map((d) => d.count ?? (dailyBehind ? null : 0));
   const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds(
     dayCounts.flatMap((c) => (c != null ? [c] : [])),
@@ -768,44 +782,44 @@ export function LightningCard({ open, nowTs }: Props) {
     label: d.dateKey.slice(5).replace("-", "/"),
     value: dayCounts[i] ?? null,
     level: dayCounts[i] == null ? 0 : dayCounts[i]! > strikeP90 ? 2 : dayCounts[i]! > strikeMedian ? 1 : 0,
-    note: d.cloudToGround != null ? `雲地 ${d.cloudToGround.toLocaleString("zh-TW")}` : undefined,
+    note: d.cloudToGround != null ? t("monitor.hazard.ltnCloudGround", { n: d.cloudToGround.toLocaleString("zh-TW") }) : undefined,
   }));
 
   return (
     <HazardShell
       label={label} labelColor={theme.p.accent} tint={tint}
       dot={uncertain ? theme.p.textDim : dot}
-      title={uncertain ? "今日落雷數無法確認" : quiet ? "今日尚無落雷" : "全國落雷"}
-      status={uncertain ? "今日落雷數無法確認" : quiet ? "今日尚無落雷" : undefined}
+      title={uncertain ? t("monitor.hazard.ltnUncertainTitle") : quiet ? t("monitor.hazard.ltnQuietTitle") : t("monitor.hazard.ltnTitle")}
+      status={uncertain ? t("monitor.hazard.ltnUncertainTitle") : quiet ? t("monitor.hazard.ltnQuietTitle") : undefined}
       badges={["CWA"]} footer={footer}
       query={summaryQuery} dailyQuery={dailyQuery}
     >
       {uncertain ? (
         <>
-          <Metric value="—" unit="次 / 近 1h" muted />
+          <Metric value="—" unit={t("monitor.hazard.ltnUnit")} muted />
           <Note color={theme.p.statusWarn}>
             {countUnknown
-              ? "落雷計數查詢沒有回應，無法判斷今日是否有落雷。"
+              ? t("monitor.hazard.ltnNoResponse")
               : lastDataKey == null
-                ? "今日尚無落雷紀錄，但逐日彙整沒有任何資料，無法確認來源是否正常。"
-                : `今日尚無落雷紀錄，但逐日彙整停在 ${lastDataKey.slice(5).replace("-", "/")}，無法確認來源是否正常。`}
+                ? t("monitor.hazard.ltnNoDaily")
+                : t("monitor.hazard.ltnDailyStuck", { day: lastDataKey.slice(5).replace("-", "/") })}
           </Note>
         </>
       ) : quiet ? (
-        <Note>氣象署源今日（{data.dateKey}）尚無落雷紀錄。</Note>
+        <Note>{t("monitor.hazard.ltnQuietNote", { date: data.dateKey })}</Note>
       ) : (
         v2 ? (
           <>
             <Metric
               value={count1h.toLocaleString("zh-TW")}
-              unit="次 / 近 1h"
+              unit={t("monitor.hazard.ltnUnit")}
               color={active ? theme.p.statusWarn : theme.p.textStrong}
             />
             <MonitorSub items={[
-              `今日累計 ${countDay.toLocaleString("zh-TW")} 次`,
+              t("monitor.hazard.ltnToday", { n: countDay.toLocaleString("zh-TW") }),
               data.latest
-                ? `最新 ${relTime(data.latest.ts, nowTs)} · ${LIGHTNING_TYPE_LABELS[data.latest.strikeType] ?? "未知型別"}`
-                : "最新 —",
+                ? t("monitor.hazard.ltnLatest", { rel: relTime(data.latest.ts, nowTs, i18n), type: lightningTypeText(data.latest.strikeType) })
+                : t("monitor.hazard.ltnLatestNone"),
             ]} />
           </>
         ) : (
@@ -813,18 +827,18 @@ export function LightningCard({ open, nowTs }: Props) {
           <MetricRow>
             <Metric
               value={count1h.toLocaleString("zh-TW")}
-              unit="次 / 近 1h"
+              unit={t("monitor.hazard.ltnUnit")}
               color={active ? theme.p.statusWarn : theme.p.textStrong}
             />
             <div style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>
-              今日累計 {countDay.toLocaleString("zh-TW")} 次
+              {t("monitor.hazard.ltnToday", { n: countDay.toLocaleString("zh-TW") })}
             </div>
           </MetricRow>
           <MetaRow
             left={
               data.latest
-                ? `最新 ${relTime(data.latest.ts, nowTs)} · ${LIGHTNING_TYPE_LABELS[data.latest.strikeType] ?? "未知型別"}`
-                : "最新 —"
+                ? t("monitor.hazard.ltnLatest", { rel: relTime(data.latest.ts, nowTs, i18n), type: lightningTypeText(data.latest.strikeType) })
+                : t("monitor.hazard.ltnLatestNone")
             }
           />
         </>
@@ -833,10 +847,10 @@ export function LightningCard({ open, nowTs }: Props) {
       <HazardTrendBars
         bars={strikeBars}
         levelColors={strikeLevelColors(theme.p)}
-        caption={`${v2 ? `近 ${TREND_DAYS} 天` : `${TREND_DAYS}D`} · 次數（柱）／相對多寡（色）`}
-        footer={strikeMedian ? `有雷日中位 ${strikeMedian.toLocaleString("zh-TW")}` : undefined}
+        caption={`${v2 ? t("monitor.hazard.recent", { days: TREND_DAYS }) : `${TREND_DAYS}D`} · ${t("monitor.hazard.ltnCaption")}`}
+        footer={strikeMedian ? t("monitor.hazard.ltnMedian", { n: strikeMedian.toLocaleString("zh-TW") }) : undefined}
         heightTier="std"
-        unit=" 次"
+        unit={` ${t("monitor.hazard.unitTimes")}`}
       />
       <MetaRow left={fallbackNote} />
     </HazardShell>

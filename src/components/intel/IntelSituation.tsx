@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { FONT_CJK, FONT_DATA } from "./intelTokens";
 import { neutralFill, useIntelTheme } from "./intelTheme";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, getNewsCategoryDef, type NewsCategory } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
@@ -82,6 +85,8 @@ function rankHotspots(
 
 export function IntelSituation({ events, countyByEventId, trending }: Props) {
   const palette = useIntelTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const [open, setOpen] = useState(true);
 
   const trendingKeys = useMemo(() => {
@@ -152,11 +157,11 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               whiteSpace: "nowrap",
             }}
           >
-            現況 SITUATION
+            {t("intel.situation.title")}
           </span>
         </button>
         <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: palette.textFaint, whiteSpace: "nowrap" }}>
-          {dayTotal} 則
+          {t("intel.situation.dayTotal", { count: dayTotal })}
         </span>
       </div>
 
@@ -173,14 +178,14 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 whiteSpace: "nowrap",
               }}
             >
-              24h 直方圖
+              {t("intel.situation.histogram")}
             </span>
             <div style={{ flex: 1 }} />
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               {NEWS_CATEGORIES.map((c) => (
                 <span
                   key={c.key}
-                  title={c.label}
+                  title={enumLabel("eventNewsCategory", c.key, c.label, i18n)}
                   style={{ width: 7, height: 7, borderRadius: RADIUS.sm, background: c.color, opacity: 0.85 }}
                 />
               ))}
@@ -202,7 +207,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               return (
                 <div
                   key={b.h}
-                  title={`${String(b.h).padStart(2, "0")}:00 · ${b.total} 則`}
+                  title={t("intel.situation.hourTitle", { hour: `${String(b.h).padStart(2, "0")}:00`, count: b.total })}
                   style={{
                     flex: 1,
                     display: "flex",
@@ -258,11 +263,11 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               marginBottom: 6,
             }}
           >
-            熱區 TOP 5 · HOTSPOTS
+            {t("intel.situation.hotspots")}
           </div>
           {hotspots.length === 0 ? (
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint, padding: "2px 0" }}>
-              ⚠ 尚無資料
+              {t("intel.situation.noData")}
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -284,7 +289,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {r.county}
+                      {enumLabel("intel.county", r.county, placeName(r.county, i18n), i18n)}
                     </span>
                     <div
                       style={{
@@ -341,11 +346,11 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               flexWrap: "wrap",
             }}
           >
-            <span style={{ color: palette.textFaint, letterSpacing: "1px" }}>分級</span>
-            <span style={{ color: palette.accent }}>事件 {triage.event}</span>
-            <span style={{ color: palette.textDim }}>聲明 {triage.statement}</span>
-            <span style={{ color: palette.statusWarn }}>地理重大 {triage.majorGis}</span>
-            <span style={{ color: palette.statusErr }}>嚴重級 {triage.majorSev}</span>
+            <span style={{ color: palette.textFaint, letterSpacing: "1px" }}>{t("intel.situation.triage")}</span>
+            <span style={{ color: palette.accent }}>{t("intel.situation.triageEvent", { n: triage.event })}</span>
+            <span style={{ color: palette.textDim }}>{t("intel.situation.triageStatement", { n: triage.statement })}</span>
+            <span style={{ color: palette.statusWarn }}>{t("intel.situation.triageMajorGis", { n: triage.majorGis })}</span>
+            <span style={{ color: palette.statusErr }}>{t("intel.situation.triageMajorSev", { n: triage.majorSev })}</span>
           </div>
         </>
       )}

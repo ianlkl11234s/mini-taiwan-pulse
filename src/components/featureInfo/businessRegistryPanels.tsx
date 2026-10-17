@@ -1,5 +1,6 @@
 import { Row } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { COMPANY_INDUSTRY_MID_OPTIONS, companyGridAreaKm2, COMPANY_GRID_SCALES } from "../../data/businessRegistryTypes";
 import {
   COMPANY_AGE_BINS, COMPANY_DEMOGRAPHICS_SCALES, COMPANY_INDUSTRY_GROUPS,
@@ -88,7 +89,7 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <Row label={t("popup.businessRegistry.companyName")} value={String(props.company_name ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="capital" value={twdWithSnapshot(props.capital_total, i18n)} />
       <Row label={t("popup.businessRegistry.capitalQuantile")} value={Number.isFinite(quantile) ? (quantile === 0 ? missing(i18n) : `Q${quantile}`) : ""} />
       <Row label={t("popup.businessRegistry.industryMid")} value={industry ? industry.label : industryCode} />
@@ -251,7 +252,7 @@ export function FactoryLocationsPanel({ props }: { props: Record<string, unknown
       <Row label={t("popup.businessRegistry.factoryId")} value={String(props.factory_id ?? "")} />
       <Row label={t("popup.businessRegistry.uniformNo")} value={String(props.uniform_no ?? "")} />
       <Row label={t("popup.businessRegistry.factoryAddress")} value={String(props.factory_address ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={t("popup.businessRegistry.orgType")} value={String(props.org_type ?? "")} />
       <Row label={t("popup.businessRegistry.registeredDate")} value={String(props.registered_date ?? "")} />
       <Row label={t("popup.businessRegistry.industryCategories")} value={String(props.industry_categories ?? "")} />
@@ -269,7 +270,7 @@ export function RegulatedFacilitiesPanel({ props }: { props: Record<string, unkn
       <Row field="facilityName" value={String(props.facility_name ?? "")} />
       <Row label={t("popup.businessRegistry.emsno")} value={String(props.emsno ?? "")} />
       <Row label={t("popup.businessRegistry.facilityAddress")} value={String(props.facility_address ?? "")} />
-      <Row field="district" value={[props.county, props.township].filter(Boolean).join(" ")} />
+      <Row field="district" value={[placeName(String(props.county ?? ""), i18n), placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)].filter(Boolean).join(" ")} />
       <Row label={t("popup.businessRegistry.industryArea")} value={String(props.industry_area_name ?? "")} />
       <Row field="industry" value={[props.industry_group, props.industry_name].filter(Boolean).join(" / ")} />
       <Row label={t("popup.businessRegistry.regAir")} value={flag(props.isair, i18n)} />
@@ -300,7 +301,7 @@ export function IndustrialParkBoundariesPanel({ props }: { props: Record<string,
       <Row label={t("popup.businessRegistry.parkName")} value={String(props.park_name ?? "")} />
       <Row label={t("popup.businessRegistry.parkNameEn")} value={String(props.park_name_en ?? "")} />
       <Row label={t("popup.businessRegistry.parkId")} value={String(props.park_id ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="managingAgency" value={String(props.manage_unit ?? "")} />
       <Row label={t("popup.businessRegistry.devStatus")} value={String(props.dev_status ?? "")} />
       <Row label={t("popup.businessRegistry.zoneGrade")} value={String(props.zone_grade ?? "")} />
@@ -324,7 +325,7 @@ export function IndustrialParkComparisonPanel({ props }: { props: Record<string,
     <>
       <Row label={t("popup.businessRegistry.parkName")} value={String(props.park_name ?? "")} />
       <Row label={t("popup.businessRegistry.parkId")} value={String(props.park_id ?? "")} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="area" value={Number.isFinite(area) ? t("popup.businessRegistry.hectares", { value: i18n.formatNumber(area) }) : ""} />
       <Row label={t("popup.businessRegistry.observedFactories")} value={Number.isFinite(factories) ? t("popup.businessRegistry.factoryCount", { count: factories, n: i18n.formatNumber(factories) }) : ""} />
       <Row label={t("popup.businessRegistry.observedCompanies")} value={Number.isFinite(companies) ? companiesLabel(companies, i18n) : ""} />

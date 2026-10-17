@@ -1,38 +1,61 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedByKey, cachedOnce } from "../lib/loaderCache";
 import {
   JMA_QUAKE_LOOKBACK_DAYS, JMA_WARNING_INACTIVE_STATUS, JMA_WARNING_LEVELS,
   jmaVolcanoLevel, jmaWarningLevel, normalizeJmaIntensity, type JmaWarningLevel,
 } from "./jmaTypes";
+import {
+  JMA_PHENOLOGY_LAYER_PHENOMENA, JMA_RAINY_REGION_PREFS, envWbgtLevel, jmaDaysBetween, jmaDiffClass,
+  jmaHourBucketIso, jmaJstDateKey, jmaMinuteBucketIso, jmaMonthDay, jmaRainyPhase, jmaSignedDays,
+  type JmaPhenologyLayerKey, type JmaRainyPhase,
+} from "./jmaPointTypes";
 
 /**
- * 日本氣象廳（JMA）即時 4 層 loader（gis-platform migration 435；public view，select * from live.*）。
+ * 日本氣象廳（JMA）點位／區域圖層 loader，跟 Pulse 時間軸走（RPC 契約 gis-platform docs/jma-time-rpcs.md）。
  *
- *   - jma_amedas_current     AMeDAS 每站最新一筆（10 分鐘）
- *   - jma_warnings_current   最新一版 control_datetime 的警報・注意報列（5 分鐘）
- *   - jma_quake_latest       每個地震事件最新一報（2 分鐘；底層永久表 → 一律帶時間窗）
- *   - jma_volcano_current    每座火山最新一筆
+ *   時間軸停在「現在」（|t − now| ≤ 60 秒）：
+ *     - jma_amedas_current（10 分）、jma_warnings_current、jma_quake_latest（近 7 天）、jma_volcano_current
+ *     - WBGT／季節類直接呼叫 RPC 不帶時刻（＝now／今天 JST）
+ *   往回拉：
+ *     - get_jma_amedas_at／get_env_jp_wbgt_at（整點桶）、get_jma_warnings_at／get_jma_quakes_at（10 分桶）
+ *     - get_jma_phenology_asof／get_jma_snowcap_asof／get_jma_rainy_season_asof（JST 日桶）
+ *   火山只有當下快照（沒有歷史 RPC），時間軸往回拉仍畫現況，圖例明講。
  *
- * 四層都是「當下快照」：不接 timeStore（比照 erHospital／環境即時層）。
+ * 未涵蓋：t 早於 get_jma_time_coverage() 的 coverage_from、或晚於現在 → 不查、狀態記 uncovered；
+ * RPC 在涵蓋期外回 0 列 → 同樣記 uncovered（地震／警報 0 列是「沒有」，不算）。
  * 缺值一律保留 null（不補 0）；座標 NULL 的列不畫，筆數記在狀態裡讓圖例揭露。
- * 查詢失敗：狀態記 error、hook 清空 source，不畫舊資料。view 尚未建立（PGRST205）時明講「尚未上線」。
+ * 查詢失敗：狀態記 error、hook 清空 source，不畫舊資料。
  */
 
-export type JmaLiveKey = "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes";
-export type JmaPointKey = Exclude<JmaLiveKey, "jmaWarnings">;
+export type JmaPointKey =
+  | "jmaAmedas" | "jmaQuakes" | "jmaVolcanoes"
+  | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura";
+export type JmaTimedKey = JmaPointKey | "jmaWarnings" | "jmaRainySeason";
+export type JmaLiveKey = JmaTimedKey | "jmaLightning";
+
+export type JmaUncoveredReason = "before" | "future" | "no_rows";
 
 export interface JmaLiveStatus {
-  state: "idle" | "loading" | "ok" | "error";
+  state: "idle" | "loading" | "ok" | "error" | "uncovered";
   message?: string;
   loadedAt?: number;
   /** 查詢回傳列數（對帳用） */
   rows?: number;
-  /** 有畫上地圖的筆數（警報＝對到市町村界的區域數） */
+  /** 有畫上地圖的筆數（警報＝對到市町村界的區域數；梅雨＝地方數） */
   drawn?: number;
   /** 座標 NULL 未畫（警報＝對不到市町村界的區域數） */
   noCoord?: number;
   latestAt?: string | null;
+  /** live＝時間軸在現在；history＝往回拉 */
+  mode?: "live" | "history";
+  /** 這次查詢的時刻（ISO；季節類為 JST 日期 YYYY-MM-DD） */
+  asOf?: string;
+  uncovered?: JmaUncoveredReason;
+  /** 該圖層的涵蓋起點（ISO） */
+  coverageFrom?: string | null;
+  /** 地震：時間窗起點早於收集起點，窗內可能不全 */
+  incomplete?: boolean;
 }
 
 const statuses = new Map<JmaLiveKey, JmaLiveStatus>();
@@ -76,16 +99,22 @@ interface PgError { code?: string; message?: string }
 
 /** 使用者看得懂的錯誤訊息（不印表名）。 */
 function humanError(err: PgError | null | undefined): string {
-  if (err?.code === "PGRST205" || err?.code === "42P01") return "資料表尚未上線（上游建置中），圖層開著會自動重試";
+  if (err?.code === "PGRST205" || err?.code === "PGRST202" || err?.code === "42P01" || err?.code === "42883") {
+    return "資料表尚未上線（上游建置中），圖層開著會自動重試";
+  }
   return "資料服務回應失敗，請稍後重新開啟圖層";
 }
 
-class JmaQueryError extends Error {
+export class JmaQueryError extends Error {
   readonly human: string;
   constructor(view: string, err: PgError) {
     super(`${view}: ${err.message ?? err.code ?? "unknown"}`);
     this.human = humanError(err);
   }
+}
+
+export function jmaHumanError(err: unknown): string {
+  return err instanceof JmaQueryError ? err.human : humanError(null);
 }
 
 async function query(view: string, label: string, build: (q: ReturnType<typeof supabase.from>) => PromiseLike<{ data: unknown; error: PgError | null }>): Promise<Row[]> {
@@ -94,17 +123,10 @@ async function query(view: string, label: string, build: (q: ReturnType<typeof s
   return (Array.isArray(data) ? data : []) as Row[];
 }
 
-async function withStatus<T>(key: JmaLiveKey, run: () => Promise<{ value: T; status: Omit<JmaLiveStatus, "state" | "loadedAt"> }>): Promise<T> {
-  const prev = getJmaLiveStatus(key);
-  setJmaLiveStatus(key, { ...prev, state: "loading", message: undefined });
-  try {
-    const { value, status } = await run();
-    setJmaLiveStatus(key, { state: "ok", loadedAt: Date.now(), ...status });
-    return value;
-  } catch (err) {
-    setJmaLiveStatus(key, { state: "error", message: err instanceof JmaQueryError ? err.human : humanError(null) });
-    throw err;
-  }
+async function rpc(fn: string, args: Record<string, unknown>, label: string): Promise<Row[]> {
+  const { data, error } = await withLoading(`jma-time:${fn}:${JSON.stringify(args)}`, label, supabase.rpc(fn, args));
+  if (error) throw new JmaQueryError(fn, error as PgError);
+  return (Array.isArray(data) ? data : []) as Row[];
 }
 
 /** rows → Point FC（座標 NULL 不畫，不合成座標）。 */
@@ -118,6 +140,100 @@ export function rowsToPointFC(rows: Row[], toProps: (row: Row) => Record<string,
     features.push({ type: "Feature", geometry: { type: "Point", coordinates: [lon, lat] }, properties: toProps(row) });
   }
   return { fc: { type: "FeatureCollection", features }, noCoord };
+}
+
+// ── 涵蓋範圍（get_jma_time_coverage）───────────────────────────────
+export type JmaCoverageLayer = "lightning" | "amedas" | "wbgt" | "warnings" | "quake" | "phenology" | "snowcap" | "rainy_season";
+
+export interface JmaCoverage {
+  fromIso: string | null;
+  toIso: string | null;
+  lastRecordAt: string | null;
+}
+
+export function parseJmaCoverage(rows: Row[]): Map<string, JmaCoverage> {
+  const map = new Map<string, JmaCoverage>();
+  for (const r of rows) {
+    if (typeof r.layer !== "string") continue;
+    map.set(r.layer, {
+      fromIso: typeof r.coverage_from === "string" ? r.coverage_from : null,
+      toIso: typeof r.coverage_to === "string" ? r.coverage_to : null,
+      lastRecordAt: typeof r.last_record_at === "string" ? r.last_record_at : null,
+    });
+  }
+  return map;
+}
+
+/** coverage_to 會隨時間前進 → 5 分鐘 TTL。 */
+export const fetchJmaTimeCoverage = cachedOnce(async () => {
+  const rows = await rpc("get_jma_time_coverage", {}, "日本氣象圖層涵蓋範圍");
+  return parseJmaCoverage(rows);
+}, 5 * 60_000);
+
+/** 時間軸在現在 ±60 秒內＝live（與 isHistoryMode 同門檻）。 */
+export const JMA_LIVE_THRESHOLD_SEC = 60;
+
+/**
+ * t 在不在涵蓋期：早於 coverage_from → before；晚於現在 → future。
+ * 不拿 coverage_to 擋：AMeDAS 的 coverage_to 是最新整點，30 分前的 t 也該查（RPC 會給上一個整點）。
+ * coverage 取不到（RPC 失敗）時不擋，交給圖層 RPC 自己回 0 列。
+ */
+export function jmaCoverageGate(cov: JmaCoverage | undefined, tSec: number, nowSec: number): "ok" | "before" | "future" {
+  if (tSec > nowSec + JMA_LIVE_THRESHOLD_SEC) return "future";
+  const fromMs = cov?.fromIso ? Date.parse(cov.fromIso) : NaN;
+  if (Number.isFinite(fromMs) && tSec * 1000 < fromMs) return "before";
+  return "ok";
+}
+
+// ── 時間桶請求 ──────────────────────────────────────────────────────
+export interface JmaTimeRequest {
+  key: JmaTimedKey;
+  /** 快取鍵（同一桶不重查）："live" 或 ISO／日期 */
+  cacheKey: string;
+  history: boolean;
+  /** 給 RPC 的時刻參數（ISO）或日期（YYYY-MM-DD）；live 的即時 view 為 null */
+  at: string | null;
+  /** 涵蓋檢查用的圖層；null＝不檢查（火山快照、live） */
+  coverageLayer: JmaCoverageLayer | null;
+  /** RPC 回 0 列時視為「未涵蓋」（地震／警報 0 列是「沒有」，不算） */
+  emptyIsUncovered: boolean;
+}
+
+const COVERAGE_LAYER: Record<JmaTimedKey, JmaCoverageLayer | null> = {
+  jmaAmedas: "amedas",
+  jmaWbgt: "wbgt",
+  jmaWarnings: "warnings",
+  jmaQuakes: "quake",
+  jmaVolcanoes: null,
+  jmaSnowcap: "snowcap",
+  jmaAutumnLeaves: "phenology",
+  jmaSakura: "phenology",
+  jmaRainySeason: "rainy_season",
+};
+
+const SEASONAL: ReadonlySet<JmaTimedKey> = new Set(["jmaSnowcap", "jmaAutumnLeaves", "jmaSakura", "jmaRainySeason"]);
+
+export function jmaTimeRequest(key: JmaTimedKey, tSec: number, nowSec: number = Date.now() / 1000): JmaTimeRequest {
+  const history = Math.abs(nowSec - tSec) > JMA_LIVE_THRESHOLD_SEC;
+  const coverageLayer = COVERAGE_LAYER[key];
+  if (key === "jmaVolcanoes") {
+    return { key, cacheKey: "live", history, at: null, coverageLayer: null, emptyIsUncovered: false };
+  }
+  if (SEASONAL.has(key)) {
+    // 季節類：live 也用今天 JST 日期當鍵（跨日自動換桶）
+    const date = jmaJstDateKey(history ? tSec : nowSec);
+    return { key, cacheKey: date, history, at: date, coverageLayer: history ? coverageLayer : null, emptyIsUncovered: true };
+  }
+  if (!history) {
+    return { key, cacheKey: "live", history, at: null, coverageLayer: null, emptyIsUncovered: key === "jmaWbgt" };
+  }
+  const at = key === "jmaWarnings" || key === "jmaQuakes" ? jmaMinuteBucketIso(tSec, 10) : jmaHourBucketIso(tSec);
+  return { key, cacheKey: at, history, at, coverageLayer, emptyIsUncovered: key === "jmaAmedas" || key === "jmaWbgt" };
+}
+
+export interface JmaTimedResult<T> {
+  value: T;
+  status: Pick<JmaLiveStatus, "rows" | "drawn" | "noCoord" | "latestAt" | "incomplete">;
 }
 
 // ── AMeDAS ─────────────────────────────────────────────────────────
@@ -138,11 +254,34 @@ export function amedasProps(row: Row): Record<string, unknown> {
   return props;
 }
 
-const fetchAmedas = cachedOnce(() => withStatus("jmaAmedas", async () => {
-  const rows = await query("jma_amedas_current", "日本 AMeDAS 即時觀測", (q) => q.select("*").limit(3000));
+const amedasCache = cachedByKey<JmaTimedResult<PointFC>>(async (cacheKey) => {
+  const rows = cacheKey === "live"
+    ? await query("jma_amedas_current", "日本 AMeDAS 即時觀測", (q) => q.select("*").limit(3000))
+    : await rpc("get_jma_amedas_at", { p_at: cacheKey }, "日本 AMeDAS 整點觀測");
   const { fc, noCoord } = rowsToPointFC(rows, amedasProps);
   return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: maxIso(rows, "observed_at") } };
-}), 60_000);
+}, 60_000, 48);
+
+// ── WBGT（環境省）──────────────────────────────────────────────────
+export function wbgtProps(row: Row): Record<string, unknown> {
+  const wbgt = finiteOrNull(row.wbgt);
+  return {
+    station_id: row.station_id ?? null,
+    station_name: row.station_name ?? null,
+    observed_at: row.observed_at ?? null,
+    wbgt,
+    level: envWbgtLevel(wbgt),
+  };
+}
+
+const wbgtCache = cachedByKey<JmaTimedResult<PointFC>>(async (cacheKey) => {
+  // 環境省實況約晚 1 小時才進 DB（2026-10-16 實測最舊可達 119 分），RPC 預設 90 分會在每小時後半段畫不出點
+  const rows = await rpc("get_env_jp_wbgt_at", cacheKey === "live" ? { p_max_age_minutes: 150 } : { p_at: cacheKey, p_max_age_minutes: 150 }, "日本暑さ指数 WBGT");
+  const { fc, noCoord } = rowsToPointFC(rows, wbgtProps);
+  // 高值畫在上面
+  fc.features.sort((a, b) => Number(a.properties?.wbgt ?? -99) - Number(b.properties?.wbgt ?? -99));
+  return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: maxIso(rows, "observed_at") } };
+}, 60_000, 48);
 
 // ── 地震 ───────────────────────────────────────────────────────────
 export function quakeProps(row: Row): Record<string, unknown> {
@@ -162,20 +301,26 @@ export function quakeProps(row: Row): Record<string, unknown> {
   };
 }
 
-const fetchQuakes = cachedOnce(() => withStatus("jmaQuakes", async () => {
-  const since = new Date(Date.now() - JMA_QUAKE_LOOKBACK_DAYS * 86_400_000).toISOString();
-  const rows = await query("jma_quake_latest", `日本地震（近 ${JMA_QUAKE_LOOKBACK_DAYS} 天）`, (q) => q
-    .select("*")
-    .gte("report_time", since)
-    .order("report_time", { ascending: false })
-    .limit(1000));
+const quakeCache = cachedByKey<JmaTimedResult<PointFC>>(async (cacheKey) => {
+  let rows: Row[];
+  if (cacheKey === "live") {
+    const since = new Date(Date.now() - JMA_QUAKE_LOOKBACK_DAYS * 86_400_000).toISOString();
+    rows = await query("jma_quake_latest", `日本地震（近 ${JMA_QUAKE_LOOKBACK_DAYS} 天）`, (q) => q
+      .select("*")
+      .gte("report_time", since)
+      .order("report_time", { ascending: false })
+      .limit(1000));
+  } else {
+    rows = await rpc("get_jma_quakes_at", { p_at: cacheKey, p_window_days: JMA_QUAKE_LOOKBACK_DAYS }, `日本地震（${JMA_QUAKE_LOOKBACK_DAYS} 天窗）`);
+  }
   const { fc, noCoord } = rowsToPointFC(rows, quakeProps);
   // 大震畫在上面：依規模升冪（null 最先）
   fc.features.sort((a, b) => (Number(a.properties?.magnitude ?? -1)) - (Number(b.properties?.magnitude ?? -1)));
-  return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: maxIso(rows, "report_time") } };
-}), 30_000);
+  const incomplete = rows.some((r) => r.window_complete === false);
+  return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: maxIso(rows, "report_time"), incomplete } };
+}, 60_000, 48);
 
-// ── 火山 ───────────────────────────────────────────────────────────
+// ── 火山（只有當下快照）──────────────────────────────────────────────
 export function volcanoProps(row: Row): Record<string, unknown> {
   return {
     volcano_code: row.volcano_code ?? null,
@@ -188,24 +333,99 @@ export function volcanoProps(row: Row): Record<string, unknown> {
   };
 }
 
-const fetchVolcanoes = cachedOnce(() => withStatus("jmaVolcanoes", async () => {
+const volcanoCache = cachedByKey<JmaTimedResult<PointFC>>(async () => {
   const rows = await query("jma_volcano_current", "日本火山噴火警戒", (q) => q.select("volcano_code,volcano_name,lat,lon,level_code,level_name,warning_kind,report_time").limit(500));
   const { fc, noCoord } = rowsToPointFC(rows, volcanoProps);
   fc.features.sort((a, b) => String(a.properties?.level).localeCompare(String(b.properties?.level)));
   return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: maxIso(rows, "report_time") } };
-}), 60_000);
+}, 60_000, 2);
 
-const POINT_FETCHERS: Record<JmaPointKey, ReturnType<typeof cachedOnce<PointFC>>> = {
-  jmaAmedas: fetchAmedas,
-  jmaQuakes: fetchQuakes,
-  jmaVolcanoes: fetchVolcanoes,
-};
-
-export function fetchJmaPointFC(key: JmaPointKey): Promise<PointFC> {
-  return POINT_FETCHERS[key]();
+// ── 山頂初冠雪 ─────────────────────────────────────────────────────
+/** 地圖標籤：已觀測「10/3 +2」；未觀測「(10/3)」＝括號內為平年日 */
+export function seasonalLabel(state: unknown, obsDate: unknown, diff: number | null, normalDate: unknown): string {
+  if (state === "observed") {
+    const md = jmaMonthDay(typeof obsDate === "string" ? obsDate : null);
+    const d = jmaSignedDays(diff);
+    return d ? `${md} ${d}` : md;
+  }
+  const normal = jmaMonthDay(typeof normalDate === "string" ? normalDate : null);
+  return normal ? `(${normal})` : "";
 }
-export function invalidateJmaPoint(key: JmaPointKey): void {
-  POINT_FETCHERS[key].invalidate();
+
+/** 未觀測但 as-of 已過平年日 → 已晚幾天（未過或無平年 → null） */
+export function daysPastNormal(state: unknown, normalDate: unknown, asOf: string): number | null {
+  if (state === "observed" || typeof normalDate !== "string" || !normalDate) return null;
+  const d = jmaDaysBetween(normalDate.slice(0, 10), asOf);
+  return d > 0 ? d : null;
+}
+
+export function snowcapProps(row: Row, asOf: string): Record<string, unknown> {
+  const diff = finiteOrNull(row.days_vs_normal);
+  const state = row.state ?? null;
+  return {
+    mountain_code: row.mountain_code ?? null,
+    mountain_name: row.mountain_name ?? null,
+    observatory: row.observatory ?? null,
+    season_year: finiteOrNull(row.season_year),
+    judgement_method: row.judgement_method ?? null,
+    state,
+    first_snowcap_date: row.first_snowcap_date ?? null,
+    status_text: row.status_text ?? null,
+    status_class: row.status_class ?? null,
+    status_time: row.status_time ?? null,
+    elevation_m: finiteOrNull(row.elevation_m),
+    normal_date: row.normal_date ?? null,
+    days_vs_normal: diff,
+    diff_class: state === "observed" ? jmaDiffClass(diff) : null,
+    days_past_normal: daysPastNormal(state, row.normal_date, asOf),
+    as_of: asOf,
+    label: seasonalLabel(state, row.first_snowcap_date, diff, row.normal_date),
+  };
+}
+
+const snowcapCache = cachedByKey<JmaTimedResult<PointFC>>(async (date) => {
+  const rows = await rpc("get_jma_snowcap_asof", { p_date: date }, "日本山頂初冠雪");
+  const { fc, noCoord } = rowsToPointFC(rows, (r) => snowcapProps(r, date));
+  // 已觀測畫在上面
+  fc.features.sort((a, b) => Number(a.properties?.state === "observed") - Number(b.properties?.state === "observed"));
+  return { value: fc, status: { rows: rows.length, drawn: fc.features.length, noCoord, latestAt: date } };
+}, 30 * 60_000, 32);
+
+// ── 物候（櫻花／紅葉・黃葉）───────────────────────────────────────────
+export function phenologyProps(row: Row, asOf: string): Record<string, unknown> {
+  const state = row.state ?? null;
+  const diff = finiteOrNull(row.diff_normal_days);
+  return {
+    station_no: row.station_no ?? null,
+    station_name: row.station_name ?? null,
+    phenomenon_code: row.phenomenon_code == null ? null : String(row.phenomenon_code),
+    phenomenon_name: row.phenomenon_name ?? null,
+    season_year: finiteOrNull(row.season_year),
+    state,
+    obs_date: row.obs_date ?? null,
+    diff_normal_days: diff,
+    diff_last_year_days: finiteOrNull(row.diff_last_year_days),
+    normal_date: row.normal_date ?? null,
+    alt_species: row.alt_species ?? null,
+    diff_class: state === "observed" ? jmaDiffClass(diff) : null,
+    days_past_normal: daysPastNormal(state, row.normal_date, asOf),
+    as_of: asOf,
+    label: seasonalLabel(state, row.obs_date, diff, row.normal_date),
+  };
+}
+
+/** 一天一次全部現象（322 列），兩個物候圖層共用，再各自濾現象碼。 */
+const phenologyRowsCache = cachedByKey<Row[]>(
+  (date) => rpc("get_jma_phenology_asof", { p_date: date }, "日本生物季節觀測"),
+  30 * 60_000, 32,
+);
+
+export function buildPhenologyFC(rows: Row[], key: JmaPhenologyLayerKey, asOf: string): JmaTimedResult<PointFC> {
+  const codes = new Set(JMA_PHENOLOGY_LAYER_PHENOMENA[key].map((p) => p.value));
+  const mine = rows.filter((r) => codes.has(String(r.phenomenon_code)));
+  const { fc, noCoord } = rowsToPointFC(mine, (r) => phenologyProps(r, asOf));
+  fc.features.sort((a, b) => Number(a.properties?.state === "observed") - Number(b.properties?.state === "observed"));
+  return { value: fc, status: { rows: mine.length, drawn: fc.features.length, noCoord, latestAt: asOf } };
 }
 
 // ── 警報・注意報 ────────────────────────────────────────────────────
@@ -295,22 +515,166 @@ export function buildJmaWarningsSnapshot(raw: Row[]): JmaWarningsSnapshot {
   return { rows, areas, cityNameKeys, unmatched, controlDatetime: maxIso(raw, "control_datetime") };
 }
 
+/** 一列的種類鍵：優先種別碼，沒有就用名稱。 */
+function warningKindKey(row: JmaWarningRow): string | null {
+  return row.kind_code ?? row.kind_name;
+}
+
+/** 某區發布中的種類（去重；級別高→低，同級依名稱）。area.rows 只含發布中的列（解除已在建快照時排除）。 */
+export function jmaWarningAreaKinds(area: JmaWarningArea): { key: string; name: string | null; level: JmaWarningLevel }[] {
+  const kinds = new Map<string, { key: string; name: string | null; level: JmaWarningLevel }>();
+  for (const row of area.rows) {
+    const key = warningKindKey(row);
+    if (key != null && !kinds.has(key)) kinds.set(key, { key, name: row.kind_name, level: row.level });
+  }
+  return [...kinds.values()].sort((a, b) =>
+    (LEVEL_RANK.get(b.level) ?? 0) - (LEVEL_RANK.get(a.level) ?? 0) || String(a.name ?? a.key).localeCompare(String(b.name ?? b.key), "ja"));
+}
+
+export interface JmaWarningKindStat { key: string; name: string | null; level: JmaWarningLevel; areaCount: number }
+
+/** 全快照各發布中種類的區域數（areas＋cityNameKeys 以區域物件去重；依區域數多→少）。 */
+export function jmaWarningKindStats(snapshot: JmaWarningsSnapshot | null): JmaWarningKindStat[] {
+  if (!snapshot) return [];
+  const stats = new Map<string, JmaWarningKindStat>();
+  for (const area of new Set([...snapshot.areas.values(), ...snapshot.cityNameKeys.values()])) {
+    for (const k of jmaWarningAreaKinds(area)) {
+      const cur = stats.get(k.key);
+      if (cur) cur.areaCount += 1; else stats.set(k.key, { ...k, areaCount: 1 });
+    }
+  }
+  return [...stats.values()].sort((a, b) =>
+    b.areaCount - a.areaCount || (LEVEL_RANK.get(b.level) ?? 0) - (LEVEL_RANK.get(a.level) ?? 0) || a.key.localeCompare(b.key));
+}
+
+/** 只留有該種類的區域，區域級別改成該種類的級別（地圖用該種類的色）。kindCode 為 null → 原樣回傳。 */
+export function filterJmaWarningsByKind(snapshot: JmaWarningsSnapshot | null, kindCode: string | null): JmaWarningsSnapshot | null {
+  if (!snapshot || kindCode == null) return snapshot;
+  const narrow = (src: Map<string, JmaWarningArea>) => {
+    const out = new Map<string, JmaWarningArea>();
+    for (const [key, area] of src) {
+      const kind = jmaWarningAreaKinds(area).find((k) => k.key === kindCode);
+      if (kind) out.set(key, { ...area, level: kind.level });
+    }
+    return out;
+  };
+  return { ...snapshot, areas: narrow(snapshot.areas), cityNameKeys: narrow(snapshot.cityNameKeys) };
+}
+
 let latestWarnings: JmaWarningsSnapshot | null = null;
-/** popup 用：最近一次成功載入的警報快照（未載入或失敗 → null）。 */
+/** popup／圖例用：地圖目前畫的那一份警報快照（未載入、未涵蓋或失敗 → null）。 */
 export function getLatestJmaWarnings(): JmaWarningsSnapshot | null {
   return latestWarnings;
 }
-
-const fetchWarnings = cachedOnce(() => withStatus("jmaWarnings", async () => {
-  const raw = await query("jma_warnings_current", "日本警報・注意報", (q) => q.select("*").limit(20000));
-  const snapshot = buildJmaWarningsSnapshot(raw);
+export function setLatestJmaWarnings(snapshot: JmaWarningsSnapshot | null): void {
   latestWarnings = snapshot;
-  return { value: snapshot, status: { rows: raw.length, drawn: snapshot.areas.size, noCoord: snapshot.unmatched.length, latestAt: snapshot.controlDatetime } };
-}), 60_000);
-
-export function fetchJmaWarnings(): Promise<JmaWarningsSnapshot> {
-  return fetchWarnings().catch((err) => { latestWarnings = null; throw err; });
 }
-export function invalidateJmaWarnings(): void {
-  fetchWarnings.invalidate();
+
+const warningsCache = cachedByKey<JmaTimedResult<JmaWarningsSnapshot>>(async (cacheKey) => {
+  const raw = cacheKey === "live"
+    ? await query("jma_warnings_current", "日本警報・注意報", (q) => q.select("*").limit(20000))
+    : await rpc("get_jma_warnings_at", { p_at: cacheKey }, "日本警報・注意報（歷史時刻）");
+  const snapshot = buildJmaWarningsSnapshot(raw);
+  return { value: snapshot, status: { rows: raw.length, drawn: snapshot.areas.size, noCoord: snapshot.unmatched.length, latestAt: snapshot.controlDatetime } };
+}, 60_000, 48);
+
+// ── 梅雨入り・明け ───────────────────────────────────────────────────
+export interface JmaRainyRegion {
+  region: string;
+  year: number | null;
+  phase: JmaRainyPhase;
+  onsetState: string | null;
+  onsetDate: string | null;
+  onsetText: string | null;
+  onsetClass: string | null;
+  onsetDiff: number | null;
+  onsetNormal: string | null;
+  endState: string | null;
+  endDate: string | null;
+  endText: string | null;
+  endClass: string | null;
+  endDiff: number | null;
+  endNormal: string | null;
+  status: string | null;
+}
+
+export interface JmaRainySnapshot {
+  asOf: string;
+  regions: Map<string, JmaRainyRegion>;
+  /** RPC 回了但前端沒有縣對照的地方名（應為空；有就是上游改名） */
+  unmapped: string[];
+}
+
+export function buildJmaRainySnapshot(rows: Row[], asOf: string): JmaRainySnapshot {
+  const regions = new Map<string, JmaRainyRegion>();
+  const unmapped: string[] = [];
+  for (const r of rows) {
+    const region = text(r.region);
+    if (!region) continue;
+    if (!(region in JMA_RAINY_REGION_PREFS)) unmapped.push(region);
+    const onsetState = text(r.onset_state);
+    const endState = text(r.end_state);
+    regions.set(region, {
+      region,
+      year: finiteOrNull(r.year),
+      phase: jmaRainyPhase(onsetState, endState),
+      onsetState, onsetDate: text(r.onset_date), onsetText: text(r.onset_text), onsetClass: text(r.onset_class),
+      onsetDiff: finiteOrNull(r.onset_diff_normal_days), onsetNormal: text(r.onset_normal_date),
+      endState, endDate: text(r.end_date), endText: text(r.end_text), endClass: text(r.end_class),
+      endDiff: finiteOrNull(r.end_diff_normal_days), endNormal: text(r.end_normal_date),
+      status: text(r.status),
+    });
+  }
+  return { asOf, regions, unmapped };
+}
+
+let latestRainy: JmaRainySnapshot | null = null;
+export function getLatestJmaRainy(): JmaRainySnapshot | null {
+  return latestRainy;
+}
+export function setLatestJmaRainy(snapshot: JmaRainySnapshot | null): void {
+  latestRainy = snapshot;
+}
+
+const rainyCache = cachedByKey<JmaTimedResult<JmaRainySnapshot>>(async (date) => {
+  const rows = await rpc("get_jma_rainy_season_asof", { p_date: date }, "日本梅雨入り・明け");
+  const snapshot = buildJmaRainySnapshot(rows, date);
+  return { value: snapshot, status: { rows: rows.length, drawn: snapshot.regions.size, noCoord: snapshot.unmapped.length, latestAt: date } };
+}, 30 * 60_000, 32);
+
+// ── 對外入口 ────────────────────────────────────────────────────────
+export function fetchJmaPointAt(key: JmaPointKey, cacheKey: string): Promise<JmaTimedResult<PointFC>> {
+  switch (key) {
+    case "jmaAmedas": return amedasCache(cacheKey);
+    case "jmaWbgt": return wbgtCache(cacheKey);
+    case "jmaQuakes": return quakeCache(cacheKey);
+    case "jmaVolcanoes": return volcanoCache("live");
+    case "jmaSnowcap": return snowcapCache(cacheKey);
+    case "jmaAutumnLeaves":
+    case "jmaSakura":
+      return phenologyRowsCache(cacheKey).then((rows) => buildPhenologyFC(rows, key, cacheKey));
+  }
+}
+
+export function fetchJmaWarningsAt(cacheKey: string): Promise<JmaTimedResult<JmaWarningsSnapshot>> {
+  return warningsCache(cacheKey);
+}
+
+export function fetchJmaRainyAt(date: string): Promise<JmaTimedResult<JmaRainySnapshot>> {
+  return rainyCache(date);
+}
+
+/** 輪詢時清掉這一桶（live 或今天）讓下一次重查。 */
+export function invalidateJmaTimed(key: JmaTimedKey, cacheKey: string): void {
+  switch (key) {
+    case "jmaAmedas": return amedasCache.invalidate(cacheKey);
+    case "jmaWbgt": return wbgtCache.invalidate(cacheKey);
+    case "jmaQuakes": return quakeCache.invalidate(cacheKey);
+    case "jmaVolcanoes": return volcanoCache.invalidate();
+    case "jmaSnowcap": return snowcapCache.invalidate(cacheKey);
+    case "jmaAutumnLeaves":
+    case "jmaSakura": return phenologyRowsCache.invalidate(cacheKey);
+    case "jmaWarnings": return warningsCache.invalidate(cacheKey);
+    case "jmaRainySeason": return rainyCache.invalidate(cacheKey);
+  }
 }

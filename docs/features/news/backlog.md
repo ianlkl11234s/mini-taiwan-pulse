@@ -4,7 +4,7 @@
 
 ## Data quality / verifying
 
-- [ ] **NEWS-1 · `verifying`**：確認自由時報 RSS 在 production 是否仍被 Zeabur cloud IP 403。
+- [ ] **NEWS-1 · `verifying`**：確認自由時報 RSS 在 production 是否仍被 Zeabur cloud IP 403。（2026-10-16 盤點：待確認 Zeabur 日誌）
   - Outcome：知道是現行來源事故還是歷史觀察，避免為 stale 403 先改 collector。
   - Next action：查最近 7 天 production collector/feed success log，對照本地與 cloud response；若仍持續，再評估 UA 或 Google News 間接來源。Acceptance：有時間範圍、feed success rate 與處置決定。
 

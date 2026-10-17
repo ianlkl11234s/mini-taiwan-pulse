@@ -22,6 +22,10 @@ Modes:
                   transfer (true when another non-tra point of the same system has the
                   same normalized name within TRANSFER_M). The existing `color` prop is
                   left as is. Idempotent.
+  --enrich-en     keep the existing output untouched and add `name_en` to every point
+                  that lacks one, looked up by (system_id, station_id) in
+                  <RAIL_SOURCE_DIR or public/rail>/<sys>/{stations,extensions}/*.geojson.
+                  Only adds a property (P5 i18n). Idempotent.
 """
 
 import json
@@ -159,6 +163,33 @@ def enrich():
         print(f"  {sys_id:5} {lid:3} {name:10} {color}  stations={n:3} transfer={t}")
 
 
+def enrich_en():
+    src = os.environ.get("RAIL_SOURCE_DIR") or os.path.join(BASE, "public/rail")
+    names = {}
+    for path in sorted(glob.glob(os.path.join(src, "*", "stations", "*.geojson")) + glob.glob(os.path.join(src, "*", "extensions", "*.geojson"))):
+        sys_id = os.path.normpath(path).split(os.sep)[-3]
+        for f in load_geojson(path)["features"]:
+            p = f["properties"]
+            if p.get("station_id") and p.get("name_en"):
+                names.setdefault((sys_id, p["station_id"]), p["name_en"].strip())
+    data = load_geojson(OUT_PATH)
+    added = 0
+    missing = []
+    for f in data["features"]:
+        p = f["properties"]
+        if p.get("name_en"):
+            continue
+        en = names.get((p["system_id"], p["station_id"]))
+        if en:
+            p["name_en"] = en
+            added += 1
+        else:
+            missing.append((p["system_id"], p["station_id"], p["name"]))
+    with open(OUT_PATH, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, ensure_ascii=False)
+    print(f"Added name_en to {added} point(s); still missing {len(missing)}: {missing[:10]}")
+
+
 def get_major_station_ids():
     """Get IDs of TRA class 0-1 + THSR stations (they have polygons)."""
     ids = set()
@@ -177,6 +208,9 @@ def get_major_station_ids():
 
 
 def main():
+    if "--enrich-en" in sys.argv:
+        enrich_en()
+        return
     if "--enrich" in sys.argv:
         enrich()
         return

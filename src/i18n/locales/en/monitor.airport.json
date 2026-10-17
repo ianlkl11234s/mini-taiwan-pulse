@@ -1,0 +1,16 @@
+{
+  "monitor.airport.dataLabel": "Airport passenger data",
+  "monitor.airport.unitPeople": "people",
+  "monitor.airport.out24h": "Departures, 24 h",
+  "monitor.airport.loading": "Loading…",
+  "monitor.airport.arrivals": "Arrivals",
+  "monitor.airport.departures": "Departures",
+  "monitor.airport.source": "Source: Immigration Agency APIS (hourly)",
+  "monitor.airport.staleReason": "Airport data collection has stopped or there is no data in the last 24 hours",
+  "monitor.airport.titleLegacy": "Airport arrivals and departures · BORDER PAX 24H",
+  "monitor.airport.in24h": "24 h in",
+  "monitor.airport.out24hLegacy": "24 h out",
+  "monitor.airport.noData": "No data (this airport is not covered)",
+  "monitor.airport.noDataLegacy": "No data (border_airport_snapshot does not cover this airport)",
+  "monitor.airport.sourceLegacy": "Source: Immigration Agency APIS (hourly / get_airport_hourly_pax)"
+}

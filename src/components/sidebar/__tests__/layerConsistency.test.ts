@@ -117,6 +117,7 @@ const NO_PARAMS_LEDGER = new Set([
   // 屬裝飾性圖層 → 有意識地不做（2026-06-10 決定）
   "wasteScheduleNote",
   "wasteRoute", "wasteStop",     // 由 wasteTruck 子 UI 控制
+  "jmaKosa",           // 黃砂予測：不畫在地圖上，時刻選單在 JmaKosaPanel 面板內
   "wasteCleaningSquads",         // 單色綠 POI，無 size/opacity slider（透過 isDark 自動配色）
   // powerStatusHud / powerRegionDemand：搬 monitor 面板，不在 sidebar（見 ORPHAN_LEDGER）
   "powerStatusHud", "powerRegionDemand",
@@ -227,6 +228,12 @@ const NO_POPUP_LEDGER = new Set([
   // 環境氣候 raster：雲圖 / 雷達 / AQI 影像皆為上游已上色成品，無數值通道
   //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）
   "cwaCloudImagery", "cwaRadarImagery", "aqiImagery",
+  // JMA 發布幀影像：PNG 只有等級值、無 feature 可 query（點擊讀值探針待 owner 拍板）
+  "jmaSnowDepth", "jmaRadar", "jmaRasrf", "jmaRiskLand", "jmaRiskInund", "jmaUvIndex", "jmaSst", "jmaSeaIce", "jmaHimawari",
+  "jmaAnaSnowFirst", "jmaAnaSnowDays", "jmaAnaRainDays", "jmaAnaRiskLandHours", "jmaAnaRiskInundHours",
+  // 上游直連（P5）：GIBS 雪覆蓋是上游已上色 raster（無數值通道）；洪水キキクル 線只帶 level，圖例已標示，
+  // 實測當下全國無警戒、屬性待雨天抽驗再決定 popup；黃砂是圖片面板，沒有地圖 feature。
+  "gibsSnowCover", "jmaRiskFlood", "jmaKosa",
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
@@ -426,7 +433,7 @@ describe("manifest 完整性：豁免 ledger", () => {
       NO_POPUP_LEDGER,
       "承載屬性的 feature 都要接 FeatureInfoPanel：types 的 FeatureInfo.layerType 加 key → " +
       "featureInfo/registry 的 PANEL_REGISTRY + HEADER_LABELS 各加一行 → " +
-      "useMapInteraction 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
+      "map/gisClickRegistry 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
       "（development-rules §4a 規則 3）",
     );
   });

@@ -13,6 +13,8 @@ import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
 import { useMonitorFreshness } from "./monitorFreshness";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import { MonitorNote, MonitorRows } from "./MonitorMetric";
 import { useMonitorTheme } from "./monitorTheme";
 
@@ -63,6 +65,7 @@ function MiniStat({
 function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] }) {
   const tip = useChartTooltip();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const theme = useMonitorTheme();
   // 防禦：上游若給了非陣列髒資料（型別宣告蓋不住 runtime），這裡收斂成 []
   // 退化成「無資料」提示，不讓 [...signals] 對不可疊代物件炸掉整個 React root。
@@ -76,12 +79,13 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
           animation: "drawerOpen .32s cubic-bezier(.22,1,.36,1)",
         }}
       >
-        {v2 ? "尚無指數組成細節" : "⚠ 尚無 signal 細節（後端未回 per_signal）"}
+        {v2 ? i18n.t("monitor.pressure.noSignals") : i18n.t("monitor.pressure.noSignalsLegacy")}
       </div>
     );
   }
   // 只有各訊號子分數（0–100）；權重不在前端複製，排序與長條都用子分數
   const sorted = [...signals].sort((a, b) => b.score - a.score);
+  const sigLabel = (label: string) => enumLabel("pressureSignal", label, label, i18n);
   const maxC = Math.max(...sorted.map((s) => s.score)) || 1;
   return (
     <div
@@ -98,10 +102,10 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px", color: theme.p.textDefault,
           }}
         >
-          {v2 ? "指數組成" : "指數組成 · SIGNAL BREAKDOWN"}
+          {v2 ? i18n.t("monitor.pressure.breakdown") : i18n.t("monitor.pressure.breakdownLegacy")}
         </span>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
-          {v2 ? "各訊號子分數 0–100 · 總分 5 分鐘平滑" : "權重「災害重」· 5min EMA"}
+          {v2 ? i18n.t("monitor.pressure.breakdownNote") : i18n.t("monitor.pressure.breakdownNoteLegacy")}
         </span>
       </div>
       {v2 ? (
@@ -109,8 +113,8 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
           rows={sorted.map((s) => {
             const lvl = pressureLevel(s.score);
             return {
-              label: s.label,
-              title: `${s.label} 子分數 ${Math.round(s.score)}`,
+              label: sigLabel(s.label),
+              title: i18n.t("monitor.pressure.subScoreTitle", { label: sigLabel(s.label), score: Math.round(s.score) }),
               chart: (
                 <div style={{ height: 7, borderRadius: RADIUS.md, background: theme.neutral(0.05), overflow: "hidden" }}>
                   <span style={{ display: "block", height: "100%", width: `${Math.max(0, Math.min(100, s.score))}%`, background: theme.fill(lvl.color), borderRadius: RADIUS.md, opacity: 0.9 }} />
@@ -128,9 +132,9 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
             <div
               key={s.id}
               {...tip.bind(() => ({
-                title: s.label,
+                title: sigLabel(s.label),
                 rows: [
-                  { dot: theme.fill(lvl.color), label: "子分數", value: fmtChartValue(Math.round(s.score)) },
+                  { dot: theme.fill(lvl.color), label: i18n.t("monitor.pressure.subScore"), value: fmtChartValue(Math.round(s.score)) },
                 ],
               }))}
               style={{ display: "flex", alignItems: "center", gap: 9 }}
@@ -141,7 +145,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
                     fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.base), color: theme.p.textDefault, whiteSpace: "nowrap",
                   }}
                 >
-                  {s.label}
+                  {sigLabel(s.label)}
                 </span>
               </span>
               <span
@@ -197,7 +201,7 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
             }}
           >
             <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: theme.fill(l.color) }} />
-            {l.label}{" "}
+            {enumLabel("pressureLevel", l.key, l.label, i18n)}{" "}
             <span style={{ fontFamily: FONT_DATA, color: theme.p.textFaint }}>
               {l.min}–{l.max}
             </span>
@@ -223,6 +227,7 @@ export function SituationOverview({
   pressure, smoothedScore, status, lastSuccessAt, sourceHealth, sourceHealthAvailable = true, totalEvents, severeCount,
 }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const theme = useMonitorTheme();
   const [open, setOpen] = useState(false);
   const stale = status === "error" && lastSuccessAt !== null;
@@ -234,10 +239,12 @@ export function SituationOverview({
   // 未就緒時用中性等級，不拿預設分數上色
   const level = status === "ready" ? pressureLevel(smoothedScore) : NEUTRAL_LEVEL;
   const availability = status === "denied"
-    ? "壓力指數無權限讀取"
+    ? i18n.t("monitor.pressure.denied")
     : status === "error"
-      ? `壓力指數更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`
-      : status === "unknown" ? "壓力指數讀取中" : null;
+      ? (lastSuccessAt
+        ? i18n.t("monitor.pressure.interruptedAt", { time: i18n.formatDateTime(lastSuccessAt, { hour: "2-digit", minute: "2-digit" }) })
+        : i18n.t("monitor.pressure.interrupted"))
+      : status === "unknown" ? i18n.t("monitor.pressure.reading") : null;
 
   return (
     <Widget
@@ -265,7 +272,7 @@ export function SituationOverview({
               fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px", color: theme.p.textDefault,
             }}
           >
-            戰情概覽 · PRESSURE INDEX
+            {i18n.t("monitor.pressure.titleLegacy")}
           </span>
         )}
         <span
@@ -273,14 +280,14 @@ export function SituationOverview({
             fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint, whiteSpace: "nowrap",
           }}
         >
-          10 訊號加權 0–100
+          {i18n.t("monitor.pressure.weighted")}
         </span>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
         <button
           onClick={() => setOpen((v) => !v)}
-          title="點環看指數組成"
+          title={i18n.t("monitor.pressure.ringHint")}
           style={{
             border: "none", background: "transparent", padding: 0,
             cursor: "pointer", position: "relative", lineHeight: 0,
@@ -296,7 +303,7 @@ export function SituationOverview({
               fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textMuted, whiteSpace: "nowrap",
             }}
           >
-            {open ? "收合" : "組成"}
+            {open ? i18n.t("monitor.pressure.collapse") : i18n.t("monitor.pressure.expand")}
             <span
               style={{
                 display: "inline-block",
@@ -312,20 +319,20 @@ export function SituationOverview({
         {/* TAIEX 2026-08-10 拆成獨立 widget 後這裡多出橫向空間 → 讓本欄吃滿，不留右側空洞 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 150 }}>
           {status === "ready" || stale ? <>
-            <CompareLine delta={pressure.vs_baseline} muted={stale} label={stale ? "最後成功值 · vs 基準" : "vs 平常週日同時段"} />
-            <CompareLine delta={pressure.vs_1h_ago} muted={stale} label={stale ? "最後成功值 · vs 1 小時前" : "vs 1 小時前"} />
+            <CompareLine delta={pressure.vs_baseline} muted={stale} label={stale ? i18n.t("monitor.pressure.staleVsBaseline") : i18n.t("monitor.pressure.vsBaseline")} />
+            <CompareLine delta={pressure.vs_1h_ago} muted={stale} label={stale ? i18n.t("monitor.pressure.staleVs1h") : i18n.t("monitor.pressure.vs1h")} />
           </> : (
             <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textMuted }}>{availability}</span>
           )}
           <div style={{ height: 1, background: theme.p.borderSoft, margin: "1px 0" }} />
           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
-            <MiniStat en="EVENTS" label="事件" zh="事件數" value={totalEvents ?? "—"} />
+            <MiniStat en="EVENTS" label={i18n.t("monitor.pressure.statEventsLabel")} zh={i18n.t("monitor.pressure.statEvents")} value={totalEvents ?? "—"} />
             <MiniStat
-              en="SEVERE ≥3" label="嚴重" zh="嚴重（3 級以上）" value={severeCount ?? "—"}
+              en="SEVERE ≥3" label={i18n.t("monitor.pressure.statSevereLabel")} zh={i18n.t("monitor.pressure.statSevere")} value={severeCount ?? "—"}
               color={(severeCount ?? 0) > 0 ? theme.p.statusWarn : theme.isDark ? "#fff" : theme.p.textStrong}
             />
             <MiniStat
-              en="SOURCES" label="來源" zh="資料來源"
+              en="SOURCES" label={i18n.t("monitor.pressure.statSourcesLabel")} zh={i18n.t("monitor.pressure.statSources")}
               value={sourceHealthAvailable ? `${sourceHealth.ok}/${sourceHealth.total}` : "—"}
             />
           </div>

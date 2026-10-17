@@ -10,6 +10,8 @@ import { useMonitorV2 } from "./monitorStyle";
 import { fs, MF } from "./monitorFont";
 import { useMonitorTheme } from "./monitorTheme";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 interface Hotspot {
   county: string;
@@ -53,8 +55,6 @@ export function aggregateCountySurge(rows: readonly TrendingRow[] | null | undef
   return out;
 }
 
-const SURGE_TIP = "近 1 小時升溫：該縣市近 1 小時新聞則數 ÷ 過去 7 天有新聞的小時平均（依縣市加總各類別）；過去無基準時顯示「新」或「—」";
-
 export function rankHotspots(
   events: ClusterEvent[],
   countyById: Map<number, string>,
@@ -94,6 +94,8 @@ interface Props {
 }
 
 export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trending }: Props) {
+  const i18n = useLocale();
+  const SURGE_TIP = i18n.t("monitor.hotspots.surgeTip");
   const surgeByCounty = useMemo(() => aggregateCountySurge(trending), [trending]);
   const ranked = useMemo(() => rankHotspots(events, countyByEventId, surgeByCounty), [events, countyByEventId, surgeByCounty]);
   const maxHot = ranked.length ? ranked[0]!.n : 1;
@@ -103,14 +105,14 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
 
   return (
     <Widget>
-      {!v2 && <SectionLabel>熱區 Top 5 · HOTSPOTS</SectionLabel>}
+      {!v2 && <SectionLabel>{i18n.t("monitor.hotspots.title")}</SectionLabel>}
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
         {ranked.slice(0, 5).map((r, i) => {
           const cat = getNewsCategoryDef(r.topCat);
           const tipHandlers = tip.bind(() => ({
             title: r.county,
-            rows: [{ dot: theme.fill(cat.color), label: cat.label, value: fmtChartValue(r.n, "則") }],
-            note: r.surge != null ? `近 1h 升溫 ×${r.surge}` : r.surgeIsNew ? "近 1h 升溫：新（過去無基準）" : "近 1h 升溫：—（無基準）",
+            rows: [{ dot: theme.fill(cat.color), label: enumLabel("eventNewsCategory", cat.key, cat.label, i18n), value: fmtChartValue(r.n, i18n.t("monitor.unit.news")) }],
+            note: r.surge != null ? i18n.t("monitor.hotspots.noteSurge", { value: r.surge }) : r.surgeIsNew ? i18n.t("monitor.hotspots.noteNew") : i18n.t("monitor.hotspots.noteNone"),
           }));
           return (
             <button
@@ -198,7 +200,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
                 {r.surge != null && r.surge >= 2 && (
                   <IntelIcon d={MICON.flame!} size={10} color={theme.p.statusWarn} />
                 )}
-                {r.surge != null ? `×${r.surge}` : r.surgeIsNew ? "新" : "—"}
+                {r.surge != null ? `×${r.surge}` : r.surgeIsNew ? i18n.t("monitor.hotspots.new") : "—"}
               </span>
             </button>
           );
@@ -210,12 +212,12 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot, trendin
               padding: "10px 2px",
             }}
           >
-            ⚠ 尚無資料
+            ⚠ {i18n.t("monitor.fresh.noData")}
           </div>
         )}
         {v2 && ranked.length > 0 && (
           <div title={SURGE_TIP} style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textDim }}>
-            右欄為近 1h 升溫（近 1 小時則數 ÷ 過去 7 天有新聞的小時平均）
+            {i18n.t("monitor.hotspots.footnote")}
           </div>
         )}
       </div>

@@ -1,5 +1,8 @@
 import type { CSSProperties } from "react";
 import { FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
+import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 import { neutralFill, useIntelTheme, type IntelPalette } from "./intelTheme";
 import { RADIUS, FONT_SIZE, LIGHT } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../data/newsEventTypes";
@@ -70,6 +73,8 @@ export function IntelFilters({
   eventsOnly, onEventsOnly,
 }: Props) {
   const palette = useIntelTheme();
+  const i18n = useLocale();
+  const { t } = i18n;
   const v2 = useMonitorV2();
   // 分段軌道／select trigger：暗＝原字面（不變），淡＝§5.8/§5.9 規格值 LIGHT.controlBg。
   const trackBg = palette.isDark ? "rgba(0,0,0,0.4)" : LIGHT.controlBg;
@@ -89,7 +94,7 @@ export function IntelFilters({
       {/* category chips */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
         <button onClick={onResetCats} style={chip(cats.length === 0, palette, v2)}>
-          全部
+          {t("intel.filters.all")}
         </button>
         {NEWS_CATEGORIES.map((c) => {
           const on = cats.includes(c.key);
@@ -122,7 +127,7 @@ export function IntelFilters({
                   opacity: on ? 1 : 0.5,
                 }}
               />
-              {c.label}
+              {enumLabel("eventNewsCategory", c.key, c.label, i18n)}
             </button>
           );
         })}
@@ -130,7 +135,7 @@ export function IntelFilters({
 
       {/* time range + 相關度（同一橫排） */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>近</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint }}>{t("intel.filters.recent")}</span>
         <div
           style={{
             display: "flex",
@@ -148,7 +153,7 @@ export function IntelFilters({
           ))}
         </div>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: palette.textFaint, marginLeft: 6 }}>
-          相關度
+          {t("intel.filters.relevance")}
         </span>
         <div
           style={{
@@ -162,7 +167,7 @@ export function IntelFilters({
         >
           {(
             [
-              [0, "全部"], [2, "地方+"], [3, "重大"],
+              [0, t("intel.filters.all")], [2, t("intel.filters.relLocalPlus")], [3, enumLabel("intel.gis", 3, "重大", i18n)],
             ] as const
           ).map(([v, label]) => (
             <button key={v} onClick={() => onMinRelevance(v)} style={segBtn(minRelevance === v, palette, v2)}>
@@ -192,7 +197,7 @@ export function IntelFilters({
         >
           {COUNTY_OPTIONS.map((c) => (
             <option key={c} value={c} style={{ background: palette.optionBg }}>
-              {c === "全部" ? "全部縣市" : c}
+              {c === "全部" ? t("intel.filters.allCounties") : enumLabel("intel.county", c, placeName(c, i18n), i18n)}
             </option>
           ))}
         </select>
@@ -233,7 +238,7 @@ export function IntelFilters({
           >
             {eventsOnly ? "✓" : ""}
           </span>
-          只看事件
+          {t("intel.filters.eventsOnly")}
         </button>
       </div>
       {/* 嚴重度 UI 暫收（Phase 1 預設 minSeverity=1，可由 sidebar 副 control 調） */}

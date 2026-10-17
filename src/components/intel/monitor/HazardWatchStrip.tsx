@@ -20,26 +20,28 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
 import { fs } from "./monitorFont";
+import { useLocale } from "../../../state/localeStore";
+import type { MessageKey } from "../../../i18n/keys";
 
 interface HazardCh {
   videoId: string;
-  name: string;
+  nameKey: MessageKey;
   en: string;
-  hint: string;
+  hintKey: MessageKey;
 }
 
 const HAZARD_CHANNELS: HazardCh[] = [
   {
     videoId: "KyT4qSK8lJo",
-    name: "台灣地震監視",
+    nameKey: "monitor.hazard.stripEqName",
     en: "EQ MONITOR",
-    hint: "地震速報 · 強震即時警報",
+    hintKey: "monitor.hazard.stripEqHint",
   },
   {
     videoId: "ADZTiqEGT8g",
-    name: "台灣颱風論壇",
+    nameKey: "monitor.hazard.stripWxName",
     en: "WEATHER LIVE",
-    hint: "氣溫 · 雨量 · 雷達 · 颱風",
+    hintKey: "monitor.hazard.stripWxHint",
   },
 ];
 
@@ -52,6 +54,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
   const slotRef = useRef<HTMLDivElement>(null);
   const visible = useInView(slotRef);
   const v2 = useMonitorV2();
+  const { t } = useLocale();
   return (
     <div
       ref={slotRef}
@@ -64,7 +67,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
       <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {visible ? (
         <iframe
-          title={ch.name}
+          title={t(ch.nameKey)}
           src={embedSrc(ch.videoId)}
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -84,7 +87,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
               color: COLORS.textFaint, background: "#000",
             }}
           >
-            {v2 ? "待播" : "STANDBY"}
+            {v2 ? t("monitor.hazard.standby") : "STANDBY"}
           </div>
         )}
 
@@ -115,7 +118,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
                 color: "#04121f", letterSpacing: "0.5px",
               }}
             >
-              {v2 ? "直播" : "LIVE"}
+              {v2 ? t("monitor.hazard.live") : "LIVE"}
             </span>
           </span>
           <span
@@ -124,7 +127,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
-            {ch.name}
+            {t(ch.nameKey)}
           </span>
           {!v2 && (
             <span
@@ -158,7 +161,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
           }}
         >
-          {ch.hint}
+          {t(ch.hintKey)}
         </span>
         <span style={{ flex: 1 }} />
         <span
@@ -167,7 +170,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             textShadow: "0 1px 3px rgba(0,0,0,0.9)",
           }}
         >
-          🔇 點擊解除靜音
+          {t("monitor.hazard.unmute")}
         </span>
       </div>
     </div>
@@ -176,6 +179,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
 
 export const HazardWatchStrip = memo(function HazardWatchStrip() {
   const v2 = useMonitorV2();
+  const { t } = useLocale();
   return (
     <div
       style={{
@@ -197,11 +201,11 @@ export const HazardWatchStrip = memo(function HazardWatchStrip() {
             color: COLORS.textDefault,
           }}
         >
-          災防觀測 · HAZARD WATCH
+          {t("monitor.hazard.stripTitle")}
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
-          地震 + 天氣 · 24h 監測
+          {t("monitor.hazard.stripSub")}
         </span>
       </div>}
 

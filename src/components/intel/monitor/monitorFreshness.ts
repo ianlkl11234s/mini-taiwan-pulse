@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useMonitorCardHeader, type MonitorCardState } from "./MonitorCardFrame";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
 import type { MonitorWidgetId } from "./monitorLayout";
+import { localeStore, type LocaleSnapshot } from "../../../state/localeStore";
 
 const MIN_MS = 60_000;
 const DAY_MS = 86_400_000;
@@ -46,12 +47,14 @@ export interface MonitorFreshness {
 export interface MonitorFreshnessOptions {
   /** 來源依時段正常暫停（收盤、休市） */
   paused?: boolean;
-  /** 中性 pill 文字，預設「收盤」 */
+  /** 中性 pill 文字，預設「收盤」（monitor.fresh.marketClosed） */
   pausedLabel?: string;
   /** 來源已下架 */
   retired?: boolean;
   /** 覆寫卡底原因（例「上游未更新」）；不給用預設句 */
   reason?: string;
+  /** 目前語系（元件端傳 useLocale()）；不傳＝以 localeStore 目前狀態為準 */
+  i18n?: Pick<LocaleSnapshot, "t">;
 }
 
 /** 台灣日期（YYYY-MM-DD 的序號天數），跟瀏覽器時區無關 */
@@ -68,10 +71,10 @@ function fmtTaipei(ms: number, withTime: boolean): string {
   return withTime ? `${md} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}` : md;
 }
 
-function ageLabel(ageMs: number): string {
-  if (ageMs >= DAY_MS) return `${Math.floor(ageMs / DAY_MS)} 天`;
-  if (ageMs >= 3600_000) return `${Math.floor(ageMs / 3600_000)} 小時`;
-  return `${Math.max(1, Math.floor(ageMs / MIN_MS))} 分`;
+function ageLabel(ageMs: number, t: LocaleSnapshot["t"]): string {
+  if (ageMs >= DAY_MS) return t("monitor.fresh.ageDays", { count: Math.floor(ageMs / DAY_MS) });
+  if (ageMs >= 3600_000) return t("monitor.fresh.ageHours", { count: Math.floor(ageMs / 3600_000) });
+  return t("monitor.fresh.ageMinutes", { count: Math.max(1, Math.floor(ageMs / MIN_MS)) });
 }
 
 const LIVE: MonitorFreshness = { state: "live", muted: false, staleUntil: null, reason: null, header: null };
@@ -87,15 +90,16 @@ export function judgeFreshness(
   opts: MonitorFreshnessOptions = {},
 ): MonitorFreshness {
   const nowSec = Math.floor(nowMs / 1000);
+  const { t } = opts.i18n ?? localeStore.getSnapshot();
   if (opts.retired) {
     return {
       state: "stopped", muted: true, staleUntil: dataMs != null ? nowSec : null,
-      reason: opts.reason ?? "來源已下架",
-      header: { kind: "stopped", label: "來源已下架" },
+      reason: opts.reason ?? t("monitor.fresh.retired"),
+      header: { kind: "stopped", label: t("monitor.fresh.retired") },
     };
   }
   if (dataMs == null || !Number.isFinite(dataMs)) {
-    return { state: "none", muted: true, staleUntil: null, reason: opts.reason ?? "尚無資料", header: null };
+    return { state: "none", muted: true, staleUntil: null, reason: opts.reason ?? t("monitor.fresh.noData"), header: null };
   }
   if (!spec || spec.cadence === "event") return LIVE;
 
@@ -106,20 +110,20 @@ export function judgeFreshness(
 
   const stopped = (days: number): MonitorFreshness => ({
     state: "stopped", muted: true, staleUntil: nowSec,
-    reason: opts.reason ?? `資料停在 ${since}，來源已 ${days} 天沒有更新`,
-    header: { kind: "stopped", label: `停更 ${days} 天` },
+    reason: opts.reason ?? t("monitor.fresh.stoppedReason", { since, days }),
+    header: { kind: "stopped", label: t("monitor.fresh.stoppedLabel", { days }) },
   });
   const stale = (label: string): MonitorFreshness => ({
     state: "stale", muted: true, staleUntil: nowSec,
-    reason: opts.reason ?? `資料停在 ${since}，超過預期更新時間`,
-    header: { kind: "stale", label: `過期 ${label}` },
+    reason: opts.reason ?? t("monitor.fresh.staleReason", { since }),
+    header: { kind: "stale", label: t("monitor.fresh.staleLabel", { age: label }) },
   });
   const delay: MonitorFreshness = { state: "delay", muted: false, staleUntil: null, reason: null, header: { kind: "delay" } };
 
   if (spec.cadence === "days") {
     const stoppedDays = spec.stoppedDays ?? 7;
     if (dayAge > stoppedDays) return stopped(dayAge);
-    if (dayAge > (spec.staleDays ?? 2)) return stale(`${dayAge} 天`);
+    if (dayAge > (spec.staleDays ?? 2)) return stale(t("monitor.fresh.ageDays", { count: dayAge }));
     return LIVE;
   }
 
@@ -127,10 +131,10 @@ export function judgeFreshness(
   const days = Math.floor(ageMs / DAY_MS);
   if (days > 7) return stopped(days);
   if (spec.cadence === "market" && opts.paused && dayAge <= (spec.pausedDays ?? 4)) {
-    return { ...LIVE, state: "paused", header: { kind: "paused", label: opts.pausedLabel ?? "收盤" } };
+    return { ...LIVE, state: "paused", header: { kind: "paused", label: opts.pausedLabel ?? t("monitor.fresh.marketClosed") } };
   }
   const periodMs = spec.periodMin * MIN_MS;
-  if (ageMs > 6 * periodMs) return stale(ageLabel(ageMs));
+  if (ageMs > 6 * periodMs) return stale(ageLabel(ageMs, t));
   if (ageMs > 2 * periodMs) return delay;
   return LIVE;
 }
@@ -161,6 +165,7 @@ export interface MonitorFreshnessInput extends MonitorFreshnessOptions {
 export function useMonitorFreshness(widgetId: MonitorWidgetId, input: MonitorFreshnessInput): MonitorFreshness {
   const now = useNowMinute();
   const { time = null, timeText = null, dataMs, ...opts } = input;
+  // 語系取 localeStore 目前值：卡片自己（或 MonitorPanel）切語系時會重繪，另外每分鐘 tick 也會刷新
   const f = judgeFreshness(MONITOR_CARD_META[widgetId].fresh, dataMs !== undefined ? dataMs : time, now, opts);
   useMonitorCardHeader({ time, timeText, state: f.header });
   return f;

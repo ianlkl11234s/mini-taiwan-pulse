@@ -5,7 +5,7 @@
 
 ## Release blocker / verifying
 
-- [ ] **TS-1 · `verifying`**：確認 route JSON、migration 284、PR/merge 與 production asset 狀態。
+- [ ] **TS-1 · `verifying`**：確認 route JSON、migration 284、PR/merge 與 production asset 狀態。（2026-10-16 盤點：待確認 route JSON 的 S3／正式站 HTTP（程式已在 develop））
   - Outcome：正式環境能取得 `tourist_shuttle_routes.json`，即時與 replay 不因 S3 缺檔而空白或 404。
   - Next action：核對 route JSON S3 HEAD/checksum、production HTTP 與 browser live/replay；以 100% route join、無 console error、四鐵則為 acceptance。
 

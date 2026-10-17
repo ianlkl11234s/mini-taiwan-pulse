@@ -10,6 +10,6 @@
 | `demo-embed.html` | 嵌入（`/embed.html`）示範頁，9 張 iframe 卡 | `/tools/demo-embed.html` | 否 |
 | `gfw-v4-bench.html` | GFW v4 day-pack bench | `/tools/gfw-v4-bench.html` | 否 |
 | `gfw-v4-phase2-bench.html` | GFW v4 Phase-2 spatial bench | `/tools/gfw-v4-phase2-bench.html` | 否 |
-| `spike-three-maplibre.html` | Three.js × MapLibre spike（已結案，結論見 `docs/proposal/embed-dynamic-layers.md`） | `/tools/spike-three-maplibre.html` | 否 |
+| `spike-three-maplibre.html` | Three.js × MapLibre spike（已結案，結論見 `docs/features/embeddable-map/dynamic-layers-plan.md`） | `/tools/spike-three-maplibre.html` | 否 |
 
 進 production build 的三頁於 `vite.config.ts` 的 `build.rollupOptions.input` 登記；其餘僅 dev server 可開。

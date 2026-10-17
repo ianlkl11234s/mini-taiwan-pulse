@@ -16,6 +16,8 @@ import {
 import { useChartTooltip } from "../../ChartHoverTooltip";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 
 /**
  * 食品價格監測（migration 334/336）
@@ -41,6 +43,7 @@ interface Props { open: boolean }
 export function FoodPriceBoard({ open }: Props) {
   const theme = useMonitorTheme();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const loadDays = useCallback(() => fetchFoodPriceDaily(WINDOW), []);
   const loadSummary = useCallback(() => fetchFoodPriceSummary(WINDOW), []);
   const daysQuery = useMonitorResource({ open, queryKey: "food-price-daily", intervalMs: 60 * 60_000, emptyData: EMPTY_FOOD_DAYS, load: loadDays });
@@ -98,7 +101,7 @@ export function FoodPriceBoard({ open }: Props) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {!v2 && <SectionLabel color="#5fbf6d">食品價格 · FOOD PRICE MONITOR</SectionLabel>}
+      {!v2 && <SectionLabel color="#5fbf6d">{i18n.t("monitor.food.titleLegacy")}</SectionLabel>}
       <div
         style={v2 ? {
           display: "flex", flexDirection: "column", gap: 11, flex: 1, minHeight: 0, minWidth: 0,
@@ -112,11 +115,11 @@ export function FoodPriceBoard({ open }: Props) {
           flex: 1, minHeight: 0,
         }}
       >
-        <MonitorDataStatus label="食品價格日序列" query={daysQuery} />
-        <MonitorDataStatus label="食品價格摘要" query={summaryQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.food.dataDaily")} query={daysQuery} />
+        <MonitorDataStatus label={i18n.t("monitor.food.dataSummary")} query={summaryQuery} />
         {!summary.length ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.sm), color: theme.p.textFaint, padding: "10px 0" }}>
-            {summaryQuery.status === "unknown" ? "資料載入中…" : "尚無食品價格摘要"}
+            {summaryQuery.status === "unknown" ? i18n.t("monitor.food.loading") : i18n.t("monitor.food.noSummary")}
           </div>
         ) : (
           <>
@@ -134,13 +137,13 @@ export function FoodPriceBoard({ open }: Props) {
             <div style={{ fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textDim, lineHeight: 1.5 }}>
               {latestDate && !(v2 && isStale) && (
                 <span style={{ color: isStale ? theme.text("#fbbf24") : theme.p.textMuted, fontWeight: isStale ? 700 : 400 }}>
-                  {isStale ? `⚠ 資料截至 ${latestDate}（已 ${staleDays} 天未更新）` : `資料截至 ${latestDate}`}
+                  {isStale ? i18n.t("monitor.food.staleDate", { date: latestDate, days: staleDays ?? "—" }) : i18n.t("monitor.food.asOf", { date: latestDate })}
                   {" · "}
                 </span>
               )}
-              農業部批發拍賣成交價 · 基期 2024-2025 = 100 ·
-              近 {WINDOW} 天{totalAlerts > 0 ? ` · 期間 ${totalAlerts} 個異常日` : alertsKnown || !v2 ? " · 期間無異常日" : ""} ·
-              ⚠️ 肉價不含牛（台灣無牛肉交易行情）
+              {i18n.t("monitor.food.footerBase", { days: WINDOW })}
+              {totalAlerts > 0 ? i18n.t("monitor.food.alertsSome", { count: totalAlerts }) : alertsKnown || !v2 ? i18n.t("monitor.food.alertsNone") : ""}
+              {i18n.t("monitor.food.noBeef")}
             </div>
           </>
         )}
@@ -154,6 +157,8 @@ export function FoodPriceBoard({ open }: Props) {
 function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPriceDay[]; muted: boolean }) {
   const theme = useMonitorTheme();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const scope = enumLabel("foodScope", s.indicator, FOOD_SCOPE[s.indicator], i18n);
   const color = FOOD_COLORS[s.indicator];
   const dev = s.latestDev;
   // 主指標是「偏離常態」而非價位 —— 價位高低本身不是訊號
@@ -183,7 +188,7 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
       {/* 標題列 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, minWidth: 0 }}>
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 12.5), fontWeight: 700, color: theme.p.textStrong }}>
-          {FOOD_LABELS[s.indicator]}
+          {enumLabel("foodIndicator", s.indicator, FOOD_LABELS[s.indicator], i18n)}
         </span>
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), letterSpacing: "0.8px", color: theme.text(color), opacity: 0.85 }}>
           {s.indicator}
@@ -197,9 +202,9 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
           fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint,
           marginTop: -3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}
-        title={FOOD_SCOPE[s.indicator]}
+        title={scope}
       >
-        {FOOD_SCOPE[s.indicator]}
+        {scope}
       </div>
 
       {/* 主數值：指數 + 偏離 */}
@@ -212,7 +217,7 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
               <span style={{ color: devColor, fontWeight: 600 }}>
                 {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
               </span>
-              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textFaint, marginLeft: 5 }}>vs 常態</span>
+              <span style={{ fontFamily: FONT_CJK, fontSize: MF.label, color: theme.p.textFaint, marginLeft: 5 }}>{i18n.t("monitor.food.vsNormal")}</span>
             </>
           }
         />
@@ -224,7 +229,7 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
         <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 11), fontWeight: 600, color: devColor }}>
           {dev === null ? "—" : `${dev > 0 ? "+" : ""}${dev.toFixed(1)}%`}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>vs 常態</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>{i18n.t("monitor.food.vsNormal")}</span>
       </div>
       )}
 
@@ -234,32 +239,32 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
         <div style={{ display: "flex", gap: 5, fontFamily: FONT_DATA, fontSize: fs(v2, 8.5) }}>
           {hiDays != null && hiDays > 0 && (
-            <span style={{ color: theme.text(FOOD_ALERT_HIGH) }} title="價格異常偏高的天數（民生壓力）">
+            <span style={{ color: theme.text(FOOD_ALERT_HIGH) }} title={i18n.t("monitor.food.highTip")}>
               ▲{hiDays}
             </span>
           )}
           {loDays != null && loDays > 0 && (
-            <span style={{ color: theme.text(FOOD_ALERT_LOW) }} title="價格異常偏低的天數（供給過剩／產地崩盤）">
+            <span style={{ color: theme.text(FOOD_ALERT_LOW) }} title={i18n.t("monitor.food.lowTip")}>
               ▼{loDays}
             </span>
           )}
           {hiDays === 0 && loDays === 0 && (
-            <span style={{ color: theme.p.textFaint }}>無異常日</span>
+            <span style={{ color: theme.p.textFaint }}>{i18n.t("monitor.food.noAlertDays")}</span>
           )}
           {hiDays == null && loDays == null && (
-            <span style={{ color: theme.p.textFaint }}>異常日 —</span>
+            <span style={{ color: theme.p.textFaint }}>{i18n.t("monitor.food.alertDaysUnknown")}</span>
           )}
           {warnDays != null && warnDays > 0 && (
-            <span style={{ color: theme.p.textDim }} title="黃燈（注意）天數">
-              ·{warnDays} 注意
+            <span style={{ color: theme.p.textDim }} title={i18n.t("monitor.food.warnTip")}>
+              {i18n.t("monitor.food.warnDays", { count: warnDays })}
             </span>
           )}
         </div>
         <span
           style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textDim }}
-          title={`最新 ${s.latestDate}${stale ? "（當日資料未齊，已取前一交易日）" : ""}`}
+          title={`${i18n.t("monitor.food.latestTip", { date: s.latestDate })}${stale ? i18n.t("monitor.food.lowCoverageNote") : ""}`}
         >
-          {s.yoyPct === null ? "" : `年增 ${s.yoyPct > 0 ? "+" : ""}${s.yoyPct.toFixed(1)}%`}
+          {s.yoyPct === null ? "" : i18n.t("monitor.food.yoy", { value: `${s.yoyPct > 0 ? "+" : ""}${s.yoyPct.toFixed(1)}` })}
         </span>
       </div>
     </div>
@@ -270,15 +275,16 @@ function IndexCell({ s, series, muted }: { s: FoodPriceSummary; series: FoodPric
 
 function StatusDot({ light, dev }: { light: FoodPriceSummary["latestLight"]; dev: number | null }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   // 紅燈要再看方向：偏高與偏低是相反的事
   const { c: c0, t } =
     light === "red"
       ? (dev !== null && dev < 0
-          ? { c: FOOD_ALERT_LOW, t: "異常偏低（供給過剩）" }
-          : { c: FOOD_ALERT_HIGH, t: "異常偏高（民生壓力）" })
-      : light === "amber" ? { c: "#e0a63c", t: "注意" }
-      : light === "low_coverage" ? { c: theme.p.textFaint, t: "當日資料未齊" }
-      : { c: "#63b26a", t: "常態" };
+          ? { c: FOOD_ALERT_LOW, t: i18n.t("monitor.food.statusLow") }
+          : { c: FOOD_ALERT_HIGH, t: i18n.t("monitor.food.statusHigh") })
+      : light === "amber" ? { c: "#e0a63c", t: i18n.t("monitor.food.statusWatch") }
+      : light === "low_coverage" ? { c: theme.p.textFaint, t: i18n.t("monitor.food.statusIncomplete") }
+      : { c: "#63b26a", t: i18n.t("monitor.food.statusNormal") };
   const c = theme.fill(c0);
   return (
     <span
@@ -306,14 +312,14 @@ function fmtTradeDate(iso: string): string {
 }
 
 /** 異常區段 hover 補充說明 —— 文案對齊 StatusDot／Legend 既有用詞 */
-function anomalyNote(light: FoodPriceDay["light"], devPct: number | null): string | undefined {
+function anomalyNote(light: FoodPriceDay["light"], devPct: number | null, t: LocaleSnapshot["t"]): string | undefined {
   switch (light) {
     case "red":
-      return (devPct ?? 0) < 0 ? "異常偏低（供給過剩）" : "異常偏高（民生壓力）";
+      return (devPct ?? 0) < 0 ? t("monitor.food.statusLow") : t("monitor.food.statusHigh");
     case "amber":
-      return "注意（偏離常態）";
+      return t("monitor.food.watchNote");
     case "low_coverage":
-      return "當日資料未齊";
+      return t("monitor.food.statusIncomplete");
     default:
       return undefined;
   }
@@ -321,6 +327,7 @@ function anomalyNote(light: FoodPriceDay["light"], devPct: number | null): strin
 
 function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string }) {
   const theme = useMonitorTheme();
+  const i18n = useLocale();
   const v2 = useMonitorV2();
   const tip = useChartTooltip();
   const geom = useMemo(() => {
@@ -373,7 +380,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
 
   const lineC = theme.fill(color);
   if (!geom) {
-    return <div style={{ flex: v2 ? "none" : 1, minHeight: v2 ? MON_CHART_H.lg : SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textGhost }}>資料不足</div>;
+    return <div style={{ flex: v2 ? "none" : 1, minHeight: v2 ? MON_CHART_H.lg : SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: fs(v2, 8.5), color: theme.p.textGhost }}>{i18n.t("monitor.food.insufficient")}</div>;
   }
 
   function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
@@ -387,10 +394,10 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     tip.show(e.clientX, e.clientY, {
       title: fmtTradeDate(p.tradeDate),
       rows: [
-        { dot: lineC, label: "指數", value: p.indexVal.toFixed(1) },
-        { label: "偏離常態", value: p.devPct === null ? "—" : `${p.devPct > 0 ? "+" : ""}${p.devPct.toFixed(1)}%` },
+        { dot: lineC, label: i18n.t("monitor.food.tipIndex"), value: p.indexVal.toFixed(1) },
+        { label: i18n.t("monitor.food.tipDeviation"), value: p.devPct === null ? "—" : `${p.devPct > 0 ? "+" : ""}${p.devPct.toFixed(1)}%` },
       ],
-      note: anomalyNote(p.light, p.devPct),
+      note: anomalyNote(p.light, p.devPct, i18n.t),
     });
   }
 
@@ -409,7 +416,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       preserveAspectRatio="none"
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", overflow: "visible" }}
       role="img"
-      aria-label={`近 180 天走勢，區間 ${geom.mn.toFixed(0)} 至 ${geom.mx.toFixed(0)}`}
+      aria-label={i18n.t("monitor.food.sparkLabel", { min: geom.mn.toFixed(0), max: geom.mx.toFixed(0) })}
       onMouseMove={handleMove}
       onMouseLeave={tip.hide}
     >
@@ -460,11 +467,12 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
 function Legend() {
   const theme = useMonitorTheme();
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const items = [
-    { c: FOOD_ALERT_HIGH, label: "異常偏高（民生壓力）" },
-    { c: FOOD_ALERT_LOW, label: "異常偏低（供給過剩）" },
-    { c: "#e0a63c", label: "注意" },
-    { c: "#63b26a", label: "常態" },
+    { c: FOOD_ALERT_HIGH, label: i18n.t("monitor.food.statusHigh") },
+    { c: FOOD_ALERT_LOW, label: i18n.t("monitor.food.statusLow") },
+    { c: "#e0a63c", label: i18n.t("monitor.food.statusWatch") },
+    { c: "#63b26a", label: i18n.t("monitor.food.statusNormal") },
   ];
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 11px", alignItems: "center" }}>
@@ -475,7 +483,7 @@ function Legend() {
         </span>
       ))}
       <span style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
-        看的是偏離季節常態，不是價位高低
+        {i18n.t("monitor.food.legendNote")}
       </span>
     </div>
   );

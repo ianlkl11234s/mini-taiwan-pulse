@@ -106,7 +106,7 @@
 - `prisonLoader.ts:14`；`PrisonCard.tsx:16`（`STALE_WARN_DAYS=7`）、`:45-51`、`:173`（「上游已 N 天未更新」）。趨勢以序列最後一天為錨，所以畫面不會變空。
 - 上游 `today.xml` 回 200，但 Last-Modified 是 2026-05-15，內容日期是 115/05/15。
 - `collected_at` 每天都會刷新，**用 collected_at 判斷新鮮度的監控會誤判為新鮮**。
-- 在監 RPC 的視窗錨點修正仍只存在 `docs/proposal/monitor-tweaks-2026-08-21/prison_population_window_anchor.PENDING.sql`，尚未套用。gis-platform 的 `369_*` 其實是台鐵誤點表，不是這支 RPC。
+- 在監 RPC 的視窗錨點修正仍只存在 `docs/archive/2026-10-16/proposal/monitor-tweaks-2026-08-21/prison_population_window_anchor.PENDING.sql`，尚未套用。gis-platform 的 `369_*` 其實是台鐵誤點表，不是這支 RPC。
 - 正式庫 `get_prison_population_window(365)` 仍以 `now()` 為錨：08-21 回 214 筆，**今天回 174 筆，已經在逐日縮水**，推估約 2027-05 會變空。
 
 ### airportPax

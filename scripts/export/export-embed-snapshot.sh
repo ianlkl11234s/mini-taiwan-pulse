@@ -15,7 +15,7 @@
 #   rail            → gzip JSON   （EM-16 Phase 3；body = reference.daily_schedules 的
 #                                   **時刻表列**陣列。與前兩者的根本差異見下方 rail) case）
 #
-# 設計（見 docs/proposal/embed-dynamic-layers.md §3）：
+# 設計（見 docs/features/embeddable-map/dynamic-layers-plan.md §3）：
 #   嵌入不需要「所有歷史日期」，只需要**文章引用的那一天**。所以不做 AR-14~16 的
 #   全量 per-day 匯出，而是寫文章時凍結該日 → 靜態 GeoJSON → CDN → 讀者端 $0。
 #

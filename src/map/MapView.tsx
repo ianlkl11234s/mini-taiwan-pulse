@@ -32,6 +32,8 @@ import {
 } from "./agricultureLayerFactory";
 import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
 import { resolvedCjkFont } from "../styles/designTokens";
+import { localeStore } from "../state/localeStore";
+import { basemapLabelLanguage, bindBasemapLanguage } from "./basemapLanguage";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -280,7 +282,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       antialias: true,
       // T-1：中文字用系統字（與 UI 同 stack），不向伺服器要 glyph
       localIdeographFontFamily: resolvedCjkFont(),
+      // 底圖地名跟著介面語系（zh-Hant／en／ja）；之後切語系走 bindBasemapLanguage（只重抓 tile，不重載 style）
+      language: basemapLabelLanguage(localeStore.getSnapshot().locale),
     });
+    const unbindBasemapLanguage = bindBasemapLanguage(map, localeStore);
     const jpHeightLifecycle = createJpHeightLifecycle(map);
     jpHeightLifecycleRef.current = jpHeightLifecycle;
 
@@ -416,6 +421,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
     const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
+      unbindBasemapLanguage();
       detachStatistics();
       jpHeightLifecycle.dispose();
       if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;

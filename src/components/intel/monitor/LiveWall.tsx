@@ -9,6 +9,12 @@ import { useInView } from "../../../hooks/useInView";
 import { useMonitorV2 } from "./monitorStyle";
 import { useMonitorTheme } from "./monitorTheme";
 import { fs } from "./monitorFont";
+import { useLocale, type LocaleSnapshot } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
+
+/** 頻道名稱／分類／備註／緊急標籤的顯示翻譯；資料本身（LIVE_CHANNELS）保留中文 */
+const channelName = (ch: LiveChannel, i18n: LocaleSnapshot) => enumLabel("liveChannel", ch.id, ch.name, i18n);
+const channelNote = (ch: LiveChannel, i18n: LocaleSnapshot) => (ch.note ? enumLabel("liveNote", ch.id, ch.note, i18n) : undefined);
 
 export interface LiveChannel {
   id: string;
@@ -120,6 +126,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
 
   useEffect(() => {
     if (!open) return;
@@ -160,7 +167,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
           fontFamily: FONT_CJK, fontSize: fs(v2, 10.5),
         }}
       >
-        <span style={{ fontWeight: 700 }}>{cur.name}</span>
+        <span style={{ fontWeight: 700 }}>{channelName(cur, i18n)}</span>
         {!v2 && (
           <span
             style={{
@@ -208,11 +215,11 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                 color: theme.p.textDim,
               }}
             >
-              {v2 ? "選擇頻道" : "SELECT CHANNEL"}
+              {v2 ? i18n.t("monitor.wall.selectChannel") : "SELECT CHANNEL"}
             </span>
             <div style={{ flex: 1 }} />
             <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 8.5), color: theme.p.textFaint }}>
-              {channels.length} 家可看
+              {i18n.t("monitor.wall.channelsAvailable", { count: channels.length })}
             </span>
           </div>
           <div className="mtp-scroll" style={{ maxHeight: 320, overflowY: "auto" }}>
@@ -236,7 +243,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                           color: theme.p.textDim,
                         }}
                       >
-                        {c.tag}
+                        {enumLabel("liveTag", c.tag, c.tag, i18n)}
                       </span>
                       <span style={{ flex: 1, height: 1, background: theme.p.borderSoft }} />
                       <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, 8), color: theme.p.textFaint }}>
@@ -282,7 +289,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                             color: active ? (theme.isDark ? "#fff" : theme.p.textStrong) : theme.p.textDefault,
                           }}
                         >
-                          {c.name}
+                          {channelName(c, i18n)}
                         </span>
                         {!v2 && (
                           <span
@@ -302,7 +309,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                               background: theme.p.statusWarn,
                             }}
                           >
-                            防災
+                            {i18n.t("monitor.wall.emergencyBadge")}
                           </span>
                         )}
                       </span>
@@ -314,7 +321,7 @@ function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
                             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                           }}
                         >
-                          {inOther ? "另一格播放中" : c.note}
+                          {inOther ? i18n.t("monitor.wall.inOther") : channelNote(c, i18n)}
                         </span>
                       )}
                     </span>
@@ -357,6 +364,8 @@ function LiveSlot({
   const visible = useInView(slotRef);
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
+  const name = channelName(ch, i18n);
   return (
     <div
       ref={slotRef}
@@ -369,7 +378,7 @@ function LiveSlot({
       <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {src && visible ? (
           <iframe
-            title={ch.name}
+            title={name}
             src={src}
             style={{
               position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -390,12 +399,12 @@ function LiveSlot({
             }}
           >
             <span style={{ fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.xs), letterSpacing: "1.5px" }}>
-              {resolved?.last_error ? (v2 ? "解析失敗" : "RESOLVER ERROR") : (v2 ? "解析中…" : "RESOLVING…")}
+              {resolved?.last_error ? (v2 ? i18n.t("monitor.wall.resolveFailed") : "RESOLVER ERROR") : (v2 ? i18n.t("monitor.wall.resolving") : "RESOLVING…")}
             </span>
             <span>
               {resolved?.last_error
-                ? `${ch.name}：${resolved.last_error}`
-                : `等待 ${ch.handle} 的直播解析`}
+                ? i18n.t("monitor.wall.resolveError", { name, error: resolved.last_error })
+                : i18n.t("monitor.wall.waiting", { handle: ch.handle })}
             </span>
           </div>
         )}
@@ -427,7 +436,7 @@ function LiveSlot({
                 color: "#fff", letterSpacing: "0.5px",
               }}
             >
-              {v2 ? "直播" : "LIVE"}
+              {v2 ? i18n.t("monitor.wall.liveBadge") : "LIVE"}
             </span>
           </span>
           <span
@@ -436,7 +445,7 @@ function LiveSlot({
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
-            {ch.name}
+            {name}
           </span>
           {emergency && (
             <span
@@ -445,7 +454,7 @@ function LiveSlot({
                 padding: "1px 6px", borderRadius: RADIUS.md, background: COLORS.statusWarn,
               }}
             >
-              目前播放：{ch.emergencyLabel}
+              {i18n.t("monitor.wall.nowPlaying", { label: enumLabel("liveEmergency", ch.emergencyLabel ?? "", ch.emergencyLabel ?? "", i18n) })}
             </span>
           )}
         </div>
@@ -464,7 +473,7 @@ function LiveSlot({
             textShadow: "0 1px 3px rgba(0,0,0,0.9)", pointerEvents: "none",
           }}
         >
-          🔇 點擊解除靜音
+          {i18n.t("monitor.wall.unmute")}
         </span>
       </div>
     </div>
@@ -484,6 +493,7 @@ export const LiveWall = memo(function LiveWall() {
   const ctsLive = slots.includes("cts");
   const v2 = useMonitorV2();
   const theme = useMonitorTheme();
+  const i18n = useLocale();
 
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
   const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
@@ -538,7 +548,7 @@ export const LiveWall = memo(function LiveWall() {
         display: "flex", flexDirection: "column",
       }}
     >
-      <MonitorDataStatus label="直播解析" query={resolverQuery} />
+      <MonitorDataStatus label={i18n.t("monitor.wall.dataLabel")} query={resolverQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
         {!v2 && <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: theme.p.accent }} />}
         {!v2 && (
@@ -548,7 +558,7 @@ export const LiveWall = memo(function LiveWall() {
               color: theme.p.textDefault,
             }}
           >
-            新聞直播 · LIVE WALL
+            {i18n.t("monitor.wall.titleLegacy")}
           </span>
         )}
         <div style={{ flex: 1 }} />
@@ -561,11 +571,11 @@ export const LiveWall = memo(function LiveWall() {
               border: theme.isDark ? "1px solid rgba(255,152,0,0.3)" : `1px solid ${theme.p.statusWarnBorder}`,
             }}
           >
-            ⚠ 華視已切換防災直播
+            {i18n.t("monitor.wall.ctsEmergency")}
           </span>
         ) : (
           <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: theme.p.textFaint }}>
-            4 格同步 · 可切換 {availableChannels.length} 家
+            {i18n.t("monitor.wall.slots", { count: availableChannels.length })}
           </span>
         )}
       </div>
@@ -600,7 +610,7 @@ export const LiveWall = memo(function LiveWall() {
           lineHeight: 1.5,
         }}
       >
-        ⓘ 因為與 YouTube 的連線關係，不一定每格都會有辦法顯示
+        {i18n.t("monitor.wall.footnote")}
       </div>
     </div>
   );

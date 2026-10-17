@@ -1,0 +1,18 @@
+{
+  "enum.statLicense.政府網站資料開放宣告（未逐字確認；上線前補查）": "Government website open data notice (not verified verbatim; to be rechecked before release)",
+  "enum.statLicense.衍生計數；點位來源授權：unspecified": "Derived counts; point source license: not specified",
+  "enum.statLicense.衍生計數；點位來源授權：unspecified (CDC page has no license statement)": "Derived counts; point source license: not specified (the Taiwan CDC page has no license statement)",
+  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW（data.gov.tw 三源）；衛福部 PDF 未標示 → unspecified": "Derived counts; point source licenses: OGDL-1.0-TW (three data.gov.tw sources); Ministry of Health and Welfare PDF not specified",
+  "enum.statLicense.衍生計數；點位來源授權：疾管署網頁 unspecified；新北 124119/125549 OGDL-1.0-TW": "Derived counts; point source licenses: Taiwan CDC web page not specified; New Taipei datasets 124119/125549 OGDL-1.0-TW",
+  "enum.statLicense.衍生計數；點位來源授權：未標示（官網查詢匯出；政府公開資訊，再利用前待確認）": "Derived counts; point source license: not specified (exported from the agency website; government public information, to be confirmed before reuse)",
+  "enum.statLicense.衍生計數；點位來源授權：OGDL-1.0-TW": "Derived counts; point source license: OGDL-1.0-TW",
+  "enum.statLicense.unverified：RIS API license 欄位為 \"1\"，尚未以 data.gov.tw 資料集頁確認是否為政府資料開放授權條款；未確認前不得標示 OGDL": "Unverified: the RIS API license field is \"1\" and has not been checked against the data.gov.tw dataset page, so it must not be labeled as OGDL",
+  "enum.statLicense.政府資料開放授權條款-第1版（data.gov.tw 127528／62563 頁面標示，2026-10-04 實查）": "Open Government Data License, Version 1.0 (as stated on data.gov.tw pages 127528 / 62563, checked 2026-10-04)",
+  "enum.statLicense.政府資料開放授權條款-第1版（data.gov.tw）；data.cdc.gov.tw 標示 CC0": "Open Government Data License, Version 1.0 (data.gov.tw); data.cdc.gov.tw states CC0",
+  "enum.statLicense.政府資料開放授權條款－第1版（法務部資料開放宣告 https://www.moj.gov.tw/2807/2817/33911/ ）": "Open Government Data License, Version 1.0 (Ministry of Justice open data notice https://www.moj.gov.tw/2807/2817/33911/ )",
+  "enum.statLicense.公眾領域貢獻宣告（CC0）（data.cdc.gov.tw）": "Public domain dedication (CC0) (data.cdc.gov.tw)",
+  "enum.statLicense.政府資料開放授權條款（docs/data-catalog/demographics/village_comprehensive.md 記載；SEGIS 下載頁本次未重新核對）": "Open Government Data License (as recorded in docs/data-catalog/demographics/village_comprehensive.md; the SEGIS download page was not rechecked)",
+  "enum.statLicense.政府資料開放授權條款第1版（data.gov.tw 7438）": "Open Government Data License, Version 1.0 (data.gov.tw 7438)",
+  "enum.statLicense.授權條款待確認（RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認；不標示為政府資料開放授權條款）": "License to be confirmed (the RIS API license field has not been checked against the data.gov.tw dataset page; not labeled as the Open Government Data License)",
+  "enum.statLicense.ogdlDatasetPage": "Open Government Data License, Version 1.0 (as stated on the data.gov.tw dataset {id} page)"
+}

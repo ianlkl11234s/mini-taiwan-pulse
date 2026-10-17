@@ -70,7 +70,7 @@ ST_Segmentize(ST_SimplifyPreserveTopology(line_geom, 0.0002), 0.05)
 
 ## 相關
 
-- Related PR / issue：VZ-2（`docs/proposal/vessel-zone-watch.md` §12.8a）
+- Related PR / issue：VZ-2（`docs/features/vessel-watch/zone-watch-design.md` §12.8a）
 
 ## Meta
 

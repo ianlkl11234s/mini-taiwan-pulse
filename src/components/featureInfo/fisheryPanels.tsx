@@ -2,6 +2,7 @@ import { enumLabel } from "../../i18n/dataText";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 
 type I18n = Pick<LocaleSnapshot, "t">;
 
@@ -22,23 +23,25 @@ export function AquaculturePondsPanel({ props }: { props: Record<string, unknown
 }
 
 export function AquacultureZonePanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color="#66bb6a">{String(props.zone_name ?? tr("popup.fishery.zone"))}</Title>
-      <Row field="county" value={String(props.county ?? "")} />
-      <Row field="township" value={String(props.township ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="township" value={placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)} />
       <Row field="area" value={areaHa(props.area_ha)} />
     </>
   );
 }
 
 export function AquacultureCageNetPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color="#5c6bc0">{String(props.public_no ?? tr("popup.fishery.cageNet"))}</Title>
-      <Row field="township" value={String(props.township ?? "")} />
+      <Row field="township" value={placeTown(String(props.county ?? ""), String(props.township ?? ""), i18n)} />
       <Row field="location" value={String(props.location ?? "")} />
     </>
   );
@@ -53,7 +56,8 @@ function nlscLandUse(props: Record<string, unknown>): string {
 }
 
 export function AquacultureWaterSatellitePanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const inOsm = props.in_osm === true;
   const solarSymbiotic = props.solar_symbiotic === true;
   const nlscCode = typeof props.nlsc_code === "string" ? props.nlsc_code : "";
@@ -67,7 +71,7 @@ export function AquacultureWaterSatellitePanel({ props }: { props: Record<string
     <>
       <Title color={tier.color}>{tr("popup.fishery.satelliteTitle")}</Title>
       <Row field="area" value={areaHa(props.area_ha)} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.fishery.confidence")} value={tier.label} color={tier.color} />
       <Row label={tr("popup.fishery.landUse113")} value={nlscLandUse(props)} />
       {solarSymbiotic && (
@@ -128,7 +132,7 @@ export function AquacultureWaterSatelliteMoaPanel({ props }: { props: Record<str
         </div>
       )}
       <Row field="area" value={areaHa(props.area_ha)} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={tr("popup.fishery.landUse")} value={nlscLandUse(props)} />
     </>
   );
@@ -180,7 +184,7 @@ export function AquacultureWaterUnionPanel({ props }: { props: Record<string, un
         </div>
       )}
       <Row field="area" value={areaHa(props.area_ha)} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="sourceVersion" value={sourceLabel} />
     </>
   );

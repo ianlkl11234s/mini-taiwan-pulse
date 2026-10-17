@@ -8,10 +8,15 @@ import { MonitorMetric, MonitorNote } from "./MonitorMetric";
 import { useMonitorTheme, type MonitorTheme } from "./monitorTheme";
 import { judgeFreshness, useMonitorFreshness } from "./monitorFreshness";
 import { MONITOR_CARD_META } from "./monitorCardMeta";
+import { useLocale } from "../../../state/localeStore";
+import { enumLabel } from "../../../i18n/dataText";
 import { isoWeekThursdayMs, type PublicHealthWeek, type CdcDisease } from "../../../data/intelLoaders";
 
 function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; muted?: boolean }) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
+  const label = enumLabel("cdcDisease", d.id, d.label, i18n);
+  const unit = enumLabel("cdcUnit", d.unit, d.unit, i18n);
   const theme = useMonitorTheme();
   // 缺值（null）：v2 顯示「—」；舊版維持原本補 0 的畫面
   const yoy = v2 ? d.yoy : d.yoy ?? 0;
@@ -30,13 +35,13 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: theme.fill(d.color), flexShrink: 0 }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: theme.p.textStrong }}>{d.label}</span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: MF.body, fontWeight: 700, color: theme.p.textStrong }}>{label}</span>
         </div>
         <MonitorMetric
           value={d.value}
-          unit={d.unit}
+          unit={unit}
           muted={muted}
-          delta={yoy == null ? "年增 —" : `${worse ? "↑ +" : "↓ "}${yoy}% 年增`}
+          delta={yoy == null ? i18n.t("monitor.health.yoyNone") : i18n.t("monitor.health.yoy", { prefix: worse ? "↑ +" : "↓ ", value: yoy })}
           tone={yoy == null ? "neutral" : worse ? "up" : "down"}
         />
         {n > 1 && (
@@ -48,7 +53,7 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
               h={MON_CHART_H.mini}
               showTooltip
               labelAt={wk}
-              unit={d.unit}
+              unit={unit}
             />
             <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: MF.cap, color: theme.p.textFaint }}>
               <span>{wk(0)}</span>
@@ -80,7 +85,7 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
         <span
           style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.md), fontWeight: 700, color: COLORS.textStrong }}
         >
-          {d.label}
+          {label}
         </span>
         <div style={{ flex: 1 }} />
         <span
@@ -101,7 +106,7 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
         >
           {d.value}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textMuted }}>{d.unit}</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, 9.5), color: COLORS.textMuted }}>{unit}</span>
       </div>
 
       <div
@@ -116,7 +121,7 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
             {yoy}%
           </span>
           <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
-            vs 去年同期
+            {i18n.t("monitor.health.vsLastYear")}
           </span>
         </span>
         <Sparkline
@@ -133,7 +138,7 @@ function DiseaseCard({ d, week, muted = false }: { d: CdcDisease; week: number; 
             const w = week - (d.spark.length - 1 - i);
             return `W${w > 0 ? w : w + 52}`;
           }}
-          unit={d.unit}
+          unit={unit}
         />
       </div>
 
@@ -164,6 +169,7 @@ export function diseaseFresh(d: CdcDisease, batchWeek: number, nowMs: number = D
 
 export function SituationCards({ health }: Props) {
   const v2 = useMonitorV2();
+  const i18n = useLocale();
   const theme = useMonitorTheme();
   // 資料期別 W{n}；RPC 不回年份 → 由週次推該週週四當資料日期（週批次，>14 天過期、>35 天停更）
   const fresh = useMonitorFreshness("situationCards", {
@@ -172,8 +178,8 @@ export function SituationCards({ health }: Props) {
   });
   const staleNote = health.diseases
     .filter((d) => diseaseFresh(d, health.week).muted)
-    .map((d) => `${d.label} 停在 W${d.week ?? health.week}`)
-    .join("、");
+    .map((d) => i18n.t("monitor.health.staleDisease", { label: enumLabel("cdcDisease", d.id, d.label, i18n), week: d.week ?? health.week }))
+    .join(i18n.t("monitor.health.listSep"));
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
       {!v2 && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -183,11 +189,11 @@ export function SituationCards({ health }: Props) {
             fontFamily: FONT_DATA, fontSize: fs(v2, FONT_SIZE.sm), letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
-          公衛 · HEALTH BOARD
+          {i18n.t("monitor.health.titleLegacy")}
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_CJK, fontSize: fs(v2, FONT_SIZE.xs), color: COLORS.textFaint }}>
-          CDC 截至 ISO 第 W{health.week > 0 ? health.week : "—"} 週
+          {i18n.t("monitor.health.cdcAsOf", { week: health.week > 0 ? health.week : "—" })}
         </span>
       </div>}
       {/* auto-fit + minmax：只有一種疾病時（目前 RPC 只回登革熱）整張卡撐滿欄寬，
@@ -199,9 +205,9 @@ export function SituationCards({ health }: Props) {
         ))}
         {health.diseases.length === 0 && (
           <>
-            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
-            <div style={emptyCardStyle(v2, theme)}>等待 CDC 週報資料…</div>
+            <div style={emptyCardStyle(v2, theme)}>{i18n.t("monitor.health.waiting")}</div>
+            <div style={emptyCardStyle(v2, theme)}>{i18n.t("monitor.health.waiting")}</div>
+            <div style={emptyCardStyle(v2, theme)}>{i18n.t("monitor.health.waiting")}</div>
           </>
         )}
       </div>
@@ -209,7 +215,7 @@ export function SituationCards({ health }: Props) {
         <MonitorNote tone={fresh.state === "stopped" ? "err" : "warn"}>{fresh.reason}</MonitorNote>
       )}
       {v2 && !fresh.reason && staleNote && (
-        <MonitorNote tone="warn">部分疾病資料落後：{staleNote}</MonitorNote>
+        <MonitorNote tone="warn">{i18n.t("monitor.health.partialStale", { note: staleNote })}</MonitorNote>
       )}
     </div>
   );

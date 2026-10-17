@@ -1,6 +1,6 @@
 # 架構總體改造計畫（AR 系列）
 
-> 依據：`docs/research/architecture-audit-2026-07-02.md`（5 面向審計）
+> 依據：`docs/archive/2026-10-16/research/architecture-audit-2026-07-02.md`（5 面向審計）
 > 目標：把系統從「數十人」撐到「數百人」，同時讓圖層翻倍不炸、預留會員與對話介面。
 > 建立：2026-07-02。狀態欄由各 session 更新。
 > **2026-08-12 交付**：AR-21~24 全數 merged（#129/#130，14 棒過夜工程），未竟 8 條見 `docs/features/layer-manifest/backlog.md`。
