@@ -1,8 +1,20 @@
 {
-  "note": "Split by camera and time, never by random frame (adjacent stills are near-duplicates). Decided 2026-10-02.",
-  "testCameras": ["T000386", "T000215", "T000419"],
-  "testReason": "each >2 km from every other collected camera (3416, 2244, 2277 m) and in different districts; Xinyi target cameras stay in training",
-  "validation": {"rule": "training cameras, runs on validationDate at validationHours (local time)", "validationDate": "2026-10-01", "validationHours": [3, 8, 14, 20]},
-  "nightTestSet": "9/29 62-frame unblurred T000354 set (evidence/box-truth-T000354-20260929T145753471381Z-62.json); never trained on",
-  "batch001": "created before this split; its frames are assigned by these same rules when exporting"
+ "note": "Split by camera and time, never by random frame (adjacent stills are near-duplicates). Decided 2026-10-02.",
+ "testCameras": [
+  "T000386",
+  "T000215",
+  "T000419"
+ ],
+ "testReason": "each >2 km from every other collected camera (3416, 2244, 2277 m) and in different districts; Xinyi target cameras stay in training",
+ "validation": {
+  "rule": "training cameras, runs on validationDate at validationHours (local time)",
+  "validationDate": "2026-10-16",
+  "validationHours": [
+   3,
+   20
+  ],
+  "changed": "2026-10-17: 2026-10-01 frames were lost with the old worktree (10/02), so val moved to 10/16 night+evening runs; revisit once daytime runs exist"
+ },
+ "nightTestSet": "9/29 62-frame unblurred T000354 set (evidence/box-truth-T000354-20260929T145753471381Z-62.json); never trained on",
+ "batch001": "created before this split; its frames are assigned by these same rules when exporting"
 }

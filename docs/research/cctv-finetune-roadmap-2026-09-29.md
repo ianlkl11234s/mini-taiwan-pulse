@@ -152,3 +152,19 @@
   - 驗證：訓練鏡頭在 10/1 的 03、08、14、20 時。
   - 其餘為訓練。每支鏡頭每輪取1張後，可用量：訓練370、驗證47、測試101。
 - 批次與標註規範：[cctv-annotation-guide.md](cctv-annotation-guide.md)。匯出：`export_yolo.py`，依切分規則分配，而不是依批次名稱。
+
+### 10.4 資料遺失與海外收集（2026-10-07～09）
+
+- 2026-10-02 23:06：Codex 封存清理刪掉原工作樹，gitignored 資料全部遺失，包括2,563張收集畫面、batch-001～008、62張夜間測試畫面、模型與 venv。程式由 Codex 快照 `221d76b9` 還原到 `.worktrees/cctv-finetune`，分支 `codex/cctv-finetune-restore-20261007`。10/07 重新擷取75張。
+- **防再遺失**：收集程式與資料改放在桌面以外的 `~/cctv-collector/`。macOS 隱私保護（TCC）會擋 launchd 存取 ~/Desktop，所以工作樹的 `data/training-raw` 改成捷徑（symlink）指向那裡。每輪收完都用 rsync 備份到 `~/Backups/cctv-finetune-data/`，備份不會刪除任何檔案。`~/cctv-collector/` 內的程式是 POC 的複本，在工作樹改了程式要重新複製過去。
+- 排程：launchd 每小時第5分鐘觸發；`taipeiHours`（台北時間 2、6、7、8、10、12、14、16、17、18、20、22 時）以外的時段直接略過，所以 Mac 換時區也不影響。每支鏡頭每輪3張、間隔15秒。`stopAfter` 為 2026-10-25 23:59；`caffeinate -s` 到同一時間。
+- **阻礙**：在英國（GB IP）連 `hls.bote.gov.taipei` 會連線逾時；`www.gov.taipei` 連得到，桃園的監視器主機也逾時，研判是擋國外IP，尚未證實。省道（公路局）監視器連得到，但快照只有320×180、多在鄉間（160支中機車最多的一支只有2台），不收。解法待使用者決定：台灣出口的 VPN，或在台灣區雲端主機（例如 GCP asia-east1）執行收集。
+- 2026-10-09 06:52（台北）以 launchd 實跑：從 `~/cctv-collector` 正常執行並完成備份，15支鏡頭全部連線逾時。
+
+### 10.5 緊急車輛標記與回程標註批次（2026-10-17）
+
+- **緊急車輛**（使用者選 1甲、2甲）：不新增偵測類別。標註時框照樣選車種，按 `E` 依序切換救護車、警車、消防車、無，存在框的 `emergency` 欄。`export_yolo.py` 不改 YOLO 類別，另外輸出 `emergency-boxes.json`。等每類累積約100個以上，再做第二階段的裁切分類器。
+- **新增5支訓練鏡頭**，都離測試鏡頭2 km以上：T000301 城中分隊（10 m）、T000257 信義分隊（14 m）、T000148 大直分隊（54 m）、T000328 馬偕醫院（100 m）、T000332 萬芳醫院（101 m）。設施座標取自 analytics 的 `fire_stations_20260710.geojson` 和 `emergency_hospitals_mohw.csv`；醫院座標是地理編碼，不一定是急診入口。新增當下人在英國、VPN 沒開，還沒驗證這5支能不能連。
+- **時程**：使用者 10/21 回台，`stopAfter` 和 `caffeinate` 都改到 2026-10-21 23:59（台北時間）。之後要 bootout plist。
+- **驗證集改日期**：10/01 的畫面已經遺失，驗證集改成 10/16 的 03、20 時。目前全是夜間和傍晚，有白天的資料後要重新檢視。
+- **回程標註批次**（yolo26m 預標，每支鏡頭每輪1張）：`r2-train-01`～`04` 各30張、`r2-val-01` 24張、`r2-test-01` 30張，已備份到 `~/Backups/cctv-finetune-data/training-batches/`。
