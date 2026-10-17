@@ -2,6 +2,7 @@ import { Row, SourceFooter } from "./shared";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import {
   ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
@@ -130,11 +131,12 @@ export function AccessibleParkFacilitiesPanel({ props }: Props) {
 }
 
 export function DisasterShelterPanel({ props }: Props) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return <>
     <PanelHeader title={text(props.name) || tr("popup.publicLife.unnamedShelter")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
     <Row field="dataRole" value={tr("popup.publicLife.shelterRole")} color={PUBLIC_LIFE_COLORS.disasterShelters} />
-    <Row field="countyTownship" value={text(props.county_town)} />
+    <Row field="countyTownship" value={placeName(text(props.county_town), i18n)} />
     <Row field="address" value={text(props.address)} />
     <Row label={tr("popup.publicLife.shelterCapacity")} value={text(props.capacity)} />
     <Row label={tr("popup.publicLife.disasterTypes")} value={text(props.disaster_types_text) || text(props.disaster_types)} />

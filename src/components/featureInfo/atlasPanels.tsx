@@ -3,6 +3,7 @@ import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
+import { placeName, placeNameList, placeTown } from "../../i18n/placeText";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
@@ -30,7 +31,8 @@ const fmt = (v: unknown, digits: number, unit: string, { formatNumber }: LocaleS
   return n == null ? "" : `${formatNumber(n, { maximumFractionDigits: digits })}${unit ? ` ${unit}` : ""}`;
 };
 const yesNo = (v: unknown, yes: string, no: string): string => (v === true ? yes : v === false ? no : "");
-const admin = (p: Record<string, unknown>) => [p.county, p.town, p.village].map(str).join("");
+const admin = (p: Record<string, unknown>, i18n: LocaleSnapshot) =>
+  [placeName(`${str(p.county)}${str(p.town)}`, i18n), str(p.village)].filter(Boolean).join(i18n.active === "zh-TW" ? "" : " ");
 const time = (v: unknown) => str(v).replace("T", " ").slice(0, 16);
 
 /** 類別代碼 → 目前語系的標籤；`zh` 是上游給的中文 label（中文介面原樣顯示）。 */
@@ -91,7 +93,7 @@ function IndigenousTribePanel({ props }: Props) {
     <Title color={color}>{str(props.name) || t("popup.atlas.tribeTitle")}</Title>
     <Row label={t("popup.atlas.tribeNameRoman")} value={str(props.tribe_name_roman)} />
     <Row label={t("popup.atlas.ethnicGroup")} value={enumList("atlasEthnic", props.ethnic_group, i18n)} color={color} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row label={t("popup.atlas.neighborhood")} value={str(props.neighborhoods)} />
     <Row label={t("popup.atlas.approvalStatus")} value={approved === false ? t("popup.atlas.notApproved") : [str(props.approved_name), approvedYear].filter(Boolean).join(t("popup.atlas.comma"))} />
     <Precision props={props} flagged={Boolean(str(props.quality_flags))} />
@@ -106,14 +108,14 @@ function IndigenousIsolationPanel({ props }: Props) {
   const causes = [props.cause_debris_flow === true && t("popup.atlas.causeDebrisFlow"), props.cause_flood === true && t("popup.atlas.causeFlood"), props.cause_road_bridge_break === true && t("popup.atlas.causeRoadBridge")].filter(Boolean).join(t("popup.common.listSeparator"));
   const slash = t("popup.atlas.slash");
   return <>
-    <Title color={color}>{`${str(props.town)}${str(props.name)}`}</Title>
+    <Title color={color}>{`${placeTown(str(props.county), str(props.town), i18n)}${str(props.name)}`}</Title>
     <Row label={t("popup.atlas.cause")} value={causes || t("popup.atlas.causeNone")} color={color} />
     <Row label={t("popup.atlas.pastIsolation")} value={yesNo(props.has_past_incident, t("popup.common.yes"), t("popup.common.no"))} />
     <Row label={t("popup.atlas.walkToOffice")} value={fmt(props.walk_hours_to_office, 1, t("popup.atlas.unitHours"), i18n)} />
     <Row label={t("popup.atlas.householdsPopulation")} value={[fmt(props.households, 0, t("popup.atlas.unitHouseholds"), i18n), fmt(props.population, 0, t("popup.atlas.unitPeople"), i18n)].filter(Boolean).join(slash)} />
     <Row label={t("popup.atlas.vulnerableGroups")} value={[props.elderly_65plus, props.infants, props.critical_patients].map((v) => (num(v) == null ? "—" : String(v))).join(slash)} />
     <Row label={t("popup.atlas.protectedHouseholdsPersons")} value={[fmt(props.protected_households, 0, t("popup.atlas.unitHouseholds"), i18n), fmt(props.protected_persons, 0, t("popup.atlas.unitPeople"), i18n)].filter(Boolean).join(slash)} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Precision props={props} flagged={Boolean(str(props.quality_flags))} />
     <DataDate props={props} />
   </>;
@@ -124,7 +126,7 @@ function RuralCommunityPanel({ props }: Props) {
   const { t } = i18n;
   const color = optionColor(RURAL_COMMUNITY_OPTIONS, props.community_type);
   return <>
-    <Title color={color}>{admin(props) || t("popup.atlas.villageTitle")}</Title>
+    <Title color={color}>{admin(props, i18n) || t("popup.atlas.villageTitle")}</Title>
     <Row field="type" value={enumOf("atlasRural", props.community_type, props.community_type, i18n)} color={color} />
     <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n)} />
     <Row label={t("popup.atlas.villageCode")} value={`${str(props.id)}${props.villcode_in_current_boundary === false ? t("popup.atlas.notInCurrentBoundary") : ""}`} mono />
@@ -144,7 +146,7 @@ function RoadSignPanel({ props }: Props) {
     <Row label={t("popup.atlas.signFace")} value={face} />
     <Row field="direction" value={[str(props.facing), str(props.mount_position)].filter(Boolean).join(dot)} />
     <Row label={t("popup.atlas.condition")} value={str(props.condition)} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row field="managingAgency" value={str(props.maint_section)} />
     <Row field="surveyDate" value={str(props.survey_date)} mono />
     <Precision props={props} flagged={props.coord_flag === "tm2_conflict"} />
@@ -161,7 +163,7 @@ function FreewaySignPanel({ props }: Props) {
     <Row field="code" value={str(props.sign_code)} mono />
     <Row label={t("popup.atlas.signFace")} value={str(props.face_value)} />
     <Row field="direction" value={str(props.direction_note)} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Precision props={props} flagged={props.coord_flag === "tm2_conflict"} />
   </>;
 }
@@ -196,7 +198,7 @@ function MonitoredPanel({ props }: Props) {
   return <>
     <Title color={color}>{str(props.route_text) || t("popup.atlas.monitoredTitle")}</Title>
     <Row field="category" value={enumOf("atlasMonitor", props.monitor_series, props.monitor_series_label, i18n)} color={color} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row field="managingAgency" value={str(props.maint_unit)} />
     <Row label={t("popup.atlas.rainGauge")} value={str(props.rainfall_station_id)} mono />
     <Row label={t("popup.atlas.earlyWarningThreshold")} value={str(props.rule_earlywarning)} />
@@ -213,7 +215,7 @@ function EmergencyBayPanel({ props }: Props) {
   const years = str(props.roc_years).split("、").filter(Boolean).map((year) => displayRocYear(year, i18n)).join(t("popup.common.listSeparator"));
   return <>
     <Title color={ATLAS_LAYER_COLORS.provincialRoadEmergencyBays}>{str(props.route_text) || t("popup.atlas.bayTitle")}</Title>
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row field="managingAgency" value={str(props.maint_unit)} />
     <Row label={t("popup.atlas.listYears")} value={years ? t("popup.atlas.rocYears", { years }) : ""} />
     <Row label={t("popup.atlas.latestList")} value={yesNo(props.in_latest_list, t("popup.atlas.listed"), t("popup.atlas.notListed"))} />
@@ -228,7 +230,7 @@ function FloodPointPanel({ props }: Props) {
   return <>
     <Title color={color}>{t("popup.atlas.floodTitle", { year: str(props.event_year) })}</Title>
     <Row label={t("popup.atlas.infoSource")} value={enumOf("atlasFloodSource", props.info_source, props.info_source_label, i18n)} color={color} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row label={t("popup.atlas.samePointRows")} value={num(props.same_point_rows) != null && num(props.same_point_rows)! > 1 ? t("popup.atlas.samePointValue", { rows: String(props.same_point_rows) }) : ""} />
     <Precision props={props} />
     <DataDate props={props} />
@@ -241,7 +243,7 @@ function WaterloggingPanel({ props }: Props) {
   return <>
     <Title color={ATLAS_LAYER_COLORS.taipeiWaterloggingHistory}>{str(props.location_text) || t("popup.atlas.waterloggingTitle")}</Title>
     <Row field="date" value={str(props.event_date) || (num(props.event_year) != null ? t("popup.atlas.yearOnly", { year: String(props.event_year) }) : t("popup.atlas.noDate"))} mono />
-    <Row field="district" value={str(props.town)} />
+    <Row field="district" value={placeTown(str(props.county), str(props.town), i18n)} />
     <Row label={t("popup.atlas.waterloggingDepth")} value={fmt(props.depth_cm, 0, t("popup.atlas.unitCmEstimated"), i18n)} />
     <Row field="area" value={fmt(props.area_m2, 0, "m²", i18n)} />
     <Row label={t("popup.atlas.attributeCompleteness")} value={str(props.attribute_status_label)} />
@@ -260,7 +262,7 @@ function SwcbPhotoPanel({ props }: Props) {
     <Row field="description" value={str(props.description)} />
     <Row label={t("popup.atlas.photoDate")} value={str(props.photo_date)} mono />
     <Row label={t("popup.atlas.disasterYear")} value={`${str(props.disaster_year)}${props.photo_year_mismatch === true ? t("popup.atlas.differsFromPhotoYear") : ""}`} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row field="place" value={str(props.landmark)} />
     <Row label={t("popup.atlas.photoCredit")} value={str(props.photo_credit)} />
     <Row label={t("popup.atlas.photoLink")} value={str(props.photo_url)} mono />
@@ -286,7 +288,7 @@ function CetaceanPanel({ props }: Props) {
     <Row label={t("popup.atlas.bodyLength")} value={fmt(props.body_length_m, 2, t("popup.atlas.unitMeters"), i18n)} />
     <Row label={t("popup.atlas.handling")} value={str(props.handling)} />
     <Row label={t("popup.atlas.reporter")} value={str(props.reporter_category)} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Precision props={props} flagged={flagged || props.coord_status === "out_of_bbox"} />
     <DataDate props={props} />
   </>;
@@ -304,7 +306,7 @@ function TurtlePanel({ props }: Props) {
     <Row label={t("popup.atlas.strandingCause")} value={str(props.stranding_cause)} />
     <Row label={t("popup.atlas.carapaceLength")} value={fmt(props.carapace_length_cm, 1, t("popup.atlas.unitCm"), i18n)} />
     <Row label={t("popup.atlas.handling")} value={str(props.handling)} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Precision props={props} flagged={flagged || props.coord_status === "out_of_bbox"} />
     <DataDate props={props} />
   </>;
@@ -359,7 +361,8 @@ function PollutionPanel({ props }: Props) {
 }
 
 function EdnaPanel({ props }: Props) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.namrEdnaSurveySites}>{str(props.name)}</Title>
     <Row field="region" value={[str(props.region_major), str(props.region_minor)].filter(Boolean).join(t("popup.atlas.dot"))} />
@@ -377,7 +380,7 @@ function PlaceNamePanel({ props }: Props) {
     <Row field="category" value={enumOf("atlasPlaceKind", props.category, props.category_label, i18n)} color={color} />
     <Row field="englishName" value={str(props.name_hanyu_pinyin)} />
     <Row label={t("popup.atlas.aliases")} value={str(props.aliases)} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row label={t("popup.atlas.placeMeaning")} value={str(props.place_meaning)} />
     <Row label={t("popup.atlas.pointMeaning")} value={str(props.extent_type_label)} />
     <Row field="dataSource" value={str(props.data_source_labels)} />
@@ -412,7 +415,7 @@ function FloodgatePanel({ props }: Props) {
     <Row label={t("popup.atlas.operationType")} value={str(props.operation_type_label)} />
     <Row label={t("popup.atlas.gateSpec")} value={str(props.gate_spec_raw)} />
     <Row label={t("popup.atlas.material")} value={str(props.material_raw)} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row field="managingAgency" value={str(props.river_branch_label)} />
     <Row field="surveyDate" value={str(props.survey_date)} mono />
     <Row field="caution" value={t("popup.atlas.floodgateCaution")} />
@@ -428,7 +431,7 @@ function DrainagePanel({ props }: Props) {
     <Row field="basin" value={str(props.basin_name)} />
     <Row label={t("popup.atlas.outlet")} value={str(props.outlet)} />
     <Row field="length" value={fmt(props.main_length_km, 1, t("popup.atlas.unitKm"), i18n)} />
-    <Row label={t("popup.atlas.passingCounties")} value={str(props.passing_county_names)} />
+    <Row label={t("popup.atlas.passingCounties")} value={placeNameList(str(props.passing_county_names), i18n)} />
     <Row label={t("popup.atlas.startPoint")} value={str(props.start_desc)} />
     <Row label={t("popup.atlas.endPoint")} value={str(props.end_desc)} />
     <Row field="authority" value={str(props.responsible_authority)} />
@@ -445,7 +448,7 @@ function IowPanel({ props }: Props) {
     <Row field="category" value={enumOf("atlasStructure", props.structure_category, props.structure_category_label, i18n)} color={color} />
     <Row label={t("popup.atlas.sensorKinds")} value={num(props.sensor_count) != null ? t("popup.atlas.sensorsValue", { kinds: str(props.sensor_kinds), count: Number(props.sensor_count) }) : str(props.sensor_kinds)} />
     <Row field="managingAgency" value={str(props.org_name)} />
-    <Row field="district" value={admin(props)} />
+    <Row field="district" value={admin(props, i18n)} />
     <Row label={t("popup.atlas.nearestFloodgate")} value={str(props.nearest_floodgate_name) ? t("popup.atlas.valueWithNote", { value: str(props.nearest_floodgate_name), note: fmt(props.nearest_floodgate_m, 0, "m", i18n) }) : ""} />
     <Precision props={props} />
   </>;
@@ -463,14 +466,15 @@ function DredgingPanel({ props }: Props) {
     <Row label={t("popup.atlas.executingUnit")} value={str(props.executing_unit)} />
     <Row label={t("popup.atlas.constructionPeriod")} value={t("popup.atlas.range", { from: str(props.start_date), to: str(props.end_date) })} mono />
     <Row label={t("popup.atlas.planExecuteQuantity")} value={`${fmt(props.plan_quantity, 1, "", i18n)}${t("popup.atlas.slash")}${fmt(props.execute_quantity, 1, "", i18n)} ${unit}`} />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Precision props={props} flagged={props.coord_precision !== "deg_0.01"} />
     <DataDate props={props} />
   </>;
 }
 
 function EcologyPanel({ props }: Props) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   return <>
     <Title color={ATLAS_LAYER_COLORS.wraEcologySurveySites}>{str(props.name) || t("popup.atlas.ecologyTitle")}</Title>
     <Row field="river" value={[str(props.river_name), str(props.basin_name)].filter(Boolean).join(t("popup.atlas.dot"))} />
@@ -478,7 +482,7 @@ function EcologyPanel({ props }: Props) {
     <Row label={t("popup.atlas.recordCount")} value={str(props.record_count)} />
     <Row label={t("popup.atlas.taxonGroups")} value={str(props.taxon_groups_label)} />
     <Row label={t("popup.atlas.surveyPeriod")} value={t("popup.atlas.range", { from: str(props.first_survey_date), to: str(props.last_survey_date) })} mono />
-    <Row field="county" value={str(props.county)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
     <Row field="caution" value={t("popup.atlas.ecologyCaution")} />
     <Precision props={props} />
   </>;

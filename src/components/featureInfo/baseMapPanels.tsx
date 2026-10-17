@@ -1,5 +1,6 @@
 import { Row } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import {
   maritimeBoundaryType, MARITIME_BOUNDARY_SOURCE_NOTE,
@@ -26,13 +27,14 @@ const HIGHWAY_LABEL: Record<string, string> = {
 };
 
 export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const name = String(props["名稱"] ?? "");
   const code = String(props["行政區域代碼"] ?? "");
   const scale = String(props["比例尺分母"] ?? "");
   return (
     <div>
-      <Row field="county" value={name} />
+      <Row field="county" value={placeName(name, i18n)} />
       <Row label={tr("popup.baseMap.adminCode")} value={code} />
       <Row label={tr("popup.baseMap.sourceScale")} value={scale ? `1:${scale}` : ""} />
       <Row field="source" value={tr("popup.baseMap.nlsc")} />
@@ -41,15 +43,16 @@ export function CountyBoundaryPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const county = String(props.COUNTYNAME ?? "");
   const town = String(props.TOWNNAME ?? "");
   const eng = String(props.TOWNENG ?? "");
   const id = String(props.TOWNID ?? "");
   return (
     <div>
-      <Row label={tr("popup.baseMap.township")} value={town} />
-      <Row field="county" value={county} />
+      <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n, id)} />
+      <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
       <Row label="TOWNID" value={id} />
       <Row field="source" value={tr("popup.baseMap.nlsc")} />
@@ -58,7 +61,8 @@ export function TownshipBoundaryPanel({ props }: { props: Record<string, unknown
 }
 
 export function VillageBoundaryPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const county = String(props.COUNTYNAME ?? "");
   const town = String(props.TOWNNAME ?? "");
   const vill = String(props.VILLNAME ?? "");
@@ -68,8 +72,8 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
   return (
     <div>
       <Row field="village" value={vill} />
-      <Row label={tr("popup.baseMap.township")} value={town} />
-      <Row field="county" value={county} />
+      <Row label={tr("popup.baseMap.township")} value={placeTown(county, town, i18n)} />
+      <Row field="county" value={placeName(county, i18n)} />
       <Row field="englishShort" value={eng} />
       <Row label="VILLCODE" value={code} />
       <Row field="remarks" value={note} />

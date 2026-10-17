@@ -1,6 +1,7 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { enumLabel, localizedField } from "../../i18n/dataText";
 import { useFeatureTheme } from "./featureTheme";
 import { RAIL_ROUTES_FALLBACK_COLOR, RAIL_ROUTES_SYSTEM_LABELS } from "../../data/railRoutesTypes";
@@ -53,7 +54,7 @@ export function WeatherStationPanel({ props }: { props: Record<string, unknown> 
       </div>
       <Row field="type" value={stationType ? enumLabel("weatherStationType", stationType, stationType, i18n) : ""} color={accentColor} />
       <Row field="elevation" value={props.elevation_m != null ? `${props.elevation_m} m` : ""} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row label={i18n.t("popup.transport.startDate")} value={String(props.start_date ?? "")} />
       <Row field="status" value={activeLabel} color={active ? "#66bb6a" : "#ef5350"} />
@@ -80,7 +81,7 @@ export function BikeStationPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       <Row field="system" value={serviceType} color={accentColor} />
       <Row label={tr("popup.transport.docks")} value={String(props.BikesCapacity ?? "")} />
-      <Row field="city" value={String(props.City ?? "")} />
+      <Row field="city" value={placeName(String(props.City ?? ""), i18n)} />
       <Row field="address" value={String(props.StationAddress ?? "")} />
     </>
   );
@@ -88,7 +89,8 @@ export function BikeStationPanel({ props }: { props: Record<string, unknown> }) 
 
 export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const busType = String(props.bus_type ?? props.BusType ?? "");
   const isIntercity = busType === "intercity";
   const accentColor = isIntercity ? "#ab47bc" : "#66bb6a";
@@ -98,12 +100,12 @@ export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.StationName ?? tr("popup.transport.unknownStation"))}
+          {localizedField(props, { zh: "StationName", en: "StationNameEn" }, i18n)?.text ?? tr("popup.transport.unknownStation")}
         </div>
       </div>
       <Row field="type" value={tr(isIntercity ? "popup.transport.intercityBus" : "popup.transport.cityBus")} color={accentColor} />
       <Row label={tr("popup.transport.routeCount")} value={String(props.Stops ?? "")} />
-      <Row field="city" value={String(props.City ?? "")} />
+      <Row field="city" value={placeName(String(props.City ?? ""), i18n)} />
       <Row field="address" value={String(props.StationAddress ?? "")} />
     </>
   );

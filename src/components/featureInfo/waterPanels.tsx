@@ -71,7 +71,7 @@ export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }
         </div>
       </div>
       <Row field="type" value={enumLabel("waterFacilityType", type, meta.label, i18n)} color={meta.color} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row label={i18n.t("popup.water.operator")} value={String(props.operator ?? "")} />
       <Row field="dataSource" value={String(props.source ?? "")} />
     </>
@@ -93,7 +93,7 @@ export function WaterMonitorPanel({ props }: { props: Record<string, unknown> })
         </div>
       </div>
       <Row field="type" value={enumLabel("waterMonitorType", type, meta.label, i18n)} color={meta.color} />
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="dataSource" value={String(props.source ?? "")} />
       <Row field="status" value={i18n.t(isActive ? "popup.water.enabled" : "popup.water.disabled")} color={isActive ? "#4ade80" : "#9ca3af"} />
     </>
@@ -123,7 +123,7 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
         </div>
       </div>
       <Row field="county" value={enumLabel("waterDetentionCounty", county, COUNTY_LABEL[county] ?? county, i18n)} />
-      {props.township ? <Row field="township" value={String(props.township)} /> : null}
+      {props.township ? <Row field="township" value={placeTown(county, String(props.township), i18n)} /> : null}
       {props.address ? <Row field="address" value={String(props.address)} /> : null}
       {props.agency ? <Row field="managingAgency" value={String(props.agency)} /> : null}
       {areaHa != null && Number.isFinite(areaHa)
@@ -271,7 +271,7 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{i18n.t("popup.water.levelUnit")}</span>
       </div>
-      <Row field="county" value={String(props.county ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       {obs && <Row field="observedAt" value={formatTaiwanMinute(obs)} />}
       <Row field="stationNo" value={String(props.station_id ?? "")} color={t.textDim} />
 
@@ -720,7 +720,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
 
       {/* 基本屬性 */}
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
-        {r?.county && <Row field="county" value={r.county} />}
+        {r?.county && <Row field="county" value={placeName(String(r.county), i18n)} />}
         {r?.org_mng && <Row label={i18n.t("popup.water.management")} value={r.org_mng} />}
         {r?.dam_height_m != null && <Row label={i18n.t("popup.water.damHeight")} value={`${r.dam_height_m} m`} />}
         {r?.status && <Row field="status" value={r.status} />}
@@ -970,7 +970,7 @@ export function WaterLeveesPanel({ props }: { props: Record<string, unknown> }) 
       <Row field="river" value={String(props.river ?? "")} />
       <Row field="basin" value={String(props.basin ?? "")} />
       <Row label={i18n.t("popup.water.side")} value={side ? i18n.t("popup.water.sideBank", { side: enumLabel("leveeSide", side, side, i18n) }) : ""} />
-      <Row field="county" value={String(props.county ?? "")} color={t.textDim} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} color={t.textDim} />
     </>
   );
 }

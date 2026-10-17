@@ -3,6 +3,7 @@ import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import type { I18nContext } from "../../i18n/layerText";
 import {
   deityFamilyColor, deityFamilyLabel, ancestralHallTypeLabel,
@@ -24,7 +25,8 @@ function registryLabel(v: unknown, i18n: I18nContext): string {
 /** OSM 來源才顯示的 ODbL 標示（source / source_tier 判斷） */
 function OdblNote({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   if (String(props.source ?? "") !== "osm_overpass") return null;
   return (
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
@@ -65,7 +67,7 @@ export function TemplePanel({ props }: { props: Record<string, unknown> }) {
       <Row label={tr("popup.religion.registryStatus")} value={registryLabel(props.in_moi_registry, i18n)} />
       {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.common.yes")} color="#d4a017" /> : null}
       {props.is_top100 === true ? <Row label={tr("popup.religion.top100")} value={tr("popup.common.yes")} color={RELIGION_LAYER_COLORS.religionTop100} /> : null}
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       <Row field="address" value={str(props.address)} />
       {precision && precisionCode !== "original" ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
@@ -88,7 +90,7 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
       {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
       <Row label={tr("popup.religion.registryStatus")} value={registryLabel(props.in_moi_registry, i18n)} />
       {props.heritage_flag === true ? <Row label={tr("popup.religion.heritage")} value={tr("popup.common.yes")} color="#d4a017" /> : null}
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       <Row field="address" value={str(props.address)} />
       <OdblNote props={props} />
     </>
@@ -106,7 +108,7 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
       <Title color={color}>{str(props.name) || tr("popup.religion.ancestralHall")}</Title>
       <Row field="type" value={enumLabel("religionAncestralType", type, ancestralHallTypeLabel(type), i18n)} color={color} />
       {str(props.heritage_grade) ? <Row label={tr("popup.religion.heritageGrade")} value={str(props.heritage_grade)} /> : null}
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       <Row field="address" value={str(props.address)} />
     </>
   );
@@ -114,11 +116,12 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
 
 /** 宗教基金會（165；單一源，無 trust chain 欄） */
 export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionFoundations}>{str(props.name) || tr("popup.religion.foundation")}</Title>
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       <Row field="address" value={str(props.address)} />
     </>
   );
@@ -129,15 +132,16 @@ export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
  * ⚠️ name 為 null 859 筆（65%）—— 這是 OSM 標了場所但沒標名，誠實顯示「未命名場所」。
  */
 export function OtherWorshipPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionOtherWorship}>{str(props.name) || tr("popup.religion.unnamedWorship")}</Title>
       {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
       <Row label={tr("popup.religion.religion")} value={str(props.religion_type)} />
       <Row label={tr("popup.religion.denomination")} value={str(props.denomination)} />
-      <Row field="county" value={str(props.county)} />
-      <Row field="township" value={str(props.town)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
+      <Row field="township" value={placeTown(str(props.county), str(props.town), i18n)} />
       <Row field="address" value={str(props.address)} />
       <OdblNote props={props} />
     </>
@@ -149,13 +153,14 @@ export function OtherWorshipPanel({ props }: { props: Record<string, unknown> })
  * 上游同步自 tourism.religion 搬移歸位為 religion.top100，欄位不變。
  */
 export function ReligionTop100Panel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color={RELIGION_LAYER_COLORS.religionTop100}>{str(props.name) || tr("popup.religion.religiousSite")}</Title>
       {str(props.name_en) ? <Row field="englishName" value={str(props.name_en)} /> : null}
-      <Row field="county" value={str(props.county)} />
-      <Row field="township" value={str(props.town)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
+      <Row field="township" value={placeTown(str(props.county), str(props.town), i18n)} />
       <Row field="address" value={str(props.address)} />
     </>
   );
