@@ -36,7 +36,7 @@
 | `sublayers[]` | 每個子圖層的 `type`、`role`（`main` 資料本體／`decoration` 光暈、漣漪、點擊熱區）、`values`（z10／z14 半徑、線寬、透明度…）、`colors`（編碼型別 `constant`／`categorical`／`sequential`…）、`themeDiff`（暗／淡不同的屬性） |
 | `params` | 控制項預設值：`opacity`、`size`（大小倍率）、`lineWidth`、`height` |
 | `legend`／`legendType` | 圖例 id 與型別；到 `legends[]` 查同 id 的 `issues` |
-| `ironRules` | 四鐵則：`opacity`、`pointSize`（只判 runtime 點層）、`legend`、`categoricalWithoutLegend`、`popup` |
+| `ironRules` | 盤點欄位（不是規則本身）：`opacity`、`pointSize`（只判 runtime 點層，來自 `layer-ux-policy.md` 的點位大小政策）、`legend`、`categoricalWithoutLegend`、`popup`；select 規則由共用元件自動處理不逐層記。規則正本見 development-rules §4a |
 
 ⚠️ runtime 數值**已乘上滑桿預設值**（例如 `circle-opacity` 已含透明度預設、半徑已含大小倍率 1.0）。要改「使用者可調範圍」改 `layerParamsSpec.ts`。
 
@@ -61,7 +61,7 @@
 1. **All Off**：側欄按「All Off」，只開這一層（避免別層蓋住或共用 source 干擾）。
 2. **兩個縮放**：z10（縣市尺度）與 z14（街區尺度）各看一次；點層再看最密的區域（台北市中心）。
 3. **兩種底圖**：暗色（預設）與淡色（`light`／`streets`）各看一次；確認描邊、文字 halo、線色有跟著切換。
-4. **四鐵則**：透明度滑桿有效（0.1 與 1.0 兩端）、圖例色與地圖一致（同色、同級距、同單位）、點得到 popup（R2 選取圈出現在正確位置）、選項 ≥4 時是原生下拉。
+4. **四鐵則**：透明度滑桿有效（0.1 與 1.0 兩端）、圖例色與地圖一致（同色、同級距、同單位）、點得到 popup（R2 選取圈出現在正確位置）、選項 ≥4 時是原生下拉。另看兩項產品政策：點層的大小滑桿有效、有分類欄位的層可多選篩選。四鐵則與政策的對照、哪些有測試守門，見 [`development-rules.md` §4a](../development-rules.md#4a-圖層-ux-標配四大鐵則)。
 5. **重跑盤點**：`npm run design:audit-layers`，`git diff docs/design-system/layer-style-inventory.json` 只該動到這一層（與它的圖例）。
 6. `npx tsc -b`；改到 `overlayRegistry` paint 時黃金快照會紅——確認差異是本次有意的，再照 `scripts/preprocess/dump-layer-golden.ts` 檔頭說明重產 fixture。點圖層另跑 `src/map/__tests__/pointSpec.test.ts`、`hookPointSpec.test.ts`（hook 內隨縮放的點半徑 ≤ 3 處、非 B 的 hook 檔必用 `pointRadius(`＋`pointStrokePaint(`、不得手寫描邊透明度公式）；圖例跑 `src/components/legend/__tests__/legendKit.test.ts`（`LegendPanel.tsx` 手寫色票 ≤ 6，只准減少）。
 

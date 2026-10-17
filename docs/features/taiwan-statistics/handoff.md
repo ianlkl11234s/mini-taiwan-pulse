@@ -45,7 +45,7 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 
 ## 正式發布證據
 
-[statistics-production.json](../../audit/foundation-2026-09-06/evidence/statistics-production.json) 記錄每個 release 回讀與 geometry SHA。先全部以 draft 匯入並驗 count，當時 public releases=0，再於交易內發布14版。私人 lineage 不開放給 anon。歷史期別保持原意，參考行政區幾何不能作歷史邊界或面積密度趨勢推論。排程尚未啟用；目前 refresh runner 只支援 waste，其他指標暫採人工檢查新版來源後不可變匯入。
+[statistics-production.json](../../archive/2026-10-16/audit/foundation-2026-09-06/evidence/statistics-production.json) 記錄每個 release 回讀與 geometry SHA。先全部以 draft 匯入並驗 count，當時 public releases=0，再於交易內發布14版。私人 lineage 不開放給 anon。歷史期別保持原意，參考行政區幾何不能作歷史邊界或面積密度趨勢推論。排程尚未啟用；目前 refresh runner 只支援 waste，其他指標暫採人工檢查新版來源後不可變匯入。
 
 ## 2026-09-07 近期收整與新增資料入口
 
@@ -55,7 +55,7 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 
 每份新資料需留下原始下載＋receipt、來源與授權、解析程式版本、觀測期別、單位／分母、行政區／boundary version、release ID、checksum、missing/suppressed/unallocated 與 coverage。不能把引用邊界當成歷史實際邊界，也不能把缺值補零。
 
-S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 R2 runtime 供應路徑分開；前端只讀 R2 公開 snapshot 與 geometry resource。私人來源路徑不能進入 sources 或 artifact。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。這是一次性封存證據，不代表未來新增來源已自動封存或已發布到 R2。
+S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 R2 runtime 供應路徑分開；前端只讀 R2 公開 snapshot 與 geometry resource。私人來源路徑不能進入 sources 或 artifact。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../archive/2026-10-16/audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。這是一次性封存證據，不代表未來新增來源已自動封存或已發布到 R2。
 
 本批 loader 已共用經 SHA-256 校驗的 immutable geometry，避免疊多項指標時反覆下載和解析同一邊界；觀測值每次獨立 join，快取不共享指標數值。
 

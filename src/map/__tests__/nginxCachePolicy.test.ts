@@ -66,3 +66,27 @@ describe("nginx 靜態快取政策", () => {
     expect(root).toContain('Cache-Control "no-cache"');
   });
 });
+
+describe("SPA fallback 不產生 soft-404（SEO-3）", () => {
+  const mapBody = nginx.match(/map \$uri \$spa_fallback \{([\s\S]*?)\n\}/)?.[1] ?? "";
+  const rootBlock = nginx.match(/location \/ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+
+  it("location / 用 $spa_fallback，不再直接 fallback 到 /index.html", () => {
+    expect(rootBlock).toMatch(/try_files \$uri \$uri\/ \$spa_fallback;/);
+    expect(rootBlock).not.toMatch(/try_files[^;]*\/index\.html/);
+  });
+
+  it("無副檔名 → /index.html；有副檔名 → @notfound；@notfound 回 404", () => {
+    expect(mapBody).toMatch(/default\s+\/index\.html;/);
+    const m = mapBody.match(/"~([^"]+)"\s+@notfound;/);
+    expect(m).not.toBeNull();
+    const re = new RegExp(m![1] as string);
+    for (const missing of ["/robots.txt", "/sitemap.xml", "/llms.txt", "/foo.png", "/a/b.geojson"]) {
+      expect(re.test(missing), missing).toBe(true);
+    }
+    for (const route of ["/", "/about", "/map/taiwan", "/some-route"]) {
+      expect(re.test(route), route).toBe(false);
+    }
+    expect(nginx).toMatch(/location @notfound \{\s*return 404;\s*\}/);
+  });
+});

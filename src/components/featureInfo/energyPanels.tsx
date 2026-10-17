@@ -15,6 +15,7 @@ import { Sparkline } from "../intel/monitor/PressureRing";
 import { FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import type { StaticMessageKey } from "../../i18n/keys";
 
@@ -534,7 +535,8 @@ export function GeothermalWellPanel({ props }: { props: Record<string, unknown> 
 
 export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   // 政府原始資料未提供 district / installed_at；district 從 address regex 抓 XX區
   const addr = String(props.address || "");
   const districtFromAddr = addr.match(/[一-龥]{1,3}區/)?.[0] ?? "";
@@ -544,7 +546,7 @@ export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, un
       <Row field="facilityName" value={String(props.installation_name || "—")} />
       <Row field="category" value={String(props.category || "—")} />
       <Row field="installedCapacity" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
-      <Row field="district" value={district} />
+      <Row field="district" value={placeTown(addr.slice(0, 3), district, i18n)} />
       <Row field="address" value={addr || "—"} />
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
         {tr("popup.energy.permitNote")}

@@ -52,5 +52,5 @@
 
 ## 相關
 
-- 整體紀錄：`docs/perf-audit-2026-09-30.md`
+- 整體紀錄：`docs/audit/perf-audit-2026-09-30.md`
 - Related pitfall：`2026-04-22-mapbox-load-once-fired.md`（同屬 Mapbox 生命週期時序問題）

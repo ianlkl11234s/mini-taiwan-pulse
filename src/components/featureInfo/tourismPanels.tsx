@@ -1,4 +1,4 @@
-import { placeName } from "../../i18n/placeText";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { useLocale } from "../../state/localeStore";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { Row, Title } from "./shared";
@@ -36,7 +36,7 @@ export function AttractionsPanel({ props }: { props: Record<string, unknown> }) 
     <>
       <Title color={info.color}>{String(props.name ?? tr("popup.tourism.attraction"))}</Title>
       <Row field="category" value={info.label} color={info.color} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="openingHours" value={String(props.open_time ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
@@ -48,12 +48,13 @@ export function AttractionsPanel({ props }: { props: Record<string, unknown> }) 
 
 // ── 2. 溫泉露頭 ──
 export function HotSpringsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   return (
     <>
       <Title color="#d81b60">{String(props.name ?? tr("popup.tourism.hotSpring"))}</Title>
-      <Row field="county" value={String(props.county ?? "")} />
-      <Row field="region" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="region" value={placeTown(String(props.county ?? ""), String(props.district ?? ""), i18n)} />
       <Row label={tr("popup.tourism.springQuality")} value={String(props.quality ?? "")} />
       <Row field="type" value={String(props.type ?? "")} />
     </>
@@ -90,7 +91,8 @@ export function ScenicAreasPanel({ props }: { props: Record<string, unknown> }) 
 
 // ── 5. 文化資產：category 三值分色（色表 SSOT = data/tourTypes.ts） ──
 export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const cat = String(props.category ?? "");
   const color = TOUR_HERITAGE_CATEGORY_COLOR_MAP[cat] ?? "#6d4c41";
   return (
@@ -98,7 +100,7 @@ export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
       <Title color={color}>{String(props.name ?? tr("popup.tourism.heritage"))}</Title>
       <Row field="category" value={cat} color={color} />
       <Row label={tr("popup.tourism.grade")} value={String(props.grade ?? "")} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
     </>
   );
@@ -106,7 +108,8 @@ export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 7. 觀光活動・節慶：EventCancelled → 已取消；否則以 start/end 對今日判斷三態 ──
 export function EventsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const start = String(props.start_time ?? "").slice(0, 10);
   const end = String(props.end_time ?? "").slice(0, 10);
   const today = tourTodayStr();
@@ -136,7 +139,7 @@ export function EventsPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={statusColor}>{String(props.name ?? tr("popup.tourism.event"))}</Title>
       <Row field="status" value={statusLabel} color={statusColor} />
       <Row field="category" value={String(props.event_class ?? "")} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="date" value={dateRange} />
       <Row label={tr("popup.tourism.fee")} value={freeLabel} />
@@ -147,14 +150,15 @@ export function EventsPanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 8. 觀光工廠：website 外部連結 + geocode_precision 揭露 ──
 export function FactoriesPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const t = useFeatureTheme();
   const website = String(props.website ?? "");
   return (
     <>
       <Title color="#546e7a">{String(props.name ?? tr("popup.tourism.factory"))}</Title>
       <Row field="region" value={String(props.region ?? "")} />
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="positionAccuracy" value={String(props.geocode_precision ?? "")} />
@@ -171,7 +175,8 @@ export function FactoriesPanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 9. 民營遊樂園：安檢誠信揭露 + coord_source=parking 註記 ──
 export function AmusementParksPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const t = useFeatureTheme();
   const issues = props.inspection_issues_count;
   const issuesStr = issues == null || issues === "" ? "" : String(issues);
@@ -179,7 +184,7 @@ export function AmusementParksPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <Title color="#00acc1">{String(props.name ?? tr("popup.tourism.amusementPark"))}</Title>
-      <Row field="city" value={String(props.city ?? "")} />
+      <Row field="city" value={placeName(String(props.city ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="phone" value={String(props.phone ?? "")} />
       <Row field="openingHours" value={String(props.open_hours ?? "")} />
@@ -197,14 +202,15 @@ export function AmusementParksPanel({ props }: { props: Record<string, unknown> 
 
 // ── 10. 露營場 ──
 export function CampingPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const t = useFeatureTheme();
   const website = String(props.website ?? "");
   return (
     <>
       <Title color="#7cb342">{String(props.name ?? tr("popup.tourism.camping"))}</Title>
-      <Row field="county" value={String(props.city ?? "")} />
-      <Row field="region" value={String(props.district ?? "")} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
+      <Row field="region" value={placeTown(String(props.city ?? ""), String(props.district ?? ""), i18n)} />
       <Row field="address" value={String(props.address ?? "")} />
       <Row field="status" value={String(props.status ?? "")} />
       <Row label={tr("popup.tourism.legality")} value={String(props.legal_status ?? "")} />

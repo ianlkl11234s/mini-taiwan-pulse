@@ -12,7 +12,7 @@
 LLM 透過白名單 tools 操作地圖（開圖層 / 飛行 / 標記）與查資料（靜態 geojson 統計 /
 H3 人口 join / 薄 RPC），key 零經手我方伺服器。
 
-## 架構要點（詳見 `docs/proposal/member-byok-chat-plan.md`）
+## 架構要點（詳見 `docs/features/byok-chat/plan.md`）
 
 - **BYOK 直連**：Anthropic 帶 `anthropic-dangerous-direct-browser-access` header；
   三層儲存（memory / sessionStorage 預設 / localStorage opt-in）；CORS 被封則揭露不做 proxy

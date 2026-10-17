@@ -2,7 +2,7 @@
 
 > 指派者：使用者（手動轉交）。完成後回報給 Claude session 驗收，**不要自行 merge**。
 > Repo：`mini-taiwan-pulse`。從最新 `origin/master` 開分支；worktree 開在 `.worktrees/<名稱>`，`node_modules` symlink 到 `../analysis-prod/mini/node_modules`。主目錄、`analysis-prod`、`research-streamline`、`transport-facilities` 有別人的工作，不要動。監看模式（Monitor）另有 session 在做，**不要碰 `src/components/intel/monitor/`、`MonitorPanel`**。
-> 先讀：`docs/perf-audit-2026-09-30.md`（上一輪效能改造，量測方法 §4 照用）、`.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md`、`docs/development-rules.md` §8（動態圖層時間訂閱）、`docs/design-system/README.md`「已知未修」。
+> 先讀：`docs/audit/perf-audit-2026-09-30.md`（上一輪效能改造，量測方法 §4 照用）、`.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md`、`docs/development-rules.md` §8（動態圖層時間訂閱）、`docs/design-system/README.md`「已知未修」。
 
 本包分兩個 PR，**依序做**：
 
@@ -68,7 +68,7 @@
 - 不 `reset --hard`／`checkout -- .`／`clean -fd`；看到不是你改的檔不要碰、不要 revert。
 - 對照頁或截圖若要 commit，用 JPEG 且整頁 ≤ 5MB（不要內嵌 PNG）。
 - commit 用 Conventional Commits；可以 push、開 PR；**不要 merge**。
-- 文件：P1、P2 各自在 `docs/design-system/README.md` 進度表與「已知未修」、`CHANGELOG.md`、`docs/perf-audit-2026-09-30.md` §3（或新增一段）更新。
+- 文件：P1、P2 各自在 `docs/design-system/README.md` 進度表與「已知未修」、`CHANGELOG.md`、`docs/audit/perf-audit-2026-09-30.md` §3（或新增一段）更新。
 
 ## 回報
 

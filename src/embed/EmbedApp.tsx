@@ -27,6 +27,7 @@ import { buildPopupHtml, POPUP_CSS, POPUP_CSS_LIGHT } from "./embedPopup";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../types";
 import { buildBasemapStyle } from "./basemapStyle";
+import { localeStore, useLocale } from "../state/localeStore";
 import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
 } from "../map/overlayManager";
@@ -84,6 +85,7 @@ const LIGHT_STYLE_IDS = new Set(["light", "streets"]);
 const FALLBACK_CAMERA = { center: [120.9, 23.7] as [number, number], zoom: 6.9, pitch: 0, bearing: 0 };
 
 export function EmbedApp() {
+  const { t, locale } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [ready, setReady] = useState(false);
@@ -125,7 +127,7 @@ export function EmbedApp() {
 
     const map = new maplibregl.Map({
       container,
-      style: buildBasemapStyle(isDark),
+      style: buildBasemapStyle(isDark, localeStore.getSnapshot().locale),
       center: cam.center,
       zoom: cam.zoom,
       pitch: narrow ? 0 : cam.pitch,
@@ -286,6 +288,7 @@ export function EmbedApp() {
       q.set("z", String(cam.zoom));
     }
     if (layerKeys.length) q.set("layers", layerKeys.join(","));
+    if (locale !== "zh-TW") q.set("lang", locale);
     u.search = q.toString();
     return u.toString();
   })();
@@ -310,7 +313,7 @@ export function EmbedApp() {
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        在 Mini Taiwan Pulse 開啟 ↗
+        {t("embed.openInSite")} ↗
       </a>
 
       {/* 回放控制（EM-16）—— 播放/暫停 + 時刻，刻意極簡不做 scrubber */}

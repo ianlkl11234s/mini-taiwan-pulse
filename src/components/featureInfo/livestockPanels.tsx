@@ -2,9 +2,11 @@ import { FARM_COLOR, slaughterKind, SLAUGHTER_COLOR, FEED_COLOR, MARKET_COLOR } 
 import { Row, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 
 export function LivestockFarmPanel({ props }: { props: Record<string, unknown> }) {
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   const species = String(props["主畜種"] ?? "");
   const accent = FARM_COLOR[species] ?? "#9e9e9e";
   const lowPrecision = String(props["精度"] ?? "") === "低";
@@ -15,7 +17,7 @@ export function LivestockFarmPanel({ props }: { props: Record<string, unknown> }
       <Row label={t("popup.livestock.mainSpecies")} value={species} color={accent} />
       <Row label={t("popup.livestock.totalHeads")} value={formatNumber(total)} />
       <Row label={t("popup.livestock.speciesDetail")} value={String(props["種類明細"] ?? "")} />
-      <Row field="county" value={String(props["縣市"] ?? "")} />
+      <Row field="county" value={placeName(String(props["縣市"] ?? ""), i18n)} />
       {lowPrecision && <Row field="positionAccuracy" value={t("popup.livestock.lowPrecision")} color="#ffb300" />}
     </>
   );

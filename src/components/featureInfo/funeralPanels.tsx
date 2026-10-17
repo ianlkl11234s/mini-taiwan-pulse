@@ -2,6 +2,7 @@ import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 import {
   facilityTypeColor, facilityTypeLabel, operatorTypeLabel,
@@ -52,7 +53,7 @@ export function FuneralFacilityPanel({ props }: { props: Record<string, unknown>
       <Row field="type" value={typeLabel} color={color} />
       <Row field="publicPrivate" value={enumLabel("funeralOperatorType", opType, operatorTypeLabel(opType), i18n)} />
       {str(props.eco_type) ? <Row label={t("popup.funeral.ecoType")} value={str(props.eco_type)} /> : null}
-      <Row field="district" value={district ? `${str(props.county)}${district}` : str(props.county)} />
+      <Row field="district" value={placeName(district ? `${str(props.county)}${district}` : str(props.county), i18n)} />
       <Row field="phone" value={str(props.phone)} />
       <PrecisionNote precision={str(props.precision)} />
     </>
@@ -82,7 +83,7 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
       />
       {capital != null ? <Row field="capital" value={t("popup.funeral.yuan", { value: formatNumber(capital) })} /> : null}
       <Row field="businessId" value={str(props.uniform_id)} />
-      <Row field="district" value={`${str(props.county)}${str(props.district)}`} />
+      <Row field="district" value={placeName(`${str(props.county)}${str(props.district)}`, i18n)} />
       <PrecisionNote precision={str(props.precision)} />
     </>
   );
@@ -95,11 +96,12 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
  */
 export function FuneralOperatorDensityPanel({ props }: { props: Record<string, unknown> }) {
   const count = typeof props.operatorCount === "number" ? props.operatorCount : 0;
-  const { t, formatNumber } = useLocale();
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
   return (
     <>
       <Title color={FUNERAL_LAYER_COLORS.funeralOperatorDensity}>
-        {`${str(props.COUNTYNAME)}${str(props.TOWNNAME)}` || t("popup.funeral.townFallback")}
+        {placeName(`${str(props.COUNTYNAME)}${str(props.TOWNNAME)}`, i18n) || t("popup.funeral.townFallback")}
       </Title>
       <Row label={t("popup.funeral.registeredOperators")} value={t("popup.funeral.operatorCount", { count, value: formatNumber(count) })} />
       <Note>
@@ -147,7 +149,7 @@ export function CemeteryZoningPanel({ props }: { props: Record<string, unknown> 
       <Title color={color}>{zone || t("popup.funeral.zoningFallback")}</Title>
       <Row label={t("popup.funeral.zoningGroup")} value={!zone ? t("popup.common.unclassified") : classValue ? enumLabel("funeralZoningClass", classValue, cemeteryZoningClassLabel(zone), i18n) : zone} color={color} />
       {area != null ? <Row field="area" value={t("popup.funeral.hectare", { value: area.toFixed(2) })} /> : null}
-      <Row field="county" value={str(props.county)} />
+      <Row field="county" value={placeName(str(props.county), i18n)} />
       <Row label={t("popup.funeral.zoningId")} value={str(props.zoning_id)} />
       <Note>{t("popup.funeral.zoningNote1")}<b>{t("popup.funeral.zoningNoteBold")}</b>{t("popup.funeral.zoningNote2")}</Note>
     </>

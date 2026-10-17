@@ -24,6 +24,7 @@ import type { LayerVisibility } from "../types";
 import { LAYER_COLORS, GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../components/sidebar/layerCatalog";
 import { COMPARISON_STATISTICS_KEYS, STATISTICS_COMPARISONS_UI_ENABLED } from "../data/comparisonStatisticsRecipes";
 import { isRailCode } from "../constants/railLines";
+import { DEFAULT_LOCALE, matchLocale, type Locale } from "../i18n/locales";
 import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
 
 export const URL_STATE_VERSION = 1;
@@ -72,6 +73,8 @@ export interface UrlState {
    * 代碼是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
    */
   railSystems?: string[];
+  /** 介面語系（`?lang=`）。zh-TW 為預設，buildUrl 不寫；主站的 localeStore 另外直接讀網址。 */
+  lang?: Locale;
 }
 
 export interface ParseOptions {
@@ -244,6 +247,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
     if (items.length > 0) state.ui = items;
   }
 
+  const lang = matchLocale(q.get("lang"));
+  if (lang) state.lang = lang;
+
   return state;
 }
 
@@ -285,7 +291,13 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.style) q.set("style", state.style);
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));
+  if (state.lang && state.lang !== DEFAULT_LOCALE) q.set("lang", state.lang);
 
   const sep = base.includes("?") ? "&" : "?";
   return `${base}${sep}${q.toString()}`;
+}
+
+/** 清空網址（私人畫面）時保留語系：中文回到乾淨路徑，外文留 `?v=1&lang=xx`。 */
+export function cleanUrl(pathname: string, lang: Locale): string {
+  return lang === DEFAULT_LOCALE ? pathname : buildUrl({ lang }, pathname);
 }

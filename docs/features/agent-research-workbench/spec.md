@@ -6,7 +6,7 @@
 
 狀態：使用者已選定產品方向並授權隔離 worktree 開工；實作進度與驗收見 [handoff.md](./handoff.md)。本規格描述完整 v1 目標，不代表所有功能已實作、上線或付費額度已核准。以下「必須」是 v1 驗收要求；數值標示「初始預設」者為可調整的工程建議。
 
-本文件是本功能的規格 SSOT，取代[研究稿](../../research/ai-gis-analysis-roadmap-2026-09-10.md)中的第一版順序與架構選擇；研究稿保留現況證據與外部專案研究。功能 slug：`agent-research-workbench`。
+本文件是本功能的規格 SSOT，取代[研究稿](../../archive/2026-10-16/research/ai-gis-analysis-roadmap-2026-09-10.md)中的第一版順序與架構選擇；研究稿保留現況證據與外部專案研究。功能 slug：`agent-research-workbench`。
 
 ## 1. 已確認方向
 

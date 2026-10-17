@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, describe, expect, it } from "vitest";
 import { localeStore } from "../../../state/localeStore";
 import { serviceAreaName } from "../../../i18n/dataText";
-import { BikeStationPanel, RailRoutesPanel, RailStationPanel } from "../transportPanels";
+import { BikeStationPanel, BusStationPanel, RailRoutesPanel, RailStationPanel } from "../transportPanels";
 import { AirportPanel, LighthousePanel, PortPanel, ServiceAreaPanel, ServiceAreaPolygonPanel } from "../infraPanels";
 
 type Panel = (arg: { props: Record<string, unknown> }) => ReactElement;
@@ -29,6 +29,10 @@ describe("站名類固定資料：中文介面不變", () => {
     expect(render(ServiceAreaPanel, serviceArea)).toContain("國1");
     expect(render(BikeStationPanel, { StationName: "捷運市政府站", StationNameEn: "MRT Taipei City Hall Stataion" })).toContain("捷運市政府站");
     expect(render(RailRoutesPanel, { name: "板南線", system: "trtc" })).toContain("板南線");
+    const bus = render(BusStationPanel, { StationName: "網溪國小", StationNameEn: "Wangxi Elementary School", City: "新北市" });
+    expect(bus).toContain("網溪國小");
+    expect(bus).toContain("新北市");
+    expect(bus).not.toContain("Wangxi");
     expect(serviceAreaName("泰安服務區(北上)", localeStore.getSnapshot())).toBe("泰安服務區(北上)");
   });
 });
@@ -49,6 +53,10 @@ describe("站名類固定資料：英文介面", () => {
     expect(render(PortPanel, { ...port, name_en: undefined })).toContain("高雄港");
     expect(render(LighthousePanel, lighthouse)).toContain("Eluanbi Lighthouse");
     expect(render(LighthousePanel, { Name: "野柳燈杆" })).toContain("野柳燈杆");
+    const bus = render(BusStationPanel, { StationName: "網溪國小", StationNameEn: "Wangxi Elementary School", City: "新北市" });
+    expect(bus).toContain("Wangxi Elementary School");
+    expect(bus).toContain("New Taipei City");
+    expect(render(BusStationPanel, { StationName: "山腳", StationNameEn: "" })).toContain("山腳");
   });
 
   it("機場標題用英文名，英文介面不再重複列英文名這一列", () => {

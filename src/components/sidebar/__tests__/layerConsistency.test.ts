@@ -433,7 +433,7 @@ describe("manifest 完整性：豁免 ledger", () => {
       NO_POPUP_LEDGER,
       "承載屬性的 feature 都要接 FeatureInfoPanel：types 的 FeatureInfo.layerType 加 key → " +
       "featureInfo/registry 的 PANEL_REGISTRY + HEADER_LABELS 各加一行 → " +
-      "useMapInteraction 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
+      "map/gisClickRegistry 的 GIS_LAYERS 加條目，manifest 的 popup 填該 layerType" +
       "（development-rules §4a 規則 3）",
     );
   });

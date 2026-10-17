@@ -1,5 +1,6 @@
 import { Row } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { useFeatureTheme } from "./featureTheme";
 import {
   LIGHTNING_TYPE_LABELS,
@@ -70,7 +71,8 @@ function depthColor(depth: number): string {
  */
 export function MountainRescuePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const cause = props.cause == null ? null : String(props.cause);
   const color = mountainRescueCauseColor(cause);
   const int0 = (v: unknown) => (typeof v === "number" ? v : 0);
@@ -94,7 +96,7 @@ export function MountainRescuePanel({ props }: { props: Record<string, unknown> 
       </div>
       <Row label={tr("popup.hazard.caseId")} value={String(props.case_id ?? "—")} />
       <Row label={tr("popup.hazard.year")} value={props.year == null ? "—" : String(props.year)} />
-      <Row field="county" value={String(props.city ?? "—")} />
+      <Row field="county" value={placeName(String(props.city ?? "—"), i18n)} />
       {area ? <Row label={tr("popup.hazard.mountainArea")} value={area} /> : null}
       {entry ? <Row label={tr("popup.hazard.entryPoint")} value={entry} /> : null}
       {dest ? <Row label={tr("popup.hazard.destination")} value={dest} /> : null}
@@ -236,12 +238,13 @@ export function EarthquakeReplayStationPanel({ props }: { props: Record<string, 
  * 震度值來自 feature-state `eqi`（PMTiles 幾何本身沒有震度屬性）。
  */
 export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unknown> }) {
-  const { t: tr } = useLocale();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
   const iv = typeof props.eqi === "number" ? props.eqi : null;
   return (
     <div>
-      <Row label={tr("popup.hazard.township")} value={String(props.TOWNNAME ?? "—")} />
-      <Row field="county" value={String(props.COUNTYNAME ?? "—")} />
+      <Row label={tr("popup.hazard.township")} value={placeTown(String(props.COUNTYNAME ?? ""), String(props.TOWNNAME ?? "—"), i18n)} />
+      <Row field="county" value={placeName(String(props.COUNTYNAME ?? "—"), i18n)} />
       <Row
         label={tr("popup.hazard.intensityLevel")}
         value={iv != null ? intensityLabel(iv) : "—"}

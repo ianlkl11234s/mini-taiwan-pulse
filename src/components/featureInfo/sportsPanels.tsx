@@ -4,6 +4,7 @@ import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
+import { placeName } from "../../i18n/placeText";
 
 // open_status 顏色：可用（綠）/ 付費（琥珀）/ 不對外（紅）/ 其他（灰）
 function openStatusColor(s: string): string {
@@ -22,7 +23,7 @@ export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) 
   const openStatus = String(props["open_status"] ?? "");
   const area = Number(props["area_sqm"]);
   const website = String(props["website"] ?? "");
-  const cityDistrict = `${String(props["city"] ?? "")}${String(props["district"] ?? "")}`;
+  const cityDistrict = placeName(`${String(props["city"] ?? "")}${String(props["district"] ?? "")}`, i18n);
   return (
     <>
       <Title color={accent}>{String(props["name"] ?? tr("popup.sports.venueFallback"))}</Title>

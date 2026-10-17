@@ -4,50 +4,32 @@
 
 ---
 
-## PB-01 新增 Layer（完整 7 層順序）
+## PB-01 新增 Layer（manifest-first，2026-10-16 改寫）
 
-> ⚠ 必守順序（CLAUDE.md 規則 5）：缺一個會 tsc error 或 runtime 不顯示。
+> 舊版「7 層順序」（手改 `LayerSidebar.tsx`／`IconRailSidebar.tsx` 的 `LAYER_COLORS`／`LAYER_ICONS`、
+> `useLayerVisibility.ts` DEFAULT_VISIBILITY）已被 AR-22 Phase 4 取代：下游登記簿由 manifest 派生，**不手改**。
 
 ```bash
-# 1. 加 LayerVisibility key
-# src/types/index.ts
-export type LayerVisibility = { ...; newLayer: boolean; }
+# 0. 產骨架 + 驗收 SOP
+/new-layer <name>          # 產 manifest/spec/邏輯檔骨架
+# 之後照 layer-onboarding skill 驗收（UX baseline、四鐵則、跨 repo 對齊）
 
-# 2. Loader + loadingRegistry
-# src/data/newLayerLoader.ts
-export async function fetchNewData() {
-  return withLoading("new-layer", "標籤", supabase.rpc("get_xxx"));
-}
+# 1. 登記：只寫兩筆
+# src/data/layerManifest.ts   → 一筆 entry（key/label/color/icon/section/source/legend/popup/params）
+# src/data/layerParamsSpec.ts → 一筆控件規格（opacity slider 必有）
 
-# 3. React Hook（Mapbox native layer）
-# src/hooks/useNewLayer.ts
-#   - polling attach pattern（不用 map.once('load')）
-#   - checkpoint log：mount / attach / fetch / setData
-#   - 動態時序記得走 timeStore.subscribeDate + subscribeThrottled
+# 2. 實質邏輯
+# src/data/xxxLoader.ts       → withLoading 包 RPC / 靜態 fetch
+# src/hooks/useXxxLayer.ts    → 掛載用 try addLayer + catch → once("idle") 重試（不用 map.once("load")／isStyleLoaded，見 PRINCIPLES「Mapbox 掛載與 isStyleLoaded」）；動態時序走 timeStore 訂閱
+# src/map/overlayRegistry.ts 或 src/map/xxxCustomLayer.ts
 
-# 4. Overlay registry 或 Custom WebGL layer
-# src/map/overlayRegistry.ts  或  src/map/newLayerCustomLayer.ts
-
-# 5. UI toggle
-# src/components/LayerSidebar.tsx
-#   - 加 toggle row
-#   - LAYER_COLORS 補新 key（漏了 tsc error）
-# src/components/IconRailSidebar.tsx
-#   - LAYER_COLORS / LAYER_ICONS 補新 key
-
-# 6. App.tsx 接線
-# 參考現有 hook 的呼叫位置
-
-# 7. 預設可見性
-# src/hooks/useLayerVisibility.ts
-export const DEFAULT_VISIBILITY = { ...; newLayer: false };
+# 3. 其餘人工觸點（legend sub-component、featureInfo panel、gisClickRegistry、deploy 清單…）
+# → 完整 20 觸點表見 docs/development-rules.md §4；預設可見性刻意為空集合（src/state/layerVisibilityStore.ts）
 
 # 驗證
 npx tsc -b
-npm run dev    # 手動 toggle 確認
+npm test        # layerConsistency / layerManifest 會擋漏接
 ```
-
-可用 slash command `/new-layer <name>` 自動產生骨架。
 
 ---
 
@@ -65,7 +47,7 @@ psql "$SUPABASE_DB_URL" -c "EXPLAIN (ANALYZE, BUFFERS) SELECT ..."
 # gis-platform/migrations/NNN_xxx.sql
 #   - CREATE OR REPLACE FUNCTION public.get_xxx(...)
 #   - LANGUAGE sql STABLE
-#   - SET statement_timeout TO '30s'
+#   - SET statement_timeout TO '30s'（payload > 10MB 改 '60s'；refresh/cron 用 '0'。準則見 docs/supabase-optimization.md 關鍵坑 3）
 #   - GRANT EXECUTE ON FUNCTION ... TO anon, authenticated
 
 # 4. 本地套用
@@ -85,25 +67,24 @@ psql "$DATABASE_URL" -c "\\timing on" -c "SELECT COUNT(*) FROM public.get_xxx(..
 
 ---
 
-## PB-03 Merge feat/* → master
+## PB-03 功能分支合併（PR → develop，2026-10-16 改寫）
+
+> 舊版「本機 `git checkout master; git merge --no-ff`」已過時：2026-10-04 起所有 PR base＝develop，
+> master 只收發布合併與 `hotfix/*`；2026-09-15 起禁 squash／rebase merge。見 CLAUDE.md §Git Workflow。
 
 ```bash
-git branch --show-current   # 確認在 feat 分支
-git log master..HEAD --oneline   # 看要合什麼
-git diff master..HEAD --stat     # 看規模
-
-git checkout master
-git merge feat/xxx --no-ff -m "Merge branch 'feat/xxx'
-
-<摘要>
-
-Co-Authored-By: ..."
-
-git log --oneline --graph -5   # 驗證 merge commit
-
-# 保留分支（不 delete），以備回溯
-# push 由用戶決定
+git branch --show-current                 # 確認在 feat 分支
+git fetch origin
+git log origin/develop..HEAD --oneline    # 看要合什麼
+git push -u origin feat/xxx
+gh pr create --base develop               # 帶 .github/pull_request_template.md
+# 等 CI 檢查出現並跑完再合（CLEAN ≠ CI 跑完）
+gh pr checks <n> --watch
+gh pr merge <n> --merge                   # 一律 merge commit
 ```
+
+- develop → master（正式部署）須使用者拍板，步驟見 `docs/RELEASING.md`。
+- user-facing PR 在 `CHANGELOG.md` 的 `## [Unreleased]` 加一行。
 
 ---
 
@@ -178,8 +159,8 @@ git push -u origin <branch> && gh pr create --base develop
 
 | # | 檔案 | 動作 |
 |---|---|---|
-| 1 | `scripts/upload-deploy-assets.sh` | FILES 陣列加新檔名 |
-| 2 | `scripts/pull-deploy-assets.sh` | FILES 字串加新檔名 |
+| 1 | `scripts/deploy/upload-deploy-assets.sh` | FILES 陣列加新檔名 |
+| 2 | `scripts/deploy/pull-deploy-assets.sh` | FILES 字串加新檔名 |
 | 3 | `docker-compose.yml` | volumes 加對應掛載 |
 | 4 | `.gitignore` | 加排除規則 |
 | 5 | **`nginx.conf`** | **location regex 加新檔名路由到 /data**（⚠️ 最常漏，漏了 fetch 走 SPA fallback 回 index.html → JSON parse fail → 圖層不顯示） |
@@ -189,8 +170,8 @@ git push -u origin <branch> && gh pr create --base develop
 若同群檔（例如 `water_*.geojson`）預期會不斷新增，改走 glob 動態列舉可免掉每次改 5 處：
 
 - `.gitignore` 用 glob 排除
-- `upload-deploy-assets.sh` 顯式 FILES 迴圈後 append `for f in public/geo/xxx_*.geojson`
-- `pull-deploy-assets.sh` 用 `aws s3 ls | grep '^xxx_'` 動態抓
+- `scripts/deploy/upload-deploy-assets.sh` 顯式 FILES 迴圈後 append `for f in public/geo/xxx_*.geojson`
+- `scripts/deploy/pull-deploy-assets.sh` 用 `aws s3 ls | grep '^xxx_'` 動態抓
 - nginx `location /geo/` 已涵蓋所有 `.geojson`，不需個別 regex
 
 **已用 glob**：`water_*.geojson`
@@ -208,7 +189,7 @@ git push -u origin <branch> && gh pr create --base develop
 
 ```bash
 # 本地
-bash scripts/upload-deploy-assets.sh     # 上 S3 deploy-assets/
+bash scripts/deploy/upload-deploy-assets.sh     # 上 S3 deploy-assets/
 
 # Zeabur Web Terminal
 sh /usr/local/bin/pull-deploy-assets.sh  # 從 S3 拉到 /data/
@@ -220,7 +201,7 @@ sh /usr/local/bin/pull-deploy-assets.sh  # 從 S3 拉到 /data/
 2. **rail 格式**：前端請求個別 `.json` / S3 存 `rail.tar.gz` / pull 腳本自動解壓，**不是**單一 `rail_bundle.json`
 3. **S3 ACL**：bucket 不支援 ACL（`--acl public-read` 會 fail），改用私密 + 環境變數認證
 4. **pull 腳本路徑**：`/usr/local/bin/pull-deploy-assets.sh`（不是舊 README 寫的 nginx html 路徑）
-5. **腳本更新**：改 `pull-deploy-assets.sh` 後需要 commit + push + **重部署**（Dockerfile COPY 到 image 內），只跑 pull 不會更新腳本
+5. **腳本更新**：改 `scripts/deploy/pull-deploy-assets.sh` 後需要 commit + push + **重部署**（Dockerfile COPY 到 image 內），只跑 pull 不會更新腳本
 6. **判 cutover 不看 `zeabur deployment list` 的 RUNNING 標籤**（會滯後，舊 deployment 數小時後仍標 RUNNING）。改認三條 runtime 證據：runtime log 出現**新 pod started** → log 出現 `[pull] all assets synced` → **自己發一個可辨識的請求**（帶 token 的 query string）確認它出現在**新 pod 的** access log。前兩條只證明新 pod 起來了，第三條才證明流量切過去了
 7. **deploy 落地前不要裸探測新檔名**：`curl -I "<url>?cb=$(date +%s)"`。CF 預設會 negative-cache 404 最長 4hr（`.gz` 中招、`.json` 不會），而本專案唯一的 purge 是 `purge_everything`
 
@@ -362,7 +343,7 @@ LIMIT 8;"
 
 **順便比 schema 欄位**：填充率（COUNT vs sample 全空）+ 歷史長度 + 取樣頻率，決定誰當主源。
 
-詳見：`docs/research/iot-wra-integration-study.md` § 3 + § 7。
+詳見：`docs/features/water-resources/iot-wra-integration-study.md` § 3 + § 7。
 
 實例：iot_wra groundwater（95% → 停 iot）vs river（16% → 兩邊都留）。
 
@@ -402,7 +383,7 @@ function parseTimeline(timeline: string): Array<{ t: number; v: number }> {
 
 實例：migration 063（iot_wra）— `iot_wra_latest` 4k rows + `iot_wra_daily` ~4k rows × 7 天 / 23 timepoints。
 
-詳見：`docs/research/iot-wra-integration-study.md` § 5.2。
+詳見：`docs/features/water-resources/iot-wra-integration-study.md` § 5.2。
 
 ---
 
@@ -444,7 +425,7 @@ npx zeabur@latest service network --id <service-id>
 - 同 project：`<service-name>.zeabur.internal:8080` 或 `service-<service-id>:8080`
 - 跨 project：**不通**，必須走 public domain（見 PB-12）
 
-詳見：`docs/research/waste-osrm-mapmatching-plan.md` §14（OSRM 部署完整紀錄）。
+詳見：`docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14（OSRM 部署完整紀錄）。
 
 ---
 
@@ -517,7 +498,7 @@ curl -H "Authorization: Bearer $TOKEN" https://<proxy>.zeabur.app/some-endpoint
 
 **月度 token 輪換**：改 proxy 的 `API_TOKEN` env var → Zeabur reload nginx → 同步改 caller 的 `API_TOKEN`。
 
-實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/research/waste-osrm-mapmatching-plan.md` §14。
+實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/features/waste-collection/research/osrm-mapmatching-plan.md` §14。
 
 ---
 
@@ -647,15 +628,15 @@ tippecanoe 預設**只保留 `-y` 指定的欄位**，其他 raw 屬性全丟。
    注意 `public/agriculture/*.pmtiles` 已 gitignore，**不會進 mini repo 的 git** —
    走 S3 deploy-assets 上線
 
-5. **前端接 panel**：在 `FeatureInfoPanel.tsx` 加 sub-panel + `HEADER_LABELS` +
-   switch case + `useMapInteraction.ts` 的 `GIS_LAYERS` 加 `{ layers: [...], type: "..." }` +
+5. **前端接 panel**：在 `featureInfo/registry.tsx`（PANEL_REGISTRY）加 sub-panel + `HEADER_LABELS` +
+   `src/map/gisClickRegistry.ts` 加 `{ layers: [...], type: "..." }`（原 `useMapInteraction.ts` GIS_LAYERS 已升格至此）+
    `FeatureInfo.layerType` union 加 key
 
 ### 驗證
 
 - Dev server reload，toggle 該 layer，點 polygon/POI → 應該看到所有欄位
 - 中文欄位（如「社區名」「土系」）注意 JS 端要用字串字面值 lookup：`props["社區名"]`，
-  別忘了 useMapInteraction 拿到的 properties keys 是 PMTiles 寫進去的原始名稱
+  別忘了點擊取到的 properties keys 是 PMTiles 寫進去的原始名稱
 
 ### 實例（2026-05-23 連跑 4 個 layer）
 
@@ -734,7 +715,7 @@ minzoom 8 + range request 不會一次全載，但要評估部署成本。
 8. **中介 GeoJSON 寫 gitignored `build/`**，`public/` 只放 `.pmtiles`（生成腳本 OUT_DIR 指 build/）。
 
 9. **UX 四鐵則照舊**：透明度 slider、顏色分級必寫圖例（`fireTypes.ts` 的 `FIRE_ISOCHRONE_BANDS` 單一來源）、
-   面可點 → popup（`useMapInteraction` GIS_LAYERS 放**清單末端**避免大面積擋點選）、**縣市選項 ≥4 用原生 `<select>`**。
+   面可點 → popup（`src/map/gisClickRegistry.ts` 放**清單末端**避免大面積擋點選）、**縣市選項 ≥4 用原生 `<select>`**。
 
 ### 檔案地圖（首例）
 `fetch-fire-isochrones.py`（生成+全國聚合）/ `geocode-pingtung-fire-stations.py`（補座標）/
@@ -842,8 +823,8 @@ psql "$SUPABASE_DB_URL" -f migrations/<next>.sql  # gis-platform，先 apply 線
 # - 改前端 → dev server + agent-browser 截圖驗證
 
 # 4. push + PR
-git add -A && git commit -m "<type>: <subject>" && git push -u origin <branch>
-gh pr create --title "<title>" --body "<summary + 自我檢查結果 + 截圖路徑>"
+git add <自己改的檔> && git commit -m "<type>: <subject>"   # 平行 session 下不用 add -A && git push -u origin <branch>
+gh pr create --base develop --title "<title>" --body "<summary + 自我檢查結果 + 截圖路徑>"
 
 # 5. 等 CI + Codex review（時間依 queue 而定）
 # - CI 紅 → 修 → push 重跑
@@ -851,10 +832,11 @@ gh pr create --title "<title>" --body "<summary + 自我檢查結果 + 截圖路
 # - 確認 reviewed commit 等於 PR 最新 head；兩道全綠 → merge
 
 # 6. merge + sync
-gh pr merge <#> --squash --delete-branch
-git checkout master && git pull --ff-only && git branch -d <branch>
+gh pr merge <#> --merge --delete-branch     # 2026-09-15 起禁 squash／rebase
+git switch develop && git pull --ff-only && git branch -d <branch>
 
-# Zeabur 自動部署、Supabase migration 已預先 apply（步驟 2）
+# 進 develop 不部署；develop → master 才觸發 Zeabur 正式部署（須使用者拍板，見 docs/RELEASING.md）
+# Supabase migration 已預先 apply（步驟 2）
 ```
 
 跨 repo 多 PR 時策略：DB 端 PR 先（先 apply 線上）→ collector PR → 前端 PR。
@@ -928,14 +910,17 @@ subscribeThrottled(1000ms, recomputeTrack); // 1 Hz 即可
 - 所有 `map.on(...)` listener 必須進 cleanup
 - 新增 `visKey` 字串穩定化 effect：toggle 一動立即 force recompute（0 延遲、0 閃爍）
 
-### Step 6: 9 觸點接線（依 CLAUDE.md 規則 5）
+### Step 6: 觸點接線（依 CLAUDE.md 規則 5）
+
+> ⚠️ 2026-10-16 更新：原「9 觸點」含手補 `layerCatalog.ts` LAYER_COLORS／SPACE section、`IconRailSidebar.tsx` LAYER_ICONS、
+> `useTransportParams.ts` opacity case，AR-22 Phase 4 後都改由 manifest／spec 派生（`useTransportParams.ts` 已不存在）。
 
 types/index.ts → satelliteTypes.ts (colors/labels/regex) → satelliteSGP4.ts (純函式)
-→ satelliteLoader.ts (Supabase) → useSatellitesLayer.ts → layerCatalog.ts (LAYER_COLORS + SPACE section)
-→ useLayerVisibility.ts (DEFAULT_ON 視需要) → IconRailSidebar.tsx (LAYER_ICONS 對應)
-→ App.tsx (hook call) → SatellitePanel + featureInfo/registry.tsx + LegendPanel.tsx
-→ useMapInteraction.ts (GIS_LAYERS 加 sat-current-point)
-→ useTransportParams.ts (opacity slider case)
+→ satelliteLoader.ts (Supabase) → useSatellitesLayer.ts
+→ `layerManifest.ts` 一筆（color/icon/section 由此派生）＋ `layerParamsSpec.ts` 一筆（opacity slider）
+→ App.tsx (hook call) → SatellitePanel + featureInfo/registry.tsx + legend sub-component
+→ `src/map/gisClickRegistry.ts`（sat-current-point）
+完整觸點表見 `docs/development-rules.md` §4。
 
 ### 反例（不要做）
 
@@ -1277,13 +1262,13 @@ leftover 全屬聲明的保留情境，commit 過。
 | Phase | 工作 | 預估 commit |
 |---|---|---|
 | **A** | gis-platform 寫所有 RPC + apply Supabase + EXPLAIN ANALYZE 驗證 < 1s | 4-6 commit |
-| **B** | mini-taiwan-pulse types/index.ts 加 LayerVisibility key + xxxLoader.ts 寫 fetcher + 顏色/分級 const | 1 commit |
+| **B** | mini-taiwan-pulse types/index.ts 加 LayerVisibility key + xxxLoader.ts 寫 fetcher + 顏色/分級 const（`xxxTypes.ts`） | 1 commit |
 | **C** | overlayRegistry 加 2D POI（dynamicData=true） + useXxxLayer hook + setData on style.load | 1 commit |
 | **D** | 3D Scene + CustomLayer（按需）：blending 還原 + dispose + frustumCulled=false | 1 commit |
 | **E** | HUD / KPI 卡 + App.tsx 接線（pitch 警示給用戶看 3D 要傾斜地圖） | 1 commit |
 | **F** | 第二輪 3D（例如 beam）— InstancedMesh + setColorAt 不 pre-alloc + lerp | 1 commit |
-| **G** | layerCatalog SECTIONS 新分組 + LAYER_COLORS + IconRailSidebar LAYER_ICONS + LegendPanel sub-component | 1 commit |
-| **H** | featureInfo PANEL_REGISTRY + HEADER_LABELS + useMapInteraction GIS_LAYERS | 1 commit |
+| **G** | `layerManifest.ts` entry（section/color/icon 派生，不手改 layerCatalog／sidebar）+ `layerParamsSpec.ts` 一筆 + legend sub-component（2026-10-16 更新） | 1 commit |
+| **H** | featureInfo PANEL_REGISTRY + HEADER_LABELS + `src/map/gisClickRegistry.ts` | 1 commit |
 | **I** | npx tsc -b + vitest run + ratchet baseline 對齊 | 1 commit + status doc |
 
 ### 微修迭代（v1.x）— 用戶 review 後幾乎一定會有
@@ -1313,6 +1298,9 @@ leftover 全屬聲明的保留情境，commit 過。
 ---
 
 ## PB-21 — git rebase 自動拋棄 already-in-upstream commit（PR squash 後安全同步）
+
+> ⚠️ 過時（2026-10-16）：只適用 2026-09-15 前的 squash 歷史；現行一律 merge commit，見 CLAUDE.md §Git Workflow。
+> 以下保留作為處理舊歷史的參考（文中的 master 現在對應 develop）。
 
 > **觸發**：PR 已 squash merge 後，本地 master/main 有「PR 之前還沒 push 的舊 commit」，pull --ff-only 拒絕快轉
 
@@ -1451,17 +1439,19 @@ git status -s
 
 「N 站重疊 / 覆蓋計數 / overlap count / service redundancy / 多重保護 / 警力沙漠 / 蝶圖 / N 分鐘可達且重疊多」
 
-## PB-25 混亂分支拆乾淨 → 依序 PR 併回 master（2026-07-02 加）
+## PB-25 混亂分支拆乾淨 → 依序 PR 併回 develop（2026-07-02 加；2026-10-16 改 develop＋merge commit）
+
+> 原文 base 為 master、用 `--squash`；2026-10-04 起 PR base＝develop，2026-09-15 起禁 squash／rebase merge。下文已改寫。
 
 一條分支混了多個 feature（bloom + 派出所 sidebar + 大量 memory）要拆成乾淨 PR 時：
 
-1. **先盤點不動手**：`git log --oneline master..<branch>` 看 commit 組成，判斷每個 commit 屬哪個 feature；`git diff --stat master <branch> -- <path>` 確認哪些檔已在 master（避免重複 / 遺失）。
-2. **確認已併的別重做**：feature code 可能早已透過別的 squash PR 進 master（commit 看似「領先」但內容重複）。用 `git grep -l <代表 key> master -- src/` 驗證 feature 是否已在 master。
-3. **舊分支改名備份**：`git branch -m feat/X feat/X-OLD`，再從 master 切乾淨 `feat/X`。
+1. **先盤點不動手**：`git log --oneline origin/develop..<branch>` 看 commit 組成，判斷每個 commit 屬哪個 feature；`git diff --stat origin/develop <branch> -- <path>` 確認哪些檔已在 develop（避免重複 / 遺失）。
+2. **確認已併的別重做**：feature code 可能早已透過別的 PR 進 develop（舊 squash 歷史尤其常見：commit 看似「領先」但內容重複）。用 `git grep -l <代表 key> origin/develop -- src/` 驗證 feature 是否已在 develop。
+3. **舊分支改名備份**：`git branch -m feat/X feat/X-OLD`，再從 origin/develop 切乾淨 `feat/X`。
 4. **topic-scoped cherry-pick**：每個 feature 的 commit 各自 cherry-pick 到乾淨分支。commit 若各自 scope 清楚（bloom commit 只動 bloom 段），衝突少。
-5. **依序 merge + 每次同步 master**：`gh pr create` → `gh pr merge --squash --delete-branch` → `git checkout master && git pull` → 下一條 rebase 到新 master。共用檔（layerCatalog/App/types）的衝突在此逐一解。
+5. **依序 merge + 每次同步 develop**：`gh pr create --base develop` → 等 CI → `gh pr merge --merge --delete-branch` → `git fetch` → 下一條合併（或 rebase 尚未 push 的本地分支）到新 develop。共用檔（App/types/manifest）的衝突在此逐一解。
 6. **memory commit 直接 cherry-pick**：純 memory/docs 的 commit（append-only）通常乾淨 cherry-pick，不同 section 不衝突。
-7. **清理**：`gh pr merge --delete-branch` 連本地也刪；stale 分支確認 content 在 master 後 `git branch -D`；worktree 分支（`+` 前綴）不動。
+7. **清理**：`gh pr merge --delete-branch` 連本地也刪（⚠️ 也會切換本機分支）；stale 分支確認 content 在 develop 後 `git branch -D`；worktree 分支（`+` 前綴）不動。
 
 本次：climate/bloom/police 三條乾淨併回，衝突只 2 個（useMemo deps 陣列合併 + layerConsistency baseline 補 glow 層），全綠 merge。
 
@@ -1474,13 +1464,13 @@ git status -s
 2. **切互不相交檔案集**派工，任務書明列禁區（對方領域 + 契約檔 + 不 commit）。可混模型：UI/機械用 Sonnet、複雜/安全用 Opus。背景平行跑。
 3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`npm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
 4. **整合階段單獨派**：接線 App.tsx（唯一交會點）+ 修審出瑕疵，agent-browser 截圖驗收。
-5. **收尾**：feature 四件組 → 分批 atomic commit → rebase 最新 master 重驗 → PR（模板）→ squash。
+5. **收尾**：feature 四件組 → 分批 atomic commit → 合併最新 develop 重驗 → PR（模板，base develop）→ `gh pr merge --merge`。
 
 **⚠️ 血淚教訓（2026-07-03）**：orchestrator 若把「規劃描述」誤當「已執行」，會累積幻覺——聲稱做完 DB 修復/migration/CI 修復實際沒發生。**每個「已完成」節點必有工具輸出佐證**（git/psql/curl/gh api），收尾時務必 ground-truth 複查全部聲稱。
 
-**跨 repo 順序（會員/安全類）**：gis-platform migration 先（psql 套用+實測+commit，加 to_regclass 守衛）→ 前端後接（worktree 先 reset origin/master）→ Dashboard 手動項（OAuth provider/Exposed schemas）用戶做 → CI/部署確認查 check-runs。
+**跨 repo 順序（會員/安全類）**：gis-platform migration 先（psql 套用+實測+commit，加 to_regclass 守衛）→ 前端後接（worktree 從 origin/develop 開）→ Dashboard 手動項（OAuth provider/Exposed schemas）用戶做 → CI/部署確認查 check-runs。
 
-**踩過的坑**：pnpm worktree 加依賴 CI npm ci 掛（`npm install --package-lock-only`）；worktree 缺 gitignored public/ 資料（rsync 補）；捏造表名的 migration 會全新套用 ERROR（加 to_regclass 守衛）。
+**踩過的坑**：（歷史，2026-07；現在 npm 是唯一套件管理器）pnpm worktree 加依賴 CI npm ci 掛（`npm install --package-lock-only`）；worktree 缺 gitignored public/ 資料（rsync 補）；捏造表名的 migration 會全新套用 ERROR（加 to_regclass 守衛）。
 
 ### PB-27：靜態層讀取去 DB 化（static-to-cdn 遷移 SOP，2026-07-04）
 
@@ -1495,7 +1485,7 @@ git status -s
 4. **參數化層**（per-city/type）：改「cachedOnce 抓全量 + 記憶體 filter」；filter 欄位**讀 migration 確認**（p_city→回傳哪欄）。**⚠️ 全量太大者不搬**（waste_stops 193k/56MB，且無參 fallback 打全表撞 pooler 2min timeout）。
 5. **deploy 鏈**：nginx `location /static-rpc/ { root /data; }`（純鏡像無 SPA fallback → 缺檔回 404 供 staticRpc fallback）；upload/pull 用鏡像子前綴（比照 `/agriculture/`，整夾 sync，加檔零改腳本）；`.gitignore` 加 `public/static-rpc/`。
 6. **驗證三關**：`tsc -b` + **psql 對數驗證**（客戶端 filter 筆數 = RPC 帶參筆數，每層抽 1-2 參數）+ **冷載 browser**（reload 清 cache → 開多層 → fetch 攔截確認打 /static-rpc/ 非 rpc）+ **prod curl**（真檔 size、缺檔 404）。
-7. 上 S3 → PR → CI 綠 → squash merge → poll prod 部署（/static-rpc/ 供真檔）。
+7. 上 S3 → PR（base develop）→ CI 綠 → `--merge` → 發布到 master 後 poll prod 部署（/static-rpc/ 供真檔）。
 
 **成效範本（本次）**：25 層搬 CDN（最大 fossil_fuel_layers 9.5MB），BC-8 settle 16s→2s。多 agent 分工：主 agent 定 pattern + 電網 pilot 冷載驗證，delegate batch（廢棄物重構帶 psql 對數 gate），信任 subagent push-back（stops 56MB 判斷不搬）。詳見 [[incidents]] 2026-07-04。
 
@@ -1506,8 +1496,8 @@ git status -s
 SOP：
 1. **hunk 分類**：`git diff <混合檔>` 拆 hunk，按關鍵字自動分類（Python 腳本：每份工作的特徵詞 → OWNER/POLL/…），無法自動判的人工看 added 行。⚠️ **import 區最易行級混合**（大家往同一 import block 加行），hunk 級歸類會誤判（如 Biohazard pollution icon 混進 owner import）→ 要看 added 行實際內容，必要時行級拆。
 2. **純檔整檔 diff + 混合檔選定 hunks** → 生成 per-work patch，驗證「各 patch hunk 數相加 = 原始，無漏無重疊」。
-3. **worktree 隔離驗證**：`git worktree add -b <branch> <path> master` + symlink node_modules + `git apply <patch>` + copy untracked → **tsc -b + pnpm test 在隔離 worktree 跑**（確認該份工作自足、不暗依賴其他份）→ commit + push + PR。原工作區完全不碰（保護用戶其他 WIP）。
-4. **merge 後 sync**：備份要保留的 WIP patch → `git reset --hard origin/master`（清已 merge 的，untracked 保留）→ apply 回 WIP patch。⚠️ 大檔（pmtiles >100MB）走 S3 + gitignore，不進 git。
+3. **worktree 隔離驗證**：`git worktree add -b <branch> <path> origin/develop` + symlink node_modules + `git apply <patch>` + copy untracked → **tsc -b + npm test 在隔離 worktree 跑**（確認該份工作自足、不暗依賴其他份）→ commit + push + PR。原工作區完全不碰（保護用戶其他 WIP）。
+4. **merge 後 sync**：備份要保留的 WIP patch → `git reset --keep origin/develop`（有衝突會拒絕執行並保留現場；或 `git switch -c <新分支>` + `git branch -f <舊分支> origin/develop` 完全不碰工作區）→ apply 回 WIP patch。⚠️ 不用 `reset --hard`：平行 session 的未提交改動會被靜默清掉，reflog 救不回。⚠️ 大檔（pmtiles >100MB）走 S3 + gitignore，不進 git。
 
 成效：owner-gated / pollution / lock_type 三份各自乾淨 PR（#60/#61/#62），GitHub 判無衝突（拆分不重疊），原工作區的主題化 + docs WIP 全程零觸碰。
 
@@ -1517,7 +1507,7 @@ SOP：
 
 1. **偵察先行（平行 2 agent）**：① 接線 recipe——拿最近一批同型 PR 的 `git show --stat` 當檔案清單基準 + 各 registry 結構/行號；② 資料驗收——feature 數/欄位/座標系對 handoff 契約 + **node strict-JSON 驗證**（見 PRINCIPLES）
 2. **規格書釘死共用識別字**（orchestrator 自寫單一 SSOT 檔）：layer key / sourceId / mapbox layer id（`${sourceId}-${suffix}`）/ 參數名 / 分色 hex / 特殊行為。實作 agent 一律照表不可自創
-3. **3 工作包按「檔案集合互斥」切**（可全平行）：骨架（types / layerCatalog / LAYER_ICONS / upstreamRegistry）｜核心渲染（overlayRegistry + useTransportParams）｜互動（*Panels.tsx 新檔 + featureInfo registry + useMapInteraction + LegendPanel + layerConsistency baseline）。跨包型別耦合（FeatureInfo union 等）指定給單一包，其他包用釘死名字
+3. **3 工作包按「檔案集合互斥」切**（可全平行）：骨架（types / `layerManifest.ts` / `layerParamsSpec.ts`；layerCatalog、LAYER_ICONS、upstreamRegistry 已由 manifest 派生不手改）｜核心渲染（overlayRegistry）｜互動（*Panels.tsx 新檔 + featureInfo registry + `gisClickRegistry.ts` + legend sub-component + 測試 ledger）。（2026-10-16 更新：原文的 `useTransportParams` 已不存在）跨包型別耦合（FeatureInfo union 等）指定給單一包，其他包用釘死名字
 4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + npm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
 5. **browser 驗收**（agent-browser 8 條坑照全域 memory）：All Off 起手、逐層 queryRenderedFeatures + popup + 參數面板、旗艦層特殊行為逐項驗
 
@@ -1613,9 +1603,9 @@ CLAUDE.md 的鐵則是「上游先動、下游後動」，但實務上常見的�
 git fetch origin -q
 git switch -c feat/<slug>            # branch 建在目前 HEAD
 git push -u origin feat/<slug>
-gh pr create --base <main|master> --head feat/<slug> --title … --body …
+gh pr create --base <預設分支> --head feat/<slug> --title … --body …   # mini-taiwan-pulse 一律 develop
 gh pr checks <n> --watch --interval 20     # 有 CI 的 repo 一定要等
-gh pr merge <n> --rebase --delete-branch   # 多 commit 想保留顆粒度用 rebase
+gh pr merge <n> --merge --delete-branch    # 一律 merge commit（2026-09-15 起禁 squash／rebase）
 git switch <main|master> && git pull --ff-only
 git branch -D feat/<slug>
 ```
@@ -1624,10 +1614,10 @@ git branch -D feat/<slug>
 1. `gh pr merge` 之後 gh 會嘗試更新本地主幹，因為本地主幹仍指著 rebase 前的舊 commit，
    會噴「無法快轉，中止」。**不是失敗** —— 接 `git switch <main> && git pull --ff-only` 即可。
 2. `git switch <main> -q 2>/dev/null` 若失敗會被吞掉，後面的 `git reset --hard origin/<main>`
-   就落在**錯的 branch** 上。切分支不要吞錯誤訊息。
+   就落在**錯的 branch** 上。切分支不要吞錯誤訊息。（現行不用 `reset --hard`，改 `git reset --keep` 或 `git branch -f`，見 PB-28）
 
-**merge 策略**：多個獨立 commit（如 migration 一支一個）用 `--rebase` 保留顆粒度；
-單一 feature 的連續演進（圖層 → 疊加 → 歷史模式 → 戰情板）用 `--merge` 保留整段脈絡。
+**merge 策略**：一律 `--merge`（2026-09-15 使用者指示保留完整 commit 歷史，禁 squash／rebase；
+mini-taiwan-pulse 見 CLAUDE.md §Git Workflow）。原文「獨立 commit 用 `--rebase`」已過時。
 
 ## PB-33 Zeabur collector 上線與「證明它真的在跑」（2026-08-07 定型：pla_tracks_vectorize + lightning_cwa 兩例）
 
@@ -1662,9 +1652,9 @@ print(len(COLLECTOR_REGISTRY), any(x.config_prefix=='XXX' for x in COLLECTOR_REG
   這同時驗證了「偵測 → 補跑」的完整迴路，比看 log 有說服力得多
 - 或直接 `zeabur service exec` 在容器內跑一次 `collect()`（不寫 DB，安全）
 
-⚠️ 別忘了 `config/cross_layer_map.yaml` 與 `config/realtime_tables.yaml` ——
-漏加會讓 CI 紅（`tests/test_cross_layer_sync.py` 三個 ratchet），
-且 daily_report 完全不會掃這個 collector。有 `scripts/sync_cross_layer_map.py` 可自動補，
+⚠️ 別忘了 data-collectors 的 `config/cross_layer_map.yaml` 與 `config/realtime_tables.yaml` ——
+漏加會讓 data-collectors CI 紅（`data-collectors/tests/test_cross_layer_sync.py` 三個 ratchet），
+且 daily_report 完全不會掃這個 collector。有 `data-collectors/scripts/sync_cross_layer_map.py` 可自動補，
 但它填的 `enabled`/`deployment` 是 config 預設值，要依 production 實況人工改。
 
 ## PB-34 新增一個 embed 回放圖層（2026-08-08 定型：flights → ships → rail 三次成型）
@@ -1799,12 +1789,12 @@ head -c 200 /tmp/o.json
 4. **驗收**：主樹開 `integration/<wave>-test` 分支把全部分支 merge 進去 →
    一次驗衝突 + tsc + 全測試 + dev server 熱載入做瀏覽器驗收（免逐分支 switch）。
    該分支**永不 push**，rebase 用完即刪。
-5. **疊層分支**（基於整合分支的後續工程，如 AR-21）：等前面的 PR 全 squash-merge 後
-   `git rebase --onto master integration/<wave>-test <branch>` 只重放自己的 commits，再 push 開 PR。
+5. **疊層分支**（基於整合分支的後續工程，如 AR-21）：等前面的 PR 全 merge 進 develop 後
+   `git rebase --onto origin/develop integration/<wave>-test <branch>` 只重放自己（尚未 push）的 commits，再 push 開 PR（base develop）。
    直接 push 會出現重複 diff。
 6. **收尾**：`git worktree remove --force` 逐一移除 → `git worktree prune` →
    刪 `worktree-agent-*` 與已 merge 分支（gh pr merge --delete-branch 會因 worktree 佔用而刪不掉本地分支，
-   worktree 移除後再補刪）。刪任何「內容不在 master」的分支前先 `merge-base --is-ancestor` 驗證。
+   worktree 移除後再補刪）。刪任何「內容不在 develop」的分支前先 `merge-base --is-ancestor` 驗證。
 
 ## PB-38 大型等價重構（黃金快照法）（2026-08-12 定型：Layer Manifest 14 棒一次成型）
 
@@ -1852,8 +1842,8 @@ head -c 200 /tmp/o.json
 **適用**：taipei-gis-analytics 已產好 `output/<theme>/pulse/*.geojson`、有 handoff 契約，
 pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
 
-1. **開工前先架好環境**：`git worktree add .claude/worktrees/w-<slug> -b feat/<slug> master`
-   → `pnpm install --prefer-offline` → **`cp <主樹>/.env .`**（gitignored，worktree 不會帶，
+1. **開工前先架好環境**：`git worktree add .claude/worktrees/w-<slug> -b feat/<slug> origin/develop`
+   → `npm ci`（或 symlink 主樹 node_modules，見 PB-37；npm 是唯一套件管理器）→ **`cp <主樹>/.env .`**（gitignored，worktree 不會帶，
    漏了瀏覽器驗收會白屏且錯誤訊息指不到根因，見 INCIDENTS 2026-08-13）
    → dev server 用**非 3721 的 port**（主樹可能正開著）。
    ⚠️ 主樹被平行 session 佔用時**不要切它的分支**，走 worktree 是常態不是例外。
@@ -1880,8 +1870,8 @@ pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
    - 收尾對照 `layer-onboarding` Step 3 的 UX baseline 表逐層核半徑/透明度，
      刻意偏離的要在 registry 註解寫理由
 7. **跨 repo 回填**（上游那端，別漏）：`_status.md` 下游對接表／handoff checklist 打勾／
-   每支 catalog frontmatter 的 `used_by_pulse_layers`／`sync_matrix_config.yaml` 的
-   `pulse: ["<主題標題>"]`。⚠️ `sync_matrix.py` 讀的是 **pulse 主樹**的 `layerCatalog.ts`，
+   每支 catalog frontmatter 的 `used_by_pulse_layers`／taipei-gis-analytics `.claude/skills/data-catalog-audit/` 的 `sync_matrix_config.yaml`
+   `pulse: ["<主題標題>"]`。⚠️ analytics 的 `sync_matrix.py` 讀的是 **pulse 主樹**的 `layerCatalog.ts`，
    worktree 的改動它看不到 → **重跑排在 PR merge 之後**，此刻跑只會寫下錯的狀態。
 8. **上游 repo 若有平行 session 的未提交改動**：只 `git add` 自己碰過的檔案路徑，
    逐一列出，**不用 `git add -A`**（見 CLAUDE.md 🔴 平行 session 條）。

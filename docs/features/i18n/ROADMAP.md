@@ -78,10 +78,10 @@ npx tsx scripts/i18n/hardcoded-zh.ts --write  # 某區塊數字下降後，鎖�
 | **P3 進階模式** | 監測模式、衛星主控台、時間軸、會員、後台 | 使用進階模式 | 同 P1 | 後台（只有站主用）要不要翻 |
 | **P4 AI 與 Agent** | `chat/systemPrompt.ts` 寫死繁中、MCP「Answer in plain Chinese」、`research/*Dataset.ts` 描述 | 用英日文發問並得到同語言回答 | 把目前語系傳給 chat 與 MCP；跨 repo，MCP 先改 | 跨 repo 發布順序 |
 | **P5 資料內容** | 站名英文、新聞與警報機器翻譯 | 即時資料內容 | 先查 collector 有沒有存 TDX 英文站名；機器翻譯在 collector 做並標示 | 機器翻譯要不要做、花費多少 |
-| **收尾** | 依瀏覽器語言自動切換、`index.html` 的 title／meta／OG、底圖地名換語言、分享連結帶 `lang=` | 外國訪客第一次打開就是他的語言 | — | 何時開自動切換（目前決策 1 乙） |
+| **收尾** | 依瀏覽器語言自動切換、`index.html` 的 title／meta／OG、底圖地名換語言、分享連結帶 `lang=` | 外國訪客第一次打開就是他的語言 | ✅ 已完成：瀏覽器語言自動切換（決策 1 改甲）、分享連結帶 `lang=`、`index.html` meta／OG、底圖地名跟著語言 | — |
 
 ### 下一步
-P4-C：Agent 依配對網頁的語言回答（跨 repo：MCP 的 `map_context` 帶 locale、server 指示與 pulse-conductor 回答格式補英日文版、拿掉 `cardPayload` 圖例標題必須含漢字的限制、eval 語氣檢查依語系）。之後 P5 資料內容、收尾。P2 遺留：`statisticsVariant` 群組選單約 192 選項、人口統計期別句。
+P4-C：Agent 依配對網頁的語言回答（跨 repo：MCP 的 `map_context` 帶 locale、server 指示與 pulse-conductor 回答格式補英日文版、拿掉 `cardPayload` 圖例標題必須含漢字的限制、eval 語氣檢查依語系）。P5 遺留已清完；新聞、警報、即時事件內文依決定不翻。
 
 ---
 
@@ -110,4 +110,7 @@ P4-C：Agent 依配對網頁的語言回答（跨 repo：MCP 的 `map_context` �
 | 2026-10-15 | （本 PR） | P4-A／B 對話框依語系回答、AI 介面翻譯 | 對話框、Agent 面板、分析卡外框寫死中文歸零（嚴格區塊） | 傳給 AI 的字串維持中文；工具摘要 chip 外文顯示通用狀態；分析卡頁補 localeStore.init |
 | 2026-10-16 | #603 | P5 站名類固定資料：車站（高鐵、台鐵、捷運、輕軌）、機場、港口、燈塔、國道服務區、YouBike 說明框 | 寫死中文不增加（嚴格區塊持平）；新增 `enums.railLine`／`enums.facility` | `station_points.geojson` 補 504 筆 name_en、`port_polygons.geojson` 補 26 筆（漁港上游英文名對錯港不採用）；計程車招呼站為自由文字不翻 |
 | 2026-10-16 | #604 | P2 遺留：統計「指標／口徑」選項短句翻譯、人口統計期別句 | 統計設定面板選項不再冒中文 | 選項拆地理前綴／括號註記後查 `enums.statVariant.json`（英日各約 190 筆）；說明框期別由 loader 帶結構化欄位、面板組句；Agent 仍讀中文 |
-| 2026-10-16 | （本 PR） | P5 固定文字：縣市鄉鎮名、統計發布機關與授權、資料來源總覽機關與授權 | 新增 `placeText.ts`／`agencyText.ts`；縣市鄉鎮 390 筆（代碼＋名稱＋連寫三種 key）、機關 114 筆、授權歸 6 類＋長句整句查表 | 對照表由 `scripts/i18n/gen-place-names.ts` 從 MOI CSV 產生；查不到退回原文；英日各兩輪校對 |
+| 2026-10-16 | #605 | P5 固定文字：縣市鄉鎮名、統計發布機關與授權、資料來源總覽機關與授權 | 新增 `placeText.ts`／`agencyText.ts`；縣市鄉鎮 390 筆（代碼＋名稱＋連寫三種 key）、機關 114 筆、授權歸 6 類＋長句整句查表 | 對照表由 `scripts/i18n/gen-place-names.ts` 從 MOI CSV 產生；查不到退回原文；英日各兩輪校對 |
+| 2026-10-16 | #607 | 收尾：瀏覽器語言自動切換、分享連結帶 `lang=`、`index.html` 描述與 OG | 寫死中文不變 | 順序 `?lang=` ＞ localStorage ＞ `navigator.languages` ＞ 中文；`buildUrl` 非中文才寫 `lang`，切語言後網址即時更新；底圖地名另一條 |
+| 2026-10-16 | #608 | 收尾：底圖地名換語言 | 主站 Mapbox 帶 `language`＋訂閱語系呼叫 `setLanguage`；嵌入頁／分析卡 Protomaps `lang` 依語系 | 新增 `map/basemapLanguage.ts`；`setLanguage` 只重抓 tile、不重載 style，自訂圖層實測不受影響；中文介面原本其實顯示英文地名（classic style 預設 `name_en`），改為繁中；嵌入頁補 `localeStore.init` |
+| 2026-10-17 | （本 PR） | P5 小遺留：說明框縣市鄉鎮欄、公車站英文名、嵌入頁「在 Mini Taiwan Pulse 開啟」 | 嚴格區塊持平 779；約 30 個說明框檔改走 `placeName`／`placeTown` | 公車站英文名其實已在 analytics 的 TDX stops 資料（`Stops[].StopName.En`），不必改 collector：`scripts/preprocess/merge-bus-station-name-en.py` 依（縣市碼, StationID）取最多數英文名，市區 99.4%、公路客運 100%；站點檔 gitignored，**發布時要重跑 `upload-deploy-assets.sh` 上傳新的 `bus_stations_city.pmtiles`／`bus_stations_intercity.geojson`**；少數上游英文名本身有錯（例：財政部印刷廠→Dalijian library）；新增 `countyFieldsI18n.test` 逐一渲染所有說明框擋漏翻 |

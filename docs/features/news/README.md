@@ -47,4 +47,4 @@ RSS ×29 → Gemini Flash-Lite 地名抽取 → `realtime.news_events` → 前�
 ## 相關文件
 
 - 全站 memory：`~/.claude/projects/.../memory/news-roadmap.md`
-- 研究報告：`docs/research/news-layer-revival-2026-06.md`
+- 研究報告：`docs/features/news/revival-research-2026-06.md`

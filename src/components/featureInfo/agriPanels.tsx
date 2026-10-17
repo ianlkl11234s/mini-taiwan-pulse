@@ -6,6 +6,7 @@ import { SOIL_FERTILITY_METRICS } from "../../data/agriSoilFertilityMetrics";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 
 export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
@@ -155,7 +156,7 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
   const town = String(props["鄉鎮"] ?? "");
   const village = String(props["村里"] ?? "");
   const note = String(props["NOTE"] ?? "");
-  const region = [county, town, village].filter(Boolean).join("");
+  const region = [placeName(county, i18n), placeTown(county, town, i18n), village].filter(Boolean).join("");
   const areaHaRaw = props.area_ha;
   const areaHa = typeof areaHaRaw === "number" ? areaHaRaw.toFixed(2) : String(areaHaRaw ?? "");
   return (
@@ -239,8 +240,8 @@ export function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
           {String(props.NAME ?? tr("popup.agri.roadDefault"))}
         </div>
       </div>
-      <Row field="county" value={String(props.County ?? "")} />
-      <Row field="township" value={String(props.Town ?? "")} />
+      <Row field="county" value={placeName(String(props.County ?? ""), i18n)} />
+      <Row field="township" value={placeTown(String(props.County ?? ""), String(props.Town ?? ""), i18n)} />
       {Number.isFinite(len) ? <Row field="length" value={`${len.toFixed(0)} m`} /> : null}
     </>
   );

@@ -99,8 +99,8 @@ import { ToolbarButton } from "./components/toolbar/ToolbarButton";
 import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
 import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
-import { useLocale } from "./state/localeStore";
-import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
+import { useLocale, localeStore } from "./state/localeStore";
+import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
@@ -481,7 +481,7 @@ export default function App() {
   const [captureMode, setCaptureMode] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [chatOpen, setChatOpen] = useState(false);
   // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
   const [agentOpen, setAgentOpen] = useState(false);
@@ -1581,7 +1581,7 @@ export default function App() {
 
   const markPrivateView = useCallback(() => {
     privateViewRef.current = true;
-    window.history.replaceState(null, "", window.location.pathname);
+    window.history.replaceState(null, "", cleanUrl(window.location.pathname, localeStore.getSnapshot().locale));
   }, []);
   const captureMemberScene = (): MemberSceneSnapshot => {
     const map = mapRef.current;
@@ -1668,7 +1668,7 @@ export default function App() {
       pendingSceneDoneRef.current?.([]); pendingSceneDoneRef.current = null;
       if (privateViewRef.current) {
         mapRef.current?.jumpTo({ center: [121.5318, 25.0464], zoom: 12.5, pitch: 0, bearing: 0 });
-        window.history.replaceState(null, "", window.location.pathname);
+        window.history.replaceState(null, "", cleanUrl(window.location.pathname, localeStore.getSnapshot().locale));
       }
       // Keep private URL/telemetry suppression until an explicit Share action.
       previousMemberIdRef.current = userId;
@@ -1846,7 +1846,7 @@ export default function App() {
 
   // ── EM-19 網址雙向同步（分享用）────────────────────────────────────────
   //
-  // 三個必守的點（見 docs/proposal/embed-dynamic-layers.md 討論）：
+  // 三個必守的點（見 docs/features/embeddable-map/dynamic-layers-plan.md 討論）：
   // 1. **replaceState 不是 pushState** —— pushState 會讓拖曳地圖塞爆上一頁歷史，
   //    使用者要按上千次才能離開。
   // 2. **綁 moveend 不綁 move** —— move 是每幀觸發（60fps），瀏覽器對 history API
@@ -1892,6 +1892,7 @@ export default function App() {
         style: mapStyleId,
         date,
         hour,
+        lang: localeStore.getSnapshot().locale,
       },
       window.location.pathname,
     );
@@ -1907,7 +1908,7 @@ export default function App() {
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     return () => { map.off("moveend", onMoveEnd); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode]);
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({

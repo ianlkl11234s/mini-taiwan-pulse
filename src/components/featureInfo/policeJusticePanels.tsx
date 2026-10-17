@@ -108,21 +108,22 @@ export function SpeedCameraPanel({ props }: PanelProps) {
       <Row field="place" value={String(props.address ?? "")} />
       <Row field="direction" value={String(props.direction ?? "")} />
       <Row label={t("popup.policeJustice.speedLimit")} value={props.limit_kph ? `${props.limit_kph} km/h` : ""} />
-      <Row field="county" value={`${String(props.city ?? "")} ${String(props.region ?? "")}`.trim()} />
+      <Row field="county" value={`${placeName(String(props.city ?? ""), i18n)} ${placeTown(String(props.city ?? ""), String(props.region ?? ""), i18n)}`.trim()} />
       <Row label={t("popup.policeJustice.branch")} value={String(props.branch ?? "")} />
     </>
   );
 }
 
 export function SpeedZoneSegmentPanel({ props }: PanelProps) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   return (
     <>
       <Header color="#b91c1c" name={t("popup.policeJustice.speedZoneTitle")} />
       <Row field="location" value={String(props.location ?? "")} />
       <Row label={t("popup.policeJustice.speedLimit")} value={String(props.limit_kph ?? "")} />
       <Row label={t("popup.policeJustice.enforcementItem")} value={String(props.enforcement_item ?? "")} />
-      <Row field="county" value={String(props.city ?? "")} />
+      <Row field="county" value={placeName(String(props.city ?? ""), i18n)} />
     </>
   );
 }
@@ -177,10 +178,11 @@ export function CorrectionalFacilityPanel({ props }: PanelProps) {
 }
 
 export function CourtJurisdictionPanel({ props }: PanelProps) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   return (
     <>
-      <Header color="#7c3aed" name={t("popup.policeJustice.jurisdictionTitle", { county: String(props.county ?? "") })} />
+      <Header color="#7c3aed" name={t("popup.policeJustice.jurisdictionTitle", { county: placeName(String(props.county ?? ""), i18n) })} />
       <Row label={t("popup.policeJustice.districtCourt")} value={String(props.district_court ?? "")} />
       <Row label={t("popup.policeJustice.highCourt")} value={String(props.high_court ?? "")} />
       <Row label={t("popup.policeJustice.adminCourt")} value={String(props.admin_court ?? "")} />
@@ -484,7 +486,7 @@ export function DroneZonesPanel({ props }: PanelProps) {
       <Row label={t("popup.policeJustice.penalty")} value={String(props["罰則"] ?? "")} />
       <Row label={t("popup.policeJustice.contactInfo")} value={String(props["聯絡方式"] ?? "")} />
       <Row field="description" value={String(props["空域說明"] ?? "")} />
-      <Row field="county" value={String(props.countyname ?? "")} />
+      <Row field="county" value={placeName(String(props.countyname ?? ""), i18n)} />
       <Note>{t("popup.policeJustice.droneNote")}</Note>
     </>
   );

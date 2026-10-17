@@ -10,6 +10,7 @@ import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
+import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
 
 /** 等同 toLocaleString 預設的完整日期時間 */
@@ -41,7 +42,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
           <Row field="type" value={String(props.category_label ?? "")} color={color} />
-          <Row field="county" value={county} />
+          <Row field="county" value={placeName(county, i18n)} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
           {specialties ? (
@@ -52,7 +53,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       {medCat === "pharmacy" ? (
         <>
           <Row field="type" value={tr("popup.medical.nhiPharmacy")} color={color} />
-          <Row field="county" value={county} />
+          <Row field="county" value={placeName(county, i18n)} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
         </>
@@ -60,8 +61,8 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
       {medCat === "aed" ? (
         <>
           <Row label={tr("popup.medical.placeType")} value={String(props.place_type ?? "")} color={color} />
-          <Row field="county" value={county} />
-          <Row field="district" value={String(props.district ?? "")} />
+          <Row field="county" value={placeName(county, i18n)} />
+          <Row field="district" value={placeTown(county, String(props.district ?? ""), i18n)} />
           <Row field="address" value={address} />
           <Row label={tr("popup.medical.aedLocation")} value={String(props.aed_location ?? "")} />
           <Row label={tr("popup.medical.emergencyPhone")} value={phone} />
@@ -75,7 +76,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
             color={color}
           />
           {typeof props.open_beds === "number" ? <Row label={tr("popup.medical.openBeds")} value={`${props.open_beds}`} /> : null}
-          <Row field="county" value={county} />
+          <Row field="county" value={placeName(county, i18n)} />
           <Row field="address" value={address} />
           <Row field="phone" value={phone} />
           {props.service_items ? (

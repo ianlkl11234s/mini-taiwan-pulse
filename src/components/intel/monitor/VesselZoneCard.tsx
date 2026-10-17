@@ -22,7 +22,7 @@ import type { MessageKey } from "../../../i18n/keys";
 /**
  * 特殊船舶接近帶 —— 中國公務船距 24 浬鄰接區外界線的每日態勢。
  *
- * 設計 SSOT：`docs/proposal/vessel-zone-watch.md`（VZ-4）
+ * 設計 SSOT：`docs/features/vessel-watch/zone-watch-design.md`（VZ-4）
  *
  * **為什麼主視覺是「接近帶」而不是「進入鄰接區」**（POC 實測後改的方向）：
  * 174 天裡真正進入 24 浬只有 8 天，近 60 天更是 59 天為 0 —— 畫成連續趨勢圖

@@ -6,4 +6,4 @@
 | JPW-2 | data-health | P1 | blocked | 半田管線保留正確 CRS | 確認 .prj/來源 CRS；排除疑背景圖 | 可重投影 QA，不以猜測 WGS84 取代 |
 | JPW-3 | product | P2 | conditional | 橫濱水位站可連明確觀測序列 | 發布站表與觀測 release，保留日時/單位/缺值 | station vs observation UI 與 source QA |
 | JPW-4 | release | P1 | waiting_external | 全國本機 PMTiles 可公開發布 | 逐資產補齊KSJ/GSJ/NILIM/MAFF授權、發布目的地與readback證據 | 明確allowlist、upload、Range/CORS、production browser驗收 |
-| JPW-5 | private-release | P1 | verifying | 八個全國層僅固定 owner 可讀 | 驗私人 bucket policy，上傳 immutable keys，再做 owner 206／anon 401／other-user 403／revoke 與 production browser | 沒有公開 URL/CDN cache；每次 Range 驗證；logout 清 source/layer/selection；證據與授權解釋分離 |
+| JPW-5 | private-release | P1 | verifying | 八個全國層僅固定 owner 可讀 | 驗私人 bucket policy，上傳 immutable keys，再做 owner 206／anon 401／other-user 403／revoke 與 production browser；server side 已驗（anon→401、公開 release.json 僅 4 個公開層）。owner 登入目視：鎖頭消失、點位有年份／來源 popup、登出後 layers／selection／URL 參數清除、非 owner 仍見鎖（原核心 CL-1，2026-10-16 併入此列；PR #458／#459） | 沒有公開 URL/CDN cache；每次 Range 驗證；logout 清 source/layer/selection；證據與授權解釋分離 |
