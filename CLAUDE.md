@@ -15,8 +15,9 @@
 | 指令 | 用途 |
 |---|---|
 | `npm run dev` | 啟動 dev server (port 3721) |
-| `npx tsc -b` | TypeScript 驗證（commit 前必跑，禁用 `--noEmit`） |
-| `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
+| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（build、test、樣式盤點、coral） |
+| `npx tsc -b` | TypeScript 驗證（禁用 `--noEmit`） |
+| `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例；owner-local 測試用 `npm run test:owner`） |
 | `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 manifest/spec/邏輯檔三步 + 四鐵則） |
 | `/check-rpc <name>` | 自動 EXPLAIN 判斷 RPC 效能 |
 
@@ -24,7 +25,7 @@
 
 ### 1. TypeScript 驗證
 
-`npx tsc -b`（project references，禁用 `--noEmit`）— commit 前必跑。
+commit 前必跑 `npm run check`（與 CI 同一組檢查，其中 build 含 `tsc -b`；project references，禁用 `--noEmit`）。
 
 ### 2. 資料來源管理
 資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `live.*`（舊 `realtime` schema 已併入 `live`））→ [`docs/development-rules.md`](./docs/development-rules.md) §1
