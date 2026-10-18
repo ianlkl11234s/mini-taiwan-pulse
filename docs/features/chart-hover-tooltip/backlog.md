@@ -97,7 +97,7 @@ commit：`d367a42`（基礎設施）、`ca60346`（28 個實例套用）、`057b
 ## Decision needed：`get_pressure_index_now` 的 `per_signal` 資料契約
 
 **現況**：`per_signal` 實際回傳是扁平分數 dict，例如 `{"er":75.7,"aqi":28.7,...}`
-（`docs/proposal/alerts-pressure-signal.sql:24-25` 有實測捕捉到的真實範例：
+（gis-platform `docs/proposals/2026-08-13-alerts-pressure-signal.sql` 第 24–25 行 有實測捕捉到的真實範例：
 `{"alert": 80.0, "er": 45.0, "flight": 50.0, "road": 39.0, ...}`）。但前端型別
 `PressureSignal`（`src/data/intelLoaders.ts:122-130`）宣告的是結構化陣列，每筆要有
 `id/label/en/weight/raw/contribution/note`。兩者不符，`asArray()` 防呆（commit `057b9fd`
