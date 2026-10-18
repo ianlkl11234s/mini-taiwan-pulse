@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { OWNER_TESTS } from "../../test/ownerAssets";
 
 describe("capability audit P0 ledger", () => {
   it("keeps every manifest layer while retaining the unknown queue reconciliation", () => {
@@ -11,7 +12,7 @@ describe("capability audit P0 ledger", () => {
     const ledgerBase = join(outputDir, "ledger");
     try {
       execFileSync("npx", ["vite-node", "--script", "scripts/research/capability-audit.mjs", "--date", "2026-09-25", "--output-base", auditBase, "--family-ledger-base", ledgerBase], {
-        cwd: process.cwd(), stdio: "pipe",
+        cwd: process.cwd(), stdio: "pipe", env: { ...process.env, PULSE_OWNER_TESTS: OWNER_TESTS ? "1" : "0" },
       });
       const audit = JSON.parse(readFileSync(`${auditBase}.json`, "utf8"));
       const ledger = JSON.parse(readFileSync(`${ledgerBase}.json`, "utf8"));

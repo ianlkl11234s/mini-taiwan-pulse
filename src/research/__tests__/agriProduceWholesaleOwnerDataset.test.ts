@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { agriProduceWholesaleOwnerAdapter, agriProduceWholesaleOwnerDescriptor } from "../agriProduceWholesaleOwnerDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const runtimeRoot = "../runtime/owner-only/agri-produce-wholesale/", urlPrefix = "/__local-research-owner-only/agri-produce-wholesale/";
 const source = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/agriculture/produce_wholesale_companies/produce_wholesale_companies.geojson";
@@ -21,7 +21,7 @@ it("requires bbox and exposes only safe proxy fields", async () => {
   expect(agriProduceWholesaleOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["統一編號", "公司名稱", "負責人", "公司地址", "資本總額", "lon", "lat"]));
 });
 
-it.skipIf(!existsSync(`${runtimeRoot}manifest.json`))("matches Taipei and Taichung full-source oracles and preserves the status variant", async () => {
+it.skipIf(!ownerAsset(`${runtimeRoot}manifest.json`))("matches Taipei and Taichung full-source oracles and preserves the status variant", async () => {
   const executor = new QueryExecutor([agriProduceWholesaleOwnerAdapter]);
   for (const [bbox, expected] of [[[121.5, 25.02, 121.58, 25.1], 3446], [[120.62, 24.12, 120.75, 24.22], 2296]] as const) {
     const result = await executor.execute({ datasetId: agriProduceWholesaleOwnerDescriptor.datasetId, bbox, filters: [{ field: "company_status", op: "eq", value: "核准設立" }], select: ["business_type", "company_status", "produced_at", "geometry"], limit: 100 });
@@ -32,6 +32,6 @@ it.skipIf(!existsSync(`${runtimeRoot}manifest.json`))("matches Taipei and Taichu
   expect(excludedStatus.totalMatched).toBe(0);
 });
 
-it.skipIf(!existsSync(`${runtimeRoot}manifest.json`))("fails closed for a country-scale bbox", async () => {
+it.skipIf(!ownerAsset(`${runtimeRoot}manifest.json`))("fails closed for a country-scale bbox", async () => {
   await expect(new QueryExecutor([agriProduceWholesaleOwnerAdapter]).execute({ datasetId: agriProduceWholesaleOwnerDescriptor.datasetId, bbox: [118, 21, 124, 27], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");
 });

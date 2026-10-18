@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer } from "../layerStatistics";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
+import { ownerAsset } from "../../test/ownerAssets";
 const feature = (properties: Record<string, unknown>, geometry: unknown = { type: "Point", coordinates: [121.5, 25] }) => ({ type: "Feature", properties, geometry });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features });
 const county = fc([feature({ area_name: "臺北市", area_code: "63000" }, null), feature({ area_name: "新北市", area_code: "65000" }, null)]);
@@ -104,7 +105,7 @@ describe("generic full-source statistics", () => {
     setup(schools); expect((await summarizeLayer({ layerKey: "schools" })).totalMatched).toBe(4);
   });
 });
-const local = ["education/schools.geojson", "police_justice/police_stations/police_stations_20260626.geojson", "statistics/county-reference-2025.geojson", "statistics/township-reference.geojson"].every(p => existsSync(`public/${p}`));
+const local = ["education/schools.geojson", "police_justice/police_stations/police_stations_20260626.geojson", "statistics/county-reference-2025.geojson", "statistics/township-reference.geojson"].every(p => ownerAsset(`public/${p}`));
 describe.skipIf(!local)("local source asset acceptance (not production)", () => {
   beforeEach(() => vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(readFileSync(`public/${url.replace(/^\.\//, "")}`), { headers: { "content-type": "application/geo+json" } }))));
   it("reconciles the school snapshot and preserves repeated school codes", async () => {

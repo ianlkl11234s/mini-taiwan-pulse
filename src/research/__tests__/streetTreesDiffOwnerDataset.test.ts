@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
 import { streetTreesDiffOwnerAdapter, streetTreesDiffOwnerDescriptor } from "../streetTreesDiffOwnerDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/street-trees-diff/";
 const prefix = "/__local-research-owner-only/street-trees-diff/";
@@ -35,7 +35,7 @@ it("requires bbox, strips TreeID and free text, and declares proxy geometry", as
   expect(streetTreesDiffOwnerDescriptor.valueSemantics.stale).toContain("disappeared 僅指 TreeID 不在目前清冊");
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent full-source bbox/status oracles within bounded reads", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches two independent full-source bbox/status oracles within bounded reads", async () => {
   const cases: { bbox: Bbox; status?: "persisted" | "disappeared" | "appeared" }[] = [
     { bbox: [121.502, 25.027, 121.510, 25.040], status: "disappeared" },
     { bbox: [121.552, 25.052, 121.560, 25.070], status: "appeared" },
@@ -50,6 +50,6 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent full-sou
   }
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("fails closed when a broad bbox selects more than the partition byte budget", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("fails closed when a broad bbox selects more than the partition byte budget", async () => {
   await expect(new QueryExecutor([streetTreesDiffOwnerAdapter]).execute({ datasetId: streetTreesDiffOwnerDescriptor.datasetId, bbox: [121.4, 24.9, 121.7, 25.2], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");
 });

@@ -1,4 +1,4 @@
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { createInterface } from "node:readline";
@@ -7,6 +7,7 @@ import { companyPointsAdapter, companyPointsDescriptor, manufacturingCompanyPoin
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/point-partitions/company-points/";
 const prefix = "/__local-research-point-partitions/company-points/";
@@ -47,7 +48,7 @@ it("requires a bounded read and keeps the company public-field and registered-ad
   await expect(executor.execute({ datasetId: companyPointsDescriptor.datasetId })).rejects.toThrow("BBOX_REQUIRED");
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("reads only immutable shards for an exact bounded point and retains source exclusions", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("reads only immutable shards for an exact bounded point and retains source exclusions", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { company_name: string } }[] };
   const target = shard.features[0]!;
@@ -61,7 +62,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("reads only immutable shards for 
   expect(result.cost.downloadedBytes).toBeLessThan(8 * 1024 * 1024);
 });
 
-it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json`))("matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads", async () => {
+it.skipIf(!ownerAsset(sourcePath) || !ownerAsset(`${root}manifest.json`))("matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads", async () => {
   const cases = [
     { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62, 24.008] as const, expected: { total: 1257, manufacturing: 190 } },
     { center: [121.15, 22.76] as const, bbox: [121.13, 22.742, 121.17, 22.778] as const, expected: { total: 658, manufacturing: 163 } },
@@ -82,7 +83,7 @@ it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json`))("match
   }
 }, 15_000);
 
-it.skipIf(!existsSync(`${root}manifest.json`))("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
   // Independent one-pass count from the fixed full GeoJSONSeq: 5,299 points.
   const result = await new QueryExecutor([companyPointsAdapter]).execute({
     datasetId: companyPointsDescriptor.datasetId,
@@ -94,7 +95,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("keeps a dense Kaohsiung bbox bel
   expect(result.cost.bytesScanned).toBeLessThan(8 * 1024 * 1024);
 });
 
-it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json`))("keeps the exact-C manufacturing subset in two independent places", async () => {
+it.skipIf(!ownerAsset(sourcePath) || !ownerAsset(`${root}manifest.json`))("keeps the exact-C manufacturing subset in two independent places", async () => {
   const executor = new QueryExecutor([manufacturingCompanyPointsAdapter]);
   for (const item of [
     { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62, 24.008] as const, manufacturing: 190 },

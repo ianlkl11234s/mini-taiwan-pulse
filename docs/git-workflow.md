@@ -47,7 +47,7 @@ gh pr merge <PR> --merge
 1. 從最新 `develop` 開工作分支
 2. 新功能同時 `cp -r docs/features/_TEMPLATE docs/features/<slug>` 建功能檔案
 3. 若動到跨 repo 資料契約 → **先開 upstream handoff**：`taipei-gis-analytics/docs/handoff/<slug>.md`
-4. 完成 → `npx tsc -b` + `npm test` 全綠
+4. 完成 → `npm run check` 全綠（與 CI 同一組：build、test、樣式盤點、coral）
 5. **在 `CHANGELOG.md` 的 `## [Unreleased]` 加一行**（分類：新增／修正／效能／資料／注意事項；純文件、memory 可省略）
 6. `gh pr create --base develop`，描述用 `.github/pull_request_template.md`
 7. CI（`.github/workflows/ci.yml`，PR 到 `develop`／`master` 都會跑）綠了 → `gh pr merge <PR> --merge`

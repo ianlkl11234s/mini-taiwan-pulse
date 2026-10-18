@@ -183,7 +183,7 @@ myNewLayer: [
 2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
    ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由（目前會被 `layerUxPolicy.test.ts` 的透明度基線擋，等於要使用者同意的例外）。
 
-**驗收**：`npx tsc -b` ＋ `npx vitest run`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
+**驗收**：`npm run check`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
 的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
 ⚠️ AR-22 Phase 4 起該 fixture 只凍 3 個 section（`overlays` / `params` / `gisLayers`）——
 另外 9 個已被 `layerManifest.test.ts` 逐 key 焊死，凍第二份只是 churn。
@@ -192,7 +192,7 @@ myNewLayer: [
 **規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 
 ### 檢查清單
-- [ ] `tsc -b` pass
+- [ ] `npm run check` pass
 - [ ] manifest entry 欄位齊全（color／icon／section／source／legend／popup／params；`LAYER_COLORS` 等由此派生，不手改）
 - [ ] Loader 有 loadingRegistry
 - [ ] Toggle 開關有 loading 提示
@@ -331,11 +331,14 @@ LegendPanel）共用。
 | 外部 API fetch | `scripts/fetch/` | `fetch-xxx.ts` / `.py` |
 | 資料庫匯出 | `scripts/export/` | `export-xxx.py` |
 
-## 6. TypeScript 驗證
+## 6. TypeScript 驗證與 commit 前檢查
 ```bash
-npx tsc -b   # project references，不要用 tsc --noEmit
+npm run check   # 依序跑 CI 的全部檢查：check:build（tsc -b ＋ vite build）→ check:test → check:inventory（樣式盤點）→ check:coral
+npx tsc -b      # 只驗型別時；project references，不要用 tsc --noEmit
 ```
-Commit 前必跑。
+Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
+
+**owner-local 測試**：讀隔壁 repo（`../taipei-gis-analytics`、`../runtime/…`）或 gitignored 私有／大檔的測試，`npm test` 預設略過（與 CI 同一組）；要跑時用 `npm run test:owner`（`PULSE_OWNER_TESTS=1`）。新測試的 skip 條件用 `src/test/ownerAssets.ts` 的 `ownerAsset(path)`，只用在不在 git 裡的路徑。
 
 ## 7. 部署 Checklist
 部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。

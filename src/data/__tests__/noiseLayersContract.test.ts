@@ -18,6 +18,7 @@ import { PMTiles } from "pmtiles";
 import { LAYER_MANIFEST } from "../layerManifest";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const ENVIRONMENT = "public/environment";
 const NOISE_CAPTURE_ASSET = `${ENVIRONMENT}/noise_capture_grid.pmtiles`;
@@ -171,7 +172,7 @@ describe("噪音／聲響發布資產", () => {
     expect(measured.every((f) => typeof f.properties?.laeq_window_db === "number")).toBe(true);
   });
 
-  it.skipIf(!existsSync(NOISE_CAPTURE_ASSET))(
+  it.skipIf(!ownerAsset(NOISE_CAPTURE_ASSET))(
     "NoiseCapture：三 source-layer 共 5 格，5/5 provisional，沒有放寬 active-day gate",
     async () => {
     const md = await metadata(NOISE_CAPTURE_ASSET);
@@ -204,7 +205,7 @@ describe("噪音／聲響發布資產", () => {
     },
   );
 
-  it.skipIf(!existsSync(NOISE_CONTROL_ASSET))(
+  it.skipIf(!ownerAsset(NOISE_CONTROL_ASSET))(
     "noiseControlZones：臺中四類 polygon 與非空 PMTiles 欄位契約",
     async () => {
     const md = await metadata(NOISE_CONTROL_ASSET);

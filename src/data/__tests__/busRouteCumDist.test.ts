@@ -4,7 +4,7 @@
  * 大檔（taipei / intercity / pingtung / tourist）gitignored，存在時才測。
  */
 import { describe, expect, it, vi } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 vi.mock("../../lib/supabase", () => ({ supabase: {}, supabaseConfigured: false }));
@@ -13,6 +13,7 @@ import { computeCumDist, normalizeBusRoute, type RawBusRouteGeometry } from "../
 import { snapToRoute } from "../../engines/BusEngine";
 import { interpolateOnLineString } from "../../engines/railUtils";
 import type { BusRouteGeometry } from "../../types";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const BUS_DIR = resolve(__dirname, "../../../public/bus");
 // 縣市小檔已原地去 cumDist；chiayi 保留原內容（研究資料集以其 SHA-256 為身分），可當 git 內基準
@@ -62,7 +63,7 @@ function checkFile(file: string) {
 
 describe("bus route cumDist 重算", () => {
   for (const f of TRACKED) it(`與原檔一致：${f}`, () => checkFile(f));
-  for (const f of BIG) it.skipIf(!existsSync(resolve(BUS_DIR, f)))(`與原檔一致（大檔）：${f}`, () => checkFile(f));
+  for (const f of BIG) it.skipIf(!ownerAsset(resolve(BUS_DIR, f)))(`與原檔一致（大檔）：${f}`, () => checkFile(f));
 
   it("檔案已含 cumDist 時原樣沿用（向後相容）", () => {
     const r: RawBusRouteGeometry = {

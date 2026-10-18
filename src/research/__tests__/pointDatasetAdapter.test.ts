@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { clearPointDatasetCache, loadPointDataset } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sourceSha256 = "a".repeat(64);
 const encoder = new TextEncoder();
@@ -129,7 +130,7 @@ describe("point dataset spatial partitions", () => {
     await assertion;
   });
 
-  it.skipIf(!existsSync("../runtime/point-partitions/schools/manifest.json"))("matches the full schools source for the real bbox without renumbering records", async () => {
+  it.skipIf(!ownerAsset("../runtime/point-partitions/schools/manifest.json"))("matches the full schools source for the real bbox without renumbering records", async () => {
     const root = "../runtime/point-partitions/schools";
     vi.stubGlobal("fetch", vi.fn(async (url: string) => {
       const path = url === "/education/schools.geojson" ? "../runtime/oracle-assets/schools.geojson"

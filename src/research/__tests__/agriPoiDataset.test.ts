@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { agriPoiSourceCoordinatesAdapter } from "../agriPoiDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { registeredDatasetForLayer } from "../researchDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 beforeEach(() => {
   clearPointDatasetCache();
@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync("public/agriculture/agriculture_pois.geojson"))("registers all three agriculture POI source batches and supports a new-place variant", async () => {
+it.skipIf(!ownerAsset("public/agriculture/agriculture_pois.geojson"))("registers all three agriculture POI source batches and supports a new-place variant", async () => {
   const executor = new QueryExecutor([agriPoiSourceCoordinatesAdapter]);
   const tainan = await executor.execute({
     datasetId: "tw-agri-pois-source-coordinates",

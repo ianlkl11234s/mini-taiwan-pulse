@@ -1,12 +1,13 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { queryNearby, clearNearbyDataCache } from "../nearbyData";
 import { nearbyGeometry } from "../nearbyOverlay";
+import { ownerAsset } from "../../test/ownerAssets";
 const path = fileURLToPath(new URL("../../../public/education/schools.geojson", import.meta.url));
 afterEach(() => { clearNearbyDataCache(); vi.unstubAllGlobals(); });
 describe("nearby analytical acceptance", () => {
-  it.skipIf(!existsSync(path))("Taipei Station 1km matches independent reference, truncates explicitly and reuses the source", async () => {
+  it.skipIf(!ownerAsset(path))("Taipei Station 1km matches independent reference, truncates explicitly and reuses the source", async () => {
     const input = readFileSync(path, "utf8");
     const fetcher = vi.fn().mockImplementation(() => Promise.resolve(new Response(input)));
     vi.stubGlobal("fetch", fetcher);

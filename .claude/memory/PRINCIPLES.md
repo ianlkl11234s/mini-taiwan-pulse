@@ -40,7 +40,7 @@
 
 - **Python / pip**：一律 `python3` / `pip3`，不是 `python` / `pip`
 - **TypeScript 驗證**：`npx tsc -b`（project references），**不要**用 `tsc --noEmit`（漏檢）
-- **Commit 前必跑** `npx tsc -b`
+- **Commit 前必跑** `npm run check`（與 CI 同一組：build（含 `tsc -b`）、test、樣式盤點、coral）
 - **Commit 前必跑 `git branch --show-current`**：平行 session 會在同一個 worktree 切分支，
   `gh pr merge --delete-branch` 也會把本機切回 base branch。任何 commit／跨 phase 切換／
   上次互動隔了幾分鐘都先確認分支。（起因是 2026-06-19 Energy v2 事件的 auto-memory-cherry-pick

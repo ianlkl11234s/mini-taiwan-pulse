@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { medAedOwnerAdapter, medAedOwnerDescriptor } from "../medAedOwnerDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/med-aed/";
 const prefix = "/__local-research-owner-only/med-aed/";
@@ -31,7 +31,7 @@ it("requires bbox, keeps safe fields, and does not offer emergency or nearest cl
   expect(medAedOwnerDescriptor.coverage).toContain("4 筆在範圍外");
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent full-source bbox and category oracles within bounded reads", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches two independent full-source bbox and category oracles within bounded reads", async () => {
   const cases: { bbox: Bbox; category?: string; expected: number }[] = [
     { bbox: [121.48, 25.02, 121.58, 25.10], category: "學校、大型集會場所", expected: 453 },
     { bbox: [120.28, 22.56, 120.38, 22.67], expected: 666 },
@@ -45,6 +45,6 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent full-sou
   }
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("fails closed when a broad bbox exceeds the row scan budget", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("fails closed when a broad bbox exceeds the row scan budget", async () => {
   await expect(new QueryExecutor([medAedOwnerAdapter]).execute({ datasetId: medAedOwnerDescriptor.datasetId, bbox: [118, 21.5, 122.5, 26.5], limit: 1 })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");
 });

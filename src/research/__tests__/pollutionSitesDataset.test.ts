@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { pollutionSitesSourceCoordinatesAdapter } from "../pollutionSitesDataset";
 import { QueryExecutor } from "../queryExecutor";
 import { registeredDatasetsForLayer } from "../researchDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 beforeEach(() => {
   clearPointDatasetCache();
@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync("../runtime/research-public/pollution-sites-20260706.geojson"))("preserves active and deannounced records as separate source states", async () => {
+it.skipIf(!ownerAsset("../runtime/research-public/pollution-sites-20260706.geojson"))("preserves active and deannounced records as separate source states", async () => {
   const executor = new QueryExecutor([pollutionSitesSourceCoordinatesAdapter]);
   const active = await executor.execute({ datasetId: "tw-pollution-sites-source-coordinates", filters: [{ field: "is_active", op: "eq", value: 1 }], select: ["site_id", "is_active", "deanno_date"], limit: 1 });
   const deannounced = await executor.execute({ datasetId: "tw-pollution-sites-source-coordinates", filters: [{ field: "is_active", op: "eq", value: 0 }], select: ["site_id", "is_active", "deanno_date"], limit: 1 });

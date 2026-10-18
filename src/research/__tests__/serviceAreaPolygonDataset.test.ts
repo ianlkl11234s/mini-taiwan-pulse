@@ -1,8 +1,8 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
 import { serviceAreaPolygonAdapter, serviceAreaPolygonDescriptor } from "../serviceAreaPolygonDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const mini = new URL("../../../public/geo/service_area_polygon.geojson", import.meta.url);
 const analytics = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/transportation/service_area_polygon/service_area_polygon_20260524.geojson";
@@ -22,7 +22,7 @@ it("keeps the 19 source surfaces, ODbL attribution and missingness separate", as
   expect(result.coverage).toContain("不同");
 });
 
-it.skipIf(!existsSync(analytics))("matches two distinct places and a directional variant against the full processed source", async () => {
+it.skipIf(!ownerAsset(analytics))("matches two distinct places and a directional variant against the full processed source", async () => {
   const original = JSON.parse(await readFile(analytics, "utf8")) as { features: { properties: { Name: string; Direction: string }; geometry: { type: string; coordinates: unknown } }[] };
   const executor = new QueryExecutor([serviceAreaPolygonAdapter]);
   for (const name of ["東山服務區", "泰安服務區(北上)"]) {

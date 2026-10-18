@@ -18,6 +18,7 @@ import { GATED_LAYERS, LAYER_COLORS, RELEASE_HOLD_LAYERS } from "../../component
 import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor } from "../embedWhitelist";
 import { EMBED_FACTORY_OVERLAY_CONFIGS } from "../factoryOverlayConfigs";
 import type { LayerVisibility } from "../../types";
+import { ownerAsset } from "../../test/ownerAssets";
 
 describe("EMBED_ALLOWED 白名單", () => {
   it("🔒 沒有任何 gated 圖層", () => {
@@ -48,7 +49,7 @@ describe("EMBED_ALLOWED 白名單", () => {
   // 分兩支是因為 `public/static-rpc/` 整夾走 S3 部署資產（.gitignore），
   // CI checkout 沒有這些檔 —— 「檔真的在」只驗得了有資產的環境（本機 / 部署前），
   // CI 則驗等價的上游條件：該 RPC 有沒有被排進匯出腳本清單（漏排正是那個坑的根源）。
-  it.skipIf(!existsSync("public/static-rpc"))(
+  it.skipIf(!ownerAsset("public/static-rpc"))(
     "💰 每個 EMBED_CDN_LAYERS 都必須有實際的快照檔（否則會靜默留空）",
     () => {
       const missing = Object.entries(EMBED_CDN_LAYERS)

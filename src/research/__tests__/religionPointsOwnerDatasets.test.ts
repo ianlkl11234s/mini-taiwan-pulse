@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -8,6 +7,7 @@ import {
   religionFoundationsOwnerAdapter, religionFoundationsOwnerDescriptor, religionOtherWorshipOwnerAdapter, religionOtherWorshipOwnerDescriptor,
   religionTop100OwnerAdapter, religionTop100OwnerDescriptor,
 } from "../religionPointsOwnerDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/religion-points";
 const assets: Record<string, string> = Object.fromEntries(["ancestral-halls", "churches", "other-worship", "foundations", "top100"].map(name => [`${name}-owner-${name === "top100" ? "20260122" : "20260801"}.geojson`, `${root}/${name}-owner-${name === "top100" ? "20260122" : "20260801"}.geojson`]));
@@ -17,7 +17,7 @@ const adapters = [religionAncestralHallsOwnerAdapter, religionChurchesOwnerAdapt
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async (url: string | URL) => { const asset = assets[String(url).split("/").pop()!]; return asset ? new Response(await readFile(asset), { headers: { "content-type": "application/geo+json" } }) : new Response("missing", { status: 404 }); })); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(`${root}/ancestral-halls-owner-20260801.geojson`))("reads five bounded owner-only religion snapshots while retaining their source licenses", async () => {
+it.skipIf(!ownerAsset(`${root}/ancestral-halls-owner-20260801.geojson`))("reads five bounded owner-only religion snapshots while retaining their source licenses", async () => {
   const results = await Promise.all(descriptors.map(descriptor => new QueryExecutor(adapters).execute({ datasetId: descriptor.datasetId, limit: 1 })));
   expect(results.map(result => result.totalMatched)).toEqual([173, 2116, 1319, 165, 100]);
   for (const descriptor of descriptors) expect(descriptor).toMatchObject({ access: { mode: "owner_only", method: "local_asset", query: { supportsBbox: true } }, geometry: { role: "proxy", spatialAnalysisEligible: false }, supportedOperations: ["query_records", "aggregate"] });
@@ -26,7 +26,7 @@ it.skipIf(!existsSync(`${root}/ancestral-halls-owner-20260801.geojson`))("reads 
   expect(religionTop100OwnerDescriptor.coverage).toContain("非全國宗教場所普查");
 });
 
-it.skipIf(!existsSync(`${root}/foundations-owner-20260801.geojson`))("preserves original missing foundation coordinates instead of using backfills as points", async () => {
+it.skipIf(!ownerAsset(`${root}/foundations-owner-20260801.geojson`))("preserves original missing foundation coordinates instead of using backfills as points", async () => {
   const result = await new QueryExecutor([religionFoundationsOwnerAdapter]).execute({ datasetId: religionFoundationsOwnerDescriptor.datasetId, select: ["coordinate_status", "geometry"], limit: 100 });
   expect(result.totalMatched).toBe(165);
   expect(result.excludedByReason.missing_geometry).toBe(41);

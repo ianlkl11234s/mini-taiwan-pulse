@@ -15,10 +15,13 @@ const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const worktreeMarker = `${sep}.worktrees${sep}`;
 const originalCheckoutRoot = root.includes(worktreeMarker) ? root.slice(0, root.indexOf(worktreeMarker)) : null;
 const analyticsRoot = resolve(originalCheckoutRoot ?? root, "../taipei-gis-analytics");
+// 測試（src/research/__tests__/capabilityAudit.test.ts）在非 owner 模式傳 PULSE_OWNER_TESTS=0：不走訪 sibling analytics，
+// 本機 npm test 與 CI（沒有 sibling repo）跑同一件事。直接執行腳本（env 未設）或 npm run test:owner 時照常走訪。
+const walkAnalytics = process.env.PULSE_OWNER_TESTS !== "0";
 const comparisonRecipeByLayer = new Map(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, recipe]));
 
 function walkFiles(start) {
-  if (!existsSync(start)) return [];
+  if (!walkAnalytics || !existsSync(start)) return [];
   const files = [];
   const pending = [start];
   while (pending.length > 0) {

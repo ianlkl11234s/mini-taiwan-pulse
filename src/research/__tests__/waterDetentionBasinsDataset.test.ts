@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { waterDetentionBasinsAdapter, waterDetentionBasinsDescriptor } from "../waterDetentionBasinsDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const display = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/public/geo/water_detention_basins.geojson";
 const sidecar = "../runtime/owner-only/water-detention-basins/water-detention-basins-owner-20260511.geojson";
@@ -12,7 +12,7 @@ type Bbox = readonly [number, number, number, number];
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sidecar))("matches independent display bboxes in Tainan and Taoyuan plus a county variant", async () => {
+it.skipIf(!ownerAsset(sidecar))("matches independent display bboxes in Tainan and Taoyuan plus a county variant", async () => {
   const source = JSON.parse(await readFile(display, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { county: string } }[] };
   const executor = new QueryExecutor([waterDetentionBasinsAdapter]);
   const cases: { bbox: Bbox; county?: string }[] = [

@@ -1130,6 +1130,6 @@ PR 前逐項勾（貼進 PR 描述）：
 - **進度（2026-10-04）**：R1（#391）、R2 點（#392／#396／#398）、R3a 線面 registry（#461）、R3b 線面 hook＋網格／影像／文字／擠出（#475）、R4 圖例對齊（#465／#468）、R5 密集點熱區＋密度透明度（#498）、R7 熱區／網格色盤可選（#510）已上線；只剩 R6 Three.js／Mapbox 切換（待使用者決定範圍）。主體點半徑中位 z10／z14 皆 4.5；線寬、面透明度的盤點中位值仍是 2026-09-28 數字。
 - **拍板（2026-09-28）**：點 S 3／M 4.5／L 6.5 固定半徑（不隨縮放）、描邊暗 `#0a0a14`／淡 `#ffffff` 1px；線 細／標準／強調 三階（隨縮放）、不加外框；面 分級 0.55／覆蓋 0.35／背景 0.15／網格 0.7；密集點低縮放用熱區；暗淡只換色不換尺寸；缺值統一透明底＋細斜線；Three.js 圖層加「基本點線面」模式、預設 Mapbox；圖例 8 型規格、標題中文在前英文小字在後；2026-09-28／29 追加：hook 依資料半徑的 11 層改泡泡、依屬性變化的描邊保留、車站光柱預設關。完整清單見專檔 §7。
 - **數值來源**：`src/map/mapStyleScale.ts`（拍板數值）；點分階 `src/map/pointTiers.ts`（改點大小只改這裡，不改 `overlayRegistry.ts` 字面值）；registry 點圖層集中套用 `src/map/pointSpec.ts`。
-- **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案行號、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
+- **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
 - **參考頁**：活的元件頁 `tools/design-system.html` 地圖圖層區塊；靜態快照 [`reference.html#map-layers`](./reference.html#map-layers)；拍板比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1）。
 - 分析結果圖層的規格已定案於 `docs/features/viz-library/DECISIONS.md`，專檔引用不重寫。

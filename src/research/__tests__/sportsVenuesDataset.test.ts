@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { sportsVenuesSourceCoordinatesAdapter } from "../sportsVenuesDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 beforeEach(() => {
   clearPointDatasetCache();
@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync("../runtime/research-public/sports-venues-source-20260704.geojson"))("uses one fixed source for all five mutually exclusive sports layers", async () => {
+it.skipIf(!ownerAsset("../runtime/research-public/sports-venues-source-20260704.geojson"))("uses one fixed source for all five mutually exclusive sports layers", async () => {
   const executor = new QueryExecutor([sportsVenuesSourceCoordinatesAdapter]);
   const expected = [
     ["學校場館", 12221], ["其他公共場館", 1135], ["民營場館", 691],
@@ -28,7 +28,7 @@ it.skipIf(!existsSync("../runtime/research-public/sports-venues-source-20260704.
   expect(sportsVenuesSourceCoordinatesAdapter.descriptor.layerRefs).toHaveLength(5);
 });
 
-it.skipIf(!existsSync("../runtime/research-public/sports-venues-source-20260704.geojson"))("preserves observed access status and missing area in a bounded Taitung query", async () => {
+it.skipIf(!ownerAsset("../runtime/research-public/sports-venues-source-20260704.geojson"))("preserves observed access status and missing area in a bounded Taitung query", async () => {
   const executor = new QueryExecutor([sportsVenuesSourceCoordinatesAdapter]);
   const result = await executor.execute({ datasetId: "tw-sports-venues-source-coordinates", bbox: [121.13, 22.74, 121.17, 22.78], select: ["name", "layer", "open_status", "area_sqm", "geometry"], limit: 50 });
   expect(result.totalMatched).toBeGreaterThan(0);
