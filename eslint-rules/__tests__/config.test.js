@@ -39,8 +39,20 @@ describe("eslint.config.js 套用範圍", () => {
     ["src/components/legend/waterLegends.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", true],
     ["src/components/legend/legendKit.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", false],
     ["src/lib/dayPrefetch.ts", "useEffect(() => {}, [currentTime]);", "pulse/no-current-time-deps", true],
+    ["src/components/timeline/Example.tsx", "useEffect(() => {}, [currentTime]);", "pulse/no-current-time-deps", true],
+    ["src/hooks/useTyphoonTracksLayer.ts", "map.setFilter(id, [\"<=\", [\"get\", \"seg_end_ts\"], currentTime]);", "pulse/no-current-time-deps", false],
     ["src/hooks/useCwaImageryLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", true],
     ["src/hooks/useHazardLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", false],
+    ["src/components/sidebar/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
+    ["src/research/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],
+    ["src/research/jev-layer-screening/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", false],
+    ["src/styles/tokens.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", false],
+    ["src/card/card.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", false],
+    ["src/card/card.css", ".a { z-index: 45; }", "pulse/design-css-raw-z-index", true],
+    ["src/styles/tokens.css", ".a { z-index: 45; }", "pulse/design-css-raw-z-index", false],
+    ["src/styles/tokens.css", ".a { text-transform: uppercase; }", "pulse/design-css-uppercase-eyebrow", true],
+    ["src/map/x.css", "@font-face { font-family: X; }", "pulse/design-css-web-font", true],
+    ["src/map/x.css", '.x::before { content: "▶"; }', "pulse/design-css-triangle-chevron", true],
   ])("%s：%s → %s %s", async (filePath, code, ruleId, expected) => {
     expect((await rulesAt(filePath, code)).includes(ruleId)).toBe(expected);
   });
@@ -58,5 +70,13 @@ describe("eslint.config.js 套用範圍", () => {
       .filter(([, v]) => (Array.isArray(v) ? v[0] : v) !== 0 && (Array.isArray(v) ? v[0] : v) !== "off")
       .map(([k]) => k);
     expect(enabled.filter((k) => !k.startsWith("pulse/"))).toEqual(["no-restricted-imports"]);
+    const cssConfig = await eslint.calculateConfigForFile("src/components/sidebar/layerRow.css");
+    const cssEnabled = Object.entries(cssConfig.rules ?? {}).filter(([, v]) => ![0, "off"].includes(Array.isArray(v) ? v[0] : v));
+    expect(cssEnabled.map(([k]) => k).filter((k) => !k.startsWith("pulse/"))).toEqual([]);
+  });
+
+  it("CSS 測試檔與 fixture 不掃", async () => {
+    expect(await eslint.isPathIgnored("src/styles/__tests__/x.css")).toBe(true);
+    expect(await eslint.isPathIgnored("src/styles/tokens.css")).toBe(false);
   });
 });

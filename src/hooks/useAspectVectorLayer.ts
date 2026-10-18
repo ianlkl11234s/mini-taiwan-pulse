@@ -83,7 +83,6 @@ export function useAspectVectorLayer(
           url: SOURCE_URL,
           minzoom: 5,
           maxzoom: 12,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(FILL_LAYER)) {

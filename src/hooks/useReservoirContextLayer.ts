@@ -223,7 +223,6 @@ function applyReservoirDim(map: MapboxMap, activeId: number | null, record: DimR
     if (record) {
       for (const { layerId, prop, original, dimmed } of record.values()) {
         if (!map.getLayer(layerId)) continue;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const current = (map.getPaintProperty as any)(layerId, prop);
         if (JSON.stringify(current) !== JSON.stringify(dimmed)) continue;
         setPaintPropertyGuarded(map, layerId, prop, original);
@@ -242,7 +241,6 @@ function applyReservoirDim(map: MapboxMap, activeId: number | null, record: DimR
       activeValue,
       dimValue,
     ];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const current = (map.getPaintProperty as any)(layerId, prop);
     // 目前值仍是上一次 dim 的結果（切換到另一座水庫）→ 沿用最初的原值；
     // 否則（首次 dim，或期間被 overlayManager / style reload 改寫）以目前值為原值

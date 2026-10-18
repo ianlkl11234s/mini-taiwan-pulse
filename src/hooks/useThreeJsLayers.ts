@@ -207,7 +207,6 @@ export function useThreeJsLayers({
     flatMovingRef.current = ctrl;
     if (mapInstanceRef.current) ctrl.attach(mapInstanceRef.current);
     return () => { ctrl.dispose(); flatMovingRef.current = null; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -220,7 +219,6 @@ export function useThreeJsLayers({
     // 第一次開任一圖層後，背景預載 3D／H3 基礎工具，之後開圖層只等資料
     const uninstallPrewarm = installLayerChunkPrewarm([loadThreeLayerBundle, loadH3]);
     return () => { unsubParams(); unsubVis(); unsubData(); uninstallPrewarm(); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addFlightLayer = (map: MapboxMap, beforeId?: string) => {

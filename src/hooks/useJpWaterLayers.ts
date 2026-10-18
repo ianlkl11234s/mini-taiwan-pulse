@@ -100,9 +100,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
   // 都會 triggerRepaint → 播放中每秒數次無謂重畫）。以內容 key 穩定 identity。
   const visKey = JSON.stringify(visibilityProp);
   const opacityKey = JSON.stringify(opacityProp);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const visibility = useMemo(() => visibilityProp, [visKey]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const opacity = useMemo(() => opacityProp, [opacityKey]);
   const active = (Object.keys(visibility) as JpWaterVisibleKey[]).some((key) => visibility[key]);
   const tick = useMapReadyTick(mapRef, active);

@@ -123,7 +123,6 @@ function useAdminPolygonLayer(
           url: absoluteUrl(config.file),
           minzoom: config.minzoom,
           maxzoom: config.maxzoom,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(config.fillLayerId)) {

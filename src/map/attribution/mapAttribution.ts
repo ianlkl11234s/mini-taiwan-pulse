@@ -40,7 +40,6 @@ export function collectLayerAttributions(views: readonly MapSourceView[]): strin
   return out;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /** 只需要這兩個 Mapbox／MapLibre 共有的公開方法。 */
 export interface AttributionMapLike {
   getStyle(): { sources?: Record<string, any>; layers?: any[] } | undefined | null;

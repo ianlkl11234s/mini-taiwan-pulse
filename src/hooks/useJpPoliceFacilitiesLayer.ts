@@ -136,7 +136,6 @@ export function useJpPoliceFacilitiesLayer(
           attribution: JP_POLICE_ATTRIBUTION,
           minzoom: MINZOOM,
           maxzoom: MAXZOOM,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(HEATMAP_LAYER_ID)) {

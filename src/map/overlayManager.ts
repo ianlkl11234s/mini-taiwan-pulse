@@ -28,7 +28,6 @@ import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
  * 這裡只宣告本模組實際用到的 8 個方法，兩個引擎的 Map 都結構相容 —— 參數型別放寬到
  * any 是這層 adapter 的代價，真正的型別安全由 overlayRegistry 的 OverlayConfig 把關。
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface OverlayMap {
   getSource(id: string): any;
   addSource(id: string, source: any): void;
@@ -229,7 +228,6 @@ export function addOverlay(
       // PMTiles 向量切片。預設走 mapbox-pmtiles 自訂 source type（呼叫端 MapView 須先
       // registerPmtilesSourceTypeOnce()）；/embed 注入 pmtiles:// protocol 版本。
       const source = (opts?.pmtilesSource ?? defaultPmtilesSource)(config);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       map.addSource(config.sourceId, source as any);
       if (config.attribution) {
         // PmTilesSource 的 attribution 走 source spec 傳不進去（見 defaultPmtilesSource
@@ -238,7 +236,6 @@ export function addOverlay(
         // 再 fire 一次 sourceDataType:"metadata" 事件（AttributionControl 靠這個事件
         // 重算顯示），若 PMTiles 檔本身 metadata 沒有 attribution 鍵，這裡設的值不會被
         // 蓋掉；用 "data" listener 保底重新賦值，避免時序或未來套件版本差異讓標示消失。
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const src = map.getSource(config.sourceId) as any;
         if (src) {
           src.attribution = config.attribution;
@@ -437,7 +434,6 @@ function applyLayoutDiff(
     next[k] = s;
     if (prev[k] !== s) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         map.setLayoutProperty(id, k as any, v as any);
       } catch (e) {
         console.warn(`[overlayManager] setLayoutProperty ${id}/${k} failed`, e);
@@ -621,7 +617,6 @@ export async function hydrateOverlayIfNeeded(
       : raw;
     const src = map.getSource(config.sourceId);
     if (src && "setData" in src) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (src as any).setData(json);
     }
   } catch (e) {

@@ -27,7 +27,6 @@ const RPC_LIST = Object.entries(RPC_WHITELIST)
   .map(([name, s]) => `  - ${name}：${s.description}`)
   .join("\n");
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function dataTools(_bridge: MapBridge) {
   return {
     query_dataset: tool({

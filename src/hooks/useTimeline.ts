@@ -227,7 +227,6 @@ export function useTimeline({
       startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
     timeStore.setTime(initial);
     // 僅初始化一次，刻意使用首次掛載的視窗界限
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [playing, setPlaying] = useState(false);

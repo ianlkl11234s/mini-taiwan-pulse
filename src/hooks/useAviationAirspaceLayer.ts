@@ -148,7 +148,6 @@ export function useAviationAirspaceLayer(
           url: `${BASE}/aviation_airspace.pmtiles`,
           minzoom: 4,
           maxzoom: 12,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
 

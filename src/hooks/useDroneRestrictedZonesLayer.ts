@@ -115,7 +115,6 @@ export function useDroneZonesLayer(
           url: `${BASE}/drone_restricted_zones.pmtiles`,
           minzoom: 5,
           maxzoom: 14,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
 

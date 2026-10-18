@@ -92,9 +92,7 @@ export function useJmaWarningsLayer(
       if (!map.getSource(JMA_WARNINGS_SOURCE_ID)) {
         map.addSource(JMA_WARNINGS_SOURCE_ID, {
           type: PMTILES_SOURCE_TYPE, url: absoluteUrl(PMTILES_FILE), minzoom: 4, maxzoom: 11,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const src = map.getSource(JMA_WARNINGS_SOURCE_ID) as any;
         if (src) src.attribution = JMA_ATTRIBUTION;
       }
