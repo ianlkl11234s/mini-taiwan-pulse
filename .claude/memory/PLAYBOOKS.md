@@ -26,9 +26,8 @@
 # 3. 其餘人工觸點（legend sub-component、featureInfo panel、gisClickRegistry、deploy 清單…）
 # → 完整 20 觸點表見 docs/development-rules.md §4；預設可見性刻意為空集合（src/state/layerVisibilityStore.ts）
 
-# 驗證
-npx tsc -b
-npm test        # layerConsistency / layerManifest 會擋漏接
+# 驗證（= CI；含 layerConsistency / layerManifest 擋漏接）
+npm run check
 ```
 
 ---
@@ -130,7 +129,7 @@ gh pr merge <n> --merge                   # 一律 merge commit
 
 ```bash
 # 本地驗證
-npx tsc -b
+npm run check
 git status --short
 git log --oneline -5
 
@@ -731,7 +730,7 @@ minzoom 8 + range request 不會一次全載，但要評估部署成本。
 # 0. 安全網
 git tag backup/pre-launch-master-<ts> origin/master
 # 1. 本地驗證（忠實重現 Zeabur 從 git build）
-npx tsc -b
+npm run check
 git archive HEAD | docker build --build-arg VITE_MAPBOX_TOKEN=<t> -t pulse-local -
 docker run -d -p 8088:8080 -e S3_ACCESS_KEY=.. -e S3_SECRET_KEY=.. -e S3_REGION=ap-southeast-2 -e S3_BUCKET=migu-gis-data-collector pulse-local
 # curl 逐路徑 /geo /h3 /bus /agriculture /fire 200/206 + dist fallback（git 小檔即使 volume 空也要 200）
@@ -813,7 +812,7 @@ origin 換新後 Cloudflare edge 仍可能 HIT 舊檔至多 1d（PMTiles range r
 git checkout -b feat/<name>
 
 # 2. 寫 code + 本地驗證
-npx tsc -b && npm test                # 前端
+npm run check                         # 前端（= CI）
 pytest tests/ -v                      # data-collectors
 psql "$SUPABASE_DB_URL" -f migrations/<next>.sql  # gis-platform，先 apply 線上實測
 
@@ -1700,8 +1699,7 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 
 **7. 實測四項**（缺一不可）
 ```bash
-npx tsc -b                         # ① 型別
-npm test                           # ② 含 layerConsistency（漏圖例會紅）
+npm run check                      # ①② 型別＋測試（= CI，含 layerConsistency）
 npm run build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
 # ④ 瀏覽器近景實測（rail 用 z13.5 確認列車貼軌）
 ```
@@ -1861,7 +1859,7 @@ pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
    overlayRegistry／LegendPanel／featureInfo panels 三邊 import 同一份，不複製 hex。
    把上游 handoff 開頭的「會接錯的事」逐條抄進**檔頭註解**（不是只寫在 docs）。
 6. **驗收四段，缺一不可**：
-   - `npx tsc -b` ＋ `npx vitest run`（新層要進 `NO_HOOK_LEDGER` 之類的 ledger）
+   - `npm run check`（新層要進 `NO_HOOK_LEDGER` 之類的 ledger）
    - 黃金快照重生 `npx vite-node scripts/preprocess/dump-layer-golden.ts`
      → **`git diff` 確認只有新 key ＋ keyCount 那一行動**，既有層任何 diff 都是回歸
    - 瀏覽器：深連結 `?v=1&layers=…` 開層，驗渲染點數／分色／數值視覺／popup／圖例
