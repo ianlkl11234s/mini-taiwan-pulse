@@ -205,7 +205,7 @@ myNewLayer: [
 
 ## 4a. 圖層 UX 標配（四大鐵則）
 
-> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard：TS／TSX 由 `npm run lint`（`pulse/design-*`），CSS 由 `src/styles/__tests__/designSystemGuard.test.ts`。
+> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard：`npm run lint`（TS／TSX 為 `pulse/design-*`，CSS 為 `pulse/design-css-*`）。
 
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 
@@ -344,11 +344,11 @@ Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/c
 
 「讀原始碼＋regex」的禁用型檢查一律寫成 ESLint 規則，不再新增這類測試（錯誤訊息會指出檔名、行號與怎麼改，編輯器裝 ESLint 擴充就看得到）。
 
-- **只啟用守門規則**：`eslint.config.js` 不開 `recommended` 等規則集；只放取代守門測試的規則，掃 `src/**/*.{ts,tsx}`（測試檔與 fixture 不掃）。`npm run lint` 帶 `--no-inline-config`：`// eslint-disable` 註解一律無效，不能用來繞過。
-- **規則放哪**：本地 plugin `pulse` 在 `eslint-rules/`（`index.js` 登記、`rules/design.js` 為 design system guard 的 TS 部分、`rules/guards.js` 為其他守門）；套用到哪些檔寫在 `eslint.config.js` 的 `files`／`ignores`。內建規則表達得了就用內建（例 `no-restricted-imports`）；只是禁某種語法就用 `utils.js` 的 `selectorRule()`（esquery selector），每個守門一個規則 id。
-- **怎麼加**：① 在 `rules/*.js` 寫規則（訊息寫「不要做什麼＋改用什麼＋規範出處」；訊息裡不能出現 `{{`，那是 placeholder 語法）② 在 `index.js` 登記 ③ 在 `eslint.config.js` 加一個 block 指定 `files` ④ `eslint-rules/__tests__/rules.test.js` 加 RuleTester 樣本（valid／invalid），`config.test.js` 加一列釘住套用範圍 ⑤ `npm run lint`。
+- **只啟用守門規則**：`eslint.config.js` 不開 `recommended` 等規則集；只放取代守門測試的規則，掃 `src/**/*.{ts,tsx,css}`（測試檔與 fixture 不掃；CSS 用 `@eslint/css` 解析，不開它的 recommended）。`npm run lint` 帶 `--no-inline-config`：`// eslint-disable` 註解一律無效，不能用來繞過。
+- **規則放哪**：本地 plugin `pulse` 在 `eslint-rules/`（`index.js` 登記、`rules/design.js`／`rules/css.js` 為 design system guard 的 TS／CSS 部分、`rules/guards.js` 為其他守門）；套用到哪些檔寫在 `eslint.config.js` 的 `files`／`ignores`。內建規則表達得了就用內建（例 `no-restricted-imports`）；只是禁某種語法就用 `utils.js` 的 `selectorRule()`（esquery selector），每個守門一個規則 id。
+- **怎麼加**：① 在 `rules/*.js` 寫規則（訊息寫「不要做什麼＋改用什麼＋規範出處」；訊息裡不能出現 `{{`，那是 placeholder 語法）② 在 `index.js` 登記 ③ 在 `eslint.config.js` 加一個 block 指定 `files` ④ `eslint-rules/__tests__/rules.test.js`（CSS 規則用 `cssRules.test.js`）加 RuleTester 樣本（valid／invalid），`config.test.js` 加一列釘住套用範圍 ⑤ `npm run lint`。
 - **既有違規（ratchet）**：記在根目錄 `eslint-suppressions.json`（每檔每規則的筆數）。筆數增加或新檔出現違規 → lint 紅；修掉違規後 lint 會提示有沒用到的 suppression，跑 **`npm run lint:prune`** 把基準降下來並 commit。**不要跑 `eslint --suppress-all`／`--suppress-rule`**：那會把新違規吃進基準＝放寬，與 CLAUDE.md §7「紅燈修程式碼，不改基準」相同。
-- 目前規則：design system guard 的 TS／TSX 部分（`pulse/design-*`，CSS 部分仍在 `designSystemGuard.test.ts`，見 design-system/spec.md §9）、`map-ready-tick-deps`、點圖層 R2（`no-zoom-circle-radius`、`no-legacy-radius-helper`、`no-hand-rolled-stroke-opacity`）、`no-fill-outline-color`、`monitor-no-manual-polling`、圖例收斂（`legend-no-letter-spacing`、`legend-no-hand-sized-swatch`）、day prefetch（`no-current-time-deps`、`no-restricted-imports`）。
+- 目前規則：design system guard（TS／TSX `pulse/design-*`、CSS `pulse/design-css-*`，見 design-system/spec.md §9）、`map-ready-tick-deps`、點圖層 R2（`no-zoom-circle-radius`、`no-legacy-radius-helper`、`no-hand-rolled-stroke-opacity`）、`no-fill-outline-color`、`monitor-no-manual-polling`、圖例收斂（`legend-no-letter-spacing`、`legend-no-hand-sized-swatch`）、day prefetch（`no-current-time-deps`、`no-restricted-imports`）。
 
 ## 7. 部署 Checklist
 部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。

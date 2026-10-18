@@ -1,5 +1,6 @@
 // ESLint：只啟用取代「讀原始碼＋regex」守門測試的規則，不開 recommended（docs/development-rules.md「自訂 ESLint 規則」）。
 // 既有違規記在 eslint-suppressions.json（只能往下降）：修掉違規後跑 `npm run lint:prune`；不要跑 --suppress-all。
+import css from "@eslint/css";
 import tsParser from "@typescript-eslint/parser";
 import pulse from "./eslint-rules/index.js";
 
@@ -14,7 +15,7 @@ export default [
     linterOptions: { reportUnusedDisableDirectives: "off" },
   },
 
-  // Design system guard（spec.md §9；CSS 部分仍在 designSystemGuard.test.ts）
+  // Design system guard（spec.md §9）：TS／TSX
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
@@ -28,6 +29,23 @@ export default [
   { files: ["src/**/*.{ts,tsx}"], ignores: ["src/styles/**"], rules: { "pulse/design-raw-z-index": "error" } },
   { files: ["src/**/*.tsx"], rules: { "pulse/design-font-data-on-cjk": "error" } },
   { files: ["src/data/layerParamsSpec.ts"], rules: { "pulse/design-english-control-label": "error" } },
+
+  // Design system guard（spec.md §9）：CSS（@eslint/css；不開 css 的 recommended）
+  {
+    files: ["src/**/*.css"],
+    language: "css/css",
+    plugins: { css, pulse },
+    linterOptions: { reportUnusedDisableDirectives: "off" },
+    rules: {
+      "pulse/design-css-web-font": "error",
+      "pulse/design-css-triangle-chevron": "error",
+      "pulse/design-css-uppercase-eyebrow": "error",
+    },
+  },
+  // UI 樣式表：src/research 只算第一層（子資料夾是獨立工具頁），src/components 全部
+  { files: ["src/research/*.css", "src/components/**/*.css"], rules: { "pulse/design-css-hex-literal": "error" } },
+  // src/styles/** 是層級定義檔本身
+  { files: ["src/**/*.css"], ignores: ["src/styles/**"], rules: { "pulse/design-css-raw-z-index": "error" } },
 
   // 圖層 hook：map-ready 競態
   { files: ["src/hooks/use*Layer.ts", "src/hooks/factories/timelineSliceLayer.ts"], rules: { "pulse/map-ready-tick-deps": "error" } },

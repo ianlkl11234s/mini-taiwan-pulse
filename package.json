@@ -33,7 +33,6 @@
     "rail:bundle": "python3 scripts/preprocess/bundle-rail-data.py",
     "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py",
     "research:layer-status": "vite-node --script scripts/research/build-layer-status.mjs",
-    "design:baseline": "tsx scripts/design/update-design-baseline.ts",
     "design:audit-layers": "vite-node scripts/design/audit-layer-styles.ts",
     "design:snapshot": "node scripts/design/snapshot-design-system.mjs"
   },
@@ -63,6 +62,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/css": "2.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.172.0",

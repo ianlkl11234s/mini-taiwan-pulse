@@ -139,7 +139,7 @@ v2.0.0 起整站外觀以設計系統重做。**各工作線的 PR 與現況總�
 | 監看模式 P1–P5 | 卡片殼、字級、數值列與走勢、多指標卡、資料新鮮度、淡色版 | v2.3.0 | [`monitor-restyle`](docs/features/monitor-restyle/README.md) |
 | 地圖 R6 | Three.js 圖層的「基本點線面」模式 | ⏳ 未開始 | [`handoff-r6.md`](docs/features/map-layer-restyle/handoff-r6.md) |
 
-UI 改動必須遵守 [`spec.md`](docs/design-system/spec.md)（PR 前照 §8 checklist），守門測試 `src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，不可用改基準繞過。
+UI 改動必須遵守 [`spec.md`](docs/design-system/spec.md)（PR 前照 §8 checklist），守門規則 `npm run lint`（`pulse/design-*`）紅燈要修程式碼，不可用改基準繞過。
 
 ---
 
@@ -201,7 +201,7 @@ npx tsc -b                # 型別檢查（commit 前必跑，禁用 --noEmit）
 
 | 指令 | 用途 |
 |---|---|
-| `npm run design:snapshot` / `design:baseline` / `design:audit-layers` | 設計系統快照、guard 基準、圖層樣式盤點 |
+| `npm run design:snapshot` / `design:audit-layers` | 設計系統快照、圖層樣式盤點 |
 | `npm run research:local:start` / `dev:exploration` / `research:layer-status` | 本機 Agent 測試環境、可分析圖層總表 |
 | `npm run dev:private-research` | 本機起私有研究服務 |
 | `npm run fetch:flights` / `fetch:tracks` / `s3:upload*` / `rail:bundle` | 資料抓取、資產上傳、軌道打包 |
