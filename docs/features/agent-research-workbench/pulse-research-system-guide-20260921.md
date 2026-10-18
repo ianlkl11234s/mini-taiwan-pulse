@@ -1,3 +1,5 @@
+> ⚠️ 2026-10-18 起本檔為歷史版本（v1，ADR-0016 之前）；現行架構見 [ARCHITECTURE.md](./ARCHITECTURE.md)。
+
 # Mini Taiwan Pulse 研究與 GIS 分析系統導覽
 
 > 更新日期：2026-09-21
