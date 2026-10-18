@@ -26,7 +26,7 @@ import { pointStrokePaint } from "../map/mapStyleScale";
  *   - scale / opacity 從 UI 滑桿動態調
  */
 
-const SOURCE_ID = "river-level";
+export const SOURCE_ID = "river-level";
 const LAYER_GLOW = "river-level-glow";
 const LAYER_CIRCLE = "river-level-circle";
 

@@ -24,7 +24,7 @@ import { pointStrokePaint } from "../map/mapStyleScale";
  * 但底色用 cyan 系跟既有 river 區隔（避免重疊看不出來）。
  */
 
-const SOURCE_ID = "iot-wra-river";
+export const SOURCE_ID = "iot-wra-river";
 const LAYER_GLOW = "iot-wra-river-glow";
 const LAYER_CIRCLE = "iot-wra-river-circle";
 
