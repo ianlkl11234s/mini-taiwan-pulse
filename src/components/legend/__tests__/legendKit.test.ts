@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -12,13 +10,6 @@ import { localeStore } from "../../../state/localeStore";
 import type { LayerVisibility } from "../../../types";
 import { hatchImageData } from "../../../map/mapStyleScale";
 import { MEDICAL_POI_TYPES, MEDICAL_POI_PAINT_COLORS, medicalPoiColor } from "../../../data/medicalPOITypes";
-
-// 圖例子元件已依主題拆到 legend/*Legends.tsx；原始碼斷言讀「面板 + 全部 legend/*.tsx」。
-const legendPanelSource = () => {
-  const legendDir = fileURLToPath(new URL("..", import.meta.url));
-  const files = readdirSync(legendDir).filter((n) => n.endsWith(".tsx") && n !== "legendKit.tsx").map((n) => legendDir + n);
-  return [fileURLToPath(new URL("../../LegendPanel.tsx", import.meta.url)), ...files].map((p) => readFileSync(p, "utf8")).join("\n");
-};
 
 describe("legendKit", () => {
   it("LG-11：標題中文在前、英文小字在後，不轉大寫", () => {
@@ -50,15 +41,8 @@ describe("legendKit", () => {
 });
 
 describe("LegendPanel 收斂 ratchet", () => {
-  it("標題不再手寫 letterSpacing: 1 的英文大寫樣式", () => {
-    expect(legendPanelSource()).not.toMatch(/letterSpacing: 1\b/);
-  });
-
-  it("手寫色票尺寸（width: N, height: N）只能減少，新圖例請用 legendKit 的 Swatch*", () => {
-    const count = legendPanelSource().match(/width: \d+, height: \d+/g)?.length ?? 0;
-    expect(count).toBeLessThanOrEqual(6);
-  });
-
+  // 標題不手寫 letterSpacing: 1、手寫色票尺寸只能減少：改由 ESLint
+  // pulse/legend-no-letter-spacing、legend-no-hand-sized-swatch 檢查（既有違規記在 eslint-suppressions.json）。
   it("R4 A 類圖例以對應 geometry 的 legendKit 色票渲染", () => {
     const html = (id: string) => {
       const entry = LEGEND_REGISTRY.find((e) => e.id === id);
