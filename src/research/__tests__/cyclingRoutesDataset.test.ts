@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
 import { cyclingRoutesAdapter, cyclingRoutesDescriptor } from "../cyclingRoutesDataset";
 import { lineIntersectsBbox, parseLineGeometry } from "../lineGeometry";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const path = "public/geo/cycling_routes.geojson";
 type Bbox = readonly [number, number, number, number];
@@ -26,7 +26,7 @@ it("requires bbox and preserves fixed line source semantics", async () => {
   expect(cyclingRoutesDescriptor.valueSemantics.stale).toContain("FinishedTime");
 });
 
-it.skipIf(!existsSync(path))("matches complete source at two places and a city variant", async () => {
+it.skipIf(!ownerAsset(path))("matches complete source at two places and a city variant", async () => {
   const cases: readonly [Bbox, string | undefined][] = [
     [[121.50, 25.03, 121.51, 25.04], undefined],
     [[121.50, 25.03, 121.51, 25.04], "臺北市"],
@@ -41,7 +41,7 @@ it.skipIf(!existsSync(path))("matches complete source at two places and a city v
   }
 });
 
-it.skipIf(!existsSync(path))("rejects mutated source bytes", async () => {
+it.skipIf(!ownerAsset(path))("rejects mutated source bytes", async () => {
   const bytes = await readFile(path); const altered = new Uint8Array(bytes); altered[100] = altered[100] === 65 ? 66 : 65;
   vi.stubGlobal("fetch", vi.fn(async () => new Response(altered, { headers: { "content-length": String(altered.byteLength) } })));
   await expect(new QueryExecutor([cyclingRoutesAdapter]).execute({ datasetId: cyclingRoutesDescriptor.datasetId, bbox: [121.50, 25.03, 121.51, 25.04], limit: 1 })).rejects.toThrow("CYCLING_SHAPES_SOURCE_MISMATCH");

@@ -1,14 +1,15 @@
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 import { companyCapitalGridOwnerAdapter, companyCapitalGridOwnerDescriptor } from "../companyCapitalGridOwnerDataset";
 
 const root = resolve(process.cwd(), "../runtime/owner-only/company-capital-grid");
 const assetPath = `${root}/company-capital-grid-1500m-owner-202608.geojson`;
 const checkoutRoot = process.cwd().split("/.worktrees/")[0]!;
 const sourcePath = resolve(checkoutRoot, "../taipei-gis-analytics/data/processed/business_registry/company_capital_grid/company_capital_grid_1500m_202608_r2.geojson");
-const hasLocalAssets = existsSync(assetPath) && existsSync(sourcePath);
+const hasLocalAssets = ownerAsset(assetPath) && ownerAsset(sourcePath);
 const asset = hasLocalAssets ? readFileSync(assetPath) : undefined;
 const source = hasLocalAssets ? JSON.parse(readFileSync(sourcePath, "utf8")) : undefined;
 

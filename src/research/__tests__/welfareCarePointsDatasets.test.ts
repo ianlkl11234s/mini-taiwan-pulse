@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { elderlyCareHomesTgosUpstreamAdapter } from "../elderlyCareHomesDataset";
 import { ltcInstitutionsTgosUpstreamAdapter } from "../ltcInstitutionsDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const assets = {
   ltc: "../runtime/research-public/ltc_institutions_tgos_upstream.geojson",
@@ -17,7 +17,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(assets.ltc))("reads only the fixed 3,053-record TGOS LTC sidecar with its receipt and null semantics", async () => {
+it.skipIf(!ownerAsset(assets.ltc))("reads only the fixed 3,053-record TGOS LTC sidecar with its receipt and null semantics", async () => {
   const result = await new QueryExecutor([ltcInstitutionsTgosUpstreamAdapter]).execute({ datasetId: "tw-ltc-institutions-tgos-upstream", filters: [{ field: "name", op: "eq", value: "臺北市私立美樺居家式服務類長期照顧服務機構" }] });
   expect(result).toMatchObject({ totalMatched: 1, rows: [{ uid: "welfare_00109", coord_source: "tgos_upstream", coord_precision: "upstream" }], sourceRefs: [{ checksumSha256: "4d83b83a71e2898025c2a97c5189a57060c6ec67ea675732e9a9cd96c58f87c3" }] });
   const descriptor = ltcInstitutionsTgosUpstreamAdapter.descriptor;
@@ -25,7 +25,7 @@ it.skipIf(!existsSync(assets.ltc))("reads only the fixed 3,053-record TGOS LTC s
   expect(descriptor.fields.find(field => field.name === "uni_no")).toMatchObject({ nullable: true });
 });
 
-it.skipIf(!existsSync(assets.elderly))("reads only the fixed 1,043-record TGOS elderly-home sidecar with explicit source nulls", async () => {
+it.skipIf(!ownerAsset(assets.elderly))("reads only the fixed 1,043-record TGOS elderly-home sidecar with explicit source nulls", async () => {
   const executor = new QueryExecutor([elderlyCareHomesTgosUpstreamAdapter]);
   const result = await executor.execute({ datasetId: "tw-elderly-care-homes-tgos-upstream", filters: [{ field: "name", op: "eq", value: "臺北市私立天玉老人長期照顧中心(長期照護型)" }] });
   expect(result).toMatchObject({ totalMatched: 1, rows: [{ uid: "welfare_00736", coord_source: "tgos_upstream", coord_precision: "upstream", uni_no: null }], sourceRefs: [{ checksumSha256: "5031ace9289687cd58f1410c599caa593d51f776072067493c660565d6839cb0" }] });

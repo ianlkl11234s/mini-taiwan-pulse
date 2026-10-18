@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { educationAfterschoolCareOwnerAdapter, educationAfterschoolCareOwnerDescriptor, educationKindergartenOwnerAdapter, educationKindergartenOwnerDescriptor, educationMutualCareOwnerAdapter, educationMutualCareOwnerDescriptor } from "../educationChildcareOwnerDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const assets = new Map([
   ["kindergartens-20260807-owner.geojson", "../runtime/owner-only/education-childcare/kindergartens-20260807-owner.geojson"],
@@ -16,7 +16,7 @@ const descriptors = [educationKindergartenOwnerDescriptor, educationAfterschoolC
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(await readFile(assets.get(url.split("/").pop()!)!), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(assets.get("kindergartens-20260807-owner.geojson")!))("retains all three independent source tables while preserving their unlocated records", async () => {
+it.skipIf(!ownerAsset(assets.get("kindergartens-20260807-owner.geojson")!))("retains all three independent source tables while preserving their unlocated records", async () => {
   const executor = new QueryExecutor(adapters);
   const results = await Promise.all(descriptors.map(descriptor => executor.execute({ datasetId: descriptor.datasetId, limit: 1 })));
   expect(results.map(result => result.totalMatched)).toEqual([6747, 787, 148]);
@@ -26,7 +26,7 @@ it.skipIf(!existsSync(assets.get("kindergartens-20260807-owner.geojson")!))("ret
   }
 });
 
-it.skipIf(!existsSync(assets.get("kindergartens-20260807-owner.geojson")!))("uses independent location oracles and keeps bbox separate from unlocated source rows", async () => {
+it.skipIf(!ownerAsset(assets.get("kindergartens-20260807-owner.geojson")!))("uses independent location oracles and keeps bbox separate from unlocated source rows", async () => {
   const executor = new QueryExecutor(adapters);
   const taipeiKindergarten = await executor.execute({ datasetId: educationKindergartenOwnerDescriptor.datasetId, bbox: [121.49, 25.02, 121.57, 25.09], select: ["name", "academic_year", "geometry"], limit: 100 });
   const taichungAfterSchool = await executor.execute({ datasetId: educationAfterschoolCareOwnerDescriptor.datasetId, bbox: [120.65, 24.12, 120.71, 24.20], select: ["name", "city", "geometry"], limit: 100 });
@@ -37,7 +37,7 @@ it.skipIf(!existsSync(assets.get("kindergartens-20260807-owner.geojson")!))("use
   expect(unlocatedKindergarten.rows.every(row => row.geometry === null && row.coordinate_status === "unlocated")).toBe(true);
 });
 
-it.skipIf(!existsSync(assets.get("mutual-care-20260807-owner.geojson")!))("allows terminology variants through fields without treating reference coordinates as proximity", async () => {
+it.skipIf(!ownerAsset(assets.get("mutual-care-20260807-owner.geojson")!))("allows terminology variants through fields without treating reference coordinates as proximity", async () => {
   const executor = new QueryExecutor(adapters);
   const mutual = await executor.execute({ datasetId: educationMutualCareOwnerDescriptor.datasetId, filters: [{ field: "ownership", op: "eq", value: "私立" }], select: ["name", "ownership", "geometry"], limit: 100 });
   expect(mutual.totalMatched).toBeGreaterThan(0);

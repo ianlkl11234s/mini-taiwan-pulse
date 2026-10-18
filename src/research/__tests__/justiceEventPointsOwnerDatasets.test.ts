@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { womenChildWarningOwnerAdapter, womenChildWarningOwnerDescriptor } from "../justiceEventPointsOwnerDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const asset = "../runtime/owner-only/justice-event-points/women-child-warning-owner-20260626.geojson";
 
@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(asset))("exposes only bounded owner-only warning reference points", async () => {
+it.skipIf(!ownerAsset(asset))("exposes only bounded owner-only warning reference points", async () => {
   const result = await new QueryExecutor([womenChildWarningOwnerAdapter]).execute({ datasetId: womenChildWarningOwnerDescriptor.datasetId, bbox: [121.48, 25.02, 121.57, 25.08], select: ["warning_type", "source", "geometry"], limit: 50 });
   expect(result.totalMatched).toBeGreaterThan(0);
   expect(womenChildWarningOwnerDescriptor).toMatchObject({ access: { mode: "owner_only", method: "local_asset", query: { supportsBbox: true } }, geometry: { role: "proxy", spatialAnalysisEligible: false }, supportedOperations: ["query_records", "aggregate"] });

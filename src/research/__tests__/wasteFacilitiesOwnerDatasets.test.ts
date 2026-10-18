@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,6 +10,7 @@ import {
   wasteFacilitiesScrapYardOwnerAdapter, wasteFacilitiesScrapYardOwnerDescriptor,
   wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesTransferOwnerDescriptor,
 } from "../wasteFacilitiesOwnerDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const analyticsRoot = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/waste_management/waste_facilities";
 const sidecarRoot = "../runtime/owner-only/waste-facilities/";
@@ -29,7 +29,7 @@ afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 const adapters = [wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter];
 const descriptors = [wasteFacilitiesIncineratorOwnerDescriptor, wasteFacilitiesLandfillOwnerDescriptor, wasteFacilitiesMonitoringOwnerDescriptor, wasteFacilitiesTransferOwnerDescriptor, wasteFacilitiesRecyclingOwnerDescriptor, wasteFacilitiesScrapYardOwnerDescriptor];
 
-it.skipIf(!existsSync(sidecarRoot))("returns only its own facility category and fails closed on each source-category count", async () => {
+it.skipIf(!ownerAsset(sidecarRoot))("returns only its own facility category and fails closed on each source-category count", async () => {
   const executor = new QueryExecutor(adapters);
   const expected = [31, 12, 17, 38, 184, 15];
   for (const [index, descriptor] of descriptors.entries()) {
@@ -41,7 +41,7 @@ it.skipIf(!existsSync(sidecarRoot))("returns only its own facility category and 
   }
 });
 
-it.skipIf(!existsSync(sidecarRoot))("matches independent Taipei government and Kaohsiung OSM bbox oracles", async () => {
+it.skipIf(!ownerAsset(sidecarRoot))("matches independent Taipei government and Kaohsiung OSM bbox oracles", async () => {
   const executor = new QueryExecutor(adapters);
   const government = await executor.execute({ datasetId: wasteFacilitiesIncineratorOwnerDescriptor.datasetId, bbox: taipei, select: ["facility_name", "facility_type", "geometry"], limit: 31 });
   const osm = await executor.execute({ datasetId: wasteFacilitiesRecyclingOwnerDescriptor.datasetId, bbox: kaohsiung, select: ["facility_name", "facility_type", "status", "geometry"], limit: 100 });

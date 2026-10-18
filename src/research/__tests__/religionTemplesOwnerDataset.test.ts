@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -6,6 +5,7 @@ import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
 import { religionTemplesOwnerAdapter, religionTemplesOwnerDescriptor } from "../religionTemplesOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/religion-temples/";
 const prefix = "/__local-research-owner-only/religion-temples/";
@@ -28,7 +28,7 @@ it("requires bbox and exposes only the safe owner-only proxy schema", async () =
   expect(religionTemplesOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["name", "address", "phone", "principal", "moi_id", "_provenance", "source_url"]));
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches the Tainan full-source MOI registration variant oracle", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches the Tainan full-source MOI registration variant oracle", async () => {
   const executor = new QueryExecutor([religionTemplesOwnerAdapter]);
   const tainan = [120.3, 23.3, 120.5, 23.5] as const;
   const moi = await executor.execute({ datasetId: religionTemplesOwnerDescriptor.datasetId, bbox: tainan, filters: [{ field: "source", op: "eq", value: "moi_temple_xml" }, { field: "registration_type", op: "eq", value: "補辦登記" }], select: ["source", "registration_type", "coord_source", "geometry"], limit: 100 });
@@ -36,7 +36,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches the Tainan full-source M
   expect(moi.cost.rowsScanned).toBeLessThanOrEqual(20_000); expect(moi.cost.bytesScanned).toBeLessThanOrEqual(8 * 1024 * 1024);
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches the Kaohsiung full-source OSM null-registration variant oracle", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches the Kaohsiung full-source OSM null-registration variant oracle", async () => {
   const executor = new QueryExecutor([religionTemplesOwnerAdapter]);
   const kaohsiung = [120.2, 22.55, 120.4, 22.7] as const;
   const osm = await executor.execute({ datasetId: religionTemplesOwnerDescriptor.datasetId, bbox: kaohsiung, filters: [{ field: "source", op: "eq", value: "osm_overpass" }], select: ["source", "registration_type", "deity_family", "geometry"], limit: 100 });
@@ -45,7 +45,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches the Kaohsiung full-sourc
   expect(osm.excludedByReason).toMatchObject({ unresolved_source_coordinate: 2 });
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("keeps nullable safe fields in immutable gzip shards and bounds a nationwide read", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("keeps nullable safe fields in immutable gzip shards and bounds a nationwide read", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string; featureCount: number }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { properties: Record<string, unknown> }[] };
   expect(Object.keys(shard.features[0]!.properties).sort()).toEqual(["coord_source", "deity_family", "entity_id", "geocode_precision", "heritage_flag", "in_moi_registry", "is_top100", "registration_type", "religion_type", "source"]);

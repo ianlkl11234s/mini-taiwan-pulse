@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { welfareChildServicesOwnerAdapter, welfareChildServicesOwnerDescriptor } from "../welfareChildServicesOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const asset = "../runtime/owner-only/welfare-child-services/welfare-child-services-owner-20260812.geojson";
 
@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(asset))("retains all 1,425 source rows including structural no-coordinate records", async () => {
+it.skipIf(!ownerAsset(asset))("retains all 1,425 source rows including structural no-coordinate records", async () => {
   const executor = new QueryExecutor([welfareChildServicesOwnerAdapter]);
   const all = await executor.execute({ datasetId: welfareChildServicesOwnerDescriptor.datasetId, limit: 1 });
   const unlocated = await executor.execute({ datasetId: welfareChildServicesOwnerDescriptor.datasetId, filters: [{ field: "coord_status", op: "eq", value: "no_coord" }], select: ["uid", "coord_status", "coord_source", "geometry"], limit: 50 });
@@ -26,7 +26,7 @@ it.skipIf(!existsSync(asset))("retains all 1,425 source rows including structura
   expect(welfareChildServicesOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["address", "phone", "service_content", "service_hours"]));
 });
 
-it.skipIf(!existsSync(asset))("bounds reference positions at two places and handles a coordinate-source variant", async () => {
+it.skipIf(!ownerAsset(asset))("bounds reference positions at two places and handles a coordinate-source variant", async () => {
   const executor = new QueryExecutor([welfareChildServicesOwnerAdapter]);
   const taipei = await executor.execute({ datasetId: welfareChildServicesOwnerDescriptor.datasetId, bbox: [121.50, 25.02, 121.56, 25.06], select: ["uid", "welfare_class", "geometry"], limit: 50 });
   const tainan = await executor.execute({ datasetId: welfareChildServicesOwnerDescriptor.datasetId, bbox: [120.17, 22.98, 120.24, 23.03], select: ["uid", "welfare_class", "geometry"], limit: 50 });

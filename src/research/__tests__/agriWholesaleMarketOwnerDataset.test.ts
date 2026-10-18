@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { agriWholesaleMarketOwnerAdapter, agriWholesaleMarketOwnerDescriptor } from "../agriWholesaleMarketOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sidecar = "../runtime/owner-only/agri-wholesale-market/agri-wholesale-market-owner-20260525.geojson";
 const source = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/agriculture/agri_wholesale_market_companies/agri_wholesale_market_companies.geojson";
@@ -11,7 +11,7 @@ const bboxes = [[121.45, 25.02, 121.55, 25.1], [120.25, 22.55, 120.4, 22.7]] as 
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sidecar))("matches two independent full-source geographic counts without exposing company identifiers", async () => {
+it.skipIf(!ownerAsset(sidecar))("matches two independent full-source geographic counts without exposing company identifiers", async () => {
   const original = JSON.parse(await readFile(source, "utf8")) as { features: { geometry: { coordinates: number[] } }[] };
   const executor = new QueryExecutor([agriWholesaleMarketOwnerAdapter]);
   for (const bbox of bboxes) {

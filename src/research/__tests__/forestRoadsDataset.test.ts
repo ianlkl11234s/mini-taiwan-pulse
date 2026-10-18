@@ -1,14 +1,14 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { expect, it } from "vitest";
 import { parseLineGeometry } from "../linePolygonAnalysis";
 import { clearForestRoadSnapshotCache, createForestRoadsAdapter, forestRoadsDescriptor } from "../forestRoadsDataset";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/research-public/forest-roads/";
 const fetchSnapshot = async () => new Response(await readFile(`${root}forest-roads-2d.geojson`), { headers: { "content-type": "application/geo+json" } });
 
-it.skipIf(!existsSync(`${root}forest-roads-2d.geojson`))("reads the SHA-bound 107-line snapshot with complete, explicitly 2D geometry", async () => {
+it.skipIf(!ownerAsset(`${root}forest-roads-2d.geojson`))("reads the SHA-bound 107-line snapshot with complete, explicitly 2D geometry", async () => {
   clearForestRoadSnapshotCache();
   const executor = new QueryExecutor([createForestRoadsAdapter(fetchSnapshot)]);
   const result = await executor.execute({

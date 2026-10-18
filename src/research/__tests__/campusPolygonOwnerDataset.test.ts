@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { campusPolygonOwnerAdapter, campusPolygonOwnerDescriptor } from "../campusPolygonOwnerDataset";
 import { QueryExecutor } from "../queryExecutor";
 import { geometriesIntersect, parseSpatialGeometry, type PolygonGeometry } from "../spatialKernel";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/campus-polygon/";
 const prefix = "/__local-research-owner-only/campus-polygon/";
@@ -25,7 +25,7 @@ it("pins raw, processed and display receipts; bbox is required", async () => {
   expect(campusPolygonOwnerDescriptor.source.lineage).toContain("3735e97933bef4f93d163a607d902607c1c008f1481ad3f674ca4120d74e3f15");
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source Polygon oracles in two counties and a school-level variant", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches independent full-source Polygon oracles in two counties and a school-level variant", async () => {
   const executor = new QueryExecutor([campusPolygonOwnerAdapter]);
   const cases: readonly [Bbox, string | undefined][] = [
     [[121.49, 25.02, 121.55, 25.08], undefined],
@@ -41,7 +41,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source 
   }
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("retains non-school rows and the separate experimental null Chinese-level semantics", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("retains non-school rows and the separate experimental null Chinese-level semantics", async () => {
   const sourceRows = (await source()).filter(feature => feature.properties.school_level === "non_school");
   expect(sourceRows).toHaveLength(12);
   expect(sourceRows.every(feature => feature.properties.school_level_zh === "非學校設施")).toBe(true);

@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { lineIntersectsBbox, parseLineGeometry } from "../lineGeometry";
 import { clearOsmPowerNetworkOwnerCache, createOsmPowerLinesOwnerAdapter, createOsmPowerTowersOwnerAdapter, osmPowerLinesOwnerDescriptor, osmPowerTowersOwnerDescriptor } from "../osmPowerNetworkOwnerDataset";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const runtime = "../runtime/owner-only/osm-power-network";
 const analytics = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/energy";
@@ -13,7 +13,7 @@ const inside = (coordinates: readonly [number, number], bbox: readonly number[])
 beforeEach(() => { clearOsmPowerNetworkOwnerCache(); });
 afterEach(() => { vi.unstubAllGlobals(); clearOsmPowerNetworkOwnerCache(); });
 
-it.skipIf(!existsSync(`${runtime}/osm_power_lines_20260615.geojson`))("keeps complete lines and matches two independent bbox and tag variants", async () => {
+it.skipIf(!ownerAsset(`${runtime}/osm_power_lines_20260615.geojson`))("keeps complete lines and matches two independent bbox and tag variants", async () => {
   const source = JSON.parse(await readFile(`${analytics}/osm_power_lines/osm_power_lines_20260615.geojson`, "utf8")) as { features: { geometry: { coordinates: [number, number][] }; properties: { voltage: string | null; line_type: string } }[] };
   const fetcher = async () => new Response(await readFile(`${runtime}/osm_power_lines_20260615.geojson`), { headers: { "content-type": "application/geo+json" } });
   const executor = new QueryExecutor([createOsmPowerLinesOwnerAdapter(fetcher)]);
@@ -28,7 +28,7 @@ it.skipIf(!existsSync(`${runtime}/osm_power_lines_20260615.geojson`))("keeps com
   await expect(executor.execute({ datasetId: osmPowerLinesOwnerDescriptor.datasetId, limit: 1 })).rejects.toThrow("BBOX_REQUIRED");
 });
 
-it.skipIf(!existsSync(`${runtime}/osm_power_towers_20260615.geojson`))("matches two tower-place bboxes and retains source nulls", async () => {
+it.skipIf(!ownerAsset(`${runtime}/osm_power_towers_20260615.geojson`))("matches two tower-place bboxes and retains source nulls", async () => {
   const source = JSON.parse(await readFile(`${analytics}/osm_power_towers/osm_power_towers_20260615.geojson`, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { material: string | null } }[] };
   const fetcher = async () => new Response(await readFile(`${runtime}/osm_power_towers_20260615.geojson`), { headers: { "content-type": "application/geo+json" } });
   const executor = new QueryExecutor([createOsmPowerTowersOwnerAdapter(fetcher)]);

@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cemeteryOsmAdapter, cemeteryOsmDescriptor } from "../cemeteryOsmDataset";
 import { QueryExecutor } from "../queryExecutor";
 import { geometriesIntersect, parseSpatialGeometry, type PolygonGeometry } from "../spatialKernel";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const runtime = "../runtime/owner-only/cemetery-osm/cemetery-osm.geojson";
 const processed = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/funeral/cemetery_osm/cemetery_osm_20260805.geojson";
@@ -19,7 +19,7 @@ async function oracle(bbox: Bbox): Promise<string[]> {
 beforeEach(() => { vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(runtime), { headers: { "content-type": "application/geo+json", "content-length": "3602036" } }))); });
 afterEach(() => vi.unstubAllGlobals());
 
-it.skipIf(!existsSync(runtime))("requires a bbox and exposes only safe source fields with actual full surfaces", async () => {
+it.skipIf(!ownerAsset(runtime))("requires a bbox and exposes only safe source fields with actual full surfaces", async () => {
   const executor = new QueryExecutor([cemeteryOsmAdapter]);
   await expect(executor.execute({ datasetId: cemeteryOsmDescriptor.datasetId, limit: 1 })).rejects.toThrow("BBOX_REQUIRED");
   const result = await executor.execute({ datasetId: cemeteryOsmDescriptor.datasetId, bbox: [121.45, 25, 121.65, 25.15], select: ["record_id", "name", "area_ha", "geometry"], limit: 100 });
@@ -29,7 +29,7 @@ it.skipIf(!existsSync(runtime))("requires a bbox and exposes only safe source fi
   expect(cemeteryOsmDescriptor).toMatchObject({ geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true }, access: { mode: "owner_only", method: "local_asset", query: { supportsBbox: true } } });
 });
 
-it.skipIf(!existsSync(runtime))("matches independent full-source polygon intersection oracles in Taipei and Kaohsiung", async () => {
+it.skipIf(!ownerAsset(runtime))("matches independent full-source polygon intersection oracles in Taipei and Kaohsiung", async () => {
   const executor = new QueryExecutor([cemeteryOsmAdapter]);
   for (const bbox of [[121.45, 25, 121.65, 25.15], [120.15, 22.5, 120.45, 22.8]] as const) {
     const expected = await oracle(bbox);

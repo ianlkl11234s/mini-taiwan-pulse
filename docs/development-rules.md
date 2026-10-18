@@ -337,6 +337,8 @@ npx tsc -b   # project references，不要用 tsc --noEmit
 ```
 Commit 前必跑。
 
+**owner-local 測試**：讀隔壁 repo（`../taipei-gis-analytics`、`../runtime/…`）或 gitignored 私有／大檔的測試，`npm test` 預設略過（與 CI 同一組）；要跑時用 `npm run test:owner`（`PULSE_OWNER_TESTS=1`）。新測試的 skip 條件用 `src/test/ownerAssets.ts` 的 `ownerAsset(path)`，只用在不在 git 裡的路徑。
+
 ## 7. 部署 Checklist
 部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 

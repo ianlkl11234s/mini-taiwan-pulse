@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { universityStudentsOwnerAdapter, universityStudentsOwnerDescriptor } from "../universityStudentsOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sidecar = "../runtime/owner-only/university-students/university-students-owner-20260807.geojson";
 const processed = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/education/university_students/university_students_20260807.geojson";
@@ -12,7 +12,7 @@ const bbox = [120.42, 23.45, 120.5, 23.51] as const;
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sidecar))("keeps different school/statistic vintages, nulls, and an independent Chiayi bbox oracle", async () => {
+it.skipIf(!ownerAsset(sidecar))("keeps different school/statistic vintages, nulls, and an independent Chiayi bbox oracle", async () => {
   const raw = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { city: string; students_total: number | null } }[] };
   const oracle = raw.features.filter(({ geometry: { coordinates: [lng, lat] } }) => lng >= bbox[0] && lng <= bbox[2] && lat >= bbox[1] && lat <= bbox[3]);
   const executor = new QueryExecutor([universityStudentsOwnerAdapter]);

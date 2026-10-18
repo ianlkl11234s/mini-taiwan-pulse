@@ -1,8 +1,8 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
 import { clearPoliceIsochroneOwnerCache, policeIsochroneOwnerAdapters, policeIsochroneOwnerDescriptors } from "../policeIsochroneOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = new URL("../../../../../../../taipei-gis-analytics/data/processed/police_justice/isochrone/", import.meta.url);
 const paths = ["police_iso_substation_combined.geojson", "police_iso_precinct_combined.geojson", "police_iso_police_dept_combined.geojson"];
@@ -16,7 +16,7 @@ function sourceFetch(files: Map<string, Uint8Array>) {
   });
 }
 
-describe.skipIf(!existsSync(root))("fixed police model fragments", () => {
+describe.skipIf(!ownerAsset(root))("fixed police model fragments", () => {
   it("reads three pinned outputs and preserves model-only semantics and two-city variant counts", async () => {
     const files = new Map(await Promise.all(paths.map(async name => [name, new Uint8Array(await readFile(new URL(name, root)))] as const)));
     clearPoliceIsochroneOwnerCache();

@@ -11,6 +11,7 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../mountainSafetyTypes";
+import { ownerAsset } from "../../test/ownerAssets";
 import { ANCESTRAL_HALL_TYPES, DEITY_FAMILIES } from "../religionTypes";
 import { FUNERAL_FACILITY_TYPES, CEMETERY_ZONING_CLASSES } from "../funeralTypes";
 import {
@@ -218,7 +219,7 @@ const UPSTREAM_RULE = "../taipei-gis-analytics/pipelines/religion/_shared/deity_
 
 describe("deity_family 上下游 SSOT 一致性", () => {
   it("religionTypes.DEITY_FAMILIES 與上游 deity_family.py 的 family key 相同", () => {
-    if (!existsSync(UPSTREAM_RULE)) {
+    if (!ownerAsset(UPSTREAM_RULE)) {
       console.log("⚠ taipei-gis-analytics 不在 sibling 路徑；跳過跨 repo 檢查");
       return;
     }

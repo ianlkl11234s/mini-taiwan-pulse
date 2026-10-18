@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,6 +10,7 @@ import {
   livestockSlaughterOwnerAdapter,
   livestockSlaughterOwnerDescriptor,
 } from "../livestockAuxOwnerDatasets";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const runtime = "../runtime/owner-only/livestock-aux";
 const processed = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/agriculture/livestock_ranch";
@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(`${runtime}/feed-factories-owner-20260704.geojson`))("keeps three separate owner-only livestock families aligned with new-place processed oracles", async () => {
+it.skipIf(!ownerAsset(`${runtime}/feed-factories-owner-20260704.geojson`))("keeps three separate owner-only livestock families aligned with new-place processed oracles", async () => {
   const [feed, market, slaughter] = await Promise.all([
     readFile(`${processed}/feed_factory_points.geojson`, "utf8").then(value => JSON.parse(value) as { features: SourceFeature[] }),
     readFile(`${processed}/market_points.geojson`, "utf8").then(value => JSON.parse(value) as { features: SourceFeature[] }),
