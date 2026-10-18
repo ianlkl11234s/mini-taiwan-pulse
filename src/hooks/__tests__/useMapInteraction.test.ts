@@ -12,11 +12,12 @@ const harness = vi.hoisted(() => {
   const hydrateGrid = vi.fn();
   const hydrateTrack = vi.fn();
   const trackPick = vi.fn();
+  const selectOrigin = vi.fn();
   // 由測試決定「哪個 hit layer 是 dominant」，模擬 grid hook 發佈的查詢期選擇器。
   const dominantHit = { current: null as string | null, v4: false };
   return {
     reset: () => {
-      stateIndex = 0; click = null; setFeatureInfo.mockReset(); hydrateGrid.mockReset(); hydrateTrack.mockReset(); trackPick.mockReset();
+      stateIndex = 0; click = null; setFeatureInfo.mockReset(); hydrateGrid.mockReset(); hydrateTrack.mockReset(); trackPick.mockReset(); selectOrigin.mockReset();
       dominantHit.current = null; dominantHit.v4 = false;
     },
     dominantHit,
@@ -28,7 +29,7 @@ const harness = vi.hoisted(() => {
     setClick: (handler: typeof click) => { click = handler; },
     click: () => click,
     setFeatureInfo,
-    hydrateGrid, hydrateTrack, trackPick,
+    hydrateGrid, hydrateTrack, trackPick, selectOrigin,
   };
 });
 
@@ -46,6 +47,7 @@ vi.mock("../../data/gfwHourlyDetailLoader", async (importOriginal) => ({
   hydrateGfwGridDetail: harness.hydrateGrid,
   hydrateGfwTrackDetail: harness.hydrateTrack,
 }));
+vi.mock("../../state/bridgeResilienceDestinationRetry", () => ({ selectBridgeResilienceOrigin: harness.selectOrigin }));
 vi.mock("../../data/gfwV4TrackPicking", () => ({ beginGfwV4TrackPick: harness.trackPick }));
 vi.mock("../useGfwHourlyGridLayer", async (importOriginal) => ({
   ...await importOriginal<typeof import("../useGfwHourlyGridLayer")>(),
@@ -148,6 +150,35 @@ describe("useMapInteraction accommodation density click", () => {
       layerType: "jpAccommodationDensity",
       properties: { n_records: 3 },
     }));
+  });
+});
+
+describe("useMapInteraction bridge resilience village click (F186)", () => {
+  beforeEach(() => harness.reset());
+
+  it("沒點到橋時，村里面以點擊點精確查詢，不採用容差框混入的鄰村", () => {
+    const villageFill = "bridge-resilience-village-fill";
+    const point = { x: 40, y: 60 };
+    const village = (code: string) => ({ id: code, layer: { id: villageFill }, properties: { VILLCODE: code }, geometry: { type: "Polygon", coordinates: [] } });
+    const map = {
+      getContainer: () => ({ clientWidth: 100, clientHeight: 100 }),
+      getLayer: (id: string) => id.startsWith("bridge-resilience-") ? {} : undefined,
+      // 容差框（bbox）會先回傳繪製順序在前的鄰村；只有點擊點本身才是正確村里
+      queryRenderedFeatures: vi.fn((target: unknown, options: { layers: string[] }) => {
+        if (!options.layers.includes(villageFill)) return [];
+        return Array.isArray(target) ? [village("NEIGHBOR"), village("TARGET")] : [village("TARGET")];
+      }),
+      on: vi.fn((event: string, ...args: unknown[]) => {
+        if (event === "click" && typeof args[0] === "function") harness.setClick(args[0] as never);
+      }),
+      getCanvas: () => ({ style: {} }),
+    };
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 }).bindEvents(map as never);
+
+    harness.click()?.({ point, lngLat: { lng: 121.5, lat: 25.05 } });
+    expect(harness.selectOrigin).toHaveBeenCalledTimes(1);
+    expect(harness.selectOrigin).toHaveBeenCalledWith("TARGET");
   });
 });
 

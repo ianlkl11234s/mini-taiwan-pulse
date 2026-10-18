@@ -56,6 +56,7 @@ vi.mock("../../state/timeStore", () => ({
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
 
 import { useRoadEventsLayer } from "../useRoadEventsLayer";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
 
 function createMap() {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
@@ -81,6 +82,7 @@ describe("useRoadEventsLayer timeStore lifecycle", () => {
   beforeEach(() => {
     harness.reset();
     loader.day.mockReset();
+    vi.mocked(keepLoadingUntilMapIdle).mockClear();
     clock.current = 1_100;
   });
 
@@ -142,5 +144,11 @@ describe("useRoadEventsLayer timeStore lifecycle", () => {
     const calls = state.sources.get("road-events")?.setData.mock.calls ?? [];
     const latest = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection | undefined;
     expect(latest?.features).toHaveLength(1);
+    // F159：延後路徑（地圖晚就緒才 setData）渲染期間也要登記 loading，且只登記一次
+    const renders = vi.mocked(keepLoadingUntilMapIdle).mock.calls.filter((call) => String(call[1]).startsWith("road-events-render:"));
+    expect(renders).toHaveLength(1);
+    expect(renders[0]![0]).toBe(state.map);
+    harness.tick(1_150);
+    expect(vi.mocked(keepLoadingUntilMapIdle).mock.calls.filter((call) => String(call[1]).startsWith("road-events-render:"))).toHaveLength(1);
   });
 });

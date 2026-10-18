@@ -43,6 +43,7 @@ const reactHarness = vi.hoisted(() => {
 const mocks = vi.hoisted(() => ({
   createLayer: vi.fn(),
   loadBatch: vi.fn(),
+  windowKeys: ["2026-08-25"],
 }));
 
 vi.mock("react", () => ({
@@ -60,7 +61,7 @@ vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }
 vi.mock("../../state/timeStore", () => ({
   timeStore: {
     getDateKey: () => "2026-08-25",
-    getWindowDateKeys: () => ["2026-08-25"],
+    getWindowDateKeys: () => [...mocks.windowKeys],
     getTime: () => Date.parse("2026-08-25T12:00:00+08:00") / 1000,
     subscribeDate: () => () => {},
     subscribeWindowDateKeys: () => () => {},
@@ -152,6 +153,56 @@ describe("useCwaImageryLayer visibility lifecycle", () => {
     reactHarness.cleanup();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.useRealTimers();
+    mocks.windowKeys = ["2026-08-25"];
+  });
+
+  const render = (mapRef: RefObject<MapboxMap | null>, opts: { cloudVisible: boolean; radarVisible: boolean; cloudOpacity?: number; radarOpacity?: number }) => {
+    reactHarness.beginRender();
+    useCwaImageryLayer({ mapRef, cloudOpacity: 1, radarOpacity: 0.85, ...opts });
+  };
+
+  it("F220：隱藏中的圖層不寫 opacity，可見的照常更新", async () => {
+    const cloudHandle = makeHandle();
+    const radarHandle = makeHandle();
+    mocks.createLayer.mockImplementation((_map, opts: { layerId: string }) =>
+      opts.layerId === "cwa-cloud-layer" ? cloudHandle : radarHandle,
+    );
+    const mapRef = { current: createMap().map } as RefObject<MapboxMap | null>;
+    render(mapRef, { cloudVisible: true, radarVisible: true });
+    await flushPromises();
+    render(mapRef, { cloudVisible: true, radarVisible: false });
+    cloudHandle.setOpacity.mockClear();
+    radarHandle.setOpacity.mockClear();
+
+    render(mapRef, { cloudVisible: true, radarVisible: false, cloudOpacity: 0.4, radarOpacity: 0.3 });
+    expect(cloudHandle.setOpacity).toHaveBeenCalledWith(0.4);
+    expect(radarHandle.setOpacity).not.toHaveBeenCalled();
+  });
+
+  it("F304：effect 重跑時作廢進行中的串行背景預抓，舊迴圈不再抓下一天", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    mocks.windowKeys = ["2026-08-24", "2026-08-25", "2026-08-26"];
+    mocks.createLayer.mockImplementation(() => makeHandle());
+    const foreground = mocks.loadBatch.getMockImplementation()!;
+    let releaseBackground: (() => void) | null = null;
+    mocks.loadBatch.mockImplementation((ids: string[], window: unknown, opts: { silent?: boolean }) => {
+      if (!opts?.silent) return foreground(ids, window, opts);
+      return new Promise((resolve) => { releaseBackground = () => resolve(new Map()); });
+    });
+    const silentCalls = () => mocks.loadBatch.mock.calls.filter((call) => call[2]?.silent).length;
+    const mapRef = { current: createMap().map } as RefObject<MapboxMap | null>;
+
+    render(mapRef, { cloudVisible: false, radarVisible: true });
+    await vi.advanceTimersByTimeAsync(600);
+    expect(silentCalls()).toBe(1); // 舊迴圈卡在第一天
+
+    render(mapRef, { cloudVisible: true, radarVisible: true }); // 可見性變動 → cleanup + 新 effect
+    releaseBackground!();
+    await flushPromises();
+    await flushPromises();
+    expect(silentCalls()).toBe(1);
   });
 
   it("Mapbox busy 時關閉雷達仍立即 soft-hide，不等待下一個 load", async () => {
