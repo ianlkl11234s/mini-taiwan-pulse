@@ -1,6 +1,6 @@
 # 嵌入動態／歷史圖層（EM 系列後續）
 
-> 2026-08-04 規劃 · **尚未動工**
+> 2026-08-04 規劃 · ~~尚未動工~~（2026-10-18 更正：§2 回放層已隨 EM-16 於 2026-08-09 上線，見 [README](./README.md)、[changelog](./changelog.md)；其餘項目仍待辦，見 [backlog](./backlog.md)）
 > 前置：[`embeddable-map-impl.md`](../../archive/2026-10-04/proposal/embeddable-map-impl.md)（Phase 1 已完成）· [`embed-basemap-osm.md`](../../archive/2026-10-04/proposal/embed-basemap-osm.md)（MapLibre 路線）
 > 起因：`/embed` 目前只吃 145 個靜態圖層，動態圖層一律擋掉。本檔規劃「怎麼讓動態／歷史資料也能嵌」。
 
