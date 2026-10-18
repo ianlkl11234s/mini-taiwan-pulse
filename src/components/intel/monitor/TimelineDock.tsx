@@ -114,7 +114,6 @@ export function TimelineDock({
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const hovered = hoverH != null ? buckets[hoverH]! : null;

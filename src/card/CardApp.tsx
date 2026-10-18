@@ -33,13 +33,11 @@ export function CardApp({ pathname = window.location.pathname, config = cardApiC
     void fetchAnalysisCard(slug, config, abort.signal).then(result => { if (!abort.signal.aborted) setState(result); });
     return () => abort.abort();
     // config 只在首次 render 讀一次 env；slug 由網址決定。
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
   const { t, active } = useLocale();
   useEffect(() => {
     if (state.status === "ok") document.title = t("analysisCard.docTitle", { title: state.payload.title });
     // t 隨語系換新；active 變了才需重設標題
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, active]);
   return <main className="analysis-card-page"><CardPageView state={state} /></main>;
 }

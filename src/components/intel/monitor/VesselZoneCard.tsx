@@ -249,7 +249,6 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             ].join("｜")
           : v2 && a.unknown ? t("monitor.vessel.noteUnknown") : t("monitor.vessel.noteNone"),
       })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [windowed, v2, i18n],
   );
 

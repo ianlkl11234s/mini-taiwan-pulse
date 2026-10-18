@@ -102,7 +102,6 @@ export function useAnimalShelterPressureLayer(
       map.addSource(SOURCE_ID, {
         type: PMTILES_SOURCE_TYPE, url: SOURCE_URL, minzoom: 0, maxzoom: 14,
         promoteId: { [SOURCE_LAYER]: "行政區域代碼" },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
     }
     const before = firstSymbolLayerId(map);

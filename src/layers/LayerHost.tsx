@@ -126,7 +126,6 @@ function HostSlot({ Host, deps }: { Host: LayerHostComponent; deps: AppLayerHost
   }, [tracker]);
 
   // version 是刻意的 deps：追蹤到的 key 變動 → 視圖換身分
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const view = useMemo(() => createVisibilityView(tracker), [tracker, version]);
   const hostDeps = useMemo<LayerHostDeps>(() => ({ ...deps, layerVisibility: view }), [deps, view]);
   // ⚠️ 直接呼叫而非 `<Host deps={hostDeps} />`：視圖若成為任何元件的 prop，React 19 dev

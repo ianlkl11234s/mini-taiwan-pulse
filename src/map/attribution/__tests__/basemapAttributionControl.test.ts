@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import mapboxgl from "mapbox-gl";
 import { BasemapAttributionControl } from "../mapAttribution";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 describe("BasemapAttributionControl（內建版權列只顯示底圖）", () => {
   const proto = mapboxgl.AttributionControl.prototype as any;
 

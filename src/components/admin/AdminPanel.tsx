@@ -111,7 +111,6 @@ function useAsync<T>(fn: () => Promise<T>, deps: unknown[]): { data: T | null; l
       .then((d) => { if (!cancelled) { setData(d); setLoading(false); } })
       .catch((err) => { if (!cancelled) { setError(err instanceof Error ? err.message : String(err)); setLoading(false); } });
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, epoch]);
   return { data, loading, error, reload };
 }

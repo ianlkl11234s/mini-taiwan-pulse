@@ -275,7 +275,6 @@ export function EmbedApp() {
       map.remove();
     };
     // mount 時跑一次；所有輸入都來自凍結的網址狀態
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fullUrl = (() => {

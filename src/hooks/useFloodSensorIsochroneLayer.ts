@@ -110,7 +110,6 @@ export function useFloodSensorIsochroneLayer(
           url: `${BASE}/uswg_isochrone_3min.pmtiles`,
           minzoom: 8,
           maxzoom: 14,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(FILL_ID)) {

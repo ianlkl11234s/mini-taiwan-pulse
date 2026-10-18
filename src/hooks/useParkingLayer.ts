@@ -81,7 +81,6 @@ function useParkingSource(
       map?.off("style.load", onStyleLoad);
       window.clearInterval(id);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, isLive, sourceId, feed, mapRef, mapTick]);
 
   // ── Replay：day timeline scrub ──
@@ -138,7 +137,6 @@ function useParkingSource(
       unsubDate();
       unsubTick();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, isLive, sourceId, feed, mapRef, mapTick]);
 }
 

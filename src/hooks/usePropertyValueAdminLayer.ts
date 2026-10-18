@@ -76,7 +76,6 @@ export function usePropertyValueAdminLayer(
         minzoom: config.minzoom,
         maxzoom: 14,
         promoteId: { [config.sourceLayer]: config.codeProperty },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
     }
     const before = firstSymbolLayerId(map);

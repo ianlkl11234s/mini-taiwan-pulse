@@ -917,7 +917,6 @@ function sportsVenueOverlay(meta: SportsLayerMeta): OverlayConfig {
           const strokeOpacity: unknown[] = ["case", closed, opacity * SPORTS_CLOSED_DIM * 0.8, opacity * 0.7];
           return {
             "circle-radius": sportsRadius(scale),
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "circle-color": sportsCategoryColorExpr() as any,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 7, 0.3, 14, 1],
@@ -982,7 +981,6 @@ function gasCoverageOverlay(opts: {
           const o = params?.[opacityKey] ?? defaultOpacity;
           const w = params?.[widthKey] ?? 0.5;
           return {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "line-color": coverageColorExpr(palette) as any,
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -1049,11 +1047,10 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           const op = p?.propertyValueGridOpacity ?? 0.7;
           return {
-            "fill-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            "fill-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any,
             // 3D 模式交棒給 extrusion（壓 0 隱藏，避免與立體塊 z-fighting）
             "fill-opacity": (extruded ? 0
               : modeIdx === 1 ? propertyValueGridPerCapitaOpacityExpr(op)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               : propertyValueGridOpacityExpr(op)) as any,
           };
         },
@@ -1066,7 +1063,7 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           return {
             // 人均模式只換「顏色」，extrusion 高度**維持 v_mkt**（見下方 height 註解）
-            "fill-extrusion-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            "fill-extrusion-color": propertyValueGridFill(scaleIdx, modeIdx, isDark) as any,
             // 🔵 高度=量體、顏色=強度（刻意設計，兩模式共用）：3D 高度永遠是 v_mkt 總量 ——
             //    「這格壓了多少錢」的天際線不隨模式消失；人均模式下顏色改答「平均每人多有錢」，
             //    高黃=人少錢多、高紫=人多攤薄，兩通道疊出密度語意。pop<10 灰格照常用
@@ -1075,7 +1072,6 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
               propertyValueGridHeightScale(p?.propertyValueGridElevationScale) * EXTRUSION.propertyValueHeightBase,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ) as any,
             "fill-extrusion-base": 0,
             // ⚠️ fill-extrusion-opacity 不支援 data-driven → 只能給純數字（非 3D 模式壓 0 隱藏）；
@@ -1108,7 +1104,6 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
           "fill-color": reColorExpr(
             palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei),
             (id === "realEstateRentalGrid" || id === "realEstatePresaleGrid") ? gridRampFor(id, isDark, RE_PALETTES[palette].colors.length) : undefined,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any,
           "fill-opacity": params?.realEstateOpacity ?? 0.7,
         }),
@@ -8698,12 +8693,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ]],
           ];
           return {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "line-color": colorExpr as any,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "line-width": widthExpr as any,
             // z<8 用 z5Reveal 控制（0=隱形，1=baseOp）；z≥8 永遠用 baseOp
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "line-opacity": [
               "interpolate", ["linear"], ["zoom"],
               5, baseOp * z5Reveal,
