@@ -1,5 +1,6 @@
 /**
- * Design system guard（ratchet）— 規範見 docs/design-system/spec.md §9。
+ * Design system guard（ratchet）— CSS 部分。規範見 docs/design-system/spec.md §9。
+ * TS／TSX 的規則改由 ESLint 檢查（npm run lint；eslint-rules/rules/design.js＋eslint-suppressions.json）。
  *
  * 失敗代表：某檔案某條規則的違規數比基準多，或新檔案出現違規。修程式碼，不要改基準。
  * 違規數變少時只提示，可執行 `npm run design:baseline` 把基準降下來。
@@ -13,7 +14,6 @@ import {
   BASELINE_RELATIVE_PATH,
   RULES,
   compareCounts,
-  countFontDataOnCjk,
   formatIncrease,
   ratchetDown,
   scanFiles,
@@ -22,111 +22,54 @@ import {
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 const rule = (id: string) => RULES.find((r) => r.id === id)!;
-const hits = (id: string, text: string, path = "src/components/Example.tsx") =>
+const hits = (id: string, text: string, path: string) =>
   rule(id).appliesTo(path) ? rule(id).count(text, path) : 0;
 
-describe("design system guard — 規則樣本", () => {
+describe("design system guard（CSS）— 規則樣本", () => {
+  const css = (id: string, text: string, path = "src/components/x.css") => hits(id, text, path);
+
+  it("只掃樣式表：TS／TSX 的同名規則在 ESLint（eslint-rules/rules/design.js）", () => {
+    expect(hits("web-font", `fontFamily: "Inter"`, "src/components/Example.tsx")).toBe(0);
+    expect(hits("raw-z-index", `style={{ zIndex: 30 }}`, "src/components/Example.tsx")).toBe(0);
+  });
+
   it("web-font：web font 載入與未載入的字族名", () => {
-    expect(hits("web-font", `@import url("https://fonts.googleapis.com/css2?family=Inter");`)).toBe(1);
-    expect(hits("web-font", `@font-face { font-family: X; }`)).toBe(1);
-    expect(hits("web-font", `fontFamily: '"JetBrains Mono", monospace'`)).toBe(1);
-    expect(hits("web-font", `fontFamily: "Inter, system-ui, sans-serif"`)).toBe(1);
-    expect(hits("web-font", `font-family: Georgia, serif;`)).toBe(1);
-    expect(hits("web-font", `font-family: "Songti TC", serif;`)).toBe(1);
-    expect(hits("web-font", `fontFamily: FONT_CJK`)).toBe(0);
-    expect(hits("web-font", `const interval = 3; // Interval, not Inter`)).toBe(0);
-    expect(hits("web-font", `/* 不再用 Inter, 改 --font-cjk */`)).toBe(0);
+    expect(css("web-font", `@import url("https://fonts.googleapis.com/css2?family=Inter");`)).toBe(1);
+    expect(css("web-font", `@font-face { font-family: X; }`)).toBe(1);
+    expect(css("web-font", `font-family: Georgia, serif;`)).toBe(1);
+    expect(css("web-font", `font-family: "Songti TC", serif;`)).toBe(1);
+    expect(css("web-font", `font-family: JetBrains Mono, monospace;`)).toBe(1);
+    expect(css("web-font", `font-family: Inter, sans-serif;`)).toBe(1);
+    expect(css("web-font", `/* 不再用 Inter, 改 --font-cjk */`)).toBe(0);
+    expect(css("web-font", `font-family: var(--font-cjk);`)).toBe(0);
   });
 
   it("hex-literal-in-ui-css：只看 UI 樣式表，排除 src/styles", () => {
-    const css = `.a { color: #fff; background: #10101b; border-color: #0b6fd6cc; }`;
-    expect(hits("hex-literal-in-ui-css", css, "src/components/sidebar/x.css")).toBe(3);
-    expect(hits("hex-literal-in-ui-css", css, "src/research/research.css")).toBe(3);
-    expect(hits("hex-literal-in-ui-css", css, "src/research/deep/nested.css")).toBe(0);
-    expect(hits("hex-literal-in-ui-css", css, "src/styles/tokens.css")).toBe(0);
-    expect(hits("hex-literal-in-ui-css", `.a { color: var(--text-strong); } /* 原 #f3f4f6 */`, "src/components/x.css")).toBe(0);
-    expect(hits("hex-literal-in-ui-css", `.a { background: url("data:image/svg+xml,%239ca3af"); }`, "src/components/x.css")).toBe(0);
+    const sheet = `.a { color: #fff; background: #10101b; border-color: #0b6fd6cc; }`;
+    expect(css("hex-literal-in-ui-css", sheet, "src/components/sidebar/x.css")).toBe(3);
+    expect(css("hex-literal-in-ui-css", sheet, "src/research/research.css")).toBe(3);
+    expect(css("hex-literal-in-ui-css", sheet, "src/research/deep/nested.css")).toBe(0);
+    expect(css("hex-literal-in-ui-css", sheet, "src/styles/tokens.css")).toBe(0);
+    expect(css("hex-literal-in-ui-css", `.a { color: var(--text-strong); } /* 原 #f3f4f6 */`)).toBe(0);
+    expect(css("hex-literal-in-ui-css", `.a { background: url("data:image/svg+xml,%239ca3af"); }`)).toBe(0);
   });
 
-  it("native-range：共用滑桿元件以外不得出現", () => {
-    expect(hits("native-range", `<input type="range" min={0} />`)).toBe(1);
-    expect(hits("native-range", `<input type={"range"} />`)).toBe(1);
-    expect(hits("native-range", `el.setAttribute("x", 1); const cfg = { type: "range" };`)).toBe(1);
-    // 白名單只有共用滑桿本體；LayerParamControls 已改用 <Slider>（Phase Q），不再豁免
-    expect(hits("native-range", `<input type="range" />`, "src/components/controls/Slider.tsx")).toBe(0);
-    expect(hits("native-range", `<input type="range" />`, "src/components/sidebar/LayerParamControls.tsx")).toBe(1);
-    expect(hits("native-range", `<input type="checkbox" />`)).toBe(0);
-    expect(hits("native-range", `const t = { type: "rangeStart" }`)).toBe(0);
+  it("triangle-chevron：CSS content 的 ▶ ▼ 與其 escape", () => {
+    expect(css("triangle-chevron", `.x::before { content: "▶"; }`)).toBe(1);
+    expect(css("triangle-chevron", `.x::before { content: "\\u25B6"; }`)).toBe(1);
+    expect(css("triangle-chevron", `/* ▶ 註解不算 */`)).toBe(0);
   });
 
-  it("triangle-chevron：▶ ▼ 與其 escape", () => {
-    expect(hits("triangle-chevron", `<span>▶</span>`)).toBe(1);
-    expect(hits("triangle-chevron", `{open ? "▼" : "▶"}`)).toBe(2);
-    expect(hits("triangle-chevron", `"&#x25B6;"`)).toBe(1);
-    expect(hits("triangle-chevron", `const t = "\\u25B6";`)).toBe(1);
-    expect(hits("triangle-chevron", `<ChevronRight size={12} />`)).toBe(0);
-    expect(hits("triangle-chevron", `"↗"`)).toBe(0);
-    expect(hits("triangle-chevron", `{up ? "▲" : "▼"} {delta}`)).toBe(0);
-    expect(hits("triangle-chevron", `// 歷史模式按 ▶ 只前進一格`)).toBe(0);
+  it("uppercase-eyebrow：text-transform: uppercase", () => {
+    expect(css("uppercase-eyebrow", `.x { text-transform: uppercase; }`)).toBe(1);
+    expect(css("uppercase-eyebrow", `.x { text-transform: none; }`)).toBe(0);
   });
 
-  it("english-control-label：只看 layerParamsSpec.ts 的 labelPrefix", () => {
-    const spec = "src/data/layerParamsSpec.ts";
-    expect(hits("english-control-label", `labelPrefix: "Opacity",`, spec)).toBe(1);
-    expect(hits("english-control-label", `labelPrefix: "Bloom 高樓門檻 ≥",`, spec)).toBe(1);
-    expect(hits("english-control-label", `labelPrefix: "透明度",`, spec)).toBe(0);
-    expect(hits("english-control-label", `labelPrefix: "3D 高度 ×",`, spec)).toBe(0);
-    expect(hits("english-control-label", `labelPrefix: "Opacity",`, "src/components/Other.tsx")).toBe(0);
-  });
-
-  it("uppercase-eyebrow：TS 與 CSS 寫法", () => {
-    expect(hits("uppercase-eyebrow", `style={{ textTransform: "uppercase" }}`)).toBe(1);
-    expect(hits("uppercase-eyebrow", `.x { text-transform: uppercase; }`, "src/components/x.css")).toBe(1);
-    expect(hits("uppercase-eyebrow", `style={{ textTransform: "none" }}`)).toBe(0);
-  });
-
-  it("font-data-on-cjk：FONT_DATA 元素的直接文字含中文才算", () => {
-    expect(countFontDataOnCjk(`<b style={{ fontFamily: FONT_DATA }}>RIPE 歷史量測</b>`)).toBe(1);
-    expect(countFontDataOnCjk(`<div style={{ fontFamily: FONT_DATA, fontSize: 9 }}>資料不足</div>`)).toBe(1);
-    // 正確寫法：中文在外、數字在 FONT_DATA span 內
-    expect(countFontDataOnCjk(`更新 <span style={{ fontFamily: FONT_DATA }}>{clockTime(ts)}</span> 筆`)).toBe(0);
-    expect(countFontDataOnCjk(`<span style={{ fontFamily: FONT_DATA }}>{count}</span>`)).toBe(0);
-    expect(countFontDataOnCjk(`// 註解：FONT_DATA 只給數字>中文`)).toBe(0);
-    expect(hits("font-data-on-cjk", `<b style={{ fontFamily: FONT_DATA }}>中文</b>`, "src/x.ts")).toBe(0);
-  });
-
-  it("raw-z-index：≥10 的寫死層級數字（TS 與 CSS），排除 src/styles 與元件內部小值", () => {
-    expect(hits("raw-z-index", `style={{ zIndex: 30 }}`)).toBe(1);
-    expect(hits("raw-z-index", `.x { z-index: 45; } .y{z-index:70}`, "src/components/x.css")).toBe(2);
-    expect(hits("raw-z-index", `zIndex: 3000, padding: 4`)).toBe(1);
-    expect(hits("raw-z-index", `zIndex: "20"`)).toBe(1);
-    expect(hits("raw-z-index", `style={{ zIndex: 2 }}`)).toBe(0);
-    expect(hits("raw-z-index", `zIndex: Z_INDEX.modal`)).toBe(0);
-    expect(hits("raw-z-index", `.x { z-index: var(--z-modal); }`, "src/components/x.css")).toBe(0);
-    expect(hits("raw-z-index", `zIndex: -1`)).toBe(0);
-    expect(hits("raw-z-index", `// 以前是 zIndex: 200`)).toBe(0);
-    expect(hits("raw-z-index", `--z-toast: 50; z-index: 50;`, "src/styles/tokens.css")).toBe(0);
-  });
-
-  it("web-font：單獨宣告與未加引號的字族名也要抓", () => {
-    expect(hits("web-font", `fontFamily: "Inter"`)).toBe(1);
-    expect(hits("web-font", "fontFamily: `Inter`")).toBe(1);
-    expect(hits("web-font", `font-family: JetBrains Mono, monospace;`, "src/components/x.css")).toBe(1);
-    expect(hits("web-font", `const internal = "Interval";`)).toBe(0);
-  });
-
-  it("web-font：涵蓋 Inter 字族寫法", () => {
-    expect(hits("web-font", `fontFamily: "Inter, system-ui, sans-serif"`)).toBe(1);
-    expect(hits("web-font", `font-family: Inter, sans-serif;`, "src/components/x.css")).toBe(1);
-  });
-
-  it("internal-id-display：datasetId 進 JSX 文字或 title／label 欄位（只記錄）", () => {
-    expect(rule("internal-id-display").enforce).toBe(false);
-    expect(hits("internal-id-display", `<dd>{props.datasetId}</dd>`)).toBe(1);
-    expect(hits("internal-id-display", `({ title: e.title ?? e.datasetId, desc })`)).toBe(1);
-    expect(hits("internal-id-display", `const label = describeDataset(datasetId).label;`)).toBe(0);
-    expect(hits("internal-id-display", `({ datasetId: recipe.dataset_id, label: recipe.label })`)).toBe(0);
-    expect(hits("internal-id-display", `{ label: labelFor(datasetId) }`)).toBe(0);
+  it("raw-z-index：≥10 的寫死層級數字，排除 src/styles", () => {
+    expect(css("raw-z-index", `.x { z-index: 45; } .y{z-index:70}`)).toBe(2);
+    expect(css("raw-z-index", `.x { z-index: 2; }`)).toBe(0);
+    expect(css("raw-z-index", `.x { z-index: var(--z-modal); }`)).toBe(0);
+    expect(css("raw-z-index", `--z-toast: 50; z-index: 50;`, "src/styles/tokens.css")).toBe(0);
   });
 });
 

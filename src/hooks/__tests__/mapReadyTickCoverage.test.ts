@@ -16,49 +16,17 @@
  *
  * 解法是 `useMapReadyTick`：map 就緒時遞增一個 tick，放進 deps 逼 effect 重跑。
  *
- * 本測試用純文字比對（同 layerConsistency / overlayParamsDeps 的 heuristic 風格）：
- * 只要一個 layer hook 檔案裡出現「deps 陣列含 mapRef」，該陣列就必須同時含
- * `mapTick`（或舊寫法 `mapRetry`）。新增 layer hook 漏接時這裡會紅。
+ * 「deps 含 mapRef 就必須含 mapTick（或舊寫法 mapRetry）」改由 ESLint 規則
+ * `pulse/map-ready-tick-deps` 檢查（eslint-rules/rules/guards.js；範圍 src/hooks/use*Layer.ts
+ * 與 factories/timelineSliceLayer.ts）。本檔只留 useMapReadyTick 本身的 timer 收尾。
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const HOOKS_DIR = "src/hooks";
 
-/** 從 `}, [ ... ]);` 抓出 deps 陣列內容 */
-const DEPS_RE = /\}, \[([^\]]*)\]\);/g;
-
-function collectDepsArrays(source: string): string[] {
-  return [...source.matchAll(DEPS_RE)].map((m) => m[1] as string);
-}
-
 describe("layer hook map-ready 競態", () => {
-  const files = readdirSync(HOOKS_DIR)
-    .filter((f) => /^use.*Layer\.ts$/.test(f))
-    .concat(["factories/timelineSliceLayer.ts"]);
-
-  it("含 mapRef 的 deps 陣列都帶上 mapTick", () => {
-    const offenders: string[] = [];
-
-    for (const f of files) {
-      const source = readFileSync(join(HOOKS_DIR, f), "utf8");
-      for (const deps of collectDepsArrays(source)) {
-        if (!/\bmapRef\b/.test(deps)) continue;
-        if (/\bmapTick\b|\bmapRetry\b/.test(deps)) continue;
-        offenders.push(`${f} → [${deps.trim()}]`);
-      }
-    }
-
-    expect(
-      offenders,
-      "這些 effect 的 deps 含 mapRef 但沒有 mapTick —— map 在首載後才就緒時，" +
-        "effect 不會重跑，圖層永遠不會建出來（deep-link 與首載期間手動 toggle 都會中招）。" +
-        "修法：`const mapTick = useMapReadyTick(mapRef, visible);` 並把 mapTick 放進 deps。\n" +
-        offenders.join("\n"),
-    ).toEqual([]);
-  });
-
   it("useMapReadyTick 在 map 就緒後會停掉輪詢（避免常駐 timer）", () => {
     const source = readFileSync(join(HOOKS_DIR, "useMapReadyTick.ts"), "utf8");
     // 就緒分支必須 clearInterval 後才 setTick，否則每 200ms 空轉一輩子
