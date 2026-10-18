@@ -1,4 +1,6 @@
 // eslint.config.js 的套用範圍（files／ignores）：RuleTester 測不到這層，這裡用真正的 config 釘住。
+// 樣本檔盡量挑 eslint-suppressions.json 沒登記的檔（layerParamsSpec.ts 是 english-control-label 唯一範圍，例外）；
+// lintText 目前不套用 suppressions。
 import { ESLint } from "eslint";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -34,7 +36,7 @@ describe("eslint.config.js 套用範圍", () => {
     ["src/components/intel/monitor/ERCard.tsx", "setInterval(tick, 1000);", "pulse/monitor-no-manual-polling", true],
     ["src/components/intel/IntelPanel.tsx", "setInterval(tick, 1000);", "pulse/monitor-no-manual-polling", false],
     ["src/components/LegendPanel.tsx", "<b style={{ letterSpacing: 1 }} />", "pulse/legend-no-letter-spacing", true],
-    ["src/components/legend/hazardLegends.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", true],
+    ["src/components/legend/waterLegends.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", true],
     ["src/components/legend/legendKit.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", false],
     ["src/lib/dayPrefetch.ts", "useEffect(() => {}, [currentTime]);", "pulse/no-current-time-deps", true],
     ["src/hooks/useCwaImageryLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", true],
