@@ -173,7 +173,7 @@ export function BasemapLabelToggle({
         borderRadius: RADIUS.md,
         padding: "4px 8px",
         fontSize: FONT_SIZE.md,
-        fontFamily: FONT_DATA,
+        fontFamily: FONT_CJK,
         cursor: showPointerCursor ? "pointer" : undefined,
       }}
     >
