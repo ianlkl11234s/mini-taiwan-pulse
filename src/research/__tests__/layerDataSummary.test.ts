@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { AqiStation } from "../../types";
 import type { EarthquakeGlobalEvent } from "../../data/earthquakesGlobalLoader";
@@ -9,6 +8,9 @@ import {
 } from "../layerDataSummary";
 import { summarizeVisibleLayers, type VisibleSummaryMap } from "../visibleSummary";
 import { validQueryResultData } from "../QueryResponder";
+import { SOURCE_ID as RIVER_LEVEL_SOURCE_ID } from "../../hooks/useRiverLevelLayer";
+import { SOURCE_ID as GROUNDWATER_SOURCE_ID } from "../../hooks/useGroundwaterLayer";
+import { SOURCE_ID as IOT_WRA_RIVER_SOURCE_ID } from "../../hooks/useIotWraRiverLayer";
 
 const TAIWAN: DataBounds = [119.5, 21.8, 122.2, 25.4];
 const TAIPEI: DataBounds = [121.4, 24.95, 121.65, 25.15];
@@ -193,9 +195,10 @@ describe("visibleSummary × layer data providers", () => {
 
 describe("AG-6 timeline-slice custom layers read through their self-built sources", () => {
   const cases = [
-    { key: "riverLevel", source: "river-level", layer: "river-level-circle", field: "delta_m", nameField: "station_name", name: "A站" },
-    { key: "groundwater", source: "groundwater", layer: "groundwater-circle", field: "delta_m", nameField: "well_name", name: "B井" },
-    { key: "iotWraRiver", source: "iot-wra-river", layer: "iot-wra-river-circle", field: "delta_m", nameField: "name", name: "C站" },
+    // source 直接取 hook 匯出的 SOURCE_ID：hook 改名而 visibleSummary 沒跟上時，這裡會讀不到圖層而紅
+    { key: "riverLevel", source: RIVER_LEVEL_SOURCE_ID, layer: "river-level-circle", field: "delta_m", nameField: "station_name", name: "A站" },
+    { key: "groundwater", source: GROUNDWATER_SOURCE_ID, layer: "groundwater-circle", field: "delta_m", nameField: "well_name", name: "B井" },
+    { key: "iotWraRiver", source: IOT_WRA_RIVER_SOURCE_ID, layer: "iot-wra-river-circle", field: "delta_m", nameField: "name", name: "C站" },
   ];
   for (const c of cases) {
     it(`${c.key} is summarized from rendered features, not custom_renderer`, () => {
@@ -211,11 +214,6 @@ describe("AG-6 timeline-slice custom layers read through their self-built source
     });
   }
 
-  it("source ids stay in sync with the hooks", () => {
-    for (const [file, id] of [["useRiverLevelLayer", "river-level"], ["useGroundwaterLayer", "groundwater"], ["useIotWraRiverLayer", "iot-wra-river"]]) {
-      expect(readFileSync(`src/hooks/${file}.ts`, "utf8")).toContain(`const SOURCE_ID = "${id}"`);
-    }
-  });
 });
 
 describe("typhoonTracks cross-agency merge", () => {

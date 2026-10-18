@@ -43,6 +43,7 @@ const reactHarness = vi.hoisted(() => {
 const mocks = vi.hoisted(() => ({
   createLayer: vi.fn(),
   loadBatch: vi.fn(),
+  windowKeys: ["2026-08-25"],
 }));
 
 vi.mock("react", () => ({
@@ -60,7 +61,7 @@ vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }
 vi.mock("../../state/timeStore", () => ({
   timeStore: {
     getDateKey: () => "2026-08-25",
-    getWindowDateKeys: () => ["2026-08-25"],
+    getWindowDateKeys: () => [...mocks.windowKeys],
     getTime: () => Date.parse("2026-08-25T12:00:00+08:00") / 1000,
     subscribeDate: () => () => {},
     subscribeWindowDateKeys: () => () => {},
@@ -68,7 +69,7 @@ vi.mock("../../state/timeStore", () => ({
   },
 }));
 
-import { useCwaImageryLayer } from "../useCwaImageryLayer";
+import { evictExcess, useCwaImageryLayer } from "../useCwaImageryLayer";
 
 type TestHandle = {
   setVisible: ReturnType<typeof vi.fn>;
@@ -152,6 +153,88 @@ describe("useCwaImageryLayer visibility lifecycle", () => {
     reactHarness.cleanup();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.useRealTimers();
+    mocks.windowKeys = ["2026-08-25"];
+  });
+
+  const render = (mapRef: RefObject<MapboxMap | null>, opts: { cloudVisible: boolean; radarVisible: boolean; cloudOpacity?: number; radarOpacity?: number }) => {
+    reactHarness.beginRender();
+    useCwaImageryLayer({ mapRef, cloudOpacity: 1, radarOpacity: 0.85, ...opts });
+  };
+
+  it("F220：隱藏中的圖層不寫 opacity，可見的照常更新", async () => {
+    const cloudHandle = makeHandle();
+    const radarHandle = makeHandle();
+    mocks.createLayer.mockImplementation((_map, opts: { layerId: string }) =>
+      opts.layerId === "cwa-cloud-layer" ? cloudHandle : radarHandle,
+    );
+    const mapRef = { current: createMap().map } as RefObject<MapboxMap | null>;
+    render(mapRef, { cloudVisible: true, radarVisible: true });
+    await flushPromises();
+    render(mapRef, { cloudVisible: true, radarVisible: false });
+    cloudHandle.setOpacity.mockClear();
+    radarHandle.setOpacity.mockClear();
+
+    render(mapRef, { cloudVisible: true, radarVisible: false, cloudOpacity: 0.4, radarOpacity: 0.3 });
+    expect(cloudHandle.setOpacity).toHaveBeenCalledWith(0.4);
+    expect(radarHandle.setOpacity).not.toHaveBeenCalled();
+  });
+
+  it("AU-3：CWA 背景預抓 debounce 600ms、逐一串行、silent，且略過前景日", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    mocks.windowKeys = ["2026-08-24", "2026-08-25", "2026-08-26"];
+    mocks.createLayer.mockImplementation(() => makeHandle());
+    const foreground = mocks.loadBatch.getMockImplementation()!;
+    const pending: Array<() => void> = [];
+    mocks.loadBatch.mockImplementation((ids: string[], window: unknown, opts: { silent?: boolean }) => {
+      if (!opts?.silent) return foreground(ids, window, opts);
+      return new Promise((resolve) => { pending.push(() => resolve(new Map())); });
+    });
+    const calls = () => mocks.loadBatch.mock.calls.map((call) => ({ silent: !!call[2]?.silent, window: JSON.stringify(call[1]) }));
+    const mapRef = { current: createMap().map } as RefObject<MapboxMap | null>;
+
+    render(mapRef, { cloudVisible: false, radarVisible: true });
+    expect(calls()).toHaveLength(1);
+    expect(calls()[0]!.silent).toBe(false); // 前景日立即、非 silent
+    const foregroundWindow = calls()[0]!.window;
+    await vi.advanceTimersByTimeAsync(599);
+    expect(calls().filter((c) => c.silent)).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(calls().filter((c) => c.silent)).toHaveLength(1); // 串行：一次只有一個背景請求
+    pending.shift()!();
+    await flushPromises();
+    await flushPromises();
+    const background = calls().filter((c) => c.silent);
+    expect(background).toHaveLength(2);
+    expect(new Set(background.map((c) => c.window)).size).toBe(2);
+    expect(background.map((c) => c.window)).not.toContain(foregroundWindow); // 不重抓前景日
+    pending.splice(0).forEach((release) => release());
+  });
+
+  it("F304：effect 重跑時作廢進行中的串行背景預抓，舊迴圈不再抓下一天", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", { setTimeout, clearTimeout });
+    mocks.windowKeys = ["2026-08-24", "2026-08-25", "2026-08-26"];
+    mocks.createLayer.mockImplementation(() => makeHandle());
+    const foreground = mocks.loadBatch.getMockImplementation()!;
+    let releaseBackground: (() => void) | null = null;
+    mocks.loadBatch.mockImplementation((ids: string[], window: unknown, opts: { silent?: boolean }) => {
+      if (!opts?.silent) return foreground(ids, window, opts);
+      return new Promise((resolve) => { releaseBackground = () => resolve(new Map()); });
+    });
+    const silentCalls = () => mocks.loadBatch.mock.calls.filter((call) => call[2]?.silent).length;
+    const mapRef = { current: createMap().map } as RefObject<MapboxMap | null>;
+
+    render(mapRef, { cloudVisible: false, radarVisible: true });
+    await vi.advanceTimersByTimeAsync(600);
+    expect(silentCalls()).toBe(1); // 舊迴圈卡在第一天
+
+    render(mapRef, { cloudVisible: true, radarVisible: true }); // 可見性變動 → cleanup + 新 effect
+    releaseBackground!();
+    await flushPromises();
+    await flushPromises();
+    expect(silentCalls()).toBe(1);
   });
 
   it("Mapbox busy 時關閉雷達仍立即 soft-hide，不等待下一個 load", async () => {
@@ -219,5 +302,31 @@ describe("useCwaImageryLayer visibility lifecycle", () => {
     });
 
     expect(radarHandle.setVisible).toHaveBeenCalledWith(false);
+  });
+});
+
+describe("useCwaImageryLayer LRU evict", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it("超量時從最舊開始清，保護視窗內日期，並釋放被清掉的 object URL", () => {
+    const revoke = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const slot = (key: string) => ({ urls: new Map([[key, `blob:${key}`]]) }) as never;
+    const keys = ["2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24"];
+    const cache = new Map(keys.map((k) => [k, slot(k)]));
+    const order = [...keys]; // 最舊在前
+    // 最舊的 08-20 在保護視窗內（例：使用者正在看的日期）
+    evictExcess(cache, order, 3, new Set(["2026-08-20", "2026-08-24"]));
+    expect([...cache.keys()]).toEqual(["2026-08-20", "2026-08-23", "2026-08-24"]);
+    expect(order).toEqual(["2026-08-20", "2026-08-23", "2026-08-24"]);
+    expect(revoke.mock.calls.map((c) => c[0])).toEqual(["blob:2026-08-21", "blob:2026-08-22"]);
+  });
+
+  it("未超量不清；全部受保護時寧可超量也不清", () => {
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const cache = new Map([["a", { urls: new Map() } as never], ["b", { urls: new Map() } as never]]);
+    evictExcess(cache, ["a", "b"], 2, new Set());
+    expect(cache.size).toBe(2);
+    evictExcess(cache, ["a", "b"], 1, new Set(["a", "b"]));
+    expect(cache.size).toBe(2);
   });
 });

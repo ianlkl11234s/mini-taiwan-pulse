@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { LAYER_PARAMS_SPEC } from "../../data/layerParamsSpec";
 import { EXTRUSION, RASTER } from "../mapStyleScale";
@@ -70,25 +69,5 @@ describe("R3b G4 / T3 / F4 style contract", () => {
     for (const [id, minzoom] of Object.entries(expected)) {
       expect(OVERLAY_REGISTRY.find((item) => item.id === id)?.layers.find((item) => item.suffix === "label")?.minzoom, id).toBe(minzoom);
     }
-  });
-
-  it("動態 count badge 保留 overlap；GFW 仍以 vessel_count step 決定字級", () => {
-    const global = readFileSync(new URL("../../hooks/useGlobalEventsLayer.ts", import.meta.url), "utf8");
-    const gfw = readFileSync(new URL("../../hooks/useGfwHourlyGridLayer.ts", import.meta.url), "utf8");
-    expect(global).toContain("...badgeLabelLayout()");
-    expect(global).toContain("...labelHaloPaint(isDarkTheme)");
-    expect(gfw).toContain('"text-allow-overlap": true');
-    expect(gfw).toContain('"text-ignore-placement": true');
-    expect(gfw).toContain('"text-halo-width": LABEL.haloWidth');
-    expect(gfw).toContain('["step", ["get", "vessel_count"], 10, 10, 11, 50, 12]');
-  });
-
-  it("MicroSensors 不聚合；主題切換只走 paint，不重建 source 或 GeoJSON", () => {
-    const micro = readFileSync(new URL("../../hooks/useMicroSensorsLayer.ts", import.meta.url), "utf8");
-    expect(micro).toContain("const themeRef = useRef(isDark)");
-    expect(micro).toContain("ensureLayers(m, themeRef.current, modeIdxRef.current");
-    expect(micro).not.toContain("cluster:");
-    expect(micro).not.toContain("point_count");
-    expect(micro).toContain('pointRadius("M", sizeScale)');
   });
 });

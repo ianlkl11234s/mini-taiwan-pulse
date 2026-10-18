@@ -30,6 +30,7 @@ vi.mock("../../data/microSensorsLoader", () => ({
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
 
 import { useMicroSensorsLayer } from "../useMicroSensorsLayer";
+import { pointRadius, pointStrokePaint } from "../../map/mapStyleScale";
 
 function createMap(styleLoaded: boolean) {
   const handlers = new Map<string, Array<() => void>>();
@@ -38,10 +39,10 @@ function createMap(styleLoaded: boolean) {
   const map = {
     isStyleLoaded: () => styleLoaded,
     getSource: (id: string) => (sources.has(id) ? { setData: vi.fn() } : undefined),
-    addSource: (id: string) => sources.add(id),
+    addSource: vi.fn((id: string, _def?: Record<string, unknown>) => { sources.add(id); }),
     removeSource: (id: string) => sources.delete(id),
     getLayer: (id: string) => (layers.has(id) ? {} : undefined),
-    addLayer: (l: { id: string }) => layers.add(l.id),
+    addLayer: vi.fn((l: { id: string }) => { layers.add(l.id); }),
     removeLayer: (id: string) => layers.delete(id),
     setPaintProperty: vi.fn(),
     once: vi.fn((ev: string, cb: () => void) => { handlers.set(ev, [...(handlers.get(ev) ?? []), cb]); }),
@@ -74,5 +75,24 @@ describe("useMicroSensorsLayer style readiness (R5-1)", () => {
     reactHarness.begin();
     useMicroSensorsLayer(ref, true, false, 0, 1);
     expect(layers.has("aqi-micro-circle")).toBe(true);
+  });
+
+  it("不聚合、半徑用 M tier；主題切換只改 paint，不重建 source／layer", () => {
+    const { map, raw } = createMap(true);
+    const ref = { current: map } as RefObject<MapboxMap | null>;
+    reactHarness.begin();
+    useMicroSensorsLayer(ref, true, true, 0, 1);
+    expect(raw.addSource).toHaveBeenCalledTimes(1);
+    const def = raw.addSource.mock.calls[0]![1]!;
+    expect(def).not.toHaveProperty("cluster");
+    const layer = raw.addLayer.mock.calls[0]![0] as unknown as { paint: Record<string, unknown> };
+    expect(layer.paint["circle-radius"]).toEqual(pointRadius("M", 1));
+
+    raw.setPaintProperty.mockClear();
+    reactHarness.begin();
+    useMicroSensorsLayer(ref, true, false, 0, 1);
+    expect(raw.addSource).toHaveBeenCalledTimes(1);
+    expect(raw.addLayer).toHaveBeenCalledTimes(1);
+    expect(raw.setPaintProperty).toHaveBeenCalledWith("aqi-micro-circle", "circle-stroke-color", pointStrokePaint(false, 1)["circle-stroke-color"]);
   });
 });
