@@ -73,13 +73,35 @@ describe("restoreWarehouseResults (P1 reload)", () => {
 
 describe("MainMapConnection render order (P1)", () => {
   it("restores missing warehouse results before validating the scene, and imports via the gateway", async () => {
+    // render 綁在整個 MainMapConnection 元件上；以 TSX AST 比對 render callback 內的呼叫先後（不依賴排版／字元位置）
     const { readFileSync } = await import("node:fs");
-    const source = readFileSync("src/research/MainMapConnection.tsx", "utf8");
-    const render = source.slice(source.indexOf("const render = useCallback"), source.indexOf("const connect = useCallback"));
-    const restoreAt = render.indexOf("await restoreWarehouseResults(scene.results");
-    expect(restoreAt).toBeGreaterThan(-1);
-    expect(restoreAt).toBeLessThan(render.indexOf("mapPresentable(scene.results"));
-    expect(render.indexOf("if (revision === 0)")).toBeLessThan(restoreAt);
-    expect(source).toContain("importWarehouseResult(request.args, id => context.client.fetchResult(context.studyId, context.tabId, id))");
+    const ts = (await import("typescript")).default;
+    const sf = ts.createSourceFile("MainMapConnection.tsx", readFileSync("src/research/MainMapConnection.tsx", "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    let render: import("typescript").Node | undefined;
+    const imports: import("typescript").CallExpression[] = [];
+    (function visit(node: import("typescript").Node) {
+      if (ts.isVariableDeclaration(node) && node.name.getText() === "render" && node.initializer?.getText().startsWith("useCallback(")) render = node.initializer;
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "importWarehouseResult") imports.push(node);
+      ts.forEachChild(node, visit);
+    })(sf);
+    expect(render).toBeDefined();
+    const first = (match: (node: import("typescript").Node) => boolean) => {
+      let at = -1;
+      (function visit(node: import("typescript").Node) {
+        if (at < 0 && match(node)) at = node.getStart();
+        if (at < 0) ts.forEachChild(node, visit);
+      })(render!);
+      return at;
+    };
+    const callee = (name: string) => (node: import("typescript").Node) => ts.isCallExpression(node) && (node.expression.getText() === name || (ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === name));
+    const pairingExit = first((node) => ts.isIfStatement(node) && node.expression.getText() === "revision === 0");
+    const restoreAt = first(callee("restoreWarehouseResults"));
+    const validateAt = first(callee("mapPresentable"));
+    expect(pairingExit).toBeGreaterThan(-1);
+    expect(restoreAt).toBeGreaterThan(pairingExit);
+    expect(validateAt).toBeGreaterThan(restoreAt);
+    // 每次匯入倉庫結果都經 gateway 的 client.fetchResult 取資料
+    expect(imports.length).toBeGreaterThan(0);
+    for (const call of imports) expect(call.arguments[1]?.getText()).toMatch(/^\w+ => \w+\.client\.fetchResult\(/);
   });
 });

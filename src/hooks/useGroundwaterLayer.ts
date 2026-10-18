@@ -29,7 +29,7 @@ import { pointStrokePaint } from "../map/mapStyleScale";
  * 時間模型：subscribeDate 換資料 + subscribeThrottled(500ms) 切片重畫（CLAUDE.md 規則 6）
  */
 
-const SOURCE_ID = "groundwater";
+export const SOURCE_ID = "groundwater";
 const LAYER_GLOW = "groundwater-glow";
 const LAYER_CIRCLE = "groundwater-circle";
 

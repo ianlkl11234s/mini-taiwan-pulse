@@ -41,7 +41,10 @@ vi.mock("../../data/jpReligionLoader", () => ({
   fetchJpReligionWikidata: () => Promise.resolve({ type: "FeatureCollection", features: [] }),
 }));
 
+vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+
 import { useJpReligionLayers } from "../useJpReligionLayers";
+import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
 
 type CircleLayer = { id: string; type?: string; minzoom?: number; maxzoom?: number; paint: Record<string, unknown> };
 
@@ -83,6 +86,22 @@ describe("useJpReligionLayers scale", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("F188：PMTiles 新增 source 時登記 loading（等地圖 idle），重繪不重複登記", () => {
+    const { map } = createMap();
+    const mapRef = { current: map } as RefObject<MapboxMap | null>;
+    const scale = { jpReligionGsi: 1, jpReligionOsm: 1, jpReligionWikidata: 1 };
+    const pmtilesRenders = () => vi.mocked(keepLoadingUntilMapIdle).mock.calls.filter((call) => /^jp-religion-render:/.test(String(call[1])));
+    vi.mocked(keepLoadingUntilMapIdle).mockClear();
+    reactHarness.resetRender();
+    useJpReligionLayers(mapRef, visibility, opacity, scale);
+    const first = pmtilesRenders();
+    expect(first.map((call) => call[3]).sort()).toEqual(["jp-religion-gsi", "jp-religion-osm"]);
+    expect(first.every((call) => call[0] === map)).toBe(true);
+    reactHarness.resetRender();
+    useJpReligionLayers(mapRef, visibility, opacity, scale);
+    expect(pmtilesRenders()).toHaveLength(first.length);
   });
 
   it("三層 radius 使用固定 M tier，且 scale 變更會更新 paint", async () => {

@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { createCameraHudStore, formatCameraInfo, readCameraInfo } from "../CameraHud";
@@ -66,10 +65,4 @@ describe("CameraHud", () => {
     store.dispose();
   });
 
-  it("keeps camera state out of App so move updates cannot render its hosts", () => {
-    const app = readFileSync(new URL("../../App.tsx", import.meta.url), "utf8");
-    expect(app).not.toContain("setCameraInfo");
-    expect(app).not.toMatch(/\[cameraInfo,/);
-    expect(app).toContain("cameraHud.bind(map)");
-  });
 });

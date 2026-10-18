@@ -80,6 +80,7 @@ vi.mock("../../state/timeStore", () => ({
 
 import { globalEventLocationLabel } from "../../components/featureInfo/globalClimatePanels";
 import { parseGlobalEventCandidate } from "../../data/globalEventsLoader";
+import { badgeLabelLayout, labelHaloPaint } from "../../map/mapStyleScale";
 import { globalEventsViewStore } from "../../state/globalEventsViewStore";
 import {
   GLOBAL_EVENTS_LAYER_ID,
@@ -286,6 +287,8 @@ describe("useGlobalEventsLayer timeline", () => {
     expect(loader.window).not.toHaveBeenCalled();
     expect(source).not.toHaveBeenCalled();
     expect(state.map.setPaintProperty).toHaveBeenCalledWith("global-events-clusters-label", "text-halo-color", "rgba(255,255,255,0.94)");
+    // count badge 保留 overlap（數字不可因碰撞被藏掉）、halo 用共用 label 規格
+    expect(state.layers.get("global-events-clusters-label")).toMatchObject({ layout: badgeLabelLayout(), paint: labelHaloPaint(true) });
   });
 
   it("pan/rotation/zoom never rewrite coordinates; native offset symbols preserve all colocated events and cleanup", async () => {

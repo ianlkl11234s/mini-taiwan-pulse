@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { DECORATION_SUFFIX_RE, isDataDriven } from "../pointSpec";
@@ -86,8 +85,15 @@ describe("R3a 線與面規格（lineFillSpec）", () => {
   });
 
   it("F-2：overlayRegistry 不再用 fill-outline-color（外框一律獨立 line 子圖層）", () => {
-    const src = readFileSync(new URL("../overlayRegistry.ts", import.meta.url), "utf8");
-    expect(src.match(/fill-outline-color/g)?.length ?? 0).toBe(0);
+    const bad: string[] = [];
+    for (const c of OVERLAY_REGISTRY) {
+      for (const l of c.layers) {
+        for (const dark of [true, false]) {
+          if ("fill-outline-color" in (l.paint(dark, defaults(c.id)) ?? {})) bad.push(`${c.id}/${l.suffix}`);
+        }
+      }
+    }
+    expect([...new Set(bad)]).toEqual([]);
   });
 
   it("valueAtZ14：zoom 線性插值在 z14 求值", () => {
