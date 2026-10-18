@@ -32,7 +32,7 @@
 | 欄位 | 看什麼 |
 |---|---|
 | `resolution` | 數值從哪來：`runtime`（`OVERLAY_REGISTRY`，已求值）／`shared-renderer`（統計共用 renderer）／`static-scan`（hook 字面值，**hook 層級，可能是兄弟圖層的值**）／`unresolved`（Three.js 或找不到，只有原因與檔案） |
-| `evidence` | 要改的檔與行號 |
+| `evidence` | 要改的檔（只記檔名不記行號，避免無關改動造成行號位移讓 CI 比對失敗；在檔內用 layer key 或圖例 id 搜尋） |
 | `sublayers[]` | 每個子圖層的 `type`、`role`（`main` 資料本體／`decoration` 光暈、漣漪、點擊熱區）、`values`（z10／z14 半徑、線寬、透明度…）、`colors`（編碼型別 `constant`／`categorical`／`sequential`…）、`themeDiff`（暗／淡不同的屬性） |
 | `params` | 控制項預設值：`opacity`、`size`（大小倍率）、`lineWidth`、`height` |
 | `legend`／`legendType` | 圖例 id 與型別；到 `legends[]` 查同 id 的 `issues` |
@@ -49,7 +49,7 @@
 | 拍板數值（點半徑、描邊、線寬、面透明度、缺值斜線、熱區、標籤、地圖中文字型） | `src/map/mapStyleScale.ts`（各圖層只引用這裡的常數或 helper） |
 | 點半徑分階 | `src/map/pointTiers.ts`：registry 點圖層 `POINT_TIERS`、hook／factory 點圖層 `HOOK_POINT_TIERS` |
 | 點描邊與光暈（registry） | `src/map/pointSpec.ts` `withPointSpec()` 集中套用，不逐層改；hook 點圖層在各 hook 用 `pointRadius()`／`pointStrokePaint()` |
-| 一般 Mapbox 圖層的 paint／layout（點半徑與描邊除外） | `src/map/overlayRegistry.ts`（`evidence` 行號）；色票常數在 `src/data/*Types.ts` |
+| 一般 Mapbox 圖層的 paint／layout（點半徑與描邊除外） | `src/map/overlayRegistry.ts`（在檔內搜 `id: "<key>"`）；色票常數在 `src/data/*Types.ts` |
 | 自行接線圖層 | `evidence` 指的 `src/hooks/use*Layer*.ts`、`src/map/*Factory.ts`、`src/map/*CustomLayer.ts` |
 | 統計圖層（320 層共用） | `src/map/regionalStatisticsMap.ts`（一改全改）；色階 `src/data/statisticsVisuals.ts`／各 recipe |
 | 透明度、大小、線寬預設與範圍 | `src/data/layerParamsSpec.ts` |
