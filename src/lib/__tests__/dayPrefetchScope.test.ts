@@ -98,14 +98,9 @@ describe("AU-3 day-prefetch scope", () => {
     expect(unsubscribeDate).toHaveBeenCalledOnce();
   });
 
-  it("CWA 不走共享 queue（行為見 useCwaImageryLayer.test 的 AU-3／F304）", () => {
-    expect(cwa).not.toContain("subscribePrefetchWindow");
-  });
-
-  it("兩條路徑都從 timeStore 取日期，沒有 currentTime React dependency", () => {
-    for (const source of [shared, cwa]) {
-      expect(source).toContain("timeStore");
-      expect(source).not.toMatch(/\[\s*[^\]]*currentTime[^\]]*\]/);
-    }
+  // CWA 不 import subscribePrefetchWindow、兩條路徑都不把 currentTime 放進 deps：
+  // 改由 ESLint（no-restricted-imports、pulse/no-current-time-deps）檢查。
+  it("兩條路徑都從 timeStore 取日期", () => {
+    for (const source of [shared, cwa]) expect(source).toContain("timeStore");
   });
 });
