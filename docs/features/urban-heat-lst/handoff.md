@@ -1,6 +1,6 @@
 # Handoff — 都市熱島 Urban Heat（下游視角）
 
-> **上游 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/urban_heat_lst.md`](../../../taipei-gis-analytics/docs/handoff/urban_heat_lst.md)（詳細契約看那份）
+> **上游 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/urban_heat_lst.md`](../../../../taipei-gis-analytics/docs/handoff/urban_heat_lst.md)（詳細契約看那份）
 > **機器可讀編碼參數**：`taipei-gis-analytics/data/intermediate/environment/urban_heat_lst/output/urban_heat_lst_encoding.json`
 > **上游 pipeline**：`taipei-gis-analytics/pipelines/environment/urban_heat_lst/`
 >

@@ -5,7 +5,7 @@
 > **Owner**：migu
 > **上線日期**：（待 PR merge）
 > **相關 PR**：#（待補）
-> **上游契約 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/funeral-layers.md`](../../../taipei-gis-analytics/docs/handoff/funeral-layers.md)
+> **上游契約 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/funeral-layers.md`](../../../../taipei-gis-analytics/docs/handoff/funeral-layers.md)
 
 ## 一句話說明
 

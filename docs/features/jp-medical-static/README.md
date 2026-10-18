@@ -4,7 +4,7 @@
 
 範圍：Navii 醫院／診所／牙科／助產所／藥局、H17 長照服務登記、A38 一次／二次／三次醫療圈。主站「日本 Japan → 醫療」使用既有圖層側欄；詳情按需讀取。
 
-資料來源在 `/private/tmp/jp-medical-ready-20260913/analytics`，尚未合回上游原 checkout。本批只沿用已取得資料。最新授權計劃：[jp-medical-static-plan.md](/private/tmp/jp-medical-ready-20260913/analytics/docs/handoff/jp-medical-static-plan.md)。完整來源契約：[jp-medical.md](/private/tmp/jp-medical-ready-20260913/analytics/docs/handoff/jp-medical.md)。
+資料來源原在暫存 worktree `/private/tmp/jp-medical-ready-20260913/analytics`，兩份 handoff 現已在 analytics 主 checkout（2026-10-18 改連）。本批只沿用已取得資料。最新授權計劃：[jp-medical-static-plan.md](../../../../taipei-gis-analytics/docs/handoff/jp-medical-static-plan.md)。完整來源契約：[jp-medical.md](../../../../taipei-gis-analytics/docs/handoff/jp-medical.md)。
 
 年度病床／外來報告、區域統計、疫情、持續 collector、自動排程均不在本批。申報床數不是即時空床；公告時段不是現在可接診；長照服務登記不是唯一機構數。
 
