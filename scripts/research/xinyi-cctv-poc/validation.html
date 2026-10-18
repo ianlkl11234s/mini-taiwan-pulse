@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>單路口驗證工作台｜信義路四段 × 敦化南路</title>
+  <link rel="stylesheet" href="./validation.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">CCTV / 單路口人工驗證</p>
+        <h1>信義路四段 <span>×</span> 敦化南路</h1>
+        <p class="lede">T000354 影格對照、人工事件紀錄與地面控制點檢查</p>
+      </div>
+      <div class="header-badges"><a class="return-link" href="./index.html">← 返回 3D 對照</a><span class="badge">本機工作台</span><span class="badge muted">非即時交通</span></div>
+    </header>
+
+    <section class="status-strip" aria-live="polite">
+      <div><span class="kicker">資料批次</span><strong id="run-label">載入中</strong></div>
+      <div><span class="kicker">來源</span><strong id="source-label">—</strong></div>
+      <div><span class="kicker">時間語意</span><strong>媒體相對時間；來源時間未知</strong></div>
+      <div><span class="kicker">檢查狀態</span><strong id="review-status">manual_review incomplete</strong></div>
+    </section>
+    <p id="load-message" class="message" role="status">正在讀取影格資料…</p>
+
+    <section class="playback card" aria-labelledby="playback-heading">
+      <div class="section-top">
+        <div><p class="eyebrow">01 / REPLAY</p><h2 id="playback-heading">同一影格，兩種輸出</h2></div>
+        <div class="playback-state"><span id="frame-index">—</span><strong id="time-label">00:00.0 / 00:00.0</strong></div>
+      </div>
+      <div class="transport">
+        <button id="play-button" type="button" disabled>播放</button>
+        <input id="time-slider" type="range" min="0" max="0" step="0.2" value="0" aria-label="回放時間" disabled />
+        <button id="step-back" type="button" class="quiet" aria-label="上一影格" disabled>← 影格</button>
+        <button id="step-forward" type="button" class="quiet" aria-label="下一影格" disabled>影格 →</button>
+      </div>
+      <div class="frame-meta"><span id="frame-timestamp">影格時間 —</span><span id="frame-capture">擷取接收時間 —</span><span>框數 ≠ 真實車數；僅供逐格核對</span></div>
+
+      <div class="comparison">
+        <article class="image-card">
+          <div class="image-heading"><div><span class="dot detector"></span><h3>獨立偵測 / NMS 候選</h3></div><strong id="detector-count">未知</strong></div>
+          <p>YOLO.predict 後 NMS 候選框；未帶追蹤 ID，數量不等於真實車數。</p>
+          <div id="detector-stage" class="image-stage" aria-label="偵測後 NMS 候選影格">
+            <img id="detector-image" alt="T000354 CCTV 影格，左側為偵測候選框" />
+            <svg id="detector-overlay" aria-hidden="true"></svg>
+            <span class="image-placeholder">等待影格</span>
+          </div>
+        </article>
+        <article class="image-card">
+          <div class="image-heading"><div><span class="dot track"></span><h3>ByteTrack 追蹤框</h3></div><strong id="track-count">未知</strong></div>
+          <p>局部匿名 short ID 僅屬此鏡頭與此批次；逐格核對，不當跨鏡身分。</p>
+          <div id="track-stage" class="image-stage" aria-label="ByteTrack 追蹤影格，可點選校正影像點">
+            <img id="track-image" alt="T000354 CCTV 影格，右側為追蹤框" />
+            <svg id="track-overlay" aria-hidden="true"></svg>
+            <span class="image-placeholder">點影像以新增校正影像點</span>
+          </div>
+        </article>
+      </div>
+      <fieldset class="click-mode" aria-label="右圖點選用途"><legend>右圖點選用途</legend>
+        <label><input type="radio" name="click-mode" value="control" checked /> 地面控制點</label>
+        <label><input type="radio" name="click-mode" value="annotate" /> 逐車標註（點車輛底部中心）</label>
+        <span id="frame-dup-flag" class="badge muted">—</span>
+      </fieldset>
+      <p class="caveat">兩側使用同一張媒體影格。右圖點選影像可記錄歸一化影像座標；地面座標可由正射圖估計或實測提供，來源與精度須核對。</p>
+    </section>
+
+    <div class="work-grid">
+      <section class="card work-card" aria-labelledby="review-heading">
+        <div class="section-top"><div><p class="eyebrow">02 / MANUAL REVIEW</p><h2 id="review-heading">人工事件紀錄</h2></div><span class="badge amber">尚未完成覆核</span></div>
+        <p class="section-note">事件由人員逐筆確認；候選框數與事件筆數不能推算 recall 或漏檢率。方向 N / S / E / W 為人工判讀。</p>
+        <fieldset class="coverage-box"><legend>已檢查時間區間（媒體相對秒）</legend>
+          <label>起點 <input id="coverage-start" type="number" min="0" step="0.1" inputmode="decimal" placeholder="例如 0.0" /></label>
+          <label>終點 <input id="coverage-end" type="number" min="0" step="0.1" inputmode="decimal" placeholder="例如 30.0" /></label>
+          <p id="coverage-note">尚未標註覆蓋時間；manual_review incomplete。</p>
+        </fieldset>
+        <form id="event-form" class="event-form">
+          <label>時間（秒）<input id="event-time" name="time" type="number" min="0" step="0.1" required /></label>
+          <label>車種<select id="event-class" name="class"><option value="car">car</option><option value="motorcycle">motorcycle</option><option value="bus">bus</option><option value="truck">truck</option><option value="other">other</option><option value="unknown">unknown</option></select></label>
+          <label>方向<select id="event-direction" name="direction"><option value="unknown">未知</option><option value="N">北 N</option><option value="S">南 S</option><option value="E">東 E</option><option value="W">西 W</option></select></label>
+          <label>判定<select id="event-verdict" name="verdict"><option value="confirmed">已確認</option><option value="uncertain">不確定</option></select></label>
+          <label class="span-all">備註<input id="event-notes" name="notes" type="text" maxlength="400" placeholder="例：左側被遮擋、框跨越停止線" /></label>
+          <button type="submit">新增人工事件</button>
+        </form>
+        <div class="table-scroll"><table><thead><tr><th>時間</th><th>車種</th><th>方向</th><th>判定</th><th>備註</th><th></th></tr></thead><tbody id="event-rows"><tr><td colspan="6" class="empty">尚無人工事件</td></tr></tbody></table></div>
+        <details id="export-preview" hidden><summary>匯出內容（可直接複製）</summary><a id="export-download" hidden>下載 JSON 檔案</a><textarea id="export-json" readonly aria-label="人工核對 JSON 匯出內容" rows="10" style="width:100%"></textarea></details>
+        <div class="card-footer"><span id="event-count">0 筆人工事件</span><button id="export-button" type="button" class="quiet">匯出 JSON</button></div>
+      </section>
+
+      <section class="card work-card" aria-labelledby="calibration-heading">
+        <div class="section-top"><div><p class="eyebrow">03 / GROUND CONTROL</p><h2 id="calibration-heading">地面尺度校正</h2></div><span id="calibration-status" class="badge amber">待校正</span></div>
+        <p class="section-note">至少 4 個 fit 點及獨立 check 點。影像 x / y 為 0–1，地面東 / 北為公尺；本頁不產生速度 km/h。</p>
+        <div class="reference-block">
+          <div class="reference-head"><strong>正射參考圖</strong><span id="reference-status">讀取中</span></div>
+          <button id="reference-pick" class="reference-image" type="button" aria-label="在正射圖上點選最後一個控制點的地面位置" disabled><img id="reference-img" alt="國土測繪中心正射參考圖，點選對應地面位置" /><svg id="reference-projections" aria-hidden="true"></svg><span id="reference-mark" class="reference-mark" hidden></span></button>
+          <p id="reference-source" class="reference-caption">圖資估計・精度未驗證；攝影日期未知。點圖可填最後一個控制點的東／北座標。</p>
+          <p id="projection-count" class="reference-caption">校正候選投影・未驗收：尚無有效擬合。</p>
+        </div>
+        <div class="calibration-source">
+          <label>實測地面點來源<input id="ground-source" type="text" maxlength="300" placeholder="例：測量紀錄或可查證的控制點文件；不得填推測值" /></label>
+          <label class="checkline"><input id="scale-confirmed" type="checkbox" /> 已核對地面點來源與公尺尺度</label>
+        </div>
+        <div class="table-scroll calibration-table"><table><thead><tr><th>用途</th><th>影像 x</th><th>影像 y</th><th>東 m</th><th>北 m</th><th></th></tr></thead><tbody id="point-rows"><tr><td colspan="6" class="empty">點右側影像，或手動新增控制點</td></tr></tbody></table></div>
+        <div class="calibration-actions"><button id="add-point" type="button" class="quiet">＋ 新增空白點</button><button id="fit-button" type="button">擬合並檢查</button></div>
+        <p id="calibration-result" class="result" role="status">尚無擬合結果。無實測來源及獨立檢查點時，維持「待校正」。</p>
+        <p id="projection-result" class="result subtle">影像試點：尚未選取。</p>
+      </section>
+    </div>
+    <section class="card work-card annotation-card" aria-labelledby="annotation-heading">
+      <div class="section-top"><div><p class="eyebrow">04 / VEHICLE ANNOTATION</p><h2 id="annotation-heading">逐車標註（人工真值）</h2></div><span id="ann-status" class="badge amber">未開始</span></div>
+      <p class="section-note">每台車一個編號。選取車輛後，把上方點選用途切到「逐車標註」，在右圖點車輛<strong>底部中心</strong>。建議：進入畫面、約每 1 秒、轉向或停止時、離開前各點一次；模糊到看不清標「不確定」。重複畫面（串流卡住）上的點會保留，但評分時略過。</p>
+      <fieldset class="coverage-box annotation-meta"><legend>標註範圍</legend>
+        <label>起點（秒）<input id="ann-start" type="number" min="0" step="0.1" /></label>
+        <label>終點（秒）<input id="ann-end" type="number" min="0" step="0.1" /></label>
+        <label>輪次<select id="ann-pass"><option value="first">第一次標註</option><option value="second">第二次獨立覆核</option></select></label>
+        <label>標註者<input id="ann-annotator" type="text" maxlength="60" placeholder="代號即可" /></label>
+        <label class="checkline span-all"><input id="ann-complete" type="checkbox" /> 此範圍內所有看得見的車都已標註（勾選後才計算「多出來的追蹤」）</label>
+      </fieldset>
+      <div class="annotation-actions">
+        <label>新車車種<select id="ann-class"><option value="car">car</option><option value="motorcycle">motorcycle</option><option value="bus">bus</option><option value="truck">truck</option><option value="unknown">unknown</option></select></label>
+        <button id="ann-add" type="button">＋ 新增車輛</button>
+        <label>下一點可見度<select id="ann-visibility"><option value="visible">清楚可見</option><option value="occluded">被遮擋（位置推估）</option><option value="uncertain">不確定</option></select></label>
+      </div>
+      <div class="table-scroll"><table><thead><tr><th>選取</th><th>編號</th><th>車種</th><th>關鍵幀</th><th>時間範圍</th><th>進入</th><th>離開</th><th>備註</th><th></th></tr></thead><tbody id="ann-rows"><tr><td colspan="9" class="empty">尚未新增車輛</td></tr></tbody></table></div>
+      <p id="ann-active" class="result subtle">尚未選取車輛。</p>
+      <div id="ann-keyframes" class="keyframe-list"></div>
+      <details id="ann-export-preview" hidden><summary>標註匯出內容</summary><a id="ann-export-download" hidden>下載標註 JSON</a><textarea id="ann-export-json" readonly rows="10" style="width:100%" aria-label="逐車標註 JSON"></textarea></details>
+      <div class="card-footer"><span id="ann-summary">0 台車 · 0 個關鍵幀</span><button id="ann-export" type="button" class="quiet">匯出標註 JSON</button></div>
+    </section>
+    <footer>資料僅保存在此瀏覽器 localStorage；JSON 匯出不含影像。來源時間未知，校正結果需人工審查。</footer>
+  </main>
+  <script type="module" src="./validation.js"></script>
+</body>
+</html>

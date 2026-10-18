@@ -188,5 +188,6 @@
   "enum.statVariant.醫院醫事人員總計": "All hospital health professionals",
   "enum.statVariant.電動公車占營業車比": "Electric buses, share of operating buses",
   "enum.statVariant.領有機車駕照人數": "Motorcycle license holders",
-  "enum.statVariant.領有汽車駕照人數": "Car license holders"
+  "enum.statVariant.領有汽車駕照人數": "Car license holders",
+  "enum.statVariant.每十萬人": "Per 100,000 people"
 }

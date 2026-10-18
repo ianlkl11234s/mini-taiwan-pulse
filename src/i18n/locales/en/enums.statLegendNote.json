@@ -1,0 +1,12 @@
+{
+  "enum.statLegendNote.人口分母＝戶籍人口（同年 12 月底；不含觀光、通勤等流動人口）": "Population denominator = registered household population (end of December; excludes tourists, commuters and other transient population)",
+  "enum.statLegendNote.季初步統計，以年度刑案統計為準": "Preliminary quarterly figures; the annual criminal case statistics are authoritative",
+  "enum.statLegendNote.毒品案發生地多為查獲地，不等於居民犯罪": "Drug-case locations are mostly where the seizure happened, not where offenders live",
+  "enum.statLegendNote.斷點：2024 年第 3 季（民國 113 年）起季件數約為前一季 7 倍，原因未查明；跨 2024 年前後比較請保守。": "Break: from Q3 2024 quarterly cases jumped to about 7× the previous quarter, cause not identified; compare across 2024 with caution.",
+  "enum.statLegendNote.斷點：鄉鎮層 2015–2024 約 55% 只登記到縣市，2025 起跳升是登記口徑改變，不是案件增加（縣市層口徑一致）。": "Break: in 2015–2024 about 55% of cases were recorded only to the county, so the 2025 jump at township level reflects a recording change, not more cases (county level is consistent).",
+  "enum.statLegendNote.全國件數 2023 年起連年倍增（1,268 → 2,340 → 5,427 件），原因未查明。": "National cases have roughly doubled every year since 2023 (1,268 → 2,340 → 5,427), cause not identified.",
+  "enum.statLegendNote.部分期別（2026 年 1–6 月等）只有件數、沒有比率，不可與全年比較。": "Partial periods (e.g. Jan–Jun 2026) have case counts only, no rates, and are not comparable with full years.",
+  "enum.statLegendNote.0 件自成最淺一級（該區該年無通報事件，不是無資料）。": "0 cases forms its own lightest class (no reported incident in that area and year; not missing data).",
+  "enum.statLegendNote.最淺色含 0 件（該區該年無通報事件，不是無資料）。": "The lightest class includes 0 cases (no reported incident in that area and year; not missing data).",
+  "enum.statLegendNote.最淺色含 0（該區該年無通報事件，不是無資料）。": "The lightest class includes 0 (no reported incident in that area and year; not missing data)."
+}

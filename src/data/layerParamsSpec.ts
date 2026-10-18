@@ -2451,9 +2451,6 @@ export const LAYER_PARAMS_SPEC = {
   statsMotorcycleLicenseHoldersCount: [opacitySlider("statsMotorcycleLicenseHoldersCountOpacity", 0.55)],
   statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
   statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
-  crimeAreaMonthly: [
-    { kind: "slider", name: "crimeAreaMonthlyOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
-  ],
   theftTaoyuan: [scaleSlider("theftTaoyuanScale", 1), opacitySlider("theftTaoyuanOpacity", densePointOpacity(1_423))],
   trafficAccidentYearly: [
     scaleSlider("trafficAccidentYearlyScale", 1),
@@ -2744,10 +2741,13 @@ export const LAYER_PARAMS_SPEC = {
   typhoonTracks: [
     {
       kind: "select", name: "typhoonSource", label: "資料源", default: "all",
-      options: [ { label: "全部", value: "all" }, { label: "JMA 日本", value: "jma" }, { label: "JTWC 美軍", value: "jtwc" }, ],
-      out: "typhoonSourceIdx", encode: ["all", "jma", "jtwc"],
+      options: [ { label: "全部", value: "all" }, { label: "JMA 日本", value: "jma" }, { label: "JTWC 美軍", value: "jtwc" }, { label: "CWA 氣象署", value: "cwa" }, ],
+      out: "typhoonSourceIdx", encode: ["all", "jma", "jtwc", "cwa"],
     },
     { kind: "slider", name: "typhoonTracksOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+  ],
+  typhoonAgencyForecasts: [
+    { kind: "slider", name: "typhoonAgencyForecastsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
   ],
   iotWraRiver: [
     { kind: "slider", name: "iotWraRiverScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },

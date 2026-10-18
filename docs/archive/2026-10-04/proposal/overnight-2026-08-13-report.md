@@ -165,7 +165,7 @@ AR-11e 的前提整個翻案（3.2GB 已被既有 cron 磨到 580MB），並撈�
 
 查證發現**警報早就在壓力指數裡**（migration 207 的 `v_alert`，權重 0.20，判準 `expires > NOW()`）。
 實測 `per_signal.alert = 80.0`、composite 28.0 → **警報佔了 57%**；而撐住那個 80 的是**藤枝休園（Severe、expires 2027）——一個全年釘死的常數**。
-SQL 提案：`docs/proposal/alerts-pressure-signal.sql`，兩個分岔留給 owner。**未 apply。**
+SQL 提案：gis-platform `docs/proposals/2026-08-13-alerts-pressure-signal.sql`（2026-10-18 自本 repo 搬過去），兩個分岔留給 owner。**未 apply。**
 
 ### 6d. 上游資料品質問題 12 項 → `docs/features/layer-manifest/upstream-data-issues.md`
 （第一階段 5 ＋ 第二階段 7）。最嚴重的是 cycling `FinishedTime` 的 ROC→西元轉換 bug：`04_fetch_cycling_shape.py:85-91` 假設 7 碼，6 碼輸入產出 `2902202`，**佔 24.4%**。

@@ -185,7 +185,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-17: -2 移除無 consumer 的 wasteRoute / wasteStop。
     // 2026-10-17: +7 海域保護與漁業 G08（自然保留區、野生動物保護區、開放捕魚點、海岸地區範圍、人工魚礁／保護礁中心點、定置漁業權區）。
     // 2026-10-17: +4 地層下陷＋海堤 G19（測站、累積／速率等值線、一般性海堤區域）。
-    expect(keys.length).toBe(1206);
+    // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）；-1 移除被取代的 crimeAreaMonthly。
+    // 2026-10-17: +1 各國颱風預報 G02（NCDR 五家路徑 typhoonAgencyForecasts）。
+    expect(keys.length).toBe(1242);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

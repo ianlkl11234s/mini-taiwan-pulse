@@ -143,6 +143,8 @@ export function activeTyphoons(points: readonly TyphoonPoint[], currentTime: num
     const coords = (feature.geometry as GeoJSON.Point).coordinates;
     if (!p || !finite(p.valid_ts) || !finite(p.valid_until) || p.valid_ts > currentTime || p.valid_until <= currentTime) continue;
     if (sourceFilter !== "all" && p.source !== sourceFilter) continue;
+    // 「全部」模式與地圖一致：同 storm_key 只算畫出來的那一家
+    if (sourceFilter === "all" && p.primary === false) continue;
     const storm: ActiveStorm = {
       stormId: String(p.storm_id), ids: [String(p.storm_id)], name: clipText(p.name_local) ?? clipText(p.name_en),
       lng: coords[0]!, lat: coords[1]!, wind: finite(p.max_wind_kt) ? p.max_wind_kt : null, pressure: finite(p.center_pressure) ? p.center_pressure : null, validTs: p.valid_ts,

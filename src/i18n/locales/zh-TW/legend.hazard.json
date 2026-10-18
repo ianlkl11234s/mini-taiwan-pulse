@@ -121,5 +121,13 @@
   "legend.hazard.erSevere": "嚴重 > {n}",
   "legend.hazard.erNoData": "無資料",
   "legend.hazard.erIcu": "⚪ 白框 = 有加護病房 (ICU) 等待",
-  "legend.hazard.erCalib": "分級依 wait_general_cnt 37 天 history 校準"
+  "legend.hazard.erCalib": "分級依 wait_general_cnt 37 天 history 校準",
+  "legend.hazard.typGale": "7 級風暴風圈（15 m/s，氣象署）",
+  "legend.hazard.typStorm": "10 級風暴風圈（25 m/s，氣象署）",
+  "legend.hazard.typProb70": "70% 機率圈（預報點，虛線）",
+  "legend.hazard.typAllNote": "「全部」時同一颱風只畫一家（氣象署＞氣象廳＞JTWC）；風圈只有氣象署提供。",
+  "legend.hazard.typAgencyIssued": "發佈 {label}",
+  "legend.hazard.typAgencyNone": "此時無預報",
+  "legend.hazard.typAgencyEmpty": "此時間點沒有任何機構的預報。",
+  "legend.hazard.typAgencyNote": "每家只畫當時最新一版；發佈時間為台灣時間。出典：國家災害防救科技中心（NCDR）。"
 }

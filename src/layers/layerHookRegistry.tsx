@@ -65,7 +65,7 @@ import {
   JmaLightningHost, JmaWbgtHost, JmaSnowcapHost, JmaAutumnLeavesHost, JmaSakuraHost, JmaRainySeasonHost,
 } from "./hosts/jmaPointHosts";
 import {
-  EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
+  EarthquakesGlobalHost, TyphoonTracksHost, TyphoonAgencyForecastsHost, WorldTrashDebrisHost, JpReligionHost,
   GlobalEventsHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
@@ -249,6 +249,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // ── 全球氣候 / 世界（L1088-1154）──
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
   { id: "useTyphoonTracksLayer", keys: ["typhoonTracks"], Host: TyphoonTracksHost },
+  { id: "useTyphoonAgencyForecastsLayer", keys: ["typhoonAgencyForecasts"], Host: TyphoonAgencyForecastsHost },
   { id: "useWorldTrashDebrisLayer", keys: ["worldTrashDebris"], Host: WorldTrashDebrisHost },
   { id: "useGlobalEventsLayer", keys: ["globalEvents"], Host: GlobalEventsHost },
   {

@@ -11,5 +11,14 @@
   "enum.globalEventSeverity.1": "Notable",
   "enum.globalEventSeverity.2": "Major",
   "enum.globalEventSeverity.3": "Severe",
-  "enum.globalEventSeverity.unknown": "Unknown"
+  "enum.globalEventSeverity.unknown": "Unknown",
+  "enum.typhoonAgency.cwa": "Taiwan CWA",
+  "enum.typhoonAgency.jma": "Japan JMA",
+  "enum.typhoonAgency.jtwc": "US JTWC",
+  "enum.typhoonAgency.nmc": "China NMC",
+  "enum.typhoonAgency.kma": "Korea KMA",
+  "enum.typhoonSourceOrg.cwa": "Central Weather Administration, MOTC (Taiwan)",
+  "enum.typhoonSourceOrg.jma": "Japan Meteorological Agency",
+  "enum.typhoonSourceOrg.jtwc": "JTWC",
+  "enum.typhoonAgencyOrg.ncdr": "National Science and Technology Center for Disaster Reduction (NCDR)"
 }

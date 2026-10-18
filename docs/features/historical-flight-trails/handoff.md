@@ -2,7 +2,7 @@
 
 ## 契約
 
-資料契約入口：[analytics handoff](/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/docs/handoff/historical-flight-trails.md)。
+資料契約入口：[analytics handoff](../../../../taipei-gis-analytics/docs/handoff/historical-flight-trails.md)。
 SSOT位於 `/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/docs/handoff/historical-flight-trails.md`。
 來源只讀：plan-art `dist/tracks/airports/{ICAO}/{date}.jsonl`、`public/airport-points.geojson`；不修改原始資料。
 

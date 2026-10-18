@@ -260,7 +260,7 @@ function landslideGroups(): SubGroupDef[] {
   return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
 
-/** atlas 六家族：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
+/** atlas 六家族＋治安：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
 function atlasGroups(groups: ReadonlyArray<{ title: string; keys: readonly string[] }>): SubGroupDef[] {
   return groups.map(({ title, keys }) => ({ title, layers: keys.map((key) => fromManifest(key as ManifestKey)) }));
 }
@@ -380,13 +380,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     defaultCollapsed: true,
     groups: addictionGroups(),
   },
-  {
-    title: "犯罪與治安 Crime & Safety",
-    defaultCollapsed: true,
-    groups: [
-      { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
-    ],
-  },
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.crime),
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.sports),
   {
     title: "工作與所得 Work & Income",
@@ -1544,7 +1538,6 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "治安態勢",
         layers: [
-          fromManifest("crimeAreaMonthly"),
           fromManifest("theftTaoyuan"),
           fromManifest("trafficAccidentYearly"),
           fromManifest("accidentTaipei"),
@@ -1811,6 +1804,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("earthquakesGlobal"),
           fromManifest("typhoonTracks"),
+          fromManifest("typhoonAgencyForecasts"),
         ],
       },
       {
@@ -2299,6 +2293,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "體育統計 Sports Statistics": "publicLife",
   "災害風險統計 Disaster Risk Statistics": "environment",
   "海洋統計 Marine Statistics": "environment",
+  "治安統計 Crime Statistics": "safety",
   "原民與農村 Indigenous & Rural": "city",
   "海洋 Marine": "environment",
   "統計比較": "publicLife",
@@ -2413,6 +2408,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
   "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
   "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
+  "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },

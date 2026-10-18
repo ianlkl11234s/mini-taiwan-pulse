@@ -11,6 +11,7 @@ import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
 import { FONT_SIZE } from '../../styles/designTokens';
 import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
 import { useLocale } from '../../state/localeStore';
+import { enumLabel } from '../../i18n/dataText';
 
 interface Props {
   groupKey: string;
@@ -32,7 +33,8 @@ interface Props {
  *   同步成新成員（`statistics-variant-switch`：清掉舊層的 popup）。
  */
 export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
   const group = getMedicalStatisticsGroup(groupKey);
   const { DIM } = useRailTheme();
   const members = group?.options.map(option => option.key) ?? [];
@@ -46,6 +48,8 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
   const periodNotice = useSyncExternalStore(subscribeStatisticsPeriodNotice, () => (selected ? getStatisticsPeriodNotice(selected) : undefined));
   if (!group || !selected) return null;
   const visual = getStatisticsVisual(group.options[0]!.key, group.label);
+  // 群組名是配方中文；外文查 `enum.statGroup.<中文>`，查不到維持中文（與其他資料標籤同規則）。
+  const label = enumLabel('statGroup', group.label, group.label, i18n);
   const Icon = visual.icon;
   const active = members.filter(key => visibility[key]);
   const toggle = () => {
@@ -59,15 +63,15 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
   };
   return <div style={{ color: textColor }}>
     <ListRow
-      ariaLabel={group.label}
-      label={group.label}
+      ariaLabel={label}
+      label={label}
       icon={<Icon size={14} color={active.length ? visual.accent : DIM} style={{ flexShrink: 0 }} />}
       accent={visual.accent}
       active={active.length > 0}
       expandable
       expanded={expanded}
       onClick={() => onLayerClick(selected)}
-      toggle={{ on: active.length > 0, onChange: toggle, label: t('paramsPanel.groupToggle', { label: group.label }) }}
+      toggle={{ on: active.length > 0, onChange: toggle, label: t('paramsPanel.groupToggle', { label }) }}
     />
     {expanded && <>
       {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>{t('paramsPanel.groupOverlap', { count: active.length, option: group.optionLabel ?? t('paramsPanel.groupOptionDefault') })}</p>}

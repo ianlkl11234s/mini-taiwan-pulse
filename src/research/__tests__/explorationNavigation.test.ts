@@ -4,7 +4,7 @@ import { explorationLayerKeys, panelForExplorationLayers } from "../explorationN
 describe("panelForExplorationLayers", () => {
   it("uses the shared statistics membership plus world and Japan theme slices", () => {
     expect(panelForExplorationLayers(["statsBusOperatingRouteLengthKm"])).toBe("statistics");
-    expect(panelForExplorationLayers(["crimeAreaMonthly"])).toBe("statistics");
+    expect(panelForExplorationLayers(["statsCrimeDrugCasesTownship"])).toBe("statistics");
     expect(panelForExplorationLayers(["jpReligionGsi"])).toBe("japan");
   });
 

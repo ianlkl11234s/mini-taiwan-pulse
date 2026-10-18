@@ -9019,33 +9019,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── 治安態勢 5 layer ──
   {
-    id: "crimeAreaMonthly",
-    sourceUrl: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
-    sourceId: "crime-area-monthly",
-    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 5, maxzoom: 12 },
-    rebuildOnParamChange: ["crimeAreaMonthlyOpacity"],
-    layers: [
-      {
-        suffix: "fill", type: "fill",
-        paint: (_isDark, p) => ({
-          "fill-color": [
-            "interpolate", ["linear"], ["coalesce", ["to-number", ["get", "total_events"]], 0],
-            0, "#fef2f2",
-            100, "#fca5a5",
-            500, "#ef4444",
-            1500, "#991b1b",
-            5000, "#450a0a",
-          ] as unknown as string,
-          "fill-opacity": p?.crimeAreaMonthlyOpacity ?? 0.55,
-        }),
-      },
-      {
-        suffix: "line", type: "line",
-        paint: () => ({ "line-color": "#7f1d1d", "line-width": 0.3, "line-opacity": 0.5 }),
-      },
-    ],
-  },
-  {
     id: "theftTaoyuan",
     sourceUrl: "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson",
     sourceId: "theft-taoyuan",

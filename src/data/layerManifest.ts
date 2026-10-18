@@ -5795,33 +5795,6 @@ export const LAYER_MANIFEST = {
     topics: ["治安", "司法", "行政區"],
   },
 
-  crimeAreaMonthly: {
-    key: "crimeAreaMonthly",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
-    ...layerName({ zh: "鄉鎮市區犯罪統計" }),
-    expandable: true,
-    color: "#991b1b", // 鄉鎮犯罪 choropleth — 暗紅
-    icon: Hexagon,
-    upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "crime_area_monthly", confidence: "MED" }],
-    },
-    dataClass: "B",
-    source: {
-      kind: "pmtiles",
-      sourceId: "crime-area-monthly",
-      url: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
-      sourceLayer: "crime_area_monthly",
-      minzoom: 5,
-      maxzoom: 12,
-    },
-    legend: "policeStation",
-    popup: "crimeAreaMonthly",
-    params: { count: 1, kinds: ["slider"] },
-    description: "鄉鎮市區月別犯罪案件統計 choropleth",
-    topics: ["治安", "犯罪統計", "行政區"],
-  },
-
   theftTaoyuan: {
     key: "theftTaoyuan",
     section: { theme: "執法治安 Law & Order", group: "治安態勢" },
@@ -6424,7 +6397,10 @@ export const LAYER_MANIFEST = {
     icon: Tornado,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "jma_typhoon_positions", confidence: "HIGH" }],
+      datasets: [
+        { datasetId: "jma_typhoon_positions", confidence: "HIGH" },
+        { datasetId: "cwa_typhoon_positions", confidence: "HIGH" },
+      ],
     },
     dataClass: "D",
     source: {
@@ -6434,7 +6410,30 @@ export const LAYER_MANIFEST = {
     legend: "typhoonTracks",
     popup: "typhoonTrack",
     params: { count: 2, kinds: ["select", "slider"] },
-    description: "颱風軌跡（實測實線＋預報虛線＋軌跡點）",
+    description: "颱風軌跡（實測實線＋預報虛線＋軌跡點；氣象署 7／10 級風圈與 70% 機率圈）",
+    topics: ["全球氣候", "颱風", "即時"],
+  },
+
+  typhoonAgencyForecasts: {
+    key: "typhoonAgencyForecasts",
+    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    ...layerName({ zh: "各國颱風預報", alt: "Agency Forecasts" }),
+    expandable: true,
+    color: "#22c55e",
+    icon: Tornado,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_typhoon_agency_forecasts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "hook 自建 2 個 source（typhoon-agency-forecasts-lines / -points）與線／點／標籤 layer，資料走 typhoonAgencyForecastsLoader（public.typhoon_agency_forecasts，mig 476）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "typhoonAgencyForecasts",
+    popup: "typhoonAgencyForecast",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 彙整五家（氣象署／氣象廳／JTWC／中國／韓國）颱風預報路徑，每家一色、標發佈時間，跟時間軸取各家最新一版",
     topics: ["全球氣候", "颱風", "即時"],
   },
 
@@ -13127,7 +13126,7 @@ export const LAYER_MANIFEST = {
 
 /** Statistics presentation policy: normalize the manifest itself so every derived consumer agrees. */
 for (const [key, entry] of Object.entries(LAYER_MANIFEST)) {
-  if (!key.startsWith('stats') && key !== 'crimeAreaMonthly') continue;
+  if (!key.startsWith('stats')) continue;
   const visual = getStatisticsVisual(key, 'label' in entry ? entry.label : undefined, entry.section?.group);
   Object.assign(entry, { icon: visual.icon, color: visual.accent });
 }

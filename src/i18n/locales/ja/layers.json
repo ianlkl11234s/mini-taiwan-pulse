@@ -723,7 +723,6 @@
   "layer.prosecutorsOffice": "検察署",
   "layer.correctionalFacility": "矯正施設",
   "layer.courtJurisdiction": "裁判所管轄区",
-  "layer.crimeAreaMonthly": "郷鎮市区別犯罪統計",
   "layer.theftTaoyuan": "桃園市の窃盗事件",
   "layer.trafficAccidentYearly": "A1死亡事故",
   "layer.accidentTaipei": "台北市の事故地点",
@@ -1196,5 +1195,6 @@
   "layer.landSubsidenceStations": "地盤沈下観測点",
   "layer.landSubsidenceCumulative": "累積沈下量等値線",
   "layer.landSubsidenceRate": "平均沈下速度等値線",
-  "layer.seawallZones": "一般海岸堤防区域"
+  "layer.seawallZones": "一般海岸堤防区域",
+  "layer.typhoonAgencyForecasts": "各国の台風予報"
 }

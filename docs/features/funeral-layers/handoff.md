@@ -1,6 +1,6 @@
 # Handoff — 殯葬 Funeral（下游視角）
 
-> **上游 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/funeral-layers.md`](../../../taipei-gis-analytics/docs/handoff/funeral-layers.md)
+> **上游 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/funeral-layers.md`](../../../../taipei-gis-analytics/docs/handoff/funeral-layers.md)
 > 本檔是該契約的**下游反向引用**：記下 pulse 這端實際怎麼接、哪些欄位是硬依賴、上游改什麼會炸。
 
 ## 上游產物 → pulse 路徑

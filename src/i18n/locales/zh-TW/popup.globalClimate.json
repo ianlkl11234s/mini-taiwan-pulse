@@ -113,5 +113,22 @@
   "popup.globalClimate.currentSpeedValue": "{ms} m/s（{kt} kt）",
   "popup.globalClimate.currentDir": "流向",
   "popup.globalClimate.currentDirValue": "{deg}°（往 {dir}）",
-  "popup.globalClimate.currentTime": "海流時刻"
+  "popup.globalClimate.currentTime": "海流時刻",
+  "popup.globalClimate.maxWindMsValue": "{ms} m/s（{kt} kt）",
+  "popup.globalClimate.typWindAveraging": "風速口徑",
+  "popup.globalClimate.typWind10min": "10 分鐘平均",
+  "popup.globalClimate.typWind1min": "1 分鐘平均（比 10 分鐘值高約 12–15%）",
+  "popup.globalClimate.typMaxGust": "最大陣風",
+  "popup.globalClimate.typGaleRadius": "7 級風暴風半徑",
+  "popup.globalClimate.typStormRadius": "10 級風暴風半徑",
+  "popup.globalClimate.typProb70Radius": "70% 機率半徑",
+  "popup.globalClimate.typRadiusValue": "{km} km",
+  "popup.globalClimate.typAgency": "預報機構",
+  "popup.globalClimate.typIssuedAt": "發佈時間",
+  "popup.globalClimate.typLeadHour": "預報時距",
+  "popup.globalClimate.typLeadZero": "0 小時（該機構自己的分析位置）",
+  "popup.globalClimate.typLeadValue": "+{h} 小時",
+  "popup.globalClimate.typValidAt": "預報時刻",
+  "popup.globalClimate.typUnmatched": "未對上颱風（不標名稱）",
+  "popup.globalClimate.typAgencyNote": "國家災害防救科技中心彙整，每家每 24 小時一點，比各家原始預報粗，只適合比較路線。"
 }

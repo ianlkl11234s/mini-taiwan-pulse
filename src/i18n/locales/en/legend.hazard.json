@@ -121,5 +121,13 @@
   "legend.hazard.erSevere": "Severe > {n}",
   "legend.hazard.erNoData": "No data",
   "legend.hazard.erIcu": "⚪ White outline = patients waiting for an ICU bed",
-  "legend.hazard.erCalib": "Levels calibrated on 37 days of wait_general_cnt history"
+  "legend.hazard.erCalib": "Levels calibrated on 37 days of wait_general_cnt history",
+  "legend.hazard.typGale": "Gale-force wind area (15 m/s, CWA)",
+  "legend.hazard.typStorm": "Storm-force wind area (25 m/s, CWA)",
+  "legend.hazard.typProb70": "70% probability circle (forecast points, dashed)",
+  "legend.hazard.typAllNote": "With \"All\" selected, each storm is drawn from one agency only (CWA > JMA > JTWC). Wind radii come from CWA only.",
+  "legend.hazard.typAgencyIssued": "issued {label}",
+  "legend.hazard.typAgencyNone": "no forecast at this time",
+  "legend.hazard.typAgencyEmpty": "No agency forecast at this point in time.",
+  "legend.hazard.typAgencyNote": "Only each agency's latest version at the selected time is drawn; issue times are Taiwan time. Source: NCDR (National Science and Technology Center for Disaster Reduction)."
 }

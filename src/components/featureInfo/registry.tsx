@@ -124,7 +124,7 @@ import {
   EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import {
-  EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
+  EarthquakeGlobalPanel, TyphoonTrackPanel, TyphoonAgencyForecastPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
   AisstreamVesselPanel, GfwVesselPresencePanel, GfwHourlyGridPanel, GfwHourlyTrackPanel, GfwFishingEffortPanel, GfwDarkVesselPanel,
 } from "./globalClimatePanels";
 import {
@@ -137,7 +137,7 @@ import {
 import {
   PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
   CourtPanel, ProsecutorsOfficePanel, CorrectionalFacilityPanel, CourtJurisdictionPanel,
-  CrimeAreaMonthlyPanel, TheftTaoyuanPanel, TrafficAccidentYearlyPanel, AccidentTaipeiPanel,
+  TheftTaoyuanPanel, TrafficAccidentYearlyPanel, AccidentTaipeiPanel,
   A1AccidentRealtimePanel,
   InvestigationBureauPanel, AntiCorruptionOfficePanel, ImmigrationOfficePanel, CoastGuardStationPanel,
   CivilDefenseShelterPanel,
@@ -395,6 +395,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeGlobal: EarthquakeGlobalPanel,
   globalEvent: GlobalEventPanel,
   typhoonTrack: TyphoonTrackPanel,
+  typhoonAgencyForecast: TyphoonAgencyForecastPanel,
   climateField: ClimateFieldPanel,
   rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
@@ -508,7 +509,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   correctionalFacility: CorrectionalFacilityPanel,
   courtJurisdiction: CourtJurisdictionPanel,
   regionalStatistic: RegionalStatisticsPanel,
-  crimeAreaMonthly: CrimeAreaMonthlyPanel,
   theftTaoyuan: TheftTaoyuanPanel,
   trafficAccidentYearly: TrafficAccidentYearlyPanel,
   accidentTaipei: AccidentTaipeiPanel,
@@ -920,6 +920,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeGlobal: "全球地震 USGS",
   globalEvent: "全球重要事件",
   typhoonTrack: "颱風軌跡",
+  typhoonAgencyForecast: "各國颱風預報",
   climateField: "氣候場讀值",
   rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
@@ -1022,7 +1023,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   prosecutorsOffice: "檢察署",
   correctionalFacility: "矯正機關",
   courtJurisdiction: "法院管轄區",
-  crimeAreaMonthly: "鄉鎮犯罪統計",
   theftTaoyuan: "桃園竊盜點",
   trafficAccidentYearly: "A1 死亡事故（年度）",
   accidentTaipei: "北市事故點",

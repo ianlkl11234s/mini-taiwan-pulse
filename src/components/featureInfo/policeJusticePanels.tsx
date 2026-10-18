@@ -195,56 +195,6 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
 }
 
 // ── 治安態勢 ──
-export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
-  const t = useFeatureTheme();
-  const i18n = useLocale();
-  const { t: tr, active } = i18n;
-  const byType = (() => {
-    try {
-      const v = props.by_type;
-      if (typeof v === "string") return JSON.parse(v) as Record<string, number>;
-      if (v && typeof v === "object") return v as Record<string, number>;
-      return {};
-    } catch { return {}; }
-  })();
-  const byYear = (() => {
-    try {
-      const v = props.by_year;
-      if (typeof v === "string") return JSON.parse(v) as Record<string, number>;
-      if (v && typeof v === "object") return v as Record<string, number>;
-      return {};
-    } catch { return {}; }
-  })();
-  const topTypes = Object.entries(byType)
-    .sort(([, a], [, b]) => Number(b) - Number(a))
-    .slice(0, 5);
-  const years = Object.keys(byYear).map(Number).filter(Number.isFinite).sort();
-  // 年份是民國年；外文介面改西元（+1911）
-  const yrOffset = active === "zh-TW" ? 0 : 1911;
-  const yrLabel = years.length > 0
-    ? tr("popup.policeJustice.crimeYears", { from: years[0]! + yrOffset, to: years[years.length - 1]! + yrOffset, count: years.length })
-    : "";
-  return (
-    <>
-      <Header color="#991b1b" name={`${placeName(String(props.county ?? ""), i18n)} ${placeTown(String(props.county ?? ""), String(props.town ?? ""), i18n)}`} />
-      <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 4, background: "#7f1d1d", color: "#fff", fontSize: FONT_SIZE.xs, marginBottom: 6 }}>
-        {yrLabel || tr("popup.policeJustice.crimeYearsDefault")}
-      </div>
-      <Row label={tr("popup.policeJustice.totalEvents")} value={String(props.total_events ?? "0")} />
-      {topTypes.length > 0 && (
-        <div style={{ marginTop: 6 }}>
-          <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>{tr("popup.policeJustice.topTypes")}</div>
-          {topTypes.map(([k, v]) => <Row key={k} label={k} value={String(v)} />)}
-        </div>
-      )}
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
-        {tr("popup.policeJustice.crimeSource")}<br />
-        {tr("popup.policeJustice.cumulativeWarn")}
-      </div>
-    </>
-  );
-}
-
 export function TheftTaoyuanPanel({ props }: PanelProps) {
   const { t } = useLocale();
   return (

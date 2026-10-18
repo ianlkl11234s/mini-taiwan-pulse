@@ -32,7 +32,7 @@ function periodText(props: Record<string, unknown>, i18n: LocaleSnapshot): strin
   let ytd = props.period_ytd;
   if (typeof ytd === 'string') { try { ytd = JSON.parse(ytd); } catch { ytd = undefined; } }
   if (ytd && typeof ytd === 'object') return demographicsYtdText(ytd as DemographicsYtdParts, i18n);
-  if (typeof props.period_start === 'string' && typeof props.period_end === 'string') return statisticsPeriodLabel({ period_start: props.period_start, period_end: props.period_end }, i18n);
+  if (typeof props.period_start === 'string' && typeof props.period_end === 'string') return statisticsPeriodLabel({ release_id: props.release_id, period_start: props.period_start, period_end: props.period_end }, i18n);
   return String(props.period_label ?? props.release_id ?? '—');
 }
 

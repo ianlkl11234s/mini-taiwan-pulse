@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1206,
+    "keyCount": 1242,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1253,9 +1253,17 @@
     },
     {
       "layers": [
+        "typhoon-agency-forecasts-points",
+        "typhoon-agency-forecasts-line"
+      ],
+      "type": "typhoonAgencyForecast"
+    },
+    {
+      "layers": [
         "typhoon-tracks-current-ring",
         "typhoon-tracks-current-dot",
-        "typhoon-tracks-points"
+        "typhoon-tracks-points",
+        "typhoon-tracks-radii-fill"
       ],
       "type": "typhoonTrack"
     },
@@ -3335,6 +3343,42 @@
         "statsMarineDebrisFishingGearTonnesCounty-fill",
         "statsMarineDebrisCleanupOperationsCounty-fill",
         "statsMarineDebrisCleanupParticipantsCounty-fill",
+        "statsCrimeDrugCasesTownship-fill",
+        "statsCrimeDrugPer100kTownship-fill",
+        "statsCrimeDrugCasesCounty-fill",
+        "statsCrimeDrugPer100kCounty-fill",
+        "statsCrimeResidentialBurglaryCasesTownship-fill",
+        "statsCrimeResidentialBurglaryPer100kTownship-fill",
+        "statsCrimeResidentialBurglaryCasesCounty-fill",
+        "statsCrimeResidentialBurglaryPer100kCounty-fill",
+        "statsCrimeMotorcycleTheftCasesTownship-fill",
+        "statsCrimeMotorcycleTheftPer100kTownship-fill",
+        "statsCrimeMotorcycleTheftCasesCounty-fill",
+        "statsCrimeMotorcycleTheftPer100kCounty-fill",
+        "statsCrimeCarTheftCasesTownship-fill",
+        "statsCrimeCarTheftPer100kTownship-fill",
+        "statsCrimeCarTheftCasesCounty-fill",
+        "statsCrimeCarTheftPer100kCounty-fill",
+        "statsCrimeRobberyCasesTownship-fill",
+        "statsCrimeRobberyPer100kTownship-fill",
+        "statsCrimeRobberyCasesCounty-fill",
+        "statsCrimeRobberyPer100kCounty-fill",
+        "statsCrimeSnatchingCasesTownship-fill",
+        "statsCrimeSnatchingPer100kTownship-fill",
+        "statsCrimeSnatchingCasesCounty-fill",
+        "statsCrimeSnatchingPer100kCounty-fill",
+        "statsCrimeSexualAssaultCasesTownship-fill",
+        "statsCrimeSexualAssaultPer100kTownship-fill",
+        "statsCrimeSexualAssaultCasesCounty-fill",
+        "statsCrimeSexualAssaultPer100kCounty-fill",
+        "statsCrimeOrganizedCrimeCasesTownship-fill",
+        "statsCrimeOrganizedCrimePer100kTownship-fill",
+        "statsCrimeOrganizedCrimeCasesCounty-fill",
+        "statsCrimeOrganizedCrimePer100kCounty-fill",
+        "statsTelecomFraudCasesTownship-fill",
+        "statsTelecomFraudPer100kTownship-fill",
+        "statsTelecomFraudCasesCounty-fill",
+        "statsTelecomFraudPer100kCounty-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -3349,13 +3393,6 @@
         "statsEducationSeniorHighStudent-fill"
       ],
       "type": "regionalStatistic"
-    },
-    {
-      "layers": [
-        "crime-area-monthly-fill",
-        "crime-area-monthly-line"
-      ],
-      "type": "crimeAreaMonthly"
     },
     {
       "layers": [
@@ -47710,111 +47747,6 @@
     {
       "dynamicData": null,
       "filter": null,
-      "id": "crimeAreaMonthly",
-      "layers": [
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": null,
-          "paint": {
-            "dark": {
-              "fill-color": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "coalesce",
-                  [
-                    "to-number",
-                    [
-                      "get",
-                      "total_events"
-                    ]
-                  ],
-                  0
-                ],
-                0,
-                "#fef2f2",
-                100,
-                "#fca5a5",
-                500,
-                "#ef4444",
-                1500,
-                "#991b1b",
-                5000,
-                "#450a0a"
-              ],
-              "fill-opacity": 0.55
-            },
-            "light": {
-              "fill-color": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "coalesce",
-                  [
-                    "to-number",
-                    [
-                      "get",
-                      "total_events"
-                    ]
-                  ],
-                  0
-                ],
-                0,
-                "#fef2f2",
-                100,
-                "#fca5a5",
-                500,
-                "#ef4444",
-                1500,
-                "#991b1b",
-                5000,
-                "#450a0a"
-              ],
-              "fill-opacity": 0.55
-            }
-          },
-          "suffix": "fill",
-          "type": "fill"
-        },
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": null,
-          "paint": {
-            "dark": {
-              "line-color": "#0a0a14",
-              "line-opacity": 0.6,
-              "line-width": 1
-            },
-            "light": {
-              "line-color": "#ffffff",
-              "line-opacity": 0.8,
-              "line-width": 1
-            }
-          },
-          "suffix": "line",
-          "type": "line"
-        }
-      ],
-      "pmtiles": {
-        "maxzoom": 12,
-        "minzoom": 5,
-        "sourceLayer": "crime_area_monthly"
-      },
-      "rebuildOnParamChange": [
-        "crimeAreaMonthlyOpacity"
-      ],
-      "sourceId": "crime-area-monthly",
-      "sourceUrl": "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles"
-    },
-    {
-      "dynamicData": null,
-      "filter": null,
       "id": "theftTaoyuan",
       "layers": [
         {
@@ -83449,17 +83381,6 @@
         "valueText": "0.18"
       }
     ],
-    "crimeAreaMonthly": [
-      {
-        "label": "填色透明度 0.55",
-        "max": 0.9,
-        "min": 0.1,
-        "name": "填色透明度",
-        "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
-      }
-    ],
     "culturalFacilities": [
       {
         "label": "類型",
@@ -109807,6 +109728,1382 @@
         "valueText": "0.55"
       }
     ],
+    "statsCrimeCarTheftCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeCarTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeCarTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeCarTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeCarTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeCarTheftCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeCarTheftCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeCarTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeCarTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeCarTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeCarTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeCarTheftCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeCarTheftPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeCarTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeCarTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeCarTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeCarTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeCarTheftPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeCarTheftPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeCarTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeCarTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeCarTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeCarTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeCarTheftPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeDrugCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeDrugCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeDrugPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeDrugCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeDrugPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeDrugCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeDrugCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeDrugCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeDrugPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeDrugCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeDrugPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeDrugCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeDrugPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeDrugCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeDrugPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeDrugCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeDrugPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeDrugPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeDrugPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeDrugCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeDrugPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeDrugCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeDrugPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeDrugPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeMotorcycleTheftCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeMotorcycleTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeMotorcycleTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeMotorcycleTheftCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeMotorcycleTheftCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeMotorcycleTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeMotorcycleTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeMotorcycleTheftCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeMotorcycleTheftPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeMotorcycleTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeMotorcycleTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeMotorcycleTheftPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeMotorcycleTheftPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeMotorcycleTheftCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeMotorcycleTheftCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeMotorcycleTheftPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeMotorcycleTheftPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeOrganizedCrimeCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeOrganizedCrimeCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeOrganizedCrimeCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeOrganizedCrimeCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeOrganizedCrimeCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeOrganizedCrimeCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeOrganizedCrimeCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeOrganizedCrimeCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeOrganizedCrimePer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeOrganizedCrimeCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeOrganizedCrimeCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeOrganizedCrimePer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeOrganizedCrimePer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeOrganizedCrimeCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeOrganizedCrimeCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeOrganizedCrimePer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeOrganizedCrimePer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeResidentialBurglaryCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeResidentialBurglaryCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeResidentialBurglaryCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeResidentialBurglaryCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeResidentialBurglaryCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeResidentialBurglaryCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeResidentialBurglaryCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeResidentialBurglaryCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeResidentialBurglaryPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeResidentialBurglaryCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeResidentialBurglaryCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeResidentialBurglaryPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeResidentialBurglaryPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeResidentialBurglaryCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeResidentialBurglaryCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeResidentialBurglaryPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeResidentialBurglaryPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeRobberyCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeRobberyCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeRobberyPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeRobberyCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeRobberyPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeRobberyCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeRobberyCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeRobberyCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeRobberyPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeRobberyCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeRobberyPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeRobberyCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeRobberyPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeRobberyCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeRobberyPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeRobberyCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeRobberyPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeRobberyPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeRobberyPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeRobberyCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeRobberyPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeRobberyCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeRobberyPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeRobberyPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSexualAssaultCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSexualAssaultCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSexualAssaultCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSexualAssaultCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSexualAssaultCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSexualAssaultCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSexualAssaultCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSexualAssaultCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSexualAssaultPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSexualAssaultCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSexualAssaultCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSexualAssaultPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSexualAssaultPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSexualAssaultCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSexualAssaultCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSexualAssaultPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSexualAssaultPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSnatchingCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSnatchingCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSnatchingPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSnatchingCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSnatchingPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSnatchingCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSnatchingCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSnatchingCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSnatchingPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSnatchingCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSnatchingPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSnatchingCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSnatchingPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSnatchingCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSnatchingPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSnatchingCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSnatchingPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSnatchingPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCrimeSnatchingPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsCrimeSnatchingCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsCrimeSnatchingPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsCrimeSnatchingCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsCrimeSnatchingPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCrimeSnatchingPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsCropHarvestedAreaTownship": [
       {
         "label": "作物",
@@ -124999,6 +126296,178 @@
         "valueText": "0.55"
       }
     ],
+    "statsTelecomFraudCasesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsTelecomFraudCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsTelecomFraudPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsTelecomFraudCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsTelecomFraudPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTelecomFraudCasesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTelecomFraudCasesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsTelecomFraudCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsTelecomFraudPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsTelecomFraudCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsTelecomFraudPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTelecomFraudCasesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTelecomFraudPer100kCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsTelecomFraudCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsTelecomFraudPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsTelecomFraudCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsTelecomFraudPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTelecomFraudPer100kCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTelecomFraudPer100kTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・件數",
+            "value": "statsTelecomFraudCasesTownship"
+          },
+          {
+            "label": "鄉鎮・每十萬人",
+            "value": "statsTelecomFraudPer100kTownship"
+          },
+          {
+            "label": "縣市・件數",
+            "value": "statsTelecomFraudCasesCounty"
+          },
+          {
+            "label": "縣市・每十萬人",
+            "value": "statsTelecomFraudPer100kCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTelecomFraudPer100kTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsTmrtStationOutboundCounty": [
       {
         "label": "年度",
@@ -126519,6 +127988,17 @@
         "valueText": "1.0"
       }
     ],
+    "typhoonAgencyForecasts": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      }
+    ],
     "typhoonTracks": [
       {
         "label": "資料源",
@@ -126534,6 +128014,10 @@
           {
             "label": "JTWC 美軍",
             "value": "jtwc"
+          },
+          {
+            "label": "CWA 氣象署",
+            "value": "cwa"
           }
         ],
         "type": "select",

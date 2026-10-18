@@ -1,0 +1,11 @@
+{
+  "enum.statGroup.毒品": "薬物",
+  "enum.statGroup.住宅竊盜": "住宅侵入窃盗",
+  "enum.statGroup.機車竊盜": "バイク盗",
+  "enum.statGroup.汽車竊盜": "自動車盗",
+  "enum.statGroup.強盜": "強盗",
+  "enum.statGroup.搶奪": "ひったくり",
+  "enum.statGroup.強制性交": "強制性交",
+  "enum.statGroup.組織犯罪": "組織犯罪",
+  "enum.statGroup.電信詐欺": "特殊詐欺（電信詐欺）"
+}

@@ -628,7 +628,6 @@
   "layer.policeIsoSubstation": "Police Substation",
   "layer.policeIsoPrecinct": "Police Precinct",
   "layer.policeIsoCityDept": "County/City Police Department",
-  "layer.crimeAreaMonthly": "Crime Statistics by Township/District",
   "layer.weakSoilClay0To5": "Weak-Layer Clay",
   "layer.weakSoilSand0To5": "Weak-Layer Sand",
   "layer.weakSoilClay5To10": "Weak-Layer Clay",
@@ -1196,5 +1195,6 @@
   "layer.landSubsidenceStations": "Land Subsidence Monitoring Stations",
   "layer.landSubsidenceCumulative": "Cumulative Subsidence Contours",
   "layer.landSubsidenceRate": "Subsidence Rate Contours",
-  "layer.seawallZones": "Seawall Zones"
+  "layer.seawallZones": "Seawall Zones",
+  "layer.typhoonAgencyForecasts": "Agency Typhoon Forecasts"
 }

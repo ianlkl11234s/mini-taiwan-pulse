@@ -113,5 +113,22 @@
   "popup.globalClimate.currentSpeedValue": "{ms} m/s ({kt} kt)",
   "popup.globalClimate.currentDir": "Current direction",
   "popup.globalClimate.currentDirValue": "{deg}° (toward {dir})",
-  "popup.globalClimate.currentTime": "Current field time"
+  "popup.globalClimate.currentTime": "Current field time",
+  "popup.globalClimate.maxWindMsValue": "{ms} m/s ({kt} kt)",
+  "popup.globalClimate.typWindAveraging": "Wind averaging",
+  "popup.globalClimate.typWind10min": "10-minute mean",
+  "popup.globalClimate.typWind1min": "1-minute mean (about 12–15% higher than the 10-minute value)",
+  "popup.globalClimate.typMaxGust": "Max gust",
+  "popup.globalClimate.typGaleRadius": "Gale radius (15 m/s)",
+  "popup.globalClimate.typStormRadius": "Storm radius (25 m/s)",
+  "popup.globalClimate.typProb70Radius": "70% probability radius",
+  "popup.globalClimate.typRadiusValue": "{km} km",
+  "popup.globalClimate.typAgency": "Forecast agency",
+  "popup.globalClimate.typIssuedAt": "Issued",
+  "popup.globalClimate.typLeadHour": "Lead time",
+  "popup.globalClimate.typLeadZero": "0 h (the agency's own analysis position)",
+  "popup.globalClimate.typLeadValue": "+{h} h",
+  "popup.globalClimate.typValidAt": "Valid time",
+  "popup.globalClimate.typUnmatched": "Not matched to a storm (no name shown)",
+  "popup.globalClimate.typAgencyNote": "Compiled by NCDR: one point per 24 hours for each agency, coarser than each agency's own forecast. Use it only to compare tracks."
 }
