@@ -116,8 +116,9 @@ export default [
     rules: { "pulse/legend-no-letter-spacing": "error", "pulse/legend-no-hand-sized-swatch": "error" },
   },
 
-  // day prefetch（AU-3）：日期從 timeStore 取；CWA 不走共享 queue
-  { files: ["src/lib/dayPrefetch.ts", "src/hooks/useCwaImageryLayer.ts"], rules: { "pulse/no-current-time-deps": "error" } },
+  // day prefetch（AU-3）：CWA 不走共享 queue
+  // currentTime 不進 hook deps（CLAUDE.md §6）：全站
+  { files: ["src/**/*.{ts,tsx}"], rules: { "pulse/no-current-time-deps": "error" } },
   {
     files: ["src/hooks/useCwaImageryLayer.ts"],
     rules: {

@@ -39,6 +39,8 @@ describe("eslint.config.js 套用範圍", () => {
     ["src/components/legend/waterLegends.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", true],
     ["src/components/legend/legendKit.tsx", "<b style={{ width: 8, height: 8 }} />", "pulse/legend-no-hand-sized-swatch", false],
     ["src/lib/dayPrefetch.ts", "useEffect(() => {}, [currentTime]);", "pulse/no-current-time-deps", true],
+    ["src/components/timeline/Example.tsx", "useEffect(() => {}, [currentTime]);", "pulse/no-current-time-deps", true],
+    ["src/hooks/useTyphoonTracksLayer.ts", "map.setFilter(id, [\"<=\", [\"get\", \"seg_end_ts\"], currentTime]);", "pulse/no-current-time-deps", false],
     ["src/hooks/useCwaImageryLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", true],
     ["src/hooks/useHazardLayer.ts", 'import { subscribePrefetchWindow } from "../lib/dayPrefetch";', "no-restricted-imports", false],
     ["src/components/sidebar/x.css", ".a { color: #fff; }", "pulse/design-css-hex-literal", true],

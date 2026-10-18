@@ -187,10 +187,29 @@ tester.run("legend-no-hand-sized-swatch", rule("legend-no-hand-sized-swatch"), {
 });
 
 tester.run("no-current-time-deps", rule("no-current-time-deps"), {
-  valid: ["useEffect(() => { timeStore.subscribeDate(f); }, [f]);", "const t = state.currentTime;"],
+  valid: [
+    "useEffect(() => { timeStore.subscribeDate(f); }, [f]);",
+    "const t = state.currentTime;",
+    // map filter 表達式（useTyphoonTracksLayer 類）不是 deps
+    'map.setFilter(id, ["<=", ["get", "seg_end_ts"], currentTime]);',
+    'const filter = ["all", [">=", ["get", "ts"], currentTime - win], ["<=", ["get", "ts"], currentTime]];',
+    // 函式參數名 currentTime
+    "function build(currentTime) { return [currentTime, 1]; }",
+    "const f = useCallback((currentTime) => draw(currentTime), [draw]);",
+    // subscribe callback
+    "useEffect(() => timeStore.subscribeThrottled((currentTime) => { update([currentTime]); }), [update]);",
+    // 不是 deps 位置／不是指定 hook
+    "useState([currentTime]);",
+    "useEffect(() => {}, deps);",
+    "useEffect(() => {}, [obj[currentTime]]);",
+  ],
   invalid: [
     { code: "useEffect(() => { load(currentTime); }, [currentTime]);", errors: errs(1) },
     { code: "useEffect(() => {}, [visible, props.currentTime]);", errors: errs(1) },
+    { code: "useLayoutEffect(() => {}, [state?.currentTime]);", errors: errs(1) },
+    { code: "const v = useMemo(() => f(currentTime), [currentTime, x]);", errors: errs(1) },
+    { code: "const cb = React.useCallback(() => f(), [currentTime]);", errors: errs(1) },
+    { code: "React.useEffect(() => {}, [a.b.currentTime, currentTime]);", errors: errs(2) },
   ],
 });
 
