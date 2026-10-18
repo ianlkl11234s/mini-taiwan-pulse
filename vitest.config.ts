@@ -6,7 +6,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(packageJson.version),
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "eslint-rules/**/*.test.js"],
     environment: "node",
   },
 });
