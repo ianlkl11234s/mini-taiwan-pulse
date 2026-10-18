@@ -95,7 +95,7 @@ function touchLRU(arr: string[], dateKey: string) {
   arr.push(dateKey);
 }
 
-function evictExcess(
+export function evictExcess(
   cache: Map<string, CacheSlot>,
   order: string[],
   maxSize: number,

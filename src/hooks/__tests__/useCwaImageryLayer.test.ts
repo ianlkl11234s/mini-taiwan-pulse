@@ -69,7 +69,7 @@ vi.mock("../../state/timeStore", () => ({
   },
 }));
 
-import { useCwaImageryLayer } from "../useCwaImageryLayer";
+import { evictExcess, useCwaImageryLayer } from "../useCwaImageryLayer";
 
 type TestHandle = {
   setVisible: ReturnType<typeof vi.fn>;
@@ -302,5 +302,31 @@ describe("useCwaImageryLayer visibility lifecycle", () => {
     });
 
     expect(radarHandle.setVisible).toHaveBeenCalledWith(false);
+  });
+});
+
+describe("useCwaImageryLayer LRU evict", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it("超量時從最舊開始清，保護視窗內日期，並釋放被清掉的 object URL", () => {
+    const revoke = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const slot = (key: string) => ({ urls: new Map([[key, `blob:${key}`]]) }) as never;
+    const keys = ["2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24"];
+    const cache = new Map(keys.map((k) => [k, slot(k)]));
+    const order = [...keys]; // 最舊在前
+    // 最舊的 08-20 在保護視窗內（例：使用者正在看的日期）
+    evictExcess(cache, order, 3, new Set(["2026-08-20", "2026-08-24"]));
+    expect([...cache.keys()]).toEqual(["2026-08-20", "2026-08-23", "2026-08-24"]);
+    expect(order).toEqual(["2026-08-20", "2026-08-23", "2026-08-24"]);
+    expect(revoke.mock.calls.map((c) => c[0])).toEqual(["blob:2026-08-21", "blob:2026-08-22"]);
+  });
+
+  it("未超量不清；全部受保護時寧可超量也不清", () => {
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const cache = new Map([["a", { urls: new Map() } as never], ["b", { urls: new Map() } as never]]);
+    evictExcess(cache, ["a", "b"], 2, new Set());
+    expect(cache.size).toBe(2);
+    evictExcess(cache, ["a", "b"], 1, new Set(["a", "b"]));
+    expect(cache.size).toBe(2);
   });
 });
