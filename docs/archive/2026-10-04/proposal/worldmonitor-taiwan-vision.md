@@ -4,7 +4,7 @@
 >
 > 本文記錄一次「我現有的圖層之上能長出什麼產品」的探索：worldmonitor 的拆解、現有能力盤點、以及四組提案（情報面板 / 跨流關聯 / UX 升級 / 產品方向）。
 >
-> 相關既有文件：[`monitor-mode.md`](./monitor-mode.md)、[`intel-panel-status.md`](../intel-panel-status.md)、[`alerts-integration-impl.md`](./alerts-integration-impl.md)、[`satellite-console.md`](../../../proposal/satellite-console.md)
+> 相關既有文件：[`monitor-mode.md`](./monitor-mode.md)、[`intel-panel-status.md`](../intel-panel-status.md)、[`alerts-integration-impl.md`](./alerts-integration-impl.md)、[`satellite-console.md`](../../../features/satellite-console-restyle/proposal.md)（2026-10-18 改連：已搬到 `docs/features/satellite-console-restyle/proposal.md`）
 
 ---
 

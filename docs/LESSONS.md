@@ -53,8 +53,8 @@
 
 ## 2. 圖層呈現
 
-1. **新圖層只寫 manifest 一筆＋params spec 一筆**，其他登記簿自動派生；面板一律用共用元件。→ [development-rules §4](./development-rules.md#4-新增-layer-流程manifest-first-觸點表)、[PRINCIPLES「圖層面板只用共用元件」](../.claude/memory/PRINCIPLES.md#圖層面板只用共用元件2026-10-03-取代一前端兩-sidebar-同步改)
-2. **UX 四鐵則（透明度、圖例、popup、select）缺一不可**，缺口不能用 `null` 靜默豁免；哪條有測試守、哪條要人工看，見對照表。→ [development-rules §4a](./development-rules.md#4a-圖層-ux-標配四大鐵則)
+1. **新圖層只寫 manifest 一筆＋params spec 一筆**，其他登記簿自動派生；面板一律用共用元件。→ [development-rules §4](./development-rules.md#4-新增-layer-流程manifest-first-觸點表)、[PRINCIPLES「圖層面板只用共用元件」](../.claude/memory/PRINCIPLES.md#圖層面板只用共用元件2026-10-03-取代一前端兩-sidebar-同步改)、[pitfall「Layer 接線常見漏項」](../.claude/pitfalls/2026-07-01-layer-integration-common-misses.md)
+2. **UX 四鐵則（透明度、圖例、popup、select）缺一不可**，缺口不能用 `null` 靜默豁免；哪條有測試守、哪條要人工看，見對照表。→ [development-rules §4a](./development-rules.md#4a-圖層-ux-標配四大鐵則)；篩選 select 切了地圖沒反應，先查 `rebuildOnParamChange` 填的是 layer suffix 不是參數名 → [pitfall 2026-07-16](../.claude/pitfalls/2026-07-16-rebuildonparamchange-suffix-not-param.md)
 3. **大面積覆蓋、等時圈一律做成 PMTiles**；全區和分區分開算，分級用環差。→ [PRINCIPLES「大面積覆蓋／等時圈圖層」](../.claude/memory/PRINCIPLES.md#大面積覆蓋等時圈圖層-p02026-05-26-加)、[PB-16](../.claude/memory/PLAYBOOKS.md#pb-16-大面積覆蓋等時圈圖層-soppmtiles--全區聚合--分區-filter2026-05-26-加)
 4. **圖例是在描述畫面，不是在宣稱資料**：畫面上分不出來的類別，圖例就不要分。→ [PRINCIPLES「圖例不憑空發明分類」](../.claude/memory/PRINCIPLES.md#圖例不憑空發明分類2026-08-08)
 5. **Mapbox 掛載不要信 `isStyleLoaded()`，也不要用 `once('load')`**；用 try addLayer＋idle 重試。也不要對隱藏圖層 `setPaintProperty`，transition 會讓地圖永不 idle。→ [PRINCIPLES「Mapbox 掛載與 isStyleLoaded」](../.claude/memory/PRINCIPLES.md#mapbox-掛載與-isstyleloaded三段合一2026-10-16)、[pitfall 隱藏圖層 transition](../.claude/pitfalls/2026-09-30-hidden-layer-paint-transition.md)
@@ -78,7 +78,7 @@
 2. **PostgREST 有 2 萬列上限，超過會靜默截斷**（踩過兩次）；大集合用降頻或 grouped JSONB。→ [PRINCIPLES「Supabase PostgREST 20K cap」](../.claude/memory/PRINCIPLES.md#supabase-postgrest-20k-cap-p02026-04-25-教訓)、[PB-13](../.claude/memory/PLAYBOOKS.md#pb-13-大集合-rpc-設計-sop避-postgrest-20k-cap)
 3. **靜態資料走 CDN 快照，不要擠 RPC 的併發排隊**（多人同打是 O(N)，CDN 是 O(1)）。→ [PRINCIPLES「靜態層讀取走 CDN 快照」](../.claude/memory/PRINCIPLES.md#靜態層讀取走-cdn-快照別擠-rpc-併發排隊2026-07-04bc-8-教訓)
 4. **規則寫了不代表被遵守，量測腳本比規則文字有效**：「靜態 3D 不 triggerRepaint」4 月就寫了，9 月仍有 13 層違反。→ [perf-audit 2026-09-30 §5 教訓](./audit/perf-audit-2026-09-30.md)
-5. **換內容一律換檔名**，immutable 快取只給帶日期或內容雜湊的檔；部署前探測新 URL 要加 cache-buster，否則 404 會被快取數小時。→ [PRINCIPLES「immutable 快取只給…」](../.claude/memory/PRINCIPLES.md#immutable-快取只給檔名含日期或內容雜湊的檔2026-08-08-立2026-08-09-擴充)、[PRINCIPLES「deploy 完成前探測新 URL」](../.claude/memory/PRINCIPLES.md#deploy-完成前探測新-url一律加-cache-buster2026-08-10)
+5. **換內容一律換檔名**，immutable 快取只給帶日期或內容雜湊的檔；部署前探測新 URL 要加 cache-buster，否則 404 會被快取數小時。→ [PRINCIPLES「immutable 快取只給…」](../.claude/memory/PRINCIPLES.md#immutable-快取只給檔名含日期或內容雜湊的檔2026-08-08-立2026-08-09-擴充)、[PRINCIPLES「deploy 完成前探測新 URL」](../.claude/memory/PRINCIPLES.md#deploy-完成前探測新-url一律加-cache-buster2026-08-10)；Cloudflare 規則不要罩整個父路徑，會把 `current.json` 這類可變指標一起凍住 → [INCIDENTS 2026-09-10](../.claude/memory/INCIDENTS.md#2026-09-10-statistics-r2-broad-cache-rule-凍結-mutable-pointer)
 6. **保存層求完整、成品包求小**，前端不直讀保存層（S3 egress 一年比儲存還貴）。→ [PRINCIPLES「保存層 vs 成品包分離」](../.claude/memory/PRINCIPLES.md#保存層-vs-成品包分離-p02026-08-08-nightly-trails-教訓)
 7. **先量再改，估算要標「估算」**：road_congestion 類比得 81%，實測只有 57%。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **Disk IO 要看 pg_stat_io**：pg_stat_statements 看不到 autovacuum（實測約佔讀取 58%）；前端 anon RPC 全部加起來只有約 0.7 GB／天，壓力在 collector 寫入與 cron。→ gis-platform `docs/research/2026-10-12-disk-io-round2.md`（正本在 gis-platform，本 repo 只有 BACKLOG DIO-*）
@@ -104,7 +104,7 @@
    出處：[spec §6.5](./design-system/spec.md#65-null-不當-0)、[PRINCIPLES「NULL 與 0 語意分離」](../.claude/memory/PRINCIPLES.md#null-與-0-語意分離2026-08-02-共機資料教訓)、pulse-research MCP 指示。
 2. **時間只用資料本身的時間。**
    拿不到就顯示無資料，不假裝即時；監看卡的「更新於」讀資料自帶的時間戳，不是抓取時間。
-   出處：[PRINCIPLES「監看卡」](../.claude/memory/PRINCIPLES.md#監看卡資料本身的時間缺值不補-0顏色走主題舊版不動2026-10-03)。
+   出處：[PRINCIPLES「監看卡」](../.claude/memory/PRINCIPLES.md#監看卡資料本身的時間缺值不補-0顏色走主題舊版不動2026-10-03)；反例：監看卡只看傳輸狀態、缺值補 0，18 格停更看不出來（[INCIDENTS 2026-10-03](../.claude/memory/INCIDENTS.md#2026-10-03-監看模式壓力指數永遠更新中斷18-格停更看不出來)）。
 3. **資料有限制就主動降級揭露，不為了畫面好看硬算總數。**
    共機只能誠實呈現「出現天數」，不宣稱合計架次；待審資料進表但預設排除、popup 標「待核實」；授權不足的圖層寧可缺席，lineage 留下缺口紀錄。
    出處：[pla-activity README](./features/pla-activity/README.md)、REFLECTIONS 2026-08-03 共機戰情板、2026-08-19、2026-08-29、2026-09-18~20。
@@ -153,7 +153,7 @@
 9. **共機航跡圖向量化自創幾何指標**（填充率、空心度）
    → 兩次失敗，改用圖面上的表格項次當 ground truth。（REFLECTIONS 2026-08-01/02；[PRINCIPLES「守門優先用資料自帶的 ground truth」](../.claude/memory/PRINCIPLES.md#守門優先用資料自帶的-ground-truth2026-08-02)）
 10. **軌跡幾何簡化逐車比對 2,975 次**
-    → p50 1.66m／p95 7.31m，訂下 p95<30m、max<100m 的關卡。「無損」要用下游消費者的行為驗，不用肉眼。（REFLECTIONS 2026-08-06~09）
+    → p50 1.66m／p95 7.31m，訂下 p95<30m、max<100m 的關卡。「無損」要用下游消費者的行為驗，不用肉眼。（REFLECTIONS 2026-08-06~09）另一個坑：平面簡化守約，但用 geography 量距離會把長弦當測地線，誤差 290–405 m → [pitfall 2026-08-20](../.claude/pitfalls/2026-08-20-simplify-planar-vs-geography-distance.md)。
 11. **VW-9 唯讀 POC**
     → 「進入事件數」174 天只有 8 天有值，改做「距離趨勢」。先做最小 POC 再定設計。（REFLECTIONS 2026-08-20）
 12. **LST 衛星 pipeline**（STAC → 位元遮罩 → 分位數門檻 → 多年 median → 相對正規化 → 值編碼）
@@ -191,7 +191,7 @@
 3. **「已完成」必須有工具佐證**（git、psql、curl、CI 結果），不靠記憶或敘述。→ PRINCIPLES「⚠️ P0 『已完成』必有工具佐證」（[PRINCIPLES](../.claude/memory/PRINCIPLES.md)）
 4. **合併前等 CI 檢查出現並跑完**，PR 顯示 CLEAN 不代表 CI 已跑完。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 5. **PR 依「能獨立驗證、能獨立回退」的單位拆**。→ [PRINCIPLES「PR 依可獨立驗證與回復的 release unit 拆分」](../.claude/memory/PRINCIPLES.md#pr-依可獨立驗證與回復的-release-unit拆分2026-08-24)
-6. **平行派工先分檔案所有權＋禁改清單**；長跑子代理每個子階段先 commit；派工附可量化的驗收關卡。→ [PB-37](../.claude/memory/PLAYBOOKS.md#pb-37-多-agent-worktree-平行開發-wave2026-08-10-定型稽核執行-8-批-7-pr-一次成型)、[PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
+6. **平行派工先分檔案所有權＋禁改清單**；長跑子代理每個子階段先 commit；派工附可量化的驗收關卡。→ [PB-37](../.claude/memory/PLAYBOOKS.md#pb-37-多-agent-worktree-平行開發-wave2026-08-10-定型稽核執行-8-批-7-pr-一次成型)、[PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)；用 agent-browser 的 worker 要給唯一 session 名＋每呼叫 60 秒上限，同名 daemon 會互卡 → [INCIDENTS 2026-10-02](../.claude/memory/INCIDENTS.md#2026-10-02-r5-校正子代理兩度停滯-600-秒同名-agent-browser-daemon-互卡)
 7. **「沒有」的證據先驗量測手段看不看得到**：Resource Timing 只留 250 筆、lazy chunk、本機 `grep` 是會吞輸出的 shell function（否定結論用 `/usr/bin/grep` 或 `rg` 複驗）。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 8. **migration 取號前 `git fetch` 看 origin 最大號**。→ [PRINCIPLES「跨主題工作原則」](../.claude/memory/PRINCIPLES.md#跨主題工作原則2026-10-16-從-reflections-升級)
 

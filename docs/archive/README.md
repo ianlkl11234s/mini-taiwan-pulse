@@ -74,6 +74,12 @@
 | `.claude/memory/PMTILES_STATUS.md` | `docs/archive/2026-10-16/claude/memory/PMTILES_STATUS.md` | 2026-06 那波 19 個切片的歷史記錄（`check_docs.ts` D5 改讀新路徑） | `public/**/*.pmtiles` 實際檔案 |
 | `docs/known-issues.md` | `docs/archive/2026-10-16/known-issues.md` | 併入 `.claude/memory/INCIDENTS.md`（由另一軌搬入本批） | `.claude/memory/INCIDENTS.md` |
 
+## 2026-10-18 歸檔（`docs/archive/2026-10-18/<原相對路徑>`）
+
+| 原路徑 | 新路徑 | 歸檔原因 | 後繼文件 |
+|---|---|---|---|
+| `docs/proposal/light-theme-rollout.md` | `docs/archive/2026-10-18/proposal/light-theme-rollout.md` | 2026-07 淺色主題計畫，待辦 A／B／C（即時情報、衛星情報、監看）都已上線；已無引用 | `docs/design-system/spec.md`、`docs/features/satellite-console-restyle/`、`docs/features/monitor-restyle/` |
+
 ## 2026-10-16 跨 repo 搬出（非歸檔，備查；搬移不複製）
 
 | 原路徑 | 新位置 |

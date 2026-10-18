@@ -1,3 +1,5 @@
+> 🗄️ 已歸檔（2026-10-18）：三項待辦都已上線——即時情報（Phase L，#371）、監看看板（P1–P5，#482–#505）、衛星情報（P5／SC2，`src/components/satelliteConsole/satelliteTheme.ts`）。現行規則見 `docs/design-system/spec.md`、`src/components/intel/intelTheme.ts`。
+
 # 淺色主題推進計畫（Light Theme Rollout）
 
 > 建立於 2026-07-07。記錄「選 Light 底圖時，UI chrome 跟著切淺色」這條線的**已完成範圍**與**剩餘待辦的確切改動點**。

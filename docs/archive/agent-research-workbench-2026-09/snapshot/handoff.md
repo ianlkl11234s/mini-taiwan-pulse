@@ -157,7 +157,7 @@ gis-platform/
     *.test.mjs / README.md               回歸、啟動與部署邊界
 ```
 
-上游契約與限制見 [analytics handoff](../../../../taipei-gis-analytics/docs/handoff/agent-research-workbench.md)。
+上游契約與限制見 [analytics handoff](../../../../../taipei-gis-analytics/docs/handoff/agent-research-workbench.md)。
 
 Phase A architecture decision：動態成果屬獨立 `/lab`，不向主站 `LayerVisibility`／`layerManifest` 登記每份 artifact。唯一 host 目前 `analysis:preview:result`，由 `resultOverlay.ts` 集中管理；未接 session 時不偽造 server studyId。Phase B 配對仍僅固定 synthetic preview；Phase C 私有 artifact 接入時才換成規格要求的 study/artifact namespace。這個 host 自行驗證 loading、opacity、legend、popup、cleanup；沒有把主站 App/Chat/state/data loaders 引入研究 entry。`/lab` 使用已存在的 MapLibre 基礎，沒有再安裝一套 engine。
 
@@ -210,7 +210,7 @@ node scripts/research/sync-contracts.mjs --analytics ../taipei-gis-analytics --c
 - MCP 全套 39 assertions passed，但既有 `src/bridge/browserBridge.test.ts` disconnect test 出現 unhandled SESSION_DISCONNECTED，runner exit 1；該檔沒有本次 diff。不宣稱全套綠燈。新 research targeted 另跑。
 - 本地瀏覽器檢查新連線面板、合成資料與清除。preview 未帶 Supabase 設定，會明示連線未啟用；未移用正式登入秘密。
 - 本地地圖維持離線格線。配對後只能固定 synthetic 或 empty，不能上傳本地任意JSON；opacity/點选屬個人展示，不增加 server revision。資料授權、真實資料快取／分析與費用 gate 尚未完成。
-- 詳細端點：[bridge-contract.md](./bridge-contract.md)；gateway設定：[README](../../../../gis-platform/services/research-gateway/README.md)。
+- 詳細端點：[bridge-contract.md](./bridge-contract.md)；gateway設定：[README](../../../../../gis-platform/services/research-gateway/README.md)。
 
 最終 Phase B 驗證：gateway **28 passed**（新增 dangling WAL symlink 拒絕案例）（含 lock 修正）；MCP research **19 passed**、build通過；實際 spawned stdio SDK smoke **passed**，流程 waiting_confirmation→active、accepted→ready、revoke→unpaired。Smoke 的網站端為注入測試身分與模擬 HTTP ack/report，**不是登入後的真實瀏覽器或 Codex host 驗收**。重跑腳本與去敏結果在 `evidence/relay-stdio-smoke.mjs` / `.result.json`（worktree根）。
 

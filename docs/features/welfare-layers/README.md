@@ -5,7 +5,7 @@
 > **Owner**：migu
 > **上線日期**：（待 PR merge）
 > **相關 PR**：#（待補）
-> **上游契約 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/welfare-layers.md`](../../../taipei-gis-analytics/docs/handoff/welfare-layers.md)
+> **上游契約 SSOT**：[`../../../taipei-gis-analytics/docs/handoff/welfare-layers.md`](../../../../taipei-gis-analytics/docs/handoff/welfare-layers.md)
 > **上游 PR**：[taipei-gis-analytics#42](https://github.com/ianlkl11234s/taipei-gis-analytics/pull/42)（尚未 merge）
 
 ## 一句話說明
@@ -122,7 +122,7 @@ CustomLayer，per-layer 邊際成本只有 manifest ＋ spec ＋ registry ＋ pa
 
 ## 相關
 
-- 上游契約：[`taipei-gis-analytics/docs/handoff/welfare-layers.md`](../../../taipei-gis-analytics/docs/handoff/welfare-layers.md)
+- 上游契約：[`taipei-gis-analytics/docs/handoff/welfare-layers.md`](../../../../taipei-gis-analytics/docs/handoff/welfare-layers.md)
 - 代碼表：`taipei-gis-analytics/docs/topic-research/welfare/code-table.md`
 - 體系架構：`taipei-gis-analytics/docs/systems/welfare_tic.md`
 - 下游視角接線紀錄：[`handoff.md`](./handoff.md)

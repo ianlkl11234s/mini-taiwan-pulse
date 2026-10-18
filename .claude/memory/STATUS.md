@@ -1,6 +1,8 @@
 # Status
 
-**最後更新**：2026-10-15（R6 圖層平面模式段 1–3 上線；資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
+**最後更新**：2026-10-18 開發週期收尾：worktree 30→8、本地分支 77→20（已合併或已被取代者；備份與刪除清單在 `GIS/_worktree-backups/2026-10-18/`）、文件連結／過時狀態／LESSONS 指標整理
+
+前一次：2026-10-15（R6 圖層平面模式段 1–3 上線；資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
@@ -114,7 +116,7 @@ set_camera 4.6 → 1.7 s；set_layers 1.6 → 0.16 s；map_context 88 → 13 ms�
 
 ### 卡點與下一步
 
-**下一個 session 的入口（Agent／MCP 線）**：先讀 `docs/features/general-analysis/STATUS.md`「2026-10-04 現況」，再看 BACKLOG AG-10／AG-11（AG-6 已隨 #543 完成）。
+**下一個 session 的入口（Agent／MCP 線）**：先讀 `.gis-agent-system/roadmap/status/ai-mcp.md`「Agent 分析能力迭代」段，每輪分數與失敗分類看 mini-pulse-gis-mcp `eval/agent-regression/README.md`；`docs/features/general-analysis/STATUS.md` 停在 2026-10-04，只留歷史（2026-10-18 改）。再看 BACKLOG AG-10／AG-11（AG-6 已隨 #543 完成）。
 
 - 使用 Agent：正式站分頁開著（部署後要重新整理分頁）、Claude Code `/mcp` 重連即可；token 在 `~/.config/pulse-research/agent-token`。
 - 倉庫改資料：analytics 改 manifest → MCP `warehouse/update_store.py --only <safe_id>` 在 `_warehouse-rebuild/<名稱>/store` 重建 → 核對列數 → `upload-store.mts plan` → `execute`；上傳後已連線的 MCP 要 `/mcp` 才讀到新版。
