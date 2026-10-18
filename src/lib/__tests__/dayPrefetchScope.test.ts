@@ -1,6 +1,6 @@
 /**
  * AU-3：兩種 day prefetch 有意分工，不能因名稱相近而靜默合併或再複製。
- * 此為結構契約；payload、cache 和 CWA object URL 的 runtime 行為由各 hook/loader 測試涵蓋。
+ * 共享 helper 以行為測試驗證；CWA 的串行／silent／debounce 行為在 useCwaImageryLayer.test。
  */
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -98,15 +98,7 @@ describe("AU-3 day-prefetch scope", () => {
     expect(unsubscribeDate).toHaveBeenCalledOnce();
   });
 
-  it("CWA 保留 foreground、LRU 與逐一 silent background 的獨立保護", () => {
-    expect(cwa).toContain("loadCwaImageryBatch([dsId], windowForDate(dateKey), { silent: !foreground })");
-    expect(cwa).toContain("const allKeys = timeStore.getWindowDateKeys()");
-    expect(cwa).toContain("if (!allKeys.includes(dk)) allKeys.push(dk)");
-    expect(cwa).toContain("const protect = new Set(allKeys)");
-    expect(cwa).toContain("for (const k of allKeys)");
-    expect(cwa).toContain("for (const dsId of datasets)");
-    expect(cwa).toContain("await loadOne(dsId, k, false)");
-    expect(cwa).toContain("const PREFETCH_DEBOUNCE_MS = 600");
+  it("CWA 不走共享 queue（行為見 useCwaImageryLayer.test 的 AU-3／F304）", () => {
     expect(cwa).not.toContain("subscribePrefetchWindow");
   });
 
