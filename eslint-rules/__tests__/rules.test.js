@@ -193,3 +193,33 @@ tester.run("no-current-time-deps", rule("no-current-time-deps"), {
     { code: "useEffect(() => {}, [visible, props.currentTime]);", errors: errs(1) },
   ],
 });
+
+const URL_ERR = [{ messageId: "url" }];
+const META_ERR = [{ messageId: "importMeta" }];
+tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"), {
+  valid: [
+    'const ENDPOINT = "/api/private-research/bss-bridge/tiles";',
+    'const u = new URL("/api/private-research/x", window.location.origin);',
+    { code: 'const OFFICIAL = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
+  ],
+  invalid: [
+    { code: 'const u = "https://tiles.example.test/a.pmtiles";', errors: URL_ERR },
+    { code: "const u = `http://${host}/x`;", errors: URL_ERR },
+    { code: "// 舊來源 https://gis.example.test\nconst a = 1;", errors: URL_ERR }, // 註解也算（同原 toMatch 整檔）
+    { code: 'const ns = "http://www.w3.org/2000/svg";', errors: URL_ERR }, // 原 bridge 測試放行 www.w3，現在更嚴
+    { code: 'const u = "https://evil.test/";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }], errors: URL_ERR },
+    { code: "const base = import.meta.env.VITE_PRIVATE_BASE;", errors: META_ERR },
+    { code: 'const base = import.meta["env"].X;', errors: META_ERR },
+    { code: "const m = import . meta;", errors: META_ERR },
+  ],
+});
+
+const SOIL = [{ patterns: [{ regex: 'gis\\.liquid\\.net\\.tw|WMSServer|WMTS|"raster"', reason: "r" }, { regex: "TPSite|臺北市中山站", reason: "r" }] }];
+tester.run("owner-only-banned-text", rule("owner-only-banned-text"), {
+  valid: [{ code: 'const s = { type: "vector", url: "pmtiles://x" };', options: SOIL }],
+  invalid: [
+    { code: 'const s = { type: "raster" };', options: SOIL, errors: [{ messageId: "banned" }] },
+    { code: 'const u = "https://gis.liquid.net.tw/arcgis/rest/services/x/MapServer/WMTS";', options: SOIL, errors: [{ messageId: "banned" }, { messageId: "banned" }] },
+    { code: "// TPSite 臺北市中山站\nconst a = 1;", options: SOIL, errors: [{ messageId: "banned" }, { messageId: "banned" }] },
+  ],
+});

@@ -222,13 +222,9 @@ describe("sidecar 資產契約", () => {
     }
     expect(line).toContain(`${BRIDGE_RESILIENCE_ASSETS.tiles.sha256.slice(0, 8)}…${BRIDGE_RESILIENCE_ASSETS.tiles.sha256.slice(-4)}`);
   });
-  it("圖層是站主限定（GATED），且原始碼不含外部網址或 env", () => {
+  // 原始碼不含外部網址或 import.meta.env：改由 ESLint pulse/owner-only-no-external-source 檢查（範圍釘在 eslint-rules/__tests__/ownerOnlyScope.test.js）
+  it("圖層是站主限定（GATED）", () => {
     expect(BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS.every((key) => GATED_LAYERS.has(key))).toBe(true);
     expect(BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS).toContain(BRIDGE_RESILIENCE_KEY);
-    for (const file of ["../bridgeResilienceLoader.ts", "../bridgeResilienceTypes.ts", "../../hooks/useBridgeResilienceLayers.ts"]) {
-      const source = fs.readFileSync(path.resolve(here, file), "utf8");
-      expect(source, file).not.toMatch(/https?:\/\/(?!www\.w3)/);
-      expect(source, file).not.toContain("import.meta.env");
-    }
   });
 });

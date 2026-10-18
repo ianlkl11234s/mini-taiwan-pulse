@@ -2,6 +2,7 @@
 import * as css from "./rules/css.js";
 import * as design from "./rules/design.js";
 import * as guards from "./rules/guards.js";
+import * as ownerOnly from "./rules/ownerOnly.js";
 
 export default {
   meta: { name: "eslint-plugin-pulse" },
@@ -28,5 +29,7 @@ export default {
     "legend-no-letter-spacing": guards.legendNoLetterSpacing,
     "legend-no-hand-sized-swatch": guards.legendNoHandSizedSwatch,
     "no-current-time-deps": guards.noCurrentTimeDeps,
+    "owner-only-no-external-source": ownerOnly.ownerOnlyNoExternalSource,
+    "owner-only-banned-text": ownerOnly.ownerOnlyBannedText,
   },
 };

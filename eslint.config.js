@@ -6,6 +6,23 @@ import pulse from "./eslint-rules/index.js";
 
 const HOOKS_AND_MAP = ["src/hooks/**/*.{ts,tsx}", "src/map/**/*.{ts,tsx}"];
 
+// 站主限定（owner-only）圖層的資料存取檔：資料只走同源 /api/private-research/*。
+// 範圍由 eslint-rules/__tests__/ownerOnlyScope.test.js 釘住：src/data、src/hooks 裡含 /api/private-research/
+// 或 import 了這類 data 模組的檔，不在下面範圍也不在 OWNER_ONLY_EXEMPT 就紅。
+const OWNER_ONLY_FAMILIES = "{bridgeResilience,BridgeResilience,bssBridge,BssBridge,soilLiquefaction,SoilLiquefaction,allenCoral,AllenCoral,coralReef,CoralReef,jpWater,JpWater}";
+export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hooks/use${OWNER_ONLY_FAMILIES}*.ts`, "src/lib/coralPrivateUi.ts", "src/lib/auth.ts"];
+/** 不套 owner-only-no-external-source 的檔與理由（ownerOnlyScope.test.js 逐字釘住，新增要改測試並在 PR 說明）。 */
+export const OWNER_ONLY_EXEMPT = {
+  "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",
+  "src/hooks/useMapInteraction.ts": "全站點擊分派，不是 owner-only 專屬檔",
+  "src/data/jpWaterLoader.ts": "jp-water 公開資產網址以 import.meta.env.BASE_URL 組成（待使用者決定是否納入）",
+  "src/hooks/useJpWaterLayers.ts": "jp-water 淹水圖層直接讀國土地理院公開 raster 與其授權連結（待使用者決定是否納入）",
+};
+const SOIL_BANNED_TEXT = [
+  { regex: "gis\\.liquid\\.net\\.tw|WMSServer|WMTS|\"raster\"", reason: "土壤液化只讀私人 PMTiles，不接官方 WMTS／WMS 或 raster 來源" },
+  { regex: "TPSite|臺北市中山站", reason: "不在前端寫死鑽探站點" },
+];
+
 export default [
   { ignores: ["**/__tests__/**", "**/__fixtures__/**", "**/*fixture*", "**/*fixture*/**", "**/*.test.*", "**/*.spec.*"] },
   {
@@ -46,6 +63,23 @@ export default [
   { files: ["src/research/*.css", "src/components/**/*.css"], rules: { "pulse/design-css-hex-literal": "error" } },
   // src/styles/** 是層級定義檔本身
   { files: ["src/**/*.css"], ignores: ["src/styles/**"], rules: { "pulse/design-css-raw-z-index": "error" } },
+
+  // 站主限定圖層：不寫死外部網址、不讀 import.meta（原 bridgeResilienceTypes／useBssBridgeLayers 測試）
+  {
+    files: OWNER_ONLY_FILES,
+    ignores: Object.keys(OWNER_ONLY_EXEMPT),
+    rules: { "pulse/owner-only-no-external-source": "error" },
+  },
+  {
+    files: ["src/data/soilLiquefactionTypes.ts"],
+    // 來源卡的官方地圖連結（只允許這一個網址）
+    rules: { "pulse/owner-only-no-external-source": ["error", { allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
+  },
+  // 土壤液化：不接官方 WMTS／WMS、不寫死站點（原 useSoilLiquefactionLayers 測試）
+  {
+    files: ["src/data/soilLiquefaction*.ts", "src/hooks/useSoilLiquefaction*.ts"],
+    rules: { "pulse/owner-only-banned-text": ["error", { patterns: SOIL_BANNED_TEXT }] },
+  },
 
   // 圖層 hook：map-ready 競態
   { files: ["src/hooks/use*Layer.ts", "src/hooks/factories/timelineSliceLayer.ts"], rules: { "pulse/map-ready-tick-deps": "error" } },
