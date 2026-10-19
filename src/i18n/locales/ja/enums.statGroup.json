@@ -1,7 +1,7 @@
 {
   "enum.statGroup.毒品": "薬物",
   "enum.statGroup.住宅竊盜": "住宅侵入窃盗",
-  "enum.statGroup.機車竊盜": "二輪車盗",
+  "enum.statGroup.機車竊盜": "オートバイ盗",
   "enum.statGroup.汽車竊盜": "自動車盗",
   "enum.statGroup.強盜": "強盗",
   "enum.statGroup.搶奪": "ひったくり",
