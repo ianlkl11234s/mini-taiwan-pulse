@@ -61,4 +61,18 @@ describe("FeatureInfoPanel", () => {
     expect(html).toContain("測試承載線");
     expect(html).not.toContain("來源資訊待補");
   });
+
+  it("regionalStatistic（區域統計）：panel 自掛來源卡，中央版略過，不誤判成「來源資訊待補」", () => {
+    const html = renderPanel({
+      layerType: "regionalStatistic",
+      properties: {
+        area_name: "臺北市中山區", area_code: "63000040", indicator_name: "住宅竊盜發生件數", value: 24, status: "observed", unit: "件",
+        publisher: "內政部警政署", license: "政府資料開放授權條款第 1 版", source_url: "https://data.gov.tw/dataset/14200",
+      },
+    } as FeatureInfo);
+
+    expect(html).toContain("內政部警政署");
+    expect(html).not.toContain("來源資訊待補");
+    expect(html.match(/fi-footer/g)).toHaveLength(1);
+  });
 });
