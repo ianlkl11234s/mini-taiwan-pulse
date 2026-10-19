@@ -1,0 +1,4 @@
+{
+  "enum.statLocationBasis.案件發生地（鄉鎮市區精度）": "Place of occurrence (township/district precision)",
+  "enum.statLocationBasis.案件發生地點（鄉鎮市區精度；來源未說明是受騙地或報案地）": "Place of occurrence (township/district precision; the source does not say whether this is where the victim was defrauded or where the case was reported)"
+}

@@ -20,7 +20,7 @@ import { FONT_SIZE, FONT_CJK, SPACING } from '../../styles/designTokens';
 import { LegendRow, LegendTitle, SwatchHatch, SwatchSquare, useLegendTheme } from '../legend/legendKit';
 import { useStatisticsRecipeDetails } from '../../hooks/useStatisticsRecipeDetails';
 import { enumLabel } from '../../i18n/dataText';
-import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsDimensionSummary, statisticsLocationBasis, statisticsPeriodLabel, statisticsAvailabilityLabel } from '../../data/statisticsLabels';
 import { unparseableStatisticsReleaseCount } from '../../data/statisticsSelection';
 import { localeStore, useLocale, type LocaleSnapshot } from '../../state/localeStore';
 import type { MessageKey } from '../../i18n/keys';
@@ -128,15 +128,15 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
     {demographics && import.meta.env.DEV && import.meta.env.VITE_DEMOGRAPHICS_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>{t('statistics.details.previewDemographics')}</p>}
     {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">{t('statistics.details.accessibilityLink')}</a>}
     {selectionSummary && <p style={factStyle}><strong>{t('statistics.details.selection')}</strong>{selectionSummary}</p>}
-    {labor && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(laborLocationSemantics(labor))}</p>}
-    {environment && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(environment.location_semantics)}</p>}
+    {labor && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(laborLocationSemantics(labor), i18n)}</p>}
+    {environment && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(environment.location_semantics, i18n)}</p>}
     {environment && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(environment.disclosure)}</p>}
-    {demographics && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(demographics.location_semantics)}</p>}
-    {addiction && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(addiction.location_semantics)}</p>}
+    {demographics && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(demographics.location_semantics, i18n)}</p>}
+    {addiction && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(addiction.location_semantics, i18n)}</p>}
     {addiction && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(addiction.disclosure)}</p>}
-    {landslide && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(landslide.location_semantics)}</p>}
+    {landslide && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(landslide.location_semantics, i18n)}</p>}
     {landslide && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(landslide.disclosure)}</p>}
-    {atlas && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{humanizeStatisticsText(atlas.location_semantics)}</p>}
+    {atlas && <p style={factStyle}><strong>{t('statistics.details.locationBasis')}</strong>{statisticsLocationBasis(atlas.location_semantics, i18n)}</p>}
     {atlasNote && <p style={factStyle}><strong>{t('statistics.details.subIndicatorDirection')}</strong>{atlasNote}</p>}
     {atlas && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(atlas.disclosure)}</p>}
     {demographics && <p style={factStyle}><strong>{t('statistics.details.dataLimits')}</strong>{humanizeStatisticsText(demographicsDisclosure(demographics))}{demographicsNote ? ` ${demographicsNote}` : ''}</p>}
@@ -241,11 +241,11 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}
-    {labor && <><span>{tr('statistics.legend.locationBasis', { value: humanizeStatisticsText(laborLocationSemantics(labor)) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}
+    {labor && <><span>{tr('statistics.legend.locationBasis', { value: statisticsLocationBasis(laborLocationSemantics(labor), i18n) })}</span><span>{tr('statistics.legend.boundaryDisclosed', { boundary: boundaryVersionLabel(labor.boundary_version, i18n) })}</span></>}
     {demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
-    {addiction && <span>{tr('statistics.legend.fixedAddiction', { value: humanizeStatisticsText(addiction.location_semantics) })}</span>}
+    {addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
     {landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
-    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length ? tr('statistics.legend.perDimensionThresholds') : '', value: humanizeStatisticsText(atlas.location_semantics) })}</span>}
+    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
   </div>;
 }
 
