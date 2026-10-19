@@ -1,5 +1,4 @@
 import { createElement } from "react";
-import { existsSync, readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -87,20 +86,6 @@ afterEach(() => {
 });
 
 describe("Global Events Intel tab", () => {
-  it("列表只活在 INTEL：舊 sidebar 元件已移除，圖層 controls 保留", () => {
-    expect(existsSync(new URL("../../sidebar/GlobalEventsList.tsx", import.meta.url))).toBe(false);
-    // 桌機與手機共用 sidebar/LayersPanel；圖層 controls 在共用的 ExpandedControls
-    for (const file of ["LayerSidebar.tsx", "IconRailSidebar.tsx", "sidebar/LayersPanel.tsx"]) {
-      const source = readFileSync(new URL(`../../${file}`, import.meta.url), "utf8");
-      expect(source).not.toContain("GlobalEventsList");
-    }
-    expect(readFileSync(new URL("../../sidebar/ExpandedControls.tsx", import.meta.url), "utf8")).toContain("buildParamControls");
-    const panelSource = readFileSync(new URL("../IntelPanel.tsx", import.meta.url), "utf8");
-    // 不再有「圖層要先開」的門檻，也不再讀被地圖 effect 綁死的 view store
-    expect(panelSource).not.toContain("globalEventsEnabled");
-    expect(panelSource).not.toContain("onEnableGlobalEvents");
-    expect(panelSource).not.toContain("globalEventsViewStore");
-  });
 
   it("四個分頁都帶數字，全部＝新聞＋警報＋國際", () => {
     const markup = renderToStaticMarkup(createElement(FeedTabs, {

@@ -84,7 +84,6 @@ export function useManeuverImpacts(rows: ManeuverRow[]): Map<number, ManeuverImp
     });
 
     return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rows.map(keyOf).join("|")]);
 
   return result;

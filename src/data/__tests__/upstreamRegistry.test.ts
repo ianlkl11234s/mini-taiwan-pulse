@@ -14,6 +14,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { LAYER_COLORS } from "../../components/sidebar/layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry";
+import { OWNER_TESTS } from "../../test/ownerAssets";
 
 // 解析 catalog 所有 dataset_id（從 frontmatter + 檔名 fallback）
 function loadCatalogDatasetIds(): Set<string> {
@@ -21,6 +22,8 @@ function loadCatalogDatasetIds(): Set<string> {
   const catalogRoot = analyticsRoot
     ? resolve(analyticsRoot, "docs/data-catalog")
     : resolve(__dirname, "../../../../taipei-gis-analytics/docs/data-catalog");
+  // 未指定 TAIPEI_GIS_ANALYTICS_ROOT 時，sibling repo 只在 owner 模式讀（npm run test:owner），本機預設與 CI 一致
+  if (!analyticsRoot && !OWNER_TESTS) return new Set<string>();
   if (!existsSync(catalogRoot)) {
     if (analyticsRoot) throw new Error(`TAIPEI_GIS_ANALYTICS_ROOT does not contain docs/data-catalog: ${catalogRoot}`);
     // CI 沒 sibling repo 時 graceful skip — 只擋本 repo 內部一致性

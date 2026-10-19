@@ -10,8 +10,7 @@
 
 ## Test
 
-- [ ] `npx tsc -b` 通過
-- [ ] `npm test` 通過（含 `layerConsistency`）
+- [ ] `npm run check` 通過（＝CI：`tsc -b`＋vite build、`npm test`（含 `layerConsistency`）、樣式盤點、coral）
 - [ ] Browser 驗收（若有 UI 變更）— All Off 單測過
 - [ ] 若涉 Supabase RPC → `/check-rpc` 通過（響應 < 1s 或已套 pre-aggregate）
 

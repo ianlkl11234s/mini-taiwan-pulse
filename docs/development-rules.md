@@ -183,7 +183,7 @@ myNewLayer: [
 2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
    ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由（目前會被 `layerUxPolicy.test.ts` 的透明度基線擋，等於要使用者同意的例外）。
 
-**驗收**：`npx tsc -b` ＋ `npx vitest run`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
+**驗收**：`npm run check`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
 的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
 ⚠️ AR-22 Phase 4 起該 fixture 只凍 3 個 section（`overlays` / `params` / `gisLayers`）——
 另外 9 個已被 `layerManifest.test.ts` 逐 key 焊死，凍第二份只是 churn。
@@ -192,7 +192,7 @@ myNewLayer: [
 **規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 
 ### 檢查清單
-- [ ] `tsc -b` pass
+- [ ] `npm run check` pass
 - [ ] manifest entry 欄位齊全（color／icon／section／source／legend／popup／params；`LAYER_COLORS` 等由此派生，不手改）
 - [ ] Loader 有 loadingRegistry
 - [ ] Toggle 開關有 loading 提示
@@ -205,7 +205,7 @@ myNewLayer: [
 
 ## 4a. 圖層 UX 標配（四大鐵則）
 
-> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard 測試 `src/styles/__tests__/designSystemGuard.test.ts`。
+> 視覺規格（字型、token、控制項、popup、淡色）另見 [`design-system.md`](./design-system/spec.md)；guard：`npm run lint`（TS／TSX 為 `pulse/design-*`，CSS 為 `pulse/design-css-*`）。
 
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 
@@ -331,11 +331,25 @@ LegendPanel）共用。
 | 外部 API fetch | `scripts/fetch/` | `fetch-xxx.ts` / `.py` |
 | 資料庫匯出 | `scripts/export/` | `export-xxx.py` |
 
-## 6. TypeScript 驗證
+## 6. TypeScript 驗證與 commit 前檢查
 ```bash
-npx tsc -b   # project references，不要用 tsc --noEmit
+npm run check   # 依序跑 CI 的全部檢查：check:lint（ESLint 守門規則）→ check:build（tsc -b ＋ vite build）→ check:test → check:inventory（樣式盤點）→ check:coral
+npx tsc -b      # 只驗型別時；project references，不要用 tsc --noEmit
 ```
-Commit 前必跑。
+Commit／PR 前必跑 `npm run check`，失敗即停。CI（`.github/workflows/ci.yml`）每個 step 呼叫同名的 `check:*`，`src/test/ciCheckParity.test.ts` 擋兩邊清單不一致；新增檢查要兩邊一起加。樣式盤點不一致時檢查會直接重產到工作區，確認 diff 只動本次改的圖層後 commit。
+
+**owner-local 測試**：讀隔壁 repo（`../taipei-gis-analytics`、`../runtime/…`）或 gitignored 私有／大檔的測試，`npm test` 預設略過（與 CI 同一組）；要跑時用 `npm run test:owner`（`PULSE_OWNER_TESTS=1`）。新測試的 skip 條件用 `src/test/ownerAssets.ts` 的 `ownerAsset(path)`，只用在不在 git 裡的路徑。
+
+### 自訂 ESLint 規則（守門）
+
+「讀原始碼＋regex」的禁用型檢查一律寫成 ESLint 規則，不再新增這類測試（錯誤訊息會指出檔名、行號與怎麼改，編輯器裝 ESLint 擴充就看得到）。
+
+- **只啟用守門規則**：`eslint.config.js` 不開 `recommended` 等規則集；只放取代守門測試的規則，掃 `src/**/*.{ts,tsx,css}`（測試檔與 fixture 不掃；CSS 用 `@eslint/css` 解析，不開它的 recommended）。`npm run lint` 帶 `--no-inline-config`：`// eslint-disable` 註解一律無效，不能用來繞過。
+- **規則放哪**：本地 plugin `pulse` 在 `eslint-rules/`（`index.js` 登記、`rules/design.js`／`rules/css.js` 為 design system guard 的 TS／CSS 部分、`rules/guards.js` 為其他守門）；套用到哪些檔寫在 `eslint.config.js` 的 `files`／`ignores`。內建規則表達得了就用內建（例 `no-restricted-imports`）；只是禁某種語法就用 `utils.js` 的 `selectorRule()`（esquery selector），每個守門一個規則 id。
+- **怎麼加**：① 在 `rules/*.js` 寫規則（訊息寫「不要做什麼＋改用什麼＋規範出處」；訊息裡不能出現 `{{`，那是 placeholder 語法）② 在 `index.js` 登記 ③ 在 `eslint.config.js` 加一個 block 指定 `files` ④ `eslint-rules/__tests__/rules.test.js`（CSS 規則用 `cssRules.test.js`）加 RuleTester 樣本（valid／invalid），`config.test.js` 加一列釘住套用範圍 ⑤ `npm run lint`。
+- **既有違規（ratchet）**：記在根目錄 `eslint-suppressions.json`（每檔每規則的筆數）。筆數增加或新檔出現違規 → lint 紅；修掉違規後 lint 會提示有沒用到的 suppression，跑 **`npm run lint:prune`** 把基準降下來並 commit。**不要跑 `eslint --suppress-all`／`--suppress-rule`**：那會把新違規吃進基準＝放寬，與 CLAUDE.md §7「紅燈修程式碼，不改基準」相同。
+- 目前規則：design system guard（TS／TSX `pulse/design-*`、CSS `pulse/design-css-*`，見 design-system/spec.md §9）、`map-ready-tick-deps`、點圖層 R2（`no-zoom-circle-radius`、`no-legacy-radius-helper`、`no-hand-rolled-stroke-opacity`）、`no-fill-outline-color`、`monitor-no-manual-polling`、圖例收斂（`legend-no-letter-spacing`、`legend-no-hand-sized-swatch`）、hook deps 不放 currentTime（`no-current-time-deps`，全站；只看 useEffect／useLayoutEffect／useMemo／useCallback 的第二個參數）、day prefetch（`no-restricted-imports`）、站主限定圖層資安守門（`owner-only-no-external-source`：不寫死 http(s) 網址、不讀 `import.meta`，註解也算；`owner-only-banned-text`：土壤液化不接官方 WMTS／WMS、不寫死站點）。
+- **站主限定圖層的範圍**：`eslint.config.js` 的 `OWNER_ONLY_FILES`（家族 glob）與 `OWNER_ONLY_EXEMPT`（附理由）。`eslint-rules/__tests__/ownerOnlyScope.test.js` 自己掃 `src/data`、`src/hooks` 找出含 `/api/private-research/`（或 import 了這類 data 模組）的檔，沒被規則覆蓋也沒列豁免就紅——新增私人圖層家族時把檔名加進 `OWNER_ONLY_FAMILIES`；來源卡需要的官方連結用 `allowUrls` 逐一列出，不要整檔豁免。
 
 ## 7. 部署 Checklist
 部署步驟見 `.claude/memory/PLAYBOOKS.md` PB-06（deploy assets）與 [`docs/RELEASING.md`](./RELEASING.md)（develop→master 發布，須使用者拍板）。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。

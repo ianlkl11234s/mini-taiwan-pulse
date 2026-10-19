@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { parksFixedPointAdapter } from "../parksFixedDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sourcePath = "public/urban/parks_taipei.geojson";
 const taipeiBbox = [121.48, 25.02, 121.6, 25.15] as const;
@@ -17,7 +17,7 @@ beforeEach(() => {
 
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sourcePath))("matches the Mini static city bbox oracle and retains source null variants", async () => {
+it.skipIf(!ownerAsset(sourcePath))("matches the Mini static city bbox oracle and retains source null variants", async () => {
   const source = JSON.parse(await readFile(sourcePath, "utf8")) as {
     features: { geometry: { coordinates: [number, number] }; properties: Record<string, unknown> }[];
   };

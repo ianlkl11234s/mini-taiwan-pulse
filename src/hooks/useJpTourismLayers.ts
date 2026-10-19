@@ -179,7 +179,6 @@ export function useJpTourismLayers(
               url: new URL(jpTourismAssetUrl(config.dataset), window.location.href).href,
               minzoom: datasetConfig.minzoom,
               maxzoom: datasetConfig.maxzoom,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
           } else if (data) {
             map.addSource(sid, { type: "geojson", data });

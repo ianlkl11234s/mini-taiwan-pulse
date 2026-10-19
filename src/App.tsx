@@ -173,7 +173,7 @@ export function BasemapLabelToggle({
         borderRadius: RADIUS.md,
         padding: "4px 8px",
         fontSize: FONT_SIZE.md,
-        fontFamily: FONT_DATA,
+        fontFamily: FONT_CJK,
         cursor: showPointerCursor ? "pointer" : undefined,
       }}
     >
@@ -887,7 +887,6 @@ export default function App() {
       }
     }
     // setLayerVisibility / layerVisibilityRef 都是 stable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
 
   // 歷史模式（globalEvents 開啟時）會透過 timeline.jumpToTime 把共用 timeStore 撥到
@@ -912,7 +911,6 @@ export default function App() {
     // 只依 appMode 觸發（比照上方 layerVisBeforeHistoricalRef）；timeline.setTimeMode /
     // timeline.jumpToTime 在效果實際執行當下讀取，不需要也不應該讓 rangeDays 等次要依賴
     // 觸發額外重跑。
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
 
   // 房地產時間軸 / 「點」CustomLayer 的 hook 已搬進 LayerHost
@@ -1447,7 +1445,6 @@ export default function App() {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     addFlightLayer(map);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode]);
 
   // 軌道靜態線（2D Mapbox）已搬進 LayerHost 的 RailTracksHost
@@ -1548,7 +1545,6 @@ export default function App() {
     if (allReady && timeRange.start > 0) {
       timeline.autoPlay();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReady, timeRange.start]);
 
   const handleMemberToggle = useCallback(() => {

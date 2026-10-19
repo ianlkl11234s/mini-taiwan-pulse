@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { hookFillPaint, hookLinePaint, valueAtZ14, withLineFillSpec } from "../lineFillSpec";
 import { HOOK_FILL_TIERS, HOOK_LINE_TIERS } from "../lineFillTiers";
@@ -6,14 +6,8 @@ import { BOUNDARY_GRAY, FILL_OPACITY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH, ma
 import type { OverlayConfig } from "../../types";
 
 const base = { "line-width": 2, "line-opacity": 0.5, "line-color": "#abc", "line-dasharray": [2, 1] };
+// hook 不用 fill-outline-color（F2 獨立外框）改由 ESLint pulse/no-fill-outline-color 檢查。
 describe("R3b hook line/fill contract", () => {
-  it("hook fill-outline-color ratchet remains zero (F2 independent outlines)", () => {
-    const root = new URL("../../hooks/", import.meta.url);
-    const hits = readdirSync(root).filter(file => file.endsWith(".ts"))
-      .filter(file => /["']fill-outline-color["']\s*:/.test(readFileSync(new URL(file, root), "utf8")));
-    expect(hits).toEqual([]);
-  });
-
   it("all confirmed tiers normalize defaults and scale/clamp sliders", () => {
     for (const [name, tier] of Object.entries(HOOK_LINE_TIERS)) {
       const [key, id] = name.split("/") as [string, string];

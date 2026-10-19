@@ -85,7 +85,6 @@ export function useWasteScheduleLayer(
       fetchingKeyRef.current = "";
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [citiesKey]);
 
   // 啟用時：載入當前 dow + 訂閱日期變化

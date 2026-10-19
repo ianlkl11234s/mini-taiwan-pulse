@@ -14,7 +14,7 @@
  * 只有這種網址才載，純靜態嵌入的基礎 bundle 依然不含 three。
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { parseUrlState } from "../lib/urlState";
 import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelist";
@@ -262,7 +262,7 @@ export function EmbedApp() {
     if (map.isStyleLoaded()) onStyleLoad();
     else map.once("style.load", onStyleLoad);
 
-    map.on("error", (e) => console.error("[embed]", e?.error ?? e));
+    map.on("error", (e: maplibregl.ErrorEvent) => console.error("[embed]", e?.error ?? e));
 
     return () => {
       cancelled = true;
@@ -275,7 +275,6 @@ export function EmbedApp() {
       map.remove();
     };
     // mount 時跑一次；所有輸入都來自凍結的網址狀態
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fullUrl = (() => {

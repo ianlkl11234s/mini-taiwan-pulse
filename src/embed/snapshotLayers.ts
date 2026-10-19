@@ -12,7 +12,6 @@
  */
 import type { LayerVisibility } from "../types";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SnapshotLayerSpec {
   /** GeoJSON source id */
   sourceId: string;

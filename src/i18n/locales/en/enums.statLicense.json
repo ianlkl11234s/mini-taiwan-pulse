@@ -14,5 +14,6 @@
   "enum.statLicense.政府資料開放授權條款（docs/data-catalog/demographics/village_comprehensive.md 記載；SEGIS 下載頁本次未重新核對）": "Open Government Data License (as recorded in docs/data-catalog/demographics/village_comprehensive.md; the SEGIS download page was not rechecked)",
   "enum.statLicense.政府資料開放授權條款第1版（data.gov.tw 7438）": "Open Government Data License, Version 1.0 (data.gov.tw 7438)",
   "enum.statLicense.授權條款待確認（RIS API 授權欄位尚未以 data.gov.tw 資料集頁確認；不標示為政府資料開放授權條款）": "License to be confirmed (the RIS API license field has not been checked against the data.gov.tw dataset page; not labeled as the Open Government Data License)",
-  "enum.statLicense.ogdlDatasetPage": "Open Government Data License, Version 1.0 (as stated on the data.gov.tw dataset {id} page)"
+  "enum.statLicense.ogdlDatasetPage": "Open Government Data License, Version 1.0 (as stated on the data.gov.tw dataset {id} page)",
+  "enum.statLicense.政府資料開放授權條款第 1 版（OGDL-1.0；data.gov.tw 授權欄值 1，未逐字核對）": "Open Government Data License, Version 1.0 (OGDL-1.0; data.gov.tw license field value 1, not verified verbatim)"
 }

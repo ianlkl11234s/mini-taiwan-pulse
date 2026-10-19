@@ -1,4 +1,4 @@
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createInterface } from "node:readline";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -6,6 +6,7 @@ import { pollutionPenaltyEventsAdapter, pollutionPenaltyEventsDescriptor } from 
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/pollution-penalties-v2/";
 const prefix = "/__local-research-owner-only/pollution-penalties-v2/";
@@ -31,7 +32,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); clearPointPartitionCache(); });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source oracles for dense Taipei and rural contrast within hard budgets", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches independent full-source oracles for dense Taipei and rural contrast within hard budgets", async () => {
   const executor = new QueryExecutor([pollutionPenaltyEventsAdapter]);
   expect(pollutionPenaltyEventsDescriptor.layerRefs).toEqual(["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile", "noiseEnforcementEvents"]);
   expect(pollutionPenaltyEventsDescriptor.recordGrain).toBe("event");
@@ -53,7 +54,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source 
   }
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("fails closed for a broad bbox", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("fails closed for a broad bbox", async () => {
   await expect(new QueryExecutor([pollutionPenaltyEventsAdapter]).execute({ datasetId: pollutionPenaltyEventsDescriptor.datasetId, bbox: [118, 21, 123, 27], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");
 });
 

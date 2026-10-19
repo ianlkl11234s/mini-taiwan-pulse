@@ -205,7 +205,6 @@ export function useTimelineSliceLayer<D>(
       controller();
     };
     // config 為模組層常數，不進 deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef, visible, mapTick]);
 
   // 樣式：只 setPaintProperty

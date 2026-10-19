@@ -78,7 +78,6 @@ export function useBusLayer(
       });
 
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, cities.join(",")]);
 
   // ── Live: Polling bus_current ──
@@ -127,7 +126,6 @@ export function useBusLayer(
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, isLive, engineRef.current !== null, cities.join(",")]);
 
   // ── Replay: loadDay callback ──
@@ -172,7 +170,6 @@ export function useBusLayer(
     } finally {
       fetchingDayRef.current = "";
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, isLive, citiesKey]);
 
   // 切到 replay 或 cities 變化時清空 live 資料，讓 loadDay 可以接手

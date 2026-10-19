@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
 import { regulatedFacilitiesOwnerAdapter, regulatedFacilitiesOwnerDescriptor } from "../regulatedFacilitiesOwnerDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const root = "../runtime/owner-only/regulated-facilities/";
 const prefix = "/__local-research-owner-only/regulated-facilities/";
@@ -38,7 +38,7 @@ it("requires bbox, retains safe attributes, and states proxy geometry", async ()
   expect(regulatedFacilitiesOwnerDescriptor.coverage).toContain("50.01% 是 company join");
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("preserves active coordinate misses and strips direct facility identifiers", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("preserves active coordinate misses and strips direct facility identifiers", async () => {
   const result = await new QueryExecutor([regulatedFacilitiesOwnerAdapter]).execute({ datasetId: regulatedFacilitiesOwnerDescriptor.datasetId, bbox: [121.54, 24.97, 121.57, 25.00], limit: 1 });
   expect(result.rows).toHaveLength(1);
   expect(result.rows[0]).toMatchObject({ geometry: { type: "Point" } });
@@ -46,7 +46,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("preserves active coordinate miss
   expect(result.excludedByReason).toMatchObject({ active_facility_coordinate_miss: 47_063 });
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("matches two full-source bbox and attribute oracles within bounded reads", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("matches two full-source bbox and attribute oracles within bounded reads", async () => {
   const cases: { bbox: Bbox; filters: { county?: string; industryGroup?: string; iswaste?: number } }[] = [
     { bbox: [121.45, 24.98, 121.50, 25.03], filters: { county: "新北市", industryGroup: "25" } },
     { bbox: [120.25, 22.55, 120.30, 22.60], filters: { county: "高雄市", iswaste: 1 } },
@@ -66,6 +66,6 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches two full-source bbox and
   }
 });
 
-it.skipIf(!existsSync(`${root}manifest.json`))("fails closed when a broad bbox selects more than the partition byte budget", async () => {
+it.skipIf(!ownerAsset(`${root}manifest.json`))("fails closed when a broad bbox selects more than the partition byte budget", async () => {
   await expect(new QueryExecutor([regulatedFacilitiesOwnerAdapter]).execute({ datasetId: regulatedFacilitiesOwnerDescriptor.datasetId, bbox: [118, 21, 123, 27], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");
 });

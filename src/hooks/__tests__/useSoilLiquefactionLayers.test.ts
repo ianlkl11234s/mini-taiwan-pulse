@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only evaluator/validator.
 import { expression, featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
@@ -14,7 +11,6 @@ import {
   buildSoilLiquefactionLayers, potentialFillColor, weakSoilFillColor, weakSoilMissingFilter, weakSoilValueFilter,
 } from "../useSoilLiquefactionLayers";
 
-const HOOK_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../useSoilLiquefactionLayers.ts");
 const TRANSPARENT = "rgba(0,0,0,0)";
 
 function evalColor(expr: unknown, properties: Record<string, unknown>): string {
@@ -39,9 +35,7 @@ const STATE = {
 describe("soil-liquefaction owner-only PMTiles contract", () => {
   it("reads only the same-origin private endpoint (no official WMTS/WMS, no hard-coded sites)", () => {
     expect(SOIL_LIQUEFACTION_PRIVATE_ENDPOINT).toBe("/api/private-research/soil-liquefaction/tiles");
-    const source = fs.readFileSync(HOOK_FILE, "utf8");
-    expect(source).not.toMatch(/gis\.liquid\.net\.tw|WMSServer|WMTS|"raster"/);
-    expect(source).not.toMatch(/TPSite|臺北市中山站/);
+    // 不接官方 WMTS／WMS、不寫死站點：ESLint pulse/owner-only-banned-text（範圍釘在 eslint-rules/__tests__/ownerOnlyScope.test.js）
     expect(SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS).toHaveLength(8);
     expect(isSoilLiquefactionPrivateLayer("weakSoilSand10To20")).toBe(true);
     expect(isSoilLiquefactionPrivateLayer("jpWaterDams")).toBe(false);

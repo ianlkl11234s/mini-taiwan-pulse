@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { protectedTreesOwnerAdapter, protectedTreesOwnerDescriptor } from "../protectedTreesOwnerDataset";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sidecar = "../runtime/owner-only/protected-trees/protected-trees-owner-20260714.geojson";
 const processed = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/urban_open_space/protected_trees_national/protected_trees_national_20260714.geojson";
@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sidecar))("keeps the owner-only eight-city receipt, new-place bbox oracle, and source null variant", async () => {
+it.skipIf(!ownerAsset(sidecar))("keeps the owner-only eight-city receipt, new-place bbox oracle, and source null variant", async () => {
   const source = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { city: string; tree_id: string; species: string; estimated_age_years: number | null } }[] };
   const oracle = source.features.filter(({ geometry: { coordinates: [lng, lat] } }) => lng >= chiayiBbox[0] && lng <= chiayiBbox[2] && lat >= chiayiBbox[1] && lat <= chiayiBbox[3]).length;
   const executor = new QueryExecutor([protectedTreesOwnerAdapter]);

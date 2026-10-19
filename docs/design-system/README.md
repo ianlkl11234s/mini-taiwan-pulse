@@ -67,7 +67,7 @@
 1. **改數值**：改上表的程式檔 → 活的元件頁自動反映 → 在 `spec.md`／`map-layers.md` 對應章節更新文字 → `CHANGELOG.md` 記一筆。
 2. **新元件**：先在 `spec.md` §5 寫規格 → 實作 → 在 `src/design-system/` 加一段展示（暗／淡並排、標出規格章節與實作檔）。
 3. **更新靜態快照**：開 dev server 後跑 `npm run design:snapshot`，會把活頁存成 `reference.html`。
-4. **自動檢查**：`src/styles/__tests__/designSystemGuard.test.ts`（ratchet，只准違規變少）；紅燈要修程式，不可用改基準繞過。只有違規確實減少時才跑 `npm run design:baseline`。
+4. **自動檢查**：`npm run lint`（ESLint `pulse/design-*`／`pulse/design-css-*`，ratchet，只准違規變少）；紅燈要修程式，不可用改基準繞過。只有違規確實減少時才跑 `npm run lint:prune`。TS↔CSS token 同值測試在 `src/styles/__tests__/designSystemGuard.test.ts`。
 5. **出設計稿**：新的視覺決策照慣例做「暗／淡並排、用代號選」的比較頁，放在 `docs/features/<slug>/`，拍板後把結果寫回這裡。
 
 ## 設計稿與決策來源

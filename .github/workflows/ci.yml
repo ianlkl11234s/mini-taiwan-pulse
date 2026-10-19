@@ -29,23 +29,22 @@ jobs:
 
       - run: npm ci
 
+      # 以下每個 step 都是 package.json 的 check:*；本機 `npm run check` 依序跑同一組。
+      # 新增檢查：在 package.json 加 check:<name> 並串進 check，再在這裡加對應 step
+      # （src/test/ciCheckParity.test.ts 會擋兩邊不一致）。
+      # 自訂 ESLint 規則（取代原本讀原始碼＋regex 的守門測試；docs/development-rules.md「自訂 ESLint 規則」）
+      - name: Lint (ESLint guard rules)
+        run: npm run check:lint
+
       - name: TypeScript build (tsc -b + vite build)
-        run: npm run build
+        run: npm run check:build
 
       - name: Tests (vitest)
-        run: npm test
+        run: npm run check:test
 
       # 圖層樣式盤點必須與程式同步（docs/design-system/map-layers.md §6）
       - name: Design layer inventory up to date
-        run: |
-          npm run -s design:audit-layers
-          if ! git diff --quiet -- docs/design-system/layer-style-inventory.json; then
-            git diff --stat -- docs/design-system/layer-style-inventory.json
-            echo "::error::layer-style-inventory.json 與目前圖層樣式不一致。請執行 npm run design:audit-layers 並提交結果（確認差異只動到本次改的圖層）。"
-            exit 1
-          fi
+        run: npm run check:inventory
 
       - name: Private coral backend tests
-        run: |
-          npm ci --prefix server/coral-private
-          npm test --prefix server/coral-private
+        run: npm run check:coral

@@ -15,8 +15,10 @@
 | 指令 | 用途 |
 |---|---|
 | `npm run dev` | 啟動 dev server (port 3721) |
-| `npx tsc -b` | TypeScript 驗證（commit 前必跑，禁用 `--noEmit`） |
-| `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
+| `npm run check` | commit／PR 前必跑：依序跑 CI 的全部檢查（lint、build、test、樣式盤點、coral） |
+| `npm run lint` | 只跑 ESLint 守門規則（自訂規則見 development-rules §6）；修掉既有違規後跑 `npm run lint:prune` |
+| `npx tsc -b` | TypeScript 驗證（禁用 `--noEmit`） |
+| `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例；owner-local 測試用 `npm run test:owner`） |
 | `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 manifest/spec/邏輯檔三步 + 四鐵則） |
 | `/check-rpc <name>` | 自動 EXPLAIN 判斷 RPC 效能 |
 
@@ -24,7 +26,7 @@
 
 ### 1. TypeScript 驗證
 
-`npx tsc -b`（project references，禁用 `--noEmit`）— commit 前必跑。
+commit 前必跑 `npm run check`（與 CI 同一組檢查，其中 build 含 `tsc -b`；project references，禁用 `--noEmit`）。
 
 ### 2. 資料來源管理
 資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `live.*`（舊 `realtime` schema 已併入 `live`））→ [`docs/development-rules.md`](./docs/development-rules.md) §1
@@ -51,7 +53,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8（正本）+ [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 
 ### 7. UI 規範（Design System）⚠️
-任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`src/styles/__tests__/designSystemGuard.test.ts` 紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run design:baseline` 降低基準。
+任何 UI 改動（面板、popup、控制項、樣式表）必須遵守 [`docs/design-system/spec.md`](./docs/design-system/spec.md)（PR 前照 §8 checklist）。`npm run lint` 的 `pulse/design-*`（TS／TSX 與 CSS）紅燈要修程式碼，**不可用改基準繞過**；只有違規確實減少時才跑 `npm run lint:prune` 降低基準。
 
 ## Git Workflow（develop → master，2026-10-04 起）
 

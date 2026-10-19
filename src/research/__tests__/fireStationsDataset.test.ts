@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { fireStationsOwnerAdapter, fireStationsOwnerDescriptor } from "../fireStationsDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const asset = "../runtime/owner-only/fire-stations/fire-stations-source-20260710.geojson";
 
@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(asset))("keeps all 717 source rows with coordinate provenance, without address or phone", async () => {
+it.skipIf(!ownerAsset(asset))("keeps all 717 source rows with coordinate provenance, without address or phone", async () => {
   const executor = new QueryExecutor([fireStationsOwnerAdapter]);
   const all = await executor.execute({ datasetId: fireStationsOwnerDescriptor.datasetId, limit: 1 });
   const google = await executor.execute({ datasetId: fireStationsOwnerDescriptor.datasetId, filters: [{ field: "geocoding_source", op: "eq", value: "google" }], select: ["station_id", "geocoding_precision", "geometry"], limit: 1 });
@@ -27,7 +27,7 @@ it.skipIf(!existsSync(asset))("keeps all 717 source rows with coordinate provena
   expect(fireStationsOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["address", "phone"]));
 });
 
-it.skipIf(!existsSync(asset))("allows bounded reference-position lookup but excludes nearby analysis", async () => {
+it.skipIf(!ownerAsset(asset))("allows bounded reference-position lookup but excludes nearby analysis", async () => {
   const executor = new QueryExecutor([fireStationsOwnerAdapter]);
   const result = await executor.execute({ datasetId: fireStationsOwnerDescriptor.datasetId, bbox: [121.50, 25.03, 121.54, 25.05], select: ["station_id", "name", "geometry"], limit: 50 });
   expect(result.totalMatched).toBeGreaterThan(0);

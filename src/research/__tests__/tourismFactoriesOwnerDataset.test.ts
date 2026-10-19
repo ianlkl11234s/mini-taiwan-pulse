@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 import { tourismFactoriesOwnerAdapter, tourismFactoriesOwnerDescriptor } from "../tourismFactoriesOwnerDataset";
+import { ownerAsset } from "../../test/ownerAssets";
 
 const sidecar = "../runtime/owner-only/tourism-factories/tourism-factories-owner-20260723.geojson";
 const processed = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/tourism/tourism_factory/tourism_factory_20260723.geojson";
@@ -16,7 +16,7 @@ async function oracle(id: string) {
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it.skipIf(!existsSync(sidecar))("retains two source-oracle places and distinct geocode provenance without contact fields", async () => {
+it.skipIf(!ownerAsset(sidecar))("retains two source-oracle places and distinct geocode provenance without contact fields", async () => {
   const executor = new QueryExecutor([tourismFactoriesOwnerAdapter]);
   const keelung = await executor.execute({ datasetId: tourismFactoriesOwnerDescriptor.datasetId, bbox: bboxes.keelung, select: ["id", "name", "geocode_source", "geocode_precision", "geometry"], limit: 100 });
   const linkou = await executor.execute({ datasetId: tourismFactoriesOwnerDescriptor.datasetId, bbox: bboxes.linkou, select: ["id", "name", "geocode_source", "geocode_precision", "geometry"], limit: 100 });

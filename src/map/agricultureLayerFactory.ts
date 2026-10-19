@@ -34,7 +34,6 @@ function addPmtilesSourceIfMissing(
     url: `${BASE}/${fileName}`,
     minzoom,
     maxzoom,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 }
 
@@ -200,7 +199,6 @@ function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
       minzoom: cfg.minzoom,
       layout: { visibility: "none" },
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": cfg.fillColor as any,
         "fill-opacity": hookFillOpacity(agriPolyKey(cfg.fillId), cfg.fillId, cfg.defaultOpacity, cfg.defaultOpacity),
       },
@@ -300,7 +298,6 @@ export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
       minzoom: 8,
       layout: { visibility: "none" },
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
         "fill-opacity": hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY, SOIL_FERT_BASE_OPACITY),
       },
@@ -317,7 +314,6 @@ export function updateAgriSoilFertilityLayer(
   map.setLayoutProperty(SOIL_FERT_FILL_ID, "visibility", visible ? "visible" : "none");
   map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY * params.opacity, SOIL_FERT_BASE_OPACITY));
   const meta = SOIL_FERTILITY_METRICS[params.metric] ?? SOIL_FERTILITY_METRICS.health;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-color", meta.paintExpr as any);
 }
 
@@ -425,7 +421,6 @@ export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
       // 初始 filter — 第 0 號作物
       filter: ["==", ["get", "crop_layer_id"], 0],
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": CROP_KIND_COLOR_EXPR as any,
         "fill-opacity": hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY, CROP_BASE_OPACITY),
       },
@@ -482,7 +477,6 @@ export function ensureAgriPOILayers(map: MapboxMap, isDarkTheme = true): void {
       layout: { visibility: "none" },
       paint: {
         "circle-radius": pointRadius("M"),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "circle-color": POI_TYPE_COLOR_EXPR as any,
         ...pointStrokePaint(isDarkTheme),
         "circle-opacity": 0.9,
@@ -508,7 +502,6 @@ export function updateAgriPOILayer(
       .then((json) => {
         const src = map.getSource(POI_SOURCE_ID);
         if (src && "setData" in src) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (src as any).setData(json);
         }
       })

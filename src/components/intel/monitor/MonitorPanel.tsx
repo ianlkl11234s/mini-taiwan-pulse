@@ -419,7 +419,6 @@ export function MonitorPanel({
     handler(timeStore.getDateKey());
     const unsub = timeStore.subscribeDate(handler);
     return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, fKey]);
 
   // playback animation
@@ -485,7 +484,6 @@ export function MonitorPanel({
     }
     out.sort((a, b) => b.published_ts - a.published_ts);
     return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clusters, cats, county, effectivePlayback, timeRange, isLive, dayStartTs]);
 
   // 全天版本（給 TimelineDock + IndicatorPanel histogram 用，不受 timeRange 窗影響）

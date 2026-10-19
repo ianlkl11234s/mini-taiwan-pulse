@@ -149,7 +149,6 @@ export function useClimateParticleLineLayer(
       layerRef.current = null;
     };
     // rampColors 只在建立時消費；visible 放 deps 讓 toggle ON 時重試 mapRef.current。
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef, o.layerId, o.pngUrl, o.metaUrl, o.visible, mapTick]);
 
   useEffect(() => {

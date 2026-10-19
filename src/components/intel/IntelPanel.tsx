@@ -234,7 +234,6 @@ export function IntelPanel({
     handler(timeStore.getDateKey());
     const unsub = timeStore.subscribeDate(handler);
     return unsub;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, fKey]);
 
   // ── 全球情勢 feed：與新聞同一套契約（面板自己載，不依賴地圖圖層）──

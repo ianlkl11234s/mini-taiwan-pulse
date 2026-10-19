@@ -3,7 +3,7 @@
 # Mini Taiwan Pulse — Design System
 
 > **UI 規範 SSOT**。新增或修改任何 UI（面板、popup、控制項、工具列、樣式表）前必讀；PR 前照 §8 checklist 逐項勾。資料夾入口：[`README.md`](./README.md)（檔案地圖、維護流程）；每輪決定：[`CHANGELOG.md`](./CHANGELOG.md)。
-> 自動檢查：`src/styles/__tests__/designSystemGuard.test.ts`（§9）。視覺參考：**活的元件頁** `tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
+> 自動檢查：`npm run lint`（ESLint；TS／TSX 為 `pulse/design-*`，CSS 為 `pulse/design-css-*`，§9）。視覺參考：**活的元件頁** `tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
 > 決策來源：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a 五輪拍板、`proposal.md`、三份設計稿）。本檔寫的是**拍板後的最終規格與實際實作值**；兩者不一致時以本檔 §10「遷移狀態」誠實標示。
 
 ## 目錄
@@ -64,7 +64,8 @@
 | `src/data/layerParamsSpec.ts` | 圖層控制項規格（標籤文字、滑桿範圍）→ 自動產生控制項 |
 | `src/components/LegendPanel.tsx` `LEGEND_REGISTRY` | layer → 圖例 |
 | `src/components/featureInfo/registry.tsx` `PANEL_REGISTRY` | layer → popup 內容 |
-| `src/styles/__tests__/designSystemGuard*.{ts,json}` | 自動檢查規則、基準、TS↔CSS 同值測試（§9） |
+| `eslint-rules/rules/design.js`、`eslint-rules/rules/css.js`、`eslint-suppressions.json` | TS／TSX 與 CSS 自動檢查規則與基準（§9） |
+| `src/styles/__tests__/designSystemGuard.test.ts` | TS↔CSS token 同值測試（§9） |
 | `src/map/mapStyleScale.ts` | 地圖圖層拍板數值 SSOT（點半徑、描邊、線寬、面透明度、缺值斜線、熱區、標籤、地圖中文字型；§13） |
 | `src/map/pointTiers.ts`／`src/map/pointSpec.ts` | 點圖層分階（registry `POINT_TIERS`、hook `HOOK_POINT_TIERS`）與 registry 集中套用 `withPointSpec()`（§13） |
 | `src/components/legend/legendKit.tsx` | 圖例共用元件與色票尺寸（§5.32） |
@@ -959,40 +960,46 @@ PR 前逐項勾（貼進 PR 描述）：
 - [ ] 層級用 `Z_INDEX`／`--z-*`，沒有新的寫死數字；新左側面板已加入互斥清單（§5.25、§5.26）
 - [ ] 沒有「規劃中」之類沒有功能的按鈕
 - [ ] 窄螢幕（手機寬度）不橫向溢出
-- [ ] `npx tsc -b` 綠；`npx vitest run src/styles/__tests__/designSystemGuard.test.ts` 綠
-- [ ] 若 guard 顯示違規減少：已執行 `npm run design:baseline` 並 commit 基準
+- [ ] `npx tsc -b` 綠；`npm run lint` 綠；`npx vitest run src/styles/__tests__/designSystemGuard.test.ts`（token 同值）綠
+- [ ] 若 guard 顯示違規減少：已執行 `npm run lint:prune` 並 commit 基準
 - [ ] 若新增 token：TS 與 CSS 同時加，並補本檔 §3 表格
 
 ## 9. 自動檢查（guard）
 
 ### 9.1 做法（ratchet）
 
-- 測試：`src/styles/__tests__/designSystemGuard.test.ts`（含規則單元測試、ratchet 比對、TS↔CSS 同值）。
-- 規則：`src/styles/__tests__/designSystemGuardRules.ts`；基準：`src/styles/__tests__/designSystemGuard.baseline.json`（`{規則: {檔案: 筆數}}`）。
+- 全部在 ESLint（2026-10-18 起）：`npm run lint`（CI step「Lint」）。基準是根目錄 `eslint-suppressions.json`（每檔每規則的筆數）。錯誤訊息直接指出檔名、行號、怎麼改與本檔章節。
+  - **TS／TSX**：規則 `eslint-rules/rules/design.js`，id 為 `pulse/design-<規則>`。
+  - **CSS**：`@eslint/css`（只用它的解析器，不開它的 recommended）＋本地規則 `eslint-rules/rules/css.js`，id 為 `pulse/design-css-<規則>`。註解不算違規。
+  - RuleTester 樣本在 `eslint-rules/__tests__/`（`rules.test.js`、`cssRules.test.js`），套用範圍釘在 `config.test.js`。
+  - `src/styles/__tests__/designSystemGuard.test.ts` 只剩 TS↔CSS token 同值測試（行為性一致檢查，不是禁用寫法）。
 - 範圍：`src/**/*.{ts,tsx,css}`，排除 `__tests__`、`__fixtures__`／fixture、`*.test.*`。
-- **任何檔案計數增加、或新檔案出現違規 → 測試失敗**，訊息列出檔案、規則、增加數、怎麼改與本檔章節。
-- 計數減少 → 只提示；執行 `npm run design:baseline` 把基準降下來。
-- `npm run design:baseline` **只會往下降**：有新增違規時拒絕寫入並 exit 1。`--reset` 會整份重建，只用於基準遺失或規則定義本身改變，且必須在 PR 說明。
-- ⚠️ **guard 紅燈不可用改基準繞過**。唯一例外是本檔 §4.2／§3.16 已登記、或經拍板新增的刻意例外——先改本檔登記，再在 PR 說明為何 `--reset`。
+- **任何檔案計數增加、或新檔案出現違規 → 失敗**。
+- 計數減少：ESLint 會報「有沒用到的 suppression」而失敗，執行 `npm run lint:prune` 把基準降下來。
+- 基準**只會往下降**：**不要**跑 `eslint --suppress-all`／`--suppress-rule`（等於放寬基準）。新規則的初始基準要在 PR 說明筆數來源。
+- `// eslint-disable` 註解無效（`npm run lint` 帶 `--no-inline-config`），不能用來繞過。
+- ⚠️ **guard 紅燈不可用改基準繞過**。唯一例外是本檔 §4.2／§3.16 已登記、或經拍板新增的刻意例外——先改本檔登記，再在 PR 說明為何調整基準。
 
-### 9.2 規則與目前基準（2026-09-29）
+### 9.2 規則與目前基準（2026-10-18）
 
-| 規則 | 擋什麼 | 擋／記錄 | 基準筆數（檔案數） |
-|---|---|---|---|
-| `web-font` | `fonts.googleapis`、`@font-face`、`"JetBrains Mono"`、`Inter,`、`Georgia`、`Songti` | 擋 | 0（0） |
-| `hex-literal-in-ui-css` | `src/research/*.css`、`src/components/**/*.css` 的 `#rgb`／`#rrggbb`（`src/styles/**` 除外） | 擋 | 4（2） |
-| `native-range` | `type="range"`／`type: "range"`（只有 `controls/Slider.tsx` 除外） | 擋 | 0（0） |
-| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 5（4） |
-| `english-control-label` | `layerParamsSpec.ts` `labelPrefix` 英文開頭 | 擋 | 1（1） |
-| `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 3（2） |
-| `font-data-on-cjk` | 啟發式：`FONT_DATA` 元素的直接子文字含中文（同一行內） | 擋 | 3（3） |
-| `raw-z-index` | `zIndex: <n>`／`z-index: <n>` 且 n ≥ 10（`src/styles/**` 定義檔除外；0–9 元件內部小值不算） | 擋 | 17（15）（#390 刪除 `LoadingIndicator` 後） |
-| `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄** | 1（1）（2026-10-03 B 段修掉資料來源卡 2 處） |
+TS／TSX 欄的規則 id 是 `pulse/design-<規則>`，CSS 欄是 `pulse/design-css-<規則>`（`hex-literal-in-ui-css` 為 `pulse/design-css-hex-literal`）；基準都在 `eslint-suppressions.json`。
 
-`raw-z-index` 於 Phase Q 新增，基準以 `design:baseline --reset` 由當下程式碼建立（規則新增屬 §9.1 的 reset 條件；其他規則的值同時只降不升）。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
+| 規則 | 擋什麼 | 擋／記錄 | 基準筆數（檔案數）TS／TSX | CSS |
+|---|---|---|---|---|
+| `web-font` | `fonts.googleapis`、`@font-face`、`"JetBrains Mono"`、`Inter,`、`Georgia`、`Songti`（TS 只看字串） | 擋 | 0（0） | 0（0） |
+| `hex-literal-in-ui-css` | `src/research/*.css`、`src/components/**/*.css` 的 `#rgb`／`#rrggbb`（`src/styles/**` 除外） | 擋 | — | 4（2） |
+| `native-range` | `type="range"`／`type: "range"`（只有 `controls/Slider.tsx` 除外） | 擋 | 0（0） | — |
+| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 5（4） | 0（0） |
+| `english-control-label` | `layerParamsSpec.ts` `labelPrefix` 英文開頭 | 擋 | 1（1） | — |
+| `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 1（1） | 2（1） |
+| `font-data-on-cjk` | 啟發式：style 含 `FONT_DATA` 的 JSX 元素，直接文字含中文 | 擋 | 0（0） | — |
+| `raw-z-index` | `zIndex: <n>`／`z-index: <n>` 且 n ≥ 10（`src/styles/**` 定義檔除外；0–9 元件內部小值不算） | 擋 | 15（14） | 0（0） |
+| `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄**（ESLint warning） | 0 | — |
+
+`raw-z-index` 於 Phase Q 新增，基準由當下程式碼建立（其他規則的值同時只降不升）。CSS 規則 2026-10-18 由 vitest 搬進 ESLint，筆數逐檔沿用舊基準。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
 
 **誤判與漏判**：
-- `font-data-on-cjk` 只看同一行；跨行的 JSX（例 F2 footer 第二行）不會命中，屬已知漏判。正確混排寫法（中文在外、數字 span 在內）不會誤判。
+- `font-data-on-cjk` 改成 ESLint（AST）後跨行的 JSX 也會命中（2026-10-18 因此修掉 `App.tsx` 地名開關按鈕 1 處）；只看元素的直接文字，子元素裡的中文不算。正確混排寫法（中文在外、數字 span 在內）不會誤判。
 - `internal-id-display` 會命中「先顯示標題、查不到才 fallback 代號」的寫法（`DataSourcePanel.tsx` 原有 2 處屬此類，2026-10-03 已修）；但也可能把合法的 tooltip 或除錯欄位算進去，因此只記錄不擋。
 - `web-font` 的 `Georgia` 也會命中資料中的國名（目前 0 筆）；遇到時把字串移到資料檔（`src/data/**` 同樣受掃描，需在 PR 說明）。
 - `raw-z-index` 只看 `zIndex:`／`z-index:` 後直接接數字的寫法；`zIndex: cond ? 50 : 10`、字串拼接或變數不會命中（漏判）。註解行不算。
@@ -1130,6 +1137,6 @@ PR 前逐項勾（貼進 PR 描述）：
 - **進度（2026-10-04）**：R1（#391）、R2 點（#392／#396／#398）、R3a 線面 registry（#461）、R3b 線面 hook＋網格／影像／文字／擠出（#475）、R4 圖例對齊（#465／#468）、R5 密集點熱區＋密度透明度（#498）、R7 熱區／網格色盤可選（#510）已上線；只剩 R6 Three.js／Mapbox 切換（待使用者決定範圍）。主體點半徑中位 z10／z14 皆 4.5；線寬、面透明度的盤點中位值仍是 2026-09-28 數字。
 - **拍板（2026-09-28）**：點 S 3／M 4.5／L 6.5 固定半徑（不隨縮放）、描邊暗 `#0a0a14`／淡 `#ffffff` 1px；線 細／標準／強調 三階（隨縮放）、不加外框；面 分級 0.55／覆蓋 0.35／背景 0.15／網格 0.7；密集點低縮放用熱區；暗淡只換色不換尺寸；缺值統一透明底＋細斜線；Three.js 圖層加「基本點線面」模式、預設 Mapbox；圖例 8 型規格、標題中文在前英文小字在後；2026-09-28／29 追加：hook 依資料半徑的 11 層改泡泡、依屬性變化的描邊保留、車站光柱預設關。完整清單見專檔 §7。
 - **數值來源**：`src/map/mapStyleScale.ts`（拍板數值）；點分階 `src/map/pointTiers.ts`（改點大小只改這裡，不改 `overlayRegistry.ts` 字面值）；registry 點圖層集中套用 `src/map/pointSpec.ts`。
-- **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案行號、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
+- **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
 - **參考頁**：活的元件頁 `tools/design-system.html` 地圖圖層區塊；靜態快照 [`reference.html#map-layers`](./reference.html#map-layers)；拍板比較頁 [`map-layer-picks.html`](./map-layer-picks.html)（真實底圖 1:1）。
 - 分析結果圖層的規格已定案於 `docs/features/viz-library/DECISIONS.md`，專檔引用不重寫。

@@ -8,8 +8,7 @@ describe("Monitor resource cards", () => {
     const source = readFileSync(new URL(`../${name}.tsx`, import.meta.url), "utf8");
     expect(source).toContain("useMonitorResource");
     expect(source).toContain("MonitorDataStatus");
-    expect(source).not.toContain("setInterval");
-    expect(source).not.toContain("let cancelled");
+    // 不得自己 setInterval／let cancelled：改由 ESLint pulse/monitor-no-manual-polling 檢查
   });
 
   it("keeps the independently failing ER queries independent", () => {

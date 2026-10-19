@@ -1,0 +1,150 @@
+{
+  "src/App.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 2
+    }
+  },
+  "src/components/AirportSelector.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/LayerSidebar.tsx": {
+    "pulse/design-triangle-chevron": {
+      "count": 1
+    }
+  },
+  "src/components/LoadingScreen.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/MobileBottomSheet.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/TransientNotice.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/admin/AdminPanel.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/intel/IntelPanel.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/intel/monitor/FoodPriceBoard.tsx": {
+    "pulse/design-triangle-chevron": {
+      "count": 1
+    }
+  },
+  "src/components/intel/monitor/HazardWatchStrip.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/intel/monitor/LiveWall.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/intel/monitor/MonitorPanel.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/intel/monitor/PressureRing.tsx": {
+    "pulse/design-uppercase-eyebrow": {
+      "count": 1
+    }
+  },
+  "src/components/legend/cultureLegends.tsx": {
+    "pulse/legend-no-hand-sized-swatch": {
+      "count": 2
+    }
+  },
+  "src/components/legend/energyTelecomLegends.tsx": {
+    "pulse/legend-no-hand-sized-swatch": {
+      "count": 3
+    }
+  },
+  "src/components/legend/hazardLegends.tsx": {
+    "pulse/legend-no-hand-sized-swatch": {
+      "count": 2
+    }
+  },
+  "src/components/legend/maritimeLegends.tsx": {
+    "pulse/legend-no-hand-sized-swatch": {
+      "count": 2
+    }
+  },
+  "src/components/legend/transportLegends.tsx": {
+    "pulse/legend-no-hand-sized-swatch": {
+      "count": 2
+    }
+  },
+  "src/components/satelliteConsole/SatelliteConsole.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/satelliteConsole/SatelliteDetailCard.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/components/sidebar/layerParamControls.css": {
+    "pulse/design-css-hex-literal": {
+      "count": 1
+    }
+  },
+  "src/data/layerParamsSpec.ts": {
+    "pulse/design-english-control-label": {
+      "count": 1
+    },
+    "pulse/design-triangle-chevron": {
+      "count": 2
+    }
+  },
+  "src/embed/EmbedApp.tsx": {
+    "pulse/design-triangle-chevron": {
+      "count": 1
+    }
+  },
+  "src/gfw-v4-bench/styles.css": {
+    "pulse/design-css-uppercase-eyebrow": {
+      "count": 2
+    }
+  },
+  "src/hooks/useGfwHourlyTracksLayer.ts": {
+    "pulse/no-zoom-circle-radius": {
+      "count": 1
+    }
+  },
+  "src/hooks/useTyphoonTracksLayer.ts": {
+    "pulse/no-zoom-circle-radius": {
+      "count": 1
+    }
+  },
+  "src/layers/hosts/allenCoralHost.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/layers/hosts/coralReefHost.tsx": {
+    "pulse/design-raw-z-index": {
+      "count": 1
+    }
+  },
+  "src/research/mainMapConnection.css": {
+    "pulse/design-css-hex-literal": {
+      "count": 3
+    }
+  }
+}

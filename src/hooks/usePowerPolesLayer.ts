@@ -100,7 +100,6 @@ export function usePowerPolesLayer(
           url: `${BASE}/power_poles.pmtiles`,
           minzoom: 5,
           maxzoom: 14,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       // Heatmap layer — z5-12 看密度（z<8 透明度由 z5Reveal 控制，預設關）

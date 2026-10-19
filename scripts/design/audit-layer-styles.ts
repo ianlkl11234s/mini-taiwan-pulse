@@ -383,8 +383,6 @@ function filesFromCallsites(key: string): string[] {
   return [...out];
 }
 
-const lineOf = (s: string, idx: number) => s.slice(0, idx).split("\n").length;
-
 /** 從 idx 起擷取一個 JS 值（括號平衡到 depth 0 的 , 或 } 為止） */
 function captureValue(s: string, idx: number): string {
   let depth = 0; let q: string | null = null;
@@ -409,11 +407,11 @@ const LAYER_TYPE_RE = /type\s*:\s*["'](circle|line|fill|fill-extrusion|heatmap|r
 
 function scanFile(f: string) {
   const s = text(f);
-  const props: { prop: string; line: number; value?: unknown; raw?: string }[] = [];
+  const props: { prop: string; value?: unknown; raw?: string }[] = [];
   for (const m of s.matchAll(PAINT_PROP_RE)) {
     const raw = captureValue(s, (m.index ?? 0) + m[0].length);
     const parsed = tryParse(raw);
-    props.push({ prop: m[1], line: lineOf(s, m.index ?? 0), ...(parsed !== undefined ? { value: parsed } : { raw: raw.slice(0, 140) }) });
+    props.push({ prop: m[1], ...(parsed !== undefined ? { value: parsed } : { raw: raw.slice(0, 140) }) });
   }
   const types = new Set<string>();
   for (const m of s.matchAll(LAYER_TYPE_RE)) types.add(m[1]);
@@ -446,11 +444,10 @@ const byOverlay = new Map<string, OverlayCfg[]>();
 for (const o of overlays) byOverlay.set(o.id, [...(byOverlay.get(o.id) ?? []), o]);
 
 const overlayRegistryText = text("src/map/overlayRegistry.ts");
+/** evidence 只記檔名不記行號（行號會隨無關改動位移，讓 CI 一致性比對誤報）；以 layer key 在檔內搜尋 */
 function overlayLines(id: string): string[] {
-  const out: string[] = [];
-  const re = new RegExp(`id:\\s*["'\`]${id}["'\`]`, "g");
-  for (const m of overlayRegistryText.matchAll(re)) out.push(`src/map/overlayRegistry.ts:${lineOf(overlayRegistryText, m.index ?? 0)}`);
-  return out;
+  const re = new RegExp(`id:\\s*["'\`]${id}["'\`]`);
+  return re.test(overlayRegistryText) ? ["src/map/overlayRegistry.ts"] : [];
 }
 
 const hookOfKey = new Map<string, string[]>();
@@ -460,15 +457,13 @@ for (const e of LAYER_HOOK_REGISTRY) { const h = e.id.split(":")[0]; keysOfHook.
 
 const statsKeys = new Set<string>(STATISTICS_RENDER_KEYS as string[]);
 const STATS_FILE = "src/map/regionalStatisticsMap.ts";
-const statsText = text(STATS_FILE);
-const statsLine = (needle: string) => `${STATS_FILE}:${lineOf(statsText, statsText.indexOf(needle))}`;
 const STATISTICS_PROFILE = {
   renderer: STATS_FILE,
   sublayers: [
-    { suffix: "fill", type: "fill", geometry: "polygon", values: { "fill-opacity": "= 透明度滑桿（預設 0.55）" }, colors: { "fill-color": { kind: "sequential-step", source: "statisticsRenderRecipe(key).colors／breaks；無數值時透明（F-3 A）" } }, evidence: statsLine("'fill-opacity': 0.55") },
-    { suffix: "missing", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-missing-{dark|light}（8px 單向 45° 細斜線，暗白／淡黑 35%）", "fill-opacity": "= 透明度滑桿" }, evidence: statsLine("hatchImageId('missing'") },
-    { suffix: "suppressed", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-suppressed-{dark|light}（8px 交叉斜線）", "fill-opacity": "= 透明度滑桿" }, evidence: statsLine("hatchImageId('suppressed'") },
-    { suffix: "line", type: "line", geometry: "line", values: { "line-width": 1, "line-opacity": "暗 0.6／淡 0.8（固定，不綁滑桿）" }, colors: { "line-color": { kind: "constant", source: "底圖色細縫 MAP_SEAM（暗 #0a0a14／淡 #ffffff）" } }, evidence: statsLine("gradedSeamPaint(isDark)") },
+    { suffix: "fill", type: "fill", geometry: "polygon", values: { "fill-opacity": "= 透明度滑桿（預設 0.55）" }, colors: { "fill-color": { kind: "sequential-step", source: "statisticsRenderRecipe(key).colors／breaks；無數值時透明（F-3 A）" } }, evidence: STATS_FILE },
+    { suffix: "missing", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-missing-{dark|light}（8px 單向 45° 細斜線，暗白／淡黑 35%）", "fill-opacity": "= 透明度滑桿" }, evidence: STATS_FILE },
+    { suffix: "suppressed", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-suppressed-{dark|light}（8px 交叉斜線）", "fill-opacity": "= 透明度滑桿" }, evidence: STATS_FILE },
+    { suffix: "line", type: "line", geometry: "line", values: { "line-width": 1, "line-opacity": "暗 0.6／淡 0.8（固定，不綁滑桿）" }, colors: { "line-color": { kind: "constant", source: "底圖色細縫 MAP_SEAM（暗 #0a0a14／淡 #ffffff）" } }, evidence: STATS_FILE },
   ],
   themeDiff: "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）",
 };
@@ -508,12 +503,12 @@ function componentBody(name: string): string {
   }
   return "";
 }
-function registryEntryText(id: string): { text: string; line: number } {
+function registryEntryText(id: string): { text: string } {
   const re = new RegExp(`\\{\\s*id:\\s*["']${id}["']`);
   const m = re.exec(legendPanelText);
-  if (!m) return { text: "", line: 0 };
+  if (!m) return { text: "" };
   const t = captureValue(legendPanelText, m.index);
-  return { text: t, line: lineOf(legendPanelText, m.index) };
+  return { text: t };
 }
 
 interface LegendFeatures { swatchSizes?: string[]; dot: number; square: number; line: number; dashed: number; gradient: number; hatch: number; svg: number; sizeSeries: boolean; fontSizes: number[]; swatchColors: string[] }
@@ -667,7 +662,7 @@ for (const entry of LEGEND_REGISTRY) {
     issues.push(`成員 ${hookOverride.join(", ")} 另有 hook（${[...new Set(hookOverride.flatMap((k) => hookOfKey.get(k)!))].join(", ")}）可能在 runtime 覆寫 paint，色票差異需人工確認`);
   }
   const rec: Record<string, unknown> = {
-    id: entry.id, members: members.slice().sort(), components: comps, evidence: `src/components/LegendPanel.tsx:${reg.line}`,
+    id: entry.id, members: members.slice().sort(), components: comps, evidence: "src/components/LegendPanel.tsx",
     resolution, ...(err ? { resolutionNote: /getServerSnapshot/.test(err) ? "SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式" : err } : {}), type,
     features: { dot: feats.dot, square: feats.square, line: feats.line, dashed: feats.dashed, gradient: feats.gradient, hatch: feats.hatch, svg: feats.svg, sizeSeries: feats.sizeSeries },
     fontSizes: feats.fontSizes, ...(feats.swatchSizes?.length ? { swatchSizes: feats.swatchSizes } : {}), swatchColorCount: feats.swatchColors.length,
@@ -738,9 +733,7 @@ for (const key of [...MANIFEST_KEYS].sort()) {
     if (props.length) {
       rec.resolution = "static-scan";
       rec.scope = "hook";
-      const byFile = new Map<string, number[]>();
-      for (const p of props) byFile.set(p.file, [...(byFile.get(p.file) ?? []), p.line]);
-      rec.evidence = [...byFile].map(([f, ls]) => `${f}:${[...new Set(ls)].slice(0, 8).join(",")}${ls.length > 8 ? ",…" : ""}`);
+      rec.evidence = [...new Set(props.map((p) => p.file))];
       const vals: Record<string, unknown[]> = {};
       for (const p of props) {
         const k = p.prop;
@@ -748,7 +741,7 @@ for (const key of [...MANIFEST_KEYS].sort()) {
           ? (ZOOM_PROPS.circle.concat(ZOOM_PROPS.line, ZOOM_PROPS.symbol, ZOOM_PROPS.heatmap).includes(k)
               ? { [`z${Z_LO}`]: fmt(evalNum(p.value, Z_LO)), [`z${Z_HI}`]: fmt(evalNum(p.value, Z_HI)) }
               : (k.endsWith("color") ? { kind: colorKind(p.value) } : fmt(evalNum(p.value, Z_HI))))
-          : `non-literal @${p.file}:${p.line}`;
+          : `non-literal @${p.file}`;
         (vals[k] ??= []).push(v);
       }
       rec.staticValues = Object.fromEntries(Object.entries(vals).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, v.slice(0, 6)]));

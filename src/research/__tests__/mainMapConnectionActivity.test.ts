@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { activityCardVisible, completedActivityForOperation, scheduleAnalysisResultStyleRestore } from "../MainMapConnection";
@@ -68,14 +69,33 @@ describe("活動卡顯示條件（不受左側 Agent 面板互斥影響）", () 
   });
 
   it("活動卡掛在地圖容器（portal），不在左側面板（hidden 會跟著面板收起）之內", () => {
-    const source = readFileSync(fileURLToPath(new URL("../MainMapConnection.tsx", import.meta.url)), "utf8");
-    const portal = source.indexOf("createPortal(<div className={`research-activity-position");
-    const panel = source.indexOf('className="main-map-agent-panel"');
-    expect(portal).toBeGreaterThan(-1);
-    expect(panel).toBeGreaterThan(portal);
-    const portalLine = source.slice(portal, source.indexOf("\n", portal));
-    expect(portalLine).toContain("activityCardVisible(activity, props.uiHidden)");
-    expect(portalLine).not.toMatch(/\bopen\b|panelOpen/);
+    // 元件需要真的地圖與 bridge 才能 render；改以 TSX AST 檢查 portal 的位置與顯示條件（不依賴排版）
+    const file = fileURLToPath(new URL("../MainMapConnection.tsx", import.meta.url));
+    const sf = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const portals: ts.CallExpression[] = [];
+    (function visit(node: ts.Node) {
+      if (ts.isCallExpression(node) && node.expression.getText() === "createPortal" && node.arguments[0]?.getText().includes("research-activity-position")) portals.push(node);
+      ts.forEachChild(node, visit);
+    })(sf);
+    expect(portals).toHaveLength(1);
+    const portal = portals[0]!;
+    const classOf = (el: ts.JsxOpeningLikeElement) => el.attributes.properties.find((a): a is ts.JsxAttribute => ts.isJsxAttribute(a) && a.name.getText() === "className")?.initializer?.getText() ?? "";
+    for (let node: ts.Node | undefined = portal.parent; node; node = node.parent) {
+      if (ts.isJsxElement(node)) expect(classOf(node.openingElement)).not.toContain("main-map-agent-panel");
+    }
+    const root = portal.arguments[0]!;
+    const opening = ts.isJsxElement(root) ? root.openingElement : root as ts.JsxSelfClosingElement;
+    const style = opening.attributes.properties.find((a): a is ts.JsxAttribute => ts.isJsxAttribute(a) && a.name.getText() === "style")!;
+    const calls: string[] = [];
+    const ids: string[] = [];
+    (function visit(node: ts.Node) {
+      if (ts.isCallExpression(node)) calls.push(`${node.expression.getText()}(${node.arguments.map((a) => a.getText()).join(", ")})`);
+      if (ts.isIdentifier(node)) ids.push(node.text);
+      ts.forEachChild(node, visit);
+    })(style);
+    expect(calls).toContain("activityCardVisible(activity, props.uiHidden)");
+    expect(ids).not.toContain("open");
+    expect(ids).not.toContain("panelOpen");
   });
 });
 

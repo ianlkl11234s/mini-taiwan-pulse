@@ -61,7 +61,6 @@ export function ensureMedicalIsochroneLayers(map: MapboxMap): void {
       url: `${BASE}/medical_isochrone.pmtiles`,
       minzoom: 5,
       maxzoom: 14,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   }
   if (!map.getLayer(FILL_ID)) {
@@ -73,7 +72,6 @@ export function ensureMedicalIsochroneLayers(map: MapboxMap): void {
       minzoom: 5,
       layout: { visibility: "none" },
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": COLOR_EXPR as any,
         "fill-opacity": hookFillOpacity("medIsochrone", FILL_ID, BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity, BASE_OPACITY * MEDICAL_ISOCHRONE_PARAMS_DEFAULT.opacity),
         "fill-antialias": false,
