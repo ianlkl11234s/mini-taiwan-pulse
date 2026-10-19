@@ -5,6 +5,13 @@
 const URL_RE = /https?:\/\//g;
 const IMPORT_META_RE = /\bimport\s*\.\s*meta\b/g;
 
+// 從網址起點讀到空白、引號、反引號或檔尾為止的整段 token；allowUrls 要與整段字串相等才放行
+// （`${...}` 插值不是結尾，所以 `https://ok/${x}` 這種接插值的寫法不等於清單內網址，照樣紅）。
+function urlToken(text, start) {
+  const m = /[\s"'`]/.exec(text.slice(start));
+  return m ? text.slice(start, start + m.index) : text.slice(start);
+}
+
 function reportAll(context, re, messageId, skip = () => false) {
   const { sourceCode } = context;
   const text = sourceCode.text;
@@ -49,7 +56,7 @@ export const ownerOnlyNoExternalSource = {
     };
     return {
       Program() {
-        reportAll(context, URL_RE, "url", (i) => allowUrls.some((u) => text.startsWith(u, i)));
+        reportAll(context, URL_RE, "url", (i) => allowUrls.includes(urlToken(text, i)));
         reportAll(context, IMPORT_META_RE, "importMeta", metaAllowed);
       },
     };

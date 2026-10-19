@@ -222,6 +222,7 @@ tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"
     { code: 'const OFFICIAL = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
     { code: 'const B = `${import.meta.env.BASE_URL ?? "/"}world/`;', options: [{ allowImportMeta: ["env.BASE_URL"] }] },
     { code: "const B = import . meta . env . BASE_URL;", options: [{ allowImportMeta: ["env.BASE_URL"] }] },
+    { code: 'const h = \'<a href="https://ok.test/p" rel="x">\';\n// https://ok.test/p', options: [{ allowUrls: ["https://ok.test/p"] }] },
     { code: 'const t = "https://tiles.example.test/{z}/{x}/{y}.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }] },
   ],
   invalid: [
@@ -239,6 +240,10 @@ tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"
     { code: "const e = import.meta.env;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: "const e = import.meta;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: 'const e = import.meta["env"].BASE_URL;', options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const t = "http://localhost/foo";', options: [{ allowUrls: ["http://localhost/"] }], errors: URL_ERR },
+    { code: 'const t = "https://tiles.example.test/{z}/{x}/{y}.png?x";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }], errors: URL_ERR },
+    { code: "const t = `https://ok.test/a${x}`;", options: [{ allowUrls: ["https://ok.test/a"] }], errors: URL_ERR }, // 插值接在網址後：整段 token 不等於清單 → 紅
+    { code: 'const t = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx?x=1";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }], errors: URL_ERR },
     { code: 'const t = "https://tiles.example.test/other.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }], errors: URL_ERR },
   ],
 });
