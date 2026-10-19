@@ -15,8 +15,6 @@ export const OWNER_ONLY_FILES = [`src/data/${OWNER_ONLY_FAMILIES}*.ts`, `src/hoo
 export const OWNER_ONLY_EXEMPT = {
   "src/data/layerManifest.ts": "全站圖層登記簿，不是 owner-only 專屬檔",
   "src/hooks/useMapInteraction.ts": "全站點擊分派，不是 owner-only 專屬檔",
-  "src/data/jpWaterLoader.ts": "jp-water 公開資產網址以 import.meta.env.BASE_URL 組成（待使用者決定是否納入）",
-  "src/hooks/useJpWaterLayers.ts": "jp-water 淹水圖層直接讀國土地理院公開 raster 與其授權連結（待使用者決定是否納入）",
 };
 const SOIL_BANNED_TEXT = [
   { regex: "gis\\.liquid\\.net\\.tw|WMSServer|WMTS|\"raster\"", reason: "土壤液化只讀私人 PMTiles，不接官方 WMTS／WMS 或 raster 來源" },
@@ -74,6 +72,27 @@ export default [
     files: ["src/data/soilLiquefactionTypes.ts"],
     // 來源卡的官方地圖連結（只允許這一個網址）
     rules: { "pulse/owner-only-no-external-source": ["error", { allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
+  },
+  {
+    files: ["src/data/jpWaterLoader.ts"],
+    // 公開資產網址的建置時路徑前綴（BASE_URL）；非瀏覽器環境（測試）組絕對網址用的備用 base
+    rules: { "pulse/owner-only-no-external-source": ["error", { allowImportMeta: ["env.BASE_URL"], allowUrls: ["http://localhost/"] }] },
+  },
+  {
+    files: ["src/hooks/useJpWaterLayers.ts"],
+    // 淹水圖層的國土地理院公開 raster 圖磚與兩個授權說明連結（逐一列出完整網址）
+    rules: {
+      "pulse/owner-only-no-external-source": [
+        "error",
+        {
+          allowUrls: [
+            "https://disaportal.gsi.go.jp/hazardmapportal/hazardmap/copyright/copyright_data.html",
+            "https://disaportaldata.gsi.go.jp/hazardmap/copyright/opendata.html",
+            "https://disaportaldata.gsi.go.jp/raster/01_flood_l2_shinsuishin_data/{z}/{x}/{y}.png",
+          ],
+        },
+      ],
+    },
   },
   // 土壤液化：不接官方 WMTS／WMS、不寫死站點（原 useSoilLiquefactionLayers 測試）
   {

@@ -72,9 +72,7 @@ describe("owner-only 資安守門的套用範圍", () => {
 
   it("豁免清單逐字釘住（新增豁免要改這裡並在 PR 說明），且每筆都還是 owner-only 檔", () => {
     expect(Object.keys(OWNER_ONLY_EXEMPT).sort()).toEqual([
-      "src/data/jpWaterLoader.ts",
       "src/data/layerManifest.ts",
-      "src/hooks/useJpWaterLayers.ts",
       "src/hooks/useMapInteraction.ts",
     ]);
     for (const f of Object.keys(OWNER_ONLY_EXEMPT)) expect(discovered, f).toContain(f);
@@ -94,6 +92,10 @@ describe("owner-only 資安守門的套用範圍", () => {
       "pulse/owner-only-no-external-source",
     );
     expect(await lint("src/data/soilLiquefactionTypes.ts", 'const u = "https://evil.test/";')).toContain("pulse/owner-only-no-external-source");
+    expect(await lint("src/data/jpWaterLoader.ts", "const b = import.meta.env.BASE_URL;")).not.toContain("pulse/owner-only-no-external-source");
+    expect(await lint("src/data/jpWaterLoader.ts", "const b = import.meta.env.VITE_SUPABASE_URL;")).toContain("pulse/owner-only-no-external-source");
+    expect(await lint("src/hooks/useJpWaterLayers.ts", 'const u = "https://disaportaldata.gsi.go.jp/other/{z}.png";')).toContain("pulse/owner-only-no-external-source");
+    expect(await lint("src/hooks/useJpWaterLayers.ts", "const b = import.meta.env.BASE_URL;")).toContain("pulse/owner-only-no-external-source");
     expect(await lint("src/hooks/useSoilLiquefactionLayers.ts", 'const s = { type: "raster" };')).toContain("pulse/owner-only-banned-text");
   });
 
