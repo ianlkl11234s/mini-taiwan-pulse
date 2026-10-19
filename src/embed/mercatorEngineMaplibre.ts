@@ -8,7 +8,7 @@
  * 但 `utils/coordinates` 已無 mapbox-gl 相依，故不會把 mapbox-gl 拖進來。
  * 必須是 `src/embed/main.tsx` 的第一個 import，理由同主站版。
  */
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import { setMercatorEngine } from "../utils/coordinates";
 
 setMercatorEngine(maplibregl.MercatorCoordinate);

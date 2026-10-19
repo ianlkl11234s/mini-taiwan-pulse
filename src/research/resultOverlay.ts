@@ -32,7 +32,7 @@ export function setResultOpacity(map: Map, opacity: number): void {
   const value = Math.max(0, Math.min(1, opacity));
   for (const layer of resultLayers(value)) {
     if (!map.getLayer(layer.id)) continue;
-    for (const [property, paint] of Object.entries(layer.paint ?? {})) map.setPaintProperty(layer.id, property, paint);
+    for (const [property, paint] of Object.entries(layer.paint ?? {})) map.setPaintProperty(layer.id, property as Parameters<Map["setPaintProperty"]>[1], paint);
   }
 }
 

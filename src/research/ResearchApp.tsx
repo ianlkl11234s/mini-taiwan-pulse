@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import maplibregl, { type Map as ResearchMap } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import type { Map as ResearchMap } from "maplibre-gl";
 import type { FeatureCollection } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { withLoading } from "../lib/loadingRegistry";

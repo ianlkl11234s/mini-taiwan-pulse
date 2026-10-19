@@ -1,1 +1,1 @@
-{"name":"xinyi-cctv-poc","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1 --port 3747 --strictPort","build":"vite build","test":"node --test *.test.js"},"dependencies":{"three":"0.172.0"},"devDependencies":{"vite":"6.4.1"}}
+{"name":"xinyi-cctv-poc","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1 --port 3747 --strictPort","build":"vite build","test":"node --test *.test.js"},"dependencies":{"three":"0.172.0"},"devDependencies":{"vite":"6.4.4"}}

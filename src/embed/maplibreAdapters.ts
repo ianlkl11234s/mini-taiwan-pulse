@@ -8,7 +8,7 @@
  * 這是兩個引擎唯一的**實質**差異；其餘圖層邏輯（189 個 overlay 的 source/layer/paint）
  * 完全共用 `overlayManager`。
  */
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import type { OverlayConfig } from "../types";
 

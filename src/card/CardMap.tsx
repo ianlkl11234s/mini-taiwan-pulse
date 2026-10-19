@@ -11,7 +11,9 @@
  * 本檔是卡片頁唯一 import maplibre-gl 的地方；測試不 import 本檔。
  */
 import { useEffect, useRef, useState } from "react";
-import maplibregl, { type LngLatBoundsLike } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import type { LngLatBoundsLike } from "maplibre-gl";
+import "../embed/maplibreWorker";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildBasemapStyle } from "../embed/basemapStyle";
 import { localeStore } from "../state/localeStore";
