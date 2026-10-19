@@ -220,6 +220,9 @@ tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"
     'const ENDPOINT = "/api/private-research/bss-bridge/tiles";',
     'const u = new URL("/api/private-research/x", window.location.origin);',
     { code: 'const OFFICIAL = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
+    { code: 'const B = `${import.meta.env.BASE_URL ?? "/"}world/`;', options: [{ allowImportMeta: ["env.BASE_URL"] }] },
+    { code: "const B = import . meta . env . BASE_URL;", options: [{ allowImportMeta: ["env.BASE_URL"] }] },
+    { code: 'const t = "https://tiles.example.test/{z}/{x}/{y}.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }] },
   ],
   invalid: [
     { code: 'const u = "https://tiles.example.test/a.pmtiles";', errors: URL_ERR },
@@ -230,6 +233,13 @@ tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"
     { code: "const base = import.meta.env.VITE_PRIVATE_BASE;", errors: META_ERR },
     { code: 'const base = import.meta["env"].X;', errors: META_ERR },
     { code: "const m = import . meta;", errors: META_ERR },
+    { code: "const e = import.meta.env.VITE_X;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL_X;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL.length;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const e = import.meta["env"].BASE_URL;', options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const t = "https://tiles.example.test/other.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }], errors: URL_ERR },
   ],
 });
 

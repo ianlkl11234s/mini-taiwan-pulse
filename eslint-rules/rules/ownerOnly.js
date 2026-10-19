@@ -9,7 +9,7 @@ function reportAll(context, re, messageId, skip = () => false) {
   const { sourceCode } = context;
   const text = sourceCode.text;
   for (const m of text.matchAll(re)) {
-    if (skip(m.index)) continue;
+    if (skip(m.index, m[0].length)) continue;
     context.report({
       loc: { start: sourceCode.getLocFromIndex(m.index), end: sourceCode.getLocFromIndex(m.index + m[0].length) },
       messageId,
@@ -26,7 +26,11 @@ export const ownerOnlyNoExternalSource = {
     schema: [
       {
         type: "object",
-        properties: { allowUrls: { type: "array", items: { type: "string", pattern: "^https?://" } } },
+        properties: {
+          allowUrls: { type: "array", items: { type: "string", pattern: "^https?://" } },
+          // 只放行明列的 import.meta 成員路徑（如 "env.BASE_URL"，完整比對；其餘成員與裸 import.meta 照樣紅）
+          allowImportMeta: { type: "array", items: { type: "string", pattern: "^[A-Za-z_$][\\w$]*(\\.[A-Za-z_$][\\w$]*)*$" } },
+        },
         additionalProperties: false,
       },
     ],
@@ -37,11 +41,16 @@ export const ownerOnlyNoExternalSource = {
   },
   create(context) {
     const allowUrls = context.options[0]?.allowUrls ?? [];
+    const allowImportMeta = context.options[0]?.allowImportMeta ?? [];
     const text = context.sourceCode.text;
+    const metaAllowed = (i, len) => {
+      const tail = /^(?:\s*\.\s*[A-Za-z_$][\w$]*)+/.exec(text.slice(i + len));
+      return tail !== null && allowImportMeta.includes(tail[0].replace(/\s+/g, "").slice(1));
+    };
     return {
       Program() {
         reportAll(context, URL_RE, "url", (i) => allowUrls.some((u) => text.startsWith(u, i)));
-        reportAll(context, IMPORT_META_RE, "importMeta");
+        reportAll(context, IMPORT_META_RE, "importMeta", metaAllowed);
       },
     };
   },
