@@ -336,7 +336,7 @@ export function IconRailSidebar({
               to { opacity: 1; transform: translateX(0); }
             }
           `}</style>
-          <div data-viewport-occluder="sidebar-panel"
+          <div data-viewport-occluder="sidebar-panel" data-boot-part="panel"
             style={{
               position: "absolute",
               left: RAIL_WIDTH + 8,
