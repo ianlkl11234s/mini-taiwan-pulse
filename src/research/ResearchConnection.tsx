@@ -24,6 +24,22 @@ function useLocaleSnapshot(): LocaleSnapshot {
   useEffect(() => localeStore.subscribe(() => bump(count => count + 1)), []);
   return localeStore.getSnapshot();
 }
+/**
+ * 分頁預設不開放 Agent 連線（2026-10-20：本機任何 Claude 對話呼叫地圖工具時，會自動接上唯一開著的分頁）。
+ * 例外：本機測試身分、網址帶 `?agent=1`（自動測試用）、這個分頁先前已開放（重整沿用，存在 sessionStorage）。
+ */
+export const AGENT_ALLOWED_KEY = "pulse.research.agentAllowed.v1";
+export function agentAllowedAtStart(): boolean {
+  if (TEST_IDENTITY) return true;
+  if (typeof window === "undefined") return false;
+  try {
+    if (new URLSearchParams(window.location.search ?? "").get("agent") === "1") return true;
+    return window.sessionStorage.getItem(AGENT_ALLOWED_KEY) === "1";
+  } catch { return false; }
+}
+function rememberAgentAllowed(allowed: boolean): void {
+  try { if (allowed) window.sessionStorage.setItem(AGENT_ALLOWED_KEY, "1"); else window.sessionStorage.removeItem(AGENT_ALLOWED_KEY); } catch { /* private mode: only this page load */ }
+}
 const TONE: Record<AgentTabView["status"], "live" | "waiting"> = { starting: "waiting", waiting: "waiting", connected: "live", error: "waiting" };
 function statusTitle(view: AgentTabView | null, t: LocaleSnapshot["t"]): string {
   if (!view || view.status === "starting") return t("research.conn.preparingTab");
@@ -42,6 +58,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const [view, setView] = useState<AgentTabView | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [restartKey, setRestartKey] = useState(0);
+  const [allowed, setAllowed] = useState(agentAllowedAtStart());
   const accessToken = useRef<string | null>(null);
   const tab = useRef<AgentTabSession | null>(null);
   const callbacks = useRef({ onState, onDisconnect, onConnection, onReady, queryHandler });
@@ -71,9 +88,9 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     return () => { disposed = true; accessToken.current = null; subscription.subscription.unsubscribe(); };
   }, []);
 
-  // One study per signed-in tab, created or resumed automatically; a token refresh keeps it.
+  // One study per signed-in tab once the owner allows it (or a test opt-in); a reload resumes it, a token refresh keeps it.
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !allowed) return;
     const tabSession = new AgentTabSession({
       client, userId, storage: sessionTabStorage(), queryHandler: callbacks.current.queryHandler ?? null,
       onState: snapshot => callbacks.current.onState(snapshot),
@@ -88,7 +105,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
       callbacks.current.onDisconnect();
       setView(null);
     };
-  }, [client, restartKey, userId]);
+  }, [allowed, client, restartKey, userId]);
 
   const welcomed = useRef<string | null>(null);
   useEffect(() => {
@@ -110,6 +127,13 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     if (error) setNotice(localeStore.getSnapshot().t("research.conn.signOutUnconfirmed"));
   };
 
+  const allow = () => { rememberAgentAllowed(true); setAllowed(true); };
+  // Revokes the study (a bound agent gets SESSION_REVOKED) before the tab stops accepting agents.
+  const close = async () => {
+    if (tab.current && !await tab.current.revokeForSignOut()) { setNotice(localeStore.getSnapshot().t("research.conn.closeUnconfirmed")); return; }
+    rememberAgentAllowed(false); setAllowed(false); setNotice(null);
+  };
+
   const help = <small className="agent-connection-help">{surface === "map" ? t("research.conn.helpMap") : t("research.conn.helpLab")}</small>;
   if (!TEST_IDENTITY && !supabaseConfigured) {
     return <section aria-label={t("research.conn.aria")} className="research-pairing"><strong>{t("research.conn.title")}</strong><p>{t("research.conn.disabled")}</p><small>{t("research.conn.disabledNote")}</small>{help}</section>;
@@ -120,6 +144,20 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
       <button type="button" onClick={() => void signIn()}>{t("research.conn.signInGoogle")}</button>{help}
     </section>;
   }
+  if (!allowed) {
+    return <section aria-label={t("research.conn.aria")} className="research-pairing research-pairing--agent">
+      <strong>{t("research.conn.title")}</strong>
+      <p className="research-agent-status research-agent-status--waiting" role="status"><span className="research-agent-dot" aria-hidden="true" />{t("research.conn.closedTitle")}</p>
+      <small>{notice ?? t("research.conn.closedNote")}</small>
+      <button type="button" onClick={allow}>{t("research.conn.allow")}</button>
+      {session && <details className="agent-connection-settings"><summary>{t("research.conn.settings")}</summary>
+        <small>{t("research.conn.account", { email: session.user.email ?? "" })}</small>
+        {surface === "map" && <AgentTokenSection client={client} />}
+        <div className="agent-connection-actions"><button type="button" onClick={() => void signOut()}>{t("research.conn.signOut")}</button></div>
+      </details>}
+      {help}
+    </section>;
+  }
   const tone = TONE[view?.status ?? "starting"];
   const ready = view?.status === "connected" || view?.status === "waiting";
   return <section aria-label={t("research.conn.aria")} className="research-pairing research-pairing--agent">
@@ -128,6 +166,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     <small>{notice ?? view?.message ?? t("research.conn.preparingThisTab")}</small>
     {ready && <button type="button" onClick={() => void tab.current?.pause()}>{view?.paused ? t("research.conn.resume") : t("research.conn.pause")}</button>}
     {view?.status === "connected" && <button type="button" onClick={() => void tab.current?.disconnectAgent()}>{t("research.conn.disconnect")}</button>}
+    {!TEST_IDENTITY && <button type="button" onClick={() => void close()}>{t("research.conn.close")}</button>}
     <details className="agent-connection-settings"><summary>{t("research.conn.settings")}</summary>
       {session ? <small>{t("research.conn.account", { email: session.user.email ?? "" })}</small> : <small>{t("research.conn.testIdentity")}</small>}
       {surface === "map" && <AgentTokenSection client={client} />}

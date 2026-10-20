@@ -20,7 +20,7 @@ mini-taiwan-pulse/.worktrees/analysis-prod/
 - **正式站連線**（日常用法）：`pulse-research` 的 `PULSE_RESEARCH_ORIGIN=https://mini-taiwan-pulse.itsmigu.com`（Claude 與 Codex 都已設，dev autopair／loopback 旗標已移除）。
   1. 在正式站登入，Agent 面板（站主在正式站也看得到）產生 token，複製。
   2. `cd mini-taiwan-pulse/.worktrees/analysis-prod/mcp && pbpaste | npm run token:save`，存到 `~/.config/pulse-research/agent-token`（0600）。
-  3. 保持正式站分頁開著；Agent 第一次動地圖時 MCP 自動接上該分頁。開多個分頁會請你選分頁（`pulse_pair_session`）。token 可在面板撤銷，30 天到期。
+  3. 保持正式站分頁開著，並在左側「協作連線」按「允許 Agent 連線」（2026-10-20 起分頁預設不開放；同分頁重整沿用，自動測試可用網址 `?agent=1` 或本機測試身分直接開放）；之後 Agent 第一次動地圖時 MCP 自動接上該分頁。開多個分頁會請你選分頁（`pulse_pair_session`）。token 可在面板撤銷，30 天到期。
 - **本機測試**（只在 127.0.0.1＋vite dev，用測試身分，不登入）：
   1. gateway：`runtime/start-v03-gateway.mjs` 的 env 設 `PULSE_RESEARCH_TEST_IDENTITY: '1'`（host 或 origin 不是 loopback 會拒絕啟動）；
   2. 前端：`analysis-prod/mini/.env.local` 寫 `VITE_RESEARCH_TEST_IDENTITY=1`（`.env` 是指向主 repo 的 symlink，`.env.local` 是獨立檔，已 gitignore）；
