@@ -442,7 +442,6 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       mapRef.current = null;
       readyRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 切換底圖樣式
@@ -451,7 +450,6 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     if (!map || !readyRef.current) return;
     jpHeightLifecycleRef.current?.suspend();
     map.setStyle(styleUrl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl]);
 
   // Pure Black 切換：同 styleUrl（都是 dark-v11）下，靠 paint override 切換
@@ -465,11 +463,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // ⚠️ 此處 styleUrl 與當前底圖相同（black/dark 共用 dark-v11），預設 setStyle 會走 diff
       //    增量更新 → 移除自訂 overlay 但「不觸發 style.load」→ 圖層全消失回不來。
       //    用 { diff: false } 強制完整 reload，確保 style.load 重建所有 overlay。
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       jpHeightLifecycleRef.current?.suspend();
       map.setStyle(styleUrl, { diff: false } as any);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pureBlack]);
 
   // 地名標籤設定不觸發 setStyle；切換底圖時由上方 style.load 以同一設定重新套用。

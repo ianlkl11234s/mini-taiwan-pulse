@@ -80,7 +80,6 @@ export function useRealEstateTimeline(
     for (const l of RE_GRID_LAYERS) {
       if (!map.getLayer(l.id)) continue;
       const typeF = ["==", ["get", "type"], l.type];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       map.setFilter(l.id, withClauses([typeF, ["==", ["get", "period"], quarter]], excludeTaipei) as any);
     }
 
@@ -176,6 +175,5 @@ export function useRealEstateTimeline(
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef, appMode, active, gran, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop]);
 }

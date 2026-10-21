@@ -189,6 +189,13 @@
 - 機關：官方英文名（DGBAS、Ministry of the Interior…）；署／司寫在部名之前加逗號（Water Resources Agency, Ministry of Economic Affairs）。
 - 授權：歸 6 類——Open Government Data License, Version 1.0 (Taiwan OGDL)／CC BY 4.0 (Attribution)／CC BY-SA／Open Database License (ODbL) 1.0／Not specified／Unverified；帶註記的長句原樣或整句查表。
 
+### 治安統計（G17）圖層名、位置口徑、授權（2026-10-19，兩輪校對）
+- 範圍：`en/layers.json` 36 層 `statsCrime*`／`statsTelecomFraud*`、新檔 `en/enums.statLocationBasis.json`（統計「位置口徑」，key＝配方 location_semantics 原句，查不到退回中文）、`en/enums.statLicense.json` 治安授權整句。
+- 發生件數＝Cases（Drug Cases、Residential Burglary Cases…，案類沿用 `enums.statGroup`）；每十萬人＝per 100,000 People（放名稱後）；組織犯罪防制條例＝Organized Crime Prevention Act（放最後的括號，per 100,000 People 在括號前）。
+- 案件發生地（鄉鎮市區精度）＝Place of occurrence (township/district precision)；受騙地／報案地＝where the victim was defrauded／where the case was reported。
+- 授權句「授權欄值 1，未逐字核對」＝license field value 1, not verified verbatim（沿用既有 statLicense 的 not verified verbatim）。
+- 第 2 輪：Organized Crime 每十萬人把括號移到最後，避免「(…Act) per 100,000」斷句。
+
 ## 日本語
 
 **狀態：proofread x2 (Claude)**（2026-10-12）。不是日文母語者校稿。範圍：`ja/layers.json`、`ja/themes.json`、`ja/common.json`；P1 popup：`ja/popupHeaders.json`（新建 94 筆）、`ja/popup.json`、`ja/popup.transport.json`、`ja/enums.json`（校對 2 輪，改 9 筆）。
@@ -205,7 +212,7 @@
 | 民國年 | 西元年（ROC＋1911） | 114→2025、115→2026、110→2021 |
 | 公車／市區客運／公路客運 | バス／市内バス／都市間バス | |
 | 捷運／中捷 | MRT／台中MRT | |
-| 機車 | 二輪車 | 統計、登記類用語，全檔統一 |
+| 機車 | 二輪車 | 統計、登記類用語，全檔統一；犯罪類別名例外採日本警察統計用語，不套機車＝二輪車（機車竊盜＝オートバイ盗） |
 | 營業里程 | 営業キロ | |
 | 戶籍人口／戶量 | 戸籍人口／平均世帯人員 | |
 | 原住民 | 原住民 | 依台灣官方自稱，不用「先住民」 |
@@ -337,3 +344,12 @@
 - 縣市／鄉鎮：新字體（臺→台、縣→県、區→区、鄉→郷；台北市、板橋区、新竹県、信義郷）。
 - 機關：日本漢字（内政部、経済部、行政院主計総処、衛生福利部）；括號內的英文縮寫保留。
 - 授權：政府データ開放ライセンス第1版（台湾 OGDL）／CC BY 4.0（表示）／オープンデータベースライセンス（ODbL）1.0／未表示／未確認。
+
+### 治安統計（G17）圖層名、位置口徑、授權（2026-10-19，2 輪校對）
+- 範圍：`ja/layers.json` 36 層、新檔 `ja/enums.statLocationBasis.json`、`ja/enums.statLicense.json` 治安授權整句。
+- 發生件數＝発生件数；每十萬人＝（人口10万人あたり）放名稱後；毒品＝薬物事犯（與既有 statsDrugSuspects* 一致）；住宅竊盜＝住宅侵入窃盗；汽車竊盜＝自動車盗；搶奪＝ひったくり；電信詐欺＝特殊詐欺（電信詐欺）。
+- 機車竊盜＝オートバイ盗：犯罪類別名例外採日本警察統計用語，不套機車＝二輪車；`enums.statGroup` 原本的「バイク盗」一併改掉。
+- 已有括號的名稱把每十萬人併進同一括號：組織犯罪発生件数（組織犯罪防制条例、人口10万人あたり）、特殊詐欺発生件数（電信詐欺、人口10万人あたり），比照 薬物事犯容疑者数（使用、人口10万人あたり）。
+- 案件發生地（鄉鎮市區精度）＝事件の発生地（郷鎮市区単位の精度）；受騙地或報案地＝被害地か届出地か。
+- 授權句＝政府データオープンライセンス第1版（OGDL-1.0。data.gov.tw のライセンス欄の値は 1、原文未確認）（沿用既有 statLicense 的「原文未確認」）。
+- 仍不確定：強制性交維持台灣法律用語直譯（日本 2023 年起改稱不同意性交等）。

@@ -23,7 +23,9 @@
  * 不變的部分：autoClear=false / resetState() 前後夾 / blend state 手動存還 /
  * triggerRepaint() 驅動動畫 / MercatorCoordinate API 名稱與數值（實測 bit-identical）。
  */
-import maplibregl, { type CustomLayerInterface, type CustomRenderMethodInput } from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
+import type { CustomLayerInterface, CustomRenderMethodInput } from "maplibre-gl";
+import "../embed/maplibreWorker";
 import mapboxgl from "mapbox-gl";
 import * as THREE from "three";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -337,7 +339,7 @@ map.on("load", () => {
   console.log("[SPIKE] layer added");
 });
 
-map.on("error", (e) => {
+map.on("error", (e: maplibregl.ErrorEvent) => {
   const msg = `map.error: ${String((e as unknown as { error?: Error }).error?.message ?? e)}`;
   errors.push(msg);
   console.warn("[SPIKE]", msg);

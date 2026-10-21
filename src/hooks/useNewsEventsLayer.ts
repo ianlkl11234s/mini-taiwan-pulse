@@ -80,7 +80,6 @@ export function useNewsEventsLayer(
     };
     handler(timeStore.getDateKey()); // 初始化（toggle 開啟瞬間補載 / filter 切換立即重載）
     return timeStore.subscribeDate(handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, fKey, loadDay]);
 
   // ── style 切換後 source 重建為空 → 重餵已載入資料 ──

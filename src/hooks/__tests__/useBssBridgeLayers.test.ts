@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 // @ts-expect-error — style-spec CJS entry has no exported typings; test-only validator.
 import { featureFilter, validate } from "mapbox-gl/dist/style-spec/index.cjs";
@@ -14,7 +11,6 @@ import { heatmapOpacity, pointRadius } from "../../map/mapStyleScale";
 import { paramDefault } from "../../data/layerParamsSpec";
 import { BSS_BRIDGE_POINT_HEATMAP_LAYER_ID, buildBssBridgeLayers } from "../useBssBridgeLayers";
 
-const HOOK_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../useBssBridgeLayers.ts");
 const passes = (filter: unknown, properties: Record<string, unknown>) =>
   featureFilter(filter).filter({ zoom: 10 }, { type: 2, properties });
 
@@ -29,9 +25,7 @@ describe("BSS 橋梁研究 owner-only PMTiles 契約", () => {
   it("只讀同源私人 endpoint，兩個 key 都是站主限定", () => {
     expect(BSS_BRIDGE_PRIVATE_ENDPOINT).toBe("/api/private-research/bss-bridge/tiles");
     expect(BSS_BRIDGE_PRIVATE_LAYER_KEYS.every((key) => GATED_LAYERS.has(key) && isBssBridgePrivateLayer(key))).toBe(true);
-    const source = fs.readFileSync(HOOK_FILE, "utf8");
-    expect(source).not.toMatch(/https?:\/\//);
-    expect(source).not.toContain("import.meta.env");
+    // 原始碼不含外部網址或 import.meta.env：ESLint pulse/owner-only-no-external-source（範圍釘在 eslint-rules/__tests__/ownerOnlyScope.test.js）
   });
 
   it("線＋熱區＋點通過 style-spec 驗證，點擊接線涵蓋線與點、熱區不可點擊", () => {

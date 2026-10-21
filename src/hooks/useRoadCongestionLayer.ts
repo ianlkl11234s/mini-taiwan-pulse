@@ -85,7 +85,6 @@ export function useRoadCongestionLayer(
           maxzoom: 14,
           // feature-state 染色鍵：feature id = section_uid
           promoteId: { [SOURCE_LAYER]: "section_uid" },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(LAYER_LINE)) {

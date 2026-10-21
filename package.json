@@ -1,7 +1,7 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "2.11.0",
+  "version": "2.11.2",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
@@ -33,7 +33,6 @@
     "rail:bundle": "python3 scripts/preprocess/bundle-rail-data.py",
     "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py",
     "research:layer-status": "vite-node --script scripts/research/build-layer-status.mjs",
-    "design:baseline": "tsx scripts/design/update-design-baseline.ts",
     "design:audit-layers": "vite-node scripts/design/audit-layer-styles.ts",
     "design:snapshot": "node scripts/design/snapshot-design-system.mjs"
   },
@@ -54,7 +53,7 @@
     "lucide-react": "^0.576.0",
     "mapbox-gl": "^3.9.0",
     "mapbox-pmtiles": "^1.0.56",
-    "maplibre-gl": "^5.24.0",
+    "maplibre-gl": "^6.4.1",
     "pmtiles": "^4.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -63,6 +62,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@eslint/css": "2.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.172.0",

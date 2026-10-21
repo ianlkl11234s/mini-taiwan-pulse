@@ -1,5 +1,5 @@
 // Design system guard（TS／TSX 部分）— 規範 docs/design-system/spec.md §9。
-// 既有違規記在 eslint-suppressions.json（只能往下降）；CSS 部分仍在 src/styles/__tests__/designSystemGuard.test.ts。
+// 既有違規記在 eslint-suppressions.json（只能往下降）；CSS 部分在 rules/css.js。
 import { countMatches, onWrittenText, propName, someNode, walk } from "../utils.js";
 
 const SPEC = "docs/design-system/spec.md";

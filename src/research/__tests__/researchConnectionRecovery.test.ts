@@ -196,7 +196,7 @@ vi.mock("../bridgeClient", async importOriginal => {
 describe("ResearchConnection (P3)", () => {
   beforeEach(() => {
     h.slots = []; h.pending = []; h.created = []; h.waits = []; h.pairings = 0;
-    vi.stubGlobal("window", { sessionStorage: { getItem: () => null, setItem: () => undefined, removeItem: () => undefined }, location: { origin: "http://localhost" } });
+    vi.stubGlobal("window", { sessionStorage: { getItem: () => null, setItem: () => undefined, removeItem: () => undefined }, location: { origin: "http://localhost", search: "?agent=1" } });
     vi.stubGlobal("navigator", { locks: { request: async (_n: string, _o: unknown, cb: any) => cb({ name: "lease" }) } });
   });
   afterEach(() => { h.slots.forEach(slot => slot?.cleanup?.()); vi.unstubAllGlobals(); });
@@ -210,5 +210,23 @@ describe("ResearchConnection (P3)", () => {
     expect(h.pairings).toBe(0);
     expect(onConnection).toHaveBeenCalledWith(expect.objectContaining({ studyId: "study-c", tabId: h.created[0] }));
     expect(h.waits[0]).toEqual(["study-c", h.created[0], null, null, false, 20_000]);
+  });
+
+  it("a normally opened tab does not accept an Agent until the owner allows it", async () => {
+    vi.stubGlobal("window", { sessionStorage: { getItem: () => null, setItem: () => undefined, removeItem: () => undefined }, location: { origin: "http://localhost", search: "" } });
+    const { ResearchConnection, agentAllowedAtStart } = await import("../ResearchConnection");
+    expect(agentAllowedAtStart()).toBe(false);
+    const onConnection = vi.fn();
+    const render = () => { h.cursor = 0; ResearchConnection({ onState: vi.fn(), onDisconnect: vi.fn(), onConnection, surface: "map" }); h.pending.splice(0).forEach(run => run()); };
+    render(); await flush(); render(); await flush();
+    expect(h.created).toHaveLength(0);
+    expect(h.waits).toHaveLength(0);
+    expect(onConnection).not.toHaveBeenCalled();
+  });
+
+  it("a reload keeps the tab open to the Agent once allowed (sessionStorage flag)", async () => {
+    const { AGENT_ALLOWED_KEY, agentAllowedAtStart } = await import("../ResearchConnection");
+    vi.stubGlobal("window", { sessionStorage: { getItem: (key: string) => key === AGENT_ALLOWED_KEY ? "1" : null }, location: { search: "" } });
+    expect(agentAllowedAtStart()).toBe(true);
   });
 });

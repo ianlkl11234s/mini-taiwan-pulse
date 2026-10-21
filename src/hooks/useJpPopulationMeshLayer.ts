@@ -79,7 +79,6 @@ export function useJpPopulationMeshLayer(
           url: absoluteUrl(FILE),
           minzoom: MINZOOM,
           maxzoom: MAXZOOM,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       if (!map.getLayer(LAYER_ID)) {

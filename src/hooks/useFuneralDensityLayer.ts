@@ -108,7 +108,6 @@ export function useFuneralDensityLayer(
           maxzoom: 14,
           // feature-state 染色鍵：feature id = TOWNCODE（8 碼字串，同地震回放）
           promoteId: { [SOURCE_LAYER]: "TOWNCODE" },
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
       const before = firstSymbolLayerId(map);

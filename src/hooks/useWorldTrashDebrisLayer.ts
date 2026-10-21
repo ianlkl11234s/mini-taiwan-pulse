@@ -52,7 +52,6 @@ export function useWorldTrashDebrisLayer(
       })
       .catch((err) => console.warn("[WorldTrashDebris] load failed:", err));
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const ensureSource = useCallback((map: MapboxMap) => {

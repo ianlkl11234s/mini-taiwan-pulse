@@ -108,7 +108,6 @@ export function useTyphoonTracksLayer(
       })
       .catch((err) => console.warn("[TyphoonTracks] load failed:", err));
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const ensureSource = useCallback((map: MapboxMap) => {

@@ -15,7 +15,6 @@ import {
   splitAttribution,
 } from "../attributionParse";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /** 最小 stub：同時滿足 overlayManager 的 OverlayMap 與 collector 的 AttributionMapLike。 */
 function stubMap(): OverlayMap & AttributionMapLike {
   const sources = new Map<string, any>();

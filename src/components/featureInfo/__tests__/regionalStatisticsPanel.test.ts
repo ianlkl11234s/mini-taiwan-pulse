@@ -3,6 +3,17 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { afterAll, describe, expect, it } from 'vitest';
 import { localeStore } from '../../../state/localeStore';
 import { RegionalStatisticsPanel } from '../regionalStatisticsPanel';
+import { CRIME_STATISTICS_DOCUMENT } from '../../../data/crimeStatisticsRecipes';
+
+/** 治安統計（G17）彈窗：feature props 照 loader 組法，publisher／license／source_url 取自配方（＝R2 來源紀錄同值） */
+function crimeProps() {
+  const recipe = CRIME_STATISTICS_DOCUMENT.recipes.find((r) => r.layer_key === 'statsCrimeResidentialBurglaryCasesTownship')!;
+  return {
+    area_name: '臺北市中山區', area_code: '63000040', layer_key: recipe.layer_key, indicator_name: recipe.label, value: 24, status: 'observed', unit: recipe.unit,
+    period_start: '2025-01-01', period_end: '2025-12-31', boundary_version: recipe.boundary_version,
+    location_semantics: recipe.location_semantics, publisher: recipe.publisher, license: recipe.license, source_url: recipe.source_landing_url,
+  };
+}
 
 describe('RegionalStatisticsPanel labor semantics', () => {
   it('shows location, boundary role, coverage, and source-not-covered separately from zero', () => {
@@ -66,6 +77,31 @@ describe('RegionalStatisticsPanel labor semantics', () => {
     expect(html).not.toContain('勞動力參與率');
   });
 
+  it('crime statistics: source card shows agency, license and link instead of "source pending" (zh-TW)', () => {
+    localeStore.set('zh-TW');
+    const html = renderToStaticMarkup(createElement(RegionalStatisticsPanel, { props: crimeProps() }));
+    expect(html).toContain('內政部警政署');
+    expect(html).toContain('政府資料開放授權條款第 1 版');
+    expect(html).toContain('href="https://data.gov.tw/dataset/14200"');
+    expect(html).not.toContain('來源資訊待補');
+  });
+
+  for (const locale of ['en', 'ja'] as const) {
+    it(`crime statistics: ${locale} source card and location basis have no Chinese fallback`, async () => {
+      await localeStore.ready(locale);
+      localeStore.set(locale);
+      const html = renderToStaticMarkup(createElement(RegionalStatisticsPanel, { props: crimeProps() }));
+      const pending = locale === 'en' ? 'Source information pending' : '出典情報は追加予定';
+      expect(html).not.toContain(pending);
+      expect(html).toContain('href="https://data.gov.tw/dataset/14200"');
+      for (const zh of ['內政部警政署', '政府資料開放授權條款', '案件發生地', '鄉鎮市區精度', '住宅竊盜發生件數']) expect(html).not.toContain(zh);
+      if (locale === 'en') expect(html).toContain('24 cases');
+      expect(html).toContain(locale === 'en' ? 'Residential Burglary Cases' : '住宅侵入窃盗発生件数');
+      expect(html).toContain(locale === 'en' ? 'National Police Agency' : '警政署');
+      expect(html).toContain(locale === 'en' ? 'Open Government Data License' : '政府データオープンライセンス');
+      expect(html).toContain(locale === 'en' ? 'Place of occurrence' : '事件の発生地');
+    });
+  }
 });
 
 afterAll(() => localeStore.set('zh-TW'));

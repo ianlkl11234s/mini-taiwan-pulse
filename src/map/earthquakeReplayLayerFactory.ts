@@ -211,7 +211,6 @@ export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number, is
       maxzoom: 13,
       // feature-state 染色鍵：feature id = TOWNCODE（8 碼；CWA 7 碼轉換見 types 檔）
       promoteId: { [EQ_REPLAY_TOWN_SOURCE_LAYER]: "TOWNCODE" },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   }
 
@@ -246,7 +245,6 @@ export function ensureEarthquakeReplayLayers(map: MapboxMap, opacity: number, is
           "fill-color": TOWN_COLOR_EXPR,
           "fill-opacity": townOpacityExpr(0),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
       before,
     );

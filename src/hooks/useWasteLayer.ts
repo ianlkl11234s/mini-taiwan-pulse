@@ -88,7 +88,6 @@ export function useWasteLayer(
       cancelled = true;
       if (timer !== undefined) window.clearInterval(timer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, isLive, citiesKey]);
 
   const loadDay = useCallback(async (dateStr: string) => {
@@ -144,7 +143,6 @@ export function useWasteLayer(
       fetchingDayRef.current = "";
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, isLive, citiesKey]);
 
   // 切到 replay 或城市變化時強制下一次 date subscription 重新載入。

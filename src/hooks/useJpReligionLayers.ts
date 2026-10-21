@@ -144,7 +144,6 @@ function usePmtilesLayer(
           url: worldAbsoluteUrl(file),
           minzoom: 4,
           maxzoom: 14,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
         // PMTiles 表頭與可見 tile 為非同步取得：只在真的新增 source 時登記 loading，等地圖 idle
         keepLoadingUntilMapIdle(map, `jp-religion-render:${sourceId}`, "日本宗教設施 渲染中", sourceId);

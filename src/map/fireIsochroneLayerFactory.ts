@@ -53,7 +53,6 @@ export function ensureFireIsochroneLayer(map: MapboxMap): void {
       url: `${BASE}/fire_isochrone_coverage.pmtiles`,
       minzoom: 5,
       maxzoom: 14,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   }
   if (!map.getLayer(FILL_ID)) {
@@ -66,7 +65,6 @@ export function ensureFireIsochroneLayer(map: MapboxMap): void {
       layout: { visibility: "none" },
       filter: countyFilter(0),
       paint: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         "fill-color": COLOR_EXPR as any,
         "fill-opacity": hookFillOpacity("fireIsochrone", FILL_ID, BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity, BASE_OPACITY * FIRE_ISOCHRONE_PARAMS_DEFAULT.opacity),
         "fill-antialias": false,

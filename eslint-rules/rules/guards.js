@@ -136,8 +136,39 @@ export const legendNoHandSizedSwatch = selectorRule({
 });
 
 // 原 src/lib/__tests__/dayPrefetchScope.test.ts：日期一律從 timeStore 取（CLAUDE.md §6）。
-export const noCurrentTimeDeps = selectorRule({
-  description: "陣列（React deps）不放 currentTime",
-  message: "不要把 currentTime 放進陣列／deps；日期走 timeStore 訂閱（docs/development-rules.md §8、docs/TIMELINE_ARCHITECTURE.md）",
-  selectors: ["ArrayExpression Identifier[name='currentTime']"],
-});
+const DEPS_HOOKS = new Set(["useEffect", "useLayoutEffect", "useMemo", "useCallback"]);
+const hookName = (callee) =>
+  callee.type === "Identifier"
+    ? callee.name
+    : callee.type === "MemberExpression" && !callee.computed && callee.object.type === "Identifier" && callee.object.name === "React"
+      ? callee.property.name
+      : null;
+/** deps 元素是否指向 currentTime：`currentTime`、`state.currentTime`、`props?.currentTime`。 */
+function isCurrentTimeRef(node) {
+  const n = node?.type === "ChainExpression" ? node.expression : node;
+  if (n?.type === "Identifier") return n.name === "currentTime";
+  return n?.type === "MemberExpression" && !n.computed && n.property.name === "currentTime";
+}
+
+// 只看 React hook 的依賴陣列（第二個參數）；map filter 表達式等一般陣列不算。
+export const noCurrentTimeDeps = {
+  meta: {
+    type: "problem",
+    docs: { description: "useEffect／useLayoutEffect／useMemo／useCallback 的 deps 不放 currentTime" },
+    schema: [],
+    messages: {
+      banned:
+        "不要把 currentTime 放進 hook 的 deps（每次時間跳動都會重跑）；動態圖層改用 timeStore 訂閱（subscribe／subscribeThrottled／subscribeDate），見 CLAUDE.md §6、docs/development-rules.md §8、docs/TIMELINE_ARCHITECTURE.md",
+    },
+  },
+  create(context) {
+    return {
+      CallExpression(node) {
+        if (!DEPS_HOOKS.has(hookName(node.callee))) return;
+        const deps = node.arguments[1];
+        if (deps?.type !== "ArrayExpression") return;
+        for (const el of deps.elements) if (isCurrentTimeRef(el)) context.report({ node: el, messageId: "banned" });
+      },
+    };
+  },
+};

@@ -152,7 +152,6 @@ export function useEarthquakeLayer(
       })
       .catch((err) => console.warn("[Earthquake] load failed:", err));
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const ensureSource = useCallback((map: MapboxMap) => {

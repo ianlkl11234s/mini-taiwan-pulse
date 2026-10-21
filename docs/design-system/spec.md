@@ -3,7 +3,7 @@
 # Mini Taiwan Pulse — Design System
 
 > **UI 規範 SSOT**。新增或修改任何 UI（面板、popup、控制項、工具列、樣式表）前必讀；PR 前照 §8 checklist 逐項勾。資料夾入口：[`README.md`](./README.md)（檔案地圖、維護流程）；每輪決定：[`CHANGELOG.md`](./CHANGELOG.md)。
-> 自動檢查：TS／TSX 由 `npm run lint`（ESLint `pulse/design-*`），CSS 由 `src/styles/__tests__/designSystemGuard.test.ts`（§9）。視覺參考：**活的元件頁** `tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
+> 自動檢查：`npm run lint`（ESLint；TS／TSX 為 `pulse/design-*`，CSS 為 `pulse/design-css-*`，§9）。視覺參考：**活的元件頁** `tools/design-system.html`（原始碼 `src/design-system/`；`npm run dev` 後開 `/tools/design-system.html`，直接 import 真正的元件與 token，暗／淡並排，數值與程式同步）；靜態快照 [`reference.html`](./reference.html)（`npm run design:snapshot` 產生，會落後程式，以活頁為準）。
 > 決策來源：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a 五輪拍板、`proposal.md`、三份設計稿）。本檔寫的是**拍板後的最終規格與實際實作值**；兩者不一致時以本檔 §10「遷移狀態」誠實標示。
 
 ## 目錄
@@ -64,8 +64,8 @@
 | `src/data/layerParamsSpec.ts` | 圖層控制項規格（標籤文字、滑桿範圍）→ 自動產生控制項 |
 | `src/components/LegendPanel.tsx` `LEGEND_REGISTRY` | layer → 圖例 |
 | `src/components/featureInfo/registry.tsx` `PANEL_REGISTRY` | layer → popup 內容 |
-| `eslint-rules/rules/design.js`、`eslint-suppressions.json` | TS／TSX 自動檢查規則與基準（§9） |
-| `src/styles/__tests__/designSystemGuard*.{ts,json}` | CSS 自動檢查規則、基準、TS↔CSS 同值測試（§9） |
+| `eslint-rules/rules/design.js`、`eslint-rules/rules/css.js`、`eslint-suppressions.json` | TS／TSX 與 CSS 自動檢查規則與基準（§9） |
+| `src/styles/__tests__/designSystemGuard.test.ts` | TS↔CSS token 同值測試（§9） |
 | `src/map/mapStyleScale.ts` | 地圖圖層拍板數值 SSOT（點半徑、描邊、線寬、面透明度、缺值斜線、熱區、標籤、地圖中文字型；§13） |
 | `src/map/pointTiers.ts`／`src/map/pointSpec.ts` | 點圖層分階（registry `POINT_TIERS`、hook `HOOK_POINT_TIERS`）與 registry 集中套用 `withPointSpec()`（§13） |
 | `src/components/legend/legendKit.tsx` | 圖例共用元件與色票尺寸（§5.32） |
@@ -730,8 +730,8 @@
 - **等待（W2）**：底色 `SURFACE.app`（淡色 `--light-surface-solid`，依開站 URL 的 `style` 決定）。中間是台灣本島＋離島輪廓（澎湖、金門、馬祖、綠島、蘭嶼、小琉球、龜山島；不含東沙、太平島、釣魚台），填 5% 強調色（淡色 6%）、0.5px 強調色描邊，輪廓整體不透明度 0.75。九個城市點由北往南依序亮起並擴出波紋：馬祖、台北、新竹、金門、台中、花蓮、澎湖、台南、高雄。
 - **版面（2026-09-29 以調整工具定案）**：本島高 `19vh`；**本島外框中心**對齊視窗中心再往上 `4.5vh`（X 0）；城市點直徑 5.8px（以 900px 高視窗為準，隨高度等比）；波紋放大 ×6；一輪 2.2s；不顯示城市名稱。本島下緣再往下 `3.5vh` 放品牌字「MINI TAIWAN PULSE」（`FONT_DATA` 700、`clamp(11px, 2.08vh, 20px)`、字距 0.3em、不透明度 0.85、PULSE 用強調色）與狀態列。
 - **狀態列**：與 §5.30 同款（高 22、`--font-sm`、`SURFACE.strong`、`BORDER.panel`、`RADIUS.lg`）；文字「載入地圖」→「✓ 完成」。**文字中心對齊中線**（「入」「地」之間），圖示掛在左側，不計入置中。
-- **收尾（M2）**：地圖就緒 → 「✓ 完成」停 0.4s → 遮罩淡出 0.45s（內容同時放大 1.04）→ 主畫面元件從邊界彈入：側欄從左、工具列從上、時間軸從下、左上標題最後落下，`cubic-bezier(0.34,1.56,0.64,1)` 0.85s，依序延遲 0／0.12／0.24／0.36s；側欄圖示 0.4s 逐一放大彈出（延遲 0.4–0.7s）；整段約 1.6s（2026-09-29 依使用者要求比初版慢約 0.5s）；工具列與時間軸到位時閃一下強調色光暈（像機關卡住）。
-- **做法**：`<html data-boot="wait|enter">` 控制（`src/main.tsx` 在 render 前先設 `data-boot="wait"`），要參與進場的元件只標 `data-boot-part="rail|toolbar|timeline|title"`，不必接 props；進場結束後移除 `data-boot`。30 秒還沒就緒直接跳到淡出。
+- **收尾（M2）**：地圖就緒 → 「✓ 完成」停 0.4s → 遮罩淡出 0.45s（內容同時放大 1.04）→ 主畫面元件從邊界彈入：側欄從左、工具列從上、時間軸從下、左上標題最後落下，`cubic-bezier(0.34,1.56,0.64,1)` 0.85s，依序延遲 0／0.12／0.24／0.36s；側欄圖示 0.4s 逐一放大彈出（延遲 0.4–0.7s）；開站時已開著的圖層面板等側欄圖示彈完，延遲 1s 再從側欄旁淡入滑出（0.4s，2026-10-20 使用者要求）；整段約 1.6s（2026-09-29 依使用者要求比初版慢約 0.5s）；工具列與時間軸到位時閃一下強調色光暈（像機關卡住）。
+- **做法**：`<html data-boot="wait|enter">` 控制（`src/main.tsx` 在 render 前先設 `data-boot="wait"`），要參與進場的元件只標 `data-boot-part="rail|toolbar|timeline|title|panel"`，不必接 props；進場結束後移除 `data-boot`。30 秒還沒就緒直接跳到淡出。
 - **減少動態**：不跑波紋與彈入，只淡出。
 - **開站加速（同一輪）**：地形（DEM）只在傾斜視角時才載入（`src/map/MapView.tsx` `ensureTerrainIfTilted`，傾斜後不再移除），正俯視開站不再等 DEM 圖磚。
 - **禁止**：假進度條、log 終端框、漸層光暈進度（舊版已移除）；在開站畫面加入即時數字（開站時還沒有資料，會變成假數據）。
@@ -960,27 +960,29 @@ PR 前逐項勾（貼進 PR 描述）：
 - [ ] 層級用 `Z_INDEX`／`--z-*`，沒有新的寫死數字；新左側面板已加入互斥清單（§5.25、§5.26）
 - [ ] 沒有「規劃中」之類沒有功能的按鈕
 - [ ] 窄螢幕（手機寬度）不橫向溢出
-- [ ] `npx tsc -b` 綠；`npm run lint` 綠；`npx vitest run src/styles/__tests__/designSystemGuard.test.ts` 綠
-- [ ] 若 guard 顯示違規減少：已執行 `npm run lint:prune`（TS／TSX）或 `npm run design:baseline`（CSS）並 commit 基準
+- [ ] `npx tsc -b` 綠；`npm run lint` 綠；`npx vitest run src/styles/__tests__/designSystemGuard.test.ts`（token 同值）綠
+- [ ] 若 guard 顯示違規減少：已執行 `npm run lint:prune` 並 commit 基準
 - [ ] 若新增 token：TS 與 CSS 同時加，並補本檔 §3 表格
 
 ## 9. 自動檢查（guard）
 
 ### 9.1 做法（ratchet）
 
-- 兩半（2026-10-18 起）：
-  - **TS／TSX → ESLint**：`npm run lint`（CI step「Lint」）。規則 `eslint-rules/rules/design.js`（id 為 `pulse/design-<規則>`，RuleTester 樣本在 `eslint-rules/__tests__/`）；基準是根目錄 `eslint-suppressions.json`。錯誤訊息直接指出檔名、行號、怎麼改與本檔章節。
-  - **CSS → vitest**：`src/styles/__tests__/designSystemGuard.test.ts`（ESLint 不解析 CSS）。規則 `designSystemGuardRules.ts`（只剩掃 `.css` 的 web-font、hex-literal、triangle-chevron、uppercase-eyebrow、raw-z-index）；基準 `designSystemGuard.baseline.json`（`{規則: {檔案: 筆數}}`）。同檔另有 TS↔CSS token 同值測試。
+- 全部在 ESLint（2026-10-18 起）：`npm run lint`（CI step「Lint」）。基準是根目錄 `eslint-suppressions.json`（每檔每規則的筆數）。錯誤訊息直接指出檔名、行號、怎麼改與本檔章節。
+  - **TS／TSX**：規則 `eslint-rules/rules/design.js`，id 為 `pulse/design-<規則>`。
+  - **CSS**：`@eslint/css`（只用它的解析器，不開它的 recommended）＋本地規則 `eslint-rules/rules/css.js`，id 為 `pulse/design-css-<規則>`。註解不算違規。
+  - RuleTester 樣本在 `eslint-rules/__tests__/`（`rules.test.js`、`cssRules.test.js`），套用範圍釘在 `config.test.js`。
+  - `src/styles/__tests__/designSystemGuard.test.ts` 只剩 TS↔CSS token 同值測試（行為性一致檢查，不是禁用寫法）。
 - 範圍：`src/**/*.{ts,tsx,css}`，排除 `__tests__`、`__fixtures__`／fixture、`*.test.*`。
 - **任何檔案計數增加、或新檔案出現違規 → 失敗**。
-- 計數減少：ESLint 會報「有沒用到的 suppression」而失敗，執行 `npm run lint:prune` 把基準降下來；CSS 只提示，執行 `npm run design:baseline`。
-- 兩者都**只會往下降**：`design:baseline` 有新增違規時拒絕寫入並 exit 1；**不要**對 ESLint 跑 `--suppress-all`／`--suppress-rule`（等於放寬基準）。`design:baseline --reset` 只用於基準遺失或規則定義本身改變，且必須在 PR 說明。
+- 計數減少：ESLint 會報「有沒用到的 suppression」而失敗，執行 `npm run lint:prune` 把基準降下來。
+- 基準**只會往下降**：**不要**跑 `eslint --suppress-all`／`--suppress-rule`（等於放寬基準）。新規則的初始基準要在 PR 說明筆數來源。
 - `// eslint-disable` 註解無效（`npm run lint` 帶 `--no-inline-config`），不能用來繞過。
-- ⚠️ **guard 紅燈不可用改基準繞過**。唯一例外是本檔 §4.2／§3.16 已登記、或經拍板新增的刻意例外——先改本檔登記，再在 PR 說明為何 `--reset`。
+- ⚠️ **guard 紅燈不可用改基準繞過**。唯一例外是本檔 §4.2／§3.16 已登記、或經拍板新增的刻意例外——先改本檔登記，再在 PR 說明為何調整基準。
 
 ### 9.2 規則與目前基準（2026-10-18）
 
-TS／TSX 欄的規則 id 是 `pulse/design-<規則>`，基準在 `eslint-suppressions.json`；CSS 欄的基準在 `designSystemGuard.baseline.json`。
+TS／TSX 欄的規則 id 是 `pulse/design-<規則>`，CSS 欄是 `pulse/design-css-<規則>`（`hex-literal-in-ui-css` 為 `pulse/design-css-hex-literal`）；基準都在 `eslint-suppressions.json`。
 
 | 規則 | 擋什麼 | 擋／記錄 | 基準筆數（檔案數）TS／TSX | CSS |
 |---|---|---|---|---|
@@ -994,7 +996,7 @@ TS／TSX 欄的規則 id 是 `pulse/design-<規則>`，基準在 `eslint-suppres
 | `raw-z-index` | `zIndex: <n>`／`z-index: <n>` 且 n ≥ 10（`src/styles/**` 定義檔除外；0–9 元件內部小值不算） | 擋 | 15（14） | 0（0） |
 | `internal-id-display` | 啟發式：`datasetId` 放進 JSX 子節點或 `title`／`label`／`desc`／`text` 欄位 | **只記錄**（ESLint warning） | 0 | — |
 
-`raw-z-index` 於 Phase Q 新增，基準以 `design:baseline --reset` 由當下程式碼建立（規則新增屬 §9.1 的 reset 條件；其他規則的值同時只降不升）。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
+`raw-z-index` 於 Phase Q 新增，基準由當下程式碼建立（其他規則的值同時只降不升）。CSS 規則 2026-10-18 由 vitest 搬進 ESLint，筆數逐檔沿用舊基準。已登記的特例（§5.25 特例表）也計在基準內——它們不會再增加，但也不會自動歸零。
 
 **誤判與漏判**：
 - `font-data-on-cjk` 改成 ESLint（AST）後跨行的 JSX 也會命中（2026-10-18 因此修掉 `App.tsx` 地名開關按鈕 1 處）；只看元素的直接文字，子元素裡的中文不算。正確混排寫法（中文在外、數字 span 在內）不會誤判。

@@ -99,6 +99,11 @@
       "count": 1
     }
   },
+  "src/components/sidebar/layerParamControls.css": {
+    "pulse/design-css-hex-literal": {
+      "count": 1
+    }
+  },
   "src/data/layerParamsSpec.ts": {
     "pulse/design-english-control-label": {
       "count": 1
@@ -110,6 +115,11 @@
   "src/embed/EmbedApp.tsx": {
     "pulse/design-triangle-chevron": {
       "count": 1
+    }
+  },
+  "src/gfw-v4-bench/styles.css": {
+    "pulse/design-css-uppercase-eyebrow": {
+      "count": 2
     }
   },
   "src/hooks/useGfwHourlyTracksLayer.ts": {
@@ -130,6 +140,11 @@
   "src/layers/hosts/coralReefHost.tsx": {
     "pulse/design-raw-z-index": {
       "count": 1
+    }
+  },
+  "src/research/mainMapConnection.css": {
+    "pulse/design-css-hex-literal": {
+      "count": 3
     }
   }
 }

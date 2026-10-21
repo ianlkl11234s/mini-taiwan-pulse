@@ -193,6 +193,14 @@ export function boundaryVersionLabel(code: unknown, i18n?: I18nContext): string 
   return i18n ? enumLabel('statBoundary', code, zh, i18n) : zh;
 }
 
+/**
+ * 統計「位置口徑」（配方的 location_semantics）：中文原句是 key，查 `enum.statLocationBasis.<原句>`；
+ * 查不到退回中文原文（參考界代碼照 humanizeStatisticsText 換成可讀名稱）。
+ */
+export function statisticsLocationBasis(zh: string, i18n: I18nContext): string {
+  return enumLabel('statLocationBasis', zh, humanizeStatisticsText(zh), i18n);
+}
+
 /** 說明文字裡夾帶的邊界代碼換成中文描述（其餘文字不動）。 */
 export function humanizeStatisticsText(text: string, i18n?: I18nContext): string;
 export function humanizeStatisticsText(text: string | undefined, i18n?: I18nContext): string | undefined;

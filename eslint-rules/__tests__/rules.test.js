@@ -187,9 +187,73 @@ tester.run("legend-no-hand-sized-swatch", rule("legend-no-hand-sized-swatch"), {
 });
 
 tester.run("no-current-time-deps", rule("no-current-time-deps"), {
-  valid: ["useEffect(() => { timeStore.subscribeDate(f); }, [f]);", "const t = state.currentTime;"],
+  valid: [
+    "useEffect(() => { timeStore.subscribeDate(f); }, [f]);",
+    "const t = state.currentTime;",
+    // map filter 表達式（useTyphoonTracksLayer 類）不是 deps
+    'map.setFilter(id, ["<=", ["get", "seg_end_ts"], currentTime]);',
+    'const filter = ["all", [">=", ["get", "ts"], currentTime - win], ["<=", ["get", "ts"], currentTime]];',
+    // 函式參數名 currentTime
+    "function build(currentTime) { return [currentTime, 1]; }",
+    "const f = useCallback((currentTime) => draw(currentTime), [draw]);",
+    // subscribe callback
+    "useEffect(() => timeStore.subscribeThrottled((currentTime) => { update([currentTime]); }), [update]);",
+    // 不是 deps 位置／不是指定 hook
+    "useState([currentTime]);",
+    "useEffect(() => {}, deps);",
+    "useEffect(() => {}, [obj[currentTime]]);",
+  ],
   invalid: [
     { code: "useEffect(() => { load(currentTime); }, [currentTime]);", errors: errs(1) },
     { code: "useEffect(() => {}, [visible, props.currentTime]);", errors: errs(1) },
+    { code: "useLayoutEffect(() => {}, [state?.currentTime]);", errors: errs(1) },
+    { code: "const v = useMemo(() => f(currentTime), [currentTime, x]);", errors: errs(1) },
+    { code: "const cb = React.useCallback(() => f(), [currentTime]);", errors: errs(1) },
+    { code: "React.useEffect(() => {}, [a.b.currentTime, currentTime]);", errors: errs(2) },
+  ],
+});
+
+const URL_ERR = [{ messageId: "url" }];
+const META_ERR = [{ messageId: "importMeta" }];
+tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"), {
+  valid: [
+    'const ENDPOINT = "/api/private-research/bss-bridge/tiles";',
+    'const u = new URL("/api/private-research/x", window.location.origin);',
+    { code: 'const OFFICIAL = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }] },
+    { code: 'const B = `${import.meta.env.BASE_URL ?? "/"}world/`;', options: [{ allowImportMeta: ["env.BASE_URL"] }] },
+    { code: "const B = import . meta . env . BASE_URL;", options: [{ allowImportMeta: ["env.BASE_URL"] }] },
+    { code: 'const h = \'<a href="https://ok.test/p" rel="x">\';\n// https://ok.test/p', options: [{ allowUrls: ["https://ok.test/p"] }] },
+    { code: 'const t = "https://tiles.example.test/{z}/{x}/{y}.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }] },
+  ],
+  invalid: [
+    { code: 'const u = "https://tiles.example.test/a.pmtiles";', errors: URL_ERR },
+    { code: "const u = `http://${host}/x`;", errors: URL_ERR },
+    { code: "// 舊來源 https://gis.example.test\nconst a = 1;", errors: URL_ERR }, // 註解也算（同原 toMatch 整檔）
+    { code: 'const ns = "http://www.w3.org/2000/svg";', errors: URL_ERR }, // 原 bridge 測試放行 www.w3，現在更嚴
+    { code: 'const u = "https://evil.test/";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }], errors: URL_ERR },
+    { code: "const base = import.meta.env.VITE_PRIVATE_BASE;", errors: META_ERR },
+    { code: 'const base = import.meta["env"].X;', errors: META_ERR },
+    { code: "const m = import . meta;", errors: META_ERR },
+    { code: "const e = import.meta.env.VITE_X;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL_X;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL.length;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const e = import.meta["env"].BASE_URL;', options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const t = "http://localhost/foo";', options: [{ allowUrls: ["http://localhost/"] }], errors: URL_ERR },
+    { code: 'const t = "https://tiles.example.test/{z}/{x}/{y}.png?x";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }], errors: URL_ERR },
+    { code: "const t = `https://ok.test/a${x}`;", options: [{ allowUrls: ["https://ok.test/a"] }], errors: URL_ERR }, // 插值接在網址後：整段 token 不等於清單 → 紅
+    { code: 'const t = "https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx?x=1";', options: [{ allowUrls: ["https://liquefaction.gsmma.gov.tw/cgs/Web/Map.aspx"] }], errors: URL_ERR },
+    { code: 'const t = "https://tiles.example.test/other.png";', options: [{ allowUrls: ["https://tiles.example.test/{z}/{x}/{y}.png"] }], errors: URL_ERR },
+  ],
+});
+
+const SOIL = [{ patterns: [{ regex: 'gis\\.liquid\\.net\\.tw|WMSServer|WMTS|"raster"', reason: "r" }, { regex: "TPSite|臺北市中山站", reason: "r" }] }];
+tester.run("owner-only-banned-text", rule("owner-only-banned-text"), {
+  valid: [{ code: 'const s = { type: "vector", url: "pmtiles://x" };', options: SOIL }],
+  invalid: [
+    { code: 'const s = { type: "raster" };', options: SOIL, errors: [{ messageId: "banned" }] },
+    { code: 'const u = "https://gis.liquid.net.tw/arcgis/rest/services/x/MapServer/WMTS";', options: SOIL, errors: [{ messageId: "banned" }, { messageId: "banned" }] },
+    { code: "// TPSite 臺北市中山站\nconst a = 1;", options: SOIL, errors: [{ messageId: "banned" }, { messageId: "banned" }] },
   ],
 });
