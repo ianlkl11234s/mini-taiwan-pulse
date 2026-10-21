@@ -1,11 +1,11 @@
 # Pulse AI Agent 地理分析：現行架構說明書
 
-> 更新：2026-10-18。對應版本：MCP `mini-pulse-gis-mcp` origin/main（含 #64–#68）、分析倉庫 `20261017T213124Z`。
+> 更新：2026-10-21。對應版本：MCP `mini-pulse-gis-mcp` origin/main `a3cc388`（含 #64–#73）、分析倉庫 `20261021T001522Z`（ADR-0023 組裝流程）。
 > 前一版（v1，ADR-0016 之前的 42 工具／pulse-gis-analyst 架構）見 [pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)，只當歷史。
 
 ## 0. 一句話結論與文件定位
 
-**一句話**：使用者在 Claude Code（或 Codex）用白話問地理問題，Agent 依 `pulse-conductor` skill 分派，透過本機 MCP `pulse-research`（core 22 個工具）在**本機 DuckDB 唯讀查詢分析倉庫**算出數字，再經雲端 research-gateway 把結果**畫到使用者已登入的 Pulse 地圖分頁**，確認 `shown:true` 之後才用白話回答。
+**一句話**：使用者在 Claude Code（或 Codex）用白話問地理問題，Agent 依 `pulse-conductor` skill 分派，透過本機 MCP `pulse-research`（core 23 個工具）在**本機 DuckDB 唯讀查詢分析倉庫**算出數字，再經雲端 research-gateway 把結果**畫到使用者已登入的 Pulse 地圖分頁**，確認 `shown:true` 之後才用白話回答。
 
 本檔只回答「**系統現在怎麼運作**」。其他問題看這裡：
 
@@ -34,7 +34,7 @@ flowchart TB
     end
 
     subgraph MCP["本機 MCP：pulse-research（stdio）"]
-        T["core 22 工具<br/>地圖操作 / 找資料 / 計算 / 上圖 / 發布"]
+        T["core 23 工具<br/>地圖操作 / 找資料 / 計算 / 上圖 / 發布"]
         ENG["WarehouseEngine<br/>DuckDB 唯讀 + spatial"]
         JEV["Jev 相關性評分<br/>（OpenRouter，只在 find_data）"]
         T --> ENG
@@ -48,13 +48,15 @@ flowchart TB
     end
 
     subgraph UP["上游"]
+        REG["pulse-data registry<br/>成員清單 + R2 packages/"]
         AN["taipei-gis-analytics<br/>data/processed + manifest"]
         CDN["統計 CDN（R2 statistics/v1）"]
         ALIAS["search_aliases.yaml（口語別名）"]
     end
-    AN -->|"build_warehouse / update_store"| R2
-    CDN -->|"--stats-cdn"| R2
-    ALIAS -->|"--aliases"| R2
+    AN -->|"publish_package --dataset"| REG
+    CDN -->|"publish_package --stats-cdn"| REG
+    ALIAS -->|"publish_package --aliases"| REG
+    REG -->|"assemble_store 組裝 + upload"| R2
 
     GW["research-gateway（Zeabur）<br/>gis-platform/services/research-gateway<br/>token、指令轉送、結果檔通道"]
 
@@ -118,7 +120,7 @@ flowchart TD
 | MCP server | 工具註冊、server instructions、toolset 篩選 | `src/research/server.ts`（`RESEARCH_INSTRUCTIONS`）、`src/research/toolsets.ts`（`CORE_TOOLS`） | MCP PR → main → `analysis-prod/mcp`：`git checkout --detach origin/main && npm run build` → `/mcp` 重連（MCP `README.md`「正式部署路徑」） |
 | 倉庫查詢引擎 | DuckDB 唯讀開啟、`enable_external_access=false`、SQL 守門、結果 `wh-N` 與 lineage | `src/warehouse/engine.ts`、`src/warehouse/discovery.ts`、`datasetUsageNotes.json`、`categories.json` | 同上 |
 | 找資料加速 | `pulse_find_data` 先寬鬆比對，再交給 Jev 評分 | `src/warehouse/discovery.ts`（`DATA_RELEVANCE_THRESHOLD = 0.7`） | 同上 |
-| 分析倉庫 | 每個 dataset 一張 `ds_*` 表，加行政界、統計長表、目錄、別名 | MCP repo `warehouse/build_warehouse.py`、`update_store.py`、`export_store.py`；R2 `pulse-warehouse` | `update_store.py` 增量建倉 → `npm run warehouse:upload`（plan／execute，上傳後自動只留 3 版）→ `/mcp` 重連（`ai-mcp.md`「元件與位置」） |
+| 分析倉庫 | 每個 dataset 一張 `ds_*` 表，加行政界、統計長表、目錄、別名 | MCP repo `warehouse/publish_package.py`、`assemble_store.py`；pulse-data `registry/`（成員清單 SSOT）；R2 `pulse-warehouse`（`packages/` 不可變資料包＋`warehouse/<版本>/`） | `publish_package.py` 發包 → pulse-data PR → `assemble_store.py` 組裝 → `npm run warehouse:upload`（plan／execute，上傳後自動只留 3 版）→ `/mcp` 重連（ADR-0023；舊 `update_store`／`build_warehouse` 已停用）（`ai-mcp.md`「元件與位置」） |
 | research-gateway | agent token、分頁綁定、指令 CAS 與轉送、長輪詢 wake、結果檔通道（sha256） | gis-platform `services/research-gateway/`（private repo） | gis-platform PR → Zeabur 部署 |
 | 前端：主地圖連線 | 登入分頁自動建立 study、持有租約、長輪詢、執行指令並回報 ready | `src/research/agentTabSession.ts`（登入分頁自動擁有一個 study，不用配對碼）、`src/research/bridgeClient.ts`（長輪詢與結果通道的 timeout 鏈）、`src/research/StudyController.ts`（序列化 server 指令，本地操作優先）、`src/research/MainMapConnection.tsx`（把指令接到地圖、處理探索與分析結果呈現）、`src/research/ResearchConnection.tsx`（連線元件外殼，`/lab` 頁不接 query） | mini PR → develop → master 發布 |
 | 前端：BYOK 對話框 | 使用者自填 key 的瀏覽器內對話（支線） | `src/components/chat/ChatPanel.tsx`（浮層面板，key 一律經 keyVault）、`src/chat/agent.ts`（streamText＋tool loop 上限 10 步） | 同上 |
@@ -129,9 +131,9 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 
 ---
 
-## 3. 工具清單（core 22 個）
+## 3. 工具清單（core 23 個）
 
-以 `src/research/toolsets.ts` 的 `CORE_TOOLS` 為準，共 22 個（`PULSE_TOOLSET=core` 為預設）。MCP `README.md` 寫的「50 tools」是舊的 full 模式數字，已過時；full 模式目前的實際數量**未量測**。
+以 `src/research/toolsets.ts` 的 `CORE_TOOLS` 為準，共 23 個（`PULSE_TOOLSET=core` 為預設）。MCP `README.md` 寫的「50 tools」是舊的 full 模式數字，已過時；full 模式目前的實際數量**未量測**。
 
 | 分組 | 工具 | 一句話 |
 |---|---|---|
@@ -152,6 +154,7 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 | 計算 | `pulse_nearby_profile` | 1–5 點、半徑內各類別計數與最近名稱（不畫圖；回答使用者時改用 `pulse_show_nearby`） |
 | | `pulse_sql` | 沒有現成工具時的唯讀 SELECT／WITH；有 maxRows 上限，回傳 `wh-N` |
 | | `pulse_region_rank` | 縣市／鄉鎮／村里依一個統計指標排名；缺值或保密值不排名、不當 0 |
+| | `pulse_spatial_stats` | 熱點、群聚、集中度：`gi_star` 冷熱點、`lisa` 群聚與離群、`moran_global` 整體群聚、`lq` 區位商數；單位為行政區或 1000／500 m 網格，`scope.countyCode` 限單一縣市（村里必須限縣市）；確定性計算，回答只說「統計上顯著（5% 水準）」（ADR-0022 階段 A，MCP #70） |
 | | `pulse_isochrone` | 「走路／騎車／開車 N 分鐘」用；打自架 Valhalla，結果也是可 join 的 `iso_wh_N` 表 |
 | | `pulse_wh_get_result` | 分頁讀回之前的 `wh-N` 結果，不重算 |
 | 上圖 | `pulse_show_result` | 一步完成匯入、取景、等 ready、讀回；最多 3 個結果；只有 `shown:true` 才能說地圖上有 |
@@ -176,12 +179,13 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 
 出處：MCP repo `plugins/pulse-analyst/skills/*/SKILL.md`。來由見 ADR-0016（原本規則散在三處且互相矛盾，收斂成一個 plugin、唯一一份）。
 
-### 4b. pulse-insight 的 9 份配方
+### 4b. pulse-insight 的 10 份配方
 
-所有配方都用 `pulse_sql` 跑已驗證的 SQL 模板，複雜數學（z 值、Spearman 等）留給 Agent 算，結果用 `pulse_show_result` 分兩段上圖。
+多數配方用 `pulse_sql` 跑已驗證的 SQL 模板，複雜數學（z 值、Spearman 等）留給 Agent 算；空間群聚（LISA、Moran's I）改走確定性工具 `pulse_spatial_stats`。結果用 `pulse_show_result` 分兩段上圖。
 
 | 配方 | 回答什麼問題 | 方法 |
 |---|---|---|
+| spatial-cluster-lisa | 有沒有空間群聚？群聚在哪、哪裡是高高／低低／離群？ | **全域 Moran's I＋LISA**，呼叫 `pulse_spatial_stats`（`moran_global`／`lisa`），queen 鄰接取自倉庫鄰接表；統計指標直接帶 `indicator`，鄉鎮可做全國、村里必須限縣市；無鄰居的離島單元標「未涵蓋」，不是 0 也不是「不顯著」；類別色上圖 |
 | area-correlation | X 多的地方 Y 也多嗎？有沒有關係？ | 以村里／鄉鎮彙總後算 Pearson 相關（含 log 轉換）；點資料先換成密度；分縣市再算一次檢查方向 |
 | hotspot-density | 哪裡特別集中？ | 行政區每平方公里密度、1 km 網格計數排名（只有密度，沒有顯著性） |
 | hotspot-gi-star | 哪裡是統計上顯著的熱點？ | **Getis-Ord Gi\***：1 km 網格（含 0 值格、只留與縣界相交的格）、3×3 二元鄰接權重，z > 2.58 ≈ p<0.01；只示範單一縣市（例：臺北市 332 格，<1.5 秒），未做置換檢定或距離衰減 |
@@ -192,25 +196,28 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 | news-persistence | 同一個地方連續好幾週都出現？ | gaps-and-islands 找連續週期（週序號減組內排名）；週以台灣時間切 |
 | event-context-timeseries | 兩件事的時間走勢同不同步、誰先動？ | 週序列相關＋領先落後 ±1 週；只取兩序列收集窗口的重疊段（窗口外補 0 會把「沒收集」當「沒發生」） |
 
-出處：`plugins/pulse-analyst/skills/pulse-insight/references/recipes/*.md`。**目前沒有 Moran's I／LISA 配方**（hotspot-gi-star 自述「仍非全域 Moran's I 檢定」）；空間統計目前都是「SQL 模板＋Agent 自己算」，不是確定性工具，這是 §10 方向 A 要補的。
+出處：`plugins/pulse-analyst/skills/pulse-insight/references/recipes/*.md`。Moran's I／LISA 已由 `pulse_spatial_stats`＋`spatial-cluster-lisa` 配方承接（MCP #70）；其餘配方（Gi\*、ANN、LQ 等）仍是「SQL 模板＋Agent 自己算」，是否也改走工具見 §10 方向 A。
 
 ---
 
 ## 5. 分析倉庫
 
-### 5a. 內容（2026-10-18）
+### 5a. 內容（2026-10-18 基準；版本更新到 2026-10-21）
+
+倉庫版本由 ADR-0023 的組裝流程產生：成員清單在 pulse-data `registry/`（每份資料一筆，`warehouse:` 區塊記資料包；核心表在 `_warehouse_core.yaml`），材料是 R2 `pulse-warehouse` 的不可變資料包 `packages/<table>/<sha256>.parquet`，組裝程式不再掃描 analytics。下表數字是 `20261017T213124Z`（P0 凍結基準，439 檔全部登記）；之後的版本在它之上加三張鄰接表與新發包的資料，**新版的檔數、大小、列數本檔未重量**。
 
 | 項目 | 值 | 出處 |
 |---|---|---|
-| 正式版本 | `20261017T213124Z`（建立 2026-10-17 21:31 UTC） | analysis-prod `runtime/warehouse-cache/20261017T213124Z/manifest.json`（本機快取，不進 git）；MCP `eval/agent-regression/README.md` 第四階段 |
-| 退版用版本 | `20261017T213109Z` | 同上 eval README 第四階段 |
+| 正式版本 | `20261021T001522Z`（發包日本住宿 OSM 後組裝；前一版 `20261020T232834Z` 加三張鄰接表） | `ai-mcp.md`「現況」；ADR-0023「結果」段 |
+| 保留的版本 | `001522Z`／`232834Z`／`213124Z`（3 版；`213124Z` 是 P0 凍結基準，也是退版用） | 同上 |
+| 基準版本 | `20261017T213124Z`（建立 2026-10-17 21:31 UTC；下列檔數、大小、列數為這一版） | analysis-prod `runtime/warehouse-cache/20261017T213124Z/manifest.json`（本機快取，不進 git） |
 | 檔案數 | 439（431 張 `ds_*` 資料表＋8 張核心表） | manifest.json `totals.files` 與逐檔 `core` 旗標 |
 | 總大小 | 5,982,750,856 bytes（約 5.98 GB） | manifest.json `totals.bytes` |
 | 資料表總列數 | 35,556,572（431 張 `ds_*` 合計） | manifest.json 逐檔 `rows` 加總 |
-| 核心表 | `boundaries_county`／`town`／`village`、`boundaries_prosecutor_district`、`stats_observations`（統計長表）、`wh_catalog`、`wh_coverage`、`wh_search_aliases` | manifest.json |
+| 核心表 | `boundaries_county`／`town`／`village`（20261020 起另有 `boundaries_{county,town,village}_neighbors` 三張 queen 鄰接表，給 `pulse_spatial_stats`）、`boundaries_prosecutor_district`、`stats_observations`（統計長表）、`wh_catalog`、`wh_coverage`、`wh_search_aliases` | manifest.json |
 | 線上統計 | 88 個 dataset／507 個指標 | `ai-mcp.md`「現況」 |
 | 每表欄位 | `_row_id`、原屬性欄、`geom`（EPSG:4326）、`geom_3826`（TWD97 TM2，公尺運算；台灣範圍才填）、多檔時 `_source_file` | MCP `warehouse/README.md`「輸出」 |
-| 保留政策 | R2 只留最近 3 版；上傳後自動清（MCP #54） | 使用者 2026-10-06 決定 |
+| 保留政策 | R2 `warehouse/` 只留最近 3 版，上傳後自動清（MCP #54，`--keep 3`）；`packages/` 不會被 prune | 使用者 2026-10-06 決定；ADR-0023 |
 
 10-17 這版是重建：同檔名多種格式（`.geojson`／`.csv`／`.parquet`／`.fgb`）只收一份，57 個資料集 4,901,790 → 2,580,848 列；公司內部專案資料不入倉（MCP #64–#67，eval README 第四階段）。
 
@@ -224,28 +231,33 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 
 出處：定義見 ADR-0014 D1、[PLAN-warehouse-20260926.md](../general-analysis/PLAN-warehouse-20260926.md)；數字見 [layer-status-summary.md](../general-analysis/layer-status-summary.md)（2026-10-12 由 `scripts/research/build-layer-status.mjs` 產生）。ADR-0014 寫的 778 層是 09-26 的舊值。
 
-### 5c. 入倉流程
+### 5c. 入倉流程（ADR-0023：發包 → 組裝 → 上傳）
 
 ```mermaid
 flowchart LR
-    A["analytics 新資料<br/>data/processed + _manifest.json"] --> B["update_store.py --only &lt;ids&gt;<br/>（統計加 --stats-cdn）"]
-    B --> C["本機 store<br/>驗 SHA、筆數、CRS、幾何"]
-    C --> D["npm run warehouse:upload<br/>plan → execute（R2，留 3 版）"]
-    D --> E["latest.json 指向新版"]
-    E --> F["/mcp 重連"]
-    F --> G["實測：region_rank / nearby_profile 答得出來"]
+    A["analytics 新資料<br/>data/processed + _manifest.json"] --> B["publish_package.py<br/>--dataset / --stats-cdn / --aliases"]
+    B --> C["R2 packages/<table>/&lt;sha256&gt;.parquet<br/>（先上傳）"]
+    C --> D["pulse-data registry<br/>登記後 PR 合併"]
+    D --> E["assemble_store.py<br/>與上一版 manifest 比對"]
+    E --> F["npm run warehouse:upload<br/>plan → execute（留 3 版）"]
+    F --> G["latest.json 指向新版 → /mcp 重連"]
+    G --> H["驗收：新 stdio process 下<br/>pulse_find_data 找得到、pulse_sql 查得到"]
 ```
 
-- 建倉前先對齊本機 store 與 R2 latest（`ai-mcp.md` 操作坑）。
-- 每個 dataset 的狀態碼（OK／WARN／FAILED／SKIPPED_*）與 issues 見 MCP `warehouse/README.md`；單一 dataset 失敗不會中止整批。
-- 「資料上線完成」的定義包含入倉並實測答得出來（`ai-mcp.md` 開頭）。新圖層有 manifest 並能自動入倉即為 L2（本 repo `CLAUDE.md` §5b）。
+- **清單 SSOT 是 pulse-data `registry/`**（ADR-0019／0023）；不在清單上的資料不進倉庫。發包程式先上傳資料包，全部成功才改 registry，所以 registry 不會指向不存在的包。
+- **三種發包**：`--dataset <id>`（點線面表，必須剛好對到一份 manifest，狀態 OK／WARN）、`--stats-cdn`（統計長表，只增不減，要下架才加 `--allow-shrink`）、`--aliases`（一律讀 analytics `origin/master`）。`wh_catalog`／`wh_coverage` 在發包時一併更新。
+- **防落後**：發包前檢查 analytics checkout 是否落後 origin、dataset 目錄是否有未提交改動；`--allow-stale` 才放行並記錄。
+- **組裝比對**：`assemble_store.py --reference-manifest <上一版>` 列出新增、移除、內容差異；新增表要 `--allow-add`、核心表（如 `wh_catalog`）要 `--allow-change`，移除與非預期差異 exit 1、不切 `latest.json`。
+- 舊流程（`update_store.py` 增量、`build_warehouse.py` 全量掃描）**已停用**，寫正式 store 要 `--legacy`；根因與取捨見 ADR-0023。
+- 「資料上線完成」的定義包含入倉並實測答得出來（`ai-mcp.md` 開頭）。**L2 可分析的判定**：在 pulse-data registry 有 `warehouse` 區塊，且已組裝上線（本 repo `CLAUDE.md` §5b 的「能自動入倉」以此為準）。
+- 每個 dataset 的狀態碼與 issues 見 MCP `warehouse/README.md`。
 
 ### 5d. 中文口語別名
 
 - 正本：analytics `docs/data-catalog/search_aliases.yaml`（key＝dataset_id，可細到 indicator；例：肺結核→結核病、刷卡→信用卡）。
-- 只改別名：`python3 update_store.py --aliases [--aliases-file <path>]` → `npm run warehouse:upload`，不用改 MCP 程式（MCP `warehouse/README.md`）。
+- 只改別名：改 yaml 並 merge 進 analytics master → `publish_package.py --aliases` → 組裝 → `npm run warehouse:upload`，不用改 MCP 程式（MCP `warehouse/README.md`「新資料入口」）。
 - 舊的 `SYNONYM_GROUPS`（`discovery.ts`，上限 60 組）保留，但新詞一律加 yaml。
-- 踩雷：`update_store.py` 預設讀 analytics 主 checkout 的 yaml，曾把 404 列別名蓋成 236 列；要沿用前一版時帶 `--aliases-file <不存在的路徑>`（eval README 第四階段）。
+- 踩雷（已由新流程根治）：舊 `update_store.py` 讀 analytics 主 checkout 的 yaml，曾讀到落後 65 commit 的本機檔，把別名 404 列蓋成 236 列；`publish_package.py --aliases` 一律 `git show origin/master`，不讀工作區（ADR-0023）。
 
 ---
 
@@ -337,6 +349,7 @@ conductor 實際用的分級表：
 | 10-16 | 查證題 8 題 ×2 | 查證維度 8/16 → 14/14 | 查證關卡：skill 寫了沒用，寫進 server 指示後才穩 | mcp #56–#59 |
 | 10-17 | verify／tiers／主題庫 | 16/16、26/26、29/30 | 數字口徑（圓心、半徑、經緯度順序）、醫療院所去重、LIMIT 附註 | mcp #60、#62、#63 |
 | 10-18 | 倉庫重建後 | 主題庫 29/30、tiers 26/26、verify 7/8（三輪約 US$14） | 同檔名多格式只收一份 | mcp #64–#67；eval README 第四階段 |
+| 10-20 | 空間統計題庫 20 題 | 基準 5/20（數字 6/20）→ **16/20**（數字 16/20） | `pulse_spatial_stats` 確定性工具＋`spatial-cluster-lisa` 配方（ADR-0022 階段 A） | mcp #70；eval README |
 
 ### 7c. 重要經驗
 
@@ -374,7 +387,7 @@ npm run eval:agent -- --live-map --web --reset-layers \
 
 - Jev 是 OpenRouter 託管的分類模型 `typesafe/jev-1.13`，**不是自己訓練的**（`src/research/jevRouter.ts`）。
 - **現役用途只有一個**：`pulse_find_data` 先用關鍵字、欄位、同義詞、別名、統計指標寬鬆找出候選（候選池放大到 limit 的數倍，避免好資料在評分前就被切掉），再請 Jev 逐筆評相關性，機率 ≥0.7 進 `relevant`，其餘進 `alsoConsider`（不丟棄）。Jev 沒設定、逾時（每筆 8 秒）或全失敗時，自動退回純關鍵字排序並標 `deterministic_only`（`src/warehouse/discovery.ts`）。
-- **路由（`pulse_route_request`）只是影子工具**：把問題分到 10 類能力並給候選工具，自己不執行任何東西；它**不在 core 22 工具內**，只有 full 模式看得到，所以現行 Agent 根本不會用它。路由準確度**未評估**；在 eval 裡當影子判斷和 conductor 比對的計畫尚未做。
+- **路由（`pulse_route_request`）只是影子工具**：把問題分到 10 類能力並給候選工具，自己不執行任何東西；它**不在 core 23 工具內**，只有 full 模式看得到，所以現行 Agent 根本不會用它。路由準確度**未評估**；在 eval 裡當影子判斷和 conductor 比對的計畫尚未做。
 - 舊設計脈絡：[jev-routing-accelerator.md](./jev-routing-accelerator.md)（09-20，當時由已移除的 pulse-gis-analyst 呼叫，已過時）。
 
 ### 8b. 8 月 Qwen3 SFT 圖層路由實驗（已結束）
@@ -415,7 +428,7 @@ repo `mini-pulse-layer-router`（`README.md`）：
 
 | 階段 | 做什麼 | 做完能多回答什麼 |
 |---|---|---|
-| **A 空間統計工具化** | 把 Gi\*、Moran's I／LISA、LQ 從「SQL 模板＋Agent 自己算」改成**確定性 MCP 工具**，回傳附顯著性與置換檢定 | 「哪裡是真的熱點、顯著嗎」答案穩定可重現，不再依賴 Agent 每次自己算 z 值；能做全域與局部群聚檢定 |
+| **A 空間統計工具化**（✅ 2026-10 已上線 `pulse_spatial_stats`：`gi_star`／`lisa`／`moran_global`／`lq`，MCP #70；題庫 5/20 → 16/20） | 把 Gi\*、Moran's I／LISA、LQ 從「SQL 模板＋Agent 自己算」改成**確定性 MCP 工具**，回傳附顯著性與置換檢定 | 「哪裡是真的熱點、顯著嗎」答案穩定可重現，不再依賴 Agent 每次自己算 z 值；能做全域與局部群聚檢定 |
 | **B 多尺度交叉分析** | 建「資料口徑登記簿」（每份資料一列代表什麼、該怎麼數）＋村里／鄉鎮／格網多尺度彙總，附 MAUP 敏感度（換尺度結論會不會變） | 「X 和 Y 有沒有關係」可以在不同尺度各算一次並說明結論是否穩；減少 A1 當事人、重複收檔這類口徑錯誤 |
 | **C 區位配置** | p-median、最大覆蓋等選址模型，以等時圈為距離 | 「新的長照站放哪裡最多人受惠」「現有站點覆蓋不到誰」 |
 
@@ -441,7 +454,8 @@ repo `mini-pulse-layer-router`（`README.md`）：
 | 題庫與驗算 SQL | MCP repo `eval/agent-regression/questions*.json`、`verification/*.sql` | ✅ |
 | server instructions／工具清單 | MCP repo `src/research/server.ts`、`src/research/toolsets.ts` | ✅ 規則正本 |
 | skills 與配方 | MCP repo `plugins/pulse-analyst/skills/` | ✅ 規則正本 |
-| 倉庫建置 | MCP repo `warehouse/README.md` | ✅ |
+| ADR：倉庫由登記簿清單＋R2 資料包組裝 | `.gis-agent-system/decisions/0023-warehouse-from-registry-packages.md` | ✅ 2026-10-20 採用，P0–P2 完成（結果段） |
+| 倉庫建置與新資料入口 | MCP repo `warehouse/README.md`（組裝模式、新資料入口） | ✅ |
 | MCP 總說明 | MCP repo `README.md` | ⚠️ 「50 tools」與 `pulse_wh_present` 等描述過時 |
 | 端點契約 | [bridge-contract.md](./bridge-contract.md)、[SPEC-prod-connect-p1-p3.md](../general-analysis/SPEC-prod-connect-p1-p3.md) | ✅（Phase B 段為歷史） |
 | 倉庫分級計畫 | [PLAN-warehouse-20260926.md](../general-analysis/PLAN-warehouse-20260926.md) | ✅ 定義有效，進度數字過時 |
