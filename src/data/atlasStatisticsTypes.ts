@@ -45,6 +45,8 @@ export interface AtlasRecipe {
   data_theme: string;
   /** Statistics 分頁的主題（layerPanels STATISTICS_MACRO_GROUPS）。 */
   tab_theme: string;
+  /** 選填：Statistics 分頁要併入既有小群組時的群組標題（缺省用 subgroup）；Layers 完整目錄不看此欄。 */
+  tab_group?: string;
   visual_theme: string;
   dataset_id: string;
   indicator_id: string;

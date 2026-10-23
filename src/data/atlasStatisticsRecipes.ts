@@ -40,7 +40,6 @@ export const ATLAS_TAB_THEME_TITLES = {
   hazard: "災害風險 Disaster Risk",
   marine: "海洋 Marine",
   crime: "犯罪與治安 Crime & Safety",
-  taipeiAgency: "臺北市局處統計 Taipei City Agencies",
 } as const;
 
 /** 依各家族宣告的 key 順序（群組內原始數在前）；交付缺 key 或未啟用即報錯。 */
@@ -224,10 +223,10 @@ export const ATLAS_STATISTICS_TOGGLE_GROUPS = [...new Set(ATLAS_ENABLED_STATISTI
   })
   .filter((group) => group.options.length > 1);
 
-function groupsBy(select: (recipe: AtlasRecipe) => boolean): Array<{ title: string; keys: string[] }> {
+function groupsBy(select: (recipe: AtlasRecipe) => boolean, groupOf: (recipe: AtlasRecipe) => string = (recipe) => recipe.subgroup): Array<{ title: string; keys: string[] }> {
   const recipes = ATLAS_ENABLED_STATISTICS_RECIPES.filter(select);
-  return [...new Set(recipes.map((recipe) => recipe.subgroup))]
-    .map((title) => ({ title, keys: recipes.filter((recipe) => recipe.subgroup === title).map((recipe) => recipe.layer_key) }));
+  return [...new Set(recipes.map(groupOf))]
+    .map((title) => ({ title, keys: recipes.filter((recipe) => groupOf(recipe) === title).map((recipe) => recipe.layer_key) }));
 }
 
 /** Layers 完整目錄（STATISTICS_DATA_THEMES）的主題，依家族順序。 */
@@ -239,5 +238,5 @@ export function atlasDataThemeGroups(theme: string) {
 
 /** Statistics 分頁主題下的群組（含併入既有主題的群組）。 */
 export function atlasTabThemeGroups(theme: string) {
-  return groupsBy((recipe) => recipe.tab_theme === theme);
+  return groupsBy((recipe) => recipe.tab_theme === theme, (recipe) => recipe.tab_group ?? recipe.subgroup);
 }
