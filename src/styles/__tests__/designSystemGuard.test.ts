@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { CONTROL, COLORS, LIGHT, SLIDER } from "../designTokens";
+import { CONTROL, COLORS, LIGHT, PROSE, SLIDER } from "../designTokens";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
 
@@ -30,5 +30,14 @@ describe("design tokens — TS 與 CSS 同值", () => {
     expect(norm(cssVars.get("--link") ?? "")).toBe(norm(COLORS.link));
     expect(norm(cssVars.get("--status-derived") ?? "")).toBe(norm(COLORS.statusDerived));
     expect(norm(cssVars.get("--accent") ?? "")).toBe(norm(COLORS.accent));
+  });
+
+  it("PROSE ↔ --prose-*（長文字級；px／無單位行高／em 欄寬）", () => {
+    const { lineHeight, measureEm, ...sizes } = PROSE;
+    for (const [key, value] of Object.entries(sizes)) {
+      expect(norm(cssVars.get(`--prose-${kebab(key)}`) ?? "(missing)"), `PROSE.${key}`).toBe(`${value}px`);
+    }
+    expect(norm(cssVars.get("--prose-line-height") ?? "")).toBe(String(lineHeight));
+    expect(norm(cssVars.get("--prose-measure") ?? "")).toBe(`${measureEm}em`);
   });
 });
