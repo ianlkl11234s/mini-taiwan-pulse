@@ -81,7 +81,7 @@ const zh: PrivacyDoc = {
       notes: [
         "這些紀錄不與你的帳號綁定，保留 90 天後刪除。",
         "網站主機與 CDN 可能依一般慣例記錄 IP 位址等連線日誌。",
-        "本站沒有使用 Google Analytics 或其他廣告、追蹤工具。",
+        "網站透過 Cloudflare Web Analytics 統計整體流量（例如頁面瀏覽次數），它不使用 cookie，也不追蹤個人。除此之外，本站沒有使用 Google Analytics 或其他廣告、追蹤工具。",
       ],
     },
     {
@@ -180,7 +180,7 @@ const en: PrivacyDoc = {
       notes: [
         "These records are not linked to your account and are deleted after 90 days.",
         "As is usual, the web host and CDN may keep connection logs such as IP addresses.",
-        "This site does not use Google Analytics or any other advertising or tracking tools.",
+        "The site uses Cloudflare Web Analytics to count overall traffic (such as page views). It does not use cookies and does not track individuals. Apart from that, this site does not use Google Analytics or any other advertising or tracking tools.",
       ],
     },
     {
@@ -279,7 +279,7 @@ const ja: PrivacyDoc = {
       notes: [
         "これらの記録はアカウントとひも付けず、90 日後に削除します。",
         "一般的な運用として、ウェブサーバーと CDN が IP アドレスなどの接続ログを記録する場合があります。",
-        "このサイトでは Google Analytics などの広告・トラッキングツールは使っていません。",
+        "サイト全体のアクセス数（ページビューなど）の集計に Cloudflare Web Analytics を使っています。Cookie は使わず、個人を追跡することもありません。それ以外に、Google Analytics などの広告・トラッキングツールは使っていません。",
       ],
     },
     {
