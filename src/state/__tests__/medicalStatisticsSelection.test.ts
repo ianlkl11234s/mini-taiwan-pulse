@@ -9,6 +9,7 @@ import { getAgriRecipeDetails } from '../../data/agriStatisticsRecipes';
 import { ensureStatisticsRecipeDetails } from '../../data/statisticsRecipeDetails';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
+import { atlasRecipeReleaseOptions, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 const beds = ['statsHealthHospitalBedTotal', 'statsHealthAcuteBedTotal', 'statsHealthIcuBedTotal', 'statsHealthHospiceBedTotal'] as const;
 beforeAll(() => ensureStatisticsRecipeDetails());
 beforeEach(() => {
@@ -144,5 +145,32 @@ describe('demographics level switching (村里只有 11508 一期)', () => {
     select(county, '11412');
     expect(selectMedicalStatisticsVariant(county, township, members)).toBe(true);
     expect(regionalStatisticsStore.getSnapshot(township).selection?.releaseId).toBe('pas-share-age-65-plus-township-11412');
+  });
+});
+
+describe('disjoint-period variants（臺北市污水接管普及率新舊口徑）', () => {
+  const publicKey = 'statsTaipeiSewerRatePublicTownship' as const;
+  const legacyKey = 'statsTaipeiSewerRateLegacyTownship' as const;
+  const sewer = [publicKey, legacyKey] as const;
+  const select = (key: typeof publicKey | typeof legacyKey, start: string) => {
+    const recipe = getAtlasRecipe(key)!;
+    const option = atlasRecipeReleaseOptions(recipe).find(candidate => candidate.period_start === start)!;
+    regionalStatisticsStore.setSelection(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level as never, releaseId: option.release_id, dimensions: option.dimensions });
+  };
+
+  it('兩口徑期別完全不重疊時，切到時間最接近的一期並明示', () => {
+    select(publicKey, '2026-09-30');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [publicKey]: true });
+    expect(selectMedicalStatisticsVariant(publicKey, legacyKey, sewer)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(legacyKey).selection?.dimensions).toMatchObject({ roc_year: '108', month: '04' });
+    expect(getStatisticsPeriodNotice(legacyKey)).toBe('兩種口徑的資料期間不重疊，已切換到最接近的 2019-04。');
+    expect(sewer.filter(key => layerVisibilityStore.getAll()[key])).toEqual([legacyKey]);
+  });
+
+  it('從舊公式切回新口徑落到 108 年 5 月起的第一期', () => {
+    select(legacyKey, '2015-06-30');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [legacyKey]: true });
+    expect(selectMedicalStatisticsVariant(legacyKey, publicKey, sewer)).toBe(true);
+    expect(regionalStatisticsStore.getSnapshot(publicKey).selection?.dimensions).toMatchObject({ roc_year: '108', month: '05' });
   });
 });
