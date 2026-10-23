@@ -3041,10 +3041,12 @@ export default function App() {
       {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ──
           split 模式要整組讓到 dock 左邊：這疊是 zIndex 30、Monitor 面板是 40，
           不讓位的話點地圖跳出來的事件 popup 與 LEGEND 會整個被蓋掉。
-          用 % 而不是算好的 px —— dock 寬度本身就是視窗寬的 widthPct，跟著縮放才對得準。 */}
+          用 % 而不是算好的 px —— dock 寬度本身就是視窗寬的 widthPct，跟著縮放才對得準。
+          top 封頂在工具列下方：popup＋圖例太高時改由兩者各自內捲，不再往上頂出工具列。 */}
       <div
         style={{
           position: "absolute",
+          top: isMobile ? 52 : LAYOUT.leftDockTop,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
           bottom: LAYOUT.mapBottomInset,
           right: splitActive
@@ -3054,12 +3056,14 @@ export default function App() {
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
+          justifyContent: "flex-end",
           gap: 8,
           pointerEvents: "none",
         }}
       >
         {privateUiFeatureInfo && (
-          <div style={{ pointerEvents: "auto" }}>
+          // popup 優先保留自身高度，圖例吃剩下的空間；預留 36px 給圖例標題列＋間距
+          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 0, maxHeight: "calc(100% - 36px)" }}>
             <FeatureInfoPanel
               feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
@@ -3072,7 +3076,7 @@ export default function App() {
             這裡只留產品切換器這個「控制項」。
             LASS 微感測則走 MicroSensorLegend（三模式各自色階）。 */}
         {layerVisibility.aqiImagery && (
-          <div style={{ pointerEvents: "auto" }}>
+          <div style={{ pointerEvents: "auto", flexShrink: 0 }}>
             <AqiProductSwitcher
               current={aqiProduct}
               onChange={setAqiProduct}
@@ -3082,11 +3086,11 @@ export default function App() {
         )}
         {/* 黃砂予測：上游是燒好底圖的 PNG，做成圖片面板（非地圖疊加），圖層開啟時才掛 */}
         {layerVisibility.jmaKosa && (
-          <div style={{ pointerEvents: "auto" }}>
+          <div style={{ pointerEvents: "auto", flexShrink: 0 }}>
             <JmaKosaPanel isDark={isDarkTheme} />
           </div>
         )}
-        <div style={{ pointerEvents: "auto" }}>
+        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0 }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
           {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (
