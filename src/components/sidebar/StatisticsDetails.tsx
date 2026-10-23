@@ -245,7 +245,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {demographics && <span>{tr('statistics.legend.fixedDemographics', { provider: demographicsSource(demographics).provider })}</span>}
     {addiction && <span>{tr('statistics.legend.fixedAddiction', { value: statisticsLocationBasis(addiction.location_semantics, i18n) })}</span>}
     {landslide && <span>{tr('statistics.legend.fixedLandslide')}</span>}
-    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
+    {atlas && <span>{tr('statistics.legend.fixedAtlas', { dims: atlas.dimensions.length && atlas.legend.by_dimension ? tr('statistics.legend.perDimensionThresholds') : '', value: statisticsLocationBasis(atlas.location_semantics, i18n) })}</span>}
   </div>;
 }
 

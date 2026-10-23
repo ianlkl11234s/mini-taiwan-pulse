@@ -31,6 +31,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
   { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
   { title: "海洋 Marine", groups: ["海洋動物擱淺", "海洋廢棄物"] },
+  { title: "臺北市局處統計 Taipei City Agencies", groups: ["廢棄物與回收", "污水下水道", "工廠登記", "建築使用執照"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
@@ -66,7 +67,7 @@ const EXPECTED_LAYER_KEYS = [
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以十七個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
+  it("以十八個使用者主題（依 5 個大分類排序）與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),

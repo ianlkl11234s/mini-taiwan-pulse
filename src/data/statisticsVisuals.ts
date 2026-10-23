@@ -224,7 +224,7 @@ const LANDSLIDE_KEY_VISUALS: Record<string, readonly [ThemeName, LucideIcon]> = 
 /**
  * atlas 批次六家族（atlasStatisticsRecipes）以 key 明確指定，避免「出生」「所得」「水」等字詞落入其他分支。
  * 不新增色票：疾病與健康＝醫療 BuGn；財稅與消費＝工作與所得；原住民保留地＝人口 RdPu；農村再生＝農業 YlGn；
- * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu；治安＝治安 Reds。刻意不 import recipe。
+ * 體育＝教育 Purples（公共生活）；土石流與社會脆弱度＝環境 BuPu（同崩塌）；海洋＝漁業 PuBu；治安＝治安 Reds；臺北市局處見下方註解。刻意不 import recipe。
  */
 const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> = [
   [/^statsHealthTb/, 'health', Microscope],
@@ -261,6 +261,13 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsCrimeSexualAssault/, 'security', TriangleAlert],
   [/^statsCrimeOrganizedCrime/, 'security', Gavel],
   [/^statsTelecomFraud/, 'security', Smartphone],
+  // 臺北市局處統計（12 區×月）：垃圾／回收＝環境（同縣市版廢棄物、資源回收）；污水接管＝公用事業（同縣市版 statsSewerConnectionCounty）；
+  // 工廠登記＝工作與所得；使用執照＝住宅。不新增色票。
+  [/^statsTaipeiResourceRecycling/, 'environment', Recycle],
+  [/^statsTaipeiGarbageCollected/, 'environment', Trash2],
+  [/^statsTaipeiSewerRate/, 'utilities', Waves],
+  [/^statsTaipeiFactoryCount/, 'labor', Factory],
+  [/^statsTaipeiUsagePermit/, 'housing', HousePlus],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {

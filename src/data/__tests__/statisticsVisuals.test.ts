@@ -170,8 +170,8 @@ describe('getStatisticsVisual', () => {
     // 2026-10-06: +4 崩塌與水土保持（崩塌筆數／面積、治山防災工程總經費、水土保持災害總損失）。
     // 2026-10-12: +66 atlas 批次（疾病與健康 19＋財稅與消費 22＋原民與農村 3＋體育 4＋災害風險 8＋海洋 10）。
     // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）。
-    expect(STATISTICS_KEYS).toHaveLength(642);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(654);
+    expect(STATISTICS_KEYS).toHaveLength(653);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(665);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;
