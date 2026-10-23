@@ -27,6 +27,11 @@
 - 覆蓋範圍有限制，未涵蓋不等於零：例如廢棄物僅 5 個縣市、殯葬都計分區僅台北與新北、都市熱島不含澎湖；部分資料的官方來源只留最新快照
 - 即時資料可能因上游中斷而延遲或缺漏，圖層會標示資料時間
 
+## 文章（Pulse 筆記）
+
+- [Pulse 筆記](https://mini-taiwan-pulse.itsmigu.com/blog/)：開發筆記與資料故事，每篇為靜態 HTML，依主題分類（例：[軌道](https://mini-taiwan-pulse.itsmigu.com/blog/rail/)）。
+- [台灣軌道即時地圖：高鐵、台鐵、捷運列車一張圖看](https://mini-taiwan-pulse.itsmigu.com/blog/rail/taiwan-rail-realtime-map/)：列車位置如何由時刻表推算、涵蓋哪些軌道系統。
+
 ## 程式碼與文件
 
 - [GitHub 儲存庫](https://github.com/ianlkl11234s/mini-taiwan-pulse): 原始碼（MIT License）

@@ -134,6 +134,22 @@ export const FONT_SIZE = {
   xxl: 22,
 } as const;
 
+// ─── PROSE — 長文閱讀字級 ──────────────────────────────────────
+/**
+ * 只給 /blog 文章頁（靜態長文）使用；地圖 UI 一律用 FONT_SIZE 7 階。
+ * 正文 17px、行高 1.85、每行約 36 個中文字（measureEm）。h1Compact 為窄螢幕標題。
+ */
+export const PROSE = {
+  small: 14,
+  body: 17,
+  h3: 19,
+  h2: 23,
+  h1: 32,
+  h1Compact: 26,
+  lineHeight: 1.85,
+  measureEm: 36,
+} as const;
+
 // ─── FONT_WEIGHT — 字重 ───────────────────────────────────────
 /** 本專案實務上只用 600 / 700。regular 留給未來。 */
 export const FONT_WEIGHT = {

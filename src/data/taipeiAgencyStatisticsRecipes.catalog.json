@@ -1,0 +1,926 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "taipeiAgency",
+  "generated_from": {
+    "recipes": "taipei-agency-statistics-recipes.json",
+    "bundles": "taipei-gis-analytics taipei agency statistics release bundles (<bundle_dir>/<release_id>.json)"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "coverage": "only the 12 Taipei City districts; every other township is not covered (no observation, shown as missing hatch, never 0)",
+    "observed_zero": "status observed and value 0 (source「-」 or no permits that month)",
+    "missing": "value null; no zero fill"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsTaipeiResourceRecyclingTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市各區資源回收量",
+      "group": "taipeiResourceRecycling",
+      "group_label": "臺北市各區資源回收量",
+      "option_label": "公噸",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "資源回收統計 Recycling Statistics",
+      "tab_theme": "環境與資源 Environment & Resources",
+      "tab_group": "廢棄物與回收",
+      "visual_theme": "environment",
+      "dataset_id": "resource_recycling_township_taipei_monthly",
+      "indicator_id": "resource_recycling_tonnes",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "公噸",
+      "aggregation": "sum",
+      "default_release_id": "rrt-recycling-tonnes-township-202609",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          250,
+          350,
+          450,
+          550
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "依清潔隊清運責任區統計，不等於該區居民產生量。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "清潔隊清運責任區（區隊與行政區一對一），不等於居民產生地",
+      "disclosure": "臺北市環保局各區清潔隊（區隊）每月資源回收量（公噸）。區隊與 12 行政區一對一，只涵蓋臺北市；「其他」列（非區隊單位）不進區別 observation。94 年 1 月起。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府環境保護局",
+      "license": "政府網站資料開放宣告（臺北市政府環境保護局；使用須註明出處）",
+      "source_landing_url": "https://www.dep.gov.taipei/News_Content.aspx?n=43BE1B67F44849A1&sms=5B35A1D9CE8F132C&s=E0F652F6826DB61E",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzYzL3JlbGZpbGUvMTg2NTIvNTc2NDE0NC8xZDk2ZjIzOS00Njg4LTRkMWMtODdhNC1kOTAwODdiZWIwOGYucGRm&n=MTE15bm06LOH5rqQ5Zue5pS26YePLnBkZg%3d%3d&icon=..pdf",
+      "source_title": "94年至115年各區清潔隊資源回收量",
+      "release_summary": {
+        "count": 261,
+        "first": {
+          "release_id": "rrt-recycling-tonnes-township-202609",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "roc_year": "115",
+            "month": "09"
+          }
+        },
+        "period_count": 261
+      }
+    },
+    {
+      "layer_key": "statsTaipeiGarbageCollectedTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市各區垃圾清運量",
+      "group": "taipeiGarbageCollected",
+      "group_label": "臺北市各區垃圾清運量",
+      "option_label": "公噸",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "廢棄物統計 Waste Statistics",
+      "tab_theme": "環境與資源 Environment & Resources",
+      "tab_group": "廢棄物與回收",
+      "visual_theme": "environment",
+      "dataset_id": "garbage_clearance_township_taipei_monthly",
+      "indicator_id": "garbage_collected_tonnes",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "公噸",
+      "aggregation": "sum",
+      "default_release_id": "gct-garbage-tonnes-township-202609",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          2000,
+          2500,
+          3000,
+          3500
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "12 區加總不等於全市清運量：區隊量含巨大垃圾、不含回運垃圾量，全市量另計直屬隊等單位。",
+          "依清潔隊清運責任區統計，不等於該區居民產生量。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "清潔隊清運責任區（區隊與行政區一對一），不等於居民產生地",
+      "disclosure": "臺北市環保局各區清潔隊（區隊）每月清運垃圾量（公噸，不含回運垃圾量）。區隊與 12 行政區一對一，只涵蓋臺北市；直屬隊、資源回收隊、市場垃圾、溝渠隊、處理場等非區隊單位不進區別 observation。92 年 1 月起。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府環境保護局",
+      "license": "政府網站資料開放宣告（臺北市政府環境保護局；使用須註明出處）",
+      "source_landing_url": "https://www.dep.gov.taipei/News_Content.aspx?n=43BE1B67F44849A1&sms=5B35A1D9CE8F132C&s=1488F5ABCAA98E90",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzYzL3JlbGZpbGUvMTg2NTIvOTcxOTkxNS83NzNlOWZkOS1kYzBjLTRkNmQtODU2Yi1mNmFjOWIxOWM0M2MucGRm&n=OTItMTE15bm0OeaciOatt%2bW5tOWQhOWNgOmaiua4hemBi%2bWeg%2bWcvuOAgeWghuiCpeOAgemkiuixrOmHjy5wZGY%3d&icon=..pdf",
+      "source_title": "92-115年9月歷年各區隊清運垃圾、堆肥、養豬量",
+      "release_summary": {
+        "count": 285,
+        "first": {
+          "release_id": "gct-garbage-tonnes-township-202609",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "roc_year": "115",
+            "month": "09"
+          }
+        },
+        "period_count": 285
+      }
+    },
+    {
+      "layer_key": "statsTaipeiSewerRatePublicTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市污水接管普及率（108 年 5 月起）",
+      "group": "taipeiSewerRate",
+      "group_label": "臺北市污水接管普及率",
+      "option_label": "108 年 5 月起（公共污水下水道）",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "水質與污水統計 Water Quality & Sewage Statistics",
+      "tab_theme": "環境與資源 Environment & Resources",
+      "tab_group": "水質與污水",
+      "visual_theme": "utilities",
+      "dataset_id": "sewer_connection_township_taipei_monthly",
+      "indicator_id": "door_plate_connection_rate_public_from_10805",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "taipei-sewer-door-plate-connection-rate-public-from-10805-township-11509",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          70,
+          80,
+          85,
+          90
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "累計值（月底）；分母為民政局月底門牌總戶數。",
+          "108 年 5 月起公式與分類改變，拆成「108 年 4 月以前」與「108 年 5 月起」兩個口徑，不可串接比較。",
+          "與縣市版「公共污水下水道用戶接管普及率」口徑不同：縣市版臺北市約 100%，衛工處門牌戶數基準 113 年 12 月為 82.8%。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "門牌所在行政區（月底累計）",
+      "disclosure": "臺北市政府工務局衛生下水道工程處〈臺北市污水下水道用戶接管概況〉月報（累計值，月底統計截止日）的 12 行政區資料。只涵蓋臺北市；其他縣市鄉鎮無值。100-01~108-04 與 108-05 起的接管戶數分類／普及率公式不同，分為 _to_10804 與 _from_10805 兩組 indicator，不可串接。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府工務局衛生下水道工程處",
+      "license": "政府網站資料開放宣告（須註明出處：臺北市政府工務局衛生下水道工程處）",
+      "source_landing_url": "https://www.sso.gov.taipei/News_Content.aspx?n=0C5FEA24090E26E4&sms=A29C38A242B79325&s=5B0372AF3F8AC713",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzUwL3JlbGZpbGUvMTc0ODYvOTcxODY0MC9lMzM5YzRhOS1mMDQ3LTRmOGQtYTFiOC0xNmFmOTljM2FhNTAucGRm&n=57Ch5piT5LiK57ay5pmuLTExNTA55pmu5Y%2bK546HLnBkZg%3d%3d&icon=..pdf",
+      "source_title": "普及率速報 115年9月用戶接管普及率",
+      "release_summary": {
+        "count": 89,
+        "first": {
+          "release_id": "taipei-sewer-door-plate-connection-rate-public-from-10805-township-11509",
+          "period_start": "2026-09-30",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "roc_year": "115",
+            "month": "09"
+          }
+        },
+        "period_count": 89
+      }
+    },
+    {
+      "layer_key": "statsTaipeiSewerRateLegacyTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市污水接管普及率（108 年 4 月以前，舊公式）",
+      "group": "taipeiSewerRate",
+      "group_label": "臺北市污水接管普及率",
+      "option_label": "100 年 1 月～108 年 4 月（舊公式，含自設專用）",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "水質與污水統計 Water Quality & Sewage Statistics",
+      "tab_theme": "環境與資源 Environment & Resources",
+      "tab_group": "水質與污水",
+      "visual_theme": "utilities",
+      "dataset_id": "sewer_connection_township_taipei_monthly",
+      "indicator_id": "door_plate_connection_rate_incl_dedicated_to_10804",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "taipei-sewer-door-plate-connection-rate-incl-dedicated-to-10804-township-10804",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          70,
+          80,
+          85,
+          90
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "累計值（月底）；分母為民政局月底門牌總戶數。",
+          "108 年 5 月起公式與分類改變，拆成「108 年 4 月以前」與「108 年 5 月起」兩個口徑，不可串接比較。",
+          "與縣市版「公共污水下水道用戶接管普及率」口徑不同：縣市版臺北市約 100%，衛工處門牌戶數基準 113 年 12 月為 82.8%。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "門牌所在行政區（月底累計）",
+      "disclosure": "臺北市政府工務局衛生下水道工程處〈臺北市污水下水道用戶接管概況〉月報（累計值，月底統計截止日）的 12 行政區資料。只涵蓋臺北市；其他縣市鄉鎮無值。100-01~108-04 與 108-05 起的接管戶數分類／普及率公式不同，分為 _to_10804 與 _from_10805 兩組 indicator，不可串接。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府工務局衛生下水道工程處",
+      "license": "政府網站資料開放宣告（須註明出處：臺北市政府工務局衛生下水道工程處）",
+      "source_landing_url": "https://www.sso.gov.taipei/News_Content.aspx?n=0C5FEA24090E26E4&sms=A29C38A242B79325&s=9DD838D563A37497",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzUwL3JlbGZpbGUvMTc0ODYvODAxOTU1Ni82ZTkzZWFmOC1iZWU3LTQ4ZDMtYjlkYi1lNzY4ODY5ZWMzM2MucGRm&n=57Ch5piT5LiK57ay5pmuLTEwODA05pmu5Y%2bK546HLnBkZg%3d%3d&icon=..pdf",
+      "source_title": "普及率速報 108年4月用戶接管普及率",
+      "release_summary": {
+        "count": 100,
+        "first": {
+          "release_id": "taipei-sewer-door-plate-connection-rate-incl-dedicated-to-10804-township-10804",
+          "period_start": "2019-04-30",
+          "period_end": "2019-04-30",
+          "dimensions": {
+            "roc_year": "108",
+            "month": "04"
+          }
+        },
+        "period_count": 100
+      }
+    },
+    {
+      "layer_key": "statsTaipeiFactoryCountTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市登記工廠家數",
+      "group": "taipeiFactoryCount",
+      "group_label": "臺北市登記工廠家數",
+      "option_label": "合計",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "工作與所得 Work & Income",
+      "tab_theme": "工作與所得 Work & Income",
+      "visual_theme": "labor",
+      "dataset_id": "factory_count_township_taipei_monthly",
+      "indicator_id": "factory_count_total",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "家",
+      "aggregation": "sum",
+      "default_release_id": "11509-factory_count_total-v1-ada4bd0bd0fa",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5,
+          10,
+          50,
+          100
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "缺 12 個月（例如 102 年 11 月、105 年 6 月、109 年 9 月）沒有月報，不補前月。",
+          "92–95 年只有合計，沒有產業分項。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "工廠登記地址所在行政區（月底家數）",
+      "disclosure": "臺北市政府產業發展局「臺北市工廠產業類別及行政區域家數」月報（工廠登記，月底家數），區×產業中類。只涵蓋臺北市 12 區；「-」代表該區該產業無工廠（0 家）。92-01～95-12 僅提供合計，不提供產業分項。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府產業發展局",
+      "license": "政府網站資料開放宣告（臺北市政府產業發展局；須註明出處）",
+      "source_landing_url": "https://doed.gov.taipei/News.aspx?n=9486EAD9D92897FD&sms=1DFBA9ACABC25196",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzAxL3JlbGZpbGUvNDA4NTYvOTcxOTE1MS9hNjhiMzEyMi1mNzViLTQ2NWYtYjMzMy1iNWE4MDM0NTA5ODUucGRm&n=MTE1MDlfMjAyMTMtMDEtMDXlt6Xlu6DnlKLmpa3poZ7liKXlj4rooYzmlL%2fljYDln5%2flrrbmlbgucGRm&icon=.pdf",
+      "source_title": "臺北市工廠產業類別及行政區域家數（月報）",
+      "release_summary": {
+        "count": 273,
+        "first": {
+          "release_id": "11509-factory_count_total-v1-ada4bd0bd0fa",
+          "period_start": "2026-09-30",
+          "period_end": "2026-09-30",
+          "dimensions": {}
+        },
+        "period_count": 273
+      }
+    },
+    {
+      "layer_key": "statsTaipeiFactoryCountByIndustryTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市登記工廠家數（依產業中類）",
+      "group": "taipeiFactoryCount",
+      "group_label": "臺北市登記工廠家數",
+      "option_label": "依產業中類",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "工作與所得 Work & Income",
+      "tab_theme": "工作與所得 Work & Income",
+      "visual_theme": "labor",
+      "dataset_id": "factory_count_township_taipei_monthly",
+      "indicator_id": "factory_count_by_industry",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "家",
+      "aggregation": "sum",
+      "default_release_id": "11509-factory_count_by_industry-v1-99e49e051319",
+      "dimensions": [
+        {
+          "key": "industry_code",
+          "label": "產業中類",
+          "default": "26",
+          "options": [
+            {
+              "value": "26",
+              "label": "26 電子零組件製造業"
+            },
+            {
+              "value": "08",
+              "label": "08 食品製造業"
+            },
+            {
+              "value": "09",
+              "label": "09 飲料製造業"
+            },
+            {
+              "value": "10",
+              "label": "10 菸草製造業"
+            },
+            {
+              "value": "11",
+              "label": "11 紡織業"
+            },
+            {
+              "value": "12",
+              "label": "12 成衣及服飾品製造業"
+            },
+            {
+              "value": "13",
+              "label": "13 皮革、毛皮及其製品製造業"
+            },
+            {
+              "value": "14",
+              "label": "14 木竹製品製造業"
+            },
+            {
+              "value": "15",
+              "label": "15 紙漿、紙及紙製品製造業"
+            },
+            {
+              "value": "16",
+              "label": "16 印刷及資料儲存媒體複製業"
+            },
+            {
+              "value": "17",
+              "label": "17 石油及煤製品製造業"
+            },
+            {
+              "value": "18",
+              "label": "18 化學材料製造業"
+            },
+            {
+              "value": "19",
+              "label": "19 化學製品製造業"
+            },
+            {
+              "value": "20",
+              "label": "20 藥品及醫用化學製品製造業"
+            },
+            {
+              "value": "21",
+              "label": "21 橡膠製品製造業"
+            },
+            {
+              "value": "22",
+              "label": "22 塑膠製品製造業"
+            },
+            {
+              "value": "23",
+              "label": "23 非金屬礦物製品製造"
+            },
+            {
+              "value": "24",
+              "label": "24 基本金屬製造業"
+            },
+            {
+              "value": "25",
+              "label": "25 金屬製品製造業"
+            },
+            {
+              "value": "27",
+              "label": "27 電腦、電子產品及光學製品製造業"
+            },
+            {
+              "value": "28",
+              "label": "28 電力設備製造業"
+            },
+            {
+              "value": "29",
+              "label": "29 機械設備製造業"
+            },
+            {
+              "value": "30",
+              "label": "30 汽車及其零件製造業"
+            },
+            {
+              "value": "31",
+              "label": "31 其他運輸工具及其零件製造業"
+            },
+            {
+              "value": "32",
+              "label": "32 家具製造業"
+            },
+            {
+              "value": "33",
+              "label": "33 其他製造業"
+            },
+            {
+              "value": "99",
+              "label": "99 無法歸類之產業類別"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          3,
+          10,
+          25
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 家自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "來源「-」＝該區該產業無工廠，記為 0 家（真零）。",
+          "缺 12 個月（例如 102 年 11 月、105 年 6 月、109 年 9 月）沒有月報，不補前月。",
+          "產業分項自 96 年 1 月起；「99 無法歸類」只在部分期別出現。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "工廠登記地址所在行政區（月底家數）",
+      "disclosure": "臺北市政府產業發展局「臺北市工廠產業類別及行政區域家數」月報（工廠登記，月底家數），區×產業中類。只涵蓋臺北市 12 區；「-」代表該區該產業無工廠（0 家）。92-01～95-12 僅提供合計，不提供產業分項。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府產業發展局",
+      "license": "政府網站資料開放宣告（臺北市政府產業發展局；須註明出處）",
+      "source_landing_url": "https://doed.gov.taipei/News.aspx?n=9486EAD9D92897FD&sms=1DFBA9ACABC25196",
+      "source_download_url": "https://www-ws.gov.taipei/Download.ashx?u=LzAwMS9VcGxvYWQvMzAxL3JlbGZpbGUvNDA4NTYvOTcxOTE1MS9hNjhiMzEyMi1mNzViLTQ2NWYtYjMzMy1iNWE4MDM0NTA5ODUucGRm&n=MTE1MDlfMjAyMTMtMDEtMDXlt6Xlu6DnlKLmpa3poZ7liKXlj4rooYzmlL%2fljYDln5%2flrrbmlbgucGRm&icon=.pdf",
+      "source_title": "臺北市工廠產業類別及行政區域家數（月報）",
+      "release_summary": {
+        "count": 6216,
+        "first": {
+          "release_id": "11509-factory_count_by_industry-v1-99e49e051319",
+          "period_start": "2026-09-30",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "industry_code": "33",
+            "industry_name": "其他製造業"
+          }
+        },
+        "period_count": 234
+      }
+    },
+    {
+      "layer_key": "statsTaipeiUsagePermitCountTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市核發使用執照件數",
+      "group": "taipeiUsagePermit",
+      "group_label": "臺北市核發使用執照",
+      "option_label": "件數（合計）",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "住宅存量與使用",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "building_usage_permits_township_taipei_monthly",
+      "indicator_id": "permit_count_total",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2026-09-permit_count_total-v1-006f3ea2b167",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 件自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "一張使用執照計 1 件；跨區或無地址的執照（約 0.64%）不計入任何區。",
+          "件數逐張計，95 年起比主計處年表多 6～21%，口徑不同。",
+          "核發使用執照不等於完工入住或新增住宅供給。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "建築地點所在行政區（依發照日期）",
+      "disclosure": "臺北市都發局建管處使用執照摘要（逐張）依發照日期與建築地點所在行政區彙總成區×月。只涵蓋臺北市 12 區；無法判定單一行政區的使用執照（跨區或無地址）不計入任何區。核發件數不等於完工量或供給量。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府都市發展局建築管理工程處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.taipei/dataset/detail?id=c876ff02-af2e-4eb8-bd33-d444f5052733",
+      "source_download_url": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=0f3f9675-8356-4f1a-9908-1ce8892012fa",
+      "source_title": "臺北市歷年使用執照摘要＋臺北市115年度使用執照摘要",
+      "release_summary": {
+        "count": 309,
+        "first": {
+          "release_id": "2026-09-permit_count_total-v1-006f3ea2b167",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {}
+        },
+        "period_count": 309
+      }
+    },
+    {
+      "layer_key": "statsTaipeiUsagePermitCountByBuildTypeTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市核發使用執照件數（依建造類別）",
+      "group": "taipeiUsagePermit",
+      "group_label": "臺北市核發使用執照",
+      "option_label": "件數（依建造類別）",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "住宅存量與使用",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "building_usage_permits_township_taipei_monthly",
+      "indicator_id": "permit_count_by_build_type",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "件",
+      "aggregation": "sum",
+      "default_release_id": "2026-09-permit_count_by_build_type-v1-7c5cb44734f2",
+      "dimensions": [
+        {
+          "key": "build_type",
+          "label": "建造類別",
+          "default": "新建",
+          "options": [
+            {
+              "value": "新建",
+              "label": "新建"
+            },
+            {
+              "value": "增建",
+              "label": "增建"
+            },
+            {
+              "value": "修建",
+              "label": "修建"
+            },
+            {
+              "value": "改建",
+              "label": "改建"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 件自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "一張使用執照計 1 件；跨區或無地址的執照（約 0.64%）不計入任何區。",
+          "件數逐張計，95 年起比主計處年表多 6～21%，口徑不同。",
+          "核發使用執照不等於完工入住或新增住宅供給。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "建築地點所在行政區（依發照日期）",
+      "disclosure": "臺北市都發局建管處使用執照摘要（逐張）依發照日期與建築地點所在行政區彙總成區×月。只涵蓋臺北市 12 區；無法判定單一行政區的使用執照（跨區或無地址）不計入任何區。核發件數不等於完工量或供給量。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府都市發展局建築管理工程處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.taipei/dataset/detail?id=c876ff02-af2e-4eb8-bd33-d444f5052733",
+      "source_download_url": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=0f3f9675-8356-4f1a-9908-1ce8892012fa",
+      "source_title": "臺北市歷年使用執照摘要＋臺北市115年度使用執照摘要",
+      "release_summary": {
+        "count": 1236,
+        "first": {
+          "release_id": "2026-09-permit_count_by_build_type-v1-7c5cb44734f2",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "build_type": "新建"
+          }
+        },
+        "period_count": 309
+      }
+    },
+    {
+      "layer_key": "statsTaipeiUsagePermitBuildingCountTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市核發使用執照棟數",
+      "group": "taipeiUsagePermit",
+      "group_label": "臺北市核發使用執照",
+      "option_label": "棟數",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "住宅存量與使用",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "building_usage_permits_township_taipei_monthly",
+      "indicator_id": "building_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "棟",
+      "aggregation": "sum",
+      "default_release_id": "2026-09-building_count-v1-c7fba2884d85",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 棟自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "一張使用執照計 1 件；跨區或無地址的執照（約 0.64%）不計入任何區。",
+          "件數逐張計，95 年起比主計處年表多 6～21%，口徑不同。",
+          "核發使用執照不等於完工入住或新增住宅供給。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋或無資料（臺北市以外未涵蓋；臺北市 12 區偶有缺值；都不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "建築地點所在行政區（依發照日期）",
+      "disclosure": "臺北市都發局建管處使用執照摘要（逐張）依發照日期與建築地點所在行政區彙總成區×月。只涵蓋臺北市 12 區；無法判定單一行政區的使用執照（跨區或無地址）不計入任何區。核發件數不等於完工量或供給量。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府都市發展局建築管理工程處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.taipei/dataset/detail?id=c876ff02-af2e-4eb8-bd33-d444f5052733",
+      "source_download_url": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=0f3f9675-8356-4f1a-9908-1ce8892012fa",
+      "source_title": "臺北市歷年使用執照摘要＋臺北市115年度使用執照摘要",
+      "release_summary": {
+        "count": 309,
+        "first": {
+          "release_id": "2026-09-building_count-v1-c7fba2884d85",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {}
+        },
+        "period_count": 309
+      }
+    },
+    {
+      "layer_key": "statsTaipeiUsagePermitHouseholdCountTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市核發使用執照戶數",
+      "group": "taipeiUsagePermit",
+      "group_label": "臺北市核發使用執照",
+      "option_label": "戶數",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "住宅存量與使用",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "building_usage_permits_township_taipei_monthly",
+      "indicator_id": "household_count",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "戶",
+      "aggregation": "sum",
+      "default_release_id": "2026-09-household_count-v1-21bf28838fbc",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          25,
+          75,
+          150
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 戶自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "一張使用執照計 1 件；跨區或無地址的執照（約 0.64%）不計入任何區。",
+          "件數逐張計，95 年起比主計處年表多 6～21%，口徑不同。",
+          "核發使用執照不等於完工入住或新增住宅供給。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "建築地點所在行政區（依發照日期）",
+      "disclosure": "臺北市都發局建管處使用執照摘要（逐張）依發照日期與建築地點所在行政區彙總成區×月。只涵蓋臺北市 12 區；無法判定單一行政區的使用執照（跨區或無地址）不計入任何區。核發件數不等於完工量或供給量。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府都市發展局建築管理工程處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.taipei/dataset/detail?id=c876ff02-af2e-4eb8-bd33-d444f5052733",
+      "source_download_url": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=0f3f9675-8356-4f1a-9908-1ce8892012fa",
+      "source_title": "臺北市歷年使用執照摘要＋臺北市115年度使用執照摘要",
+      "release_summary": {
+        "count": 309,
+        "first": {
+          "release_id": "2026-09-household_count-v1-21bf28838fbc",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {}
+        },
+        "period_count": 309
+      }
+    },
+    {
+      "layer_key": "statsTaipeiUsagePermitBuildingAreaTownship",
+      "enabled": true,
+      "family": "taipeiAgency",
+      "label": "臺北市核發使用執照建築面積",
+      "group": "taipeiUsagePermit",
+      "group_label": "臺北市核發使用執照",
+      "option_label": "建築面積",
+      "subgroup": "臺北市 12 區（月）",
+      "data_theme": "住宅存量與使用",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "building_usage_permits_township_taipei_monthly",
+      "indicator_id": "building_area",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "平方公尺",
+      "aggregation": "sum",
+      "default_release_id": "2026-09-building_area-v1-f31b32ea81dc",
+      "dimensions": [],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          300,
+          1000,
+          3000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區當月為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "只涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋，不是 0。",
+          "建築面積是建築物投影面積，不是總樓地板面積。",
+          "一張使用執照計 1 件；跨區或無地址的執照（約 0.64%）不計入任何區。",
+          "件數逐張計，95 年起比主計處年表多 6～21%，口徑不同。",
+          "核發使用執照不等於完工入住或新增住宅供給。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋或無資料（臺北市以外未涵蓋；臺北市 12 區偶有缺值；都不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 2
+      },
+      "derived": false,
+      "location_semantics": "建築地點所在行政區（依發照日期）",
+      "disclosure": "臺北市都發局建管處使用執照摘要（逐張）依發照日期與建築地點所在行政區彙總成區×月。只涵蓋臺北市 12 區；無法判定單一行政區的使用執照（跨區或無地址）不計入任何區。核發件數不等於完工量或供給量。 僅涵蓋臺北市 12 區；其他縣市鄉鎮為未涵蓋（不是 0）。",
+      "publisher": "臺北市政府都市發展局建築管理工程處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.taipei/dataset/detail?id=c876ff02-af2e-4eb8-bd33-d444f5052733",
+      "source_download_url": "https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=0f3f9675-8356-4f1a-9908-1ce8892012fa",
+      "source_title": "臺北市歷年使用執照摘要＋臺北市115年度使用執照摘要",
+      "release_summary": {
+        "count": 309,
+        "first": {
+          "release_id": "2026-09-building_area-v1-f31b32ea81dc",
+          "period_start": "2026-09-01",
+          "period_end": "2026-09-30",
+          "dimensions": {}
+        },
+        "period_count": 309
+      }
+    }
+  ],
+  "catalog_generated_from": "taipeiAgencyStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

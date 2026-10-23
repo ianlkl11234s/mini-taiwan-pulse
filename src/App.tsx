@@ -114,7 +114,7 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -2606,6 +2606,8 @@ export default function App() {
                   ? [{ key: "agent", label: t("toolbar.agent"), icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
                   : []),
                 { key: "member", label: t("toolbar.member"), icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
+                // Pulse 筆記（/blog）：帶目前底圖明暗，讓文章頁同色
+                { key: "blog", label: t("rail.blog"), icon: <BookOpen size={15} />, onSelect: () => window.location.assign(`/blog/?theme=${isDarkTheme ? "dark" : "light"}`) },
               ]}
             />
             <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />

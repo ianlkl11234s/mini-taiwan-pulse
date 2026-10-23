@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
 import {
   ATLAS_ENABLED_STATISTICS_KEYS, ATLAS_ENABLED_STATISTICS_RECIPES, ATLAS_STATISTICS_TOGGLE_GROUPS,
-  atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease,
+  atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions,
 } from "../atlasStatisticsRecipes";
 import { STATISTICS_RECIPES, statisticsRenderRecipe } from "../regionalStatisticsRecipes";
 import { statisticsDimensionValueLabel } from "../statisticsLabels";
@@ -10,11 +11,14 @@ import { getStatisticsDataSourceDefinition } from "../statisticsDataSources";
 import { LAYER_MANIFEST } from "../layerManifest";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
+// 臺北市局處統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
+beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+
 /** 交付白名單轉成「已公開 release」：每個 release_id 一筆（含所有維度組合）。 */
 function publishedReleases(key: string): StatisticsRelease[] {
   const recipe = getAtlasRecipe(key)!;
   const seen = new Map<string, StatisticsRelease>();
-  for (const option of recipe.release_options) {
+  for (const option of atlasRecipeReleaseOptions(recipe)) {
     seen.set(option.release_id, {
       release_id: option.release_id, dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id,
       period_start: option.period_start, period_end: option.period_end, boundary_version: recipe.boundary_version, levels: [recipe.level],
@@ -24,10 +28,10 @@ function publishedReleases(key: string): StatisticsRelease[] {
 }
 
 describe("atlas 批次統計契約", () => {
-  it("102 個 recipe（atlas 66＋治安 36）、2,664 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
-    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(102);
-    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(102);
-    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(2664);
+  it("113 個 recipe（atlas 66＋治安 36＋臺北市局處 11）、12,360 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
+    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(113);
+    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(113);
+    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(12360);
     for (const key of ATLAS_ENABLED_STATISTICS_KEYS) {
       expect(LAYER_MANIFEST[key].legend, key).toBe(key);
       expect(getStatisticsDataSourceDefinition(key)?.datasetIds, key).toEqual([getAtlasRecipe(key)!.dataset_id]);
@@ -45,9 +49,13 @@ describe("atlas 批次統計契約", () => {
     };
     for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES) {
       const first = atlasReleaseOptions(recipe.layer_key, publishedReleases(recipe.layer_key))[0]!;
-      const latest = recipe.release_options.reduce((max, option) => option.period_end > max ? option.period_end : max, "");
-      expect(recipe.release_options.find((option) => option.release_id === first.releaseId)!.period_end, recipe.layer_key).toBe(latest);
-      expect(first.dimensions, recipe.layer_key).toEqual(atlasDefaultDimensions(recipe));
+      const latest = atlasRecipeReleaseOptions(recipe).reduce((max, option) => option.period_end > max ? option.period_end : max, "");
+      expect(atlasRecipeReleaseOptions(recipe).find((option) => option.release_id === first.releaseId)!.period_end, recipe.layer_key).toBe(latest);
+      // 臺北市局處：option dims 另帶 CDN selector 身分的 roc_year／month（與 industry_code 成對的 industry_name），不是使用者維度。
+      const declared = new Set(recipe.dimensions.map((dimension) => dimension.key));
+      const extra = Object.keys(first.dimensions).filter((key) => !declared.has(key));
+      expect(extra.every((key) => recipe.family === "taipeiAgency" && ["roc_year", "month", "industry_name"].includes(key)), recipe.layer_key).toBe(true);
+      expect(Object.fromEntries(Object.entries(first.dimensions).filter(([key]) => declared.has(key))), recipe.layer_key).toEqual(atlasDefaultDimensions(recipe));
       expect(STATISTICS_RECIPES[recipe.layer_key as keyof typeof STATISTICS_RECIPES].dimensions).toEqual(atlasDefaultDimensions(recipe));
       if (defaults[recipe.layer_key]) expect(atlasDefaultDimensions(recipe)).toEqual(defaults[recipe.layer_key]);
     }
@@ -55,7 +63,7 @@ describe("atlas 批次統計契約", () => {
 
   it("拒絕不完整維度與猜測的 release", () => {
     const key = "statsHealthCancerIncidenceAsr";
-    const option = getAtlasRecipe(key)!.release_options[0]!;
+    const option = atlasRecipeReleaseOptions(getAtlasRecipe(key)!)[0]!;
     const release = { release_id: option.release_id, period_start: option.period_start, period_end: option.period_end };
     expect(resolveAtlasRelease(key, release, option.dimensions)).toEqual({ releaseId: option.release_id, dimensions: option.dimensions });
     expect(resolveAtlasRelease(key, release, { sex: option.dimensions.sex })).toBeNull();

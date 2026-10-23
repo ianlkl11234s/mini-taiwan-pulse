@@ -7,6 +7,7 @@ import { getEnvironmentRecipe } from '../data/environmentStatisticsRecipes';
 import { getAddictionRecipe } from '../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../data/landslideStatisticsRecipes';
 import { atlasSelectionRecipe } from '../data/atlasStatisticsRecipes';
+import { isTaipeiAgencyStatisticsLayer } from '../data/taipeiAgencyStatisticsRecipes';
 import { demographicsVillageOnlyPeriod, getDemographicsRecipe } from '../data/demographicsStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
@@ -38,12 +39,13 @@ export function subscribeStatisticsPeriodNotice(listener: () => void): () => voi
   return () => { periodNoticeListeners.delete(listener); };
 }
 
-/** Agri/social exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
+/** Agri/social/taipeiAgency exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
 function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
   const families = new Set<StatisticsRecipeFamily>();
   for (const key of keys) {
     if (getAgriRecipe(key)) families.add('agri');
     else if (getSocialRecipe(key)) families.add('social');
+    else if (isTaipeiAgencyStatisticsLayer(key)) families.add('taipeiAgency');
   }
   return [...families];
 }
@@ -107,6 +109,26 @@ async function ensureReleaseMetadata(key: keyof LayerVisibility, source: NonNull
   if (snapshot.error || !snapshot.releases.length) throw new Error(snapshot.error || '找不到可用期別');
 }
 
+/**
+ * 兩個口徑的期別完全不重疊時（例：臺北市污水接管普及率「108 年 4 月以前舊公式」與「108 年 5 月起」），
+ * 同期別永遠找不到，切換會一直失敗。只有這種情況才落到時間最接近的一期（並由呼叫端明示已切換期別）；
+ * 只要兩邊有任何一期重疊，就維持「同期別才切」的規則（guidelines §3：不可靜默跳年份）。
+ */
+function nearestDisjointPeriod(sourceOption: ReleaseOption, sourceOptions: readonly ReleaseOption[], targetOptions: readonly ReleaseOption[]) {
+  if (!targetOptions.length) return undefined;
+  const sourcePeriods = new Set(sourceOptions.map(option => `${option.period_start}|${option.period_end}`));
+  if (targetOptions.some(option => sourcePeriods.has(`${option.period_start}|${option.period_end}`))) return undefined;
+  const anchor = Date.parse(sourceOption.period_start);
+  if (Number.isNaN(anchor)) return undefined;
+  let best: ReleaseOption | undefined;
+  let bestGap = Infinity;
+  for (const option of targetOptions) {
+    const gap = Math.abs(Date.parse(option.period_start) - anchor);
+    if (gap < bestGap) { best = option; bestGap = gap; }
+  }
+  return best;
+}
+
 /** Switch only among family members using the same period and shared identity dimensions. */
 export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[]) {
   if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
@@ -122,10 +144,13 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
   const demographicsTarget = getDemographicsRecipe(to);
   const onlyVillagePeriod = demographicsTarget?.level === 'village' && targetOptions.length === 1 ? targetOptions[0] : undefined;
   const samePeriod = targetOptions.find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate));
-  const option = samePeriod ?? onlyVillagePeriod;
+  const disjointPeriod = samePeriod || onlyVillagePeriod || !sourceOption ? undefined : nearestDisjointPeriod(sourceOption, releaseOptions(from, source), targetOptions);
+  const option = samePeriod ?? onlyVillagePeriod ?? disjointPeriod;
   if (!option) return false;
   const periodText = demographicsTarget ? demographicsVillageOnlyPeriod(demographicsTarget) : undefined;
-  setPeriodNotice(to, samePeriod ? undefined : `村里層僅有${periodText ? ` ${periodText}` : ''}一期，已切換期別。`);
+  setPeriodNotice(to, samePeriod ? undefined
+    : disjointPeriod ? `兩種口徑的資料期間不重疊，已切換到最接近的 ${disjointPeriod.period_start.slice(0, 7)}。`
+    : `村里層僅有${periodText ? ` ${periodText}` : ''}一期，已切換期別。`);
   setPeriodNotice(from, undefined);
   regionalStatisticsStore.setSelection(to, { layerKey: to, datasetId: target.dataset_id, indicatorId: target.indicator_id, level: target.level as StatisticsRecipe['level'], label: target.label, releaseId: option.release_id, dimensions: option.dimensions, allowReleaseFallback: false, includeHealth: true });
   const opacity = layerParamsStore.getParam(from, `${from}Opacity`);

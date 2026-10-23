@@ -249,6 +249,23 @@
 | 分享欄位值（§5.27） | 10.5px `FONT_DATA` | 網址／HTML 長字串，10px 太擠、11px 換行過多 |
 | 左下時間軸刻度／時間（§5.24） | 9.5px／15px | TC1／TC3 設計稿值 |
 
+### 3.13a PROSE — 長文閱讀字級（只給 /blog）
+
+地圖 UI 的 7 階是面板密度用的，讀長文太小。`/blog/<slug>/` 文章頁另用一組 `PROSE` token（2026-10-23 使用者拍板）；**地圖、面板、popup 不可使用**。
+
+| TS | CSS | 值 | 用途 |
+|---|---|---|---|
+| `PROSE.small` | `--prose-small` | 14px | 署名、圖說、標籤、頁尾 |
+| `PROSE.body` | `--prose-body` | 17px | 文章正文 |
+| `PROSE.h3` | `--prose-h3` | 19px | 小節標題、FAQ 問題 |
+| `PROSE.h2` | `--prose-h2` | 23px | 段落標題 |
+| `PROSE.h1` | `--prose-h1` | 32px | 文章標題 |
+| `PROSE.h1Compact` | `--prose-h1-compact` | 26px | 窄螢幕（≤ 640px）文章標題 |
+| `PROSE.lineHeight` | `--prose-line-height` | 1.85 | 正文行高 |
+| `PROSE.measureEm` | `--prose-measure` | 36em | 正文欄寬（約 36 個中文字） |
+
+文章頁其餘一律沿用既有 token：顏色用 §3 語意色，淺色用 `--light-*`（`.blog-theme--light` 容器 remap，同 §1 淡色並行）；字型仍是系統字 `--font-cjk`，不載 web font；按鈕照 §5.7 C2 焦點樣式。
+
 ### 3.14 FONT_WEIGHT
 
 `regular 400`／`semibold 600`／`bold 700`（CSS `--font-weight-*`）。按鈕字 500 為 C2 規格值（inline）。
@@ -318,6 +335,7 @@
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
 - **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
 - **圖層面板（2026-10-03 面板統一 A 段）**：桌機 rail 四個入口（台灣 Taiwan／統計 Statistics／世界 World／日本 Japan）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：「全部關閉」→ 搜尋 →（統計）單一／可重疊。桌機有 PanelHeader；手機改用四個分頁（順序同 rail：台灣／統計／世界／日本），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
+- **rail 底部站內連結（2026-10-23）**：rail 只放開面板的按鈕，唯一例外是最下方、以分隔線隔開的「Pulse 筆記」連結（`RailLink`，lucide `BookOpen`，真的 `<a href="/blog/?theme=…">`，依目前底圖帶 `dark`／`light`）。手機版同一入口放在標頭「⋯」選單（§5.29），不外露。新增其他離開地圖的連結前先問站主，不要在 rail 疊加。
 - **搜尋（P9）**：各入口只搜自己的主題；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口的相符筆數（例「日本還有 3 筆相符」），點了切到該入口並帶入關鍵字。
 
 ### 5.2 停靠 popup（B 版「細線緊湊」）

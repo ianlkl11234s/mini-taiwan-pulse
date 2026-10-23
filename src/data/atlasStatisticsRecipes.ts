@@ -1,9 +1,9 @@
-// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）的共用接點。
+// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）＋臺北市局處統計（5 dataset、11 recipe、9,696 selector）的共用接點。
 // 資料照主題拆成六個家族檔（health／fiscal／indigenousRural／sports／hazard／marine，各自 json＋catalog），
 // 執行期的查詢、期別白名單、維度、圖例與目錄分組由本檔統一提供，共用檔（loader、selection、linkedSelect、
 // manifest、圖例、Details）只接這一個入口，不再逐家族串接。
 import type { StatisticsRelease } from "./regionalStatisticsLoader";
-import type { AtlasRecipe, AtlasRecipeDocument, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
+import type { AtlasRecipeCatalogDocument, AtlasRecipeCatalogEntry, AtlasRecipeDocument, AtlasReleaseOption, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
 import { HEALTH_ENABLED_STATISTICS_KEYS, HEALTH_STATISTICS_DOCUMENT } from "./healthStatisticsRecipes";
 import { FISCAL_ENABLED_STATISTICS_KEYS, FISCAL_STATISTICS_DOCUMENT } from "./fiscalStatisticsRecipes";
 import { INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS, INDIGENOUS_RURAL_STATISTICS_DOCUMENT } from "./indigenousRuralStatisticsRecipes";
@@ -11,10 +11,12 @@ import { SPORTS_ENABLED_STATISTICS_KEYS, SPORTS_STATISTICS_DOCUMENT } from "./sp
 import { HAZARD_ENABLED_STATISTICS_KEYS, HAZARD_STATISTICS_DOCUMENT } from "./hazardStatisticsRecipes";
 import { MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT } from "./marineStatisticsRecipes";
 import { CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT } from "./crimeStatisticsRecipes";
+import { TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT } from "./taipeiAgencyStatisticsRecipes";
+import { taipeiAgencyRecipeDetailsDocument } from "./statisticsRecipeDetails";
 
-export type { AtlasRecipe, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
+export type { AtlasRecipe, AtlasRecipeCatalogEntry, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
 
-const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument]> = [
+const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument | AtlasRecipeCatalogDocument]> = [
   [HEALTH_ENABLED_STATISTICS_KEYS, HEALTH_STATISTICS_DOCUMENT],
   [FISCAL_ENABLED_STATISTICS_KEYS, FISCAL_STATISTICS_DOCUMENT],
   [INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS, INDIGENOUS_RURAL_STATISTICS_DOCUMENT],
@@ -22,12 +24,13 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument]>
   [HAZARD_ENABLED_STATISTICS_KEYS, HAZARD_STATISTICS_DOCUMENT],
   [MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT],
   [CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT],
+  [TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...HEALTH_ENABLED_STATISTICS_KEYS, ...FISCAL_ENABLED_STATISTICS_KEYS, ...INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS,
   ...SPORTS_ENABLED_STATISTICS_KEYS, ...HAZARD_ENABLED_STATISTICS_KEYS, ...MARINE_ENABLED_STATISTICS_KEYS,
-  ...CRIME_ENABLED_STATISTICS_KEYS,
+  ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -41,23 +44,40 @@ export const ATLAS_TAB_THEME_TITLES = {
 } as const;
 
 /** 依各家族宣告的 key 順序（群組內原始數在前）；交付缺 key 或未啟用即報錯。 */
-export const ATLAS_ENABLED_STATISTICS_RECIPES: AtlasRecipe[] = FAMILIES.flatMap(([keys, document]) => keys.map((key) => {
-  const recipe = document.recipes.find((candidate) => candidate.layer_key === key);
+export const ATLAS_ENABLED_STATISTICS_RECIPES: AtlasRecipeCatalogEntry[] = FAMILIES.flatMap(([keys, document]) => keys.map((key) => {
+  const recipe: AtlasRecipeCatalogEntry | undefined = document.recipes.find((candidate) => candidate.layer_key === key);
   if (!recipe?.enabled) throw new Error(`atlas recipe ${key} missing or disabled`);
   return recipe;
 }));
 const BY_KEY = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, recipe]));
 
-export function getAtlasRecipe(key: string): AtlasRecipe | undefined {
+/** 首屏目錄 recipe；按需載入的家族（臺北市局處統計）沒有 release_options，要讀期別用 atlasRecipeReleaseOptions。 */
+export function getAtlasRecipe(key: string): AtlasRecipeCatalogEntry | undefined {
   return BY_KEY.get(key);
 }
 
+let lazyIndex: { document: AtlasRecipeDocument; byKey: Map<string, AtlasReleaseOption[]> } | undefined;
+
+/**
+ * Exact release selector 清單。目錄自帶的家族直接回傳；臺北市局處統計從按需載入的明細取，
+ * 明細未載入時丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED（呼叫端先 ensureStatisticsRecipeDetails("taipeiAgency")），
+ * 不回空陣列冒充「沒有期別」。
+ */
+export function atlasRecipeReleaseOptions(recipe: AtlasRecipeCatalogEntry): AtlasReleaseOption[] {
+  if (recipe.release_options) return recipe.release_options;
+  const document = taipeiAgencyRecipeDetailsDocument();
+  if (lazyIndex?.document !== document) lazyIndex = { document, byKey: new Map(document.recipes.map((candidate) => [candidate.layer_key, candidate.release_options])) };
+  const options = lazyIndex.byKey.get(recipe.layer_key);
+  if (!options) throw new Error(`atlas recipe ${recipe.layer_key} missing from recipe details`);
+  return options;
+}
+
 /** 預設維度組合（layer-plan 指定，例如癌症 sex=all、site=all_sites）；無維度為空 tuple。 */
-export function atlasDefaultDimensions(recipe: AtlasRecipe): Record<string, string> {
+export function atlasDefaultDimensions(recipe: AtlasRecipeCatalogEntry): Record<string, string> {
   return Object.fromEntries(recipe.dimensions.map((dimension) => [dimension.key, dimension.default]));
 }
 
-function tupleKey(recipe: AtlasRecipe, dimensions: Record<string, unknown> | undefined): string {
+function tupleKey(recipe: AtlasRecipeCatalogEntry, dimensions: Record<string, unknown> | undefined): string {
   return recipe.dimensions.map((dimension) => String(dimensions?.[dimension.key] ?? dimension.default)).join("|");
 }
 
@@ -67,7 +87,7 @@ function sameDimensions(a: Record<string, string>, b: Record<string, unknown>): 
 }
 
 /** 期別內排序：預設組合在前，其餘依各維度選項順序。 */
-function dimensionRank(recipe: AtlasRecipe, dimensions: Record<string, string>): number[] {
+function dimensionRank(recipe: AtlasRecipeCatalogEntry, dimensions: Record<string, string>): number[] {
   return recipe.dimensions.map((dimension) => dimension.options.findIndex((option) => option.value === dimensions[dimension.key]));
 }
 
@@ -84,7 +104,7 @@ export function atlasReleaseOptions(key: string, releases: readonly StatisticsRe
   const recipe = getAtlasRecipe(key);
   if (!recipe?.enabled) return [];
   const published = new Map(releases.map((release) => [release.release_id, release]));
-  return recipe.release_options
+  return atlasRecipeReleaseOptions(recipe)
     .filter((option) => {
       const release = published.get(option.release_id);
       return release?.dataset_id === recipe.dataset_id
@@ -109,7 +129,8 @@ export function atlasDefaultReleaseOption<T extends { releaseId: string }>(key: 
   return (preferred ? options.find((option) => option.releaseId === preferred) : undefined) ?? options[0];
 }
 
-const PARTIAL_PERIODS = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options)
+// 按需載入的家族（臺北市局處統計，全為整月期別）不帶 release_options，也沒有部分期別。
+const PARTIAL_PERIODS = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options ?? [])
   .filter((option) => option.partial_period_label).map((option) => [option.release_id, option]));
 
 /**
@@ -130,7 +151,7 @@ export function atlasSelectionRecipe(key: string) {
   const recipe = getAtlasRecipe(key);
   if (!recipe) return undefined;
   const isDefault = (option: { release_id: string }) => (option.release_id === recipe.default_release_id ? 0 : 1);
-  const release_options = [...recipe.release_options].sort((a, b) => isDefault(a) - isDefault(b)
+  const release_options = [...atlasRecipeReleaseOptions(recipe)].sort((a, b) => isDefault(a) - isDefault(b)
     || b.period_end.localeCompare(a.period_end)
     || b.period_start.localeCompare(a.period_start)
     || compareRank(dimensionRank(recipe, a.dimensions), dimensionRank(recipe, b.dimensions)));
@@ -145,7 +166,7 @@ export function resolveAtlasRelease(
 ) {
   const recipe = getAtlasRecipe(key);
   if (!recipe?.enabled) return null;
-  const matches = recipe.release_options.filter((option) => option.release_id === release.release_id
+  const matches = atlasRecipeReleaseOptions(recipe).filter((option) => option.release_id === release.release_id
     && option.period_start === release.period_start
     && option.period_end === release.period_end
     && sameDimensions(option.dimensions, selectedDimensions));
@@ -182,7 +203,7 @@ export function atlasScaleNote(key: string, dimensions?: Record<string, unknown>
 }
 
 /** 圖例的非數值狀態列：依本層實際會出現的狀態分開列出；遮蔽用交叉斜線，其餘用細斜線。 */
-export function atlasStatusLegendRows(recipe: AtlasRecipe): Array<{ kind: AtlasStatusKind; hatch: "missing" | "suppressed"; label: string }> {
+export function atlasStatusLegendRows(recipe: AtlasRecipeCatalogEntry): Array<{ kind: AtlasStatusKind; hatch: "missing" | "suppressed"; label: string }> {
   return (["not_applicable", "missing", "suppressed"] as const)
     .filter((kind) => recipe.status_labels[kind])
     .map((kind) => ({ kind, hatch: kind === "suppressed" ? "suppressed" : "missing", label: recipe.status_labels[kind]! }));
@@ -221,10 +242,10 @@ export const ATLAS_STATISTICS_TOGGLE_GROUPS = [...new Set(ATLAS_ENABLED_STATISTI
   })
   .filter((group) => group.options.length > 1);
 
-function groupsBy(select: (recipe: AtlasRecipe) => boolean): Array<{ title: string; keys: string[] }> {
+function groupsBy(select: (recipe: AtlasRecipeCatalogEntry) => boolean, groupOf: (recipe: AtlasRecipeCatalogEntry) => string = (recipe) => recipe.subgroup): Array<{ title: string; keys: string[] }> {
   const recipes = ATLAS_ENABLED_STATISTICS_RECIPES.filter(select);
-  return [...new Set(recipes.map((recipe) => recipe.subgroup))]
-    .map((title) => ({ title, keys: recipes.filter((recipe) => recipe.subgroup === title).map((recipe) => recipe.layer_key) }));
+  return [...new Set(recipes.map(groupOf))]
+    .map((title) => ({ title, keys: recipes.filter((recipe) => groupOf(recipe) === title).map((recipe) => recipe.layer_key) }));
 }
 
 /** Layers 完整目錄（STATISTICS_DATA_THEMES）的主題，依家族順序。 */
@@ -236,5 +257,5 @@ export function atlasDataThemeGroups(theme: string) {
 
 /** Statistics 分頁主題下的群組（含併入既有主題的群組）。 */
 export function atlasTabThemeGroups(theme: string) {
-  return groupsBy((recipe) => recipe.tab_theme === theme);
+  return groupsBy((recipe) => recipe.tab_theme === theme, (recipe) => recipe.tab_group ?? recipe.subgroup);
 }

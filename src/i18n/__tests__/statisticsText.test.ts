@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../../data/regionalStatisticsRecipes';
 import { statisticsFrequency, statisticsTitle, statisticsUnit } from '../statisticsText';
 import { CRIME_STATISTICS_DOCUMENT } from '../../data/crimeStatisticsRecipes';
-import { statisticsLocationBasis } from '../../data/statisticsLabels';
+import { TAIPEI_AGENCY_STATISTICS_DOCUMENT } from '../../data/taipeiAgencyStatisticsRecipes';
+import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
 const LOCALES = join(__dirname, '..', 'locales');
@@ -73,4 +74,38 @@ describe('治安統計（G17）外文介面不混中文', () => {
     const ctx = { active: 'en' as const, lookup: () => null } as never;
     expect(statisticsLocationBasis('未登記的口徑', ctx)).toBe('未登記的口徑');
   });
+});
+
+describe('臺北市局處統計外文介面不混中文', () => {
+  for (const locale of ['en', 'ja'] as const) {
+    const messages: Record<string, string> = {};
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.place.json', 'enums.statGroup.json', 'enums.statistics.json', 'enums.statLegendNote.json', 'themes.json']) {
+      try { Object.assign(messages, read(locale, file)); } catch { /* 檔案不存在就略過 */ }
+    }
+    const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
+    const recipes = TAIPEI_AGENCY_STATISTICS_DOCUMENT.recipes;
+    it(`${locale}：${recipes.length} 層的圖層名、群組名、位置口徑、發布機關、授權、缺值圖例都有譯文`, () => {
+      // 判準同治安：日文不等於中文原文即可，英文另外要求完全不含中日韓字
+      const pairs = recipes.flatMap((r) => [
+        [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
+        [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],
+        [r.subgroup, messages[`theme.${r.subgroup}`] ?? r.subgroup],
+        [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
+        [r.publisher, statisticsPublisher(r.publisher, ctx)],
+        [r.license, statisticsLicense(r.license, ctx)],
+        ...Object.values(r.status_labels).map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
+      ].map(([zh, text]) => [r.layer_key, zh!, text!] as const));
+      const leaks = pairs.filter(([, zh, text]) => text === zh || (locale === 'en' && CJK.test(text))).map(([key, , text]) => `${key}: ${text}`);
+      expect([...new Set(leaks)]).toEqual([]);
+    });
+    it(`${locale}：維度與選項都有對照（日文與中文同形的「飲料製造業」等也要登記，不能靠退回中文）`, () => {
+      const missing = recipes.flatMap((r) => r.dimensions.flatMap((d) => [`enum.statDim.${d.key}`, ...d.options.map((o) => `enum.statDimValue.${d.key}.${o.value}`)]))
+        .filter((key) => !(key in messages) || (locale === 'en' && CJK.test(messages[key]!)));
+      expect(missing).toEqual([]);
+      // 經顯示函式取到的就是登記的譯文
+      const factory = recipes.find((r) => r.layer_key === 'statsTaipeiFactoryCountByIndustryTownship')!;
+      expect(statisticsDimensionLabel('industry_code', ctx)).toBe(messages['enum.statDim.industry_code']);
+      expect(statisticsDimensionValueLabel('industry_code', '26', factory.dataset_id, ctx)).toBe(messages['enum.statDimValue.industry_code.26']);
+    });
+  }
 });

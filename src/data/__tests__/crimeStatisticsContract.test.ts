@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
 import {
   ATLAS_ENABLED_STATISTICS_RECIPES, ATLAS_STATISTICS_TOGGLE_GROUPS, atlasDefaultReleaseOption, atlasPartialPeriod, atlasReleaseOptions,
-  atlasSelectionRecipe, getAtlasRecipe,
+  atlasSelectionRecipe, getAtlasRecipe, atlasRecipeReleaseOptions,
 } from "../atlasStatisticsRecipes";
 import { CRIME_ENABLED_STATISTICS_KEYS } from "../crimeStatisticsRecipes";
 import { statisticsPeriodLabel } from "../statisticsLabels";
@@ -9,9 +10,12 @@ import { LAYER_MANIFEST } from "../layerManifest";
 import { STATISTICS_CHOROPLETH_KEYS } from "../statisticsLayerRegistry";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
+// 「其他 atlas 家族」逐層檢查含臺北市局處統計，其 exact selector 按需載入。
+beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+
 function publishedReleases(key: string): StatisticsRelease[] {
   const recipe = getAtlasRecipe(key)!;
-  return recipe.release_options.map((option) => ({
+  return atlasRecipeReleaseOptions(recipe).map((option) => ({
     release_id: option.release_id, dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id,
     period_start: option.period_start, period_end: option.period_end, boundary_version: recipe.boundary_version, levels: [recipe.level],
   }) as StatisticsRelease);
@@ -21,7 +25,7 @@ describe("治安統計（G17）契約", () => {
   it("36 層＝9 案類 × 鄉鎮／縣市 × 件數／每十萬人，386 個 exact selector；舊 crimeAreaMonthly 已移除", () => {
     expect(CRIME_ENABLED_STATISTICS_KEYS).toHaveLength(36);
     const recipes = CRIME_ENABLED_STATISTICS_KEYS.map((key) => getAtlasRecipe(key)!);
-    expect(recipes.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(386);
+    expect(recipes.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(386);
     expect(new Set(recipes.map((recipe) => recipe.dataset_id))).toEqual(new Set(["crime_township_annual", "crime_county_annual", "telecom_fraud_township_annual", "telecom_fraud_county_annual"]));
     expect("crimeAreaMonthly" in LAYER_MANIFEST).toBe(false);
     expect(STATISTICS_CHOROPLETH_KEYS as readonly string[]).not.toContain("crimeAreaMonthly");
@@ -32,7 +36,7 @@ describe("治安統計（G17）契約", () => {
       const recipe = getAtlasRecipe(key)!;
       const options = atlasReleaseOptions(key, publishedReleases(key));
       const chosen = atlasDefaultReleaseOption(key, options)!;
-      const option = recipe.release_options.find((candidate) => candidate.release_id === chosen.releaseId)!;
+      const option = atlasRecipeReleaseOptions(recipe).find((candidate) => candidate.release_id === chosen.releaseId)!;
       expect([option.period_start, option.period_end], key).toEqual(["2025-01-01", "2025-12-31"]);
       expect(atlasSelectionRecipe(key)!.release_options[0]!.release_id, key).toBe(chosen.releaseId);
     }
@@ -48,15 +52,15 @@ describe("治安統計（G17）契約", () => {
   it("部分期別只出現在件數層，標「部分期別」；比率層全為全年", () => {
     for (const key of CRIME_ENABLED_STATISTICS_KEYS) {
       const recipe = getAtlasRecipe(key)!;
-      const partial = recipe.release_options.filter((option) => option.partial_period_label);
+      const partial = atlasRecipeReleaseOptions(recipe).filter((option) => option.partial_period_label);
       if (key.includes("Per100k")) expect(partial, key).toEqual([]);
       else expect(partial.map((option) => option.period_start), key).toContain("2026-01-01");
     }
-    const h1 = getAtlasRecipe("statsTelecomFraudCasesTownship")!.release_options.find((option) => option.period_start === "2026-01-01")!;
+    const h1 = atlasRecipeReleaseOptions(getAtlasRecipe("statsTelecomFraudCasesTownship")!).find((option) => option.period_start === "2026-01-01")!;
     expect(statisticsPeriodLabel(h1)).toBe("2026 年 1–6 月（部分期別）");
-    const q4 = getAtlasRecipe("statsTelecomFraudCasesTownship")!.release_options.find((option) => option.period_start === "2018-10-01")!;
+    const q4 = atlasRecipeReleaseOptions(getAtlasRecipe("statsTelecomFraudCasesTownship")!).find((option) => option.period_start === "2018-10-01")!;
     expect(atlasPartialPeriod(q4)).toEqual({ year: "2018", from: "10", to: "12" });
-    const full = getAtlasRecipe("statsTelecomFraudCasesTownship")!.release_options.find((option) => option.period_start === "2025-01-01")!;
+    const full = atlasRecipeReleaseOptions(getAtlasRecipe("statsTelecomFraudCasesTownship")!).find((option) => option.period_start === "2025-01-01")!;
     expect(statisticsPeriodLabel(full)).toBe("2025 年");
   });
 

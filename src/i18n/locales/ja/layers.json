@@ -1232,5 +1232,16 @@
   "layer.statsTelecomFraudCasesTownship": "特殊詐欺発生件数（電信詐欺）",
   "layer.statsTelecomFraudPer100kTownship": "特殊詐欺発生件数（電信詐欺、人口10万人あたり）",
   "layer.statsTelecomFraudCasesCounty": "特殊詐欺発生件数（電信詐欺）",
-  "layer.statsTelecomFraudPer100kCounty": "特殊詐欺発生件数（電信詐欺、人口10万人あたり）"
+  "layer.statsTelecomFraudPer100kCounty": "特殊詐欺発生件数（電信詐欺、人口10万人あたり）",
+  "layer.statsTaipeiResourceRecyclingTownship": "台北市の区別資源回収量",
+  "layer.statsTaipeiGarbageCollectedTownship": "台北市の区別ごみ収集量",
+  "layer.statsTaipeiSewerRatePublicTownship": "台北市の下水道接続普及率（2019年5月以降の算式）",
+  "layer.statsTaipeiSewerRateLegacyTownship": "台北市の下水道接続普及率（2019年4月以前・旧算式）",
+  "layer.statsTaipeiFactoryCountTownship": "台北市の登録工場数",
+  "layer.statsTaipeiFactoryCountByIndustryTownship": "台北市の登録工場数（産業中分類別）",
+  "layer.statsTaipeiUsagePermitCountTownship": "台北市の使用許可証交付件数",
+  "layer.statsTaipeiUsagePermitCountByBuildTypeTownship": "台北市の使用許可証交付件数（工事種別）",
+  "layer.statsTaipeiUsagePermitBuildingCountTownship": "台北市の使用許可証交付棟数",
+  "layer.statsTaipeiUsagePermitHouseholdCountTownship": "台北市の使用許可証交付戸数",
+  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "台北市の使用許可証交付建築面積"
 }

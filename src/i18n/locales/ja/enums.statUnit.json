@@ -100,5 +100,6 @@
   "enum.statUnit.溪流次": "警戒発令渓流数（延べ）",
   "enum.statUnit.Z 分數": "Zスコア",
   "enum.statUnit.隻": "頭",
-  "enum.statUnit.噸": "トン"
+  "enum.statUnit.噸": "トン",
+  "enum.statUnit.棟": "棟"
 }

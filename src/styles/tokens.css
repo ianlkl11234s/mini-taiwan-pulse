@@ -76,6 +76,16 @@
   --font-xl: 18px;
   --font-xxl: 22px;
 
+  /* ── PROSE — 長文閱讀字級（= PROSE；只給 /blog 文章頁，spec §3.13a） ── */
+  --prose-small: 14px;
+  --prose-body: 17px;
+  --prose-h3: 19px;
+  --prose-h2: 23px;
+  --prose-h1: 32px;
+  --prose-h1-compact: 26px;
+  --prose-line-height: 1.85;
+  --prose-measure: 36em;
+
   /* ── FONT_WEIGHT ── */
   --font-weight-regular: 400;
   --font-weight-semibold: 600;

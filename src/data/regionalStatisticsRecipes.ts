@@ -525,7 +525,8 @@ export const STATISTICS_RECIPES = {
     level: recipe.level as StatisticsLevel,
     label: recipe.label,
     unit: recipe.unit,
-    frequency: `${new Set(recipe.release_options.map((option) => `${option.period_start}|${option.period_end}`)).size} 個已交付期別`,
+    // 按需載入的家族（臺北市局處統計）首屏沒有 release_options，期別數由目錄 release_summary.period_count 帶（同一算法）。
+    frequency: `${recipe.release_options ? new Set(recipe.release_options.map((option) => `${option.period_start}|${option.period_end}`)).size : recipe.release_summary?.period_count ?? 0} 個已交付期別`,
     dimensions: atlasDefaultDimensions(recipe),
     includeHealth: true,
     provenance: {

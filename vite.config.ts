@@ -8,6 +8,7 @@ import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.js
 import packageJson from "./package.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 import { buildLayerSearchIndex } from "./src/lib/layerSearch";
+import { generateBlog } from "./src/blog/generator";
 import {
   parseLayerScreeningRunPayload,
   runLayerScreening,
@@ -1207,6 +1208,10 @@ function serveLocalPopulationPreview(): Plugin {
   };
 }
 
+// /blog 靜態文章頁：content/blog/*.md → blog/<slug>/index.html（gitignored），再當 HTML entry 交給 vite
+//（全文在原始 HTML，搜尋引擎與 AI 爬蟲直接讀得到；nginx `location ^~ /blog/`）。dev 改文章需重啟。
+const blogInputs = generateBlog(process.cwd());
+
 export default defineConfig({
   // 版號唯一來源是 package.json（見 docs/RELEASING.md）；「資訊 → 關於」顯示。
   define: {
@@ -1281,6 +1286,7 @@ export default defineConfig({
         bbox: resolve(process.cwd(), "tools/bbox.html"),
         // Isolated metadata-only layer relevance replay; does not mount the main map.
         "jev-layer-screening": resolve(process.cwd(), "tools/jev-layer-screening.html"),
+        ...blogInputs,
       },
     },
   },

@@ -100,5 +100,6 @@
   "enum.statUnit.溪流次": "stream alerts",
   "enum.statUnit.Z 分數": "Z-score",
   "enum.statUnit.隻": "animals",
-  "enum.statUnit.噸": "tonnes"
+  "enum.statUnit.噸": "tonnes",
+  "enum.statUnit.棟": "buildings"
 }

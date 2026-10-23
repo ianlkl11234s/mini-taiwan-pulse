@@ -4,5 +4,7 @@
   "enum.statPublisher.金融監督管理委員會銀行局（資料製作：財團法人聯合信用卡處理中心）": "Banking Bureau, Financial Supervisory Commission (data compiled by the Joint Credit Card Processing Center)",
   "enum.statPublisher.行政院性別平等會（資料來源：衛生福利部疾病管制署）": "Gender Equality Committee, Executive Yuan (source: Taiwan Centers for Disease Control, Ministry of Health and Welfare)",
   "enum.statPublisher.行政院性別平等會（資料來源：衛生福利部國民健康署國人吸菸行為調查）": "Gender Equality Committee, Executive Yuan (source: Adult Smoking Behavior Survey, Health Promotion Administration, Ministry of Health and Welfare)",
-  "enum.statPublisher.內政部戶政司 RIS（授權條款待確認）": "Department of Household Registration, Ministry of the Interior (RIS; license to be confirmed)"
+  "enum.statPublisher.內政部戶政司 RIS（授權條款待確認）": "Department of Household Registration, Ministry of the Interior (RIS; license to be confirmed)",
+  "enum.statPublisher.臺北市政府工務局衛生下水道工程處": "Sewerage Engineering Office, Public Works Department, Taipei City Government",
+  "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "Construction Management Office, Department of Urban Development, Taipei City Government"
 }

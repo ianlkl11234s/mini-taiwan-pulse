@@ -1,6 +1,7 @@
 // atlas 批次六個統計家族＋治安（crime，G17）共用的 recipe 型別（health／fiscal／indigenousRural／sports／hazard／marine／crime）。
 // 只放型別，讓各家族檔與 atlasStatisticsRecipes.ts 共用而不互相 import。
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
+import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
 
 export interface AtlasReleaseOption {
   release_id: string;
@@ -45,6 +46,8 @@ export interface AtlasRecipe {
   data_theme: string;
   /** Statistics 分頁的主題（layerPanels STATISTICS_MACRO_GROUPS）。 */
   tab_theme: string;
+  /** 選填：Statistics 分頁要併入既有小群組時的群組標題（缺省用 subgroup）；Layers 完整目錄不看此欄。 */
+  tab_group?: string;
   visual_theme: string;
   dataset_id: string;
   indicator_id: string;
@@ -88,4 +91,19 @@ export interface AtlasRecipeDocument {
   scope: string;
   family: string;
   recipes: AtlasRecipe[];
+}
+
+/**
+ * 首屏目錄的 recipe。多數家族原樣帶 release_options；按需載入的家族（臺北市局處統計，selector 9,696 個）
+ * 不帶，改帶 release_summary（筆數、期別數），完整 release_options 由 statisticsRecipeDetails 載入。
+ */
+export type AtlasRecipeCatalogEntry = Omit<AtlasRecipe, "release_options"> & {
+  release_options?: AtlasReleaseOption[];
+  release_summary?: StatisticsReleaseSummary;
+};
+
+export interface AtlasRecipeCatalogDocument {
+  scope: string;
+  family: string;
+  recipes: AtlasRecipeCatalogEntry[];
 }
