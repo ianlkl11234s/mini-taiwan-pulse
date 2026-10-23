@@ -79,12 +79,12 @@ describe('治安統計（G17）外文介面不混中文', () => {
 describe('臺北市局處統計外文介面不混中文', () => {
   for (const locale of ['en', 'ja'] as const) {
     const messages: Record<string, string> = {};
-    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.place.json', 'enums.statGroup.json', 'enums.statistics.json', 'themes.json']) {
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.place.json', 'enums.statGroup.json', 'enums.statistics.json', 'enums.statLegendNote.json', 'themes.json']) {
       try { Object.assign(messages, read(locale, file)); } catch { /* 檔案不存在就略過 */ }
     }
     const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
     const recipes = TAIPEI_AGENCY_STATISTICS_DOCUMENT.recipes;
-    it(`${locale}：${recipes.length} 層的圖層名、群組名、位置口徑、發布機關、授權都有譯文`, () => {
+    it(`${locale}：${recipes.length} 層的圖層名、群組名、位置口徑、發布機關、授權、缺值圖例都有譯文`, () => {
       // 判準同治安：日文不等於中文原文即可，英文另外要求完全不含中日韓字
       const pairs = recipes.flatMap((r) => [
         [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
@@ -93,6 +93,7 @@ describe('臺北市局處統計外文介面不混中文', () => {
         [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
         [r.publisher, statisticsPublisher(r.publisher, ctx)],
         [r.license, statisticsLicense(r.license, ctx)],
+        ...Object.values(r.status_labels).map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
       ].map(([zh, text]) => [r.layer_key, zh!, text!] as const));
       const leaks = pairs.filter(([, zh, text]) => text === zh || (locale === 'en' && CJK.test(text))).map(([key, , text]) => `${key}: ${text}`);
       expect([...new Set(leaks)]).toEqual([]);
