@@ -87,5 +87,18 @@
   "member.cards.revokedNotice": "已撤銷。",
   "member.cards.copiedNotice": "已複製連結。",
   "member.cards.hint": "你發布的分析卡（固定 30 天到期）。撤銷會立刻讓連結失效。",
-  "member.cards.loading": "正在讀取卡片。"
+  "member.cards.loading": "正在讀取卡片。",
+  "member.avatar.privacy": "隱私說明",
+  "member.account.delete": "刪除帳號",
+  "member.account.deleteTitle": "永久刪除帳號",
+  "member.account.deleteBody": "會立即刪除你的帳號、圖層收藏、場景、地點與存取紀錄，無法復原。若曾用同一帳號在 tree-report 送出樹木通報，通報會保留，但不再與你連結。",
+  "member.account.deleteConfirmLabel": "請輸入「{word}」確認",
+  "member.account.deleteConfirmWord": "刪除",
+  "member.account.deleteSubmit": "永久刪除",
+  "member.account.deleting": "正在刪除…",
+  "member.account.deleteDone": "帳號與會員資料已刪除，並已登出。",
+  "member.account.deleteDoneReload": "帳號與會員資料已刪除。請重新整理頁面完成登出。",
+  "member.account.deleteOwner": "站主帳號不能在這裡刪除。",
+  "member.account.deleteUnavailable": "刪除功能目前無法使用，帳號與資料都還在。請稍後再試。",
+  "member.account.deleteFailed": "刪除未完成，帳號與資料都還在。請稍後再試。"
 }

@@ -28,7 +28,7 @@ function stripBuildAssets(relPaths: string[]): Plugin {
   };
 }
 
-/** Dev-only: `/card/<slug>` 對應 nginx 的 `location ^~ /card/`（→ card.html），讓本機能直接開卡片連結。 */
+/** Dev-only: `/card/<slug>` 對應 nginx 的 `location ^~ /card/`（→ card.html），讓本機能直接開卡片連結；`/privacy` 同理（→ privacy.html）。 */
 function serveCardPage(): Plugin {
   return {
     name: "serve-card-page",
@@ -36,6 +36,8 @@ function serveCardPage(): Plugin {
     configureServer(server) {
       server.middlewares.use((req, _res, next) => {
         if (req.url && /^\/card\/[^/?#]*\/?(?:[?#].*)?$/.test(req.url)) req.url = "/card.html";
+        // 隱私說明頁：/privacy（可帶 ?lang=）→ privacy.html，與 nginx `location = /privacy` 一致
+        else if (req.url && /^\/privacy\/?(?:[?#].*)?$/.test(req.url)) req.url = `/privacy.html${req.url.replace(/^\/privacy\/?/, "")}`;
         next();
       });
     },
@@ -1271,6 +1273,8 @@ export default defineConfig({
         embed: resolve(process.cwd(), "embed.html"),
         // 4b 分析卡分享頁（MapLibre，不載入 mapbox-gl／lib/supabase；nginx `location ^~ /card/`）
         card: resolve(process.cwd(), "card.html"),
+        // 隱私說明頁（公開靜態內容，Google OAuth 品牌驗證用；不載入 mapbox-gl／lib/supabase；nginx `location = /privacy`）
+        privacy: resolve(process.cwd(), "privacy.html"),
         // 活的設計系統參考頁（渲染真元件、讀真 token；不載入 mapbox-gl／lib/supabase）
         "design-system": resolve(process.cwd(), "tools/design-system.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）

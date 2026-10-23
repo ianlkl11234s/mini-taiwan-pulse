@@ -37,6 +37,7 @@
 | 要決定元素疊在誰上面（z-index） | §5.25；不寫死數字 |
 | 新的左側浮動面板 | §5.26 互斥清單 |
 | 新的置中視窗／提示訊息 | §5.27、§5.25 |
+| 刪除、撤銷等無法復原的操作 | §5.39 |
 | 調整地圖上的點／線／面數值、圖例樣式 | §13 → [`map-layers.md`](./map-layers.md) |
 
 ## 1. 原則
@@ -863,7 +864,7 @@
 
 2026-10-15 使用者拍板「單行＋展開清單」，取代 Mapbox 內建控制項把每個圖層來源串成一長串（開 5 層就折兩行、壓到 logo）。
 
-- **收合**：右下一行不換行：「資料來源 N ⌃ · © Mapbox © OpenStreetMap Improve this map」。N＝目前可見圖層的去重來源數（一串含「 | 」或「；©」的多來源字串算多筆）；N=0 時只剩底圖版權。字 `--font-base`、行高 20px，底 `--surface-subtle`（淡色 `--light-surface-panel`）。chevron 用 lucide `ChevronUp`／`ChevronDown`（§5.16），計數 `FONT_DATA` semibold。
+- **收合**：右下一行不換行：「資料來源 N ⌃ · 隱私 · © Mapbox © OpenStreetMap Improve this map」。N＝目前可見圖層的去重來源數（一串含「 | 」或「；©」的多來源字串算多筆）；N=0 時只剩「隱私」連結（`/privacy`，新分頁，2026-10-23）與底圖版權；「隱私」連結常駐，不隨圖層數量消失。字 `--font-base`、行高 20px，底 `--surface-subtle`（淡色 `--light-surface-panel`）。chevron 用 lucide `ChevronUp`／`ChevronDown`（§5.16），計數 `FONT_DATA` semibold。
 - **展開卡**：向上彈出，`Z_INDEX.popover`；寬 380px、最高 `min(55vh, 440px)`，內部捲動；標頭「資料來源 N」＋✕（`aria-label`「關閉」）。依授權分組（政府資料開放授權條款第1版 → ODbL → 其他具名授權 → 其他），組名 `--font-sm` dim；每筆「機關 資料名（data.gov.tw nid）」，有網址就是連結（新分頁、`rel="noopener noreferrer"`，`ExternalLink` 10px）。底部一行「地圖：© Mapbox © OpenStreetMap」。Esc／點卡片外／✕ 關閉，Esc 會 `preventDefault`，不連帶關掉 popup。
 - **手機（<640px）**：同樣單行；展開卡左右各 16px。手機底部 sheet 以 `--mobile-sheet-inset` 告知高度，Mapbox 底部兩角（logo、版權列）讓到 sheet 上方；窄螢幕 logo 再墊高 20px 放到版權列上方，避免重疊。
 - **法遵**：Mapbox wordmark 與「© Mapbox © OpenStreetMap、Improve this map」**永遠在收合列上**，不可收進卡片；內建控制項固定 `compact: false`（窄螢幕不收成 ⓘ）。
@@ -871,6 +872,21 @@
 - **暗／淡**：觸發 class `.pulse-attrib--dark/--light`（卡片、列）與地圖容器 `.pulse-map--dark/--light`（內建版權列）把 `--pa-*` 別名指到 token。
 - **禁止**：把圖層來源再塞回內建控制項；`dangerouslySetInnerHTML` 渲染來源字串；把底圖版權收進卡片。
 - **實作**：`src/components/AttributionBar.tsx`、`attributionBar.css`、`src/map/attribution/{mapAttribution.ts,attributionParse.ts}`、`MapView.tsx`（加控制項）、`MobileBottomSheet.tsx`（`--mobile-sheet-inset`）。
+
+### 5.39 危險操作（destructive action）
+
+2026-10-23 隨「刪除帳號」新增。適用於刪除帳號這類**無法復原、影響範圍大**的操作；單筆收藏、場景的「刪除」與分析卡「撤銷」屬一般操作，維持 C2 一般按鈕，不套本節。
+
+- **入口**：C2 一般尺寸，底透明，框與字 `--status-err`（淡色 `--light-status-err`）、600。放在面板最下方、與日常操作分開（上方 `1px` 分隔線），不放在工具列或標頭。
+- **兩段式確認**：第一下只展開確認區塊，不直接執行。確認區塊：`1px --status-err` 框、`RADIUS.xl`、底 `--control-bg`；標題用 `--status-err` 600。
+- **文案寫清後果**：列出會刪除的內容、「無法復原」，以及有例外時的處理（例：tree-report 通報保留但解除連結）。不用「確定嗎？」這類沒有資訊的問句。
+- **二次確認**：輸入目前語系的確認字（中文「刪除」、EN「DELETE」、日本語「削除」；比對忽略前後空白與大小寫）才啟用紅色按鈕。旁邊一定有「取消」。
+- **處理中**：按鈕停用並改「正在刪除…」，輸入框與取消一併停用。這是寫入不是資料載入，不註冊 loadingRegistry。
+- **失敗**：錯誤留在確認區塊內（`role="alert"`，字 `--status-err`），寫明「帳號與資料都還在」；技術細節只放 `title`，不印錯誤代碼（§6.3）。不可靜默失敗。
+- **成功**：在面板狀態列（`role="status"`）說明已完成；若元件會因登出重掛，提示放在模組層 store，關閉面板時清除。
+- **不新增 token**：紅色只用 `--status-err`／`--light-status-err`；不做紅底按鈕，不用 `window.confirm`（`MyAnalysisCards` 的撤銷是既有例外）。
+- **權限**：做不到的帳號（例：站主）直接不顯示入口，不放停用的占位按鈕（§1）。
+- **實作**：`src/components/member/DeleteAccountSection.tsx`、`memberPanel.css`（`.member-danger*`）、`src/lib/accountDeletion.ts`。
 
 ## 6. 文案規則
 

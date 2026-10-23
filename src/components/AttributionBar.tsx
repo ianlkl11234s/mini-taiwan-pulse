@@ -2,7 +2,7 @@
  * 主站右下「資料來源 N」＋展開清單（attribution-compact）。
  *
  * - 收合：一行，掛在 Mapbox 版權列左側（AttributionHostControl 的 DOM 節點，portal）。
- *   N＝目前可見圖層的去重來源數；N=0 不顯示。
+ *   N＝目前可見圖層的去重來源數；N=0 時不顯示「資料來源」，只留「隱私」連結（/privacy，新分頁）。
  * - 展開：向上彈出小卡（portal 到 body，fixed，Z_INDEX.popover），依授權分組列出來源，
  *   有網址者可開原始頁。Esc／點外面／✕ 關閉。
  * - 底圖版權（© Mapbox © OpenStreetMap、Improve this map）一律由內建控制項常駐顯示，
@@ -15,6 +15,7 @@ import { createPortal } from "react-dom";
 import { ChevronDown, ChevronUp, ExternalLink, X } from "lucide-react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useLocale } from "../state/localeStore";
+import { privacyHref } from "../privacy/privacyLocale";
 import { Z_INDEX } from "../styles/designTokens";
 import { collectLayerAttributions, readMapSourceViews } from "../map/attribution/mapAttribution";
 import { groupAttributions, OTHER_LICENSE, parseAttributions } from "../map/attribution/attributionParse";
@@ -64,7 +65,7 @@ interface AttributionBarProps {
 }
 
 export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
-  const { t } = useLocale();
+  const { t, active } = useLocale();
   const raws = useLayerAttributions(map);
   const entries = useMemo(() => parseAttributions(raws), [raws]);
   const groups = useMemo(() => groupAttributions(entries), [entries]);
@@ -104,7 +105,7 @@ export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
     };
   }, [open]);
 
-  if (!host || count === 0) return null;
+  if (!host) return null;
   const theme = isDark ? "pulse-attrib--dark" : "pulse-attrib--light";
   const label = t("attribution.sources");
 
@@ -112,6 +113,7 @@ export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
     <>
       {createPortal(
         <span className={`pulse-attrib-row ${theme}`}>
+          {count > 0 && <>
           <button
             ref={toggleRef}
             type="button"
@@ -125,6 +127,9 @@ export function AttributionBar({ map, host, isDark }: AttributionBarProps) {
             <span className="pulse-attrib-count">{count}</span>
             {open ? <ChevronDown size={11} aria-hidden="true" /> : <ChevronUp size={11} aria-hidden="true" />}
           </button>
+          <span className="pulse-attrib-sep" aria-hidden="true">·</span>
+          </>}
+          <a className="pulse-attrib-link" href={privacyHref(active)} target="_blank" rel="noopener noreferrer">{t("attribution.privacy")}</a>
           <span className="pulse-attrib-sep" aria-hidden="true">·</span>
         </span>,
         host,

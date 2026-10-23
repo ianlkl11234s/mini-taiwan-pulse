@@ -86,5 +86,6 @@
   "attribution.close": "Close",
   "attribution.other": "Other",
   "attribution.openSource": "Open source page (new tab)",
-  "embed.openInSite": "Open in Mini Taiwan Pulse"
+  "embed.openInSite": "Open in Mini Taiwan Pulse",
+  "attribution.privacy": "Privacy"
 }

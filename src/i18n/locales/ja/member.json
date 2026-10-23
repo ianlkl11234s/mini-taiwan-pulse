@@ -87,5 +87,18 @@
   "member.cards.revokedNotice": "取り消しました。",
   "member.cards.copiedNotice": "リンクをコピーしました。",
   "member.cards.hint": "公開した分析カードです（有効期限は 30 日固定）。取り消すとリンクはすぐ無効になります。",
-  "member.cards.loading": "カードを読み込み中です。"
+  "member.cards.loading": "カードを読み込み中です。",
+  "member.avatar.privacy": "プライバシー",
+  "member.account.delete": "アカウントを削除",
+  "member.account.deleteTitle": "アカウントを完全に削除",
+  "member.account.deleteBody": "アカウント、レイヤーのお気に入り、シーン、地点、アクセス記録がすぐに削除され、元に戻せません。同じアカウントで tree-report から樹木の通報を送ったことがある場合、通報は残りますが、あなたとのひも付けは解除されます。",
+  "member.account.deleteConfirmLabel": "確認のため「{word}」と入力してください",
+  "member.account.deleteConfirmWord": "削除",
+  "member.account.deleteSubmit": "完全に削除",
+  "member.account.deleting": "削除中…",
+  "member.account.deleteDone": "アカウントと会員データを削除し、ログアウトしました。",
+  "member.account.deleteDoneReload": "アカウントと会員データを削除しました。ページを再読み込みしてログアウトを完了してください。",
+  "member.account.deleteOwner": "サイト管理者のアカウントはここでは削除できません。",
+  "member.account.deleteUnavailable": "現在アカウントを削除できません。アカウントとデータはそのままです。しばらくしてから再度お試しください。",
+  "member.account.deleteFailed": "削除が完了しませんでした。アカウントとデータはそのままです。しばらくしてから再度お試しください。"
 }
