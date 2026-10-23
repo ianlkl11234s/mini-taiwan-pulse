@@ -58,7 +58,18 @@
 - 使用執照月值很小（每區每月常 0–10 件），layer-plan 建議的「近 12 個月累計」視圖需要前端加總，本批未做。
 - 污水分子分母戶數只在 DB／倉庫，前端沒有彈窗專用指標的機制。
 - 月資料期別下拉有 89～309 項，沒有「年→月」兩段式選單。
-- 首屏體積：本家族 catalog 壓縮後約 1.8 MB（gzip 約 93 KB），其中產業別一層佔約 1.2 MB（6,216 個 exact selector）；瀏覽器實測切換產業約 0.55 秒。若要瘦身，需改 atlas 目錄改為按需載入，不能裁舊期別（違反 exact whitelist）。
+- ~~首屏體積~~：2026-10-23 已改按需載入（見下「目錄按需載入」）。切換產業的耗時未另外優化。
+
+## 英日文（2026-10-23）
+
+圖層名在 `src/i18n/locales/{en,ja}/layers.json`（`layer.<key>`，照治安前例手寫，不由產生器出）；群組名 `enum.statGroup`、維度與選項 `enum.statDim.industry_code`／`build_type` 與 `enum.statDimValue.<維度>.<值>`、位置口徑 `enum.statLocationBasis`、機關 `enum.statPublisher`（環保局、產業局走通用機關規則）、授權 `enum.statLicense`、小群組 `theme.*`。日文沿用既有「台北市」寫法；`飲料製造業`、`家具製造業` 日文與中文同形，也登記在表裡。檢查在 `src/i18n/__tests__/statisticsText.test.ts`「臺北市局處統計外文介面不混中文」。
+
+## 目錄按需載入（2026-10-23）
+
+- `STATISTICS_RECIPE_CATALOG_SPECS` 的 taipeiAgency 改 `keepReleaseOptions: false, periodCount: true`：catalog 只帶 `release_summary`（selector 數、`period_count`），40 KB。首屏「N 個已交付期別」頻率字串改讀 `period_count`，與舊算法同值（`enum.statFrequency` 譯文不動）。
+- 完整交付 JSON 由 `statisticsRecipeDetails.ts` 的 `taipeiAgency` 家族 dynamic import（loadingRegistry「載入臺北市局處統計配方明細」）。atlas 共用接點用 `atlasRecipeReleaseOptions(recipe)` 讀 selector：其他 atlas 家族照舊讀目錄，本家族讀明細，未載入丟 `STATISTICS_RECIPE_DETAILS_NOT_LOADED`。
+- 觸發點與 agri／social 相同：loader（開圖層）、連動選單（`statisticsLinkedSelect`）、說明・來源（`StatisticsDetails`）、群組切換（`medicalStatisticsSelection`）。未開啟時期別選單維持「尚未載入」，開啟後明細未到顯示「載入中」。
+- 量測（`npm run build`）：首屏 preload 的 `statisticsText-*.js` raw 4,671,263 → 2,933,632、gzip 446,405 → 353,075；preload JS 合計 raw 11,146,226 → 9,408,973、gzip 2,275,844 → 2,182,664；按需 chunk `taipeiAgencyStatisticsRecipes-*.js` raw 3,674,491／gzip 165,838（含 `delivery` 收據，照 agri 前例載完整交付檔）。
 
 ## 分類調整（2026-10-23）
 

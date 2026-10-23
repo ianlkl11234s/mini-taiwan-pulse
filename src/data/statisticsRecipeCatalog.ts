@@ -23,6 +23,8 @@ export interface StatisticsReleaseSummary {
   first: StatisticsReleaseRef | null;
   /** 只有選項帶 `dimensions.education_stage` 時才存在；latest 依 period_end、period_start 由新到舊穩定排序。 */
   education_stages?: Record<string, { count: number; latest: StatisticsReleaseRef }>;
+  /** 只有 spec 帶 `periodCount` 時才存在：不重複的（period_start, period_end）數（atlas 的「N 個已交付期別」）。 */
+  period_count?: number;
 }
 
 type ReleaseOptionLike = { release_id: string; period_start: string; period_end: string; dimensions: Record<string, string> };
@@ -34,8 +36,9 @@ function releaseRef(option: ReleaseOptionLike): StatisticsReleaseRef {
   return { release_id: option.release_id, period_start: option.period_start, period_end: option.period_end, dimensions: option.dimensions };
 }
 
-export function summarizeStatisticsReleaseOptions(options: readonly ReleaseOptionLike[]): StatisticsReleaseSummary {
+export function summarizeStatisticsReleaseOptions(options: readonly ReleaseOptionLike[], { periodCount = false }: { periodCount?: boolean } = {}): StatisticsReleaseSummary {
   const summary: StatisticsReleaseSummary = { count: options.length, first: options[0] ? releaseRef(options[0]) : null };
+  if (periodCount) summary.period_count = new Set(options.map((option) => `${option.period_start}|${option.period_end}`)).size;
   const byStage = new Map<string, ReleaseOptionLike[]>();
   for (const option of options) {
     const stage = option.dimensions.education_stage;
@@ -54,12 +57,13 @@ export function summarizeStatisticsReleaseOptions(options: readonly ReleaseOptio
 /**
  * 目錄 = 完整文件去掉 `omitRecipeKeys`（預設連 release_options 一起移除，並加上 release_summary）。
  * `keepReleaseOptions`（PF-10 勞動）：release_options 首屏就要用且很小，原樣保留、不加 summary，只去掉 omitRecipeKeys。
+ * `periodCount`：summary 另帶不重複期別數（atlas 首屏的「N 個已交付期別」頻率字串要用）。
  */
 export function deriveStatisticsRecipeCatalog(
   document: RecipeDocumentLike,
   omitRecipeKeys: readonly string[],
   generatedFrom: string,
-  options: { keepReleaseOptions?: boolean } = {},
+  options: { keepReleaseOptions?: boolean; periodCount?: boolean } = {},
 ): Record<string, unknown> {
   const omit = new Set(options.keepReleaseOptions ? omitRecipeKeys : ["release_options", ...omitRecipeKeys]);
   return {
@@ -68,7 +72,7 @@ export function deriveStatisticsRecipeCatalog(
     catalog_generator: "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts",
     recipes: document.recipes.map((recipe) => ({
       ...Object.fromEntries(Object.entries(recipe).filter(([key]) => !omit.has(key))),
-      ...(options.keepReleaseOptions ? {} : { release_summary: summarizeStatisticsReleaseOptions(recipe.release_options) }),
+      ...(options.keepReleaseOptions ? {} : { release_summary: summarizeStatisticsReleaseOptions(recipe.release_options, { periodCount: options.periodCount }) }),
     })),
   };
 }
@@ -83,7 +87,9 @@ export function deriveStatisticsRecipeCatalog(
  * - demographics：同 labor 保留 release_options；`fragment_context`／`source_fragment` 是交付收據，只留在交付 JSON。
  * - addiction：同 environment 保留 release_options；`delivery`（breaks 依據、觀察狀態計數、raw SHA 收據）只留在交付 JSON。
  * - landslide：同 addiction 保留 release_options；`delivery`（觀察狀態計數、raw SHA 收據）只留在交付 JSON。
- * - atlas 六家族（health／fiscal／indigenousRural／sports／hazard／marine）、治安 crime 與臺北市局處 taipeiAgency：同 landslide；release_options 帶 dimensions，首屏即用。
+ * - atlas 六家族（health／fiscal／indigenousRural／sports／hazard／marine）與治安 crime：同 landslide；release_options 帶 dimensions，首屏即用。
+ * - 臺北市局處 taipeiAgency：月資料 9,696 個 selector（產業別一層 6,216 個），同 agri 移到明細按需載入；
+ *   summary 帶 period_count 供首屏頻率字串，`delivery` 也只留在交付 JSON。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -101,5 +107,5 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "hazard", source: "src/data/hazardStatisticsRecipes.json", catalog: "src/data/hazardStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "marine", source: "src/data/marineStatisticsRecipes.json", catalog: "src/data/marineStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "crime", source: "src/data/crimeStatisticsRecipes.json", catalog: "src/data/crimeStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
-  { family: "taipeiAgency", source: "src/data/taipeiAgencyStatisticsRecipes.json", catalog: "src/data/taipeiAgencyStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "taipeiAgency", source: "src/data/taipeiAgencyStatisticsRecipes.json", catalog: "src/data/taipeiAgencyStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: false, periodCount: true },
 ] as const;

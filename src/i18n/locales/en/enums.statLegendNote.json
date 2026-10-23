@@ -27,5 +27,7 @@
   "enum.statLegendNote.0 棟自成最淺一級（該區當月為 0，不是無資料）。": "0 buildings forms its own lightest class (the district had 0 that month; not missing data).",
   "enum.statLegendNote.0 戶自成最淺一級（該區當月為 0，不是無資料）。": "0 households forms its own lightest class (the district had 0 that month; not missing data).",
   "enum.statLegendNote.建築面積是建築物投影面積，不是總樓地板面積。": "Building area is the building footprint, not total floor area.",
-  "enum.statLegendNote.0 自成最淺一級（該區當月為 0，不是無資料）。": "0 forms its own lightest class (the district had 0 that month; not missing data)."
+  "enum.statLegendNote.0 自成最淺一級（該區當月為 0，不是無資料）。": "0 forms its own lightest class (the district had 0 that month; not missing data).",
+  "enum.statLegendNote.未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）": "Not covered (only the 12 districts of Taipei City are covered; other townships are not zero)",
+  "enum.statLegendNote.未涵蓋或無資料（臺北市以外未涵蓋；臺北市 12 區偶有缺值；都不是 0）": "Not covered or no data (areas outside Taipei City are not covered; Taipei's 12 districts occasionally have gaps; neither is zero)"
 }

@@ -1,10 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { ATLAS_STATISTICS_TOGGLE_GROUPS, atlasDefaultReleaseOption, atlasReleaseOptions, atlasRenderScale, getAtlasRecipe, resolveAtlasRelease } from "../atlasStatisticsRecipes";
+import { beforeAll, describe, expect, it } from "vitest";
+import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
+import { ATLAS_STATISTICS_TOGGLE_GROUPS, atlasDefaultReleaseOption, atlasReleaseOptions, atlasRenderScale, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions } from "../atlasStatisticsRecipes";
 import { TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS } from "../taipeiAgencyStatisticsRecipes";
 import { statisticsLinkedSelects } from "../statisticsParamsSpec";
 import { STATISTICS_CHOROPLETH_KEYS } from "../statisticsLayerRegistry";
 import { LAYER_MANIFEST } from "../layerManifest";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
+
+// 臺北市局處統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
+beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
 
 const DATASETS = [
   "resource_recycling_township_taipei_monthly", "garbage_clearance_township_taipei_monthly", "sewer_connection_township_taipei_monthly",
@@ -13,7 +17,7 @@ const DATASETS = [
 
 function publishedReleases(key: string): StatisticsRelease[] {
   const recipe = getAtlasRecipe(key)!;
-  const unique = new Map(recipe.release_options.map((option) => [option.release_id, option]));
+  const unique = new Map(atlasRecipeReleaseOptions(recipe).map((option) => [option.release_id, option]));
   return [...unique.values()].map((option) => ({
     release_id: option.release_id, dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id,
     period_start: option.period_start, period_end: option.period_end, boundary_version: recipe.boundary_version, levels: [recipe.level],
@@ -25,7 +29,7 @@ describe("臺北市局處統計契約", () => {
     expect(TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS).toHaveLength(11);
     const recipes = TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS.map((key) => getAtlasRecipe(key)!);
     expect(new Set(recipes.map((recipe) => recipe.dataset_id))).toEqual(new Set(DATASETS));
-    expect(recipes.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(9696);
+    expect(recipes.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(9696);
     for (const recipe of recipes) {
       expect(recipe.level, recipe.layer_key).toBe("township");
       expect(recipe.boundary_version, recipe.layer_key).toBe("TOWN_MOI_1140318");
@@ -87,8 +91,8 @@ describe("臺北市局處統計契約", () => {
       const chosen = atlasDefaultReleaseOption(key, options)!;
       expect(chosen.releaseId, key).toBe(recipe.default_release_id);
       expect(chosen, key).toEqual(options[0]);
-      const latest = recipe.release_options.reduce((max, option) => (option.period_end > max ? option.period_end : max), "");
-      expect(recipe.release_options.find((option) => option.release_id === chosen.releaseId)!.period_end, key).toBe(latest);
+      const latest = atlasRecipeReleaseOptions(recipe).reduce((max, option) => (option.period_end > max ? option.period_end : max), "");
+      expect(atlasRecipeReleaseOptions(recipe).find((option) => option.release_id === chosen.releaseId)!.period_end, key).toBe(latest);
     }
     expect(atlasDefaultReleaseOption("statsTaipeiFactoryCountByIndustryTownship", atlasReleaseOptions("statsTaipeiFactoryCountByIndustryTownship", publishedReleases("statsTaipeiFactoryCountByIndustryTownship")))!.dimensions.industry_code).toBe("26");
     expect(atlasDefaultReleaseOption("statsTaipeiUsagePermitCountByBuildTypeTownship", atlasReleaseOptions("statsTaipeiUsagePermitCountByBuildTypeTownship", publishedReleases("statsTaipeiUsagePermitCountByBuildTypeTownship")))!.dimensions.build_type).toBe("新建");
@@ -96,7 +100,7 @@ describe("臺北市局處統計契約", () => {
 
   it("exact selector 帶 roc_year／month（CDN selector 身分）：切期別時以 option 自己的 dims 解析", () => {
     const recipe = getAtlasRecipe("statsTaipeiResourceRecyclingTownship")!;
-    const option = recipe.release_options[0]!;
+    const option = atlasRecipeReleaseOptions(recipe)[0]!;
     expect(Object.keys(option.dimensions).sort()).toEqual(["month", "roc_year"]);
     expect(resolveAtlasRelease(recipe.layer_key, option, option.dimensions)).toEqual({ releaseId: option.release_id, dimensions: option.dimensions });
     expect(resolveAtlasRelease(recipe.layer_key, option, {})).toBeNull();

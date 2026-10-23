@@ -1232,5 +1232,16 @@
   "layer.statsTelecomFraudCasesTownship": "Telecom Fraud Cases",
   "layer.statsTelecomFraudPer100kTownship": "Telecom Fraud Cases per 100,000 People",
   "layer.statsTelecomFraudCasesCounty": "Telecom Fraud Cases",
-  "layer.statsTelecomFraudPer100kCounty": "Telecom Fraud Cases per 100,000 People"
+  "layer.statsTelecomFraudPer100kCounty": "Telecom Fraud Cases per 100,000 People",
+  "layer.statsTaipeiResourceRecyclingTownship": "Taipei Resource Recycling by District",
+  "layer.statsTaipeiGarbageCollectedTownship": "Taipei Garbage Collected by District",
+  "layer.statsTaipeiSewerRatePublicTownship": "Taipei Sewer Connection Rate (since May 2019 formula)",
+  "layer.statsTaipeiSewerRateLegacyTownship": "Taipei Sewer Connection Rate (until April 2019, former formula)",
+  "layer.statsTaipeiFactoryCountTownship": "Taipei Registered Factories",
+  "layer.statsTaipeiFactoryCountByIndustryTownship": "Taipei Registered Factories by Industry Sub-category",
+  "layer.statsTaipeiUsagePermitCountTownship": "Taipei Occupancy Permits Issued",
+  "layer.statsTaipeiUsagePermitCountByBuildTypeTownship": "Taipei Occupancy Permits Issued by Construction Type",
+  "layer.statsTaipeiUsagePermitBuildingCountTownship": "Taipei Occupancy Permits: Buildings",
+  "layer.statsTaipeiUsagePermitHouseholdCountTownship": "Taipei Occupancy Permits: Dwelling Units",
+  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "Taipei Occupancy Permits: Building Area"
 }

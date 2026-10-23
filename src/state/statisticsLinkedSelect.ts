@@ -21,6 +21,7 @@ import { getEnvironmentRecipe, resolveEnvironmentRelease } from '../data/environ
 import { getAddictionRecipe, resolveAddictionRelease } from '../data/addictionStatisticsRecipes';
 import { getLandslideRecipe, resolveLandslideRelease } from '../data/landslideStatisticsRecipes';
 import { getAtlasRecipe, resolveAtlasRelease } from '../data/atlasStatisticsRecipes';
+import { isTaipeiAgencyStatisticsLayer } from '../data/taipeiAgencyStatisticsRecipes';
 import { demographicsPeriodLabel, getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
@@ -69,7 +70,8 @@ interface StatisticsModel {
 }
 
 function detailsFamily(layerKey: StatisticsRenderKey, baseKey: StatisticsLayerKey): StatisticsRecipeFamily | null {
-  return getAgriRecipe(baseKey) ? 'agri' : getSocialRecipe(baseKey) || getEducationPresentationView(layerKey) ? 'social' : null;
+  return getAgriRecipe(baseKey) ? 'agri' : getSocialRecipe(baseKey) || getEducationPresentationView(layerKey) ? 'social'
+    : isTaipeiAgencyStatisticsLayer(baseKey) ? 'taipeiAgency' : null;
 }
 
 function statisticsSpecs(layerKey: string): LinkedSelectParamSpec[] {
@@ -100,8 +102,11 @@ function buildModel(key: string): StatisticsModel {
   const activeBaseKey = statisticsBaseKey(layerKey, indicator);
   const family = detailsFamily(layerKey, activeBaseKey);
   const detailsReady = family === null || statisticsRecipeDetailsLoaded(family);
+  // atlas 共用接點的家族（含按需載入明細的臺北市局處統計）尚未開啟時維持「尚未載入」，開啟後明細未到才算載入中；
+  // agri／social 維持 PF-7 原行為（明細未載入即顯示載入中）。
+  const awaitingDetails = !detailsReady && !(getAtlasRecipe(activeBaseKey) && !state.selection && !state.loading);
   const status: LinkedSelectStatus = state.error ? 'error'
-    : !detailsReady || state.loading ? 'loading'
+    : awaitingDetails || state.loading ? 'loading'
       : !state.selection ? 'idle' : 'ready';
   const recipe = statisticsRenderRecipe(layerKey, indicator);
   const view = getEducationPresentationView(layerKey);

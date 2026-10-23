@@ -215,8 +215,10 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
 
   const atlas = getAtlasRecipe(key);
   if (atlas) {
-    // 期別以「期間」計（癌症等有維度的指標，一期含多個維度組合 selector）。
-    const periods = [...new Map(atlas.release_options.map((option) => [`${option.period_start}|${option.period_end}`, option])).values()];
+    // 期別以「期間」計（癌症等有維度的指標，一期含多個維度組合 selector）。按需載入的家族（臺北市局處統計）
+    // 首屏沒有 release_options，改用目錄 release_summary（selector 數、期別數；這些層都有多期，不會落到單一期別文字）。
+    const periods = atlas.release_options ? [...new Map(atlas.release_options.map((option) => [`${option.period_start}|${option.period_end}`, option])).values()] : undefined;
+    const selectorCount = atlas.release_options?.length ?? atlas.release_summary?.count ?? 0;
     const dimensionText = atlas.dimensions.length ? `；維度：${atlas.dimensions.map((dimension) => `${dimension.label}（預設 ${dimension.options.find((option) => option.value === dimension.default)?.label ?? dimension.default}）`).join("、")}` : "";
     const statusText = Object.values(atlas.status_labels).join("；");
     return {
@@ -226,13 +228,13 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       metricLabel: atlas.label,
       unit: atlas.unit,
       level: atlas.level,
-      period: periodLabel(periods),
-      contract: `只接受 ${atlas.release_options.length} 個已交付 exact release selector${dimensionText}；數值保留來源值，不重算。${statusText ? `${statusText}。` : ""}`,
+      period: periods ? periodLabel(periods) : summaryPeriodLabel(atlas.release_summary?.period_count ?? 0, null),
+      contract: `只接受 ${selectorCount} 個已交付 exact release selector${dimensionText}；數值保留來源值，不重算。${statusText ? `${statusText}。` : ""}`,
       i18n: {
         label: atlas.derived ? "atlasDerived" : "atlasRaw",
         contract: "atlas",
         params: {
-          count: atlas.release_options.length,
+          count: selectorCount,
           theme: atlas.data_theme,
           ...(dimensionText ? { dimensionList: dimensionText.replace(/^；維度：/, "") } : {}),
           ...(statusText ? { statusText } : {}),
