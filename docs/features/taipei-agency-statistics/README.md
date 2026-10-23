@@ -13,8 +13,8 @@
 
 | 位置 | 內容 |
 |---|---|
-| Statistics 分頁「臺北市局處統計 Taipei City Agencies」（土地與環境大類，排在海洋之後） | 群組「廢棄物與回收」「污水下水道」「工廠登記」「建築使用執照」 |
-| Layers 完整目錄 | 新主題「臺北市局處統計 Taipei Agency Statistics」（移動與城市大分類） |
+| Statistics 分頁 | 不再自成一類（2026-10-23 分類調整）：資源回收、垃圾清運併入「環境與資源」的「廢棄物與回收」；污水接管併入「水質與污水」；工廠家數併入「工作與所得」；使用執照併入「住宅與不動產」（後兩者各開小群組「臺北市 12 區（月）」） |
+| Layers 完整目錄 | 各併入「資源回收統計」「廢棄物統計」「水質與污水統計」「工作與所得」「住宅存量與使用」，皆在小群組「臺北市 12 區（月）」 |
 | 資料檔 | `src/data/taipeiAgencyStatisticsRecipes.json`（交付 SSOT，含 `delivery` 收據）＋`.catalog.json`（首屏目錄）＋`taipeiAgencyStatisticsRecipes.ts`（key 順序） |
 | 產生器 | `scripts/statistics/build_taipei_agency_statistics_recipes.py`（讀 analytics `docs/handoff/taipei-agency-statistics-recipes.json` 與每個 release bundle 逐一核對）→ `npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts` |
 
@@ -59,3 +59,7 @@
 - 污水分子分母戶數只在 DB／倉庫，前端沒有彈窗專用指標的機制。
 - 月資料期別下拉有 89～309 項，沒有「年→月」兩段式選單。
 - 首屏體積：本家族 catalog 壓縮後約 1.8 MB（gzip 約 93 KB），其中產業別一層佔約 1.2 MB（6,216 個 exact selector）；瀏覽器實測切換產業約 0.55 秒。若要瘦身，需改 atlas 目錄改為按需載入，不能裁舊期別（違反 exact whitelist）。
+
+## 分類調整（2026-10-23）
+
+原本獨立的「臺北市局處統計」主題移除，改依主題放到各自全國縣市版旁邊。位置由 recipe 欄位決定（`data_theme`＝Layers 完整目錄主題、`tab_theme`＝Statistics 分頁主題、`subgroup`＝小群組、選填 `tab_group`＝Statistics 分頁要併入的既有小群組）；`layerCatalog.ts` 的 `foldAtlasDataThemes`／`mergeAtlasGroups` 負責併入同名主題與群組。圖層 key、資料、色階、圖例皆未變。
