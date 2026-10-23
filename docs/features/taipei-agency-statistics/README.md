@@ -60,6 +60,10 @@
 - 月資料期別下拉有 89～309 項，沒有「年→月」兩段式選單。
 - 首屏體積：本家族 catalog 壓縮後約 1.8 MB（gzip 約 93 KB），其中產業別一層佔約 1.2 MB（6,216 個 exact selector）；瀏覽器實測切換產業約 0.55 秒。若要瘦身，需改 atlas 目錄改為按需載入，不能裁舊期別（違反 exact whitelist）。
 
+## 英日文（2026-10-23）
+
+圖層名在 `src/i18n/locales/{en,ja}/layers.json`（`layer.<key>`，照治安前例手寫，不由產生器出）；群組名 `enum.statGroup`、維度與選項 `enum.statDim.industry_code`／`build_type` 與 `enum.statDimValue.<維度>.<值>`、位置口徑 `enum.statLocationBasis`、機關 `enum.statPublisher`（環保局、產業局走通用機關規則）、授權 `enum.statLicense`、小群組 `theme.*`。日文沿用既有「台北市」寫法；`飲料製造業`、`家具製造業` 日文與中文同形，也登記在表裡。檢查在 `src/i18n/__tests__/statisticsText.test.ts`「臺北市局處統計外文介面不混中文」。
+
 ## 分類調整（2026-10-23）
 
 原本獨立的「臺北市局處統計」主題移除，改依主題放到各自全國縣市版旁邊。位置由 recipe 欄位決定（`data_theme`＝Layers 完整目錄主題、`tab_theme`＝Statistics 分頁主題、`subgroup`＝小群組、選填 `tab_group`＝Statistics 分頁要併入的既有小群組）；`layerCatalog.ts` 的 `foldAtlasDataThemes`／`mergeAtlasGroups` 負責併入同名主題與群組。圖層 key、資料、色階、圖例皆未變。

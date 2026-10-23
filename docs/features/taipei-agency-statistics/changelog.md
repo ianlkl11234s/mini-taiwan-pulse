@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-10-23 — 英日文與目錄按需載入 PR #TBD（merge TBD）
+
+- 11 層圖層名補英日文（`layers.json`），另補群組名（`enum.statGroup`）、產業中類 27 項與建造類別 4 項（`enum.statDim`／`enum.statDimValue`）、位置口徑 4 句、發布機關 2 個、授權 3 句、小群組「臺北市 12 區（月）」與「水質與污水」；`statisticsText.test.ts` 加本家族外文不混中文檢查
+
+---
+
 ## 2026-10-23 — 分類調整 PR #671（merge ba41a6b1，2026-10-23）
 
 - 臺北市局處統計 11 層不再自成一類，Statistics 分頁與 Layers 完整目錄都依主題併入各自縣市版所在主題（環境與資源／工作與所得／住宅與不動產等）；只改分類位置，不動資料、recipes 內容、layer key、色階、圖例
