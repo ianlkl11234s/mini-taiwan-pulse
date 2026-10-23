@@ -127,6 +127,10 @@
    授權未標示的資料照常上線、標「授權待確認」，只有明確受限才不接。
    出處：[vessel-watch README](./features/vessel-watch/README.md#為什麼不做歷史模式)、REFLECTIONS 2026-08-10 監看、`AGENTS.md`「已決定事項」。
 
+9. **要被搜尋引擎與 AI 找到，內容必須在原始 HTML、而且一篇一個網址。**
+   蓋在地圖上的彈窗沒有獨立網址，GPTBot、ClaudeBot、PerplexityBot 也不跑 JavaScript；所以長文放同網域 `/blog/`，build 時產生靜態頁，地圖改用嵌入版放進文章。
+   出處：[blog README「為什麼不做成地圖上的彈窗」](./features/blog/README.md#為什麼不做成地圖上的彈窗)、REFLECTIONS 2026-10-24。
+
 ## 7. 小實驗（含失敗的）
 
 > 格式：試了什麼 → 結論。沒有其他正本的直接寫在這裡；出處多半是 [REFLECTIONS](../.claude/memory/REFLECTIONS.md) 的段落日期。
