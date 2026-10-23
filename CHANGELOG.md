@@ -60,6 +60,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 修正
+
+- 隱私說明頁補上網站使用 Cloudflare Web Analytics 統計整體流量（不使用 cookie、不追蹤個人）
+
 ## v2.12.0 — 2026-10-23 — 隱私說明頁、會員自行刪除帳號
 
 ### 新增
