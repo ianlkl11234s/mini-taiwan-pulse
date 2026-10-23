@@ -260,17 +260,40 @@ function landslideGroups(): SubGroupDef[] {
   return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
 
-/** atlas 六家族＋治安＋臺北市局處：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
+/** atlas 六家族＋治安＋臺北市局處（局處統計不自成一類，依主題併入各自縣市版所在主題）：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
 function atlasGroups(groups: ReadonlyArray<{ title: string; keys: readonly string[] }>): SubGroupDef[] {
   return groups.map(({ title, keys }) => ({ title, layers: keys.map((key) => fromManifest(key as ManifestKey)) }));
+}
+/** 把 atlas 群組併入既有群組清單：同標題併入該群組末尾（與縣市版同組切換），沒有同標題才新增小群組。 */
+function mergeAtlasGroups(base: SubGroupDef[], extra: SubGroupDef[]): SubGroupDef[] {
+  const merged = base.map((group) => ({ ...group, layers: [...group.layers] }));
+  for (const group of extra) {
+    const host = merged.find((candidate) => candidate.title === group.title);
+    if (host) host.layers.push(...group.layers);
+    else merged.push({ ...group, layers: [...group.layers] });
+  }
+  return merged;
 }
 /** Statistics 分頁主題（新主題或併入既有主題的群組）。 */
 function atlasTabTheme(title: string): ThemeDef {
   return { title, defaultCollapsed: true, groups: atlasGroups(atlasTabThemeGroups(title)) };
 }
 
+const ATLAS_DATA_THEMES: ThemeDef[] = ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
+
+/**
+ * atlas 的 data_theme 若與既有主題同名（例如臺北市局處統計併入「廢棄物統計」「工作與所得」），
+ * 不另開主題：群組併進既有主題末尾，原位置的重複主題移除。
+ */
+function foldAtlasDataThemes(themes: ThemeDef[]): ThemeDef[] {
+  const hostOf = (atlasTheme: ThemeDef) => themes.find((candidate) => candidate !== atlasTheme && !ATLAS_DATA_THEMES.includes(candidate) && candidate.title === atlasTheme.title);
+  const folded = themes.map((theme) => ({ theme, host: ATLAS_DATA_THEMES.includes(theme) ? hostOf(theme) : undefined }));
+  for (const { theme, host } of folded) if (host) host.groups = mergeAtlasGroups(host.groups, theme.groups);
+  return folded.filter(({ host }) => !host).map(({ theme }) => theme);
+}
+
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
-export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+export const STATISTICS_DATA_THEMES: ThemeDef[] = foldAtlasDataThemes([
   { title: "工作與所得 Work & Income", groups: [
     { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
     { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
@@ -325,7 +348,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "人口統計 Population Statistics", groups: [...demographicsDataGroups(), { title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
   { title: ADDICTION_STATISTICS_THEME_TITLE, groups: addictionGroups() },
   { title: LANDSLIDE_STATISTICS_THEME_TITLE, groups: landslideGroups() },
-  ...ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) })),
+  ...ATLAS_DATA_THEMES,
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
     ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
@@ -342,7 +365,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
     { title: "住宅使用類別", layers: [fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship")] },
     { title: "住宅使用比例", layers: [fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship")] },
   ] },
-];
+]);
 
 /**
  * 統計專屬入口以「使用者想找的主題」重新索引既有 layers。
@@ -394,6 +417,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         fromManifest("statsLaborCountyParticipationRate"), fromManifest("statsLaborCountyUnemploymentRate"),
         fromManifest("statsLaborCountyEmploymentByIndustry"),
       ] },
+      ...atlasGroups(atlasTabThemeGroups("工作與所得 Work & Income")),
     ],
   },
   {
@@ -404,6 +428,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
       ] },
       { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
+      ...atlasGroups(atlasTabThemeGroups("住宅與不動產 Housing & Property")),
     ],
   },
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.fiscal),
@@ -489,7 +514,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   {
     title: "環境與資源 Environment & Resources",
     defaultCollapsed: true,
-    groups: [
+    groups: mergeAtlasGroups([
       { title: "用水與供水", layers: [fromManifest("statsPigWaterCounty"), fromManifest("statsWaterSupplyHistorical")] },
       { title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] },
       { title: "廢棄物與回收", layers: [
@@ -497,7 +522,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         ...environmentLayers((recipe) => recipe.tab_group === "廢棄物與回收"),
       ] },
       ...["水質與污水", "空氣品質", "污染與公害", "環境治理"].map((title) => ({ title, layers: environmentLayers((recipe) => recipe.tab_group === title) })),
-    ],
+    ], atlasGroups(atlasTabThemeGroups("環境與資源 Environment & Resources"))),
   },
   {
     title: LANDSLIDE_STATISTICS_TAB_THEME_TITLE,
@@ -506,7 +531,6 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.hazard),
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.marine),
-  atlasTabTheme(ATLAS_TAB_THEME_TITLES.taipeiAgency),
   {
     title: "地圖參考 Map Reference",
     defaultCollapsed: true,
@@ -2295,7 +2319,6 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "災害風險統計 Disaster Risk Statistics": "environment",
   "海洋統計 Marine Statistics": "environment",
   "治安統計 Crime Statistics": "safety",
-  "臺北市局處統計 Taipei Agency Statistics": "city",
   "原民與農村 Indigenous & Rural": "city",
   "海洋 Marine": "environment",
   "統計比較": "publicLife",
@@ -2389,7 +2412,6 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
   "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
   "海洋 Marine": { zh: "海洋", sub: "Marine" },
-  "臺北市局處統計 Taipei City Agencies": { zh: "臺北市局處統計", sub: "Taipei City Agencies" },
   "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
@@ -2412,7 +2434,6 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
   "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
   "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
-  "臺北市局處統計 Taipei Agency Statistics": { zh: "臺北市局處統計", sub: "Taipei Agency Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },

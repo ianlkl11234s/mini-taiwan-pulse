@@ -33,8 +33,22 @@ from pathlib import Path
 OUT = Path(__file__).resolve().parents[2] / "src/data/taipeiAgencyStatisticsRecipes.json"
 
 FAMILY = "taipeiAgency"
-DATA_THEME = "臺北市局處統計 Taipei Agency Statistics"
-TAB_THEME = "臺北市局處統計 Taipei City Agencies"
+# 2026-10-23 起不再自成一類：依主題放在各自全國縣市版旁邊。spec["subgroup"] 仍是主題鍵（VISUAL_THEME / PLACEMENT 用），
+# 輸出到 recipe 的 subgroup 一律是 PLACEMENT_SUBGROUP；tab_group 只在要併入既有 Statistics 小群組時才寫。
+PLACEMENT_SUBGROUP = "臺北市 12 區（月）"
+ENV_TAB = "環境與資源 Environment & Resources"
+# (data_theme, tab_theme, tab_group or None)
+PLACEMENT = {
+    "廢棄物與回收": {"recycling": ("資源回收統計 Recycling Statistics", ENV_TAB, "廢棄物與回收"), "waste": ("廢棄物統計 Waste Statistics", ENV_TAB, "廢棄物與回收")},
+    "污水下水道": ("水質與污水統計 Water Quality & Sewage Statistics", ENV_TAB, "水質與污水"),
+    "工廠登記": ("工作與所得 Work & Income", "工作與所得 Work & Income", None),
+    "建築使用執照": ("住宅存量與使用", "住宅與不動產 Housing & Property", None),
+}
+
+
+def placement(key: str, topic: str):
+    entry = PLACEMENT[topic]
+    return entry["recycling" if "Recycling" in key else "waste"] if isinstance(entry, dict) else entry
 TAIPEI_DISTRICTS = {f"63000{n:02d}0" for n in range(1, 13)}
 PERIOD_DIMENSIONS = {"roc_year", "month"}
 
@@ -214,7 +228,9 @@ def main() -> None:
         recipes.append({
             "layer_key": key, "enabled": True, "family": FAMILY,
             "label": spec["label"], "group": spec["group"], "group_label": spec["group_label"], "option_label": spec["option"],
-            "subgroup": spec["subgroup"], "data_theme": DATA_THEME, "tab_theme": TAB_THEME, "visual_theme": VISUAL_THEME[spec["subgroup"]],
+            "subgroup": PLACEMENT_SUBGROUP, "data_theme": placement(key, spec["subgroup"])[0], "tab_theme": placement(key, spec["subgroup"])[1],
+            **({"tab_group": placement(key, spec["subgroup"])[2]} if placement(key, spec["subgroup"])[2] else {}),
+            "visual_theme": VISUAL_THEME[spec["subgroup"]],
             "dataset_id": layer["dataset_id"], "indicator_id": layer["indicator_id"], "level": "township",
             "boundary_version": layer["boundary_version"], "unit": unit, "aggregation": meta["indicator"]["aggregation"],
             "default_release_id": default_option["release_id"],

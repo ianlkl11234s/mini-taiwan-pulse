@@ -20,8 +20,8 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
   { title: "體育運動 Sports", groups: ["體育經費", "運動參與"] },
-  { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
-  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值"] },
+  { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查", "臺北市 12 區（月）"] },
+  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值", "臺北市 12 區（月）"] },
   { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融"] },
   { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
   { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
@@ -31,7 +31,6 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "崩塌與水土保持 Landslides & Soil Conservation", groups: ["崩塌", "治山防災工程", "水土保持災害"] },
   { title: "災害風險 Disaster Risk", groups: ["土石流警戒", "社會脆弱度"] },
   { title: "海洋 Marine", groups: ["海洋動物擱淺", "海洋廢棄物"] },
-  { title: "臺北市局處統計 Taipei City Agencies", groups: ["廢棄物與回收", "污水下水道", "工廠登記", "建築使用執照"] },
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
