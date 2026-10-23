@@ -574,6 +574,10 @@ export const LegendPanel = memo(function LegendPanel({
         boxShadow: c.shadow,
         fontFamily: FONT_CJK,
         overflow: "hidden",
+        // 右下停靠區高度有上限（App.tsx）：標題列固定，內容超出時在面板內捲動
+        display: "flex",
+        flexDirection: "column",
+        maxHeight: "100%",
         transition: "all 0.2s ease",
       }}
     >
@@ -587,6 +591,7 @@ export const LegendPanel = memo(function LegendPanel({
           display: "flex",
           alignItems: "center",
           gap: 6,
+          flexShrink: 0,
           padding: "6px 10px",
           background: "none",
           border: "none",
@@ -604,7 +609,7 @@ export const LegendPanel = memo(function LegendPanel({
 
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
       {expanded && (
-        <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="layer-sidebar-scroll" style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0, overflowY: "auto" }}>
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
             <Fragment key={entry.id}>

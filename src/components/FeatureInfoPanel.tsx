@@ -180,6 +180,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
         width: isCctv ? 460 : 280,
         maxWidth: "92vw",
         maxHeight: "80vh",
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
         background: c.panelBg,
