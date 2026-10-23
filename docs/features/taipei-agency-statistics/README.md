@@ -3,7 +3,7 @@
 > **Slug**：`taipei-agency-statistics`（analytics `docs/topic-research/taipei_agency_statistics/`）
 > **狀態**：dev（PR 到 develop，未發布 master）
 > **上線日期**：未發布
-> **相關 PR**：見 changelog.md
+> **相關 PR**：#664（merge 00c1ca70；見 changelog.md）
 
 ## 一句話說明
 
