@@ -2131,3 +2131,28 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `STATUS.md`：最上方加 v2.11.3 段（保留其他段）。
 
+## 2026-10-24 v2.13.0 Pulse 筆記文章專區
+
+### What worked
+
+- 先用比較頁讓使用者挑版型（文章頁 4 版、嵌地圖 3 種、列表 3 種），用第一篇的真實內容與正式站截圖，比描述有效；使用者一次就選定「左側目錄＋上一篇／下一篇、直接嵌入地圖、精選＋主題分區」。
+- 用本機 nginx（homebrew）載入正式 `nginx.conf` 實測 `/blog` 的 301／404／標頭，抓到兩個 CI 測不到的問題：正則含 `{}` 要加引號、`absolute_redirect` 在 TLS 代理後會送出 `http://` Location。
+- 發版前回頭讀已關閉發布 PR（#669）上的 Codex 意見，修掉部落格兩個 P2 與另一 session 的污水口徑 P1（#678、#679）才發。
+
+### Friction / limits
+
+- PR 和 develop 在 CHANGELOG 衝突時 GitHub 不跑 CI，我只等 checks、沒先查 `mergeable`，空等約 10 分鐘，使用者問「為何這麼久」。之後開 PR／推送後先查 `mergeable`。
+- 使用者要「實際網站示意」時，丟截圖路徑沒用；要直接 `open` 本機站或發 artifact 讓使用者自己點。
+- worktree 沒有 `.env`，本機 build 的主站地圖空白，使用者以為「回到地圖」壞了；blog.js 在 localhost 改連正式站才解決，要先說明。
+- 嵌入版回放必須有當天快照，正式站目前只有 rail 2026-08-06；預設約 960 倍速太快，使用者拍板 30 倍速。
+
+### 下次
+
+- 寫新文章照 `blog-writing` skill；要用新的嵌入快照日期先問使用者。
+
+### Memory output
+
+- `STATUS.md`：最上方加 v2.13.0 段（保留其他段）。
+- `BACKLOG.md`：新增 BLOG-1（持續寫文）、BLOG-V（上線後未目視項）。
+- `docs/LESSONS.md`：§6 加第 9 條（SEO 內容要在原始 HTML）。
+
