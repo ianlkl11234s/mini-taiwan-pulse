@@ -21,4 +21,20 @@
     <xhtml:link rel="alternate" hreflang="ja" href="https://mini-taiwan-pulse.itsmigu.com/?lang=ja" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://mini-taiwan-pulse.itsmigu.com/" />
   </url>
+  <url>
+    <loc>https://mini-taiwan-pulse.itsmigu.com/blog/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://mini-taiwan-pulse.itsmigu.com/blog/rail/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://mini-taiwan-pulse.itsmigu.com/blog/rail/taiwan-rail-realtime-map/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
+  <url>
+    <loc>https://mini-taiwan-pulse.itsmigu.com/blog/about/</loc>
+    <lastmod>2026-10-23</lastmod>
+  </url>
 </urlset>

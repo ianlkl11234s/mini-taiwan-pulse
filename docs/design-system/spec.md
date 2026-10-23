@@ -249,6 +249,23 @@
 | 分享欄位值（§5.27） | 10.5px `FONT_DATA` | 網址／HTML 長字串，10px 太擠、11px 換行過多 |
 | 左下時間軸刻度／時間（§5.24） | 9.5px／15px | TC1／TC3 設計稿值 |
 
+### 3.13a PROSE — 長文閱讀字級（只給 /blog）
+
+地圖 UI 的 7 階是面板密度用的，讀長文太小。`/blog/<slug>/` 文章頁另用一組 `PROSE` token（2026-10-23 使用者拍板）；**地圖、面板、popup 不可使用**。
+
+| TS | CSS | 值 | 用途 |
+|---|---|---|---|
+| `PROSE.small` | `--prose-small` | 14px | 署名、圖說、標籤、頁尾 |
+| `PROSE.body` | `--prose-body` | 17px | 文章正文 |
+| `PROSE.h3` | `--prose-h3` | 19px | 小節標題、FAQ 問題 |
+| `PROSE.h2` | `--prose-h2` | 23px | 段落標題 |
+| `PROSE.h1` | `--prose-h1` | 32px | 文章標題 |
+| `PROSE.h1Compact` | `--prose-h1-compact` | 26px | 窄螢幕（≤ 640px）文章標題 |
+| `PROSE.lineHeight` | `--prose-line-height` | 1.85 | 正文行高 |
+| `PROSE.measureEm` | `--prose-measure` | 36em | 正文欄寬（約 36 個中文字） |
+
+文章頁其餘一律沿用既有 token：顏色用 §3 語意色，淺色用 `--light-*`（`.blog-theme--light` 容器 remap，同 §1 淡色並行）；字型仍是系統字 `--font-cjk`，不載 web font；按鈕照 §5.7 C2 焦點樣式。
+
 ### 3.14 FONT_WEIGHT
 
 `regular 400`／`semibold 600`／`bold 700`（CSS `--font-weight-*`）。按鈕字 500 為 C2 規格值（inline）。

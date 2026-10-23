@@ -84,6 +84,21 @@ const LIGHT_STYLE_IDS = new Set(["light", "streets"]);
 /** 預設視角：全台 */
 const FALLBACK_CAMERA = { center: [120.9, 23.7] as [number, number], zoom: 6.9, pitch: 0, bearing: 0 };
 
+
+/** MapLibre 協作手勢提示（未列的語系用 MapLibre 內建英文）。 */
+const COOPERATIVE_GESTURE_TEXT: Partial<Record<string, Record<string, string>>> = {
+  "zh-TW": {
+    "CooperativeGesturesHandler.WindowsHelpText": "按住 Ctrl 再滾動滑鼠滾輪縮放地圖",
+    "CooperativeGesturesHandler.MacHelpText": "按住 ⌘ 再滾動滑鼠滾輪縮放地圖",
+    "CooperativeGesturesHandler.MobileHelpText": "用兩指移動地圖",
+  },
+  ja: {
+    "CooperativeGesturesHandler.WindowsHelpText": "Ctrl キーを押しながらスクロールで地図を拡大・縮小",
+    "CooperativeGesturesHandler.MacHelpText": "⌘ キーを押しながらスクロールで地図を拡大・縮小",
+    "CooperativeGesturesHandler.MobileHelpText": "2 本の指で地図を移動",
+  },
+};
+
 export function EmbedApp() {
   const { t, locale } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,9 +140,16 @@ export function EmbedApp() {
     const narrow = window.innerWidth < 640;
     const cam = url.camera ?? FALLBACK_CAMERA;
 
+    // 嵌在文章 iframe 裡時：單指捲動頁面、雙指才移動地圖，滾輪縮放要按 ⌘／Ctrl（避免讀者捲文章時被地圖吃掉）。
+    // 直接開 /embed 時維持一般操作。
+    const framed = window.self !== window.top;
+    const locale = localeStore.getSnapshot().locale;
+
     const map = new maplibregl.Map({
       container,
-      style: buildBasemapStyle(isDark, localeStore.getSnapshot().locale),
+      style: buildBasemapStyle(isDark, locale),
+      cooperativeGestures: framed,
+      ...(framed ? { locale: COOPERATIVE_GESTURE_TEXT[locale] } : {}),
       center: cam.center,
       zoom: cam.zoom,
       pitch: narrow ? 0 : cam.pitch,
