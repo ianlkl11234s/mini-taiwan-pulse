@@ -63,8 +63,10 @@
   </head>
   <body>
     <div id="root">
-      <!-- 爬蟲與 AI 助理看得到的靜態說明；React createRoot().render 掛載後會整段取代。 -->
-      <main style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;overflow:auto;color:#c8d0e0;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;line-height:1.7;text-align:center">
+      <!-- 爬蟲與 AI 助理讀得到的靜態說明；React createRoot().render 掛載後會整段取代。
+           畫面上隱藏（visually hidden，仍在 DOM 與無障礙樹），避免 JS 載入前先閃一整頁文字；
+           只有未啟用 JavaScript 時才顯示提示。 -->
+      <main style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0">
         <div style="max-width:560px">
           <h1 style="font-size:22px;font-weight:600;color:#e8eefc;margin-bottom:12px">Mini Taiwan Pulse｜台灣即時脈動地圖</h1>
           <p style="font-size:14px;margin-bottom:10px">用開放資料，把台灣畫成一張會呼吸的地圖。航班、船舶、列車、公車等會動的運具，與能源、農業、水資源、廢棄物、社福長照、衛星、區域統計等開放資料，全部疊在同一張 3D 地圖與同一條時間軸上。</p>
@@ -76,9 +78,9 @@
             <li>介面支援繁體中文、English、日本語</li>
           </ul>
           <p style="font-size:13px;color:#8a94ab">地圖載入中⋯⋯ <a href="https://github.com/ianlkl11234s/mini-taiwan-pulse" style="color:#64aaff">GitHub</a></p>
-          <noscript><p style="font-size:13px;color:#ffd54f;margin-top:8px">此網站是互動式 3D 地圖，需要啟用 JavaScript 與 WebGL 才能使用。</p></noscript>
         </div>
       </main>
+      <noscript><p style="position:absolute;inset:0;display:flex;justify-content:center;align-items:center;padding:24px;text-align:center;font-size:13px;line-height:1.7;color:#ffd54f;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif">此網站是互動式 3D 地圖，需要啟用 JavaScript 與 WebGL 才能使用。</p></noscript>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
