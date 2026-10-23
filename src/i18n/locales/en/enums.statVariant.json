@@ -189,5 +189,14 @@
   "enum.statVariant.電動公車占營業車比": "Electric buses, share of operating buses",
   "enum.statVariant.領有機車駕照人數": "Motorcycle license holders",
   "enum.statVariant.領有汽車駕照人數": "Car license holders",
-  "enum.statVariant.每十萬人": "Per 100,000 people"
+  "enum.statVariant.每十萬人": "Per 100,000 people",
+  "enum.statVariant.108 年 5 月起（公共污水下水道）": "From May 2019 (public sewer)",
+  "enum.statVariant.100 年 1 月～108 年 4 月（舊公式，含自設專用）": "Jan 2011–Apr 2019 (old formula, incl. private dedicated sewers)",
+  "enum.statVariant.合計": "Total",
+  "enum.statVariant.依產業中類": "By industry (2-digit)",
+  "enum.statVariant.件數（合計）": "Permits (total)",
+  "enum.statVariant.件數（依建造類別）": "Permits (by construction type)",
+  "enum.statVariant.棟數": "Buildings",
+  "enum.statVariant.戶數": "Households",
+  "enum.statVariant.建築面積": "Building area"
 }

@@ -24,10 +24,10 @@ function publishedReleases(key: string): StatisticsRelease[] {
 }
 
 describe("atlas 批次統計契約", () => {
-  it("102 個 recipe（atlas 66＋治安 36）、2,664 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
-    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(102);
-    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(102);
-    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(2664);
+  it("113 個 recipe（atlas 66＋治安 36＋臺北市局處 11）、12,360 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
+    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(113);
+    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(113);
+    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + recipe.release_options.length, 0)).toBe(12360);
     for (const key of ATLAS_ENABLED_STATISTICS_KEYS) {
       expect(LAYER_MANIFEST[key].legend, key).toBe(key);
       expect(getStatisticsDataSourceDefinition(key)?.datasetIds, key).toEqual([getAtlasRecipe(key)!.dataset_id]);
@@ -47,7 +47,11 @@ describe("atlas 批次統計契約", () => {
       const first = atlasReleaseOptions(recipe.layer_key, publishedReleases(recipe.layer_key))[0]!;
       const latest = recipe.release_options.reduce((max, option) => option.period_end > max ? option.period_end : max, "");
       expect(recipe.release_options.find((option) => option.release_id === first.releaseId)!.period_end, recipe.layer_key).toBe(latest);
-      expect(first.dimensions, recipe.layer_key).toEqual(atlasDefaultDimensions(recipe));
+      // 臺北市局處：option dims 另帶 CDN selector 身分的 roc_year／month（與 industry_code 成對的 industry_name），不是使用者維度。
+      const declared = new Set(recipe.dimensions.map((dimension) => dimension.key));
+      const extra = Object.keys(first.dimensions).filter((key) => !declared.has(key));
+      expect(extra.every((key) => recipe.family === "taipeiAgency" && ["roc_year", "month", "industry_name"].includes(key)), recipe.layer_key).toBe(true);
+      expect(Object.fromEntries(Object.entries(first.dimensions).filter(([key]) => declared.has(key))), recipe.layer_key).toEqual(atlasDefaultDimensions(recipe));
       expect(STATISTICS_RECIPES[recipe.layer_key as keyof typeof STATISTICS_RECIPES].dimensions).toEqual(atlasDefaultDimensions(recipe));
       if (defaults[recipe.layer_key]) expect(atlasDefaultDimensions(recipe)).toEqual(defaults[recipe.layer_key]);
     }

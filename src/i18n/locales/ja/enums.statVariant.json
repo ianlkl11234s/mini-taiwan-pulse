@@ -189,5 +189,14 @@
   "enum.statVariant.電動公車占營業車比": "電気バスの営業車両に占める割合",
   "enum.statVariant.領有機車駕照人數": "二輪車運転免許保有者数",
   "enum.statVariant.領有汽車駕照人數": "自動車運転免許保有者数",
-  "enum.statVariant.每十萬人": "人口10万人あたり"
+  "enum.statVariant.每十萬人": "人口10万人あたり",
+  "enum.statVariant.108 年 5 月起（公共污水下水道）": "2019年5月以降（公共下水道）",
+  "enum.statVariant.100 年 1 月～108 年 4 月（舊公式，含自設專用）": "2011年1月～2019年4月（旧算式、自設専用下水道を含む）",
+  "enum.statVariant.合計": "合計（全業種）",
+  "enum.statVariant.依產業中類": "業種中分類別",
+  "enum.statVariant.件數（合計）": "件数（合計）",
+  "enum.statVariant.件數（依建造類別）": "件数（建築種別）",
+  "enum.statVariant.棟數": "棟数",
+  "enum.statVariant.戶數": "戸数",
+  "enum.statVariant.建築面積": "建築面積（投影面積）"
 }

@@ -260,7 +260,7 @@ function landslideGroups(): SubGroupDef[] {
   return LANDSLIDE_STATISTICS_SUBGROUPS.map((title) => ({ title, layers: LANDSLIDE_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.subgroup === title).map((recipe) => fromManifest(recipe.layer_key as ManifestKey)) }));
 }
 
-/** atlas 六家族＋治安：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
+/** atlas 六家族＋治安＋臺北市局處：群組依家族檔宣告的 key 順序（群組列只在第一個成員渲染，原始數在前）。 */
 function atlasGroups(groups: ReadonlyArray<{ title: string; keys: readonly string[] }>): SubGroupDef[] {
   return groups.map(({ title, keys }) => ({ title, layers: keys.map((key) => fromManifest(key as ManifestKey)) }));
 }
@@ -506,6 +506,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.hazard),
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.marine),
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.taipeiAgency),
   {
     title: "地圖參考 Map Reference",
     defaultCollapsed: true,
@@ -2294,6 +2295,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "災害風險統計 Disaster Risk Statistics": "environment",
   "海洋統計 Marine Statistics": "environment",
   "治安統計 Crime Statistics": "safety",
+  "臺北市局處統計 Taipei Agency Statistics": "city",
   "原民與農村 Indigenous & Rural": "city",
   "海洋 Marine": "environment",
   "統計比較": "publicLife",
@@ -2387,6 +2389,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
   "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
   "海洋 Marine": { zh: "海洋", sub: "Marine" },
+  "臺北市局處統計 Taipei City Agencies": { zh: "臺北市局處統計", sub: "Taipei City Agencies" },
   "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
   "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
   "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
@@ -2409,6 +2412,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
   "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
   "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
+  "臺北市局處統計 Taipei Agency Statistics": { zh: "臺北市局處統計", sub: "Taipei Agency Statistics" },
   "統計比較": { zh: "統計比較" },
   "教育與少子化統計": { zh: "教育與少子化統計" },
   "醫療與長照統計": { zh: "醫療與長照統計" },
