@@ -87,5 +87,18 @@
   "member.cards.revokedNotice": "Revoked.",
   "member.cards.copiedNotice": "Link copied.",
   "member.cards.hint": "Analysis cards you have published (they expire after 30 days). Revoking makes the link stop working immediately.",
-  "member.cards.loading": "Loading cards."
+  "member.cards.loading": "Loading cards.",
+  "member.avatar.privacy": "Privacy",
+  "member.account.delete": "Delete account",
+  "member.account.deleteTitle": "Permanently delete your account",
+  "member.account.deleteBody": "This immediately deletes your account, layer favorites, scenes, places and access records. It cannot be undone. If you used the same account to submit tree reports on tree-report, those reports are kept but no longer linked to you.",
+  "member.account.deleteConfirmLabel": "Type “{word}” to confirm",
+  "member.account.deleteConfirmWord": "DELETE",
+  "member.account.deleteSubmit": "Delete permanently",
+  "member.account.deleting": "Deleting…",
+  "member.account.deleteDone": "Your account and member data have been deleted, and you are signed out.",
+  "member.account.deleteDoneReload": "Your account and member data have been deleted. Reload the page to finish signing out.",
+  "member.account.deleteOwner": "The site owner account cannot be deleted here.",
+  "member.account.deleteUnavailable": "Account deletion is not available right now. Your account and data are unchanged. Please try again later.",
+  "member.account.deleteFailed": "Deletion did not complete. Your account and data are unchanged. Please try again later."
 }

@@ -1,10 +1,27 @@
 # Status
 
-**最後更新**：2026-10-18 開發週期收尾：worktree 30→8、本地分支 77→20（已合併或已被取代者；備份與刪除清單在 `GIS/_worktree-backups/2026-10-18/`）、文件連結／過時狀態／LESSONS 指標整理
+**最後更新**：2026-10-23 v2.11.3（圖例封頂、開站不閃文字）
+
+前前次：2026-10-18 開發週期收尾：worktree 30→8、本地分支 77→20（已合併或已被取代者；備份與刪除清單在 `GIS/_worktree-backups/2026-10-18/`）、文件連結／過時狀態／LESSONS 指標整理
 
 前一次：2026-10-15（R6 圖層平面模式段 1–3 上線；資料面盤點、倉庫覆蓋率 +18 層、collector 健康調查、v2.6.0 發布、Agent 題庫第二輪、repo 清理）
 
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-23：v2.11.3 圖例封頂、開站不閃文字
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #657（右下 popup＋圖例封頂在工具列下方、圖例內捲；index.html 靜態說明改畫面隱藏）→ #658 版號 → #659 develop→master，tag `v2.11.3`＋GitHub Release；同包帶上文件 #647。 |
+
+| 上線項目 | build | contract/wire | stage | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|
+| v2.11.3 | done：三個 PR CI 綠 | N/A | done：develop `a4c5086e` | done：master `76fc1a8d` | done：正式站 `main-CtbbJAEC.js` 含 "2.11.3" | done：1280×720 開 9 層＋popup，停靠區 60–656、圖例內捲；not run：console、手機、淺色底圖 |
+
+- 下一步（可選）：正式站手機寬與淺色底圖看一次圖例，驗收＝圖例上緣不超過工具列。
+- 規格：`docs/design-system/spec.md` §5.23「高度上限」。
+
+---
 
 ## 2026-10-15：R6 圖層平面模式（段 1–3）
 
