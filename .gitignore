@@ -228,3 +228,7 @@ public/hazards/landslide_annual_swcb_*.pmtiles
 
 # Local CCTV reconstruction runtime
 .venv-cctv/
+
+# /blog 產生器中繼檔（src/blog/generator.ts 由 content/blog/*.md 產生）
+/blog/
+/public/blog/feed.xml
