@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { X } from "lucide-react";
 import { CHANGELOG } from "../data/changelog";
 import { localeStore, useLocale } from "../state/localeStore";
+import { privacyHref } from "../privacy/privacyLocale";
 import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, Z_INDEX } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
@@ -810,6 +811,7 @@ function ChangelogPage({ lang }: { lang: Lang }) {
 function AboutPage({ lang }: { lang: Lang }) {
   const L = lang === "zh";
   const c = useC();
+  const { active } = useLocale();
   const stats = [
     { num: "1,500+", label: { zh: "航班", en: "Flights" } },
     { num: "1,000+", label: { zh: "船舶", en: "Ships" } },
@@ -835,6 +837,13 @@ function AboutPage({ lang }: { lang: Lang }) {
           {L
             ? "天空中的航班劃出弧線、海面上的船舶穿梭往返、軌道上的列車準時奔馳 — 這座島嶼每一刻都在呼吸。Mini Taiwan Pulse 將這些交通運輸的即時動態，以 3D 光球、光軌、拖尾線呈現在同一張地圖上，讓你看見台灣的脈搏。"
             : "Flights tracing arcs across the sky, ships navigating coastal waters, trains running on time along their tracks — this island breathes every moment. Mini Taiwan Pulse renders all this transportation activity as 3D orbs, light trails, and glowing paths on a single interactive map, letting you see Taiwan's heartbeat."}
+        </p>
+        <p style={{ fontSize: FONT_SIZE.md, lineHeight: 1.8, color: c.sub, margin: "8px 0 0" }}>
+          {L ? "本站不需登入即可使用；登入、使用紀錄與第三方服務的說明見" : "No sign-in is needed to use the map. For sign-in, usage records and third-party services, see the"}{" "}
+          <a href={privacyHref(active)} target="_blank" rel="noopener noreferrer" style={{ color: c.accentText }}>
+            {L ? "隱私說明" : "privacy notice"}
+          </a>
+          {L ? "。" : "."}
         </p>
       </div>
 

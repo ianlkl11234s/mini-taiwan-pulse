@@ -1,0 +1,155 @@
+/*
+ * 隱私說明頁（/privacy）。色值、字級、間距一律取 src/styles/tokens.css。
+ * 暗色為預設（與主站一致）；系統偏好淡色時改用 --light-*。
+ */
+.privacy-root {
+  --pv-bg: var(--surface-app);
+  --pv-fg: var(--text-default);
+  --pv-strong: var(--text-strong);
+  --pv-dim: var(--text-dim);
+  --pv-muted: var(--text-muted);
+  --pv-line: var(--border-panel);
+  --pv-link: var(--link);
+  --pv-accent: var(--accent);
+  --pv-accent-faint: var(--accent-faint);
+  --pv-control-bg-hover: var(--control-bg-hover);
+  --pv-control-border: var(--control-border);
+  min-height: 100vh;
+  background: var(--pv-bg);
+  color: var(--pv-fg);
+  font-family: var(--font-cjk);
+}
+
+@media (prefers-color-scheme: light) {
+  .privacy-root {
+    --pv-bg: var(--light-surface-solid);
+    --pv-fg: var(--light-text-default);
+    --pv-strong: var(--light-text-strong);
+    --pv-dim: var(--light-text-dim);
+    --pv-muted: var(--light-text-muted);
+    --pv-line: var(--light-border);
+    --pv-link: var(--light-link);
+    --pv-accent: var(--light-accent);
+    --pv-accent-faint: var(--light-accent-faint);
+    --pv-control-bg-hover: var(--light-control-bg-hover);
+    --pv-control-border: var(--light-control-border);
+  }
+}
+
+.privacy-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-xxl) var(--space-xl) var(--space-xxl);
+  font-size: var(--font-lg);
+  line-height: 1.8;
+}
+
+.privacy-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--pv-line);
+}
+
+.privacy-eyebrow {
+  display: block;
+  font-size: var(--font-xs);
+  letter-spacing: 1.4px;
+  color: var(--pv-dim);
+}
+
+.privacy-header h1 {
+  margin: var(--space-xxs) 0 0;
+  font-size: var(--font-xxl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  color: var(--pv-strong);
+}
+
+.privacy-updated {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--font-md);
+  color: var(--pv-muted);
+}
+
+.privacy-updated time {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 分段控制（spec §5.8 工具列版） */
+.privacy-seg {
+  display: inline-flex;
+  gap: var(--space-xxs);
+  padding: var(--space-xxs);
+  border: 1px solid var(--pv-control-border);
+  border-radius: var(--radius-lg);
+}
+
+.privacy-seg button {
+  min-height: 26px;
+  padding: 0 var(--space-md);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--pv-muted);
+  font: inherit;
+  font-size: var(--font-base);
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.privacy-seg button:hover:not([aria-pressed="true"]) {
+  background: var(--pv-control-bg-hover);
+}
+
+.privacy-seg button[aria-pressed="true"] {
+  background: var(--pv-accent-faint);
+  color: var(--pv-accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.privacy-seg button:focus-visible,
+.privacy-page a:focus-visible {
+  outline: 2px solid var(--pv-accent);
+  outline-offset: 2px;
+}
+
+.privacy-section {
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--pv-line);
+}
+
+.privacy-section h2 {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.5;
+  color: var(--pv-strong);
+}
+
+.privacy-section p {
+  margin: 0 0 var(--space-md);
+}
+
+.privacy-section ul {
+  margin: 0 0 var(--space-md);
+  padding-left: var(--space-xl);
+}
+
+.privacy-section li {
+  margin-bottom: var(--space-xs);
+}
+
+.privacy-page a {
+  color: var(--pv-link);
+  overflow-wrap: anywhere;
+}
+
+.privacy-footer {
+  padding-top: var(--space-lg);
+  font-size: var(--font-md);
+}

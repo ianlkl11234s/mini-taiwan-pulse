@@ -10,6 +10,8 @@ import type { SavedScene, SavedPlace, PlaceInput, MemberLibrary } from "../../da
 import type { MemberSceneSnapshot } from "../../lib/memberSchema";
 import { validatePlace } from "../../lib/memberSchema";
 import { MyAnalysisCards } from "./MyAnalysisCards";
+import { DeleteAccountSection } from "./DeleteAccountSection";
+import { accountDeletionNotice, useAccountDeletionNotice } from "../../lib/accountDeletion";
 import { useLocale } from "../../state/localeStore";
 import "./memberPanel.css";
 
@@ -37,6 +39,7 @@ type Tab = typeof TABS[number]["id"];
 
 export function MemberPanel(props: Props) {
   const library = useMemberLibrary();
+  const deletion = useAccountDeletionNotice();
   const i18n = useLocale();
   const { t } = i18n;
   const [tab, setTab] = useState<Tab>("favorites");
@@ -54,6 +57,8 @@ export function MemberPanel(props: Props) {
     return () => { previousFocus.current?.focus(); };
   }, [props.open]);
   useEffect(() => { setEditing(null); setName(""); setGeometry(""); setNotice(""); }, [props.userId]);
+  // 刪除帳號的完成提示只留到面板關閉，或有人重新登入為止
+  useEffect(() => { if (!props.open || props.userId) accountDeletionNotice.clear(); }, [props.open, props.userId]);
   if (!props.open) return null;
   const currentAccount = library.userId === props.userId;
   const rows: MemberLibrary = currentAccount ? library : { favorites: [], scenes: [], places: [], unavailableItems: [] };
@@ -96,7 +101,7 @@ export function MemberPanel(props: Props) {
       </div>
       {!props.userId && <p className="member-hint">{t("member.guestHint")}</p>}
       {props.userId && <div className="member-actions"><button disabled={library.busy || props.authLoading} onClick={() => attempt(() => memberLibraryStore.refresh())}><RefreshCw size={13} />{t("member.refresh")}</button>{library.guestCount > 0 && <button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.importGuest())}>{t("member.importGuest", { count: library.guestCount })}</button>}</div>}
-      <div role="status" aria-live="polite" className="member-notice">{notice || (currentAccount ? library.message : "")}</div>
+      <div role="status" aria-live="polite" className="member-notice">{notice || (deletion ? t(deletion.signedOut ? "member.account.deleteDone" : "member.account.deleteDoneReload") : "") || (currentAccount ? library.message : "")}</div>
       <nav aria-label={t("member.tabsAria")} className="member-tabs">{TABS.filter((item) => item.id !== "cards" || (props.isOwner && props.userId)).map((item) => <button key={item.id} aria-pressed={tab === item.id} onClick={() => { setTab(item.id); setNotice(""); }}>{t(item.labelKey)}<small>{item.id === "favorites" ? rows.favorites.length : item.id === "open" ? props.visibleKeys.length : item.id === "scenes" ? rows.scenes.length : item.id === "places" ? rows.places.length : ""}</small></button>)}</nav>
       <div className="member-body">
         {rows.unavailableItems.length > 0 && <div className="member-hint">{t("member.unavailable", { count: rows.unavailableItems.length })}{rows.unavailableItems.map((item) => <div className="member-actions" key={`${item.table}:${item.id}`}><span>{t("member.unavailableItem", { name: item.name })}</span><button disabled={!ready} onClick={() => attempt(() => memberLibraryStore.removeUnavailable(item))}>{t("member.removeUnavailable")}</button></div>)}</div>}
@@ -153,6 +158,7 @@ export function MemberPanel(props: Props) {
         </>}
         {tab === "cards" && props.isOwner && props.userId && <MyAnalysisCards />}
       </div>
+      {props.userId && !props.isOwner && !props.authLoading && <DeleteAccountSection />}
       <footer>{t("member.footer")}</footer>
     </section>
   );

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { LogIn, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
+import { FileText, LogIn, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { signInWithGoogle, signOut, useUser } from "../../lib/auth";
 import { useLocale } from "../../state/localeStore";
+import { privacyHref } from "../../privacy/privacyLocale";
 import {
   COLORS,
   SURFACE,
@@ -28,7 +29,7 @@ import {
  */
 export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact = false }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean; compact?: boolean } = {}) {
   const { user, loading } = useUser();
-  const { t } = useLocale();
+  const { t, active } = useLocale();
   const [open, setOpen] = useState(false);
   // 按鈕字色跟主題走（淡色底圖上白字會看不見）；compact = 手機標頭 M1 的 30×30、圓角 6 圖示按鈕
   const fg = isDarkTheme ? COLORS.textStrong : LIGHT.textStrong;
@@ -192,6 +193,31 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
               {t("member.avatar.governance")}
             </button>
           )}
+          <a
+            href={privacyHref(active)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: SPACING.sm,
+              width: "100%",
+              boxSizing: "border-box",
+              padding: `${SPACING.md}px ${SPACING.lg}px`,
+              background: "transparent",
+              color: c.textStrong,
+              borderBottom: `1px solid ${c.divider}`,
+              fontSize: FONT_SIZE.md,
+              fontFamily: FONT_CJK,
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = c.hover)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+          >
+            <FileText size={14} />
+            {t("member.avatar.privacy")}
+          </a>
           <button
             type="button"
             onClick={() => {

@@ -101,6 +101,23 @@
   outline-offset: 1px;
 }
 
+/* 隱私說明連結（/privacy）：與 toggle 同色，常駐收合列 */
+.pulse-attrib-link {
+  padding: 0 var(--space-xxs);
+  color: var(--pa-bar-link);
+  text-decoration: none;
+  font-family: var(--font-cjk);
+}
+
+.pulse-attrib-link:hover {
+  text-decoration: underline;
+}
+
+.pulse-attrib-link:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .pulse-attrib-count {
   font-family: var(--font-data);
   font-weight: var(--font-weight-semibold);
