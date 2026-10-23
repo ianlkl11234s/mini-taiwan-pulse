@@ -199,12 +199,13 @@ export function renderBody(post: BlogPost, publicDir: string, warn: (msg: string
 </figure>\n`;
       },
       image({ href, text }) {
-        const external = /^https?:\/\//.test(href);
-        if (!external && !existsSync(join(publicDir, "blog", post.topic, post.slug, href))) {
+        // /blog 的 CSP img-src 只開 'self' data:，外站圖片在正式站會被擋：build 時就報錯，要求下載到文章資料夾
+        if (/^(https?:)?\/\//.test(href)) throw new Error(`[blog] ${post.slug}：不支援外站圖片 ${href}，請下載到 public/blog/${post.topic}/${post.slug}/`);
+        if (!existsSync(join(publicDir, "blog", post.topic, post.slug, href))) {
           warn(`[blog] ${post.slug}：找不到圖片 public/blog/${post.topic}/${post.slug}/${href}，先略過`);
           return "";
         }
-        const src = external ? href : assetPath(post, href);
+        const src = assetPath(post, href);
         return `<figure class="blog-figure"><img src="${escapeHtml(src)}" alt="${escapeHtml(text)}" loading="lazy" decoding="async"><figcaption>${escapeHtml(text)}</figcaption></figure>`;
       },
       link({ href, text, tokens }) {
@@ -298,7 +299,7 @@ function coverFigure(post: BlogPost): string {
     : "";
   return `
         <figure class="blog-cover">
-          <img class="blog-only-dark" src="${dark}" alt="${alt}" width="1600" height="900" decoding="async" fetchpriority="high">
+          <img${light !== dark ? ' class="blog-only-dark"' : ""} src="${dark}" alt="${alt}" width="1600" height="900" decoding="async" fetchpriority="high">
           ${light !== dark ? `<img class="blog-only-light" src="${light}" alt="${alt}" width="1600" height="900" loading="lazy" decoding="async">` : ""}
           ${open}
         </figure>`;
@@ -307,6 +308,8 @@ function coverFigure(post: BlogPost): string {
 function coverImgs(p: BlogPost, cls = ""): string {
   if (!p.cover) return `<span class="blog-card__ph${cls ? ` ${cls}` : ""}"></span>`;
   const c = cls ? ` ${cls}` : "";
+  // 只有一張封面時兩種主題都顯示它（blog-only-dark 在淺色主題會被藏起來）
+  if (!p.coverLight) return `<img${cls ? ` class="${cls}"` : ""} src="${assetPath(p, p.cover)}" alt="" width="1600" height="900" loading="lazy" decoding="async">`;
   return `<img class="blog-only-dark${c}" src="${assetPath(p, p.cover)}" alt="" width="1600" height="900" loading="lazy" decoding="async">${p.coverLight ? `<img class="blog-only-light${c}" src="${assetPath(p, p.coverLight)}" alt="" width="1600" height="900" loading="lazy" decoding="async">` : ""}`;
 }
 
