@@ -78,6 +78,8 @@ body.blog {
 .blog-nav {
   position: sticky;
   top: 0;
+  /* 疊在正文之上：嵌入地圖 iframe 往上捲時不可穿過頂部列 */
+  z-index: 1;
   background: var(--blog-bg);
   border-bottom: 1px solid var(--blog-border-soft);
 }
@@ -316,7 +318,6 @@ body.blog {
 
 /* 嵌入互動地圖（/embed）：iframe src 由 blog.js 依主題補上 style= */
 .blog-map__frame {
-  position: relative;
   overflow: hidden;
   border-radius: var(--radius-xl);
   border: 1px solid var(--blog-border);
