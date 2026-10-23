@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1242,
+    "keyCount": 1253,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3379,6 +3379,17 @@
         "statsTelecomFraudPer100kTownship-fill",
         "statsTelecomFraudCasesCounty-fill",
         "statsTelecomFraudPer100kCounty-fill",
+        "statsTaipeiResourceRecyclingTownship-fill",
+        "statsTaipeiGarbageCollectedTownship-fill",
+        "statsTaipeiSewerRatePublicTownship-fill",
+        "statsTaipeiSewerRateLegacyTownship-fill",
+        "statsTaipeiFactoryCountTownship-fill",
+        "statsTaipeiFactoryCountByIndustryTownship-fill",
+        "statsTaipeiUsagePermitCountTownship-fill",
+        "statsTaipeiUsagePermitCountByBuildTypeTownship-fill",
+        "statsTaipeiUsagePermitBuildingCountTownship-fill",
+        "statsTaipeiUsagePermitHouseholdCountTownship-fill",
+        "statsTaipeiUsagePermitBuildingAreaTownship-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -126049,6 +126060,114 @@
         "valueText": "0.55"
       }
     ],
+    "statsTaipeiFactoryCountByIndustryTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "合計",
+            "value": "statsTaipeiFactoryCountTownship"
+          },
+          {
+            "label": "依產業中類",
+            "value": "statsTaipeiFactoryCountByIndustryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiFactoryCountByIndustryTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiFactoryCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "合計",
+            "value": "statsTaipeiFactoryCountTownship"
+          },
+          {
+            "label": "依產業中類",
+            "value": "statsTaipeiFactoryCountByIndustryTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiFactoryCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiGarbageCollectedTownship": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiResourceRecyclingTownship": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsTaipeiRiversideBicycles": [
       {
         "label": "年度",
@@ -126106,6 +126225,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsTaipeiSewerRateLegacyTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "108 年 5 月起（公共污水下水道）",
+            "value": "statsTaipeiSewerRatePublicTownship"
+          },
+          {
+            "label": "100 年 1 月～108 年 4 月（舊公式，含自設專用）",
+            "value": "statsTaipeiSewerRateLegacyTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiSewerRateLegacyTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiSewerRatePublicTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "108 年 5 月起（公共污水下水道）",
+            "value": "statsTaipeiSewerRatePublicTownship"
+          },
+          {
+            "label": "100 年 1 月～108 年 4 月（舊公式，含自設專用）",
+            "value": "statsTaipeiSewerRateLegacyTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiSewerRatePublicTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsTaipeiTrafficViolationCitations": [
       {
         "label": "年度",
@@ -126147,6 +126336,241 @@
     "statsTaipeiUrbanRentalTrips": [
       {
         "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitBuildingAreaTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitBuildingCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitBuildingCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitCountByBuildTypeTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaipeiUsagePermitHouseholdCountTownship": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "件數（合計）",
+            "value": "statsTaipeiUsagePermitCountTownship"
+          },
+          {
+            "label": "件數（依建造類別）",
+            "value": "statsTaipeiUsagePermitCountByBuildTypeTownship"
+          },
+          {
+            "label": "棟數",
+            "value": "statsTaipeiUsagePermitBuildingCountTownship"
+          },
+          {
+            "label": "戶數",
+            "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+          },
+          {
+            "label": "建築面積",
+            "value": "statsTaipeiUsagePermitBuildingAreaTownship"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+      },
+      {
+        "label": "資料期別",
         "options": [],
         "status": "idle",
         "statusText": "尚未載入",
