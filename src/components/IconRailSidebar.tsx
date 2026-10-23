@@ -9,6 +9,7 @@ import {
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   Database,    // 資料來源 rail 按鈕
+  BookOpen,    // Pulse 筆記（/blog）rail 連結
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -325,6 +326,14 @@ export function IconRailSidebar({
           />
         )}
 
+        {/* Pulse 筆記（/blog）：離開地圖的連結，用分隔線與上面開面板的按鈕分開；帶目前底圖明暗讓文章頁同色 */}
+        <div style={{ width: 32, height: 1, background: BORDER, margin: "8px 0" }} />
+        <RailLink
+          icon={BookOpen}
+          href={`/blog/?theme=${isDarkTheme ? "dark" : "light"}`}
+          tooltip={t("rail.blog")}
+        />
+
       </div>
 
       {/* ── Floating Panel ── */}
@@ -474,6 +483,30 @@ function JapanGlyph({ size = 20 }: { size?: number }) {
         JP
       </span>
     </span>
+  );
+}
+
+/** rail 底部的站內頁面連結（真的 <a>：可中鍵開新分頁、爬蟲跟得到），外觀同 RailIcon 未啟用狀態。 */
+function RailLink({ icon: Icon, href, tooltip }: { icon: ComponentType<{ size?: number }>; href: string; tooltip: string }) {
+  const { DIM } = useRailTheme();
+  return (
+    <a
+      href={href}
+      title={tooltip}
+      aria-label={tooltip}
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: RADIUS.xl,
+        color: DIM,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 4,
+      }}
+    >
+      <Icon size={20} />
+    </a>
   );
 }
 

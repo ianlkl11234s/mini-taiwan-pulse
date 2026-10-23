@@ -4975,6 +4975,7 @@ export type GeneratedStaticKey =
   | "popup.welfare.unitType"
   | "popup.welfare.usage"
   | "popup.welfare.validUntil"
+  | "rail.blog"
   | "rail.datasource"
   | "rail.intel"
   | "rail.monitor"
