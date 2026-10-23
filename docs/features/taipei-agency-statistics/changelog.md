@@ -7,6 +7,7 @@
 ## 2026-10-23 — 英日文與目錄按需載入 PR #TBD（merge TBD）
 
 - 11 層圖層名補英日文（`layers.json`），另補群組名（`enum.statGroup`）、產業中類 27 項與建造類別 4 項（`enum.statDim`／`enum.statDimValue`）、位置口徑 4 句、發布機關 2 個、授權 3 句、小群組「臺北市 12 區（月）」與「水質與污水」；`statisticsText.test.ts` 加本家族外文不混中文檢查
+- 目錄按需載入：catalog 不再帶 release_options（2,719,486 → 40,438 bytes），9,696 個 exact selector 改由 `statisticsRecipeDetails` 的 `taipeiAgency` 家族在開圖層／期別選單時 dynamic import（照 agri／social PF-7 前例）；首屏 preload JS raw 11,146,226 → 9,408,973、gzip 2,275,844 → 2,182,664；按需 chunk raw 3,674,491／gzip 165,838
 
 ---
 

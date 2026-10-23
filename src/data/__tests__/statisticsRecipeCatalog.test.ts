@@ -10,7 +10,7 @@ describe("PF-7 statistics recipe catalog ↔ details", () => {
     it(`${spec.family}: committed catalog is exactly derived from the delivered SSOT (rerun build_statistics_recipe_catalogs.ts)`, () => {
       const source = readJson(spec.source);
       const catalog = readJson(spec.catalog);
-      expect(catalog).toEqual(deriveStatisticsRecipeCatalog(source, spec.omitRecipeKeys, spec.source.split("/").pop()!, { keepReleaseOptions: spec.keepReleaseOptions }));
+      expect(catalog).toEqual(deriveStatisticsRecipeCatalog(source, spec.omitRecipeKeys, spec.source.split("/").pop()!, { keepReleaseOptions: spec.keepReleaseOptions, periodCount: "periodCount" in spec && spec.periodCount }));
       const catalogKeys = catalog.recipes.map((recipe: { layer_key: string }) => recipe.layer_key);
       expect(catalogKeys).toEqual(source.recipes.map((recipe: { layer_key: string }) => recipe.layer_key));
       expect(new Set(catalogKeys).size).toBe(catalogKeys.length);
@@ -58,9 +58,10 @@ describe("PF-7 statistics recipe catalog ↔ details", () => {
     expect(() => agriReleaseOptions("statsPaddyLandAreaTownship", [])).toThrow(details.STATISTICS_RECIPE_DETAILS_NOT_LOADED);
     expect(getAgriRecipeDetails("notAStatisticsLayer")).toBeUndefined();
     await Promise.all([details.ensureStatisticsRecipeDetails(), details.ensureStatisticsRecipeDetails()]);
-    expect(start).toHaveBeenCalledTimes(2);
+    expect(start).toHaveBeenCalledTimes(3);
     expect(start).toHaveBeenCalledWith("statistics-recipe-details:agri", expect.any(String));
     expect(start).toHaveBeenCalledWith("statistics-recipe-details:social", expect.any(String));
+    expect(start).toHaveBeenCalledWith("statistics-recipe-details:taipeiAgency", expect.any(String));
     expect(details.statisticsRecipeDetailsLoaded()).toBe(true);
     expect(getAgriRecipeDetails("statsPaddyLandAreaTownship")?.release_options).toHaveLength(1);
     start.mockRestore();
@@ -84,7 +85,36 @@ describe("PF-7 statistics recipe catalog ↔ details", () => {
     expect(() => getAgriRecipeDetails("statsPaddyLandAreaTownship")).toThrow(details.STATISTICS_RECIPE_DETAILS_NOT_LOADED);
     await details.ensureStatisticsRecipeDetails("agri");
     expect(start.mock.calls.map(([id]) => id)).toEqual(["statistics-recipe-details:social", "statistics-recipe-details:agri"]);
-    expect(details.statisticsRecipeDetailsLoaded()).toBe(true);
+    expect(details.statisticsRecipeDetailsLoaded(["agri", "social"])).toBe(true);
+    expect(details.statisticsRecipeDetailsLoaded()).toBe(false);
+    start.mockRestore();
+  });
+
+  it("臺北市局處統計：首屏目錄不帶 release_options，期別與 selector 在明細載入後才可讀", async () => {
+    vi.resetModules();
+    const details = await import("../statisticsRecipeDetails");
+    const { loadingRegistry } = await import("../../lib/loadingRegistry");
+    const atlas = await import("../atlasStatisticsRecipes");
+    const { STATISTICS_RECIPES } = await import("../regionalStatisticsRecipes");
+    const source = readJson("src/data/taipeiAgencyStatisticsRecipes.json");
+    const start = vi.spyOn(loadingRegistry, "start");
+    const key = "statsTaipeiFactoryCountByIndustryTownship";
+    const recipe = atlas.getAtlasRecipe(key)!;
+    expect(recipe).not.toHaveProperty("release_options");
+    expect(recipe.release_summary?.count).toBe(6216);
+    // 首屏頻率字串與舊算法（全部 release_options 的不重複期別數）一致，enum.statFrequency 譯文不必改
+    const sourceRecipe = source.recipes.find((candidate: { layer_key: string }) => candidate.layer_key === key);
+    const periods = new Set(sourceRecipe.release_options.map((option: { period_start: string; period_end: string }) => `${option.period_start}|${option.period_end}`)).size;
+    expect((STATISTICS_RECIPES as Record<string, { frequency: string }>)[key]!.frequency).toBe(`${periods} 個已交付期別`);
+    expect(() => atlas.atlasReleaseOptions(key, [])).toThrow(details.STATISTICS_RECIPE_DETAILS_NOT_LOADED);
+    expect(() => atlas.atlasSelectionRecipe(key)).toThrow(details.STATISTICS_RECIPE_DETAILS_NOT_LOADED);
+    // 其他 atlas 家族不受影響（目錄自帶 selector）
+    expect(atlas.atlasRecipeReleaseOptions(atlas.getAtlasRecipe("statsTelecomFraudCasesTownship")!).length).toBeGreaterThan(0);
+    await details.ensureStatisticsRecipeDetails("taipeiAgency");
+    expect(start.mock.calls).toEqual([["statistics-recipe-details:taipeiAgency", expect.any(String)]]);
+    expect(details.statisticsRecipeDetailsLoaded("agri")).toBe(false);
+    expect(atlas.atlasRecipeReleaseOptions(recipe)).toHaveLength(6216);
+    expect(atlas.atlasSelectionRecipe(key)?.release_options[0]?.release_id).toBe(recipe.default_release_id);
     start.mockRestore();
   });
 });
