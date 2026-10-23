@@ -147,3 +147,27 @@ describe("nginx /blog", () => {
     expect(block).toMatch(/Content-Security-Policy "[^"]*script-src 'self';/);
   });
 });
+
+describe("封面與圖片", () => {
+  const base = (extra: string) => toPost(`---\nslug: one\ntopic: rail\ntitle: t\ndescription: d\ndate: 2026-01-01\n${extra}---\n內文\n`);
+
+  it("只有一張封面時不加 blog-only-dark（淺色主題也看得到）", () => {
+    const post = base("cover: c.jpg\n");
+    const html = renderPostPage(post, [post], join(root, "public"));
+    expect(html).toContain('<img src="/blog/rail/one/c.jpg"');
+    expect(html).not.toContain("blog-only-dark");
+    expect(renderIndexPage([post])).not.toContain("blog-only-dark");
+  });
+
+  it("深淺兩張封面各自標主題", () => {
+    const post = base("cover: d.jpg\ncoverLight: l.jpg\n");
+    const html = renderPostPage(post, [post], join(root, "public"));
+    expect(html).toContain('class="blog-only-dark" src="/blog/rail/one/d.jpg"');
+    expect(html).toContain('class="blog-only-light" src="/blog/rail/one/l.jpg"');
+  });
+
+  it("外站圖片在 build 時報錯（CSP img-src 只開 self）", () => {
+    const post = toPost("---\nslug: one\ntopic: rail\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](https://example.com/a.jpg)\n");
+    expect(() => renderPostPage(post, [post], join(root, "public"))).toThrow(/不支援外站圖片/);
+  });
+});
