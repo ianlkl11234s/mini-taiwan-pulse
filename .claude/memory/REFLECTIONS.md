@@ -2114,3 +2114,20 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：新增 R6-V（正式站目視）；R6-4 段 4 已於 #578 登記。
 - `STATUS.md`：最上方加 R6 現況段（保留其他段）。
 
+## 2026-10-23 v2.11.3 圖例封頂、開站不閃文字
+
+### What worked
+
+- 用 agent-browser 量 bounding box（停靠區各子元素 top／bottom、圖例 scrollHeight／clientHeight）驗版面，比只看截圖可靠；正式站上線後同一組數字再量一次。
+- 首屏閃字的驗法：把 index.html 去掉 main.tsx 的 script 另存後直接開，確認畫面只剩深色底、h1 仍在 DOM。
+
+### Friction / limits
+
+- 第一版讓 popup 與圖例同時 `minHeight: 0` 可縮，結果 popup 外框被壓到 107px 但內容溢出蓋住圖例：popup 根節點 overflow visible，flex 最小高度＝內容高。改為 popup `flexShrink: 0`＋`maxHeight: calc(100% - 36px)`、根節點加 `minHeight: 0`，圖例吃剩餘空間。
+- 本機 `npm run check` 在 load 163 時 3 檔逾時；stash 改動後同樣失敗，判定負載問題、以 CI 為準。
+- 分享網址要帶 `v=<URL_STATE_VERSION>` 才會套用 `layers=`，少了會整組被忽略。
+
+### Memory output
+
+- `STATUS.md`：最上方加 v2.11.3 段（保留其他段）。
+
