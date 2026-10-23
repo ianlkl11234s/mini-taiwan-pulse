@@ -561,8 +561,9 @@
 
 - **結構**：圖例面板頂端整列按鈕：chevron（展開 `ChevronDown`／收合 `ChevronRight`，12px）＋「圖例」。
 - **尺寸**：padding `6px 10px`、gap 6、10px `FONT_CJK`、透明底。
+- **高度上限**：右下停靠區（popup＋圖例）上緣封頂在 `LAYOUT.leftDockTop`（手機 52），不得往上頂出工具列。popup 優先保留自身高度（最多到停靠區高度減 36px，留給圖例標題列）；圖例吃剩下的空間，標題列固定、內容在面板內捲動。
 - **禁止**：英文「LEGEND」、大寫。
-- **實作**：`src/components/LegendPanel.tsx`。
+- **實作**：`src/components/LegendPanel.tsx`、`App.tsx` 右下停靠區。
 
 ### 5.24 左下時間軸（TC3 收合＋展開；展開＝TC1 單列）
 
