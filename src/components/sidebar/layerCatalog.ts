@@ -218,6 +218,12 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
 // 2026-10-03 依日本面板的大分類（layerPanels.ts `JAPAN_MACRO_GROUPS`）重排：同一大分類的主題相鄰。
 export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"];
 
+/**
+ * 「模擬 Simulation」rail tab 的主題清單（simulation PLAN Phase 1）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）；
+ * 桌機主 Layers panel 用它把這批主題濾掉。主題 title 是識別字串，顯示名稱查 `THEME_NAMES`。
+ */
+export const SIMULATION_TAB_THEME_TITLES: string[] = ["雙北跨河橋梁中斷"];
+
 /** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
 function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
   return ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter(match).map((recipe) => fromManifest(recipe.layer_key as ManifestKey));
@@ -756,7 +762,6 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("bssNationalBridgePreview"),
           fromManifest("bssNationalBridgePointsPreview"),
-          fromManifest("bridgeResilienceTwinCity"),
         ],
       },
       {
@@ -2135,6 +2140,16 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🧪 SIMULATION 模擬（獨立 rail tab「模擬」專屬，站主限定；桌機主 Layers panel 排除這批主題）
+  //    D-6：只搬 bridgeResilienceTwinCity，全臺橋梁（BSS）兩層留在交通「橋梁研究（進行中）」。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "雙北跨河橋梁中斷",
+    defaultCollapsed: true,
+    groups: [{ title: "橋梁中斷", layers: [fromManifest("bridgeResilienceTwinCity")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
   //    tab 抬頭已是「日本 Japan」，故不再多包一層「日本」主題 ——
   //    行政區 / 交通 / 教育 / 人口 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
@@ -2421,6 +2436,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "高度與地表": "environment",
   "水資源": "environment",
   "氣象防災": "safety",
+  "雙北跨河橋梁中斷": "city",
 };
 
 /**
@@ -2535,6 +2551,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "醫療圈": { zh: "醫療圈", sub: "医療圏" },
   "高度與地表": { zh: "高度與地表", sub: "高さ・地表" },
   "氣象防災": { zh: "氣象防災", sub: "気象・防災" },
+  "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
   "水資源": { zh: "水資源", sub: "水資源" },
 };
 

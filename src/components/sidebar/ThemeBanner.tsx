@@ -25,6 +25,7 @@ export function ThemeBanner({
   const i18n = useLocale();
   const { t } = i18n;
   const { primary: zh, sub } = localizeThemeTitle(title, i18n);
+  const shrinkPrimary = i18n.active !== "zh-TW";
   return (
     <div
       style={{
@@ -52,9 +53,10 @@ export function ThemeBanner({
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </span>
         <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
-          <span style={{ flex: "0 0 auto", whiteSpace: "nowrap", fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
+          {/* 外文主名（如英文長主題名）可能比面板寬：副標先被擠掉，主名最多折兩行、再放不下才以 … 截斷，不蓋到總開關；中文主名照舊不縮、不折行。 */}
+          <span title={shrinkPrimary ? zh : undefined} style={{ flex: shrinkPrimary ? "0 1 auto" : "0 0 auto", minWidth: shrinkPrimary ? 0 : undefined, ...(shrinkPrimary ? { overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, lineHeight: 1.25, overflowWrap: "anywhere" } : { whiteSpace: "nowrap" }), fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
           {sub && (
-            <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{sub}</span>
+            <span style={{ flex: shrinkPrimary ? "0 1000 auto" : "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{sub}</span>
           )}
         </span>
         <span style={{ flexShrink: 0, whiteSpace: "nowrap", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>

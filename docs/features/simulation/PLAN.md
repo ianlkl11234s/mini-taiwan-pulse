@@ -73,6 +73,7 @@
 - 驗收：spec PR 合併；S-1～S-4 各有一節可引用。
 
 ### Phase 1 — 面板骨架＋搬橋梁（不加新資料）
+- 狀態：已實作於分支 `feat/simulation-panel-phase1`（2026-10-24，待 PR；`showSimulation` 由 App `isOwner && !memberAuthLoading` 傳入 rail 與手機；主題「雙北跨河橋梁中斷」、群組「橋梁中斷」）
 登記處（漏一個測試就會紅）：
 - `src/components/sidebar/layerPanels.ts`：`LayerPanelId` 加 `simulation`、`LAYER_PANELS` 加一筆、`*_TAB_THEME_TITLES`；`MAIN_THEMES` 排除新主題
 - `IconRailSidebar.tsx`（`panelSearch` 初值、`togglePanel`、`RailIcon`）、手機版 `LayerSidebar.tsx:231`
