@@ -27,3 +27,4 @@
 
 - 1 個點層 `postOfficeFxCounters`（build-atlas-public.py → public/finance/post_office_fx_cash_counters.geojson，git 追蹤隨 dist）：單色、透明度／大小 2 控件；popup 固定顯示「郵局經辦，非外幣收兌處」；補 atlasFinanceCoord `post_5950_same_office` 與 atlasOrg `chunghwaPost` 英日文。
 - 測試：golden 1316、靜態檔欄位契約、NO_HOOK_LEDGER。
+- PR #698（base develop），merge 63621d89，2026-10-25；pulse-data #42 已登記 `postOfficeFxCounters`（layerRegistryCoverage 綠）。

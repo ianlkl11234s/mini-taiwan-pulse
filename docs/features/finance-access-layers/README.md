@@ -3,7 +3,7 @@
 > **Slug**：`finance-access-layers`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：#690（三群合一 PR，merge 444ab425）、#692（二元圖例）、#696（G10 延伸，merge 76511375）、G10 外幣 PR 見 changelog
+> **相關 PR**：#690（三群合一 PR，merge 444ab425）、#692（二元圖例）、#696（G10 延伸，merge 76511375）、#698（G10 外幣，merge 63621d89）
 > **上游**：taipei-gis-analytics `pipelines/socioeconomic/finance_access/`、`docs/handoff/finance-access-statistics-recipes.json`；上線紀錄 `.gis-agent-system/projects/2026-10-roadmap-batch2/w0/G10*.md`。全部來源為政府資料開放授權條款第 1 版。
 
 ## 一句話說明
