@@ -29,5 +29,16 @@
   "enum.statLegendNote.建築面積是建築物投影面積，不是總樓地板面積。": "Building area is the building footprint, not total floor area.",
   "enum.statLegendNote.0 自成最淺一級（該區當月為 0，不是無資料）。": "0 forms its own lightest class (the district had 0 that month; not missing data).",
   "enum.statLegendNote.未涵蓋（只涵蓋臺北市 12 區；其他縣市鄉鎮不是 0）": "Not covered (only the 12 districts of Taipei City are covered; other townships are not zero)",
-  "enum.statLegendNote.未涵蓋或無資料（臺北市以外未涵蓋；臺北市 12 區偶有缺值；都不是 0）": "Not covered or no data (areas outside Taipei City are not covered; Taipei's 12 districts occasionally have gaps; neither is zero)"
+  "enum.statLegendNote.未涵蓋或無資料（臺北市以外未涵蓋；臺北市 12 區偶有缺值；都不是 0）": "Not covered or no data (areas outside Taipei City are not covered; Taipei's 12 districts occasionally have gaps; neither is zero)",
+  "enum.statLegendNote.出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。": "Source: Cause of Death Statistics, Department of Statistics, Ministry of Health and Welfare (data.gov.tw 5965); Open Government Data License, Version 1.0.",
+  "enum.statLegendNote.0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。": "0 means no deaths in that period (a true value, not missing data); hatching marks not applicable or no data.",
+  "enum.statLegendNote.粗死亡率未做年齡標準化：高齡人口多的地方偏高，不代表醫療較差。": "Crude death rates are not age-standardized: places with older populations score higher, which does not mean worse health care.",
+  "enum.statLegendNote.小鄉鎮人口少，單年數值波動大，建議看 5 年合計。": "Small townships have few residents, so single-year values swing widely; prefer the 5-year totals.",
+  "enum.statLegendNote.死亡率分母為 12 月底戶籍人口（衛福部公布的全國粗死亡率用年中人口，數值略有差異）；分母只有 107 年起，率只到 107 年起。": "The rate denominator is the registered household population at the end of December (the Ministry's published national crude death rate uses mid-year population, so values differ slightly); denominators exist only from 2018, so rates start in 2018.",
+  "enum.statLegendNote.死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。": "Causes are harmonized to the 42 categories used from 2020; COVID-19 exists only from 2020.",
+  "enum.statLegendNote.5 年平均＝5 年合計死亡數 ÷ 5 年戶籍人口加總（人年）× 10 萬；只有 110–114 年一窗。": "5-year average = 5-year total deaths ÷ sum of 5 years of registered population (person-years) × 100,000; only the 2021–2025 window is available.",
+  "enum.statLegendNote.人數在有 0 人的組合中，0 人自成最淺一級（該期無死亡，不是無資料）。": "For death counts with zeros, 0 is its own lightest class (no deaths in that period, not missing data).",
+  "enum.statLegendNote.最淺色含 0（該期無死亡，不是無資料）。": "The lightest color includes 0 (no deaths in that period, not missing data).",
+  "enum.statLegendNote.無資料（分母戶籍人口缺，不是 0）": "No data (registered-population denominator missing; not 0)",
+  "enum.statLegendNote.不適用（COVID-19 自 109 年起才有此分類）": "Not applicable (the COVID-19 category exists only from 2020)"
 }

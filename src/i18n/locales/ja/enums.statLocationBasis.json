@@ -4,5 +4,6 @@
   "enum.statLocationBasis.清潔隊清運責任區（區隊與行政區一對一），不等於居民產生地": "清掃隊の収集担当区域（区隊と行政区は1対1）。住民の排出地とは限らない",
   "enum.statLocationBasis.門牌所在行政區（月底累計）": "住所（門牌）の所在区（月末累計）",
   "enum.statLocationBasis.工廠登記地址所在行政區（月底家數）": "工場登録住所の所在区（月末時点の工場数）",
-  "enum.statLocationBasis.建築地點所在行政區（依發照日期）": "建築地の所在区（交付日基準）"
+  "enum.statLocationBasis.建築地點所在行政區（依發照日期）": "建築地の所在区（交付日基準）",
+  "enum.statLocationBasis.死亡者戶籍所在地（依死亡年）": "死亡者の戸籍所在地（死亡年基準）"
 }

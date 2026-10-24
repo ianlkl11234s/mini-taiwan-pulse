@@ -10,8 +10,8 @@ import { LAYER_MANIFEST } from "../layerManifest";
 import { STATISTICS_CHOROPLETH_KEYS } from "../statisticsLayerRegistry";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
-// 「其他 atlas 家族」逐層檢查含臺北市局處統計，其 exact selector 按需載入。
-beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+// 「其他 atlas 家族」逐層檢查含臺北市局處統計與死因統計，其 exact selector 按需載入。
+beforeAll(() => ensureStatisticsRecipeDetails(["taipeiAgency", "mortality"]));
 
 function publishedReleases(key: string): StatisticsRelease[] {
   const recipe = getAtlasRecipe(key)!;

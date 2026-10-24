@@ -11,8 +11,8 @@ import { getStatisticsDataSourceDefinition } from "../statisticsDataSources";
 import { LAYER_MANIFEST } from "../layerManifest";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
-// 臺北市局處統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
-beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+// 臺北市局處統計與死因統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
+beforeAll(() => ensureStatisticsRecipeDetails(["taipeiAgency", "mortality"]));
 
 /** 交付白名單轉成「已公開 release」：每個 release_id 一筆（含所有維度組合）。 */
 function publishedReleases(key: string): StatisticsRelease[] {
@@ -28,10 +28,10 @@ function publishedReleases(key: string): StatisticsRelease[] {
 }
 
 describe("atlas 批次統計契約", () => {
-  it("113 個 recipe（atlas 66＋治安 36＋臺北市局處 11）、12,360 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
-    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(113);
-    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(113);
-    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(12360);
+  it("119 個 recipe（atlas 66＋治安 36＋臺北市局處 11＋死因 6）、16,223 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
+    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(119);
+    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(119);
+    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(16223);
     for (const key of ATLAS_ENABLED_STATISTICS_KEYS) {
       expect(LAYER_MANIFEST[key].legend, key).toBe(key);
       expect(getStatisticsDataSourceDefinition(key)?.datasetIds, key).toEqual([getAtlasRecipe(key)!.dataset_id]);

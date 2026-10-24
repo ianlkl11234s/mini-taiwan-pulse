@@ -198,5 +198,10 @@
   "enum.statVariant.件數（依建造類別）": "Permits (by construction type)",
   "enum.statVariant.棟數": "Buildings",
   "enum.statVariant.戶數": "Households",
-  "enum.statVariant.建築面積": "Building area"
+  "enum.statVariant.建築面積": "Building area",
+  "enum.statVariant.粗死亡率（5 年平均）": "Crude death rate (5-year average)",
+  "enum.statVariant.死亡人數（5 年合計）": "Deaths (5-year total)",
+  "enum.statVariant.粗死亡率（逐年）": "Crude death rate (annual)",
+  "enum.statVariant.死亡人數（逐年）": "Deaths (annual)",
+  "enum.statVariant.死亡人數": "Deaths"
 }
