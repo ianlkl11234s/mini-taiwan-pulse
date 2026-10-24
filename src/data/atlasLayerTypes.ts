@@ -349,7 +349,40 @@ export const BRANCH_CATEGORY_OPTIONS: readonly AtlasOption[] = [
   { value: "other", label: "其他（財政部國庫署、關貿網路）", color: "#78716c" },
 ];
 /** G10 圖例來源機關。 */
-export const FINANCE_ACCESS_ORGS = { fisc: "財金資訊股份有限公司" } as const;
+export const FINANCE_ACCESS_ORGS = {
+  fisc: "財金資訊股份有限公司",
+  // G10 延伸：一層合併多個名冊，圖例來源寫主要機關＋「等」，逐列出典在 popup footer
+  securitiesBodies: "臺灣證券交易所、臺灣期貨交易所、中華民國證券投資信託暨顧問商業同業公會",
+  insuranceBodies: "財團法人保險事業發展中心、中華民國保險代理人商業同業公會",
+} as const;
+
+/** G10 延伸 證券期貨據點類型（上游 institution_type；英日文 enum.atlasSecuritiesType.*）。 */
+export const SECURITIES_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "securities_branch", label: "證券商分公司", color: "#4f46e5" },
+  { value: "futures_head_office", label: "期貨商總公司", color: "#dc2626" },
+  { value: "futures_branch", label: "期貨商分公司", color: "#f97316" },
+  { value: "investment_trust", label: "證券投資信託公司（投信）", color: "#9333ea" },
+  { value: "investment_advisory", label: "證券投資顧問公司（投顧）", color: "#0891b2" },
+];
+/** G10 延伸 保險機構類型（上游 institution_type；英日文 enum.atlasInsuranceType.*）。 */
+export const INSURANCE_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "life_insurer", label: "人壽保險公司", color: "#16a34a" },
+  { value: "non_life_insurer", label: "產物保險公司", color: "#2563eb" },
+  { value: "reinsurer", label: "再保險公司", color: "#7c3aed" },
+  { value: "insurance_agency", label: "保險代理人公司", color: "#ea580c" },
+  { value: "bank_insurance_agency", label: "銀行兼營保險代理人", color: "#db2777" },
+];
+
+/** G10 延伸名冊的來源資料日類型（build-atlas-public.py finance_source_date；英日文 enum.atlasFinanceSourceDate.*）；download＝只有下載日，popup 不另列。 */
+export const FINANCE_SOURCE_DATE_LABELS: Readonly<Record<string, string>> = {
+  file_date: "名冊檔內資料日期", announced: "名冊檔內公告日期", metadata: "data.gov.tw 更新日（檔內無日期）", association_update: "公會更新日",
+};
+
+/** 證券期貨據點：類型多選＋「隱藏證券自營部門」（proprietary_desk＝1 的點不畫；缺值照畫）。 */
+export function securitiesFuturesFilter(mask?: number, hideProprietary = 0): unknown[] {
+  return ["all", atlasMultiSelectFilter("institution_type", SECURITIES_TYPE_OPTIONS, mask),
+    ...(hideProprietary === 1 ? [["!=", ["get", "proprietary_desk"], 1]] : [])];
+}
 
 /** ATM 裝設點：機構類別多選＋「只看輪椅可用／只看語音服務」；旗標缺值（null）不算符合。 */
 export function atmSiteFilter(mask?: number, onlyWheelchair = 0, onlyVoice = 0): unknown[] {
@@ -410,5 +443,7 @@ export const ATLAS_NOTES = {
   statePropertyTenderListings: "國有財產署公告待標售（未標脫）的國有土地 759 筆、房地 188 筆（2026-10-24 下載快照，上游約每週～雙週更新；8 筆無法定位未上圖）。土地點是地號宗地中心、房地點是門牌定位，點開看定位精度；7 筆落點鄉鎮與標示不一致。公告現值是每平方公尺單價，不是標售底價。",
   atmSitesFisc: "財金公司名冊的 ATM 裝設點 27,412 處（名冊快照 2026-10-24；22 處無法定位未上圖）。一點是一個裝設地點，不是一台機器：同一地點可能有多台；財金公司 115 年 9 月跨行 ATM 共 33,712 台。座標來源混合（數位發展部、中華郵政、地址定位、Google），點開看定位精度；222 處只到約略位置；865 處名冊標「不對外開放」。輪椅、語音旗標是名冊自報。低縮放（< 10 級）以熱區顯示。",
   financialBranchesFisc: "財金公司名冊的金融總分支機構 4,989 處（名冊快照 2026-10-24；1 處無法定位未上圖），含本國／外國／陸商銀行、信用合作社、農漁會信用部、郵局儲匯單位與票券公司。座標來源混合，點開看定位精度；160 處只到約略位置。名冊只含 2 個中華郵政儲匯單位，各地郵局不在內（郵局見「郵局」圖層）。",
+  securitiesFuturesInstitutions: "證券商分公司 817、期貨商總公司 39 與分公司 90、投信 36、投顧 89，共 1,071 處（名冊 2026-10-24 下載；33 處名冊未列營業地址〔自營部門、免設營業廳等〕未上圖）。是名冊上的營業據點，不是營業員或開戶數；證券商兼營期貨的據點在證券與期貨名冊各列一次，同址點會重疊；不含證券商總公司。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；8 處只到約略位置。",
+  insuranceInstitutions: "保險公司總分公司 392 處（人壽 233、產物 156、再保 3）與保險代理人公司 263 家（含銀行兼營 31），共 655 處（名冊 2026-10-24 下載）。不含保險通訊處（約 3,358 個，無地址開放資料）與業務員；保代地址為公司登記或聯絡地址，銀行兼營保代為銀行總行地址。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；5 處只到約略位置。",
   culturalHealthStations: "原住民族文化健康站 525 站（通訊錄 2025-07-22）。實心點 191 站依地址定位；空心圈是只定位到鄉鎮的 334 站，同鄉鎮併成鄉鎮中心一圈、圈內數字＝站數，不是實際站址，不可用來量距離。不含電話。",
 } as const satisfies Record<AtlasLayerKey, string>;

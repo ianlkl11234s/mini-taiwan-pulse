@@ -11,7 +11,7 @@ import {
   SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
-  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -744,9 +744,12 @@ function FinanceLocationRows({ props }: Props) {
     <Row field="coordSource" value={enumOf("atlasFinanceCoord", props.coord_source, props.coord_source_label, i18n)} />
     <Row field="positionAccuracy" value={enumOf("atlasFinancePrecision", props.geocode_precision, props.geocode_precision_label, i18n)} color={approximate ? theme.warn : undefined} />
     {approximate ? <Row field="caution" value={t("popup.atlas.financeApproximate")} color={theme.warn} /> : null}
-    {props.town_basis === "point_location" ? <Row field="remarks" value={enumOf("atlasFinanceTownBasis", props.town_basis, props.town_basis_label, i18n)} /> : null}
+    {props.town_basis === "point_location" || props.town_basis === "unallocated" ? <Row field="remarks" value={enumOf("atlasFinanceTownBasis", props.town_basis, props.town_basis_label, i18n)} /> : null}
     {props.spatial_check === "town_mismatch" ? <Row field="caution" value={enumOf("atlasFinanceSpatial", props.spatial_check, props.spatial_check_label, i18n)} color={theme.warn} /> : null}
     <Row label={t("popup.atlas.financeRosterDate")} value={str(props.vintage)} mono />
+    {props.source_date_kind && props.source_date_kind !== "download"
+      ? <Row label={enumOf("atlasFinanceSourceDate", props.source_date_kind, FINANCE_SOURCE_DATE_LABELS[str(props.source_date_kind)], i18n)} value={str(props.source_date)} mono />
+      : null}
   </>;
 }
 
@@ -777,6 +780,37 @@ function FinancialBranchPanel({ props }: Props) {
   return <>
     <Title color={color}>{str(props.name) || category}</Title>
     <Row field="category" value={category} color={color} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
+// G10 延伸：證券期貨投信投顧、保險公司與保險代理人（共用 FinanceLocationRows；名冊各自的資料日另列）。
+function SecuritiesFuturesPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(SECURITIES_TYPE_OPTIONS, props.institution_type);
+  const kind = enumOf("atlasSecuritiesType", props.institution_type, props.institution_type_label, i18n);
+  return <>
+    <Title color={color}>{str(props.name) || kind}</Title>
+    <Row field="category" value={kind} color={color} />
+    {props.futures_operator_kind ? <Row label={t("popup.atlas.futuresOperatorKind")} value={enumOf("atlasFuturesKind", props.futures_operator_kind, props.futures_operator_kind_label, i18n)} /> : null}
+    {props.proprietary_desk === 1 ? <Row field="remarks" value={t("popup.atlas.securitiesProprietary")} /> : null}
+    <Row label={t("popup.atlas.openedDate")} value={str(props.opened_date)} mono />
+    <Row field="remarks" value={t("popup.atlas.securitiesRosterPoint")} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
+function InsuranceInstitutionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(INSURANCE_TYPE_OPTIONS, props.institution_type);
+  const kind = enumOf("atlasInsuranceType", props.institution_type, props.institution_type_label, i18n);
+  return <>
+    <Title color={color}>{str(props.name) || kind}</Title>
+    <Row field="category" value={kind} color={color} />
+    <Row label={t("popup.atlas.insuranceOfficeLevel")} value={enumOf("atlasInsuranceOffice", props.office_level, props.office_level_label, i18n)} />
+    {props.agency_lines ? <Row label={t("popup.atlas.insuranceAgencyLines")} value={enumOf("atlasAgencyLines", props.agency_lines, props.agency_lines_label, i18n)} /> : null}
     <FinanceLocationRows props={props} />
   </>;
 }
@@ -824,6 +858,8 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   statePropertyTenderListings: StateTenderPanel,
   atmSitesFisc: AtmSitePanel,
   financialBranchesFisc: FinancialBranchPanel,
+  securitiesFuturesInstitutions: SecuritiesFuturesPanel,
+  insuranceInstitutions: InsuranceInstitutionPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -878,4 +914,6 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   statePropertyTenderListings: manifestZh("statePropertyTenderListings"),
   atmSitesFisc: manifestZh("atmSitesFisc"),
   financialBranchesFisc: manifestZh("financialBranchesFisc"),
+  securitiesFuturesInstitutions: manifestZh("securitiesFuturesInstitutions"),
+  insuranceInstitutions: manifestZh("insuranceInstitutions"),
 };

@@ -12,5 +12,7 @@
   "enum.statPublisher.法務部行政執行署": "Administrative Enforcement Agency, Ministry of Justice",
   "enum.statPublisher.財金資訊股份有限公司": "Financial Information Service Co. (FISC)",
   "enum.statPublisher.金融監督管理委員會銀行局": "Banking Bureau, Financial Supervisory Commission",
-  "enum.statPublisher.中央銀行金融業務檢查處": "Department of Financial Inspection, Central Bank"
+  "enum.statPublisher.中央銀行金融業務檢查處": "Department of Financial Inspection, Central Bank",
+  "enum.statPublisher.行政院主計總處": "Directorate-General of Budget, Accounting and Statistics (DGBAS)",
+  "enum.statPublisher.財團法人保險事業發展中心": "Taiwan Insurance Institute"
 }

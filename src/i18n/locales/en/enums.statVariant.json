@@ -226,5 +226,14 @@
   "enum.statVariant.分支數": "Branches",
   "enum.statVariant.每萬人分支數": "Branches per 10,000 people",
   "enum.statVariant.裝設點數": "Sites",
-  "enum.statVariant.每萬人裝設點數": "Sites per 10,000 people"
+  "enum.statVariant.每萬人裝設點數": "Sites per 10,000 people",
+  "enum.statVariant.每萬人場所單位數": "Establishments per 10,000 people",
+  "enum.statVariant.交易筆數": "Transactions",
+  "enum.statVariant.縣市結構比": "Share by county",
+  "enum.statVariant.分公司家數": "Branch offices",
+  "enum.statVariant.通訊處家數": "Sales offices",
+  "enum.statVariant.每萬人商店數（排除集中登記）": "Merchants per 10,000 people (bulk excluded)",
+  "enum.statVariant.商店數（排除集中登記）": "Merchants (bulk excluded)",
+  "enum.statVariant.商店數（含集中登記）": "Merchants (incl. bulk addresses)",
+  "enum.statVariant.店址數": "Addresses"
 }

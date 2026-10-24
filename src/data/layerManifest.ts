@@ -126,6 +126,8 @@ import {
   HousePlus,
   // 💳 金融據點 G10（2026-10-24）
   CreditCard,
+  // 📈 證券期貨／保險據點 G10 延伸（2026-10-24）
+  TrendingUp, Umbrella,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7638,6 +7640,24 @@ export const LAYER_MANIFEST = {
     legend: "financialBranchesFisc", popup: "financialBranchesFisc", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "銀行、信用合作社、農漁會信用部等金融機構的總分支機構位置與定位精度（不含各地郵局）。",
     topics: ["銀行", "分行", "金融", "農會信用部", "金融可及性"],
+  },
+  securitiesFuturesInstitutions: {
+    key: "securitiesFuturesInstitutions", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "證券期貨據點", alt: "Securities & Futures Offices" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.securitiesFuturesInstitutions, icon: TrendingUp,
+    upstream: { status: "verified", datasets: [{ datasetId: "securities_futures_institutions", confidence: "HIGH" }], note: "證交所證券商分公司（data.gov.tw 44723）、期交所期貨商總／分公司（17480、17481）、投信投顧公會投信／投顧（44656、44657）名冊 2026-10-24 下載：1,071 處、1,038 有座標（33 處名冊未列營業地址）；座標沿用同址 G10 金融點位或地址定位，逐點標定位精度。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "securities-futures-institutions", url: "./finance/securities_futures_institutions.geojson" },
+    legend: "securitiesFuturesInstitutions", popup: "securitiesFuturesInstitutions", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] },
+    description: "證券商分公司、期貨商總分公司、投信與投顧公司的營業據點與定位精度（名冊據點，不是營業員或開戶數）。",
+    topics: ["證券", "期貨", "投信", "投顧", "券商", "金融"],
+  },
+  insuranceInstitutions: {
+    key: "insuranceInstitutions", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "保險公司與保險代理人", alt: "Insurers & Insurance Agencies" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.insuranceInstitutions, icon: Umbrella,
+    upstream: { status: "verified", datasets: [{ datasetId: "insurance_institutions", confidence: "HIGH" }], note: "保發中心保險公司基本資料含分公司（data.gov.tw 122361）392 處＋保代公會代理人公司（14516、15326、142715）去重 263 家，2026-10-24 下載：655 處皆有座標；座標沿用同址 G10 金融點位或地址定位，逐點標定位精度。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "insurance-institutions", url: "./finance/insurance_institutions.geojson" },
+    legend: "insuranceInstitutions", popup: "insuranceInstitutions", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "人壽、產物、再保險公司的總分公司與保險代理人公司（含銀行兼營）的據點與定位精度；不含通訊處與業務員。",
+    topics: ["保險", "壽險", "產險", "保險代理人", "金融"],
   },
   culturalHealthStations: {
     key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,

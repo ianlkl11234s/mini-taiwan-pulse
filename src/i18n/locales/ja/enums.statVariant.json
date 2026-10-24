@@ -226,5 +226,14 @@
   "enum.statVariant.分支數": "支店数",
   "enum.statVariant.每萬人分支數": "人口1万人当たり支店数",
   "enum.statVariant.裝設點數": "設置地点数",
-  "enum.statVariant.每萬人裝設點數": "人口1万人当たり設置地点数"
+  "enum.statVariant.每萬人裝設點數": "人口1万人当たり設置地点数",
+  "enum.statVariant.每萬人場所單位數": "人口1万人あたり事業所数",
+  "enum.statVariant.交易筆數": "取引件数",
+  "enum.statVariant.縣市結構比": "県市別構成比",
+  "enum.statVariant.分公司家數": "支社数",
+  "enum.statVariant.通訊處家數": "営業所数",
+  "enum.statVariant.每萬人商店數（排除集中登記）": "人口1万人あたり加盟店数（集中登録除く）",
+  "enum.statVariant.商店數（排除集中登記）": "加盟店数（集中登録除く）",
+  "enum.statVariant.商店數（含集中登記）": "加盟店数（集中登録含む）",
+  "enum.statVariant.店址數": "所在地数"
 }

@@ -1293,5 +1293,17 @@
   "layer.statsAtmSitesTown": "ATM Sites (Township)",
   "layer.statsAtmSitesPer10kTown": "ATM Sites per 10,000 People (Township)",
   "layer.atmSitesFisc": "ATM Sites (FISC Roster)",
-  "layer.financialBranchesFisc": "Financial Institution Branches"
+  "layer.financialBranchesFisc": "Financial Institution Branches",
+  "layer.statsFinanceEstablishments": "Finance & Insurance Establishments",
+  "layer.statsFinanceEstablishmentsPer10k": "Finance & Insurance Establishments per 10,000 People",
+  "layer.statsDebitCardTxnCount": "Financial-Card Transactions by County",
+  "layer.statsDebitCardTxnShare": "Financial-Card Transaction Share by County",
+  "layer.statsLifeInsurerBranches": "Life Insurer Branch Offices",
+  "layer.statsLifeInsurerAgencyOffices": "Life Insurer Sales Offices",
+  "layer.statsDebitMerchantsPer10k": "Debit-Card Merchants per 10,000 People (Township)",
+  "layer.statsDebitMerchantsExclBulk": "Debit-Card Merchants (Bulk Addresses Excluded)",
+  "layer.statsDebitMerchants": "Debit-Card Merchants (Township)",
+  "layer.statsDebitMerchantAddresses": "Debit-Card Merchant Addresses (Township)",
+  "layer.securitiesFuturesInstitutions": "Securities & Futures Offices",
+  "layer.insuranceInstitutions": "Insurers & Insurance Agencies"
 }

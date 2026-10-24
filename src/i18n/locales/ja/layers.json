@@ -1293,5 +1293,17 @@
   "layer.statsAtmSitesTown": "ATM 設置地点数（郷鎮）",
   "layer.statsAtmSitesPer10kTown": "人口1万人当たり ATM 設置地点数（郷鎮）",
   "layer.atmSitesFisc": "ATM 設置場所（財金資訊公司名簿）",
-  "layer.financialBranchesFisc": "金融機関の本支店"
+  "layer.financialBranchesFisc": "金融機関の本支店",
+  "layer.statsFinanceEstablishments": "金融・保険業の事業所数",
+  "layer.statsFinanceEstablishmentsPer10k": "人口1万人あたり金融・保険業の事業所数",
+  "layer.statsDebitCardTxnCount": "金融カード類の取引件数（県市）",
+  "layer.statsDebitCardTxnShare": "金融カード類の取引構成比（県市）",
+  "layer.statsLifeInsurerBranches": "生命保険会社の支社数",
+  "layer.statsLifeInsurerAgencyOffices": "生命保険会社の営業所（通訊処）数",
+  "layer.statsDebitMerchantsPer10k": "人口1万人あたりデビット加盟店数（郷鎮）",
+  "layer.statsDebitMerchantsExclBulk": "デビット加盟店数（集中登録住所を除く）",
+  "layer.statsDebitMerchants": "デビット加盟店数（郷鎮）",
+  "layer.statsDebitMerchantAddresses": "デビット加盟店の所在地数（郷鎮）",
+  "layer.securitiesFuturesInstitutions": "証券・先物の拠点",
+  "layer.insuranceInstitutions": "保険会社・保険代理店"
 }

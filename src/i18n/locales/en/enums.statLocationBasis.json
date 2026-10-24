@@ -18,5 +18,9 @@
   "enum.statLocationBasis.金融機構所在鄉鎮市區": "Township of the financial institution",
   "enum.statLocationBasis.金融機構（總機構／分支）所在縣市": "County of the institution (head office / branch)",
   "enum.statLocationBasis.分支機構地址所在縣市": "County of the branch address",
-  "enum.statLocationBasis.ATM 裝設點／分支機構所在鄉鎮市區": "Township of the ATM site / branch"
+  "enum.statLocationBasis.ATM 裝設點／分支機構所在鄉鎮市區": "Township of the ATM site / branch",
+  "enum.statLocationBasis.金融及保險業場所單位所在縣市": "County of the finance & insurance establishment",
+  "enum.statLocationBasis.交易發生地（交易系統記錄之縣市；跨行通匯疑為機構入帳地）": "Where the transaction occurred (county recorded by the system; interbank remittances likely by receiving institution)",
+  "enum.statLocationBasis.壽險公司分公司、通訊處所在縣市": "County of the life insurer branch or sales office",
+  "enum.statLocationBasis.特約商店登記地址所在鄉鎮市區": "Township of the merchant's registered address"
 }

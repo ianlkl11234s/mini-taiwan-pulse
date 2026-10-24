@@ -28,5 +28,9 @@
   "enum.statGroup.金融服務欠缺鄉鎮（第一類）": "Financially underserved townships (category 1)",
   "enum.statGroup.各縣市金融機構家數（央行）": "Financial institutions by county (central bank)",
   "enum.statGroup.金融機構分支數": "Financial branches",
-  "enum.statGroup.ATM 裝設點數（鄉鎮）": "ATM sites (township)"
+  "enum.statGroup.ATM 裝設點數（鄉鎮）": "ATM sites (township)",
+  "enum.statGroup.金融及保險業場所單位（縣市）": "Finance & insurance establishments (county)",
+  "enum.statGroup.金融卡類交易縣市分佈": "Financial-card transactions by county",
+  "enum.statGroup.壽險業分支機構（縣市）": "Life insurer offices (county)",
+  "enum.statGroup.金融卡特約商店（鄉鎮）": "Debit-card merchants (township)"
 }
