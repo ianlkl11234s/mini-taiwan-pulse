@@ -2305,7 +2305,7 @@ export const LAYER_MANIFEST = {
     key: "bridgeResilienceTwinCity",
     expandable: true,
     section: { theme: "雙北跨河橋梁中斷", group: "橋梁中斷" },
-    ...layerName({ zh: "雙北跨河橋梁韌性", qualifier: "研究中" }),
+    ...layerName({ zh: "雙北跨河橋梁韌性", qualifier: "推估・研究中" }),
     color: "#f59e0b",
     icon: Network,
     upstream: {
