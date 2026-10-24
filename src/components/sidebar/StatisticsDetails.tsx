@@ -5,8 +5,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSema
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasDimensionNote, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
-import { isTaipeiAgencyStatisticsLayer } from '../../data/taipeiAgencyStatisticsRecipes';
+import { atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -103,7 +102,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
   const activeBaseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const recipeDetailsFamily = getAgriRecipe(activeBaseKey) ? 'agri' : getSocialRecipe(activeBaseKey) || getEducationPresentationView(layerKey) ? 'social'
-    : isTaipeiAgencyStatisticsLayer(activeBaseKey) ? 'taipeiAgency' : null;
+    : atlasLazyFamily(activeBaseKey);
   const selectorsReady = useStatisticsRecipeDetails(recipeDetailsFamily);
   const unparseableCount = selectorsReady ? unparseableStatisticsReleaseCount(layerKey, state.releases, state.selection?.indicatorId) : 0;
   const selected = state.selection?.releaseId ?? state.release?.release_id ?? '';

@@ -12,8 +12,7 @@ import { getLaborRecipe, laborLocationSemantics, laborReleaseOptions, resolveLab
 import { getEnvironmentRecipe, environmentReleaseOptions, resolveEnvironmentRelease } from './environmentStatisticsRecipes';
 import { getAddictionRecipe, addictionReleaseOptions, resolveAddictionRelease } from './addictionStatisticsRecipes';
 import { getLandslideRecipe, landslideReleaseOptions, resolveLandslideRelease } from './landslideStatisticsRecipes';
-import { atlasDefaultReleaseOption, atlasReleaseOptions, getAtlasRecipe, resolveAtlasRelease } from './atlasStatisticsRecipes';
-import { isTaipeiAgencyStatisticsLayer } from './taipeiAgencyStatisticsRecipes';
+import { atlasDefaultReleaseOption, atlasLazyFamily, atlasReleaseOptions, getAtlasRecipe, resolveAtlasRelease } from './atlasStatisticsRecipes';
 import { statisticsPeriodLabel } from './statisticsLabels';
 import { getDemographicsRecipe, demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsPeriodParts, demographicsReleaseOptions, resolveDemographicsRelease } from './demographicsStatisticsRecipes';
 
@@ -334,9 +333,9 @@ async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortS
     if (!base || recipe.dimensions?.education_stage !== view.stage) throw new Error('教育學制或指標不符固定入口');
     recipe = {...recipe, layerKey: base.layerKey};
   }
-  // PF-7/PF-10: agri/social/taipeiAgency exact selectors live in that family's lazily imported recipe details (registered in loadingRegistry).
+  // PF-7/PF-10: agri/social/taipeiAgency/mortality exact selectors live in that family's lazily imported recipe details (registered in loadingRegistry).
   const detailsKey = recipe.sourceLayerKey ?? recipe.layerKey;
-  const detailsFamily = !detailsKey ? null : getAgriRecipe(detailsKey) ? 'agri' : getSocialRecipe(detailsKey) ? 'social' : isTaipeiAgencyStatisticsLayer(detailsKey) ? 'taipeiAgency' : null;
+  const detailsFamily = !detailsKey ? null : getAgriRecipe(detailsKey) ? 'agri' : getSocialRecipe(detailsKey) ? 'social' : atlasLazyFamily(detailsKey);
   if (detailsFamily) await ensureStatisticsRecipeDetails(detailsFamily);
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
