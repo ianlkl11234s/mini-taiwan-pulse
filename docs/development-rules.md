@@ -139,6 +139,7 @@ useEffect(() => {
 | 16 | `src/map/gisClickRegistry.ts`（4b 起自 useMapInteraction 升格模組級） | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
 | 17 | `src/components/IconRailSidebar.tsx` | **不手改 `LAYER_ICONS`**；icon 由 manifest 派生，只驗證兩側欄顯示一致 | 🔒 tsc + manifest 契約測試 |
 | 18 | `src/data/upstreamRegistry.ts` | **不手改 registry**；資料血緣由 manifest `source` 派生，另核對 taipei-gis-analytics catalog dataset | 🔒 `upstreamRegistry.test.ts` |
+| 18a | pulse-data `registry/<dataset>.yaml`（私有 repo） | 圖層 key 加進對應登記的 `consumers.pulse_layers`；真的沒有上游才加進 `registry/_no_upstream.yaml`（ADR-0024） | 🔒 `layerRegistryCoverage.test.ts`（owner-local：`npm run test:owner`，CI 不跑） |
 | 19 | `src/chat/tools/datasets.ts` | 選配：若是點狀＋有分類欄位的靜態 GeoJSON，想讓 BYOK 對話查詢，加進 `DATASET_WHITELIST` | ⚠️ 人工（非強制） |
 | 20 | `nginx.conf` + `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` | 僅 PMTiles／大型靜態檔層：nginx location 對應 + deploy 腳本清單加檔名 | ⚠️ 人工——PT-1 曾因漏此步，13 層全站 404 |
 
