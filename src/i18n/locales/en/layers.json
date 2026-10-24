@@ -1243,5 +1243,6 @@
   "layer.statsTaipeiUsagePermitCountByBuildTypeTownship": "Taipei Occupancy Permits Issued by Construction Type",
   "layer.statsTaipeiUsagePermitBuildingCountTownship": "Taipei Occupancy Permits: Buildings",
   "layer.statsTaipeiUsagePermitHouseholdCountTownship": "Taipei Occupancy Permits: Dwelling Units",
-  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "Taipei Occupancy Permits: Building Area"
+  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "Taipei Occupancy Permits: Building Area",
+  "layer.cultureCoinVenues": "Culture Coin Venues"
 }

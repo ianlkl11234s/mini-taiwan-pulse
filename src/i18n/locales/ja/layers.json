@@ -1243,5 +1243,6 @@
   "layer.statsTaipeiUsagePermitCountByBuildTypeTownship": "台北市の使用許可証交付件数（工事種別）",
   "layer.statsTaipeiUsagePermitBuildingCountTownship": "台北市の使用許可証交付棟数",
   "layer.statsTaipeiUsagePermitHouseholdCountTownship": "台北市の使用許可証交付戸数",
-  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "台北市の使用許可証交付建築面積"
+  "layer.statsTaipeiUsagePermitBuildingAreaTownship": "台北市の使用許可証交付建築面積",
+  "layer.cultureCoinVenues": "文化ポイント利用可能店舗"
 }

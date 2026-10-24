@@ -9,6 +9,7 @@ import {
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
   PLACE_CATEGORY_OPTIONS, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS,
   SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -582,6 +583,36 @@ function SetNetPanel({ props }: Props) {
   </>;
 }
 
+// ── 文化幣藝文消費點 G23（2026-10-24）────────────────────────────────────
+// 資料日期＝下載日（來源檔無日期欄）；座標來源分「來源座標」與「依地址回補（精度）」；
+// county_check 不一致時加注意列（只標旗標，座標未改）。出典與授權由 SourceFooter 掛。
+
+function CultureCoinPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(CULTURE_COIN_CATEGORY_OPTIONS, props.category);
+  const zhCategory = CULTURE_COIN_CATEGORY_OPTIONS.find((o) => o.value === str(props.category))?.label ?? "";
+  const category = enumOf("atlasCultureCoin", props.category, zhCategory, i18n);
+  const sub = enumOf("atlasCultureCoinSub", props.sub_category, props.sub_category_label, i18n);
+  const precision = enumOf("atlasCoinPrecision", props.precision, CULTURE_COIN_PRECISION_LABELS[str(props.precision)] ?? "", i18n);
+  const coord = props.coord_status === "geocoded"
+    ? t("popup.atlas.coinCoordGeocoded", { precision })
+    : t("popup.atlas.coinCoordSource");
+  const check = props.county_check === "mismatch" ? t("popup.atlas.coinCountyMismatch")
+    : props.county_check === "unresolved" ? t("popup.atlas.coinCountyUnresolved") : "";
+  return <>
+    <Title color={color}>{str(props.name) || category}</Title>
+    <Row field="category" value={category} color={color} />
+    <Row field="type" value={sub} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={placeName(`${str(props.city)}${str(props.area)}`, i18n)} />
+    <Row field="coordSource" value={coord} />
+    {check ? <Row field="caution" value={check} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.downloadDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -617,6 +648,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   protectedReefCenters: ProtectedReefPanel,
   setNetFishingAreas: SetNetPanel,
   ...LAND_SUBSIDENCE_PANELS,
+  cultureCoinVenues: CultureCoinPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -663,4 +695,5 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   landSubsidenceCumulative: manifestZh("landSubsidenceCumulative"),
   landSubsidenceRate: manifestZh("landSubsidenceRate"),
   seawallZones: manifestZh("seawallZones"),
+  cultureCoinVenues: manifestZh("cultureCoinVenues"),
 };

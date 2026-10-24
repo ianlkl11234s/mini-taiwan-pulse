@@ -547,6 +547,8 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   // 🕳️ 地層下陷＋海堤 G19（2026-10-17）：popup／RPC 依賴欄（id＝RPC p_station_id；obs_count 0 不打 RPC）。
   "hazards/land_subsidence_stations.geojson": [{ field: "id", type: "string" }, { field: "station_type", type: "string" }, { field: "obs_count", type: "number" }, { field: "trend_per_year", type: "number", nullable: true }],
   "hazards/seawall_zones.geojson": [{ field: "name", type: "string" }, { field: "org_label", type: "string" }],
+  // 🎟️ 文化幣藝文消費點 G23（2026-10-24）：著色／篩選依 category；popup 依 coord_status／county_check 顯示座標說明。
+  "culture/culture_coin_venues.geojson": [{ field: "category", type: "string" }, { field: "sub_category", type: "string" }, { field: "coord_status", type: "string" }, { field: "county_check", type: "string" }],
 };
 
 /**

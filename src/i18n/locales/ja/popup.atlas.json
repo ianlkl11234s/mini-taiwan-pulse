@@ -182,5 +182,10 @@
   "popup.atlas.lsShore": "海岸区間",
   "popup.atlas.lsShoreNo": "区間番号",
   "popup.atlas.lsOrgRaw": "提供元の表記",
-  "popup.atlas.lsBuilt": "提供元作成日"
+  "popup.atlas.lsBuilt": "提供元作成日",
+  "popup.atlas.coinCoordSource": "提供元座標",
+  "popup.atlas.coinCoordGeocoded": "提供元座標が (0,0) のため住所から補完（{precision}）",
+  "popup.atlas.coinCountyMismatch": "提供元座標が別の県市にあり、位置が誤っている可能性あり（未修正）",
+  "popup.atlas.coinCountyUnresolved": "提供元座標が県市の範囲外（海岸線の外）で、位置が誤っている可能性あり",
+  "popup.atlas.downloadDate": "ダウンロード日"
 }

@@ -268,6 +268,7 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
+  CULTURE_COIN_CATEGORY_OPTIONS,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11795,6 +11796,8 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `經濟部水利署 一般性海堤區域（data.gov.tw 129277）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("seawallZones", ATLAS_LAYER_COLORS.seawallZones, 0.5, SEAWALL_MIN_ZOOM),
   },
+  // ── 文化幣藝文消費點 G23（2026-10-24）：依 category 著色＋類別多選（電影院可單獨篩）──
+  publicLifePointOverlay("cultureCoinVenues", "./culture/culture_coin_venues.geojson", "culture-coin-venues", matchColorExpr("category", CULTURE_COIN_CATEGORY_OPTIONS), undefined, `文化部 文化幣藝文消費點（data.gov.tw 177601）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("category", CULTURE_COIN_CATEGORY_OPTIONS, p?.cultureCoinVenuesCategoryMask) }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);

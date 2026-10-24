@@ -42,4 +42,6 @@ export const ATLAS_LAYER_COLORS = {
   landSubsidenceCumulative: "#dc2626",
   landSubsidenceRate: "#f97316",
   seawallZones: "#0f766e",
+  // 文化幣藝文消費點 G23（2026-10-24）
+  cultureCoinVenues: "#e11d48",
 } as const;

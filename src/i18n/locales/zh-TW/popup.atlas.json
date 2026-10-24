@@ -182,5 +182,10 @@
   "popup.atlas.lsShore": "海岸段",
   "popup.atlas.lsShoreNo": "海岸段編號",
   "popup.atlas.lsOrgRaw": "上游原值",
-  "popup.atlas.lsBuilt": "上游建置"
+  "popup.atlas.lsBuilt": "上游建置",
+  "popup.atlas.coinCoordSource": "來源座標",
+  "popup.atlas.coinCoordGeocoded": "來源座標為 (0,0)，依地址回補（{precision}）",
+  "popup.atlas.coinCountyMismatch": "來源座標落在其他縣市，位置可能有誤（未修正）",
+  "popup.atlas.coinCountyUnresolved": "來源座標未落在縣市範圍內（海岸線外），位置可能有誤",
+  "popup.atlas.downloadDate": "資料下載日"
 }

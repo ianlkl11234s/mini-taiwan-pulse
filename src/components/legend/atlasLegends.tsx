@@ -7,6 +7,7 @@ import {
   GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MICROPLASTIC_STEPS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS,
   POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS,
   TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_ORGS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -33,6 +34,7 @@ const ORGS = {
   oca: "海洋委員會海洋保育署", moenv: "環境部", oac: "海洋委員會", namr: "國家海洋研究院",
   landAdmin: "內政部地政司", nlsc: "內政部國土測繪中心", wra: "經濟部水利署",
   ...MARINE_PROTECTION_ORGS,
+  ...CULTURE_COIN_ORGS,
 } as const;
 type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
@@ -108,4 +110,6 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   landSubsidenceCumulative: () => <AtlasLegend layer="landSubsidenceCumulative" en="Cumulative Subsidence (mm)" kind="line" source={src("wra", ["58361"])} rows={CUMULATIVE_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
   landSubsidenceRate: () => <AtlasLegend layer="landSubsidenceRate" en="Subsidence Rate (cm/yr)" kind="line" source={src("wra", ["58362"])} rows={RATE_STEPS.map((step) => ({ label: step.label, color: step.color }))} />,
   seawallZones: () => <AtlasLegend layer="seawallZones" en="Seawall Zones" kind="square" source={src("wra", ["129277"])} rows={single("seawallZones", "legend.atlas.seawallZone")} />,
+  // 文化幣藝文消費點 G23（2026-10-24）
+  cultureCoinVenues: () => <AtlasLegend layer="cultureCoinVenues" en="Culture Coin Venues" source={src("moc", ["177601"])} domain="atlasCultureCoin" rows={CULTURE_COIN_CATEGORY_OPTIONS} />,
 };

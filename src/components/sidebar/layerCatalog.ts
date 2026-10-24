@@ -1199,6 +1199,12 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "藝文消費 Culture Coin",
+        layers: [
+          fromManifest("cultureCoinVenues"),
+        ],
+      },
+      {
         title: "即時 Realtime",
         layers: [
           fromManifest("librarySeats"),
