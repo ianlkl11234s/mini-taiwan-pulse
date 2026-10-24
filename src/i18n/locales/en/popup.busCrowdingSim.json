@@ -1,0 +1,17 @@
+{
+  "popup.busCrowdingSim.confidence": "Range only",
+  "popup.busCrowdingSim.subRoute": "Sub-route",
+  "popup.busCrowdingSim.kind": "Type",
+  "popup.busCrowdingSim.synthetic": "Added in scenario",
+  "popup.busCrowdingSim.segment": "Segment",
+  "popup.busCrowdingSim.segmentValue": "{a} → {b}",
+  "popup.busCrowdingSim.scenario": "Scenario",
+  "popup.busCrowdingSim.loading": "Loading values…",
+  "popup.busCrowdingSim.overload": "Overloaded trips",
+  "popup.busCrowdingSim.overloadRange": "Less crowded {low} – More crowded {high}",
+  "popup.busCrowdingSim.tripsLabel": "Trips",
+  "popup.busCrowdingSim.trips": "{n} trips",
+  "popup.busCrowdingSim.tripsRange": "{a}–{b} trips",
+  "popup.busCrowdingSim.note": "Among weekday trips leaving the segment's first stop between 7 and 9 am, the share whose load reaches capacity (assumed 65 passengers). The two values assume 7–9 am accounts for 13.7% and 18.0% of daily ridership. Simulated estimate, not measured.",
+  "popup.busCrowdingSim.source": "TDX bus routes and timetables; taipei-gis-analytics bus crowding model (estimate)"
+}

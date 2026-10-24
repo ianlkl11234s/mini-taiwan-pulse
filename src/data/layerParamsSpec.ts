@@ -102,6 +102,7 @@ import {
 } from "./urbanOpenSpaceTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
+import { BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS } from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
 import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
@@ -1993,6 +1994,14 @@ export const LAYER_PARAMS_SPEC = {
     kind: "toggle", name: "bridgeResilienceJoint", label: "關渡＋淡江同時中斷", default: false,
   }],
   bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
+  // 公車擁擠模擬（spec §5.40）：方案、參數版本是資料篩選，顯示時自動排在透明度前；切換只換 feature-state。
+  busCrowdingSim: [opacitySlider("busCrowdingSimOpacity", 1), {
+    kind: "select", category: "data", name: "busCrowdingSimScenario", label: "方案", default: "base",
+    options: BUS_CROWDING_SCENARIOS.map((value) => ({ value, label: BUS_CROWDING_SCENARIO_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "busCrowdingSimVersion", label: "參數版本", default: "v137",
+    options: BUS_CROWDING_VERSIONS.map((value) => ({ value, label: BUS_CROWDING_VERSION_LABELS[value] })), out: null,
+  }],
   jpPoliceFacilities: [
     heatmapPalette("jpPoliceFacilities"),
     opacitySlider("jpPoliceFacilitiesOpacity", densePointOpacity(13_195)), scaleSlider("jpPoliceFacilitiesScale", 1),

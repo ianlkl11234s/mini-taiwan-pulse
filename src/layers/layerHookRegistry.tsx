@@ -52,6 +52,7 @@ import {
   LibrarySeatsHost, ParkingHost, EarthquakeHost, EarthquakeReplayHost, SoilLiquefactionHost,
 } from "./hosts/hazardHosts";
 import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
+import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import {
   NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
 } from "./hosts/environmentHosts";
@@ -245,6 +246,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useSoilLiquefactionLayers", keys: ["soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10", "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites"], Host: SoilLiquefactionHost },
   { id: "useBssBridgeLayers", keys: ["bssNationalBridgePreview", "bssNationalBridgePointsPreview"], Host: BssBridgeHost },
   { id: "useBridgeResilienceLayers", keys: ["bridgeResilienceTwinCity"], Host: BridgeResilienceHost },
+  { id: "useBusCrowdingSimLayer", keys: ["busCrowdingSim"], Host: BusCrowdingSimHost },
 
   // ── 全球氣候 / 世界（L1088-1154）──
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },

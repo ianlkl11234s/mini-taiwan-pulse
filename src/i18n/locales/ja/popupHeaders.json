@@ -93,5 +93,6 @@
   "popupHeader.pollutionPenalty": "汚染違反の処分案件",
   "popupHeader.chatHighlight": "地図マーカー",
   "popupHeader.analysisResult": "分析結果",
-  "popupHeader.typhoonAgencyForecast": "各国の台風予報"
+  "popupHeader.typhoonAgencyForecast": "各国の台風予報",
+  "popupHeader.busCrowdingSim": "バス区間の定員超過便割合（推計）"
 }

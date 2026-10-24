@@ -86,5 +86,15 @@
   "legend.transport.parkFull": "Full 0%",
   "legend.transport.parkOnstreet": "Taipei on-street: capacity only (darker = more), no live vacancy",
   "legend.transport.parkOffTitle": "Off-street category (outer ring)",
-  "legend.transport.parkOffNote": "Larger circle = more spaces"
+  "legend.transport.parkOffNote": "Larger circle = more spaces",
+  "legend.transport.busSimTitle": "Share of overloaded trips ({version})",
+  "legend.transport.busSimScenario": "Scenario: {scenario}",
+  "legend.transport.busSimZero": "0% (no overloaded trips)",
+  "legend.transport.busSimLow": "Above 0%, below 20%",
+  "legend.transport.busSimMid": "20% to below 40%",
+  "legend.transport.busSimHigh": "40% or more",
+  "legend.transport.busSimHidden": "Segments with fewer than {n} trips are not drawn",
+  "legend.transport.busSimDefinition": "Share of overloaded trips: among trips leaving the segment's first stop, the share whose load reaches capacity (assumed 65 passengers)",
+  "legend.transport.busSimWindow": "Weekdays 7–9 am · Data date 2026-10-14 · Simulated estimate, not measured",
+  "legend.transport.busSimCoverage": "Coverage: 257 routes around the Route 307 corridor in Taipei City; New Taipei city buses are not covered"
 }

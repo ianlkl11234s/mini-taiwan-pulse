@@ -33,6 +33,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
+import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimTypes";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -276,6 +277,9 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
   "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
+  // 公車擁擠模擬（模擬面板，研究中）：public/sim/ gitignored、只在本機由 build-bus-crowding-sim.py 產生；
+  // 資料公開與否尚未拍板，刻意不進 upload／pull／nginx。拍板公開後改走部署管線並移出本 ledger。
+  ...BUS_CROWDING_SIM_ASSETS,
 ]);
 
 /**

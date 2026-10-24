@@ -1,0 +1,17 @@
+{
+  "popup.busCrowdingSim.confidence": "範囲のみ参照",
+  "popup.busCrowdingSim.subRoute": "運行系統",
+  "popup.busCrowdingSim.kind": "種別",
+  "popup.busCrowdingSim.synthetic": "シナリオで追加",
+  "popup.busCrowdingSim.segment": "区間",
+  "popup.busCrowdingSim.segmentValue": "{a} → {b}",
+  "popup.busCrowdingSim.scenario": "シナリオ",
+  "popup.busCrowdingSim.loading": "数値を読み込み中…",
+  "popup.busCrowdingSim.overload": "定員超過便の割合",
+  "popup.busCrowdingSim.overloadRange": "緩め {low} ～ 混雑寄り {high}",
+  "popup.busCrowdingSim.tripsLabel": "便数",
+  "popup.busCrowdingSim.trips": "{n} 便",
+  "popup.busCrowdingSim.tripsRange": "{a}～{b} 便",
+  "popup.busCrowdingSim.note": "平日 7–9 時に区間の始点停留所を出発する便のうち、乗客数が定員（65 人と仮定）に達した便の割合です。2 つの値は、7–9 時が 1 日の利用者数の 13.7% と 18.0% を占めると仮定した推計です。シミュレーションによる推計で、実測ではありません。",
+  "popup.busCrowdingSim.source": "TDX バス路線・時刻表；taipei-gis-analytics バス混雑モデル（推計）"
+}

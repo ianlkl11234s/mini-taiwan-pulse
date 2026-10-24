@@ -48,6 +48,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "changhuaTrafficSignals",
   // 全臺橋梁研究 2 層（站主限定）：panel 自帶 BSS 來源／擷取時間／授權狀態列。
   "bssNationalBridgePreview", "bssNationalBridgePointsPreview", "bridgeResilienceTwinCity",
+  // 公車擁擠模擬：feature 只有路段欄位，panel 自掛模型來源。
+  "busCrowdingSim",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",

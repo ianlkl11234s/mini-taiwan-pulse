@@ -26,6 +26,7 @@ import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
+import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -425,6 +426,12 @@ export function useMapInteraction(
           let features = type === "gfwHourlyGrid"
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
+          if (type === "busCrowdingSim") {
+            // 透明命中層含「不畫」的段（班次 < 5 或無值，只靠 opacity 隱藏）：依 feature-state 濾掉，點擊落到下一層。
+            // 多條路線疊在同一條街時，優先回答超載比例最高的那條（line-sort-key 吃不到 feature-state）。
+            features = queried.filter((feature) => isBusCrowdingDrawn(feature.state?.ov, feature.state?.n))
+              .sort((a, b) => Number(b.state?.ov ?? -1) - Number(a.state?.ov ?? -1));
+          }
           if (type === "bridgeResilienceTwinCity") {
             // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢
             const bridgeHits = queried.filter((feature) => feature.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill);

@@ -1,5 +1,5 @@
 // ⚠️ 自動產生，請勿手改：npx tsx scripts/i18n/gen-keys.ts
-// 來源：src/i18n/locales/zh-TW/{alerts.json,analysisCard.json,chat.json,common.json,dataSources.json,intel.json,legend.agri.json,legend.atlas.json,legend.civic.json,legend.culture.json,legend.energy.json,legend.environment.json,legend.harmReduction.json,legend.hazard.json,legend.jma.json,legend.jmaTime.json,legend.json,legend.landslide.json,legend.maritime.json,legend.registry.json,legend.transport.json,legend.urban.json,legend.water.json,member.json,monitor.airport.json,monitor.er.json,monitor.food.json,monitor.hazard.json,monitor.isr.json,monitor.json,monitor.pla.json,monitor.power.json,monitor.prison.json,monitor.telecom.json,monitor.tra.json,monitor.vessel.json,paramsPanel.json,popup.agri.json,popup.air.json,popup.allenCoral.json,popup.analysisResult.json,popup.animalWelfare.json,popup.atlas.json,popup.baseMap.json,popup.bridgeResilience.json,popup.businessRegistry.json,popup.coralReef.json,popup.culture.json,popup.education.json,popup.energy.json,popup.environmentLayer.json,popup.event.json,popup.fire.json,popup.fishery.json,popup.forestry.json,popup.funeral.json,popup.globalClimate.json,popup.h3Metric.json,popup.harmReduction.json,popup.hazard.json,popup.historicalFlight.json,popup.infra.json,popup.japan.json,popup.jma.json,popup.jmaTime.json,popup.jpMedical.json,popup.json,popup.landslide.json,popup.livestock.json,popup.marine.json,popup.medical.json,popup.networkStructures.json,popup.noise.json,popup.parking.json,popup.policeJustice.json,popup.pollution.json,popup.publicLife.json,popup.regionalStatistics.json,popup.religion.json,popup.road.json,popup.satellite.json,popup.soilLiquefaction.json,popup.sports.json,popup.taipeiWic.json,popup.tourism.json,popup.transport.json,popup.urban.json,popup.waste.json,popup.water.json,popup.welfare.json,research.json,researchResult.json,satelliteConsole.json,statistics.json,statisticsSelect.json,timeline.json}
+// 來源：src/i18n/locales/zh-TW/{alerts.json,analysisCard.json,chat.json,common.json,dataSources.json,intel.json,legend.agri.json,legend.atlas.json,legend.civic.json,legend.culture.json,legend.energy.json,legend.environment.json,legend.harmReduction.json,legend.hazard.json,legend.jma.json,legend.jmaTime.json,legend.json,legend.landslide.json,legend.maritime.json,legend.registry.json,legend.transport.json,legend.urban.json,legend.water.json,member.json,monitor.airport.json,monitor.er.json,monitor.food.json,monitor.hazard.json,monitor.isr.json,monitor.json,monitor.pla.json,monitor.power.json,monitor.prison.json,monitor.telecom.json,monitor.tra.json,monitor.vessel.json,paramsPanel.json,popup.agri.json,popup.air.json,popup.allenCoral.json,popup.analysisResult.json,popup.animalWelfare.json,popup.atlas.json,popup.baseMap.json,popup.bridgeResilience.json,popup.busCrowdingSim.json,popup.businessRegistry.json,popup.coralReef.json,popup.culture.json,popup.education.json,popup.energy.json,popup.environmentLayer.json,popup.event.json,popup.fire.json,popup.fishery.json,popup.forestry.json,popup.funeral.json,popup.globalClimate.json,popup.h3Metric.json,popup.harmReduction.json,popup.hazard.json,popup.historicalFlight.json,popup.infra.json,popup.japan.json,popup.jma.json,popup.jmaTime.json,popup.jpMedical.json,popup.json,popup.landslide.json,popup.livestock.json,popup.marine.json,popup.medical.json,popup.networkStructures.json,popup.noise.json,popup.parking.json,popup.policeJustice.json,popup.pollution.json,popup.publicLife.json,popup.regionalStatistics.json,popup.religion.json,popup.road.json,popup.satellite.json,popup.soilLiquefaction.json,popup.sports.json,popup.taipeiWic.json,popup.tourism.json,popup.transport.json,popup.urban.json,popup.waste.json,popup.water.json,popup.welfare.json,research.json,researchResult.json,satelliteConsole.json,statistics.json,statisticsSelect.json,timeline.json}
 
 export type GeneratedStaticKey =
   | "alerts.allClear"
@@ -1331,6 +1331,16 @@ export type GeneratedStaticKey =
   | "legend.transport.aviTitle"
   | "legend.transport.aviTma"
   | "legend.transport.aviUlz"
+  | "legend.transport.busSimCoverage"
+  | "legend.transport.busSimDefinition"
+  | "legend.transport.busSimHidden"
+  | "legend.transport.busSimHigh"
+  | "legend.transport.busSimLow"
+  | "legend.transport.busSimMid"
+  | "legend.transport.busSimScenario"
+  | "legend.transport.busSimTitle"
+  | "legend.transport.busSimWindow"
+  | "legend.transport.busSimZero"
   | "legend.transport.cctvCity"
   | "legend.transport.cctvNote"
   | "legend.transport.cctvTitle"
@@ -2823,6 +2833,21 @@ export type GeneratedStaticKey =
   | "popup.bridgeResilience.weightNoteText"
   | "popup.bridgeResilience.weighting"
   | "popup.bridgeResilience.within26"
+  | "popup.busCrowdingSim.confidence"
+  | "popup.busCrowdingSim.kind"
+  | "popup.busCrowdingSim.loading"
+  | "popup.busCrowdingSim.note"
+  | "popup.busCrowdingSim.overload"
+  | "popup.busCrowdingSim.overloadRange"
+  | "popup.busCrowdingSim.scenario"
+  | "popup.busCrowdingSim.segment"
+  | "popup.busCrowdingSim.segmentValue"
+  | "popup.busCrowdingSim.source"
+  | "popup.busCrowdingSim.subRoute"
+  | "popup.busCrowdingSim.synthetic"
+  | "popup.busCrowdingSim.trips"
+  | "popup.busCrowdingSim.tripsLabel"
+  | "popup.busCrowdingSim.tripsRange"
   | "popup.businessRegistry.addrMismatch"
   | "popup.businessRegistry.ageNote"
   | "popup.businessRegistry.capitalMedian"
@@ -5761,4 +5786,4 @@ export type GeneratedStaticKey =
   | "toolbar.render3d2d"
   | "toolbar.share";
 
-export const ZH_MESSAGE_FILES = ["alerts.json","analysisCard.json","chat.json","common.json","dataSources.json","intel.json","legend.agri.json","legend.atlas.json","legend.civic.json","legend.culture.json","legend.energy.json","legend.environment.json","legend.harmReduction.json","legend.hazard.json","legend.jma.json","legend.jmaTime.json","legend.json","legend.landslide.json","legend.maritime.json","legend.registry.json","legend.transport.json","legend.urban.json","legend.water.json","member.json","monitor.airport.json","monitor.er.json","monitor.food.json","monitor.hazard.json","monitor.isr.json","monitor.json","monitor.pla.json","monitor.power.json","monitor.prison.json","monitor.telecom.json","monitor.tra.json","monitor.vessel.json","paramsPanel.json","popup.agri.json","popup.air.json","popup.allenCoral.json","popup.analysisResult.json","popup.animalWelfare.json","popup.atlas.json","popup.baseMap.json","popup.bridgeResilience.json","popup.businessRegistry.json","popup.coralReef.json","popup.culture.json","popup.education.json","popup.energy.json","popup.environmentLayer.json","popup.event.json","popup.fire.json","popup.fishery.json","popup.forestry.json","popup.funeral.json","popup.globalClimate.json","popup.h3Metric.json","popup.harmReduction.json","popup.hazard.json","popup.historicalFlight.json","popup.infra.json","popup.japan.json","popup.jma.json","popup.jmaTime.json","popup.jpMedical.json","popup.json","popup.landslide.json","popup.livestock.json","popup.marine.json","popup.medical.json","popup.networkStructures.json","popup.noise.json","popup.parking.json","popup.policeJustice.json","popup.pollution.json","popup.publicLife.json","popup.regionalStatistics.json","popup.religion.json","popup.road.json","popup.satellite.json","popup.soilLiquefaction.json","popup.sports.json","popup.taipeiWic.json","popup.tourism.json","popup.transport.json","popup.urban.json","popup.waste.json","popup.water.json","popup.welfare.json","research.json","researchResult.json","satelliteConsole.json","statistics.json","statisticsSelect.json","timeline.json"] as const;
+export const ZH_MESSAGE_FILES = ["alerts.json","analysisCard.json","chat.json","common.json","dataSources.json","intel.json","legend.agri.json","legend.atlas.json","legend.civic.json","legend.culture.json","legend.energy.json","legend.environment.json","legend.harmReduction.json","legend.hazard.json","legend.jma.json","legend.jmaTime.json","legend.json","legend.landslide.json","legend.maritime.json","legend.registry.json","legend.transport.json","legend.urban.json","legend.water.json","member.json","monitor.airport.json","monitor.er.json","monitor.food.json","monitor.hazard.json","monitor.isr.json","monitor.json","monitor.pla.json","monitor.power.json","monitor.prison.json","monitor.telecom.json","monitor.tra.json","monitor.vessel.json","paramsPanel.json","popup.agri.json","popup.air.json","popup.allenCoral.json","popup.analysisResult.json","popup.animalWelfare.json","popup.atlas.json","popup.baseMap.json","popup.bridgeResilience.json","popup.busCrowdingSim.json","popup.businessRegistry.json","popup.coralReef.json","popup.culture.json","popup.education.json","popup.energy.json","popup.environmentLayer.json","popup.event.json","popup.fire.json","popup.fishery.json","popup.forestry.json","popup.funeral.json","popup.globalClimate.json","popup.h3Metric.json","popup.harmReduction.json","popup.hazard.json","popup.historicalFlight.json","popup.infra.json","popup.japan.json","popup.jma.json","popup.jmaTime.json","popup.jpMedical.json","popup.json","popup.landslide.json","popup.livestock.json","popup.marine.json","popup.medical.json","popup.networkStructures.json","popup.noise.json","popup.parking.json","popup.policeJustice.json","popup.pollution.json","popup.publicLife.json","popup.regionalStatistics.json","popup.religion.json","popup.road.json","popup.satellite.json","popup.soilLiquefaction.json","popup.sports.json","popup.taipeiWic.json","popup.tourism.json","popup.transport.json","popup.urban.json","popup.waste.json","popup.water.json","popup.welfare.json","research.json","researchResult.json","satelliteConsole.json","statistics.json","statisticsSelect.json","timeline.json"] as const;
