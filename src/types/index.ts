@@ -130,6 +130,8 @@ export type ExpandableLayerKey =
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
   | "cultureCoinVenues"
+  // 原民會文化健康站 G20（2026-10-24）
+  | "culturalHealthStations"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -840,6 +842,7 @@ export interface FeatureInfo {
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
+    | "culturalHealthStations"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1250,6 +1253,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   seawallZones: boolean;
   /** 文化幣藝文消費點 G23（2026-10-24）：文化部 177601 店家 4,264（不含街頭藝人） */
   cultureCoinVenues: boolean;
+  /** 原民會文化健康站 G20（2026-10-24）：157725 通訊錄 525 站（191 站址點＋59 個鄉鎮中心圈） */
+  culturalHealthStations: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

@@ -1135,6 +1135,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "長照與托育",
         layers: [
           fromManifest("welfareLtcInstitutions"),
+          fromManifest("culturalHealthStations"),
           fromManifest("welfareChildcare"),
           fromManifest("welfareChildServices"),
         ],

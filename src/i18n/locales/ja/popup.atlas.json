@@ -187,5 +187,10 @@
   "popup.atlas.coinCoordGeocoded": "提供元座標が (0,0) のため住所から補完（{precision}）",
   "popup.atlas.coinCountyMismatch": "提供元座標が別の県市にあり、位置が誤っている可能性あり（未修正）",
   "popup.atlas.coinCountyUnresolved": "提供元座標が県市の範囲外（海岸線の外）で、位置が誤っている可能性あり",
-  "popup.atlas.downloadDate": "ダウンロード日"
+  "popup.atlas.downloadDate": "ダウンロード日",
+  "popup.atlas.chsGroupTitle": "{district}（郷鎮単位のみ、{count}か所）",
+  "popup.atlas.chsTownshipOnly": "位置は郷鎮単位のみ（郷鎮の中心に表示）で、各ステーションの実際の場所ではない；距離の計測には使えない",
+  "popup.atlas.chsStationCount": "ステーション数",
+  "popup.atlas.chsStationNames": "ステーション名",
+  "popup.atlas.chsListDate": "名簿の日付"
 }

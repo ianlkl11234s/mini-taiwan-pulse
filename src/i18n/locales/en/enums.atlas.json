@@ -250,5 +250,12 @@
   "enum.atlasCoinPrecision.interpolated": "interpolated along street",
   "enum.atlasCoinPrecision.approximate": "approximate",
   "enum.atlasOrg.moc": "Ministry of Culture",
-  "enum.atlasNote.cultureCoinVenues": "4,264 arts shops and venues that accept the Culture Coin (downloaded 2026-10-24; the source file carries no date). 342 had (0,0) coordinates in the source and were placed from their addresses. Street performers are not included."
+  "enum.atlasNote.cultureCoinVenues": "4,264 arts shops and venues that accept the Culture Coin (downloaded 2026-10-24; the source file carries no date). 342 had (0,0) coordinates in the source and were placed from their addresses. Street performers are not included.",
+  "enum.atlasChsKind.site": "Station site (located from address)",
+  "enum.atlasChsKind.township_group": "Township only (township center, not the actual site)",
+  "enum.atlasChsPrecision.exact": "street-number point",
+  "enum.atlasChsPrecision.interpolated": "interpolated along street",
+  "enum.atlasChsPrecision.cached": "address cache hit (TGOS)",
+  "enum.atlasChsPrecision.township_centroid": "township center (not the actual site)",
+  "enum.atlasNote.culturalHealthStations": "525 Indigenous cultural health stations (directory dated 2025-07-22). Solid dots are the 191 stations located from their addresses; hollow rings are the 334 stations located only to their township, merged into one ring at the township center with the number of stations inside — not actual sites, so do not use them for distances. Phone numbers are not included."
 }

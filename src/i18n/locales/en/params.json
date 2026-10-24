@@ -1198,5 +1198,7 @@
   "param.表演藝術及文化體驗": "Performing arts & cultural experiences",
   "param.文資保存與社區營造場域": "Heritage & community-building sites",
   "param.流行音樂": "Popular music",
-  "param.文創工藝": "Crafts & creative goods"
+  "param.文創工藝": "Crafts & creative goods",
+  "param.站址（依地址定位）": "Station site (from address)",
+  "param.僅到鄉鎮（鄉鎮中心，非實際位置）": "Township only (center, not actual site)"
 }

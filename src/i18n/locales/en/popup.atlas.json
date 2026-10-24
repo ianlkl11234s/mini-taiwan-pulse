@@ -187,5 +187,10 @@
   "popup.atlas.coinCoordGeocoded": "Source coordinates were (0,0); placed from the address ({precision})",
   "popup.atlas.coinCountyMismatch": "Source coordinates fall in another county; the location may be wrong (not corrected)",
   "popup.atlas.coinCountyUnresolved": "Source coordinates fall outside county boundaries (offshore); the location may be wrong",
-  "popup.atlas.downloadDate": "Downloaded"
+  "popup.atlas.downloadDate": "Downloaded",
+  "popup.atlas.chsGroupTitle": "{district} (township only, {count} stations)",
+  "popup.atlas.chsTownshipOnly": "Located only to the township (drawn at the township center), not each station's actual site; do not use for distance",
+  "popup.atlas.chsStationCount": "Stations",
+  "popup.atlas.chsStationNames": "Station names",
+  "popup.atlas.chsListDate": "Directory date"
 }

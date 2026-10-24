@@ -122,6 +122,8 @@ import {
   Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle, TrendingDown, BrickWall,
   // 🎟️ 文化幣藝文消費點 G23
   Ticket,
+  // 🏡 原民會文化健康站 G20
+  HousePlus,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7578,6 +7580,16 @@ export const LAYER_MANIFEST = {
     legend: "cultureCoinVenues", popup: "cultureCoinVenues", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "可使用文化幣的書店、電影院、表演場域、博物館、文資場域、唱片行／樂器行與文創工藝店（依類別著色）。",
     topics: ["文化", "文化幣", "書店", "電影院", "藝文"],
+  },
+  // ── 原民會文化健康站 G20（2026-10-24）：analytics data/processed/welfare/cultural_health_stations_cip → build-atlas-public.py → public/welfare/ ──
+  culturalHealthStations: {
+    key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.culturalHealthStations, icon: HousePlus,
+    upstream: { status: "verified", datasets: [{ datasetId: "cultural_health_stations_cip", confidence: "HIGH" }], note: "原住民族委員會 原住民族文化健康站通訊錄（data.gov.tw 157725，2025-07-22）525 站；191 站離線 geocode 到站址，334 站只到鄉鎮中心（同鄉鎮併一圈）；不含電話。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "cultural-health-stations", url: "./welfare/cultural_health_stations.geojson" },
+    legend: "culturalHealthStations", popup: "culturalHealthStations", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "原住民族委員會設置的部落／都會文化健康站（長者照顧與文化活動據點）；實心點依地址定位，空心圈只到鄉鎮中心。",
+    topics: ["社福", "長照", "原住民", "文化健康站", "部落"],
   },
   placeNames: {
     key: "placeNames", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,

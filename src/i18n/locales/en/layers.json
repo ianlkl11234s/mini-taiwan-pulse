@@ -1250,5 +1250,6 @@
   "layer.statsMortalityRateTownship": "Township Crude Death Rate by Cause (annual)",
   "layer.statsMortalityDeathsTownship": "Township Deaths by Cause (annual)",
   "layer.statsMortalityCauseCounty": "County Crude Death Rate by Cause",
-  "layer.statsMortalityDeathsCounty": "County Deaths by Cause"
+  "layer.statsMortalityDeathsCounty": "County Deaths by Cause",
+  "layer.culturalHealthStations": "Indigenous Cultural Health Stations"
 }

@@ -506,6 +506,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["wra-dredging-points-circle", "wra-dredging-points-glow"], type: "wraDredgingPoints" },
   // 文化幣藝文消費點 G23
   { layers: ["culture-coin-venues-circle", "culture-coin-venues-glow"], type: "cultureCoinVenues" },
+  // 原民會文化健康站 G20：站址實心點＋鄉鎮中心空心圈
+  { layers: ["cultural-health-stations-site", "cultural-health-stations-group"], type: "culturalHealthStations" },
   // 海域保護與漁業 G08：點層（捕魚點、魚礁中心點）
   { layers: ["open-fishing-locations-circle", "open-fishing-locations-glow"], type: "openFishingLocations" },
   { layers: ["artificial-reef-centers-circle", "artificial-reef-centers-glow"], type: "artificialReefCenters" },

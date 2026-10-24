@@ -1250,5 +1250,6 @@
   "layer.statsMortalityRateTownship": "郷鎮別 死因別粗死亡率（年別）",
   "layer.statsMortalityDeathsTownship": "郷鎮別 死因別死亡数（年別）",
   "layer.statsMortalityCauseCounty": "県市別 死因別粗死亡率",
-  "layer.statsMortalityDeathsCounty": "県市別 死因別死亡数"
+  "layer.statsMortalityDeathsCounty": "県市別 死因別死亡数",
+  "layer.culturalHealthStations": "原住民族文化健康ステーション"
 }

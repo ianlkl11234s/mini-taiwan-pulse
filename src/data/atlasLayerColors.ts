@@ -44,4 +44,6 @@ export const ATLAS_LAYER_COLORS = {
   seawallZones: "#0f766e",
   // 文化幣藝文消費點 G23（2026-10-24）
   cultureCoinVenues: "#e11d48",
+  // 原民會文化健康站 G20（2026-10-24）
+  culturalHealthStations: "#c2410c",
 } as const;

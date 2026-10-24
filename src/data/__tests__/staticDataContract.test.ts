@@ -548,6 +548,8 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   "hazards/land_subsidence_stations.geojson": [{ field: "id", type: "string" }, { field: "station_type", type: "string" }, { field: "obs_count", type: "number" }, { field: "trend_per_year", type: "number", nullable: true }],
   "hazards/seawall_zones.geojson": [{ field: "name", type: "string" }, { field: "org_label", type: "string" }],
   // 🎟️ 文化幣藝文消費點 G23（2026-10-24）：著色／篩選依 category；popup 依 coord_status／county_check 顯示座標說明。
+  // 🏡 原民會文化健康站 G20（2026-10-24）：著色／篩選依 kind；鄉鎮中心圈依 station_count 定半徑、popup 列 station_names。
+  "welfare/cultural_health_stations.geojson": [{ field: "kind", type: "string" }, { field: "precision", type: "string" }, { field: "station_count", type: "number", nullable: true }, { field: "station_names", type: "string", nullable: true }],
   "culture/culture_coin_venues.geojson": [{ field: "category", type: "string" }, { field: "sub_category", type: "string" }, { field: "coord_status", type: "string" }, { field: "county_check", type: "string" }],
 };
 

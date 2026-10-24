@@ -9,7 +9,7 @@ import {
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
   PLACE_CATEGORY_OPTIONS, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS,
   SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
-  CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS,
+  CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -613,6 +613,35 @@ function CultureCoinPanel({ props }: Props) {
   </>;
 }
 
+// ── 原民會文化健康站 G20（2026-10-24）────────────────────────────────────
+// kind=site：依地址定位的站址；kind=township_group：同鄉鎮只到鄉鎮的各站併成鄉鎮中心一點，列站名並警示非實際位置。
+// 不顯示電話（成品不帶）。資料日期＝通訊錄 DateListed；出典與授權由 SourceFooter 掛。
+
+function CulturalHealthPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = ATLAS_LAYER_COLORS.culturalHealthStations;
+  const precision = enumOf("atlasChsPrecision", props.precision, CULTURAL_HEALTH_PRECISION_LABELS[str(props.precision)] ?? str(props.precision_label), i18n);
+  const district = placeName(`${str(props.county)}${str(props.town)}`, i18n);
+  if (props.kind === "township_group") {
+    return <>
+      <Title color={color}>{t("popup.atlas.chsGroupTitle", { district, count: str(props.station_count) })}</Title>
+      <Row field="caution" value={t("popup.atlas.chsTownshipOnly")} color={theme.warn} />
+      <Row label={t("popup.atlas.chsStationCount")} value={str(props.station_count)} />
+      <Row label={t("popup.atlas.chsStationNames")} value={str(props.station_names)} />
+      <Row label={t("popup.atlas.chsListDate")} value={str(props.vintage)} mono />
+    </>;
+  }
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={district} />
+    <Row field="coordSource" value={precision} />
+    <Row label={t("popup.atlas.chsListDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -649,6 +678,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   setNetFishingAreas: SetNetPanel,
   ...LAND_SUBSIDENCE_PANELS,
   cultureCoinVenues: CultureCoinPanel,
+  culturalHealthStations: CulturalHealthPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -696,4 +726,5 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   landSubsidenceRate: manifestZh("landSubsidenceRate"),
   seawallZones: manifestZh("seawallZones"),
   cultureCoinVenues: manifestZh("cultureCoinVenues"),
+  culturalHealthStations: manifestZh("culturalHealthStations"),
 };
