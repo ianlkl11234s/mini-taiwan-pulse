@@ -9,6 +9,7 @@ import {
   TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_ORGS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -37,6 +38,7 @@ const ORGS = {
   ...MARINE_PROTECTION_ORGS,
   ...CULTURE_COIN_ORGS,
   ...STATE_ASSET_ORGS,
+  ...FINANCE_ACCESS_ORGS,
 } as const;
 type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean };
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
@@ -122,4 +124,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   twcWaterFacilities: () => <AtlasLegend layer="twcWaterFacilities" en="TWC Water Facilities" source={src("twc", ["36602"])} domain="atlasTwcFacilityType" rows={TWC_FACILITY_TYPE_OPTIONS} />,
   taisugarSugarMills: () => <AtlasLegend layer="taisugarSugarMills" en="Taisugar Sugar Mills" source={src("taisugar", ["41592"])} rows={single("taisugarSugarMills", "legend.atlas.sugarMill")} />,
   statePropertyTenderListings: () => <AtlasLegend layer="statePropertyTenderListings" en="State Property for Tender" source={src("fnp", ["9659", "13152"])} domain="atlasTenderKind" rows={STATE_TENDER_KIND_OPTIONS} />,
+  // 金融服務據點 G10（2026-10-24）
+  atmSitesFisc: () => <AtlasLegend layer="atmSitesFisc" en="ATM Sites (FISC Roster)" source={src("fisc", ["24333"])} domain="atlasAtmInstitution" rows={ATM_INSTITUTION_OPTIONS} />,
+  financialBranchesFisc: () => <AtlasLegend layer="financialBranchesFisc" en="Financial Institution Branches" source={src("fisc", ["24323"])} domain="atlasBranchCategory" rows={BRANCH_CATEGORY_OPTIONS} />,
 };

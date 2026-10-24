@@ -971,6 +971,14 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // G10（2026-10-24）：財金公司名冊；ATM 台數、金融欠缺鄉鎮等統計在「統計」分頁「財稅與消費」
+        title: "金融據點",
+        layers: [
+          fromManifest("atmSitesFisc"),
+          fromManifest("financialBranchesFisc"),
+        ],
+      },
+      {
         title: "無障礙 Accessibility",
         layers: [
           fromManifest("accessibleParkFacilities"),

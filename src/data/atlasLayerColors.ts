@@ -51,4 +51,7 @@ export const ATLAS_LAYER_COLORS = {
   twcWaterFacilities: "#0891b2",
   taisugarSugarMills: "#a16207",
   statePropertyTenderListings: "#9333ea",
+  // 金融服務據點 G10（2026-10-24）
+  atmSitesFisc: "#2563eb",
+  financialBranchesFisc: "#0f766e",
 } as const;

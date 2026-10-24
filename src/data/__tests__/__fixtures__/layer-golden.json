@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1290,
+    "keyCount": 1303,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2419,6 +2419,20 @@
     },
     {
       "layers": [
+        "atm-sites-fisc-circle",
+        "atm-sites-fisc-glow"
+      ],
+      "type": "atmSitesFisc"
+    },
+    {
+      "layers": [
+        "financial-branches-fisc-circle",
+        "financial-branches-fisc-glow"
+      ],
+      "type": "financialBranchesFisc"
+    },
+    {
+      "layers": [
         "open-fishing-locations-circle",
         "open-fishing-locations-glow"
       ],
@@ -3463,6 +3477,17 @@
         "statsMojAuctionLots-fill",
         "statsMojAuctionItemsByCategory-fill",
         "statsMojAuctionItemsTown-fill",
+        "statsAtmCount-fill",
+        "statsAtmPer10k-fill",
+        "statsFinanceUnderserved-fill",
+        "statsFinanceUnderservedInstitutions-fill",
+        "statsFinancialInstitutions-fill",
+        "statsFinancialBranches-fill",
+        "statsFinancialBranchesPer10k-fill",
+        "statsFinancialBranchesTown-fill",
+        "statsFinancialBranchesPer10kTown-fill",
+        "statsAtmSitesTown-fill",
+        "statsAtmSitesPer10kTown-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -80528,6 +80553,697 @@
       ],
       "sourceId": "state-property-tender-listings",
       "sourceUrl": "./state_assets/state_property_tender_listings.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "atmSitesFisc",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ]
+          ],
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "post_office",
+                "#16a34a",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "credit_cooperative",
+                "#9333ea",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "atm_sites_fisc"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "atm-sites-fisc",
+      "sourceUrl": "./finance/atm_sites_fisc.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "financialBranchesFisc",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "institution_category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "institution_category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_category"
+                ],
+                "domestic_bank",
+                "#2563eb",
+                "foreign_bank",
+                "#db2777",
+                "mainland_bank",
+                "#dc2626",
+                "credit_cooperative",
+                "#9333ea",
+                "farmers_credit",
+                "#ca8a04",
+                "fishermen_credit",
+                "#0891b2",
+                "post_savings",
+                "#16a34a",
+                "bills_finance",
+                "#ea580c",
+                "central_bank",
+                "#84cc16",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_category"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "financial-branches-fisc",
+      "sourceUrl": "./finance/financial_branches_fisc.geojson"
     }
   ],
   "params": {
@@ -82355,6 +83071,69 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "atmSitesFisc": [
+      {
+        "label": "機構類別",
+        "options": [
+          {
+            "label": "本國銀行",
+            "value": "domestic_bank"
+          },
+          {
+            "label": "中華郵政（郵局）",
+            "value": "post_office"
+          },
+          {
+            "label": "農會信用部",
+            "value": "farmers_credit"
+          },
+          {
+            "label": "漁會信用部",
+            "value": "fishermen_credit"
+          },
+          {
+            "label": "信用合作社",
+            "value": "credit_cooperative"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "domestic_bank",
+          "post_office",
+          "farmers_credit",
+          "fishermen_credit",
+          "credit_cooperative"
+        ]
+      },
+      {
+        "label": "只看輪椅可用",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "只看視障語音服務",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "aviationControl": [
@@ -86456,6 +87235,84 @@
         "max": 3,
         "min": 0.3,
         "name": "寬度",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "financialBranchesFisc": [
+      {
+        "label": "機構類別",
+        "options": [
+          {
+            "label": "本國銀行",
+            "value": "domestic_bank"
+          },
+          {
+            "label": "外國銀行",
+            "value": "foreign_bank"
+          },
+          {
+            "label": "陸商銀行",
+            "value": "mainland_bank"
+          },
+          {
+            "label": "信用合作社",
+            "value": "credit_cooperative"
+          },
+          {
+            "label": "農會信用部",
+            "value": "farmers_credit"
+          },
+          {
+            "label": "漁會信用部",
+            "value": "fishermen_credit"
+          },
+          {
+            "label": "中華郵政儲匯單位",
+            "value": "post_savings"
+          },
+          {
+            "label": "票券金融公司",
+            "value": "bills_finance"
+          },
+          {
+            "label": "中央銀行",
+            "value": "central_bank"
+          },
+          {
+            "label": "其他（財政部國庫署、關貿網路）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "domestic_bank",
+          "foreign_bank",
+          "mainland_bank",
+          "credit_cooperative",
+          "farmers_credit",
+          "fishermen_credit",
+          "post_savings",
+          "bills_finance",
+          "central_bank",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
@@ -100634,6 +101491,146 @@
         "options": [],
         "status": "loading",
         "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmCount": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "台數",
+            "value": "statsAtmCount"
+          },
+          {
+            "label": "每萬人台數",
+            "value": "statsAtmPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "台數",
+            "value": "statsAtmCount"
+          },
+          {
+            "label": "每萬人台數",
+            "value": "statsAtmPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmSitesPer10kTown": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "裝設點數",
+            "value": "statsAtmSitesTown"
+          },
+          {
+            "label": "每萬人裝設點數",
+            "value": "statsAtmSitesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmSitesPer10kTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsAtmSitesTown": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "裝設點數",
+            "value": "statsAtmSitesTown"
+          },
+          {
+            "label": "每萬人裝設點數",
+            "value": "statsAtmSitesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsAtmSitesTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
       },
@@ -121176,6 +122173,267 @@
         "type": "linkedSelect",
         "value": "statsExerciseParticipationRate"
       },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceUnderserved": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "名單鄉鎮",
+            "value": "statsFinanceUnderserved"
+          },
+          {
+            "label": "名單內各類機構家數",
+            "value": "statsFinanceUnderservedInstitutions"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceUnderserved"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceUnderservedInstitutions": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "名單鄉鎮",
+            "value": "statsFinanceUnderserved"
+          },
+          {
+            "label": "名單內各類機構家數",
+            "value": "statsFinanceUnderservedInstitutions"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceUnderservedInstitutions"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranches": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranches"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesPer10k": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesPer10kTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesPer10kTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialBranchesTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・分支數",
+            "value": "statsFinancialBranches"
+          },
+          {
+            "label": "縣市・每萬人分支數",
+            "value": "statsFinancialBranchesPer10k"
+          },
+          {
+            "label": "鄉鎮・分支數",
+            "value": "statsFinancialBranchesTown"
+          },
+          {
+            "label": "鄉鎮・每萬人分支數",
+            "value": "statsFinancialBranchesPer10kTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinancialBranchesTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinancialInstitutions": [
       {
         "label": "資料期別",
         "options": [],

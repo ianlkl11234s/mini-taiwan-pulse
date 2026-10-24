@@ -1280,5 +1280,18 @@
   "layer.twcServiceOffices": "TWC Offices",
   "layer.twcWaterFacilities": "TWC Water Facilities",
   "layer.taisugarSugarMills": "Taisugar Sugar Mills",
-  "layer.statePropertyTenderListings": "State Property for Tender"
+  "layer.statePropertyTenderListings": "State Property for Tender",
+  "layer.statsAtmCount": "Financial-Card ATMs",
+  "layer.statsAtmPer10k": "ATMs per 10,000 People",
+  "layer.statsFinanceUnderserved": "Areas Needing More Financial Branches (Category 1)",
+  "layer.statsFinanceUnderservedInstitutions": "Financial Institutions in Underserved Areas",
+  "layer.statsFinancialInstitutions": "Financial Institutions by County",
+  "layer.statsFinancialBranches": "Financial Branches (County)",
+  "layer.statsFinancialBranchesPer10k": "Financial Branches per 10,000 People (County)",
+  "layer.statsFinancialBranchesTown": "Financial Branches (Township)",
+  "layer.statsFinancialBranchesPer10kTown": "Financial Branches per 10,000 People (Township)",
+  "layer.statsAtmSitesTown": "ATM Sites (Township)",
+  "layer.statsAtmSitesPer10kTown": "ATM Sites per 10,000 People (Township)",
+  "layer.atmSitesFisc": "ATM Sites (FISC Roster)",
+  "layer.financialBranchesFisc": "Financial Institution Branches"
 }

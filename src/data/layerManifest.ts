@@ -124,6 +124,8 @@ import {
   Ticket,
   // 🏡 原民會文化健康站 G20
   HousePlus,
+  // 💳 金融據點 G10（2026-10-24）
+  CreditCard,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7618,6 +7620,24 @@ export const LAYER_MANIFEST = {
     legend: "statePropertyTenderListings", popup: "statePropertyTenderListings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "國有財產署公告待標售（未標脫）的國有土地與房地，含標號、標售日、面積、使用分區、公告現值與定位精度（半動態快照）。",
     topics: ["國有財產", "標售", "國有地", "不動產", "國產署"],
+  },
+  atmSitesFisc: {
+    key: "atmSitesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.atmSitesFisc, icon: CreditCard,
+    upstream: { status: "verified", datasets: [{ datasetId: "atm_sites_fisc", confidence: "HIGH" }], note: "財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）名冊快照 2026-10-24：27,412 裝設點、27,390 有座標；座標依序取數位發展部 175482、中華郵政 6121、地址定位與 Google，逐點標定位精度。裝設點不等於機台數。PMTiles z5–12 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
+    legend: "atmSitesFisc", popup: "atmSitesFisc", params: { count: 5, kinds: ["multiSelect", "toggle", "toggle", "slider", "slider"] },
+    description: "財金公司名冊的 ATM 裝設地點，含機構類別、輪椅可用、視障語音、國際卡提款與定位精度（一點一個裝設地點，不是一台機器）。",
+    topics: ["ATM", "金融", "提款機", "無障礙", "金融可及性"],
+  },
+  financialBranchesFisc: {
+    key: "financialBranchesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "金融機構總分支機構", alt: "Financial Institution Branches" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.financialBranchesFisc, icon: Landmark,
+    upstream: { status: "verified", datasets: [{ datasetId: "financial_branches_fisc", confidence: "HIGH" }], note: "財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）名冊快照 2026-10-24：4,989 處、4,988 有座標；座標來源混合，逐點標定位精度。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "financial-branches-fisc", url: "./finance/financial_branches_fisc.geojson" },
+    legend: "financialBranchesFisc", popup: "financialBranchesFisc", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "銀行、信用合作社、農漁會信用部等金融機構的總分支機構位置與定位精度（不含各地郵局）。",
+    topics: ["銀行", "分行", "金融", "農會信用部", "金融可及性"],
   },
   culturalHealthStations: {
     key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,

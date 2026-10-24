@@ -134,6 +134,8 @@ export type ExpandableLayerKey =
   | "culturalHealthStations"
   // 國營事業與國有資產 G16（2026-10-24）
   | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
+  // 金融服務據點 G10（2026-10-24）
+  | "atmSitesFisc" | "financialBranchesFisc"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -846,6 +848,7 @@ export interface FeatureInfo {
     | "cultureCoinVenues"
     | "culturalHealthStations"
     | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
+    | "atmSitesFisc" | "financialBranchesFisc"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1263,6 +1266,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   twcWaterFacilities: boolean;
   taisugarSugarMills: boolean;
   statePropertyTenderListings: boolean;
+  /** 金融服務據點 G10（2026-10-24）：財金公司 ATM 裝設點 27,390、總分支機構 4,988 */
+  atmSitesFisc: boolean;
+  financialBranchesFisc: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

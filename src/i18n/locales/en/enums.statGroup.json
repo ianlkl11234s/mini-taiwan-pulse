@@ -23,5 +23,10 @@
   "enum.statGroup.國有住宅用地": "State-owned residential land",
   "enum.statGroup.台糖可供出租土地（公告）": "Taisugar land listed for lease",
   "enum.statGroup.台糖歷年標租標的": "Taisugar past lease tenders",
-  "enum.statGroup.行政執行署拍定不動產": "Administrative enforcement auctions sold"
+  "enum.statGroup.行政執行署拍定不動產": "Administrative enforcement auctions sold",
+  "enum.statGroup.金融卡 ATM 台數（縣市）": "Financial-card ATMs (county)",
+  "enum.statGroup.金融服務欠缺鄉鎮（第一類）": "Financially underserved townships (category 1)",
+  "enum.statGroup.各縣市金融機構家數（央行）": "Financial institutions by county (central bank)",
+  "enum.statGroup.金融機構分支數": "Financial branches",
+  "enum.statGroup.ATM 裝設點數（鄉鎮）": "ATM sites (township)"
 }

@@ -1280,5 +1280,18 @@
   "layer.twcServiceOffices": "台湾自来水公司の事業所",
   "layer.twcWaterFacilities": "台湾自来水公司の浄水施設",
   "layer.taisugarSugarMills": "台湾糖業の製糖工場",
-  "layer.statePropertyTenderListings": "国有財産の入札予定物件"
+  "layer.statePropertyTenderListings": "国有財産の入札予定物件",
+  "layer.statsAtmCount": "金融カード ATM 台数",
+  "layer.statsAtmPer10k": "人口1万人当たり ATM 台数",
+  "layer.statsFinanceUnderserved": "金融機関支店の増設が必要な地域（第1類）",
+  "layer.statsFinanceUnderservedInstitutions": "増設必要地域の金融機関数（種類別）",
+  "layer.statsFinancialInstitutions": "県市別金融機関数",
+  "layer.statsFinancialBranches": "金融機関支店数（県市）",
+  "layer.statsFinancialBranchesPer10k": "人口1万人当たり金融機関支店数（県市）",
+  "layer.statsFinancialBranchesTown": "金融機関支店数（郷鎮）",
+  "layer.statsFinancialBranchesPer10kTown": "人口1万人当たり金融機関支店数（郷鎮）",
+  "layer.statsAtmSitesTown": "ATM 設置地点数（郷鎮）",
+  "layer.statsAtmSitesPer10kTown": "人口1万人当たり ATM 設置地点数（郷鎮）",
+  "layer.atmSitesFisc": "ATM 設置場所（財金資訊公司名簿）",
+  "layer.financialBranchesFisc": "金融機関の本支店"
 }

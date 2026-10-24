@@ -212,5 +212,13 @@
   "popup.atlas.tenderZoning": "Zoning",
   "popup.atlas.tenderLandUse": "Land use class",
   "popup.atlas.tenderAnnouncedValue": "Announced land value",
-  "popup.atlas.tenderAnnouncedValueText": "NT${value}/m² ({date}; not the reserve price)"
+  "popup.atlas.tenderAnnouncedValueText": "NT${value}/m² ({date}; not the reserve price)",
+  "popup.atlas.atmOneSite": "One installation site; it may have more than one machine",
+  "popup.atlas.atmWheelchair": "Wheelchair accessible",
+  "popup.atlas.atmVoice": "Voice guidance for visually impaired users",
+  "popup.atlas.atmIntlCard": "International card withdrawal",
+  "popup.atlas.atmNotPublic": "Roster marks this site as not open to the public (e.g., inside a company or agency)",
+  "popup.atlas.atmAccessNote": "Access note",
+  "popup.atlas.financeApproximate": "Located only approximately (street or area center); the actual site may be several hundred meters away",
+  "popup.atlas.financeRosterDate": "Roster snapshot date"
 }

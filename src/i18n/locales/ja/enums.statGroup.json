@@ -23,5 +23,10 @@
   "enum.statGroup.國有住宅用地": "国有住宅用地",
   "enum.statGroup.台糖可供出租土地（公告）": "台湾糖業の賃貸可能地（公告）",
   "enum.statGroup.台糖歷年標租標的": "台湾糖業の過去の賃貸入札対象",
-  "enum.statGroup.行政執行署拍定不動產": "行政執行署の落札済み不動産"
+  "enum.statGroup.行政執行署拍定不動產": "行政執行署の落札済み不動産",
+  "enum.statGroup.金融卡 ATM 台數（縣市）": "金融カード ATM 台数（県市）",
+  "enum.statGroup.金融服務欠缺鄉鎮（第一類）": "金融サービス不足の郷鎮（第1類）",
+  "enum.statGroup.各縣市金融機構家數（央行）": "県市別金融機関数（中央銀行）",
+  "enum.statGroup.金融機構分支數": "金融機関支店数",
+  "enum.statGroup.ATM 裝設點數（鄉鎮）": "ATM 設置地点数（郷鎮）"
 }

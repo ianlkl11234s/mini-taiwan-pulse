@@ -23,7 +23,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "文化與藝文 Culture & Arts", groups: ["街頭藝人"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查", "臺北市 12 區（月）"] },
   { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值", "臺北市 12 區（月）", "國有資產", "國營事業資產", "行政執行拍賣"] },
-  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融"] },
+  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融", "金融服務可及性"] },
   { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
   { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
   { title: "交通用地 Transport Land", groups: ["交通用地"] },

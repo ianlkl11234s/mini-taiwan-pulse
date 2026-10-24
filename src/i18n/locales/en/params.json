@@ -1217,5 +1217,18 @@
   "param.房地（建物）": "Building with land",
   "param.管理區分": "Management status",
   "param.計畫區別": "Planning zone",
-  "param.拍賣類別": "Auction category"
+  "param.拍賣類別": "Auction category",
+  "param.只看輪椅可用": "Wheelchair accessible only",
+  "param.只看視障語音服務": "Voice guidance only",
+  "param.本國銀行": "Domestic bank",
+  "param.中華郵政（郵局）": "Chunghwa Post (post office)",
+  "param.農會信用部": "Farmers' association credit department",
+  "param.漁會信用部": "Fishermen's association credit department",
+  "param.信用合作社": "Credit cooperative",
+  "param.外國銀行": "Foreign bank",
+  "param.陸商銀行": "Mainland Chinese bank",
+  "param.中華郵政儲匯單位": "Chunghwa Post savings & remittance unit",
+  "param.票券金融公司": "Bills finance company",
+  "param.中央銀行": "Central bank",
+  "param.其他（財政部國庫署、關貿網路）": "Other (National Treasury Administration, Trade-Van)"
 }

@@ -13,5 +13,10 @@
   "enum.statLocationBasis.住宅用地所在縣市": "住宅用地の所在県市",
   "enum.statLocationBasis.土地所在鄉鎮市區（地籍）": "土地の所在郷鎮市区（地籍）",
   "enum.statLocationBasis.拍賣標的所在縣市": "競売物件の所在県市",
-  "enum.statLocationBasis.拍賣標的所在鄉鎮市區": "競売物件の所在郷鎮市区"
+  "enum.statLocationBasis.拍賣標的所在鄉鎮市區": "競売物件の所在郷鎮市区",
+  "enum.statLocationBasis.ATM 裝設縣市": "ATM の設置県市",
+  "enum.statLocationBasis.金融機構所在鄉鎮市區": "金融機関の所在郷鎮市区",
+  "enum.statLocationBasis.金融機構（總機構／分支）所在縣市": "金融機関（本店・支店）の所在県市",
+  "enum.statLocationBasis.分支機構地址所在縣市": "支店住所の所在県市",
+  "enum.statLocationBasis.ATM 裝設點／分支機構所在鄉鎮市區": "ATM 設置地点・支店の所在郷鎮市区"
 }

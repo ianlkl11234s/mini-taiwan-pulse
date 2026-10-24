@@ -246,6 +246,10 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsStateLand/, 'housing', Landmark],
   [/^statsTaisugar/, 'housing', Sprout],
   [/^statsMojAuction/, 'housing', Gavel],
+  // 金融服務可及性 G10（2026-10-24）：同財稅與消費＝工作與所得色票；ATM／欠缺鄉鎮／機構分支三種 icon。
+  [/^statsAtm/, 'labor', CreditCard],
+  [/^statsFinanceUnderserved/, 'labor', ShieldAlert],
+  [/^statsFinancial(?:Institutions|Branches)/, 'labor', Landmark],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],

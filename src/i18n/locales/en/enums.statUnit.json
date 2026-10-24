@@ -105,5 +105,11 @@
   "enum.statUnit.筆戶": "parcels",
   "enum.statUnit.元／平方公尺": "NT$/m²",
   "enum.statUnit.筆次": "listings",
-  "enum.statUnit.案": "cases"
+  "enum.statUnit.案": "cases",
+  "enum.statUnit.台": "machines",
+  "enum.statUnit.台／萬人": "machines/10k people",
+  "enum.statUnit.旗標": "flag",
+  "enum.statUnit.家／萬人": "institutions/10k people",
+  "enum.statUnit.點": "sites",
+  "enum.statUnit.點／萬人": "sites/10k people"
 }

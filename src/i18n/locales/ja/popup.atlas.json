@@ -212,5 +212,13 @@
   "popup.atlas.tenderZoning": "用途地域",
   "popup.atlas.tenderLandUse": "使用地種別",
   "popup.atlas.tenderAnnouncedValue": "公告地価",
-  "popup.atlas.tenderAnnouncedValueText": "{value} 台湾ドル／m²（{date}；入札最低価格ではありません）"
+  "popup.atlas.tenderAnnouncedValueText": "{value} 台湾ドル／m²（{date}；入札最低価格ではありません）",
+  "popup.atlas.atmOneSite": "設置場所 1 か所。複数台ある場合があります",
+  "popup.atlas.atmWheelchair": "車いす対応",
+  "popup.atlas.atmVoice": "視覚障害者向け音声案内",
+  "popup.atlas.atmIntlCard": "海外カード引き出し",
+  "popup.atlas.atmNotPublic": "名簿では一般非公開（企業・機関内など）",
+  "popup.atlas.atmAccessNote": "利用条件",
+  "popup.atlas.financeApproximate": "おおよその位置のみ（道路・地域の中心）。実際の場所と数百 m ずれることがあります",
+  "popup.atlas.financeRosterDate": "名簿取得日"
 }

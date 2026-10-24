@@ -964,6 +964,68 @@ def build_state_tender(m, feats):
     return out
 
 
+# 金融服務據點（G10，2026-10-24）-------------------------------------------
+# analytics civic_facilities/{atm_sites_fisc,financial_branches_fisc}：財金公司名冊快照 2026-10-24。
+# ATM 27,412 裝設點（22 筆無法定位不上圖；一個裝設點可能有多台機台）；總分支機構 4,989（1 筆無法定位）。
+# 座標來源混合（數位部 175482、中華郵政 6121、地址定位、Google），popup 一律標定位精度；成品無個資欄。
+
+def finance_base(m: dict, nid: str, p: dict) -> dict:
+    return {"source_org": "財金資訊股份有限公司", "source_url": f"https://data.gov.tw/dataset/{nid}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date"))}
+
+
+def finance_location(p: dict) -> dict:
+    return {
+        "county": s(p.get("county_name")), "town": s(p.get("town_name")), "address": s(p.get("address")),
+        "town_basis": s(p.get("town_basis")), "town_basis_label": s(p.get("town_basis_label")),
+        "coord_source": s(p.get("coord_source")), "coord_source_label": s(p.get("coord_source_label")),
+        "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+        "spatial_check": s(p.get("spatial_check")), "spatial_check_label": s(p.get("spatial_check_label")),
+    }
+
+
+def flag(v: Any) -> int | None:
+    """布林旗標轉 1／0；缺值保持 null（不當成「否」）。"""
+    if v is None:
+        return None
+    return 1 if v is True else 0 if v is False else None
+
+
+@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc.pmtiles",
+       pmtiles={"layer": "atm_sites_fisc", "zmin": 5, "zmax": 12, "kind": "point"})
+def build_atm_sites(m, feats):
+    out = []
+    for f in drop_unmapped("atmSitesFisc", feats):
+        p = f["properties"]
+        no_pii("atmSitesFisc", p)
+        out.append(feature(f["geometry"], {
+            "id": p["atm_site_id"], "name": s(p.get("site_name")), "institution_name": s(p.get("institution_name")),
+            "institution_category": s(p.get("institution_category")), "institution_category_label": s(p.get("institution_category_label")),
+            "wheelchair_accessible": flag(p.get("wheelchair_accessible")), "voice_guidance": flag(p.get("voice_guidance")),
+            "intl_card_withdrawal": flag(p.get("intl_card_withdrawal")), "open_to_public": flag(p.get("open_to_public")),
+            "access_note": s(p.get("access_note")),
+            **finance_location(p), **finance_base(m, "24333", p),
+        }))
+    AUDIT["atmSitesFisc"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    AUDIT["atmSitesFisc"]["not_public_rows"] = sum(1 for f in out if f["properties"]["open_to_public"] == 0)
+    return out
+
+
+@layer("financialBranchesFisc", "civic_facilities", "financial_branches_fisc", "finance/financial_branches_fisc.geojson")
+def build_financial_branches(m, feats):
+    out = []
+    for f in drop_unmapped("financialBranchesFisc", feats):
+        p = f["properties"]
+        no_pii("financialBranchesFisc", p)
+        out.append(feature(f["geometry"], {
+            "id": p["branch_id"], "name": " ".join(x for x in (s(p.get("institution_name")), s(p.get("branch_name"))) if x),
+            "institution_name": s(p.get("institution_name")), "branch_name": s(p.get("branch_name")),
+            "institution_category": s(p.get("institution_category")), "institution_category_label": s(p.get("institution_category_label")),
+            **finance_location(p), **finance_base(m, "24323", p),
+        }))
+    return out
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 

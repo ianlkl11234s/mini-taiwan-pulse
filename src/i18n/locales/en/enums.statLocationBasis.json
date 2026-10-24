@@ -13,5 +13,10 @@
   "enum.statLocationBasis.住宅用地所在縣市": "County of the residential land",
   "enum.statLocationBasis.土地所在鄉鎮市區（地籍）": "Township of the land (cadastral)",
   "enum.statLocationBasis.拍賣標的所在縣市": "County of the auctioned property",
-  "enum.statLocationBasis.拍賣標的所在鄉鎮市區": "Township of the auctioned property"
+  "enum.statLocationBasis.拍賣標的所在鄉鎮市區": "Township of the auctioned property",
+  "enum.statLocationBasis.ATM 裝設縣市": "County where the ATM is installed",
+  "enum.statLocationBasis.金融機構所在鄉鎮市區": "Township of the financial institution",
+  "enum.statLocationBasis.金融機構（總機構／分支）所在縣市": "County of the institution (head office / branch)",
+  "enum.statLocationBasis.分支機構地址所在縣市": "County of the branch address",
+  "enum.statLocationBasis.ATM 裝設點／分支機構所在鄉鎮市區": "Township of the ATM site / branch"
 }

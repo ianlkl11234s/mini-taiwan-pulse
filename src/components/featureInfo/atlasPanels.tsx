@@ -11,6 +11,7 @@ import {
   SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -729,6 +730,57 @@ function StateTenderPanel({ props }: Props) {
   </>;
 }
 
+// ── 金融服務據點 G10（2026-10-24）──────────────────────────────────────────
+// 財金公司名冊快照；座標來源混合，定位精度一律顯示，Google 約略位置加警示。旗標是 1／0／null（null＝名冊未標示，不顯示）。
+
+function FinanceLocationRows({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const approximate = props.geocode_precision === "google_approximate";
+  return <>
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={admin(props, i18n)} />
+    <Row field="coordSource" value={enumOf("atlasFinanceCoord", props.coord_source, props.coord_source_label, i18n)} />
+    <Row field="positionAccuracy" value={enumOf("atlasFinancePrecision", props.geocode_precision, props.geocode_precision_label, i18n)} color={approximate ? theme.warn : undefined} />
+    {approximate ? <Row field="caution" value={t("popup.atlas.financeApproximate")} color={theme.warn} /> : null}
+    {props.town_basis === "point_location" ? <Row field="remarks" value={enumOf("atlasFinanceTownBasis", props.town_basis, props.town_basis_label, i18n)} /> : null}
+    {props.spatial_check === "town_mismatch" ? <Row field="caution" value={enumOf("atlasFinanceSpatial", props.spatial_check, props.spatial_check_label, i18n)} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.financeRosterDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+function AtmSitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(ATM_INSTITUTION_OPTIONS, props.institution_category);
+  const category = enumOf("atlasAtmInstitution", props.institution_category, props.institution_category_label, i18n);
+  const flag = (v: unknown) => (v === 1 ? t("popup.common.yes") : v === 0 ? t("popup.common.no") : "");
+  return <>
+    <Title color={color}>{[str(props.institution_name), str(props.name)].filter(Boolean).join(" ")}</Title>
+    <Row field="category" value={category} color={color} />
+    <Row field="remarks" value={t("popup.atlas.atmOneSite")} />
+    <Row label={t("popup.atlas.atmWheelchair")} value={flag(props.wheelchair_accessible)} />
+    <Row label={t("popup.atlas.atmVoice")} value={flag(props.voice_guidance)} />
+    <Row label={t("popup.atlas.atmIntlCard")} value={flag(props.intl_card_withdrawal)} />
+    {props.open_to_public === 0 ? <Row field="caution" value={t("popup.atlas.atmNotPublic")} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.atmAccessNote")} value={str(props.access_note)} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
+function FinancialBranchPanel({ props }: Props) {
+  const i18n = useLocale();
+  const color = optionColor(BRANCH_CATEGORY_OPTIONS, props.institution_category);
+  const category = enumOf("atlasBranchCategory", props.institution_category, props.institution_category_label, i18n);
+  return <>
+    <Title color={color}>{str(props.name) || category}</Title>
+    <Row field="category" value={category} color={color} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -770,6 +822,8 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   twcWaterFacilities: TwcFacilityPanel,
   taisugarSugarMills: TaisugarMillPanel,
   statePropertyTenderListings: StateTenderPanel,
+  atmSitesFisc: AtmSitePanel,
+  financialBranchesFisc: FinancialBranchPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -822,4 +876,6 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   twcWaterFacilities: manifestZh("twcWaterFacilities"),
   taisugarSugarMills: manifestZh("taisugarSugarMills"),
   statePropertyTenderListings: manifestZh("statePropertyTenderListings"),
+  atmSitesFisc: manifestZh("atmSitesFisc"),
+  financialBranchesFisc: manifestZh("financialBranchesFisc"),
 };

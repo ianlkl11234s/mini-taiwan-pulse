@@ -2,6 +2,7 @@
 """Build the Roadmap batch-2 atlas statistics families from the analytics handoff recipes.
 
 Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsTypes.ts):
+  financeAccess 金融服務據點與可及性（G10；docs/handoff/finance-access-statistics-recipes.json，11 recipes）
   stateAssets  國有資產與國營事業資產（G16；docs/handoff/state-assets-statistics-recipes.json，23 recipes）
   culture      街頭藝人登記人數（G23；docs/handoff/culture-coin-street-performers-recipes.json，2 recipes）
 
@@ -125,11 +126,82 @@ DISCLOSURE_REPLACEMENTS = [
     ("announced_listings 才是", "「公告列數」才是"),
     ("auctioned_items＝", "標的數＝"),
     ("auctioned_lots＝", "拍賣案數＝"),
+    # G10
+    ("（data.gov.tw 24357，A15_City_CNT.csv）", "（data.gov.tw 24357）"),
+    ("（household_registration_population）", ""),
+    ("也不產每萬人 release", "也不產每萬人期別"),
+    ("underserved_area_flag：", "名單旗標："),
+    ("underserved_institution_count：", "各類機構家數："),
+    ("金馬合併值保留在 processing.parameters.merged_regions", "金馬合併值另存於處理參數"),
+    ("改用 financial_branches_county（", "改用「金融機構分支數（縣市）」（"),
+    ("dimensions.機構類別 16 類（含家數合計）；金門、連江 missing（來源合併）。", "機構類別 16 類（含家數合計）；金門、連江無資料（來源合併）。"),
+    ("dimensions.機構類別；只名單內鄉鎮有值。", "機構類別；只名單內鄉鎮有值。"),
+    ("dimensions.機構類別 7 值（含合計）。", "機構類別 7 值（含合計）。"),
+    ("（筆數見 processing.parameters）", "（筆數見處理參數）"),
+    ("機台數請看縣市 atm_count_county", "機台數請看縣市「金融卡 ATM 台數」"),
+    ("分支數口徑同 financial_branches_county（前六類）", "分支數口徑同「金融機構分支數（縣市）」（前六類）"),
+]
+
+# ── 金融服務據點與可及性（G10）──────────────────────────────────────────────────
+FISC = "財金資訊股份有限公司"
+FA_ATM_SRC = src_note(FISC, "金融卡-ATM 台數縣市分佈", "24357")
+FA_ATM_MACHINES = "加入財金跨行系統的金融卡 ATM 機台數，不是裝設地點數；裝設點見鄉鎮「ATM 裝設點數」。"
+FA_ATM_PER10K = "每萬人只在有戶籍人口快照的期別計算（各年 12 月與 2026 年 8 月），其他月份不外推。"
+FA_UNDER_SRC = src_note("金融監督管理委員會銀行局", "金融服務欠缺地區鄉鎮名單", "119808")
+FA_UNDER_BASIS = ("判定依據：金管會金管銀合字第 11002745482 號令所定「金融機構分支機構家數待增加地區」第一類"
+                  "（無本國銀行或信用合作社，且平均每一金融機構服務人口高於全國平均）；資料日 115/06/30，48 鄉鎮、14 縣市。第二類名單未開放，不在本圖。")
+FA_UNDER_ZERO = "0＝不在名單（不是缺值，也不代表當地金融服務充足）。"
+FA_UNDER_FLAG = "這是旗標，值只有 0 與 1：1＝列入名單（綠色）；圖例「2 以上」一級不會出現。"
+FA_UNDER_INST = "只有名單內 48 鄉鎮有值；屏東獅子鄉、花蓮萬榮鄉、臺東金峰鄉各類皆 0 家（含郵局、農會）。"
+FA_UNDER_MISSING = {"missing": "不在名單（來源未提供，不是 0）"}
+FA_CBC_SRC = src_note("中央銀行金融業務檢查處", "各縣市金融機構分布情形統計表", "13653")
+FA_CBC = "基準日 115/09/30；總機構與分行（局、庫、社、部、公司）各算一單位，其餘分支不計。"
+FA_KINMATSU = "金門縣、連江縣來源合併為「金馬地區」一列，合併計算未拆分，兩縣標無資料（斜線）。"
+FA_KINMATSU_MISSING = {"missing": "無資料（金門、連江來源合併計算未拆分；不是 0）"}
+FA_BRANCH_SRC = src_note(FISC, "總分支機構位置查詢一覽表", "24323")
+FA_BRANCH = "依名冊地址計數（下載日 2026-10-24），只計本國銀行、外國銀行、陸商銀行、信用合作社、農會與漁會信用部的分支機構；郵局營業據點見郵局圖層。"
+FA_BRANCH_VS_CBC = "本國銀行比央行統計略多（名冊含營業部、國外部等非分行單位）。"
+FA_SITES_SRC = src_note(FISC, "金融機構 ATM 位置查詢一覽表、總分支機構位置查詢一覽表", "24333、24323")
+FA_SITES = "ATM 為「裝設點」數（同一地點多台算一點），不是機台數；下載日 2026-10-24。"
+FA_TOWN = "地址只寫市名或解析不到時，依定位點所在鄉鎮歸屬。"
+FA_PER10K_POP = "每萬人以戶籍人口（2026 年 8 月）為分母。"
+FA_SUB = "金融服務可及性"
+
+
+def fa(key, group, group_label, option, digits, notes, **extra):
+    return dict(key=key, group=group, group_label=group_label, option_label=option, subgroup=FA_SUB, visual="labor", digits=digits, notes=notes, **extra)
+
+
+BRANCH_DEF = {"機構類別": "合計（前六類）"}
+FINANCE_ACCESS_LAYERS = [
+    fa("statsAtmCount", "financeAtmCount", "金融卡 ATM 台數（縣市）", "台數", 0, [FA_ATM_SRC, FA_ATM_MACHINES]),
+    fa("statsAtmPer10k", "financeAtmCount", "金融卡 ATM 台數（縣市）", "每萬人台數", 1, [FA_ATM_SRC, FA_ATM_MACHINES, FA_ATM_PER10K]),
+    fa("statsFinanceUnderserved", "financeUnderserved", "金融服務欠缺鄉鎮（第一類）", "名單鄉鎮", 0, [FA_UNDER_SRC, FA_UNDER_BASIS, FA_UNDER_FLAG],
+       breaks=[1, 2], zero_note=FA_UNDER_ZERO),
+    fa("statsFinanceUnderservedInstitutions", "financeUnderserved", "金融服務欠缺鄉鎮（第一類）", "名單內各類機構家數", 0, [FA_UNDER_SRC, FA_UNDER_BASIS, FA_UNDER_INST],
+       defaults={"機構類別": "金融機構數合計"}, status=FA_UNDER_MISSING),
+    fa("statsFinancialInstitutions", "financeInstitutionsCbc", "各縣市金融機構家數（央行）", "家數", 0, [FA_CBC_SRC, FA_CBC, FA_KINMATSU],
+       defaults={"機構類別": "家數合計"}, status=FA_KINMATSU_MISSING),
+    fa("statsFinancialBranches", "financeBranches", "金融機構分支數", "縣市・分支數", 0, [FA_BRANCH_SRC, FA_BRANCH, FA_BRANCH_VS_CBC], defaults=BRANCH_DEF),
+    fa("statsFinancialBranchesPer10k", "financeBranches", "金融機構分支數", "縣市・每萬人分支數", 2, [FA_BRANCH_SRC, FA_BRANCH, FA_PER10K_POP]),
+    fa("statsFinancialBranchesTown", "financeBranches", "金融機構分支數", "鄉鎮・分支數", 0, [FA_SITES_SRC, FA_BRANCH, FA_TOWN], defaults=BRANCH_DEF),
+    fa("statsFinancialBranchesPer10kTown", "financeBranches", "金融機構分支數", "鄉鎮・每萬人分支數", 2, [FA_SITES_SRC, FA_BRANCH, FA_TOWN, FA_PER10K_POP]),
+    fa("statsAtmSitesTown", "financeAtmSites", "ATM 裝設點數（鄉鎮）", "裝設點數", 0, [FA_SITES_SRC, FA_SITES, FA_TOWN]),
+    fa("statsAtmSitesPer10kTown", "financeAtmSites", "ATM 裝設點數（鄉鎮）", "每萬人裝設點數", 1, [FA_SITES_SRC, FA_SITES, FA_TOWN, FA_PER10K_POP]),
 ]
 
 CULTURE_ZERO = "0 人自成最淺一級（名冊在該區無登記，不是無資料）。"
 
 FAMILIES: dict[str, dict] = {
+    "financeAccess": {
+        "file": "financeAccessStatisticsRecipes",
+        "handoff": "docs/handoff/finance-access-statistics-recipes.json",
+        "theme_dir": "socioeconomic",
+        "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+        "tab_theme": "財稅與消費 Fiscal & Consumption",
+        "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0 or roster has no point in the area)", "missing": "value null; township not on the underserved list, or Kinmen/Lienchiang merged in the source; no zero fill", "suppressed": "not used"},
+        "layers": FINANCE_ACCESS_LAYERS,
+    },
     "stateAssets": {
         "file": "stateAssetsStatisticsRecipes",
         "handoff": "docs/handoff/state-assets-statistics-recipes.json",

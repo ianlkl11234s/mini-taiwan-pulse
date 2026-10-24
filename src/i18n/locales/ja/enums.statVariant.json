@@ -217,5 +217,14 @@
   "enum.statVariant.公告列數（未去重）": "公告件数（重複含む）",
   "enum.statVariant.標的數": "物件数",
   "enum.statVariant.拍賣案數": "競売案件数",
-  "enum.statVariant.標的數（依類別）": "物件数（種別ごと）"
+  "enum.statVariant.標的數（依類別）": "物件数（種別ごと）",
+  "enum.statVariant.台數": "台数",
+  "enum.statVariant.每萬人台數": "人口1万人当たり台数",
+  "enum.statVariant.名單鄉鎮": "名簿掲載の郷鎮",
+  "enum.statVariant.名單內各類機構家數": "掲載郷鎮の機関数（種類別）",
+  "enum.statVariant.家數": "機関数",
+  "enum.statVariant.分支數": "支店数",
+  "enum.statVariant.每萬人分支數": "人口1万人当たり支店数",
+  "enum.statVariant.裝設點數": "設置地点数",
+  "enum.statVariant.每萬人裝設點數": "人口1万人当たり設置地点数"
 }

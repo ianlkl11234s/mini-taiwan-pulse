@@ -214,6 +214,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "culturalHealthStations",
   // 國營事業與國有資產 G16：純 OVERLAY_REGISTRY 靜態 GeoJSON。
   "twcServiceOffices", "twcWaterFacilities", "taisugarSugarMills", "statePropertyTenderListings",
+  "atmSitesFisc", "financialBranchesFisc",
   // 🚆 軌道路線：純 OVERLAY_REGISTRY 靜態 GeoJSON（不載入時刻表），無 loader / hook。
   "railRoutes",
 

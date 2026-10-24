@@ -18,22 +18,22 @@
   ]
  },
  "summary": {
-  "layerKeys": 1290,
-  "overlayConfigs": 401,
-  "runtimeSublayers": 748,
+  "layerKeys": 1303,
+  "overlayConfigs": 403,
+  "runtimeSublayers": 754,
   "byResolution": {
-   "runtime": 376,
+   "runtime": 378,
    "static-scan": 184,
    "unresolved": 34,
-   "shared-renderer": 696
+   "shared-renderer": 707
   },
   "byGeometry": {
-   "point": 403,
-   "heatmap": 78,
+   "point": 405,
+   "heatmap": 79,
    "line": 227,
-   "polygon": 891,
+   "polygon": 902,
    "raster": 37,
-   "label": 47,
+   "label": 48,
    "3d": 27,
    "grid": 14,
    "point/label": 3
@@ -43,13 +43,13 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 5
   },
-  "legendEntries": 1038,
+  "legendEntries": 1051,
   "legendTypes": {
    "square-swatch": 60,
    "svg-icon": 16,
-   "dot-swatch": 150,
+   "dot-swatch": 152,
    "gradient+dot-swatch": 37,
-   "square-swatch+hatch(missing)": 698,
+   "square-swatch+hatch(missing)": 709,
    "gradient+size+dot-swatch": 3,
    "hatch(missing)": 2,
    "size+dot-swatch": 5,
@@ -66,10 +66,10 @@
    "square-swatch+svg-icon": 1
   },
   "legendResolution": {
-   "ssr": 310,
-   "static": 728
+   "ssr": 312,
+   "static": 739
   },
-  "legendsWithIssues": 38,
+  "legendsWithIssues": 39,
   "ironRules": {
    "missingOpacity": [
     "activeFaults",
@@ -99,7 +99,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 261,
+    "n": 263,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -107,7 +107,7 @@
     "max": 15.3,
     "mostCommon": [
      "4.5×131",
-     "5.143×27",
+     "5.143×29",
      "3×25",
      "6.5×14",
      "3.45×7",
@@ -118,10 +118,10 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 133
+    "decorationExcluded": 135
    },
    "circle-radius@z14": {
-    "n": 261,
+    "n": 263,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -129,7 +129,7 @@
     "max": 24.48,
     "mostCommon": [
      "4.5×133",
-     "6×30",
+     "6×32",
      "3×25",
      "6.5×15",
      "3.45×7",
@@ -140,10 +140,10 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 133
+    "decorationExcluded": 135
    },
    "circle-stroke-width@z14": {
-    "n": 266,
+    "n": 268,
     "min": 0.6,
     "p25": 1,
     "median": 1,
@@ -151,7 +151,7 @@
     "max": 2.2,
     "mostCommon": [
      "1×185",
-     "1.2×48",
+     "1.2×50",
      "1.4×10",
      "1.3×4",
      "1.5×3",
@@ -162,20 +162,20 @@
     "dataDrivenCounted": 35,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 133
+    "decorationExcluded": 135
    },
    "circle-opacity": {
-    "n": 262,
+    "n": 264,
     "min": 0.08,
     "p25": 0.75,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.8×59",
+     "0.8×60",
      "0.85×56",
      "0.9×41",
-     "0.75×29",
+     "0.75×30",
      "0.45×14",
      "0.6×8",
      "0.54×7",
@@ -184,7 +184,7 @@
     "dataDrivenCounted": 40,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 133
+    "decorationExcluded": 135
    },
    "line-width@z10": {
     "n": 124,
@@ -290,14 +290,14 @@
     "decorationExcluded": 0
    },
    "heatmap-radius@z14": {
-    "n": 35,
+    "n": 36,
     "min": 20,
     "p25": 20,
     "median": 20,
     "p75": 20,
     "max": 20,
     "mostCommon": [
-     "20×35"
+     "20×36"
     ],
     "dataDrivenCounted": 0,
     "notSet": 0,
@@ -331,19 +331,19 @@
      "0.13×1"
     ],
     "dataDrivenCounted": 2,
-    "notSet": 48,
+    "notSet": 49,
     "unresolved": 0,
     "decorationExcluded": 0
    },
    "text-size@z14": {
-    "n": 48,
+    "n": 49,
     "min": 11,
     "p25": 12,
     "median": 12,
     "p75": 12,
     "max": 13,
     "mostCommon": [
-     "12×45",
+     "12×46",
      "13×2",
      "11×1"
     ],
@@ -353,14 +353,14 @@
     "decorationExcluded": 0
    },
    "text-halo-width": {
-    "n": 48,
+    "n": 49,
     "min": 1.2,
     "p25": 1.25,
     "median": 1.25,
     "p75": 1.25,
     "max": 1.25,
     "mostCommon": [
-     "1.25×47",
+     "1.25×48",
      "1.2×1"
     ],
     "dataDrivenCounted": 0,
@@ -483,22 +483,22 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 264,
+   "隨底圖切換": 266,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 188,
-   "暗 #0f172a → 淡 #ffffff": 47,
+   "暗 #0f172a → 淡 #ffffff": 49,
    "暗 #0d1117 → 淡 #ffffff": 1
   },
   "decorationSublayers": {
-   "count": 159,
+   "count": 161,
    "byType": {
-    "circle": 133,
+    "circle": 135,
     "line": 26
    },
-   "keys": 136
+   "keys": 138
   },
   "lineDash": [
    "drinkingWaterProtectionZones/distance-outline=[2,2]",
@@ -519,16 +519,16 @@
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 484,
-   "of": 748,
+   "sublayersWithDiff": 488,
+   "of": 754,
    "byProperty": {
-    "circle-stroke-color": 264,
+    "circle-stroke-color": 266,
     "circle-stroke-opacity": 218,
     "line-color": 78,
-    "text-color": 48,
-    "text-halo-color": 48,
+    "text-color": 49,
+    "text-halo-color": 49,
     "circle-color": 39,
-    "heatmap-color": 35,
+    "heatmap-color": 36,
     "fill-color": 31,
     "circle-opacity": 12,
     "line-opacity": 12,
@@ -538,13 +538,13 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 189,
+   "circle:categorical": 193,
    "circle:constant": 188,
    "line:constant": 101,
-   "symbol:constant": 48,
+   "symbol:constant": 49,
    "line:categorical": 46,
    "fill:categorical": 43,
-   "heatmap:sequential": 35,
+   "heatmap:sequential": 36,
    "fill:constant": 34,
    "fill:sequential-step": 14,
    "fill:sequential": 13,
@@ -560,7 +560,7 @@
    "line:data-driven": 1
   },
   "textFont": {
-   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 46,
+   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 47,
    "[\"DIN Pro Bold\",\"Arial Unicode MS Bold\"]": 2
   },
   "statisticsProfile": {
@@ -620,7 +620,7 @@
    ],
    "themeDiff": "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）"
   },
-  "statisticsLayers": 696
+  "statisticsLayers": 707
  },
  "legends": [
   {"id":"accessibleParkFacilities","members":["accessibleParkFacilities"],"components":["AccessibleParkLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -644,6 +644,7 @@
   {"id":"artificialReefCenters","members":["artificialReefCenters"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"artsEvents","members":["artsEvents"],"components":["ArtsEventsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":2,"paintComparable":true},
   {"id":"aspectVector","members":["aspectVector"],"components":["AspectVectorLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":9,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":9,"paintComparable":false},
+  {"id":"atmSitesFisc","members":["atmSitesFisc"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"aviationControl","members":["aviationControl","aviationRestricted"],"components":["AviationAirspaceLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":6,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["14x10"],"swatchColorCount":6,"paintComparable":false},
   {"id":"aviationNoiseZones","members":["aviationNoiseZones"],"components":["AviationNoiseZonesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":3,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":3,"paintComparable":true},
   {"id":"beachWaterQuality","members":["beachWaterQuality"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":true},
@@ -690,6 +691,7 @@
   {"id":"facPrimary","members":["facHistorical","facOsmSupplement","facPlanned","facPrimary","facSecondary"],"components":["FacilityFuelLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":13,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"colorsNotInPaint":["#1f4373","#3c92a6","#8c5d42","#8c7c4a","#d100ff","#d9863d","#f2622e","#f2d64b","#f2e085"],"issues":["9/11 個色票不在圖層 paint 中","成員 facPrimary, facSecondary, facPlanned, facHistorical, facOsmSupplement 另有 hook（useEnergyPoiLayer）可能在 runtime 覆寫 paint，色票差異需人工確認"]},
   {"id":"factoryDensityGrid","members":["factoryDensityGrid"],"components":["IndustrialDensityGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":7,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":7,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"factoryLocations","members":["factoryLocations"],"components":["FactoryLocationsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":8,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
+  {"id":"financialBranchesFisc","members":["financialBranchesFisc"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":10,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":10,"paintComparable":true},
   {"id":"fireEvents","members":["fireEvents","fireLatest"],"components":["FireEventLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":false},
   {"id":"fireHydrants","members":["fireHydrants"],"components":["FireHydrantLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":10,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"fireIsochrone","members":["fireIsochrone"],"components":["FireIsochroneLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":3,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":3,"paintComparable":false},
@@ -930,6 +932,10 @@
   {"id":"statsAqiPoorRatioCounty","members":["statsAqiPoorRatioCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsAquacultureAreaCounty","members":["statsAquacultureAreaCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsAquacultureLandAreaTownship","members":["statsAquacultureLandAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsAtmCount","members":["statsAtmCount"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsAtmPer10k","members":["statsAtmPer10k"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsAtmSitesPer10kTown","members":["statsAtmSitesPer10kTown"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsAtmSitesTown","members":["statsAtmSitesTown"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsAutomobileLicenseHoldersCount","members":["statsAutomobileLicenseHoldersCount"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsAutomobileRegisteredCount","members":["statsAutomobileRegisteredCount"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsBambooForestAreaTownship","members":["statsBambooForestAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -1359,6 +1365,13 @@
   {"id":"statsEnvInspectionsCounty","members":["statsEnvInspectionsCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsEnvInspectionsPerFacilityCounty","members":["statsEnvInspectionsPerFacilityCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsExerciseParticipationRate","members":["statsExerciseParticipationRate"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinanceUnderserved","members":["statsFinanceUnderserved"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinanceUnderservedInstitutions","members":["statsFinanceUnderservedInstitutions"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinancialBranches","members":["statsFinancialBranches"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinancialBranchesPer10k","members":["statsFinancialBranchesPer10k"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinancialBranchesPer10kTown","members":["statsFinancialBranchesPer10kTown"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinancialBranchesTown","members":["statsFinancialBranchesTown"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsFinancialInstitutions","members":["statsFinancialInstitutions"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsFiscalLocalExpenditure","members":["statsFiscalLocalExpenditure"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsFiscalLocalRevenue","members":["statsFiscalLocalRevenue"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsFisheryProductionCounty","members":["statsFisheryProductionCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -1699,6 +1712,7 @@
   "artificialReefCenters": {"label":"人工魚礁區（中心位置） Artificial Reef Areas (centers)","theme":"海洋 Marine","dataClass":"A","color":"#ea580c","legend":"artificialReefCenters","legendType":"dot-swatch","popup":"artificialReefCenters","params":{"opacity":{"name":"artificialReefCentersOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"artificialReefCentersScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":11.057,"z14":12.6},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ea580c"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.143,"z14":7},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ea580c"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "artsEvents": {"label":"藝文活動 Arts Events","theme":"文化 Culture","dataClass":"A","color":"#4d9de0","legend":"artsEvents","legendType":"dot-swatch","popup":"artsEvents","params":{"opacity":{"name":"artsEventsOpacity","default":0.8,"min":0,"max":1},"size":{"name":"artsEventsRadius","default":1,"min":0.5,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#ff8c42","#4d9de0"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "aspectVector": {"label":"坡向分級 Aspect（8 向）","theme":"底圖 Base Map","dataClass":"D","color":"#ff7f00","legend":"aspectVector","legendType":"square-swatch","popup":"aspectVector","params":{"opacity":{"name":"aspectVectorOpacity","default":0.6,"min":0.3,"max":1},"controls":1},"hooks":["useAspectVectorLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useAspectVectorLayer.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-antialias":[0,0],"fill-color":["non-literal @src/hooks/useAspectVectorLayer.ts","non-literal @src/hooks/useAspectVectorLayer.ts"],"fill-opacity":["non-literal @src/hooks/useAspectVectorLayer.ts",0.6,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "atmSitesFisc": {"label":"ATM 裝設點（財金公司名冊） ATM Sites (FISC Roster)","theme":"基礎建設 Infrastructure","dataClass":"B","color":"#2563eb","legend":"atmSitesFisc","legendType":"dot-swatch","popup":"atmSitesFisc","params":{"opacity":{"name":"atmSitesFiscOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"atmSitesFiscScale","default":1,"min":0.3,"max":3},"controls":5},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":6}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.75,"circle-stroke-opacity":0.75},"colors":{"circle-color":{"kind":"categorical","count":6},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "aviationControl": {"label":"飛航情報/終端管制 FIR + TMA","theme":"交通 Move","dataClass":"D","color":"#4682B4","legend":"aviationControl","legendType":"square-swatch","popup":"aviationControl","params":{"opacity":{"name":"aviationControlOpacity","default":0.7,"min":0.1,"max":1},"controls":1},"hooks":["useAviationAirspaceLayer"],"siblings":["aviationRestricted"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useAviationAirspaceLayer.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-antialias":[0,0,0,0],"fill-color":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts"],"fill-opacity":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts"],"line-dasharray":["unresolved:[4,2]","unresolved:[4,2]","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1.8,"z14":2.2},{"z10":1.8,"z14":2.2},{"z10":1,"z14":1.6},{"z10":1,"z14":1.6},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "aviationNoiseZones": {"label":"航空噪音法定里別 Aviation Zones","theme":"環境氣候 Environment","dataClass":"A","color":"#ef4444","legend":"aviationNoiseZones","legendType":"square-swatch","popup":"aviationNoiseZones","params":{"opacity":{"name":"aviationNoiseZonesOpacity","default":0.65,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":6,"maxzoom":16,"values":{"fill-opacity":0.15},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","minzoom":6,"maxzoom":16,"values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"categorical","count":4}}}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "aviationRestricted": {"label":"機場管制/限航/危險 CTR+RCR+DANGER","theme":"交通 Move","dataClass":"D","color":"#DC3545","legend":"aviationControl","legendType":"square-swatch","popup":"aviationRestricted","params":{"opacity":{"name":"aviationRestrictedOpacity","default":0.7,"min":0.1,"max":1},"controls":1},"hooks":["useAviationAirspaceLayer"],"siblings":["aviationControl"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useAviationAirspaceLayer.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-antialias":[0,0,0,0],"fill-color":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts"],"fill-opacity":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts"],"line-dasharray":["unresolved:[4,2]","unresolved:[4,2]","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/hooks/useAviationAirspaceLayer.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1.8,"z14":2.2},{"z10":1.8,"z14":2.2},{"z10":1,"z14":1.6},{"z10":1,"z14":1.6},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
@@ -1790,6 +1804,7 @@
   "factoryDensityGrid": {"label":"生產中工廠密度 Factory Density","theme":"工商登記 Business Registry","dataClass":"B","color":"#21a685","legend":"factoryDensityGrid","legendType":"square-swatch","popup":"factoryDensityGrid","params":{"opacity":{"name":"factoryDensityGridOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","minzoom":4,"maxzoom":10.01,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"categorical","count":8,"lightDiffers":true}},"themeDiff":["fill-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","minzoom":10,"values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"categorical","count":8,"lightDiffers":true}},"themeDiff":["fill-color"]}],"geometry":["grid"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "factoryLocations": {"label":"生產中工廠登記 Factory Locations","theme":"工商登記 Business Registry","dataClass":"B","color":"#0d9488","legend":"factoryLocations","legendType":"gradient+dot-swatch","popup":"factoryLocations","params":{"opacity":{"name":"factoryLocationsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"factoryLocationsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.15,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":1.75,"z14":4.5},"circle-stroke-width":{"z10":0,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#0d9488"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "farmRoads": {"label":"農路 Farm Roads","theme":"農業 Agriculture","dataClass":"B","color":"#a4b494","legend":null,"legendType":null,"popup":"farmRoads","params":{"opacity":{"name":"farmRoadsOpacity","default":0.8,"min":0.1,"max":1},"lineWidth":{"name":"farmRoadsWidth","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"line","role":"decoration","geometry":"line","render":"line","minzoom":8,"values":{"line-width":{"z10":4,"z14":4},"line-blur":{"z10":3,"z14":3},"line-opacity":0,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#a4b494"],"lightDiffers":true,"light":["#7a8670"]}},"themeDiff":["line-color"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":8,"values":{"line-width":{"z10":1,"z14":2},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#a4b494"],"lightDiffers":true,"light":["#7a8670"]}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
+  "financialBranchesFisc": {"label":"金融機構總分支機構 Financial Institution Branches","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#0f766e","legend":"financialBranchesFisc","legendType":"dot-swatch","popup":"financialBranchesFisc","params":{"opacity":{"name":"financialBranchesFiscOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"financialBranchesFiscScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":11}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":11},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":14,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.8,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "fireEvents": {"label":"火災歷史 Fire History","theme":"消防 Fire & Rescue","dataClass":"D","color":"#ff5722","legend":"fireEvents","legendType":"gradient+dot-swatch","popup":"fireEvent","params":{"opacity":{"name":"fireEventsOpacity","default":1,"min":0.1,"max":1},"controls":2},"hooks":["useFireEventsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useFireEventsLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-blur":[0.15],"circle-color":[{"kind":"categorical"}],"circle-opacity":["non-literal @src/hooks/useFireEventsLayer.ts"],"circle-radius":[{"z10":{"min":3,"max":6},"z14":{"min":3,"max":6}}],"circle-stroke-color":["non-literal @src/hooks/useFireEventsLayer.ts","non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "fireHydrants": {"label":"消防栓 Hydrant","theme":"消防 Fire & Rescue","dataClass":"B","color":"#2196f3","legend":"fireHydrants","legendType":"gradient+dot-swatch","popup":"fireHydrant","params":{"opacity":{"name":"fireHydrantsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"fireHydrantsScale","default":1,"min":0.3,"max":3},"height":{"name":"fireHydrantsZ","default":0,"min":0,"max":100},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":1.5,"z14":3.167},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#2196f3","#00acc1","#90a4ae"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#2196f3","#00acc1","#90a4ae"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "fireIsochrone": {"label":"救援等時圈 Isochrone","theme":"消防 Fire & Rescue","dataClass":"D","color":"#22c55e","legend":"fireIsochrone","legendType":"square-swatch","popup":"fireIsochrone","params":{"opacity":{"name":"fireIsochroneOpacity","default":0.5,"min":0.1,"max":0.9},"controls":2},"hooks":[],"resolution":"static-scan","scope":"hook","evidence":["src/map/fireIsochroneLayerFactory.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-antialias":[0],"fill-color":["non-literal @src/map/fireIsochroneLayerFactory.ts"],"fill-opacity":["non-literal @src/map/fireIsochroneLayerFactory.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["polygon"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
@@ -2170,6 +2185,10 @@
   "statsAqiPoorRatioCounty": {"label":"空品不良站日比率（AQI>100）","theme":"空氣品質統計 Air Quality Statistics","dataClass":"D","color":"#8c96c6","legend":"statsAqiPoorRatioCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAqiPoorRatioCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":2},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsAquacultureAreaCounty": {"label":"水產養殖面積","theme":"漁業統計","dataClass":"D","color":"#74a9cf","legend":"statsAquacultureAreaCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAquacultureAreaCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsAquacultureLandAreaTownship": {"label":"水產養殖用地面積","theme":"漁業統計","dataClass":"D","color":"#74a9cf","legend":"statsAquacultureLandAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAquacultureLandAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsAtmCount": {"label":"金融卡 ATM 台數（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsAtmCount","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAtmCountOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsAtmPer10k": {"label":"每萬人 ATM 台數（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsAtmPer10k","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAtmPer10kOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsAtmSitesPer10kTown": {"label":"每萬人 ATM 裝設點數（鄉鎮）（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsAtmSitesPer10kTown","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAtmSitesPer10kTownOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsAtmSitesTown": {"label":"ATM 裝設點數（鄉鎮）（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsAtmSitesTown","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAtmSitesTownOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsAutomobileLicenseHoldersCount": {"label":"汽車駕照持有人數","theme":"交通統計 Transport Statistics","dataClass":"D","color":"#6baed6","legend":"statsAutomobileLicenseHoldersCount","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAutomobileLicenseHoldersCountOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsAutomobileRegisteredCount": {"label":"汽車登記數","theme":"交通統計 Transport Statistics","dataClass":"D","color":"#6baed6","legend":"statsAutomobileRegisteredCount","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsAutomobileRegisteredCountOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsBambooForestAreaTownship": {"label":"竹林用地面積","theme":"林業統計","dataClass":"D","color":"#74c476","legend":"statsBambooForestAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsBambooForestAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
@@ -2599,6 +2618,13 @@
   "statsEnvInspectionsCounty": {"label":"環保稽查次數","theme":"環境治理統計 Environmental Enforcement Statistics","dataClass":"D","color":"#8c96c6","legend":"statsEnvInspectionsCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsEnvInspectionsCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsEnvInspectionsPerFacilityCounty": {"label":"每列管設施環保稽查次數","theme":"環境治理統計 Environmental Enforcement Statistics","dataClass":"D","color":"#8c96c6","legend":"statsEnvInspectionsPerFacilityCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsEnvInspectionsPerFacilityCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsExerciseParticipationRate": {"label":"有運動比例（縣市）","theme":"體育統計 Sports Statistics","dataClass":"D","color":"#9e9ac8","legend":"statsExerciseParticipationRate","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsExerciseParticipationRateOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinanceUnderserved": {"label":"金融機構分支家數待增加地區（第一類）（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinanceUnderserved","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinanceUnderservedOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":3,"breaks":2,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinanceUnderservedInstitutions": {"label":"待增加地區各類金融機構家數（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinanceUnderservedInstitutions","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinanceUnderservedInstitutionsOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinancialBranches": {"label":"金融機構分支數（縣市）（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinancialBranches","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinancialBranchesOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinancialBranchesPer10k": {"label":"每萬人金融機構分支數（縣市）（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinancialBranchesPer10k","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinancialBranchesPer10kOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinancialBranchesPer10kTown": {"label":"每萬人金融機構分支數（鄉鎮）（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinancialBranchesPer10kTown","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinancialBranchesPer10kTownOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinancialBranchesTown": {"label":"金融機構分支數（鄉鎮）（鄉鎮）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinancialBranchesTown","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinancialBranchesTownOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsFinancialInstitutions": {"label":"各縣市金融機構家數（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFinancialInstitutions","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFinancialInstitutionsOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsFiscalLocalExpenditure": {"label":"縣市政府歲出（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFiscalLocalExpenditure","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFiscalLocalExpenditureOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsFiscalLocalRevenue": {"label":"縣市政府歲入（縣市）","theme":"財稅與消費統計 Fiscal & Consumption Statistics","dataClass":"D","color":"#2a9d8f","legend":"statsFiscalLocalRevenue","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFiscalLocalRevenueOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsFisheryProductionCounty": {"label":"漁業生產量","theme":"漁業統計","dataClass":"D","color":"#74a9cf","legend":"statsFisheryProductionCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsFisheryProductionCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":4},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

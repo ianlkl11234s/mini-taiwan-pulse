@@ -9,5 +9,8 @@
   "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "Construction Management Office, Department of Urban Development, Taipei City Government",
   "enum.statPublisher.財政部國有財產署": "National Property Administration, Ministry of Finance",
   "enum.statPublisher.台灣糖業股份有限公司": "Taiwan Sugar Corporation",
-  "enum.statPublisher.法務部行政執行署": "Administrative Enforcement Agency, Ministry of Justice"
+  "enum.statPublisher.法務部行政執行署": "Administrative Enforcement Agency, Ministry of Justice",
+  "enum.statPublisher.財金資訊股份有限公司": "Financial Information Service Co. (FISC)",
+  "enum.statPublisher.金融監督管理委員會銀行局": "Banking Bureau, Financial Supervisory Commission",
+  "enum.statPublisher.中央銀行金融業務檢查處": "Department of Financial Inspection, Central Bank"
 }

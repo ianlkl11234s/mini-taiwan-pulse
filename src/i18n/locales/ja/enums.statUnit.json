@@ -105,5 +105,11 @@
   "enum.statUnit.筆戶": "筆",
   "enum.statUnit.元／平方公尺": "台湾ドル／平方メートル",
   "enum.statUnit.筆次": "件",
-  "enum.statUnit.案": "件"
+  "enum.statUnit.案": "件",
+  "enum.statUnit.台": "台",
+  "enum.statUnit.台／萬人": "台／人口1万人",
+  "enum.statUnit.旗標": "フラグ",
+  "enum.statUnit.家／萬人": "機関／人口1万人",
+  "enum.statUnit.點": "地点",
+  "enum.statUnit.點／萬人": "地点／人口1万人"
 }

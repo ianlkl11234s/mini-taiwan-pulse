@@ -212,5 +212,13 @@
   "popup.atlas.tenderZoning": "使用分區",
   "popup.atlas.tenderLandUse": "使用地類別",
   "popup.atlas.tenderAnnouncedValue": "公告現值",
-  "popup.atlas.tenderAnnouncedValueText": "{value} 元／m²（{date}；不是標售底價）"
+  "popup.atlas.tenderAnnouncedValueText": "{value} 元／m²（{date}；不是標售底價）",
+  "popup.atlas.atmOneSite": "一個裝設地點，可能不只一台機器",
+  "popup.atlas.atmWheelchair": "輪椅可用",
+  "popup.atlas.atmVoice": "視障語音服務",
+  "popup.atlas.atmIntlCard": "國際卡提款",
+  "popup.atlas.atmNotPublic": "名冊標示不對外開放（例如公司、機關內部）",
+  "popup.atlas.atmAccessNote": "開放說明",
+  "popup.atlas.financeApproximate": "只定位到約略位置（道路或區域中心），實際位置可能差數百公尺",
+  "popup.atlas.financeRosterDate": "名冊快照日"
 }

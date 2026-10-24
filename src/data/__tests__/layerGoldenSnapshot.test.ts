@@ -192,7 +192,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-24: +7 死因統計 G20（鄉鎮 4＋縣市 2）＋原民文化健康站（culturalHealthStations）。
     // 2026-10-24: +2 街頭藝人登記人數 G23（鄉鎮／縣市）。
     // 2026-10-24: +27 國有資產 G16（統計 23＋台水廠所／台水淨水設施／台糖糖廠／國產署待標售 4 點層）。
-    expect(keys.length).toBe(1290);
+    // 2026-10-24: +13 金融據點 G10（統計 11＋ATM 裝設點／總分支機構 2 點層）。
+    expect(keys.length).toBe(1303);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

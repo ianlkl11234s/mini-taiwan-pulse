@@ -47,6 +47,7 @@ const DENSE_FROM = {
   harmReductionDuiCrashes: densePointsFromZoom(36_814),
   highwayDisasterHistory: densePointsFromZoom(16_163),
   swcbDisasterPhotoPoints: densePointsFromZoom(34_419),
+  atmSitesFisc: densePointsFromZoom(27_390),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -270,6 +271,7 @@ import {
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11852,6 +11854,9 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("twcWaterFacilities", "./state_assets/twc_water_facilities.geojson", "twc-water-facilities", matchColorExpr("facility_type", TWC_FACILITY_TYPE_OPTIONS), undefined, `台灣自來水公司 供水轄區資訊（data.gov.tw 36602）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13, filter: (p) => atlasMultiSelectFilter("facility_type", TWC_FACILITY_TYPE_OPTIONS, p?.twcWaterFacilitiesTypeMask) }),
   publicLifePointOverlay("taisugarSugarMills", "./state_assets/taisugar_sugar_mills.geojson", "taisugar-sugar-mills", ATLAS_LAYER_COLORS.taisugarSugarMills, undefined, `台灣糖業公司 各糖廠據點（data.gov.tw 41592）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 9 }),
   publicLifePointOverlay("statePropertyTenderListings", "./state_assets/state_property_tender_listings.geojson", "state-property-tender-listings", matchColorExpr("property_kind", STATE_TENDER_KIND_OPTIONS), undefined, `財政部國有財產署 國有非公用土地／房地未標脫資訊（data.gov.tw 9659、13152）· ${OGDL_ATTR}`, [2.5, 6], { filter: (p) => atlasMultiSelectFilter("property_kind", STATE_TENDER_KIND_OPTIONS, p?.statePropertyTenderListingsKindMask) }),
+  // ── 金融服務據點 G10（2026-10-24）：ATM 裝設點 2.7 萬走 PMTiles＋低縮放熱區；總分支機構依機構類別著色 ──
+  publicLifePointOverlay("atmSitesFisc", "./finance/atm_sites_fisc.pmtiles", "atm-sites-fisc", matchColorExpr("institution_category", ATM_INSTITUTION_OPTIONS), { sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 }, `財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）· ${OGDL_ATTR}`, undefined, { filter: (p) => atmSiteFilter(p?.atmSitesFiscInstitutionMask, p?.atmSitesFiscOnlyWheelchair, p?.atmSitesFiscOnlyVoice), dense: { pointsFromZoom: DENSE_FROM.atmSitesFisc, intensity: 1 } }),
+  publicLifePointOverlay("financialBranchesFisc", "./finance/financial_branches_fisc.geojson", "financial-branches-fisc", matchColorExpr("institution_category", BRANCH_CATEGORY_OPTIONS), undefined, `財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_category", BRANCH_CATEGORY_OPTIONS, p?.financialBranchesFiscCategoryMask) }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
