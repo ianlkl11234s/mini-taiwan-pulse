@@ -42,7 +42,7 @@ function removeAll(map: MapboxMap) {
   try { if (map.getSource(SRC)) map.removeSource(SRC); } catch { /* style replaced */ }
 }
 
-/** 依目前版本寫 feature-state（id＝feature 順序）；回傳寫入筆數。source 尚未就緒回 0，由 sourcedata 重跑。 */
+/** 依目前版本寫 feature-state（id＝feature 順序）；回傳寫入筆數。state 不依賴 tile 載入；換底圖後靠 mountRevision 重套。 */
 export function applyBusCrowdingState(
   map: Pick<MapboxMap, "getSource" | "setFeatureState">, data: BusCrowdingScenarioData | null, version: BusCrowdingVersion,
 ): number {

@@ -1,6 +1,6 @@
 {
   "popup.busCrowdingSim.confidence": "範囲のみ参照",
-  "popup.busCrowdingSim.subRoute": "運行系統",
+  "popup.busCrowdingSim.subRoute": "支線系統",
   "popup.busCrowdingSim.kind": "種別",
   "popup.busCrowdingSim.synthetic": "シナリオで追加",
   "popup.busCrowdingSim.segment": "区間",
