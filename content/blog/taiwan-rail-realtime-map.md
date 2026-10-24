@@ -2,7 +2,7 @@
 title: 台灣軌道即時地圖：高鐵、台鐵、捷運列車一張圖看
 description: Mini Taiwan Pulse 把台灣高鐵、台鐵、北中南捷運與輕軌放在同一張即時地圖上，依時刻表推算每班列車此刻的位置。這篇記錄從淡水信義線一路做到台鐵的過程與做法。
 slug: taiwan-rail-realtime-map
-topic: rail
+topic: layers
 series: 軌道地圖
 date: 2026-02-02
 updated: 2026-10-23

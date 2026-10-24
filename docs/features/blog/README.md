@@ -24,12 +24,14 @@
 |---|---|---|
 | `/blog/` | 產生器 | 列表頁：主題分頁＋最新精選＋依主題分區 |
 | `/blog/<topic>/` | 產生器 | 主題頁（只有已有文章的主題才產生） |
-| `/blog/<topic>/<slug>/` | `content/blog/<slug>.md` | 文章頁 |
+| `/blog/<slug>/` | `content/blog/<slug>.md` | 文章頁（網址不含主題；slug 不可與主題 id、`about` 等保留名撞） |
 | `/blog/about/` | 產生器 | 關於作者（ProfilePage） |
 | `/blog/feed.xml` | 產生器 | RSS（寫到 gitignored 的 `public/blog/feed.xml`） |
-| `/blog/<topic>/<slug>/*.jpg` | `public/blog/<topic>/<slug>/` | 文章圖片，原樣複製 |
+| `/blog/<slug>/*.jpg` | `public/blog/<slug>/` | 文章圖片，原樣複製 |
 
-**網址是契約**：`topic` 的 id 與文章 `slug` 定了就不要改（外部連結與搜尋收錄會斷）。主題中文名可以改。
+**網址是契約**：文章 `slug` 定了就不要改（外部連結與搜尋收錄會斷）。文章網址不含主題，所以文章換主題不影響連結；主題頁 id 改了要在 nginx 加 301。
+
+**主題**（2026-10-24 由六類收斂成三類，依「文章在做什麼」分）：`layers` 圖層、`analysis` 分析與模擬、`making` 製作筆記。v2.13.0 發布過的 `/blog/rail/…` 由 nginx 301 到新網址。
 
 ## 關鍵檔案
 
@@ -52,12 +54,12 @@
 title: 標題（含搜尋關鍵字，32 字內）
 description: 120 字內摘要（搜尋結果與分享卡）
 slug: taiwan-rail-realtime-map      # 小寫英數與連字號，檔名必須是 <slug>.md
-topic: rail                         # 必須登記在 src/blog/topics.ts
+topic: layers                       # layers｜analysis｜making（src/blog/topics.ts）
 series: 軌道地圖                     # 選填；同系列 ≥2 篇才顯示系列導覽
 date: 2026-02-02                    # 發布日（多半是 Threads 正式分享那天）
 updated: 2026-10-23                 # 最後實質修改日
 tags: [開發日記, 時刻表]             # 不要重複主題名
-cover: cover-dark.jpg               # public/blog/<topic>/<slug>/ 底下
+cover: cover-dark.jpg               # public/blog/<slug>/ 底下
 coverLight: cover-light.jpg         # 選填；淺色主題用
 coverAlt: 封面替代文字
 mapLink: "/?v=1&lng=…&lat=…&z=…&layers=rail&style=dark"   # 封面下「在地圖上打開這個畫面」
@@ -70,7 +72,7 @@ threads:                            # 原始 Threads 串，文末自動列出
 
 - `## 小節`：自動進左側目錄（只收 h2）。
 - `## 常見問題` 底下的 `### 問題` ＋段落：自動產生 FAQPage 結構化資料（AI 摘要常引用）。
-- 圖片：`![圖說](檔名.jpg)`，檔案放 `public/blog/<topic>/<slug>/`，找不到會在 build 時警告並略過。
+- 圖片：`![圖說](檔名.jpg)`，檔案放 `public/blog/<slug>/`，找不到會在 build 時警告並略過。
 - 互動地圖：
 
   ````markdown
@@ -86,7 +88,7 @@ threads:                            # 原始 Threads 串，文末自動列出
 
 ## 嵌入地圖的限制（2026-10-23 實測）
 
-- 回放圖層（rail、flights、ships）**必須帶 `date=`**，而且那天要有快照 `/embed-snapshots/<layer>/<date>.json.gz`。目前正式站確認有的只有 **rail 2026-08-06**。
+- 回放圖層（rail、flights、ships）**必須帶 `date=`**，而且那天要有快照 `/embed-snapshots/<layer>/<date>.json.gz`。目前正式站確認有的是 **rail、ships 的 2026-08-06**。
 - 新的快照日期要用 `scripts/export/export-embed-snapshot.sh <layer> <date>` 產生，再走 deploy-assets 上傳（屬正式部署資產，要使用者同意）。
 - 回放預設約 90 秒播完一天（約 960 倍速）。使用者覺得太快，文章一律帶 `p.speed=30`。
 - `h=` 指定起始小時；不帶會從 00:00 開始，深夜幾乎沒車。
