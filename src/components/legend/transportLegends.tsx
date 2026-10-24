@@ -24,7 +24,7 @@ import {
   BUS_CROWDING_MIN_TRIPS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_KEY,
   BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
 } from "../../data/busCrowdingSimTypes";
-import { BUS_CROWDING_ZERO_LINE, busCrowdingColors } from "../../data/busCrowdingSimStyle";
+import { BUS_CROWDING_ZERO_LINE, busCrowdingColors, busCrowdingZeroOpacity } from "../../data/busCrowdingSimStyle";
 
 // ── Road Events event_type ──
 const ROAD_EVENT_TYPE_ITEMS = [
@@ -548,7 +548,7 @@ export function BusCrowdingSimLegend() {
   const theme = useLegendTheme();
   const colors = busCrowdingColors(theme.isDark);
   const levels = [
-    { color: colors[0], width: BUS_CROWDING_ZERO_LINE.width, opacity: BUS_CROWDING_ZERO_LINE.opacity, label: t("legend.transport.busSimZero") },
+    { color: colors[0], width: BUS_CROWDING_ZERO_LINE.width, opacity: busCrowdingZeroOpacity(theme.isDark), label: t("legend.transport.busSimZero") },
     { color: colors[1], width: 2, opacity: 1, label: t("legend.transport.busSimLow") },
     { color: colors[2], width: 2, opacity: 1, label: t("legend.transport.busSimMid") },
     { color: colors[3], width: 2, opacity: 1, label: t("legend.transport.busSimHigh") },

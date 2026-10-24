@@ -34,9 +34,13 @@ export const busCrowdingColorExpression = (isDark: boolean): unknown[] => {
   return ["step", [...OV], c[0], NONZERO, c[1], BUS_CROWDING_BREAKS[0], c[2], BUS_CROWDING_BREAKS[1], c[3]];
 };
 
-/** 0 級＝F-2 背景參考線透明度；有值＝L-4 標準透明度。滑桿值 o 兩者都乘。 */
-export const busCrowdingOpacityExpression = (o: number): unknown[] => [
-  "case", [...IS_ZERO], o * BUS_CROWDING_ZERO_LINE.opacity, o * LINE_OPACITY.standard,
+/**
+ * 0 級＝背景參考線：暗底圖用 F-2 背景面外框透明度；淡底圖的深灰在 0.6 下會和最高級深紫混淆、也像底圖道路，
+ * 降到 L-4 下限 min。有值＝L-4 標準透明度。滑桿值 o 兩者都乘。
+ */
+export const busCrowdingZeroOpacity = (isDark: boolean): number => (isDark ? BUS_CROWDING_ZERO_LINE.opacity : LINE_OPACITY.min);
+export const busCrowdingOpacityExpression = (o: number, isDark = true): unknown[] => [
+  "case", [...IS_ZERO], o * busCrowdingZeroOpacity(isDark), o * LINE_OPACITY.standard,
 ];
 
 /** 0 級固定 0.5px；有值＝L-1 標準線階（z10 1px → z14 2px）。zoom 必須在最外層。 */

@@ -25,7 +25,7 @@ const clamp = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) 
 const linePaint = (opacity: number, isDark: boolean) => ({
   "line-color": busCrowdingColorExpression(isDark),
   "line-width": busCrowdingWidthExpression(),
-  "line-opacity": busCrowdingOpacityExpression(clamp(opacity)),
+  "line-opacity": busCrowdingOpacityExpression(clamp(opacity), isDark),
 });
 
 /** 全部 style layer（初始 visibility none）；匯出供測試做 style-spec 驗證。高值靠 line-sort-key 疊在上面。 */
