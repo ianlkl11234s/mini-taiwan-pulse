@@ -10,6 +10,8 @@ import {
   PLACE_CATEGORY_OPTIONS, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS,
   SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
+  TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -642,6 +644,143 @@ function CulturalHealthPanel({ props }: Props) {
   </>;
 }
 
+// ── 國營事業與國有資產 G16（2026-10-24）────────────────────────────────────
+// 台水、台糖的資料日期＝data.gov.tw 更新日；待標售＝下載日快照。定位精度、旗標一律顯示；出典與授權由 SourceFooter 掛。
+
+function TwcOfficePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(TWC_OFFICE_TYPE_OPTIONS, props.unit_type);
+  const type = enumOf("atlasTwcOfficeType", props.unit_type, props.unit_type_label, i18n);
+  const shared = num(props.shared_site_count) ?? 1;
+  return <>
+    <Title color={color}>{str(props.name) || type}</Title>
+    <Row field="type" value={type} color={color} />
+    <Row label={t("popup.atlas.twcRegionOffice")} value={str(props.region_office)} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={admin(props, i18n)} />
+    {shared > 1 ? <Row field="caution" value={t("popup.atlas.twcSharedSite", { n: String(shared - 1) })} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.metadataDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+function TwcFacilityPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(TWC_FACILITY_TYPE_OPTIONS, props.facility_type);
+  const type = enumOf("atlasTwcFacilityType", props.facility_type, props.facility_type_label, i18n);
+  const large = str(props.existing_large_plant_name);
+  return <>
+    <Title color={color}>{str(props.name) || type}</Title>
+    <Row field="type" value={type} color={color} />
+    {large ? <Row label={t("popup.atlas.twcLargePlant")} value={t("popup.atlas.twcLargePlantValue", { name: large, capacity: fmt(props.design_capacity_cmd, 0, "", i18n) })} color={color} /> : null}
+    {large ? <Row field="remarks" value={t("popup.atlas.twcLargePlantSame")} /> : null}
+    <Row label={t("popup.atlas.twcSupplyArea")} value={str(props.supply_area_text)} />
+    <Row label={t("popup.atlas.twcRawWater")} value={str(props.raw_water_source)} />
+    <Row field="district" value={admin(props, i18n)} />
+    {props.name_encoding_issue === true ? <Row field="caution" value={t("popup.atlas.twcNameEncoding")} color={theme.warn} /> : null}
+    {props.coord_status && props.coord_status !== "ok" ? <Row field="caution" value={enumOf("atlasTwcCoord", props.coord_status, props.coord_status_label, i18n)} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.metadataDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+function TaisugarMillPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = ATLAS_LAYER_COLORS.taisugarSugarMills;
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={admin(props, i18n)} />
+    <Row label={t("popup.atlas.taisugarHighlights")} value={str(props.highlights)} />
+    <Row field="coordSource" value={enumOf("atlasStatePrecision", props.geocode_precision, props.geocode_precision_label, i18n)} />
+    {props.coord_status && props.coord_status !== "ok" ? <Row field="caution" value={enumOf("atlasTaisugarCoord", props.coord_status, props.coord_status_label, i18n)} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.metadataDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+function StateTenderPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(STATE_TENDER_KIND_OPTIONS, props.property_kind);
+  const kind = enumOf("atlasTenderKind", props.property_kind, props.property_kind_label, i18n);
+  const district = admin(props, i18n);
+  const value = fmt(props.announced_land_value_per_sqm, 0, "", i18n);
+  return <>
+    <Title color={color}>{t("popup.atlas.tenderTitle", { kind, district })}</Title>
+    <Row field="type" value={kind} color={color} />
+    <Row label={t("popup.atlas.tenderBidNo")} value={str(props.bid_no)} />
+    <Row label={t("popup.atlas.tenderBidDate")} value={str(props.bid_date)} mono />
+    <Row label={t("popup.atlas.tenderBranch")} value={str(props.branch_office)} />
+    <Row label={t("popup.atlas.tenderParcel")} value={str(props.parcel_text)} />
+    <Row field="address" value={str(props.street_address)} />
+    <Row field="area" value={fmt(props.land_area_sqm, 2, "m²", i18n)} />
+    <Row label={t("popup.atlas.tenderShareArea")} value={fmt(props.share_area_sqm, 2, "m²", i18n)} />
+    <Row label={t("popup.atlas.tenderZoning")} value={str(props.zoning)} />
+    <Row label={t("popup.atlas.tenderLandUse")} value={str(props.land_use_class)} />
+    {value ? <Row label={t("popup.atlas.tenderAnnouncedValue")} value={t("popup.atlas.tenderAnnouncedValueText", { value, date: str(props.announced_land_value_date) })} /> : null}
+    <Row field="positionAccuracy" value={enumOf("atlasStatePrecision", props.geocode_precision, props.geocode_precision_label, i18n)} />
+    {props.town_name_basis === "point_location" ? <Row field="remarks" value={enumOf("atlasTenderTownBasis", props.town_name_basis, props.town_name_basis_label, i18n)} /> : null}
+    {props.spatial_check === "town_mismatch" ? <Row field="caution" value={enumOf("atlasTenderSpatial", props.spatial_check, props.spatial_check_label, i18n)} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.downloadDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+// ── 金融服務據點 G10（2026-10-24）──────────────────────────────────────────
+// 財金公司名冊快照；座標來源混合，定位精度一律顯示，Google 約略位置加警示。旗標是 1／0／null（null＝名冊未標示，不顯示）。
+
+function FinanceLocationRows({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const approximate = props.geocode_precision === "google_approximate";
+  return <>
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={admin(props, i18n)} />
+    <Row field="coordSource" value={enumOf("atlasFinanceCoord", props.coord_source, props.coord_source_label, i18n)} />
+    <Row field="positionAccuracy" value={enumOf("atlasFinancePrecision", props.geocode_precision, props.geocode_precision_label, i18n)} color={approximate ? theme.warn : undefined} />
+    {approximate ? <Row field="caution" value={t("popup.atlas.financeApproximate")} color={theme.warn} /> : null}
+    {props.town_basis === "point_location" ? <Row field="remarks" value={enumOf("atlasFinanceTownBasis", props.town_basis, props.town_basis_label, i18n)} /> : null}
+    {props.spatial_check === "town_mismatch" ? <Row field="caution" value={enumOf("atlasFinanceSpatial", props.spatial_check, props.spatial_check_label, i18n)} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.financeRosterDate")} value={str(props.vintage)} mono />
+  </>;
+}
+
+function AtmSitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = optionColor(ATM_INSTITUTION_OPTIONS, props.institution_category);
+  const category = enumOf("atlasAtmInstitution", props.institution_category, props.institution_category_label, i18n);
+  const flag = (v: unknown) => (v === 1 ? t("popup.common.yes") : v === 0 ? t("popup.common.no") : "");
+  return <>
+    <Title color={color}>{[str(props.institution_name), str(props.name)].filter(Boolean).join(" ")}</Title>
+    <Row field="category" value={category} color={color} />
+    <Row field="remarks" value={t("popup.atlas.atmOneSite")} />
+    <Row label={t("popup.atlas.atmWheelchair")} value={flag(props.wheelchair_accessible)} />
+    <Row label={t("popup.atlas.atmVoice")} value={flag(props.voice_guidance)} />
+    <Row label={t("popup.atlas.atmIntlCard")} value={flag(props.intl_card_withdrawal)} />
+    {props.open_to_public === 0 ? <Row field="caution" value={t("popup.atlas.atmNotPublic")} color={theme.warn} /> : null}
+    <Row label={t("popup.atlas.atmAccessNote")} value={str(props.access_note)} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
+function FinancialBranchPanel({ props }: Props) {
+  const i18n = useLocale();
+  const color = optionColor(BRANCH_CATEGORY_OPTIONS, props.institution_category);
+  const category = enumOf("atlasBranchCategory", props.institution_category, props.institution_category_label, i18n);
+  return <>
+    <Title color={color}>{str(props.name) || category}</Title>
+    <Row field="category" value={category} color={color} />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -679,6 +818,12 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   ...LAND_SUBSIDENCE_PANELS,
   cultureCoinVenues: CultureCoinPanel,
   culturalHealthStations: CulturalHealthPanel,
+  twcServiceOffices: TwcOfficePanel,
+  twcWaterFacilities: TwcFacilityPanel,
+  taisugarSugarMills: TaisugarMillPanel,
+  statePropertyTenderListings: StateTenderPanel,
+  atmSitesFisc: AtmSitePanel,
+  financialBranchesFisc: FinancialBranchPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -727,4 +872,10 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   seawallZones: manifestZh("seawallZones"),
   cultureCoinVenues: manifestZh("cultureCoinVenues"),
   culturalHealthStations: manifestZh("culturalHealthStations"),
+  twcServiceOffices: manifestZh("twcServiceOffices"),
+  twcWaterFacilities: manifestZh("twcWaterFacilities"),
+  taisugarSugarMills: manifestZh("taisugarSugarMills"),
+  statePropertyTenderListings: manifestZh("statePropertyTenderListings"),
+  atmSitesFisc: manifestZh("atmSitesFisc"),
+  financialBranchesFisc: manifestZh("financialBranchesFisc"),
 };

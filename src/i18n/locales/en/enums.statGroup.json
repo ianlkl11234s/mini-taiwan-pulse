@@ -13,5 +13,20 @@
   "enum.statGroup.臺北市污水接管普及率": "Taipei sewer connection rate",
   "enum.statGroup.臺北市登記工廠家數": "Taipei registered factories",
   "enum.statGroup.臺北市核發使用執照": "Taipei occupancy permits issued",
-  "enum.statGroup.死因統計": "Causes of death"
+  "enum.statGroup.死因統計": "Causes of death",
+  "enum.statGroup.街頭藝人登記人數": "Registered street performers",
+  "enum.statGroup.閒置國有地": "Idle state land",
+  "enum.statGroup.國有地管理區分占比": "State land by management status",
+  "enum.statGroup.國有非公用土地": "State-owned non-public land",
+  "enum.statGroup.國有非公用房地": "State-owned non-public real estate",
+  "enum.statGroup.國有不動產出租": "Leased state real estate",
+  "enum.statGroup.國有住宅用地": "State-owned residential land",
+  "enum.statGroup.台糖可供出租土地（公告）": "Taisugar land listed for lease",
+  "enum.statGroup.台糖歷年標租標的": "Taisugar past lease tenders",
+  "enum.statGroup.行政執行署拍定不動產": "Administrative enforcement auctions sold",
+  "enum.statGroup.金融卡 ATM 台數（縣市）": "Financial-card ATMs (county)",
+  "enum.statGroup.金融服務欠缺鄉鎮（第一類）": "Financially underserved townships (category 1)",
+  "enum.statGroup.各縣市金融機構家數（央行）": "Financial institutions by county (central bank)",
+  "enum.statGroup.金融機構分支數": "Financial branches",
+  "enum.statGroup.ATM 裝設點數（鄉鎮）": "ATM sites (township)"
 }

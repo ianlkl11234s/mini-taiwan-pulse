@@ -549,6 +549,13 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   "hazards/seawall_zones.geojson": [{ field: "name", type: "string" }, { field: "org_label", type: "string" }],
   // 🎟️ 文化幣藝文消費點 G23（2026-10-24）：著色／篩選依 category；popup 依 coord_status／county_check 顯示座標說明。
   // 🏡 原民會文化健康站 G20（2026-10-24）：著色／篩選依 kind；鄉鎮中心圈依 station_count 定半徑、popup 列 station_names。
+  // 🏛️ 國營事業與國有資產 G16（2026-10-24）：著色／篩選依類型代碼；popup 顯示定位精度與旗標。
+  "state_assets/twc_service_offices.geojson": [{ field: "unit_type", type: "string" }, { field: "shared_site_count", type: "number" }],
+  "state_assets/twc_water_facilities.geojson": [{ field: "facility_type", type: "string" }, { field: "existing_large_plant_name", type: "string", nullable: true }, { field: "design_capacity_cmd", type: "number", nullable: true }, { field: "name_encoding_issue", type: "boolean" }, { field: "coord_status", type: "string" }],
+  "state_assets/taisugar_sugar_mills.geojson": [{ field: "geocode_precision", type: "string" }, { field: "coord_status", type: "string" }],
+  "state_assets/state_property_tender_listings.geojson": [{ field: "property_kind", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "spatial_check", type: "string" }, { field: "town_name_basis", type: "string" }, { field: "land_area_sqm", type: "number", nullable: true }, { field: "announced_land_value_per_sqm", type: "number", nullable: true }],
+  // 💳 金融服務據點 G10（2026-10-24）：著色／篩選依 institution_category；popup 依 geocode_precision／spatial_check 顯示定位說明。（ATM 是 PMTiles，由 pmtilesContract 守 sourceLayer）
+  "finance/financial_branches_fisc.geojson": [{ field: "institution_category", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "coord_source", type: "string" }, { field: "spatial_check", type: "string", nullable: true }],
   "welfare/cultural_health_stations.geojson": [{ field: "kind", type: "string" }, { field: "precision", type: "string" }, { field: "station_count", type: "number", nullable: true }, { field: "station_names", type: "string", nullable: true }],
   "culture/culture_coin_venues.geojson": [{ field: "category", type: "string" }, { field: "sub_category", type: "string" }, { field: "coord_status", type: "string" }, { field: "county_check", type: "string" }],
 };

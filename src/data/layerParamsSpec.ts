@@ -95,7 +95,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -3036,6 +3036,46 @@ export const LAYER_PARAMS_SPEC = {
       options: atlasParamOptions(CULTURAL_HEALTH_KIND_OPTIONS), out: "culturalHealthStationsKindMask",
     },
     opacitySlider("culturalHealthStationsOpacity", 0.9), scaleSlider("culturalHealthStationsScale", 1),
+  ],
+  // ══════════ 國營事業與國有資產 G16（2026-10-24）══════════
+  twcServiceOffices: [
+    {
+      kind: "multiSelect", name: "twcServiceOfficesType", label: "單位類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(TWC_OFFICE_TYPE_OPTIONS), out: "twcServiceOfficesTypeMask",
+    },
+    opacitySlider("twcServiceOfficesOpacity", 0.9), scaleSlider("twcServiceOfficesScale", 1),
+  ],
+  twcWaterFacilities: [
+    {
+      kind: "multiSelect", name: "twcWaterFacilitiesType", label: "設施類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(TWC_FACILITY_TYPE_OPTIONS), out: "twcWaterFacilitiesTypeMask",
+    },
+    opacitySlider("twcWaterFacilitiesOpacity", 0.9), scaleSlider("twcWaterFacilitiesScale", 1),
+  ],
+  taisugarSugarMills: [opacitySlider("taisugarSugarMillsOpacity", 0.9), scaleSlider("taisugarSugarMillsScale", 1)],
+  statePropertyTenderListings: [
+    {
+      kind: "multiSelect", name: "statePropertyTenderListingsKind", label: "標的類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STATE_TENDER_KIND_OPTIONS), out: "statePropertyTenderListingsKindMask",
+    },
+    opacitySlider("statePropertyTenderListingsOpacity", 0.9), scaleSlider("statePropertyTenderListingsScale", 1),
+  ],
+  // ══════════ 金融服務據點 G10（2026-10-24）══════════
+  atmSitesFisc: [
+    {
+      kind: "multiSelect", name: "atmSitesFiscInstitution", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(ATM_INSTITUTION_OPTIONS), out: "atmSitesFiscInstitutionMask",
+    },
+    { kind: "toggle", name: "atmSitesFiscOnlyWheelchair", label: "只看輪椅可用", default: false, category: "data" },
+    { kind: "toggle", name: "atmSitesFiscOnlyVoice", label: "只看視障語音服務", default: false, category: "data" },
+    opacitySlider("atmSitesFiscOpacity", densePointOpacity(27_390)), scaleSlider("atmSitesFiscScale", 1),
+  ],
+  financialBranchesFisc: [
+    {
+      kind: "multiSelect", name: "financialBranchesFiscCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(BRANCH_CATEGORY_OPTIONS), out: "financialBranchesFiscCategoryMask",
+    },
+    opacitySlider("financialBranchesFiscOpacity", densePointOpacity(4_988)), scaleSlider("financialBranchesFiscScale", 1),
   ],
   mountainRescueIncidents: [
     {

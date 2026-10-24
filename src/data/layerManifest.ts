@@ -124,6 +124,8 @@ import {
   Ticket,
   // 🏡 原民會文化健康站 G20
   HousePlus,
+  // 💳 金融據點 G10（2026-10-24）
+  CreditCard,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7582,6 +7584,61 @@ export const LAYER_MANIFEST = {
     topics: ["文化", "文化幣", "書店", "電影院", "藝文"],
   },
   // ── 原民會文化健康站 G20（2026-10-24）：analytics data/processed/welfare/cultural_health_stations_cip → build-atlas-public.py → public/welfare/ ──
+  // ── 國營事業與國有資產 G16（2026-10-24）：analytics socioeconomic/state_assets 07_export_points → build-atlas-public.py → public/state_assets/ ──
+  twcServiceOffices: {
+    key: "twcServiceOffices", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水廠所", alt: "TWC Offices" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.twcServiceOffices, icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "twc_service_offices", confidence: "HIGH" }], note: "台灣自來水公司 各區處廠所地址及座標（data.gov.tw 86110，metadata 2024-11-22）137 個單位；16 個與其他單位同址。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "twc-service-offices", url: "./state_assets/twc_service_offices.geojson" },
+    legend: "twcServiceOffices", popup: "twcServiceOffices", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "台灣自來水公司總管理處、區管理處、營運所、服務所與給水廠等單位位置（辦公處所，不是淨水設施本身）。",
+    topics: ["自來水", "台水", "國營事業", "服務所", "營運所"],
+  },
+  twcWaterFacilities: {
+    key: "twcWaterFacilities", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水淨水設施", alt: "TWC Water Facilities" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.twcWaterFacilities, icon: Droplets,
+    upstream: { status: "verified", datasets: [{ datasetId: "twc_water_facilities", confidence: "HIGH" }], note: "台灣自來水公司 供水轄區資訊（淨水場、水井、海淡廠；data.gov.tw 36602，metadata 2024-08-22）487 列、486 有座標；19 列連結大型淨水場 17 座（設計出水量）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "twc-water-facilities", url: "./state_assets/twc_water_facilities.geojson" },
+    legend: "twcWaterFacilities", popup: "twcWaterFacilities", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "台水淨水場、水井、海水淡化廠與取水站，含供水轄區與原水來源；大型淨水場附設計出水量。",
+    topics: ["自來水", "台水", "淨水場", "水井", "海水淡化", "國營事業"],
+  },
+  taisugarSugarMills: {
+    key: "taisugarSugarMills", section: { theme: "工商登記 Business Registry", group: "國營事業" }, ...layerName({ zh: "台糖糖廠據點", alt: "Taisugar Sugar Mills" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.taisugarSugarMills, icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "taisugar_sugar_mills", confidence: "HIGH" }], note: "台灣糖業公司 各糖廠據點（data.gov.tw 41592，metadata 2024-08-14）14 處；南靖改用地址定位。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "taisugar-sugar-mills", url: "./state_assets/taisugar_sugar_mills.geojson" },
+    legend: "taisugarSugarMills", popup: "taisugarSugarMills", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台糖各糖廠據點與園區看點（據點位置，不是台糖土地範圍）。",
+    topics: ["台糖", "糖廠", "國營事業", "觀光工廠"],
+  },
+  statePropertyTenderListings: {
+    key: "statePropertyTenderListings", section: { theme: "房地產 Real Estate", group: "國有財產標售" }, ...layerName({ zh: "國有財產待標售標的", alt: "State Property for Tender" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.statePropertyTenderListings, icon: Gavel,
+    upstream: { status: "verified", datasets: [{ datasetId: "state_property_tender_listings", confidence: "HIGH" }], note: "財政部國有財產署 國有非公用土地／房地未標脫資訊（data.gov.tw 9659、13152）2026-10-24 快照 955 筆、947 有座標；土地依地號宗地中心、房地依門牌定位。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "state-property-tender-listings", url: "./state_assets/state_property_tender_listings.geojson" },
+    legend: "statePropertyTenderListings", popup: "statePropertyTenderListings", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "國有財產署公告待標售（未標脫）的國有土地與房地，含標號、標售日、面積、使用分區、公告現值與定位精度（半動態快照）。",
+    topics: ["國有財產", "標售", "國有地", "不動產", "國產署"],
+  },
+  atmSitesFisc: {
+    key: "atmSitesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.atmSitesFisc, icon: CreditCard,
+    upstream: { status: "verified", datasets: [{ datasetId: "atm_sites_fisc", confidence: "HIGH" }], note: "財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）名冊快照 2026-10-24：27,412 裝設點、27,390 有座標；座標依序取數位發展部 175482、中華郵政 6121、地址定位與 Google，逐點標定位精度。裝設點不等於機台數。PMTiles z5–12 逐 zoom 完整。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
+    legend: "atmSitesFisc", popup: "atmSitesFisc", params: { count: 5, kinds: ["multiSelect", "toggle", "toggle", "slider", "slider"] },
+    description: "財金公司名冊的 ATM 裝設地點，含機構類別、輪椅可用、視障語音、國際卡提款與定位精度（一點一個裝設地點，不是一台機器）。",
+    topics: ["ATM", "金融", "提款機", "無障礙", "金融可及性"],
+  },
+  financialBranchesFisc: {
+    key: "financialBranchesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "金融機構總分支機構", alt: "Financial Institution Branches" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.financialBranchesFisc, icon: Landmark,
+    upstream: { status: "verified", datasets: [{ datasetId: "financial_branches_fisc", confidence: "HIGH" }], note: "財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）名冊快照 2026-10-24：4,989 處、4,988 有座標；座標來源混合，逐點標定位精度。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "financial-branches-fisc", url: "./finance/financial_branches_fisc.geojson" },
+    legend: "financialBranchesFisc", popup: "financialBranchesFisc", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "銀行、信用合作社、農漁會信用部等金融機構的總分支機構位置與定位精度（不含各地郵局）。",
+    topics: ["銀行", "分行", "金融", "農會信用部", "金融可及性"],
+  },
   culturalHealthStations: {
     key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.culturalHealthStations, icon: HousePlus,

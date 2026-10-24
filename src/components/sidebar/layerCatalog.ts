@@ -405,6 +405,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.crime),
   atlasTabTheme(ATLAS_TAB_THEME_TITLES.sports),
+  atlasTabTheme(ATLAS_TAB_THEME_TITLES.culture),
   {
     title: "工作與所得 Work & Income",
     defaultCollapsed: true,
@@ -888,6 +889,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("propertyValueGrid"),
         ],
       },
+      {
+        // G16（2026-10-24）：國有財產署待標售快照；國有地存量統計在「統計」分頁「住宅與不動產」
+        title: "國有財產標售",
+        layers: [
+          fromManifest("statePropertyTenderListings"),
+        ],
+      },
     ],
   },
 
@@ -926,6 +934,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("industrialParkComparison"),
         ],
       },
+      {
+        title: "國營事業",
+        layers: [
+          fromManifest("taisugarSugarMills"),
+        ],
+      },
     ],
   },
 
@@ -954,6 +968,14 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("materialRecyclingPoints"),
           fromManifest("disasterShelters"),
           fromManifest("publicLifeOsmCoverage"),
+        ],
+      },
+      {
+        // G10（2026-10-24）：財金公司名冊；ATM 台數、金融欠缺鄉鎮等統計在「統計」分頁「財稅與消費」
+        title: "金融據點",
+        layers: [
+          fromManifest("atmSitesFisc"),
+          fromManifest("financialBranchesFisc"),
         ],
       },
       {
@@ -1751,6 +1773,14 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        // G16（2026-10-24）：台水官方名冊；「點位」的「水利設施」是 OSM，可能畫到同一座淨水場
+        title: "自來水（台水）",
+        layers: [
+          fromManifest("twcWaterFacilities"),
+          fromManifest("twcServiceOffices"),
+        ],
+      },
+      {
         title: "水利設施 Water Facilities",
         layers: [
           fromManifest("wraFloodgatesCentral"),
@@ -2323,6 +2353,8 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "財稅與消費統計 Fiscal & Consumption Statistics": "city",
   "原民與農村統計 Indigenous & Rural Statistics": "city",
   "體育統計 Sports Statistics": "publicLife",
+  "文化統計 Culture Statistics": "publicLife",
+  "國有資產統計 State Assets Statistics": "city",
   "災害風險統計 Disaster Risk Statistics": "environment",
   "海洋統計 Marine Statistics": "environment",
   "治安統計 Crime Statistics": "safety",
@@ -2417,6 +2449,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "崩塌與水土保持 Landslides & Soil Conservation": { zh: "崩塌與水土保持", sub: "Landslides & Soil Conservation" },
   "財稅與消費 Fiscal & Consumption": { zh: "財稅與消費", sub: "Fiscal & Consumption" },
   "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
+  "文化與藝文 Culture & Arts": { zh: "文化與藝文", sub: "Culture & Arts" },
   "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
   "海洋 Marine": { zh: "海洋", sub: "Marine" },
   "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
@@ -2438,6 +2471,8 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "財稅與消費統計 Fiscal & Consumption Statistics": { zh: "財稅與消費統計", sub: "Fiscal & Consumption Statistics" },
   "原民與農村統計 Indigenous & Rural Statistics": { zh: "原民與農村統計", sub: "Indigenous & Rural Statistics" },
   "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
+  "文化統計 Culture Statistics": { zh: "文化統計", sub: "Culture Statistics" },
+  "國有資產統計 State Assets Statistics": { zh: "國有資產統計", sub: "State Assets Statistics" },
   "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
   "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
   "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },

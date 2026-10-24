@@ -5,5 +5,18 @@
   "enum.statLocationBasis.門牌所在行政區（月底累計）": "District of the street address (cumulative at month end)",
   "enum.statLocationBasis.工廠登記地址所在行政區（月底家數）": "District of the factory's registered address (count at month end)",
   "enum.statLocationBasis.建築地點所在行政區（依發照日期）": "District of the building site (by permit issue date)",
-  "enum.statLocationBasis.死亡者戶籍所在地（依死亡年）": "Deceased's registered residence (by year of death)"
+  "enum.statLocationBasis.死亡者戶籍所在地（依死亡年）": "Deceased's registered residence (by year of death)",
+  "enum.statLocationBasis.登記或聯絡地址所在行政區（非表演地點）": "District of the registered or contact address (not where they perform)",
+  "enum.statLocationBasis.國有非公用土地所在縣市": "County where the state land lies",
+  "enum.statLocationBasis.國有非公用房地所在縣市": "County where the state real estate lies",
+  "enum.statLocationBasis.出租標的所在縣市": "County of the leased property",
+  "enum.statLocationBasis.住宅用地所在縣市": "County of the residential land",
+  "enum.statLocationBasis.土地所在鄉鎮市區（地籍）": "Township of the land (cadastral)",
+  "enum.statLocationBasis.拍賣標的所在縣市": "County of the auctioned property",
+  "enum.statLocationBasis.拍賣標的所在鄉鎮市區": "Township of the auctioned property",
+  "enum.statLocationBasis.ATM 裝設縣市": "County where the ATM is installed",
+  "enum.statLocationBasis.金融機構所在鄉鎮市區": "Township of the financial institution",
+  "enum.statLocationBasis.金融機構（總機構／分支）所在縣市": "County of the institution (head office / branch)",
+  "enum.statLocationBasis.分支機構地址所在縣市": "County of the branch address",
+  "enum.statLocationBasis.ATM 裝設點／分支機構所在鄉鎮市區": "Township of the ATM site / branch"
 }

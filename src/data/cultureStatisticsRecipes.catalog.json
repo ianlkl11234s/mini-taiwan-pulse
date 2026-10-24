@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "culture",
+  "generated_from": {
+    "recipes": "culture-coin-street-performers-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/culture/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (no registration in the roster for that area; the roster is a full national list)",
+    "missing": "not used",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsCultureStreetPerformersTown",
+      "enabled": true,
+      "family": "culture",
+      "label": "街頭藝人登記人數（鄉鎮市區）",
+      "group": "cultureStreetPerformers",
+      "group_label": "街頭藝人登記人數",
+      "option_label": "鄉鎮市區",
+      "subgroup": "街頭藝人",
+      "data_theme": "文化統計 Culture Statistics",
+      "tab_theme": "文化與藝文 Culture & Arts",
+      "visual_theme": "education",
+      "dataset_id": "culture_coin_street_performers_township",
+      "indicator_id": "street_performers_registered",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-street_performers_registered-township-v1-67f460d2e5e6",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-street_performers_registered-township-v1-67f460d2e5e6",
+          "period_start": "2026-10-24",
+          "period_end": "2026-10-24",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          3,
+          6,
+          15
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 人自成最淺一級（名冊在該區無登記，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：文化部 文化幣可用藝文消費點（data.gov.tw 177601，2026-10-24 下載）；政府資料開放授權條款-第1版。",
+          "名冊登記人數，依登記或聯絡地址所在行政區計，不是表演地點；不含姓名。",
+          "臺中市西區 100 人多為登記於草悟道（登記地址只定位到地名），不代表居住於西區。",
+          "名冊為自願登記，臺中市偏多可能反映制度差異，不宜解讀為各地實際街頭藝人分布。",
+          "點位見「文化」主題的「文化幣藝文消費點」（不含街頭藝人）。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "登記或聯絡地址所在行政區（非表演地點）",
+      "disclosure": "文化部「文化幣可用藝文消費點」（data.gov.tw 177601，OGDL-1.0；2026-10-24 下載快照，來源無資料日期欄、metadata 日期未隨每日更新）中 category 為表演藝術及文化體驗、subCategory 為「街頭藝人」的登記筆數（550 筆）。這是文化幣店家名冊上的登記人數，不是表演次數、也不是實際在該地表演的人數；來源的座標／地址是登記或聯絡地址（多為住宅型門牌，不是表演地點），故只以登記地址所在行政區統計，不做點位。不含姓名、電話、地址、座標（成品僅保留行政區計數）。名冊為全國完整名單，未出現的行政區視為無登記（0，observed），非缺漏；但名冊是自願登記，且臺中市偏重（223／550）可能反映制度差異，不可解讀為各地街頭藝人的實際分布。550 筆中 1 筆縣市欄（澎湖縣）與地址／座標（新北市汐止區）衝突，未計入任何縣市或鄉鎮（unassigned 1），故縣市合計 549；另 1 筆 area 欄只填郵遞區號 302，依來源座標落點歸新竹市香山區。",
+      "publisher": "文化部",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/177601",
+      "source_download_url": "https://apicp.moc.gov.tw/prec-api/opendata/dataSet/culture",
+      "source_title": "文化幣可用藝文消費點（data.gov.tw 177601）"
+    },
+    {
+      "layer_key": "statsCultureStreetPerformersCounty",
+      "enabled": true,
+      "family": "culture",
+      "label": "街頭藝人登記人數（縣市）",
+      "group": "cultureStreetPerformers",
+      "group_label": "街頭藝人登記人數",
+      "option_label": "縣市",
+      "subgroup": "街頭藝人",
+      "data_theme": "文化統計 Culture Statistics",
+      "tab_theme": "文化與藝文 Culture & Arts",
+      "visual_theme": "education",
+      "dataset_id": "culture_coin_street_performers_county",
+      "indicator_id": "street_performers_registered",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2026-street_performers_registered-county-v1-f7c2b1c5a174",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-street_performers_registered-county-v1-f7c2b1c5a174",
+          "period_start": "2026-10-24",
+          "period_end": "2026-10-24",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          10,
+          30,
+          60
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 人自成最淺一級（名冊在該區無登記，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：文化部 文化幣可用藝文消費點（data.gov.tw 177601，2026-10-24 下載）；政府資料開放授權條款-第1版。",
+          "名冊登記人數，依登記或聯絡地址所在行政區計，不是表演地點；不含姓名。",
+          "臺中市西區 100 人多為登記於草悟道（登記地址只定位到地名），不代表居住於西區。",
+          "名冊為自願登記，臺中市偏多可能反映制度差異，不宜解讀為各地實際街頭藝人分布。",
+          "點位見「文化」主題的「文化幣藝文消費點」（不含街頭藝人）。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "登記或聯絡地址所在行政區（非表演地點）",
+      "disclosure": "文化部「文化幣可用藝文消費點」（data.gov.tw 177601，OGDL-1.0；2026-10-24 下載快照，來源無資料日期欄、metadata 日期未隨每日更新）中 category 為表演藝術及文化體驗、subCategory 為「街頭藝人」的登記筆數（550 筆）。這是文化幣店家名冊上的登記人數，不是表演次數、也不是實際在該地表演的人數；來源的座標／地址是登記或聯絡地址（多為住宅型門牌，不是表演地點），故只以登記地址所在行政區統計，不做點位。不含姓名、電話、地址、座標（成品僅保留行政區計數）。名冊為全國完整名單，未出現的行政區視為無登記（0，observed），非缺漏；但名冊是自願登記，且臺中市偏重（223／550）可能反映制度差異，不可解讀為各地街頭藝人的實際分布。550 筆中 1 筆縣市欄（澎湖縣）與地址／座標（新北市汐止區）衝突，未計入任何縣市或鄉鎮（unassigned 1），故縣市合計 549；另 1 筆 area 欄只填郵遞區號 302，依來源座標落點歸新竹市香山區。",
+      "publisher": "文化部",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/177601",
+      "source_download_url": "https://apicp.moc.gov.tw/prec-api/opendata/dataSet/culture",
+      "source_title": "文化幣可用藝文消費點（data.gov.tw 177601）"
+    }
+  ],
+  "catalog_generated_from": "cultureStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

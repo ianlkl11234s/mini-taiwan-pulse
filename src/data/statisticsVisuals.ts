@@ -1,5 +1,7 @@
 import {
   Activity,
+  Music,
+  Building2,
   Anchor,
   Brain,
   CloudRain,
@@ -237,6 +239,17 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsHealthHospitalAlos$/, 'health', BedDouble],
   // 死因統計 G20（2026-10-24）：同疾病與健康＝醫療色票，不新增色票。
   [/^statsMortality/, 'health', Activity],
+  // 街頭藝人登記人數 G23（2026-10-24）：同體育＝教育 Purples（公共生活），不新增色票。
+  [/^statsCultureStreetPerformers/, 'education', Music],
+  // 國有資產 G16（2026-10-24）：同住宅 Oranges，不新增色票；國有地／房地、台糖標的、行政執行拍定分三種 icon。
+  [/^statsStateProperty|^statsStateResidential/, 'housing', Building2],
+  [/^statsStateLand/, 'housing', Landmark],
+  [/^statsTaisugar/, 'housing', Sprout],
+  [/^statsMojAuction/, 'housing', Gavel],
+  // 金融服務可及性 G10（2026-10-24）：同財稅與消費＝工作與所得色票；ATM／欠缺鄉鎮／機構分支三種 icon。
+  [/^statsAtm/, 'labor', CreditCard],
+  [/^statsFinanceUnderserved/, 'labor', ShieldAlert],
+  [/^statsFinancial(?:Institutions|Branches)/, 'labor', Landmark],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],
