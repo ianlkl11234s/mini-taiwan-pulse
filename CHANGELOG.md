@@ -62,6 +62,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 安全
+
+- AI 對話使用的 zod 升到 4.6.7，修補驗證超大集合時可能耗盡記憶體的問題（Dependabot high）
+
 ## v2.13.0 — 2026-10-24 — Pulse 筆記文章專區、臺北市局處統計 11 層
 
 ### 新增
