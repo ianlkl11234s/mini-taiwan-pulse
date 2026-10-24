@@ -3,7 +3,7 @@
 > **Slug**：`finance-access-layers`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：（開 PR 後補）
+> **相關 PR**：#690（三群合一 PR；merge hash 待 merge 後補）
 > **上游**：taipei-gis-analytics `pipelines/socioeconomic/finance_access/`、`docs/handoff/finance-access-statistics-recipes.json`；上線紀錄 `.gis-agent-system/projects/2026-10-roadmap-batch2/w0/G10*.md`。全部來源為政府資料開放授權條款第 1 版。
 
 ## 一句話說明

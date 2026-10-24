@@ -3,7 +3,7 @@
 > **Slug**：`street-performers-statistics`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：（開 PR 後補）
+> **相關 PR**：#690（三群合一 PR；merge hash 待 merge 後補）
 > **上游**：taipei-gis-analytics `pipelines/culture/culture_coin_venues_moc/07_export_statistics.py`、`docs/handoff/culture-coin-street-performers-recipes.json`；上線紀錄 `.gis-agent-system/projects/2026-10-roadmap-batch2/w0/G23-street-performers.md`；來源文化部文化幣可用藝文消費點（data.gov.tw 177601，2026-10-24 下載，政府資料開放授權條款第 1 版）
 
 ## 一句話說明

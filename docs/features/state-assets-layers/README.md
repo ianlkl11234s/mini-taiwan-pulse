@@ -3,7 +3,7 @@
 > **Slug**：`state-assets-layers`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：（開 PR 後補）
+> **相關 PR**：#690（三群合一 PR；merge hash 待 merge 後補）
 > **上游**：taipei-gis-analytics `pipelines/socioeconomic/state_assets/`、`docs/handoff/state-assets-statistics-recipes.json`、`docs/topic-research/state_assets/layer-plan.md`；上線紀錄 `.gis-agent-system/projects/2026-10-roadmap-batch2/w0/G16.md`、`G16-release.md`。全部來源為政府資料開放授權條款第 1 版。
 
 ## 一句話說明
