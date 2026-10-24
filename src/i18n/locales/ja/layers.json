@@ -1244,5 +1244,12 @@
   "layer.statsTaipeiUsagePermitBuildingCountTownship": "台北市の使用許可証交付棟数",
   "layer.statsTaipeiUsagePermitHouseholdCountTownship": "台北市の使用許可証交付戸数",
   "layer.statsTaipeiUsagePermitBuildingAreaTownship": "台北市の使用許可証交付建築面積",
-  "layer.cultureCoinVenues": "文化ポイント利用可能店舗"
+  "layer.cultureCoinVenues": "文化ポイント利用可能店舗",
+  "layer.statsMortalityCauseTownship": "郷鎮別 死因別粗死亡率（5年平均）",
+  "layer.statsMortalityDeaths5yrTownship": "郷鎮別 死因別死亡数（5年合計）",
+  "layer.statsMortalityRateTownship": "郷鎮別 死因別粗死亡率（年別）",
+  "layer.statsMortalityDeathsTownship": "郷鎮別 死因別死亡数（年別）",
+  "layer.statsMortalityCauseCounty": "県市別 死因別粗死亡率",
+  "layer.statsMortalityDeathsCounty": "県市別 死因別死亡数",
+  "layer.culturalHealthStations": "原住民族文化健康ステーション"
 }

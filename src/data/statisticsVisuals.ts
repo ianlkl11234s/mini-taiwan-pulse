@@ -235,6 +235,8 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsHealthMentalOutpatient/, 'health', Brain],
   [/^statsHealthOutpatientVisit/, 'health', Stethoscope],
   [/^statsHealthHospitalAlos$/, 'health', BedDouble],
+  // 死因統計 G20（2026-10-24）：同疾病與健康＝醫療色票，不新增色票。
+  [/^statsMortality/, 'health', Activity],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],

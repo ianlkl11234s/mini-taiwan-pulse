@@ -1244,5 +1244,12 @@
   "layer.statsTaipeiUsagePermitBuildingCountTownship": "Taipei Occupancy Permits: Buildings",
   "layer.statsTaipeiUsagePermitHouseholdCountTownship": "Taipei Occupancy Permits: Dwelling Units",
   "layer.statsTaipeiUsagePermitBuildingAreaTownship": "Taipei Occupancy Permits: Building Area",
-  "layer.cultureCoinVenues": "Culture Coin Venues"
+  "layer.cultureCoinVenues": "Culture Coin Venues",
+  "layer.statsMortalityCauseTownship": "Township Crude Death Rate by Cause (5-year average)",
+  "layer.statsMortalityDeaths5yrTownship": "Township Deaths by Cause (5-year total)",
+  "layer.statsMortalityRateTownship": "Township Crude Death Rate by Cause (annual)",
+  "layer.statsMortalityDeathsTownship": "Township Deaths by Cause (annual)",
+  "layer.statsMortalityCauseCounty": "County Crude Death Rate by Cause",
+  "layer.statsMortalityDeathsCounty": "County Deaths by Cause",
+  "layer.culturalHealthStations": "Indigenous Cultural Health Stations"
 }

@@ -59,5 +59,6 @@
   "enum.statFrequency.261 個已交付期別": "提供済み261期間",
   "enum.statFrequency.273 個已交付期別": "提供済み273期間",
   "enum.statFrequency.285 個已交付期別": "提供済み285期間",
-  "enum.statFrequency.309 個已交付期別": "提供済み309期間"
+  "enum.statFrequency.309 個已交付期別": "提供済み309期間",
+  "enum.statFrequency.18 個已交付期別": "提供済み18期間"
 }

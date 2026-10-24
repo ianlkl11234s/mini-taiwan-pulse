@@ -12,5 +12,6 @@
   "enum.statGroup.臺北市各區垃圾清運量": "台北市の区別ごみ収集量",
   "enum.statGroup.臺北市污水接管普及率": "台北市の下水道接続普及率",
   "enum.statGroup.臺北市登記工廠家數": "台北市の登録工場数",
-  "enum.statGroup.臺北市核發使用執照": "台北市の使用許可証交付"
+  "enum.statGroup.臺北市核發使用執照": "台北市の使用許可証交付",
+  "enum.statGroup.死因統計": "死因統計"
 }

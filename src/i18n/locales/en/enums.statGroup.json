@@ -12,5 +12,6 @@
   "enum.statGroup.臺北市各區垃圾清運量": "Taipei garbage collected by district",
   "enum.statGroup.臺北市污水接管普及率": "Taipei sewer connection rate",
   "enum.statGroup.臺北市登記工廠家數": "Taipei registered factories",
-  "enum.statGroup.臺北市核發使用執照": "Taipei occupancy permits issued"
+  "enum.statGroup.臺北市核發使用執照": "Taipei occupancy permits issued",
+  "enum.statGroup.死因統計": "Causes of death"
 }

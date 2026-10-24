@@ -16,7 +16,7 @@ import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../../data/atlasStatisticsReci
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
-  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用"] },
+  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用", "死因統計"] },
   { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
   { title: "體育運動 Sports", groups: ["體育經費", "運動參與"] },

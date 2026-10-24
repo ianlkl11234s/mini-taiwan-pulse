@@ -5,6 +5,7 @@ import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../../data/regio
 import { statisticsFrequency, statisticsTitle, statisticsUnit } from '../statisticsText';
 import { CRIME_STATISTICS_DOCUMENT } from '../../data/crimeStatisticsRecipes';
 import { TAIPEI_AGENCY_STATISTICS_DOCUMENT } from '../../data/taipeiAgencyStatisticsRecipes';
+import { MORTALITY_STATISTICS_DOCUMENT } from '../../data/mortalityStatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -106,6 +107,36 @@ describe('臺北市局處統計外文介面不混中文', () => {
       const factory = recipes.find((r) => r.layer_key === 'statsTaipeiFactoryCountByIndustryTownship')!;
       expect(statisticsDimensionLabel('industry_code', ctx)).toBe(messages['enum.statDim.industry_code']);
       expect(statisticsDimensionValueLabel('industry_code', '26', factory.dataset_id, ctx)).toBe(messages['enum.statDimValue.industry_code.26']);
+    });
+  }
+});
+
+describe('死因統計（G20）外文介面不混中文', () => {
+  for (const locale of ['en', 'ja'] as const) {
+    const messages: Record<string, string> = {};
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.statGroup.json', 'enums.statistics.json', 'enums.statLegendNote.json', 'themes.json']) {
+      try { Object.assign(messages, read(locale, file)); } catch { /* 檔案不存在就略過 */ }
+    }
+    const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
+    const recipes = MORTALITY_STATISTICS_DOCUMENT.recipes;
+    it(`${locale}：${recipes.length} 層的圖層名、群組、位置口徑、機關、授權、圖例說明與狀態列都有譯文`, () => {
+      const pairs = recipes.flatMap((r) => [
+        [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
+        [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],
+        [r.subgroup, messages[`theme.${r.subgroup}`] ?? r.subgroup],
+        [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
+        [r.publisher, statisticsPublisher(r.publisher, ctx)],
+        [r.license, statisticsLicense(r.license, ctx)],
+        ...[...(r.legend.notes ?? []), r.legend.zero_note, ...Object.values(r.status_labels)].filter(Boolean)
+          .map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
+      ].map(([zh, text]) => [r.layer_key, zh!, text!] as const));
+      const leaks = pairs.filter(([, zh, text]) => (locale === 'en' ? CJK.test(text) : text === zh && zh !== '死因統計')).map(([key, , text]) => `${key}: ${text}`);
+      expect([...new Set(leaks)]).toEqual([]);
+    });
+    it(`${locale}：死因 43 類與性別都有對照`, () => {
+      const missing = recipes.flatMap((r) => r.dimensions.flatMap((d) => [`enum.statDim.${d.key}`, ...d.options.map((o) => `enum.statDimValue.${d.key}.${o.value}`)]))
+        .filter((key) => !(key in messages) || (locale === 'en' && CJK.test(messages[key]!)));
+      expect([...new Set(missing)]).toEqual([]);
     });
   }
 });

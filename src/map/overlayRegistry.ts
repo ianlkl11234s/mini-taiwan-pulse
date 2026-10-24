@@ -268,7 +268,7 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
-  CULTURE_COIN_CATEGORY_OPTIONS,
+  CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11687,6 +11687,52 @@ const landSubsidenceContourOverlay = (id: "landSubsidenceCumulative" | "landSubs
   }],
 });
 
+/**
+ * 原民會文化健康站（G20）：kind=site 為依地址定位的站址（實心點）；kind=township_group 為只定位到鄉鎮、
+ * 同鄉鎮各站併成的鄉鎮中心一點（空心圈＋站數），刻意與實心點區分，避免被當成實際站址。
+ */
+function culturalHealthStationsOverlay(): OverlayConfig {
+  const id = "culturalHealthStations";
+  const color = ATLAS_LAYER_COLORS.culturalHealthStations;
+  const kindFilter = (p?: Record<string, number>) => atlasMultiSelectFilter("kind", CULTURAL_HEALTH_KIND_OPTIONS, p?.culturalHealthStationsKindMask);
+  const of = (kind: string) => (p?: Record<string, number>): unknown[] => ["all", ["==", ["get", "kind"], kind], kindFilter(p)];
+  const count = ["coalesce", ["get", "station_count"], 1];
+  return {
+    id, sourceUrl: "./welfare/cultural_health_stations.geojson", sourceId: "cultural-health-stations",
+    attribution: `原住民族委員會 原住民族文化健康站通訊錄（data.gov.tw 157725）· ${OGDL_ATTR}`,
+    rebuildOnParamChange: ["group", "group-count", "site", "label"],
+    layers: [
+      { suffix: "group", type: "circle", filter: of("township_group"), paint: (dark, p) => {
+        const scale = p?.culturalHealthStationsScale ?? 1;
+        const opacity = p?.culturalHealthStationsOpacity ?? .9;
+        return {
+          "circle-color": color, "circle-opacity": opacity * .12,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"],
+            5, ["*", scale, ["+", 3, ["*", 1.2, ["sqrt", count]]]],
+            12, ["*", scale, ["+", 7, ["*", 2.6, ["sqrt", count]]]]],
+          "circle-stroke-color": color, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, 1.2, 12, 2.2],
+          "circle-stroke-opacity": opacity * (dark ? .95 : .85),
+        };
+      } },
+      { suffix: "group-count", type: "symbol", minzoom: 8, filter: (p) => ["all", of("township_group")(p), [">", count, 1]],
+        layout: { "text-field": ["to-string", count], "text-size": 11, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"], "text-allow-overlap": true, "text-ignore-placement": true },
+        paint: (dark, p) => ({ "text-color": dark ? "#fed7aa" : "#9a3412", ...labelHaloPaint(dark), "text-opacity": p?.culturalHealthStationsOpacity ?? .9 }) },
+      { suffix: "site", type: "circle", filter: of("site"), paint: (dark, p) => {
+        const scale = p?.culturalHealthStationsScale ?? 1;
+        const opacity = p?.culturalHealthStationsOpacity ?? .9;
+        return {
+          "circle-color": color, "circle-opacity": opacity,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 12, 6 * scale],
+          "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, .6, 12, 1.2], "circle-stroke-opacity": opacity,
+        };
+      } },
+      { suffix: "label", type: "symbol", minzoom: Math.max(13, LABEL.minZoom), filter: of("site"),
+        layout: { "text-field": ["get", "name"], ...poiLabelLayout(), "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"], "text-variable-anchor": ["top", "bottom", "left", "right"], "text-radial-offset": .8, "text-max-width": 14, "text-optional": true },
+        paint: (dark, p) => ({ "text-color": dark ? "#f8fafc" : "#0f172a", ...labelHaloPaint(dark), "text-opacity": p?.culturalHealthStationsOpacity ?? .9 }) },
+    ],
+  };
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 原民與農村 ──
   publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
@@ -11798,6 +11844,8 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   },
   // ── 文化幣藝文消費點 G23（2026-10-24）：依 category 著色＋類別多選（電影院可單獨篩）──
   publicLifePointOverlay("cultureCoinVenues", "./culture/culture_coin_venues.geojson", "culture-coin-venues", matchColorExpr("category", CULTURE_COIN_CATEGORY_OPTIONS), undefined, `文化部 文化幣藝文消費點（data.gov.tw 177601）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("category", CULTURE_COIN_CATEGORY_OPTIONS, p?.cultureCoinVenuesCategoryMask) }),
+  // ── 原民會文化健康站 G20（2026-10-24）：站址實心點；只到鄉鎮者同鄉鎮併成鄉鎮中心空心圈（半徑隨站數、圈內數字＝站數）──
+  culturalHealthStationsOverlay(),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);

@@ -95,7 +95,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -3027,6 +3027,15 @@ export const LAYER_PARAMS_SPEC = {
       options: atlasParamOptions(CULTURE_COIN_CATEGORY_OPTIONS), out: "cultureCoinVenuesCategoryMask",
     },
     opacitySlider("cultureCoinVenuesOpacity", densePointOpacity(4_264)), scaleSlider("cultureCoinVenuesScale", 1),
+  ],
+  // ══════════ 原民會文化健康站 G20（2026-10-24）══════════
+  // 「定位精度」多選：只勾「站址」＝只看依地址定位的 191 站（不看鄉鎮中心圈）。
+  culturalHealthStations: [
+    {
+      kind: "multiSelect", name: "culturalHealthStationsKind", label: "定位精度", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(CULTURAL_HEALTH_KIND_OPTIONS), out: "culturalHealthStationsKindMask",
+    },
+    opacitySlider("culturalHealthStationsOpacity", 0.9), scaleSlider("culturalHealthStationsScale", 1),
   ],
   mountainRescueIncidents: [
     {

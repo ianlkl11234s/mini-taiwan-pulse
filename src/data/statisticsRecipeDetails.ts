@@ -7,6 +7,7 @@
  * 開社會類統計只下載社會明細，反之亦然。不帶參數＝全部（研究 adapter、測試）。
  * taipeiAgency（臺北市局處統計，2026-10-23）：atlas 共用接點的家族裡唯一按需載入者，exact selector 由
  * atlasStatisticsRecipes 的 atlasRecipeReleaseOptions 讀這裡。
+ * mortality（死因統計 G20，2026-10-24）同 taipeiAgency：atlas 家族、按需載入（ATLAS_LAZY_FAMILIES）。
  * 未載入就讀取明細會丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED，不回空陣列冒充「沒有期別」。
  */
 import { withLoading } from "../lib/loadingRegistry";
@@ -16,13 +17,17 @@ import type { AtlasRecipeDocument } from "./atlasStatisticsTypes";
 
 export const STATISTICS_RECIPE_DETAILS_NOT_LOADED = "STATISTICS_RECIPE_DETAILS_NOT_LOADED";
 
-export type StatisticsRecipeFamily = "agri" | "social" | "taipeiAgency";
-export const STATISTICS_RECIPE_FAMILIES: readonly StatisticsRecipeFamily[] = ["agri", "social", "taipeiAgency"];
+export type StatisticsRecipeFamily = "agri" | "social" | "taipeiAgency" | "mortality";
+export const STATISTICS_RECIPE_FAMILIES: readonly StatisticsRecipeFamily[] = ["agri", "social", "taipeiAgency", "mortality"];
+/** atlas 共用接點裡按需載入的家族（exact selector 由 atlasStatisticsRecipes 的 atlasRecipeReleaseOptions 讀明細）。 */
+export type AtlasLazyRecipeFamily = "taipeiAgency" | "mortality";
+export const ATLAS_LAZY_FAMILIES: ReadonlySet<string> = new Set<AtlasLazyRecipeFamily>(["taipeiAgency", "mortality"]);
 
 interface StatisticsRecipeDetails {
   agri: AgriRecipeDocument;
   social: SocialRecipeDocument;
   taipeiAgency: AtlasRecipeDocument;
+  mortality: AtlasRecipeDocument;
 }
 
 // Literal dynamic imports so Vite emits one chunk per family.
@@ -30,11 +35,13 @@ const IMPORTERS: { [F in StatisticsRecipeFamily]: () => Promise<{ default: unkno
   agri: () => import("./agriStatisticsRecipes.json?raw"),
   social: () => import("./socialStatisticsRecipes.json?raw"),
   taipeiAgency: () => import("./taipeiAgencyStatisticsRecipes.json?raw"),
+  mortality: () => import("./mortalityStatisticsRecipes.json?raw"),
 };
 const LABELS: Record<StatisticsRecipeFamily, string> = {
   agri: "載入農業統計配方明細",
   social: "載入社會統計配方明細",
   taipeiAgency: "載入臺北市局處統計配方明細",
+  mortality: "載入死因統計配方明細",
 };
 
 const details: Partial<StatisticsRecipeDetails> = {};
@@ -97,6 +104,11 @@ export function socialRecipeDetailsDocument(): SocialRecipeDocument {
 }
 
 export function taipeiAgencyRecipeDetailsDocument(): AtlasRecipeDocument {
-  if (!details.taipeiAgency) throw new Error(STATISTICS_RECIPE_DETAILS_NOT_LOADED);
-  return details.taipeiAgency;
+  return atlasLazyRecipeDetailsDocument("taipeiAgency");
+}
+
+export function atlasLazyRecipeDetailsDocument(family: AtlasLazyRecipeFamily): AtlasRecipeDocument {
+  const document = details[family];
+  if (!document) throw new Error(STATISTICS_RECIPE_DETAILS_NOT_LOADED);
+  return document;
 }

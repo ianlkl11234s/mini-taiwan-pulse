@@ -4,5 +4,6 @@
   "enum.statLocationBasis.清潔隊清運責任區（區隊與行政區一對一），不等於居民產生地": "Sanitation team collection zone (one team per district); not necessarily where residents generate the waste",
   "enum.statLocationBasis.門牌所在行政區（月底累計）": "District of the street address (cumulative at month end)",
   "enum.statLocationBasis.工廠登記地址所在行政區（月底家數）": "District of the factory's registered address (count at month end)",
-  "enum.statLocationBasis.建築地點所在行政區（依發照日期）": "District of the building site (by permit issue date)"
+  "enum.statLocationBasis.建築地點所在行政區（依發照日期）": "District of the building site (by permit issue date)",
+  "enum.statLocationBasis.死亡者戶籍所在地（依死亡年）": "Deceased's registered residence (by year of death)"
 }

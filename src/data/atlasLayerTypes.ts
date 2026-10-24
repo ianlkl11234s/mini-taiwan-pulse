@@ -294,6 +294,18 @@ export const CULTURE_COIN_PRECISION_LABELS: Readonly<Record<string, string>> = {
 /** G23 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
 export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
 
+// ── 原民會文化健康站 G20（2026-10-24）───────────────────────────────────
+
+/** 點的兩種精度：site＝離線 geocode 落在來源鄉鎮內（一站一點）；township_group＝只到鄉鎮，同鄉鎮各站併成鄉鎮中心一點（空心圈）。 */
+export const CULTURAL_HEALTH_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "site", label: "站址（依地址定位）", color: "#c2410c" },
+  { value: "township_group", label: "僅到鄉鎮（鄉鎮中心，非實際位置）", color: "#c2410c" },
+];
+/** 站址定位精度（上游 precision 代碼 → 中文；英日文在 enums.atlas.json 的 enum.atlasChsPrecision.*）。 */
+export const CULTURAL_HEALTH_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  exact: "門牌點", interpolated: "同路段內插", cached: "地址快取命中（TGOS）", township_centroid: "鄉鎮中心（非實際位置）",
+};
+
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
 export const ATLAS_NOTES = {
@@ -335,4 +347,5 @@ export const ATLAS_NOTES = {
   landSubsidenceRate: "平均下陷速率等值線（cm/年），負值＝下陷；預設各縣市最新期，可切期別。缺期：2015–2017 全台圖（只有 SHP 未取得）、2018–2019 全台圖上游無值。",
   seawallZones: "一般性海堤區域（上游建置 2024-06-12）；管理單位已統一為「第N河川分署」。放大到 8 級以上才顯示。",
   cultureCoinVenues: "可使用文化幣的藝文店家與場館 4,264 處（資料下載日 2026-10-24，來源檔無日期）；342 處來源座標為 (0,0)，依地址回補位置。不含街頭藝人。",
+  culturalHealthStations: "原住民族文化健康站 525 站（通訊錄 2025-07-22）。實心點 191 站依地址定位；空心圈是只定位到鄉鎮的 334 站，同鄉鎮併成鄉鎮中心一圈、圈內數字＝站數，不是實際站址，不可用來量距離。不含電話。",
 } as const satisfies Record<AtlasLayerKey, string>;

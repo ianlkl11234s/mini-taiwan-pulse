@@ -187,5 +187,10 @@
   "popup.atlas.coinCoordGeocoded": "來源座標為 (0,0)，依地址回補（{precision}）",
   "popup.atlas.coinCountyMismatch": "來源座標落在其他縣市，位置可能有誤（未修正）",
   "popup.atlas.coinCountyUnresolved": "來源座標未落在縣市範圍內（海岸線外），位置可能有誤",
-  "popup.atlas.downloadDate": "資料下載日"
+  "popup.atlas.downloadDate": "資料下載日",
+  "popup.atlas.chsGroupTitle": "{district}（僅到鄉鎮，{count} 站）",
+  "popup.atlas.chsTownshipOnly": "位置僅到鄉鎮（畫在鄉鎮中心），非各站實際位置；不可用來量距離",
+  "popup.atlas.chsStationCount": "站數",
+  "popup.atlas.chsStationNames": "站名",
+  "popup.atlas.chsListDate": "通訊錄日期"
 }

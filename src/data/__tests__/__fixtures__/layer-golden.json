@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1254,
+    "keyCount": 1261,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2384,6 +2384,13 @@
     },
     {
       "layers": [
+        "cultural-health-stations-site",
+        "cultural-health-stations-group"
+      ],
+      "type": "culturalHealthStations"
+    },
+    {
+      "layers": [
         "open-fishing-locations-circle",
         "open-fishing-locations-glow"
       ],
@@ -3397,6 +3404,12 @@
         "statsTaipeiUsagePermitBuildingCountTownship-fill",
         "statsTaipeiUsagePermitHouseholdCountTownship-fill",
         "statsTaipeiUsagePermitBuildingAreaTownship-fill",
+        "statsMortalityCauseTownship-fill",
+        "statsMortalityDeaths5yrTownship-fill",
+        "statsMortalityRateTownship-fill",
+        "statsMortalityDeathsTownship-fill",
+        "statsMortalityCauseCounty-fill",
+        "statsMortalityDeathsCounty-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -78982,6 +78995,420 @@
       ],
       "sourceId": "culture-coin-venues",
       "sourceUrl": "./culture/culture_coin_venues.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "culturalHealthStations",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "township_group"
+            ],
+            [
+              "has",
+              "kind"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#c2410c",
+              "circle-opacity": 0.108,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      1.2,
+                      [
+                        "sqrt",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "station_count"
+                          ],
+                          1
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    7,
+                    [
+                      "*",
+                      2.6,
+                      [
+                        "sqrt",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "station_count"
+                          ],
+                          1
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#c2410c",
+              "circle-stroke-opacity": 0.855,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                1.2,
+                12,
+                2.2
+              ]
+            },
+            "light": {
+              "circle-color": "#c2410c",
+              "circle-opacity": 0.108,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      1.2,
+                      [
+                        "sqrt",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "station_count"
+                          ],
+                          1
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    7,
+                    [
+                      "*",
+                      2.6,
+                      [
+                        "sqrt",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "station_count"
+                          ],
+                          1
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "#c2410c",
+              "circle-stroke-opacity": 0.765,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                1.2,
+                12,
+                2.2
+              ]
+            }
+          },
+          "suffix": "group",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "kind"
+                ],
+                "township_group"
+              ],
+              [
+                "has",
+                "kind"
+              ]
+            ],
+            [
+              ">",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "station_count"
+                ],
+                1
+              ],
+              1
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": true,
+            "text-field": [
+              "to-string",
+              [
+                "coalesce",
+                [
+                  "get",
+                  "station_count"
+                ],
+                1
+              ]
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-ignore-placement": true,
+            "text-size": 11
+          },
+          "minzoom": 8,
+          "paint": {
+            "dark": {
+              "text-color": "#fed7aa",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#9a3412",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "group-count",
+          "type": "symbol"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "site"
+            ],
+            [
+              "has",
+              "kind"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#c2410c",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#c2410c",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "site",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "site"
+            ],
+            [
+              "has",
+              "kind"
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "group",
+        "group-count",
+        "site",
+        "label"
+      ],
+      "sourceId": "cultural-health-stations",
+      "sourceUrl": "./welfare/cultural_health_stations.geojson"
     }
   ],
   "params": {
@@ -83761,6 +84188,44 @@
         "step": 0.25,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "culturalHealthStations": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "站址（依地址定位）",
+            "value": "site"
+          },
+          {
+            "label": "僅到鄉鎮（鄉鎮中心，非實際位置）",
+            "value": "township_group"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "site",
+          "township_group"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "culturalMuseums": [
@@ -123385,6 +123850,312 @@
         "options": [],
         "status": "loading",
         "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityCauseCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityCauseCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityCauseTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityCauseTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeaths5yrTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeaths5yrTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeathsCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeathsCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityDeathsTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityDeathsTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMortalityRateTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮・粗死亡率（5 年平均）",
+            "value": "statsMortalityCauseTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（5 年合計）",
+            "value": "statsMortalityDeaths5yrTownship"
+          },
+          {
+            "label": "鄉鎮・粗死亡率（逐年）",
+            "value": "statsMortalityRateTownship"
+          },
+          {
+            "label": "鄉鎮・死亡人數（逐年）",
+            "value": "statsMortalityDeathsTownship"
+          },
+          {
+            "label": "縣市・粗死亡率",
+            "value": "statsMortalityCauseCounty"
+          },
+          {
+            "label": "縣市・死亡人數",
+            "value": "statsMortalityDeathsCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMortalityRateTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
       },

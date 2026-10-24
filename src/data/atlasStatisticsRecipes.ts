@@ -1,4 +1,4 @@
-// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）＋臺北市局處統計（5 dataset、11 recipe、9,696 selector）的共用接點。
+// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）＋臺北市局處統計（5 dataset、11 recipe、9,696 selector）＋死因統計（G20，2 dataset、6 recipe、3,863 selector）的共用接點。
 // 資料照主題拆成六個家族檔（health／fiscal／indigenousRural／sports／hazard／marine，各自 json＋catalog），
 // 執行期的查詢、期別白名單、維度、圖例與目錄分組由本檔統一提供，共用檔（loader、selection、linkedSelect、
 // manifest、圖例、Details）只接這一個入口，不再逐家族串接。
@@ -12,7 +12,8 @@ import { HAZARD_ENABLED_STATISTICS_KEYS, HAZARD_STATISTICS_DOCUMENT } from "./ha
 import { MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT } from "./marineStatisticsRecipes";
 import { CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT } from "./crimeStatisticsRecipes";
 import { TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT } from "./taipeiAgencyStatisticsRecipes";
-import { taipeiAgencyRecipeDetailsDocument } from "./statisticsRecipeDetails";
+import { MORTALITY_ENABLED_STATISTICS_KEYS, MORTALITY_STATISTICS_DOCUMENT } from "./mortalityStatisticsRecipes";
+import { ATLAS_LAZY_FAMILIES, atlasLazyRecipeDetailsDocument, type AtlasLazyRecipeFamily } from "./statisticsRecipeDetails";
 
 export type { AtlasRecipe, AtlasRecipeCatalogEntry, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
 
@@ -25,12 +26,13 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument |
   [MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT],
   [CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT],
   [TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT],
+  [MORTALITY_ENABLED_STATISTICS_KEYS, MORTALITY_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...HEALTH_ENABLED_STATISTICS_KEYS, ...FISCAL_ENABLED_STATISTICS_KEYS, ...INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS,
   ...SPORTS_ENABLED_STATISTICS_KEYS, ...HAZARD_ENABLED_STATISTICS_KEYS, ...MARINE_ENABLED_STATISTICS_KEYS,
-  ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS,
+  ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, ...MORTALITY_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -51,23 +53,34 @@ export const ATLAS_ENABLED_STATISTICS_RECIPES: AtlasRecipeCatalogEntry[] = FAMIL
 }));
 const BY_KEY = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, recipe]));
 
-/** 首屏目錄 recipe；按需載入的家族（臺北市局處統計）沒有 release_options，要讀期別用 atlasRecipeReleaseOptions。 */
+/** 首屏目錄 recipe；按需載入的家族（臺北市局處統計、死因統計）沒有 release_options，要讀期別用 atlasRecipeReleaseOptions。 */
 export function getAtlasRecipe(key: string): AtlasRecipeCatalogEntry | undefined {
   return BY_KEY.get(key);
 }
 
-let lazyIndex: { document: AtlasRecipeDocument; byKey: Map<string, AtlasReleaseOption[]> } | undefined;
+/** 按需載入的 atlas 家族（臺北市局處統計、死因統計）回家族名；其他 atlas 家族與非 atlas 回 null。 */
+export function atlasLazyFamily(key: string): AtlasLazyRecipeFamily | null {
+  const family = BY_KEY.get(key)?.family;
+  return family && ATLAS_LAZY_FAMILIES.has(family) ? family as AtlasLazyRecipeFamily : null;
+}
+
+const lazyIndex = new Map<string, { document: AtlasRecipeDocument; byKey: Map<string, AtlasReleaseOption[]> }>();
 
 /**
- * Exact release selector 清單。目錄自帶的家族直接回傳；臺北市局處統計從按需載入的明細取，
- * 明細未載入時丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED（呼叫端先 ensureStatisticsRecipeDetails("taipeiAgency")），
+ * Exact release selector 清單。目錄自帶的家族直接回傳；臺北市局處統計與死因統計從按需載入的明細取，
+ * 明細未載入時丟 STATISTICS_RECIPE_DETAILS_NOT_LOADED（呼叫端先 ensureStatisticsRecipeDetails(atlasLazyFamily(key))），
  * 不回空陣列冒充「沒有期別」。
  */
 export function atlasRecipeReleaseOptions(recipe: AtlasRecipeCatalogEntry): AtlasReleaseOption[] {
   if (recipe.release_options) return recipe.release_options;
-  const document = taipeiAgencyRecipeDetailsDocument();
-  if (lazyIndex?.document !== document) lazyIndex = { document, byKey: new Map(document.recipes.map((candidate) => [candidate.layer_key, candidate.release_options])) };
-  const options = lazyIndex.byKey.get(recipe.layer_key);
+  const family = ATLAS_LAZY_FAMILIES.has(recipe.family) ? recipe.family as AtlasLazyRecipeFamily : "taipeiAgency";
+  const document = atlasLazyRecipeDetailsDocument(family);
+  let index = lazyIndex.get(family);
+  if (index?.document !== document) {
+    index = { document, byKey: new Map(document.recipes.map((candidate) => [candidate.layer_key, candidate.release_options])) };
+    lazyIndex.set(family, index);
+  }
+  const options = index.byKey.get(recipe.layer_key);
   if (!options) throw new Error(`atlas recipe ${recipe.layer_key} missing from recipe details`);
   return options;
 }
@@ -129,7 +142,7 @@ export function atlasDefaultReleaseOption<T extends { releaseId: string }>(key: 
   return (preferred ? options.find((option) => option.releaseId === preferred) : undefined) ?? options[0];
 }
 
-// 按需載入的家族（臺北市局處統計，全為整月期別）不帶 release_options，也沒有部分期別。
+// 按需載入的家族（臺北市局處統計、死因統計，皆無部分期別）不帶 release_options，也沒有部分期別。
 const PARTIAL_PERIODS = new Map(ATLAS_ENABLED_STATISTICS_RECIPES.flatMap((recipe) => recipe.release_options ?? [])
   .filter((option) => option.partial_period_label).map((option) => [option.release_id, option]));
 

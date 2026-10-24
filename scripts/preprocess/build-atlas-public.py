@@ -680,6 +680,61 @@ def build_culture_coin(m, feats):
     return out
 
 
+# 原民會文化健康站（G20，2026-10-24）-------------------------------------
+# analytics welfare/cultural_health_stations_cip：525 站。成品本身不帶電話（手機、市話都不入成品）。
+# 191 站離線 geocode 落在來源鄉鎮內（precision exact／interpolated／cached）→ 一站一點（kind=site）；
+# 334 站只到鄉鎮（precision township_centroid，鄉鎮質心）→ 依 town_code 併成一點（kind=township_group，
+# station_count／station_names），不另造偏移座標，popup 列站名並註明「僅到鄉鎮，非實際位置」。
+# 資料日期＝檔內 DateListed（date_listed，全部同一日）；下載日另列。
+
+CULTURAL_HEALTH_SOURCE = "原住民族委員會 原住民族文化健康站通訊錄"
+
+
+@layer("culturalHealthStations", "welfare", "cultural_health_stations_cip", "welfare/cultural_health_stations.geojson")
+def build_cultural_health(m, feats):
+    feats = drop_unmapped("culturalHealthStations", feats)
+    base = {"source_org": CULTURAL_HEALTH_SOURCE, "source_url": m["provenance"].get("source_url"), "license": OGDL,
+            "fetched_at": str(m["provenance"]["downloaded_at"])[:10]}
+    dates = {f["properties"].get("date_listed") for f in feats}
+    if len(dates) != 1:
+        raise SystemExit(f"culturalHealthStations: date_listed 不唯一 {dates}")
+    base["vintage"] = dates.pop()
+    out, groups = [], {}
+    for f in feats:
+        p = f["properties"]
+        if any(k in p for k in ("tel", "tel_ext", "mobile", "phone")):
+            raise SystemExit("culturalHealthStations: 成品不應帶電話欄")
+        if p["precision"] == "township_centroid":
+            groups.setdefault(p["town_code"], []).append(f)
+            continue
+        out.append(feature(f["geometry"], {
+            "id": s(p["station_id"]), "kind": "site", "name": s(p.get("name")), "address": s(p.get("address")),
+            "county": s(p.get("county")), "town": s(p.get("town")),
+            "precision": s(p["precision"]), "precision_label": s(p.get("precision_label")), **base,
+        }))
+    for town_code, members in sorted(groups.items()):
+        coords = {tuple(f["geometry"]["coordinates"]) for f in members}
+        if len(coords) != 1:
+            raise SystemExit(f"culturalHealthStations: {town_code} 質心不唯一")
+        members.sort(key=lambda f: f["properties"]["station_id"])
+        p0 = members[0]["properties"]
+        reasons = sorted({f["properties"].get("fallback_reason_label") for f in members if f["properties"].get("fallback_reason_label")})
+        out.append(feature(members[0]["geometry"], {
+            "id": f"town-{town_code}", "kind": "township_group", "name": f"{p0['county']}{p0['town']}（{len(members)} 站）",
+            "county": s(p0.get("county")), "town": s(p0.get("town")), "station_count": len(members),
+            "station_names": "、".join(str(f["properties"]["name"]) for f in members),
+            "precision": "township_centroid", "precision_label": s(p0.get("precision_label")),
+            "fallback_reasons": "；".join(reasons) or None, **base,
+        }))
+    sites = sum(1 for f in out if f["properties"]["kind"] == "site")
+    stations = sites + sum(f["properties"].get("station_count", 0) for f in out)
+    if stations != len(feats):
+        raise SystemExit(f"culturalHealthStations: 站數 {stations} ≠ 輸入 {len(feats)}")
+    AUDIT["culturalHealthStations"]["grouping"] = {"stations": len(feats), "sites": sites, "township_groups": len(groups),
+                                                   "grouped_stations": len(feats) - sites}
+    return out
+
+
 # 地名 -------------------------------------------------------------------
 
 PLACE_PRIORITY = {"admin": 0, "natural": 1, "settlement": 2, "landmark": 3}

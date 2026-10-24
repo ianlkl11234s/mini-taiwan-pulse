@@ -198,5 +198,10 @@
   "enum.statVariant.件數（依建造類別）": "件数（建築種別）",
   "enum.statVariant.棟數": "棟数",
   "enum.statVariant.戶數": "戸数",
-  "enum.statVariant.建築面積": "建築面積（投影面積）"
+  "enum.statVariant.建築面積": "建築面積（投影面積）",
+  "enum.statVariant.粗死亡率（5 年平均）": "粗死亡率（5年平均）",
+  "enum.statVariant.死亡人數（5 年合計）": "死亡数（5年合計）",
+  "enum.statVariant.粗死亡率（逐年）": "粗死亡率（年別）",
+  "enum.statVariant.死亡人數（逐年）": "死亡数（年別）",
+  "enum.statVariant.死亡人數": "死亡数"
 }
