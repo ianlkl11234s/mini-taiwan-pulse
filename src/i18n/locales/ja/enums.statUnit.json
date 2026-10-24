@@ -111,5 +111,6 @@
   "enum.statUnit.旗標": "フラグ",
   "enum.statUnit.家／萬人": "機関／人口1万人",
   "enum.statUnit.點": "地点",
-  "enum.statUnit.點／萬人": "地点／人口1万人"
+  "enum.statUnit.點／萬人": "地点／人口1万人",
+  "enum.statUnit.萬筆": "万件"
 }

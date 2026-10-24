@@ -12,5 +12,7 @@
   "enum.statPublisher.法務部行政執行署": "法務部行政執行署",
   "enum.statPublisher.財金資訊股份有限公司": "財金資訊股份有限公司（FISC）",
   "enum.statPublisher.金融監督管理委員會銀行局": "金融監督管理委員会銀行局",
-  "enum.statPublisher.中央銀行金融業務檢查處": "中央銀行金融業務検査処"
+  "enum.statPublisher.中央銀行金融業務檢查處": "中央銀行金融業務検査処",
+  "enum.statPublisher.行政院主計總處": "行政院主計総処",
+  "enum.statPublisher.財團法人保險事業發展中心": "保険事業発展センター"
 }

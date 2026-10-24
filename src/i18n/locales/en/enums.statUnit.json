@@ -111,5 +111,6 @@
   "enum.statUnit.旗標": "flag",
   "enum.statUnit.家／萬人": "institutions/10k people",
   "enum.statUnit.點": "sites",
-  "enum.statUnit.點／萬人": "sites/10k people"
+  "enum.statUnit.點／萬人": "sites/10k people",
+  "enum.statUnit.萬筆": "10k transactions"
 }

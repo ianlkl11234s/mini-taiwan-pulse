@@ -9,6 +9,7 @@ import { MORTALITY_STATISTICS_DOCUMENT } from '../../data/mortalityStatisticsRec
 import { CULTURE_STATISTICS_DOCUMENT } from '../../data/cultureStatisticsRecipes';
 import { STATE_ASSETS_STATISTICS_DOCUMENT } from '../../data/stateAssetsStatisticsRecipes';
 import { FINANCE_ACCESS_STATISTICS_DOCUMENT } from '../../data/financeAccessStatisticsRecipes';
+import { FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT } from '../../data/financeAccessExtStatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -146,7 +147,7 @@ describe('死因統計（G20）外文介面不混中文', () => {
 
 // Roadmap 第二批（2026-10-24）：街頭藝人（G23）；國有資產（G16）、金融可及性（G10）同一套檢查。
 const JA_SAME_AS_ZH = new Set(['人', '文化部', '面積', '法務部行政執行署', '台']);
-const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT], ["金融服務可及性（G10）", FINANCE_ACCESS_STATISTICS_DOCUMENT]] as const;
+const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT], ["金融服務可及性（G10）", FINANCE_ACCESS_STATISTICS_DOCUMENT], ["金融服務可及性延伸（G10 延伸）", FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT]] as const;
 describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document) => {
   for (const locale of ['en', 'ja'] as const) {
     const messages: Record<string, string> = {};
