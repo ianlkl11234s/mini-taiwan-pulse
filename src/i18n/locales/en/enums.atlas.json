@@ -250,7 +250,7 @@
   "enum.atlasCoinPrecision.interpolated": "interpolated along street",
   "enum.atlasCoinPrecision.approximate": "approximate",
   "enum.atlasOrg.moc": "Ministry of Culture",
-  "enum.atlasNote.cultureCoinVenues": "4,264 arts shops and venues that accept the Culture Coin (downloaded 2026-10-24; the source file carries no date). 342 had (0,0) coordinates in the source and were placed from their addresses. Street performers are not included.",
+  "enum.atlasNote.cultureCoinVenues": "4,264 arts shops and venues that accept the Culture Coin (downloaded 2026-10-24; the source file carries no date). 342 had (0,0) coordinates in the source and were placed from their addresses. Street performers are not included. Registered street-performer counts are in the Statistics tab under Culture & Arts.",
   "enum.atlasChsKind.site": "Station site (located from address)",
   "enum.atlasChsKind.township_group": "Township only (township center, not the actual site)",
   "enum.atlasChsPrecision.exact": "street-number point",

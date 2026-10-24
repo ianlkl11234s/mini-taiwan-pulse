@@ -1,4 +1,4 @@
-// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）＋臺北市局處統計（5 dataset、11 recipe、9,696 selector）＋死因統計（G20，2 dataset、6 recipe、3,863 selector）的共用接點。
+// atlas 批次統計（2026-10-12，22 dataset、66 recipe、2,278 exact selector）＋治安統計（G17，4 dataset、36 recipe、386 selector）＋臺北市局處統計（5 dataset、11 recipe、9,696 selector）＋死因統計（G20，2 dataset、6 recipe、3,863 selector）＋Roadmap 第二批（文化 G23）的共用接點。
 // 資料照主題拆成六個家族檔（health／fiscal／indigenousRural／sports／hazard／marine，各自 json＋catalog），
 // 執行期的查詢、期別白名單、維度、圖例與目錄分組由本檔統一提供，共用檔（loader、selection、linkedSelect、
 // manifest、圖例、Details）只接這一個入口，不再逐家族串接。
@@ -13,6 +13,7 @@ import { MARINE_ENABLED_STATISTICS_KEYS, MARINE_STATISTICS_DOCUMENT } from "./ma
 import { CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT } from "./crimeStatisticsRecipes";
 import { TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT } from "./taipeiAgencyStatisticsRecipes";
 import { MORTALITY_ENABLED_STATISTICS_KEYS, MORTALITY_STATISTICS_DOCUMENT } from "./mortalityStatisticsRecipes";
+import { CULTURE_ENABLED_STATISTICS_KEYS, CULTURE_STATISTICS_DOCUMENT } from "./cultureStatisticsRecipes";
 import { ATLAS_LAZY_FAMILIES, atlasLazyRecipeDetailsDocument, type AtlasLazyRecipeFamily } from "./statisticsRecipeDetails";
 
 export type { AtlasRecipe, AtlasRecipeCatalogEntry, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
@@ -27,12 +28,14 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument |
   [CRIME_ENABLED_STATISTICS_KEYS, CRIME_STATISTICS_DOCUMENT],
   [TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, TAIPEI_AGENCY_STATISTICS_DOCUMENT],
   [MORTALITY_ENABLED_STATISTICS_KEYS, MORTALITY_STATISTICS_DOCUMENT],
+  [CULTURE_ENABLED_STATISTICS_KEYS, CULTURE_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...HEALTH_ENABLED_STATISTICS_KEYS, ...FISCAL_ENABLED_STATISTICS_KEYS, ...INDIGENOUS_RURAL_ENABLED_STATISTICS_KEYS,
   ...SPORTS_ENABLED_STATISTICS_KEYS, ...HAZARD_ENABLED_STATISTICS_KEYS, ...MARINE_ENABLED_STATISTICS_KEYS,
   ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, ...MORTALITY_ENABLED_STATISTICS_KEYS,
+  ...CULTURE_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -43,6 +46,7 @@ export const ATLAS_TAB_THEME_TITLES = {
   hazard: "災害風險 Disaster Risk",
   marine: "海洋 Marine",
   crime: "犯罪與治安 Crime & Safety",
+  culture: "文化與藝文 Culture & Arts",
 } as const;
 
 /** 依各家族宣告的 key 順序（群組內原始數在前）；交付缺 key 或未啟用即報錯。 */

@@ -41,5 +41,11 @@
   "enum.statLegendNote.最淺色含 0（該期無死亡，不是無資料）。": "The lightest color includes 0 (no deaths in that period, not missing data).",
   "enum.statLegendNote.無資料（分母戶籍人口缺，不是 0）": "No data (registered-population denominator missing; not 0)",
   "enum.statLegendNote.不適用（COVID-19 自 109 年起才有此分類）": "Not applicable (the COVID-19 category exists only from 2020)",
-  "enum.statLegendNote.小鄉鎮人口少，單年波動大；本層為 5 年合計，較穩定，但極小鄉鎮仍宜保守解讀，不宜據此排名。": "Small townships swing widely year to year; this layer uses 5-year totals, which are steadier, but very small townships should still be read cautiously and not ranked on this basis."
+  "enum.statLegendNote.小鄉鎮人口少，單年波動大；本層為 5 年合計，較穩定，但極小鄉鎮仍宜保守解讀，不宜據此排名。": "Small townships swing widely year to year; this layer uses 5-year totals, which are steadier, but very small townships should still be read cautiously and not ranked on this basis.",
+  "enum.statLegendNote.出典：文化部 文化幣可用藝文消費點（data.gov.tw 177601，2026-10-24 下載）；政府資料開放授權條款-第1版。": "Source: Ministry of Culture, Culture Coin participating arts venues (data.gov.tw 177601, downloaded 2026-10-24); Open Government Data License, Version 1.0.",
+  "enum.statLegendNote.名冊登記人數，依登記或聯絡地址所在行政區計，不是表演地點；不含姓名。": "Number of people on the roster, counted by the district of their registered or contact address, not where they perform; names are not included.",
+  "enum.statLegendNote.0 人自成最淺一級（名冊在該區無登記，不是無資料）。": "0 people is its own lightest class (no one on the roster in that area; not missing data).",
+  "enum.statLegendNote.臺中市西區 100 人多為登記於草悟道（登記地址只定位到地名），不代表居住於西區。": "Most of the 100 people in Taichung's West District are registered at Calligraphy Greenway (the address only locates to the place name); it does not mean they live in West District.",
+  "enum.statLegendNote.名冊為自願登記，臺中市偏多可能反映制度差異，不宜解讀為各地實際街頭藝人分布。": "Registration is voluntary; Taichung's high count may reflect differences in local licensing schemes, so do not read this as the actual distribution of street performers.",
+  "enum.statLegendNote.點位見「文化」主題的「文化幣藝文消費點」（不含街頭藝人）。": "For points, see Culture Coin Venues under the Culture theme (street performers are not included there)."
 }

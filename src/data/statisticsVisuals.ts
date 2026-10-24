@@ -1,5 +1,6 @@
 import {
   Activity,
+  Music,
   Anchor,
   Brain,
   CloudRain,
@@ -237,6 +238,8 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsHealthHospitalAlos$/, 'health', BedDouble],
   // 死因統計 G20（2026-10-24）：同疾病與健康＝醫療色票，不新增色票。
   [/^statsMortality/, 'health', Activity],
+  // 街頭藝人登記人數 G23（2026-10-24）：同體育＝教育 Purples（公共生活），不新增色票。
+  [/^statsCultureStreetPerformers/, 'education', Music],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],

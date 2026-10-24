@@ -13,5 +13,6 @@
   "enum.statGroup.臺北市污水接管普及率": "Taipei sewer connection rate",
   "enum.statGroup.臺北市登記工廠家數": "Taipei registered factories",
   "enum.statGroup.臺北市核發使用執照": "Taipei occupancy permits issued",
-  "enum.statGroup.死因統計": "Causes of death"
+  "enum.statGroup.死因統計": "Causes of death",
+  "enum.statGroup.街頭藝人登記人數": "Registered street performers"
 }

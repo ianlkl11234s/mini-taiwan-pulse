@@ -172,8 +172,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）。
     // 2026-10-23: +11 臺北市局處統計。
     // 2026-10-24: +6 死因統計 G20（鄉鎮 5 年率／5 年人數／逐年率／逐年人數＋縣市率／人數）。
-    expect(STATISTICS_KEYS).toHaveLength(659);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(671);
+    // 2026-10-24: +2 街頭藝人登記人數 G23（鄉鎮／縣市）。
+    expect(STATISTICS_KEYS).toHaveLength(661);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(673);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

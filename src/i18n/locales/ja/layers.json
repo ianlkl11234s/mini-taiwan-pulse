@@ -1251,5 +1251,7 @@
   "layer.statsMortalityDeathsTownship": "郷鎮別 死因別死亡数（年別）",
   "layer.statsMortalityCauseCounty": "県市別 死因別粗死亡率",
   "layer.statsMortalityDeathsCounty": "県市別 死因別死亡数",
-  "layer.culturalHealthStations": "原住民族文化健康ステーション"
+  "layer.culturalHealthStations": "原住民族文化健康ステーション",
+  "layer.statsCultureStreetPerformersTown": "大道芸人登録人数（郷鎮市区）",
+  "layer.statsCultureStreetPerformersCounty": "大道芸人登録人数（県市）"
 }

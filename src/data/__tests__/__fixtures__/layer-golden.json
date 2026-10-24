@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1261,
+    "keyCount": 1263,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3410,6 +3410,8 @@
         "statsMortalityDeathsTownship-fill",
         "statsMortalityCauseCounty-fill",
         "statsMortalityDeathsCounty-fill",
+        "statsCultureStreetPerformersTown-fill",
+        "statsCultureStreetPerformersCounty-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -112019,6 +112021,76 @@
         "options": [],
         "status": "loading",
         "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCultureStreetPerformersCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮市區",
+            "value": "statsCultureStreetPerformersTown"
+          },
+          {
+            "label": "縣市",
+            "value": "statsCultureStreetPerformersCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCultureStreetPerformersCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCultureStreetPerformersTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "鄉鎮市區",
+            "value": "statsCultureStreetPerformersTown"
+          },
+          {
+            "label": "縣市",
+            "value": "statsCultureStreetPerformersCounty"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCultureStreetPerformersTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
         "type": "linkedSelect",
         "value": ""
       },

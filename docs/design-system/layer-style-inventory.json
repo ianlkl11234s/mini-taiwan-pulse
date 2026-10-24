@@ -18,20 +18,20 @@
   ]
  },
  "summary": {
-  "layerKeys": 1261,
+  "layerKeys": 1263,
   "overlayConfigs": 397,
   "runtimeSublayers": 736,
   "byResolution": {
    "runtime": 372,
    "static-scan": 184,
    "unresolved": 34,
-   "shared-renderer": 671
+   "shared-renderer": 673
   },
   "byGeometry": {
    "point": 399,
    "heatmap": 78,
    "line": 227,
-   "polygon": 866,
+   "polygon": 868,
    "raster": 37,
    "label": 43,
    "3d": 27,
@@ -43,13 +43,13 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 5
   },
-  "legendEntries": 1009,
+  "legendEntries": 1011,
   "legendTypes": {
    "square-swatch": 60,
    "svg-icon": 16,
    "dot-swatch": 146,
    "gradient+dot-swatch": 37,
-   "square-swatch+hatch(missing)": 673,
+   "square-swatch+hatch(missing)": 675,
    "gradient+size+dot-swatch": 3,
    "hatch(missing)": 2,
    "size+dot-swatch": 5,
@@ -67,7 +67,7 @@
   },
   "legendResolution": {
    "ssr": 306,
-   "static": 703
+   "static": 705
   },
   "legendsWithIssues": 38,
   "ironRules": {
@@ -620,7 +620,7 @@
    ],
    "themeDiff": "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）"
   },
-  "statisticsLayers": 671
+  "statisticsLayers": 673
  },
  "legends": [
   {"id":"accessibleParkFacilities","members":["accessibleParkFacilities"],"components":["AccessibleParkLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
@@ -1191,6 +1191,8 @@
   {"id":"statsCropPlantedAreaTownship","members":["statsCropPlantedAreaTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsCropProductionTownship","members":["statsCropProductionTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsCropYieldTownship","members":["statsCropYieldTownship"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsCultureStreetPerformersCounty","members":["statsCultureStreetPerformersCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
+  {"id":"statsCultureStreetPerformersTown","members":["statsCultureStreetPerformersTown"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsDebrisFlowAlertStreamsCounty","members":["statsDebrisFlowAlertStreamsCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsDebrisFlowRedAlertStreamsCounty","members":["statsDebrisFlowRedAlertStreamsCounty"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
   {"id":"statsDemographicsCountyAgingIndex","members":["statsDemographicsCountyAgingIndex"],"components":["StatisticsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":15,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":false},
@@ -2402,6 +2404,8 @@
   "statsCropPlantedAreaTownship": {"label":"作物種植面積","theme":"農業統計","dataClass":"D","color":"#78c679","legend":"statsCropPlantedAreaTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsCropPlantedAreaTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsCropProductionTownship": {"label":"作物收量","theme":"農業統計","dataClass":"D","color":"#78c679","legend":"statsCropProductionTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsCropProductionTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsCropYieldTownship": {"label":"每公頃收穫量","theme":"農業統計","dataClass":"D","color":"#78c679","legend":"statsCropYieldTownship","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsCropYieldTownshipOpacity","default":0.55,"min":0.1,"max":1},"controls":5},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsCultureStreetPerformersCounty": {"label":"街頭藝人登記人數（縣市）（縣市）","theme":"文化統計 Culture Statistics","dataClass":"D","color":"#9e9ac8","legend":"statsCultureStreetPerformersCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsCultureStreetPerformersCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "statsCultureStreetPerformersTown": {"label":"街頭藝人登記人數（鄉鎮市區）（鄉鎮）","theme":"文化統計 Culture Statistics","dataClass":"D","color":"#9e9ac8","legend":"statsCultureStreetPerformersTown","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsCultureStreetPerformersTownOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"township"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsDebrisFlowAlertStreamsCounty": {"label":"土石流警戒發布溪流次數（黃＋紅）（縣市）","theme":"災害風險統計 Disaster Risk Statistics","dataClass":"D","color":"#8c96c6","legend":"statsDebrisFlowAlertStreamsCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsDebrisFlowAlertStreamsCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":6,"breaks":5,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsDebrisFlowRedAlertStreamsCounty": {"label":"土石流紅色警戒發布溪流次數（縣市）","theme":"災害風險統計 Disaster Risk Statistics","dataClass":"D","color":"#8c96c6","legend":"statsDebrisFlowRedAlertStreamsCounty","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsDebrisFlowRedAlertStreamsCountyOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":6,"breaks":5,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "statsDemographicsCountyAgingIndex": {"label":"老化指數（縣市）","theme":"人口統計 Population Statistics","dataClass":"D","color":"#c51b8a","legend":"statsDemographicsCountyAgingIndex","legendType":"square-swatch+hatch(missing)","popup":"regionalStatistic","params":{"opacity":{"name":"statsDemographicsCountyAgingIndexOpacity","default":0.55,"min":0.1,"max":1},"controls":3},"resolution":"shared-renderer","evidence":["src/map/regionalStatisticsMap.ts"],"statistics":{"classes":5,"breaks":4,"diverging":false,"level":"county"},"geometry":["polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},

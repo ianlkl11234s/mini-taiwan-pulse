@@ -250,7 +250,7 @@
   "enum.atlasCoinPrecision.interpolated": "同一路線上の補間",
   "enum.atlasCoinPrecision.approximate": "おおよその位置",
   "enum.atlasOrg.moc": "文化部",
-  "enum.atlasNote.cultureCoinVenues": "文化ポイント（文化幣）が使える芸術文化店舗・施設 4,264 か所（ダウンロード日 2026-10-24、提供ファイルに日付なし）。提供元座標が (0,0) の 342 か所は住所から位置を補完。大道芸人は含まない。",
+  "enum.atlasNote.cultureCoinVenues": "文化ポイント（文化幣）が使える芸術文化店舗・施設 4,264 か所（ダウンロード日 2026-10-24、提供ファイルに日付なし）。提供元座標が (0,0) の 342 か所は住所から位置を補完。大道芸人は含まない。 大道芸人の登録人数は「統計」タブの「文化・芸術」にあります。",
   "enum.atlasChsKind.site": "ステーション所在地（住所から測位）",
   "enum.atlasChsKind.township_group": "郷鎮単位のみ（郷鎮の中心、実際の場所ではない）",
   "enum.atlasChsPrecision.exact": "番地ポイント",
