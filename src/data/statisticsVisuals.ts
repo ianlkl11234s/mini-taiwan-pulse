@@ -250,6 +250,11 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsAtm/, 'labor', CreditCard],
   [/^statsFinanceUnderserved/, 'labor', ShieldAlert],
   [/^statsFinancial(?:Institutions|Branches)/, 'labor', Landmark],
+  // 金融服務可及性延伸 G10 延伸（2026-10-24）：同色票；場所單位／金融卡交易／壽險據點／特約商店四種 icon。
+  [/^statsFinanceEstablishments/, 'labor', Landmark],
+  [/^statsDebitCardTxn/, 'labor', CreditCard],
+  [/^statsLifeInsurer/, 'labor', HandHeart],
+  [/^statsDebitMerchant/, 'labor', Receipt],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],

@@ -5,6 +5,7 @@ Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsT
   financeAccess 金融服務據點與可及性（G10；docs/handoff/finance-access-statistics-recipes.json，11 recipes）
   stateAssets  國有資產與國營事業資產（G16；docs/handoff/state-assets-statistics-recipes.json，23 recipes）
   culture      街頭藝人登記人數（G23；docs/handoff/culture-coin-street-performers-recipes.json，2 recipes）
+  financeAccessExt 金融服務可及性延伸（G10 延伸；docs/handoff/finance-access-ext-statistics-recipes.json，10 recipes）
 
 Inputs (taipei-gis-analytics, read-only):
   --root     analytics checkout. The handoff recipes are the trimmed R2 form (release_id／period／dimensions only),
@@ -116,6 +117,9 @@ STATE_ASSETS_LAYERS = [
 
 # 交付 disclosure 照用，只把內部欄名／dataset id／狀態代碼換成中文（資料限制卡給一般讀者看）。
 DISCLOSURE_REPLACEMENTS = [
+    # G10 延伸（要在通用的「標 missing」之前）：handoff 寫「臺中市標 missing」已過期：bundle 為兩列合計（analytics TAICHUNG_MODE=sum，UDI-0076）
+    ("本處不自行加總也不擇一，臺中市兩指標標 missing，兩列原值留在 processing.parameters.taichung_raw_rows。", "臺中市兩指標為來源兩列合計（來源未說明第二列所指）。"),
+    ("臺中市 missing（來源重複列）。", "臺中市為來源兩列合計。"),
     ("dimensions 管理區分含兩個小計", "管理區分含兩個小計"),
     ("dimensions.管理區分 為 20 類（含兩個小計）。", "管理區分為 20 類（含兩個小計）。"),
     ("dimensions.分類 為 9 類（含土地、房屋兩個小計）。", "分類為 9 類（含土地、房屋兩個小計）。"),
@@ -141,6 +145,19 @@ DISCLOSURE_REPLACEMENTS = [
     ("（筆數見 processing.parameters）", "（筆數見處理參數）"),
     ("機台數請看縣市 atm_count_county", "機台數請看縣市「金融卡 ATM 台數」"),
     ("分支數口徑同 financial_branches_county（前六類）", "分支數口徑同「金融機構分支數（縣市）」（前六類）"),
+    # G10 延伸
+    ("（含總計；階層見 processing.parameters.industry_hierarchy）", "（含總計，有上下層）"),
+    ("與既有 industry_census_county（全行業 × 組織別的場所單位數）互補", "與既有「工商普查場所單位數」（全行業 × 組織別）互補"),
+    ("戶籍人口（household_registration_population 同年 12 月底）", "戶籍人口（同年 12 月底）"),
+    ("dimensions.行業別 35 值（含總計）；階層見 industry_hierarchy。", "行業別 35 值（含總計）。"),
+    ("dimension 交易類型區分三種；txn_count 單位萬筆", "交易類型分三種；筆數單位萬筆"),
+    ("，txn_share 為該縣市", "，結構比為該縣市"),
+    ("其萬筆與結構比逐月放在 processing.parameters.non_physical_channel。", "其萬筆與結構比逐月另存於處理參數。"),
+    ("dimensions.交易類型：金融卡交易／跨行通匯／國際卡在台提款；交易發生地口徑。", "交易類型：金融卡交易／跨行通匯／國際卡在台提款；交易發生地口徑。"),
+    ("dimensions.交易類型；分母含其他非實體通路（24356、24367）。", "交易類型分三種；分母含其他非實體通路（24356、24367）。"),
+    ("與央行 13653 的 financial_institutions_county 不同", "與央行 13653 的「各縣市金融機構家數」不同"),
+    ("（data.gov.tw 24315，Comm5_Merchant.csv）", "（data.gov.tw 24315）"),
+    ("（原檔 sha256 見 raw_sha256）", ""),
 ]
 
 # ── 金融服務據點與可及性（G10）──────────────────────────────────────────────────
@@ -191,6 +208,48 @@ FINANCE_ACCESS_LAYERS = [
     fa("statsAtmSitesPer10kTown", "financeAtmSites", "ATM 裝設點數（鄉鎮）", "每萬人裝設點數", 1, [FA_SITES_SRC, FA_SITES, FA_TOWN, FA_PER10K_POP]),
 ]
 
+# ── 金融服務可及性延伸（G10 延伸）──────────────────────────────────────────────
+FE_SRC = src_note("行政院主計總處", "工業及服務業普查 金融及保險業場所單位數－按縣市別及細行業別分", "122340")
+FE_UNIT = "場所單位＝金融及保險業的營業處所（銀行分行、證券商、保險代理人公司、投顧公司等），不是公司數；北中南東與金馬小計不收。"
+FE_CHANGE = "105→110 年多項行業大幅變動（如其他金融服務業 +63%、投資顧問業 +99%），原因未查證；兩期請分開看，不建議比較變化。"
+FE_PER10K = "每萬人＝場所單位數 ÷ 110 年底戶籍人口 ×10,000；只有 110 年（105 年無人口分母）。"
+TX_SRC = src_note(FISC, "金融卡交易、跨行通匯、國際卡在台提款 交易縣市分佈（月）", "24356、24348、24367")
+TX_BASIS = "口徑是交易發生地（交易系統記錄的縣市），不是持卡人居住地，不可解讀為居民消費、所得或金融活躍度。"
+TX_INTERBANK = "跨行通匯臺北占 5–6 成，疑為依入帳機構所在地計，不是民眾所在地，不可解讀為消費或所得；三種交易類型各用自己的色階。"
+TX_SHARE = "結構比＝占該類型全部交易的百分比；金融卡交易與國際卡在台提款的分母含其他非實體通路，所以 22 縣市加總小於 100%。"
+TX_ZERO = "0 代表不到約 50 筆（來源四捨五入到 0.01 萬筆），不是沒有交易。"
+TX_SHARE_ZERO = "0 代表占比不到 0.005%（來源四捨五入到 0.01%），不是沒有交易。"
+LI_SRC = src_note("財團法人保險事業發展中心", "最近一年壽險業分支機構家數", "24593")
+LI_TAICHUNG = "臺中市為來源兩列合計（2025 年分公司 12＋3 家、通訊處 417＋43 處），來源未說明第二列所指；兩列合計才等於來源總計。"
+LI_OFFICE = "通訊處是壽險公司的業務單位，來源只有各縣市家數、沒有地址。"
+DM_SRC = src_note(FISC, "金融卡特約商店", "24315")
+DM_SCOPE = "金融卡（簽帳）特約商店名冊，不是所有商店；不含只收信用卡或行動支付的店。"
+DM_DATE = "期別＝下載日 2026-10-24；上游檔沒有資料日。"
+DM_UNALLOC = "新竹市約 8.3%、嘉義市約 11.5% 的商店地址沒寫區，無法歸屬，兩市各區值偏低（全國未歸屬 1,937 家、0.47%）。"
+DM_EXCL = "已排除全國同址超過 200 家的 9 個地址（共 5,489 家：平台代收、計程車隊、連鎖總部集中登記）。"
+DM_INCL = "含集中登記地址，會灌高總部所在區（如臺北南港 4,606 家，排除後 2,372 家）；一般比較請用「排除集中登記地址」。"
+DM_ADDR = "同址多店算一處（夜市、市場攤商會被壓成一處）。"
+DM_PER10K = "每萬人＝排除集中登記地址後的家數 ÷ 戶籍人口（2026 年 8 月）×10,000。"
+DM_ZERO = "0 自成最淺一級（如金門烏坵鄉為 0，不是無資料）。"
+FAX_FE = "金融及保險業場所單位（縣市）"
+FAX_TX = "金融卡類交易縣市分佈"
+FAX_LI = "壽險業分支機構（縣市）"
+FAX_DM = "金融卡特約商店（鄉鎮）"
+TX_DEF = {"交易類型": "金融卡交易"}
+FE_DEF = {"行業別": "總計"}
+FINANCE_ACCESS_EXT_LAYERS = [
+    fa("statsFinanceEstablishments", "financeEstablishments", FAX_FE, "場所單位數", 0, [FE_SRC, FE_UNIT, FE_CHANGE], defaults=FE_DEF, dim_order="industry_hierarchy"),
+    fa("statsFinanceEstablishmentsPer10k", "financeEstablishments", FAX_FE, "每萬人場所單位數", 2, [FE_SRC, FE_UNIT, FE_PER10K], defaults=FE_DEF, dim_order="industry_hierarchy"),
+    fa("statsDebitCardTxnCount", "debitCardTxn", FAX_TX, "交易筆數", 2, [TX_SRC, TX_BASIS, TX_INTERBANK], defaults=TX_DEF, fractional=True, zero_note=TX_ZERO, nonphysical=True),
+    fa("statsDebitCardTxnShare", "debitCardTxn", FAX_TX, "縣市結構比", 2, [TX_SRC, TX_BASIS, TX_INTERBANK, TX_SHARE], defaults=TX_DEF, zero_note=TX_SHARE_ZERO, nonphysical=True),
+    fa("statsLifeInsurerBranches", "lifeInsurerBranches", FAX_LI, "分公司家數", 0, [LI_SRC, LI_TAICHUNG]),
+    fa("statsLifeInsurerAgencyOffices", "lifeInsurerBranches", FAX_LI, "通訊處家數", 0, [LI_SRC, LI_OFFICE, LI_TAICHUNG]),
+    fa("statsDebitMerchantsPer10k", "debitMerchants", FAX_DM, "每萬人商店數（排除集中登記）", 1, [DM_SRC, DM_SCOPE, DM_DATE, DM_EXCL, DM_PER10K, DM_UNALLOC]),
+    fa("statsDebitMerchantsExclBulk", "debitMerchants", FAX_DM, "商店數（排除集中登記）", 0, [DM_SRC, DM_SCOPE, DM_DATE, DM_EXCL, DM_UNALLOC], zero_note=DM_ZERO),
+    fa("statsDebitMerchants", "debitMerchants", FAX_DM, "商店數（含集中登記）", 0, [DM_SRC, DM_SCOPE, DM_DATE, DM_INCL, DM_UNALLOC], zero_note=DM_ZERO),
+    fa("statsDebitMerchantAddresses", "debitMerchants", FAX_DM, "店址數", 0, [DM_SRC, DM_SCOPE, DM_DATE, DM_ADDR, DM_UNALLOC], zero_note=DM_ZERO),
+]
+
 CULTURE_ZERO = "0 人自成最淺一級（名冊在該區無登記，不是無資料）。"
 
 FAMILIES: dict[str, dict] = {
@@ -202,6 +261,15 @@ FAMILIES: dict[str, dict] = {
         "tab_theme": "財稅與消費 Fiscal & Consumption",
         "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0 or roster has no point in the area)", "missing": "value null; township not on the underserved list, or Kinmen/Lienchiang merged in the source; no zero fill", "suppressed": "not used"},
         "layers": FINANCE_ACCESS_LAYERS,
+    },
+    "financeAccessExt": {
+        "file": "financeAccessExtStatisticsRecipes",
+        "handoff": "docs/handoff/finance-access-ext-statistics-recipes.json",
+        "theme_dir": "socioeconomic",
+        "data_theme": "財稅與消費統計 Fiscal & Consumption Statistics",
+        "tab_theme": "財稅與消費 Fiscal & Consumption",
+        "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0, rounds below 0.01 ten-thousand transactions, or roster has no merchant in the township)", "missing": "not used", "suppressed": "not used"},
+        "layers": FINANCE_ACCESS_EXT_LAYERS,
     },
     "stateAssets": {
         "file": "stateAssetsStatisticsRecipes",
@@ -283,6 +351,26 @@ def partial_label(start: str, end: str) -> str | None:
     return f"{start[:4]} 年 {int(start[5:7])}–{int(end[5:7])} 月"
 
 
+def roc_month(period_end: str) -> str:
+    return f"{int(period_end[:4]) - 1911} 年 {int(period_end[5:7])} 月"
+
+
+def nonphysical_note(key: str, layer: dict, config: dict, root: Path, defaults: dict) -> str:
+    """「其他非實體通路」不歸任何縣市：從預設交易類型最早／最新期 bundle 的處理參數取比重寫進圖例（不推估）。"""
+    picked = sorted((o for o in layer["release_options"] if o["dimensions"] == defaults), key=lambda o: o["period_end"])
+    shares = []
+    for option in (picked[0], picked[-1]):
+        path = root / "data/processed" / config["theme_dir"] / layer["dataset_id"] / "releases" / f"{option['release_id']}.json"
+        channel = json.loads(path.read_text())["release"]["provenance"]["processing"]["parameters"]["non_physical_channel"]
+        shares.append((option["period_end"], channel))
+    (first_end, first), (last_end, last) = shares
+    kind = defaults["交易類型"]
+    if set(last) != {"金融卡交易", "國際卡在台提款"}:
+        raise SystemExit(f"{key}: unexpected non_physical_channel kinds {sorted(last)}")
+    return (f"「其他非實體通路」不屬任何縣市、不併入地圖：{roc_month(last_end)}占金融卡交易 {last['金融卡交易']['share_pct']:.2f}%"
+            f"（{roc_month(first_end)}為 {first[kind]['share_pct']:.2f}%）、占國際卡在台提款 {last['國際卡在台提款']['share_pct']:.2f}%；跨行通匯沒有這一欄。")
+
+
 def build_family(name: str, config: dict, root: Path) -> dict:
     handoff_path = root / config["handoff"]
     delivered = json.loads(handoff_path.read_text())
@@ -356,12 +444,19 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             if defaults[dim] not in present:
                 raise SystemExit(f"{key}: default {defaults[dim]} not in {present}")
             ordered = [defaults[dim], *[v for v in present if v != defaults[dim]]]
+            if spec.get("dim_order"):
+                # 依 release 處理參數的來源順序（例如行業階層：總計→大類→細類），不用字典序
+                source_order = [row[dim] for row in meta["release"]["provenance"]["processing"]["parameters"][spec["dim_order"]]]
+                if sorted(source_order) != present or source_order[0] != defaults[dim]:
+                    raise SystemExit(f"{key}: {spec['dim_order']} order {source_order} does not match {present}")
+                ordered = source_order
             dimensions.append({"key": dim, "label": dim, "default": defaults[dim], "options": [{"value": v, "label": v} for v in ordered]})
 
         full = [o for o in options if "partial_period_label" not in o and all(o["dimensions"][d] == defaults[d] for d in dim_keys)]
         default_option = max(full, key=lambda o: (o["period_end"], o["period_start"]))
         basis_period = (default_option["period_end"], default_option["period_start"])
-        counts = layer["aggregation"] == "sum"
+        # fractional：計數但單位是萬筆等小數（不走整數門檻），門檻用比率路徑的分位數
+        counts = layer["aggregation"] == "sum" and not spec.get("fractional")
         default_tuple = "|".join(defaults[d] for d in dim_keys)
         tuples = sorted({"|".join(o["dimensions"][d] for d in dim_keys) for o in options})
         by_dimension = {}
@@ -392,6 +487,9 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             zero_note = "0 自成最淺一級（該區為 0，不是無資料）。" if counts and breaks[0] == 1 else "最淺色含 0（該區為 0，不是無資料）。"
         release = meta["release"]
         params = release["provenance"]["processing"]["parameters"]
+        notes = list(spec["notes"])
+        if spec.get("nonphysical"):
+            notes.append(nonphysical_note(key, layer, config, root, defaults))
         nid = release["provenance"]["source_dataset_id"]
         if release["license"] != OGDL:
             raise SystemExit(f"{key}: unexpected licence {release['license']}")
@@ -410,7 +508,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                 "method": "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
                 **({"binary_labels": list(binary)} if binary else {}),
                 "scale_note": None, "zero_note": zero_note if zero else None, "display_note": None,
-                "notes": spec["notes"],
+                "notes": notes,
                 "by_dimension": by_dimension or None, "dimension_notes": None,
             },
             "status_labels": {kind: label for kind, label in status_labels.items() if statuses.get(kind)},
