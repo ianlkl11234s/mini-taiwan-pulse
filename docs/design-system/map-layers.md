@@ -317,6 +317,8 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 **F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值（拍板 A）：統計圖層改成 viz-library N1「透明底＋45° 細斜線」，取代舊的灰色 `#64748b`＋遮蔽斜線，全站缺值只有一種畫法。已實作（R1）：**缺值＝透明底＋45° 單向細斜線；遮蔽（suppressed）＝交叉斜線**，與缺值區分（2026-09-28 使用者確認）。8px 圖磚、暗白／淡黑 alpha 0.35（`MISSING_HATCH`、`hatchImageData()`）；圖例 `SwatchHatch` 同一組顏色。
 
+**F-3a 差異面（模擬）**：情境減基準的差異圖照 spec §5.40 S-4：單向差異用序列色、雙向用 PuOr（門檻對稱於 0）、無變化畫成背景參考面、缺值仍是斜線。
+
 **F-4 fill-extrusion**：既有資料高度與配色語意保留（包括市值高度／人均配色雙通道），最高約畫面 1/4；開啟時不透明度 0.85、`fill-extrusion-vertical-gradient: true`；高度倍率由滑桿控制，預設 1。
 
 ### 3.4 3D／熱區／網格／影像
