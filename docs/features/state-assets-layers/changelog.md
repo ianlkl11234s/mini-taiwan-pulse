@@ -9,4 +9,4 @@
 
 ## 2026-10-24 · 開 PR
 
-- PR #690（base develop，G23／G16／G10 三群合一）；merge 後補 merge hash。
+- PR #690（base develop，G23／G16／G10 三群合一），merge 444ab425，2026-10-24。
