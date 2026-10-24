@@ -3,7 +3,7 @@
 > **Slug**：`cultural-health-stations`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：#（待補）
+> **相關 PR**：#689
 > **上游**：taipei-gis-analytics `docs/topic-research/cultural_health_stations/`（layer-plan.md）；來源原民會文化健康站通訊錄（data.gov.tw 157725，2025-07-22 版，政府資料開放授權條款第 1 版）
 
 ## 一句話說明

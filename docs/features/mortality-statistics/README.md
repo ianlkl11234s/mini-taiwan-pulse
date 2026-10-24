@@ -3,7 +3,7 @@
 > **Slug**：`mortality-statistics`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：#（待補）
+> **相關 PR**：#689
 > **上游**：taipei-gis-analytics `docs/topic-research/mortality_statistics/`（layer-plan.md）＋ `docs/handoff/mortality-statistics-recipes.json`（DB／R2 交付 receipt）
 
 ## 一句話說明
