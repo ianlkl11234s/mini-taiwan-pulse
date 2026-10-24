@@ -46,6 +46,7 @@ CRUDE_NOTE = "粗死亡率未做年齡標準化：高齡人口多的地方偏高
 SMALL_AREA_NOTE = "小鄉鎮人口少，單年數值波動大，建議看 5 年合計。"
 DENOM_NOTE = "死亡率分母為 12 月底戶籍人口（衛福部公布的全國粗死亡率用年中人口，數值略有差異）；分母只有 107 年起，率只到 107 年起。"
 CAUSE_NOTE = "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+FIVE_YEAR_SMALL_NOTE = "小鄉鎮人口少，單年波動大；本層為 5 年合計，較穩定，但極小鄉鎮仍宜保守解讀，不宜據此排名。"
 FIVE_YEAR_RATE_NOTE = "5 年平均＝5 年合計死亡數 ÷ 5 年戶籍人口加總（人年）× 10 萬；只有 110–114 年一窗。"
 
 STATUS_LABELS = {
@@ -57,10 +58,10 @@ LOCATION = "死亡者戶籍所在地（依死亡年）"
 LAYERS: list[dict] = [
     dict(key="statsMortalityCauseTownship", dataset="mortality_cause_township", indicator="crude_death_rate_5yr_per_100k",
          label="鄉鎮死因別粗死亡率（5 年平均）", option="鄉鎮・粗死亡率（5 年平均）", dims=["cause"], digits=1,
-         notes=[SOURCE_NOTE, ZERO_STATUS_NOTE, FIVE_YEAR_RATE_NOTE, CRUDE_NOTE, DENOM_NOTE, CAUSE_NOTE]),
+         notes=[SOURCE_NOTE, ZERO_STATUS_NOTE, FIVE_YEAR_SMALL_NOTE, FIVE_YEAR_RATE_NOTE, CRUDE_NOTE, DENOM_NOTE, CAUSE_NOTE]),
     dict(key="statsMortalityDeaths5yrTownship", dataset="mortality_cause_township", indicator="deaths_by_cause_5yr",
          label="鄉鎮死因別死亡人數（5 年合計）", option="鄉鎮・死亡人數（5 年合計）", dims=["cause", "sex"], digits=0,
-         notes=[SOURCE_NOTE, ZERO_STATUS_NOTE, CAUSE_NOTE]),
+         notes=[SOURCE_NOTE, ZERO_STATUS_NOTE, FIVE_YEAR_SMALL_NOTE, CAUSE_NOTE]),
     dict(key="statsMortalityRateTownship", dataset="mortality_cause_township", indicator="crude_death_rate_per_100k",
          label="鄉鎮死因別粗死亡率（逐年）", option="鄉鎮・粗死亡率（逐年）", dims=["cause"], digits=1,
          notes=[SOURCE_NOTE, ZERO_STATUS_NOTE, SMALL_AREA_NOTE, CRUDE_NOTE, DENOM_NOTE, CAUSE_NOTE]),
