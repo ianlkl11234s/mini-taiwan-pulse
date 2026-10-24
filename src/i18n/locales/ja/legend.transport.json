@@ -89,7 +89,7 @@
   "legend.transport.parkOffNote": "円が大きいほど駐車枠が多い",
   "legend.transport.busSimTitle": "定員超過便の割合（{version}）",
   "legend.transport.busSimScenario": "シナリオ：{scenario}",
-  "legend.transport.busSimZero": "0%（定員超過便なし）",
+  "legend.transport.busSimZero": "0%（定員超過なし）",
   "legend.transport.busSimLow": "0% 超・20% 未満",
   "legend.transport.busSimMid": "20% 以上・40% 未満",
   "legend.transport.busSimHigh": "40% 以上",

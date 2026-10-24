@@ -1,15 +1,16 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
 import {
-  BUS_CROWDING_COLORS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY,
+  BUS_CROWDING_REPRESENTATIVE_COLOR, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY,
   busCrowdingLevel, segmentKey, type BusCrowdingScenarioData,
 } from "../../data/busCrowdingSimTypes";
+import { busCrowdingColors } from "../../data/busCrowdingSimStyle";
 import { useBusCrowdingSimIndex, useBusCrowdingSimScenario } from "../../data/busCrowdingSimStore";
 import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { paramText } from "../../i18n/paramText";
 import { useLocale } from "../../state/localeStore";
 import { Row, SourceFooter, Title } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
+import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 
 const num = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
 const pct = (v: number | null | undefined) => (typeof v === "number" && v >= 0 ? `${Math.round(v * 100)}%` : "—");
@@ -42,7 +43,7 @@ export function BusCrowdingSimPanel({ props }: { props: Record<string, unknown> 
   const trips = values ? (values.n137 === values.n180 ? tr("popup.busCrowdingSim.trips", { n: values.n137 }) : tr("popup.busCrowdingSim.tripsRange", { a: Math.min(values.n137, values.n180), b: Math.max(values.n137, values.n180) })) : "";
 
   return <>
-    <Title color={BUS_CROWDING_COLORS[level ?? 2] ?? BUS_CROWDING_COLORS[2]}>{route}</Title>
+    <Title color={busCrowdingColors(t !== LIGHT_FEATURE)[level ?? 2] ?? BUS_CROWDING_REPRESENTATIVE_COLOR}>{route}</Title>
     <div style={{ margin: "2px 0 4px" }}>
       <span className="fi-badge" style={{ ...chipOutline(t.textMuted), display: "inline-block", padding: "2px 5px", borderRadius: 3, fontSize: FONT_SIZE.sm, lineHeight: 1.2 }}>
         {tr("popup.busCrowdingSim.confidence")}

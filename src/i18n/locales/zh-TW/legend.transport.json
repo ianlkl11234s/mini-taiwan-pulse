@@ -89,7 +89,7 @@
   "legend.transport.parkOffNote": "圓越大 = 車位越多",
   "legend.transport.busSimTitle": "超載班次比例（{version}）",
   "legend.transport.busSimScenario": "方案：{scenario}",
-  "legend.transport.busSimZero": "0%（沒有超載班次）",
+  "legend.transport.busSimZero": "0%（無超載）",
   "legend.transport.busSimLow": "超過 0%、未滿 20%",
   "legend.transport.busSimMid": "20%～未滿 40%",
   "legend.transport.busSimHigh": "40% 以上",

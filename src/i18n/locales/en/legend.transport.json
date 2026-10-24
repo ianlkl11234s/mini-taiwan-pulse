@@ -89,7 +89,7 @@
   "legend.transport.parkOffNote": "Larger circle = more spaces",
   "legend.transport.busSimTitle": "Share of overloaded trips ({version})",
   "legend.transport.busSimScenario": "Scenario: {scenario}",
-  "legend.transport.busSimZero": "0% (no overloaded trips)",
+  "legend.transport.busSimZero": "0% (no overload)",
   "legend.transport.busSimLow": "Above 0%, below 20%",
   "legend.transport.busSimMid": "20% to below 40%",
   "legend.transport.busSimHigh": "40% or more",

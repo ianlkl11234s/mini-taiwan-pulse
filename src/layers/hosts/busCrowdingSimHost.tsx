@@ -5,13 +5,13 @@ import { BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_VERSIONS } f
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { oneOfParam, paramNum, paramStr, useLayerParams } from "../layerParamsAccess";
 
-/** 版本、方案都是圖層參數；切換只換 feature-state。 */
+/** 版本、方案都是圖層參數；切換時把數值寫進 properties 後 setData（幾何不重抓）。 */
 export const BusCrowdingSimHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useBusCrowdingSimLayer");
   const values = useLayerParams(BUS_CROWDING_SIM_KEY);
   useBusCrowdingSimLayer(deps.mapRef, deps.layerVisibility.busCrowdingSim, paramNum(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimOpacity"), {
     version: oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, "v137"),
     scenario: oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimScenario"), BUS_CROWDING_SCENARIOS, "base"),
-  });
+  }, deps.isDarkTheme);
   return null;
 };

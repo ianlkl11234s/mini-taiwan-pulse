@@ -427,10 +427,10 @@ export function useMapInteraction(
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
           if (type === "busCrowdingSim") {
-            // 透明命中層含「不畫」的段（班次 < 5 或無值，只靠 opacity 隱藏）：依 feature-state 濾掉，點擊落到下一層。
-            // 多條路線疊在同一條街時，優先回答超載比例最高的那條（line-sort-key 吃不到 feature-state）。
-            features = queried.filter((feature) => isBusCrowdingDrawn(feature.state?.ov, feature.state?.n))
-              .sort((a, b) => Number(b.state?.ov ?? -1) - Number(a.state?.ov ?? -1));
+            // 命中層與線同 filter（不畫的段點不到）；這裡再防一次。多條路線疊在同一條街時，
+            // 優先回答超載比例最高的那條（與 line-sort-key 讓高值畫在上面一致）。
+            features = queried.filter((feature) => isBusCrowdingDrawn(feature.properties?.ov, feature.properties?.t))
+              .sort((a, b) => Number(b.properties?.ov ?? -1) - Number(a.properties?.ov ?? -1));
           }
           if (type === "bridgeResilienceTwinCity") {
             // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢

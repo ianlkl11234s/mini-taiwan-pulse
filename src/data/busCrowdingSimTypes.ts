@@ -6,13 +6,13 @@
  * 放在 gitignored 的 public/sim/bus-crowding/（資料公開與否尚未拍板）。
  * 數值是「平日 7–9 時離開該站的班次中，負載比 ≥ 1.0（容量假設 65 人）的比例」，模擬推估，非實測。
  */
-import { STATISTICS_SEQUENTIAL_SCHEMES } from "./statisticsVisuals";
+import { paletteRamp, resampleRamp } from "../map/palettes";
 
 export const BUS_CROWDING_SIM_KEY = "busCrowdingSim" as const;
 export const BUS_CROWDING_SIM_SOURCE_ID = "bus-crowding-sim";
 export const BUS_CROWDING_SIM_LAYER_IDS = {
   line: "bus-crowding-sim-line",
-  /** 透明加寬命中層（四鐵則③：細虛線點擊命中率差）。 */
+  /** 透明加寬命中層（四鐵則③：細線點擊命中率差）。 */
   hit: "bus-crowding-sim-hit",
 } as const;
 
@@ -54,31 +54,10 @@ export const BUS_CROWDING_SIM_ASSETS: readonly string[] = [
 export const BUS_CROWDING_MIN_TRIPS = 5;
 /** 分級門檻（同上游原型）：0｜(0, 20%)｜[20%, 40%)｜≥ 40%。基準與情境共用（spec §5.40 S-3）。 */
 export const BUS_CROWDING_BREAKS = [0.2, 0.4] as const;
-/**
- * 四級色：交通主題 ColorBrewer Blues 五階（statisticsVisuals `transport`）去掉最淺的 #eff3ff，
- * 0 用剩下最淺的一格並再淡化（BUS_CROWDING_ZERO_OPACITY_FACTOR）。map-layers F-3：不自創色。
- */
-const BLUES = STATISTICS_SEQUENTIAL_SCHEMES.transport.colors;
-export const BUS_CROWDING_COLORS = [BLUES[1], BLUES[2], BLUES[3], BLUES[4]] as const;
-export const BUS_CROWDING_ZERO_OPACITY_FACTOR = 0.5;
-
+/** 側欄色票等不分底圖的單一代表色：magma（palettes.ts）暗底圖 3 階取樣的中間級；完整四級色與 paint 在 busCrowdingSimStyle.ts。 */
+export const BUS_CROWDING_REPRESENTATIVE_COLOR = resampleRamp(paletteRamp("magma", true)!, 3)[1]!;
 /** 0 與「> 0」的分界：上游最小非零值 0.037，用 epsilon 區分。 */
-const NONZERO = 0.0001;
-const OV = ["coalesce", ["feature-state", "ov"], -1] as const;
-const N = ["coalesce", ["feature-state", "n"], 0] as const;
-
-export const busCrowdingColorExpression = (): unknown[] => [
-  "step", [...OV],
-  BUS_CROWDING_COLORS[0], NONZERO, BUS_CROWDING_COLORS[1], BUS_CROWDING_BREAKS[0], BUS_CROWDING_COLORS[2], BUS_CROWDING_BREAKS[1], BUS_CROWDING_COLORS[3],
-];
-
-/** 不畫：ov 缺（null／沒有 state）或班次 < 5；0 級再淡化。資料驅動，滑桿值 o 已乘進去。 */
-export const busCrowdingOpacityExpression = (o: number): unknown[] => [
-  "case",
-  ["any", ["<", [...OV], 0], ["<", [...N], BUS_CROWDING_MIN_TRIPS]], 0,
-  ["<", [...OV], NONZERO], o * BUS_CROWDING_ZERO_OPACITY_FACTOR,
-  o,
-];
+export const BUS_CROWDING_NONZERO = 0.0001;
 
 /** 一個方案一個版本的數值：依 segments.geojson feature 順序對齊。 */
 export interface BusCrowdingValues { ov: (number | null)[]; n: number[] }
@@ -97,7 +76,7 @@ export function isDrawn(ov: unknown, n: unknown): boolean {
 export function busCrowdingLevel(ov: unknown, n: unknown): number | null {
   if (!isDrawn(ov, n)) return null;
   const v = ov as number;
-  if (v < NONZERO) return 0;
+  if (v < BUS_CROWDING_NONZERO) return 0;
   return v < BUS_CROWDING_BREAKS[0] ? 1 : v < BUS_CROWDING_BREAKS[1] ? 2 : 3;
 }
 
