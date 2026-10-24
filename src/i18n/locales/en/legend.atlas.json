@@ -23,5 +23,6 @@
   "legend.atlas.reefCenter": "Center position, not the extent",
   "legend.atlas.setNetArea": "Set-net fishery right extent",
   "legend.atlas.seawallZone": "Seawall zone",
-  "legend.atlas.sugarMill": "Sugar mill site"
+  "legend.atlas.sugarMill": "Sugar mill site",
+  "legend.atlas.postFxCounter": "Post office exchanging foreign cash (not a licensed currency exchange shop)"
 }

@@ -129,5 +129,6 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   financialBranchesFisc: () => <AtlasLegend layer="financialBranchesFisc" en="Financial Institution Branches" source={src("fisc", ["24323"])} domain="atlasBranchCategory" rows={BRANCH_CATEGORY_OPTIONS} />,
   // 金融服務據點延伸 G10 延伸（2026-10-24）
   securitiesFuturesInstitutions: () => <AtlasLegend layer="securitiesFuturesInstitutions" en="Securities & Futures Offices" source={src("securitiesBodies", ["44723", "17480", "17481", "44656", "44657"])} domain="atlasSecuritiesType" rows={SECURITIES_TYPE_OPTIONS} />,
+  postOfficeFxCounters: () => <AtlasLegend layer="postOfficeFxCounters" en="Post Offices Exchanging Foreign Cash" source={src("chunghwaPost", ["170638", "5950"])} rows={single("postOfficeFxCounters", "legend.atlas.postFxCounter")} />,
   insuranceInstitutions: () => <AtlasLegend layer="insuranceInstitutions" en="Insurers & Insurance Agencies" source={src("insuranceBodies", ["122361", "14516", "15326", "142715"])} domain="atlasInsuranceType" rows={INSURANCE_TYPE_OPTIONS} />,
 };

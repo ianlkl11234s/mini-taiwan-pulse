@@ -18,22 +18,22 @@
   ]
  },
  "summary": {
-  "layerKeys": 1315,
-  "overlayConfigs": 405,
-  "runtimeSublayers": 760,
+  "layerKeys": 1316,
+  "overlayConfigs": 406,
+  "runtimeSublayers": 763,
   "byResolution": {
-   "runtime": 380,
+   "runtime": 381,
    "static-scan": 184,
    "unresolved": 34,
    "shared-renderer": 717
   },
   "byGeometry": {
-   "point": 407,
+   "point": 408,
    "heatmap": 79,
    "line": 227,
    "polygon": 912,
    "raster": 37,
-   "label": 50,
+   "label": 51,
    "3d": 27,
    "grid": 14,
    "point/label": 3
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 5
   },
-  "legendEntries": 1063,
+  "legendEntries": 1064,
   "legendTypes": {
    "square-swatch": 60,
    "svg-icon": 16,
-   "dot-swatch": 154,
+   "dot-swatch": 155,
    "gradient+dot-swatch": 37,
    "square-swatch+hatch(missing)": 719,
    "gradient+size+dot-swatch": 3,
@@ -66,7 +66,7 @@
    "square-swatch+svg-icon": 1
   },
   "legendResolution": {
-   "ssr": 314,
+   "ssr": 315,
    "static": 749
   },
   "legendsWithIssues": 39,
@@ -99,7 +99,7 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 265,
+    "n": 266,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
@@ -107,7 +107,7 @@
     "max": 15.3,
     "mostCommon": [
      "4.5×131",
-     "5.143×31",
+     "5.143×32",
      "3×25",
      "6.5×14",
      "3.45×7",
@@ -118,10 +118,10 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 137
+    "decorationExcluded": 138
    },
    "circle-radius@z14": {
-    "n": 265,
+    "n": 266,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -129,7 +129,7 @@
     "max": 24.48,
     "mostCommon": [
      "4.5×133",
-     "6×34",
+     "6×35",
      "3×25",
      "6.5×15",
      "3.45×7",
@@ -140,10 +140,10 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 137
+    "decorationExcluded": 138
    },
    "circle-stroke-width@z14": {
-    "n": 270,
+    "n": 271,
     "min": 0.6,
     "p25": 1,
     "median": 1,
@@ -151,7 +151,7 @@
     "max": 2.2,
     "mostCommon": [
      "1×185",
-     "1.2×52",
+     "1.2×53",
      "1.4×10",
      "1.3×4",
      "1.5×3",
@@ -162,10 +162,10 @@
     "dataDrivenCounted": 35,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 137
+    "decorationExcluded": 138
    },
    "circle-opacity": {
-    "n": 266,
+    "n": 267,
     "min": 0.08,
     "p25": 0.75,
     "median": 0.8,
@@ -173,7 +173,7 @@
     "max": 1,
     "mostCommon": [
      "0.8×61",
-     "0.85×57",
+     "0.85×58",
      "0.9×41",
      "0.75×30",
      "0.45×14",
@@ -184,7 +184,7 @@
     "dataDrivenCounted": 40,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 137
+    "decorationExcluded": 138
    },
    "line-width@z10": {
     "n": 124,
@@ -331,19 +331,19 @@
      "0.13×1"
     ],
     "dataDrivenCounted": 2,
-    "notSet": 51,
+    "notSet": 52,
     "unresolved": 0,
     "decorationExcluded": 0
    },
    "text-size@z14": {
-    "n": 51,
+    "n": 52,
     "min": 11,
     "p25": 12,
     "median": 12,
     "p75": 12,
     "max": 13,
     "mostCommon": [
-     "12×48",
+     "12×49",
      "13×2",
      "11×1"
     ],
@@ -353,14 +353,14 @@
     "decorationExcluded": 0
    },
    "text-halo-width": {
-    "n": 51,
+    "n": 52,
     "min": 1.2,
     "p25": 1.25,
     "median": 1.25,
     "p75": 1.25,
     "max": 1.25,
     "mostCommon": [
-     "1.25×50",
+     "1.25×51",
      "1.2×1"
     ],
     "dataDrivenCounted": 0,
@@ -483,22 +483,22 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 268,
+   "隨底圖切換": 269,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
    "暗 #0a0a14 → 淡 #ffffff": 188,
-   "暗 #0f172a → 淡 #ffffff": 51,
+   "暗 #0f172a → 淡 #ffffff": 52,
    "暗 #0d1117 → 淡 #ffffff": 1
   },
   "decorationSublayers": {
-   "count": 163,
+   "count": 164,
    "byType": {
-    "circle": 137,
+    "circle": 138,
     "line": 26
    },
-   "keys": 140
+   "keys": 141
   },
   "lineDash": [
    "drinkingWaterProtectionZones/distance-outline=[2,2]",
@@ -519,14 +519,14 @@
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 492,
-   "of": 760,
+   "sublayersWithDiff": 494,
+   "of": 763,
    "byProperty": {
-    "circle-stroke-color": 268,
+    "circle-stroke-color": 269,
     "circle-stroke-opacity": 218,
     "line-color": 78,
-    "text-color": 51,
-    "text-halo-color": 51,
+    "text-color": 52,
+    "text-halo-color": 52,
     "circle-color": 39,
     "heatmap-color": 36,
     "fill-color": 31,
@@ -539,9 +539,9 @@
   },
   "colorEncoding": {
    "circle:categorical": 197,
-   "circle:constant": 188,
+   "circle:constant": 190,
    "line:constant": 101,
-   "symbol:constant": 51,
+   "symbol:constant": 52,
    "line:categorical": 46,
    "fill:categorical": 43,
    "heatmap:sequential": 36,
@@ -560,7 +560,7 @@
    "line:data-driven": 1
   },
   "textFont": {
-   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 49,
+   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 50,
    "[\"DIN Pro Bold\",\"Arial Unicode MS Bold\"]": 2
   },
   "statisticsProfile": {
@@ -872,6 +872,7 @@
   {"id":"pollutionPenaltyCritical","members":["pollutionPenaltyCritical","pollutionPenaltyGeneral","pollutionPenaltyMobile"],"components":["PollutionPenaltyLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":8,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":15,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"popCount","members":["popCount"],"components":["H3RampLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":5,"paintComparable":false},
   {"id":"ports","members":["ports"],"components":["PortsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":10,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":10,"paintComparable":true},
+  {"id":"postOfficeFxCounters","members":["postOfficeFxCounters"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"powerPlants","members":["powerGenerationUnit","powerPlants"],"components":["EnergyFuelLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"size+dot-swatch","features":{"dot":15,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","11.375872022286245x11.375872022286245●","14x14●","22x22●","23x23●","6x6●","9x9●"],"swatchColorCount":10,"paintComparable":true,"colorsNotInPaint":["#1f4373","#3c92a6","#8c5d42","#8c7c4a","#a8502a","#d100ff","#f2622e","#f2d64b","#f2e085"],"issues":["9/10 個色票不在圖層 paint 中","成員 powerGenerationUnit, powerPlants 另有 hook（usePowerGenerationBeamLayer, useEnergyPoiLayer）可能在 runtime 覆寫 paint，色票差異需人工確認"]},
   {"id":"powerPoles","members":["powerPoles"],"components":["PowerPolesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"powerRegionDemand","members":["powerRegionDemand","powerStatusHud"],"components":["EnergyReserveLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":false},
@@ -2090,6 +2091,7 @@
   "pollutionSite": {"label":"污染場址 Site","theme":"環境氣候 Environment","dataClass":"B","color":"#111827","legend":"pollution","legendType":"gradient+dot-swatch","popup":"pollutionSite","params":{"opacity":{"name":"pollutionSiteOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"pollutionSiteScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":0,"values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8,"circle-blur":0.1},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#dc2626","#6b7280"]},"circle-stroke-color":{"kind":"categorical","count":2,"dark":["#fecaca","#0a0a14"],"lightDiffers":true,"light":["#fecaca","#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "popCount": {"label":"人口數 Population","theme":"人口社經 People","dataClass":"D","color":"#f9bd31","legend":"popCount","legendType":"gradient","popup":"popCount","params":{"opacity":{"name":"pcOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"pcElevationScale","default":1,"min":0.2,"max":4},"height":{"name":"pcElevationScale","default":1,"min":0.2,"max":4},"controls":4},"hooks":["popCount"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/map/demographicsLayerFactory.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":[{"kind":"expression"},{"kind":"expression"}],"fill-extrusion-color":[{"kind":"expression"}],"fill-extrusion-height":["non-literal @src/map/demographicsLayerFactory.ts"],"fill-extrusion-opacity":["non-literal @src/map/demographicsLayerFactory.ts"],"fill-extrusion-vertical-gradient":["non-literal @src/map/demographicsLayerFactory.ts"],"fill-opacity":[0.6,0.6,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["3d","polygon"],"render":["fill","fill-extrusion"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "ports": {"label":"港口 Port","theme":"交通 Move","dataClass":"A","color":"#4a90d9","legend":"ports","legendType":"square-swatch","popup":"port","params":{"opacity":{"name":"portOpacity","default":1,"min":0.1,"max":1},"size":{"name":"portScale","default":1,"min":0.3,"max":3},"height":{"name":"portPillarHeight","default":0.3,"min":0.2,"max":3},"controls":6},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-2","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":12,"z14":12},"line-blur":{"z10":8,"z14":8},"line-opacity":0},"colors":{"line-color":{"kind":"categorical","count":10}}},{"suffix":"glow-1","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":5,"z14":5},"line-blur":{"z10":3,"z14":3},"line-opacity":0},"colors":{"line-color":{"kind":"categorical","count":10}}},{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.15},"colors":{"fill-color":{"kind":"categorical","count":10}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"categorical","count":10}}},{"suffix":"point-glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":12.25,"z14":16},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":10}}},{"suffix":"point-core","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.92,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":10},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["line","point","polygon"],"render":["circle","fill","line"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "postOfficeFxCounters": {"label":"郵局外幣現鈔經辦局 Post Offices Exchanging Foreign Cash","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#c2410c","legend":"postOfficeFxCounters","legendType":"dot-swatch","popup":"postOfficeFxCounters","params":{"opacity":{"name":"postOfficeFxCountersOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"postOfficeFxCountersScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#c2410c"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#c2410c"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "postOffices": {"label":"郵局 Post Office","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#d32f2f","legend":null,"legendType":null,"popup":"postOffice","params":{"opacity":{"name":"postOfficesOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"postOfficesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":10,"z14":12},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#d32f2f"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#d32f2f"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
   "powerGenerationUnit": {"label":"機組即時出力 Live Output","theme":"能源 Energy","dataClass":"C","color":"#f97316","legend":"powerPlants","legendType":"size+dot-swatch","popup":"powerPlant","params":{"opacity":{"name":"powerGenerationOpacity","default":0.7,"min":0.1,"max":1},"size":{"name":"powerGenerationScale","default":1,"min":0.3,"max":3},"height":{"name":"powerGenerationHeight","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":3,"max":20},"z14":{"min":3,"max":20}},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.7,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"data-driven","count":1,"dark":["#9ca3af"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"hit","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":15.714,"z14":18},"circle-opacity":0},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#000000"]}}}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "powerLinesGlow": {"label":"高壓輸電線 Bloom 測試","theme":"能源 Energy","dataClass":"D","color":"#22d3ee","legend":null,"legendType":null,"popup":null,"params":{"opacity":{"name":"powerLinesGlowOpacity","default":0.7,"min":0.1,"max":1},"lineWidth":{"name":"powerLinesGlowWidth","default":2,"min":0.5,"max":5},"controls":2},"hooks":["usePowerLinesGlowTestLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/usePowerLinesGlowTestLayer.ts"],"staticValues":{"line-blur":["non-literal @src/hooks/usePowerLinesGlowTestLayer.ts"],"line-color":["non-literal @src/hooks/usePowerLinesGlowTestLayer.ts"],"line-opacity":["non-literal @src/hooks/usePowerLinesGlowTestLayer.ts"],"line-width":["non-literal @src/hooks/usePowerLinesGlowTestLayer.ts"]},"threeFiles":["src/hooks/usePowerLinesGlowTestLayer.ts"],"geometry":["3d","line"],"render":["line","three/custom"],"ironRules":{"opacity":true,"legend":false,"popup":false}},

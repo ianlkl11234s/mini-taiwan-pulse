@@ -801,6 +801,19 @@ function SecuritiesFuturesPanel({ props }: Props) {
   </>;
 }
 
+// G10 外幣：郵局外幣現鈔經辦局（免責句固定顯示：是郵局經辦，不是外幣收兌處）。
+function PostOfficeFxPanel({ props }: Props) {
+  const { t } = useLocale();
+  const theme = useFeatureTheme();
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.postOfficeFxCounters}>{str(props.name)}</Title>
+    <Row field="remarks" value={t("popup.atlas.postFxService")} />
+    <Row field="caution" value={t("popup.atlas.postFxNotExchangeShop")} color={theme.warn} />
+    <Row label={t("popup.atlas.postFxZip")} value={str(props.zip6)} mono />
+    <FinanceLocationRows props={props} />
+  </>;
+}
+
 function InsuranceInstitutionPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -860,6 +873,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   financialBranchesFisc: FinancialBranchPanel,
   securitiesFuturesInstitutions: SecuritiesFuturesPanel,
   insuranceInstitutions: InsuranceInstitutionPanel,
+  postOfficeFxCounters: PostOfficeFxPanel,
 };
 
 function manifestZh(key: AtlasLayerKey): string {
@@ -916,4 +930,5 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   financialBranchesFisc: manifestZh("financialBranchesFisc"),
   securitiesFuturesInstitutions: manifestZh("securitiesFuturesInstitutions"),
   insuranceInstitutions: manifestZh("insuranceInstitutions"),
+  postOfficeFxCounters: manifestZh("postOfficeFxCounters"),
 };

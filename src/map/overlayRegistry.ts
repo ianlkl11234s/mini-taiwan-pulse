@@ -11861,6 +11861,8 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 金融服務據點延伸 G10 延伸（2026-10-24）：證券期貨投信投顧、保險公司與保險代理人，依類型著色（同址兼營會重疊）──
   publicLifePointOverlay("securitiesFuturesInstitutions", "./finance/securities_futures_institutions.geojson", "securities-futures-institutions", matchColorExpr("institution_type", SECURITIES_TYPE_OPTIONS), undefined, `臺灣證券交易所、臺灣期貨交易所、投信投顧公會（data.gov.tw 44723、17480、17481、44656、44657）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => securitiesFuturesFilter(p?.securitiesFuturesInstitutionsTypeMask, p?.securitiesFuturesInstitutionsHideProprietary) }),
   publicLifePointOverlay("insuranceInstitutions", "./finance/insurance_institutions.geojson", "insurance-institutions", matchColorExpr("institution_type", INSURANCE_TYPE_OPTIONS), undefined, `保險事業發展中心、保險代理人公會（data.gov.tw 122361、14516、15326、142715）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_type", INSURANCE_TYPE_OPTIONS, p?.insuranceInstitutionsTypeMask) }),
+  // ── 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局（非外幣收兌處），單色 ──
+  publicLifePointOverlay("postOfficeFxCounters", "./finance/post_office_fx_cash_counters.geojson", "post-office-fx-counters", ATLAS_LAYER_COLORS.postOfficeFxCounters, undefined, `中華郵政 外幣現鈔及旅行支票經辦局（data.gov.tw 170638、5950）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);

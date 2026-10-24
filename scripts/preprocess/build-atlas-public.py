@@ -1089,6 +1089,28 @@ def build_insurance_institutions(m, feats):
     return out
 
 
+# 郵局外幣現鈔經辦局（G10 外幣，2026-10-25）---------------------------------------
+# analytics civic_facilities/post_office_fx_cash_counters（gis-platform mig 484 同一份成品）：中華郵政可買賣外幣現鈔／旅支的郵局 290 局，
+# 座標全取自中華郵政全國營業據點（5950）同電腦局號。**不是外幣收兌處**（央行核准名單未公開）。服務電話上游已不入成品。
+
+@layer("postOfficeFxCounters", "civic_facilities", "post_office_fx_cash_counters", "finance/post_office_fx_cash_counters.geojson")
+def build_post_office_fx_counters(m, feats):
+    out = []
+    for f in drop_unmapped("postOfficeFxCounters", feats):
+        p = f["properties"]
+        no_pii("postOfficeFxCounters", p)
+        out.append(feature(f["geometry"], {
+            "id": p["office_code"], "name": s(p.get("display_name")), "office_name": s(p.get("office_name")),
+            "office_alias": s(p.get("office_alias")), "zip6": s(p.get("zip6")),
+            **finance_location(p),
+            "source_org": s(p.get("source_publisher")), "source_url": f"https://data.gov.tw/dataset/{p['source_nid']}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date")),
+            "source_date": s(p.get("snapshot_date")), "source_date_kind": "download",
+        }))
+    AUDIT["postOfficeFxCounters"]["town_mismatch_rows"] = sum(1 for f in out if f["properties"]["spatial_check"] == "town_mismatch")
+    return out
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 
