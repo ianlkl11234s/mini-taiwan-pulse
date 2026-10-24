@@ -6,6 +6,7 @@ import {
   Activity, Layers, ChartColumn, MapPin, User, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
+  FlaskConical, // 模擬 Simulation rail 按鈕（站主限定）
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   Database,    // 資料來源 rail 按鈕
@@ -24,7 +25,7 @@ import { panelForExplorationLayers, type ExplorationPanel } from "../research/ex
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
 import { useLocale } from "../state/localeStore";
 import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
-import { LAYER_PANELS, type LayerPanelId } from "./sidebar/layerPanels";
+import { visibleLayerPanels, type LayerPanelId } from "./sidebar/layerPanels";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
@@ -74,6 +75,8 @@ interface IconRailSidebarProps {
   compactLayers?: boolean;
   /** 打開「日本」rail tab 時觸發（App 用來 flyTo 日本；clone SatelliteConsole 自動飛台灣模式） */
   onJapanOpen?: () => void;
+  /** 站主才為 true：模擬入口只對站主顯示（simulation PLAN D-1）；未傳＝不顯示（含未登入、載入中）。 */
+  showSimulation?: boolean;
   /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -106,6 +109,7 @@ export function IconRailSidebar({
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onJapanOpen,
+  showSimulation = false,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
   agentAvailable, agentActive, onAgentToggle,
@@ -118,7 +122,9 @@ export function IconRailSidebar({
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   // 四個入口各自保留搜尋字（P9：各面板搜自己）
-  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "" });
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "", simulation: "" });
+  const panels = visibleLayerPanels(showSimulation);
+  const panelIds = panels.map((panel) => panel.id);
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -141,7 +147,8 @@ export function IconRailSidebar({
       const rawKeys = detail && typeof detail === "object" && Array.isArray((detail as { layerKeys?: unknown }).layerKeys)
         ? (detail as { layerKeys: unknown[] }).layerKeys.filter((key): key is string => typeof key === "string") : [];
       if (rawKeys.length) {
-        const panel = panelForExplorationLayers(rawKeys);
+        const found = panelForExplorationLayers(rawKeys);
+        const panel: ExplorationPanel = panelIds.includes(found) ? found : "layers";
         lastExplorationPanel.current = panel;
         closeExternalPanels();
         setActivePanel(panel);
@@ -149,7 +156,12 @@ export function IconRailSidebar({
     };
     window.addEventListener("pulse:explore-layers", onExplore);
     return () => window.removeEventListener("pulse:explore-layers", onExplore);
-  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
+  }, [showSimulation, memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
+
+  // 站主身分消失（登出、tier 重新載入）時，收起已開著的模擬面板
+  useEffect(() => {
+    if (!showSimulation) setActivePanel((current) => (current === "simulation" ? null : current));
+  }, [showSimulation]);
 
   const panelOpen = activePanel !== null;
 
@@ -169,7 +181,7 @@ export function IconRailSidebar({
     // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
     // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
     if (willOpen) {
-      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "japan") lastExplorationPanel.current = panel;
+      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "japan" || panel === "simulation") lastExplorationPanel.current = panel;
       closeExternalPanels();
       // 打開「日本」tab → 自動飛日本（App 用 mapRef flyTo）
       if (panel === "japan") onJapanOpen?.();
@@ -255,6 +267,16 @@ export function IconRailSidebar({
           onClick={() => togglePanel("japan")}
           tooltip={t("panel.japan.title")}
         />
+
+        {/* 🧪 模擬 Simulation：只對站主顯示（D-1） */}
+        {showSimulation && (
+          <RailIcon
+            icon={FlaskConical}
+            active={activePanel === "simulation"}
+            onClick={() => togglePanel("simulation")}
+            tooltip={t("panel.simulation.title")}
+          />
+        )}
 
         {/* Locations */}
         <RailIcon
@@ -366,10 +388,11 @@ export function IconRailSidebar({
               animation: "panelFadeIn 0.25s ease-out",
             }}
           >
-            {LAYER_PANELS.map((panel) => activePanel === panel.id && (
+            {panels.map((panel) => activePanel === panel.id && (
               <LayersPanel
                 key={panel.id}
                 panelId={panel.id}
+                availablePanelIds={panelIds}
                 onSearchInPanel={(target, query) => {
                   setPanelSearch((prev) => ({ ...prev, [target]: query }));
                   togglePanel(target);

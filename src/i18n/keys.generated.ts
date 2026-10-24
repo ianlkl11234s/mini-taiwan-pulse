@@ -2323,6 +2323,8 @@ export type GeneratedStaticKey =
   | "panel.japan.title"
   | "panel.layers.short"
   | "panel.layers.title"
+  | "panel.simulation.short"
+  | "panel.simulation.title"
   | "panel.statistics.short"
   | "panel.statistics.title"
   | "panel.world.short"

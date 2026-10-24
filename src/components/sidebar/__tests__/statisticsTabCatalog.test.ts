@@ -4,7 +4,7 @@ import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { JAPAN_THEMES, LAYER_PANELS, WORLD_THEMES } from "../layerPanels";
+import { JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, WORLD_THEMES } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -146,13 +146,13 @@ describe("STATISTICS_TAB_THEMES", () => {
 });
 
 describe("Layers 與 Statistics 分頁", () => {
-  it("mobile 與桌機同一份四入口（台灣／統計／世界／日本）；四入口合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
+  it("mobile 與桌機同一份五入口（台灣／統計／世界／日本／模擬）；五入口合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
     const statisticsDataTitles = new Set(STATISTICS_DATA_THEMES.map(theme => theme.title));
     expect(MOBILE_LAYER_PANELS).toBe(LAYER_PANELS);
-    expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["台灣", "統計", "世界", "日本"]);
+    expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["台灣", "統計", "世界", "日本", "模擬"]);
     expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
     const nonStatisticsTitles = THEMES.filter(theme => !statisticsDataTitles.has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES)]));
   });
 

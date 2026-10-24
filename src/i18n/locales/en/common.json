@@ -34,6 +34,8 @@
   "panel.world.short": "World",
   "panel.japan.title": "Japan",
   "panel.japan.short": "Japan",
+  "panel.simulation.title": "Simulation",
+  "panel.simulation.short": "Simulation",
   "panel.close": "Close {title}",
   "rail.datasource": "Data sources",
   "rail.intel": "Live intel",

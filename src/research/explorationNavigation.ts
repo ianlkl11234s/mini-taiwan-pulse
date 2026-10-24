@@ -1,6 +1,6 @@
-import { JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES, WORLD_TAB_THEME_TITLES } from "../components/sidebar/layerCatalog";
+import { JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES, WORLD_TAB_THEME_TITLES } from "../components/sidebar/layerCatalog";
 
-export type ExplorationPanel = "layers" | "statistics" | "world" | "japan";
+export type ExplorationPanel = "layers" | "statistics" | "world" | "japan" | "simulation";
 
 /** Requests that the persistent rail show the relevant registered layer panel. */
 export function requestLayerExploration(layerKeys?: string[]): void {
@@ -30,14 +30,16 @@ function keysForThemes(themes: readonly typeof THEMES[number][]): Set<string> {
 
 const statisticsKeys = STATISTICS_TAB_CHOROPLETH_LAYER_KEYS;
 const worldKeys = keysForThemes(THEMES.filter(theme => WORLD_TAB_THEME_TITLES.includes(theme.title)));
+const simulationKeys = keysForThemes(THEMES.filter(theme => SIMULATION_TAB_THEME_TITLES.includes(theme.title)));
 const japanKeys = keysForThemes(THEMES.filter(theme => JAPAN_TAB_THEME_TITLES.includes(theme.title)));
 
-/** Uses the same theme slices as IconRailSidebar's four layer panels. */
+/** Uses the same theme slices as IconRailSidebar's layer panels. */
 export function panelForExplorationLayers(keys: readonly string[]): ExplorationPanel {
   for (const key of keys) {
     if (statisticsKeys.has(key)) return "statistics";
     if (worldKeys.has(key)) return "world";
     if (japanKeys.has(key)) return "japan";
+    if (simulationKeys.has(key)) return "simulation";
   }
   return "layers";
 }

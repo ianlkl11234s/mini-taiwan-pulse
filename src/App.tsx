@@ -2401,6 +2401,7 @@ export default function App() {
               }}
               monitorSplitActive={monitorOpen && monitorMode === "split"}
               compactLayers={monitorOpen && monitorMode === "split"}
+              showSimulation={isOwner && !memberAuthLoading}
               onJapanOpen={() => {
                 mapRef.current?.flyTo({
                   center: JAPAN_CAMERA.center,
@@ -2702,6 +2703,7 @@ export default function App() {
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
                       onBulkSetVisibility={handleBulkSetVisibility}
                       onAllOff={handleAllOff}
+                      showSimulation={isOwner && !memberAuthLoading}
                       onJapanOpen={() => mapRef.current?.flyTo({ center: JAPAN_CAMERA.center, zoom: JAPAN_CAMERA.zoom, pitch: JAPAN_CAMERA.pitch, bearing: JAPAN_CAMERA.bearing, speed: 1.0 })}
                     />
                   </div>
