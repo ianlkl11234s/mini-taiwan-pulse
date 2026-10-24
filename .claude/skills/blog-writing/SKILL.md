@@ -14,7 +14,7 @@ description: 撰寫與更新 Mini Taiwan Pulse 的部落格長文（/blog/，Pul
 ## 1. 選題
 
 1. 讀 `article-plan.md`，依「建議順序」挑一篇（使用者有指定就照指定）。
-2. 主題欄是「待定」，或要用沒登記的主題時，先問使用者：主題 id（英文小寫，進網址，定了不改）、中文名、一句說明。
+2. 主題只有三類，依「文章在做什麼」分（`src/blog/topics.ts`）：`layers` 圖層（把資料畫成地圖）、`analysis` 分析與模擬（用資料問問題）、`making` 製作筆記（怎麼做出來的）。不要為單一資料種類新增主題；真的三類都放不下，先問使用者。
 3. 用一則訊息跟使用者確認：標題方向、主題、要不要嵌入地圖。附上建議值，讓使用者一句「照建議」就能帶過。
 
 ## 2. 開分支
@@ -80,21 +80,21 @@ ln -s ../../node_modules .worktrees/blog-<slug>/node_modules
 - zsh 把指令存進變數時要寫成 `${=A}`，否則參數不會拆開。
 - 開頁後點右上「Capture mode」收起介面，等約 12 秒再拍。
 - 規格：1600×900 JPEG、每張小於 400 KB（用 `sips -s format jpeg -s formatOptions 82`、`sips -Z 1600`）。
-- 存到 `public/blog/<topic>/<slug>/`。封面要拍深色、淺色兩張（`style=dark`／`style=light`）。
+- 存到 `public/blog/<slug>/`。封面要拍深色、淺色兩張（`style=dark`／`style=light`）。
 - 縮放到 z7 時列車、船這類小點幾乎看不到；封面用 z8 以上，或改用局部畫面。
 
 **嵌入地圖**：用 ```` ```map ```` 區塊，語法見 README。
 
-- 回放圖層要帶 `date=`，而且那天要有快照。目前只確認 rail 2026-08-06 有。沒有快照就不要嵌回放圖層，改嵌靜態圖層或用截圖。
+- 回放圖層要帶 `date=`，而且那天要有快照。正式站目前有 rail、ships 的 2026-08-06（先 `ls public/embed-snapshots/<layer>/` 並 `curl -sI` 正式站確認 200）。沒有快照就不要嵌回放圖層，改嵌靜態圖層或用截圖。
+- 船舶在嵌入版 z9 以下幾乎看不到點，改用 z9.5 左右的港口構圖，或疊 `maritimeBoundary` 等靜態圖層給全景脈絡。
 - 要產生新的快照日期，先問使用者。產生與上傳屬於正式部署資產。
 - 一律帶 `p.speed=30` 和 `h=8`（使用者 2026-10-23 拍板 30 倍速），圖說寫明回放日期與倍速。
 - 一篇最多 2～3 張嵌入地圖，每張都要載入地圖程式。
 
 ## 7. 登記
 
-- `public/sitemap.xml`：加文章網址；新主題的第一篇，再加 `/blog/<topic>/`。
+- `public/sitemap.xml`：加文章網址 `/blog/<slug>/`；該主題的第一篇，再加主題頁 `/blog/<topic>/`。
 - `public/llms.txt` 的「文章（Pulse 筆記）」段落加一行。
-- 新主題要改 `src/blog/topics.ts`。
 - `CHANGELOG.md` 在 `## [Unreleased]` 底下加一行（沒有「### 新增」就自己新增）。合併 develop 之後要再確認這行還在 Unreleased 底下。
 
 ## 8. 驗證與給使用者看
@@ -105,7 +105,7 @@ npm run build                         # 有 [blog] 警告（找不到圖片）�
 npx vite preview --port 4399          # 背景執行
 ```
 
-- `open http://localhost:4399/blog/<topic>/<slug>/`，直接在使用者的瀏覽器打開。不要只丟截圖路徑，使用者要看實際網頁。
+- `open http://localhost:4399/blog/<slug>/`，直接在使用者的瀏覽器打開。不要只丟截圖路徑，使用者要看實際網頁。
 - 自己再用 agent-browser 拍深色、淺色、手機 390px 三張，確認沒有橫向捲動、圖片和地圖都有出現。
 - `curl` 原始 HTML，確認內文第一段在裡面（不靠 JS 渲染）。
 - 本機的「回到地圖」與嵌入地圖會連到正式站（worktree 沒有 `.env`，本機地圖是空白的）。這是預期行為，要先跟使用者說明。
