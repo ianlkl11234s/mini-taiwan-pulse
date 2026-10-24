@@ -120,6 +120,8 @@ import {
   // 💉 減害服務第二批（HeartPulse / ShieldCheck 已在上方 import 復用）
   Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront,
   Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle, TrendingDown, BrickWall,
+  // 🎟️ 文化幣藝文消費點 G23
+  Ticket,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7566,6 +7568,16 @@ export const LAYER_MANIFEST = {
     legend: "seawallZones", popup: "seawallZones", params: { count: 1, kinds: ["slider"] },
     description: "水利署一般性海堤區域範圍（海堤名、海岸段、管理分署）。",
     topics: ["海堤", "海岸", "水資源", "防洪"],
+  },
+  // ── 文化幣藝文消費點 G23（2026-10-24）：analytics data/processed/culture/culture_coin_venues_moc → build-atlas-public.py → public/culture/ ──
+  cultureCoinVenues: {
+    key: "cultureCoinVenues", section: { theme: "文化 Culture", group: "藝文消費 Culture Coin" }, ...layerName({ zh: "文化幣藝文消費點", alt: "Culture Coin Venues" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.cultureCoinVenues, icon: Ticket,
+    upstream: { status: "verified", datasets: [{ datasetId: "culture_coin_venues_moc", confidence: "HIGH" }], note: "文化部 文化幣藝文消費點（data.gov.tw 177601）店家 4,264 處，資料下載日 2026-10-24；342 處來源 (0,0) 依地址回補；不含街頭藝人 550 筆。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "culture-coin-venues", url: "./culture/culture_coin_venues.geojson" },
+    legend: "cultureCoinVenues", popup: "cultureCoinVenues", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "可使用文化幣的書店、電影院、表演場域、博物館、文資場域、唱片行／樂器行與文創工藝店（依類別著色）。",
+    topics: ["文化", "文化幣", "書店", "電影院", "藝文"],
   },
   placeNames: {
     key: "placeNames", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,

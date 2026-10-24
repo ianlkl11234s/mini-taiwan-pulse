@@ -656,6 +656,30 @@ def build_set_net(m, feats):
     }) for f in drop_unmapped("setNetFishingAreas", feats)]
 
 
+# 文化幣藝文消費點（G23，2026-10-24）---------------------------------------
+# analytics culture/culture_coin_venues_moc：店家 4,264（街頭藝人不在成品內；tel 不入成品）。
+# 來源檔無日期欄 → 資料日期＝下載日（provenance.downloaded_at）；(0,0) 已在上游以地址回補並標 coord_status／precision。
+
+CULTURE_COIN_SOURCE = "文化部 文化幣"
+
+
+@layer("cultureCoinVenues", "culture", "culture_coin_venues_moc", "culture/culture_coin_venues.geojson")
+def build_culture_coin(m, feats):
+    day = str(m["provenance"]["downloaded_at"])[:10]
+    out = []
+    for f in drop_unmapped("cultureCoinVenues", feats):
+        p = f["properties"]
+        out.append(feature(f["geometry"], {
+            "id": s(p["source_id"]), "name": s(p.get("name")), "address": s(p.get("address")),
+            "city": s(p.get("city")), "area": s(p.get("area")),
+            "category": s(p["category"]), "sub_category": s(p["sub_category"]), "sub_category_label": s(p.get("sub_category_label")),
+            "coord_status": s(p.get("coord_status")), "precision": s(p.get("precision")), "county_check": s(p.get("county_check")),
+            "source_org": CULTURE_COIN_SOURCE, "source_url": m["provenance"].get("source_url"), "license": OGDL,
+            "fetched_at": day, "vintage": day,
+        }))
+    return out
+
+
 # 地名 -------------------------------------------------------------------
 
 PLACE_PRIORITY = {"admin": 0, "natural": 1, "settlement": 2, "landmark": 3}

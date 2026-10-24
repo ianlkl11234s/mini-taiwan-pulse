@@ -95,6 +95,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -3018,6 +3019,14 @@ export const LAYER_PARAMS_SPEC = {
   ],
   seawallZones: [
     opacitySlider("seawallZonesOpacity", 0.5),
+  ],
+  // ══════════ 文化幣藝文消費點 G23（2026-10-24）══════════
+  cultureCoinVenues: [
+    {
+      kind: "multiSelect", name: "cultureCoinVenuesCategory", label: "類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(CULTURE_COIN_CATEGORY_OPTIONS), out: "cultureCoinVenuesCategoryMask",
+    },
+    opacitySlider("cultureCoinVenuesOpacity", densePointOpacity(4_264)), scaleSlider("cultureCoinVenuesScale", 1),
   ],
   mountainRescueIncidents: [
     {

@@ -275,6 +275,25 @@ export const MARINE_PROTECTION_ORGS = {
   forestry: "農業部林業及自然保育署", fa: "農業部漁業署", nps: "內政部國家公園署",
 } as const;
 
+// ── 文化幣藝文消費點 G23（2026-10-24）───────────────────────────────────
+
+/** 文化幣店家 7 大類：value＝上游 category 英文代碼（analytics labels.py SSOT），label＝來源中文類名（去數字前綴）。 */
+export const CULTURE_COIN_CATEGORY_OPTIONS: readonly AtlasOption[] = [
+  { value: "books_publishing", label: "書店及出版業", color: "#2563eb" },
+  { value: "cinema", label: "電影院", color: "#dc2626" },
+  { value: "performing_arts", label: "表演藝術及文化體驗", color: "#7c3aed" },
+  { value: "museum", label: "博物館", color: "#a16207" },
+  { value: "heritage_community", label: "文資保存與社區營造場域", color: "#15803d" },
+  { value: "pop_music", label: "流行音樂", color: "#db2777" },
+  { value: "craft_creative", label: "文創工藝", color: "#0d9488" },
+];
+/** 地址回補精度（上游 precision 代碼 → 中文；英日文在 enums.atlas.json 的 enum.atlasCoinPrecision.*）。 */
+export const CULTURE_COIN_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  cached: "地址快取命中（TGOS）", exact: "門牌點", interpolated: "同路段內插", approximate: "概略位置",
+};
+/** G23 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
+export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
+
 // ── 圖例／popup 共用說明 ────────────────────────────────────────────────
 
 export const ATLAS_NOTES = {
@@ -315,4 +334,5 @@ export const ATLAS_NOTES = {
   landSubsidenceCumulative: "累積下陷量等值線（mm），負值＝下陷；預設各縣市最新期，可切期別。低縮放（< 9 級）少數短線不顯示。",
   landSubsidenceRate: "平均下陷速率等值線（cm/年），負值＝下陷；預設各縣市最新期，可切期別。缺期：2015–2017 全台圖（只有 SHP 未取得）、2018–2019 全台圖上游無值。",
   seawallZones: "一般性海堤區域（上游建置 2024-06-12）；管理單位已統一為「第N河川分署」。放大到 8 級以上才顯示。",
+  cultureCoinVenues: "可使用文化幣的藝文店家與場館 4,264 處（資料下載日 2026-10-24，來源檔無日期）；342 處來源座標為 (0,0)，依地址回補位置。不含街頭藝人。",
 } as const satisfies Record<AtlasLayerKey, string>;

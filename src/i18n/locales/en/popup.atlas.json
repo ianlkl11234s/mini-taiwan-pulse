@@ -182,5 +182,10 @@
   "popup.atlas.lsShore": "Coastal section",
   "popup.atlas.lsShoreNo": "Section no.",
   "popup.atlas.lsOrgRaw": "Name in source",
-  "popup.atlas.lsBuilt": "Source compiled"
+  "popup.atlas.lsBuilt": "Source compiled",
+  "popup.atlas.coinCoordSource": "Source coordinates",
+  "popup.atlas.coinCoordGeocoded": "Source coordinates were (0,0); placed from the address ({precision})",
+  "popup.atlas.coinCountyMismatch": "Source coordinates fall in another county; the location may be wrong (not corrected)",
+  "popup.atlas.coinCountyUnresolved": "Source coordinates fall outside county boundaries (offshore); the location may be wrong",
+  "popup.atlas.downloadDate": "Downloaded"
 }

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1253,
+    "keyCount": 1254,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2374,6 +2374,13 @@
         "wra-dredging-points-glow"
       ],
       "type": "wraDredgingPoints"
+    },
+    {
+      "layers": [
+        "culture-coin-venues-circle",
+        "culture-coin-venues-glow"
+      ],
+      "type": "cultureCoinVenues"
     },
     {
       "layers": [
@@ -78669,6 +78676,312 @@
       ],
       "sourceId": "seawall-zones",
       "sourceUrl": "./hazards/seawall_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "cultureCoinVenues",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "books_publishing",
+                "#2563eb",
+                "cinema",
+                "#dc2626",
+                "performing_arts",
+                "#7c3aed",
+                "museum",
+                "#a16207",
+                "heritage_community",
+                "#15803d",
+                "pop_music",
+                "#db2777",
+                "craft_creative",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "books_publishing",
+                "#2563eb",
+                "cinema",
+                "#dc2626",
+                "performing_arts",
+                "#7c3aed",
+                "museum",
+                "#a16207",
+                "heritage_community",
+                "#15803d",
+                "pop_music",
+                "#db2777",
+                "craft_creative",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "category"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "books_publishing",
+                "#2563eb",
+                "cinema",
+                "#dc2626",
+                "performing_arts",
+                "#7c3aed",
+                "museum",
+                "#a16207",
+                "heritage_community",
+                "#15803d",
+                "pop_music",
+                "#db2777",
+                "craft_creative",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "books_publishing",
+                "#2563eb",
+                "cinema",
+                "#dc2626",
+                "performing_arts",
+                "#7c3aed",
+                "museum",
+                "#a16207",
+                "heritage_community",
+                "#15803d",
+                "pop_music",
+                "#db2777",
+                "craft_creative",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "category"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "culture-coin-venues",
+      "sourceUrl": "./culture/culture_coin_venues.geojson"
     }
   ],
   "params": {
@@ -83501,6 +83814,69 @@
         "step": 0.25,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "cultureCoinVenues": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "書店及出版業",
+            "value": "books_publishing"
+          },
+          {
+            "label": "電影院",
+            "value": "cinema"
+          },
+          {
+            "label": "表演藝術及文化體驗",
+            "value": "performing_arts"
+          },
+          {
+            "label": "博物館",
+            "value": "museum"
+          },
+          {
+            "label": "文資保存與社區營造場域",
+            "value": "heritage_community"
+          },
+          {
+            "label": "流行音樂",
+            "value": "pop_music"
+          },
+          {
+            "label": "文創工藝",
+            "value": "craft_creative"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "books_publishing",
+          "cinema",
+          "performing_arts",
+          "museum",
+          "heritage_community",
+          "pop_music",
+          "craft_creative"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "cwaCloudImagery": [
