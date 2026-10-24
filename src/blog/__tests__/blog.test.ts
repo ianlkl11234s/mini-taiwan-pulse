@@ -120,11 +120,14 @@ describe("文章頁", () => {
     });
   }
 
-  it("列表頁與 RSS 列出每一篇", () => {
+  it("每一篇都能從列表頁或其主題頁連到，RSS 列出每一篇", () => {
     const index = renderIndexPage(posts);
     const feed = renderFeed(posts);
     for (const p of posts) {
-      expect(index).toContain(`href="${postPath(p)}"`);
+      // 列表頁每個主題只放最新 3 篇，其餘由「全部 N 篇」連到主題頁
+      const topic = activeTopics(posts).find((t) => t.id === p.topic)!;
+      expect(index).toContain(`href="/blog/${topic.id}/"`);
+      expect(renderTopicPage(topic, posts)).toContain(`href="${postPath(p)}"`);
       expect(feed).toContain(`<link>${ORIGIN}${postPath(p)}</link>`);
     }
     for (const loc of ["/blog/", "/blog/about/"]) expect(read("public/sitemap.xml")).toContain(`<loc>${ORIGIN}${loc}</loc>`);
