@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
 import {
   ATLAS_ENABLED_STATISTICS_KEYS, ATLAS_ENABLED_STATISTICS_RECIPES, ATLAS_STATISTICS_TOGGLE_GROUPS,
-  atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions,
+  atlasBinaryLegendRows, atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions,
 } from "../atlasStatisticsRecipes";
 import { STATISTICS_RECIPES, statisticsRenderRecipe } from "../regionalStatisticsRecipes";
 import { statisticsDimensionValueLabel } from "../statisticsLabels";
@@ -78,12 +78,37 @@ describe("atlas 批次統計契約", () => {
     expect(statisticsDimensionValueLabel("vaccine", "mmr_1", "immunization_coverage_county")).toBe("麻疹腮腺炎德國麻疹混合疫苗第一劑");
   });
 
+  it("二元旗標層（金融服務欠缺鄉鎮）只列兩級，其他層不受影響", () => {
+    const flag = getAtlasRecipe("statsFinanceUnderserved")!;
+    expect(flag.legend.method).toBe("binary");
+    expect(flag.legend.breaks).toEqual([1]);
+    expect(flag.legend.binary_labels).toEqual(["不在名單", "列入名單"]);
+    expect(flag.legend.notes!.some((note) => note.includes("2 以上"))).toBe(false);
+    const render = statisticsRenderRecipe("statsFinanceUnderserved");
+    expect(render.breaks).toEqual([1]);
+    expect(render.colors).toHaveLength(2);
+    expect(render.colors[0]).not.toBe(render.colors[1]);
+    expect(atlasBinaryLegendRows(flag, render.colors)).toEqual([
+      { color: render.colors[0], label: "不在名單" },
+      { color: render.colors[1], label: "列入名單" },
+    ]);
+    const binaryKeys = ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.legend.method === "binary").map((recipe) => recipe.layer_key);
+    expect(binaryKeys).toEqual(["statsFinanceUnderserved"]);
+    const counts = getAtlasRecipe("statsFinanceUnderservedInstitutions")!;
+    expect(atlasBinaryLegendRows(counts, statisticsRenderRecipe("statsFinanceUnderservedInstitutions").colors)).toBeNull();
+    for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES.filter((candidate) => candidate.legend.method === "binary")) {
+      expect(recipe.legend.breaks, recipe.layer_key).toEqual([1]);
+      expect(recipe.legend.binary_labels, recipe.layer_key).toHaveLength(2);
+      expect(recipe.legend.by_dimension, recipe.layer_key).toBeNull();
+    }
+  });
+
   it("每個會出現的非數值狀態都有圖例文字；門檻嚴格遞增且不是 [0]", () => {
     for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES) {
       const scales = [recipe.legend.breaks, ...Object.values(recipe.legend.by_dimension ?? {}).map((scale) => scale.breaks)];
       for (const breaks of scales) {
         expect(breaks, recipe.layer_key).not.toEqual([0]);
-        expect(breaks.length, recipe.layer_key).toBeGreaterThanOrEqual(2);
+        expect(breaks.length, recipe.layer_key).toBeGreaterThanOrEqual(recipe.legend.method === "binary" ? 1 : 2);
         expect([...breaks].sort((a, b) => a - b), recipe.layer_key).toEqual(breaks);
         expect(new Set(breaks).size, recipe.layer_key).toBe(breaks.length);
       }
