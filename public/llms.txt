@@ -29,8 +29,8 @@
 
 ## 文章（Pulse 筆記）
 
-- [Pulse 筆記](https://mini-taiwan-pulse.itsmigu.com/blog/)：開發筆記與資料故事，每篇為靜態 HTML，依主題分類（例：[軌道](https://mini-taiwan-pulse.itsmigu.com/blog/rail/)）。
-- [台灣軌道即時地圖：高鐵、台鐵、捷運列車一張圖看](https://mini-taiwan-pulse.itsmigu.com/blog/rail/taiwan-rail-realtime-map/)：列車位置如何由時刻表推算、涵蓋哪些軌道系統。
+- [Pulse 筆記](https://mini-taiwan-pulse.itsmigu.com/blog/)：開發筆記與資料故事，每篇為靜態 HTML，依主題分類（圖層、分析與模擬、製作筆記；例：[圖層](https://mini-taiwan-pulse.itsmigu.com/blog/layers/)）。
+- [台灣軌道即時地圖：高鐵、台鐵、捷運列車一張圖看](https://mini-taiwan-pulse.itsmigu.com/blog/taiwan-rail-realtime-map/)：列車位置如何由時刻表推算、涵蓋哪些軌道系統。
 
 ## 程式碼與文件
 

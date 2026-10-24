@@ -1,10 +1,11 @@
 /**
  * /blog 靜態文章頁產生器（build 時由 vite.config.ts 呼叫，Node 端執行）。
  *
- * content/blog/<slug>.md → <root>/blog/<topic>/<slug>/index.html（gitignored），再交給 vite 當 HTML entry，
+ * content/blog/<slug>.md → <root>/blog/<slug>/index.html（gitignored），再交給 vite 當 HTML entry，
  * 所以全文、JSON-LD、OG 都在原始 HTML 裡：搜尋引擎與不跑 JS 的 AI 爬蟲直接讀得到（方案 B 的前提）。
  * 另產列表頁 /blog/、主題頁 /blog/<topic>/、關於頁 /blog/about/ 與 RSS。
- * 圖片放 public/blog/<topic>/<slug>/，由 vite 原樣複製到同一路徑。
+ * 圖片放 public/blog/<slug>/，由 vite 原樣複製到同一路徑。
+ * 文章網址不含主題（2026-10-24）：主題之後再調整也不會讓外部連結斷掉。
  * 樣式 src/blog/blog.css；主題切換、目錄高亮、嵌入地圖、複製連結在 public/blog/blog.js（外部檔，CSP 不開 inline script）。
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -14,6 +15,8 @@ import { BLOG_TOPICS, topicById, type BlogTopic } from "./topics";
 
 export const BLOG_ORIGIN = "https://mini-taiwan-pulse.itsmigu.com";
 export const BLOG_NAME = "Pulse 筆記";
+/** /blog/ 底下非文章的固定路徑；文章 slug 不可使用 */
+const RESERVED_SLUGS = new Set(["about", "feed", "blog"]);
 export const BLOG_DESCRIPTION = "Mini Taiwan Pulse 的開發筆記：台灣軌道、航班、船舶與開放資料怎麼變成一張即時地圖。";
 export const BLOG_AUTHOR = {
   name: "Migu",
@@ -106,6 +109,8 @@ export function toPost(source: string): BlogPost {
   };
   if (!/^[a-z0-9-]+$/.test(post.slug)) throw new Error(`slug 只能用小寫英數與連字號：${post.slug}`);
   if (!topicById(post.topic)) throw new Error(`未知主題 ${post.topic}（請先登記在 src/blog/topics.ts）`);
+  // 文章與主題頁、關於頁共用 /blog/<x>/ 這一層，名稱不能撞
+  if (RESERVED_SLUGS.has(post.slug) || topicById(post.slug)) throw new Error(`slug ${post.slug} 與主題或保留路徑相同，請換一個`);
   for (const d of [post.date, post.updated]) if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) throw new Error(`日期格式應為 YYYY-MM-DD：${d}`);
   return post;
 }
@@ -141,9 +146,9 @@ export function extractFaq(markdown: string): FaqItem[] {
   return items;
 }
 
-export const postPath = (p: Pick<BlogPost, "topic" | "slug">) => `/blog/${p.topic}/${p.slug}/`;
-const postUrl = (p: Pick<BlogPost, "topic" | "slug">) => `${BLOG_ORIGIN}${postPath(p)}`;
-const assetPath = (p: Pick<BlogPost, "topic" | "slug">, file: string) => `${postPath(p)}${file}`;
+export const postPath = (p: Pick<BlogPost, "slug">) => `/blog/${p.slug}/`;
+const postUrl = (p: Pick<BlogPost, "slug">) => `${BLOG_ORIGIN}${postPath(p)}`;
+const assetPath = (p: Pick<BlogPost, "slug">, file: string) => `${postPath(p)}${file}`;
 
 export interface MapEmbed { src: string; caption: string; height: number }
 
@@ -200,9 +205,9 @@ export function renderBody(post: BlogPost, publicDir: string, warn: (msg: string
       },
       image({ href, text }) {
         // /blog 的 CSP img-src 只開 'self' data:，外站圖片在正式站會被擋：build 時就報錯，要求下載到文章資料夾
-        if (/^(https?:)?\/\//.test(href)) throw new Error(`[blog] ${post.slug}：不支援外站圖片 ${href}，請下載到 public/blog/${post.topic}/${post.slug}/`);
-        if (!existsSync(join(publicDir, "blog", post.topic, post.slug, href))) {
-          warn(`[blog] ${post.slug}：找不到圖片 public/blog/${post.topic}/${post.slug}/${href}，先略過`);
+        if (/^(https?:)?\/\//.test(href)) throw new Error(`[blog] ${post.slug}：不支援外站圖片 ${href}，請下載到 public/blog/${post.slug}/`);
+        if (!existsSync(join(publicDir, "blog", post.slug, href))) {
+          warn(`[blog] ${post.slug}：找不到圖片 public/blog/${post.slug}/${href}，先略過`);
           return "";
         }
         const src = assetPath(post, href);
@@ -658,7 +663,7 @@ export function generateBlog(root: string, warn: (msg: string) => void = console
     writeFileSync(join(dir, "index.html"), html);
     inputs[key] = join(dir, "index.html");
   };
-  for (const post of posts) write(`blog-${post.slug}`, join(post.topic, post.slug), renderPostPage(post, posts, publicDir, warn));
+  for (const post of posts) write(`blog-${post.slug}`, post.slug, renderPostPage(post, posts, publicDir, warn));
   for (const topic of activeTopics(posts)) write(`blog-topic-${topic.id}`, topic.id, renderTopicPage(topic, posts));
   write("blog-about", "about", renderAboutPage());
   write("blog-index", "", renderIndexPage(posts));
