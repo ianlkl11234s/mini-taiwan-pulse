@@ -862,6 +862,108 @@ def build_ecology(m, feats):
     }) for f in feats]
 
 
+# 國營事業與國有資產（G16，2026-10-24）-------------------------------------
+# analytics socioeconomic/state_assets 07_export_points：台水廠所 137、台水淨水設施 487（1 筆缺座標不上圖）、
+# 台糖糖廠 14、國產署待標售 955（8 筆無法定位不上圖）。成品不含個資欄（上游無承辦人／聯絡人）。
+# 資料日期：台水、台糖用上游 data_vintage 的 data.gov.tw metadata 日期（只留日期）；待標售是下載日快照。
+
+def metadata_date(v: Any) -> str | None:
+    """上游 data_vintage 形如「data.gov.tw metadata 2024-11-22（靜態）」→ 只留日期（popup 標「data.gov.tw 更新日」）。"""
+    import re
+    hit = re.search(r"\d{4}-\d{2}-\d{2}", str(v or ""))
+    if not hit:
+        raise SystemExit(f"data_vintage 沒有日期：{v!r}")
+    return hit.group(0)
+
+
+def state_asset_base(m: dict, org: str, nid: str, vintage: str | None) -> dict:
+    return {"source_org": org, "source_url": f"https://data.gov.tw/dataset/{nid}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": vintage}
+
+
+def no_pii(key: str, p: dict) -> None:
+    bad = [k for k in p if any(t in k for t in ("contact", "phone", "tel", "mobile", "person", "officer", "owner"))]
+    if bad:
+        raise SystemExit(f"{key}: 成品不應帶個資欄 {bad}")
+
+
+@layer("twcServiceOffices", "water_resources", "twc_service_offices", "state_assets/twc_service_offices.geojson")
+def build_twc_offices(m, feats):
+    out = []
+    for f in drop_unmapped("twcServiceOffices", feats):
+        p = f["properties"]
+        no_pii("twcServiceOffices", p)
+        out.append(feature(f["geometry"], {
+            "id": p["office_id"], "name": s(p.get("unit_name")), "unit_type": s(p["unit_type"]), "unit_type_label": s(p.get("unit_type_label")),
+            "region_office": s(p.get("region_office")), "address": s(p.get("address")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")), "shared_site_count": to_int(p.get("shared_site_count")),
+            **state_asset_base(m, "台灣自來水公司", "86110", metadata_date(p.get("data_vintage"))),
+        }))
+    return out
+
+
+@layer("twcWaterFacilities", "water_resources", "twc_water_facilities", "state_assets/twc_water_facilities.geojson")
+def build_twc_facilities(m, feats):
+    out = []
+    for f in drop_unmapped("twcWaterFacilities", feats):
+        p = f["properties"]
+        no_pii("twcWaterFacilities", p)
+        out.append(feature(f["geometry"], {
+            "id": p["facility_id"], "name": s(p.get("facility_name")), "facility_type": s(p["facility_type"]),
+            "facility_type_label": s(p.get("facility_type_label")), "region_no": to_int(p.get("region_no")),
+            "supply_area_text": s(p.get("supply_area_text")), "raw_water_source": s(p.get("raw_water_source")),
+            "existing_large_plant_name": s(p.get("existing_large_plant_name")), "design_capacity_cmd": to_num(p.get("design_capacity_cmd")),
+            "name_encoding_issue": bool(p.get("name_encoding_issue")),
+            "coord_status": s(p.get("coord_status")), "coord_status_label": s(p.get("coord_status_label")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")),
+            **state_asset_base(m, "台灣自來水公司", "36602", metadata_date(p.get("data_vintage"))),
+        }))
+    linked = sum(1 for f in out if f["properties"]["existing_large_plant_name"])
+    AUDIT["twcWaterFacilities"]["large_plant_linked_rows"] = linked
+    return out
+
+
+@layer("taisugarSugarMills", "industrial_zone", "taisugar_sugar_mills", "state_assets/taisugar_sugar_mills.geojson")
+def build_taisugar_mills(m, feats):
+    out = []
+    for f in drop_unmapped("taisugarSugarMills", feats):
+        p = f["properties"]
+        no_pii("taisugarSugarMills", p)
+        out.append(feature(f["geometry"], {
+            "id": p["mill_id"], "name": s(p.get("mill_name")), "address": s(p.get("address")), "highlights": s(p.get("highlights")),
+            "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+            "coord_status": s(p.get("coord_status")), "coord_status_label": s(p.get("coord_status_label")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")),
+            **state_asset_base(m, "台灣糖業股份有限公司", "41592", metadata_date(p.get("data_vintage"))),
+        }))
+    return out
+
+
+@layer("statePropertyTenderListings", "real_estate", "state_property_tender_listings", "state_assets/state_property_tender_listings.geojson")
+def build_state_tender(m, feats):
+    day = str(m["provenance"]["fetched_at"])[:10]
+    out = []
+    for f in drop_unmapped("statePropertyTenderListings", feats):
+        p = f["properties"]
+        no_pii("statePropertyTenderListings", p)
+        nid = "9659" if p["property_kind"] == "land" else "13152"
+        out.append(feature(f["geometry"], {
+            "id": p["listing_id"], "property_kind": s(p["property_kind"]), "property_kind_label": s(p.get("property_kind_label")),
+            "branch_office": s(p.get("branch_office")), "bid_no": s(p.get("bid_no")), "bid_date": s(p.get("bid_date")),
+            "parcel_text": s(p.get("parcel_text")), "street_address": s(p.get("street_address")),
+            "building_numbers": joined(p.get("building_numbers")), "base_land_numbers": joined(p.get("base_land_numbers")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")), "town_name_basis": s(p.get("town_name_basis")), "town_name_basis_label": s(p.get("town_name_basis_label")),
+            "land_area_sqm": to_num(p.get("land_area_sqm")), "share_area_sqm": to_num(p.get("share_area_sqm")),
+            "zoning": s(p.get("zoning")), "land_use_class": s(p.get("land_use_class")),
+            "announced_land_value_per_sqm": to_num(p.get("announced_land_value_per_sqm")), "announced_land_value_date": s(p.get("announced_land_value_date")),
+            "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+            "geocode_source_label": s(p.get("geocode_source_label")),
+            "spatial_check": s(p.get("spatial_check")), "spatial_check_label": s(p.get("spatial_check_label")),
+            **state_asset_base(m, "財政部國有財產署", nid, day),
+        }))
+    return out
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 

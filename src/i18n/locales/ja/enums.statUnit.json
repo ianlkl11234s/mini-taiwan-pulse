@@ -101,5 +101,9 @@
   "enum.statUnit.Z 分數": "Zスコア",
   "enum.statUnit.隻": "頭",
   "enum.statUnit.噸": "トン",
-  "enum.statUnit.棟": "棟"
+  "enum.statUnit.棟": "棟",
+  "enum.statUnit.筆戶": "筆",
+  "enum.statUnit.元／平方公尺": "台湾ドル／平方メートル",
+  "enum.statUnit.筆次": "件",
+  "enum.statUnit.案": "件"
 }

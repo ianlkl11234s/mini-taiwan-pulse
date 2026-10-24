@@ -132,6 +132,8 @@ export type ExpandableLayerKey =
   | "cultureCoinVenues"
   // 原民會文化健康站 G20（2026-10-24）
   | "culturalHealthStations"
+  // 國營事業與國有資產 G16（2026-10-24）
+  | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -843,6 +845,7 @@ export interface FeatureInfo {
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "culturalHealthStations"
+    | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -1255,6 +1258,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   cultureCoinVenues: boolean;
   /** 原民會文化健康站 G20（2026-10-24）：157725 通訊錄 525 站（191 站址點＋59 個鄉鎮中心圈） */
   culturalHealthStations: boolean;
+  /** 國營事業與國有資產 G16（2026-10-24）：台水廠所 137、台水淨水設施 486、台糖糖廠 14、國產署待標售 947 */
+  twcServiceOffices: boolean;
+  twcWaterFacilities: boolean;
+  taisugarSugarMills: boolean;
+  statePropertyTenderListings: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

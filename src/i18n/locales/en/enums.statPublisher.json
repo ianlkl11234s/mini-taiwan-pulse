@@ -6,5 +6,8 @@
   "enum.statPublisher.行政院性別平等會（資料來源：衛生福利部國民健康署國人吸菸行為調查）": "Gender Equality Committee, Executive Yuan (source: Adult Smoking Behavior Survey, Health Promotion Administration, Ministry of Health and Welfare)",
   "enum.statPublisher.內政部戶政司 RIS（授權條款待確認）": "Department of Household Registration, Ministry of the Interior (RIS; license to be confirmed)",
   "enum.statPublisher.臺北市政府工務局衛生下水道工程處": "Sewerage Engineering Office, Public Works Department, Taipei City Government",
-  "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "Construction Management Office, Department of Urban Development, Taipei City Government"
+  "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "Construction Management Office, Department of Urban Development, Taipei City Government",
+  "enum.statPublisher.財政部國有財產署": "National Property Administration, Ministry of Finance",
+  "enum.statPublisher.台灣糖業股份有限公司": "Taiwan Sugar Corporation",
+  "enum.statPublisher.法務部行政執行署": "Administrative Enforcement Agency, Ministry of Justice"
 }

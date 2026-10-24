@@ -173,8 +173,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-23: +11 臺北市局處統計。
     // 2026-10-24: +6 死因統計 G20（鄉鎮 5 年率／5 年人數／逐年率／逐年人數＋縣市率／人數）。
     // 2026-10-24: +2 街頭藝人登記人數 G23（鄉鎮／縣市）。
-    expect(STATISTICS_KEYS).toHaveLength(661);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(673);
+    // 2026-10-24: +23 國有資產 G16（國有地／房地／出租／住宅用地、台糖、行政執行署拍定）。
+    expect(STATISTICS_KEYS).toHaveLength(684);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(696);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

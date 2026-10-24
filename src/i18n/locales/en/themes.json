@@ -201,5 +201,12 @@
   "theme.死因統計": "Causes of Death",
   "theme.街頭藝人": "Street performers",
   "theme.文化與藝文 Culture & Arts": "Culture & Arts",
-  "theme.文化統計 Culture Statistics": "Culture Statistics"
+  "theme.文化統計 Culture Statistics": "Culture Statistics",
+  "theme.國有資產": "State assets",
+  "theme.國營事業資產": "State-owned enterprise assets",
+  "theme.行政執行拍賣": "Administrative enforcement auctions",
+  "theme.國有資產統計 State Assets Statistics": "State Assets Statistics",
+  "theme.自來水（台水）": "Water Utility (TWC)",
+  "theme.國有財產標售": "State Property Tenders",
+  "theme.國營事業": "State-owned Enterprises"
 }

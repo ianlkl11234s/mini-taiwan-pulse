@@ -101,5 +101,9 @@
   "enum.statUnit.Z 分數": "Z-score",
   "enum.statUnit.隻": "animals",
   "enum.statUnit.噸": "tonnes",
-  "enum.statUnit.棟": "buildings"
+  "enum.statUnit.棟": "buildings",
+  "enum.statUnit.筆戶": "parcels",
+  "enum.statUnit.元／平方公尺": "NT$/m²",
+  "enum.statUnit.筆次": "listings",
+  "enum.statUnit.案": "cases"
 }

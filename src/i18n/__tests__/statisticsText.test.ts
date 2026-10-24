@@ -7,6 +7,7 @@ import { CRIME_STATISTICS_DOCUMENT } from '../../data/crimeStatisticsRecipes';
 import { TAIPEI_AGENCY_STATISTICS_DOCUMENT } from '../../data/taipeiAgencyStatisticsRecipes';
 import { MORTALITY_STATISTICS_DOCUMENT } from '../../data/mortalityStatisticsRecipes';
 import { CULTURE_STATISTICS_DOCUMENT } from '../../data/cultureStatisticsRecipes';
+import { STATE_ASSETS_STATISTICS_DOCUMENT } from '../../data/stateAssetsStatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -143,8 +144,8 @@ describe('死因統計（G20）外文介面不混中文', () => {
 });
 
 // Roadmap 第二批（2026-10-24）：街頭藝人（G23）；國有資產（G16）、金融可及性（G10）同一套檢查。
-const JA_SAME_AS_ZH = new Set(['人', '文化部']);
-const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT]] as const;
+const JA_SAME_AS_ZH = new Set(['人', '文化部', '面積', '法務部行政執行署']);
+const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT]] as const;
 describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document) => {
   for (const locale of ['en', 'ja'] as const) {
     const messages: Record<string, string> = {};
@@ -166,7 +167,7 @@ describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document)
         ...[...(r.legend.notes ?? []), r.legend.zero_note, ...Object.values(r.status_labels)].filter(Boolean)
           .map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
       ].filter(([zh]) => CJK.test(zh!)).map(([zh, text]) => [r.layer_key, zh!, text!] as const));
-      // 日文與中文同形的少數詞（人、文化部）照登記值，不算外漏
+      // 日文與中文同形的少數詞（人、文化部、面積、法務部行政執行署）照登記值，不算外漏
       const leaks = pairs.filter(([, zh, text]) => (text === zh && !(locale === 'ja' && JA_SAME_AS_ZH.has(zh))) || (locale === 'en' && CJK.test(text))).map(([key, zh]) => `${key}: ${zh}`);
       expect([...new Set(leaks)]).toEqual([]);
     });

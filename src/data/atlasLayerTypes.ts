@@ -301,6 +301,33 @@ export const CULTURAL_HEALTH_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "site", label: "站址（依地址定位）", color: "#c2410c" },
   { value: "township_group", label: "僅到鄉鎮（鄉鎮中心，非實際位置）", color: "#c2410c" },
 ];
+// ── 國營事業與國有資產 G16（2026-10-24）─────────────────────────────────
+
+/** 台水廠所類型（上游 unit_type 代碼 → 中文 label；英日文在 enums.atlas.json 的 enum.atlasTwcOfficeType.*）。 */
+export const TWC_OFFICE_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "headquarters", label: "總管理處", color: "#1e3a8a" },
+  { value: "region_office", label: "區管理處", color: "#2563eb" },
+  { value: "operation_office", label: "營運所", color: "#0ea5e9" },
+  { value: "service_office", label: "服務所", color: "#14b8a6" },
+  { value: "water_plant", label: "給水廠／淨水場", color: "#7c3aed" },
+  { value: "reservoir_office", label: "水庫管理所", color: "#0f766e" },
+];
+/** 台水淨水設施類型（上游 facility_type；英日文 enum.atlasTwcFacilityType.*）。 */
+export const TWC_FACILITY_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "water_treatment_plant", label: "淨水場", color: "#0891b2" },
+  { value: "well", label: "水井", color: "#65a30d" },
+  { value: "desalination_plant", label: "海水淡化廠", color: "#7c3aed" },
+  { value: "intake_station", label: "取水站", color: "#ea580c" },
+  { value: "other", label: "其他", color: "#78716c" },
+];
+/** 國產署待標售標的（上游 property_kind；英日文 enum.atlasTenderKind.*）。 */
+export const STATE_TENDER_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "land", label: "土地", color: "#9333ea" },
+  { value: "building", label: "房地（建物）", color: "#db2777" },
+];
+/** G16 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
+export const STATE_ASSET_ORGS = { twc: "台灣自來水公司", taisugar: "台灣糖業股份有限公司", fnp: "財政部國有財產署" } as const;
+
 /** 站址定位精度（上游 precision 代碼 → 中文；英日文在 enums.atlas.json 的 enum.atlasChsPrecision.*）。 */
 export const CULTURAL_HEALTH_PRECISION_LABELS: Readonly<Record<string, string>> = {
   exact: "門牌點", interpolated: "同路段內插", cached: "地址快取命中（TGOS）", township_centroid: "鄉鎮中心（非實際位置）",
@@ -347,5 +374,9 @@ export const ATLAS_NOTES = {
   landSubsidenceRate: "平均下陷速率等值線（cm/年），負值＝下陷；預設各縣市最新期，可切期別。缺期：2015–2017 全台圖（只有 SHP 未取得）、2018–2019 全台圖上游無值。",
   seawallZones: "一般性海堤區域（上游建置 2024-06-12）；管理單位已統一為「第N河川分署」。放大到 8 級以上才顯示。",
   cultureCoinVenues: "可使用文化幣的藝文店家與場館 4,264 處（資料下載日 2026-10-24，來源檔無日期）；342 處來源座標為 (0,0)，依地址回補位置。不含街頭藝人（登記人數見「統計」分頁「文化與藝文」的街頭藝人登記人數）。",
+  twcServiceOffices: "台灣自來水公司總管理處、區管理處、營運所、服務所、給水廠等 137 個單位的地址點（data.gov.tw 更新日 2024-11-22）。16 個單位與其他單位同址，點會疊在一起。「給水廠／淨水場」是辦公處所，淨水設施本身見「台水淨水設施」。",
+  twcWaterFacilities: "台水淨水場、水井、海水淡化廠等 486 處（data.gov.tw 更新日 2024-08-22；1 筆來源缺座標未上圖）。其中 19 列就是台水「大型淨水場」名單的 17 座（設計出水 >20 萬 CMD；鳳山淨水場一期、二期分兩列同一點），已依名稱連結並附設計出水量，不是另外的設施；「水利設施」（OSM）圖層也可能畫到同一座淨水場。12 列名稱有上游編碼缺字（?）。",
+  taisugarSugarMills: "台糖各糖廠據點 14 處（data.gov.tw 更新日 2024-08-14）；南靖糖廠來源座標與地址縣市不符，改用地址定位。只是據點，不是台糖土地範圍（台糖可供出租與標租土地統計見「統計」分頁「住宅與不動產」）。",
+  statePropertyTenderListings: "國有財產署公告待標售（未標脫）的國有土地 759 筆、房地 188 筆（2026-10-24 下載快照，上游約每週～雙週更新；8 筆無法定位未上圖）。土地點是地號宗地中心、房地點是門牌定位，點開看定位精度；7 筆落點鄉鎮與標示不一致。公告現值是每平方公尺單價，不是標售底價。",
   culturalHealthStations: "原住民族文化健康站 525 站（通訊錄 2025-07-22）。實心點 191 站依地址定位；空心圈是只定位到鄉鎮的 334 站，同鄉鎮併成鄉鎮中心一圈、圈內數字＝站數，不是實際站址，不可用來量距離。不含電話。",
 } as const satisfies Record<AtlasLayerKey, string>;

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1263,
+    "keyCount": 1290,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2391,6 +2391,34 @@
     },
     {
       "layers": [
+        "twc-service-offices-circle",
+        "twc-service-offices-glow"
+      ],
+      "type": "twcServiceOffices"
+    },
+    {
+      "layers": [
+        "twc-water-facilities-circle",
+        "twc-water-facilities-glow"
+      ],
+      "type": "twcWaterFacilities"
+    },
+    {
+      "layers": [
+        "taisugar-sugar-mills-circle",
+        "taisugar-sugar-mills-glow"
+      ],
+      "type": "taisugarSugarMills"
+    },
+    {
+      "layers": [
+        "state-property-tender-listings-circle",
+        "state-property-tender-listings-glow"
+      ],
+      "type": "statePropertyTenderListings"
+    },
+    {
+      "layers": [
         "open-fishing-locations-circle",
         "open-fishing-locations-glow"
       ],
@@ -3412,6 +3440,29 @@
         "statsMortalityDeathsCounty-fill",
         "statsCultureStreetPerformersTown-fill",
         "statsCultureStreetPerformersCounty-fill",
+        "statsStateLandIdleArea-fill",
+        "statsStateLandIdleShare-fill",
+        "statsStateLandIdleParcels-fill",
+        "statsStateLandStatusShare-fill",
+        "statsStateLandArea-fill",
+        "statsStateLandParcels-fill",
+        "statsStateLandValuePerSqm-fill",
+        "statsStatePropertyArea-fill",
+        "statsStatePropertyParcels-fill",
+        "statsStatePropertyValuePerSqm-fill",
+        "statsStateLandRentalArea-fill",
+        "statsStateLandRentalParcels-fill",
+        "statsStateResidentialArea-fill",
+        "statsStateResidentialParcels-fill",
+        "statsTaisugarRentableArea-fill",
+        "statsTaisugarRentableParcels-fill",
+        "statsTaisugarAnnouncedArea-fill",
+        "statsTaisugarAnnouncedParcels-fill",
+        "statsTaisugarAnnouncedListings-fill",
+        "statsMojAuctionItems-fill",
+        "statsMojAuctionLots-fill",
+        "statsMojAuctionItemsByCategory-fill",
+        "statsMojAuctionItemsTown-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -79411,6 +79462,1072 @@
       ],
       "sourceId": "cultural-health-stations",
       "sourceUrl": "./welfare/cultural_health_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "twcServiceOffices",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "unit_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "unit_type"
+                ],
+                "headquarters",
+                "#1e3a8a",
+                "region_office",
+                "#2563eb",
+                "operation_office",
+                "#0ea5e9",
+                "service_office",
+                "#14b8a6",
+                "water_plant",
+                "#7c3aed",
+                "reservoir_office",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "unit_type"
+                ],
+                "headquarters",
+                "#1e3a8a",
+                "region_office",
+                "#2563eb",
+                "operation_office",
+                "#0ea5e9",
+                "service_office",
+                "#14b8a6",
+                "water_plant",
+                "#7c3aed",
+                "reservoir_office",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "unit_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "unit_type"
+                ],
+                "headquarters",
+                "#1e3a8a",
+                "region_office",
+                "#2563eb",
+                "operation_office",
+                "#0ea5e9",
+                "service_office",
+                "#14b8a6",
+                "water_plant",
+                "#7c3aed",
+                "reservoir_office",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "unit_type"
+                ],
+                "headquarters",
+                "#1e3a8a",
+                "region_office",
+                "#2563eb",
+                "operation_office",
+                "#0ea5e9",
+                "service_office",
+                "#14b8a6",
+                "water_plant",
+                "#7c3aed",
+                "reservoir_office",
+                "#0f766e",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "unit_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "twc-service-offices",
+      "sourceUrl": "./state_assets/twc_service_offices.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "twcWaterFacilities",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "facility_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "water_treatment_plant",
+                "#0891b2",
+                "well",
+                "#65a30d",
+                "desalination_plant",
+                "#7c3aed",
+                "intake_station",
+                "#ea580c",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "water_treatment_plant",
+                "#0891b2",
+                "well",
+                "#65a30d",
+                "desalination_plant",
+                "#7c3aed",
+                "intake_station",
+                "#ea580c",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "facility_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "water_treatment_plant",
+                "#0891b2",
+                "well",
+                "#65a30d",
+                "desalination_plant",
+                "#7c3aed",
+                "intake_station",
+                "#ea580c",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "facility_type"
+                ],
+                "water_treatment_plant",
+                "#0891b2",
+                "well",
+                "#65a30d",
+                "desalination_plant",
+                "#7c3aed",
+                "intake_station",
+                "#ea580c",
+                "other",
+                "#78716c",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "facility_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "twc-water-facilities",
+      "sourceUrl": "./state_assets/twc_water_facilities.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "taisugarSugarMills",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#a16207",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#a16207",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "taisugar-sugar-mills",
+      "sourceUrl": "./state_assets/taisugar_sugar_mills.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "statePropertyTenderListings",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "property_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.25,
+                5,
+                4.5,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "property_kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "property_kind"
+                ],
+                "land",
+                "#9333ea",
+                "building",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.875,
+                5,
+                2.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "property_kind"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "state-property-tender-listings",
+      "sourceUrl": "./state_assets/state_property_tender_listings.geojson"
     }
   ],
   "params": {
@@ -98744,6 +99861,44 @@
         "step": 0.1,
         "value": 0.5,
         "valueText": "0.50"
+      }
+    ],
+    "statePropertyTenderListings": [
+      {
+        "label": "標的類別",
+        "options": [
+          {
+            "label": "土地",
+            "value": "land"
+          },
+          {
+            "label": "房地（建物）",
+            "value": "building"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "land",
+          "building"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "stationsMetro": [
@@ -123935,6 +125090,178 @@
         "valueText": "0.55"
       }
     ],
+    "statsMojAuctionItems": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItems"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionItemsByCategory": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItemsByCategory"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionItemsTown": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionItemsTown"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsMojAuctionLots": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "縣市・標的數",
+            "value": "statsMojAuctionItems"
+          },
+          {
+            "label": "縣市・拍賣案數",
+            "value": "statsMojAuctionLots"
+          },
+          {
+            "label": "縣市・標的數（依類別）",
+            "value": "statsMojAuctionItemsByCategory"
+          },
+          {
+            "label": "鄉鎮・標的數",
+            "value": "statsMojAuctionItemsTown"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsMojAuctionLots"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsMortalityCauseCounty": [
       {
         "label": "地理層級／口徑",
@@ -127069,6 +128396,516 @@
         "valueText": "0.55"
       }
     ],
+    "statsStateLandArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandIdleShare": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandIdleArea"
+          },
+          {
+            "label": "占未處理土地比例",
+            "value": "statsStateLandIdleShare"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandIdleParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandIdleShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandRentalArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "出租面積",
+            "value": "statsStateLandRentalArea"
+          },
+          {
+            "label": "出租筆數",
+            "value": "statsStateLandRentalParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandRentalArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandRentalParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "出租面積",
+            "value": "statsStateLandRentalArea"
+          },
+          {
+            "label": "出租筆數",
+            "value": "statsStateLandRentalParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandRentalParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandStatusShare": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateLandValuePerSqm": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateLandArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStateLandParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStateLandValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateLandValuePerSqm"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyArea": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyParcels": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStatePropertyValuePerSqm": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStatePropertyArea"
+          },
+          {
+            "label": "筆戶數",
+            "value": "statsStatePropertyParcels"
+          },
+          {
+            "label": "每平方公尺價值",
+            "value": "statsStatePropertyValuePerSqm"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStatePropertyValuePerSqm"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateResidentialArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateResidentialArea"
+          },
+          {
+            "label": "筆數",
+            "value": "statsStateResidentialParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateResidentialArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsStateResidentialParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsStateResidentialArea"
+          },
+          {
+            "label": "筆數",
+            "value": "statsStateResidentialParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsStateResidentialParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsSubstitutionTreatmentSitesCounty": [
       {
         "label": "地理層級／口徑",
@@ -127787,6 +129624,193 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsTaipeiUsagePermitHouseholdCountTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedListings": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedListings"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarAnnouncedParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積（依地號去重）",
+            "value": "statsTaisugarAnnouncedArea"
+          },
+          {
+            "label": "地號數（去重）",
+            "value": "statsTaisugarAnnouncedParcels"
+          },
+          {
+            "label": "公告列數（未去重）",
+            "value": "statsTaisugarAnnouncedListings"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarAnnouncedParcels"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarRentableArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsTaisugarRentableArea"
+          },
+          {
+            "label": "地號數",
+            "value": "statsTaisugarRentableParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarRentableArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsTaisugarRentableParcels": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "面積",
+            "value": "statsTaisugarRentableArea"
+          },
+          {
+            "label": "地號數",
+            "value": "statsTaisugarRentableParcels"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsTaisugarRentableParcels"
       },
       {
         "label": "資料期別",
@@ -129066,6 +131090,26 @@
         "valueText": "0.50"
       }
     ],
+    "taisugarSugarMills": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "taxiStand": [
       {
         "label": "透明度 0.80",
@@ -129620,6 +131664,117 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "twcServiceOffices": [
+      {
+        "label": "單位類型",
+        "options": [
+          {
+            "label": "總管理處",
+            "value": "headquarters"
+          },
+          {
+            "label": "區管理處",
+            "value": "region_office"
+          },
+          {
+            "label": "營運所",
+            "value": "operation_office"
+          },
+          {
+            "label": "服務所",
+            "value": "service_office"
+          },
+          {
+            "label": "給水廠／淨水場",
+            "value": "water_plant"
+          },
+          {
+            "label": "水庫管理所",
+            "value": "reservoir_office"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "headquarters",
+          "region_office",
+          "operation_office",
+          "service_office",
+          "water_plant",
+          "reservoir_office"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "twcWaterFacilities": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "淨水場",
+            "value": "water_treatment_plant"
+          },
+          {
+            "label": "水井",
+            "value": "well"
+          },
+          {
+            "label": "海水淡化廠",
+            "value": "desalination_plant"
+          },
+          {
+            "label": "取水站",
+            "value": "intake_station"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "water_treatment_plant",
+          "well",
+          "desalination_plant",
+          "intake_station",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

@@ -2,6 +2,7 @@
 """Build the Roadmap batch-2 atlas statistics families from the analytics handoff recipes.
 
 Families (one output JSON each, atlas recipe schema in src/data/atlasStatisticsTypes.ts):
+  stateAssets  國有資產與國營事業資產（G16；docs/handoff/state-assets-statistics-recipes.json，23 recipes）
   culture      街頭藝人登記人數（G23；docs/handoff/culture-coin-street-performers-recipes.json，2 recipes）
 
 Inputs (taipei-gis-analytics, read-only):
@@ -23,6 +24,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -43,9 +45,100 @@ CULTURE_NOTES = [
     "點位見「文化」主題的「文化幣藝文消費點」（不含街頭藝人）。",
 ]
 
+
+# ── 國有資產（G16）──────────────────────────────────────────────────────────────
+def src_note(org: str, title: str, nid: str) -> str:
+    return f"出典：{org} {title}（data.gov.tw {nid}）；政府資料開放授權條款-第1版。"
+
+
+FNP = "財政部國有財產署"
+SA_LAND_SRC = src_note(FNP, "國有非公用土地管理區分報告表", "30583")
+SA_PROP_SRC = src_note(FNP, "國有非公用房地數量價值報告表", "30580")
+SA_RENT_SRC = src_note(FNP, "歷年國有非公用不動產出租統計", "6720")
+SA_RES_SRC = src_note(FNP, "國有非公用住宅用地統計表", "36963")
+TS_RENT_SRC = src_note("台灣糖業股份有限公司", "可供出租土地資訊", "25754")
+TS_ANN_SRC = src_note("台灣糖業股份有限公司", "資產公告土地明細資料", "101669")
+MOJ_SRC = src_note("法務部行政執行署", "所屬分署已拍定不動產資料（各年季度檔）", "178752 等")
+SA_STOCK = "114 年底存量（單一期）。"
+SA_LAND_SUBTOTAL = "管理區分含「未處理土地」「已處理土地」兩個小計，不可跨類加總；已處理土地不屬現有庫存。"
+SA_PROP_SUBTOTAL = "分類含「土地」「房屋」兩個小計，不可跨類加總；房屋面積為建物面積。"
+SA_VALUE = "每平方公尺價值只供縣市間比較，不可乘回面積或加總成國有財產總值（來源未註明是帳面價值或公告現值）。"
+SA_IDLE_SHARE = "占比分母為未處理土地面積（13 個管理區分合計）。"
+SA_RENT = "91–99 年臺中、臺南、高雄為改制前縣＋市合併值；連江縣 91–93 年無資料。"
+TS_RENT = "台糖公告「可供出租」的土地清單，不是台糖持有土地總量；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。"
+TS_ANN = "歷年標租標的，非持有地（2016 年起至下載日累計公告）；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。"
+TS_LISTINGS = "公告列數未去重（同地號被公告幾次就計幾次）；面積與地號數已依地號去重。"
+MOJ = "行政執行（欠稅、罰鍰等）拍賣的已拍定件數，不是國有財產、也不含法院拍賣，不代表當地房市；來源無金額。"
+MOJ_PARTIAL = "2026 年只到 9 月 30 日（部分年），不可與全年比較。"
+MOJ_TOWN = "某縣市當年有標的未填鄉鎮時，該縣市所有鄉鎮當年標示為無資料（斜線），不是 0；小鄉鎮逐年波動大。"
+SA_NA_VALUE = {"not_applicable": "不適用（該類面積為 0，沒有單位價值）"}
+SA_RENT_MISSING = {"missing": "無資料（連江縣 91–93 年來源為「-」，不是 0）"}
+TS_MISSING = {"missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"}
+MOJ_TOWN_MISSING = {"missing": "無資料（該縣市當年有標的未填鄉鎮，鄉鎮值不完整；不是 0）"}
+
+
+def sa(key, group, group_label, option, sub, digits, notes, **extra):
+    return dict(key=key, group=group, group_label=group_label, option_label=option, subgroup=sub, visual="housing", digits=digits, notes=notes, **extra)
+
+
+STATE = "國有資產"
+SOE = "國營事業資產"
+MOJ_SUB = "行政執行拍賣"
+LAND_DEF = {"管理區分": "未處理土地"}
+PROP_DEF = {"分類": "土地"}
+STATE_ASSETS_LAYERS = [
+    sa("statsStateLandIdleArea", "stateLandIdle", "閒置國有地", "面積", STATE, 1, [SA_LAND_SRC, SA_STOCK]),
+    sa("statsStateLandIdleShare", "stateLandIdle", "閒置國有地", "占未處理土地比例", STATE, 1, [SA_LAND_SRC, SA_STOCK, SA_IDLE_SHARE]),
+    sa("statsStateLandIdleParcels", "stateLandIdle", "閒置國有地", "筆戶數", STATE, 0, [SA_LAND_SRC, SA_STOCK]),
+    sa("statsStateLandStatusShare", "stateLandStatus", "國有地管理區分占比", "各管理區分占比", STATE, 1, [SA_LAND_SRC, SA_STOCK, SA_IDLE_SHARE], defaults={"管理區分": "閒置"}),
+    sa("statsStateLandArea", "stateLand", "國有非公用土地", "面積", STATE, 1, [SA_LAND_SRC, SA_STOCK, SA_LAND_SUBTOTAL], defaults=LAND_DEF),
+    sa("statsStateLandParcels", "stateLand", "國有非公用土地", "筆戶數", STATE, 0, [SA_LAND_SRC, SA_STOCK, SA_LAND_SUBTOTAL], defaults=LAND_DEF),
+    sa("statsStateLandValuePerSqm", "stateLand", "國有非公用土地", "每平方公尺價值", STATE, 0, [SA_LAND_SRC, SA_STOCK, SA_VALUE, SA_LAND_SUBTOTAL], defaults=LAND_DEF, status=SA_NA_VALUE),
+    sa("statsStatePropertyArea", "stateProperty", "國有非公用房地", "面積", STATE, 1, [SA_PROP_SRC, SA_STOCK, SA_PROP_SUBTOTAL], defaults=PROP_DEF),
+    sa("statsStatePropertyParcels", "stateProperty", "國有非公用房地", "筆戶數", STATE, 0, [SA_PROP_SRC, SA_STOCK, SA_PROP_SUBTOTAL], defaults=PROP_DEF),
+    sa("statsStatePropertyValuePerSqm", "stateProperty", "國有非公用房地", "每平方公尺價值", STATE, 0, [SA_PROP_SRC, SA_STOCK, SA_VALUE, SA_PROP_SUBTOTAL], defaults=PROP_DEF, status=SA_NA_VALUE),
+    sa("statsStateLandRentalArea", "stateLandRental", "國有不動產出租", "出租面積", STATE, 1, [SA_RENT_SRC, SA_RENT], annual=True, status=SA_RENT_MISSING),
+    sa("statsStateLandRentalParcels", "stateLandRental", "國有不動產出租", "出租筆數", STATE, 0, [SA_RENT_SRC, SA_RENT], annual=True, status=SA_RENT_MISSING),
+    sa("statsStateResidentialArea", "stateResidential", "國有住宅用地", "面積", STATE, 1, [SA_RES_SRC, SA_STOCK], defaults={"計畫區別": "都市計畫區"}),
+    sa("statsStateResidentialParcels", "stateResidential", "國有住宅用地", "筆數", STATE, 0, [SA_RES_SRC, SA_STOCK], defaults={"計畫區別": "都市計畫區"}),
+    sa("statsTaisugarRentableArea", "taisugarRentable", "台糖可供出租土地（公告）", "面積", SOE, 1, [TS_RENT_SRC, TS_RENT], status=TS_MISSING),
+    sa("statsTaisugarRentableParcels", "taisugarRentable", "台糖可供出租土地（公告）", "地號數", SOE, 0, [TS_RENT_SRC, TS_RENT], status=TS_MISSING),
+    sa("statsTaisugarAnnouncedArea", "taisugarAnnounced", "台糖歷年標租標的", "面積（依地號去重）", SOE, 1, [TS_ANN_SRC, TS_ANN, TS_LISTINGS], status=TS_MISSING),
+    sa("statsTaisugarAnnouncedParcels", "taisugarAnnounced", "台糖歷年標租標的", "地號數（去重）", SOE, 0, [TS_ANN_SRC, TS_ANN, TS_LISTINGS], status=TS_MISSING),
+    sa("statsTaisugarAnnouncedListings", "taisugarAnnounced", "台糖歷年標租標的", "公告列數（未去重）", SOE, 0, [TS_ANN_SRC, TS_ANN, TS_LISTINGS], status=TS_MISSING),
+    sa("statsMojAuctionItems", "mojAuction", "行政執行署拍定不動產", "縣市・標的數", MOJ_SUB, 0, [MOJ_SRC, MOJ, MOJ_PARTIAL], annual=True),
+    sa("statsMojAuctionLots", "mojAuction", "行政執行署拍定不動產", "縣市・拍賣案數", MOJ_SUB, 0, [MOJ_SRC, MOJ, MOJ_PARTIAL], annual=True),
+    sa("statsMojAuctionItemsByCategory", "mojAuction", "行政執行署拍定不動產", "縣市・標的數（依類別）", MOJ_SUB, 0, [MOJ_SRC, MOJ, MOJ_PARTIAL], annual=True, defaults={"拍賣類別": "住宅"}, breaks=[1, 3, 6, 12]),
+    sa("statsMojAuctionItemsTown", "mojAuction", "行政執行署拍定不動產", "鄉鎮・標的數", MOJ_SUB, 0, [MOJ_SRC, MOJ, MOJ_PARTIAL, MOJ_TOWN], annual=True, status=MOJ_TOWN_MISSING, breaks=[1, 2, 4, 8]),
+]
+
+# 交付 disclosure 照用，只把內部欄名／dataset id／狀態代碼換成中文（資料限制卡給一般讀者看）。
+DISCLOSURE_REPLACEMENTS = [
+    ("dimensions 管理區分含兩個小計", "管理區分含兩個小計"),
+    ("dimensions.管理區分 為 20 類（含兩個小計）。", "管理區分為 20 類（含兩個小計）。"),
+    ("dimensions.分類 為 9 類（含土地、房屋兩個小計）。", "分類為 9 類（含土地、房屋兩個小計）。"),
+    ("dimensions 計畫區別分都市計畫區、非都市計畫區。", "計畫區別分都市計畫區、非都市計畫區。"),
+    ("dimensions.計畫區別。", ""),
+    ("dimensions.拍賣類別 為來源原值。", "拍賣類別為來源原值。"),
+    ("面積 0 為 not_applicable。", "面積 0 時單位價值為不適用。"),
+    ("標 missing", "標示為無資料"),
+    ("announced_listings 才是", "「公告列數」才是"),
+    ("auctioned_items＝", "標的數＝"),
+    ("auctioned_lots＝", "拍賣案數＝"),
+]
+
 CULTURE_ZERO = "0 人自成最淺一級（名冊在該區無登記，不是無資料）。"
 
 FAMILIES: dict[str, dict] = {
+    "stateAssets": {
+        "file": "stateAssetsStatisticsRecipes",
+        "handoff": "docs/handoff/state-assets-statistics-recipes.json",
+        "theme_dir": "socioeconomic",
+        "data_theme": "國有資產統計 State Assets Statistics",
+        "tab_theme": "住宅與不動產 Housing & Property",
+        "observation_policy": {"observed_zero": "status observed and value 0 (source lists 0)", "missing": "value null; area not covered by the source list or source '-'; no zero fill", "not_applicable": "value null; per-sqm value where the area is 0", "suppressed": "not used"},
+        "layers": STATE_ASSETS_LAYERS,
+    },
     "culture": {
         "file": "cultureStatisticsRecipes",
         "handoff": "docs/handoff/culture-coin-street-performers-recipes.json",
@@ -97,6 +190,15 @@ def make_breaks(values: list[float], counts: bool) -> list[float]:
         base = breaks[0] if breaks else 1
         breaks = [base, base * 2]
     return breaks[:4]
+
+
+def public_disclosure(key: str, text: str) -> str:
+    for old, new in DISCLOSURE_REPLACEMENTS:
+        text = text.replace(old, new)
+    leftover = re.findall(r"[A-Za-z]+_[A-Za-z_]+|dimensions|processing|not_applicable|\bmissing\b", text)
+    if leftover:
+        raise SystemExit(f"{key}: internal tokens left in disclosure: {sorted(set(leftover))}")
+    return text
 
 
 def partial_label(start: str, end: str) -> str | None:
@@ -233,7 +335,7 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
             "derived": layer["aggregation"] == "ratio",
             "location_semantics": params["location_semantics"],
-            "disclosure": layer["disclosure"],
+            "disclosure": public_disclosure(key, layer["disclosure"]),
             "publisher": release["publisher"], "license": release["license"],
             "source_landing_url": release["source_landing_url"], "source_download_url": release["source_download_url"],
             "source_title": f"{release['source_metadata']['dataset_title']}（data.gov.tw {nid}）",

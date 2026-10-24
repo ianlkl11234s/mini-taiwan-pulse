@@ -1,6 +1,7 @@
 import {
   Activity,
   Music,
+  Building2,
   Anchor,
   Brain,
   CloudRain,
@@ -240,6 +241,11 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsMortality/, 'health', Activity],
   // 街頭藝人登記人數 G23（2026-10-24）：同體育＝教育 Purples（公共生活），不新增色票。
   [/^statsCultureStreetPerformers/, 'education', Music],
+  // 國有資產 G16（2026-10-24）：同住宅 Oranges，不新增色票；國有地／房地、台糖標的、行政執行拍定分三種 icon。
+  [/^statsStateProperty|^statsStateResidential/, 'housing', Building2],
+  [/^statsStateLand/, 'housing', Landmark],
+  [/^statsTaisugar/, 'housing', Sprout],
+  [/^statsMojAuction/, 'housing', Gavel],
   [/^statsFiscalLocal/, 'labor', Landmark],
   [/^statsIncomeTax/, 'labor', Briefcase],
   [/^statsVat/, 'labor', Receipt],

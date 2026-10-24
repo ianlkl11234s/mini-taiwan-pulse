@@ -1,0 +1,4659 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "stateAssets",
+  "generated_from": {
+    "recipes": "state-assets-statistics-recipes.json",
+    "bundles": "taipei-gis-analytics data/processed/socioeconomic/<dataset_id>/releases/<release_id>.json"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (source lists 0)",
+    "missing": "value null; area not covered by the source list or source '-'; no zero fill",
+    "not_applicable": "value null; per-sqm value where the area is 0",
+    "suppressed": "not used"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsStateLandIdleArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "閒置國有非公用土地面積",
+      "group": "stateLandIdle",
+      "group_label": "閒置國有地",
+      "option_label": "面積",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "idle_land_area_ha",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2025-idle_land_area_ha-county-v1-8343c8fc938c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-idle_land_area_ha-county-v1-8343c8fc938c",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          230,
+          640,
+          1000,
+          2000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。管理區分「閒置」面積。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandIdleShare",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "閒置面積占未處理土地比例",
+      "group": "stateLandIdle",
+      "group_label": "閒置國有地",
+      "option_label": "占未處理土地比例",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "idle_land_area_share_pct",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "2025-idle_land_area_share_pct-county-v1-0798eb77046f",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-idle_land_area_share_pct-county-v1-0798eb77046f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          7.4,
+          13,
+          14,
+          16
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "占比分母為未處理土地面積（13 個管理區分合計）。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。閒置面積÷未處理土地面積×100。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandIdleParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "閒置國有非公用土地筆戶數",
+      "group": "stateLandIdle",
+      "group_label": "閒置國有地",
+      "option_label": "筆戶數",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "idle_land_parcels",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆戶",
+      "aggregation": "sum",
+      "default_release_id": "2025-idle_land_parcels-county-v1-517844accd59",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-idle_land_parcels-county-v1-517844accd59",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5600,
+          8600,
+          12000,
+          17000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。管理區分「閒置」筆戶數。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandStatusShare",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "各管理區分面積占未處理土地比例",
+      "group": "stateLandStatus",
+      "group_label": "國有地管理區分占比",
+      "option_label": "各管理區分占比",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "land_status_area_share_pct",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "%",
+      "aggregation": "ratio",
+      "default_release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+      "dimensions": [
+        {
+          "key": "管理區分",
+          "label": "管理區分",
+          "default": "閒置",
+          "options": [
+            {
+              "value": "閒置",
+              "label": "閒置"
+            },
+            {
+              "value": "保留",
+              "label": "保留"
+            },
+            {
+              "value": "借用",
+              "label": "借用"
+            },
+            {
+              "value": "出租",
+              "label": "出租"
+            },
+            {
+              "value": "占用",
+              "label": "占用"
+            },
+            {
+              "value": "委託管理",
+              "label": "委託管理"
+            },
+            {
+              "value": "委託經營",
+              "label": "委託經營"
+            },
+            {
+              "value": "待勘查",
+              "label": "待勘查"
+            },
+            {
+              "value": "待處理",
+              "label": "待處理"
+            },
+            {
+              "value": "採取土石",
+              "label": "採取土石"
+            },
+            {
+              "value": "提供使用",
+              "label": "提供使用"
+            },
+            {
+              "value": "改良利用",
+              "label": "改良利用"
+            },
+            {
+              "value": "設定地上權",
+              "label": "設定地上權"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "閒置"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "設定地上權"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "改良利用"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "提供使用"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "採取土石"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待處理"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待勘查"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託經營"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託管理"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "占用"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出租"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "借用"
+          }
+        },
+        {
+          "release_id": "2025-land_status_area_share_pct-county-v1-a1cf6cc9978b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "保留"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          7.4,
+          13,
+          14,
+          16
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "占比分母為未處理土地面積（13 個管理區分合計）。"
+        ],
+        "by_dimension": {
+          "保留": {
+            "breaks": [
+              30,
+              39,
+              47,
+              61
+            ],
+            "direction": "ascending"
+          },
+          "借用": {
+            "breaks": [
+              0.0039,
+              0.016,
+              0.036,
+              0.089
+            ],
+            "direction": "ascending"
+          },
+          "出租": {
+            "breaks": [
+              11,
+              22,
+              33,
+              37
+            ],
+            "direction": "ascending"
+          },
+          "占用": {
+            "breaks": [
+              3,
+              4.2,
+              6.6,
+              8.2
+            ],
+            "direction": "ascending"
+          },
+          "委託管理": {
+            "breaks": [
+              0.073,
+              0.18,
+              0.56,
+              0.92
+            ],
+            "direction": "ascending"
+          },
+          "委託經營": {
+            "breaks": [
+              0.069,
+              0.11,
+              0.2,
+              0.52
+            ],
+            "direction": "ascending"
+          },
+          "待勘查": {
+            "breaks": [
+              1.3,
+              3,
+              5.9,
+              7.8
+            ],
+            "direction": "ascending"
+          },
+          "待處理": {
+            "breaks": [
+              0.032,
+              0.055,
+              0.074,
+              0.28
+            ],
+            "direction": "ascending"
+          },
+          "採取土石": {
+            "breaks": [
+              0.0065,
+              0.013
+            ],
+            "direction": "ascending"
+          },
+          "提供使用": {
+            "breaks": [
+              0.17,
+              0.26,
+              0.43,
+              0.61
+            ],
+            "direction": "ascending"
+          },
+          "改良利用": {
+            "breaks": [
+              0.013,
+              0.17,
+              0.27,
+              0.58
+            ],
+            "direction": "ascending"
+          },
+          "設定地上權": {
+            "breaks": [
+              0.0058,
+              0.017,
+              0.039,
+              0.097
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": true,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。13 子項面積÷未處理土地面積×100。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用土地面積",
+      "group": "stateLand",
+      "group_label": "國有非公用土地",
+      "option_label": "面積",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "nonpublic_land_area_ha",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+      "dimensions": [
+        {
+          "key": "管理區分",
+          "label": "管理區分",
+          "default": "未處理土地",
+          "options": [
+            {
+              "value": "未處理土地",
+              "label": "未處理土地"
+            },
+            {
+              "value": "保留",
+              "label": "保留"
+            },
+            {
+              "value": "借用",
+              "label": "借用"
+            },
+            {
+              "value": "出售",
+              "label": "出售"
+            },
+            {
+              "value": "出租",
+              "label": "出租"
+            },
+            {
+              "value": "占用",
+              "label": "占用"
+            },
+            {
+              "value": "委託管理",
+              "label": "委託管理"
+            },
+            {
+              "value": "委託經營",
+              "label": "委託經營"
+            },
+            {
+              "value": "已處理土地",
+              "label": "已處理土地"
+            },
+            {
+              "value": "待勘查",
+              "label": "待勘查"
+            },
+            {
+              "value": "待處理",
+              "label": "待處理"
+            },
+            {
+              "value": "採取土石",
+              "label": "採取土石"
+            },
+            {
+              "value": "提供使用",
+              "label": "提供使用"
+            },
+            {
+              "value": "改良利用",
+              "label": "改良利用"
+            },
+            {
+              "value": "放領(註銷)",
+              "label": "放領(註銷)"
+            },
+            {
+              "value": "有償撥用",
+              "label": "有償撥用"
+            },
+            {
+              "value": "無償撥用",
+              "label": "無償撥用"
+            },
+            {
+              "value": "設定地上權",
+              "label": "設定地上權"
+            },
+            {
+              "value": "註銷產籍",
+              "label": "註銷產籍"
+            },
+            {
+              "value": "閒置",
+              "label": "閒置"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "閒置"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "註銷產籍"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "設定地上權"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "無償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "未處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "有償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "放領(註銷)"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "改良利用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "提供使用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "採取土石"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待處理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待勘查"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "已處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託經營"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託管理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "占用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出租"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出售"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "借用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_area_ha-county-v1-07a5a14a8673",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "保留"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1900,
+          4400,
+          11000,
+          17000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "管理區分含「未處理土地」「已處理土地」兩個小計，不可跨類加總；已處理土地不屬現有庫存。"
+        ],
+        "by_dimension": {
+          "保留": {
+            "breaks": [
+              1200,
+              2300,
+              3700,
+              5800
+            ],
+            "direction": "ascending"
+          },
+          "借用": {
+            "breaks": [
+              1,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "出售": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "出租": {
+            "breaks": [
+              120,
+              1200,
+              3300,
+              7100
+            ],
+            "direction": "ascending"
+          },
+          "占用": {
+            "breaks": [
+              53,
+              180,
+              620,
+              1300
+            ],
+            "direction": "ascending"
+          },
+          "委託管理": {
+            "breaks": [
+              4,
+              13,
+              25,
+              84
+            ],
+            "direction": "ascending"
+          },
+          "委託經營": {
+            "breaks": [
+              1,
+              2,
+              18,
+              37
+            ],
+            "direction": "ascending"
+          },
+          "已處理土地": {
+            "breaks": [
+              20,
+              52,
+              90,
+              130
+            ],
+            "direction": "ascending"
+          },
+          "待勘查": {
+            "breaks": [
+              48,
+              240,
+              370,
+              710
+            ],
+            "direction": "ascending"
+          },
+          "待處理": {
+            "breaks": [
+              1,
+              4,
+              6,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "採取土石": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "提供使用": {
+            "breaks": [
+              7,
+              16,
+              30,
+              63
+            ],
+            "direction": "ascending"
+          },
+          "改良利用": {
+            "breaks": [
+              1,
+              14,
+              31
+            ],
+            "direction": "ascending"
+          },
+          "放領(註銷)": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "有償撥用": {
+            "breaks": [
+              1,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "無償撥用": {
+            "breaks": [
+              6,
+              8,
+              13,
+              25
+            ],
+            "direction": "ascending"
+          },
+          "設定地上權": {
+            "breaks": [
+              1,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "註銷產籍": {
+            "breaks": [
+              6,
+              25,
+              73,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "閒置": {
+            "breaks": [
+              230,
+              640,
+              1000,
+              2000
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。來源平方公尺÷10⁴。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用土地筆戶數",
+      "group": "stateLand",
+      "group_label": "國有非公用土地",
+      "option_label": "筆戶數",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "nonpublic_land_parcels",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆戶",
+      "aggregation": "sum",
+      "default_release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+      "dimensions": [
+        {
+          "key": "管理區分",
+          "label": "管理區分",
+          "default": "未處理土地",
+          "options": [
+            {
+              "value": "未處理土地",
+              "label": "未處理土地"
+            },
+            {
+              "value": "保留",
+              "label": "保留"
+            },
+            {
+              "value": "借用",
+              "label": "借用"
+            },
+            {
+              "value": "出售",
+              "label": "出售"
+            },
+            {
+              "value": "出租",
+              "label": "出租"
+            },
+            {
+              "value": "占用",
+              "label": "占用"
+            },
+            {
+              "value": "委託管理",
+              "label": "委託管理"
+            },
+            {
+              "value": "委託經營",
+              "label": "委託經營"
+            },
+            {
+              "value": "已處理土地",
+              "label": "已處理土地"
+            },
+            {
+              "value": "待勘查",
+              "label": "待勘查"
+            },
+            {
+              "value": "待處理",
+              "label": "待處理"
+            },
+            {
+              "value": "採取土石",
+              "label": "採取土石"
+            },
+            {
+              "value": "提供使用",
+              "label": "提供使用"
+            },
+            {
+              "value": "改良利用",
+              "label": "改良利用"
+            },
+            {
+              "value": "放領(註銷)",
+              "label": "放領(註銷)"
+            },
+            {
+              "value": "有償撥用",
+              "label": "有償撥用"
+            },
+            {
+              "value": "無償撥用",
+              "label": "無償撥用"
+            },
+            {
+              "value": "設定地上權",
+              "label": "設定地上權"
+            },
+            {
+              "value": "註銷產籍",
+              "label": "註銷產籍"
+            },
+            {
+              "value": "閒置",
+              "label": "閒置"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "閒置"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "註銷產籍"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "設定地上權"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "無償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "未處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "有償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "放領(註銷)"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "改良利用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "提供使用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "採取土石"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待處理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待勘查"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "已處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託經營"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託管理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "占用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出租"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出售"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "借用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_parcels-county-v1-8c7de3f705a2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "保留"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          44000,
+          66000,
+          100000,
+          140000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "管理區分含「未處理土地」「已處理土地」兩個小計，不可跨類加總；已處理土地不屬現有庫存。"
+        ],
+        "by_dimension": {
+          "保留": {
+            "breaks": [
+              23000,
+              25000,
+              32000,
+              58000
+            ],
+            "direction": "ascending"
+          },
+          "借用": {
+            "breaks": [
+              1,
+              3,
+              10,
+              25
+            ],
+            "direction": "ascending"
+          },
+          "出售": {
+            "breaks": [
+              36,
+              100,
+              190,
+              360
+            ],
+            "direction": "ascending"
+          },
+          "出租": {
+            "breaks": [
+              4200,
+              13000,
+              20000,
+              31000
+            ],
+            "direction": "ascending"
+          },
+          "占用": {
+            "breaks": [
+              4200,
+              13000,
+              19000,
+              29000
+            ],
+            "direction": "ascending"
+          },
+          "委託管理": {
+            "breaks": [
+              41,
+              140,
+              270,
+              490
+            ],
+            "direction": "ascending"
+          },
+          "委託經營": {
+            "breaks": [
+              1,
+              65,
+              200,
+              280
+            ],
+            "direction": "ascending"
+          },
+          "已處理土地": {
+            "breaks": [
+              350,
+              730,
+              920,
+              1500
+            ],
+            "direction": "ascending"
+          },
+          "待勘查": {
+            "breaks": [
+              880,
+              2200,
+              5300,
+              6300
+            ],
+            "direction": "ascending"
+          },
+          "待處理": {
+            "breaks": [
+              47,
+              84,
+              130,
+              190
+            ],
+            "direction": "ascending"
+          },
+          "採取土石": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "提供使用": {
+            "breaks": [
+              430,
+              770,
+              1100,
+              1700
+            ],
+            "direction": "ascending"
+          },
+          "改良利用": {
+            "breaks": [
+              1,
+              25,
+              77,
+              180
+            ],
+            "direction": "ascending"
+          },
+          "放領(註銷)": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "有償撥用": {
+            "breaks": [
+              1,
+              6,
+              40,
+              93
+            ],
+            "direction": "ascending"
+          },
+          "無償撥用": {
+            "breaks": [
+              68,
+              160,
+              200,
+              280
+            ],
+            "direction": "ascending"
+          },
+          "設定地上權": {
+            "breaks": [
+              1,
+              4,
+              8,
+              56
+            ],
+            "direction": "ascending"
+          },
+          "註銷產籍": {
+            "breaks": [
+              170,
+              320,
+              580,
+              700
+            ],
+            "direction": "ascending"
+          },
+          "閒置": {
+            "breaks": [
+              5600,
+              8600,
+              12000,
+              17000
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。管理區分為 20 類（含兩個小計）。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStateLandValuePerSqm",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用土地每平方公尺價值",
+      "group": "stateLand",
+      "group_label": "國有非公用土地",
+      "option_label": "每平方公尺價值",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_management_county",
+      "indicator_id": "nonpublic_land_value_per_sqm",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "元／平方公尺",
+      "aggregation": "ratio",
+      "default_release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+      "dimensions": [
+        {
+          "key": "管理區分",
+          "label": "管理區分",
+          "default": "未處理土地",
+          "options": [
+            {
+              "value": "未處理土地",
+              "label": "未處理土地"
+            },
+            {
+              "value": "保留",
+              "label": "保留"
+            },
+            {
+              "value": "借用",
+              "label": "借用"
+            },
+            {
+              "value": "出售",
+              "label": "出售"
+            },
+            {
+              "value": "出租",
+              "label": "出租"
+            },
+            {
+              "value": "占用",
+              "label": "占用"
+            },
+            {
+              "value": "委託管理",
+              "label": "委託管理"
+            },
+            {
+              "value": "委託經營",
+              "label": "委託經營"
+            },
+            {
+              "value": "已處理土地",
+              "label": "已處理土地"
+            },
+            {
+              "value": "待勘查",
+              "label": "待勘查"
+            },
+            {
+              "value": "待處理",
+              "label": "待處理"
+            },
+            {
+              "value": "採取土石",
+              "label": "採取土石"
+            },
+            {
+              "value": "提供使用",
+              "label": "提供使用"
+            },
+            {
+              "value": "改良利用",
+              "label": "改良利用"
+            },
+            {
+              "value": "放領(註銷)",
+              "label": "放領(註銷)"
+            },
+            {
+              "value": "有償撥用",
+              "label": "有償撥用"
+            },
+            {
+              "value": "無償撥用",
+              "label": "無償撥用"
+            },
+            {
+              "value": "設定地上權",
+              "label": "設定地上權"
+            },
+            {
+              "value": "註銷產籍",
+              "label": "註銷產籍"
+            },
+            {
+              "value": "閒置",
+              "label": "閒置"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "閒置"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "註銷產籍"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "設定地上權"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "無償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "未處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "有償撥用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "放領(註銷)"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "改良利用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "提供使用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "採取土石"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待處理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "待勘查"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "已處理土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託經營"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "委託管理"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "占用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出租"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "出售"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "借用"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_land_value_per_sqm-county-v1-e491c0131380",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "管理區分": "保留"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          120,
+          220,
+          480,
+          1000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用土地管理區分報告表（data.gov.tw 30583）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "每平方公尺價值只供縣市間比較，不可乘回面積或加總成國有財產總值（來源未註明是帳面價值或公告現值）。",
+          "管理區分含「未處理土地」「已處理土地」兩個小計，不可跨類加總；已處理土地不屬現有庫存。"
+        ],
+        "by_dimension": {
+          "保留": {
+            "breaks": [
+              120,
+              270,
+              570,
+              900
+            ],
+            "direction": "ascending"
+          },
+          "借用": {
+            "breaks": [
+              590,
+              1100,
+              2400,
+              4500
+            ],
+            "direction": "ascending"
+          },
+          "出售": {
+            "breaks": [
+              730,
+              1100,
+              2000,
+              3700
+            ],
+            "direction": "ascending"
+          },
+          "出租": {
+            "breaks": [
+              110,
+              210,
+              330,
+              920
+            ],
+            "direction": "ascending"
+          },
+          "占用": {
+            "breaks": [
+              150,
+              270,
+              490,
+              2100
+            ],
+            "direction": "ascending"
+          },
+          "委託管理": {
+            "breaks": [
+              210,
+              440,
+              1300,
+              4800
+            ],
+            "direction": "ascending"
+          },
+          "委託經營": {
+            "breaks": [
+              130,
+              200,
+              370,
+              2200
+            ],
+            "direction": "ascending"
+          },
+          "已處理土地": {
+            "breaks": [
+              180,
+              300,
+              620,
+              1900
+            ],
+            "direction": "ascending"
+          },
+          "待勘查": {
+            "breaks": [
+              110,
+              230,
+              390,
+              1000
+            ],
+            "direction": "ascending"
+          },
+          "待處理": {
+            "breaks": [
+              100,
+              350,
+              800,
+              1200
+            ],
+            "direction": "ascending"
+          },
+          "採取土石": {
+            "breaks": [
+              720,
+              1440
+            ],
+            "direction": "ascending"
+          },
+          "提供使用": {
+            "breaks": [
+              120,
+              220,
+              430,
+              1800
+            ],
+            "direction": "ascending"
+          },
+          "改良利用": {
+            "breaks": [
+              1600,
+              5500,
+              7400,
+              12000
+            ],
+            "direction": "ascending"
+          },
+          "放領(註銷)": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "有償撥用": {
+            "breaks": [
+              350,
+              620,
+              1000,
+              4700
+            ],
+            "direction": "ascending"
+          },
+          "無償撥用": {
+            "breaks": [
+              190,
+              460,
+              1500,
+              4000
+            ],
+            "direction": "ascending"
+          },
+          "設定地上權": {
+            "breaks": [
+              1800,
+              5200,
+              8500,
+              14000
+            ],
+            "direction": "ascending"
+          },
+          "註銷產籍": {
+            "breaks": [
+              160,
+              210,
+              480,
+              1300
+            ],
+            "direction": "ascending"
+          },
+          "閒置": {
+            "breaks": [
+              100,
+              220,
+              480,
+              1100
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（該類面積為 0，沒有單位價值）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": true,
+      "location_semantics": "國有非公用土地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用土地管理區分報告表（依縣市統計）」（data.gov.tw 30583）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。未處理土地＝待勘查＋待處理＋閒置＋保留＋占用＋出租＋借用＋委託經營＋委託管理＋採取土石＋設定地上權＋改良利用＋提供使用（13 子項，逐縣加總差 0）；已處理土地（無償撥用、有償撥用、出售、註銷產籍、放領）不屬現有庫存，其語意（年度或累計處分）來源未說明，不可與未處理土地相加。管理區分含兩個小計（未處理土地、已處理土地），跨管理區分加總會重複計算。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。價值÷面積；面積 0 時單位價值為不適用。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30583",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=619",
+      "source_title": "國有非公用土地管理區分報告表(依縣市統計)（data.gov.tw 30583）"
+    },
+    {
+      "layer_key": "statsStatePropertyArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用房地面積",
+      "group": "stateProperty",
+      "group_label": "國有非公用房地",
+      "option_label": "面積",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_property_county",
+      "indicator_id": "nonpublic_property_area_ha",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+      "dimensions": [
+        {
+          "key": "分類",
+          "label": "分類",
+          "default": "土地",
+          "options": [
+            {
+              "value": "土地",
+              "label": "土地"
+            },
+            {
+              "value": "交通水利用地",
+              "label": "交通水利用地"
+            },
+            {
+              "value": "其他建築及設備",
+              "label": "其他建築及設備"
+            },
+            {
+              "value": "其他建築用地",
+              "label": "其他建築用地"
+            },
+            {
+              "value": "房屋",
+              "label": "房屋"
+            },
+            {
+              "value": "房屋及設備",
+              "label": "房屋及設備"
+            },
+            {
+              "value": "房屋基地",
+              "label": "房屋基地"
+            },
+            {
+              "value": "直接生產用地",
+              "label": "直接生產用地"
+            },
+            {
+              "value": "荒蕪地",
+              "label": "荒蕪地"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "荒蕪地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "直接生產用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋基地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_area_ha-county-v1-761bb5f2b16b",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "交通水利用地"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1900,
+          4400,
+          11000,
+          17000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用房地數量價值報告表（data.gov.tw 30580）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "分類含「土地」「房屋」兩個小計，不可跨類加總；房屋面積為建物面積。"
+        ],
+        "by_dimension": {
+          "交通水利用地": {
+            "breaks": [
+              120,
+              560,
+              900,
+              1300
+            ],
+            "direction": "ascending"
+          },
+          "其他建築及設備": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "其他建築用地": {
+            "breaks": [
+              130,
+              180,
+              260,
+              520
+            ],
+            "direction": "ascending"
+          },
+          "房屋": {
+            "breaks": [
+              1,
+              2,
+              3,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "房屋及設備": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "房屋基地": {
+            "breaks": [
+              32,
+              130,
+              200,
+              310
+            ],
+            "direction": "ascending"
+          },
+          "直接生產用地": {
+            "breaks": [
+              560,
+              2500,
+              7100,
+              12000
+            ],
+            "direction": "ascending"
+          },
+          "荒蕪地": {
+            "breaks": [
+              740,
+              1100,
+              1400,
+              2000
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "國有非公用房地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用房地數量價值報告表（依縣市統計）」（30580）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。土地＝房屋基地＋其他建築用地＋直接生產用地＋交通水利用地＋荒蕪地；房屋＝房屋及設備＋其他建築及設備（逐縣加總差 0）。本表「土地」與 30583「未處理土地」逐格相同。房屋面積為建物面積。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。來源平方公尺÷10⁴；房屋為建物面積。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30580",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=616",
+      "source_title": "國有非公用房地數量價值報告表(依縣市統計)（data.gov.tw 30580）"
+    },
+    {
+      "layer_key": "statsStatePropertyParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用房地筆戶數",
+      "group": "stateProperty",
+      "group_label": "國有非公用房地",
+      "option_label": "筆戶數",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_property_county",
+      "indicator_id": "nonpublic_property_parcels",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆戶",
+      "aggregation": "sum",
+      "default_release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+      "dimensions": [
+        {
+          "key": "分類",
+          "label": "分類",
+          "default": "土地",
+          "options": [
+            {
+              "value": "土地",
+              "label": "土地"
+            },
+            {
+              "value": "交通水利用地",
+              "label": "交通水利用地"
+            },
+            {
+              "value": "其他建築及設備",
+              "label": "其他建築及設備"
+            },
+            {
+              "value": "其他建築用地",
+              "label": "其他建築用地"
+            },
+            {
+              "value": "房屋",
+              "label": "房屋"
+            },
+            {
+              "value": "房屋及設備",
+              "label": "房屋及設備"
+            },
+            {
+              "value": "房屋基地",
+              "label": "房屋基地"
+            },
+            {
+              "value": "直接生產用地",
+              "label": "直接生產用地"
+            },
+            {
+              "value": "荒蕪地",
+              "label": "荒蕪地"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "荒蕪地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "直接生產用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋基地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_parcels-county-v1-80a887fdc4f3",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "交通水利用地"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          44000,
+          66000,
+          100000,
+          140000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用房地數量價值報告表（data.gov.tw 30580）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "分類含「土地」「房屋」兩個小計，不可跨類加總；房屋面積為建物面積。"
+        ],
+        "by_dimension": {
+          "交通水利用地": {
+            "breaks": [
+              7600,
+              14000,
+              21000,
+              33000
+            ],
+            "direction": "ascending"
+          },
+          "其他建築及設備": {
+            "breaks": [
+              1,
+              2,
+              6,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "其他建築用地": {
+            "breaks": [
+              3000,
+              3800,
+              6000,
+              14000
+            ],
+            "direction": "ascending"
+          },
+          "房屋": {
+            "breaks": [
+              37,
+              70,
+              240,
+              320
+            ],
+            "direction": "ascending"
+          },
+          "房屋及設備": {
+            "breaks": [
+              35,
+              64,
+              240,
+              300
+            ],
+            "direction": "ascending"
+          },
+          "房屋基地": {
+            "breaks": [
+              5100,
+              11000,
+              19000,
+              30000
+            ],
+            "direction": "ascending"
+          },
+          "直接生產用地": {
+            "breaks": [
+              6300,
+              16000,
+              36000,
+              59000
+            ],
+            "direction": "ascending"
+          },
+          "荒蕪地": {
+            "breaks": [
+              5700,
+              10000,
+              14000,
+              18000
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "國有非公用房地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用房地數量價值報告表（依縣市統計）」（30580）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。土地＝房屋基地＋其他建築用地＋直接生產用地＋交通水利用地＋荒蕪地；房屋＝房屋及設備＋其他建築及設備（逐縣加總差 0）。本表「土地」與 30583「未處理土地」逐格相同。房屋面積為建物面積。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。分類為 9 類（含土地、房屋兩個小計）。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30580",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=616",
+      "source_title": "國有非公用房地數量價值報告表(依縣市統計)（data.gov.tw 30580）"
+    },
+    {
+      "layer_key": "statsStatePropertyValuePerSqm",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用房地每平方公尺價值",
+      "group": "stateProperty",
+      "group_label": "國有非公用房地",
+      "option_label": "每平方公尺價值",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_property_county",
+      "indicator_id": "nonpublic_property_value_per_sqm",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "元／平方公尺",
+      "aggregation": "ratio",
+      "default_release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+      "dimensions": [
+        {
+          "key": "分類",
+          "label": "分類",
+          "default": "土地",
+          "options": [
+            {
+              "value": "土地",
+              "label": "土地"
+            },
+            {
+              "value": "交通水利用地",
+              "label": "交通水利用地"
+            },
+            {
+              "value": "其他建築及設備",
+              "label": "其他建築及設備"
+            },
+            {
+              "value": "其他建築用地",
+              "label": "其他建築用地"
+            },
+            {
+              "value": "房屋",
+              "label": "房屋"
+            },
+            {
+              "value": "房屋及設備",
+              "label": "房屋及設備"
+            },
+            {
+              "value": "房屋基地",
+              "label": "房屋基地"
+            },
+            {
+              "value": "直接生產用地",
+              "label": "直接生產用地"
+            },
+            {
+              "value": "荒蕪地",
+              "label": "荒蕪地"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "荒蕪地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "直接生產用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋基地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "房屋"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "土地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築用地"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "其他建築及設備"
+          }
+        },
+        {
+          "release_id": "2025-nonpublic_property_value_per_sqm-county-v1-34f07bb53e6f",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "分類": "交通水利用地"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          120,
+          220,
+          480,
+          1000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用房地數量價值報告表（data.gov.tw 30580）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。",
+          "每平方公尺價值只供縣市間比較，不可乘回面積或加總成國有財產總值（來源未註明是帳面價值或公告現值）。",
+          "分類含「土地」「房屋」兩個小計，不可跨類加總；房屋面積為建物面積。"
+        ],
+        "by_dimension": {
+          "交通水利用地": {
+            "breaks": [
+              240,
+              370,
+              860,
+              3300
+            ],
+            "direction": "ascending"
+          },
+          "其他建築及設備": {
+            "breaks": [
+              610,
+              2100,
+              3200,
+              7200
+            ],
+            "direction": "ascending"
+          },
+          "其他建築用地": {
+            "breaks": [
+              290,
+              720,
+              1000,
+              3500
+            ],
+            "direction": "ascending"
+          },
+          "房屋": {
+            "breaks": [
+              1000,
+              1700,
+              2400,
+              3900
+            ],
+            "direction": "ascending"
+          },
+          "房屋及設備": {
+            "breaks": [
+              1100,
+              1600,
+              2200,
+              3500
+            ],
+            "direction": "ascending"
+          },
+          "房屋基地": {
+            "breaks": [
+              1100,
+              2000,
+              3600,
+              7300
+            ],
+            "direction": "ascending"
+          },
+          "直接生產用地": {
+            "breaks": [
+              66,
+              140,
+              230,
+              480
+            ],
+            "direction": "ascending"
+          },
+          "荒蕪地": {
+            "breaks": [
+              98,
+              200,
+              340,
+              640
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（該類面積為 0，沒有單位價值）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": true,
+      "location_semantics": "國有非公用房地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用房地數量價值報告表（依縣市統計）」（30580）。114 年底（2025-12-31）存量，單一期；上游每年覆蓋舊版，本處以 2025 年度期別呈現。土地＝房屋基地＋其他建築用地＋直接生產用地＋交通水利用地＋荒蕪地；房屋＝房屋及設備＋其他建築及設備（逐縣加總差 0）。本表「土地」與 30583「未處理土地」逐格相同。房屋面積為建物面積。價值為來源「價值(元)」÷面積；來源未註明是帳面價值或公告現值，只供縣市間比較／排名，不可乘回面積或跨縣市加總成「國有財產總值」。價值÷面積。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/30580",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=616",
+      "source_title": "國有非公用房地數量價值報告表(依縣市統計)（data.gov.tw 30580）"
+    },
+    {
+      "layer_key": "statsStateLandRentalArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用不動產出租面積",
+      "group": "stateLandRental",
+      "group_label": "國有不動產出租",
+      "option_label": "出租面積",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_rental_county",
+      "indicator_id": "rental_area_ha",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2025-rental_area_ha-county-v1-ef9ef3402024",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-rental_area_ha-county-v1-ef9ef3402024",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-rental_area_ha-county-v1-0a651d5457db",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-rental_area_ha-county-v1-54f457a80661",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-rental_area_ha-county-v1-8a8d3413e813",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-rental_area_ha-county-v1-eb387075a464",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-rental_area_ha-county-v1-91111bb351de",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2019-rental_area_ha-county-v1-3956187bc116",
+          "period_start": "2019-01-01",
+          "period_end": "2019-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2018-rental_area_ha-county-v1-d308a55c119f",
+          "period_start": "2018-01-01",
+          "period_end": "2018-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2017-rental_area_ha-county-v1-e832d4825b0d",
+          "period_start": "2017-01-01",
+          "period_end": "2017-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2016-rental_area_ha-county-v1-f614b191e5d2",
+          "period_start": "2016-01-01",
+          "period_end": "2016-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2015-rental_area_ha-county-v1-68f1fe7308aa",
+          "period_start": "2015-01-01",
+          "period_end": "2015-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2014-rental_area_ha-county-v1-cc53f0b0a8e5",
+          "period_start": "2014-01-01",
+          "period_end": "2014-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2013-rental_area_ha-county-v1-e9fe81a1daf4",
+          "period_start": "2013-01-01",
+          "period_end": "2013-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2012-rental_area_ha-county-v1-e52ff1b32bd6",
+          "period_start": "2012-01-01",
+          "period_end": "2012-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2011-rental_area_ha-county-v1-6b3549ef341d",
+          "period_start": "2011-01-01",
+          "period_end": "2011-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2010-rental_area_ha-county-v1-ce926587aacc",
+          "period_start": "2010-01-01",
+          "period_end": "2010-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2009-rental_area_ha-county-v1-6c417bfec51c",
+          "period_start": "2009-01-01",
+          "period_end": "2009-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2008-rental_area_ha-county-v1-3d11f2255d8a",
+          "period_start": "2008-01-01",
+          "period_end": "2008-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2007-rental_area_ha-county-v1-219cb86e48e7",
+          "period_start": "2007-01-01",
+          "period_end": "2007-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2006-rental_area_ha-county-v1-a80a62f5372d",
+          "period_start": "2006-01-01",
+          "period_end": "2006-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2005-rental_area_ha-county-v1-76b108eded2b",
+          "period_start": "2005-01-01",
+          "period_end": "2005-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2004-rental_area_ha-county-v1-d843169b50ee",
+          "period_start": "2004-01-01",
+          "period_end": "2004-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2003-rental_area_ha-county-v1-c5cfabcdcd56",
+          "period_start": "2003-01-01",
+          "period_end": "2003-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2002-rental_area_ha-county-v1-a150c59116cb",
+          "period_start": "2002-01-01",
+          "period_end": "2002-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          120,
+          1200,
+          3300,
+          7100
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 歷年國有非公用不動產出租統計（data.gov.tw 6720）；政府資料開放授權條款-第1版。",
+          "91–99 年臺中、臺南、高雄為改制前縣＋市合併值；連江縣 91–93 年無資料。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料（連江縣 91–93 年來源為「-」，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "出租標的所在縣市",
+      "disclosure": "財政部國有財產署「歷年國有非公用不動產出租統計」（6720，民國 91–114 年）。年度存量。91–99 年為五都改制前資料：臺中縣＋臺中市、臺南縣＋臺南市、高雄縣＋高雄市以整個行政單位合併為現制直轄市（筆數、公頃直接相加，非面積重分配）；連江縣 91–93 年來源為「-」，標示為無資料。全國租金收入（千元）僅有全國值，未納入縣市統計。36962（100–114 年）與本表共用欄位逐格相同，不重複收錄。年度出租面積。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/6720",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=500",
+      "source_title": "歷年國有非公用不動產出租統計（data.gov.tw 6720）"
+    },
+    {
+      "layer_key": "statsStateLandRentalParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用不動產出租筆數",
+      "group": "stateLandRental",
+      "group_label": "國有不動產出租",
+      "option_label": "出租筆數",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_land_rental_county",
+      "indicator_id": "rental_parcels",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2025-rental_parcels-county-v1-59b2d2ae6581",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-rental_parcels-county-v1-59b2d2ae6581",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-rental_parcels-county-v1-b6c0d39e8ef7",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-rental_parcels-county-v1-a1b85cc605d3",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-rental_parcels-county-v1-44685621fa9b",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-rental_parcels-county-v1-8d9b7c8f259c",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-rental_parcels-county-v1-f711adb1194c",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2019-rental_parcels-county-v1-1609448b8d4b",
+          "period_start": "2019-01-01",
+          "period_end": "2019-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2018-rental_parcels-county-v1-698249a72b0f",
+          "period_start": "2018-01-01",
+          "period_end": "2018-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2017-rental_parcels-county-v1-56abc27b7e95",
+          "period_start": "2017-01-01",
+          "period_end": "2017-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2016-rental_parcels-county-v1-1ed863c8a078",
+          "period_start": "2016-01-01",
+          "period_end": "2016-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2015-rental_parcels-county-v1-2a262d6dd005",
+          "period_start": "2015-01-01",
+          "period_end": "2015-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2014-rental_parcels-county-v1-3809f7a8d16a",
+          "period_start": "2014-01-01",
+          "period_end": "2014-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2013-rental_parcels-county-v1-c30461a79858",
+          "period_start": "2013-01-01",
+          "period_end": "2013-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2012-rental_parcels-county-v1-17c0b6eb7df0",
+          "period_start": "2012-01-01",
+          "period_end": "2012-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2011-rental_parcels-county-v1-7917bb78f2bb",
+          "period_start": "2011-01-01",
+          "period_end": "2011-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2010-rental_parcels-county-v1-d037f32aec59",
+          "period_start": "2010-01-01",
+          "period_end": "2010-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2009-rental_parcels-county-v1-d4fd701c3c69",
+          "period_start": "2009-01-01",
+          "period_end": "2009-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2008-rental_parcels-county-v1-0bcc5bd0199e",
+          "period_start": "2008-01-01",
+          "period_end": "2008-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2007-rental_parcels-county-v1-505a4ff9b1e2",
+          "period_start": "2007-01-01",
+          "period_end": "2007-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2006-rental_parcels-county-v1-ae011b453278",
+          "period_start": "2006-01-01",
+          "period_end": "2006-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2005-rental_parcels-county-v1-f9526a3a3f6b",
+          "period_start": "2005-01-01",
+          "period_end": "2005-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2004-rental_parcels-county-v1-59c4643341fd",
+          "period_start": "2004-01-01",
+          "period_end": "2004-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2003-rental_parcels-county-v1-2127f9aeae05",
+          "period_start": "2003-01-01",
+          "period_end": "2003-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2002-rental_parcels-county-v1-297d5c82b42b",
+          "period_start": "2002-01-01",
+          "period_end": "2002-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          4200,
+          13000,
+          20000,
+          31000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 歷年國有非公用不動產出租統計（data.gov.tw 6720）；政府資料開放授權條款-第1版。",
+          "91–99 年臺中、臺南、高雄為改制前縣＋市合併值；連江縣 91–93 年無資料。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料（連江縣 91–93 年來源為「-」，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "出租標的所在縣市",
+      "disclosure": "財政部國有財產署「歷年國有非公用不動產出租統計」（6720，民國 91–114 年）。年度存量。91–99 年為五都改制前資料：臺中縣＋臺中市、臺南縣＋臺南市、高雄縣＋高雄市以整個行政單位合併為現制直轄市（筆數、公頃直接相加，非面積重分配）；連江縣 91–93 年來源為「-」，標示為無資料。全國租金收入（千元）僅有全國值，未納入縣市統計。36962（100–114 年）與本表共用欄位逐格相同，不重複收錄。年度出租筆（錄）數。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/6720",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=500",
+      "source_title": "歷年國有非公用不動產出租統計（data.gov.tw 6720）"
+    },
+    {
+      "layer_key": "statsStateResidentialArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用住宅用地面積",
+      "group": "stateResidential",
+      "group_label": "國有住宅用地",
+      "option_label": "面積",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_residential_land_county",
+      "indicator_id": "residential_land_area_ha",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2025-residential_land_area_ha-county-v1-4f812c32fd7e",
+      "dimensions": [
+        {
+          "key": "計畫區別",
+          "label": "計畫區別",
+          "default": "都市計畫區",
+          "options": [
+            {
+              "value": "都市計畫區",
+              "label": "都市計畫區"
+            },
+            {
+              "value": "非都市計畫區",
+              "label": "非都市計畫區"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-residential_land_area_ha-county-v1-4f812c32fd7e",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "計畫區別": "非都市計畫區"
+          }
+        },
+        {
+          "release_id": "2025-residential_land_area_ha-county-v1-4f812c32fd7e",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "計畫區別": "都市計畫區"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          26,
+          49,
+          85,
+          190
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用住宅用地統計表（data.gov.tw 36963）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。"
+        ],
+        "by_dimension": {
+          "非都市計畫區": {
+            "breaks": [
+              1,
+              48,
+              65,
+              130
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "住宅用地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用住宅用地統計表（年報）」（36963）。114 年底存量，單一期。計畫區別分都市計畫區、非都市計畫區。來源「臺灣地區」列僅含 6 直轄市、「臺灣省」「福建省」為小計，皆已排除；來源明列 0 照實為 0。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/36963",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=649",
+      "source_title": "國有非公用住宅用地統計表(年報)（data.gov.tw 36963）"
+    },
+    {
+      "layer_key": "statsStateResidentialParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "國有非公用住宅用地筆數",
+      "group": "stateResidential",
+      "group_label": "國有住宅用地",
+      "option_label": "筆數",
+      "subgroup": "國有資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "state_residential_land_county",
+      "indicator_id": "residential_land_parcels",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2025-residential_land_parcels-county-v1-f78141c0280d",
+      "dimensions": [
+        {
+          "key": "計畫區別",
+          "label": "計畫區別",
+          "default": "都市計畫區",
+          "options": [
+            {
+              "value": "都市計畫區",
+              "label": "都市計畫區"
+            },
+            {
+              "value": "非都市計畫區",
+              "label": "非都市計畫區"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2025-residential_land_parcels-county-v1-f78141c0280d",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "計畫區別": "非都市計畫區"
+          }
+        },
+        {
+          "release_id": "2025-residential_land_parcels-county-v1-f78141c0280d",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "計畫區別": "都市計畫區"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          3900,
+          5300,
+          10000,
+          25000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：財政部國有財產署 國有非公用住宅用地統計表（data.gov.tw 36963）；政府資料開放授權條款-第1版。",
+          "114 年底存量（單一期）。"
+        ],
+        "by_dimension": {
+          "非都市計畫區": {
+            "breaks": [
+              1,
+              2600,
+              4800,
+              7800
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "住宅用地所在縣市",
+      "disclosure": "財政部國有財產署「國有非公用住宅用地統計表（年報）」（36963）。114 年底存量，單一期。計畫區別分都市計畫區、非都市計畫區。來源「臺灣地區」列僅含 6 直轄市、「臺灣省」「福建省」為小計，皆已排除；來源明列 0 照實為 0。",
+      "publisher": "財政部國有財產署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/36963",
+      "source_download_url": "https://esvc.fnp.gov.tw/opendata/openDataMain/file?sourceId=649",
+      "source_title": "國有非公用住宅用地統計表(年報)（data.gov.tw 36963）"
+    },
+    {
+      "layer_key": "statsTaisugarRentableArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "台糖公告可供出租土地面積",
+      "group": "taisugarRentable",
+      "group_label": "台糖可供出租土地（公告）",
+      "option_label": "面積",
+      "subgroup": "國營事業資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "taisugar_rentable_land_township",
+      "indicator_id": "rentable_area_ha",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2024-rentable_area_ha-township-v1-e86f2dc289c7",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2024-rentable_area_ha-township-v1-e86f2dc289c7",
+          "period_start": "2024-08-14",
+          "period_end": "2024-08-14",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          4,
+          11
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：台灣糖業股份有限公司 可供出租土地資訊（data.gov.tw 25754）；政府資料開放授權條款-第1版。",
+          "台糖公告「可供出租」的土地清單，不是台糖持有土地總量；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "土地所在鄉鎮市區（地籍）",
+      "disclosure": "台灣糖業公司「可供出租土地資訊」（25754，data.gov.tw metadata 2024-08-14；實際快照日來源未載明）。這是台糖公告「可供出租」的土地清單，不是台糖持有土地總量。清單未列出的鄉鎮標示為無資料（未涵蓋），不是 0。嘉義市、新竹市有 139 列鄉鎮欄只填市名、無法落到區，這些列未計入任何鄉鎮（1.91 公頃）。台西→臺西、台東→臺東已正規化。面積平方公尺÷10⁴。",
+      "publisher": "台灣糖業股份有限公司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/25754",
+      "source_download_url": "https://www.taisugar.com.tw/Upload/UserFiles/台灣糖業公司_可供出租土地資訊.csv",
+      "source_title": "台灣糖業公司可供出租土地資訊（data.gov.tw 25754）"
+    },
+    {
+      "layer_key": "statsTaisugarRentableParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "台糖公告可供出租土地地號數",
+      "group": "taisugarRentable",
+      "group_label": "台糖可供出租土地（公告）",
+      "option_label": "地號數",
+      "subgroup": "國營事業資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "taisugar_rentable_land_township",
+      "indicator_id": "rentable_parcels",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2024-rentable_parcels-township-v1-4f1144f6518c",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2024-rentable_parcels-township-v1-4f1144f6518c",
+          "period_start": "2024-08-14",
+          "period_end": "2024-08-14",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          9,
+          31,
+          60,
+          120
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：台灣糖業股份有限公司 可供出租土地資訊（data.gov.tw 25754）；政府資料開放授權條款-第1版。",
+          "台糖公告「可供出租」的土地清單，不是台糖持有土地總量；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "土地所在鄉鎮市區（地籍）",
+      "disclosure": "台灣糖業公司「可供出租土地資訊」（25754，data.gov.tw metadata 2024-08-14；實際快照日來源未載明）。這是台糖公告「可供出租」的土地清單，不是台糖持有土地總量。清單未列出的鄉鎮標示為無資料（未涵蓋），不是 0。嘉義市、新竹市有 139 列鄉鎮欄只填市名、無法落到區，這些列未計入任何鄉鎮（1.91 公頃）。台西→臺西、台東→臺東已正規化。地號＝縣市+鄉鎮+段+小段+母號+子號+分號（來源無重複）。",
+      "publisher": "台灣糖業股份有限公司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/25754",
+      "source_download_url": "https://www.taisugar.com.tw/Upload/UserFiles/台灣糖業公司_可供出租土地資訊.csv",
+      "source_title": "台灣糖業公司可供出租土地資訊（data.gov.tw 25754）"
+    },
+    {
+      "layer_key": "statsTaisugarAnnouncedArea",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "台糖歷年公告標的面積（去重）",
+      "group": "taisugarAnnounced",
+      "group_label": "台糖歷年標租標的",
+      "option_label": "面積（依地號去重）",
+      "subgroup": "國營事業資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "taisugar_announced_land_township",
+      "indicator_id": "announced_area_ha",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "公頃",
+      "aggregation": "sum",
+      "default_release_id": "2016-announced_area_ha-township-v1-99ac2bd05e80",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2016-announced_area_ha-township-v1-99ac2bd05e80",
+          "period_start": "2016-01-01",
+          "period_end": "2026-10-24",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          12,
+          44,
+          160
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：台灣糖業股份有限公司 資產公告土地明細資料（data.gov.tw 101669）；政府資料開放授權條款-第1版。",
+          "歷年標租標的，非持有地（2016 年起至下載日累計公告）；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。",
+          "公告列數未去重（同地號被公告幾次就計幾次）；面積與地號數已依地號去重。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "土地所在鄉鎮市區（地籍）",
+      "disclosure": "台灣糖業公司「資產公告土地明細資料」（101669，公告現值年 105–115）。這是歷年標租／合建等資產公告案的標的地，不是台糖持有土地，也不是目前可租地。同一地號會出現在多個公告案（30,137 列只有 12,069 個地號），地號數與面積先依 縣市+鄉鎮+段號+母號+子號（代碼）去重，面積取最新公告現值年那筆；「公告列數」才是未去重的公告標的列數。清單未列出的鄉鎮標示為無資料（未涵蓋），不是 0。別字修正：巿→市（南投、彰化、嘉義）、塩埔→鹽埔、台東→臺東；鄉鎮欄只填市名的嘉義市、新竹市 25 個地號未計入任何鄉鎮。依地號去重後面積。",
+      "publisher": "台灣糖業股份有限公司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/101669",
+      "source_download_url": "https://www.taisugar.com.tw/DownLoadDataRow.ashx?DataRow=10",
+      "source_title": "台灣糖業公司資產公告土地明細資料（data.gov.tw 101669）"
+    },
+    {
+      "layer_key": "statsTaisugarAnnouncedParcels",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "台糖歷年公告標的地號數（去重）",
+      "group": "taisugarAnnounced",
+      "group_label": "台糖歷年標租標的",
+      "option_label": "地號數（去重）",
+      "subgroup": "國營事業資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "taisugar_announced_land_township",
+      "indicator_id": "announced_parcels",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2016-announced_parcels-township-v1-77b52208170b",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2016-announced_parcels-township-v1-77b52208170b",
+          "period_start": "2016-01-01",
+          "period_end": "2026-10-24",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          6,
+          20,
+          46,
+          110
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：台灣糖業股份有限公司 資產公告土地明細資料（data.gov.tw 101669）；政府資料開放授權條款-第1版。",
+          "歷年標租標的，非持有地（2016 年起至下載日累計公告）；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。",
+          "公告列數未去重（同地號被公告幾次就計幾次）；面積與地號數已依地號去重。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "土地所在鄉鎮市區（地籍）",
+      "disclosure": "台灣糖業公司「資產公告土地明細資料」（101669，公告現值年 105–115）。這是歷年標租／合建等資產公告案的標的地，不是台糖持有土地，也不是目前可租地。同一地號會出現在多個公告案（30,137 列只有 12,069 個地號），地號數與面積先依 縣市+鄉鎮+段號+母號+子號（代碼）去重，面積取最新公告現值年那筆；「公告列數」才是未去重的公告標的列數。清單未列出的鄉鎮標示為無資料（未涵蓋），不是 0。別字修正：巿→市（南投、彰化、嘉義）、塩埔→鹽埔、台東→臺東；鄉鎮欄只填市名的嘉義市、新竹市 25 個地號未計入任何鄉鎮。依地號去重。",
+      "publisher": "台灣糖業股份有限公司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/101669",
+      "source_download_url": "https://www.taisugar.com.tw/DownLoadDataRow.ashx?DataRow=10",
+      "source_title": "台灣糖業公司資產公告土地明細資料（data.gov.tw 101669）"
+    },
+    {
+      "layer_key": "statsTaisugarAnnouncedListings",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "台糖歷年公告標的列數（未去重）",
+      "group": "taisugarAnnounced",
+      "group_label": "台糖歷年標租標的",
+      "option_label": "公告列數（未去重）",
+      "subgroup": "國營事業資產",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "taisugar_announced_land_township",
+      "indicator_id": "announced_listings",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "筆次",
+      "aggregation": "sum",
+      "default_release_id": "2016-announced_listings-township-v1-c7c63677b318",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2016-announced_listings-township-v1-c7c63677b318",
+          "period_start": "2016-01-01",
+          "period_end": "2026-10-24",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          9,
+          33,
+          91,
+          310
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "出典：台灣糖業股份有限公司 資產公告土地明細資料（data.gov.tw 101669）；政府資料開放授權條款-第1版。",
+          "歷年標租標的，非持有地（2016 年起至下載日累計公告）；清單沒列到的鄉鎮為未涵蓋（斜線），不是 0。",
+          "公告列數未去重（同地號被公告幾次就計幾次）；面積與地號數已依地號去重。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "未涵蓋（台糖清單未列此鄉鎮，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "土地所在鄉鎮市區（地籍）",
+      "disclosure": "台灣糖業公司「資產公告土地明細資料」（101669，公告現值年 105–115）。這是歷年標租／合建等資產公告案的標的地，不是台糖持有土地，也不是目前可租地。同一地號會出現在多個公告案（30,137 列只有 12,069 個地號），地號數與面積先依 縣市+鄉鎮+段號+母號+子號（代碼）去重，面積取最新公告現值年那筆；「公告列數」才是未去重的公告標的列數。清單未列出的鄉鎮標示為無資料（未涵蓋），不是 0。別字修正：巿→市（南投、彰化、嘉義）、塩埔→鹽埔、台東→臺東；鄉鎮欄只填市名的嘉義市、新竹市 25 個地號未計入任何鄉鎮。同地號跨案重複計，代表被公告的次數。",
+      "publisher": "台灣糖業股份有限公司",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/101669",
+      "source_download_url": "https://www.taisugar.com.tw/DownLoadDataRow.ashx?DataRow=10",
+      "source_title": "台灣糖業公司資產公告土地明細資料（data.gov.tw 101669）"
+    },
+    {
+      "layer_key": "statsMojAuctionItems",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "行政執行署已拍定不動產標的數",
+      "group": "mojAuction",
+      "group_label": "行政執行署拍定不動產",
+      "option_label": "縣市・標的數",
+      "subgroup": "行政執行拍賣",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "moj_auctioned_real_estate_county",
+      "indicator_id": "auctioned_items",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2025-auctioned_items-county-v1-1e92b80f3070",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-auctioned_items-county-v1-3d247ccd9eee",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {},
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2025-auctioned_items-county-v1-1e92b80f3070",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-auctioned_items-county-v1-0599141ab108",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-auctioned_items-county-v1-581000f16364",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-auctioned_items-county-v1-6ff874a1990c",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-auctioned_items-county-v1-67d262498ebc",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-auctioned_items-county-v1-4aa4d35f4ba1",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          6,
+          13,
+          30
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：法務部行政執行署 所屬分署已拍定不動產資料（各年季度檔）（data.gov.tw 178752 等）；政府資料開放授權條款-第1版。",
+          "行政執行（欠稅、罰鍰等）拍賣的已拍定件數，不是國有財產、也不含法院拍賣，不代表當地房市；來源無金額。",
+          "2026 年只到 9 月 30 日（部分年），不可與全年比較。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "拍賣標的所在縣市",
+      "disclosure": "法務部行政執行署「所屬分署已拍定不動產資料」季度系列（data.gov.tw 每季一個 nid，每檔為近 5 年滾動窗）。每年取「完整涵蓋該年的最新一季檔」計數（2020＝113 年第四季檔 172383、2021＝114 年第四季檔 176422、2022–2026＝115 年第三季檔 178752）；2026 年只到 9 月 30 日（部分年度）。標的數＝拍定標的列數（一筆土地或建物一列，同一拍賣案可含多列）；拍賣案數＝拍賣案數（依拍賣網址 NO 去重）。欄位數錯誤的列（每檔 1–2 列）與完全重複列已排除。這是行政執行（欠稅、罰鍰等）拍賣的歷史成交件數，不是國有財產，也不代表當地房市。來源「金額」欄全空，未出金額指標。拍定標的列數。",
+      "publisher": "法務部行政執行署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/178752",
+      "source_download_url": "https://www.tpk.moj.gov.tw/media/20763383/%E4%B8%8D%E5%8B%95%E7%94%A2%E5%B7%B2%E6%8B%8D%E5%AE%9A%E6%A8%99%E7%9A%84%E8%B3%87%E6%96%99.csv?mediaDL=true",
+      "source_title": "行政執行署115年至第三季止所屬分署已拍定不動產資料下載(CSV、JSON及XML)（data.gov.tw 178752）"
+    },
+    {
+      "layer_key": "statsMojAuctionLots",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "行政執行署已拍定拍賣案數",
+      "group": "mojAuction",
+      "group_label": "行政執行署拍定不動產",
+      "option_label": "縣市・拍賣案數",
+      "subgroup": "行政執行拍賣",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "moj_auctioned_real_estate_county",
+      "indicator_id": "auctioned_lots",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "案",
+      "aggregation": "sum",
+      "default_release_id": "2025-auctioned_lots-county-v1-09eda9c20054",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-auctioned_lots-county-v1-e2ccf06c97d1",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {},
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2025-auctioned_lots-county-v1-09eda9c20054",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-auctioned_lots-county-v1-78a2bcc4e06b",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-auctioned_lots-county-v1-6bd8c63f0420",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-auctioned_lots-county-v1-7ec1af23b312",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-auctioned_lots-county-v1-c048312394d0",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-auctioned_lots-county-v1-5990248dcdeb",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          4,
+          8,
+          13
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：法務部行政執行署 所屬分署已拍定不動產資料（各年季度檔）（data.gov.tw 178752 等）；政府資料開放授權條款-第1版。",
+          "行政執行（欠稅、罰鍰等）拍賣的已拍定件數，不是國有財產、也不含法院拍賣，不代表當地房市；來源無金額。",
+          "2026 年只到 9 月 30 日（部分年），不可與全年比較。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "拍賣標的所在縣市",
+      "disclosure": "法務部行政執行署「所屬分署已拍定不動產資料」季度系列（data.gov.tw 每季一個 nid，每檔為近 5 年滾動窗）。每年取「完整涵蓋該年的最新一季檔」計數（2020＝113 年第四季檔 172383、2021＝114 年第四季檔 176422、2022–2026＝115 年第三季檔 178752）；2026 年只到 9 月 30 日（部分年度）。標的數＝拍定標的列數（一筆土地或建物一列，同一拍賣案可含多列）；拍賣案數＝拍賣案數（依拍賣網址 NO 去重）。欄位數錯誤的列（每檔 1–2 列）與完全重複列已排除。這是行政執行（欠稅、罰鍰等）拍賣的歷史成交件數，不是國有財產，也不代表當地房市。來源「金額」欄全空，未出金額指標。依拍賣網址 NO 去重。",
+      "publisher": "法務部行政執行署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/178752",
+      "source_download_url": "https://www.tpk.moj.gov.tw/media/20763383/%E4%B8%8D%E5%8B%95%E7%94%A2%E5%B7%B2%E6%8B%8D%E5%AE%9A%E6%A8%99%E7%9A%84%E8%B3%87%E6%96%99.csv?mediaDL=true",
+      "source_title": "行政執行署115年至第三季止所屬分署已拍定不動產資料下載(CSV、JSON及XML)（data.gov.tw 178752）"
+    },
+    {
+      "layer_key": "statsMojAuctionItemsByCategory",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "行政執行署已拍定不動產標的數（依拍賣類別）",
+      "group": "mojAuction",
+      "group_label": "行政執行署拍定不動產",
+      "option_label": "縣市・標的數（依類別）",
+      "subgroup": "行政執行拍賣",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "moj_auctioned_real_estate_county",
+      "indicator_id": "auctioned_items_by_category",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+      "dimensions": [
+        {
+          "key": "拍賣類別",
+          "label": "拍賣類別",
+          "default": "住宅",
+          "options": [
+            {
+              "value": "住宅",
+              "label": "住宅"
+            },
+            {
+              "value": "住店",
+              "label": "住店"
+            },
+            {
+              "value": "住辦",
+              "label": "住辦"
+            },
+            {
+              "value": "其它",
+              "label": "其它"
+            },
+            {
+              "value": "土地",
+              "label": "土地"
+            },
+            {
+              "value": "店面",
+              "label": "店面"
+            },
+            {
+              "value": "廠房",
+              "label": "廠房"
+            },
+            {
+              "value": "攤位",
+              "label": "攤位"
+            },
+            {
+              "value": "車位",
+              "label": "車位"
+            },
+            {
+              "value": "辦公",
+              "label": "辦公"
+            }
+          ]
+        }
+      ],
+      "release_options": [
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "車位"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "店面"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "土地"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "其它"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "住店"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2026-auctioned_items_by_category-county-v1-128f9b2356d8",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          },
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2025-auctioned_items_by_category-county-v1-df9bd6ea23bd",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2024-auctioned_items_by_category-county-v1-63b1dfb74c11",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2023-auctioned_items_by_category-county-v1-8caa5f9fa606",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2022-auctioned_items_by_category-county-v1-8e558bb4d0a7",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2021-auctioned_items_by_category-county-v1-a65e810046f6",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "辦公"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "車位"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "攤位"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "廠房"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "店面"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "土地"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "其它"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "住辦"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "住店"
+          }
+        },
+        {
+          "release_id": "2020-auctioned_items_by_category-county-v1-d9ad467f160e",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {
+            "拍賣類別": "住宅"
+          }
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：法務部行政執行署 所屬分署已拍定不動產資料（各年季度檔）（data.gov.tw 178752 等）；政府資料開放授權條款-第1版。",
+          "行政執行（欠稅、罰鍰等）拍賣的已拍定件數，不是國有財產、也不含法院拍賣，不代表當地房市；來源無金額。",
+          "2026 年只到 9 月 30 日（部分年），不可與全年比較。"
+        ],
+        "by_dimension": {
+          "住店": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "住辦": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "其它": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "土地": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "店面": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "廠房": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "攤位": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "車位": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "辦公": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "拍賣標的所在縣市",
+      "disclosure": "法務部行政執行署「所屬分署已拍定不動產資料」季度系列（data.gov.tw 每季一個 nid，每檔為近 5 年滾動窗）。每年取「完整涵蓋該年的最新一季檔」計數（2020＝113 年第四季檔 172383、2021＝114 年第四季檔 176422、2022–2026＝115 年第三季檔 178752）；2026 年只到 9 月 30 日（部分年度）。標的數＝拍定標的列數（一筆土地或建物一列，同一拍賣案可含多列）；拍賣案數＝拍賣案數（依拍賣網址 NO 去重）。欄位數錯誤的列（每檔 1–2 列）與完全重複列已排除。這是行政執行（欠稅、罰鍰等）拍賣的歷史成交件數，不是國有財產，也不代表當地房市。來源「金額」欄全空，未出金額指標。拍賣類別為來源原值。",
+      "publisher": "法務部行政執行署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/178752",
+      "source_download_url": "https://www.tpk.moj.gov.tw/media/20763383/%E4%B8%8D%E5%8B%95%E7%94%A2%E5%B7%B2%E6%8B%8D%E5%AE%9A%E6%A8%99%E7%9A%84%E8%B3%87%E6%96%99.csv?mediaDL=true",
+      "source_title": "行政執行署115年至第三季止所屬分署已拍定不動產資料下載(CSV、JSON及XML)（data.gov.tw 178752）"
+    },
+    {
+      "layer_key": "statsMojAuctionItemsTown",
+      "enabled": true,
+      "family": "stateAssets",
+      "label": "行政執行署已拍定不動產標的數",
+      "group": "mojAuction",
+      "group_label": "行政執行署拍定不動產",
+      "option_label": "鄉鎮・標的數",
+      "subgroup": "行政執行拍賣",
+      "data_theme": "國有資產統計 State Assets Statistics",
+      "tab_theme": "住宅與不動產 Housing & Property",
+      "visual_theme": "housing",
+      "dataset_id": "moj_auctioned_real_estate_township",
+      "indicator_id": "auctioned_items",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "筆",
+      "aggregation": "sum",
+      "default_release_id": "2025-auctioned_items-township-v1-55c6d658a4eb",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2026-auctioned_items-township-v1-c22574ee8aaf",
+          "period_start": "2026-01-01",
+          "period_end": "2026-09-30",
+          "dimensions": {},
+          "partial_period_label": "2026 年 1–9 月"
+        },
+        {
+          "release_id": "2025-auctioned_items-township-v1-55c6d658a4eb",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2024-auctioned_items-township-v1-b7e243c558ea",
+          "period_start": "2024-01-01",
+          "period_end": "2024-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2023-auctioned_items-township-v1-030aad44930d",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2022-auctioned_items-township-v1-fc52716b1d35",
+          "period_start": "2022-01-01",
+          "period_end": "2022-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2021-auctioned_items-township-v1-22c630e010f0",
+          "period_start": "2021-01-01",
+          "period_end": "2021-12-31",
+          "dimensions": {}
+        },
+        {
+          "release_id": "2020-auctioned_items-township-v1-4c10e7b560b9",
+          "period_start": "2020-01-01",
+          "period_end": "2020-12-31",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          1,
+          2,
+          4,
+          8
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 自成最淺一級（該區為 0，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：法務部行政執行署 所屬分署已拍定不動產資料（各年季度檔）（data.gov.tw 178752 等）；政府資料開放授權條款-第1版。",
+          "行政執行（欠稅、罰鍰等）拍賣的已拍定件數，不是國有財產、也不含法院拍賣，不代表當地房市；來源無金額。",
+          "2026 年只到 9 月 30 日（部分年），不可與全年比較。",
+          "某縣市當年有標的未填鄉鎮時，該縣市所有鄉鎮當年標示為無資料（斜線），不是 0；小鄉鎮逐年波動大。"
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "missing": "無資料（該縣市當年有標的未填鄉鎮，鄉鎮值不完整；不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "拍賣標的所在鄉鎮市區",
+      "disclosure": "同縣市版（行政執行署已拍定不動產季度系列，每年取完整涵蓋該年的最新一季檔；2026 年只到 9 月 30 日）。依來源「鄉鎮區」欄歸屬；某縣市該年若有列未填鄉鎮或只填市名（新竹市、嘉義市常見），該縣市所有鄉鎮該年標示為無資料（鄉鎮值不完整），不以 0 呈現。小鄉鎮逐年件數波動大。拍定標的列數。",
+      "publisher": "法務部行政執行署",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/178752",
+      "source_download_url": "https://www.tpk.moj.gov.tw/media/20763383/%E4%B8%8D%E5%8B%95%E7%94%A2%E5%B7%B2%E6%8B%8D%E5%AE%9A%E6%A8%99%E7%9A%84%E8%B3%87%E6%96%99.csv?mediaDL=true",
+      "source_title": "行政執行署115年至第三季止所屬分署已拍定不動產資料下載(CSV、JSON及XML)（data.gov.tw 178752）"
+    }
+  ],
+  "catalog_generated_from": "stateAssetsStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

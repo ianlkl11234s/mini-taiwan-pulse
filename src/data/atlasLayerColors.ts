@@ -46,4 +46,9 @@ export const ATLAS_LAYER_COLORS = {
   cultureCoinVenues: "#e11d48",
   // 原民會文化健康站 G20（2026-10-24）
   culturalHealthStations: "#c2410c",
+  // 國營事業與國有資產 G16（2026-10-24）
+  twcServiceOffices: "#1d4ed8",
+  twcWaterFacilities: "#0891b2",
+  taisugarSugarMills: "#a16207",
+  statePropertyTenderListings: "#9333ea",
 } as const;
