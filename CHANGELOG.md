@@ -89,11 +89,11 @@
 
 ### 資料
 
-- 雙北公車路線線形更新到 TDX 2026-10-24（原為 2026-02-28）：100 多組改道路線（例：791、三鶯2線、629）的即時公車改沿現行道路行駛；F921 不分支線的兩條因 TDX 給的線形是碎段，暫沿用舊線形（#PR）
+- 雙北公車路線線形更新到 TDX 2026-10-24（原為 2026-02-28）：100 多組改道路線（例：791、三鶯2線、629）的即時公車改沿現行道路行駛；F921 不分支線的兩條因 TDX 給的線形是碎段，暫沿用舊線形（#694）
 
 ### 注意事項
 
-- 發布當天（develop→master 前）要手動上傳新的台北公車線形：`public/bus/taipei_bus_routes_v2.json`（本機已換新；備份在 `GIS/_worktree-backups/2026-10-24/bus-routes/`）跑 `scripts/deploy/upload-deploy-assets.sh` 的公車段；不要提早上傳，否則容器重啟會讓台北、新北兩檔新舊不一（#PR）
+- 發布當天（develop→master 前）要手動上傳新的台北公車線形：`public/bus/taipei_bus_routes_v2.json`（本機已換新；備份在 `GIS/_worktree-backups/2026-10-24/bus-routes/`）跑 `scripts/deploy/upload-deploy-assets.sh` 的公車段；不要提早上傳，否則容器重啟會讓台北、新北兩檔新舊不一（#694）
 
 ## v2.13.0 — 2026-10-24 — Pulse 筆記文章專區、臺北市局處統計 11 層
 
