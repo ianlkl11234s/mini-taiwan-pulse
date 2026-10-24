@@ -35,7 +35,8 @@ OGDL = "政府資料開放授權條款-第1版"
 
 # ── 各家族的呈現設定 ────────────────────────────────────────────────────────────
 # layer：key、group（同一列的群組 key）、group_label、option_label、subgroup、visual、digits，
-# 選填 defaults（維度預設值）、notes（圖例逐行說明）、status（狀態→圖例標籤）、zero_note、breaks、annual（年資料：非全年期別標部分期）。
+# 選填 defaults（維度預設值）、notes（圖例逐行說明）、status（狀態→圖例標籤）、zero_note、breaks、annual（年資料：非全年期別標部分期）、
+# binary（0／1 旗標的兩級標籤 (值 0, 值 1)：breaks 固定 [1]，圖例只列兩級）。
 
 CULTURE_SOURCE = "出典：文化部 文化幣可用藝文消費點（data.gov.tw 177601，2026-10-24 下載）；政府資料開放授權條款-第1版。"
 CULTURE_NOTES = [
@@ -151,7 +152,7 @@ FA_UNDER_SRC = src_note("金融監督管理委員會銀行局", "金融服務欠
 FA_UNDER_BASIS = ("判定依據：金管會金管銀合字第 11002745482 號令所定「金融機構分支機構家數待增加地區」第一類"
                   "（無本國銀行或信用合作社，且平均每一金融機構服務人口高於全國平均）；資料日 115/06/30，48 鄉鎮、14 縣市。第二類名單未開放，不在本圖。")
 FA_UNDER_ZERO = "0＝不在名單（不是缺值，也不代表當地金融服務充足）。"
-FA_UNDER_FLAG = "這是旗標，值只有 0 與 1：1＝列入名單（綠色）；圖例「2 以上」一級不會出現。"
+FA_UNDER_BINARY = ("不在名單", "列入名單")
 FA_UNDER_INST = "只有名單內 48 鄉鎮有值；屏東獅子鄉、花蓮萬榮鄉、臺東金峰鄉各類皆 0 家（含郵局、農會）。"
 FA_UNDER_MISSING = {"missing": "不在名單（來源未提供，不是 0）"}
 FA_CBC_SRC = src_note("中央銀行金融業務檢查處", "各縣市金融機構分布情形統計表", "13653")
@@ -176,8 +177,8 @@ BRANCH_DEF = {"機構類別": "合計（前六類）"}
 FINANCE_ACCESS_LAYERS = [
     fa("statsAtmCount", "financeAtmCount", "金融卡 ATM 台數（縣市）", "台數", 0, [FA_ATM_SRC, FA_ATM_MACHINES]),
     fa("statsAtmPer10k", "financeAtmCount", "金融卡 ATM 台數（縣市）", "每萬人台數", 1, [FA_ATM_SRC, FA_ATM_MACHINES, FA_ATM_PER10K]),
-    fa("statsFinanceUnderserved", "financeUnderserved", "金融服務欠缺鄉鎮（第一類）", "名單鄉鎮", 0, [FA_UNDER_SRC, FA_UNDER_BASIS, FA_UNDER_FLAG],
-       breaks=[1, 2], zero_note=FA_UNDER_ZERO),
+    fa("statsFinanceUnderserved", "financeUnderserved", "金融服務欠缺鄉鎮（第一類）", "名單鄉鎮", 0, [FA_UNDER_SRC, FA_UNDER_BASIS],
+       binary=FA_UNDER_BINARY, zero_note=FA_UNDER_ZERO),
     fa("statsFinanceUnderservedInstitutions", "financeUnderserved", "金融服務欠缺鄉鎮（第一類）", "名單內各類機構家數", 0, [FA_UNDER_SRC, FA_UNDER_BASIS, FA_UNDER_INST],
        defaults={"機構類別": "金融機構數合計"}, status=FA_UNDER_MISSING),
     fa("statsFinancialInstitutions", "financeInstitutionsCbc", "各縣市金融機構家數（央行）", "家數", 0, [FA_CBC_SRC, FA_CBC, FA_KINMATSU],
@@ -373,10 +374,18 @@ def build_family(name: str, config: dict, root: Path) -> dict:
                         break
             if tuple_key != default_tuple:
                 by_dimension[tuple_key] = {"breaks": spec.get("breaks") or make_breaks(source_values or [], counts), "direction": "ascending"}
-        breaks = spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
+        binary = spec.get("binary")
+        if binary:
+            # 0／1 旗標：門檻固定 [1]（0 一級、1 一級），值域必須只有 0 與 1，且不帶維度組合門檻。
+            observed = {v for period in values.values() for vs in period.values() for v in vs}
+            if not observed <= {0, 1} or by_dimension or spec.get("breaks") or len(binary) != 2:
+                raise SystemExit(f"{key}: binary layer needs 0/1 values only, no dimension scales or breaks; got {sorted(observed)}")
+            breaks = [1]
+        else:
+            breaks = spec.get("breaks") or make_breaks(values[basis_period][default_tuple], counts)
         for scale in [{"breaks": breaks}, *by_dimension.values()]:
             b = scale["breaks"]
-            if sorted(set(b)) != b or not 2 <= len(b) <= 4 or b[0] <= 0:
+            if sorted(set(b)) != b or not (len(b) == 1 if binary else 2 <= len(b) <= 4) or b[0] <= 0:
                 raise SystemExit(f"{key}: bad breaks {b}")
         zero_note = spec.get("zero_note")
         if zero_note is None and zero:
@@ -398,7 +407,8 @@ def build_family(name: str, config: dict, root: Path) -> dict:
             "dimensions": dimensions,
             "release_options": options,
             "legend": {
-                "method": "fixed_breaks", "breaks": breaks, "direction": "ascending",
+                "method": "binary" if binary else "fixed_breaks", "breaks": breaks, "direction": "ascending",
+                **({"binary_labels": list(binary)} if binary else {}),
                 "scale_note": None, "zero_note": zero_note if zero else None, "display_note": None,
                 "notes": spec["notes"],
                 "by_dimension": by_dimension or None, "dimension_notes": None,

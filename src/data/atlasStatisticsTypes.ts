@@ -59,7 +59,8 @@ export interface AtlasRecipe {
   dimensions: AtlasDimension[];
   release_options: AtlasReleaseOption[];
   legend: {
-    method: "fixed_breaks";
+    /** binary＝0／1 旗標（金融服務欠缺鄉鎮）：breaks 固定 [1]，圖例只列 binary_labels 兩級，不顯示門檻區間。 */
+    method: "fixed_breaks" | "binary";
     /** 預設維度組合的固定門檻（跨期可比，不依當期重算）。 */
     breaks: number[];
     direction: AtlasScaleDirection;
@@ -72,6 +73,8 @@ export interface AtlasRecipe {
     by_dimension: Record<string, AtlasScale> | null;
     /** 維度組合附註（社會脆弱度子指標的所屬構面與方向依據）。 */
     dimension_notes: Record<string, string> | null;
+    /** method＝binary 時的兩級標籤 [值 0, 值 1]；其他層不帶。 */
+    binary_labels?: [string, string];
     /** 圖例逐行固定說明（治安：人口分母、初步統計、查獲地、口徑斷點）；其他家族不帶。 */
     notes?: string[];
   };

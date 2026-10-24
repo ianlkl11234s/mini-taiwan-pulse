@@ -223,6 +223,15 @@ export function atlasScaleNote(key: string, dimensions?: Record<string, unknown>
     : "淺 → 深：較不脆弱 → 較脆弱（本子指標值越高越脆弱）；Z 分數，0 為 22 縣市平均";
 }
 
+/** 二元旗標層（method＝binary，breaks [1]）只列兩級：值 0 取最淺色、值 1 取最深色；其他層回 null 走門檻區間。 */
+export function atlasBinaryLegendRows(recipe: AtlasRecipeCatalogEntry, colors: readonly string[]): Array<{ color: string; label: string }> | null {
+  if (recipe.legend.method !== "binary" || !recipe.legend.binary_labels) return null;
+  return [
+    { color: colors[0]!, label: recipe.legend.binary_labels[0] },
+    { color: colors[colors.length - 1]!, label: recipe.legend.binary_labels[1] },
+  ];
+}
+
 /** 圖例的非數值狀態列：依本層實際會出現的狀態分開列出；遮蔽用交叉斜線，其餘用細斜線。 */
 export function atlasStatusLegendRows(recipe: AtlasRecipeCatalogEntry): Array<{ kind: AtlasStatusKind; hatch: "missing" | "suppressed"; label: string }> {
   return (["not_applicable", "missing", "suppressed"] as const)

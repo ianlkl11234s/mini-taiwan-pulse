@@ -165,7 +165,7 @@ describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document)
         [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
         [r.publisher, statisticsPublisher(r.publisher, ctx)],
         [r.license, statisticsLicense(r.license, ctx)],
-        ...[...(r.legend.notes ?? []), r.legend.zero_note, ...Object.values(r.status_labels)].filter(Boolean)
+        ...[...(r.legend.notes ?? []), r.legend.zero_note, ...(r.legend.binary_labels ?? []), ...Object.values(r.status_labels)].filter(Boolean)
           .map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
       ].filter(([zh]) => CJK.test(zh!)).map(([zh, text]) => [r.layer_key, zh!, text!] as const));
       // 日文與中文同形的少數詞（人、文化部、面積、法務部行政執行署、台）照登記值，不算外漏

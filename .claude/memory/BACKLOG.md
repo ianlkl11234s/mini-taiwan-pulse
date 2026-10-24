@@ -203,6 +203,7 @@
 | PRIV-1 | P3 | ready | 新增隱私說明頁。 | 寫清楚登入走 Supabase 與 Google、BYOK 金鑰留在瀏覽器、AI 對話送往的服務、Mapbox 載圖請求。 | 頁面存在，內容與 PRIV-2 的第三方清單一致。 |
 | SEC-3 | P2 | ready | 公開 RPC 收回多餘的 PUBLIC EXECUTE，只留需要的角色。 | gis-platform 473（2026-10-17 已套用）加上限時刻意沒 REVOKE PUBLIC：交易內實測收回會讓 15 個只靠 PUBLIC 的服務角色失權（gis_monitor_hermes、global_events_publisher、supabase_read_only_user、air_ticket_writer、cloud_agent_ro 等）。First action: 盤點這些角色實際呼叫哪些函式，先明確 GRANT 給它們，再 REVOKE PUBLIC。 | 收回後各服務角色呼叫正常、anon 只剩前端用到的函式。 |
 | SEC-4 | P3 | ready | `get_rain_basin_accumulated` 本身太慢（查 1 天約 13.6 s、7 天約 29 s），473 的 30 天上限擋不住。 | 目前無前端呼叫者。二選一：pre-aggregate／加索引優化，或確認無人使用後收回 anon／authenticated 權限。 | 1 天查詢 < 1 s，或 anon 已不能執行。 |
+| I18N-1 | P2 | ready | 英日文介面下，統計圖層彈窗／說明的「資料限制／口徑說明」段落改成對應語言（2026-10-24 發現：目前英日文仍顯示中文）。 | 範圍：全部統計圖層（atlas 各家族、治安、死因、臺北局處、社會、勞動、環境、成癮、崩塌、人口等）。原因：說明文字（各家族 recipe／release 的 `disclosure`）直接寫在 recipe／資料設定，彈窗（`regionalStatisticsPanel.tsx` 的 dataLimits 列）與說明・來源（`StatisticsDetails.tsx`）只經 `humanizeStatisticsText` 換內部代碼，沒接 i18n。建議做法：說明文字改用翻譯鍵（比照 `enum.statLegendNote.*`），或 recipe 帶 `disclosure_en`／`disclosure_ja` 欄位由 builder 產生；可依家族分批，先做 atlas 第二批（G10／G16／G23）。粗估 1–2 天。 | 英日文介面開任一統計層，資料限制段落無中文外漏；`statisticsText.test.ts` 加 disclosure 的外文檢查。 |
 | SEC-5 | P3 | ready | 公開 RPC 在上限內仍可重複拖慢 DB（例：`get_waste_trails` 上限 180 分一次約 8 s，前端只用 60 分約 1 s）。 | 二選一：上限再收緊（垃圾車 180→120 分）或在上層加限流（PostgREST／Cloudflare）。稽核報告見 473 檔頭與 PR gis-platform #174。 | 單次最大範圍查詢 < 3 s，或同 IP 頻率受限。 |
 
 ## Weekly audit findings

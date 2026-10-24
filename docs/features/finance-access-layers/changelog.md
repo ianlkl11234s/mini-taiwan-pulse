@@ -9,3 +9,8 @@
 ## 2026-10-24 · 開 PR
 
 - PR #690（base develop，G23／G16／G10 三群合一），merge 444ab425，2026-10-24。
+
+## 2026-10-24 · 二元旗標圖例
+
+- `statsFinanceUnderserved`（值只有 0／1）圖例改為兩級「不在名單／列入名單」：atlas recipe 新增 `legend.method: "binary"`＋`binary_labels`（breaks 固定 `[1]`），builder `build_roadmap_batch2_statistics_recipes.py` 以 `binary=` 選項產生並驗證值域只有 0／1；圖例走 `atlasBinaryLegendRows`，不顯示「淺 → 深」與門檻區間。移除「圖例『2 以上』一級不會出現」的權宜註解。其他 10 層不變。
+- 測試：atlasStatisticsContract（binary 層兩級、其他層仍 2–4 門檻）、statisticsText 第二批檢查加 binary_labels 英日文。
