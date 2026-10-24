@@ -981,6 +981,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("atmSitesFisc"),
           fromManifest("financialBranchesFisc"),
+          fromManifest("securitiesFuturesInstitutions"),
+          fromManifest("insuranceInstitutions"),
         ],
       },
       {

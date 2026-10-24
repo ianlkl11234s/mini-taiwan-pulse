@@ -1230,5 +1230,19 @@
   "param.中華郵政儲匯單位": "Chunghwa Post savings & remittance unit",
   "param.票券金融公司": "Bills finance company",
   "param.中央銀行": "Central bank",
-  "param.其他（財政部國庫署、關貿網路）": "Other (National Treasury Administration, Trade-Van)"
+  "param.其他（財政部國庫署、關貿網路）": "Other (National Treasury Administration, Trade-Van)",
+  "param.據點類型": "Office type",
+  "param.隱藏證券自營部門": "Hide securities proprietary desks",
+  "param.證券商分公司": "Securities firm branch",
+  "param.期貨商總公司": "Futures firm head office",
+  "param.期貨商分公司": "Futures firm branch",
+  "param.證券投資信託公司（投信）": "Securities investment trust company",
+  "param.證券投資顧問公司（投顧）": "Securities investment advisory company",
+  "param.人壽保險公司": "Life insurer",
+  "param.產物保險公司": "Non-life insurer",
+  "param.再保險公司": "Reinsurer",
+  "param.保險代理人公司": "Insurance agency",
+  "param.銀行兼營保險代理人": "Bank acting as insurance agent",
+  "param.行業別": "Industry",
+  "param.交易類型": "Transaction type"
 }

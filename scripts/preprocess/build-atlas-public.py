@@ -1026,6 +1026,69 @@ def build_financial_branches(m, feats):
     return out
 
 
+# 金融服務據點延伸（G10 延伸，2026-10-24）-------------------------------------
+# analytics civic_facilities/{securities_futures_institutions,insurance_institutions}（gis-platform mig 483 同一份成品）：
+# 證券期貨投信投顧 1,071（33 列無營業地址、無幾何不上圖）；保險公司總分公司＋保險代理人公司 655。
+# 來源機關每列不同（證交所／期交所／投信投顧公會、保發中心／保代公會），出典逐列帶；成品無個資欄（負責人、簽署人上游已丟）。
+
+FINANCE_SOURCE_DATE = [
+    (r"^資料日期 (\d{4}-\d{2}-\d{2})（檔內）$", "file_date"),
+    (r"^公告日期 (\d{4}-\d{2}-\d{2})（檔內）$", "announced"),
+    (r"^名冊下載日 \d{4}-\d{2}-\d{2}（檔內無日期；data\.gov\.tw metadata 更新日 (\d{4}-\d{2}-\d{2})）$", "metadata"),
+    (r"^資料年月 \d{4}-\d{2}，公會更新日 (\d{4}-\d{2}-\d{2})$", "association_update"),
+    (r"^名冊下載日 (\d{4}-\d{2}-\d{2})（檔內無資料日期；.+）$", "download"),
+]
+
+
+def finance_source_date(v: Any) -> dict:
+    """上游 data_vintage 句子 → {source_date, source_date_kind}（popup 依 kind 套譯文；句型對不上就中止）。"""
+    import re
+    for pattern, kind in FINANCE_SOURCE_DATE:
+        hit = re.match(pattern, str(v or ""))
+        if hit:
+            return {"source_date": hit.group(1), "source_date_kind": kind}
+    raise SystemExit(f"data_vintage 句型未登記：{v!r}")
+
+
+def finance_ext_base(m: dict, p: dict) -> dict:
+    return {"source_org": s(p.get("source_publisher")), "source_url": f"https://data.gov.tw/dataset/{p['source_nid']}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date")), **finance_source_date(p.get("data_vintage"))}
+
+
+@layer("securitiesFuturesInstitutions", "civic_facilities", "securities_futures_institutions", "finance/securities_futures_institutions.geojson")
+def build_securities_futures(m, feats):
+    out = []
+    for f in drop_unmapped("securitiesFuturesInstitutions", feats):
+        p = f["properties"]
+        no_pii("securitiesFuturesInstitutions", p)
+        out.append(feature(f["geometry"], {
+            "id": p["institution_id"], "name": s(p.get("display_name")), "firm_name": s(p.get("firm_name")), "office_name": s(p.get("office_name")),
+            "institution_type": s(p["institution_type"]), "institution_type_label": s(p.get("institution_type_label")),
+            "futures_operator_kind": s(p.get("futures_operator_kind")), "futures_operator_kind_label": s(p.get("futures_operator_kind_label")),
+            "proprietary_desk": flag(p.get("proprietary_desk")), "opened_date": s(p.get("opened_date")),
+            **finance_location(p), **finance_ext_base(m, p),
+        }))
+    AUDIT["securitiesFuturesInstitutions"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    return out
+
+
+@layer("insuranceInstitutions", "civic_facilities", "insurance_institutions", "finance/insurance_institutions.geojson")
+def build_insurance_institutions(m, feats):
+    out = []
+    for f in drop_unmapped("insuranceInstitutions", feats):
+        p = f["properties"]
+        no_pii("insuranceInstitutions", p)
+        out.append(feature(f["geometry"], {
+            "id": p["institution_id"], "name": s(p.get("display_name")), "firm_name": s(p.get("firm_name")),
+            "institution_type": s(p["institution_type"]), "institution_type_label": s(p.get("institution_type_label")),
+            "office_level": s(p.get("office_level")), "office_level_label": s(p.get("office_level_label")),
+            "agency_lines": s(p.get("agency_lines")), "agency_lines_label": s(p.get("agency_lines_label")),
+            **finance_location(p), **finance_ext_base(m, p),
+        }))
+    AUDIT["insuranceInstitutions"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    return out
+
+
 # ── main ─────────────────────────────────────────────────────────────────
 
 

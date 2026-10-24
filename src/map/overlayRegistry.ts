@@ -272,6 +272,7 @@ import {
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
+  SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11857,6 +11858,9 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 金融服務據點 G10（2026-10-24）：ATM 裝設點 2.7 萬走 PMTiles＋低縮放熱區；總分支機構依機構類別著色 ──
   publicLifePointOverlay("atmSitesFisc", "./finance/atm_sites_fisc.pmtiles", "atm-sites-fisc", matchColorExpr("institution_category", ATM_INSTITUTION_OPTIONS), { sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 }, `財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）· ${OGDL_ATTR}`, undefined, { filter: (p) => atmSiteFilter(p?.atmSitesFiscInstitutionMask, p?.atmSitesFiscOnlyWheelchair, p?.atmSitesFiscOnlyVoice), dense: { pointsFromZoom: DENSE_FROM.atmSitesFisc, intensity: 1 } }),
   publicLifePointOverlay("financialBranchesFisc", "./finance/financial_branches_fisc.geojson", "financial-branches-fisc", matchColorExpr("institution_category", BRANCH_CATEGORY_OPTIONS), undefined, `財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_category", BRANCH_CATEGORY_OPTIONS, p?.financialBranchesFiscCategoryMask) }),
+  // ── 金融服務據點延伸 G10 延伸（2026-10-24）：證券期貨投信投顧、保險公司與保險代理人，依類型著色（同址兼營會重疊）──
+  publicLifePointOverlay("securitiesFuturesInstitutions", "./finance/securities_futures_institutions.geojson", "securities-futures-institutions", matchColorExpr("institution_type", SECURITIES_TYPE_OPTIONS), undefined, `臺灣證券交易所、臺灣期貨交易所、投信投顧公會（data.gov.tw 44723、17480、17481、44656、44657）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => securitiesFuturesFilter(p?.securitiesFuturesInstitutionsTypeMask, p?.securitiesFuturesInstitutionsHideProprietary) }),
+  publicLifePointOverlay("insuranceInstitutions", "./finance/insurance_institutions.geojson", "insurance-institutions", matchColorExpr("institution_type", INSURANCE_TYPE_OPTIONS), undefined, `保險事業發展中心、保險代理人公會（data.gov.tw 122361、14516、15326、142715）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_type", INSURANCE_TYPE_OPTIONS, p?.insuranceInstitutionsTypeMask) }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1303,
+    "keyCount": 1315,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2433,6 +2433,20 @@
     },
     {
       "layers": [
+        "securities-futures-institutions-circle",
+        "securities-futures-institutions-glow"
+      ],
+      "type": "securitiesFuturesInstitutions"
+    },
+    {
+      "layers": [
+        "insurance-institutions-circle",
+        "insurance-institutions-glow"
+      ],
+      "type": "insuranceInstitutions"
+    },
+    {
+      "layers": [
         "open-fishing-locations-circle",
         "open-fishing-locations-glow"
       ],
@@ -3488,6 +3502,16 @@
         "statsFinancialBranchesPer10kTown-fill",
         "statsAtmSitesTown-fill",
         "statsAtmSitesPer10kTown-fill",
+        "statsFinanceEstablishments-fill",
+        "statsFinanceEstablishmentsPer10k-fill",
+        "statsDebitCardTxnCount-fill",
+        "statsDebitCardTxnShare-fill",
+        "statsLifeInsurerBranches-fill",
+        "statsLifeInsurerAgencyOffices-fill",
+        "statsDebitMerchantsPer10k-fill",
+        "statsDebitMerchantsExclBulk-fill",
+        "statsDebitMerchants-fill",
+        "statsDebitMerchantAddresses-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -81244,6 +81268,595 @@
       ],
       "sourceId": "financial-branches-fisc",
       "sourceUrl": "./finance/financial_branches_fisc.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "securitiesFuturesInstitutions",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "securities_branch",
+                "#4f46e5",
+                "futures_head_office",
+                "#dc2626",
+                "futures_branch",
+                "#f97316",
+                "investment_trust",
+                "#9333ea",
+                "investment_advisory",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "all",
+              [
+                "has",
+                "institution_type"
+              ]
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "securities-futures-institutions",
+      "sourceUrl": "./finance/securities_futures_institutions.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "insuranceInstitutions",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "institution_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "institution_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "institution_type"
+                ],
+                "life_insurer",
+                "#16a34a",
+                "non_life_insurer",
+                "#2563eb",
+                "reinsurer",
+                "#7c3aed",
+                "insurance_agency",
+                "#ea580c",
+                "bank_insurance_agency",
+                "#db2777",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "institution_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "insurance-institutions",
+      "sourceUrl": "./finance/insurance_institutions.geojson"
     }
   ],
   "params": {
@@ -90093,6 +90706,59 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      }
+    ],
+    "insuranceInstitutions": [
+      {
+        "label": "機構類型",
+        "options": [
+          {
+            "label": "人壽保險公司",
+            "value": "life_insurer"
+          },
+          {
+            "label": "產物保險公司",
+            "value": "non_life_insurer"
+          },
+          {
+            "label": "再保險公司",
+            "value": "reinsurer"
+          },
+          {
+            "label": "保險代理人公司",
+            "value": "insurance_agency"
+          },
+          {
+            "label": "銀行兼營保險代理人",
+            "value": "bank_insurance_agency"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "life_insurer",
+          "non_life_insurer",
+          "reinsurer",
+          "insurance_agency",
+          "bank_insurance_agency"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "internetExchangePoints": [
@@ -100209,6 +100875,64 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
+      }
+    ],
+    "securitiesFuturesInstitutions": [
+      {
+        "label": "據點類型",
+        "options": [
+          {
+            "label": "證券商分公司",
+            "value": "securities_branch"
+          },
+          {
+            "label": "期貨商總公司",
+            "value": "futures_head_office"
+          },
+          {
+            "label": "期貨商分公司",
+            "value": "futures_branch"
+          },
+          {
+            "label": "證券投資信託公司（投信）",
+            "value": "investment_trust"
+          },
+          {
+            "label": "證券投資顧問公司（投顧）",
+            "value": "investment_advisory"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "securities_branch",
+          "futures_head_office",
+          "futures_branch",
+          "investment_trust",
+          "investment_advisory"
+        ]
+      },
+      {
+        "label": "隱藏證券自營部門",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "serviceArea": [
@@ -114256,6 +114980,248 @@
         "valueText": "0.55"
       }
     ],
+    "statsDebitCardTxnCount": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "交易筆數",
+            "value": "statsDebitCardTxnCount"
+          },
+          {
+            "label": "縣市結構比",
+            "value": "statsDebitCardTxnShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitCardTxnCount"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitCardTxnShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "交易筆數",
+            "value": "statsDebitCardTxnCount"
+          },
+          {
+            "label": "縣市結構比",
+            "value": "statsDebitCardTxnShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitCardTxnShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantAddresses": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantAddresses"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchants": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchants"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantsExclBulk": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantsExclBulk"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsDebitMerchantsPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "每萬人商店數（排除集中登記）",
+            "value": "statsDebitMerchantsPer10k"
+          },
+          {
+            "label": "商店數（排除集中登記）",
+            "value": "statsDebitMerchantsExclBulk"
+          },
+          {
+            "label": "商店數（含集中登記）",
+            "value": "statsDebitMerchants"
+          },
+          {
+            "label": "店址數",
+            "value": "statsDebitMerchantAddresses"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsDebitMerchantsPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsDebrisFlowAlertStreamsCounty": [
       {
         "label": "指標",
@@ -122191,6 +123157,76 @@
         "valueText": "0.55"
       }
     ],
+    "statsFinanceEstablishments": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsFinanceEstablishments"
+          },
+          {
+            "label": "每萬人場所單位數",
+            "value": "statsFinanceEstablishmentsPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceEstablishments"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsFinanceEstablishmentsPer10k": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "場所單位數",
+            "value": "statsFinanceEstablishments"
+          },
+          {
+            "label": "每萬人場所單位數",
+            "value": "statsFinanceEstablishmentsPer10k"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsFinanceEstablishmentsPer10k"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "statsFinanceUnderserved": [
       {
         "label": "指標",
@@ -125942,6 +126978,76 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsLandslideCountCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLifeInsurerAgencyOffices": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "分公司家數",
+            "value": "statsLifeInsurerBranches"
+          },
+          {
+            "label": "通訊處家數",
+            "value": "statsLifeInsurerAgencyOffices"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLifeInsurerAgencyOffices"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsLifeInsurerBranches": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "分公司家數",
+            "value": "statsLifeInsurerBranches"
+          },
+          {
+            "label": "通訊處家數",
+            "value": "statsLifeInsurerAgencyOffices"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsLifeInsurerBranches"
       },
       {
         "label": "資料期別",

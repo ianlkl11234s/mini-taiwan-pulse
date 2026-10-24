@@ -220,5 +220,11 @@
   "popup.atlas.atmNotPublic": "Roster marks this site as not open to the public (e.g., inside a company or agency)",
   "popup.atlas.atmAccessNote": "Access note",
   "popup.atlas.financeApproximate": "Located only approximately (street or area center); the actual site may be several hundred meters away",
-  "popup.atlas.financeRosterDate": "Roster snapshot date"
+  "popup.atlas.financeRosterDate": "Roster snapshot date",
+  "popup.atlas.futuresOperatorKind": "Futures operator type",
+  "popup.atlas.securitiesProprietary": "Proprietary trading desk of a securities firm (trades on its own account)",
+  "popup.atlas.openedDate": "Opened",
+  "popup.atlas.securitiesRosterPoint": "Office listed in the roster; not a count of brokers or accounts",
+  "popup.atlas.insuranceOfficeLevel": "Office level",
+  "popup.atlas.insuranceAgencyLines": "Lines handled"
 }

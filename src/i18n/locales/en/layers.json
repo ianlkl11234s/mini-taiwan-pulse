@@ -1303,5 +1303,7 @@
   "layer.statsDebitMerchantsPer10k": "Debit-Card Merchants per 10,000 People (Township)",
   "layer.statsDebitMerchantsExclBulk": "Debit-Card Merchants (Bulk Addresses Excluded)",
   "layer.statsDebitMerchants": "Debit-Card Merchants (Township)",
-  "layer.statsDebitMerchantAddresses": "Debit-Card Merchant Addresses (Township)"
+  "layer.statsDebitMerchantAddresses": "Debit-Card Merchant Addresses (Township)",
+  "layer.securitiesFuturesInstitutions": "Securities & Futures Offices",
+  "layer.insuranceInstitutions": "Insurers & Insurance Agencies"
 }

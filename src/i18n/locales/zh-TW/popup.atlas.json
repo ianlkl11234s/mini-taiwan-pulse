@@ -220,5 +220,11 @@
   "popup.atlas.atmNotPublic": "名冊標示不對外開放（例如公司、機關內部）",
   "popup.atlas.atmAccessNote": "開放說明",
   "popup.atlas.financeApproximate": "只定位到約略位置（道路或區域中心），實際位置可能差數百公尺",
-  "popup.atlas.financeRosterDate": "名冊快照日"
+  "popup.atlas.financeRosterDate": "名冊快照日",
+  "popup.atlas.futuresOperatorKind": "期貨商類別",
+  "popup.atlas.securitiesProprietary": "證券商自營部門（以自有帳戶買賣）",
+  "popup.atlas.openedDate": "開業日",
+  "popup.atlas.securitiesRosterPoint": "名冊上的營業據點，不是營業員或開戶數",
+  "popup.atlas.insuranceOfficeLevel": "據點層級",
+  "popup.atlas.insuranceAgencyLines": "代理險種"
 }

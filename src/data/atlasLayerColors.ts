@@ -54,4 +54,7 @@ export const ATLAS_LAYER_COLORS = {
   // 金融服務據點 G10（2026-10-24）
   atmSitesFisc: "#2563eb",
   financialBranchesFisc: "#0f766e",
+  // 金融服務據點延伸 G10 延伸（2026-10-24）
+  securitiesFuturesInstitutions: "#4f46e5",
+  insuranceInstitutions: "#16a34a",
 } as const;

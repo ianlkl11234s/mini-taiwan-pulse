@@ -9,7 +9,7 @@ import {
   TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_ORGS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
-  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -127,4 +127,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   // 金融服務據點 G10（2026-10-24）
   atmSitesFisc: () => <AtlasLegend layer="atmSitesFisc" en="ATM Sites (FISC Roster)" source={src("fisc", ["24333"])} domain="atlasAtmInstitution" rows={ATM_INSTITUTION_OPTIONS} />,
   financialBranchesFisc: () => <AtlasLegend layer="financialBranchesFisc" en="Financial Institution Branches" source={src("fisc", ["24323"])} domain="atlasBranchCategory" rows={BRANCH_CATEGORY_OPTIONS} />,
+  // 金融服務據點延伸 G10 延伸（2026-10-24）
+  securitiesFuturesInstitutions: () => <AtlasLegend layer="securitiesFuturesInstitutions" en="Securities & Futures Offices" source={src("securitiesBodies", ["44723", "17480", "17481", "44656", "44657"])} domain="atlasSecuritiesType" rows={SECURITIES_TYPE_OPTIONS} />,
+  insuranceInstitutions: () => <AtlasLegend layer="insuranceInstitutions" en="Insurers & Insurance Agencies" source={src("insuranceBodies", ["122361", "14516", "15326", "142715"])} domain="atlasInsuranceType" rows={INSURANCE_TYPE_OPTIONS} />,
 };
