@@ -517,6 +517,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["financial-branches-fisc-circle", "financial-branches-fisc-glow"], type: "financialBranchesFisc" },
   { layers: ["securities-futures-institutions-circle", "securities-futures-institutions-glow"], type: "securitiesFuturesInstitutions" },
   { layers: ["insurance-institutions-circle", "insurance-institutions-glow"], type: "insuranceInstitutions" },
+  { layers: ["post-office-fx-counters-circle", "post-office-fx-counters-glow"], type: "postOfficeFxCounters" },
   // 海域保護與漁業 G08：點層（捕魚點、魚礁中心點）
   { layers: ["open-fishing-locations-circle", "open-fishing-locations-glow"], type: "openFishingLocations" },
   { layers: ["artificial-reef-centers-circle", "artificial-reef-centers-glow"], type: "artificialReefCenters" },

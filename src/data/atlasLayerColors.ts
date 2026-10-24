@@ -57,4 +57,6 @@ export const ATLAS_LAYER_COLORS = {
   // 金融服務據點延伸 G10 延伸（2026-10-24）
   securitiesFuturesInstitutions: "#4f46e5",
   insuranceInstitutions: "#16a34a",
+  // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
+  postOfficeFxCounters: "#c2410c",
 } as const;

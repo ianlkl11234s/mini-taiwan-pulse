@@ -226,5 +226,8 @@
   "popup.atlas.openedDate": "Opened",
   "popup.atlas.securitiesRosterPoint": "Office listed in the roster; not a count of brokers or accounts",
   "popup.atlas.insuranceOfficeLevel": "Office level",
-  "popup.atlas.insuranceAgencyLines": "Lines handled"
+  "popup.atlas.insuranceAgencyLines": "Lines handled",
+  "popup.atlas.postFxService": "Buys and sells foreign cash and traveler's checks (Chunghwa Post designated office)",
+  "popup.atlas.postFxNotExchangeShop": "A post office service, not a currency exchange shop licensed by the central bank; check the post office for currencies and hours",
+  "popup.atlas.postFxZip": "Postal code"
 }

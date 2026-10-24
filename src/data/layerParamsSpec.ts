@@ -3093,6 +3093,8 @@ export const LAYER_PARAMS_SPEC = {
     },
     opacitySlider("insuranceInstitutionsOpacity", densePointOpacity(655)), scaleSlider("insuranceInstitutionsScale", 1),
   ],
+  // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
+  postOfficeFxCounters: [opacitySlider("postOfficeFxCountersOpacity", densePointOpacity(290)), scaleSlider("postOfficeFxCountersScale", 1)],
   mountainRescueIncidents: [
     {
       kind: "select", name: "mountainRescueIncidentsYear", label: "年份", default: "all",

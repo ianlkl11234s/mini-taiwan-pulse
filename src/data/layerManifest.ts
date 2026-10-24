@@ -7659,6 +7659,15 @@ export const LAYER_MANIFEST = {
     description: "人壽、產物、再保險公司的總分公司與保險代理人公司（含銀行兼營）的據點與定位精度；不含通訊處與業務員。",
     topics: ["保險", "壽險", "產險", "保險代理人", "金融"],
   },
+  postOfficeFxCounters: {
+    key: "postOfficeFxCounters", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "郵局外幣現鈔經辦局", alt: "Post Offices Exchanging Foreign Cash" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.postOfficeFxCounters, icon: Coins,
+    upstream: { status: "verified", datasets: [{ datasetId: "post_office_fx_cash_counters", confidence: "HIGH" }], note: "中華郵政外幣現鈔及旅行支票經辦局網頁名冊（data.gov.tw 170638）290 局，2026-10-25 下載；座標全取自中華郵政全國營業據點（5950）同電腦局號。非外幣收兌處。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "post-office-fx-counters", url: "./finance/post_office_fx_cash_counters.geojson" },
+    legend: "postOfficeFxCounters", popup: "postOfficeFxCounters", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "可買賣外幣現鈔與旅行支票的郵局（中華郵政經辦局）；不是央行核准的外幣收兌處。",
+    topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
+  },
   culturalHealthStations: {
     key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.culturalHealthStations, icon: HousePlus,

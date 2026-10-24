@@ -3,7 +3,7 @@
 > **Slug**：`finance-access-layers`
 > **狀態**：dev（等 PR review）
 > **Owner**：migu
-> **相關 PR**：#690（三群合一 PR，merge 444ab425）、#692（二元圖例）、#696（G10 延伸，merge 76511375）
+> **相關 PR**：#690（三群合一 PR，merge 444ab425）、#692（二元圖例）、#696（G10 延伸，merge 76511375）、G10 外幣 PR 見 changelog
 > **上游**：taipei-gis-analytics `pipelines/socioeconomic/finance_access/`、`docs/handoff/finance-access-statistics-recipes.json`；上線紀錄 `.gis-agent-system/projects/2026-10-roadmap-batch2/w0/G10*.md`。全部來源為政府資料開放授權條款第 1 版。
 
 ## 一句話說明
@@ -64,4 +64,19 @@ builder 新增的 spec 選項：`fractional`（萬筆等小數計數不走整數
 python3 scripts/statistics/build_roadmap_batch2_statistics_recipes.py --root <analytics checkout> --family financeAccessExt
 npx vite-node --script scripts/statistics/build_statistics_recipe_catalogs.ts
 python3 scripts/preprocess/build-atlas-public.py --src <analytics>/data/processed --only securitiesFuturesInstitutions insuranceInstitutions
+```
+
+## G10 外幣（2026-10-25）
+
+上游：analytics `pipelines/civic_facilities/post_office_fx_cash_counters/`（PR #212）、`docs/topic-research/finance_access_ext/fx_exchange.md`（外幣收兌處名單可得性研究）；gis-platform mig 484 同一份成品；上線紀錄 `w0/G10-fx-post-office.md`。
+
+| 點層 key | 筆數 | 樣式 | popup 重點 |
+|---|---|---|---|
+| `postOfficeFxCounters`「郵局外幣現鈔經辦局」 | 290（座標全取自中華郵政營業據點 5950 同電腦局號） | 單色點（`#c2410c`），只有透明度／大小 | 服務說明、「不是外幣收兌處」警示、郵遞區號、地址、定位精度、名冊下載日 |
+
+- 圖層名不可稱「外幣收兌處」：央行委託臺銀核准的收兌處名單未公開；本層只有郵局。
+- 圖例註明央行 13656（115/09/30）郵局 288 家，差 2，原因未查證。1 筆（臺北公館郵局）落點與地址鄉鎮不一致，彈窗照實警示。
+
+```bash
+python3 scripts/preprocess/build-atlas-public.py --src <analytics>/data/processed --only postOfficeFxCounters
 ```

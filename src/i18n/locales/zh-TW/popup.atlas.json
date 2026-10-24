@@ -226,5 +226,8 @@
   "popup.atlas.openedDate": "開業日",
   "popup.atlas.securitiesRosterPoint": "名冊上的營業據點，不是營業員或開戶數",
   "popup.atlas.insuranceOfficeLevel": "據點層級",
-  "popup.atlas.insuranceAgencyLines": "代理險種"
+  "popup.atlas.insuranceAgencyLines": "代理險種",
+  "popup.atlas.postFxService": "可買賣外幣現鈔及旅行支票（中華郵政經辦局）",
+  "popup.atlas.postFxNotExchangeShop": "這是郵局經辦，不是央行核准的外幣收兌處；可兌換幣別與營業時間以郵局公告為準",
+  "popup.atlas.postFxZip": "郵遞區號"
 }
