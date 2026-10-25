@@ -103,7 +103,7 @@ import {
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
 import {
-  BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_CLOCK_ID, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
+  BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_CLOCK_ID, BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
   BUS_CROWDING_VIEWS, BUS_CROWDING_VIEW_LABELS,
 } from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
@@ -2023,7 +2023,7 @@ export const LAYER_PARAMS_SPEC = {
     kind: "select", category: "data", name: "busCrowdingSimView", label: "檢視", default: "static",
     options: BUS_CROWDING_VIEWS.map((value) => ({ value, label: BUS_CROWDING_VIEW_LABELS[value] })), out: null,
   }, {
-    kind: "select", category: "data", name: "busCrowdingSimVersion", label: "參數版本", default: "v137",
+    kind: "select", category: "data", name: "busCrowdingSimVersion", label: "參數版本", default: BUS_CROWDING_DEFAULT_VERSION,
     options: BUS_CROWDING_VERSIONS.map((value) => ({ value, label: BUS_CROWDING_VERSION_LABELS[value] })), out: null,
   }, {
     // spec §5.40 S-1：只在「時間回放」顯示；值在 scoped 時鐘，不進 store／場景

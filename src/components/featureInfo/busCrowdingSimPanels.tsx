@@ -1,7 +1,7 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
 import {
-  BUS_CROWDING_REPRESENTATIVE_COLOR, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_VERSIONS,
+  BUS_CROWDING_REPRESENTATIVE_COLOR, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS,
   busCrowdingLevel, segmentKey, type BusCrowdingScenarioData,
 } from "../../data/busCrowdingSimTypes";
 import { busCrowdingColors } from "../../data/busCrowdingSimStyle";
@@ -36,6 +36,7 @@ export function BusCrowdingSimPanel({ props }: { props: Record<string, unknown> 
   const { t: tr } = i18n;
   const params = useLayerParams(BUS_CROWDING_SIM_KEY);
   const scenario = oneOfParam(paramStr(params, BUS_CROWDING_SIM_KEY, "busCrowdingSimScenario"), BUS_CROWDING_SCENARIOS, "base");
+  const version = oneOfParam(paramStr(params, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, BUS_CROWDING_DEFAULT_VERSION);
   const index = useBusCrowdingSimIndex();
   const data = useBusCrowdingSimScenario();
   const li = num(props.li);
@@ -43,7 +44,8 @@ export function BusCrowdingSimPanel({ props }: { props: Record<string, unknown> 
   const route = String(props.n ?? "");
   const subRoute = String(props.sn ?? "");
   const values = segmentValues(data?.scenario === scenario ? data : null, li !== null && sj !== null ? index?.get(segmentKey(li, sj)) : undefined);
-  const level = values ? busCrowdingLevel(values.ov137, values.n137) : null;
+  // 標題色跟地圖同一版（目前選的參數版本）
+  const level = values ? (version === "v137" ? busCrowdingLevel(values.ov137, values.n137) : busCrowdingLevel(values.ov180, values.n180)) : null;
   const trips = values ? (values.n137 === values.n180 ? tr("popup.busCrowdingSim.trips", { n: values.n137 }) : tr("popup.busCrowdingSim.tripsRange", { a: Math.min(values.n137, values.n180), b: Math.max(values.n137, values.n180) })) : "";
 
   return <>
@@ -81,7 +83,7 @@ export function BusCrowdingSimVehiclePanel({ props }: { props: Record<string, un
   const isDark = t !== LIGHT_FEATURE;
   const { t: tr } = useLocale();
   const params = useLayerParams(BUS_CROWDING_SIM_KEY);
-  const version = oneOfParam(paramStr(params, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, "v137");
+  const version = oneOfParam(paramStr(params, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, BUS_CROWDING_DEFAULT_VERSION);
   const replay = useBusCrowdingSimReplay();
   const T = useSyncExternalStore(busCrowdingSimClock.subscribe, busCrowdingSimClock.get);
   const trip = replay?.byId.get(String(props.tid ?? ""));

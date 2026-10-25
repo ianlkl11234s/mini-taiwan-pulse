@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useBusCrowdingSimLayer } from "../../hooks/useBusCrowdingSimLayer";
 import { useBusCrowdingReplayVehicles } from "../../hooks/useBusCrowdingReplayVehicles";
-import { BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_VERSIONS, BUS_CROWDING_VIEWS } from "../../data/busCrowdingSimTypes";
+import { BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS, BUS_CROWDING_VIEWS } from "../../data/busCrowdingSimTypes";
 import { busCrowdingSimClock } from "../../state/busCrowdingSimClock";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { oneOfParam, paramNum, paramStr, useLayerParams } from "../layerParamsAccess";
@@ -14,7 +14,7 @@ export const BusCrowdingSimHost: LayerHostComponent = ({ deps }) => {
   const values = useLayerParams(BUS_CROWDING_SIM_KEY);
   const visible = deps.layerVisibility.busCrowdingSim;
   const opacity = paramNum(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimOpacity");
-  const version = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, "v137");
+  const version = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, BUS_CROWDING_DEFAULT_VERSION);
   const scenario = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimScenario"), BUS_CROWDING_SCENARIOS, "base");
   const view = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimView"), BUS_CROWDING_VIEWS, "static");
   const replay = visible && view === "replay";

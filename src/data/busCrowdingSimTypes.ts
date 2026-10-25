@@ -22,6 +22,8 @@ export const busCrowdingSimUrl = (path: string) => `${BASE}/${path}`;
 /** 參數版本：7–9 時佔全日比例。資料夾對應寫死（上游 meta.json 沒記 am_share）。 */
 export const BUS_CROWDING_VERSIONS = ["v137", "v180"] as const;
 export type BusCrowdingVersion = (typeof BUS_CROWDING_VERSIONS)[number];
+/** 地圖預設上色版本（2026-10-25 使用者拍板 18.0%）。 */
+export const BUS_CROWDING_DEFAULT_VERSION: BusCrowdingVersion = "v180";
 export const BUS_CROWDING_VERSION_LABELS: Record<BusCrowdingVersion, string> = {
   v137: "較寬鬆 13.7%（YouBike 推估）",
   v180: "較擁擠 18.0%（捷運推估）",

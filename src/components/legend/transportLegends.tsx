@@ -22,7 +22,7 @@ import type { I18nContext } from "../../i18n/layerText";
 import { paramText } from "../../i18n/paramText";
 import {
   BUS_CROWDING_MIN_TRIPS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_KEY,
-  BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS, BUS_CROWDING_VIEWS,
+  BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS, BUS_CROWDING_VIEWS,
 } from "../../data/busCrowdingSimTypes";
 import { movingStrokeColor } from "../../map/mapStyleScale";
 import { BUS_CROWDING_ZERO_LINE, busCrowdingColors, busCrowdingZeroOpacity } from "../../data/busCrowdingSimStyle";
@@ -543,7 +543,7 @@ export function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
 export function BusCrowdingSimLegend() {
   const i18n = useLocale();
   const values = useLayerParams(BUS_CROWDING_SIM_KEY);
-  const version = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, "v137");
+  const version = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, BUS_CROWDING_DEFAULT_VERSION);
   const scenario = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimScenario"), BUS_CROWDING_SCENARIOS, "base");
   const { t } = i18n;
   const theme = useLegendTheme();
