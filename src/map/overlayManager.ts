@@ -13,6 +13,7 @@ import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import { resolvePropertyValueScale } from "../data/propertyValueTypes";
 import { resolveCompanyGridScale } from "../data/businessRegistryTypes";
 import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
+import { resolveAssetUrl, fetchResolvedGeojson } from "../data/layerAssetIndex";
 
 /**
  * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
@@ -62,9 +63,16 @@ function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
   // 而 PmTilesSource 覆寫了 load()（改讀 PMTiles header/metadata），不會走到那條路。
   // 留著這個欄位純粹讓呼叫端讀得到 config.attribution 的值；真正生效的設定
   // 在 addOverlay() 裡 addSource 之後手動補 `source.attribution =`（見該處註解）。
+  // 靜態圖層資產索引（ADR-0024 §4）：已遷移且索引已載入 → CDN 不可變路徑；索引還沒載完或失敗
+  // → 部署時版本（fallback）。addSource 刻意維持同步、不等索引：延後會牽動 addAllOverlays 之後
+  // 的可見性／主題／圖層順序時序。索引在開站時就開始抓（約兩次小請求），通常早於 style.load。
+  const resolved = resolveAssetUrl(config.sourceUrl);
+  if (resolved.source === "fallback") {
+    console.warn(`[overlay] ${config.sourceId} 使用部署時版本：${resolved.reason}`);
+  }
   return {
     type: PMTILES_SOURCE_TYPE,
-    url: config.sourceUrl,
+    url: resolved.url,
     minzoom: config.pmtiles?.minzoom,
     maxzoom: config.pmtiles?.maxzoom,
   };
@@ -595,7 +603,8 @@ export function polygonFeaturesToCentroids(data: GeoJSON.FeatureCollection): Geo
  * dynamicData 由各自 loader 負責）。
  *
  * 設計：
- * - 失敗時清掉 set 讓下次 toggle 可重試
+ * - 失敗時清掉 set 讓下次 toggle 可重試，並以 loadingRegistry 失敗結束（右上顯示載入失敗）
+ * - URL 經 layerAssetIndex resolver：已遷移圖層走 CDN 並驗 sha256（≤5 MB）
  * - 先標記 hydrated 防同一 toggle 內重複觸發 race
  */
 export async function hydrateOverlayIfNeeded(
@@ -606,12 +615,17 @@ export async function hydrateOverlayIfNeeded(
   if (hydratedSources.has(config.sourceId)) return;
   hydratedSources.add(config.sourceId);
   const taskId = `overlay-hydrate:${config.sourceId}`;
-  const label = LAYER_LABELS[config.id] ?? config.sourceId;
+  const resolved = resolveAssetUrl(config.sourceUrl);
+  const baseLabel = LAYER_LABELS[config.id] ?? config.sourceId;
+  // 已遷移的圖層拿不到索引時，沿用右上載入狀態條提示正在顯示部署時版本
+  const label = resolved.source === "fallback" ? `${baseLabel}（顯示部署時版本）` : baseLabel;
+  if (resolved.source === "fallback") {
+    console.warn(`[overlay] ${config.sourceId} 使用部署時版本：${resolved.reason}`);
+  }
   loadingRegistry.start(taskId, label);
+  let failed = false;
   try {
-    const res = await fetch(config.sourceUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw = (await res.json()) as GeoJSON.FeatureCollection;
+    const raw = await fetchResolvedGeojson(resolved);
     const json = config.geojsonTransform === "centroid"
       ? polygonFeaturesToCentroids(raw)
       : raw;
@@ -620,10 +634,12 @@ export async function hydrateOverlayIfNeeded(
       (src as any).setData(json);
     }
   } catch (e) {
+    failed = true;
     hydratedSources.delete(config.sourceId);
     console.warn(`[overlay] hydrate ${config.sourceId} failed:`, e);
   } finally {
-    loadingRegistry.end(taskId);
+    // 以失敗結束 → 右上載入狀態條顯示「載入失敗 · 圖層名」，不再靜默空圖
+    loadingRegistry.end(taskId, failed);
   }
 }
 
