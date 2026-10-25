@@ -98,7 +98,7 @@
 ### 注意事項
 
 - 發布當天（develop→master 前）要手動上傳新的台北公車線形：`public/bus/taipei_bus_routes_v2.json`（本機已換新；備份在 `GIS/_worktree-backups/2026-10-24/bus-routes/`）跑 `scripts/deploy/upload-deploy-assets.sh` 的公車段；不要提早上傳，否則容器重啟會讓台北、新北兩檔新舊不一（#694）
-- 發布當天（develop→master 前）要上傳公車擁擠模擬私人資料：`node scripts/deploy/upload-bus-crowding-private.mjs <repo>/bus-crowding-sim.local`（34 檔到私人 S3 `private-research/bus-crowding/<sha256>/`，需 S3 憑證；步驟見 `docs/features/simulation/PLAN.md` §6）；沒上傳時正式站只有這個圖層回 503，其他私人圖層不受影響
+- 公車擁擠模擬私人資料 34 檔已於 2026-10-25 上傳私人 S3（讀回 sha256 相符、匿名 403），發版不必再傳；只有資料重產時才需重傳：`node scripts/deploy/upload-bus-crowding-private.mjs <repo>/bus-crowding-sim.local`（34 檔到私人 S3 `private-research/bus-crowding/<sha256>/`，需 S3 憑證；步驟見 `docs/features/simulation/PLAN.md` §6）；沒上傳時正式站只有這個圖層回 503，其他私人圖層不受影響
 
 ## v2.13.0 — 2026-10-24 — Pulse 筆記文章專區、臺北市局處統計 11 層
 

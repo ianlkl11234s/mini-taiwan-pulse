@@ -143,7 +143,9 @@
 
 本機預覽：`npm run dev:private-research`（port 8796）＋`npm run dev`；vite 把 `/api/private-research/bus-crowding` 代理到 8796。未登入或不是站主時，圖層鎖住；存取被拒時關圖層並顯示提示。
 
-發版當天（develop 合進 master 之前，使用者明確授權後才執行）：
+**上傳狀態**：2026-10-25 使用者授權，34 檔已上傳（`node --env-file=.env scripts/deploy/upload-bus-crowding-private.mjs …`，讀回 sha256 全相符、匿名 HEAD 全 403），發版當天不必再傳；資料重產後才照下列步驟重傳。
+
+上傳步驟（使用者明確授權後才執行）：
 1. 確認 `bus-crowding-sim.local/` 與契約一致（上傳腳本會再驗一次）。
 2. `S3_ACCESS_KEY=… S3_SECRET_KEY=… node scripts/deploy/upload-bus-crowding-private.mjs <repo>/bus-crowding-sim.local`：逐檔核對 `local_validation.json`、契約、磁碟位元組三者一致；bucket policy 沒有公開 Allow；`IfNoneMatch` 上傳、SSE、`Cache-Control: private, no-store`；讀回比對 sha256；匿名 HEAD 必須 403。
 3. 合併部署後，sidecar 暖機會逐檔從 S3 驗證；任何一檔缺失時只有本家族回 503（`private bus crowding sidecar unavailable`），其他私人圖層不受影響。
