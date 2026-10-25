@@ -30,6 +30,8 @@ export const BUS_CROWDING_VEHICLE_IDS = {
 } as const;
 const IDS = BUS_CROWDING_VEHICLE_IDS;
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+/** 0 級車點的淡化係數（乘 P-3 主體透明度）。 */
+export const BUS_REPLAY_ZERO_ALPHA = 0.5;
 const clamp = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 
 /** 每 tick 的耗時與車數（開發版放在 window 給驗收讀）。 */
@@ -46,7 +48,12 @@ export function replayVehicleFeatures(
     if (!line) continue;
     const st = replayTripState(trip, line, T);
     if (!st) continue;
-    const props: Record<string, unknown> = { key: trip.id, tid: trip.id, color: colors[st.cls] ?? colors[0], tier: "moving", alpha: 1 };
+    // 規格未定的取捨（回報列出）：0 級（未滿五成）用 M 尺寸＋半透明退到背景，1–3 級 L 尺寸；高級疊在上面（sort key）
+    const zero = st.cls === 0;
+    const props: Record<string, unknown> = {
+      key: trip.id, tid: trip.id, cls: st.cls, color: colors[st.cls] ?? colors[0],
+      tier: zero ? "parked" : "moving", alpha: zero ? BUS_REPLAY_ZERO_ALPHA : 1,
+    };
     if (st.bearing !== null) props.bearing = st.bearing;
     features.push({ type: "Feature", geometry: { type: "Point", coordinates: [st.lng, st.lat] }, properties: props });
   }
@@ -62,12 +69,12 @@ function ensureLayers(map: MapboxMap, opacity: number, isDark: boolean) {
   ensureArrowImage(map);
   if (!map.getSource(IDS.source)) map.addSource(IDS.source, { type: "geojson", data: EMPTY });
   if (!map.getLayer(IDS.circle)) {
-    map.addLayer({ id: IDS.circle, type: "circle", source: IDS.source, paint: flatMovingCirclePaint(isDark, 1, opacity) });
+    map.addLayer({ id: IDS.circle, type: "circle", source: IDS.source, layout: { "circle-sort-key": ["get", "cls"] }, paint: flatMovingCirclePaint(isDark, 1, opacity) });
   }
   if (!map.getLayer(IDS.arrow)) {
     map.addLayer({
       id: IDS.arrow, type: "symbol", source: IDS.source, minzoom: FLAT_ARROW_MIN_ZOOM, filter: ["has", "bearing"],
-      layout: { ...flatMovingArrowLayout(1), "icon-image": FLAT_ARROW_IMAGE }, paint: flatMovingArrowPaint(isDark, opacity),
+      layout: { ...flatMovingArrowLayout(1), "icon-image": FLAT_ARROW_IMAGE, "symbol-sort-key": ["get", "cls"] }, paint: flatMovingArrowPaint(isDark, opacity),
     });
   }
 }

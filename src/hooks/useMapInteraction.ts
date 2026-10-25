@@ -432,6 +432,10 @@ export function useMapInteraction(
             features = queried.filter((feature) => isBusCrowdingDrawn(feature.properties?.ov, feature.properties?.t))
               .sort((a, b) => Number(b.properties?.ov ?? -1) - Number(a.properties?.ov ?? -1));
           }
+          if (type === "busCrowdingSimVehicle") {
+            // 車點疊在一起時回答負載分級最高的那台（與 circle／symbol-sort-key 讓高級畫在上面一致）。
+            features = [...queried].sort((a, b) => Number(b.properties?.cls ?? -1) - Number(a.properties?.cls ?? -1));
+          }
           if (type === "bridgeResilienceTwinCity") {
             // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢
             const bridgeHits = queried.filter((feature) => feature.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill);
