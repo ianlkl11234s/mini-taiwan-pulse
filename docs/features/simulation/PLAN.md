@@ -112,6 +112,7 @@
 - 另開 hook，不動 `useBusLayer`／`BusScene`（它們吃的是真實 GPS，不是模擬班次）
 - 用獨立播放時鐘（範本 `src/state/earthquakeReplayClock.ts`），不掛全站 timeStore；UI 用 Phase 0 的 S-1 播放列
 - 班次資料切成「路線 × 班次」gz，點路線才載入（基準 4.2 MB，gz 後約 1 MB，預估）；單班剖面放 popup 或面板
+  - **2026-10-25 實作偏離**：全城動畫需要全部班次，改為開啟「時間回放」時整包載入基準 trips＋該方案 diff（組法同原型 index.html:183–184），切版本才換檔；每班每站只輸出負載分級 0–3（不含人數），基準約 1.9 MB／gzip 0.45 MB、線形 gzip 0.54 MB。單班剖面這一刀未做。
 - 依 map-layers G-1 R6 修訂：車輛是移動物件，「立體效果」預設開、可關；關閉時照 R6 段 3 的平面規則（圓點、z≥12 方向箭頭）
 
 ### Phase 4 以後 — 新實驗候選

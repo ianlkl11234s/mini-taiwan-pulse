@@ -910,7 +910,7 @@ export interface FeatureInfo {
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
     | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
-  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "busCrowdingSimVehicle"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"

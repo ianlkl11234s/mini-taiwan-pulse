@@ -2,19 +2,25 @@ import { useEffect, useRef, useState } from "react";
 import type { GeoJSONSource, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   BUS_CROWDING_SIM_KEY, BUS_CROWDING_SIM_LAYER_IDS, BUS_CROWDING_SIM_SOURCE_ID,
-  type BusCrowdingScenario, type BusCrowdingScenarioData, type BusCrowdingVersion,
+  busCrowdingLevel,
+  type BusCrowdingScenario, type BusCrowdingScenarioData, type BusCrowdingVersion, type BusCrowdingView,
 } from "../data/busCrowdingSimTypes";
 import {
   BUS_CROWDING_DRAWN_FILTER, BUS_CROWDING_SORT_KEY,
   busCrowdingColorExpression, busCrowdingOpacityExpression, busCrowdingWidthExpression,
 } from "../data/busCrowdingSimStyle";
-import { loadBusCrowdingScenario, loadBusCrowdingSegments } from "../data/busCrowdingSimLoader";
+import { loadBusCrowdingReplayTrips, loadBusCrowdingScenario, loadBusCrowdingSegments } from "../data/busCrowdingSimLoader";
+import { currentSegmentClasses, type ReplayTrip } from "../data/busCrowdingReplay";
+import { busCrowdingSimClock } from "../state/busCrowdingSimClock";
 import { buildSegmentIndex, busCrowdingSimIndexStore, busCrowdingSimScenarioStore } from "../data/busCrowdingSimStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
-export interface BusCrowdingSimControls { version: BusCrowdingVersion; scenario: BusCrowdingScenario }
+export interface BusCrowdingSimControls { version: BusCrowdingVersion; scenario: BusCrowdingScenario; view?: BusCrowdingView }
+
+/** 回放路段：模擬時間變動不到這麼多秒就不重算（同原型 index.html:322 的 30 秒節流）。 */
+export const REPLAY_SEGMENT_STEP_S = 30;
 
 const IDS = BUS_CROWDING_SIM_LAYER_IDS;
 const SRC = BUS_CROWDING_SIM_SOURCE_ID;
@@ -55,9 +61,22 @@ export function withBusCrowdingValues(
     type: "FeatureCollection",
     features: geometry.features.map((feature, i) => ({
       ...feature,
-      properties: { ...feature.properties, ov: values?.ov[i] ?? -1, t: values?.n[i] ?? 0 },
+      properties: {
+        ...feature.properties, ov: values?.ov[i] ?? -1, t: values?.n[i] ?? 0,
+        lv: busCrowdingLevel(values?.ov[i], values?.n[i]) ?? -1, s: values?.ov[i] ?? -1,
+      },
     })),
   };
+}
+
+/** 時間回放：只放有值的段（lv＝當下負載分級；沒有班次的段不畫，同原型）。 */
+export function withReplayClasses(geometry: GeoJSON.FeatureCollection, classes: Int8Array): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  geometry.features.forEach((feature, i) => {
+    const lv = classes[i] ?? -1;
+    if (lv >= 0) features.push({ ...feature, properties: { ...feature.properties, lv, s: lv } });
+  });
+  return { type: "FeatureCollection", features };
 }
 
 /** 公開 TDX 衍生的模擬結果（站主限定只做 UI 鎖）：一個 GeoJSON source＋實線＋命中層。 */
@@ -77,6 +96,10 @@ export function useBusCrowdingSimLayer(
   const latestIsDark = useRef(isDark);
   latestIsDark.current = isDark;
   const latestFeatures = useRef<GeoJSON.FeatureCollection | null>(null);
+  const view = controls.view ?? "static";
+  const latestView = useRef(view);
+  latestView.current = view;
+  const [replayTrips, setReplayTrips] = useState<ReplayTrip[] | null>(null);
 
   // 幾何：第一次開圖層才抓（模組級快取）。
   useEffect(() => {
@@ -111,7 +134,9 @@ export function useBusCrowdingSimLayer(
         keepLoadingUntilMapIdle(map, `${SRC}:render`, "公車擁擠模擬路段繪製中", SRC);
       }
       for (const layer of buildBusCrowdingSimLayers(latestOpacity.current, latestIsDark.current)) if (!map.getLayer(layer.id)) map.addLayer(layer);
-      for (const id of [IDS.line, IDS.hit]) map.setLayoutProperty(id, "visibility", "visible");
+      map.setLayoutProperty(IDS.line, "visibility", "visible");
+      // 回放時路段不接點擊（點車看 popup）；全時段才有路段 popup
+      map.setLayoutProperty(IDS.hit, "visibility", latestView.current === "replay" ? "none" : "visible");
       setMountRevision((r) => r + 1);
     };
     mount(); map.on("style.load", mount);
@@ -131,7 +156,8 @@ export function useBusCrowdingSimLayer(
 
   // 版本／方案：數值寫進 properties 後 setData（幾何不重抓）。換底圖重建 source 時 mount 直接用 latestFeatures。
   useEffect(() => {
-    const map = mapRef.current; if (!map || !visible || !geometry || !data) return;
+    const map = mapRef.current; if (!map || !visible || !geometry || !data || view !== "static") return;
+    if (map.getLayer(IDS.hit)) map.setLayoutProperty(IDS.hit, "visibility", "visible");
     const started = performance.now();
     const next = withBusCrowdingValues(geometry, data, controls.version);
     const built = performance.now();
@@ -140,5 +166,35 @@ export function useBusCrowdingSimLayer(
     if (!source) return;
     source.setData(next);
     if (import.meta.env?.DEV) console.debug(`[bus-crowding-sim] setData ${next.features.length} features: build ${(built - started).toFixed(1)} ms, setData ${(performance.now() - built).toFixed(1)} ms`);
-  }, [mapRef, mapTick, visible, geometry, data, controls.version, mountRevision]);
+  }, [mapRef, mapTick, visible, geometry, data, controls.version, mountRevision, view]);
+
+  // 時間回放：開啟才載班次（版本×方案；切版本才換檔）。
+  useEffect(() => {
+    if (!visible || view !== "replay") { setReplayTrips(null); return; }
+    let cancelled = false;
+    loadBusCrowdingReplayTrips(controls.version, controls.scenario).then((trips) => {
+      if (!cancelled) setReplayTrips(trips);
+    }).catch((error: unknown) => console.warn("[bus-crowding-sim] replay trips load failed", error));
+    return () => { cancelled = true; };
+  }, [visible, view, controls.version, controls.scenario]);
+
+  // 時間回放：訂閱 scoped 時鐘（不接 timeStore、不進 React state），模擬時間每變 30 秒重算路段當下負載。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || view !== "replay" || !geometry || !replayTrips) return;
+    if (map.getLayer(IDS.hit)) map.setLayoutProperty(IDS.hit, "visibility", "none");
+    const index = busCrowdingSimIndexStore.get();
+    if (!index) return;
+    let lastT = Number.NEGATIVE_INFINITY;
+    const update = () => {
+      const T = busCrowdingSimClock.get();
+      if (Math.abs(T - lastT) < REPLAY_SEGMENT_STEP_S) return;
+      lastT = T;
+      const next = withReplayClasses(geometry, currentSegmentClasses(replayTrips, T, index, geometry.features.length));
+      latestFeatures.current = next;
+      (map.getSource(SRC) as GeoJSONSource | undefined)?.setData(next);
+    };
+    update();
+    return busCrowdingSimClock.subscribe(update);
+  }, [mapRef, mapTick, visible, view, geometry, replayTrips, mountRevision]);
 }

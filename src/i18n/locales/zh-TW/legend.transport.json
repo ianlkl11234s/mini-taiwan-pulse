@@ -96,5 +96,12 @@
   "legend.transport.busSimHidden": "班次少於 {n} 班的路段不畫",
   "legend.transport.busSimDefinition": "超載班次比例：離開路段起點站的班次中，載客達容量（假設 65 人）的比例",
   "legend.transport.busSimWindow": "平日 7–9 時・資料日 2026-10-14・模擬推估，非實測",
-  "legend.transport.busSimCoverage": "涵蓋：臺北市 307 走廊周邊 257 條路線；新北市區公車未涵蓋"
+  "legend.transport.busSimCoverage": "涵蓋：臺北市 307 走廊周邊 257 條路線；新北市區公車未涵蓋",
+  "legend.transport.busSimReplayTitle": "當下負載（{version}）",
+  "legend.transport.busSimLoad0": "未滿五成",
+  "legend.transport.busSimLoad1": "五至八成",
+  "legend.transport.busSimLoad2": "八成到滿載",
+  "legend.transport.busSimLoad3": "超載",
+  "legend.transport.busSimReplayDefinition": "車上負載：推估載客量占車輛容量（假設值）的比例；路段＝20 分鐘內最近一班離站的負載，沒有班次的路段不畫",
+  "legend.transport.busSimReplayVehicles": "圓點＝模擬公車（拉近顯示行進方向）；靠站停留不計；站序與線形對不上的 23 條路線、永和接駁線（無線形）的班次不畫"
 }

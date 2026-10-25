@@ -94,5 +94,6 @@
   "popupHeader.chatHighlight": "Map Marker",
   "popupHeader.analysisResult": "Analysis Result",
   "popupHeader.typhoonAgencyForecast": "Agency Typhoon Forecasts",
-  "popupHeader.busCrowdingSim": "Bus Segment Overloaded-Trip Share (Estimate)"
+  "popupHeader.busCrowdingSim": "Bus Segment Overloaded-Trip Share (Estimate)",
+  "popupHeader.busCrowdingSimVehicle": "Simulated Bus (Estimate)"
 }

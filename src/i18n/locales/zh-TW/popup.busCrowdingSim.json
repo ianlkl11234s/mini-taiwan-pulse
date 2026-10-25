@@ -13,5 +13,16 @@
   "popup.busCrowdingSim.trips": "{n} 班",
   "popup.busCrowdingSim.tripsRange": "{a}～{b} 班",
   "popup.busCrowdingSim.note": "平日 7–9 時離開路段起點站的班次中，載客達容量（假設 65 人）的比例；兩個值分別假設 7–9 時佔全日運量 13.7% 與 18.0%。模擬推估，非實測。",
-  "popup.busCrowdingSim.source": "TDX 公車路線與班表；taipei-gis-analytics 公車擁擠模型（推估）"
+  "popup.busCrowdingSim.source": "TDX 公車路線與班表；taipei-gis-analytics 公車擁擠模型（推估）",
+  "popup.busCrowdingSim.trip": "班次",
+  "popup.busCrowdingSim.tripDeparts": "{time} 發車",
+  "popup.busCrowdingSim.nextStop": "下一站",
+  "popup.busCrowdingSim.load": "車上負載",
+  "popup.busCrowdingSim.loadRange": "較寬鬆 {low}～較擁擠 {high}",
+  "popup.busCrowdingSim.load0": "未滿五成",
+  "popup.busCrowdingSim.load1": "五至八成",
+  "popup.busCrowdingSim.load2": "八成到滿載",
+  "popup.busCrowdingSim.load3": "超載",
+  "popup.busCrowdingSim.vehicleGone": "這班車已不在模擬時段內",
+  "popup.busCrowdingSim.vehicleNote": "車上負載是離站後推估載客量占車輛容量（假設值）的比例分級；兩個值分別假設 7–9 時佔全日運量 13.7% 與 18.0%。模擬推估，非實測。"
 }

@@ -10,7 +10,7 @@
   public/sim/bus-crowding/segments.geojson          路段幾何（只輸出一次；feature id＝陣列順序）
   public/sim/bus-crowding/{v137,v180}/<方案>.json    {"ov": [...], "n": [...]}，依 feature 順序對齊
   public/sim/bus-crowding/meta.json                 版本、方案、涵蓋、bbox、QA 計數
-  public/sim/bus-crowding/lines.json                時間回放用線形（index＝線編號；跳過的線為 null）
+  public/sim/bus-crowding/lines.json                時間回放用線形＋路線名、站名（index＝線編號；跳過的線為 null）
   public/sim/bus-crowding/{v137,v180}/trips-base.json        時間回放：基準班次（只含負載分級，不含人數）
   public/sim/bus-crowding/{v137,v180}/trips-<方案>.json      時間回放：情境 diff {removed, changed}
 
@@ -220,6 +220,8 @@ def main() -> None:
             "g": [[round(x, 5), round(y, 5)] for x, y in line["g"]],
             "gm": [round(m) for m in line["gm"]],
             "m": [round(st[2]) for st in line["st"]],
+            "n": line["n"], "sn": line["sn"],
+            "s": [st[1] for st in line["st"]],
         })
     with (OUT / "lines.json").open("w", encoding="utf-8") as fh:
         json.dump(replay_lines, fh, separators=(",", ":"))

@@ -13,5 +13,16 @@
   "popup.busCrowdingSim.trips": "{n} 便",
   "popup.busCrowdingSim.tripsRange": "{a}～{b} 便",
   "popup.busCrowdingSim.note": "平日 7–9 時に区間の始点停留所を出発する便のうち、乗客数が定員（65 人と仮定）に達した便の割合です。2 つの値は、7–9 時が 1 日の利用者数の 13.7% と 18.0% を占めると仮定した推計です。シミュレーションによる推計で、実測ではありません。",
-  "popup.busCrowdingSim.source": "TDX バス路線・時刻表；taipei-gis-analytics バス混雑モデル（推計）"
+  "popup.busCrowdingSim.source": "TDX バス路線・時刻表；taipei-gis-analytics バス混雑モデル（推計）",
+  "popup.busCrowdingSim.trip": "便",
+  "popup.busCrowdingSim.tripDeparts": "{time} 発",
+  "popup.busCrowdingSim.nextStop": "次の停留所",
+  "popup.busCrowdingSim.load": "車内の混雑",
+  "popup.busCrowdingSim.loadRange": "緩め {low}～混雑寄り {high}",
+  "popup.busCrowdingSim.load0": "5割未満",
+  "popup.busCrowdingSim.load1": "5〜8割",
+  "popup.busCrowdingSim.load2": "8割〜満員",
+  "popup.busCrowdingSim.load3": "定員超過",
+  "popup.busCrowdingSim.vehicleGone": "この便はシミュレーション時間帯の外です",
+  "popup.busCrowdingSim.vehicleNote": "車内の混雑は、停留所を出た後の推計乗車量が車両定員（仮定値）に占める割合の区分です。2つの値は7〜9時が1日の利用の13.7%と18.0%を占めると仮定したものです。シミュレーションによる推計で、実測ではありません。"
 }

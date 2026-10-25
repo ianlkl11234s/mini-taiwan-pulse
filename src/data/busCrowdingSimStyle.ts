@@ -4,7 +4,6 @@
  */
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { BOUNDARY_GRAY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH } from "../map/mapStyleScale";
-import { BUS_CROWDING_BREAKS, BUS_CROWDING_MIN_TRIPS, BUS_CROWDING_NONZERO } from "./busCrowdingSimTypes";
 
 /**
  * 四級色（map-layers F-3「分析結果」→ viz-library DECISIONS §1 magma；暗／淡方向相反）：
@@ -21,17 +20,22 @@ export const busCrowdingColors = (isDark: boolean): readonly [string, string, st
 /** 0 級參考線（F-2 背景面外框那組 token）。 */
 export const BUS_CROWDING_ZERO_LINE = FILL_OUTLINE.background;
 
-const NONZERO = BUS_CROWDING_NONZERO;
-/** 數值寫在 GeoJSON properties（切版本／方案時 setData 重建）：ov＝超載比例（缺值 -1）、t＝班次。 */
-const OV = ["coalesce", ["get", "ov"], -1] as const;
-const IS_ZERO = ["<", [...OV], NONZERO] as const;
+/**
+ * 路段數值寫在 GeoJSON properties（setData 重建）：
+ * - lv：分級 0–3（−1／缺＝不畫）。全時段超載比例＝依 ov 門檻（busCrowdingLevel，含班次 < 5 不畫）；
+ *   時間回放＝20 分鐘內最近一班離站的負載分級（原型 index.html:324–327）。兩種檢視共用同一套 paint。
+ * - s：line-sort-key（全時段＝ov，比分級細；回放＝lv），高值畫在上面。
+ * - ov／t：全時段的超載比例與班次（popup、點擊排序用）。
+ */
+const LV = ["coalesce", ["get", "lv"], -1] as const;
+const IS_ZERO = ["==", [...LV], 0] as const;
 
-/** 不畫：ov 缺（-1）或班次 < 5。line 與命中層共用（命中層也就點不到不畫的段）。 */
-export const BUS_CROWDING_DRAWN_FILTER: unknown[] = ["all", [">=", [...OV], 0], [">=", ["coalesce", ["get", "t"], 0], BUS_CROWDING_MIN_TRIPS]];
+/** 不畫：lv < 0。line 與命中層共用（命中層也就點不到不畫的段）。 */
+export const BUS_CROWDING_DRAWN_FILTER: unknown[] = [">=", [...LV], 0];
 
 export const busCrowdingColorExpression = (isDark: boolean): unknown[] => {
   const c = busCrowdingColors(isDark);
-  return ["step", [...OV], c[0], NONZERO, c[1], BUS_CROWDING_BREAKS[0], c[2], BUS_CROWDING_BREAKS[1], c[3]];
+  return ["match", [...LV], 1, c[1], 2, c[2], 3, c[3], c[0]];
 };
 
 /**
@@ -52,4 +56,4 @@ export const busCrowdingWidthExpression = (): unknown[] => {
 };
 
 /** 高值畫在上面（line-sort-key 越大越後畫）。 */
-export const BUS_CROWDING_SORT_KEY: unknown[] = [...OV];
+export const BUS_CROWDING_SORT_KEY: unknown[] = ["coalesce", ["get", "s"], -1];

@@ -22,8 +22,9 @@ import type { I18nContext } from "../../i18n/layerText";
 import { paramText } from "../../i18n/paramText";
 import {
   BUS_CROWDING_MIN_TRIPS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_KEY,
-  BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
+  BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS, BUS_CROWDING_VIEWS,
 } from "../../data/busCrowdingSimTypes";
+import { movingStrokeColor } from "../../map/mapStyleScale";
 import { BUS_CROWDING_ZERO_LINE, busCrowdingColors, busCrowdingZeroOpacity } from "../../data/busCrowdingSimStyle";
 
 // ── Road Events event_type ──
@@ -553,6 +554,25 @@ export function BusCrowdingSimLegend() {
     { color: colors[2], width: 2, opacity: 1, label: t("legend.transport.busSimMid") },
     { color: colors[3], width: 2, opacity: 1, label: t("legend.transport.busSimHigh") },
   ];
+  const view = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimView"), BUS_CROWDING_VIEWS, "static");
+  if (view === "replay") {
+    // 時間回放（spec §5.40 S-3：目前檢視寫進標題、方案放第二行）；路段與車點同一組四級（車上負載，門檻照原型 index.html:150）
+    const loadLevels = [0, 1, 2, 3].map((i) => ({
+      color: colors[i]!, width: i === 0 ? BUS_CROWDING_ZERO_LINE.width : 2, opacity: i === 0 ? busCrowdingZeroOpacity(theme.isDark) : 1,
+      label: t(`legend.transport.busSimLoad${i}` as "legend.transport.busSimLoad0"),
+    }));
+    return <div>
+      <LegendTitle zh={t("legend.transport.busSimReplayTitle", { version: paramText(BUS_CROWDING_VERSION_LABELS[version], i18n) })} en="Bus Crowding" />
+      <LegendRow swatch={null}>{t("legend.transport.busSimScenario", { scenario: paramText(BUS_CROWDING_SCENARIO_LABELS[scenario], i18n) })}</LegendRow>
+      <div style={{ marginTop: 4 }}>
+        {loadLevels.map((level) => <LegendRow key={level.color} swatch={<span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><SwatchLine color={level.color} width={level.width} opacity={level.opacity} /><SwatchDot color={level.color} stroke={movingStrokeColor(theme.isDark)} /></span>}>{level.label}</LegendRow>)}
+      </div>
+      <LegendNote>{t("legend.transport.busSimReplayDefinition")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimReplayVehicles")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimWindow")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimCoverage")}</LegendNote>
+    </div>;
+  }
   return <div>
     <LegendTitle zh={t("legend.transport.busSimTitle", { version: paramText(BUS_CROWDING_VERSION_LABELS[version], i18n) })} en="Bus Crowding" />
     <LegendRow swatch={null}>{t("legend.transport.busSimScenario", { scenario: paramText(BUS_CROWDING_SCENARIO_LABELS[scenario], i18n) })}</LegendRow>

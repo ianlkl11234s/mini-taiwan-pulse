@@ -16,6 +16,10 @@ export interface ReplayLine {
   gm: number[];
   /** 各站沿線公尺 */
   m: number[];
+  /** 路線名、子路線名、各站站名（popup 用） */
+  n: string;
+  sn: string;
+  s: string[];
 }
 
 /** 一班車（trips-*.json）。c／x：每站離站後的負載分級字串（一字一站）；x 是另一參數版本。 */

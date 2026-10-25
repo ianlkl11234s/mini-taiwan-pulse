@@ -1,11 +1,15 @@
 import { FONT_SIZE } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
 import {
-  BUS_CROWDING_REPRESENTATIVE_COLOR, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY,
+  BUS_CROWDING_REPRESENTATIVE_COLOR, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SIM_KEY, BUS_CROWDING_VERSIONS,
   busCrowdingLevel, segmentKey, type BusCrowdingScenarioData,
 } from "../../data/busCrowdingSimTypes";
 import { busCrowdingColors } from "../../data/busCrowdingSimStyle";
-import { useBusCrowdingSimIndex, useBusCrowdingSimScenario } from "../../data/busCrowdingSimStore";
+import { useBusCrowdingSimIndex, useBusCrowdingSimReplay, useBusCrowdingSimScenario } from "../../data/busCrowdingSimStore";
+import { classAt, replayTripState } from "../../data/busCrowdingReplay";
+import { busCrowdingSimClock } from "../../state/busCrowdingSimClock";
+import { formatSimClock } from "../../state/simPlaybackClock";
+import { useSyncExternalStore } from "react";
 import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { paramText } from "../../i18n/paramText";
 import { useLocale } from "../../state/localeStore";
@@ -59,6 +63,58 @@ export function BusCrowdingSimPanel({ props }: { props: Record<string, unknown> 
       <Row label={tr("popup.busCrowdingSim.tripsLabel")} value={trips} />
     </>}
     <div style={{ marginTop: 4, color: t.textDim, fontSize: FONT_SIZE.sm, lineHeight: 1.4 }}>{tr("popup.busCrowdingSim.note")}</div>
+    <SourceFooter props={{ source: tr("popup.busCrowdingSim.source") }} />
+  </>;
+}
+
+/** 車上負載分級的 i18n key（門檻照原型 index.html:150：容量比 0.5／0.8／1.0）。 */
+export const BUS_LOAD_LEVEL_KEYS = [
+  "popup.busCrowdingSim.load0", "popup.busCrowdingSim.load1", "popup.busCrowdingSim.load2", "popup.busCrowdingSim.load3",
+] as const;
+
+/**
+ * 時間回放的車 popup：路線、班次（發車時刻）、下一站；負載寫「較寬鬆 X～較擁擠 Y」（trip id 對兩版），
+ * 附「只看範圍」中性 chip。不出現人數、不出現容量假設值。下一站與負載跟著模擬時鐘走。
+ */
+export function BusCrowdingSimVehiclePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const isDark = t !== LIGHT_FEATURE;
+  const { t: tr } = useLocale();
+  const params = useLayerParams(BUS_CROWDING_SIM_KEY);
+  const version = oneOfParam(paramStr(params, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, "v137");
+  const replay = useBusCrowdingSimReplay();
+  const T = useSyncExternalStore(busCrowdingSimClock.subscribe, busCrowdingSimClock.get);
+  const trip = replay?.byId.get(String(props.tid ?? ""));
+  const line = trip ? replay?.lines[trip.l] ?? null : null;
+  const state = trip && line ? replayTripState(trip, line, T) : null;
+  const colors = busCrowdingColors(isDark);
+  if (!trip || !line) {
+    return <>
+      <Title color={BUS_CROWDING_REPRESENTATIVE_COLOR}>{tr("popup.busCrowdingSim.vehicleGone")}</Title>
+      <SourceFooter props={{ source: tr("popup.busCrowdingSim.source") }} />
+    </>;
+  }
+  const k = state?.k ?? null;
+  const next = k !== null ? line.s[trip.q[k + 1] ?? -1] : undefined;
+  const mine = k !== null ? classAt(trip.c, k) : null;
+  const other = k !== null ? classAt(trip.x, k) : null;
+  const [low, high] = version === "v137" ? [mine, other] : [other, mine];
+  const label = (c: number | null) => (c === null ? "—" : tr(BUS_LOAD_LEVEL_KEYS[c] ?? BUS_LOAD_LEVEL_KEYS[0]));
+  return <>
+    <Title color={colors[mine ?? 0] ?? BUS_CROWDING_REPRESENTATIVE_COLOR}>{line.n}</Title>
+    <div style={{ margin: "2px 0 4px" }}>
+      <span className="fi-badge" style={{ ...chipOutline(t.textMuted), display: "inline-block", padding: "2px 5px", borderRadius: 3, fontSize: FONT_SIZE.sm, lineHeight: 1.2 }}>
+        {tr("popup.busCrowdingSim.confidence")}
+      </span>
+    </div>
+    {line.sn && line.sn !== line.n && <Row label={tr("popup.busCrowdingSim.subRoute")} value={line.sn} />}
+    {trip.syn === 1 && <Row label={tr("popup.busCrowdingSim.kind")} value={tr("popup.busCrowdingSim.synthetic")} />}
+    <Row label={tr("popup.busCrowdingSim.trip")} value={tr("popup.busCrowdingSim.tripDeparts", { time: formatSimClock(trip.t[0] ?? 0) })} />
+    <Row label={tr("popup.busCrowdingSim.nextStop")} value={next ?? "—"} />
+    <Row label={tr("popup.busCrowdingSim.load")} value={other === null
+      ? label(mine)
+      : tr("popup.busCrowdingSim.loadRange", { low: label(low), high: label(high) })} />
+    <div style={{ marginTop: 4, color: t.textDim, fontSize: FONT_SIZE.sm, lineHeight: 1.4 }}>{tr("popup.busCrowdingSim.vehicleNote")}</div>
     <SourceFooter props={{ source: tr("popup.busCrowdingSim.source") }} />
   </>;
 }

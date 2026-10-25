@@ -96,5 +96,12 @@
   "legend.transport.busSimHidden": "Segments with fewer than {n} trips are not drawn",
   "legend.transport.busSimDefinition": "Share of overloaded trips: among trips leaving the segment's first stop, the share whose load reaches capacity (assumed 65 passengers)",
   "legend.transport.busSimWindow": "Weekdays 7–9 am · Data date 2026-10-14 · Simulated estimate, not measured",
-  "legend.transport.busSimCoverage": "Coverage: 257 routes around the Route 307 corridor in Taipei City; New Taipei city buses are not covered"
+  "legend.transport.busSimCoverage": "Coverage: 257 routes around the Route 307 corridor in Taipei City; New Taipei city buses are not covered",
+  "legend.transport.busSimReplayTitle": "Current load ({version})",
+  "legend.transport.busSimLoad0": "Under 50%",
+  "legend.transport.busSimLoad1": "50–80%",
+  "legend.transport.busSimLoad2": "80% to full",
+  "legend.transport.busSimLoad3": "Overloaded",
+  "legend.transport.busSimReplayDefinition": "On-board load: estimated load as a share of vehicle capacity (an assumed value); segments show the most recent departure within 20 minutes, and segments with no trip are not drawn",
+  "legend.transport.busSimReplayVehicles": "Dots = simulated buses (direction shown when zoomed in); dwell time at stops is ignored; trips on 23 routes whose stop order doesn't match the route shape, and on the Yonghe shuttle (no route shape), are not drawn"
 }

@@ -13,5 +13,16 @@
   "popup.busCrowdingSim.trips": "{n} trips",
   "popup.busCrowdingSim.tripsRange": "{a}–{b} trips",
   "popup.busCrowdingSim.note": "Among weekday trips leaving the segment's first stop between 7 and 9 am, the share whose load reaches capacity (assumed 65 passengers). The two values assume 7–9 am accounts for 13.7% and 18.0% of daily ridership. Simulated estimate, not measured.",
-  "popup.busCrowdingSim.source": "TDX bus routes and timetables; taipei-gis-analytics bus crowding model (estimate)"
+  "popup.busCrowdingSim.source": "TDX bus routes and timetables; taipei-gis-analytics bus crowding model (estimate)",
+  "popup.busCrowdingSim.trip": "Trip",
+  "popup.busCrowdingSim.tripDeparts": "Departs {time}",
+  "popup.busCrowdingSim.nextStop": "Next stop",
+  "popup.busCrowdingSim.load": "On-board load",
+  "popup.busCrowdingSim.loadRange": "Less crowded {low} – more crowded {high}",
+  "popup.busCrowdingSim.load0": "Under 50%",
+  "popup.busCrowdingSim.load1": "50–80%",
+  "popup.busCrowdingSim.load2": "80% to full",
+  "popup.busCrowdingSim.load3": "Overloaded",
+  "popup.busCrowdingSim.vehicleGone": "This trip is outside the simulated window",
+  "popup.busCrowdingSim.vehicleNote": "On-board load is the estimated load after leaving a stop as a share of vehicle capacity (an assumed value), shown in bands; the two values assume 13.7% and 18.0% of daily ridership falls in 7–9 a.m. Simulated estimate, not measured."
 }

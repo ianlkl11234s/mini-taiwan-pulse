@@ -254,7 +254,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["bss-national-bridge-preview-original-direction-line", "bss-national-bridge-preview-offset-direction-line", "bss-national-bridge-preview-ordinary-route-context", "bss-national-bridge-preview-near-curved-carrier-local-context", "bss-national-bridge-preview-waterway-crossing-context", "bss-national-bridge-preview-multi-near-carrier-waterway-context", "bss-national-bridge-preview-tied-route-consensus-context", "bss-national-bridge-preview-no-waterway-carrier-consensus-context", "bss-national-bridge-preview-no-crossing-nearest-route-context", "bss-national-bridge-preview-stage1-local-direction-candidate"], type: "bssNationalBridgePreview" },
   // 村里面在最底層：橋線先命中；命中村里＝進入目的地視角（useMapInteraction 分流，不換 popup）。
   { layers: ["bridge-resilience-hit", "bridge-resilience-structure", "bridge-resilience-ground", "bridge-resilience-village-fill"], type: "bridgeResilienceTwinCity" },
-  // 公車擁擠模擬：透明命中層；沒畫出來的段（班次 < 5、無值）在 useMapInteraction 依 feature-state 濾掉。
+  // 公車擁擠模擬：時間回放的車點先於路段；路段命中層與線同 filter（沒畫出來的段點不到），回放時隱藏。
+  { layers: ["bus-crowding-sim-veh-circle", "bus-crowding-sim-veh-arrow"], type: "busCrowdingSimVehicle" },
   { layers: ["bus-crowding-sim-hit"], type: "busCrowdingSim" },
   { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
   { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
