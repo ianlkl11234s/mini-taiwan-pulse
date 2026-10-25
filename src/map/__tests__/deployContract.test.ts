@@ -395,6 +395,27 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(pullScript).not.toContain("private-research/bridge-resilience");
   });
 
+  it("公車擁擠模擬只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const match = nginxConf.match(/location ~ (\^\/api\/private-research\/bus-crowding\/[^ ]+\$) \{([\s\S]*?)\n    \}/);
+    const location = match?.[2] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    // nginx 白名單與 sidecar 白名單一致：34 個 key 全中，meta／路徑／原型屬性都不中
+    const allow = new RegExp(match?.[1] ?? "^$");
+    for (const key of Object.keys(BUS_CROWDING_SIM_ASSETS)) expect(allow.test(`/api/private-research/bus-crowding/${key}`), key).toBe(true);
+    for (const bad of ["meta", "constructor", "v137/base", "segments.geojson", "v137-base/x"]) expect(allow.test(`/api/private-research/bus-crowding/${bad}`), bad).toBe(false);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bus-crowding \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bus-crowding"');
+    expect(privateResearchServer).toContain('const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding"');
+    expect(pullScript).not.toContain("private-research/bus-crowding");
+    expect(uploadScript).not.toContain("bus-crowding");
+    expect(dockerIgnore).toMatch(/^\*\.local$/m);
+  });
+
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
     const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
     expect(match, "public dist fallback missing").not.toBeNull();

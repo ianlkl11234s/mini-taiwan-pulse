@@ -21,6 +21,7 @@
 | 2026-10-24 | D-5 日夜人口是「用手機信令推估出來的模擬值」：可當活動需求（公車擁擠即如此使用），但總數是日＋夜加總，仍不可當人均分母，人均一律用戶籍人口 |
 | 2026-10-24 | D-6 只搬雙北已完成的「雙北跨河橋梁韌性」；全臺橋梁點位／方向候選留在交通 |
 | 2026-10-24 | 本面板取代 2026-10-21 的「進階分析專區」構想（analytics BACKLOG B248、`pulse_integration_plan.md`）；上游 backlog 之後同步 |
+| 2026-10-25 | 公車擁擠資料選乙：只有站主讀得到，走既有私人 Range API（同橋梁韌性），不放 `public/`、不進公開 CDN；部署見 §6 |
 
 ## 1. 為什麼要獨立面板
 
@@ -96,7 +97,7 @@
 - 路段負載圖層（超載班次比例，班次 <5 的段不畫，推估用 `[2,2]` 虛線）、站點圖層（被拒人次範圍、候車壓力）
 - 控制：參數版本 0.137／0.180、方案（基準＋7 個情境）、前後或差異
 - 資料：預先打包，路段與站點每版約 1–2 MB（預估），情境差異包各約 0.1–0.2 MB gz（預估）；切換只換檔，不在瀏覽器重算
-- 走 `/new-layer` 骨架＋layer-onboarding 驗收（四鐵則）；資料放私人 S3 sidecar 或公開 CDN，依 D-1
+- 走 `/new-layer` 骨架＋layer-onboarding 驗收（四鐵則）；資料放私人 S3 sidecar（2026-10-25 拍板乙，見 §6）
 
 對外口徑（上游已拍板，圖例與 popup 照做）：
 - 人數一律寫「0.137 版～0.180 版」範圍，預設只顯示排名與超載比例，不顯示單班人數
@@ -128,6 +129,27 @@
 | D-4 | 面板端要不要選橋／選路線清單 | 只靠地圖點選；面板加選單同步 | 先只靠地圖點選 |
 | D-6 | 橋梁搬哪些圖層 | 只搬「雙北跨河橋梁韌性」；或整個「橋梁研究（進行中）」群組 | 只搬韌性圖層；全臺橋梁點位／方向候選是現況清冊，不是 what-if，留在交通 |
 | D-5 | 人口分母口徑 | registry 說日夜人口是模擬值，bus_crowding `daynight_caliber.md` 說是信令實測 | 開工前先釐清；在此之前新實驗的分母一律用戶籍人口 |
+
+## 6. 公車擁擠：站主私人資料與部署（2026-10-25）
+
+資料只經 `/api/private-research/bus-crowding/<key>`（`server/coral-private/coral-private-server.mjs`，與橋梁韌性同一個 sidecar、同一套站主驗證與撤銷名單）。key 只能是白名單裡的 34 個（`segments`、`lines`、`v137|v180-<方案>`、`v137|v180-trips-<方案>`），請求不能指定路徑；`meta.json` 不在白名單。每個檔的大小與 sha256 釘在 `server/coral-private/bus-crowding-assets.mjs`，前端 `src/data/busCrowdingSimAssets.ts` 同一組數字（測試逐一比對）。
+
+| 環境 | 資料位置 |
+|---|---|
+| 本機 | repo 根目錄 `bus-crowding-sim.local/`（`*.local` 已在 .gitignore／.dockerignore）；sidecar 預設讀這裡，可用 `BUS_CROWDING_PRIVATE_ROOT` 改指 |
+| 正式站 | 私人 S3 `migu-private-research-ap-southeast-2`，key `private-research/bus-crowding/<sha256>/<filename>`（`PRIVATE_RESEARCH_STORAGE=s3`，sidecar 啟動時逐檔驗 size／sha256） |
+
+重產資料：`python3 scripts/preprocess/build-bus-crowding-sim.py --write-contract`，會同時重寫兩份契約檔與 `bus-crowding-sim.local/local_validation.json`；資料一變 sha256 就變，契約檔要跟著 commit，S3 也要重新上傳（舊物件在不同 sha 前綴，不會被覆蓋）。
+
+本機預覽：`npm run dev:private-research`（port 8796）＋`npm run dev`；vite 把 `/api/private-research/bus-crowding` 代理到 8796。未登入或不是站主時，圖層鎖住；存取被拒時關圖層並顯示提示。
+
+發版當天（develop 合進 master 之前，使用者明確授權後才執行）：
+1. 確認 `bus-crowding-sim.local/` 與契約一致（上傳腳本會再驗一次）。
+2. `S3_ACCESS_KEY=… S3_SECRET_KEY=… node scripts/deploy/upload-bus-crowding-private.mjs <repo>/bus-crowding-sim.local`：逐檔核對 `local_validation.json`、契約、磁碟位元組三者一致；bucket policy 沒有公開 Allow；`IfNoneMatch` 上傳、SSE、`Cache-Control: private, no-store`；讀回比對 sha256；匿名 HEAD 必須 403。
+3. 合併部署後，sidecar 暖機會逐檔從 S3 驗證；任何一檔缺失時只有本家族回 503（`private bus crowding sidecar unavailable`），其他私人圖層不受影響。
+4. 正式站站主登入驗收：模擬面板開「公車路段超載班次比例」，切方案、切版本、切時間回放；匿名開啟應被鎖住。
+
+nginx 只放行白名單 key（`location ~ ^/api/private-research/bus-crowding/(...)$`），其餘路徑 404，不會落到 `/data` 或 SPA。
 
 ## 附錄 A：既有資料可做的模擬（2026-10-24 盤點）
 
