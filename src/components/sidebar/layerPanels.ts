@@ -57,7 +57,7 @@ export const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes
 export const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
-/** 「模擬」入口（站主限定）：目前只有雙北跨河橋梁中斷一個主題。 */
+/** 「模擬」入口（站主限定）：雙北跨河橋梁中斷、臺北 307 走廊公車擁擠兩個主題。 */
 export const SIMULATION_THEMES = THEMES.filter((t) => SIMULATION_TAB_THEME_TITLES.includes(t.title));
 export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !SIMULATION_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
 

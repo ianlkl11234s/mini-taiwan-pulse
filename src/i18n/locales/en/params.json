@@ -1244,5 +1244,21 @@
   "param.保險代理人公司": "Insurance agency",
   "param.銀行兼營保險代理人": "Bank acting as insurance agent",
   "param.行業別": "Industry",
-  "param.交易類型": "Transaction type"
+  "param.交易類型": "Transaction type",
+  "param.方案": "Scenario",
+  "param.參數版本": "Parameter version",
+  "param.基準（現況）": "Baseline (current)",
+  "param.307 往臺北早尖峰加密 50%": "307 toward Taipei: 50% more trips in the morning peak",
+  "param.307 華中橋→臺北車站區間車": "307 short-turn service: Huazhong Bridge → Taipei Main Station",
+  "param.永和—臺北車站尖峰接駁線": "Yonghe–Taipei Main Station peak shuttle",
+  "param.307 往臺北班距等距化": "307 toward Taipei: evenly spaced headways",
+  "param.307 往臺北班距等距化（首末班錨定）": "307 toward Taipei: evenly spaced headways (first and last trips fixed)",
+  "param.全部臺北路線班距等距化": "All Taipei routes: evenly spaced headways",
+  "param.全部臺北路線班距等距化（首末班錨定）": "All Taipei routes: evenly spaced headways (first and last trips fixed)",
+  "param.較寬鬆 13.7%（YouBike 推估）": "Less crowded 13.7% (YouBike-based estimate)",
+  "param.較擁擠 18.0%（捷運推估）": "More crowded 18.0% (MRT-based estimate)",
+  "param.檢視": "View",
+  "param.全時段超載比例": "Overload share (whole window)",
+  "param.時間回放": "Time replay",
+  "param.模擬時間": "Simulated time"
 }

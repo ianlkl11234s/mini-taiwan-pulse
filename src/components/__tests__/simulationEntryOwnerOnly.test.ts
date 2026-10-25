@@ -46,8 +46,8 @@ describe("模擬入口只對站主顯示（simulation PLAN D-1）", () => {
 });
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
-  it("只有 bridgeResilienceTwinCity 搬走；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation")]).toEqual(["bridgeResilienceTwinCity"]);
+  it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
+    expect([...panelLayerKeys("simulation")]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);
@@ -61,5 +61,14 @@ describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
 
   it("Agent 開啟該圖層時導向模擬面板", () => {
     expect(panelForExplorationLayers(["bridgeResilienceTwinCity"])).toBe("simulation");
+  });
+});
+
+describe("公車擁擠模擬（Phase 2 第一刀）", () => {
+  it("manifest section 指向模擬面板第二個主題，且只鎖 UI", () => {
+    const theme = layerPanelDef("simulation").themes[1]!;
+    expect(LAYER_MANIFEST.busCrowdingSim.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(new Set(getThemeLayerKeys(MAIN_THEMES)).has("busCrowdingSim")).toBe(false);
+    expect(panelForExplorationLayers(["busCrowdingSim"])).toBe("simulation");
   });
 });

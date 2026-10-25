@@ -194,8 +194,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-24: +27 國有資產 G16（統計 23＋台水廠所／台水淨水設施／台糖糖廠／國產署待標售 4 點層）。
     // 2026-10-24: +13 金融據點 G10（統計 11＋ATM 裝設點／總分支機構 2 點層）。
     // 2026-10-24: +12 金融延伸 G10 延伸（統計 10＋證券期貨據點／保險公司與保險代理人 2 點層）。
+    // 2026-10-25: +1 公車擁擠模擬（模擬面板，busCrowdingSim）。
     // 2026-10-25: +1 郵局外幣現鈔經辦局 G10 外幣（postOfficeFxCounters）。
-    expect(keys.length).toBe(1316);
+    expect(keys.length).toBe(1317);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

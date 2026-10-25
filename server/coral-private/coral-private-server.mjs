@@ -3,9 +3,12 @@ import { appendFile, chmod, mkdir, readFile, readdir, rename, rm, stat } from "n
 import { createHash } from "node:crypto";
 import { basename, dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { createClient } from "@supabase/supabase-js";
+import { BUS_CROWDING_ASSETS } from "./bus-crowding-assets.mjs";
+
+export { BUS_CROWDING_ASSETS };
 
 export const OWNER_ID = "c5c835be-fc6c-46bb-b4b7-cb5945f57e7d";
 export const EXPECTED_SIZE = 133400197;
@@ -32,6 +35,12 @@ const BRIDGE_RESILIENCE_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_�
 const BRIDGE_RESILIENCE_PATH = "/api/private-research/bridge-resilience";
 const BRIDGE_RESILIENCE_S3_BUCKET = "migu-private-research-ap-southeast-2";
 const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience";
+// 公車擁擠模擬（模擬面板，研究中）：站主限定。本機預設讀 repo 根目錄的 bus-crowding-sim.local/
+// （scripts/preprocess/build-bus-crowding-sim.py 產生，gitignored）；可用 BUS_CROWDING_PRIVATE_ROOT 改指。
+const BUS_CROWDING_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../bus-crowding-sim.local");
+const BUS_CROWDING_PATH = "/api/private-research/bus-crowding";
+const BUS_CROWDING_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -601,6 +610,19 @@ export function createBridgeResilienceS3Gateway(config, options = {}) {
   });
 }
 
+export function createBusCrowdingGateway(root = firstConfigured(process.env.BUS_CROWDING_PRIVATE_ROOT) ?? BUS_CROWDING_ROOT, assets = BUS_CROWDING_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
+export function createBusCrowdingS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: BUS_CROWDING_ASSETS,
+    prefix: BUS_CROWDING_S3_PREFIX,
+    bucket: BUS_CROWDING_S3_BUCKET,
+    ...options,
+  });
+}
+
 const persistentDenylistByPath = new Map();
 const auditWriteQueueByPath = new Map();
 
@@ -660,9 +682,11 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
         ? { path: BSS_BRIDGE_PATH, assets: BSS_BRIDGE_ASSETS }
         : url.pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`)
           ? { path: BRIDGE_RESILIENCE_PATH, assets: BRIDGE_RESILIENCE_ASSETS }
-          : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+          : url.pathname.startsWith(`${BUS_CROWDING_PATH}/`)
+            ? { path: BUS_CROWDING_PATH, assets: BUS_CROWDING_ASSETS }
+            : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
   const assetName = url.pathname.slice(family.path.length + 1);
-  const asset = family.assets[assetName];
+  const asset = Object.hasOwn(family.assets, assetName) ? family.assets[assetName] : undefined;
   const record = {
     timestamp: new Date().toISOString(),
     endpoint: url.pathname,
@@ -835,6 +859,13 @@ export function handleBridgeResilienceRequest(request, dependencies = {}) {
   });
 }
 
+export function handleBusCrowdingRequest(request, dependencies = {}) {
+  return handleOwnerAssetFamilyRequest(request, dependencies, {
+    path: BUS_CROWDING_PATH, assets: BUS_CROWDING_ASSETS, label: "bus crowding",
+    createGateway: (config) => config.storage === "s3" ? createBusCrowdingS3Gateway(config) : createBusCrowdingGateway(),
+  });
+}
+
 async function handleOwnerAssetFamilyRequest(request, dependencies, family) {
   const url = new URL(request.url);
   const assetName = url.pathname.startsWith(`${family.path}/`)
@@ -999,13 +1030,18 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
   const soilLiquefactionDependencies = { ...dependencies, config, gateway: soilLiquefactionGateway };
   const bssBridgeDependencies = { ...dependencies, config, gateway: bssBridgeGateway };
+  const busCrowdingGateway = dependencies.busCrowdingGateway ?? (config.storage === "s3"
+    ? createBusCrowdingS3Gateway(config)
+    : createBusCrowdingGateway());
   const bridgeResilienceDependencies = { ...dependencies, config, gateway: bridgeResilienceGateway };
+  const busCrowdingDependencies = { ...dependencies, config, gateway: busCrowdingGateway };
   const readiness = {
     allen: { ready: false, failed: false },
     jpWater: { ready: false, failed: false },
     soilLiquefaction: { ready: false, failed: false },
     bssBridge: { ready: false, failed: false },
     bridgeResilience: { ready: false, failed: false },
+    busCrowding: { ready: false, failed: false },
   };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
@@ -1032,6 +1068,7 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     await warmFamily(readiness.soilLiquefaction, soilLiquefactionGateway, SOIL_LIQUEFACTION_ASSETS);
     await warmFamily(readiness.bssBridge, bssBridgeGateway, BSS_BRIDGE_ASSETS);
     await warmFamily(readiness.bridgeResilience, bridgeResilienceGateway, BRIDGE_RESILIENCE_ASSETS);
+    await warmFamily(readiness.busCrowding, busCrowdingGateway, BUS_CROWDING_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -1049,12 +1086,15 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const isSoil = pathname.startsWith(`${SOIL_LIQUEFACTION_PATH}/`);
       const isBss = pathname.startsWith(`${BSS_BRIDGE_PATH}/`);
       const isBridgeResilience = pathname.startsWith(`${BRIDGE_RESILIENCE_PATH}/`);
-      const familyState = isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
-      const familyLabel = isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
-      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience) {
+      const isBusCrowding = pathname.startsWith(`${BUS_CROWDING_PATH}/`);
+      const familyState = isBusCrowding ? readiness.busCrowding : isBridgeResilience ? readiness.bridgeResilience : isBss ? readiness.bssBridge : isSoil ? readiness.soilLiquefaction : isJpWater ? readiness.jpWater : readiness.allen;
+      const familyLabel = isBusCrowding ? "bus crowding" : isBridgeResilience ? "bridge resilience" : isBss ? "bss bridge" : isSoil ? "soil liquefaction" : isJpWater ? "Japan water" : "Allen";
+      if (!isAllen && !isJpWater && !isSoil && !isBss && !isBridgeResilience && !isBusCrowding) {
         output = response(404, new Headers());
       } else if (familyState.ready || revokeRequest) {
-        output = isBridgeResilience
+        output = isBusCrowding
+          ? await handleBusCrowdingRequest(request, busCrowdingDependencies)
+          : isBridgeResilience
           ? await handleBridgeResilienceRequest(request, bridgeResilienceDependencies)
           : isBss
           ? await handleBssBridgeRequest(request, bssBridgeDependencies)

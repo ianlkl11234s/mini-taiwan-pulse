@@ -22,6 +22,10 @@ import {
   createBridgeResilienceS3Gateway,
   BRIDGE_RESILIENCE_ASSETS,
   handleBridgeResilienceRequest,
+  createBusCrowdingGateway,
+  createBusCrowdingS3Gateway,
+  BUS_CROWDING_ASSETS,
+  handleBusCrowdingRequest,
   SOIL_LIQUEFACTION_ASSETS,
   createAllenSessionDenylist,
   getAllenCoralAtlasConfig,
@@ -1142,5 +1146,161 @@ test("Allen audit sink rotates before append and retains bounded owner-only file
     assert.equal((await readdir(directory)).includes("audit.jsonl.2"), true);
   } finally {
     await rm(directory, { recursive: true, force: true });
+  }
+});
+
+function busCrowdingRequest(asset = "segments", options = {}) {
+  return request(`/api/private-research/bus-crowding/${asset}`, options);
+}
+
+test("bus crowding allowlist is fixed: 34 keys without slashes, meta.json excluded", () => {
+  const names = Object.keys(BUS_CROWDING_ASSETS);
+  assert.equal(names.length, 34);
+  assert.ok(Object.isFrozen(BUS_CROWDING_ASSETS));
+  for (const name of names) {
+    assert.match(name, /^[a-z0-9_-]+$/);
+    const asset = BUS_CROWDING_ASSETS[name];
+    assert.ok(Object.isFrozen(asset));
+    assert.match(asset.filename, /^(segments\.geojson|lines\.json|v(137|180)\/(trips-)?[a-z0-9_]+\.json)$/);
+    assert.match(asset.sha256, /^[0-9a-f]{64}$/);
+    assert.ok(asset.size > 0 && asset.size <= MAX_RANGE_BYTES);
+  }
+  assert.ok(!names.some((name) => BUS_CROWDING_ASSETS[name].filename === "meta.json"));
+});
+
+test("bus crowding assets enforce owner, probe, range and unknown asset boundaries", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) { calls.head += 1; return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const deps = (authenticate) => ({ config: allenConfig, authenticate, gateway: privateGateway, revokedSessions });
+  assert.equal((await handleBusCrowdingRequest(busCrowdingRequest(), deps(async () => ({ status: 401 })))).status, 401);
+  assert.equal((await handleBusCrowdingRequest(busCrowdingRequest(), deps(async () => ({ status: 403 })))).status, 403);
+  const probe = await handleBusCrowdingRequest(request("/api/private-research/bus-crowding/segments?access=1"), deps(allenOwner));
+  assert.equal(probe.status, 200);
+  assert.deepEqual(await probe.json(), { allowed: true });
+  assert.equal(calls.head, 0);
+  for (const name of Object.keys(BUS_CROWDING_ASSETS)) {
+    const range = await handleBusCrowdingRequest(busCrowdingRequest(name, { headers: { Range: "bytes=0-3" } }), deps(allenOwner));
+    assert.equal(range.status, 206);
+    assert.equal(range.headers.get("content-range"), `bytes 0-3/${BUS_CROWDING_ASSETS[name].size}`);
+    assert.equal(range.headers.get("cache-control"), "private, no-store");
+    assert.equal((await range.arrayBuffer()).byteLength, 4);
+  }
+  assert.equal(calls.get, Object.keys(BUS_CROWDING_ASSETS).length);
+  // 只能用白名單 key；路徑、檔名、原型屬性、meta 一律 404，不碰 gateway。
+  for (const bad of ["unknown", "constructor", "meta", "meta.json", "segments.geojson", "v137/base", "v137%2Fbase", "..%2Fsegments", "v137-base/extra"]) {
+    assert.equal((await handleBusCrowdingRequest(busCrowdingRequest(bad), deps(allenOwner))).status, 404, bad);
+  }
+  assert.equal(calls.get, Object.keys(BUS_CROWDING_ASSETS).length);
+  const missingRange = await handleBusCrowdingRequest(busCrowdingRequest("segments"), deps(allenOwner));
+  assert.equal(missingRange.status, 416);
+});
+
+test("bus crowding local gateway verifies size and sha256 under the configured root", async () => {
+  const { mkdir } = await import("node:fs/promises");
+  const bytes = Buffer.from("{\"ov\":[]}");
+  const asset = Object.freeze({ filename: "v137/base.json", size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+  const dirs = [];
+  try {
+    for (let i = 0; i < 2; i += 1) {
+      const dir = await mkdtemp(join(tmpdir(), "bus-crowding-"));
+      dirs.push(dir);
+      await mkdir(join(dir, "v137"));
+      await writeFile(join(dir, "v137", "base.json"), bytes);
+    }
+    assert.equal((await createBusCrowdingGateway(dirs[0], { "v137-base": asset }).head(asset)).contentLength, bytes.length);
+    const tampered = Object.freeze({ ...asset, sha256: "0".repeat(64) });
+    await assert.rejects(createBusCrowdingGateway(dirs[1], { "v137-base": tampered }).head(tampered), /checksum mismatch/);
+  } finally {
+    for (const dir of dirs) await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("bus crowding S3 gateway uses immutable private keys", async () => {
+  for (const name of ["segments", "lines", "v137-base", "v180-trips-s5_all_regular"]) {
+    const { filename } = BUS_CROWDING_ASSETS[name];
+    const bytes = Buffer.from(`bus-crowding-${name}`);
+    const asset = Object.freeze({ filename, size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+    const calls = [];
+    const gateway = createBusCrowdingS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+      client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+      assets: { [name]: asset },
+    });
+    await gateway.head(asset);
+    assert.deepEqual(calls, [{
+      Bucket: "migu-private-research-ap-southeast-2",
+      Key: `private-research/bus-crowding/${asset.sha256}/${filename}`,
+      ChecksumMode: "ENABLED",
+    }]);
+  }
+});
+
+test("bus crowding warmup is independent and shares the revoke boundary", async () => {
+  const okGateway = {
+    async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `"${asset.sha256}"`,
+      };
+    },
+  };
+  const failing = { async head() { throw new Error("missing"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: okGateway, jpWaterGateway: failing, busCrowdingGateway: okGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    assert.equal((await fetch(`${root}/jp-water/water`, { headers })).status, 503);
+    assert.equal((await fetch(`${root}/bus-crowding/segments`, { headers: { Range: "bytes=0-3" } })).status, 401);
+    assert.equal((await fetch(`${root}/bus-crowding/segments`, { headers })).status, 206);
+    assert.equal((await fetch(`${root}/bus-crowding/v180-trips-base?access=1`, { headers: { Authorization: "Bearer owner" } })).status, 200);
+    await fetch(`${root}/allen-coral-atlas/revoke`, { method: "POST", headers: { Authorization: "Bearer owner" } });
+    assert.equal((await fetch(`${root}/bus-crowding/segments`, { headers })).status, 401);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("bus crowding failed warmup fails closed without affecting other families", async () => {
+  const okGateway = { async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` }; }, async get() { throw new Error("unused"); } };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig, authenticate: allenOwner,
+    gateway: okGateway, jpWaterGateway: okGateway,
+    busCrowdingGateway: { async head() { throw new Error("missing"); } }, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const bus = await fetch(`${root}/bus-crowding/segments?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(bus.status, 503);
+    assert.equal((await bus.json()).error, "private bus crowding sidecar unavailable");
+    const jp = await fetch(`${root}/jp-water/water?access=1`, { headers: { Authorization: "Bearer owner" } });
+    assert.equal(jp.status, 200);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });

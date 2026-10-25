@@ -1,12 +1,12 @@
 // Legend sub-components (transportLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
 import { ROAD_DRIVE_PAINT_COLORS } from "../../map/layerPaintColors";
 import { HISTORICAL_FLIGHT_COLORS } from "../../data/historicalFlightTrailsTypes";
-import { LegendNote, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../../data/freewayLoader";
 import { type LayerVisibility } from "../../types";
-import { paramBool, useLayerParams } from "../../layers/layerParamsAccess";
+import { oneOfParam, paramBool, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { LAYER_COLORS } from "../sidebar/layerCatalog";
 import { TRA_TRAIN_TYPES } from "../../constants/traTrainTypes";
 import { RAIL_LINES, RAIL_OPERATORS, railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../../constants/railLines";
@@ -19,6 +19,13 @@ import { FireCatRows, FlatArrowRow } from "./legendShared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import type { I18nContext } from "../../i18n/layerText";
+import { paramText } from "../../i18n/paramText";
+import {
+  BUS_CROWDING_MIN_TRIPS, BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_KEY,
+  BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS, BUS_CROWDING_VIEWS,
+} from "../../data/busCrowdingSimTypes";
+import { movingStrokeColor } from "../../map/mapStyleScale";
+import { BUS_CROWDING_ZERO_LINE, busCrowdingColors, busCrowdingZeroOpacity } from "../../data/busCrowdingSimStyle";
 
 // ── Road Events event_type ──
 const ROAD_EVENT_TYPE_ITEMS = [
@@ -530,4 +537,52 @@ export function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
       )}
     </div>
   );
+}
+
+/** 公車擁擠模擬（spec §5.40 S-3）：目前版本寫進標題、方案放第二行；四級共用門檻，基準與情境可直接比。 */
+export function BusCrowdingSimLegend() {
+  const i18n = useLocale();
+  const values = useLayerParams(BUS_CROWDING_SIM_KEY);
+  const version = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimVersion"), BUS_CROWDING_VERSIONS, BUS_CROWDING_DEFAULT_VERSION);
+  const scenario = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimScenario"), BUS_CROWDING_SCENARIOS, "base");
+  const { t } = i18n;
+  const theme = useLegendTheme();
+  const colors = busCrowdingColors(theme.isDark);
+  const levels = [
+    { color: colors[0], width: BUS_CROWDING_ZERO_LINE.width, opacity: busCrowdingZeroOpacity(theme.isDark), label: t("legend.transport.busSimZero") },
+    { color: colors[1], width: 2, opacity: 1, label: t("legend.transport.busSimLow") },
+    { color: colors[2], width: 2, opacity: 1, label: t("legend.transport.busSimMid") },
+    { color: colors[3], width: 2, opacity: 1, label: t("legend.transport.busSimHigh") },
+  ];
+  const view = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimView"), BUS_CROWDING_VIEWS, "static");
+  if (view === "replay") {
+    // 時間回放（spec §5.40 S-3：目前檢視寫進標題、方案放第二行）；路段與車點同一組四級（車上負載，門檻照原型 index.html:150）
+    const loadLabels = [t("legend.transport.busSimLoad0"), t("legend.transport.busSimLoad1"), t("legend.transport.busSimLoad2"), t("legend.transport.busSimLoad3")];
+    const loadLevels = [0, 1, 2, 3].map((i) => ({
+      color: colors[i]!, width: i === 0 ? BUS_CROWDING_ZERO_LINE.width : 2, opacity: i === 0 ? busCrowdingZeroOpacity(theme.isDark) : 1,
+      label: loadLabels[i]!,
+    }));
+    return <div>
+      <LegendTitle zh={t("legend.transport.busSimReplayTitle", { version: paramText(BUS_CROWDING_VERSION_LABELS[version], i18n) })} en="Bus Crowding" />
+      <LegendRow swatch={null}>{t("legend.transport.busSimScenario", { scenario: paramText(BUS_CROWDING_SCENARIO_LABELS[scenario], i18n) })}</LegendRow>
+      <div style={{ marginTop: 4 }}>
+        {loadLevels.map((level) => <LegendRow key={level.color} swatch={<span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><SwatchLine color={level.color} width={level.width} opacity={level.opacity} /><SwatchDot color={level.color} stroke={movingStrokeColor(theme.isDark)} /></span>}>{level.label}</LegendRow>)}
+      </div>
+      <LegendNote>{t("legend.transport.busSimReplayDefinition")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimReplayVehicles")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimWindow")}</LegendNote>
+      <LegendNote>{t("legend.transport.busSimCoverage")}</LegendNote>
+    </div>;
+  }
+  return <div>
+    <LegendTitle zh={t("legend.transport.busSimTitle", { version: paramText(BUS_CROWDING_VERSION_LABELS[version], i18n) })} en="Bus Crowding" />
+    <LegendRow swatch={null}>{t("legend.transport.busSimScenario", { scenario: paramText(BUS_CROWDING_SCENARIO_LABELS[scenario], i18n) })}</LegendRow>
+    <div style={{ marginTop: 4 }}>
+      {levels.map((level) => <LegendRow key={level.color} swatch={<SwatchLine color={level.color} width={level.width} opacity={level.opacity} />}>{level.label}</LegendRow>)}
+    </div>
+    <LegendNote>{t("legend.transport.busSimHidden", { n: BUS_CROWDING_MIN_TRIPS })}</LegendNote>
+    <LegendNote>{t("legend.transport.busSimDefinition")}</LegendNote>
+    <LegendNote>{t("legend.transport.busSimWindow")}</LegendNote>
+    <LegendNote>{t("legend.transport.busSimCoverage")}</LegendNote>
+  </div>;
 }

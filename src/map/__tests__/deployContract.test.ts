@@ -33,6 +33,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
+import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -280,6 +281,9 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
   "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
+  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
+  // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
+  ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),
 ]);
 
 /**
@@ -393,6 +397,27 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(viteConfig).toContain('"/api/private-research/bridge-resilience"');
     expect(privateResearchServer).toContain('const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience"');
     expect(pullScript).not.toContain("private-research/bridge-resilience");
+  });
+
+  it("公車擁擠模擬只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const match = nginxConf.match(/location ~ (\^\/api\/private-research\/bus-crowding\/[^ ]+\$) \{([\s\S]*?)\n    \}/);
+    const location = match?.[2] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    // nginx 白名單與 sidecar 白名單一致：34 個 key 全中，meta／路徑／原型屬性都不中
+    const allow = new RegExp(match?.[1] ?? "^$");
+    for (const key of Object.keys(BUS_CROWDING_SIM_ASSETS)) expect(allow.test(`/api/private-research/bus-crowding/${key}`), key).toBe(true);
+    for (const bad of ["meta", "constructor", "v137/base", "segments.geojson", "v137-base/x"]) expect(allow.test(`/api/private-research/bus-crowding/${bad}`), bad).toBe(false);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bus-crowding \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bus-crowding"');
+    expect(privateResearchServer).toContain('const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding"');
+    expect(pullScript).not.toContain("private-research/bus-crowding");
+    expect(uploadScript).not.toContain("bus-crowding");
+    expect(dockerIgnore).toMatch(/^\*\.local$/m);
   });
 
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {

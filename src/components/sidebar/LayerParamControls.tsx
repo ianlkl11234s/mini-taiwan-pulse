@@ -12,6 +12,7 @@ import type { LinkedSelectConfig, ParamControl, SliderConfig, ToggleConfig } fro
 import { Slider } from "../controls/Slider";
 import { useLocale } from "../../state/localeStore";
 import { PaletteControl } from "./PaletteControl";
+import { PlaybackControl } from "./PlaybackControl";
 import "./layerParamControls.css";
 
 type Translate = ReturnType<typeof useLocale>["t"];
@@ -193,6 +194,7 @@ function renderControl(ctrl: ParamControl, key: string, t: Translate): ReactNode
     );
   }
 
+  if (ctrl.type === "playback") return <PlaybackControl key={key} ctrl={ctrl} />;
   if (ctrl.type === "toggle") return <ToggleControl key={key} ctrl={ctrl} />;
   return <SliderControl key={key} ctrl={ctrl} />;
 }

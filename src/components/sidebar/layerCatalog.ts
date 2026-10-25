@@ -222,7 +222,7 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通"
  * 「模擬 Simulation」rail tab 的主題清單（simulation PLAN Phase 1）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）；
  * 桌機主 Layers panel 用它把這批主題濾掉。主題 title 是識別字串，顯示名稱查 `THEME_NAMES`。
  */
-export const SIMULATION_TAB_THEME_TITLES: string[] = ["雙北跨河橋梁中斷"];
+export const SIMULATION_TAB_THEME_TITLES: string[] = ["雙北跨河橋梁中斷", "臺北 307 走廊公車擁擠"];
 
 /** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
 function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {
@@ -2151,6 +2151,12 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "橋梁中斷", layers: [fromManifest("bridgeResilienceTwinCity")] }],
   },
+  {
+    // 公車擁擠模擬（simulation PLAN Phase 2 第一刀）：公開 TDX 衍生的本機靜態檔，站主限定只做 UI 鎖。
+    title: "臺北 307 走廊公車擁擠",
+    defaultCollapsed: true,
+    groups: [{ title: "公車擁擠", layers: [fromManifest("busCrowdingSim")] }],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
@@ -2440,6 +2446,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "水資源": "environment",
   "氣象防災": "safety",
   "雙北跨河橋梁中斷": "city",
+  "臺北 307 走廊公車擁擠": "city",
 };
 
 /**
@@ -2555,6 +2562,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "高度與地表": { zh: "高度與地表", sub: "高さ・地表" },
   "氣象防災": { zh: "氣象防災", sub: "気象・防災" },
   "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
+  "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
   "水資源": { zh: "水資源", sub: "水資源" },
 };
 
@@ -2646,6 +2654,8 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "powerGenerationUnit", "powerPlantGlow",
   // 僅做 UI 鎖（資料載入路徑不動）
   "aviationRestrictedGlow",
+  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，資料只經 owner-authenticated Range API。
+  "busCrowdingSim",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
   // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
