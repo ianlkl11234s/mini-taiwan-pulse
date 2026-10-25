@@ -62,7 +62,7 @@ function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
   // 'promoteId']，attribution 要等 TileJSON 的 load() 才會 Object.assign 進來，
   // 而 PmTilesSource 覆寫了 load()（改讀 PMTiles header/metadata），不會走到那條路。
   // 留著這個欄位純粹讓呼叫端讀得到 config.attribution 的值；真正生效的設定
-  // 在 addOverlay() 裡 addSource 之後手動補 `source.attribution =`（見該處註解）。
+  // 在 addSource 之後由 applyPmtilesAttribution() 手動補 `source.attribution =`（見該處註解）。
   // 靜態圖層資產索引（ADR-0024 §4）：已遷移且索引已載入 → CDN 不可變路徑；索引還沒載完或失敗
   // → 部署時版本（fallback）。addSource 刻意維持同步、不等索引：延後會牽動 addAllOverlays 之後
   // 的可見性／主題／圖層順序時序。索引在開站時就開始抓（約兩次小請求），通常早於 style.load。
@@ -76,6 +76,81 @@ function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
     minzoom: config.pmtiles?.minzoom,
     maxzoom: config.pmtiles?.maxzoom,
   };
+}
+
+/**
+ * 每個 map 上由 addOverlay 建立的 PMTiles source 當時用的 URL（sourceId → url）。
+ * swapPmtilesSourceIfMigrated 據此判斷 source 是不是還停在 fallback 舊路徑。
+ */
+const pmtilesSourceUrlByMap = new WeakMap<OverlayMap, Map<string, string>>();
+
+function pmtilesSourceUrlsOf(map: OverlayMap): Map<string, string> {
+  let urls = pmtilesSourceUrlByMap.get(map);
+  if (!urls) {
+    urls = new Map();
+    pmtilesSourceUrlByMap.set(map, urls);
+  }
+  return urls;
+}
+
+/**
+ * PmTilesSource 的 attribution 走 source spec 傳不進去（見 defaultPmtilesSource
+ * 註解），只能拿到 addSource 建出來的 instance 直接補 property。
+ * PmTilesSource.load() 非同步抓完 header/metadata 後會 `extend(this, tileJSON)`
+ * 再 fire 一次 sourceDataType:"metadata" 事件（AttributionControl 靠這個事件
+ * 重算顯示），若 PMTiles 檔本身 metadata 沒有 attribution 鍵，這裡設的值不會被
+ * 蓋掉；用 "data" listener 保底重新賦值，避免時序或未來套件版本差異讓標示消失。
+ */
+function applyPmtilesAttribution(map: OverlayMap, config: OverlayConfig): void {
+  if (!config.attribution) return;
+  const src = map.getSource(config.sourceId) as any;
+  if (src) {
+    src.attribution = config.attribution;
+    src.on?.("data", () => {
+      if (src.attribution !== config.attribution) src.attribution = config.attribution;
+    });
+  }
+}
+
+/** swap 需要讀 style 的 layer 清單（mapbox-gl／maplibre 的 Map 都有）。 */
+export interface OverlayStyleMap extends OverlayMap {
+  getStyle(): { layers?: Array<{ id: string; source?: unknown }> } | undefined;
+}
+
+/**
+ * 靜態圖層資產索引（ADR-0024 §4）在 style.load 之後才載完時，把已遷移 PMTiles 的 source
+ * 從 fallback 舊路徑換成 CDN。不改 style.load 的同步時序：
+ * 依 style 中的順序取出該 source 的所有 layer spec（visibility／paint／filter 都在 spec 內），
+ * 各自記下 beforeId（style 中其後第一個非同 source 的 layer），removeLayer → removeSource →
+ * 以 defaultPmtilesSource 重新 addSource 並補 attribution → 依原順序 addLayer(spec, beforeId)。
+ *
+ * 非 PMTiles、不是由 addOverlay 預設路徑建立、resolver 不是 cdn、或 URL 已相同 → no-op。
+ * @returns 是否真的換了
+ */
+export function swapPmtilesSourceIfMigrated(map: OverlayStyleMap, config: OverlayConfig): boolean {
+  if (!config.pmtiles) return false;
+  const urls = pmtilesSourceUrlsOf(map);
+  const currentUrl = urls.get(config.sourceId);
+  if (currentUrl === undefined || !map.getSource(config.sourceId)) return false;
+  const resolved = resolveAssetUrl(config.sourceUrl);
+  if (resolved.source !== "cdn" || resolved.url === currentUrl) return false;
+
+  const styleLayers = map.getStyle()?.layers ?? [];
+  const specs: Array<{ spec: Record<string, unknown>; beforeId: string | undefined }> = [];
+  for (let i = 0; i < styleLayers.length; i++) {
+    const layer = styleLayers[i]!;
+    if (layer.source !== config.sourceId) continue;
+    const next = styleLayers.slice(i + 1).find((l) => l.source !== config.sourceId);
+    specs.push({ spec: layer as Record<string, unknown>, beforeId: next?.id });
+  }
+  for (const { spec } of [...specs].reverse()) map.removeLayer(spec.id as string);
+  map.removeSource(config.sourceId);
+  const source = defaultPmtilesSource(config);
+  map.addSource(config.sourceId, source as any);
+  urls.set(config.sourceId, source.url as string);
+  applyPmtilesAttribution(map, config);
+  for (const { spec, beforeId } of specs) map.addLayer(spec, beforeId);
+  return true;
 }
 
 function layerId(config: OverlayConfig, suffix: string) {
@@ -237,21 +312,10 @@ export function addOverlay(
       // registerPmtilesSourceTypeOnce()）；/embed 注入 pmtiles:// protocol 版本。
       const source = (opts?.pmtilesSource ?? defaultPmtilesSource)(config);
       map.addSource(config.sourceId, source as any);
-      if (config.attribution) {
-        // PmTilesSource 的 attribution 走 source spec 傳不進去（見 defaultPmtilesSource
-        // 註解），只能拿到 addSource 建出來的 instance 直接補 property。
-        // PmTilesSource.load() 非同步抓完 header/metadata 後會 `extend(this, tileJSON)`
-        // 再 fire 一次 sourceDataType:"metadata" 事件（AttributionControl 靠這個事件
-        // 重算顯示），若 PMTiles 檔本身 metadata 沒有 attribution 鍵，這裡設的值不會被
-        // 蓋掉；用 "data" listener 保底重新賦值，避免時序或未來套件版本差異讓標示消失。
-        const src = map.getSource(config.sourceId) as any;
-        if (src) {
-          src.attribution = config.attribution;
-          src.on?.("data", () => {
-            if (src.attribution !== config.attribution) src.attribution = config.attribution;
-          });
-        }
-      }
+      // 只追蹤預設（主站 mapbox-pmtiles）路徑；embed 注入的 source 不參與索引 swap
+      if (!opts?.pmtilesSource) pmtilesSourceUrlsOf(map).set(config.sourceId, source.url as string);
+      else pmtilesSourceUrlsOf(map).delete(config.sourceId);
+      applyPmtilesAttribution(map, config);
     } else {
       // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
       // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。

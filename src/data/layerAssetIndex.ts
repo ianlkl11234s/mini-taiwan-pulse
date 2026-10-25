@@ -147,13 +147,40 @@ type IndexState =
   | { status: "failed"; error: string };
 
 let state: IndexState = { status: "idle" };
+const readyListeners = new Set<() => void>();
+
+/**
+ * 索引載入成功時通知（PMTiles 用來把開站時以 fallback 建立的 source 換成 CDN）。
+ * 已 ready 時於下一個 microtask 呼叫。回傳取消函式；載入失敗則永遠不會呼叫。
+ */
+export function onLayerAssetIndexReady(cb: () => void): () => void {
+  let active = true;
+  const fire = () => { if (active) cb(); };
+  if (state.status === "ready") {
+    queueMicrotask(fire);
+  } else {
+    readyListeners.add(fire);
+  }
+  return () => {
+    active = false;
+    readyListeners.delete(fire);
+  };
+}
 
 const loadOnce = cachedOnce<LayerAssetIndex>(() => {
   const base = layerAssetBase();
   state = { status: "loading" };
   const p = withLoading(LAYER_ASSET_INDEX_TASK_ID, LAYER_ASSET_INDEX_LABEL, fetchLayerAssetIndex(base));
   return p.then(
-    (index) => { state = { status: "ready", base, index }; return index; },
+    (index) => {
+      state = { status: "ready", base, index };
+      const listeners = [...readyListeners];
+      readyListeners.clear();
+      for (const l of listeners) {
+        try { l(); } catch (error) { console.warn("[layer-asset-index] ready listener 失敗：", error); }
+      }
+      return index;
+    },
     (error: unknown) => {
       state = { status: "failed", error: error instanceof Error ? error.message : String(error) };
       console.warn("[layer-asset-index] 載入失敗，遷移清單內的圖層改用部署時版本：", error);
@@ -173,6 +200,7 @@ export async function loadLayerAssetIndex(): Promise<void> {
 /** 測試用：清掉索引狀態與快取。 */
 export function resetLayerAssetIndex(): void {
   loadOnce.invalidate();
+  readyListeners.clear();
   state = { status: "idle" };
 }
 

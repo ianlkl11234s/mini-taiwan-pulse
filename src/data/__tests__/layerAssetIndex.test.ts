@@ -7,12 +7,13 @@ import {
   LAYER_ASSET_SCHEMA,
   MIGRATED_ASSET_KEYS,
   loadLayerAssetIndex,
+  onLayerAssetIndexReady,
   resetLayerAssetIndex,
   resolveAssetUrl,
   resolveAssetUrlString,
 } from "../layerAssetIndex";
 import { loadingRegistry, type LoadingEvent } from "../../lib/loadingRegistry";
-import { hydrateOverlayIfNeeded, resetOverlayHydration } from "../../map/overlayManager";
+import { addOverlay, hydrateOverlayIfNeeded, resetOverlayHydration, swapPmtilesSourceIfMigrated, type OverlayStyleMap } from "../../map/overlayManager";
 import type { OverlayConfig } from "../../types";
 
 const GEOJSON_KEY = "./police_justice/immigration_offices/immigration_offices_20260626.geojson";
@@ -219,5 +220,147 @@ describe("hydrateOverlayIfNeeded × layerAssetIndex", () => {
     off();
     expect(bad.setData).not.toHaveBeenCalled();
     expect(events.filter((e) => e.id === `overlay-hydrate:${config.sourceId}`).map((e) => e.type)).toEqual(["start", "fail"]);
+  });
+});
+
+describe("onLayerAssetIndexReady", () => {
+  it("ready 時通知；已 ready 則下一個 microtask 呼叫；取消後不呼叫", async () => {
+    stubCdn({ [`${BASE}current.json`]: pointerText(DEFAULT_INDEX), [`${BASE}manifests/m.json`]: DEFAULT_INDEX });
+    const before = vi.fn();
+    const cancelled = vi.fn();
+    onLayerAssetIndexReady(before);
+    onLayerAssetIndexReady(cancelled)();
+    await loadLayerAssetIndex();
+    expect(before).toHaveBeenCalledTimes(1);
+    expect(cancelled).not.toHaveBeenCalled();
+    const after = vi.fn();
+    onLayerAssetIndexReady(after);
+    expect(after).not.toHaveBeenCalled();
+    await Promise.resolve();
+    expect(after).toHaveBeenCalledTimes(1);
+  });
+
+  it("載入失敗不會通知", async () => {
+    stubCdn({});
+    const cb = vi.fn();
+    onLayerAssetIndexReady(cb);
+    await loadLayerAssetIndex();
+    await Promise.resolve();
+    expect(cb).not.toHaveBeenCalled();
+  });
+});
+
+describe("swapPmtilesSourceIfMigrated", () => {
+  const duiConfig = {
+    id: "harmReductionDuiCrashes",
+    sourceId: "harm-reduction-dui-crashes",
+    sourceUrl: PMTILES_KEY,
+    attribution: "警政署",
+    pmtiles: { sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 },
+    layers: [
+      { suffix: "circle", type: "circle", paint: () => ({ "circle-radius": 3 }), filter: ["==", ["get", "accident_class"], "A1"] },
+      { suffix: "label", type: "symbol", paint: () => ({}), layout: { visibility: "none" } },
+    ],
+  } as unknown as OverlayConfig;
+
+  /** 有 style 順序的假 map：getStyle().layers 依加入順序（beforeId 插入）回傳 spec。 */
+  function styleMap() {
+    const sources = new Map<string, Record<string, unknown>>();
+    let layers: Array<Record<string, unknown>> = [
+      { id: "basemap-water", type: "fill", source: "composite" },
+      { id: "basemap-label", type: "symbol", source: "composite" },
+    ];
+    const calls: string[] = [];
+    const map = {
+      getSource: (id: string) => sources.get(id),
+      addSource: (id: string, spec: Record<string, unknown>) => { calls.push(`addSource:${id}`); sources.set(id, { ...spec }); },
+      removeSource: (id: string) => { calls.push(`removeSource:${id}`); sources.delete(id); },
+      getLayer: (id: string) => layers.find((l) => l.id === id),
+      addLayer: (spec: Record<string, unknown>, before?: string) => {
+        calls.push(`addLayer:${String(spec.id)}${before ? `<${before}` : ""}`);
+        const idx = before ? layers.findIndex((l) => l.id === before) : -1;
+        if (idx >= 0) layers.splice(idx, 0, spec); else layers.push(spec);
+      },
+      removeLayer: (id: string) => { calls.push(`removeLayer:${id}`); layers = layers.filter((l) => l.id !== id); },
+      getLayoutProperty: () => undefined,
+      setLayoutProperty: (id: string, name: string, value: unknown) => {
+        const l = layers.find((x) => x.id === id);
+        if (l) l.layout = { ...(l.layout as object), [name]: value };
+      },
+      setPaintProperty: () => {},
+      getStyle: () => ({ layers: layers.map((l) => ({ ...l })) }),
+    };
+    return { map: map as unknown as OverlayStyleMap, sources, calls, layerIds: () => layers.map((l) => l.id) };
+  }
+
+  it("fallback 建立的 source 在索引 ready 後換成 CDN，保留 layer 順序、spec 與 beforeId", async () => {
+    const m = styleMap();
+    addOverlay(m.map, duiConfig, true, {}, undefined);
+    const ids = m.layerIds();
+    expect(m.sources.get(duiConfig.sourceId)?.url).toBe(PMTILES_KEY);
+    const specsBefore = (m.map.getStyle()?.layers ?? []).filter((l) => l.source === duiConfig.sourceId);
+
+    stubCdn({ [`${BASE}current.json`]: pointerText(DEFAULT_INDEX), [`${BASE}manifests/m.json`]: DEFAULT_INDEX });
+    await loadLayerAssetIndex();
+    m.calls.length = 0;
+    expect(swapPmtilesSourceIfMigrated(m.map, duiConfig)).toBe(true);
+
+    expect(m.sources.get(duiConfig.sourceId)?.url).toBe(`${BASE}${PM_PATH}`);
+    expect(m.sources.get(duiConfig.sourceId)?.attribution).toBe("警政署");
+    expect(m.layerIds()).toEqual(ids);
+    const specsAfter = (m.map.getStyle()?.layers ?? []).filter((l) => l.source === duiConfig.sourceId);
+    expect(specsAfter).toEqual(specsBefore);
+    expect(m.calls[0]).toMatch(/^removeLayer:/);
+    expect(m.calls).toContain(`removeSource:${duiConfig.sourceId}`);
+
+    // 再呼叫一次：已是 CDN → no-op
+    m.calls.length = 0;
+    expect(swapPmtilesSourceIfMigrated(m.map, duiConfig)).toBe(false);
+    expect(m.calls).toEqual([]);
+  });
+
+  it("overlay 夾在 style 中間時，以其後第一個非同 source 的 layer 為 beforeId", async () => {
+    const m = styleMap();
+    // addOverlay 建 source 與 layers 後，把 layers 搬到 basemap-label 之前，模擬 overlay 夾在 style 中間
+    addOverlay(m.map, duiConfig, true, {}, undefined);
+    for (const id of ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-label"]) {
+      const spec = (m.map.getStyle()?.layers ?? []).find((l) => l.id === id)!;
+      m.map.removeLayer(id);
+      m.map.addLayer(spec, "basemap-label");
+    }
+    const ids = m.layerIds();
+    expect(ids).toEqual(["basemap-water", "harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-label", "basemap-label"]);
+
+    stubCdn({ [`${BASE}current.json`]: pointerText(DEFAULT_INDEX), [`${BASE}manifests/m.json`]: DEFAULT_INDEX });
+    await loadLayerAssetIndex();
+    m.calls.length = 0;
+    expect(swapPmtilesSourceIfMigrated(m.map, duiConfig)).toBe(true);
+    expect(m.calls.filter((c) => c.startsWith("addLayer:"))).toEqual([
+      "addLayer:harm-reduction-dui-crashes-circle<basemap-label",
+      "addLayer:harm-reduction-dui-crashes-label<basemap-label",
+    ]);
+    expect(m.layerIds()).toEqual(ids);
+  });
+
+  it("索引未 ready、非遷移圖層、非 PMTiles、embed 注入的 source → no-op", async () => {
+    const m = styleMap();
+    addOverlay(m.map, duiConfig, true, {}, undefined);
+    expect(swapPmtilesSourceIfMigrated(m.map, duiConfig)).toBe(false); // 索引未載入
+
+    stubCdn({ [`${BASE}current.json`]: pointerText(DEFAULT_INDEX), [`${BASE}manifests/m.json`]: DEFAULT_INDEX });
+    await loadLayerAssetIndex();
+
+    const legacy = { ...duiConfig, sourceId: "legacy-pm", sourceUrl: "./geo/other.pmtiles" } as OverlayConfig;
+    addOverlay(m.map, legacy, true, {}, undefined);
+    m.calls.length = 0;
+    expect(swapPmtilesSourceIfMigrated(m.map, legacy)).toBe(false);
+
+    const geo = { id: "immigrationOffice", sourceId: "imm", sourceUrl: GEOJSON_KEY, layers: [] } as unknown as OverlayConfig;
+    expect(swapPmtilesSourceIfMigrated(m.map, geo)).toBe(false);
+
+    const embedMap = styleMap();
+    addOverlay(embedMap.map, duiConfig, true, {}, { pmtilesSource: (c) => ({ type: "vector", url: `pmtiles://${c.sourceUrl}` }) });
+    expect(swapPmtilesSourceIfMigrated(embedMap.map, duiConfig)).toBe(false);
+    expect(m.calls).toEqual([]);
   });
 });
