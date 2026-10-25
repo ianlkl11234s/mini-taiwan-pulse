@@ -22,6 +22,8 @@ import {
 } from "../map/flatMovingLayers";
 import { busCrowdingSimClock } from "../state/busCrowdingSimClock";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { busCrowdingSimAuth } from "./useBusCrowdingSimPrivateAccess";
+import { reportBusCrowdingLoadError } from "./useBusCrowdingSimLayer";
 
 export const BUS_CROWDING_VEHICLE_IDS = {
   source: "bus-crowding-sim-veh",
@@ -86,6 +88,8 @@ export function useBusCrowdingReplayVehicles(
   version: BusCrowdingVersion,
   scenario: BusCrowdingScenario,
   isDark: boolean,
+  /** 已驗證的站主帳號；null 就不抓私人資料。 */
+  userId: string | null = null,
 ) {
   const mapTick = useMapReadyTick(mapRef, active);
   const [data, setData] = useState<{ trips: ReplayTrip[]; lines: (ReplayLine | null)[] } | null>(null);
@@ -95,15 +99,16 @@ export function useBusCrowdingReplayVehicles(
 
   // 資料：回放開著才載（線形一次、班次依版本×方案）。
   useEffect(() => {
-    if (!active) { setData(null); busCrowdingSimReplayStore.set(null); return; }
+    if (!active || !userId) { setData(null); busCrowdingSimReplayStore.set(null); return; }
     let cancelled = false;
-    Promise.all([loadBusCrowdingReplayLines(), loadBusCrowdingReplayTrips(version, scenario)]).then(([lines, trips]) => {
+    const auth = busCrowdingSimAuth(userId);
+    Promise.all([loadBusCrowdingReplayLines(auth), loadBusCrowdingReplayTrips(version, scenario, auth)]).then(([lines, trips]) => {
       if (cancelled) return;
       setData({ trips, lines });
       busCrowdingSimReplayStore.set({ trips, lines, byId: new Map(trips.map((t) => [t.id, t])) });
-    }).catch((error: unknown) => console.warn("[bus-crowding-sim] replay load failed", error));
+    }).catch((error: unknown) => reportBusCrowdingLoadError("replay", error));
     return () => { cancelled = true; };
-  }, [active, version, scenario]);
+  }, [active, userId, version, scenario]);
 
   // 圖層：關閉就拆；換底圖（style.load）重建。
   useEffect(() => {
@@ -133,7 +138,7 @@ export function useBusCrowdingReplayVehicles(
     const map = mapRef.current;
     if (!map || !active || !data) return;
     const stats: ReplayVehicleStats = { ticks: 0, lastMs: 0, maxMs: 0, totalMs: 0, vehicles: 0, peakVehicles: 0, peakAt: 0 };
-    if (import.meta.env?.DEV) (window as unknown as { __busCrowdingReplayStats?: ReplayVehicleStats }).__busCrowdingReplayStats = stats;
+    if (import.meta.env.DEV) (window as unknown as { __busCrowdingReplayStats?: ReplayVehicleStats }).__busCrowdingReplayStats = stats;
     let raf: number | null = null;
     const draw = () => {
       raf = null;

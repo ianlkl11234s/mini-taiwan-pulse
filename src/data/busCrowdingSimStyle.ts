@@ -1,6 +1,6 @@
 /**
  * 公車擁擠模擬的地圖／圖例色與 paint expression（依賴 mapStyleScale token，故與 manifest 會 import 的
- * busCrowdingSimTypes.ts 分開：vite.config 載入 manifest 時不能拉進 designTokens → i18n 的 import.meta.glob）。
+ * busCrowdingSimTypes.ts 分開：vite.config 載入 manifest 時不能拉進 designTokens → i18n 的 Vite glob 匯入）。
  */
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { BOUNDARY_GRAY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH } from "../map/mapStyleScale";

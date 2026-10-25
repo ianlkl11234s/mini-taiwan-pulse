@@ -3,7 +3,8 @@
  * 地圖 paint、圖例、popup 三邊都從這裡 import（development-rules §4 #4）。
  *
  * 資料：scripts/preprocess/build-bus-crowding-sim.py 由 taipei-gis-analytics bus_crowding P3 匯出產生，
- * 放在 gitignored 的 public/sim/bus-crowding/（資料公開與否尚未拍板）。
+ * 放在 gitignored 的 bus-crowding-sim.local/；只經站主限定私人 Range API 讀取（2026-10-25 使用者拍板乙案，
+ * 不放 public/、不進公開 CDN；端點與白名單見 busCrowdingSimLoader.ts、busCrowdingSimAssets.ts）。
  * 數值是「平日 7–9 時離開該站的班次中，負載比 ≥ 1.0（容量假設 65 人）的比例」，模擬推估，非實測。
  */
 import { paletteRamp, resampleRamp } from "../map/palettes";
@@ -15,9 +16,11 @@ export const BUS_CROWDING_SIM_LAYER_IDS = {
   /** 透明加寬命中層（四鐵則③：細線點擊命中率差）。 */
   hit: "bus-crowding-sim-hit",
 } as const;
-
-const BASE = `${import.meta.env?.BASE_URL ?? "/"}sim/bus-crowding`;
-export const busCrowdingSimUrl = (path: string) => `${BASE}/${path}`;
+/** 站主限定：圖層與車 popup 的 layerType（未授權時 App 鎖住 key、清掉 popup）。 */
+export const BUS_CROWDING_SIM_PRIVATE_LAYER_KEYS = [BUS_CROWDING_SIM_KEY] as const;
+export const isBusCrowdingSimPrivateLayer = (key: string) => key === BUS_CROWDING_SIM_KEY || key === "busCrowdingSimVehicle";
+/** 私人讀取回 401／403 時派送：App 關圖層、清 popup、顯示提示；loader 清掉記憶體快取。 */
+export const BUS_CROWDING_SIM_ACCESS_DENIED_EVENT = "bus-crowding-sim-access-denied";
 
 /** 參數版本：7–9 時佔全日比例。資料夾對應寫死（上游 meta.json 沒記 am_share）。 */
 export const BUS_CROWDING_VERSIONS = ["v137", "v180"] as const;
@@ -55,14 +58,6 @@ export const BUS_CROWDING_VIEW_LABELS: Record<BusCrowdingView, string> = {
 };
 /** 播放列時鐘 id（`state/busCrowdingSimClock.ts` 登記）。 */
 export const BUS_CROWDING_SIM_CLOCK_ID = "busCrowdingSim";
-
-/** 靜態資產（相對 public/；manifest staticAssets 與 deployContract 豁免共用）。 */
-export const BUS_CROWDING_SIM_ASSETS: readonly string[] = [
-  "sim/bus-crowding/segments.geojson",
-  ...BUS_CROWDING_VERSIONS.flatMap((v) => BUS_CROWDING_SCENARIOS.map((s) => `sim/bus-crowding/${v}/${s}.json`)),
-  "sim/bus-crowding/lines.json",
-  ...BUS_CROWDING_VERSIONS.flatMap((v) => BUS_CROWDING_SCENARIOS.map((s) => `sim/bus-crowding/${v}/trips-${s}.json`)),
-];
 
 /** 班次少於此數的路段不畫（比例太不穩）。 */
 export const BUS_CROWDING_MIN_TRIPS = 5;

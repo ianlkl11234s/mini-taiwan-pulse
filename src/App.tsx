@@ -9,6 +9,8 @@ import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWat
 import { useSoilLiquefactionPrivateAccess } from "./hooks/useSoilLiquefactionPrivateAccess";
 import { useBssBridgePrivateAccess } from "./hooks/useBssBridgePrivateAccess";
 import { useBridgeResiliencePrivateAccess } from "./hooks/useBridgeResiliencePrivateAccess";
+import { useBusCrowdingSimPrivateAccess } from "./hooks/useBusCrowdingSimPrivateAccess";
+import { BUS_CROWDING_SIM_ACCESS_DENIED_EVENT, BUS_CROWDING_SIM_PRIVATE_LAYER_KEYS, isBusCrowdingSimPrivateLayer } from "./data/busCrowdingSimTypes";
 import { BRIDGE_RESILIENCE_ACCESS_DENIED_EVENT, BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS, BRIDGE_RESILIENCE_SELECTION_CLEAR_EVENT, isBridgeResiliencePrivateLayer } from "./data/bridgeResilienceTypes";
 import { BSS_BRIDGE_ACCESS_DENIED_EVENT, BSS_BRIDGE_PRIVATE_LAYER_KEYS, BSS_BRIDGE_SELECTION_CLEAR_EVENT, isBssBridgePrivateLayer } from "./data/bssBridgeTypes";
 import { isSoilLiquefactionPrivateLayer, SOIL_LIQUEFACTION_ACCESS_DENIED_EVENT, SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS, SOIL_LIQUEFACTION_SELECTION_CLEAR_EVENT } from "./data/soilLiquefactionTypes";
@@ -270,6 +272,7 @@ export default function App() {
   const soilLiquefactionPrivateAccess = useSoilLiquefactionPrivateAccess();
   const bssBridgePrivateAccess = useBssBridgePrivateAccess();
   const bridgeResiliencePrivateAccess = useBridgeResiliencePrivateAccess();
+  const busCrowdingSimPrivateAccess = useBusCrowdingSimPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -286,8 +289,9 @@ export default function App() {
     if (!soilLiquefactionPrivateAccess.allowed) for (const key of SOIL_LIQUEFACTION_PRIVATE_LAYER_KEYS) s.add(key);
     if (!bssBridgePrivateAccess.allowed) for (const key of BSS_BRIDGE_PRIVATE_LAYER_KEYS) s.add(key);
     if (!bridgeResiliencePrivateAccess.allowed) for (const key of BRIDGE_RESILIENCE_PRIVATE_LAYER_KEYS) s.add(key);
+    if (!busCrowdingSimPrivateAccess.allowed) for (const key of BUS_CROWDING_SIM_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed, bridgeResiliencePrivateAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed, soilLiquefactionPrivateAccess.allowed, bssBridgePrivateAccess.allowed, bridgeResiliencePrivateAccess.allowed, busCrowdingSimPrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -968,10 +972,14 @@ export default function App() {
     && (!bssBridgePrivateAccess.allowed || !layerVisibility[soilUiFeatureInfo.layerType])
     ? null
     : soilUiFeatureInfo;
-  const privateUiFeatureInfo = bssUiFeatureInfo && isBridgeResiliencePrivateLayer(bssUiFeatureInfo.layerType)
+  const bridgeUiFeatureInfo = bssUiFeatureInfo && isBridgeResiliencePrivateLayer(bssUiFeatureInfo.layerType)
     && (!bridgeResiliencePrivateAccess.allowed || !layerVisibility[bssUiFeatureInfo.layerType])
     ? null
     : bssUiFeatureInfo;
+  const privateUiFeatureInfo = bridgeUiFeatureInfo && isBusCrowdingSimPrivateLayer(bridgeUiFeatureInfo.layerType)
+    && (!busCrowdingSimPrivateAccess.allowed || !layerVisibility.busCrowdingSim)
+    ? null
+    : bridgeUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -1138,6 +1146,21 @@ export default function App() {
     });
     if (featureInfo && isBridgeResiliencePrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, bridgeResiliencePrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
+
+  useEffect(() => {
+    const onAccessDenied = () => {
+      setLayerVisibility((current) => current.busCrowdingSim ? { ...current, busCrowdingSim: false } : current);
+      setFeatureInfo((current) => current && isBusCrowdingSimPrivateLayer(current.layerType) ? null : current);
+      showTransientNotice("公車擁擠模擬為站主限定私人資料，存取失敗，已關閉圖層；這不代表路段沒有擁擠。");
+    };
+    window.addEventListener(BUS_CROWDING_SIM_ACCESS_DENIED_EVENT, onAccessDenied);
+    return () => window.removeEventListener(BUS_CROWDING_SIM_ACCESS_DENIED_EVENT, onAccessDenied);
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (busCrowdingSimPrivateAccess.allowed) return;
+    setLayerVisibility((current) => current.busCrowdingSim ? { ...current, busCrowdingSim: false } : current);
+    if (featureInfo && isBusCrowdingSimPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, busCrowdingSimPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
   // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
   useEffect(() => {

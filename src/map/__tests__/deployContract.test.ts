@@ -33,7 +33,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
-import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimTypes";
+import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -277,9 +277,9 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
   "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
-  // 公車擁擠模擬（模擬面板，研究中）：public/sim/ gitignored、只在本機由 build-bus-crowding-sim.py 產生；
-  // 資料公開與否尚未拍板，刻意不進 upload／pull／nginx。拍板公開後改走部署管線並移出本 ledger。
-  ...BUS_CROWDING_SIM_ASSETS,
+  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
+  // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
+  ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),
 ]);
 
 /**

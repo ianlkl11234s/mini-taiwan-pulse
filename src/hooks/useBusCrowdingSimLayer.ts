@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { GeoJSONSource, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
-  BUS_CROWDING_SIM_KEY, BUS_CROWDING_SIM_LAYER_IDS, BUS_CROWDING_SIM_SOURCE_ID,
+  BUS_CROWDING_SIM_ACCESS_DENIED_EVENT, BUS_CROWDING_SIM_KEY, BUS_CROWDING_SIM_LAYER_IDS, BUS_CROWDING_SIM_SOURCE_ID,
   busCrowdingLevel,
   type BusCrowdingScenario, type BusCrowdingScenarioData, type BusCrowdingVersion, type BusCrowdingView,
 } from "../data/busCrowdingSimTypes";
@@ -9,13 +9,14 @@ import {
   BUS_CROWDING_DRAWN_FILTER, BUS_CROWDING_SORT_KEY,
   busCrowdingColorExpression, busCrowdingOpacityExpression, busCrowdingWidthExpression,
 } from "../data/busCrowdingSimStyle";
-import { loadBusCrowdingReplayTrips, loadBusCrowdingScenario, loadBusCrowdingSegments } from "../data/busCrowdingSimLoader";
+import { isBusCrowdingAccessDenied, loadBusCrowdingReplayTrips, loadBusCrowdingScenario, loadBusCrowdingSegments } from "../data/busCrowdingSimLoader";
 import { currentSegmentClasses, type ReplayTrip } from "../data/busCrowdingReplay";
 import { busCrowdingSimClock } from "../state/busCrowdingSimClock";
 import { buildSegmentIndex, busCrowdingSimIndexStore, busCrowdingSimScenarioStore } from "../data/busCrowdingSimStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { busCrowdingSimAuth } from "./useBusCrowdingSimPrivateAccess";
 
 export interface BusCrowdingSimControls { version: BusCrowdingVersion; scenario: BusCrowdingScenario; view?: BusCrowdingView }
 
@@ -26,6 +27,12 @@ const IDS = BUS_CROWDING_SIM_LAYER_IDS;
 const SRC = BUS_CROWDING_SIM_SOURCE_ID;
 const KEY = BUS_CROWDING_SIM_KEY;
 const clamp = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+
+/** 私人讀取失敗：401／403 派 denied 事件（App 關圖層、清 popup、顯示提示），其餘只記錄（withLoading 已標失敗）。 */
+export function reportBusCrowdingLoadError(what: string, error: unknown): void {
+  if (isBusCrowdingAccessDenied(error)) window.dispatchEvent(new Event(BUS_CROWDING_SIM_ACCESS_DENIED_EVENT));
+  console.warn(`[bus-crowding-sim] ${what} load failed`, error);
+}
 
 /** 推估路段：實線；有值＝viridis 三級＋L-1 標準線寬＋L-4 標準透明度，0 級＝F-2 灰細參考線；滑桿乘透明度。 */
 const linePaint = (opacity: number, isDark: boolean) => ({
@@ -79,13 +86,17 @@ export function withReplayClasses(geometry: GeoJSON.FeatureCollection, classes: 
   return { type: "FeatureCollection", features };
 }
 
-/** 公開 TDX 衍生的模擬結果（站主限定只做 UI 鎖）：一個 GeoJSON source＋實線＋命中層。 */
+/**
+ * 站主限定私人資料（只經私人 Range API）：一個 GeoJSON source＋實線＋命中層。
+ * `userId`＝已驗證的站主帳號；null（未登入、不是站主、失去權限）就不抓、並清掉已載入的幾何。
+ */
 export function useBusCrowdingSimLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
   controls: BusCrowdingSimControls,
   isDark = true,
+  userId: string | null = null,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const [geometry, setGeometry] = useState<GeoJSON.FeatureCollection | null>(null);
@@ -101,28 +112,34 @@ export function useBusCrowdingSimLayer(
   latestView.current = view;
   const [replayTrips, setReplayTrips] = useState<ReplayTrip[] | null>(null);
 
-  // 幾何：第一次開圖層才抓（模組級快取）。
+  // 失去權限：清掉已載入的私人幾何（不留在記憶體給別的帳號）。
   useEffect(() => {
-    if (!visible || geometry) return;
+    if (userId) return;
+    setGeometry(null); busCrowdingSimIndexStore.set(null);
+  }, [userId]);
+
+  // 幾何：第一次開圖層才抓（模組級快取，依帳號分開）。
+  useEffect(() => {
+    if (!visible || !userId || geometry) return;
     let cancelled = false;
-    loadBusCrowdingSegments().then((fc) => {
+    loadBusCrowdingSegments(busCrowdingSimAuth(userId)).then((fc) => {
       if (cancelled) return;
       busCrowdingSimIndexStore.set(buildSegmentIndex(fc));
       setGeometry(fc);
-    }).catch((error: unknown) => console.warn("[bus-crowding-sim] segments load failed", error));
+    }).catch((error: unknown) => reportBusCrowdingLoadError("segments", error));
     return () => { cancelled = true; };
-  }, [visible, geometry]);
+  }, [visible, userId, geometry]);
 
   // 數值：方案換了才抓（兩版一起）；關圖層清掉 popup 用的 store。
   useEffect(() => {
-    if (!visible) { setData(null); busCrowdingSimScenarioStore.set(null); return; }
+    if (!visible || !userId) { setData(null); busCrowdingSimScenarioStore.set(null); return; }
     let cancelled = false;
-    loadBusCrowdingScenario(controls.scenario).then((loaded) => {
+    loadBusCrowdingScenario(controls.scenario, busCrowdingSimAuth(userId)).then((loaded) => {
       if (cancelled) return;
       setData(loaded); busCrowdingSimScenarioStore.set(loaded);
-    }).catch((error: unknown) => console.warn("[bus-crowding-sim] values load failed", error));
+    }).catch((error: unknown) => reportBusCrowdingLoadError("values", error));
     return () => { cancelled = true; };
-  }, [visible, controls.scenario]);
+  }, [visible, userId, controls.scenario]);
 
   // source／layer：關閉就拆，換底圖（style.load）重建。
   useEffect(() => {
@@ -165,18 +182,18 @@ export function useBusCrowdingSimLayer(
     const source = map.getSource(SRC) as GeoJSONSource | undefined;
     if (!source) return;
     source.setData(next);
-    if (import.meta.env?.DEV) console.debug(`[bus-crowding-sim] setData ${next.features.length} features: build ${(built - started).toFixed(1)} ms, setData ${(performance.now() - built).toFixed(1)} ms`);
+    if (import.meta.env.DEV) console.debug(`[bus-crowding-sim] setData ${next.features.length} features: build ${(built - started).toFixed(1)} ms, setData ${(performance.now() - built).toFixed(1)} ms`);
   }, [mapRef, mapTick, visible, geometry, data, controls.version, mountRevision, view]);
 
   // 時間回放：開啟才載班次（版本×方案；切版本才換檔）。
   useEffect(() => {
-    if (!visible || view !== "replay") { setReplayTrips(null); return; }
+    if (!visible || !userId || view !== "replay") { setReplayTrips(null); return; }
     let cancelled = false;
-    loadBusCrowdingReplayTrips(controls.version, controls.scenario).then((trips) => {
+    loadBusCrowdingReplayTrips(controls.version, controls.scenario, busCrowdingSimAuth(userId)).then((trips) => {
       if (!cancelled) setReplayTrips(trips);
-    }).catch((error: unknown) => console.warn("[bus-crowding-sim] replay trips load failed", error));
+    }).catch((error: unknown) => reportBusCrowdingLoadError("replay trips", error));
     return () => { cancelled = true; };
-  }, [visible, view, controls.version, controls.scenario]);
+  }, [visible, userId, view, controls.version, controls.scenario]);
 
   // 時間回放：訂閱 scoped 時鐘（不接 timeStore、不進 React state），模擬時間每變 30 秒重算路段當下負載。
   useEffect(() => {
