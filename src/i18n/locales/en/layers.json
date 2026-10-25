@@ -1306,5 +1306,6 @@
   "layer.statsDebitMerchantAddresses": "Debit-Card Merchant Addresses (Township)",
   "layer.securitiesFuturesInstitutions": "Securities & Futures Offices",
   "layer.insuranceInstitutions": "Insurers & Insurance Agencies",
-  "layer.busCrowdingSim": "Bus Segment Overloaded-Trip Share"
+  "layer.busCrowdingSim": "Bus Segment Overloaded-Trip Share",
+  "layer.postOfficeFxCounters": "Post Offices Exchanging Foreign Cash"
 }

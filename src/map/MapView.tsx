@@ -8,7 +8,8 @@ import { useOverlayParams } from "../layers/layerParamsAccess";
 import { useHeatmapStackFactor } from "../state/layerPalette";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay, swapPmtilesSourceIfMigrated } from "./overlayManager";
+import { MIGRATED_ASSET_KEYS, onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
@@ -303,6 +304,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
     map.on("pitch", () => ensureTerrainIfTilted(map));
 
+    // 靜態圖層資產索引（ADR-0024 §4）：style.load 時索引可能還沒載完，已遷移的 PMTiles 會先以
+    // fallback 舊路徑建 source；索引 ready 後就地換成 CDN。每次 style.load 只保留最新一次註冊。
+    let offLayerAssetIndexReady: (() => void) | null = null;
+
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
       // 全域防線：style 根層 transition 歸零（預設 300ms）。本專案的「平滑過渡」是資料插值，
@@ -340,6 +345,20 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         { deferJpHeightSources: true },
       );
       jpHeightLifecycle.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
+
+      // 索引已 ready 時 addAllOverlays 本身就拿到 CDN，下面的 swap 是 no-op
+      offLayerAssetIndexReady?.();
+      offLayerAssetIndexReady = onLayerAssetIndexReady(() => {
+        for (const config of OVERLAY_REGISTRY) {
+          if (!config.pmtiles || !MIGRATED_ASSET_KEYS.has(config.sourceUrl)) continue;
+          try {
+            swapPmtilesSourceIfMigrated(map, config);
+          } catch (error) {
+            // style 切換途中：下一次 style.load 的 addAllOverlays 已會直接拿到 CDN
+            console.warn(`[overlay] ${config.sourceId} 換成 CDN source 失敗：`, error);
+          }
+        }
+      });
 
       // 重建後：把目前可見的靜態 GeoJSON 圖層重新 fetch + setData（切底圖不再消失）
       for (const config of OVERLAY_REGISTRY) {
@@ -433,6 +452,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
     const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
+      offLayerAssetIndexReady?.();
       setAttribution(null);
       unbindBasemapLanguage();
       detachStatistics();

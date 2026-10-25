@@ -983,6 +983,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("financialBranchesFisc"),
           fromManifest("securitiesFuturesInstitutions"),
           fromManifest("insuranceInstitutions"),
+          fromManifest("postOfficeFxCounters"),
         ],
       },
       {

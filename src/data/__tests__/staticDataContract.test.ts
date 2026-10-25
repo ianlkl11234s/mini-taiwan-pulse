@@ -559,6 +559,8 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   // 💳 金融服務據點延伸 G10 延伸（2026-10-24）：著色／篩選依 institution_type；popup 依 geocode_precision／spatial_check／source_date_kind 顯示定位與名冊日期。
   "finance/securities_futures_institutions.geojson": [{ field: "institution_type", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "coord_source", type: "string" }, { field: "spatial_check", type: "string", nullable: true }, { field: "proprietary_desk", type: "number" }, { field: "source_date_kind", type: "string" }],
   "finance/insurance_institutions.geojson": [{ field: "institution_type", type: "string" }, { field: "office_level", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "coord_source", type: "string" }, { field: "spatial_check", type: "string", nullable: true }, { field: "source_date_kind", type: "string" }],
+  // 💱 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：單色點；popup 依 geocode_precision／spatial_check 顯示定位，zip6 顯示郵遞區號。
+  "finance/post_office_fx_cash_counters.geojson": [{ field: "name", type: "string" }, { field: "zip6", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "coord_source", type: "string" }, { field: "spatial_check", type: "string", nullable: true }, { field: "source_date_kind", type: "string" }],
   "welfare/cultural_health_stations.geojson": [{ field: "kind", type: "string" }, { field: "precision", type: "string" }, { field: "station_count", type: "number", nullable: true }, { field: "station_names", type: "string", nullable: true }],
   "culture/culture_coin_venues.geojson": [{ field: "category", type: "string" }, { field: "sub_category", type: "string" }, { field: "coord_status", type: "string" }, { field: "county_check", type: "string" }],
 };

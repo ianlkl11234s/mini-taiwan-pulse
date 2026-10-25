@@ -30,6 +30,11 @@ export function absoluteUrl(url: string): string {
 /**
  * 產生 MapLibre 版的 PMTiles source 規格，注入 `overlayManager` 的 OverlayEngineOptions。
  *
+ * 靜態圖層資產索引（ADR-0024 §4）試點**不含 embed**：embed 是獨立 entry（embed.html），不載入索引，
+ * 這裡刻意直接用 `config.sourceUrl`（同源部署時版本），與遷移前行為相同。靜態 GeoJSON 經共用的
+ * `hydrateOverlayIfNeeded` 也會因索引未載入而走 fallback＝同一個同源檔。要納入 embed 時，需在
+ * EmbedApp 先載入索引並處理 CSP／時序，另案評估。
+ *
  * raster / vector 以 `pmtiles.sourceLayer` 有無判定 —— 與 overlayRegistry 的既有約定一致
  * （raster PMTiles 不填 sourceLayer，因為 raster layer 不允許 source-layer 屬性）。
  */

@@ -1306,5 +1306,6 @@
   "layer.statsDebitMerchantAddresses": "デビット加盟店の所在地数（郷鎮）",
   "layer.securitiesFuturesInstitutions": "証券・先物の拠点",
   "layer.insuranceInstitutions": "保険会社・保険代理店",
-  "layer.busCrowdingSim": "バス区間の定員超過便割合"
+  "layer.busCrowdingSim": "バス区間の定員超過便割合",
+  "layer.postOfficeFxCounters": "外貨現金取扱郵便局"
 }

@@ -226,5 +226,8 @@
   "popup.atlas.openedDate": "開業日",
   "popup.atlas.securitiesRosterPoint": "名簿上の営業拠点で、営業員数や口座数ではありません",
   "popup.atlas.insuranceOfficeLevel": "拠点区分",
-  "popup.atlas.insuranceAgencyLines": "取扱種目"
+  "popup.atlas.insuranceAgencyLines": "取扱種目",
+  "popup.atlas.postFxService": "外貨現金・トラベラーズチェックの売買を取り扱う郵便局（中華郵政）",
+  "popup.atlas.postFxNotExchangeShop": "郵便局の取扱いであり、中央銀行認可の外貨両替所ではありません。取扱通貨と営業時間は郵便局の案内をご確認ください",
+  "popup.atlas.postFxZip": "郵便番号"
 }
