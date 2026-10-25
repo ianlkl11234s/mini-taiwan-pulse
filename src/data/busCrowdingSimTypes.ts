@@ -44,10 +44,22 @@ export const BUS_CROWDING_SCENARIO_LABELS: Record<BusCrowdingScenario, string> =
   s5_all_regular_fl: "全部臺北路線班距等距化（首末班錨定）",
 };
 
+/** 檢視（spec §5.40 S-3）：全時段超載比例（靜態）｜時間回放（路段當下負載＋車點，S-1 播放列）。 */
+export const BUS_CROWDING_VIEWS = ["static", "replay"] as const;
+export type BusCrowdingView = (typeof BUS_CROWDING_VIEWS)[number];
+export const BUS_CROWDING_VIEW_LABELS: Record<BusCrowdingView, string> = {
+  static: "全時段超載比例",
+  replay: "時間回放",
+};
+/** 播放列時鐘 id（`state/busCrowdingSimClock.ts` 登記）。 */
+export const BUS_CROWDING_SIM_CLOCK_ID = "busCrowdingSim";
+
 /** 靜態資產（相對 public/；manifest staticAssets 與 deployContract 豁免共用）。 */
 export const BUS_CROWDING_SIM_ASSETS: readonly string[] = [
   "sim/bus-crowding/segments.geojson",
   ...BUS_CROWDING_VERSIONS.flatMap((v) => BUS_CROWDING_SCENARIOS.map((s) => `sim/bus-crowding/${v}/${s}.json`)),
+  "sim/bus-crowding/lines.json",
+  ...BUS_CROWDING_VERSIONS.flatMap((v) => BUS_CROWDING_SCENARIOS.map((s) => `sim/bus-crowding/${v}/trips-${s}.json`)),
 ];
 
 /** 班次少於此數的路段不畫（比例太不穩）。 */

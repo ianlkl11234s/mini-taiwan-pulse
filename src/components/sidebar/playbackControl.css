@@ -1,0 +1,48 @@
+/* 模擬面板 S-1 播放列（spec §5.40 S-1）。軸沿用 timeline.css 的 .tl3-axis--compact，
+   這裡只補 --tl-* 別名（暗／淡同 timeline.css）與控件列排版。 */
+@import "../timeline/timeline.css";
+
+.lpc-playback {
+  --tl-line: var(--border-mid);
+  --tl-fill: var(--slider-fill);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.lpc-theme--light .lpc-playback {
+  --tl-line: var(--light-border-mid);
+  --tl-fill: var(--light-slider-fill);
+}
+
+/* 圓形播放鍵 22px：C2 主要色（accentFaint 底、accent 框與圖示） */
+.lpc-playback button.lpc-play {
+  flex: 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: var(--accent-faint);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.lpc-playback .tl3-axis {
+  flex: 1 1 auto;
+}
+
+.lpc-playback select.lpc-playback__speed {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.lpc-playback button.lpc-playback__restart {
+  flex: 0 0 22px;
+  width: 22px;
+  padding: 0;
+}

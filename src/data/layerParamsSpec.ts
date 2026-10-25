@@ -102,7 +102,10 @@ import {
 } from "./urbanOpenSpaceTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
-import { BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS } from "./busCrowdingSimTypes";
+import {
+  BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_CLOCK_ID, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
+  BUS_CROWDING_VIEWS, BUS_CROWDING_VIEW_LABELS,
+} from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
 import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
@@ -590,7 +593,23 @@ export interface LinkedSelectParamSpec extends SharedSlotField, ConditionalField
   out: null;
 }
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec;
+/**
+ * 模擬面板 S-1 播放列（spec §5.40 S-1）：圓形播放鍵＋compact TimeAxis＋倍速 select＋重來鈕。
+ * 值不在 layerParamsStore：模擬時刻、播放狀態、倍速都在 `state/simPlaybackClock.ts` 的 scoped 時鐘
+ * （`clock`＝登記 id），**不接全站 timeStore**、不存進場景（同 linkedSelect `persist: false`）。
+ * 類別固定排在最後（S-1：播放放在最後一個資料控制與外觀之後、說明・來源之前）。
+ */
+export interface PlaybackParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
+  kind: "playback";
+  name: string;
+  label: string;
+  /** `registerSimPlaybackClock` 的 id */
+  clock: string;
+  default: "";
+  out: null;
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec | PlaybackParamSpec;
 
 // ══════════════════════════════════════════════════════════════════
 //  設定區順序（layer-panel-unify P5，spec §5.11）
@@ -656,6 +675,7 @@ export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory
   if (spec.category) return spec.category;
   if (spec.kind === "palette") return "color";
   if (spec.kind === "multiSelect" || spec.kind === "linkedSelect") return "data";
+  if (spec.kind === "playback") return "look";
   // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
   const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
   if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
@@ -1999,8 +2019,16 @@ export const LAYER_PARAMS_SPEC = {
     kind: "select", category: "data", name: "busCrowdingSimScenario", label: "方案", default: "base",
     options: BUS_CROWDING_SCENARIOS.map((value) => ({ value, label: BUS_CROWDING_SCENARIO_LABELS[value] })), out: null,
   }, {
+    // spec §5.40 S-3：情境 → 檢視 → 參數版本；兩個選項 → 面板自動畫成分段
+    kind: "select", category: "data", name: "busCrowdingSimView", label: "檢視", default: "static",
+    options: BUS_CROWDING_VIEWS.map((value) => ({ value, label: BUS_CROWDING_VIEW_LABELS[value] })), out: null,
+  }, {
     kind: "select", category: "data", name: "busCrowdingSimVersion", label: "參數版本", default: "v137",
     options: BUS_CROWDING_VERSIONS.map((value) => ({ value, label: BUS_CROWDING_VERSION_LABELS[value] })), out: null,
+  }, {
+    // spec §5.40 S-1：只在「時間回放」顯示；值在 scoped 時鐘，不進 store／場景
+    kind: "playback", name: "busCrowdingSimPlayback", label: "模擬時間", clock: BUS_CROWDING_SIM_CLOCK_ID, default: "", out: null,
+    showWhen: { param: "busCrowdingSimView", equals: "replay" },
   }],
   jpPoliceFacilities: [
     heatmapPalette("jpPoliceFacilities"),
@@ -4452,7 +4480,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect" || spec.kind === "playback") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -4608,5 +4636,7 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
       throw new Error(`palette "${spec.name}" 不進 overlayParams，不該被編碼`);
     case "linkedSelect":
       throw new Error(`linkedSelect "${spec.name}" 的值在 provider，不進 overlayParams`);
+    case "playback":
+      throw new Error(`playback "${spec.name}" 的值在模擬時鐘，不進 overlayParams`);
   }
 }

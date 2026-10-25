@@ -1256,5 +1256,9 @@
   "param.全部臺北路線班距等距化": "All Taipei routes: evenly spaced headways",
   "param.全部臺北路線班距等距化（首末班錨定）": "All Taipei routes: evenly spaced headways (first and last trips fixed)",
   "param.較寬鬆 13.7%（YouBike 推估）": "Less crowded 13.7% (YouBike-based estimate)",
-  "param.較擁擠 18.0%（捷運推估）": "More crowded 18.0% (MRT-based estimate)"
+  "param.較擁擠 18.0%（捷運推估）": "More crowded 18.0% (MRT-based estimate)",
+  "param.檢視": "View",
+  "param.全時段超載比例": "Overload share (whole window)",
+  "param.時間回放": "Time replay",
+  "param.模擬時間": "Simulated time"
 }

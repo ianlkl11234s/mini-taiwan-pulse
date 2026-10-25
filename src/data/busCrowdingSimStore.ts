@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { segmentKey, type BusCrowdingScenarioData } from "./busCrowdingSimTypes";
+import type { ReplayLine, ReplayTrip } from "./busCrowdingReplay";
 
 /**
  * 公車擁擠模擬的跨元件小狀態（模組級 store）：hook 載入後寫入，popup 讀。
@@ -36,3 +37,9 @@ export const busCrowdingSimScenarioStore = scenarioStore;
 
 export const useBusCrowdingSimIndex = () => useSyncExternalStore(indexStore.subscribe, indexStore.get);
 export const useBusCrowdingSimScenario = () => useSyncExternalStore(scenarioStore.subscribe, scenarioStore.get);
+
+/** 時間回放：目前版本×方案的班次與線形（車 popup 依 trip id 查下一站與兩版分級）。關閉回放時清空。 */
+export interface BusCrowdingReplayData { trips: readonly ReplayTrip[]; byId: ReadonlyMap<string, ReplayTrip>; lines: readonly (ReplayLine | null)[] }
+const replayStore = createStore<BusCrowdingReplayData | null>(null);
+export const busCrowdingSimReplayStore = replayStore;
+export const useBusCrowdingSimReplay = () => useSyncExternalStore(replayStore.subscribe, replayStore.get);
