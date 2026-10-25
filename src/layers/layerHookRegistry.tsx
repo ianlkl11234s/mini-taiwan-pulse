@@ -88,6 +88,7 @@ import {
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
 import {
   JpMedicalHost, JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
+  JpEvacuationSitesHost, JpPublicOfficesHost, JpBusStopsHost,
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
@@ -269,6 +270,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpRailwaysLayer", keys: ["jpRailways"], Host: JpRailwaysHost },
   { id: "useJpPoliceFacilitiesLayer", keys: ["jpPoliceFacilities"], Host: JpPoliceFacilitiesHost },
   { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
+  { id: "useJpEvacuationSitesLayer", keys: ["jpEvacuationSites"], Host: JpEvacuationSitesHost },
+  { id: "useJpPublicOfficesLayer", keys: ["jpPublicOffices"], Host: JpPublicOfficesHost },
+  { id: "useJpBusStopsLayer", keys: ["jpBusStops"], Host: JpBusStopsHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },

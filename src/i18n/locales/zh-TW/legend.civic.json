@@ -146,5 +146,16 @@
   "legend.civic.bicycleNote": "OSM snapshot exploration；同點多類時依維修、打氣、停車、飲水、公廁順序著色，非完整官方清冊。",
   "legend.civic.accessibleNote": "OSM snapshot exploration；unknown 不等於 false，非完整官方清冊。",
   "legend.civic.coverageCount": "觀測數 {range}",
-  "legend.civic.coverageNote": "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。"
+  "legend.civic.coverageNote": "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。",
+  "legend.civic.jpEvacTitle": "避難場所",
+  "legend.civic.jpEvacLegal": "兩種場所的法定意義不同，不可相加",
+  "legend.civic.jpEvacFilterNote": "篩選災害種別時只顯示指定緊急避難場所；福祉避難所只含指定避難所",
+  "legend.civic.jpEvacStale": "資料由市町村自願登錄，可能非最新或未登載，請向市町村確認",
+  "legend.civic.jpEvacDate": "檔案時點：2026-10-19（199,346 點）",
+  "legend.civic.jpOfficeTitle": "役所與公民館",
+  "legend.civic.jpOfficeBasis": "資料基準：2022-04（79,532 點）；之後的合併、閉館未反映",
+  "legend.civic.jpOfficeHidden": "集會施設（49,488 處，佔 62%）預設隱藏，可用「設施分類」打開",
+  "legend.civic.jpBusTitle": "公車站（バス區分）",
+  "legend.civic.jpBusScope": "2022 年度版（作成約 2022-08），不含デマンドバス與高速バス",
+  "legend.civic.jpBusCount": "全國 278,515 站"
 }

@@ -35,6 +35,10 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
   "regionalStatistic",
   "publicToilet",
+  // 日本第一波三層：tile 無來源欄，panel 補出典／授權並自掛 SourceFooter
+  "jpEvacuationSites",
+  "jpPublicOffices",
+  "jpBusStops",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

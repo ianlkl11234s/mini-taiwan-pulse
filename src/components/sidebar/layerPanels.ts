@@ -81,10 +81,10 @@ export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
 
 /** 日本：5 類（2026-10-03 使用者決定，PLAN.md §3）。`JAPAN_TAB_THEME_TITLES` 已照這個順序排。 */
 export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = [
-  { zh: "行政與人口", themes: ["行政區", "人口"] },
+  { zh: "行政與人口", themes: ["行政區", "基礎建設", "人口"] },
   { zh: "交通與旅宿", themes: ["交通", "旅宿"] },
   { zh: "醫療與照護", themes: ["醫療設施", "長照服務", "醫療圈"] },
-  { zh: "社會", themes: ["治安", "教育", "宗教"] },
+  { zh: "社會", themes: ["治安", "民防避難", "教育", "宗教"] },
   { zh: "自然與環境", themes: ["自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"] },
 ];
 

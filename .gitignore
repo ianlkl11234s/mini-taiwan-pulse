@@ -121,6 +121,9 @@ public/coverage/power_poles.pmtiles
 #    glob 會把它們一起 un-track；deployContract 對 /world/ 是「upload 或 git-track 其一即可」
 #    （nginx 有 dist fallback）⇒ 那種靜默退化測試擋不住。
 public/world/jp_population_mesh_1km.pmtiles
+# 日本第一波圖層（避難場所 67MB、役所與公民館 46MB，走 S3 deploy-assets/world/；jp_bus_stops 20MB 照 police 做法 git-track）
+public/world/jp_evacuation_sites.pmtiles
+public/world/jp_public_offices.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

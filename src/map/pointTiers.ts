@@ -280,6 +280,9 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
   jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
   jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
+  jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
+  jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
+  jpBusStops: "S", // 公車站 バス停（278k 點） · src/hooks/useJpBusStopsLayer.ts
   jpReligionGsi: "M", // 宗教設施 宗教施設（国土地理院） · src/hooks/useJpReligionLayers.ts
   jpReligionOsm: "M", // 宗教設施 宗教施設（OpenStreetMap） · src/hooks/useJpReligionLayers.ts
   jpReligionWikidata: "M", // 宗教設施 宗教施設（Wikidata） · src/hooks/useJpReligionLayers.ts

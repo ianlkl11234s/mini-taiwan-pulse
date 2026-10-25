@@ -5,6 +5,9 @@ import { THEMED_PAINT_COLORS, GOV_SERVICE_PAINT_COLORS } from "../../map/layerPa
 import { JpMedicalStatus } from "../JpMedicalStatus";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../../data/jpMedicalTypes";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
+import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_ATTRIBUTION } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_ATTRIBUTION } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusStopTypes";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
@@ -805,6 +808,47 @@ export function JpPoliceFacilitiesLegend() {
     <div>{i18n.t("legend.civic.jpPoliceDate")}</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
     <DenseHeatmapLegendRow layers={["jpPoliceFacilities"]} />
+  </div>;
+}
+
+/** 日本避難場所：兩色＝兩種法定場所（不可相加）；警語依 GSI 頁面原文要旨。 */
+export function JpEvacuationSitesLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpEvacTitle")} />
+    {JP_EVACUATION_SITE_TYPES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpEvacSite", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpEvacLegal")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacFilterNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacStale")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacDate")}</LegendNote>
+    <LegendNote>{JP_EVACUATION_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpEvacuationSites"]} />
+  </div>;
+}
+
+/** 日本役所與公民館：5 類分色，集會施設預設隱藏；2022-04 基準。 */
+export function JpPublicOfficesLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpOfficeTitle")} />
+    {JP_PUBLIC_OFFICE_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpPublicOfficeClass", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpOfficeHidden")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpOfficeBasis")}</LegendNote>
+    <LegendNote>{JP_PUBLIC_OFFICE_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpPublicOffices"]} />
+  </div>;
+}
+
+/** 日本公車站：bus_class 5 色；2022 年度版，不含デマンドバス與高速バス。 */
+export function JpBusStopsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpBusTitle")} />
+    {JP_BUS_STOP_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpBusClass", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpBusCount")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpBusScope")}</LegendNote>
+    <LegendNote>{JP_BUS_STOP_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpBusStops"]} />
   </div>;
 }
 

@@ -146,5 +146,16 @@
   "legend.civic.bicycleNote": "OSMスナップショットによる探索的データ。1地点に複数の種別がある場合は、修理・空気入れ・駐輪・飲料水・トイレの順で色付けします。公式の完全な名簿ではありません。",
   "legend.civic.accessibleNote": "OSMスナップショットによる探索的データ。unknown は false を意味しません。公式の完全な名簿ではありません。",
   "legend.civic.coverageCount": "観測数 {range}",
-  "legend.civic.coverageNote": "OSMのマッピング密度であり、サービスの質・人口カバー率・道路アクセス性ではありません。"
+  "legend.civic.coverageNote": "OSMのマッピング密度であり、サービスの質・人口カバー率・道路アクセス性ではありません。",
+  "legend.civic.jpEvacTitle": "避難場所",
+  "legend.civic.jpEvacLegal": "2種別は法的な位置付けが異なるため合算できません",
+  "legend.civic.jpEvacFilterNote": "災害種別の絞り込みは指定緊急避難場所のみ、福祉避難所は指定避難所のみが対象です",
+  "legend.civic.jpEvacStale": "市町村の任意登録のため、最新でない・未登載の場合があります。市町村にご確認ください",
+  "legend.civic.jpEvacDate": "ファイル時点：2026-10-19（199,346点）",
+  "legend.civic.jpOfficeTitle": "市町村役場・公民館",
+  "legend.civic.jpOfficeBasis": "2022年4月時点（79,532点）。その後の統廃合・閉館は反映されていません",
+  "legend.civic.jpOfficeHidden": "集会施設（49,488件、62%）は標準で非表示です。施設分類の設定で表示できます",
+  "legend.civic.jpBusTitle": "バス停（バス区分）",
+  "legend.civic.jpBusScope": "2022年度版（2022年8月頃作成）。デマンドバス・高速バスを含みません",
+  "legend.civic.jpBusCount": "全国278,515か所"
 }

@@ -216,7 +216,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
 // 2026-10-03 依日本面板的大分類（layerPanels.ts `JAPAN_MACRO_GROUPS`）重排：同一大分類的主題相鄰。
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "基礎建設", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "民防避難", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"];
 
 /**
  * 「模擬 Simulation」rail tab 的主題清單（simulation PLAN Phase 1）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）；
@@ -2212,6 +2212,11 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    title: "基礎建設",
+    defaultCollapsed: true,
+    groups: [{ title: "公共設施", layers: [fromManifest("jpPublicOffices")] }],
+  },
+  {
     title: "交通",
     defaultCollapsed: true,
     groups: [
@@ -2220,6 +2225,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("jpStations"),
           fromManifest("jpAirports"),
+          fromManifest("jpBusStops"),
         ],
       },
       {
@@ -2277,6 +2283,11 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "治安",
     defaultCollapsed: true,
     groups: [{ title: "點位", layers: [fromManifest("jpPoliceFacilities")] }],
+  },
+  {
+    title: "民防避難",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("jpEvacuationSites")] }],
   },
   {
     title: "教育",
@@ -2436,6 +2447,8 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "自然保護": "environment",
   "世界遺產": "environment",
   "治安": "safety",
+  "民防避難": "safety",
+  "基礎建設": "publicLife",
   "教育": "publicLife",
   "人口": "city",
   "宗教": "publicLife",
@@ -2553,6 +2566,8 @@ const THEME_NAMES: Record<string, ThemeName> = {
   "自然保護": { zh: "自然保護", sub: "自然保護" },
   "世界遺產": { zh: "世界遺產", sub: "世界遺産" },
   "治安": { zh: "治安", sub: "治安" },
+  "民防避難": { zh: "民防避難", sub: "避難・防災" },
+  "基礎建設": { zh: "基礎建設", sub: "インフラ" },
   "教育": { zh: "教育", sub: "教育" },
   "人口": { zh: "人口", sub: "人口" },
   "宗教": { zh: "宗教", sub: "宗教" },
