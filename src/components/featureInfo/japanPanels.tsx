@@ -1,8 +1,8 @@
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
-import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_HAZARDS, JP_EVACUATION_LAYER_COLOR, JP_EVACUATION_ATTRIBUTION, JP_EVACUATION_DATA_AS_OF } from "../../data/jpEvacuationSiteTypes";
-import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_LAYER_COLOR, JP_PUBLIC_OFFICE_ATTRIBUTION, JP_PUBLIC_OFFICE_DATA_AS_OF } from "../../data/jpPublicOfficeTypes";
-import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_LAYER_COLOR, JP_BUS_STOP_ATTRIBUTION, JP_BUS_STOP_DATA_AS_OF, JP_PREFECTURE_NAMES } from "../../data/jpBusStopTypes";
-import { Row, Title } from "./shared";
+import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_HAZARDS, JP_EVACUATION_LAYER_COLOR, JP_EVACUATION_ATTRIBUTION, JP_EVACUATION_DATA_AS_OF, JP_EVACUATION_SOURCE_URL, JP_EVACUATION_LICENSE } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_LAYER_COLOR, JP_PUBLIC_OFFICE_ATTRIBUTION, JP_PUBLIC_OFFICE_DATA_AS_OF, JP_PUBLIC_OFFICE_SOURCE_URL, JP_PUBLIC_OFFICE_LICENSE } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_LAYER_COLOR, JP_BUS_STOP_ATTRIBUTION, JP_BUS_STOP_DATA_AS_OF, JP_BUS_STOP_SOURCE_URL, JP_BUS_STOP_LICENSE, JP_PREFECTURE_NAMES } from "../../data/jpBusStopTypes";
+import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import {
@@ -390,7 +390,7 @@ export function JpEvacuationSitesPanel({ props }: { props: Record<string, unknow
     <Row label={t("popup.japan.dataAsOf")} value={JP_EVACUATION_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.evacLegalNote")} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.evacStaleNote")} />
-    <Row field="attribution" value={JP_EVACUATION_ATTRIBUTION} />
+    <SourceFooter props={{ source_org: JP_EVACUATION_ATTRIBUTION, source_url: JP_EVACUATION_SOURCE_URL, license: JP_EVACUATION_LICENSE, fetched_at: JP_EVACUATION_DATA_AS_OF }} />
   </>;
 }
 
@@ -407,7 +407,7 @@ export function JpPublicOfficesPanel({ props }: { props: Record<string, unknown>
     <Row field="address" value={policeText(props.address) || na} />
     <Row label={t("popup.japan.dataAsOf")} value={JP_PUBLIC_OFFICE_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.officeBasisNote")} />
-    <Row field="attribution" value={JP_PUBLIC_OFFICE_ATTRIBUTION} />
+    <SourceFooter props={{ source_org: JP_PUBLIC_OFFICE_ATTRIBUTION, source_url: JP_PUBLIC_OFFICE_SOURCE_URL, license: JP_PUBLIC_OFFICE_LICENSE, fetched_at: JP_PUBLIC_OFFICE_DATA_AS_OF }} />
   </>;
 }
 
@@ -427,6 +427,6 @@ export function JpBusStopsPanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
     <Row label={t("popup.japan.dataAsOf")} value={JP_BUS_STOP_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.busScopeNote")} />
-    <Row field="attribution" value={JP_BUS_STOP_ATTRIBUTION} />
+    <SourceFooter props={{ source_org: JP_BUS_STOP_ATTRIBUTION, source_url: JP_BUS_STOP_SOURCE_URL, license: JP_BUS_STOP_LICENSE, fetched_at: JP_BUS_STOP_DATA_AS_OF }} />
   </>;
 }

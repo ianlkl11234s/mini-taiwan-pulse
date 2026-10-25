@@ -44,6 +44,9 @@ export function jpPublicOfficeFilter(index: number): FilterSpecification | null 
 export const JP_PUBLIC_OFFICE_ATTRIBUTION =
   "出典：国土数値情報（市町村役場等及び公的集会施設データ）（国土交通省）を加工して作成";
 
+export const JP_PUBLIC_OFFICE_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P05-v3_0.html";
+export const JP_PUBLIC_OFFICE_LICENSE = "CC BY 4.0 / PDL1.0";
+
 /** 資料基準年月；之後的合併、閉館沒有反映。 */
 export const JP_PUBLIC_OFFICE_DATA_AS_OF = "2022-04";
 export const JP_PUBLIC_OFFICE_POINT_COUNT = 79_532;

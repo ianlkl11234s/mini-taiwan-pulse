@@ -54,6 +54,9 @@ export function jpEvacuationFilter(index: number): FilterSpecification | null {
 export const JP_EVACUATION_ATTRIBUTION =
   "出典：国土地理院「指定緊急避難場所・指定避難所データ」を加工して作成";
 
+export const JP_EVACUATION_SOURCE_URL = "https://hinanmap.gsi.go.jp/";
+export const JP_EVACUATION_LICENSE = "PDL1.0";
+
 /** 檔案時點（GSI 全國彙整 CSV）；資料依市町村自願登錄，可能非最新。 */
 export const JP_EVACUATION_DATA_AS_OF = "2026-10-19";
 export const JP_EVACUATION_POINT_COUNT = 199_346;

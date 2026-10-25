@@ -38,3 +38,14 @@ null 欄位在 tile 內不存在（`get` 回 null，不等於 true）。
 ## 反向連結
 
 analytics handoff：`taipei-gis-analytics/docs/handoff/jp-wave1-layers.md`（第 0 節「下游供應路徑」）。
+
+## 本機瀏覽器驗收（2026-10-25，dev server 3741，agent-browser swiftshader）
+
+截圖在 `screenshots/`。
+
+- 日本分頁出現「民防避難」「基礎建設」兩主題（英文介面譯為 Evacuation & Civil Defense／Infrastructure）；三層預設 off。
+- 避難場所：z5 全日本為熱區（`evac-z5-heatmap.png`）；東京 z12.6 紅（緊急避難場所）／藍（指定避難所）點；點擊顯示適用災害、同址提示、「不可相加」與「可能非最新」警語、資料時點與出典（`evac-popup.png`）。篩選：選 Tsunami 後畫面 13 點全部 `hazard_tsunami=true` 且皆 emergency_site；選福祉避難所後 86 點全為 shelter＋is_welfare_shelter=true；圖例含警語（`evac-filter-tsunami-legend.png`）。MVT 布林欄位實測為 boolean。
+- 役所與公民館：預設 filter `facility_class != assembly_facility`（畫面 4 類）；select「All」後出現 assembly_facility 274 點；選 Assembly facilities 只剩該類；popup 含 2022-04 基準警語（`offices-popup-default-hidden-assembly.png`）。
+- 公車站：z12.6 出點，三類 bus_class 分色；popup 顯示 operator／bus_class／route_count／縣名／「不含高速バス」（`bus-popup-legend.png`），圖例分類正確。
+- 重新載入後 console 無 error（僅 WebGL 效能 warning）。
+- 未驗：z14+ overzoom 目視、淡色底圖、手機版面、正式站（資產未上 S3）。

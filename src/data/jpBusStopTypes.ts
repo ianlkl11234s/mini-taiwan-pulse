@@ -28,6 +28,9 @@ export const JP_BUS_STOP_CLASS_COLOR_EXPRESSION: ExpressionSpecification = [
 export const JP_BUS_STOP_ATTRIBUTION =
   "出典：国土数値情報（バス停留所データ）（国土交通省）を加工して作成";
 
+export const JP_BUS_STOP_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P11-2022.html";
+export const JP_BUS_STOP_LICENSE = "CC BY 4.0 / PDL1.0";
+
 export const JP_BUS_STOP_DATA_AS_OF = "2022-08";
 export const JP_BUS_STOP_POINT_COUNT = 278_515;
 
