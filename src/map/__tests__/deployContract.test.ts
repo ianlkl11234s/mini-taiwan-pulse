@@ -52,6 +52,10 @@ const dockerIgnore = readFileSync(".dockerignore", "utf8");
 const jpHeightPublisher = readFileSync("scripts/deploy/publish-jp-height-assets.py", "utf8");
 const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
+/** ADR-0024 §4：已改由 data.itsmigu.com/layers/v1 索引供應的舊相對 URL（"./dir/file"）。 */
+const layerAssetIndexKeys = new Set<string>(
+  (JSON.parse(readFileSync("src/data/layerAssetIndex.expected.json", "utf8")) as { keys: string[] }).keys,
+);
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -648,6 +652,9 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const [path, keys] of [...ASSETS].sort()) {
       if (isEmptyShell(path)) continue;
       if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      // 已遷移到靜態圖層資產索引：供應路徑改由 R2／CDN 索引負責，不再要求出現在 deploy 腳本清單；
+      // 改斷言它登記在 committed 的遷移清單（layerAssetIndex.expected.json）。
+      if (layerAssetIndexKeys.has(`./${path}`)) continue;
       if (path === forestReceipt.public_url) {
         const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
         expect(forestReceipt.readback).toBe("PASS");
@@ -692,6 +699,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
       `→ 要走 dist：檔案得 git 追蹤，且 nginx location 要有 try_files $uri @dist\n` +
       `→ 真的刻意不部署：加進本檔的 DEPLOY_EXEMPT_LEDGER 並寫下理由`,
     ).toEqual([]);
+  });
+
+  it("靜態圖層資產索引的遷移清單：每個 key 都是 manifest 引用中的 GeoJSON／PMTiles，且不重複", () => {
+    const raw = (JSON.parse(readFileSync("src/data/layerAssetIndex.expected.json", "utf8")) as { keys: string[] }).keys;
+    expect(raw.length).toBe(layerAssetIndexKeys.size);
+    for (const key of raw) {
+      expect(key, "key 要沿用 manifest 的舊相對 URL（含開頭 ./）").toMatch(/^\.\/[^/].*\.(geojson|pmtiles)$/);
+      expect(ASSETS.has(key.slice(2)), `${key} 不在 layerManifest 引用的靜態檔中（過期條目）`).toBe(true);
+    }
   });
 
   /** ledger 雙向凍結：登記的東西若已經被部署了，就該從 ledger 移除 */

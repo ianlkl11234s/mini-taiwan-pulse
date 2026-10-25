@@ -1,0 +1,7 @@
+{
+  "_comment": "ADR-0024 §4 靜態圖層資產索引的遷移清單：只列已改由 data.itsmigu.com/layers/v1 索引供應的舊相對 URL（key），不含版本。索引載入失敗時這些 key 會退回部署時版本並提示。",
+  "keys": [
+    "./police_justice/immigration_offices/immigration_offices_20260626.geojson",
+    "./harm_reduction/dui_crash_points.pmtiles"
+  ]
+}
