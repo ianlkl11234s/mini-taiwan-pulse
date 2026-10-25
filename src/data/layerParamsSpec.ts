@@ -95,12 +95,17 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "./urbanOpenSpaceTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
+import {
+  BUS_CROWDING_SCENARIOS, BUS_CROWDING_SCENARIO_LABELS, BUS_CROWDING_SIM_CLOCK_ID, BUS_CROWDING_DEFAULT_VERSION, BUS_CROWDING_VERSIONS, BUS_CROWDING_VERSION_LABELS,
+  BUS_CROWDING_VIEWS, BUS_CROWDING_VIEW_LABELS,
+} from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
 import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
@@ -588,7 +593,23 @@ export interface LinkedSelectParamSpec extends SharedSlotField, ConditionalField
   out: null;
 }
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec;
+/**
+ * 模擬面板 S-1 播放列（spec §5.40 S-1）：圓形播放鍵＋compact TimeAxis＋倍速 select＋重來鈕。
+ * 值不在 layerParamsStore：模擬時刻、播放狀態、倍速都在 `state/simPlaybackClock.ts` 的 scoped 時鐘
+ * （`clock`＝登記 id），**不接全站 timeStore**、不存進場景（同 linkedSelect `persist: false`）。
+ * 類別固定排在最後（S-1：播放放在最後一個資料控制與外觀之後、說明・來源之前）。
+ */
+export interface PlaybackParamSpec extends SharedSlotField, ConditionalField, CascadeField, ControlCategoryField {
+  kind: "playback";
+  name: string;
+  label: string;
+  /** `registerSimPlaybackClock` 的 id */
+  clock: string;
+  default: "";
+  out: null;
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec | PaletteParamSpec | LinkedSelectParamSpec | PlaybackParamSpec;
 
 // ══════════════════════════════════════════════════════════════════
 //  設定區順序（layer-panel-unify P5，spec §5.11）
@@ -654,6 +675,7 @@ export function paramControlCategory(spec: LayerParamSpec): ParamControlCategory
   if (spec.category) return spec.category;
   if (spec.kind === "palette") return "color";
   if (spec.kind === "multiSelect" || spec.kind === "linkedSelect") return "data";
+  if (spec.kind === "playback") return "look";
   // 開頭的播放符號等非文字字元不算進詞彙（播放鍵標籤 → 「歷史播放」）
   const label = (spec.kind === "slider" ? spec.labelPrefix : spec.label).replace(/^[^\p{L}\p{N}]+/u, "").trim();
   if (spec.kind === "slider" && label.includes("透明度")) return "opacity";
@@ -1992,6 +2014,22 @@ export const LAYER_PARAMS_SPEC = {
     kind: "toggle", name: "bridgeResilienceJoint", label: "關渡＋淡江同時中斷", default: false,
   }],
   bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
+  // 公車擁擠模擬（spec §5.40）：方案、參數版本是資料篩選，顯示時自動排在透明度前；切換只換 feature-state。
+  busCrowdingSim: [opacitySlider("busCrowdingSimOpacity", 1), {
+    kind: "select", category: "data", name: "busCrowdingSimScenario", label: "方案", default: "base",
+    options: BUS_CROWDING_SCENARIOS.map((value) => ({ value, label: BUS_CROWDING_SCENARIO_LABELS[value] })), out: null,
+  }, {
+    // spec §5.40 S-3：情境 → 檢視 → 參數版本；兩個選項 → 面板自動畫成分段
+    kind: "select", category: "data", name: "busCrowdingSimView", label: "檢視", default: "static",
+    options: BUS_CROWDING_VIEWS.map((value) => ({ value, label: BUS_CROWDING_VIEW_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "busCrowdingSimVersion", label: "參數版本", default: BUS_CROWDING_DEFAULT_VERSION,
+    options: BUS_CROWDING_VERSIONS.map((value) => ({ value, label: BUS_CROWDING_VERSION_LABELS[value] })), out: null,
+  }, {
+    // spec §5.40 S-1：只在「時間回放」顯示；值在 scoped 時鐘，不進 store／場景
+    kind: "playback", name: "busCrowdingSimPlayback", label: "模擬時間", clock: BUS_CROWDING_SIM_CLOCK_ID, default: "", out: null,
+    showWhen: { param: "busCrowdingSimView", equals: "replay" },
+  }],
   jpPoliceFacilities: [
     heatmapPalette("jpPoliceFacilities"),
     opacitySlider("jpPoliceFacilitiesOpacity", densePointOpacity(13_195)), scaleSlider("jpPoliceFacilitiesScale", 1),
@@ -3019,6 +3057,81 @@ export const LAYER_PARAMS_SPEC = {
   seawallZones: [
     opacitySlider("seawallZonesOpacity", 0.5),
   ],
+  // ══════════ 文化幣藝文消費點 G23（2026-10-24）══════════
+  cultureCoinVenues: [
+    {
+      kind: "multiSelect", name: "cultureCoinVenuesCategory", label: "類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(CULTURE_COIN_CATEGORY_OPTIONS), out: "cultureCoinVenuesCategoryMask",
+    },
+    opacitySlider("cultureCoinVenuesOpacity", densePointOpacity(4_264)), scaleSlider("cultureCoinVenuesScale", 1),
+  ],
+  // ══════════ 原民會文化健康站 G20（2026-10-24）══════════
+  // 「定位精度」多選：只勾「站址」＝只看依地址定位的 191 站（不看鄉鎮中心圈）。
+  culturalHealthStations: [
+    {
+      kind: "multiSelect", name: "culturalHealthStationsKind", label: "定位精度", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(CULTURAL_HEALTH_KIND_OPTIONS), out: "culturalHealthStationsKindMask",
+    },
+    opacitySlider("culturalHealthStationsOpacity", 0.9), scaleSlider("culturalHealthStationsScale", 1),
+  ],
+  // ══════════ 國營事業與國有資產 G16（2026-10-24）══════════
+  twcServiceOffices: [
+    {
+      kind: "multiSelect", name: "twcServiceOfficesType", label: "單位類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(TWC_OFFICE_TYPE_OPTIONS), out: "twcServiceOfficesTypeMask",
+    },
+    opacitySlider("twcServiceOfficesOpacity", 0.9), scaleSlider("twcServiceOfficesScale", 1),
+  ],
+  twcWaterFacilities: [
+    {
+      kind: "multiSelect", name: "twcWaterFacilitiesType", label: "設施類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(TWC_FACILITY_TYPE_OPTIONS), out: "twcWaterFacilitiesTypeMask",
+    },
+    opacitySlider("twcWaterFacilitiesOpacity", 0.9), scaleSlider("twcWaterFacilitiesScale", 1),
+  ],
+  taisugarSugarMills: [opacitySlider("taisugarSugarMillsOpacity", 0.9), scaleSlider("taisugarSugarMillsScale", 1)],
+  statePropertyTenderListings: [
+    {
+      kind: "multiSelect", name: "statePropertyTenderListingsKind", label: "標的類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(STATE_TENDER_KIND_OPTIONS), out: "statePropertyTenderListingsKindMask",
+    },
+    opacitySlider("statePropertyTenderListingsOpacity", 0.9), scaleSlider("statePropertyTenderListingsScale", 1),
+  ],
+  // ══════════ 金融服務據點 G10（2026-10-24）══════════
+  atmSitesFisc: [
+    {
+      kind: "multiSelect", name: "atmSitesFiscInstitution", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(ATM_INSTITUTION_OPTIONS), out: "atmSitesFiscInstitutionMask",
+    },
+    { kind: "toggle", name: "atmSitesFiscOnlyWheelchair", label: "只看輪椅可用", default: false, category: "data" },
+    { kind: "toggle", name: "atmSitesFiscOnlyVoice", label: "只看視障語音服務", default: false, category: "data" },
+    opacitySlider("atmSitesFiscOpacity", densePointOpacity(27_390)), scaleSlider("atmSitesFiscScale", 1),
+  ],
+  financialBranchesFisc: [
+    {
+      kind: "multiSelect", name: "financialBranchesFiscCategory", label: "機構類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(BRANCH_CATEGORY_OPTIONS), out: "financialBranchesFiscCategoryMask",
+    },
+    opacitySlider("financialBranchesFiscOpacity", densePointOpacity(4_988)), scaleSlider("financialBranchesFiscScale", 1),
+  ],
+  // ══════════ 金融服務據點延伸 G10 延伸（2026-10-24）══════════
+  securitiesFuturesInstitutions: [
+    {
+      kind: "multiSelect", name: "securitiesFuturesInstitutionsType", label: "據點類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(SECURITIES_TYPE_OPTIONS), out: "securitiesFuturesInstitutionsTypeMask",
+    },
+    { kind: "toggle", name: "securitiesFuturesInstitutionsHideProprietary", label: "隱藏證券自營部門", default: false, category: "data" },
+    opacitySlider("securitiesFuturesInstitutionsOpacity", densePointOpacity(1_038)), scaleSlider("securitiesFuturesInstitutionsScale", 1),
+  ],
+  insuranceInstitutions: [
+    {
+      kind: "multiSelect", name: "insuranceInstitutionsType", label: "機構類型", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(INSURANCE_TYPE_OPTIONS), out: "insuranceInstitutionsTypeMask",
+    },
+    opacitySlider("insuranceInstitutionsOpacity", densePointOpacity(655)), scaleSlider("insuranceInstitutionsScale", 1),
+  ],
+  // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
+  postOfficeFxCounters: [opacitySlider("postOfficeFxCountersOpacity", densePointOpacity(290)), scaleSlider("postOfficeFxCountersScale", 1)],
   mountainRescueIncidents: [
     {
       kind: "select", name: "mountainRescueIncidentsYear", label: "年份", default: "all",
@@ -4369,7 +4482,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect" || spec.kind === "palette" || spec.kind === "linkedSelect" || spec.kind === "playback") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -4525,5 +4638,7 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
       throw new Error(`palette "${spec.name}" 不進 overlayParams，不該被編碼`);
     case "linkedSelect":
       throw new Error(`linkedSelect "${spec.name}" 的值在 provider，不進 overlayParams`);
+    case "playback":
+      throw new Error(`playback "${spec.name}" 的值在模擬時鐘，不進 overlayParams`);
   }
 }

@@ -8,7 +8,7 @@ import { paletteById } from "../map/palettes";
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlRequest = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
 type ControlDescription = {
-  controlId: string; label: string; kind: "slider" | "toggle" | "select" | "multiSelect" | "palette" | "linkedSelect"; value: LayerControlValue;
+  controlId: string; label: string; kind: "slider" | "toggle" | "select" | "multiSelect" | "palette" | "linkedSelect" | "playback"; value: LayerControlValue;
   slider: { min: number; max: number; step: number } | null;
   options: { label: string; value: string; disabled: boolean }[];
   hidden: boolean; showWhen: { param: string; equals: number | boolean | string } | null;
@@ -76,7 +76,10 @@ function validate(control: ParamControl, value: LayerControlValue): void {
     if (typeof value !== "number" || !Number.isFinite(value) || value < raw.min || value > raw.max || Math.abs((value - raw.min) / raw.step - Math.round((value - raw.min) / raw.step)) > 1e-9) fail("LAYER_CONTROL_VALUE_INVALID");
   } else if (control.type === "toggle") {
     if (typeof value !== "boolean") fail("LAYER_CONTROL_VALUE_INVALID");
-  } else if (control.type === "linkedSelect") {
+  } else if (control.type === "playback") {
+    // 播放列的狀態在模擬時鐘（不是場景參數），Agent 不能設定
+    fail("LAYER_CONTROL_VALUE_INVALID");
+} else if (control.type === "linkedSelect") {
     if (control.status !== "ready" && control.options.length === 0) fail("LAYER_CONTROL_OPTIONS_NOT_READY");
     if (typeof value !== "string" || !control.options.some(option => option.value === value && !option.disabled)) fail("LAYER_CONTROL_VALUE_INVALID");
   } else if (control.type === "select" || control.type === "palette") {
@@ -113,6 +116,7 @@ export function applyLayerControl(request: LayerControlRequest, locked: Readonly
       () => fail("LAYER_CONTROL_VALUE_INVALID"),
     );
   }
+  if (control.type === "playback") fail("LAYER_CONTROL_VALUE_INVALID");
   (control.onChange as (value: LayerControlValue) => void)(request.value);
   return readBack(request, locked);
 }

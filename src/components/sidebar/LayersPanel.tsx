@@ -62,6 +62,8 @@ export interface LayersPanelProps {
   onClose?: () => void;
   /** 本面板是哪個入口；給了且有 `onSearchInPanel` 才會顯示「其他面板還有 N 筆」 */
   panelId?: LayerPanelId;
+  /** 目前使用者看得到的入口（模擬只對站主）；「其他面板還有 N 筆」只算這些。未給＝全部。 */
+  availablePanelIds?: readonly LayerPanelId[];
   /** 切到另一個入口並帶入關鍵字（P9） */
   onSearchInPanel?: (panelId: LayerPanelId, query: string) => void;
 }
@@ -79,7 +81,7 @@ export function LayersPanel({
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
-  panelId, onSearchInPanel,
+  panelId, availablePanelIds, onSearchInPanel,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const i18n = useLocale();
@@ -115,7 +117,7 @@ export function LayersPanel({
   });
   const visibleSearchResults = searchResults.slice(0, 50);
   const otherPanelHits = q && panelId
-    ? LAYER_PANELS.filter((panel) => panel.id !== panelId).map((panel) => ({
+    ? LAYER_PANELS.filter((panel) => panel.id !== panelId && (!availablePanelIds || availablePanelIds.includes(panel.id))).map((panel) => ({
       id: panel.id,
       shortTitle: t(`panel.${panel.id}.short`),
       count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id), lockedKeys }).length,

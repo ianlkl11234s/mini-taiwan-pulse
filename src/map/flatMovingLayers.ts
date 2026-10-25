@@ -179,7 +179,7 @@ export function buildArrowSdf(size = ARROW_SPRITE_PX, shape = ARROW_SHAPE_PX): U
 
 let arrowSdfCache: Uint8Array | null = null;
 
-function ensureArrowImage(map: MapboxMap): void {
+export function ensureArrowImage(map: MapboxMap): void {
   if (map.hasImage(FLAT_ARROW_IMAGE)) return;
   arrowSdfCache ??= buildArrowSdf();
   map.addImage(

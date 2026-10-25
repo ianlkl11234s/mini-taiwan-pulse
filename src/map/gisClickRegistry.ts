@@ -254,6 +254,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["bss-national-bridge-preview-original-direction-line", "bss-national-bridge-preview-offset-direction-line", "bss-national-bridge-preview-ordinary-route-context", "bss-national-bridge-preview-near-curved-carrier-local-context", "bss-national-bridge-preview-waterway-crossing-context", "bss-national-bridge-preview-multi-near-carrier-waterway-context", "bss-national-bridge-preview-tied-route-consensus-context", "bss-national-bridge-preview-no-waterway-carrier-consensus-context", "bss-national-bridge-preview-no-crossing-nearest-route-context", "bss-national-bridge-preview-stage1-local-direction-candidate"], type: "bssNationalBridgePreview" },
   // 村里面在最底層：橋線先命中；命中村里＝進入目的地視角（useMapInteraction 分流，不換 popup）。
   { layers: ["bridge-resilience-hit", "bridge-resilience-structure", "bridge-resilience-ground", "bridge-resilience-village-fill"], type: "bridgeResilienceTwinCity" },
+  // 公車擁擠模擬：時間回放的車點先於路段；路段命中層與線同 filter（沒畫出來的段點不到），回放時隱藏。
+  { layers: ["bus-crowding-sim-veh-circle", "bus-crowding-sim-veh-arrow"], type: "busCrowdingSimVehicle" },
+  { layers: ["bus-crowding-sim-hit"], type: "busCrowdingSim" },
   { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
   { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
   { layers: ["official-bridges-hsinchu-line", "official-bridges-hsinchu-coincident-endpoints"], type: "officialBridgesHsinchu" },
@@ -504,6 +507,20 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["wra-floodgates-central-circle", "wra-floodgates-central-glow"], type: "wraFloodgatesCentral" },
   { layers: ["iow-structure-monitoring-circle", "iow-structure-monitoring-glow"], type: "iowStructureMonitoring" },
   { layers: ["wra-dredging-points-circle", "wra-dredging-points-glow"], type: "wraDredgingPoints" },
+  // 文化幣藝文消費點 G23
+  { layers: ["culture-coin-venues-circle", "culture-coin-venues-glow"], type: "cultureCoinVenues" },
+  // 原民會文化健康站 G20：站址實心點＋鄉鎮中心空心圈
+  { layers: ["cultural-health-stations-site", "cultural-health-stations-group"], type: "culturalHealthStations" },
+  // 國營事業與國有資產 G16
+  { layers: ["twc-service-offices-circle", "twc-service-offices-glow"], type: "twcServiceOffices" },
+  { layers: ["twc-water-facilities-circle", "twc-water-facilities-glow"], type: "twcWaterFacilities" },
+  { layers: ["taisugar-sugar-mills-circle", "taisugar-sugar-mills-glow"], type: "taisugarSugarMills" },
+  { layers: ["state-property-tender-listings-circle", "state-property-tender-listings-glow"], type: "statePropertyTenderListings" },
+  { layers: ["atm-sites-fisc-circle", "atm-sites-fisc-glow"], type: "atmSitesFisc" },
+  { layers: ["financial-branches-fisc-circle", "financial-branches-fisc-glow"], type: "financialBranchesFisc" },
+  { layers: ["securities-futures-institutions-circle", "securities-futures-institutions-glow"], type: "securitiesFuturesInstitutions" },
+  { layers: ["insurance-institutions-circle", "insurance-institutions-glow"], type: "insuranceInstitutions" },
+  { layers: ["post-office-fx-counters-circle", "post-office-fx-counters-glow"], type: "postOfficeFxCounters" },
   // 海域保護與漁業 G08：點層（捕魚點、魚礁中心點）
   { layers: ["open-fishing-locations-circle", "open-fishing-locations-glow"], type: "openFishingLocations" },
   { layers: ["artificial-reef-centers-circle", "artificial-reef-centers-glow"], type: "artificialReefCenters" },

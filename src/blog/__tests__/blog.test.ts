@@ -45,6 +45,11 @@ describe("front matter", () => {
     expect(faq).toEqual([{ question: "問一？", answer: "答一。" }, { question: "問二？", answer: "答 連結。" }]);
   });
 
+  it("slug 不可與主題頁或保留路徑撞名（文章與主題頁共用 /blog/<x>/）", () => {
+    expect(() => toPost("---\nslug: layers\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n")).toThrow(/保留路徑/);
+    expect(() => toPost("---\nslug: about\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n")).toThrow(/保留路徑/);
+  });
+
   it("主題必須登記在 topics.ts", () => {
     expect(() => toPost("---\nslug: x\ntopic: nope\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n")).toThrow(/未知主題/);
   });
@@ -60,8 +65,8 @@ describe("嵌入地圖區塊", () => {
 });
 
 describe("上一篇／下一篇、相關文章", () => {
-  const mk = (slug: string, date: string, topic = "rail") => toPost(`---\nslug: ${slug}\ntopic: ${topic}\ntitle: ${slug}\ndescription: d\ndate: ${date}\n---\n`);
-  const list = [mk("c", "2026-03-01"), mk("b", "2026-02-01", "aviation"), mk("a", "2026-01-01")];
+  const mk = (slug: string, date: string, topic = "layers") => toPost(`---\nslug: ${slug}\ntopic: ${topic}\ntitle: ${slug}\ndescription: d\ndate: ${date}\n---\n`);
+  const list = [mk("c", "2026-03-01"), mk("b", "2026-02-01", "analysis"), mk("a", "2026-01-01")];
 
   it("依發布日：上一篇較早、下一篇較新", () => {
     expect(neighbors(list, list[1]!)).toEqual({ prev: list[2], next: list[0] });
@@ -74,10 +79,10 @@ describe("上一篇／下一篇、相關文章", () => {
   });
 
   it("主題頁只列該主題；列表頁只列有文章的主題", () => {
-    expect(activeTopics(list).map((t) => t.id)).toEqual(["rail", "aviation"]);
+    expect(activeTopics(list).map((t) => t.id)).toEqual(["layers", "analysis"]);
     const page = renderTopicPage(activeTopics(list)[0]!, list);
-    expect(page).toContain('href="/blog/rail/c/"');
-    expect(page).not.toContain('href="/blog/aviation/b/"');
+    expect(page).toContain('href="/blog/c/"');
+    expect(page).not.toContain('href="/blog/b/"');
   });
 });
 
@@ -115,11 +120,14 @@ describe("文章頁", () => {
     });
   }
 
-  it("列表頁與 RSS 列出每一篇", () => {
+  it("每一篇都能從列表頁或其主題頁連到，RSS 列出每一篇", () => {
     const index = renderIndexPage(posts);
     const feed = renderFeed(posts);
     for (const p of posts) {
-      expect(index).toContain(`href="${postPath(p)}"`);
+      // 列表頁每個主題只放最新 3 篇，其餘由「全部 N 篇」連到主題頁
+      const topic = activeTopics(posts).find((t) => t.id === p.topic)!;
+      expect(index).toContain(`href="/blog/${topic.id}/"`);
+      expect(renderTopicPage(topic, posts)).toContain(`href="${postPath(p)}"`);
       expect(feed).toContain(`<link>${ORIGIN}${postPath(p)}</link>`);
     }
     for (const loc of ["/blog/", "/blog/about/"]) expect(read("public/sitemap.xml")).toContain(`<loc>${ORIGIN}${loc}</loc>`);
@@ -140,6 +148,13 @@ describe("nginx /blog", () => {
     expect(block).toContain("absolute_redirect off;");
   });
 
+  it("v2.13.0 已發布的 /blog/rail/… 舊網址 301 到新網址（在通用斜線規則之前）", () => {
+    const old = block.indexOf('rewrite "^/blog/rail/([a-z0-9-]+)(/.*)?$" /blog/$1$2 permanent;');
+    expect(block).toContain('rewrite "^/blog/rail/?$" /blog/layers/ permanent;');
+    expect(old).toBeGreaterThan(0);
+    expect(old).toBeLessThan(block.indexOf('rewrite "^(/blog(?:/[a-z0-9-]+){1,2})$"'));
+  });
+
   it("重寫安全標頭：一條 Cache-Control、CSP script-src 只開 self", () => {
     expect(block.match(/add_header Cache-Control/g)?.length).toBe(1);
     expect(block).toContain("X-Content-Type-Options");
@@ -149,12 +164,12 @@ describe("nginx /blog", () => {
 });
 
 describe("封面與圖片", () => {
-  const base = (extra: string) => toPost(`---\nslug: one\ntopic: rail\ntitle: t\ndescription: d\ndate: 2026-01-01\n${extra}---\n內文\n`);
+  const base = (extra: string) => toPost(`---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n${extra}---\n內文\n`);
 
   it("只有一張封面時不加 blog-only-dark（淺色主題也看得到）", () => {
     const post = base("cover: c.jpg\n");
     const html = renderPostPage(post, [post], join(root, "public"));
-    expect(html).toContain('<img src="/blog/rail/one/c.jpg"');
+    expect(html).toContain('<img src="/blog/one/c.jpg"');
     expect(html).not.toContain("blog-only-dark");
     expect(renderIndexPage([post])).not.toContain("blog-only-dark");
   });
@@ -162,12 +177,12 @@ describe("封面與圖片", () => {
   it("深淺兩張封面各自標主題", () => {
     const post = base("cover: d.jpg\ncoverLight: l.jpg\n");
     const html = renderPostPage(post, [post], join(root, "public"));
-    expect(html).toContain('class="blog-only-dark" src="/blog/rail/one/d.jpg"');
-    expect(html).toContain('class="blog-only-light" src="/blog/rail/one/l.jpg"');
+    expect(html).toContain('class="blog-only-dark" src="/blog/one/d.jpg"');
+    expect(html).toContain('class="blog-only-light" src="/blog/one/l.jpg"');
   });
 
   it("外站圖片在 build 時報錯（CSP img-src 只開 self）", () => {
-    const post = toPost("---\nslug: one\ntopic: rail\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](https://example.com/a.jpg)\n");
+    const post = toPost("---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](https://example.com/a.jpg)\n");
     expect(() => renderPostPage(post, [post], join(root, "public"))).toThrow(/不支援外站圖片/);
   });
 });

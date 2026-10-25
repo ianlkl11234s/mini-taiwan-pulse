@@ -6,8 +6,7 @@ import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEnvironmentRecipe } from '../data/environmentStatisticsRecipes';
 import { getAddictionRecipe } from '../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../data/landslideStatisticsRecipes';
-import { atlasSelectionRecipe } from '../data/atlasStatisticsRecipes';
-import { isTaipeiAgencyStatisticsLayer } from '../data/taipeiAgencyStatisticsRecipes';
+import { atlasLazyFamily, atlasSelectionRecipe } from '../data/atlasStatisticsRecipes';
 import { demographicsVillageOnlyPeriod, getDemographicsRecipe } from '../data/demographicsStatisticsRecipes';
 import { STATISTICS_RECIPES } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
@@ -39,13 +38,13 @@ export function subscribeStatisticsPeriodNotice(listener: () => void): () => voi
   return () => { periodNoticeListeners.delete(listener); };
 }
 
-/** Agri/social/taipeiAgency exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
+/** Agri/social/taipeiAgency/mortality exact release_options live in that family's lazily loaded recipe details (PF-7/PF-10). */
 function recipeDetailsFamilies(...keys: string[]): StatisticsRecipeFamily[] {
   const families = new Set<StatisticsRecipeFamily>();
   for (const key of keys) {
     if (getAgriRecipe(key)) families.add('agri');
     else if (getSocialRecipe(key)) families.add('social');
-    else if (isTaipeiAgencyStatisticsLayer(key)) families.add('taipeiAgency');
+    else { const lazy = atlasLazyFamily(key); if (lazy) families.add(lazy); }
   }
   return [...families];
 }

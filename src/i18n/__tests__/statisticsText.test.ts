@@ -2,9 +2,14 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe } from '../../data/regionalStatisticsRecipes';
-import { statisticsFrequency, statisticsTitle, statisticsUnit } from '../statisticsText';
+import { statisticsFrequency, statisticsTitle, statisticsUnit, statisticsVariantLabel } from '../statisticsText';
 import { CRIME_STATISTICS_DOCUMENT } from '../../data/crimeStatisticsRecipes';
 import { TAIPEI_AGENCY_STATISTICS_DOCUMENT } from '../../data/taipeiAgencyStatisticsRecipes';
+import { MORTALITY_STATISTICS_DOCUMENT } from '../../data/mortalityStatisticsRecipes';
+import { CULTURE_STATISTICS_DOCUMENT } from '../../data/cultureStatisticsRecipes';
+import { STATE_ASSETS_STATISTICS_DOCUMENT } from '../../data/stateAssetsStatisticsRecipes';
+import { FINANCE_ACCESS_STATISTICS_DOCUMENT } from '../../data/financeAccessStatisticsRecipes';
+import { FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT } from '../../data/financeAccessExtStatisticsRecipes';
 import { statisticsDimensionLabel, statisticsDimensionValueLabel, statisticsLocationBasis } from '../../data/statisticsLabels';
 import { statisticsLicense, statisticsPublisher } from '../agencyText';
 
@@ -106,6 +111,72 @@ describe('臺北市局處統計外文介面不混中文', () => {
       const factory = recipes.find((r) => r.layer_key === 'statsTaipeiFactoryCountByIndustryTownship')!;
       expect(statisticsDimensionLabel('industry_code', ctx)).toBe(messages['enum.statDim.industry_code']);
       expect(statisticsDimensionValueLabel('industry_code', '26', factory.dataset_id, ctx)).toBe(messages['enum.statDimValue.industry_code.26']);
+    });
+  }
+});
+
+describe('死因統計（G20）外文介面不混中文', () => {
+  for (const locale of ['en', 'ja'] as const) {
+    const messages: Record<string, string> = {};
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.statGroup.json', 'enums.statistics.json', 'enums.statLegendNote.json', 'themes.json']) {
+      try { Object.assign(messages, read(locale, file)); } catch { /* 檔案不存在就略過 */ }
+    }
+    const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
+    const recipes = MORTALITY_STATISTICS_DOCUMENT.recipes;
+    it(`${locale}：${recipes.length} 層的圖層名、群組、位置口徑、機關、授權、圖例說明與狀態列都有譯文`, () => {
+      const pairs = recipes.flatMap((r) => [
+        [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
+        [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],
+        [r.subgroup, messages[`theme.${r.subgroup}`] ?? r.subgroup],
+        [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
+        [r.publisher, statisticsPublisher(r.publisher, ctx)],
+        [r.license, statisticsLicense(r.license, ctx)],
+        ...[...(r.legend.notes ?? []), r.legend.zero_note, ...Object.values(r.status_labels)].filter(Boolean)
+          .map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
+      ].map(([zh, text]) => [r.layer_key, zh!, text!] as const));
+      const leaks = pairs.filter(([, zh, text]) => (locale === 'en' ? CJK.test(text) : text === zh && zh !== '死因統計')).map(([key, , text]) => `${key}: ${text}`);
+      expect([...new Set(leaks)]).toEqual([]);
+    });
+    it(`${locale}：死因 43 類與性別都有對照`, () => {
+      const missing = recipes.flatMap((r) => r.dimensions.flatMap((d) => [`enum.statDim.${d.key}`, ...d.options.map((o) => `enum.statDimValue.${d.key}.${o.value}`)]))
+        .filter((key) => !(key in messages) || (locale === 'en' && CJK.test(messages[key]!)));
+      expect([...new Set(missing)]).toEqual([]);
+    });
+  }
+});
+
+// Roadmap 第二批（2026-10-24）：街頭藝人（G23）；國有資產（G16）、金融可及性（G10）同一套檢查。
+const JA_SAME_AS_ZH = new Set(['人', '文化部', '面積', '法務部行政執行署', '台']);
+const BATCH2_DOCUMENTS = [["街頭藝人（G23）", CULTURE_STATISTICS_DOCUMENT], ["國有資產（G16）", STATE_ASSETS_STATISTICS_DOCUMENT], ["金融服務可及性（G10）", FINANCE_ACCESS_STATISTICS_DOCUMENT], ["金融服務可及性延伸（G10 延伸）", FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT]] as const;
+describe.each(BATCH2_DOCUMENTS)('%s 外文介面不混中文', (_name, document) => {
+  for (const locale of ['en', 'ja'] as const) {
+    const messages: Record<string, string> = {};
+    for (const file of ['layers.json', 'enums.statLocationBasis.json', 'enums.statLicense.json', 'enums.statPublisher.json', 'enums.agency.json', 'enums.agencySuffix.json', 'enums.license.json', 'enums.statGroup.json', 'enums.statistics.json', 'enums.statLegendNote.json', 'enums.statVariant.json', 'enums.statUnit.json', 'themes.json', 'statisticsSelect.json']) {
+      try { Object.assign(messages, read(locale, file)); } catch { /* 檔案不存在就略過 */ }
+    }
+    const ctx = { active: locale, lookup: (key: string) => messages[key] ?? null } as never;
+    const recipes = document.recipes;
+    it(`${locale}：${recipes.length} 層的圖層名、群組、口徑選項、單位、位置口徑、機關、授權、圖例說明與狀態列都有譯文`, () => {
+      const pairs = recipes.flatMap((r) => [
+        [r.label, statisticsTitle(r.layer_key, r.label, ctx)],
+        [r.group_label, messages[`enum.statGroup.${r.group_label}`] ?? r.group_label],
+        [r.option_label, statisticsVariantLabel(r.option_label, ctx) ?? r.option_label],
+        [r.subgroup, messages[`theme.${r.subgroup}`] ?? r.subgroup],
+        [r.unit, statisticsUnit(r.unit, ctx)],
+        [r.location_semantics, statisticsLocationBasis(r.location_semantics, ctx)],
+        [r.publisher, statisticsPublisher(r.publisher, ctx)],
+        [r.license, statisticsLicense(r.license, ctx)],
+        ...[...(r.legend.notes ?? []), r.legend.zero_note, ...(r.legend.binary_labels ?? []), ...Object.values(r.status_labels)].filter(Boolean)
+          .map((label) => [label, messages[`enum.statLegendNote.${label}`] ?? label]),
+      ].filter(([zh]) => CJK.test(zh!)).map(([zh, text]) => [r.layer_key, zh!, text!] as const));
+      // 日文與中文同形的少數詞（人、文化部、面積、法務部行政執行署、台）照登記值，不算外漏
+      const leaks = pairs.filter(([, zh, text]) => (text === zh && !(locale === 'ja' && JA_SAME_AS_ZH.has(zh))) || (locale === 'en' && CJK.test(text))).map(([key, zh]) => `${key}: ${zh}`);
+      expect([...new Set(leaks)]).toEqual([]);
+    });
+    it(`${locale}：維度與選項都有對照`, () => {
+      const missing = recipes.flatMap((r) => r.dimensions.flatMap((d) => [`enum.statDim.${d.key}`, ...d.options.map((o) => `enum.statDimValue.${d.key}.${o.value}`)]))
+        .filter((key) => !(key in messages) || (locale === 'en' && CJK.test(messages[key]!)));
+      expect([...new Set(missing)]).toEqual([]);
     });
   }
 });

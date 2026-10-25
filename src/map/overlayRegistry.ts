@@ -47,6 +47,7 @@ const DENSE_FROM = {
   harmReductionDuiCrashes: densePointsFromZoom(36_814),
   highwayDisasterHistory: densePointsFromZoom(16_163),
   swcbDisasterPhotoPoints: densePointsFromZoom(34_419),
+  atmSitesFisc: densePointsFromZoom(27_390),
   tourHotels: densePointsFromZoom(15_654),
   medAED: densePointsFromZoom(15_490),
   busStationsIntercity: densePointsFromZoom(15_383),
@@ -268,6 +269,10 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
+  CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
+  TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
+  ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
+  SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
   atlasMultiSelectFilter, atlasYearFilter, ecoLevelColorExpr, ecologyColorExpr, emergencyBayColorExpr, flaggedColorExpr,
   matchColorExpr, microplasticColorExpr, triangulationColorExpr, tribeColorExpr,
 } from "../data/atlasLayerTypes";
@@ -11686,6 +11691,52 @@ const landSubsidenceContourOverlay = (id: "landSubsidenceCumulative" | "landSubs
   }],
 });
 
+/**
+ * 原民會文化健康站（G20）：kind=site 為依地址定位的站址（實心點）；kind=township_group 為只定位到鄉鎮、
+ * 同鄉鎮各站併成的鄉鎮中心一點（空心圈＋站數），刻意與實心點區分，避免被當成實際站址。
+ */
+function culturalHealthStationsOverlay(): OverlayConfig {
+  const id = "culturalHealthStations";
+  const color = ATLAS_LAYER_COLORS.culturalHealthStations;
+  const kindFilter = (p?: Record<string, number>) => atlasMultiSelectFilter("kind", CULTURAL_HEALTH_KIND_OPTIONS, p?.culturalHealthStationsKindMask);
+  const of = (kind: string) => (p?: Record<string, number>): unknown[] => ["all", ["==", ["get", "kind"], kind], kindFilter(p)];
+  const count = ["coalesce", ["get", "station_count"], 1];
+  return {
+    id, sourceUrl: "./welfare/cultural_health_stations.geojson", sourceId: "cultural-health-stations",
+    attribution: `原住民族委員會 原住民族文化健康站通訊錄（data.gov.tw 157725）· ${OGDL_ATTR}`,
+    rebuildOnParamChange: ["group", "group-count", "site", "label"],
+    layers: [
+      { suffix: "group", type: "circle", filter: of("township_group"), paint: (dark, p) => {
+        const scale = p?.culturalHealthStationsScale ?? 1;
+        const opacity = p?.culturalHealthStationsOpacity ?? .9;
+        return {
+          "circle-color": color, "circle-opacity": opacity * .12,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"],
+            5, ["*", scale, ["+", 3, ["*", 1.2, ["sqrt", count]]]],
+            12, ["*", scale, ["+", 7, ["*", 2.6, ["sqrt", count]]]]],
+          "circle-stroke-color": color, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, 1.2, 12, 2.2],
+          "circle-stroke-opacity": opacity * (dark ? .95 : .85),
+        };
+      } },
+      { suffix: "group-count", type: "symbol", minzoom: 8, filter: (p) => ["all", of("township_group")(p), [">", count, 1]],
+        layout: { "text-field": ["to-string", count], "text-size": 11, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"], "text-allow-overlap": true, "text-ignore-placement": true },
+        paint: (dark, p) => ({ "text-color": dark ? "#fed7aa" : "#9a3412", ...labelHaloPaint(dark), "text-opacity": p?.culturalHealthStationsOpacity ?? .9 }) },
+      { suffix: "site", type: "circle", filter: of("site"), paint: (dark, p) => {
+        const scale = p?.culturalHealthStationsScale ?? 1;
+        const opacity = p?.culturalHealthStationsOpacity ?? .9;
+        return {
+          "circle-color": color, "circle-opacity": opacity,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 12, 6 * scale],
+          "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, .6, 12, 1.2], "circle-stroke-opacity": opacity,
+        };
+      } },
+      { suffix: "label", type: "symbol", minzoom: Math.max(13, LABEL.minZoom), filter: of("site"),
+        layout: { "text-field": ["get", "name"], ...poiLabelLayout(), "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"], "text-variable-anchor": ["top", "bottom", "left", "right"], "text-radial-offset": .8, "text-max-width": 14, "text-optional": true },
+        paint: (dark, p) => ({ "text-color": dark ? "#f8fafc" : "#0f172a", ...labelHaloPaint(dark), "text-opacity": p?.culturalHealthStationsOpacity ?? .9 }) },
+    ],
+  };
+}
+
 const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 原民與農村 ──
   publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
@@ -11795,6 +11846,23 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     attribution: `經濟部水利署 一般性海堤區域（data.gov.tw 129277）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("seawallZones", ATLAS_LAYER_COLORS.seawallZones, 0.5, SEAWALL_MIN_ZOOM),
   },
+  // ── 文化幣藝文消費點 G23（2026-10-24）：依 category 著色＋類別多選（電影院可單獨篩）──
+  publicLifePointOverlay("cultureCoinVenues", "./culture/culture_coin_venues.geojson", "culture-coin-venues", matchColorExpr("category", CULTURE_COIN_CATEGORY_OPTIONS), undefined, `文化部 文化幣藝文消費點（data.gov.tw 177601）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("category", CULTURE_COIN_CATEGORY_OPTIONS, p?.cultureCoinVenuesCategoryMask) }),
+  // ── 原民會文化健康站 G20（2026-10-24）：站址實心點；只到鄉鎮者同鄉鎮併成鄉鎮中心空心圈（半徑隨站數、圈內數字＝站數）──
+  culturalHealthStationsOverlay(),
+  // ── 國營事業與國有資產 G16（2026-10-24）：台水廠所／淨水設施依類型著色；台糖糖廠單色；國產署待標售依土地／房地兩色 ──
+  publicLifePointOverlay("twcServiceOffices", "./state_assets/twc_service_offices.geojson", "twc-service-offices", matchColorExpr("unit_type", TWC_OFFICE_TYPE_OPTIONS), undefined, `台灣自來水公司 各區處廠所地址及座標（data.gov.tw 86110）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13, filter: (p) => atlasMultiSelectFilter("unit_type", TWC_OFFICE_TYPE_OPTIONS, p?.twcServiceOfficesTypeMask) }),
+  publicLifePointOverlay("twcWaterFacilities", "./state_assets/twc_water_facilities.geojson", "twc-water-facilities", matchColorExpr("facility_type", TWC_FACILITY_TYPE_OPTIONS), undefined, `台灣自來水公司 供水轄區資訊（data.gov.tw 36602）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13, filter: (p) => atlasMultiSelectFilter("facility_type", TWC_FACILITY_TYPE_OPTIONS, p?.twcWaterFacilitiesTypeMask) }),
+  publicLifePointOverlay("taisugarSugarMills", "./state_assets/taisugar_sugar_mills.geojson", "taisugar-sugar-mills", ATLAS_LAYER_COLORS.taisugarSugarMills, undefined, `台灣糖業公司 各糖廠據點（data.gov.tw 41592）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 9 }),
+  publicLifePointOverlay("statePropertyTenderListings", "./state_assets/state_property_tender_listings.geojson", "state-property-tender-listings", matchColorExpr("property_kind", STATE_TENDER_KIND_OPTIONS), undefined, `財政部國有財產署 國有非公用土地／房地未標脫資訊（data.gov.tw 9659、13152）· ${OGDL_ATTR}`, [2.5, 6], { filter: (p) => atlasMultiSelectFilter("property_kind", STATE_TENDER_KIND_OPTIONS, p?.statePropertyTenderListingsKindMask) }),
+  // ── 金融服務據點 G10（2026-10-24）：ATM 裝設點 2.7 萬走 PMTiles＋低縮放熱區；總分支機構依機構類別著色 ──
+  publicLifePointOverlay("atmSitesFisc", "./finance/atm_sites_fisc.pmtiles", "atm-sites-fisc", matchColorExpr("institution_category", ATM_INSTITUTION_OPTIONS), { sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 }, `財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）· ${OGDL_ATTR}`, undefined, { filter: (p) => atmSiteFilter(p?.atmSitesFiscInstitutionMask, p?.atmSitesFiscOnlyWheelchair, p?.atmSitesFiscOnlyVoice), dense: { pointsFromZoom: DENSE_FROM.atmSitesFisc, intensity: 1 } }),
+  publicLifePointOverlay("financialBranchesFisc", "./finance/financial_branches_fisc.geojson", "financial-branches-fisc", matchColorExpr("institution_category", BRANCH_CATEGORY_OPTIONS), undefined, `財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_category", BRANCH_CATEGORY_OPTIONS, p?.financialBranchesFiscCategoryMask) }),
+  // ── 金融服務據點延伸 G10 延伸（2026-10-24）：證券期貨投信投顧、保險公司與保險代理人，依類型著色（同址兼營會重疊）──
+  publicLifePointOverlay("securitiesFuturesInstitutions", "./finance/securities_futures_institutions.geojson", "securities-futures-institutions", matchColorExpr("institution_type", SECURITIES_TYPE_OPTIONS), undefined, `臺灣證券交易所、臺灣期貨交易所、投信投顧公會（data.gov.tw 44723、17480、17481、44656、44657）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => securitiesFuturesFilter(p?.securitiesFuturesInstitutionsTypeMask, p?.securitiesFuturesInstitutionsHideProprietary) }),
+  publicLifePointOverlay("insuranceInstitutions", "./finance/insurance_institutions.geojson", "insurance-institutions", matchColorExpr("institution_type", INSURANCE_TYPE_OPTIONS), undefined, `保險事業發展中心、保險代理人公會（data.gov.tw 122361、14516、15326、142715）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 14, filter: (p) => atlasMultiSelectFilter("institution_type", INSURANCE_TYPE_OPTIONS, p?.insuranceInstitutionsTypeMask) }),
+  // ── 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局（非外幣收兌處），單色 ──
+  publicLifePointOverlay("postOfficeFxCounters", "./finance/post_office_fx_cash_counters.geojson", "post-office-fx-counters", ATLAS_LAYER_COLORS.postOfficeFxCounters, undefined, `中華郵政 外幣現鈔及旅行支票經辦局（data.gov.tw 170638、5950）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);

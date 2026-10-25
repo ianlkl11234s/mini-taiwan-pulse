@@ -128,6 +128,18 @@ export type ExpandableLayerKey =
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
+  // 文化幣藝文消費點 G23（2026-10-24）
+  | "cultureCoinVenues"
+  // 原民會文化健康站 G20（2026-10-24）
+  | "culturalHealthStations"
+  // 國營事業與國有資產 G16（2026-10-24）
+  | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
+  // 金融服務據點 G10（2026-10-24）
+  | "atmSitesFisc" | "financialBranchesFisc"
+  // 金融服務據點延伸 G10 延伸（2026-10-24）
+  | "securitiesFuturesInstitutions" | "insuranceInstitutions"
+  // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
+  | "postOfficeFxCounters"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -394,7 +406,7 @@ export type ExpandableLayerKey =
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
   | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
-  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -837,6 +849,12 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
+    | "cultureCoinVenues"
+    | "culturalHealthStations"
+    | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
+    | "atmSitesFisc" | "financialBranchesFisc"
+    | "securitiesFuturesInstitutions" | "insuranceInstitutions"
+    | "postOfficeFxCounters"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -895,7 +913,7 @@ export interface FeatureInfo {
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
     | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
-  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity"
+  | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "busCrowdingSimVehicle"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1196,6 +1214,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   bssNationalBridgePreview: boolean;
   bssNationalBridgePointsPreview: boolean;
   bridgeResilienceTwinCity: boolean;
+  /** 公車擁擠模擬（模擬面板，站主限定 UI 鎖、研究中）：臺北 307 走廊路段超載班次比例 */
+  busCrowdingSim: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
@@ -1245,6 +1265,23 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   landSubsidenceCumulative: boolean;
   landSubsidenceRate: boolean;
   seawallZones: boolean;
+  /** 文化幣藝文消費點 G23（2026-10-24）：文化部 177601 店家 4,264（不含街頭藝人） */
+  cultureCoinVenues: boolean;
+  /** 原民會文化健康站 G20（2026-10-24）：157725 通訊錄 525 站（191 站址點＋59 個鄉鎮中心圈） */
+  culturalHealthStations: boolean;
+  /** 國營事業與國有資產 G16（2026-10-24）：台水廠所 137、台水淨水設施 486、台糖糖廠 14、國產署待標售 947 */
+  twcServiceOffices: boolean;
+  twcWaterFacilities: boolean;
+  taisugarSugarMills: boolean;
+  statePropertyTenderListings: boolean;
+  /** 金融服務據點 G10（2026-10-24）：財金公司 ATM 裝設點 27,390、總分支機構 4,988 */
+  atmSitesFisc: boolean;
+  financialBranchesFisc: boolean;
+  /** 金融服務據點延伸 G10 延伸（2026-10-24）：證券期貨投信投顧 1,038、保險公司與保險代理人 655 */
+  securitiesFuturesInstitutions: boolean;
+  insuranceInstitutions: boolean;
+  /** 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：可買賣外幣現鈔／旅支的郵局 290（非外幣收兌處） */
+  postOfficeFxCounters: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC / CWA 颱風軌跡（observed + forecast＋風圈）

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { ensureStatisticsRecipeDetails } from "../statisticsRecipeDetails";
 import {
   ATLAS_ENABLED_STATISTICS_KEYS, ATLAS_ENABLED_STATISTICS_RECIPES, ATLAS_STATISTICS_TOGGLE_GROUPS,
-  atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions,
+  atlasBinaryLegendRows, atlasDefaultDimensions, atlasReleaseOptions, atlasRenderScale, atlasScaleNote, getAtlasRecipe, resolveAtlasRelease, atlasRecipeReleaseOptions,
 } from "../atlasStatisticsRecipes";
 import { STATISTICS_RECIPES, statisticsRenderRecipe } from "../regionalStatisticsRecipes";
 import { statisticsDimensionValueLabel } from "../statisticsLabels";
@@ -11,8 +11,8 @@ import { getStatisticsDataSourceDefinition } from "../statisticsDataSources";
 import { LAYER_MANIFEST } from "../layerManifest";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
-// 臺北市局處統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
-beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+// 臺北市局處統計與死因統計的 exact selector 按需載入（statisticsRecipeDetails）；其他 atlas 家族在目錄內。
+beforeAll(() => ensureStatisticsRecipeDetails(["taipeiAgency", "mortality"]));
 
 /** 交付白名單轉成「已公開 release」：每個 release_id 一筆（含所有維度組合）。 */
 function publishedReleases(key: string): StatisticsRelease[] {
@@ -28,10 +28,10 @@ function publishedReleases(key: string): StatisticsRelease[] {
 }
 
 describe("atlas 批次統計契約", () => {
-  it("113 個 recipe（atlas 66＋治安 36＋臺北市局處 11）、12,360 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
-    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(113);
-    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(113);
-    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(12360);
+  it("165 個 recipe（atlas 66＋治安 36＋臺北市局處 11＋死因 6＋街頭藝人 2＋國有資產 23＋金融據點 11＋金融延伸 10）、17,795 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
+    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(165);
+    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(165);
+    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(17795);
     for (const key of ATLAS_ENABLED_STATISTICS_KEYS) {
       expect(LAYER_MANIFEST[key].legend, key).toBe(key);
       expect(getStatisticsDataSourceDefinition(key)?.datasetIds, key).toEqual([getAtlasRecipe(key)!.dataset_id]);
@@ -78,12 +78,37 @@ describe("atlas 批次統計契約", () => {
     expect(statisticsDimensionValueLabel("vaccine", "mmr_1", "immunization_coverage_county")).toBe("麻疹腮腺炎德國麻疹混合疫苗第一劑");
   });
 
+  it("二元旗標層（金融服務欠缺鄉鎮）只列兩級，其他層不受影響", () => {
+    const flag = getAtlasRecipe("statsFinanceUnderserved")!;
+    expect(flag.legend.method).toBe("binary");
+    expect(flag.legend.breaks).toEqual([1]);
+    expect(flag.legend.binary_labels).toEqual(["不在名單", "列入名單"]);
+    expect(flag.legend.notes!.some((note) => note.includes("2 以上"))).toBe(false);
+    const render = statisticsRenderRecipe("statsFinanceUnderserved");
+    expect(render.breaks).toEqual([1]);
+    expect(render.colors).toHaveLength(2);
+    expect(render.colors[0]).not.toBe(render.colors[1]);
+    expect(atlasBinaryLegendRows(flag, render.colors)).toEqual([
+      { color: render.colors[0], label: "不在名單" },
+      { color: render.colors[1], label: "列入名單" },
+    ]);
+    const binaryKeys = ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.legend.method === "binary").map((recipe) => recipe.layer_key);
+    expect(binaryKeys).toEqual(["statsFinanceUnderserved"]);
+    const counts = getAtlasRecipe("statsFinanceUnderservedInstitutions")!;
+    expect(atlasBinaryLegendRows(counts, statisticsRenderRecipe("statsFinanceUnderservedInstitutions").colors)).toBeNull();
+    for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES.filter((candidate) => candidate.legend.method === "binary")) {
+      expect(recipe.legend.breaks, recipe.layer_key).toEqual([1]);
+      expect(recipe.legend.binary_labels, recipe.layer_key).toHaveLength(2);
+      expect(recipe.legend.by_dimension, recipe.layer_key).toBeNull();
+    }
+  });
+
   it("每個會出現的非數值狀態都有圖例文字；門檻嚴格遞增且不是 [0]", () => {
     for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES) {
       const scales = [recipe.legend.breaks, ...Object.values(recipe.legend.by_dimension ?? {}).map((scale) => scale.breaks)];
       for (const breaks of scales) {
         expect(breaks, recipe.layer_key).not.toEqual([0]);
-        expect(breaks.length, recipe.layer_key).toBeGreaterThanOrEqual(2);
+        expect(breaks.length, recipe.layer_key).toBeGreaterThanOrEqual(recipe.legend.method === "binary" ? 1 : 2);
         expect([...breaks].sort((a, b) => a - b), recipe.layer_key).toEqual(breaks);
         expect(new Set(breaks).size, recipe.layer_key).toBe(breaks.length);
       }

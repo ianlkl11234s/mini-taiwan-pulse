@@ -4,7 +4,7 @@ import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { JAPAN_THEMES, LAYER_PANELS, WORLD_THEMES } from "../layerPanels";
+import { JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, WORLD_THEMES } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -16,13 +16,14 @@ import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../../data/atlasStatisticsReci
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
-  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用"] },
+  { title: "醫療與長照 Health & Care", groups: ["醫療與長照", "傳染病", "癌症", "癌症篩檢", "出生健康", "疫苗", "醫療利用", "死因統計"] },
   { title: "成癮與減害 Addiction & Harm Reduction", groups: ["疾病（HIV）", "執法（毒品、酒駕、地檢署）", "行為調查（吸菸、檳榔）", "服務據點"] },
   { title: "犯罪與治安 Crime & Safety", groups: ["刑案發生", "詐欺"] },
   { title: "體育運動 Sports", groups: ["體育經費", "運動參與"] },
+  { title: "文化與藝文 Culture & Arts", groups: ["街頭藝人"] },
   { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查", "臺北市 12 區（月）"] },
-  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值", "臺北市 12 區（月）"] },
-  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融"] },
+  { title: "住宅與不動產 Housing & Property", groups: ["住宅存量與使用", "不動產總市值", "臺北市 12 區（月）", "國有資產", "國營事業資產", "行政執行拍賣"] },
+  { title: "財稅與消費 Fiscal & Consumption", groups: ["地方財政", "所得", "營業與消費", "普查", "金融", "金融服務可及性"] },
   { title: "公共運輸 Public Transport", groups: ["建置量", "使用與營運", "自行車（臺北市，民國 110 年）", "航空運輸", "運輸補助"] },
   { title: "道路與車輛 Roads & Vehicles", groups: ["車輛登記存量", "道路安全與監測", "駕照與停車"] },
   { title: "交通用地 Transport Land", groups: ["交通用地"] },
@@ -146,13 +147,13 @@ describe("STATISTICS_TAB_THEMES", () => {
 });
 
 describe("Layers 與 Statistics 分頁", () => {
-  it("mobile 與桌機同一份四入口（台灣／統計／世界／日本）；四入口合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
+  it("mobile 與桌機同一份五入口（台灣／統計／世界／日本／模擬）；五入口合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
     const statisticsDataTitles = new Set(STATISTICS_DATA_THEMES.map(theme => theme.title));
     expect(MOBILE_LAYER_PANELS).toBe(LAYER_PANELS);
-    expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["台灣", "統計", "世界", "日本"]);
+    expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["台灣", "統計", "世界", "日本", "模擬"]);
     expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
     const nonStatisticsTitles = THEMES.filter(theme => !statisticsDataTitles.has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES)]));
   });
 

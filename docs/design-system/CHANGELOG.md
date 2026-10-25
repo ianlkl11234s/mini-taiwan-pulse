@@ -3,6 +3,19 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-10-24
+
+### 模擬面板規格先行（Phase 0）— spec §5.40、map-layers F-3a
+
+| 項目 | 內容 |
+|---|---|
+| 背景 | 新增 rail 第五個入口「模擬」（規劃 `docs/features/simulation/PLAN.md`），沿用 `LayersPanel`，只補一般圖層沒有的四件事；尚未實作 |
+| S-1 播放列 | 圖層控制區內一列，不接全站 `timeStore`；細進度軸同 §5.24 收合態；新控件 kind `playback` |
+| S-2 可信度 | 沿用 §5.21 `chipOutline`，三級「較可信／只看排名／只看範圍」一律中性色、只靠用字（使用者選乙：STATUS 色已有意思，不一色兩義）；「待複核」同公式取代 inline 虛線 pill |
+| S-3 檢視切換 | 分段「中斷前｜中斷後｜差異」；兩態共用門檻；目前檢視寫進圖例標題（精簡圖例會收掉註記） |
+| S-4 差異圖 | 單向用序列色、雙向用 PuOr（門檻對稱於 0）；無變化畫成背景參考面、缺值仍是斜線 |
+| §6.4 | 補「推估」與範圍「A～B」寫法 |
+
 ## 2026-10-03
 
 ### 圖層面板收尾修正

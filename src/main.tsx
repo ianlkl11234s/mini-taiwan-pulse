@@ -7,9 +7,13 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import { setBootAttr } from "./components/boot/bootSequence";
 import { localeStore } from "./state/localeStore";
+import { loadLayerAssetIndex } from "./data/layerAssetIndex";
 
 // i18n：讀 URL ?lang／偏好／瀏覽器語言，並寫入 <html lang>（驅動 CSS :lang() 字型堆疊）
 localeStore.init();
+
+// 靜態圖層資產索引（ADR-0024 §4）：開站載入一次，之後 resolver 同步查表。失敗時遷移清單內的圖層退回部署時版本。
+void loadLayerAssetIndex();
 
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root element not found");

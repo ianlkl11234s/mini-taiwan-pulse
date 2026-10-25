@@ -188,7 +188,15 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-17: +36 治安統計 G17（8 案類＋電信詐欺 × 鄉鎮／縣市 × 件數／每十萬人）；-1 移除被取代的 crimeAreaMonthly。
     // 2026-10-17: +1 各國颱風預報 G02（NCDR 五家路徑 typhoonAgencyForecasts）。
     // 2026-10-23: +11 臺北市局處統計（資源回收、垃圾清運、污水普及率兩口徑、工廠家數兩層、使用執照五指標）。
-    expect(keys.length).toBe(1253);
+    // 2026-10-24: +1 文化幣藝文消費點 G23（cultureCoinVenues）。
+    // 2026-10-24: +7 死因統計 G20（鄉鎮 4＋縣市 2）＋原民文化健康站（culturalHealthStations）。
+    // 2026-10-24: +2 街頭藝人登記人數 G23（鄉鎮／縣市）。
+    // 2026-10-24: +27 國有資產 G16（統計 23＋台水廠所／台水淨水設施／台糖糖廠／國產署待標售 4 點層）。
+    // 2026-10-24: +13 金融據點 G10（統計 11＋ATM 裝設點／總分支機構 2 點層）。
+    // 2026-10-24: +12 金融延伸 G10 延伸（統計 10＋證券期貨據點／保險公司與保險代理人 2 點層）。
+    // 2026-10-25: +1 公車擁擠模擬（模擬面板，busCrowdingSim）。
+    // 2026-10-25: +1 郵局外幣現鈔經辦局 G10 外幣（postOfficeFxCounters）。
+    expect(keys.length).toBe(1317);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

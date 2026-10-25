@@ -656,6 +656,85 @@ def build_set_net(m, feats):
     }) for f in drop_unmapped("setNetFishingAreas", feats)]
 
 
+# 文化幣藝文消費點（G23，2026-10-24）---------------------------------------
+# analytics culture/culture_coin_venues_moc：店家 4,264（街頭藝人不在成品內；tel 不入成品）。
+# 來源檔無日期欄 → 資料日期＝下載日（provenance.downloaded_at）；(0,0) 已在上游以地址回補並標 coord_status／precision。
+
+CULTURE_COIN_SOURCE = "文化部 文化幣"
+
+
+@layer("cultureCoinVenues", "culture", "culture_coin_venues_moc", "culture/culture_coin_venues.geojson")
+def build_culture_coin(m, feats):
+    day = str(m["provenance"]["downloaded_at"])[:10]
+    out = []
+    for f in drop_unmapped("cultureCoinVenues", feats):
+        p = f["properties"]
+        out.append(feature(f["geometry"], {
+            "id": s(p["source_id"]), "name": s(p.get("name")), "address": s(p.get("address")),
+            "city": s(p.get("city")), "area": s(p.get("area")),
+            "category": s(p["category"]), "sub_category": s(p["sub_category"]), "sub_category_label": s(p.get("sub_category_label")),
+            "coord_status": s(p.get("coord_status")), "precision": s(p.get("precision")), "county_check": s(p.get("county_check")),
+            "source_org": CULTURE_COIN_SOURCE, "source_url": m["provenance"].get("source_url"), "license": OGDL,
+            "fetched_at": day, "vintage": day,
+        }))
+    return out
+
+
+# 原民會文化健康站（G20，2026-10-24）-------------------------------------
+# analytics welfare/cultural_health_stations_cip：525 站。成品本身不帶電話（手機、市話都不入成品）。
+# 191 站離線 geocode 落在來源鄉鎮內（precision exact／interpolated／cached）→ 一站一點（kind=site）；
+# 334 站只到鄉鎮（precision township_centroid，鄉鎮質心）→ 依 town_code 併成一點（kind=township_group，
+# station_count／station_names），不另造偏移座標，popup 列站名並註明「僅到鄉鎮，非實際位置」。
+# 資料日期＝檔內 DateListed（date_listed，全部同一日）；下載日另列。
+
+CULTURAL_HEALTH_SOURCE = "原住民族委員會 原住民族文化健康站通訊錄"
+
+
+@layer("culturalHealthStations", "welfare", "cultural_health_stations_cip", "welfare/cultural_health_stations.geojson")
+def build_cultural_health(m, feats):
+    feats = drop_unmapped("culturalHealthStations", feats)
+    base = {"source_org": CULTURAL_HEALTH_SOURCE, "source_url": m["provenance"].get("source_url"), "license": OGDL,
+            "fetched_at": str(m["provenance"]["downloaded_at"])[:10]}
+    dates = {f["properties"].get("date_listed") for f in feats}
+    if len(dates) != 1:
+        raise SystemExit(f"culturalHealthStations: date_listed 不唯一 {dates}")
+    base["vintage"] = dates.pop()
+    out, groups = [], {}
+    for f in feats:
+        p = f["properties"]
+        if any(k in p for k in ("tel", "tel_ext", "mobile", "phone")):
+            raise SystemExit("culturalHealthStations: 成品不應帶電話欄")
+        if p["precision"] == "township_centroid":
+            groups.setdefault(p["town_code"], []).append(f)
+            continue
+        out.append(feature(f["geometry"], {
+            "id": s(p["station_id"]), "kind": "site", "name": s(p.get("name")), "address": s(p.get("address")),
+            "county": s(p.get("county")), "town": s(p.get("town")),
+            "precision": s(p["precision"]), "precision_label": s(p.get("precision_label")), **base,
+        }))
+    for town_code, members in sorted(groups.items()):
+        coords = {tuple(f["geometry"]["coordinates"]) for f in members}
+        if len(coords) != 1:
+            raise SystemExit(f"culturalHealthStations: {town_code} 質心不唯一")
+        members.sort(key=lambda f: f["properties"]["station_id"])
+        p0 = members[0]["properties"]
+        reasons = sorted({f["properties"].get("fallback_reason_label") for f in members if f["properties"].get("fallback_reason_label")})
+        out.append(feature(members[0]["geometry"], {
+            "id": f"town-{town_code}", "kind": "township_group", "name": f"{p0['county']}{p0['town']}（{len(members)} 站）",
+            "county": s(p0.get("county")), "town": s(p0.get("town")), "station_count": len(members),
+            "station_names": "、".join(str(f["properties"]["name"]) for f in members),
+            "precision": "township_centroid", "precision_label": s(p0.get("precision_label")),
+            "fallback_reasons": "；".join(reasons) or None, **base,
+        }))
+    sites = sum(1 for f in out if f["properties"]["kind"] == "site")
+    stations = sites + sum(f["properties"].get("station_count", 0) for f in out)
+    if stations != len(feats):
+        raise SystemExit(f"culturalHealthStations: 站數 {stations} ≠ 輸入 {len(feats)}")
+    AUDIT["culturalHealthStations"]["grouping"] = {"stations": len(feats), "sites": sites, "township_groups": len(groups),
+                                                   "grouped_stations": len(feats) - sites}
+    return out
+
+
 # 地名 -------------------------------------------------------------------
 
 PLACE_PRIORITY = {"admin": 0, "natural": 1, "settlement": 2, "landmark": 3}
@@ -781,6 +860,255 @@ def build_ecology(m, feats):
         "precision_note": "來源 TM2 座標" + ("（來源 X／Y 欄對調，已校正）" if "swapped" in to_list(f["properties"].get("coord_flags")) else ""),
         **source_props(m),
     }) for f in feats]
+
+
+# 國營事業與國有資產（G16，2026-10-24）-------------------------------------
+# analytics socioeconomic/state_assets 07_export_points：台水廠所 137、台水淨水設施 487（1 筆缺座標不上圖）、
+# 台糖糖廠 14、國產署待標售 955（8 筆無法定位不上圖）。成品不含個資欄（上游無承辦人／聯絡人）。
+# 資料日期：台水、台糖用上游 data_vintage 的 data.gov.tw metadata 日期（只留日期）；待標售是下載日快照。
+
+def metadata_date(v: Any) -> str | None:
+    """上游 data_vintage 形如「data.gov.tw metadata 2024-11-22（靜態）」→ 只留日期（popup 標「data.gov.tw 更新日」）。"""
+    import re
+    hit = re.search(r"\d{4}-\d{2}-\d{2}", str(v or ""))
+    if not hit:
+        raise SystemExit(f"data_vintage 沒有日期：{v!r}")
+    return hit.group(0)
+
+
+def state_asset_base(m: dict, org: str, nid: str, vintage: str | None) -> dict:
+    return {"source_org": org, "source_url": f"https://data.gov.tw/dataset/{nid}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": vintage}
+
+
+def no_pii(key: str, p: dict) -> None:
+    bad = [k for k in p if any(t in k for t in ("contact", "phone", "tel", "mobile", "person", "officer", "owner"))]
+    if bad:
+        raise SystemExit(f"{key}: 成品不應帶個資欄 {bad}")
+
+
+@layer("twcServiceOffices", "water_resources", "twc_service_offices", "state_assets/twc_service_offices.geojson")
+def build_twc_offices(m, feats):
+    out = []
+    for f in drop_unmapped("twcServiceOffices", feats):
+        p = f["properties"]
+        no_pii("twcServiceOffices", p)
+        out.append(feature(f["geometry"], {
+            "id": p["office_id"], "name": s(p.get("unit_name")), "unit_type": s(p["unit_type"]), "unit_type_label": s(p.get("unit_type_label")),
+            "region_office": s(p.get("region_office")), "address": s(p.get("address")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")), "shared_site_count": to_int(p.get("shared_site_count")),
+            **state_asset_base(m, "台灣自來水公司", "86110", metadata_date(p.get("data_vintage"))),
+        }))
+    return out
+
+
+@layer("twcWaterFacilities", "water_resources", "twc_water_facilities", "state_assets/twc_water_facilities.geojson")
+def build_twc_facilities(m, feats):
+    out = []
+    for f in drop_unmapped("twcWaterFacilities", feats):
+        p = f["properties"]
+        no_pii("twcWaterFacilities", p)
+        out.append(feature(f["geometry"], {
+            "id": p["facility_id"], "name": s(p.get("facility_name")), "facility_type": s(p["facility_type"]),
+            "facility_type_label": s(p.get("facility_type_label")), "region_no": to_int(p.get("region_no")),
+            "supply_area_text": s(p.get("supply_area_text")), "raw_water_source": s(p.get("raw_water_source")),
+            "existing_large_plant_name": s(p.get("existing_large_plant_name")), "design_capacity_cmd": to_num(p.get("design_capacity_cmd")),
+            "name_encoding_issue": bool(p.get("name_encoding_issue")),
+            "coord_status": s(p.get("coord_status")), "coord_status_label": s(p.get("coord_status_label")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")),
+            **state_asset_base(m, "台灣自來水公司", "36602", metadata_date(p.get("data_vintage"))),
+        }))
+    linked = sum(1 for f in out if f["properties"]["existing_large_plant_name"])
+    AUDIT["twcWaterFacilities"]["large_plant_linked_rows"] = linked
+    return out
+
+
+@layer("taisugarSugarMills", "industrial_zone", "taisugar_sugar_mills", "state_assets/taisugar_sugar_mills.geojson")
+def build_taisugar_mills(m, feats):
+    out = []
+    for f in drop_unmapped("taisugarSugarMills", feats):
+        p = f["properties"]
+        no_pii("taisugarSugarMills", p)
+        out.append(feature(f["geometry"], {
+            "id": p["mill_id"], "name": s(p.get("mill_name")), "address": s(p.get("address")), "highlights": s(p.get("highlights")),
+            "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+            "coord_status": s(p.get("coord_status")), "coord_status_label": s(p.get("coord_status_label")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")),
+            **state_asset_base(m, "台灣糖業股份有限公司", "41592", metadata_date(p.get("data_vintage"))),
+        }))
+    return out
+
+
+@layer("statePropertyTenderListings", "real_estate", "state_property_tender_listings", "state_assets/state_property_tender_listings.geojson")
+def build_state_tender(m, feats):
+    day = str(m["provenance"]["fetched_at"])[:10]
+    out = []
+    for f in drop_unmapped("statePropertyTenderListings", feats):
+        p = f["properties"]
+        no_pii("statePropertyTenderListings", p)
+        nid = "9659" if p["property_kind"] == "land" else "13152"
+        out.append(feature(f["geometry"], {
+            "id": p["listing_id"], "property_kind": s(p["property_kind"]), "property_kind_label": s(p.get("property_kind_label")),
+            "branch_office": s(p.get("branch_office")), "bid_no": s(p.get("bid_no")), "bid_date": s(p.get("bid_date")),
+            "parcel_text": s(p.get("parcel_text")), "street_address": s(p.get("street_address")),
+            "building_numbers": joined(p.get("building_numbers")), "base_land_numbers": joined(p.get("base_land_numbers")),
+            "county": s(p.get("county_name")), "town": s(p.get("town_name")), "town_name_basis": s(p.get("town_name_basis")), "town_name_basis_label": s(p.get("town_name_basis_label")),
+            "land_area_sqm": to_num(p.get("land_area_sqm")), "share_area_sqm": to_num(p.get("share_area_sqm")),
+            "zoning": s(p.get("zoning")), "land_use_class": s(p.get("land_use_class")),
+            "announced_land_value_per_sqm": to_num(p.get("announced_land_value_per_sqm")), "announced_land_value_date": s(p.get("announced_land_value_date")),
+            "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+            "geocode_source_label": s(p.get("geocode_source_label")),
+            "spatial_check": s(p.get("spatial_check")), "spatial_check_label": s(p.get("spatial_check_label")),
+            **state_asset_base(m, "財政部國有財產署", nid, day),
+        }))
+    return out
+
+
+# 金融服務據點（G10，2026-10-24）-------------------------------------------
+# analytics civic_facilities/{atm_sites_fisc,financial_branches_fisc}：財金公司名冊快照 2026-10-24。
+# ATM 27,412 裝設點（22 筆無法定位不上圖；一個裝設點可能有多台機台）；總分支機構 4,989（1 筆無法定位）。
+# 座標來源混合（數位部 175482、中華郵政 6121、地址定位、Google），popup 一律標定位精度；成品無個資欄。
+
+def finance_base(m: dict, nid: str, p: dict) -> dict:
+    return {"source_org": "財金資訊股份有限公司", "source_url": f"https://data.gov.tw/dataset/{nid}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date"))}
+
+
+def finance_location(p: dict) -> dict:
+    return {
+        "county": s(p.get("county_name")), "town": s(p.get("town_name")), "address": s(p.get("address")),
+        "town_basis": s(p.get("town_basis")), "town_basis_label": s(p.get("town_basis_label")),
+        "coord_source": s(p.get("coord_source")), "coord_source_label": s(p.get("coord_source_label")),
+        "geocode_precision": s(p.get("geocode_precision")), "geocode_precision_label": s(p.get("geocode_precision_label")),
+        "spatial_check": s(p.get("spatial_check")), "spatial_check_label": s(p.get("spatial_check_label")),
+    }
+
+
+def flag(v: Any) -> int | None:
+    """布林旗標轉 1／0；缺值保持 null（不當成「否」）。"""
+    if v is None:
+        return None
+    return 1 if v is True else 0 if v is False else None
+
+
+@layer("atmSitesFisc", "civic_facilities", "atm_sites_fisc", "finance/atm_sites_fisc.pmtiles",
+       pmtiles={"layer": "atm_sites_fisc", "zmin": 5, "zmax": 12, "kind": "point"})
+def build_atm_sites(m, feats):
+    out = []
+    for f in drop_unmapped("atmSitesFisc", feats):
+        p = f["properties"]
+        no_pii("atmSitesFisc", p)
+        out.append(feature(f["geometry"], {
+            "id": p["atm_site_id"], "name": s(p.get("site_name")), "institution_name": s(p.get("institution_name")),
+            "institution_category": s(p.get("institution_category")), "institution_category_label": s(p.get("institution_category_label")),
+            "wheelchair_accessible": flag(p.get("wheelchair_accessible")), "voice_guidance": flag(p.get("voice_guidance")),
+            "intl_card_withdrawal": flag(p.get("intl_card_withdrawal")), "open_to_public": flag(p.get("open_to_public")),
+            "access_note": s(p.get("access_note")),
+            **finance_location(p), **finance_base(m, "24333", p),
+        }))
+    AUDIT["atmSitesFisc"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    AUDIT["atmSitesFisc"]["not_public_rows"] = sum(1 for f in out if f["properties"]["open_to_public"] == 0)
+    return out
+
+
+@layer("financialBranchesFisc", "civic_facilities", "financial_branches_fisc", "finance/financial_branches_fisc.geojson")
+def build_financial_branches(m, feats):
+    out = []
+    for f in drop_unmapped("financialBranchesFisc", feats):
+        p = f["properties"]
+        no_pii("financialBranchesFisc", p)
+        out.append(feature(f["geometry"], {
+            "id": p["branch_id"], "name": " ".join(x for x in (s(p.get("institution_name")), s(p.get("branch_name"))) if x),
+            "institution_name": s(p.get("institution_name")), "branch_name": s(p.get("branch_name")),
+            "institution_category": s(p.get("institution_category")), "institution_category_label": s(p.get("institution_category_label")),
+            **finance_location(p), **finance_base(m, "24323", p),
+        }))
+    return out
+
+
+# 金融服務據點延伸（G10 延伸，2026-10-24）-------------------------------------
+# analytics civic_facilities/{securities_futures_institutions,insurance_institutions}（gis-platform mig 483 同一份成品）：
+# 證券期貨投信投顧 1,071（33 列無營業地址、無幾何不上圖）；保險公司總分公司＋保險代理人公司 655。
+# 來源機關每列不同（證交所／期交所／投信投顧公會、保發中心／保代公會），出典逐列帶；成品無個資欄（負責人、簽署人上游已丟）。
+
+FINANCE_SOURCE_DATE = [
+    (r"^資料日期 (\d{4}-\d{2}-\d{2})（檔內）$", "file_date"),
+    (r"^公告日期 (\d{4}-\d{2}-\d{2})（檔內）$", "announced"),
+    (r"^名冊下載日 \d{4}-\d{2}-\d{2}（檔內無日期；data\.gov\.tw metadata 更新日 (\d{4}-\d{2}-\d{2})）$", "metadata"),
+    (r"^資料年月 \d{4}-\d{2}，公會更新日 (\d{4}-\d{2}-\d{2})$", "association_update"),
+    (r"^名冊下載日 (\d{4}-\d{2}-\d{2})（檔內無資料日期；.+）$", "download"),
+]
+
+
+def finance_source_date(v: Any) -> dict:
+    """上游 data_vintage 句子 → {source_date, source_date_kind}（popup 依 kind 套譯文；句型對不上就中止）。"""
+    import re
+    for pattern, kind in FINANCE_SOURCE_DATE:
+        hit = re.match(pattern, str(v or ""))
+        if hit:
+            return {"source_date": hit.group(1), "source_date_kind": kind}
+    raise SystemExit(f"data_vintage 句型未登記：{v!r}")
+
+
+def finance_ext_base(m: dict, p: dict) -> dict:
+    return {"source_org": s(p.get("source_publisher")), "source_url": f"https://data.gov.tw/dataset/{p['source_nid']}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date")), **finance_source_date(p.get("data_vintage"))}
+
+
+@layer("securitiesFuturesInstitutions", "civic_facilities", "securities_futures_institutions", "finance/securities_futures_institutions.geojson")
+def build_securities_futures(m, feats):
+    out = []
+    for f in drop_unmapped("securitiesFuturesInstitutions", feats):
+        p = f["properties"]
+        no_pii("securitiesFuturesInstitutions", p)
+        out.append(feature(f["geometry"], {
+            "id": p["institution_id"], "name": s(p.get("display_name")), "firm_name": s(p.get("firm_name")), "office_name": s(p.get("office_name")),
+            "institution_type": s(p["institution_type"]), "institution_type_label": s(p.get("institution_type_label")),
+            "futures_operator_kind": s(p.get("futures_operator_kind")), "futures_operator_kind_label": s(p.get("futures_operator_kind_label")),
+            "proprietary_desk": flag(p.get("proprietary_desk")), "opened_date": s(p.get("opened_date")),
+            **finance_location(p), **finance_ext_base(m, p),
+        }))
+    AUDIT["securitiesFuturesInstitutions"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    return out
+
+
+@layer("insuranceInstitutions", "civic_facilities", "insurance_institutions", "finance/insurance_institutions.geojson")
+def build_insurance_institutions(m, feats):
+    out = []
+    for f in drop_unmapped("insuranceInstitutions", feats):
+        p = f["properties"]
+        no_pii("insuranceInstitutions", p)
+        out.append(feature(f["geometry"], {
+            "id": p["institution_id"], "name": s(p.get("display_name")), "firm_name": s(p.get("firm_name")),
+            "institution_type": s(p["institution_type"]), "institution_type_label": s(p.get("institution_type_label")),
+            "office_level": s(p.get("office_level")), "office_level_label": s(p.get("office_level_label")),
+            "agency_lines": s(p.get("agency_lines")), "agency_lines_label": s(p.get("agency_lines_label")),
+            **finance_location(p), **finance_ext_base(m, p),
+        }))
+    AUDIT["insuranceInstitutions"]["approximate_rows"] = sum(1 for f in out if f["properties"]["geocode_precision"] == "google_approximate")
+    return out
+
+
+# 郵局外幣現鈔經辦局（G10 外幣，2026-10-25）---------------------------------------
+# analytics civic_facilities/post_office_fx_cash_counters（gis-platform mig 484 同一份成品）：中華郵政可買賣外幣現鈔／旅支的郵局 290 局，
+# 座標全取自中華郵政全國營業據點（5950）同電腦局號。**不是外幣收兌處**（央行核准名單未公開）。服務電話上游已不入成品。
+
+@layer("postOfficeFxCounters", "civic_facilities", "post_office_fx_cash_counters", "finance/post_office_fx_cash_counters.geojson")
+def build_post_office_fx_counters(m, feats):
+    out = []
+    for f in drop_unmapped("postOfficeFxCounters", feats):
+        p = f["properties"]
+        no_pii("postOfficeFxCounters", p)
+        out.append(feature(f["geometry"], {
+            "id": p["office_code"], "name": s(p.get("display_name")), "office_name": s(p.get("office_name")),
+            "office_alias": s(p.get("office_alias")), "zip6": s(p.get("zip6")),
+            **finance_location(p),
+            "source_org": s(p.get("source_publisher")), "source_url": f"https://data.gov.tw/dataset/{p['source_nid']}", "license": OGDL,
+            "fetched_at": str(m["provenance"]["fetched_at"])[:10], "vintage": s(p.get("snapshot_date")),
+            "source_date": s(p.get("snapshot_date")), "source_date_kind": "download",
+        }))
+    AUDIT["postOfficeFxCounters"]["town_mismatch_rows"] = sum(1 for f in out if f["properties"]["spatial_check"] == "town_mismatch")
+    return out
 
 
 # ── main ─────────────────────────────────────────────────────────────────

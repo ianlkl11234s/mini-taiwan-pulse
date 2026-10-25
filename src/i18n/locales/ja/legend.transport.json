@@ -86,5 +86,22 @@
   "legend.transport.parkFull": "満車 0%",
   "legend.transport.parkOnstreet": "台北の路上駐車：収容台数のみ（濃い=多い）。リアルタイムの空きはなし",
   "legend.transport.parkOffTitle": "路外の分類（外周リング）",
-  "legend.transport.parkOffNote": "円が大きいほど駐車枠が多い"
+  "legend.transport.parkOffNote": "円が大きいほど駐車枠が多い",
+  "legend.transport.busSimTitle": "定員超過便の割合（{version}）",
+  "legend.transport.busSimScenario": "シナリオ：{scenario}",
+  "legend.transport.busSimZero": "0%（定員超過なし）",
+  "legend.transport.busSimLow": "0% 超・20% 未満",
+  "legend.transport.busSimMid": "20% 以上・40% 未満",
+  "legend.transport.busSimHigh": "40% 以上",
+  "legend.transport.busSimHidden": "便数が {n} 便未満の区間は表示しません",
+  "legend.transport.busSimDefinition": "定員超過便の割合：区間の始点停留所を出発する便のうち、乗客数が定員（65 人と仮定）に達した便の割合",
+  "legend.transport.busSimWindow": "平日 7–9 時・データ日 2026-10-14・シミュレーションによる推計（実測ではありません）",
+  "legend.transport.busSimCoverage": "対象：台北市の 307 系統沿線 257 路線。新北市の市内バスは対象外",
+  "legend.transport.busSimReplayTitle": "現在の混雑（{version}）",
+  "legend.transport.busSimLoad0": "5割未満",
+  "legend.transport.busSimLoad1": "5〜8割",
+  "legend.transport.busSimLoad2": "8割〜満員",
+  "legend.transport.busSimLoad3": "定員超過",
+  "legend.transport.busSimReplayDefinition": "車内の混雑：推計乗車量が車両定員（仮定値）に占める割合。区間は20分以内に最後に出発した便の混雑で、便のない区間は描画しません",
+  "legend.transport.busSimReplayVehicles": "点＝シミュレーションのバス（拡大すると進行方向を表示）。停留所での停車時間は考慮しません。停留所の順序と路線形状が合わない23路線と、永和シャトル（路線形状なし）の便は描画しません"
 }

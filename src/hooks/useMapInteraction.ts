@@ -26,6 +26,7 @@ import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 import { bridgeResilienceOrigin } from "../data/bridgeResilienceStore";
 import { selectBridgeResilienceOrigin } from "../state/bridgeResilienceDestinationRetry";
 import { BRIDGE_RESILIENCE_LAYER_IDS } from "../data/bridgeResilienceTypes";
+import { isDrawn as isBusCrowdingDrawn } from "../data/busCrowdingSimTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -425,6 +426,16 @@ export function useMapInteraction(
           let features = type === "gfwHourlyGrid"
             ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
             : queried;
+          if (type === "busCrowdingSim") {
+            // 命中層與線同 filter（不畫的段點不到）；這裡再防一次。多條路線疊在同一條街時，
+            // 優先回答超載比例最高的那條（與 line-sort-key 讓高值畫在上面一致）。
+            features = queried.filter((feature) => isBusCrowdingDrawn(feature.properties?.ov, feature.properties?.t))
+              .sort((a, b) => Number(b.properties?.ov ?? -1) - Number(a.properties?.ov ?? -1));
+          }
+          if (type === "busCrowdingSimVehicle") {
+            // 車點疊在一起時回答負載分級最高的那台（與 circle／symbol-sort-key 讓高級畫在上面一致）。
+            features = [...queried].sort((a, b) => Number(b.properties?.cls ?? -1) - Number(a.properties?.cls ?? -1));
+          }
           if (type === "bridgeResilienceTwinCity") {
             // 橋線用容差框；村里面是相鄰多邊形，容差框會混入鄰村（Mapbox 依繪製順序而非距離排序）→ 改以 e.point 精確查詢
             const bridgeHits = queried.filter((feature) => feature.layer?.id !== BRIDGE_RESILIENCE_LAYER_IDS.villageFill);

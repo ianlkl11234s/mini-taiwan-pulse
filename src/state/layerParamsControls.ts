@@ -117,7 +117,18 @@ export interface LinkedSelectConfig {
   onRetry?: () => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig | LinkedSelectConfig;
+/**
+ * 模擬面板 S-1 播放列（spec §5.40 S-1）：值在 scoped 時鐘（`clock`＝登記 id），不在 layerParamsStore。
+ * `value` 恆為 ""（Agent 端只讀：播放狀態不是場景參數）。
+ */
+export interface PlaybackConfig {
+  type: "playback";
+  label: string;
+  value: "";
+  clock: string;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig | PaletteConfig | LinkedSelectConfig | PlaybackConfig;
 
 /** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
 export const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
@@ -255,6 +266,13 @@ export function buildParamControls(
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }
+      case "playback":
+        return {
+          type: "playback" as const,
+          label: paramText(s.label, i18n, { layerKey: key, name: s.name }),
+          value: "" as const,
+          clock: s.clock,
+        };
       case "linkedSelect": {
         const snap = linkedSelectSnapshot(key, s);
         const carrier = statusCarriers.has(s.name);

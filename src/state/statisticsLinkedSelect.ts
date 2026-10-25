@@ -20,8 +20,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, getLaborStatistic
 import { getEnvironmentRecipe, resolveEnvironmentRelease } from '../data/environmentStatisticsRecipes';
 import { getAddictionRecipe, resolveAddictionRelease } from '../data/addictionStatisticsRecipes';
 import { getLandslideRecipe, resolveLandslideRelease } from '../data/landslideStatisticsRecipes';
-import { getAtlasRecipe, resolveAtlasRelease } from '../data/atlasStatisticsRecipes';
-import { isTaipeiAgencyStatisticsLayer } from '../data/taipeiAgencyStatisticsRecipes';
+import { atlasLazyFamily, getAtlasRecipe, resolveAtlasRelease } from '../data/atlasStatisticsRecipes';
 import { demographicsPeriodLabel, getDemographicsRecipe, resolveDemographicsRelease } from '../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../data/statisticsPresentationViews';
@@ -71,7 +70,7 @@ interface StatisticsModel {
 
 function detailsFamily(layerKey: StatisticsRenderKey, baseKey: StatisticsLayerKey): StatisticsRecipeFamily | null {
   return getAgriRecipe(baseKey) ? 'agri' : getSocialRecipe(baseKey) || getEducationPresentationView(layerKey) ? 'social'
-    : isTaipeiAgencyStatisticsLayer(baseKey) ? 'taipeiAgency' : null;
+    : atlasLazyFamily(baseKey);
 }
 
 function statisticsSpecs(layerKey: string): LinkedSelectParamSpec[] {

@@ -51,5 +51,10 @@
   "paramsPanel.hf.loadingTrails": "載入航跡中",
   "paramsPanel.hf.statusFlights": " · {flights} 航班",
   "paramsPanel.hf.viewAll": "查看全部機場",
-  "paramsPanel.hf.locate": "定位機場"
+  "paramsPanel.hf.locate": "定位機場",
+  "paramsPanel.play": "播放",
+  "paramsPanel.pause": "暫停",
+  "paramsPanel.playbackSpeed": "倍速",
+  "paramsPanel.playbackSpeedOption": "{n} 分鐘／秒",
+  "paramsPanel.playbackRestart": "從頭播放"
 }

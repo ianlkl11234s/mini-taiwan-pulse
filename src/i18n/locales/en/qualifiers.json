@@ -15,5 +15,6 @@
   "qualifier.氣象署": "CWA",
   "qualifier.環境部": "MOENV",
   "qualifier.核安會": "NSC",
-  "qualifier.舊版": "Legacy"
+  "qualifier.舊版": "Legacy",
+  "qualifier.推估・研究中": "Estimated · Research"
 }

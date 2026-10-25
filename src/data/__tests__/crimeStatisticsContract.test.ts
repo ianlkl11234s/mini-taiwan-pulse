@@ -10,8 +10,8 @@ import { LAYER_MANIFEST } from "../layerManifest";
 import { STATISTICS_CHOROPLETH_KEYS } from "../statisticsLayerRegistry";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
-// 「其他 atlas 家族」逐層檢查含臺北市局處統計，其 exact selector 按需載入。
-beforeAll(() => ensureStatisticsRecipeDetails("taipeiAgency"));
+// 「其他 atlas 家族」逐層檢查含臺北市局處統計與死因統計，其 exact selector 按需載入。
+beforeAll(() => ensureStatisticsRecipeDetails(["taipeiAgency", "mortality"]));
 
 function publishedReleases(key: string): StatisticsRelease[] {
   const recipe = getAtlasRecipe(key)!;
@@ -43,9 +43,25 @@ describe("治安統計（G17）契約", () => {
   });
 
   it("其他 atlas 家族的預設期別不變（default_release_id 即最新期別）", () => {
-    for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES.filter((candidate) => candidate.family !== "crime")) {
+    // 行政執行署拍定（G16）同治安：最新的 2026 年只到 9 月 30 日（部分年），預設改最新全年 2025，另測於下。
+    const mojPartial = (key: string) => /^statsMojAuction/.test(key);
+    for (const recipe of ATLAS_ENABLED_STATISTICS_RECIPES.filter((candidate) => candidate.family !== "crime" && !mojPartial(candidate.layer_key))) {
       const options = atlasReleaseOptions(recipe.layer_key, publishedReleases(recipe.layer_key));
       expect(atlasDefaultReleaseOption(recipe.layer_key, options), recipe.layer_key).toEqual(options[0]);
+    }
+  });
+
+  it("行政執行署拍定（G16）預設＝最新全年 2025，2026 年標部分期別", () => {
+    const keys = ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => /^statsMojAuction/.test(recipe.layer_key)).map((recipe) => recipe.layer_key);
+    expect(keys).toHaveLength(4);
+    for (const key of keys) {
+      const recipe = getAtlasRecipe(key)!;
+      const options = atlasReleaseOptions(key, publishedReleases(key));
+      const chosen = atlasDefaultReleaseOption(key, options)!;
+      const option = atlasRecipeReleaseOptions(recipe).find((candidate) => candidate.release_id === chosen.releaseId)!;
+      expect([option.period_start, option.period_end], key).toEqual(["2025-01-01", "2025-12-31"]);
+      const partial = atlasRecipeReleaseOptions(recipe).filter((candidate) => candidate.partial_period_label);
+      expect(new Set(partial.map((candidate) => candidate.period_start)), key).toEqual(new Set(["2026-01-01"]));
     }
   });
 

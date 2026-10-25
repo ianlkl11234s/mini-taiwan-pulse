@@ -6,5 +6,13 @@
   "enum.statPublisher.行政院性別平等會（資料來源：衛生福利部國民健康署國人吸菸行為調查）": "行政院ジェンダー平等会（データ出典：衛生福利部国民健康署 国民喫煙行動調査）",
   "enum.statPublisher.內政部戶政司 RIS（授權條款待確認）": "内政部戸政司 RIS（ライセンス要確認）",
   "enum.statPublisher.臺北市政府工務局衛生下水道工程處": "台北市政府工務局衛生下水道工程処",
-  "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "台北市政府都市発展局建築管理工程処"
+  "enum.statPublisher.臺北市政府都市發展局建築管理工程處": "台北市政府都市発展局建築管理工程処",
+  "enum.statPublisher.財政部國有財產署": "財政部国有財産署",
+  "enum.statPublisher.台灣糖業股份有限公司": "台湾糖業股份有限公司",
+  "enum.statPublisher.法務部行政執行署": "法務部行政執行署",
+  "enum.statPublisher.財金資訊股份有限公司": "財金資訊股份有限公司（FISC）",
+  "enum.statPublisher.金融監督管理委員會銀行局": "金融監督管理委員会銀行局",
+  "enum.statPublisher.中央銀行金融業務檢查處": "中央銀行金融業務検査処",
+  "enum.statPublisher.行政院主計總處": "行政院主計総処",
+  "enum.statPublisher.財團法人保險事業發展中心": "保険事業発展センター"
 }

@@ -5,8 +5,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSema
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasDimensionNote, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
-import { isTaipeiAgencyStatisticsLayer } from '../../data/taipeiAgencyStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -103,7 +102,7 @@ export function StatisticsDetails({ layerKey, textColor }: { layerKey: Statistic
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
   const activeBaseKey = statisticsBaseKey(layerKey, state.selection?.indicatorId);
   const recipeDetailsFamily = getAgriRecipe(activeBaseKey) ? 'agri' : getSocialRecipe(activeBaseKey) || getEducationPresentationView(layerKey) ? 'social'
-    : isTaipeiAgencyStatisticsLayer(activeBaseKey) ? 'taipeiAgency' : null;
+    : atlasLazyFamily(activeBaseKey);
   const selectorsReady = useStatisticsRecipeDetails(recipeDetailsFamily);
   const unparseableCount = selectorsReady ? unparseableStatisticsReleaseCount(layerKey, state.releases, state.selection?.indicatorId) : 0;
   const selected = state.selection?.releaseId ?? state.release?.release_id ?? '';
@@ -218,8 +217,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const atlas = getAtlasRecipe(baseKey);
   const atlasScale = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
   const t = useLegendTheme();
-  // 二元圖例（自來水不合格：有／無）不是連續色階，不顯示「淺 → 深」通用說明。
-  const environmentBinaryRows = environment ? environmentLegendRows(environment, recipe.colors) : null;
+  // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
+  const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows;
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(layerKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
@@ -228,8 +228,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.availability && <span>{tr('statistics.legend.availability', { value: statisticsAvailabilityLabel(state.health.availability, i18n) })}</span>}
     {state.health?.coverage_status && <span>{coverageLine(state.health, Boolean(agri), recipe, i18n)}</span>}
     {state.loading && <span>{tr('statistics.legend.loading')}</span>}{state.error && <span role="alert" title={i18n.active === 'zh-TW' ? undefined : state.error}>{i18n.active === 'zh-TW' ? state.error : tr('statistics.loadFailed')}</span>}
-    {!environmentBinaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
-    {(environmentBinaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
+    {!binaryRows && <span>{atlasScale ?? tr(recipe.breaks.some(value => value < 0) ? 'statistics.legend.diverging' : 'statistics.legend.sequential')}</span>}
+    {(binaryRows || statisticsLegendRows(recipe, social?.format ?? labor?.format ?? environment?.format ?? demographics?.format ?? addiction?.format ?? landslide?.format ?? atlas?.format, i18n)).map(({ color, label }) => <LegendRow key={`${color}:${label}`} swatch={<SwatchSquare color={color} opacity={1} />}>{label}</LegendRow>)}
     {addiction?.level === 'prosecutor_district' && <span>{PROSECUTOR_DISTRICT_LEGEND_NOTE}</span>}
     {addiction?.legend.zero_note && <span>{addiction.legend.zero_note}</span>}
     {addiction && addictionStatusLegendRows(addiction).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{label}</LegendRow>)}

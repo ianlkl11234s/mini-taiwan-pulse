@@ -33,6 +33,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
+import { BUS_CROWDING_SIM_ASSETS } from "../../data/busCrowdingSimAssets";
 
 const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
@@ -52,6 +53,10 @@ const dockerIgnore = readFileSync(".dockerignore", "utf8");
 const jpHeightPublisher = readFileSync("scripts/deploy/publish-jp-height-assets.py", "utf8");
 const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
+/** ADR-0024 §4：已改由 data.itsmigu.com/layers/v1 索引供應的舊相對 URL（"./dir/file"）。 */
+const layerAssetIndexKeys = new Set<string>(
+  (JSON.parse(readFileSync("src/data/layerAssetIndex.expected.json", "utf8")) as { keys: string[] }).keys,
+);
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -276,6 +281,9 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "PRIVATE_OWNER_ONLY: decay_village_impacts.json",
   "PRIVATE_OWNER_ONLY: decay_summary.json",
   "PRIVATE_OWNER_ONLY: bridge_fingerprint.json",
+  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，只走 owner-authenticated Range sidecar
+  // （私人 S3 private-research/bus-crowding/，scripts/deploy/upload-bus-crowding-private.mjs 手動上傳）。
+  ...Object.values(BUS_CROWDING_SIM_ASSETS).map((a) => `PRIVATE_OWNER_ONLY: ${a.filename}`),
 ]);
 
 /**
@@ -389,6 +397,27 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(viteConfig).toContain('"/api/private-research/bridge-resilience"');
     expect(privateResearchServer).toContain('const BRIDGE_RESILIENCE_S3_PREFIX = "private-research/bridge-resilience"');
     expect(pullScript).not.toContain("private-research/bridge-resilience");
+  });
+
+  it("公車擁擠模擬只走 owner-authenticated Range sidecar，不落入 SPA fallback", () => {
+    const match = nginxConf.match(/location ~ (\^\/api\/private-research\/bus-crowding\/[^ ]+\$) \{([\s\S]*?)\n    \}/);
+    const location = match?.[2] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    // nginx 白名單與 sidecar 白名單一致：34 個 key 全中，meta／路徑／原型屬性都不中
+    const allow = new RegExp(match?.[1] ?? "^$");
+    for (const key of Object.keys(BUS_CROWDING_SIM_ASSETS)) expect(allow.test(`/api/private-research/bus-crowding/${key}`), key).toBe(true);
+    for (const bad of ["meta", "constructor", "v137/base", "segments.geojson", "v137-base/x"]) expect(allow.test(`/api/private-research/bus-crowding/${bad}`), bad).toBe(false);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/bus-crowding \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/bus-crowding"');
+    expect(privateResearchServer).toContain('const BUS_CROWDING_S3_PREFIX = "private-research/bus-crowding"');
+    expect(pullScript).not.toContain("private-research/bus-crowding");
+    expect(uploadScript).not.toContain("bus-crowding");
+    expect(dockerIgnore).toMatch(/^\*\.local$/m);
   });
 
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
@@ -648,6 +677,9 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const [path, keys] of [...ASSETS].sort()) {
       if (isEmptyShell(path)) continue;
       if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      // 已遷移到靜態圖層資產索引：供應路徑改由 R2／CDN 索引負責，不再要求出現在 deploy 腳本清單；
+      // 改斷言它登記在 committed 的遷移清單（layerAssetIndex.expected.json）。
+      if (layerAssetIndexKeys.has(`./${path}`)) continue;
       if (path === forestReceipt.public_url) {
         const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
         expect(forestReceipt.readback).toBe("PASS");
@@ -692,6 +724,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
       `→ 要走 dist：檔案得 git 追蹤，且 nginx location 要有 try_files $uri @dist\n` +
       `→ 真的刻意不部署：加進本檔的 DEPLOY_EXEMPT_LEDGER 並寫下理由`,
     ).toEqual([]);
+  });
+
+  it("靜態圖層資產索引的遷移清單：每個 key 都是 manifest 引用中的 GeoJSON／PMTiles，且不重複", () => {
+    const raw = (JSON.parse(readFileSync("src/data/layerAssetIndex.expected.json", "utf8")) as { keys: string[] }).keys;
+    expect(raw.length).toBe(layerAssetIndexKeys.size);
+    for (const key of raw) {
+      expect(key, "key 要沿用 manifest 的舊相對 URL（含開頭 ./）").toMatch(/^\.\/[^/].*\.(geojson|pmtiles)$/);
+      expect(ASSETS.has(key.slice(2)), `${key} 不在 layerManifest 引用的靜態檔中（過期條目）`).toBe(true);
+    }
   });
 
   /** ledger 雙向凍結：登記的東西若已經被部署了，就該從 ledger 移除 */

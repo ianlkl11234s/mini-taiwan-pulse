@@ -51,5 +51,10 @@
   "paramsPanel.hf.loadingTrails": "Loading trails",
   "paramsPanel.hf.statusFlights": " · {flights} flights",
   "paramsPanel.hf.viewAll": "View all airports",
-  "paramsPanel.hf.locate": "Locate airport"
+  "paramsPanel.hf.locate": "Locate airport",
+  "paramsPanel.play": "Play",
+  "paramsPanel.pause": "Pause",
+  "paramsPanel.playbackSpeed": "Speed",
+  "paramsPanel.playbackSpeedOption": "{n} min/s",
+  "paramsPanel.playbackRestart": "Restart from beginning"
 }

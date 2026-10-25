@@ -6,7 +6,7 @@ import { SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 // 與桌機 IconRailSidebar 共用同一套面板元件與四個入口定義（layer-panel-unify P7）
 import { LayersPanel } from "./sidebar/LayersPanel";
-import { LAYER_PANELS, layerPanelDef, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
+import { LAYER_PANELS, layerPanelDef, visibleLayerPanels, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
 import { railPalette, RailThemeContext } from "./sidebar/railTheme";
 import { useLocale } from "../state/localeStore";
 
@@ -45,6 +45,8 @@ interface LayerSidebarProps {
   onAllOff?: () => void;
   /** 切到日本分頁時（App 飛到日本，同桌機） */
   onJapanOpen?: () => void;
+  /** 站主才為 true：模擬分頁只對站主顯示（simulation PLAN D-1）；未傳＝不顯示。 */
+  showSimulation?: boolean;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -70,6 +72,7 @@ export function LayerSidebar({
   onBulkSetVisibility,
   onAllOff,
   onJapanOpen,
+  showSimulation,
   onMemberToggle,
   memberActive,
   favoriteKeys,
@@ -95,7 +98,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen} showSimulation={showSimulation}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -185,7 +188,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen} showSimulation={showSimulation}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -202,7 +205,7 @@ export function LayerSidebar({
 function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onJapanOpen,
+  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onJapanOpen, showSimulation,
   onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
@@ -220,6 +223,7 @@ function SidebarContent({
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onAllOff?: () => void;
   onJapanOpen?: () => void;
+  showSimulation?: boolean;
   onMemberToggle?: () => void;
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
@@ -229,8 +233,11 @@ function SidebarContent({
   const { t } = useLocale();
   const { TEXT_STRONG, DIM, ROW_ACTIVE, ALLOFF_BG } = palette;
   const [tab, setTab] = useState<LayerPanelId>("layers");
-  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "" });
-  const panel = layerPanelDef(tab);
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "", simulation: "" });
+  const panels = visibleLayerPanels(!!showSimulation);
+  const panelIds = panels.map((entry) => entry.id);
+  // 站主身分消失時，目前停在模擬分頁就退回台灣
+  const panel = layerPanelDef(panelIds.includes(tab) ? tab : "layers");
   const openTab = (next: LayerPanelId) => {
     if (next === "japan" && tab !== "japan") onJapanOpen?.();
     setTab(next);
@@ -256,7 +263,7 @@ function SidebarContent({
       }}
     >
       <div role="tablist" aria-label={t("sidebar.tabsAria")} style={{ display: "flex", gap: 4, margin: "0 12px 6px" }}>
-        {LAYER_PANELS.map((entry) => {
+        {panels.map((entry) => {
           const active = tab === entry.id;
           return <button key={entry.id} type="button" role="tab" aria-selected={active} onClick={() => openTab(entry.id)} style={{ flex: 1, minWidth: 0, border: "none", borderRadius: RADIUS.lg, padding: "6px 4px", cursor: "pointer", background: active ? ROW_ACTIVE : "transparent", color: active ? TEXT_STRONG : DIM, fontSize: FONT_SIZE.md, fontWeight: 700, fontFamily: FONT_CJK }}>{t(`panel.${entry.id}.short`)}</button>;
         })}
@@ -278,6 +285,7 @@ function SidebarContent({
       <LayersPanel
         key={panel.id}
         panelId={panel.id}
+        availablePanelIds={panelIds}
         onSearchInPanel={(target, query) => { setPanelSearch((prev) => ({ ...prev, [target]: query })); openTab(target); }}
         search={panelSearch[panel.id]}
         onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}

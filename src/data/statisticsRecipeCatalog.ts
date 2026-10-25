@@ -90,6 +90,10 @@ export function deriveStatisticsRecipeCatalog(
  * - atlas 六家族（health／fiscal／indigenousRural／sports／hazard／marine）與治安 crime：同 landslide；release_options 帶 dimensions，首屏即用。
  * - 臺北市局處 taipeiAgency：月資料 9,696 個 selector（產業別一層 6,216 個），同 agri 移到明細按需載入；
  *   summary 帶 period_count 供首屏頻率字串，`delivery` 也只留在交付 JSON。
+ * - Roadmap 第二批 culture（G23 街頭藝人）、stateAssets（G16 國有資產，251 selector）、financeAccess（G10 金融可及性，144 selector）：同 crime，selector 少、首屏即用。
+ * - financeAccessExt（G10 延伸，1,175 selector；兩個金融卡交易層各 531 期×類型）：catalog 約 0.36 MB，仍小於 demographics 的 0.9 MB 內嵌目錄，
+ *   且 Statistics 首屏要期別與交易類型維度，故同 financeAccess 保留 release_options。
+ * - 死因 mortality（G20）：縣市 2,322＋鄉鎮 1,541＝3,863 個 selector（死因 43×性別×期別），同 taipeiAgency 按需載入。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -108,4 +112,9 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "marine", source: "src/data/marineStatisticsRecipes.json", catalog: "src/data/marineStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "crime", source: "src/data/crimeStatisticsRecipes.json", catalog: "src/data/crimeStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "taipeiAgency", source: "src/data/taipeiAgencyStatisticsRecipes.json", catalog: "src/data/taipeiAgencyStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: false, periodCount: true },
+  { family: "mortality", source: "src/data/mortalityStatisticsRecipes.json", catalog: "src/data/mortalityStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: false, periodCount: true },
+  { family: "culture", source: "src/data/cultureStatisticsRecipes.json", catalog: "src/data/cultureStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "stateAssets", source: "src/data/stateAssetsStatisticsRecipes.json", catalog: "src/data/stateAssetsStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "financeAccess", source: "src/data/financeAccessStatisticsRecipes.json", catalog: "src/data/financeAccessStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "financeAccessExt", source: "src/data/financeAccessExtStatisticsRecipes.json", catalog: "src/data/financeAccessExtStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
 ] as const;

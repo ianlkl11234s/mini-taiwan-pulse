@@ -22,5 +22,7 @@
   "legend.atlas.fishingPoint": "開放釣り場（立入可能・安全を意味しない）",
   "legend.atlas.reefCenter": "中心位置（範囲ではない）",
   "legend.atlas.setNetArea": "定置漁業権の範囲",
-  "legend.atlas.seawallZone": "一般海岸堤防区域"
+  "legend.atlas.seawallZone": "一般海岸堤防区域",
+  "legend.atlas.sugarMill": "製糖工場の拠点",
+  "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）"
 }

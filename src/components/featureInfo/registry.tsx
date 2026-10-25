@@ -65,6 +65,7 @@ import {
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
+import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -483,6 +484,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bssNationalBridgePreview: BssNationalBridgePreviewPanel,
   bssNationalBridgePointsPreview: BssNationalBridgePreviewPanel,
   bridgeResilienceTwinCity: BridgeResiliencePanel,
+  busCrowdingSim: BusCrowdingSimPanel,
+  busCrowdingSimVehicle: BusCrowdingSimVehiclePanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -1000,6 +1003,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   bssNationalBridgePreview: "全臺橋梁方向候選（進行中）",
   bssNationalBridgePointsPreview: "全臺橋梁清冊點位（進行中）",
   bridgeResilienceTwinCity: "雙北跨河橋梁韌性（研究中）",
+  busCrowdingSim: "公車路段超載班次比例（推估）",
+  busCrowdingSimVehicle: "模擬公車（推估）",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

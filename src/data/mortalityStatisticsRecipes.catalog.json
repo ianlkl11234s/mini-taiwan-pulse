@@ -1,0 +1,4581 @@
+{
+  "version": 1,
+  "scope": "production_r2",
+  "family": "mortality",
+  "generated_from": {
+    "recipes": "mortality-statistics-recipes.json",
+    "bundles": "taipei-gis-analytics mortality release bundles (<bundle_dir>/<release_id>.json)"
+  },
+  "release_selector": {
+    "type": "exact_whitelist",
+    "identity_fields": [
+      "dataset_id",
+      "indicator_id",
+      "release_id",
+      "period_start",
+      "period_end",
+      "boundary_version",
+      "dimensions"
+    ],
+    "unknown_release": "reject"
+  },
+  "observation_policy": {
+    "observed_zero": "status observed and value 0 (no deaths in that period; full registration)",
+    "missing": "value null; population denominator missing; no zero fill",
+    "not_applicable": "value null; COVID-19 category exists only from 2020 (ROC 109)",
+    "suppressed": "none (decision #5: not suppressed)"
+  },
+  "recipes": [
+    {
+      "layer_key": "statsMortalityCauseTownship",
+      "enabled": true,
+      "family": "mortality",
+      "label": "鄉鎮死因別粗死亡率（5 年平均）",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "鄉鎮・粗死亡率（5 年平均）",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_township",
+      "indicator_id": "crude_death_rate_5yr_per_100k",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人/10萬人年",
+      "aggregation": "ratio",
+      "default_release_id": "2021_2025-crude_death_rate_5yr_per_100k-township-v1-c86a754635d5",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          790,
+          980,
+          1200,
+          1400
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "小鄉鎮人口少，單年波動大；本層為 5 年合計，較穩定，但極小鄉鎮仍宜保守解讀，不宜據此排名。",
+          "5 年平均＝5 年合計死亡數 ÷ 5 年戶籍人口加總（人年）× 10 萬；只有 110–114 年一窗。",
+          "粗死亡率未做年齡標準化：高齡人口多的地方偏高，不代表醫療較差。",
+          "死亡率分母為 12 月底戶籍人口（衛福部公布的全國粗死亡率用年中人口，數值略有差異）；分母只有 107 年起，率只到 107 年起。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "10": {
+            "breaks": [
+              11,
+              15,
+              20,
+              28
+            ],
+            "direction": "ascending"
+          },
+          "11": {
+            "breaks": [
+              0.21,
+              0.36,
+              0.54,
+              1.2
+            ],
+            "direction": "ascending"
+          },
+          "12": {
+            "breaks": [
+              0.49,
+              0.7,
+              0.92,
+              1.3
+            ],
+            "direction": "ascending"
+          },
+          "13": {
+            "breaks": [
+              5,
+              6.9,
+              9.1,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "14": {
+            "breaks": [
+              0.82,
+              1.4,
+              1.9,
+              2.8
+            ],
+            "direction": "ascending"
+          },
+          "15": {
+            "breaks": [
+              30,
+              42,
+              54,
+              70
+            ],
+            "direction": "ascending"
+          },
+          "16": {
+            "breaks": [
+              82,
+              110,
+              130,
+              170
+            ],
+            "direction": "ascending"
+          },
+          "17": {
+            "breaks": [
+              46,
+              62,
+              78,
+              95
+            ],
+            "direction": "ascending"
+          },
+          "18": {
+            "breaks": [
+              0.19,
+              0.32,
+              0.56,
+              0.94
+            ],
+            "direction": "ascending"
+          },
+          "19": {
+            "breaks": [
+              3.3,
+              4.1,
+              5.5,
+              7.4
+            ],
+            "direction": "ascending"
+          },
+          "20": {
+            "breaks": [
+              1.3,
+              1.8,
+              2.4,
+              3.6
+            ],
+            "direction": "ascending"
+          },
+          "21": {
+            "breaks": [
+              59,
+              75,
+              96,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "22": {
+            "breaks": [
+              0.1,
+              0.2,
+              0.42,
+              0.7
+            ],
+            "direction": "ascending"
+          },
+          "23": {
+            "breaks": [
+              21,
+              29,
+              37,
+              51
+            ],
+            "direction": "ascending"
+          },
+          "24": {
+            "breaks": [
+              0.24,
+              0.41,
+              0.87,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "25": {
+            "breaks": [
+              1.6,
+              2.4,
+              3.3,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "26": {
+            "breaks": [
+              1.6,
+              2.2,
+              3.2,
+              4.9
+            ],
+            "direction": "ascending"
+          },
+          "27": {
+            "breaks": [
+              1.2,
+              1.6,
+              2.3,
+              3.7
+            ],
+            "direction": "ascending"
+          },
+          "28": {
+            "breaks": [
+              14,
+              19,
+              26,
+              37
+            ],
+            "direction": "ascending"
+          },
+          "29": {
+            "breaks": [
+              1.4,
+              2,
+              2.8,
+              4.2
+            ],
+            "direction": "ascending"
+          },
+          "30": {
+            "breaks": [
+              2.3,
+              3.1,
+              4.3,
+              6.4
+            ],
+            "direction": "ascending"
+          },
+          "31": {
+            "breaks": [
+              5.3,
+              7.5,
+              11,
+              14
+            ],
+            "direction": "ascending"
+          },
+          "32": {
+            "breaks": [
+              22,
+              27,
+              33,
+              42
+            ],
+            "direction": "ascending"
+          },
+          "33": {
+            "breaks": [
+              0.1,
+              0.19,
+              0.32,
+              0.61
+            ],
+            "direction": "ascending"
+          },
+          "34": {
+            "breaks": [
+              0.82,
+              1.2,
+              1.9,
+              2.8
+            ],
+            "direction": "ascending"
+          },
+          "35": {
+            "breaks": [
+              0.75,
+              1,
+              1.4,
+              2.1
+            ],
+            "direction": "ascending"
+          },
+          "36": {
+            "breaks": [
+              4.8,
+              10,
+              18,
+              30
+            ],
+            "direction": "ascending"
+          },
+          "37": {
+            "breaks": [
+              0.1,
+              0.17,
+              0.26,
+              0.59
+            ],
+            "direction": "ascending"
+          },
+          "38": {
+            "breaks": [
+              21,
+              26,
+              32,
+              40
+            ],
+            "direction": "ascending"
+          },
+          "39": {
+            "breaks": [
+              27,
+              37,
+              50,
+              63
+            ],
+            "direction": "ascending"
+          },
+          "40": {
+            "breaks": [
+              14,
+              17,
+              20,
+              25
+            ],
+            "direction": "ascending"
+          },
+          "41": {
+            "breaks": [
+              0.44,
+              0.68,
+              1.1,
+              1.9
+            ],
+            "direction": "ascending"
+          },
+          "42": {
+            "breaks": [
+              82,
+              99,
+              120,
+              150
+            ],
+            "direction": "ascending"
+          },
+          "01": {
+            "breaks": [
+              0.38,
+              0.63,
+              1,
+              1.6
+            ],
+            "direction": "ascending"
+          },
+          "02": {
+            "breaks": [
+              1.2,
+              1.8,
+              2.6,
+              4.6
+            ],
+            "direction": "ascending"
+          },
+          "03": {
+            "breaks": [
+              7.7,
+              11,
+              13,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "04": {
+            "breaks": [
+              1,
+              1.4,
+              1.9,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "05": {
+            "breaks": [
+              0.24,
+              0.39,
+              0.53,
+              1.1
+            ],
+            "direction": "ascending"
+          },
+          "06": {
+            "breaks": [
+              210,
+              250,
+              290,
+              350
+            ],
+            "direction": "ascending"
+          },
+          "07": {
+            "breaks": [
+              4.9,
+              6.6,
+              8.5,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "08": {
+            "breaks": [
+              0.89,
+              1.4,
+              1.9,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "09": {
+            "breaks": [
+              40,
+              55,
+              73,
+              95
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {},
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 43,
+        "first": {
+          "release_id": "2021_2025-crude_death_rate_5yr_per_100k-township-v1-c86a754635d5",
+          "period_start": "2021-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all"
+          }
+        },
+        "period_count": 1
+      }
+    },
+    {
+      "layer_key": "statsMortalityDeaths5yrTownship",
+      "enabled": true,
+      "family": "mortality",
+      "label": "鄉鎮死因別死亡人數（5 年合計）",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "鄉鎮・死亡人數（5 年合計）",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_township",
+      "indicator_id": "deaths_by_cause_5yr",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2021_2025-deaths_by_cause_5yr-township-v1-518f68c8803e",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        },
+        {
+          "key": "sex",
+          "label": "性別",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全部"
+            },
+            {
+              "value": "female",
+              "label": "女"
+            },
+            {
+              "value": "male",
+              "label": "男"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          740,
+          1400,
+          2200,
+          4000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "人數在有 0 人的組合中，0 人自成最淺一級（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "小鄉鎮人口少，單年波動大；本層為 5 年合計，較穩定，但極小鄉鎮仍宜保守解讀，不宜據此排名。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "01|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "02|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              9
+            ],
+            "direction": "ascending"
+          },
+          "03|all": {
+            "breaks": [
+              1,
+              10,
+              19,
+              37
+            ],
+            "direction": "ascending"
+          },
+          "04|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "05|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "06|all": {
+            "breaks": [
+              180,
+              370,
+              560,
+              1000
+            ],
+            "direction": "ascending"
+          },
+          "07|all": {
+            "breaks": [
+              1,
+              6,
+              14,
+              24
+            ],
+            "direction": "ascending"
+          },
+          "08|all": {
+            "breaks": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "09|all": {
+            "breaks": [
+              1,
+              55,
+              100,
+              200
+            ],
+            "direction": "ascending"
+          },
+          "10|all": {
+            "breaks": [
+              1,
+              15,
+              30,
+              59
+            ],
+            "direction": "ascending"
+          },
+          "11|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "12|all": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "13|all": {
+            "breaks": [
+              1,
+              7,
+              15,
+              28
+            ],
+            "direction": "ascending"
+          },
+          "14|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "15|all": {
+            "breaks": [
+              1,
+              37,
+              73,
+              140
+            ],
+            "direction": "ascending"
+          },
+          "16|all": {
+            "breaks": [
+              82,
+              150,
+              250,
+              430
+            ],
+            "direction": "ascending"
+          },
+          "17|all": {
+            "breaks": [
+              1,
+              57,
+              110,
+              210
+            ],
+            "direction": "ascending"
+          },
+          "18|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "19|all": {
+            "breaks": [
+              1,
+              5,
+              8,
+              17
+            ],
+            "direction": "ascending"
+          },
+          "20|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "21|all": {
+            "breaks": [
+              55,
+              110,
+              180,
+              310
+            ],
+            "direction": "ascending"
+          },
+          "22|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "23|all": {
+            "breaks": [
+              1,
+              27,
+              52,
+              99
+            ],
+            "direction": "ascending"
+          },
+          "24|all": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "25|all": {
+            "breaks": [
+              1,
+              3,
+              5,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "26|all": {
+            "breaks": [
+              1,
+              2,
+              5,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "27|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "28|all": {
+            "breaks": [
+              1,
+              23,
+              38,
+              66
+            ],
+            "direction": "ascending"
+          },
+          "29|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              9
+            ],
+            "direction": "ascending"
+          },
+          "30|all": {
+            "breaks": [
+              1,
+              4,
+              7,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "31|all": {
+            "breaks": [
+              1,
+              7,
+              13,
+              30
+            ],
+            "direction": "ascending"
+          },
+          "32|all": {
+            "breaks": [
+              1,
+              26,
+              52,
+              88
+            ],
+            "direction": "ascending"
+          },
+          "33|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "34|all": {
+            "breaks": [
+              1,
+              2,
+              3,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "35|all": {
+            "breaks": [
+              1,
+              3,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "36|all": {
+            "breaks": [
+              1,
+              8,
+              20,
+              52
+            ],
+            "direction": "ascending"
+          },
+          "37|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "38|all": {
+            "breaks": [
+              1,
+              25,
+              49,
+              90
+            ],
+            "direction": "ascending"
+          },
+          "39|all": {
+            "breaks": [
+              32,
+              58,
+              83,
+              140
+            ],
+            "direction": "ascending"
+          },
+          "40|all": {
+            "breaks": [
+              1,
+              14,
+              32,
+              70
+            ],
+            "direction": "ascending"
+          },
+          "41|all": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "42|all": {
+            "breaks": [
+              75,
+              130,
+              210,
+              420
+            ],
+            "direction": "ascending"
+          },
+          "all|female": {
+            "breaks": [
+              300,
+              610,
+              920,
+              1700
+            ],
+            "direction": "ascending"
+          },
+          "all|male": {
+            "breaks": [
+              430,
+              830,
+              1300,
+              2200
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（COVID-19 自 109 年起才有此分類）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 135,
+        "first": {
+          "release_id": "2021_2025-deaths_by_cause_5yr-township-v1-518f68c8803e",
+          "period_start": "2021-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all",
+            "sex": "male"
+          }
+        },
+        "period_count": 3
+      }
+    },
+    {
+      "layer_key": "statsMortalityRateTownship",
+      "enabled": true,
+      "family": "mortality",
+      "label": "鄉鎮死因別粗死亡率（逐年）",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "鄉鎮・粗死亡率（逐年）",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_township",
+      "indicator_id": "crude_death_rate_per_100k",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2025-crude_death_rate_per_100k-township-v1-75f1491c9d90",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          790,
+          980,
+          1200,
+          1500
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "小鄉鎮人口少，單年數值波動大，建議看 5 年合計。",
+          "粗死亡率未做年齡標準化：高齡人口多的地方偏高，不代表醫療較差。",
+          "死亡率分母為 12 月底戶籍人口（衛福部公布的全國粗死亡率用年中人口，數值略有差異）；分母只有 107 年起，率只到 107 年起。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "10": {
+            "breaks": [
+              9.5,
+              14,
+              20,
+              30
+            ],
+            "direction": "ascending"
+          },
+          "11": {
+            "breaks": [
+              0.47,
+              1,
+              2,
+              3.6
+            ],
+            "direction": "ascending"
+          },
+          "12": {
+            "breaks": [
+              0.66,
+              1.1,
+              1.6,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "13": {
+            "breaks": [
+              5,
+              7.5,
+              9.7,
+              15
+            ],
+            "direction": "ascending"
+          },
+          "14": {
+            "breaks": [
+              1.9,
+              3.2,
+              4.8,
+              8.8
+            ],
+            "direction": "ascending"
+          },
+          "15": {
+            "breaks": [
+              25,
+              41,
+              56,
+              75
+            ],
+            "direction": "ascending"
+          },
+          "16": {
+            "breaks": [
+              82,
+              100,
+              130,
+              180
+            ],
+            "direction": "ascending"
+          },
+          "17": {
+            "breaks": [
+              45,
+              58,
+              75,
+              97
+            ],
+            "direction": "ascending"
+          },
+          "18": {
+            "breaks": [
+              0.53,
+              0.84,
+              2.3,
+              4.9
+            ],
+            "direction": "ascending"
+          },
+          "19": {
+            "breaks": [
+              2.9,
+              4.5,
+              6.5,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "20": {
+            "breaks": [
+              2.9,
+              4.7,
+              6.5,
+              9.8
+            ],
+            "direction": "ascending"
+          },
+          "21": {
+            "breaks": [
+              61,
+              83,
+              100,
+              140
+            ],
+            "direction": "ascending"
+          },
+          "22": {
+            "breaks": [
+              0.68,
+              1.1,
+              1.5,
+              2.7
+            ],
+            "direction": "ascending"
+          },
+          "23": {
+            "breaks": [
+              19,
+              26,
+              35,
+              47
+            ],
+            "direction": "ascending"
+          },
+          "24": {
+            "breaks": [
+              0.79,
+              1.3,
+              1.9,
+              5.1
+            ],
+            "direction": "ascending"
+          },
+          "25": {
+            "breaks": [
+              1.9,
+              2.7,
+              4.5,
+              6.9
+            ],
+            "direction": "ascending"
+          },
+          "26": {
+            "breaks": [
+              1.7,
+              2.6,
+              4.1,
+              6.9
+            ],
+            "direction": "ascending"
+          },
+          "27": {
+            "breaks": [
+              1.4,
+              2.1,
+              4,
+              7.1
+            ],
+            "direction": "ascending"
+          },
+          "28": {
+            "breaks": [
+              11,
+              16,
+              23,
+              38
+            ],
+            "direction": "ascending"
+          },
+          "29": {
+            "breaks": [
+              1.4,
+              2.3,
+              3.4,
+              6.8
+            ],
+            "direction": "ascending"
+          },
+          "30": {
+            "breaks": [
+              2.2,
+              3.5,
+              5.7,
+              9.6
+            ],
+            "direction": "ascending"
+          },
+          "31": {
+            "breaks": [
+              5.2,
+              7.6,
+              11,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "32": {
+            "breaks": [
+              19,
+              26,
+              34,
+              48
+            ],
+            "direction": "ascending"
+          },
+          "33": {
+            "breaks": [
+              0.39,
+              0.53,
+              0.65,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "34": {
+            "breaks": [
+              1.1,
+              2,
+              2.7,
+              4.9
+            ],
+            "direction": "ascending"
+          },
+          "35": {
+            "breaks": [
+              0.94,
+              1.3,
+              2.3,
+              3.9
+            ],
+            "direction": "ascending"
+          },
+          "36": {
+            "breaks": [
+              6.8,
+              14,
+              22,
+              37
+            ],
+            "direction": "ascending"
+          },
+          "37": {
+            "breaks": [
+              0.23,
+              0.47,
+              0.79,
+              2.6
+            ],
+            "direction": "ascending"
+          },
+          "38": {
+            "breaks": [
+              3.1,
+              4.2,
+              6.3,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "39": {
+            "breaks": [
+              25,
+              33,
+              45,
+              65
+            ],
+            "direction": "ascending"
+          },
+          "40": {
+            "breaks": [
+              13,
+              16,
+              21,
+              29
+            ],
+            "direction": "ascending"
+          },
+          "41": {
+            "breaks": [
+              0.6,
+              1.1,
+              2.2,
+              3.1
+            ],
+            "direction": "ascending"
+          },
+          "42": {
+            "breaks": [
+              81,
+              100,
+              120,
+              160
+            ],
+            "direction": "ascending"
+          },
+          "01": {
+            "breaks": [
+              0.56,
+              1,
+              1.9,
+              4.1
+            ],
+            "direction": "ascending"
+          },
+          "02": {
+            "breaks": [
+              1.1,
+              2.3,
+              3.9,
+              7.4
+            ],
+            "direction": "ascending"
+          },
+          "03": {
+            "breaks": [
+              7,
+              9.6,
+              14,
+              21
+            ],
+            "direction": "ascending"
+          },
+          "04": {
+            "breaks": [
+              1.1,
+              1.9,
+              2.9,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "05": {
+            "breaks": [
+              0.6,
+              1,
+              2.2,
+              5.6
+            ],
+            "direction": "ascending"
+          },
+          "06": {
+            "breaks": [
+              210,
+              260,
+              310,
+              370
+            ],
+            "direction": "ascending"
+          },
+          "07": {
+            "breaks": [
+              5.1,
+              7,
+              9.5,
+              14
+            ],
+            "direction": "ascending"
+          },
+          "08": {
+            "breaks": [
+              1.2,
+              1.9,
+              2.9,
+              5.5
+            ],
+            "direction": "ascending"
+          },
+          "09": {
+            "breaks": [
+              35,
+              50,
+              64,
+              94
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（COVID-19 自 109 年起才有此分類）",
+        "missing": "無資料（分母戶籍人口缺，不是 0）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 344,
+        "first": {
+          "release_id": "2025-crude_death_rate_per_100k-township-v1-75f1491c9d90",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all"
+          }
+        },
+        "period_count": 8
+      }
+    },
+    {
+      "layer_key": "statsMortalityDeathsTownship",
+      "enabled": true,
+      "family": "mortality",
+      "label": "鄉鎮死因別死亡人數（逐年）",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "鄉鎮・死亡人數（逐年）",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_township",
+      "indicator_id": "deaths_by_cause",
+      "level": "township",
+      "boundary_version": "TOWN_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-deaths_by_cause-township-v1-38e8adae7f57",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        },
+        {
+          "key": "sex",
+          "label": "性別",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全部"
+            },
+            {
+              "value": "female",
+              "label": "女"
+            },
+            {
+              "value": "male",
+              "label": "男"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          150,
+          280,
+          430,
+          780
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "人數在有 0 人的組合中，0 人自成最淺一級（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "小鄉鎮人口少，單年數值波動大，建議看 5 年合計。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "01|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "02|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "03|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "04|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "05|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "06|all": {
+            "breaks": [
+              36,
+              72,
+              110,
+              220
+            ],
+            "direction": "ascending"
+          },
+          "07|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "08|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "09|all": {
+            "breaks": [
+              1,
+              10,
+              19,
+              38
+            ],
+            "direction": "ascending"
+          },
+          "10|all": {
+            "breaks": [
+              1,
+              3,
+              6,
+              12
+            ],
+            "direction": "ascending"
+          },
+          "11|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "12|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "13|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "14|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "15|all": {
+            "breaks": [
+              1,
+              7,
+              16,
+              29
+            ],
+            "direction": "ascending"
+          },
+          "16|all": {
+            "breaks": [
+              1,
+              21,
+              40,
+              74
+            ],
+            "direction": "ascending"
+          },
+          "17|all": {
+            "breaks": [
+              1,
+              12,
+              22,
+              44
+            ],
+            "direction": "ascending"
+          },
+          "18|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "19|all": {
+            "breaks": [
+              1,
+              3,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "20|all": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "21|all": {
+            "breaks": [
+              1,
+              17,
+              30,
+              57
+            ],
+            "direction": "ascending"
+          },
+          "22|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "23|all": {
+            "breaks": [
+              1,
+              5,
+              10,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "24|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "25|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "26|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "27|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "28|all": {
+            "breaks": [
+              1,
+              4,
+              8,
+              13
+            ],
+            "direction": "ascending"
+          },
+          "29|all": {
+            "breaks": [
+              1,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "30|all": {
+            "breaks": [
+              1,
+              2,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "31|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              7
+            ],
+            "direction": "ascending"
+          },
+          "32|all": {
+            "breaks": [
+              1,
+              5,
+              10,
+              22
+            ],
+            "direction": "ascending"
+          },
+          "33|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "34|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "35|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "36|all": {
+            "breaks": [
+              1,
+              2,
+              5,
+              15
+            ],
+            "direction": "ascending"
+          },
+          "37|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "38|all": {
+            "breaks": [
+              1,
+              3,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "39|all": {
+            "breaks": [
+              1,
+              7,
+              14,
+              24
+            ],
+            "direction": "ascending"
+          },
+          "40|all": {
+            "breaks": [
+              1,
+              3,
+              7,
+              14
+            ],
+            "direction": "ascending"
+          },
+          "41|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "42|all": {
+            "breaks": [
+              1,
+              19,
+              35,
+              72
+            ],
+            "direction": "ascending"
+          },
+          "all|female": {
+            "breaks": [
+              1,
+              70,
+              140,
+              270
+            ],
+            "direction": "ascending"
+          },
+          "all|male": {
+            "breaks": [
+              89,
+              160,
+              250,
+              460
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（COVID-19 自 109 年起才有此分類）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 675,
+        "first": {
+          "release_id": "2025-deaths_by_cause-township-v1-38e8adae7f57",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all",
+            "sex": "male"
+          }
+        },
+        "period_count": 15
+      }
+    },
+    {
+      "layer_key": "statsMortalityCauseCounty",
+      "enabled": true,
+      "family": "mortality",
+      "label": "縣市死因別粗死亡率",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "縣市・粗死亡率",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_county",
+      "indicator_id": "crude_death_rate_per_100k",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人/10萬人",
+      "aggregation": "ratio",
+      "default_release_id": "2025-crude_death_rate_per_100k-county-v1-20cf982d78b2",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          720,
+          880,
+          960,
+          1200
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "最淺色含 0（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "粗死亡率未做年齡標準化：高齡人口多的地方偏高，不代表醫療較差。",
+          "死亡率分母為 12 月底戶籍人口（衛福部公布的全國粗死亡率用年中人口，數值略有差異）；分母只有 107 年起，率只到 107 年起。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "10": {
+            "breaks": [
+              11,
+              14,
+              16,
+              22
+            ],
+            "direction": "ascending"
+          },
+          "11": {
+            "breaks": [
+              0.17,
+              0.22,
+              0.32,
+              0.38
+            ],
+            "direction": "ascending"
+          },
+          "12": {
+            "breaks": [
+              0.37,
+              0.59,
+              0.64,
+              0.79
+            ],
+            "direction": "ascending"
+          },
+          "13": {
+            "breaks": [
+              5.3,
+              6.9,
+              8.3,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "14": {
+            "breaks": [
+              1.3,
+              2.2,
+              3.5,
+              4.4
+            ],
+            "direction": "ascending"
+          },
+          "15": {
+            "breaks": [
+              24,
+              31,
+              48,
+              59
+            ],
+            "direction": "ascending"
+          },
+          "16": {
+            "breaks": [
+              76,
+              96,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "17": {
+            "breaks": [
+              43,
+              56,
+              62,
+              73
+            ],
+            "direction": "ascending"
+          },
+          "18": {
+            "breaks": [
+              0.14,
+              0.2,
+              0.25,
+              0.45
+            ],
+            "direction": "ascending"
+          },
+          "19": {
+            "breaks": [
+              3.1,
+              4.1,
+              5,
+              5.6
+            ],
+            "direction": "ascending"
+          },
+          "20": {
+            "breaks": [
+              2.9,
+              3.8,
+              4.5,
+              5.5
+            ],
+            "direction": "ascending"
+          },
+          "21": {
+            "breaks": [
+              52,
+              77,
+              83,
+              98
+            ],
+            "direction": "ascending"
+          },
+          "22": {
+            "breaks": [
+              0.032,
+              0.04,
+              0.12,
+              0.17
+            ],
+            "direction": "ascending"
+          },
+          "23": {
+            "breaks": [
+              18,
+              25,
+              30,
+              33
+            ],
+            "direction": "ascending"
+          },
+          "24": {
+            "breaks": [
+              0.17,
+              0.21,
+              0.34,
+              0.92
+            ],
+            "direction": "ascending"
+          },
+          "25": {
+            "breaks": [
+              1.4,
+              1.9,
+              2.4,
+              2.9
+            ],
+            "direction": "ascending"
+          },
+          "26": {
+            "breaks": [
+              1.9,
+              2.1,
+              2.6,
+              2.9
+            ],
+            "direction": "ascending"
+          },
+          "27": {
+            "breaks": [
+              1.5,
+              1.8,
+              2.3,
+              2.8
+            ],
+            "direction": "ascending"
+          },
+          "28": {
+            "breaks": [
+              12,
+              16,
+              18,
+              24
+            ],
+            "direction": "ascending"
+          },
+          "29": {
+            "breaks": [
+              1.4,
+              1.8,
+              2.1,
+              3.2
+            ],
+            "direction": "ascending"
+          },
+          "30": {
+            "breaks": [
+              2.7,
+              3.2,
+              3.5,
+              5.4
+            ],
+            "direction": "ascending"
+          },
+          "31": {
+            "breaks": [
+              6.4,
+              7.5,
+              9.4,
+              13
+            ],
+            "direction": "ascending"
+          },
+          "32": {
+            "breaks": [
+              22,
+              26,
+              30,
+              36
+            ],
+            "direction": "ascending"
+          },
+          "33": {
+            "breaks": [
+              0.062,
+              0.08,
+              0.11,
+              0.14
+            ],
+            "direction": "ascending"
+          },
+          "34": {
+            "breaks": [
+              0.84,
+              1.1,
+              1.3,
+              1.5
+            ],
+            "direction": "ascending"
+          },
+          "35": {
+            "breaks": [
+              0.84,
+              0.94,
+              1.1,
+              1.3
+            ],
+            "direction": "ascending"
+          },
+          "36": {
+            "breaks": [
+              9.2,
+              13,
+              17,
+              26
+            ],
+            "direction": "ascending"
+          },
+          "37": {
+            "breaks": [
+              0.058,
+              0.078,
+              0.09,
+              0.15
+            ],
+            "direction": "ascending"
+          },
+          "38": {
+            "breaks": [
+              3.2,
+              3.8,
+              4.5,
+              5.8
+            ],
+            "direction": "ascending"
+          },
+          "39": {
+            "breaks": [
+              25,
+              32,
+              37,
+              44
+            ],
+            "direction": "ascending"
+          },
+          "40": {
+            "breaks": [
+              16,
+              17,
+              18,
+              21
+            ],
+            "direction": "ascending"
+          },
+          "41": {
+            "breaks": [
+              0.42,
+              0.56,
+              0.66,
+              0.85
+            ],
+            "direction": "ascending"
+          },
+          "42": {
+            "breaks": [
+              88,
+              100,
+              110,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "01": {
+            "breaks": [
+              0.4,
+              0.54,
+              0.6,
+              0.83
+            ],
+            "direction": "ascending"
+          },
+          "02": {
+            "breaks": [
+              1.1,
+              1.4,
+              1.8,
+              2.5
+            ],
+            "direction": "ascending"
+          },
+          "03": {
+            "breaks": [
+              8.8,
+              9.4,
+              11,
+              13
+            ],
+            "direction": "ascending"
+          },
+          "04": {
+            "breaks": [
+              0.85,
+              1.2,
+              1.6,
+              2.1
+            ],
+            "direction": "ascending"
+          },
+          "05": {
+            "breaks": [
+              0.21,
+              0.23,
+              0.44,
+              0.6
+            ],
+            "direction": "ascending"
+          },
+          "06": {
+            "breaks": [
+              190,
+              240,
+              260,
+              300
+            ],
+            "direction": "ascending"
+          },
+          "07": {
+            "breaks": [
+              5.1,
+              6.3,
+              7.3,
+              8.9
+            ],
+            "direction": "ascending"
+          },
+          "08": {
+            "breaks": [
+              1.1,
+              1.4,
+              1.6,
+              1.9
+            ],
+            "direction": "ascending"
+          },
+          "09": {
+            "breaks": [
+              33,
+              44,
+              49,
+              65
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（COVID-19 自 109 年起才有此分類）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 344,
+        "first": {
+          "release_id": "2025-crude_death_rate_per_100k-county-v1-20cf982d78b2",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all"
+          }
+        },
+        "period_count": 8
+      }
+    },
+    {
+      "layer_key": "statsMortalityDeathsCounty",
+      "enabled": true,
+      "family": "mortality",
+      "label": "縣市死因別死亡人數",
+      "group": "mortalityCause",
+      "group_label": "死因統計",
+      "option_label": "縣市・死亡人數",
+      "subgroup": "死因統計",
+      "data_theme": "疾病與健康統計 Disease & Health Statistics",
+      "tab_theme": "醫療與長照 Health & Care",
+      "visual_theme": "health",
+      "dataset_id": "mortality_cause_county",
+      "indicator_id": "deaths_by_cause",
+      "level": "county",
+      "boundary_version": "COUNTY_MOI_1140318",
+      "unit": "人",
+      "aggregation": "sum",
+      "default_release_id": "2025-deaths_by_cause-county-v1-47d7cd9ff6c9",
+      "dimensions": [
+        {
+          "key": "cause",
+          "label": "死因",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全死因"
+            },
+            {
+              "value": "01",
+              "label": "腸道感染症（A00-A09）"
+            },
+            {
+              "value": "02",
+              "label": "結核病（A15-A19）"
+            },
+            {
+              "value": "03",
+              "label": "敗血症（A40-A41）"
+            },
+            {
+              "value": "04",
+              "label": "病毒性肝炎（B15-B19）"
+            },
+            {
+              "value": "05",
+              "label": "人類免疫缺乏病毒（HIV）疾病（B20-B24）"
+            },
+            {
+              "value": "06",
+              "label": "惡性腫瘤（C00-C97）"
+            },
+            {
+              "value": "07",
+              "label": "原位與良性腫瘤（惡性腫瘤除外）（D00-D48）"
+            },
+            {
+              "value": "08",
+              "label": "貧血（D50-D64）"
+            },
+            {
+              "value": "09",
+              "label": "糖尿病（E10-E14）"
+            },
+            {
+              "value": "10",
+              "label": "血管性及未明示之失智症（F01-F03）"
+            },
+            {
+              "value": "11",
+              "label": "腦膜炎（G00, G03）"
+            },
+            {
+              "value": "12",
+              "label": "脊椎(骨)肌肉萎縮及有關症候群（G12）"
+            },
+            {
+              "value": "13",
+              "label": "帕金森(氏)病（G20-G21）"
+            },
+            {
+              "value": "14",
+              "label": "阿茲海默(氏)病（G30）"
+            },
+            {
+              "value": "15",
+              "label": "高血壓性疾病（I10-I15）"
+            },
+            {
+              "value": "16",
+              "label": "心臟疾病（高血壓性疾病除外）（I01-I02.0, I05-I09, I20-I25, I27, I30-I52）"
+            },
+            {
+              "value": "17",
+              "label": "腦血管疾病（I60-I69）"
+            },
+            {
+              "value": "18",
+              "label": "動脈粥樣硬化（I70）"
+            },
+            {
+              "value": "19",
+              "label": "主動脈瘤及剝離（I71）"
+            },
+            {
+              "value": "20",
+              "label": "流行性感冒（J10-J11）"
+            },
+            {
+              "value": "21",
+              "label": "肺炎（J12-J18）"
+            },
+            {
+              "value": "22",
+              "label": "急性支氣管炎及急性細支氣管炎（J20-J21）"
+            },
+            {
+              "value": "23",
+              "label": "慢性下呼吸道疾病（J40-J47）"
+            },
+            {
+              "value": "24",
+              "label": "塵肺症（J60-J65）"
+            },
+            {
+              "value": "25",
+              "label": "肇因於吸入外物之肺部病況（塵肺症及肺炎除外）（J66, J68-J69）"
+            },
+            {
+              "value": "26",
+              "label": "胃及十二指腸潰瘍（K25-K28）"
+            },
+            {
+              "value": "27",
+              "label": "疝氣及腸阻塞（K40-K46, K56）"
+            },
+            {
+              "value": "28",
+              "label": "慢性肝病及肝硬化（K70, K73-K74）"
+            },
+            {
+              "value": "29",
+              "label": "膽結石及其他膽囊疾患（K80-K82）"
+            },
+            {
+              "value": "30",
+              "label": "皮膚與皮下組織疾病（L00-L99）"
+            },
+            {
+              "value": "31",
+              "label": "肌肉骨骼系統與結締組織疾病（M00-M99）"
+            },
+            {
+              "value": "32",
+              "label": "腎炎、腎病症候群及腎病變（N00-N07, N17-N19, N25-N27）"
+            },
+            {
+              "value": "33",
+              "label": "妊娠(懷孕)、生產及產褥期（O00-O99）"
+            },
+            {
+              "value": "34",
+              "label": "源於周產期的病況（P00-P96）"
+            },
+            {
+              "value": "35",
+              "label": "先天性畸形、變形與染色體異常（Q00-Q99）"
+            },
+            {
+              "value": "36",
+              "label": "衰老／老邁／老年（R54）"
+            },
+            {
+              "value": "37",
+              "label": "嬰兒猝死症候群（SIDS）（R95）"
+            },
+            {
+              "value": "38",
+              "label": "嚴重特殊傳染性肺炎（COVID-19）（U07.1）"
+            },
+            {
+              "value": "39",
+              "label": "事故傷害（V01-X59, Y85-Y86）"
+            },
+            {
+              "value": "40",
+              "label": "蓄意自我傷害（自殺）（X60-X84, Y87.0）"
+            },
+            {
+              "value": "41",
+              "label": "加害（他殺）（X85-Y09, Y87.1）"
+            },
+            {
+              "value": "42",
+              "label": "其他"
+            }
+          ]
+        },
+        {
+          "key": "sex",
+          "label": "性別",
+          "default": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "全部"
+            },
+            {
+              "value": "female",
+              "label": "女"
+            },
+            {
+              "value": "male",
+              "label": "男"
+            }
+          ]
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          2500,
+          4200,
+          7200,
+          17000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "人數在有 0 人的組合中，0 人自成最淺一級（該期無死亡，不是無資料）。",
+        "display_note": null,
+        "notes": [
+          "出典：衛生福利部統計處 死因統計（data.gov.tw 5965）；政府資料開放授權條款-第1版。",
+          "0 為該期無死亡（真值，不是無資料）；斜線為不適用或無資料。",
+          "死因已統一為 109 年起 42 類；COVID-19 自 109 年起才有。"
+        ],
+        "by_dimension": {
+          "01|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "01|female": {
+            "breaks": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "01|male": {
+            "breaks": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "direction": "ascending"
+          },
+          "02|all": {
+            "breaks": [
+              1,
+              3,
+              10,
+              31
+            ],
+            "direction": "ascending"
+          },
+          "02|female": {
+            "breaks": [
+              1,
+              2,
+              4,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "02|male": {
+            "breaks": [
+              1,
+              2,
+              8,
+              20
+            ],
+            "direction": "ascending"
+          },
+          "03|all": {
+            "breaks": [
+              33,
+              51,
+              64,
+              170
+            ],
+            "direction": "ascending"
+          },
+          "03|female": {
+            "breaks": [
+              15,
+              22,
+              31,
+              83
+            ],
+            "direction": "ascending"
+          },
+          "03|male": {
+            "breaks": [
+              1,
+              20,
+              35,
+              74
+            ],
+            "direction": "ascending"
+          },
+          "04|all": {
+            "breaks": [
+              1,
+              4,
+              7,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "04|female": {
+            "breaks": [
+              1,
+              2,
+              3,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "04|male": {
+            "breaks": [
+              1,
+              2,
+              5,
+              16
+            ],
+            "direction": "ascending"
+          },
+          "05|all": {
+            "breaks": [
+              1,
+              2,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "05|female": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "05|male": {
+            "breaks": [
+              1,
+              2,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "06|all": {
+            "breaks": [
+              650,
+              1100,
+              1900,
+              4900
+            ],
+            "direction": "ascending"
+          },
+          "06|female": {
+            "breaks": [
+              280,
+              440,
+              640,
+              1900
+            ],
+            "direction": "ascending"
+          },
+          "06|male": {
+            "breaks": [
+              380,
+              630,
+              1300,
+              2900
+            ],
+            "direction": "ascending"
+          },
+          "07|all": {
+            "breaks": [
+              14,
+              33,
+              58,
+              100
+            ],
+            "direction": "ascending"
+          },
+          "07|female": {
+            "breaks": [
+              5,
+              15,
+              21,
+              49
+            ],
+            "direction": "ascending"
+          },
+          "07|male": {
+            "breaks": [
+              1,
+              15,
+              24,
+              54
+            ],
+            "direction": "ascending"
+          },
+          "08|all": {
+            "breaks": [
+              1,
+              5,
+              10,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "08|female": {
+            "breaks": [
+              1,
+              2,
+              4,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "08|male": {
+            "breaks": [
+              1,
+              3,
+              5,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "09|all": {
+            "breaks": [
+              120,
+              270,
+              420,
+              740
+            ],
+            "direction": "ascending"
+          },
+          "09|female": {
+            "breaks": [
+              1,
+              89,
+              180,
+              320
+            ],
+            "direction": "ascending"
+          },
+          "09|male": {
+            "breaks": [
+              66,
+              130,
+              220,
+              390
+            ],
+            "direction": "ascending"
+          },
+          "10|all": {
+            "breaks": [
+              1,
+              73,
+              96,
+              200
+            ],
+            "direction": "ascending"
+          },
+          "10|female": {
+            "breaks": [
+              1,
+              43,
+              62,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "10|male": {
+            "breaks": [
+              1,
+              24,
+              34,
+              89
+            ],
+            "direction": "ascending"
+          },
+          "11|all": {
+            "breaks": [
+              1,
+              2,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "11|female": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "11|male": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "12|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              13
+            ],
+            "direction": "ascending"
+          },
+          "12|female": {
+            "breaks": [
+              1,
+              3,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "12|male": {
+            "breaks": [
+              1,
+              3,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "13|all": {
+            "breaks": [
+              1,
+              30,
+              42,
+              100
+            ],
+            "direction": "ascending"
+          },
+          "13|female": {
+            "breaks": [
+              1,
+              13,
+              22,
+              50
+            ],
+            "direction": "ascending"
+          },
+          "13|male": {
+            "breaks": [
+              1,
+              15,
+              23,
+              55
+            ],
+            "direction": "ascending"
+          },
+          "14|all": {
+            "breaks": [
+              1,
+              9,
+              19,
+              48
+            ],
+            "direction": "ascending"
+          },
+          "14|female": {
+            "breaks": [
+              1,
+              6,
+              12,
+              32
+            ],
+            "direction": "ascending"
+          },
+          "14|male": {
+            "breaks": [
+              1,
+              3,
+              6,
+              14
+            ],
+            "direction": "ascending"
+          },
+          "15|all": {
+            "breaks": [
+              68,
+              170,
+              310,
+              680
+            ],
+            "direction": "ascending"
+          },
+          "15|female": {
+            "breaks": [
+              38,
+              80,
+              150,
+              340
+            ],
+            "direction": "ascending"
+          },
+          "15|male": {
+            "breaks": [
+              30,
+              90,
+              160,
+              320
+            ],
+            "direction": "ascending"
+          },
+          "16|all": {
+            "breaks": [
+              310,
+              570,
+              900,
+              1800
+            ],
+            "direction": "ascending"
+          },
+          "16|female": {
+            "breaks": [
+              1,
+              150,
+              260,
+              610
+            ],
+            "direction": "ascending"
+          },
+          "16|male": {
+            "breaks": [
+              190,
+              320,
+              530,
+              1100
+            ],
+            "direction": "ascending"
+          },
+          "17|all": {
+            "breaks": [
+              160,
+              320,
+              410,
+              1100
+            ],
+            "direction": "ascending"
+          },
+          "17|female": {
+            "breaks": [
+              66,
+              120,
+              190,
+              460
+            ],
+            "direction": "ascending"
+          },
+          "17|male": {
+            "breaks": [
+              96,
+              170,
+              220,
+              620
+            ],
+            "direction": "ascending"
+          },
+          "18|all": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "18|female": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "18|male": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "19|all": {
+            "breaks": [
+              1,
+              18,
+              34,
+              73
+            ],
+            "direction": "ascending"
+          },
+          "19|female": {
+            "breaks": [
+              1,
+              5,
+              9,
+              26
+            ],
+            "direction": "ascending"
+          },
+          "19|male": {
+            "breaks": [
+              1,
+              13,
+              20,
+              47
+            ],
+            "direction": "ascending"
+          },
+          "20|all": {
+            "breaks": [
+              1,
+              10,
+              25,
+              64
+            ],
+            "direction": "ascending"
+          },
+          "20|female": {
+            "breaks": [
+              1,
+              6,
+              10,
+              29
+            ],
+            "direction": "ascending"
+          },
+          "20|male": {
+            "breaks": [
+              1,
+              5,
+              13,
+              35
+            ],
+            "direction": "ascending"
+          },
+          "21|all": {
+            "breaks": [
+              200,
+              330,
+              700,
+              1400
+            ],
+            "direction": "ascending"
+          },
+          "21|female": {
+            "breaks": [
+              1,
+              100,
+              230,
+              550
+            ],
+            "direction": "ascending"
+          },
+          "21|male": {
+            "breaks": [
+              120,
+              200,
+              410,
+              810
+            ],
+            "direction": "ascending"
+          },
+          "22|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "22|female": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "22|male": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "23|all": {
+            "breaks": [
+              58,
+              170,
+              210,
+              410
+            ],
+            "direction": "ascending"
+          },
+          "23|female": {
+            "breaks": [
+              1,
+              19,
+              56,
+              83
+            ],
+            "direction": "ascending"
+          },
+          "23|male": {
+            "breaks": [
+              46,
+              120,
+              150,
+              290
+            ],
+            "direction": "ascending"
+          },
+          "24|all": {
+            "breaks": [
+              1,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "24|female": {
+            "breaks": [
+              1,
+              2,
+              3
+            ],
+            "direction": "ascending"
+          },
+          "24|male": {
+            "breaks": [
+              1,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "25|all": {
+            "breaks": [
+              1,
+              6,
+              15,
+              36
+            ],
+            "direction": "ascending"
+          },
+          "25|female": {
+            "breaks": [
+              1,
+              3,
+              8,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "25|male": {
+            "breaks": [
+              1,
+              4,
+              9,
+              19
+            ],
+            "direction": "ascending"
+          },
+          "26|all": {
+            "breaks": [
+              1,
+              9,
+              18,
+              34
+            ],
+            "direction": "ascending"
+          },
+          "26|female": {
+            "breaks": [
+              1,
+              4,
+              5,
+              14
+            ],
+            "direction": "ascending"
+          },
+          "26|male": {
+            "breaks": [
+              1,
+              7,
+              12,
+              20
+            ],
+            "direction": "ascending"
+          },
+          "27|all": {
+            "breaks": [
+              4,
+              11,
+              19,
+              38
+            ],
+            "direction": "ascending"
+          },
+          "27|female": {
+            "breaks": [
+              1,
+              4,
+              7,
+              18
+            ],
+            "direction": "ascending"
+          },
+          "27|male": {
+            "breaks": [
+              2,
+              6,
+              8,
+              21
+            ],
+            "direction": "ascending"
+          },
+          "28|all": {
+            "breaks": [
+              1,
+              79,
+              120,
+              220
+            ],
+            "direction": "ascending"
+          },
+          "28|female": {
+            "breaks": [
+              1,
+              22,
+              32,
+              69
+            ],
+            "direction": "ascending"
+          },
+          "28|male": {
+            "breaks": [
+              1,
+              56,
+              86,
+              170
+            ],
+            "direction": "ascending"
+          },
+          "29|all": {
+            "breaks": [
+              1,
+              8,
+              11,
+              26
+            ],
+            "direction": "ascending"
+          },
+          "29|female": {
+            "breaks": [
+              1,
+              3,
+              6,
+              13
+            ],
+            "direction": "ascending"
+          },
+          "29|male": {
+            "breaks": [
+              1,
+              3,
+              7,
+              15
+            ],
+            "direction": "ascending"
+          },
+          "30|all": {
+            "breaks": [
+              1,
+              14,
+              23,
+              54
+            ],
+            "direction": "ascending"
+          },
+          "30|female": {
+            "breaks": [
+              1,
+              7,
+              10,
+              28
+            ],
+            "direction": "ascending"
+          },
+          "30|male": {
+            "breaks": [
+              1,
+              8,
+              12,
+              28
+            ],
+            "direction": "ascending"
+          },
+          "31|all": {
+            "breaks": [
+              21,
+              46,
+              70,
+              140
+            ],
+            "direction": "ascending"
+          },
+          "31|female": {
+            "breaks": [
+              1,
+              20,
+              30,
+              68
+            ],
+            "direction": "ascending"
+          },
+          "31|male": {
+            "breaks": [
+              9,
+              21,
+              37,
+              62
+            ],
+            "direction": "ascending"
+          },
+          "32|all": {
+            "breaks": [
+              86,
+              130,
+              210,
+              460
+            ],
+            "direction": "ascending"
+          },
+          "32|female": {
+            "breaks": [
+              36,
+              67,
+              110,
+              210
+            ],
+            "direction": "ascending"
+          },
+          "32|male": {
+            "breaks": [
+              1,
+              53,
+              92,
+              200
+            ],
+            "direction": "ascending"
+          },
+          "33|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "33|female": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "33|male": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "34|all": {
+            "breaks": [
+              1,
+              4,
+              8,
+              20
+            ],
+            "direction": "ascending"
+          },
+          "34|female": {
+            "breaks": [
+              1,
+              2,
+              4,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "34|male": {
+            "breaks": [
+              1,
+              2,
+              4,
+              11
+            ],
+            "direction": "ascending"
+          },
+          "35|all": {
+            "breaks": [
+              1,
+              4,
+              6,
+              17
+            ],
+            "direction": "ascending"
+          },
+          "35|female": {
+            "breaks": [
+              1,
+              2,
+              3,
+              8
+            ],
+            "direction": "ascending"
+          },
+          "35|male": {
+            "breaks": [
+              1,
+              2,
+              4,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "36|all": {
+            "breaks": [
+              24,
+              79,
+              100,
+              210
+            ],
+            "direction": "ascending"
+          },
+          "36|female": {
+            "breaks": [
+              1,
+              32,
+              49,
+              120
+            ],
+            "direction": "ascending"
+          },
+          "36|male": {
+            "breaks": [
+              9,
+              35,
+              45,
+              92
+            ],
+            "direction": "ascending"
+          },
+          "37|all": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "37|female": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "37|male": {
+            "breaks": [
+              1,
+              2
+            ],
+            "direction": "ascending"
+          },
+          "38|all": {
+            "breaks": [
+              1,
+              15,
+              31,
+              76
+            ],
+            "direction": "ascending"
+          },
+          "38|female": {
+            "breaks": [
+              1,
+              7,
+              11,
+              33
+            ],
+            "direction": "ascending"
+          },
+          "38|male": {
+            "breaks": [
+              1,
+              7,
+              15,
+              43
+            ],
+            "direction": "ascending"
+          },
+          "39|all": {
+            "breaks": [
+              94,
+              190,
+              260,
+              550
+            ],
+            "direction": "ascending"
+          },
+          "39|female": {
+            "breaks": [
+              1,
+              40,
+              69,
+              140
+            ],
+            "direction": "ascending"
+          },
+          "39|male": {
+            "breaks": [
+              68,
+              130,
+              180,
+              380
+            ],
+            "direction": "ascending"
+          },
+          "40|all": {
+            "breaks": [
+              45,
+              90,
+              120,
+              330
+            ],
+            "direction": "ascending"
+          },
+          "40|female": {
+            "breaks": [
+              1,
+              25,
+              37,
+              100
+            ],
+            "direction": "ascending"
+          },
+          "40|male": {
+            "breaks": [
+              31,
+              58,
+              82,
+              210
+            ],
+            "direction": "ascending"
+          },
+          "41|all": {
+            "breaks": [
+              1,
+              2,
+              4,
+              10
+            ],
+            "direction": "ascending"
+          },
+          "41|female": {
+            "breaks": [
+              1,
+              2,
+              5
+            ],
+            "direction": "ascending"
+          },
+          "41|male": {
+            "breaks": [
+              1,
+              4,
+              6
+            ],
+            "direction": "ascending"
+          },
+          "42|all": {
+            "breaks": [
+              240,
+              460,
+              680,
+              1900
+            ],
+            "direction": "ascending"
+          },
+          "42|female": {
+            "breaks": [
+              110,
+              180,
+              330,
+              850
+            ],
+            "direction": "ascending"
+          },
+          "42|male": {
+            "breaks": [
+              140,
+              280,
+              360,
+              1100
+            ],
+            "direction": "ascending"
+          },
+          "all|female": {
+            "breaks": [
+              1000,
+              1800,
+              3000,
+              7300
+            ],
+            "direction": "ascending"
+          },
+          "all|male": {
+            "breaks": [
+              1500,
+              2400,
+              4200,
+              10000
+            ],
+            "direction": "ascending"
+          }
+        },
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "不適用（COVID-19 自 109 年起才有此分類）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "死亡者戶籍所在地（依死亡年）",
+      "disclosure": "衛生福利部統計處死因統計（data.gov.tw 5965）原始檔只列非零格：鄉鎮在當年碼表內但無列者為 0 人（全登記制），不是缺值；COVID-19 類 109 年起才有，108 年以前標「不適用」。死因代碼 97–108 年 41 類、109 年起 42 類（新增 COVID-19，原事故傷害、自殺、他殺、其他順延），本資料已統一為 109 年起 42 類；96 年以前為 ICD-9 不收。居住地鄉鎮依現行 368 鄉鎮（97–99 年改制前依名稱對映）。粗死亡率＝死亡數÷同年 12 月底戶籍人口×10 萬，未做年齡標準化，老年人口多的地區偏高；分母只有 107 年起，故率只到 107 年起。小鄉鎮單年數值波動大，建議看 5 年合計。不遮蔽小數。",
+      "publisher": "衛生福利部統計處",
+      "license": "政府資料開放授權條款-第1版",
+      "source_landing_url": "https://data.gov.tw/dataset/5965",
+      "source_download_url": "https://www.mohw.gov.tw/dl-83417-aa29a17f-289d-4934-a868-fe74b3b14afc.html",
+      "source_title": "死因統計（data.gov.tw 5965）",
+      "release_summary": {
+        "count": 2322,
+        "first": {
+          "release_id": "2025-deaths_by_cause-county-v1-47d7cd9ff6c9",
+          "period_start": "2025-01-01",
+          "period_end": "2025-12-31",
+          "dimensions": {
+            "cause": "all",
+            "sex": "male"
+          }
+        },
+        "period_count": 18
+      }
+    }
+  ],
+  "catalog_generated_from": "mortalityStatisticsRecipes.json",
+  "catalog_generator": "src/data/statisticsRecipeCatalog.ts via scripts/statistics/build_statistics_recipe_catalogs.ts"
+}

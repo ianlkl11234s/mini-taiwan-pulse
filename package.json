@@ -1,7 +1,7 @@
 {
   "name": "mini-taiwan-pulse",
   "private": true,
-  "version": "2.13.0",
+  "version": "2.14.0",
   "type": "module",
   "packageManager": "npm@11.4.2",
   "scripts": {
@@ -59,7 +59,7 @@
     "react-dom": "^19.0.0",
     "satellite.js": "^5.0.0",
     "three": "^0.172.0",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/css": "2.0.0",
