@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1317,
+    "keyCount": 1320,
     "sections": [
       "gisLayers",
       "overlays",
@@ -942,6 +942,24 @@
         "jp-schools-circle"
       ],
       "type": "jpSchools"
+    },
+    {
+      "layers": [
+        "jp-evacuation-sites-circle"
+      ],
+      "type": "jpEvacuationSites"
+    },
+    {
+      "layers": [
+        "jp-public-offices-circle"
+      ],
+      "type": "jpPublicOffices"
+    },
+    {
+      "layers": [
+        "jp-bus-stops-circle"
+      ],
+      "type": "jpBusStops"
     },
     {
       "layers": [
@@ -92244,6 +92262,103 @@
         "value": "0"
       }
     ],
+    "jpBusStops": [
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jpCanopyHeight": [
       {
         "label": "透明度 0.70",
@@ -92781,6 +92896,159 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "jpEvacuationSites": [
+      {
+        "label": "災害種別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "field": "hazard_flood",
+            "label": "洪水",
+            "value": "flood"
+          },
+          {
+            "field": "hazard_landslide",
+            "label": "崖崩れ等",
+            "value": "landslide"
+          },
+          {
+            "field": "hazard_storm_surge",
+            "label": "高潮",
+            "value": "storm_surge"
+          },
+          {
+            "field": "hazard_earthquake",
+            "label": "地震",
+            "value": "earthquake"
+          },
+          {
+            "field": "hazard_tsunami",
+            "label": "津波",
+            "value": "tsunami"
+          },
+          {
+            "field": "hazard_large_fire",
+            "label": "大規模な火事",
+            "value": "large_fire"
+          },
+          {
+            "field": "hazard_inland_flood",
+            "label": "内水氾濫",
+            "value": "inland_flood"
+          },
+          {
+            "field": "hazard_volcano",
+            "label": "火山現象",
+            "value": "volcano"
+          },
+          {
+            "field": "is_welfare_shelter",
+            "label": "只看指定福祉避難所",
+            "value": "welfare"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jpHistoricalFlightTrails": [
@@ -93661,6 +93929,148 @@
         "step": 0.05,
         "value": 0.3,
         "valueText": "0.30"
+      }
+    ],
+    "jpPublicOffices": [
+      {
+        "label": "設施分類",
+        "options": [
+          {
+            "label": "預設（不含集會施設）",
+            "value": "default"
+          },
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "color": "#7c3aed",
+            "count": 1908,
+            "label": "市區町村本廳",
+            "value": "main_office"
+          },
+          {
+            "color": "#2563eb",
+            "count": 4272,
+            "label": "支所・出張所",
+            "value": "branch_office"
+          },
+          {
+            "color": "#14b8a6",
+            "count": 2562,
+            "label": "其他行政服務",
+            "value": "other_service"
+          },
+          {
+            "color": "#f59e0b",
+            "count": 21302,
+            "label": "公立公民館",
+            "value": "public_hall"
+          },
+          {
+            "color": "#94a3b8",
+            "count": 49488,
+            "label": "集會施設",
+            "value": "assembly_facility"
+          }
+        ],
+        "type": "select",
+        "value": "default"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jpRailways": [

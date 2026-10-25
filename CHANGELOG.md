@@ -63,6 +63,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+- 日本分頁新增 3 個點位圖層（第一波）：「民防避難 › 避難場所」199,346 點（指定緊急避難場所＋指定避難所兩色，兩者法定意義不同、不可相加；可依災害種別或指定福祉避難所篩選；彈窗與圖例註明資料可能非最新、請向市町村確認）、「基礎建設 › 役所與公民館」79,532 點（5 類分色，集會施設佔 62%、預設隱藏，2022-04 基準）、「交通 › 公車站」278,515 站（依民營／社區／公營路線分色，2022 年度版、不含デマンドバス與高速バス）；日本分頁多了「民防避難」「基礎建設」兩個主題
+  - ⚠️ 發版注意事項：發版當天 develop→master 前，要先把兩個 PMTiles（`public/world/jp_evacuation_sites.pmtiles` 67MB、`public/world/jp_public_offices.pmtiles` 46MB）上傳到 S3 `deploy-assets/world/`（`scripts/deploy/upload-deploy-assets.sh`，已加進 world 大檔清單）；`jp_bus_stops.pmtiles`（20MB）已 git-track，不需上傳。未上傳就發版，避難場所與役所兩層在正式站會是空的
+
 ## v2.14.0 — 2026-10-25 — 模擬面板（站主）、金融據點與國有資產、死因統計
 
 ### 新增

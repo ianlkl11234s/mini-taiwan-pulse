@@ -417,6 +417,7 @@ export type ExpandableLayerKey =
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -929,6 +930,8 @@ export interface FeatureInfo {
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
+    // 日本第一波圖層（避難場所／役所與公民館／公車站，靜態 PMTiles 點層）
+    | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1706,6 +1709,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jpEvacuationSites: boolean;   // 日本避難場所（PMTiles point，199,346 筆；指定緊急避難場所＋指定避難所）
+  jpPublicOffices: boolean;     // 日本役所與公民館（PMTiles point，79,532 筆；5 類，集會施設預設隱藏）
+  jpBusStops: boolean;          // 日本公車站（PMTiles point，278,515 筆；2022 年度版）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）

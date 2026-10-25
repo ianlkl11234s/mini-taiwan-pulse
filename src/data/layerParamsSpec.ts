@@ -68,6 +68,8 @@ import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
 import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
+import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -2037,6 +2039,23 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
       out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
   ],
+  jpEvacuationSites: [
+    heatmapPalette("jpEvacuationSites"),
+    opacitySlider("jpEvacuationSitesOpacity", densePointOpacity(199_346)), scaleSlider("jpEvacuationSitesScale", 1),
+    // 災害種別只有緊急避難場所有、福祉避難所只有指定避難所有，互斥 → 合成單一 select 避免選到空集合
+    { kind: "select", category: "data", name: "jpEvacuationSitesFilter", label: "災害種別", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_EVACUATION_FILTERS],
+      out: "jpEvacuationSitesFilterIdx", encode: ["all", ...JP_EVACUATION_FILTERS.map(f => f.value)] },
+  ],
+  jpPublicOffices: [
+    heatmapPalette("jpPublicOffices"),
+    opacitySlider("jpPublicOfficesOpacity", densePointOpacity(79_532)), scaleSlider("jpPublicOfficesScale", 1),
+    // 集會施設佔 62%，預設隱藏；idx 0=預設、1=全部、2–6=單一分類
+    { kind: "select", category: "data", name: "jpPublicOfficesClass", label: "設施分類", default: "default",
+      options: [{ value: "default", label: "預設（不含集會施設）" }, { value: "all", label: "全部" }, ...JP_PUBLIC_OFFICE_CLASSES],
+      out: "jpPublicOfficesClassIdx", encode: ["default", "all", ...JP_PUBLIC_OFFICE_CLASSES.map(c => c.value)] },
+  ],
+  jpBusStops: [heatmapPalette("jpBusStops"), opacitySlider("jpBusStopsOpacity", densePointOpacity(278_515)), scaleSlider("jpBusStopsScale", 1)],
   jpSchools: [heatmapPalette("jpSchools"), opacitySlider("jpSchoolsOpacity", densePointOpacity(56_807)), scaleSlider("jpSchoolsScale", 1)],
   // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名
   // （非數值字串）⇒ 走 encode 存索引，overlayParams.jpPopulationMeshModeIdx 是 index。

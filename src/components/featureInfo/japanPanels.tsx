@@ -1,4 +1,7 @@
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
+import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_HAZARDS, JP_EVACUATION_LAYER_COLOR, JP_EVACUATION_ATTRIBUTION, JP_EVACUATION_DATA_AS_OF } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_LAYER_COLOR, JP_PUBLIC_OFFICE_ATTRIBUTION, JP_PUBLIC_OFFICE_DATA_AS_OF } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_LAYER_COLOR, JP_BUS_STOP_ATTRIBUTION, JP_BUS_STOP_DATA_AS_OF, JP_PREFECTURE_NAMES } from "../../data/jpBusStopTypes";
 import { Row, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
@@ -361,5 +364,69 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
     <Row field="coordPrecision" value={precision[precisionKey] ? enumLabel("jpGeomPrecision", precisionKey, precision[precisionKey], i18n) : na} />
     <Row label={t("popup.japan.positionSource")} value={sourceKey ? enumLabel("jpGeometrySource", sourceKey, sourceKey === "gsi_address" ? "国土地理院 AddressSearch" : "国土地理院最適化ベクトルタイル", i18n) : na} />
     <Row field="attribution" value={JP_POLICE_ATTRIBUTION} />
+  </>;
+}
+
+/** MVT boolean 可能以 true／"true"／1 出現；null 欄位在 tile 內不存在。 */
+const mvtTrue = (v: unknown): boolean => v === true || v === "true" || v === 1 || v === "1";
+
+/** 日本避難場所：兩種場所法定意義不同（不可相加）；災害種別僅指定緊急避難場所有值。 */
+export function JpEvacuationSitesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const siteType = JP_EVACUATION_SITE_TYPES.find(st => st.value === props.site_type);
+  const isEmergency = props.site_type === "emergency_site";
+  const hazards = isEmergency ? JP_EVACUATION_HAZARDS.filter(h => mvtTrue(props[h.field])) : [];
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={siteType?.color ?? JP_EVACUATION_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.evacDefault")}</Title>
+    <Row label={t("popup.japan.evacSiteType")} value={siteType ? enumLabel("jpEvacSite", siteType.value, siteType.label, i18n) : na} />
+    {isEmergency && <Row label={t("popup.japan.evacHazards")} value={hazards.length ? hazards.map(h => enumLabel("jpEvacHazard", h.value, h.label, i18n)).join("、") : t("popup.japan.evacHazardsNone")} />}
+    {props.site_type === "shelter" && mvtTrue(props.is_welfare_shelter) && <Row label={t("popup.japan.evacWelfare")} value={t("popup.japan.evacWelfareValue")} />}
+    {mvtTrue(props.same_address_as_other_type) && <Row label={t("popup.japan.evacSameAddress")} value={t("popup.japan.evacSameAddressValue")} />}
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row label={t("popup.japan.evacMunicipality")} value={policeText(props.municipality) || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_EVACUATION_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.evacLegalNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.evacStaleNote")} />
+    <Row field="attribution" value={JP_EVACUATION_ATTRIBUTION} />
+  </>;
+}
+
+/** 日本役所與公民館（P05）：2022-04 基準，不能當現況營運名冊。 */
+export function JpPublicOfficesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_PUBLIC_OFFICE_CLASSES.find(c => c.value === props.facility_class);
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={cls?.color ?? JP_PUBLIC_OFFICE_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.officeDefault")}</Title>
+    <Row label={t("popup.japan.officeClass")} value={cls ? enumLabel("jpPublicOfficeClass", cls.value, cls.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_PUBLIC_OFFICE_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.officeBasisNote")} />
+    <Row field="attribution" value={JP_PUBLIC_OFFICE_ATTRIBUTION} />
+  </>;
+}
+
+/** 日本公車站（P11 2022 年度版）：PMTiles 只帶 route_count，不含系統名；縣名由 pref_code 對照。 */
+export function JpBusStopsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_BUS_STOP_CLASSES.find(c => c.value === props.bus_class);
+  const na = t("popup.common.notProvided");
+  const pref = JP_PREFECTURE_NAMES[policeText(props.pref_code)];
+  const routeCount = policeText(props.route_count);
+  return <>
+    <Title color={cls?.color ?? JP_BUS_STOP_LAYER_COLOR}>{policeText(props.stop_name) || t("popup.japan.busDefault")}</Title>
+    <Row label={t("popup.japan.busOperator")} value={policeText(props.operator) || na} />
+    <Row label={t("popup.japan.busClass")} value={cls ? enumLabel("jpBusClass", cls.value, cls.label, i18n) : na} />
+    <Row label={t("popup.japan.busRouteCount")} value={routeCount || na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_BUS_STOP_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.busScopeNote")} />
+    <Row field="attribution" value={JP_BUS_STOP_ATTRIBUTION} />
   </>;
 }

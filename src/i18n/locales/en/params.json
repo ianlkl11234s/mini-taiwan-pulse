@@ -1260,5 +1260,22 @@
   "param.檢視": "View",
   "param.全時段超載比例": "Overload share (whole window)",
   "param.時間回放": "Time replay",
-  "param.模擬時間": "Simulated time"
+  "param.模擬時間": "Simulated time",
+  "param.災害種別": "Hazard type",
+  "param.洪水": "Flood",
+  "param.崖崩れ等": "Landslide etc.",
+  "param.高潮": "Storm surge",
+  "param.地震": "Earthquake",
+  "param.津波": "Tsunami",
+  "param.大規模な火事": "Large-scale fire",
+  "param.内水氾濫": "Inland flooding",
+  "param.火山現象": "Volcanic phenomena",
+  "param.只看指定福祉避難所": "Designated welfare shelters only",
+  "param.設施分類": "Facility class",
+  "param.預設（不含集會施設）": "Default (excluding assembly facilities)",
+  "param.市區町村本廳": "Municipal main offices",
+  "param.支所・出張所": "Branch offices",
+  "param.其他行政服務": "Other administrative services",
+  "param.公立公民館": "Public community halls",
+  "param.集會施設": "Assembly facilities"
 }

@@ -146,5 +146,16 @@
   "legend.civic.bicycleNote": "OSM snapshot exploration. Where one point has several categories, it is colored in the order repair, air pump, parking, drinking water, toilet. Not a complete official register.",
   "legend.civic.accessibleNote": "OSM snapshot exploration. \"unknown\" does not mean false. Not a complete official register.",
   "legend.civic.coverageCount": "Observations {range}",
-  "legend.civic.coverageNote": "OSM mapping density; not service quality, population coverage, or road accessibility."
+  "legend.civic.coverageNote": "OSM mapping density; not service quality, population coverage, or road accessibility.",
+  "legend.civic.jpEvacTitle": "Evacuation sites",
+  "legend.civic.jpEvacLegal": "The two types have different legal meanings; do not add them together",
+  "legend.civic.jpEvacFilterNote": "Hazard filters show emergency evacuation sites only; welfare shelters are a subset of designated shelters",
+  "legend.civic.jpEvacStale": "Registered voluntarily by municipalities; may be outdated or incomplete. Please confirm with the municipality.",
+  "legend.civic.jpEvacDate": "File dated 2026-10-19 (199,346 points)",
+  "legend.civic.jpOfficeTitle": "Municipal offices & public halls",
+  "legend.civic.jpOfficeBasis": "Data as of 2022-04 (79,532 points); later mergers and closures are not reflected",
+  "legend.civic.jpOfficeHidden": "Assembly facilities (49,488, 62%) are hidden by default; enable them with the facility class setting",
+  "legend.civic.jpBusTitle": "Bus stops (by bus class)",
+  "legend.civic.jpBusScope": "2022 edition (compiled around 2022-08); excludes demand-responsive and expressway buses",
+  "legend.civic.jpBusCount": "278,515 stops nationwide"
 }

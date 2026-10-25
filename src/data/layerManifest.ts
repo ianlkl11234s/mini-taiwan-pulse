@@ -5,6 +5,9 @@ import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from '.
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
+import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
@@ -2393,6 +2396,81 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
     description: "日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊",
     topics: ["世界", "日本", "治安", "警察"],
+  },
+  jpEvacuationSites: {
+    key: "jpEvacuationSites",
+    section: { theme: "民防避難", group: "點位" },
+    ...layerName({ zh: "避難場所", alt: "指定緊急避難場所・指定避難所" }),
+    expandable: true,
+    color: JP_EVACUATION_LAYER_COLOR,
+    icon: ShieldCheck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_evacuation_sites", confidence: "HIGH" }],
+      processing: "国土地理院全國彙整 CSV 199,346 點（指定緊急避難場所 115,913＋指定避難所 83,433，兩者法定意義不同、不可相加）；全部有座標",
+      note: "檔案時點 2026-10-19；市町村自願登錄，可能非最新或未登載，請向市町村確認；PMTiles z5–14，z10 起全保留，z5–9 抽稀概覽不可數筆數",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpEvacuationSitesLayer 自建 mapbox-pmtiles source；source-layer=jp_evacuation_sites，minzoom=5 maxzoom=14；z15+ overzoom；67MB 走 S3 deploy-assets/world/",
+      staticAssets: ["./world/jp_evacuation_sites.pmtiles"],
+    },
+    legend: "jpEvacuationSites",
+    popup: "jpEvacuationSites",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
+    description: "日本指定緊急避難場所（11.6 萬）與指定避難所（8.3 萬），可依災害種別或福祉避難所篩選；資料可能非最新",
+    topics: ["世界", "日本", "避難", "防災", "避難所"],
+  },
+  jpPublicOffices: {
+    key: "jpPublicOffices",
+    section: { theme: "基礎建設", group: "公共設施" },
+    ...layerName({ zh: "役所與公民館", alt: "市町村役場・公民館" }),
+    expandable: true,
+    color: JP_PUBLIC_OFFICE_LAYER_COLOR,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_public_offices", confidence: "HIGH" }],
+      processing: "国土数値情報 P05 共 79,532 點：本廳 1,908、支所・出張所 4,272、其他行政服務 2,562、公立公民館 21,302、集會施設 49,488（預設隱藏）",
+      note: "資料基準 2022-04，之後的合併、閉館未反映；不能當現況營運名冊；PMTiles z5–14 全保留",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpPublicOfficesLayer 自建 mapbox-pmtiles source；source-layer=jp_public_offices，minzoom=5 maxzoom=14；z15+ overzoom；46MB 走 S3 deploy-assets/world/",
+      staticAssets: ["./world/jp_public_offices.pmtiles"],
+    },
+    legend: "jpPublicOffices",
+    popup: "jpPublicOffices",
+    params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
+    description: "日本市區町村役場、支所、公立公民館與集會施設（2022-04 基準）；集會施設佔 62%，預設隱藏",
+    topics: ["世界", "日本", "公共設施", "役場", "公民館"],
+  },
+  jpBusStops: {
+    key: "jpBusStops",
+    section: { theme: "交通", group: "點位" },
+    ...layerName({ zh: "公車站", alt: "バス停" }),
+    expandable: true,
+    color: JP_BUS_STOP_LAYER_COLOR,
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_bus_stops", confidence: "HIGH" }],
+      processing: "国土数値情報 P11 共 278,515 站（民營路線 171,127、社區巴士 91,867、公營路線 14,856、其他 337、公營＋社區共站 328）",
+      note: "2022 年度版（作成約 2022-08），不含デマンドバス與高速バス；PMTiles z5–13，z12 起全保留，低 zoom 為抽稀概覽不可數筆數",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpBusStopsLayer 自建 mapbox-pmtiles source；source-layer=jp_bus_stops，minzoom=5 maxzoom=13；z14+ overzoom",
+      staticAssets: ["./world/jp_bus_stops.pmtiles"],
+    },
+    legend: "jpBusStops",
+    popup: "jpBusStops",
+    params: { count: 3, kinds: ["palette", "slider", "slider"] },
+    description: "日本全國公車站（2022 年度版，27.9 萬站），依民營／社區／公營路線分色",
+    topics: ["世界", "日本", "交通", "公車"],
   },
   jpSchools: {
     key: "jpSchools",

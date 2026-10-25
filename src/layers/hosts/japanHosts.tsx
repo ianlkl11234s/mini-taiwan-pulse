@@ -10,6 +10,9 @@ import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
 import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
+import { useJpEvacuationSitesLayer } from "../../hooks/useJpEvacuationSitesLayer";
+import { useJpPublicOfficesLayer } from "../../hooks/useJpPublicOfficesLayer";
+import { useJpBusStopsLayer } from "../../hooks/useJpBusStopsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
@@ -116,6 +119,32 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
   useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
     p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1,
     p.jpPoliceFacilitiesTypeIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpEvacuationSitesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpEvacuationSitesLayer");
+  const p = useKeyOverlayParams("jpEvacuationSites");
+  useJpEvacuationSitesLayer(deps.mapRef, deps.layerVisibility.jpEvacuationSites,
+    p.jpEvacuationSitesOpacity ?? 0.6, p.jpEvacuationSitesScale ?? 1,
+    p.jpEvacuationSitesFilterIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpPublicOfficesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPublicOfficesLayer");
+  const p = useKeyOverlayParams("jpPublicOffices");
+  useJpPublicOfficesLayer(deps.mapRef, deps.layerVisibility.jpPublicOffices,
+    p.jpPublicOfficesOpacity ?? 0.75, p.jpPublicOfficesScale ?? 1,
+    p.jpPublicOfficesClassIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpBusStopsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpBusStopsLayer");
+  const p = useKeyOverlayParams("jpBusStops");
+  useJpBusStopsLayer(deps.mapRef, deps.layerVisibility.jpBusStops,
+    p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme);
   return null;
 };
 
