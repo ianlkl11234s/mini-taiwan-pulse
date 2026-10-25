@@ -557,9 +557,10 @@ export function BusCrowdingSimLegend() {
   const view = oneOfParam(paramStr(values, BUS_CROWDING_SIM_KEY, "busCrowdingSimView"), BUS_CROWDING_VIEWS, "static");
   if (view === "replay") {
     // 時間回放（spec §5.40 S-3：目前檢視寫進標題、方案放第二行）；路段與車點同一組四級（車上負載，門檻照原型 index.html:150）
+    const loadLabels = [t("legend.transport.busSimLoad0"), t("legend.transport.busSimLoad1"), t("legend.transport.busSimLoad2"), t("legend.transport.busSimLoad3")];
     const loadLevels = [0, 1, 2, 3].map((i) => ({
       color: colors[i]!, width: i === 0 ? BUS_CROWDING_ZERO_LINE.width : 2, opacity: i === 0 ? busCrowdingZeroOpacity(theme.isDark) : 1,
-      label: t(`legend.transport.busSimLoad${i}` as "legend.transport.busSimLoad0"),
+      label: loadLabels[i]!,
     }));
     return <div>
       <LegendTitle zh={t("legend.transport.busSimReplayTitle", { version: paramText(BUS_CROWDING_VERSION_LABELS[version], i18n) })} en="Bus Crowding" />

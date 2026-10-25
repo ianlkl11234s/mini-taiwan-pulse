@@ -1095,6 +1095,13 @@
     },
     {
       "layers": [
+        "bus-crowding-sim-veh-circle",
+        "bus-crowding-sim-veh-arrow"
+      ],
+      "type": "busCrowdingSimVehicle"
+    },
+    {
+      "layers": [
         "bus-crowding-sim-hit"
       ],
       "type": "busCrowdingSim"
@@ -84365,6 +84372,21 @@
         ],
         "type": "select",
         "value": "base"
+      },
+      {
+        "label": "檢視",
+        "options": [
+          {
+            "label": "全時段超載比例",
+            "value": "static"
+          },
+          {
+            "label": "時間回放",
+            "value": "replay"
+          }
+        ],
+        "type": "select",
+        "value": "static"
       },
       {
         "label": "參數版本",
