@@ -2653,8 +2653,7 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "powerGenerationUnit", "powerPlantGlow",
   // 僅做 UI 鎖（資料載入路徑不動）
   "aviationRestrictedGlow",
-  // 公車擁擠模擬（模擬面板，研究中）：公開 TDX 衍生的本機靜態檔，不走私人 Range API；
-  // 只鎖 UI（simulation PLAN D-1：第一版只有站主看得到），資料公開與否待拍板前不部署。
+  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，資料只經 owner-authenticated Range API。
   "busCrowdingSim",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
