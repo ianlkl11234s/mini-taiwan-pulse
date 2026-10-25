@@ -66,8 +66,8 @@ export const BUS_CROWDING_SIM_ASSETS: readonly string[] = [
 export const BUS_CROWDING_MIN_TRIPS = 5;
 /** 分級門檻（同上游原型）：0｜(0, 20%)｜[20%, 40%)｜≥ 40%。基準與情境共用（spec §5.40 S-3）。 */
 export const BUS_CROWDING_BREAKS = [0.2, 0.4] as const;
-/** 側欄色票等不分底圖的單一代表色：magma（palettes.ts）暗底圖 3 階取樣的中間級；完整四級色與 paint 在 busCrowdingSimStyle.ts。 */
-export const BUS_CROWDING_REPRESENTATIVE_COLOR = resampleRamp(paletteRamp("magma", true)!, 3)[1]!;
+/** 側欄色票等不分底圖的單一代表色：viridis（palettes.ts）暗底圖 3 階取樣的中間級；完整四級色與 paint 在 busCrowdingSimStyle.ts。 */
+export const BUS_CROWDING_REPRESENTATIVE_COLOR = resampleRamp(paletteRamp("viridis", true)!, 3)[1]!;
 /** 0 與「> 0」的分界：上游最小非零值 0.037，用 epsilon 區分。 */
 export const BUS_CROWDING_NONZERO = 0.0001;
 

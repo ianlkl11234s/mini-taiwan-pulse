@@ -27,7 +27,7 @@ const SRC = BUS_CROWDING_SIM_SOURCE_ID;
 const KEY = BUS_CROWDING_SIM_KEY;
 const clamp = (value: number) => Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 
-/** 推估路段：實線；有值＝magma 三級＋L-1 標準線寬＋L-4 標準透明度，0 級＝F-2 灰細參考線；滑桿乘透明度。 */
+/** 推估路段：實線；有值＝viridis 三級＋L-1 標準線寬＋L-4 標準透明度，0 級＝F-2 灰細參考線；滑桿乘透明度。 */
 const linePaint = (opacity: number, isDark: boolean) => ({
   "line-color": busCrowdingColorExpression(isDark),
   "line-width": busCrowdingWidthExpression(),

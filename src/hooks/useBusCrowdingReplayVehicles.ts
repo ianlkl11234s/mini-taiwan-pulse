@@ -3,7 +3,7 @@
  *
  * - 平面畫法照 map-layers G-1 R6 段 3（圓點 L 6.5px、對比描邊；z ≥ 12 有方向的車換 SDF 方向箭頭），
  *   paint／layout 直接用 `flatMovingLayers.ts` 的同一組函式。**不做立體**（R6「移動物件預設立體」的偏離，待使用者決定）。
- * - 顏色＝與路段同一組四級（0 級中性灰、1–3 級 magma；`busCrowdingColors`），語意是車上負載分級
+ * - 顏色＝與路段同一組四級（0 級中性灰、1–3 級 viridis；`busCrowdingColors`），語意是車上負載分級
  *   （未滿五成／五至八成／八成到滿載／超載，門檻照原型 index.html:150）。
  * - 位置：純函式 `replayTripState` 依模擬時刻內插（資料內插，不用 CSS／GL transition）。
  * - 更新：訂閱 scoped 時鐘（10Hz 通知）→ requestAnimationFrame 合併 → GeoJSON setData；

@@ -6,15 +6,15 @@ import { paletteRamp, resampleRamp } from "../map/palettes";
 import { BOUNDARY_GRAY, FILL_OUTLINE, LINE_OPACITY, LINE_WIDTH } from "../map/mapStyleScale";
 
 /**
- * 四級色（map-layers F-3「分析結果」→ viz-library DECISIONS §1 magma；暗／淡方向相反）：
+ * 四級色（map-layers F-3「分析結果」→ viz-library DECISIONS §1 viridis；暗／淡方向相反。2026-10-25 使用者選乙：magma 的米黃頂級在白描邊車點上和灰色 0 級難分，改 viridis）：
  * - 0（無超載）＝背景參考線：行政界中性灰 BOUNDARY_GRAY，寬度／透明度同 F-2 背景面外框（0.5px、0.6）。
- * - 三個 > 0 級＝專案既有 magma 7 階（palettes.ts，ramp-validation §5 驗過）用 resampleRamp 取 3 階（第 1、4、7 階）：
+ * - 三個 > 0 級＝專案既有 viridis 7 階（palettes.ts，ramp-validation §5 驗過）用 resampleRamp 取 3 階（第 1、4、7 階）：
  *   暗底圖越高越亮、淡底圖越高越深。不自調色號。
  */
-const MAGMA = { dark: resampleRamp(paletteRamp("magma", true)!, 3), light: resampleRamp(paletteRamp("magma", false)!, 3) };
+const RAMP = { dark: resampleRamp(paletteRamp("viridis", true)!, 3), light: resampleRamp(paletteRamp("viridis", false)!, 3) };
 export const busCrowdingColors = (isDark: boolean): readonly [string, string, string, string] => {
   const theme = isDark ? "dark" : "light";
-  const [a, b, c] = MAGMA[theme];
+  const [a, b, c] = RAMP[theme];
   return [BOUNDARY_GRAY[theme], a!, b!, c!];
 };
 /** 0 級參考線（F-2 背景面外框那組 token）。 */
