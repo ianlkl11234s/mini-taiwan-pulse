@@ -252,10 +252,10 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
     [windowed, v2, i18n],
   );
 
-  // 頭部：最新「有量」的一日
-  const latest = useMemo(() => [...aggs].reverse().find((a) => a.ships > 0) ?? null, [aggs]);
+  // 頭部：最新「有量」的一日。unknown 日（ships 部分為 NULL）只剩已知子集，不能當精確值顯示
+  const latest = useMemo(() => [...aggs].reverse().find((a) => a.ships > 0 && !a.unknown) ?? null, [aggs]);
   const peak = useMemo(
-    () => windowed.reduce((m, a) => (a.ships > m ? a.ships : m), 0),
+    () => windowed.reduce((m, a) => (!a.unknown && a.ships > m ? a.ships : m), 0),
     [windowed],
   );
   const closest = useMemo(() => {
