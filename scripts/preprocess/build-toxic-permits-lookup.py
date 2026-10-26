@@ -12,6 +12,8 @@
   - 有效許可數＝同一最新季中 per_status=='有效' 的 per_no 去重數；latest_edate＝那些列 edate 最大值。
     per_status 是「該季申報當下」的狀態，跨季累加會把已過期的許可算進「有效」，所以只取最新季。
     per_status 空值是「使用／輸入」等申報類的正常狀態，不是缺值。
+  - 最新季的「有效」列若 edate 早於快照日（SNAPSHOT_DATE）＝許可已到期，不計入有效許可數與 latest_edate
+    （最新季可能很舊，per_status 只反映當季申報當下）。
   - 合併：舊全量 CSV（2026-07 抓）只取 ≤ 114 年第 3 季；115 年第 1、2 季用 2026-10-17 重抓檔
     （舊檔 115-1 只有 21,751 列，重抓 26,792 列＝舊檔該季不完整）。
 
@@ -30,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "public" / "environment" / "toxic_permits"
 NEW_SEASONS = [("115", "1"), ("115", "2")]
+SNAPSHOT_DATE = "2026-10-17"  # 2026-10-17 重抓檔的抓取日；同時寫進 _meta.fetched_at
 
 
 def season_key(year: str, season: str) -> tuple[int, int]:
@@ -69,7 +72,7 @@ def main(raw: Path) -> None:
             chem_names.setdefault(name, row.get("emi_ename", "").strip())
         if row["emi_type"].strip():
             bucket["acts"].add(row["emi_type"].strip())
-        if row["per_status"].strip() == "有效":
+        if row["per_status"].strip() == "有效" and row["edate"].strip() >= SNAPSHOT_DATE:
             bucket["permits"].add(row["per_no"].strip())
             if row["edate"] > bucket["edate"]:
                 bucket["edate"] = row["edate"]
@@ -92,7 +95,7 @@ def main(raw: Path) -> None:
         (OUT_DIR / f"{letter}.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     (OUT_DIR / "_chems.json").write_text(json.dumps([[n, chem_names[n]] for n in chem_list], ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     meta = {"source_org": "環境部 毒性及關注化學物質運作（EMS_S_05，data.gov.tw 161616）", "source_url": "https://data.gov.tw/dataset/161616",
-            "license": "政府資料開放授權條款第1版", "fetched_at": "2026-10-17", "rows": total, "facilities": len(latest),
+            "license": "政府資料開放授權條款第1版", "fetched_at": SNAPSHOT_DATE, "rows": total, "facilities": len(latest),
             "period_max": f"{max_period[0]}-{max_period[1]}", "shards": sorted(shards)}
     (OUT_DIR / "_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     size = sum(p.stat().st_size for p in OUT_DIR.glob("*.json"))

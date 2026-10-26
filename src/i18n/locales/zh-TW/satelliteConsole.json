@@ -102,7 +102,7 @@
   "satelliteConsole.compare.unparsable": "軌道資料無法解析，無法推算過台次數",
   "satelliteConsole.computing": "計算中…",
   "satelliteConsole.console.dataExpired": "資料過期",
-  "satelliteConsole.console.fetchedAt": "抓取於",
+  "satelliteConsole.console.fetchedAt": "TLE 資料時間",
   "satelliteConsole.console.maneuverStale": "變軌更新中斷",
   "satelliteConsole.console.showAllOrbits": "顯示全部軌道",
   "satelliteConsole.console.sourcePage": "原始下載頁 ↗",

@@ -40,11 +40,12 @@ describe("wasteStopsStatic 聊天精簡檔（PF-14）", () => {
         "city",
         "district",
         "vehicle_type",
+        "via",
         "routes_count",
       ]);
     });
 
-    it.each(["city", "vehicle_type", "district", "routes_count"])("groupBy %s 相同", (field) => {
+    it.each(["city", "vehicle_type", "district", "via", "routes_count"])("groupBy %s 相同", (field) => {
       expect(groupByField(slim, field)).toEqual(groupByField(original, field));
     });
 

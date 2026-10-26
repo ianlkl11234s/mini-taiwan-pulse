@@ -81,12 +81,18 @@
       "temperature"
     ],
     "temperatureGrid": [],
-    "osmSubstations": [
-      "osm_substations"
-    ],
-    "osmSubstationsEhv": [
-      "osm_substations"
-    ],
+    "osmSubstations": {
+      "datasets": [
+        "osm_substations"
+      ],
+      "rowFilter": "NOT (coalesce(regexp_matches(name, '超高壓開閉所|超高壓.*開關|開閉所'), false) OR coalesce(regexp_matches(name, '超高壓變電|E/S'), false) OR coalesce(voltage LIKE '345000%', false))"
+    },
+    "osmSubstationsEhv": {
+      "datasets": [
+        "osm_substations"
+      ],
+      "rowFilter": "(coalesce(regexp_matches(name, '超高壓開閉所|超高壓.*開關|開閉所'), false) OR coalesce(regexp_matches(name, '超高壓變電|E/S'), false) OR coalesce(voltage LIKE '345000%', false))"
+    },
     "osmPowerLines": [
       "osm_power_lines"
     ],

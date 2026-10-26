@@ -1,6 +1,7 @@
 {
   "popup.satellite.sourceOrg": "Space-Track（TLE）· UCS 衛星資料庫（分類）",
   "popup.satellite.fetchedAt": "{time}（台灣時間）",
+  "popup.satellite.tleEpoch": "TLE 資料時間",
   "popup.satellite.fallback": "衛星",
   "popup.satellite.noradTitle": "NORAD 編號",
   "popup.satellite.altitude": "高度",

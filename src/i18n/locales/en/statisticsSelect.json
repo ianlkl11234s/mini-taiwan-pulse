@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "Published period",
   "statisticsSelect.unavailableForYear": "{label} (not available for this school year)",
+  "statisticsSelect.unavailableForPeriod": "{label} (not available for the selected period)",
   "statisticsSelect.partialPeriod": "{year}, months {from}–{to} (partial period)",
   "statisticsSelect.periodYear": "{year}",
   "statisticsSelect.pointInTime": "{date} (point in time)",
