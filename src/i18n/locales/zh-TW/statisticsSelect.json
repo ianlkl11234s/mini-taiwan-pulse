@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "已公開期別",
   "statisticsSelect.unavailableForYear": "{label}（此學年未提供）",
+  "statisticsSelect.unavailableForPeriod": "{label}（目前期別未提供）",
   "statisticsSelect.partialPeriod": "{year} 年 {from}–{to} 月（部分期別）",
   "statisticsSelect.periodYear": "{year} 年",
   "statisticsSelect.pointInTime": "{date}（時點）",

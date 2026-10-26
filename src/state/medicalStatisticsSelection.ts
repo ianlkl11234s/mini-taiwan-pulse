@@ -113,6 +113,9 @@ async function ensureReleaseMetadata(key: keyof LayerVisibility, source: NonNull
  * 同期別永遠找不到，切換會一直失敗。只有這種情況才落到時間最接近的一期（並由呼叫端明示已切換期別）；
  * 只要兩邊有任何一期重疊，就維持「同期別才切」的規則（guidelines §3：不可靜默跳年份）。
  */
+/** 只有臺北市污水接管普及率的新舊口徑適用「最近不重疊期別」退回；其他群組（例：癌症篩檢 2 年窗對 3 年窗、死因 5 年對逐年）不走。 */
+const NEAREST_DISJOINT_KEYS: ReadonlySet<string> = new Set(['statsTaipeiSewerRatePublicTownship', 'statsTaipeiSewerRateLegacyTownship']);
+
 function nearestDisjointPeriod(sourceOption: ReleaseOption, sourceOptions: readonly ReleaseOption[], targetOptions: readonly ReleaseOption[]) {
   if (!targetOptions.length) return undefined;
   const sourcePeriods = new Set(sourceOptions.map(option => `${option.period_start}|${option.period_end}`));
@@ -128,13 +131,11 @@ function nearestDisjointPeriod(sourceOption: ReleaseOption, sourceOptions: reado
   return best;
 }
 
-/** Switch only among family members using the same period and shared identity dimensions. */
-export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[]) {
-  if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
-  // Not loaded yet: the caller falls back to prepareMedicalStatisticsVariant (shows switching state).
-  if (!statisticsRecipeDetailsLoaded(recipeDetailsFamilies(from, to))) return false;
+type VariantResolution = { option: ReleaseOption; samePeriod?: ReleaseOption; disjointPeriod?: ReleaseOption; onlyVillagePeriod?: ReleaseOption; demographicsTarget: ReturnType<typeof getDemographicsRecipe> };
+
+function resolveVariantOption(from: keyof LayerVisibility, to: keyof LayerVisibility): VariantResolution | undefined {
   const source = recipe(from); const target = recipe(to);
-  if (!source || !target) return false;
+  if (!source || !target) return undefined;
   const sourceOption = selectionOption(from, source);
   const targetOptions = releaseOptions(to, target);
   // 人口統計村里層只交付一期（11508，界線版本須與資料期別一致）：從縣市／鄉鎮的其他期別切入時落到這唯一一期
@@ -143,9 +144,39 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
   const demographicsTarget = getDemographicsRecipe(to);
   const onlyVillagePeriod = demographicsTarget?.level === 'village' && targetOptions.length === 1 ? targetOptions[0] : undefined;
   const samePeriod = targetOptions.find(candidate => candidate.period_start === sourceOption?.period_start && candidate.period_end === sourceOption?.period_end && sameIdentityDimensions(sourceOption, candidate));
-  const disjointPeriod = samePeriod || onlyVillagePeriod || !sourceOption ? undefined : nearestDisjointPeriod(sourceOption, releaseOptions(from, source), targetOptions);
+  const nearestAllowed = NEAREST_DISJOINT_KEYS.has(from) && NEAREST_DISJOINT_KEYS.has(to);
+  const disjointPeriod = samePeriod || onlyVillagePeriod || !sourceOption || !nearestAllowed ? undefined : nearestDisjointPeriod(sourceOption, releaseOptions(from, source), targetOptions);
   const option = samePeriod ?? onlyVillagePeriod ?? disjointPeriod;
-  if (!option) return false;
+  return option ? { option, samePeriod, disjointPeriod, onlyVillagePeriod, demographicsTarget } : undefined;
+}
+
+/**
+ * 目前期別下，從 from 切到 to 是否做得到（供選單停用不相容選項）。
+ * 只在兩邊配方明細與期別都已載入、而且確實找不到可切的期別時回 false；還沒載入就回 true（交給切換時預載）。
+ */
+export function canSelectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility): boolean {
+  if (from === to) return true;
+  if (!statisticsRecipeDetailsLoaded(recipeDetailsFamilies(from, to))) return true;
+  const source = recipe(from); const target = recipe(to);
+  if (!source || !target) return true;
+  // 只處理「使用者已選了部分期間（非完整年度）」：其他找不到期別的情形維持原行為（切換時才報錯）。
+  if (!regionalStatisticsStore.getSnapshot(from).selection) return true;
+  const sourceOption = selectionOption(from, source);
+  if (!sourceOption || !releaseOptions(to, target).length) return true;
+  if (sourceOption.period_start.endsWith('-01-01') && sourceOption.period_end.endsWith('-12-31')) return true;
+  return Boolean(resolveVariantOption(from, to));
+}
+
+/** Switch only among family members using the same period and shared identity dimensions. */
+export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: keyof LayerVisibility, members: readonly (keyof LayerVisibility)[]) {
+  if (!members.includes(from) || !members.includes(to) || !isStatisticsChoropleth(to)) return false;
+  // Not loaded yet: the caller falls back to prepareMedicalStatisticsVariant (shows switching state).
+  if (!statisticsRecipeDetailsLoaded(recipeDetailsFamilies(from, to))) return false;
+  const source = recipe(from); const target = recipe(to);
+  if (!source || !target) return false;
+  const resolved = resolveVariantOption(from, to);
+  if (!resolved) return false;
+  const { option, samePeriod, disjointPeriod, demographicsTarget } = resolved;
   const periodText = demographicsTarget ? demographicsVillageOnlyPeriod(demographicsTarget) : undefined;
   setPeriodNotice(to, samePeriod ? undefined
     : disjointPeriod ? `兩種口徑的資料期間不重疊，已切換到最接近的 ${disjointPeriod.period_start.slice(0, 7)}。`
