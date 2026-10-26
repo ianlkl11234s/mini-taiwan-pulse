@@ -26,6 +26,7 @@
   "dataSources.block.matchedDataset": "已比對的上游資料集",
   "dataSources.confidence": "比對信心：{value}",
   "dataSources.fact.note": "說明",
+  "dataSources.fact.processing": "處理方式",
   "dataSources.fact.provider": "機關",
   "dataSources.fact.frequency": "頻率",
   "dataSources.fact.license": "授權",
