@@ -4111,6 +4111,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "text-offset": [0, 0.9],
         },
         paint: (isDark) => ({
+          // text-opacity 要有基底值：applyLayerOpacity 只縮放既有的 *-opacity 鍵，透明度滑桿才會作用在文字
+          "text-opacity": 1,
           "text-color": isDark ? "#e5e7eb" : "#1f2937",
           ...labelHaloPaint(isDark),
         }),
@@ -6406,11 +6408,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const scale = params?.powerGenerationScale ?? 1;
           return {
-          // 完全透明（看不到），但 ≥ 10px 半徑用戶仍能點到
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            5, 10 * scale, 12, 18 * scale,
-          ],
+          // 完全透明（看不到）；半徑＝可見圓半徑（POWER_OUTPUT_RADIUS，最大 20*scale）＋ 6px，
+          // 確保點可見圓的外圈也命中（不再用固定 zoom 半徑，大機組外圈會點不到）
+          "circle-radius": ["+", powerOutputRadiusExpr(scale), 6],
           "circle-color": "#000000",
           "circle-opacity": 0,
           };
