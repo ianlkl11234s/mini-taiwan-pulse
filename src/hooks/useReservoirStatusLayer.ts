@@ -363,5 +363,6 @@ export function useReservoirStatusLayer(
     return () => {
       cancelled = true;
     };
-  }, [activeReservoirId, sceneRef, statusesRef, mapRef, mapTick]);
+  // pillarOn／layerModuleReady／styleEpoch：先選水庫、後開立體（或換底圖重建 scene）時，scene 掛上後要重推 ops
+  }, [activeReservoirId, sceneRef, statusesRef, mapRef, mapTick, pillarOn, layerModuleReady, styleEpoch]);
 }
