@@ -56,7 +56,7 @@ for entry in "${COLLECTORS[@]}"; do
   # check_docs 會 import THEMES → localeStore 的 import.meta.glob，tsx 不支援，改用 vite-node
   case "$runner" in
     tsx) npx tsx "$script" ;;
-    vite-node) npx vite-node "$script" ;;
+    vite-node) NODE_ENV=production npx vite-node "$script" ;;
     *) bash "$script" ;;
   esac
   rc=$?
