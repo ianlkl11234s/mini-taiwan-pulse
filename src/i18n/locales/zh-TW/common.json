@@ -90,5 +90,6 @@
   "attribution.other": "其他",
   "attribution.openSource": "開啟原始頁（新分頁）",
   "embed.openInSite": "在 Mini Taiwan Pulse 開啟",
-  "attribution.privacy": "隱私"
+  "attribution.privacy": "隱私",
+  "embed.mapUnavailable": "地圖無法啟動，請確認瀏覽器支援 WebGL 2。"
 }

@@ -90,5 +90,6 @@
   "attribution.other": "その他",
   "attribution.openSource": "元のページを開く（新しいタブ）",
   "embed.openInSite": "Mini Taiwan Pulse で開く",
-  "attribution.privacy": "プライバシー"
+  "attribution.privacy": "プライバシー",
+  "embed.mapUnavailable": "地図を起動できません。ブラウザが WebGL 2 に対応しているか確認してください。"
 }

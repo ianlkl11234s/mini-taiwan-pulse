@@ -64,15 +64,23 @@ function addPointLayers(map: maplibregl.Map, payload: CardPayloadV1): void {
 export default function CardMap({ payload }: { payload: CardPayloadV1 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState<"geometry" | "webgl" | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const abort = new AbortController();
-    setFailed(false);
+    setFailure(null);
     registerPmtilesProtocolOnce();
-    const map = new maplibregl.Map({ container, style: buildBasemapStyle(CARD_THEME === "dark", localeStore.getSnapshot().locale), bounds: TAIWAN_BOUNDS, interactive: false, attributionControl: { compact: true } });
+    // MapLibre v6 只支援 WebGL2：建構失敗走既有 fallback，不留空白
+    let map: maplibregl.Map;
+    try {
+      map = new maplibregl.Map({ container, style: buildBasemapStyle(CARD_THEME === "dark", localeStore.getSnapshot().locale), bounds: TAIWAN_BOUNDS, interactive: false, attributionControl: { compact: true } });
+    } catch (error) {
+      console.error("[card] map init failed", error);
+      setFailure("webgl");
+      return;
+    }
     const fit = (bounds: [number, number, number, number] | null) => {
       if (!bounds) return;
       const [west, south, east, north] = bounds;
@@ -88,7 +96,7 @@ export default function CardMap({ payload }: { payload: CardPayloadV1 }) {
         return;
       }
       const areaMap = payload.map;
-      if (!areaMap) { setFailed(true); return; }
+      if (!areaMap) { setFailure("geometry"); return; }
       void loadCardGeometry(areaMap, fetch, abort.signal).then(geojson => {
         if (abort.signal.aborted) return;
         const features = buildCardAreaFeatures(geojson, areaMap, payload.top);
@@ -101,13 +109,13 @@ export default function CardMap({ payload }: { payload: CardPayloadV1 }) {
         map.addLayer({ id: "card-area-labels", type: "symbol", source: "card-areas", filter: ["!=", ["get", "label"], null], layout: { "text-field": ["get", "label"], "text-font": LABEL_FONT, "text-size": 12, "text-max-width": 8, "text-allow-overlap": false }, paint: { "text-color": "rgba(255,255,255,0.95)", "text-halo-color": cardRing(), "text-halo-width": 1.4 } });
         addScopeLayers(map, payload);
         fit(features.reduce<[number, number, number, number] | null>((bounds, feature) => extendBounds(bounds, (feature.geometry as { coordinates?: unknown } | null)?.coordinates), null));
-      }).catch(() => { if (!abort.signal.aborted) setFailed(true); });
+      }).catch(() => { if (!abort.signal.aborted) setFailure("geometry"); });
     });
     return () => { abort.abort(); map.remove(); };
   }, [payload]);
 
   return <>
     <div ref={containerRef} className="analysis-card__map-canvas" aria-label="卡片地圖" role="img" />
-    {failed && <CardMapFallback message={t("analysisCard.mapFailed")} />}
+    {failure && <CardMapFallback message={t(failure === "webgl" ? "analysisCard.mapUnavailable" : "analysisCard.mapFailed")} />}
   </>;
 }
