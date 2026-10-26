@@ -18,5 +18,8 @@
   "statisticsSelect.ytdPeriod": "{year}年{start}～{end}月累計",
   "statisticsSelect.variantWithPeriod": "{label}（{period}）",
   "statisticsSelect.variantDetail": "{label}－{detail}",
-  "statisticsSelect.variantPopCompare": "{label}（人口比較）"
+  "statisticsSelect.variantPopCompare": "{label}（人口比較）",
+  "statisticsSelect.notice.disjoint": "2つの基準で対象期間が重ならないため、最も近い {period} に切り替えました。",
+  "statisticsSelect.notice.villageOnly": "村里レベルは1期間（{period}）のみのため、期間を切り替えました。",
+  "statisticsSelect.notice.villageOnlyNoPeriod": "村里レベルは1期間のみのため、期間を切り替えました。"
 }

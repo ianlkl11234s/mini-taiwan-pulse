@@ -12,6 +12,18 @@ import { useLocale } from "../../state/localeStore";
 export function HistoricalFlightTrailControls({ country, isDarkTheme }: { country: HistoricalFlightCountry; isDarkTheme: boolean }) {
   const { t, formatNumber } = useLocale();
   const numberText = (value: number | undefined): string => (value == null ? t("paramsPanel.hf.notProvided") : formatNumber(value));
+  const statusText = (code: NonNullable<typeof status.code>, params?: Record<string, string | number>): string => {
+    switch (code) {
+      case "loading": return t("paramsPanel.hf.status.loading");
+      case "noneAll": return params?.country === "JP" ? t("paramsPanel.hf.status.noneAll_JP") : t("paramsPanel.hf.status.noneAll_TW");
+      case "readyAll": return t("paramsPanel.hf.status.readyAll", params);
+      case "noTrack": return t("paramsPanel.hf.status.noTrack");
+      case "ready": return t("paramsPanel.hf.status.ready");
+      case "mismatch": return t("paramsPanel.hf.status.mismatch");
+      case "loadFailed": return t("paramsPanel.hf.status.loadFailed");
+      case "manifestFailed": return t("paramsPanel.hf.status.manifestFailed");
+    }
+  };
   const [manifest, setManifest] = useState<HistoricalFlightManifest | null>(null);
   // null = 無錯誤；{ message: undefined } = 非 Error 的失敗（render 時才翻譯預設訊息，切語系會跟著變）
   const [error, setError] = useState<{ message?: string } | null>(null);
@@ -76,7 +88,7 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
         {selected.note && <div>{selected.note}</div>}
       </div>}
       {selection.airport !== HISTORICAL_FLIGHT_ALL_AIRPORTS && !selected && <div style={{ marginTop: 6, lineHeight: 1.45 }}>{t("paramsPanel.hf.noSample", { date: selection.date })}</div>}
-      {status.state !== "idle" && <div style={{ marginTop: 5, color: status.state === "error" ? "#ef5350" : color }}>{status.message || (status.state === "loading" ? t("paramsPanel.hf.loadingTrails") : "")}{status.count != null ? t("paramsPanel.hf.statusFlights", { flights: numberText(status.count) }) : ""}</div>}
+      {status.state !== "idle" && <div style={{ marginTop: 5, color: status.state === "error" ? "#ef5350" : color }}>{status.message || (status.code ? statusText(status.code, status.params) : status.state === "loading" ? t("paramsPanel.hf.loadingTrails") : "")}{status.count != null ? t("paramsPanel.hf.statusFlights", { flights: numberText(status.count) }) : ""}</div>}
       <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
         <button type="button" className="lpc-btn" onClick={() => requestHistoricalFlightFocus(country)}>{selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? t("paramsPanel.hf.viewAll") : t("paramsPanel.hf.locate")}</button>
         {status.state === "error" && <button type="button" className="lpc-btn" onClick={() => retryHistoricalFlightSelection(country)}>{t("paramsPanel.retry")}</button>}

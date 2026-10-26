@@ -122,7 +122,7 @@ describe('demographics level switching (村里只有 11508 一期)', () => {
     expect(regionalStatisticsStore.getSnapshot(village).selection).toMatchObject({ releaseId: 'pas-share-age-65-plus-village-11508', dimensions: { month: '08', roc_year: '115' }, allowReleaseFallback: false });
     expect(members.filter(key => layerVisibilityStore.getAll()[key])).toEqual([village]);
     // 期別被改動要明示（guidelines §3：不可靜默跳年份）
-    expect(getStatisticsPeriodNotice(village)).toBe('村里層僅有 115 年 8 月一期，已切換期別。');
+    expect(getStatisticsPeriodNotice(village)).toEqual({ key: 'statisticsSelect.notice.villageOnly', vars: { period: '115 年 8 月' } });
   });
   it('shows no period notice when the county period already matches the village period, and clears it on switching away', () => {
     select(county, '11412');
@@ -163,7 +163,7 @@ describe('disjoint-period variants（臺北市污水接管普及率新舊口徑�
     layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [publicKey]: true });
     expect(selectMedicalStatisticsVariant(publicKey, legacyKey, sewer)).toBe(true);
     expect(regionalStatisticsStore.getSnapshot(legacyKey).selection?.dimensions).toMatchObject({ roc_year: '108', month: '04' });
-    expect(getStatisticsPeriodNotice(legacyKey)).toBe('兩種口徑的資料期間不重疊，已切換到最接近的 2019-04。');
+    expect(getStatisticsPeriodNotice(legacyKey)).toEqual({ key: 'statisticsSelect.notice.disjoint', vars: { period: '2019-04' } });
     expect(sewer.filter(key => layerVisibilityStore.getAll()[key])).toEqual([legacyKey]);
   });
 
