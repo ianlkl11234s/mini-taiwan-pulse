@@ -181,5 +181,11 @@
   "legend.civic.jpForestScope": "National forests only (about 30% of Japan's forest); private forests are not included, and blank areas do not mean no forest",
   "legend.civic.jpForestMerged": "Each polygon merges adjacent sub-compartments with the same office, forest name, function type, protection forest and reserve; it is not a sub-compartment",
   "legend.civic.jpForestProtected": "Sub-compartments of undisclosed reserves have blank attributes; blank does not mean not a reserve",
-  "legend.civic.jpForestZoom": "Shown from zoom 8; overzoomed from zoom 14; no crustal-deformation correction was applied, so Tohoku may be off by a few meters"
+  "legend.civic.jpForestZoom": "Shown from zoom 8; overzoomed from zoom 14; no crustal-deformation correction was applied, so Tohoku may be off by a few meters",
+  "legend.civic.jpWelfareDisabilityTitle": "Disability welfare facilities (color by type)",
+  "legend.civic.jpWelfareChildTitle": "Child welfare facilities (color by type)",
+  "legend.civic.jpWelfareMissing": "Zero records for a category in a prefecture means the local government did not provide or publish it, not that none exist (e.g. most do not publish mother-and-child support facilities)",
+  "legend.civic.jpWelfareAccuracy": "By default only location accuracy 1–3 is drawn; 4–5 are municipal / prefectural representative points (2,736 records stacked on the same spot) — switch under \"Location accuracy\"",
+  "legend.civic.jpWelfareLicense": "Some local governments attach commercial-use conditions (shown in the popup); prefectures without listed conditions are not explicitly cleared for commercial use",
+  "legend.civic.jpWelfareStale": "FY2023 edition, may be out of date; names of individual childcare providers are masked with the category name"
 }

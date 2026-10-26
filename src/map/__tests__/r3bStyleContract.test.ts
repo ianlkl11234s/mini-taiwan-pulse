@@ -28,6 +28,7 @@ describe("R3b G4 / T3 / F4 style contract", () => {
       ["urbanHeat", "urbanHeatOpacity"], ["precipRaster", "precipRasterOpacity"],
       ["cwaCloudImagery", "cwaCloudOpacity"], ["cwaRadarImagery", "cwaRadarOpacity"],
       ["aqiImagery", "aqiImageryOpacity"],
+      ["jpGsiHillshade", "jpGsiHillshadeOpacity"], ["jpGsiRelief", "jpGsiReliefOpacity"],
     ];
     for (const [key, name] of keys) {
       expect(slider(key!, name!), `${key}/${name}`).toMatchObject({

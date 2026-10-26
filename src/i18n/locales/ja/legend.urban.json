@@ -95,5 +95,11 @@
   "legend.urban.amountSmall": "NT${n}万",
   "legend.urban.amountLarge": "NT${n}億",
   "legend.urban.amountHuge": "NT${n}兆",
-  "legend.urban.amountDollar": "NT${n}"
+  "legend.urban.amountDollar": "NT${n}",
+  "legend.urban.jpGsiHillshadeTitle": "陰影起伏図",
+  "legend.urban.jpGsiHillshadeNote": "地形の起伏を表すグレーの陰影で、数値は含みません",
+  "legend.urban.jpGsiReliefTitle": "色別標高図",
+  "legend.urban.jpGsiReliefNote": "標高で色分け（配色は国土地理院の説明ページを参照）。色は標高の範囲を示すもので、正確な数値ではありません",
+  "legend.urban.jpGsiReliefSea": "海域部は海上保安庁海洋情報部の資料を使用して作成",
+  "legend.urban.jpGsiSource": "出典：国土地理院（地理院タイル）、外部タイルを直接表示"
 }
