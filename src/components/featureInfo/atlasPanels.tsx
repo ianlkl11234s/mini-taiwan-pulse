@@ -4,6 +4,7 @@ import { useFeatureTheme } from "./featureTheme";
 import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { displayRocYear, enumLabel } from "../../i18n/dataText";
 import { placeName, placeNameList, placeTown } from "../../i18n/placeText";
+import { FONT_SIZE } from "../../styles/designTokens";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
@@ -78,6 +79,23 @@ function vintageText(vintage: string, i18n: LocaleSnapshot): string {
 }
 
 /** 座標精度列：疑誤旗標用警示色 */
+function isHttpUrl(value: string): boolean {
+  try { const u = new URL(value); return u.protocol === "http:" || u.protocol === "https:"; } catch { return false; }
+}
+
+/** 外部連結列：只有 http(s) 才渲染成 <a>；其他（空值、非網址）退回純文字／不顯示。 */
+function LinkRow({ label, url }: { label: string; url: string }) {
+  const theme = useFeatureTheme();
+  if (!url) return null;
+  if (!isHttpUrl(url)) return <Row label={label} value={url} mono />;
+  return (
+    <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
+      <span style={{ color: theme.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{label}</span>
+      <a href={url} target="_blank" rel="noreferrer" style={{ color: theme.link, wordBreak: "break-all" }}>{url}</a>
+    </div>
+  );
+}
+
 function Precision({ props, flagged = false }: Props & { flagged?: boolean }) {
   const theme = useFeatureTheme();
   const i18n = useLocale();
@@ -270,8 +288,8 @@ function SwcbPhotoPanel({ props }: Props) {
     <Row field="district" value={admin(props, i18n)} />
     <Row field="place" value={str(props.landmark)} />
     <Row label={t("popup.atlas.photoCredit")} value={str(props.photo_credit)} />
-    <Row label={t("popup.atlas.photoLink")} value={str(props.photo_url)} mono />
-    <Row label={t("popup.atlas.newsLink")} value={str(props.news_url)} mono />
+    <LinkRow label={t("popup.atlas.photoLink")} url={str(props.photo_url)} />
+    <LinkRow label={t("popup.atlas.newsLink")} url={str(props.news_url)} />
     <Precision props={props} />
   </>;
 }
