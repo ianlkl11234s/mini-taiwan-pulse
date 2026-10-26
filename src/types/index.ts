@@ -419,6 +419,7 @@ export type ExpandableLayerKey =
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
   | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
   | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
+  | "jpZoningUseDistricts" | "jpNationalForests"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -935,6 +936,8 @@ export interface FeatureInfo {
     | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
     // 日本第二波面圖層（土砂災害警戒區域／內水浸水想定區域，靜態 PMTiles 面層）
     | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
+    // 日本第三波面圖層（用途地域／国有林，靜態 PMTiles 面層）
+    | "jpZoningUseDistricts" | "jpNationalForests"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1716,6 +1719,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jpPublicOffices: boolean;     // 日本役所與公民館（PMTiles point，79,532 筆；5 類，集會施設預設隱藏）
   jpBusStops: boolean;          // 日本公車站（PMTiles point，278,515 筆；2022 年度版）
   jpLandslideWarningAreas: boolean; // 日本土砂災害警戒區域（PMTiles polygon，1,793,171 面；黃／紅區）
+  jpZoningUseDistricts: boolean; // 日本用途地域（PMTiles polygon，102,244 面；13 類）
+  jpNationalForests: boolean;   // 日本国有林（PMTiles polygon，116,747 面；僅國有林）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

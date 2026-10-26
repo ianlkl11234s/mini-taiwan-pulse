@@ -19,6 +19,11 @@ import {
   JP_LANDSLIDE_ZONES, JP_LANDSLIDE_PHENOMENA, JP_LANDSLIDE_DESIGNATIONS, JP_LANDSLIDE_LAYER_COLOR,
   JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_SOURCE_URL, JP_LANDSLIDE_LICENSE, JP_LANDSLIDE_DATA_AS_OF,
 } from "../../data/jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_LAYER_COLOR, JP_ZONING_ATTRIBUTION, JP_ZONING_SOURCE_URL, JP_ZONING_LICENSE, JP_ZONING_DATA_AS_OF } from "../../data/jpZoningUseDistrictTypes";
+import {
+  JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_PROTECTION, JP_FOREST_PROTECTED, JP_FOREST_PLANNED_SUFFIX,
+  JP_FOREST_ATTRIBUTION, JP_FOREST_SOURCE_URL, JP_FOREST_LICENSE, JP_FOREST_DATA_AS_OF,
+} from "../../data/jpNationalForestTypes";
 import {
   JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_LAYER_COLOR,
   JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_SOURCE_URL, JP_INLAND_FLOOD_LICENSE, JP_INLAND_FLOOD_DATA_AS_OF,
@@ -461,6 +466,68 @@ export function JpInlandFloodAreasPanel({ props }: { props: Record<string, unkno
     <Row label={t("popup.japan.dataAsOf")} value={JP_INLAND_FLOOD_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.inlandFloodNote")} />
     <SourceFooter props={{ source_org: JP_INLAND_FLOOD_ATTRIBUTION, source_url: JP_INLAND_FLOOD_SOURCE_URL, license: JP_INLAND_FLOOD_LICENSE, fetched_at: JP_INLAND_FLOOD_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本用途地域（A55）：容積率、建蔽率空值寫「未記載」，不可當 0。 */
+export function JpZoningUseDistrictsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_ZONING_CLASSES.find(c => c.code === Number(props.youto_code));
+  const na = t("popup.common.notProvided");
+  const unrecorded = t("popup.japan.zoningUnrecorded");
+  const pct = (v: unknown) => { const s = policeText(v); return s === "" || Number.isNaN(Number(s)) ? unrecorded : `${Number(s)}%`; };
+  const pref = JP_PREFECTURE_NAMES[policeText(props.prefecture_code)];
+  const ja = policeText(props.youto_ja) || cls?.ja || "";
+  const label = cls ? enumLabel("jpZoningClass", cls.code, cls.label, i18n) : "";
+  return <>
+    <Title color={cls?.color ?? JP_ZONING_LAYER_COLOR}>{ja || t("popup.japan.zoningDefault")}</Title>
+    <Row label={t("popup.japan.zoningClass")} value={label && label !== ja ? `${label}（${ja}）` : ja || na} />
+    <Row label={t("popup.japan.zoningFar")} value={pct(props.far_pct)} />
+    <Row label={t("popup.japan.zoningBcr")} value={pct(props.bcr_pct)} />
+    <Row label={t("popup.japan.zoningMunicipality")} value={policeText(props.municipality) || na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_ZONING_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.zoningNote")} />
+    <SourceFooter props={{ source_org: JP_ZONING_ATTRIBUTION, source_url: JP_ZONING_SOURCE_URL, license: JP_ZONING_LICENSE, fetched_at: JP_ZONING_DATA_AS_OF }} />
+  </>;
+}
+
+/** 保安林／保護林清單（逗號分隔的 en 碼）→ 日文名；`_planned` 後綴＝見込み地。 */
+function forestList(raw: unknown, dict: Readonly<Record<string, string>>, plannedLabel: string): string {
+  return policeText(raw).split(",").map(code => code.trim()).filter(Boolean).map(code => {
+    const planned = code.endsWith(JP_FOREST_PLANNED_SUFFIX);
+    const base = planned ? code.slice(0, -JP_FOREST_PLANNED_SUFFIX.length) : code;
+    return `${dict[base] ?? base}${planned ? `（${plannedLabel}）` : ""}`;
+  }).join(" / ");
+}
+
+/** 日本国有林：只有國有林；面是合併分類面不是小班；保護林非公表者屬性空白。 */
+export function JpNationalForestsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const fn = JP_FOREST_FUNCTION_TYPES.find(f => f.value === props.function_type_en);
+  const na = t("popup.common.notProvided");
+  const planted = policeText(props.planted_ratio);
+  const area = policeText(props.area_ha);
+  const plannedLabel = t("popup.japan.forestPlanned");
+  const protection = forestList(props.protection_forest_en, JP_FOREST_PROTECTION, plannedLabel);
+  const protectedForest = forestList(props.protected_forest_en, JP_FOREST_PROTECTED, plannedLabel);
+  const office = [policeText(props.bureau), policeText(props.office)].filter(Boolean).join(" ");
+  return <>
+    <Title color={fn?.color ?? JP_FOREST_BLANK_COLOR}>{policeText(props.forest_name) || t("popup.japan.forestDefault")}</Title>
+    <Row label={t("popup.japan.forestOffice")} value={office || na} />
+    <Row label={t("popup.japan.forestFunction")} value={fn ? enumLabel("jpForestFunction", fn.value, fn.label, i18n) : t("popup.japan.forestFunctionBlank")} />
+    <Row label={t("popup.japan.forestProtection")} value={protection || na} />
+    <Row label={t("popup.japan.forestProtected")} value={protectedForest || t("popup.japan.forestProtectedBlank")} />
+    <Row label={t("popup.japan.forestCorridor")} value={policeText(props.green_corridor) || na} />
+    <Row label={t("popup.japan.forestSpecies")} value={policeText(props.main_species) || na} />
+    <Row label={t("popup.japan.forestPlanted")} value={planted !== "" && !Number.isNaN(Number(planted)) ? `${Math.round(Number(planted) * 100)}%` : na} />
+    <Row label={t("popup.japan.forestArea")} value={area !== "" && !Number.isNaN(Number(area)) ? `${Number(area).toFixed(1)} ha` : na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_FOREST_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.forestScopeNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.forestMergedNote")} />
+    <SourceFooter props={{ source_org: JP_FOREST_ATTRIBUTION, source_url: JP_FOREST_SOURCE_URL, license: JP_FOREST_LICENSE, fetched_at: JP_FOREST_DATA_AS_OF }} />
   </>;
 }
 

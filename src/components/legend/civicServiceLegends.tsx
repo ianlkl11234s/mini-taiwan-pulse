@@ -9,6 +9,8 @@ import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_ATTRIBUTION } from "../../data/
 import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_ATTRIBUTION } from "../../data/jpPublicOfficeTypes";
 import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusStopTypes";
 import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_ATTRIBUTION, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningUseDistrictTypes";
+import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_ATTRIBUTION } from "../../data/jpNationalForestTypes";
 import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
@@ -883,6 +885,36 @@ export function JpInlandFloodAreasLegend() {
     <LegendNote>{i18n.t("legend.civic.jpInlandFloodNoData")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.jpInlandFloodDistinct")}</LegendNote>
     <LegendNote>{JP_INLAND_FLOOD_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本用途地域（A55）：13 類；無決定不畫、猪名川町／延岡市未涵蓋、區域外沒有面是正常的。 */
+export function JpZoningUseDistrictsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpZoningTitle")} />
+    {JP_ZONING_CLASSES.map(c => <LegendRow key={c.code} swatch={<SwatchSquare color={c.color} />}>{enumLabel("jpZoningClass", c.code, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpZoningNoDecision")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningMissing")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningOutside")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningDisclaimer")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningVintage", { count: i18n.formatNumber(JP_ZONING_FEATURE_COUNT) })}</LegendNote>
+    <LegendNote>{JP_ZONING_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本国有林：機能類型 6 類加空白；僅國有林，民有林不在內。 */
+export function JpNationalForestsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpForestTitle")} />
+    {JP_FOREST_FUNCTION_TYPES.map(f => <LegendRow key={f.value} swatch={<SwatchSquare color={f.color} />}>{enumLabel("jpForestFunction", f.value, f.label, i18n)}</LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color={JP_FOREST_BLANK_COLOR} />}>{i18n.t("legend.civic.jpForestBlank")}</LegendRow>
+    <LegendNote>{i18n.t("legend.civic.jpForestScope")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestMerged")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestProtected")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestZoom")}</LegendNote>
+    <LegendNote>{JP_FOREST_ATTRIBUTION}</LegendNote>
   </div>;
 }
 

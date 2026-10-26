@@ -1312,5 +1312,7 @@
   "layer.jpPublicOffices": "市町村役場・公民館",
   "layer.jpBusStops": "バス停",
   "layer.jpLandslideWarningAreas": "土砂災害警戒区域",
-  "layer.jpInlandFloodAreas": "内水浸水想定区域"
+  "layer.jpInlandFloodAreas": "内水浸水想定区域",
+  "layer.jpZoningUseDistricts": "用途地域",
+  "layer.jpNationalForests": "国有林"
 }

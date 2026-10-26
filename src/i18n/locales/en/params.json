@@ -1283,5 +1283,22 @@
   "param.只看警戒（黃）": "Warning (yellow) only",
   "param.現象": "Phenomenon",
   "param.急傾斜地崩壞（急傾斜地の崩壊）": "Steep slope failure",
-  "param.地滑り": "Landslide (jisuberi)"
+  "param.地滑り": "Landslide (jisuberi)",
+  "param.第一種低層住居專用地域": "Category I exclusive low-rise residential",
+  "param.第二種低層住居專用地域": "Category II exclusive low-rise residential",
+  "param.第一種中高層住居專用地域": "Category I exclusive mid/high-rise residential",
+  "param.第二種中高層住居專用地域": "Category II exclusive mid/high-rise residential",
+  "param.第一種住居地域": "Category I residential",
+  "param.第二種住居地域": "Category II residential",
+  "param.準住居地域": "Quasi-residential",
+  "param.田園住居地域": "Rural residential",
+  "param.近鄰商業地域": "Neighborhood commercial",
+  "param.商業地域": "Commercial",
+  "param.準工業地域": "Quasi-industrial",
+  "param.工業地域": "Industrial",
+  "param.工業專用地域": "Exclusive industrial",
+  "param.住居系（1–8）": "Residential (1–8)",
+  "param.商業系（9–10）": "Commercial (9–10)",
+  "param.工業系（11–13）": "Industrial (11–13)",
+  "param.用途分類": "Use class"
 }

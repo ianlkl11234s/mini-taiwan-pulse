@@ -2172,6 +2172,7 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "行政邊界", layers: [fromManifest("jpAdminPrefecture"), fromManifest("jpAdminBoundaries")] },
       { title: "建成環境", layers: [fromManifest("jpBuildingHeight")] },
+      { title: "土地使用分區 Zoning", layers: [fromManifest("jpZoningUseDistricts")] },
     ],
   },
   {
@@ -2315,7 +2316,7 @@ const THEME_CATALOG: ThemeDef[] = [
   {
     title: "林業",
     defaultCollapsed: true,
-    groups: [{ title: "分區", layers: [fromManifest("jpCanopyHeight")] }],
+    groups: [{ title: "分區", layers: [fromManifest("jpNationalForests"), fromManifest("jpCanopyHeight")] }],
   },
 
 ];
