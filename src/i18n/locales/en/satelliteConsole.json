@@ -102,7 +102,7 @@
   "satelliteConsole.compare.unparsable": "Can’t parse the orbit data, so Taiwan passes can’t be computed",
   "satelliteConsole.computing": "Computing…",
   "satelliteConsole.console.dataExpired": "Data expired",
-  "satelliteConsole.console.fetchedAt": "Fetched",
+  "satelliteConsole.console.fetchedAt": "TLE epoch",
   "satelliteConsole.console.maneuverStale": "Maneuver feed interrupted",
   "satelliteConsole.console.showAllOrbits": "Show all orbits",
   "satelliteConsole.console.sourcePage": "Source download page ↗",
