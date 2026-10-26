@@ -126,7 +126,10 @@ export function useBusCrowdingSimLayer(
       if (cancelled) return;
       busCrowdingSimIndexStore.set(buildSegmentIndex(fc));
       setGeometry(fc);
-    }).catch((error: unknown) => reportBusCrowdingLoadError("segments", error));
+    }).catch((error: unknown) => {
+      if (cancelled) return;
+      reportBusCrowdingLoadError("segments", error);
+    });
     return () => { cancelled = true; };
   }, [visible, userId, geometry]);
 
@@ -134,10 +137,15 @@ export function useBusCrowdingSimLayer(
   useEffect(() => {
     if (!visible || !userId) { setData(null); busCrowdingSimScenarioStore.set(null); return; }
     let cancelled = false;
+    // 換方案：先清掉舊方案結果，載入失敗時地圖與 popup 不沿用舊數值。
+    setData(null); busCrowdingSimScenarioStore.set(null);
     loadBusCrowdingScenario(controls.scenario, busCrowdingSimAuth(userId)).then((loaded) => {
       if (cancelled) return;
       setData(loaded); busCrowdingSimScenarioStore.set(loaded);
-    }).catch((error: unknown) => reportBusCrowdingLoadError("values", error));
+    }).catch((error: unknown) => {
+      if (cancelled) return;
+      reportBusCrowdingLoadError("values", error);
+    });
     return () => { cancelled = true; };
   }, [visible, userId, controls.scenario]);
 
@@ -173,7 +181,7 @@ export function useBusCrowdingSimLayer(
 
   // 版本／方案：數值寫進 properties 後 setData（幾何不重抓）。換底圖重建 source 時 mount 直接用 latestFeatures。
   useEffect(() => {
-    const map = mapRef.current; if (!map || !visible || !geometry || !data || view !== "static") return;
+    const map = mapRef.current; if (!map || !visible || !geometry || view !== "static") return;
     if (map.getLayer(IDS.hit)) map.setLayoutProperty(IDS.hit, "visibility", "visible");
     const started = performance.now();
     const next = withBusCrowdingValues(geometry, data, controls.version);
@@ -189,9 +197,13 @@ export function useBusCrowdingSimLayer(
   useEffect(() => {
     if (!visible || !userId || view !== "replay") { setReplayTrips(null); return; }
     let cancelled = false;
+    setReplayTrips(null); // 換版本／方案：不沿用舊班次
     loadBusCrowdingReplayTrips(controls.version, controls.scenario, busCrowdingSimAuth(userId)).then((trips) => {
       if (!cancelled) setReplayTrips(trips);
-    }).catch((error: unknown) => reportBusCrowdingLoadError("replay trips", error));
+    }).catch((error: unknown) => {
+      if (cancelled) return;
+      reportBusCrowdingLoadError("replay trips", error);
+    });
     return () => { cancelled = true; };
   }, [visible, userId, view, controls.version, controls.scenario]);
 

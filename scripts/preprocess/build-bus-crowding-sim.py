@@ -265,10 +265,13 @@ def main() -> None:
             diff = up_diffs[vid][sid]
             other_sc = {t["id"]: t for t in assemble(up_trips[oid], up_diffs[oid][sid])}
             changed = [slim(t, other_sc) for t in diff["changed"] if keep(t)]
+            # 被時間窗／跳過路線濾掉的改期班次：基準班次可能仍在窗內，要併入 removed 才不會殘留
+            dropped_changed = [t["id"] for t in diff["changed"] if not keep(t)]
+            removed = list(dict.fromkeys(list(diff["removed"]) + dropped_changed))
             with (OUT / vid / f"trips-{sid}.json").open("w", encoding="utf-8") as fh:
-                json.dump({"removed": diff["removed"], "changed": changed}, fh, separators=(",", ":"))
+                json.dump({"removed": removed, "changed": changed}, fh, separators=(",", ":"))
             sc_qa[sid] = {"changed": len(changed), "changed_matched": sum(1 for t in changed if "x" in t),
-                          "removed": len(diff["removed"]),
+                          "removed": len(removed),
                           "changed_skipped_line": sum(1 for t in diff["changed"] if in_window(t) and int(t["l"]) in skip_lines)}
         replay_qa[vid] = {"base_trips": len(base_out), "base_matched_other_version": matched,
                           "base_skipped_line": skipped_trips, "scenarios": sc_qa}
