@@ -359,6 +359,11 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     const bands: { x0: number; x1: number; up: boolean }[] = [];
     let run: { i0: number; up: boolean } | null = null;
     pts.forEach((p, i) => {
+      // 中間有缺值日：異常帶在缺口前結束，不跨接
+      if (run && i > 0 && slot(i) - slot(i - 1) > 1) {
+        bands.push({ x0: x(run.i0), x1: x(i - 1), up: run.up });
+        run = null;
+      }
       const isAlert = p.light === "red";
       const up = (p.devPct ?? 0) >= 0;
       if (isAlert && (!run || run.up !== up)) {
@@ -369,7 +374,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
         run = null;
       }
     });
-    if (run) bands.push({ x0: x((run as { i0: number }).i0), x1: 100, up: (run as { up: boolean }).up });
+    if (run) bands.push({ x0: x((run as { i0: number }).i0), x1: x(pts.length - 1), up: (run as { up: boolean }).up });
 
     const last = pts[pts.length - 1]!;
     return {
