@@ -1314,5 +1314,11 @@
   "layer.jpLandslideWarningAreas": "土砂災害警戒区域",
   "layer.jpInlandFloodAreas": "内水浸水想定区域",
   "layer.jpZoningUseDistricts": "用途地域",
-  "layer.jpNationalForests": "国有林"
+  "layer.jpNationalForests": "国有林",
+  "layer.jpWelfareDisability": "障害者福祉施設",
+  "layer.jpWelfareChild": "児童福祉施設",
+  "layer.jpMajorRoads": "主要道路（国道・都道府県道）",
+  "layer.jpExpressways": "高速道路",
+  "layer.jpGsiHillshade": "陰影起伏図",
+  "layer.jpGsiRelief": "色別標高図"
 }

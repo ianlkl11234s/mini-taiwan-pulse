@@ -181,5 +181,11 @@
   "legend.civic.jpForestScope": "国有林のみ（全国の森林の約3割）で、民有林は含みません。空白の場所が森林なしとは限りません",
   "legend.civic.jpForestMerged": "1面は、同じ署・国有林名・機能類型・保安林・保護林が共通する隣接小班を統合したもので、小班そのものではありません",
   "legend.civic.jpForestProtected": "保護林が「非公表」の小班は属性が空白です。空白＝保護林ではない、ではありません",
-  "legend.civic.jpForestZoom": "ズーム8以上で表示、ズーム14以上はオーバーズーム。地殻変動補正は未実施で、東北では数m程度ずれる場合があります"
+  "legend.civic.jpForestZoom": "ズーム8以上で表示、ズーム14以上はオーバーズーム。地殻変動補正は未実施で、東北では数m程度ずれる場合があります",
+  "legend.civic.jpWelfareDisabilityTitle": "障害者福祉施設（性質別に色分け）",
+  "legend.civic.jpWelfareChildTitle": "児童福祉施設（性質別に色分け）",
+  "legend.civic.jpWelfareMissing": "ある県のある分類が0件でも、自治体が未提供・非公開なだけで、施設がないとは限りません（例：母子生活支援施設は多くの自治体で非公開）",
+  "legend.civic.jpWelfareAccuracy": "既定では位置正確度1〜3のみ表示。4〜5は市区町村・都道府県の代表点（計2,736件、同じ点に重なる）で、「位置精度」で切り替えられます",
+  "legend.civic.jpWelfareLicense": "一部の自治体は商用利用に条件あり（ポップアップに表示）。条件の記載がない県も商用利用可と明示されたわけではありません",
+  "legend.civic.jpWelfareStale": "令和5年度版のため最新でない場合があります。個人の保育事業者名は分類名に置き換えています"
 }

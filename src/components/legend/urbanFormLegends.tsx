@@ -653,3 +653,24 @@ export function RealEstateLegend({ isDark = true, visibility, overlayParams }: {
     </div>
   );
 }
+
+/** 國土地理院 陰影起伏図（外部 raster）：單色地形陰影，文字說明即可。 */
+export function JpGsiHillshadeLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.jpGsiHillshadeTitle")} />
+    <LegendNote>{i18n.t("legend.urban.jpGsiHillshadeNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.jpGsiSource")}</LegendNote>
+  </div>;
+}
+
+/** 國土地理院 色別標高図（外部 raster）：依標高著色，非精確數值。 */
+export function JpGsiReliefLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.jpGsiReliefTitle")} />
+    <LegendNote>{i18n.t("legend.urban.jpGsiReliefNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.jpGsiReliefSea")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.jpGsiSource")}</LegendNote>
+  </div>;
+}

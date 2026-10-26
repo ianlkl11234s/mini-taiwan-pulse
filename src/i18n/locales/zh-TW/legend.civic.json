@@ -181,5 +181,11 @@
   "legend.civic.jpForestScope": "僅國有林（約占全國森林三成），民有林不在內；空白處不代表沒有森林",
   "legend.civic.jpForestMerged": "每個面是同署、国有林、機能類型、保安林、保護林相同的相連小班合併，不是小班",
   "legend.civic.jpForestProtected": "保護林「非公表」的小班屬性空白，空白不等於不是保護林",
-  "legend.civic.jpForestZoom": "放大到 z8 以上才顯示；z14 以上為放大顯示（overzoom）；座標未做地殼變動補正，東北可能差數公尺"
+  "legend.civic.jpForestZoom": "放大到 z8 以上才顯示；z14 以上為放大顯示（overzoom）；座標未做地殼變動補正，東北可能差數公尺",
+  "legend.civic.jpWelfareDisabilityTitle": "障礙福祉設施（依性質分色）",
+  "legend.civic.jpWelfareChildTitle": "兒童福祉設施（依性質分色）",
+  "legend.civic.jpWelfareMissing": "某縣某類為 0 筆＝自治體未提供或非公開，不等於沒有（例：母子生活支援施設多數自治體非公開）",
+  "legend.civic.jpWelfareAccuracy": "預設只畫位置正確度 1–3；4–5 是市町村／縣的代表點（共 2,736 筆，會堆在同一點），可在「定位精度」切換",
+  "legend.civic.jpWelfareLicense": "部分自治體附商用條件（彈窗會標示）；未列條件的縣不代表明示可商用",
+  "legend.civic.jpWelfareStale": "令和5年度版，可能非最新；個人保育者名稱已遮蔽為類別名"
 }

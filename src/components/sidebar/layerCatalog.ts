@@ -2173,6 +2173,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("jpAdminPrefecture"), fromManifest("jpAdminBoundaries")] },
       { title: "建成環境", layers: [fromManifest("jpBuildingHeight")] },
       { title: "土地使用分區 Zoning", layers: [fromManifest("jpZoningUseDistricts")] },
+      { title: "地形", layers: [fromManifest("jpGsiHillshade"), fromManifest("jpGsiRelief")] },
     ],
   },
   {
@@ -2181,7 +2182,7 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "場站", layers: [fromManifest("jpStations"), fromManifest("jpBusStops")] },
       { title: "歷史軌跡", layers: [fromManifest("jpHistoricalFlightTrails")] },
-      { title: "路網", layers: [fromManifest("jpRailways")] },
+      { title: "路網", layers: [fromManifest("jpRailways"), fromManifest("jpExpressways"), fromManifest("jpMajorRoads")] },
       { title: "樞紐節點", layers: [fromManifest("jpAirports")] },
     ],
   },
@@ -2204,10 +2205,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "社福長照",
     defaultCollapsed: true,
     groups: [
-      { title: "住宿照顧", layers: [fromManifest("jpCareResidential")] },
+      { title: "住宿照顧", layers: [fromManifest("jpCareResidential"), fromManifest("jpWelfareDisability")] },
       { title: "長照與托育", layers: [
         fromManifest("jpCarePlanning"), fromManifest("jpCareHomeVisit"), fromManifest("jpCareDayServices"),
-        fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"),
+        fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"), fromManifest("jpWelfareChild"),
       ] },
     ],
   },
