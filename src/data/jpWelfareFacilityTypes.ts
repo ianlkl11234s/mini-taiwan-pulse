@@ -132,5 +132,5 @@ export function jpWelfareFilter(major: JpWelfareMajor, categoryIdx: number, accu
 
 export const JP_WELFARE_ATTRIBUTION = "出典：国土数値情報（福祉施設データ）（国土交通省）を加工して作成";
 export const JP_WELFARE_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P14-2023.html";
-export const JP_WELFARE_LICENSE = "CC BY 4.0 / PDL1.0（一部制限：自治體別條件見 license_note）";
+export const JP_WELFARE_LICENSE = "CC BY 4.0（一部制限）/ PDL1.0";
 export const JP_WELFARE_DATA_AS_OF = "令和5年度版（2023）";
