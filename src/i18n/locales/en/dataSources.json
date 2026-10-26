@@ -26,7 +26,6 @@
   "dataSources.block.matchedDataset": "Matched upstream dataset",
   "dataSources.confidence": "Match confidence: {value}",
   "dataSources.fact.note": "Note",
-  "dataSources.fact.processing": "Processing",
   "dataSources.fact.provider": "Agency",
   "dataSources.fact.frequency": "Frequency",
   "dataSources.fact.license": "License",

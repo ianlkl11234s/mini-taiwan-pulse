@@ -363,11 +363,7 @@ export function DataSourceCard({
     }
     if (status === "pulse_only") return [lineageBlock];
     if (statisticsSource) return [];
-    // catalog 無條目時，仍顯示 manifest 登錄的處理方式與說明（出典／授權／缺測語意）。
-    return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts(
-      ref?.processing ? { k: t("dataSources.fact.processing"), v: ref.processing } : null,
-      ref?.note ? { k: t("dataSources.fact.note"), v: ref.note } : null,
-    ), docPath: null }];
+    return [{ title: null, desc: t("dataSources.noCatalogEntry"), facts: facts(), docPath: null }];
   }, [entries, status, ref, upstreamIds, statisticsSource, p, i18n]);
 
   const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;

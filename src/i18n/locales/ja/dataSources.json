@@ -26,7 +26,6 @@
   "dataSources.block.matchedDataset": "照合済みの上流データセット",
   "dataSources.confidence": "照合の信頼度：{value}",
   "dataSources.fact.note": "備考",
-  "dataSources.fact.processing": "処理",
   "dataSources.fact.provider": "機関",
   "dataSources.fact.frequency": "更新頻度",
   "dataSources.fact.license": "ライセンス",

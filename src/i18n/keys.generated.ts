@@ -195,7 +195,6 @@ export type GeneratedStaticKey =
   | "dataSources.fact.license"
   | "dataSources.fact.note"
   | "dataSources.fact.period"
-  | "dataSources.fact.processing"
   | "dataSources.fact.provider"
   | "dataSources.fact.publishLicense"
   | "dataSources.fact.publishSource"
