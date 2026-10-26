@@ -26,6 +26,7 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
   // 類別名稱表（SATELLITE_LABELS）圖例也在用，不動它；只在 popup 端去掉國旗 emoji
   const catLabel = enumLabel("satelliteCategory", cat, (SATELLITE_LABELS[cat] ?? cat).replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, ""), i18n);
   const noradNum = Number(norad);
+  const tleMs = getSatelliteTleFetchedAt();
   const mono = { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" } as const;
   return (
     <div>
@@ -33,6 +34,7 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
       <Row field="category" value={catLabel} color={color} />
       <Row field="number" value={norad} mono title={tr("popup.satellite.noradTitle")} />
       <Row label={tr("popup.satellite.altitude")} value={Number.isFinite(altKm) ? `${formatNumber(altKm)} km` : ""} mono />
+      {tleMs != null && <Row label={tr("popup.satellite.tleEpoch")} value={tr("popup.satellite.fetchedAt", { time: new Date(tleMs + 8 * 3600_000).toISOString().slice(0, 16).replace("T", " ") })} mono />}
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textDim }}>
         {tr("popup.satellite.footprint1")}<span style={mono}>50</span>{tr("popup.satellite.footprint2")}<span style={mono}>1,500</span>{tr("popup.satellite.footprint3")}<span style={mono}>≥10°</span>{tr("popup.satellite.footprint4")}
       </div>
@@ -54,10 +56,6 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
         props={{
           source_org: tr("popup.satellite.sourceOrg"),
           source_url: SATELLITE_SOURCE_URL,
-          fetched_at: (() => {
-            const ms = getSatelliteTleFetchedAt();
-            return ms == null ? "" : tr("popup.satellite.fetchedAt", { time: new Date(ms + 8 * 3600_000).toISOString().slice(0, 16).replace("T", " ") });
-          })(),
         }}
       />
     </div>

@@ -44,7 +44,7 @@
   "legend.jma.imageryReason.missing": "このフレームは欠測",
   "legend.jma.imageryReason.encoding": "画像の符号化が配色と一致しない",
   "legend.jma.snowDepthNote": "1時間ごとに1フレーム、タイムラインに合わせて再生。約5 kmメッシュ。配色は公式凡例に準拠し、最初の2階級は実タイルで確認済み。",
-  "legend.jma.imageryAttribution": "出典：気象庁（加工）",
+  "legend.jma.imageryAttribution": "出典：気象庁（公共データ利用規約1.0に基づき加工）",
   "legend.jma.imageryOffHours": "夜間はデータなし（06〜18時（日本時間）の毎正時のみ発表）",
   "legend.jma.imageryOffSeason": "期間外（海氷は12〜5月のみ発表）",
   "legend.jma.radarNote": "5分ごとに1フレーム、タイムラインに合わせて再生。約1 kmメッシュを約2 km（最大値）で表示。配色は公式凡例に準拠（実タイルで確認済み）。",

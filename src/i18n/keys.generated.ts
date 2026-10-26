@@ -4797,6 +4797,7 @@ export type GeneratedStaticKey =
   | "popup.satellite.footprint4"
   | "popup.satellite.noradTitle"
   | "popup.satellite.sourceOrg"
+  | "popup.satellite.tleEpoch"
   | "popup.soilLiquefaction.assessmentYear"
   | "popup.soilLiquefaction.classMeaning"
   | "popup.soilLiquefaction.classMeaningText"
