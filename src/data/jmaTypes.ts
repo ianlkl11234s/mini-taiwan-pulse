@@ -127,7 +127,7 @@ export const JMA_WARNING_KINDS = [
   { value: "15", label: "強風注意報" }, { value: "13", label: "風雪注意報" }, { value: "12", label: "大雪注意報" }, { value: "16", label: "波浪注意報" },
   { value: "14", label: "雷注意報" }, { value: "17", label: "融雪注意報" }, { value: "20", label: "濃霧注意報" }, { value: "21", label: "乾燥注意報" },
   { value: "22", label: "なだれ注意報" }, { value: "23", label: "低温注意報" }, { value: "24", label: "霜注意報" }, { value: "25", label: "着氷注意報" },
-  { value: "26", label: "着雪注意報" },
+  { value: "26", label: "着雪注意報" }, { value: "27", label: "その他の注意報" },
 ] as const;
 
 /** 下拉索引 → 種別碼；0／缺值＝全部（null）。 */

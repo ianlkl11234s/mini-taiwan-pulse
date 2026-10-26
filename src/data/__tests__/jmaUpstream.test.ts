@@ -98,6 +98,12 @@ describe("NASA GIBS 雪覆蓋", () => {
     expect(gibsDateInRange("2000-02-23", modis, now)).toBe(false);
     expect(gibsDateInRange("2017-12-31", viirs, now)).toBe(false);
     expect(gibsDateInRange("2026-10-16", modis, now)).toBe(false);
+    // 上游 Dimension 分段之間的缺日 → 未涵蓋
+    expect(gibsDateInRange("2022-10-10", modis, now)).toBe(true);
+    expect(gibsDateInRange("2022-10-11", modis, now)).toBe(false);
+    expect(gibsDateInRange("2022-10-22", modis, now)).toBe(false);
+    expect(gibsDateInRange("2022-10-23", modis, now)).toBe(true);
+    expect(gibsDateInRange("2018-02-23", viirs, now)).toBe(false);
     expect(gibsSnowProduct(99)).toBe(GIBS_SNOW_PRODUCTS[0]);
   });
 });

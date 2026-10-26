@@ -74822,11 +74822,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74870,11 +74874,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74926,11 +74934,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74990,11 +75002,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -91840,6 +91856,10 @@
           {
             "label": "着雪注意報",
             "value": "26"
+          },
+          {
+            "label": "その他の注意報",
+            "value": "27"
           }
         ],
         "type": "select",
