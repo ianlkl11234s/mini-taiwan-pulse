@@ -72,6 +72,20 @@ describe("AgentTabSession (P3, no pairing code)", () => {
     expect(storage.value).toEqual({ studyId: "stored", tabId: "b7c2-tab", userId: "owner" });
   });
 
+  it("a duplicated tab (stored lease held elsewhere) reports it and creates no study when onDuplicateTab is set", async () => {
+    const fake = fakeClient(); const storage = memoryStorage({ studyId: "stored", tabId: "b7c2-tab", userId: "owner" });
+    const onDuplicateTab = vi.fn();
+    const tab = new AgentTabSession({
+      client: fake.client as unknown as BridgeClient, userId: "owner", storage, onState: vi.fn(), onConnection: vi.fn(), onView: vi.fn(),
+      acquireLease: async () => null, onDuplicateTab, schedule: () => () => undefined,
+    });
+    active.push(tab);
+    tab.start(); await flush();
+    expect(onDuplicateTab).toHaveBeenCalledTimes(1);
+    expect(fake.client.createStudy).not.toHaveBeenCalled();
+    expect(storage.value).toBeNull();
+  });
+
   it("makes its own study when the stored one belongs to another user, a duplicated tab holds the lease, or the gateway forgot it", async () => {
     for (const [stored, lease, status] of [
       [{ studyId: "stored", tabId: "tab", userId: "someone-else" }, null, null],
@@ -222,6 +236,14 @@ describe("ResearchConnection (P3)", () => {
     expect(h.created).toHaveLength(0);
     expect(h.waits).toHaveLength(0);
     expect(onConnection).not.toHaveBeenCalled();
+  });
+
+  it("opening with ?agent=1 persists the opt-in so a redirect keeps it", async () => {
+    const setItem = vi.fn();
+    vi.stubGlobal("window", { sessionStorage: { getItem: () => null, setItem, removeItem: () => undefined }, location: { search: "?agent=1" } });
+    const { AGENT_ALLOWED_KEY, agentAllowedAtStart } = await import("../ResearchConnection");
+    expect(agentAllowedAtStart()).toBe(true);
+    expect(setItem).toHaveBeenCalledWith(AGENT_ALLOWED_KEY, "1");
   });
 
   it("a reload keeps the tab open to the Agent once allowed (sessionStorage flag)", async () => {
