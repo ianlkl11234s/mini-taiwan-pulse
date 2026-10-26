@@ -12,6 +12,14 @@ function urlToken(text, start) {
   return m ? text.slice(start, start + m.index) : text.slice(start);
 }
 
+// 網址 token 若以引號／反引號結尾，且之後緊接 `+`、`.`、`[`、`?.` 等續接（"ok" + "?x=1"、"ok".concat(..)），
+// 實際字串就不等於清單內網址 → 不放行。
+function isContinued(text, start) {
+  const m = /[\s"'`]/.exec(text.slice(start));
+  if (!m || !/["'`]/.test(m[0])) return false;
+  return /^\s*(?:\+|\.|\[|\?\.)/.test(text.slice(start + m.index + 1));
+}
+
 function reportAll(context, re, messageId, skip = () => false) {
   const { sourceCode } = context;
   const text = sourceCode.text;
@@ -52,11 +60,14 @@ export const ownerOnlyNoExternalSource = {
     const text = context.sourceCode.text;
     const metaAllowed = (i, len) => {
       const tail = /^(?:\s*\.\s*[A-Za-z_$][\w$]*)+/.exec(text.slice(i + len));
-      return tail !== null && allowImportMeta.includes(tail[0].replace(/\s+/g, "").slice(1));
+      if (tail === null || !allowImportMeta.includes(tail[0].replace(/\s+/g, "").slice(1))) return false;
+      // 路徑之後（跳過空白與註解）若再接 [ 、. 或 ?. 成員存取（import.meta.env.BASE_URL["replace"]）就不放行
+      const rest = text.slice(i + len + tail[0].length).replace(/^(?:\s+|\/\*[\s\S]*?\*\/|\/\/[^\n]*)+/, "");
+      return !/^(?:\[|\.|\?\.)/.test(rest);
     };
     return {
       Program() {
-        reportAll(context, URL_RE, "url", (i) => allowUrls.includes(urlToken(text, i)));
+        reportAll(context, URL_RE, "url", (i) => allowUrls.includes(urlToken(text, i)) && !isContinued(text, i));
         reportAll(context, IMPORT_META_RE, "importMeta", metaAllowed);
       },
     };

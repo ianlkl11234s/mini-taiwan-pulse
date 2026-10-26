@@ -143,11 +143,33 @@ const hookName = (callee) =>
     : callee.type === "MemberExpression" && !callee.computed && callee.object.type === "Identifier" && callee.object.name === "React"
       ? callee.property.name
       : null;
-/** deps 元素是否指向 currentTime：`currentTime`、`state.currentTime`、`props?.currentTime`。 */
+const SKIP_KEYS = new Set(["parent", "loc", "range", "start", "end", "type"]);
+/**
+ * deps 元素是否（含巢狀運算式）引用 currentTime：`currentTime`、`state.currentTime`、`props?.currentTime`、
+ * `currentTime + 1`、`f(currentTime)`、`o[currentTime]`。不進入函式本體（參數名可能剛好叫 currentTime）；
+ * 物件字面值的非 computed key 不算引用。
+ */
 function isCurrentTimeRef(node) {
-  const n = node?.type === "ChainExpression" ? node.expression : node;
-  if (n?.type === "Identifier") return n.name === "currentTime";
-  return n?.type === "MemberExpression" && !n.computed && n.property.name === "currentTime";
+  if (!node || typeof node.type !== "string") return false;
+  switch (node.type) {
+    case "Identifier":
+      return node.name === "currentTime";
+    case "MemberExpression":
+      if (!node.computed && node.property.name === "currentTime") return true;
+      return isCurrentTimeRef(node.object) || (node.computed && isCurrentTimeRef(node.property));
+    case "FunctionExpression":
+    case "ArrowFunctionExpression":
+    case "FunctionDeclaration":
+      return false;
+    case "Property":
+      return (node.computed && isCurrentTimeRef(node.key)) || isCurrentTimeRef(node.value);
+  }
+  for (const key of Object.keys(node)) {
+    if (SKIP_KEYS.has(key)) continue;
+    const v = node[key];
+    if (Array.isArray(v) ? v.some(isCurrentTimeRef) : isCurrentTimeRef(v)) return true;
+  }
+  return false;
 }
 
 // 只看 React hook 的依賴陣列（第二個參數）；map filter 表達式等一般陣列不算。
