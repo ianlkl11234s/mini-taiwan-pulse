@@ -196,7 +196,7 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 | news-persistence | 同一個地方連續好幾週都出現？ | gaps-and-islands 找連續週期（週序號減組內排名）；週以台灣時間切 |
 | event-context-timeseries | 兩件事的時間走勢同不同步、誰先動？ | 週序列相關＋領先落後 ±1 週；只取兩序列收集窗口的重疊段（窗口外補 0 會把「沒收集」當「沒發生」） |
 
-出處：`plugins/pulse-analyst/skills/pulse-insight/references/recipes/*.md`。Moran's I／LISA 已由 `pulse_spatial_stats`＋`spatial-cluster-lisa` 配方承接（MCP #70）；其餘配方（Gi\*、ANN、LQ 等）仍是「SQL 模板＋Agent 自己算」，是否也改走工具見 §10 方向 A。
+出處：`plugins/pulse-analyst/skills/pulse-insight/references/recipes/*.md`。Moran's I／LISA 已由 `pulse_spatial_stats`＋`spatial-cluster-lisa` 配方承接（MCP #70）；Gi\*、LQ 也已併入 `pulse_spatial_stats`（`gi_star`、`lq`）；仍是「SQL 模板＋Agent 自己算」的只剩 ANN 等未遷移配方，是否也改走工具見 §10 方向 A。
 
 ---
 
@@ -226,7 +226,7 @@ gateway 主要端點（[bridge-contract.md](./bridge-contract.md)）：瀏覽器
 | 層 | 意義 | 現況 |
 |---|---|---|
 | L1 可操作 | 可搜尋、開關、描述（來自 layer manifest） | 1,174／1,174 層 |
-| L2 可分析 | 對應到倉庫 dataset（spatial／statistics／attribute） | 954／1,174 層（81.3%）；不可分析 182、只有舊 browser reader 6、共用混合幾何表缺 rowFilter 27 |
+| L2 可分析 | 對應到倉庫 dataset（spatial／statistics／attribute） | 954／1,174 層（81.3%）；不可分析 182、只有舊 browser reader 6、共用混合幾何表缺 rowFilter 27、僅展示 5（臺灣 4、日本 1；954＋182＋6＋27＋5＝1,174） |
 | L3 位置精度 | official／address_geocode／google_geocode／village_centroid／proxy／unknown | 屬性，不是關卡：只決定回答要加什麼但書 |
 
 出處：定義見 ADR-0014 D1、[PLAN-warehouse-20260926.md](../general-analysis/PLAN-warehouse-20260926.md)；數字見 [layer-status-summary.md](../general-analysis/layer-status-summary.md)（2026-10-12 由 `scripts/research/build-layer-status.mjs` 產生）。ADR-0014 寫的 778 層是 09-26 的舊值。
@@ -270,7 +270,7 @@ flowchart LR
 
 ### 6a. 三鐵則
 
-1. **每題都要上圖**：最後一次地圖動作要成功才回答。分析題看 `shown:true`；只開圖層的題目用 `pulse_get_map_context` 讀回。畫不上就明講「地圖這次沒畫上去」，不假裝有圖。
+1. **每題都要上圖**：先嘗試上圖，再依結果回答。分析題看 `shown:true`；只開圖層的題目用 `pulse_get_map_context` 讀回。畫不上時**照樣回答，並明講**「地圖這次沒畫上去」，不假裝有圖（流程圖「答案照講」同此意）。
 2. **計算前先有地圖動作**：呼叫 `pulse_sql`／`pulse_region_rank`／`pulse_isochrone`／`pulse_nearby_profile` 前，先做一次看得見的 `pulse_set_camera` 或 `pulse_set_layers`，並寫一句短進度（不寫百分比）。
 3. **白話回答**，八點格式（conductor「回答格式」）：
    1. 第一句是答案，帶數字與地名；不寫「根據查詢結果」「我先…」「我已經算完了」。
@@ -346,7 +346,7 @@ conductor 實際用的分級表：
 | 09-29 | 舊 20 題 | 14/20 | 回答格式寫進 skill 與 MCP instructions 開頭三規則；使用須知三條口徑 | mcp #23／#24、mini #400／#403 |
 | 10-03 | 分層 13 題 ×2 | 26/26（第 4 輪） | Agent v2：四 skill plugin、core 22 工具、一步上圖 | ADR-0016 |
 | 10-05 | 主題庫 30 題 ×2 | 52/60 → 58/60 | 資料使用須知、MCP 指示「數字只來自工具」 | eval README 2026-10-05 |
-| 10-16 | 查證題 8 題 ×2 | 查證維度 8/16 → 14/14 | 查證關卡：skill 寫了沒用，寫進 server 指示後才穩 | mcp #56–#59 |
+| 10-16 | 查證題 8 題 ×2 | 查證維度 8/16 → 14/16 | 查證關卡：skill 寫了沒用，寫進 server 指示後才穩 | mcp #56–#59 |
 | 10-17 | verify／tiers／主題庫 | 16/16、26/26、29/30 | 數字口徑（圓心、半徑、經緯度順序）、醫療院所去重、LIMIT 附註 | mcp #60、#62、#63 |
 | 10-18 | 倉庫重建後 | 主題庫 29/30、tiers 26/26、verify 7/8（三輪約 US$14） | 同檔名多格式只收一份 | mcp #64–#67；eval README 第四階段 |
 | 10-20 | 空間統計題庫 20 題 | 基準 5/20（數字 6/20）→ **16/20**（數字 16/20） | `pulse_spatial_stats` 確定性工具＋`spatial-cluster-lisa` 配方（ADR-0022 階段 A） | mcp #70；eval README |

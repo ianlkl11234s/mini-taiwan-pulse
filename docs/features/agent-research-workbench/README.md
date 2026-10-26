@@ -3,7 +3,7 @@
 > **Slug**：`agent-research-workbench`
 > **狀態**：historical（2026-09 本地開發紀錄；現行 Agent 分析工作已移至 [`../general-analysis/`](../general-analysis/README.md)）
 > **最後相關改動**：2026-10-16（文件歸檔）；程式 `src/research/` 仍持續演進（最近 2026-10-15 i18n P4-B）
-> **現行架構說明書**：[ARCHITECTURE.md](./ARCHITECTURE.md)（2026-10-18，MCP core 22 工具＋五 skill＋分析倉庫）
+> **現行架構說明書**：[ARCHITECTURE.md](./ARCHITECTURE.md)（2026-10-21，MCP core 23 工具＋五 skill＋分析倉庫）
 
 ## 一句話說明
 
