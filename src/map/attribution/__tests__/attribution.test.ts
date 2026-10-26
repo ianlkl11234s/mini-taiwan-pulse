@@ -175,3 +175,34 @@ describe("attribution 字串解析", () => {
     expect(parts.map((p) => parseAttributionPart(p)?.text ?? "").filter((t) => !t)).toEqual([]);
   });
 });
+
+describe("review R2 修正", () => {
+  it("F134：目前縮放不在 minzoom／maxzoom 內的 layer，其 source 不列入", () => {
+    const style = {
+      sources: { a: { type: "vector" }, b: { type: "vector" }, c: { type: "vector" } },
+      layers: [
+        { id: "la", source: "a", minzoom: 12 },
+        { id: "lb", source: "b", maxzoom: 8 },
+        { id: "lc", source: "c", minzoom: 5, maxzoom: 10 },
+      ],
+    };
+    const at = (zoom: number | undefined): string[] => readMapSourceViews({
+      getStyle: () => style,
+      getSource: (id: string) => ({ attribution: `attr-${id}` }),
+      ...(zoom === undefined ? {} : { getZoom: () => zoom }),
+    }).filter((v) => v.used).map((v) => v.id);
+    expect(at(6)).toEqual(["b", "c"]);
+    expect(at(10)).toEqual([]); // maxzoom 不含
+    expect(at(13)).toEqual(["a"]);
+    expect(at(undefined)).toEqual(["a", "b", "c"]);
+  });
+
+  it("F187：一段含兩個連結（來源・利用條件）時，兩個連結都保留", () => {
+    const raw = '<a href="https://example.go.jp/a" target="_blank">来源A</a> · <a href="https://example.go.jp/terms">利用條件</a>';
+    const entries = parseAttributions([raw]);
+    expect(entries.map((e) => [e.text, e.url])).toEqual([
+      ["来源A", "https://example.go.jp/a"],
+      ["利用條件", "https://example.go.jp/terms"],
+    ]);
+  });
+});
