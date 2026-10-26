@@ -208,6 +208,11 @@ export function MainMapConnection(props: Props) {
   // null＝尚未有訊息，畫面顯示預設引導語（隨介面語系），其餘訊息在產生當下依語系翻譯
   const [message, setMessage] = useState<string | null>(null);
   const latest = useRef(props); latest.current = props;
+  // describeDataset throws for ids outside the frontend descriptors (e.g. warehouse lineage ids); fall back to the manifest label.
+  const describedLabelOrManifest = (id: string): string | undefined => {
+    try { return describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]; }
+    catch { return latest.current.labels[id]; }
+  };
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
   /** P2: stable handler for ResearchConnection's long poll; delegates to the current connection's responder. */
@@ -719,7 +724,7 @@ export function MainMapConnection(props: Props) {
           catch (error) {
             // warehouse:<id> 不在前端 descriptor：以匯入 lineage 的上游資料集名稱代替。
             const sources = presentedAnalysisRef.current.find(result => result.datasetId === datasetId)?.sourceDatasets;
-            const label = warehouseDatasetsSourceLabel(sources, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]);
+            const label = warehouseDatasetsSourceLabel(sources, id => describedLabelOrManifest(id));
             if (label) return label;
             throw error;
           }
@@ -742,11 +747,13 @@ export function MainMapConnection(props: Props) {
         return presentation.sourcesReady && presentation.layersReady;
       });
     };
+    redrawRef.current = redraw;
     redraw(); map.on("style.load", redrawAfterStyleLoad); map.on("click", click);
     if (hoverTip) { map.on("mousemove", hover); map.on("mouseout", endHover); map.on("movestart", endHover); }
     return () => {
       cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
       if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
+      redrawRef.current = null;
       openPanelRef.current = null;
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
       clearAnalysisPlayback();
@@ -755,6 +762,14 @@ export function MainMapConnection(props: Props) {
   // T2 A2: subscribes to the playback store so a tick/scrub (analysisPlaybackStore.ts) re-renders
   // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
   // bar (index/playing) live.
+  // F142: 圖例與 styleFact 在 installAnalysisResults 時才依當下語系翻譯；切語系後重裝一次，不等下次結果。
+  const redrawRef = useRef<(() => void) | null>(null);
+  const localeSeen = useRef(i18n.active);
+  useEffect(() => {
+    if (localeSeen.current === i18n.active) return;
+    localeSeen.current = i18n.active;
+    redrawRef.current?.();
+  }, [i18n.active]);
   const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
   // F118: keep an open timed-choropleth popup in step with the playback (tick/scrub).
   useEffect(() => {
@@ -799,7 +814,7 @@ export function MainMapConnection(props: Props) {
         const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
         if (label !== UNNAMED_DATASET_LABEL) return label;
         // warehouse:<id> 不在前端 descriptor：改用匯入 lineage 的上游資料集，解析不出名稱的不顯示。
-        return warehouseDatasetsSourceLabel(sourceDatasets, id => describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]) ?? null;
+        return warehouseDatasetsSourceLabel(sourceDatasets, id => describedLabelOrManifest(id)) ?? null;
       }, analysisPlaybackFor, availableAnalysis),
       compact: !!props.analysisResultSelected,
     });

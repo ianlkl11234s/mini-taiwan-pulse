@@ -82,6 +82,8 @@ export class AgentTabSession {
   private failures = 0;
   private rebuilds = 0;
   private cancelRetry: (() => void) | null = null;
+  /** 進行中的 open()（resume／createStudy）；關閉時要等它落地，才知道有沒有 study 需要撤銷。 */
+  private opening: Promise<void> | null = null;
   constructor(private readonly options: AgentTabSessionOptions) {}
 
   get current(): { studyId: string; tabId: string } | null { return this.study; }
@@ -122,6 +124,8 @@ export class AgentTabSession {
 
   /** Before sign-out: revoke this tab's study so no agent keeps controlling it. */
   async revokeForSignOut(): Promise<boolean> {
+    // resume／createStudy 還在進行：先等它落地，否則伺服器端 study 不會被撤銷
+    if (!this.study && this.opening) await this.opening.catch(() => undefined);
     const study = this.study;
     if (study) {
       try { await this.client.revoke(study.studyId); } catch { return false; }
@@ -144,7 +148,15 @@ export class AgentTabSession {
     return acquire(studyId, tabId);
   }
 
-  private async open(): Promise<void> {
+  private open(): Promise<void> {
+    const run = this.openStudy();
+    this.opening = run;
+    const clear = () => { if (this.opening === run) this.opening = null; };
+    void run.then(clear, clear);
+    return run;
+  }
+
+  private async openStudy(): Promise<void> {
     let lease: ConnectionLease | null = null;
     try {
       let ref = await this.resume();
@@ -152,7 +164,8 @@ export class AgentTabSession {
       if (ref) lease = this.lease;
       else {
         const created = await this.client.createStudy((this.options.newTabId ?? (() => crypto.randomUUID()))());
-        if (this.stopped) return;
+        // 建立期間已被停止：這個 study 沒人會用，撤銷以免伺服器端殘留
+        if (this.stopped) { await this.client.revoke(created.studyId).catch(() => undefined); return; }
         lease = await this.acquire(created.studyId, created.tabId);
         if (!lease) { await this.client.revoke(created.studyId).catch(() => undefined); throw new BridgeError("CONNECTION_LOCK_UNAVAILABLE"); }
         this.options.storage.write({ ...created, userId: this.options.userId });
@@ -225,7 +238,7 @@ export class AgentTabSession {
         if (terminal && STUDY_GONE.has(failure.code) && this.rebuilds < MAX_REBUILDS) {
           this.rebuilds += 1;
           this.detach(); this.options.storage.clear();
-          this.emit({ status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: "這個分頁的連線已失效，正在重新準備…" });
+          this.emit({ status: "starting", tabLabel: null, paused: false, deviceLabel: null, message: msg("research.session.staleRebuilding") });
           void this.open();
           return;
         }
