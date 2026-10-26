@@ -44,7 +44,7 @@
   "legend.jma.imageryReason.missing": "該幀缺測",
   "legend.jma.imageryReason.encoding": "影像編碼與色票不符",
   "legend.jma.snowDepthNote": "每小時一幀，隨時間軸播放；約 5 km 網格。色票依官方圖例，前兩級已以實際圖磚驗證。",
-  "legend.jma.imageryAttribution": "出典：気象庁（加工）",
+  "legend.jma.imageryAttribution": "出典：気象庁（公共データ利用規約1.0に基づき加工）",
   "legend.jma.imageryOffHours": "夜間無資料（上游只在 06–18 時（日本時間）每小時發布）",
   "legend.jma.imageryOffSeason": "季外（海冰只在 12–5 月發布）",
   "legend.jma.radarNote": "每 5 分鐘一幀，隨時間軸播放；約 1 km 網格降為約 2 km 顯示（取最大值）。色票依官方圖例（已以實際圖磚驗證）。",

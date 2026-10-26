@@ -102,7 +102,7 @@
   "satelliteConsole.compare.unparsable": "軌道データを解析できず、台湾通過回数を計算できません",
   "satelliteConsole.computing": "計算中…",
   "satelliteConsole.console.dataExpired": "データ期限切れ",
-  "satelliteConsole.console.fetchedAt": "取得",
+  "satelliteConsole.console.fetchedAt": "TLE 時刻",
   "satelliteConsole.console.maneuverStale": "軌道変更の更新が中断",
   "satelliteConsole.console.showAllOrbits": "すべての軌道を表示",
   "satelliteConsole.console.sourcePage": "元のダウンロードページ ↗",

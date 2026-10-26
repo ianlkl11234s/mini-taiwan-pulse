@@ -96,7 +96,8 @@ export function LandslideAnnualPanel({ props }: Props) {
     <Row label={t("popup.landslide.slope")} value={fmt(props.slope, 1, t("popup.landslide.unitDegree"), i18n)} />
     <Row label={t("popup.landslide.minDtm")} value={dtm == null ? "" : dtm === ANNUAL_DTM_NODATA ? t("popup.landslide.dtmMissing") : fmt(dtm, 0, t("popup.landslide.unitMeter"), i18n)} />
     <Row label={t("popup.landslide.imageDate")} value={str(props.image_date)} mono />
+    {year != null && <Row label={t("popup.landslide.yearVersion")} value={t("popup.landslide.yearEdition", { year: String(year) })} mono />}
     {year === 2024 && <Row field="version" value={enumLabel("landslideNote", "annualV2", ANNUAL_V2_NOTE, i18n)} />}
-    <SourceFooter props={{ source_org: enumLabel("landslideSource", "annualOrg", ANNUAL_SOURCE.source_org, i18n), license: enumLabel("landslideSource", "annualLicense", ANNUAL_SOURCE.license, i18n), fetched_at: year != null ? t("popup.landslide.yearEdition", { year: displayRocYear(year, i18n) }) : "" }} />
+    <SourceFooter props={{ source_org: enumLabel("landslideSource", "annualOrg", ANNUAL_SOURCE.source_org, i18n), license: enumLabel("landslideSource", "annualLicense", ANNUAL_SOURCE.license, i18n) }} />
   </>;
 }

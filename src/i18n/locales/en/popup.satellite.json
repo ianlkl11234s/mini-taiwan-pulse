@@ -1,6 +1,7 @@
 {
   "popup.satellite.sourceOrg": "Space-Track (TLE) · UCS Satellite Database (classification)",
   "popup.satellite.fetchedAt": "{time} (Taiwan time)",
+  "popup.satellite.tleEpoch": "TLE epoch",
   "popup.satellite.fallback": "Satellite",
   "popup.satellite.noradTitle": "NORAD ID",
   "popup.satellite.altitude": "Altitude",
