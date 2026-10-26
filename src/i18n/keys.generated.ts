@@ -5794,6 +5794,7 @@ export type GeneratedStaticKey =
   | "statisticsSelect.pointInTime"
   | "statisticsSelect.publishedPeriod"
   | "statisticsSelect.rocYear"
+  | "statisticsSelect.unavailableForPeriod"
   | "statisticsSelect.unavailableForYear"
   | "statisticsSelect.variantDetail"
   | "statisticsSelect.variantPopCompare"

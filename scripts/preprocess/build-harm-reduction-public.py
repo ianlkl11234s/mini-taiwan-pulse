@@ -47,7 +47,8 @@ NEEDLE_SOURCES = {
 }
 COUNTY_PREFIX = {"tpe": "臺北市", "khh": "高雄市", "ptt": "屏東縣", "cyi": "嘉義市", "hsz": "新竹市"}
 
-MAINTENANCE_SOURCE_URL = "https://dep.mohw.gov.tw/DOMHAOH/cp-4097-43398-107.html"
+# 藥癮者維持治療相關統計報表（月報列表）；cp-4097-43398-107 是指定機構名單頁，不能佐證月報人數
+MAINTENANCE_SOURCE_URL = "https://dep.mohw.gov.tw/DOMHAOH/lp-4223-107.html"
 
 TREATMENT_SOURCES = {
     "mohw_substance_use_designated_115": ("衛生福利部心理健康司（指定藥癮戒治及替代治療機構名單）",

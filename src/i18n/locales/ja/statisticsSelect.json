@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "公開済みの期間",
   "statisticsSelect.unavailableForYear": "{label}（この学年は未提供）",
+  "statisticsSelect.unavailableForPeriod": "{label}（選択中の期間は未提供）",
   "statisticsSelect.partialPeriod": "{year}年{from}–{to}月（部分期間）",
   "statisticsSelect.periodYear": "{year}年",
   "statisticsSelect.pointInTime": "{date}（時点）",
