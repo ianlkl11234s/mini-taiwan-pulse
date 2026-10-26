@@ -146,6 +146,8 @@ $('delete').addEventListener('click', removeSelected);
 $('emergency').addEventListener('click', toggleEmergency);
 $('prev').addEventListener('click', () => go(state.current - 1));
 $('next').addEventListener('click', () => {
+  const pending = reviewFrame().boxes.filter(b => b.suggested).length;
+  if (pending) { message(`還有 ${pending} 個「?」待確認的框，請改類別（確認）或刪除後再完成。`); return; }
   reviewFrame().reviewed = true; save();
   if (state.current < state.review.frames.length - 1) go(state.current + 1);
   else { render(); message('全部完成了，請按「下載結果 JSON」。'); }
