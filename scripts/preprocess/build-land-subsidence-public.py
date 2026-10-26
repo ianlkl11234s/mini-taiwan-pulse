@@ -28,7 +28,6 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = ROOT / "public" / "hazards"
 OGDL = "政府資料開放授權條款第1版"
 WRA = "經濟部水利署"
-FETCHED = "2026-10-17"
 
 STATION_KEEP = ["id", "name", "station_type", "station_type_label", "county", "township", "coord_status", "coord_status_label",
                 "well_depth_m", "establish_date", "disuse_date", "is_active", "obs_count", "obs_first", "obs_last", "ring_count",
@@ -44,6 +43,11 @@ CONTOUR_ZOOM = (5, 13)
 
 SEAWALL_NID = "129277"
 CN_DIGITS = "一二三四五六七八九十"
+
+
+def fetched_at_of(date: str) -> str:
+    """由 --date（YYYYMMDD）推導 provenance 的 fetched_at。"""
+    return f"{date[:4]}-{date[4:6]}-{date[6:8]}"
 
 
 def round_coords(coords, nd=6):
@@ -65,6 +69,7 @@ def latest(src: Path, dataset: str, date: str) -> Path:
 
 
 def build_stations(src: Path, date: str) -> None:
+    fetched_at = fetched_at_of(date)
     data = json.loads(latest(src, "land_subsidence_stations", date).read_text(encoding="utf-8"))
     features, skipped = [], []
     for feat in data["features"]:
@@ -75,7 +80,7 @@ def build_stations(src: Path, date: str) -> None:
         props = {key: p.get(key) for key in STATION_KEEP}
         nid = STATION_NID[p["station_type"]]
         props.update({"source_org": f"{WRA}（地層下陷監測，data.gov.tw {nid}）", "source_url": f"https://data.gov.tw/dataset/{nid}",
-                      "license": OGDL, "fetched_at": FETCHED, "vintage": f"監測 {STATION_COVERAGE[p['station_type']]}"})
+                      "license": OGDL, "fetched_at": fetched_at, "vintage": f"監測 {STATION_COVERAGE[p['station_type']]}"})
         features.append({"type": "Feature", "geometry": {"type": "Point", "coordinates": round_coords(feat["geometry"]["coordinates"])},
                          "properties": props})
     out = OUT_DIR / "land_subsidence_stations.geojson"
@@ -84,6 +89,7 @@ def build_stations(src: Path, date: str) -> None:
 
 
 def build_contours(src: Path, date: str) -> None:
+    fetched_at = fetched_at_of(date)
     data = json.loads(latest(src, "land_subsidence_contours", date).read_text(encoding="utf-8"))
     features, excluded = [], 0
     counters: dict[str, int] = {}
@@ -98,7 +104,7 @@ def build_contours(src: Path, date: str) -> None:
         props = {"id": f"{p['fname']}:{idx}", **{key: p.get(key) for key in CONTOUR_KEEP}}
         nid = CONTOUR_NID[p["contour_type"]]
         props.update({"source_org": f"{WRA}（地層下陷等值線，data.gov.tw {nid}）", "source_url": f"https://data.gov.tw/dataset/{nid}",
-                      "license": OGDL, "fetched_at": FETCHED, "vintage": p["period_label"]})
+                      "license": OGDL, "fetched_at": fetched_at, "vintage": p["period_label"]})
         features.append({"type": "Feature", "geometry": {"type": feat["geometry"]["type"], "coordinates": round_coords(feat["geometry"]["coordinates"])},
                          "properties": props})
     out = OUT_DIR / "land_subsidence_contours.pmtiles"
@@ -134,7 +140,8 @@ def org_label(org: str) -> str:
     return f"第{m.group(1)}河川分署" if m else org
 
 
-def build_seawalls(src: Path) -> None:
+def build_seawalls(src: Path, date: str) -> None:
+    fetched_at = fetched_at_of(date)
     data = json.loads((src / "seawall_zones_wra" / "seawall_zones_wra.geojson").read_text(encoding="utf-8"))
     features = []
     for i, feat in enumerate(data["features"], start=1):
@@ -144,7 +151,7 @@ def build_seawalls(src: Path) -> None:
         props = {"id": f"seawall:{i}", "name": p.get("name"), "shore_name": p.get("shore_name"), "shore_no": p.get("shore_no"),
                  "org": p.get("org"), "org_label": org_label(p.get("org", "")),
                  "source_org": f"{WRA} 一般性海堤區域（data.gov.tw {SEAWALL_NID}）", "source_url": f"https://data.gov.tw/dataset/{SEAWALL_NID}",
-                 "license": OGDL, "fetched_at": FETCHED, "vintage": "上游建置 2024-06-12"}
+                 "license": OGDL, "fetched_at": fetched_at, "vintage": "上游建置 2024-06-12"}
         features.append({"type": "Feature", "geometry": {"type": feat["geometry"]["type"], "coordinates": round_coords(feat["geometry"]["coordinates"])},
                          "properties": props})
     out = OUT_DIR / "seawall_zones.geojson"
@@ -160,5 +167,5 @@ if __name__ == "__main__":
     args = ap.parse_args()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     build_stations(args.src, args.date)
-    build_seawalls(args.src)
+    build_seawalls(args.src, args.date)
     build_contours(args.src, args.date)
