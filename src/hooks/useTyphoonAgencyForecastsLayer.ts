@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import type {
   Map as MapboxMap,
+  GeoJSONSource,
   LineLayer,
   CircleLayer,
   SymbolLayer,
@@ -13,6 +14,7 @@ import { timeStore } from "../state/timeStore";
 import {
   agencyForecastsToGeoJSON,
   fetchTyphoonAgencyForecasts,
+  refetchTyphoonAgencyForecasts,
   groupAgencyTracks,
   type AgencyForecastTrack,
 } from "../data/typhoonAgencyForecastsLoader";
@@ -41,6 +43,9 @@ function activeAt(t: number, ...extra: unknown[]): FilterSpecification {
   return ["all", ["<=", ["get", "valid_from"], t], [">", ["get", "valid_until"], t], ...extra] as unknown as FilterSpecification;
 }
 const IS_LAST = ["==", ["get", "is_last"], true];
+
+/** 圖層開著時的預報刷新間隔（與 loader 快取 TTL 同為 10 分鐘） */
+const REFRESH_MS = 10 * 60_000;
 
 const LINE_WIDTH = ["interpolate", ["linear"], ["zoom"], 3, 1.5, 8, 3] as unknown as ExpressionSpecification;
 
@@ -73,6 +78,26 @@ export function useTyphoonAgencyForecastsLayer(
       .catch((err) => console.warn("[TyphoonAgencyForecasts] load failed:", err));
     return () => { cancelled = true; };
   }, [visible]);
+
+  // 圖層開著：定期重抓，對既有 source setData（時間走 timeStore 的 filter，不進 deps）
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
+    const timer = setInterval(() => {
+      refetchTyphoonAgencyForecasts()
+        .then((rows) => {
+          if (cancelled) return;
+          tracksRef.current = groupAgencyTracks(rows);
+          const map = mapRef.current;
+          if (!map || !map.getSource(SRC_LINES)) return;
+          const { lines, points } = agencyForecastsToGeoJSON(tracksRef.current);
+          (map.getSource(SRC_LINES) as GeoJSONSource).setData(lines);
+          (map.getSource(SRC_POINTS) as GeoJSONSource | undefined)?.setData(points);
+        })
+        .catch((err) => console.warn("[TyphoonAgencyForecasts] refresh failed:", err));
+    }, REFRESH_MS);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [visible, mapRef]);
 
   const ensureSource = useCallback((map: MapboxMap) => {
     if (!dataReadyRef.current) return false;

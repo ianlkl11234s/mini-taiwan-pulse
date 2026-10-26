@@ -101,6 +101,12 @@ export function fetchTyphoonAgencyForecasts(): Promise<TyphoonAgencyForecastRow[
   return fetchAgencyForecastsCached();
 }
 
+/** 定期刷新用：清掉快取後重抓（圖層開著時才會呼叫） */
+export function refetchTyphoonAgencyForecasts(): Promise<TyphoonAgencyForecastRow[]> {
+  fetchAgencyForecastsCached.invalidate();
+  return fetchAgencyForecastsCached();
+}
+
 /** 一家一版一條路徑（agency × track_index × issued_ts） */
 export interface AgencyForecastTrack {
   agency: TyphoonAgency;
