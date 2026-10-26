@@ -88,7 +88,7 @@ import {
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
 import {
   JpMedicalHost, JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
-  JpEvacuationSitesHost, JpPublicOfficesHost, JpBusStopsHost, JpLandslideWarningAreasHost, JpInlandFloodAreasHost,
+  JpEvacuationSitesHost, JpPublicOfficesHost, JpBusStopsHost, JpLandslideWarningAreasHost, JpInlandFloodAreasHost, JpZoningUseDistrictsHost, JpNationalForestsHost,
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
@@ -275,6 +275,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpBusStopsLayer", keys: ["jpBusStops"], Host: JpBusStopsHost },
   { id: "useJpLandslideWarningAreasLayer", keys: ["jpLandslideWarningAreas"], Host: JpLandslideWarningAreasHost },
   { id: "useJpInlandFloodAreasLayer", keys: ["jpInlandFloodAreas"], Host: JpInlandFloodAreasHost },
+  { id: "useJpZoningUseDistrictsLayer", keys: ["jpZoningUseDistricts"], Host: JpZoningUseDistrictsHost },
+  { id: "useJpNationalForestsLayer", keys: ["jpNationalForests"], Host: JpNationalForestsHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },

@@ -71,6 +71,7 @@ import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
 import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_GROUPS } from "./jpZoningUseDistrictTypes";
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -2066,6 +2067,14 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_LANDSLIDE_PHENOMENA],
       out: "jpLandslideWarningAreasPhenomenonIdx", encode: ["all", ...JP_LANDSLIDE_PHENOMENA.map(p => p.value)] },
   ],
+  jpZoningUseDistricts: [
+    opacitySlider("jpZoningUseDistrictsOpacity", 0.7),
+    // 0=全部、1–3=住居／商業／工業系、4–16=13 類單選（encode 順序同 jpZoningFilter）
+    { kind: "select", category: "data", name: "jpZoningUseDistrictsClass", label: "用途分類", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_ZONING_GROUPS.map(g => ({ value: g.value, label: g.label })), ...JP_ZONING_CLASSES.map(c => ({ value: String(c.code), label: c.label }))],
+      out: "jpZoningUseDistrictsClassIdx", encode: ["all", ...JP_ZONING_GROUPS.map(g => g.value), ...JP_ZONING_CLASSES.map(c => String(c.code))] },
+  ],
+  jpNationalForests: [opacitySlider("jpNationalForestsOpacity", 0.7)],
   jpInlandFloodAreas: [
     gridPalette("jpInlandFloodAreasPalette", "PuBu"),
     opacitySlider("jpInlandFloodAreasOpacity", 0.7),

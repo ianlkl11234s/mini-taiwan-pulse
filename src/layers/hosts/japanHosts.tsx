@@ -15,6 +15,8 @@ import { useJpPublicOfficesLayer } from "../../hooks/useJpPublicOfficesLayer";
 import { useJpBusStopsLayer } from "../../hooks/useJpBusStopsLayer";
 import { useJpLandslideWarningAreasLayer } from "../../hooks/useJpLandslideWarningAreasLayer";
 import { useJpInlandFloodAreasLayer } from "../../hooks/useJpInlandFloodAreasLayer";
+import { useJpZoningUseDistrictsLayer } from "../../hooks/useJpZoningUseDistrictsLayer";
+import { useJpNationalForestsLayer } from "../../hooks/useJpNationalForestsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
@@ -164,6 +166,21 @@ export const JpInlandFloodAreasHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpInlandFloodAreas");
   useJpInlandFloodAreasLayer(deps.mapRef, deps.layerVisibility.jpInlandFloodAreas,
     p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+export const JpZoningUseDistrictsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpZoningUseDistrictsLayer");
+  const p = useKeyOverlayParams("jpZoningUseDistricts");
+  useJpZoningUseDistrictsLayer(deps.mapRef, deps.layerVisibility.jpZoningUseDistricts,
+    p.jpZoningUseDistrictsOpacity ?? 0.7, p.jpZoningUseDistrictsClassIdx ?? 0);
+  return null;
+};
+
+export const JpNationalForestsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpNationalForestsLayer");
+  const p = useKeyOverlayParams("jpNationalForests");
+  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7);
   return null;
 };
 

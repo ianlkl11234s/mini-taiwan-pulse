@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1322,
+    "keyCount": 1324,
     "sections": [
       "gisLayers",
       "overlays",
@@ -972,6 +972,18 @@
         "jp-inland-flood-areas-fill"
       ],
       "type": "jpInlandFloodAreas"
+    },
+    {
+      "layers": [
+        "jp-zoning-use-districts-fill"
+      ],
+      "type": "jpZoningUseDistricts"
+    },
+    {
+      "layers": [
+        "jp-national-forests-fill"
+      ],
+      "type": "jpNationalForests"
     },
     {
       "layers": [
@@ -93759,6 +93771,17 @@
         "valueText": "0.80"
       }
     ],
+    "jpNationalForests": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "jpNaturalParksNational": [
       {
         "label": "透明度 0.28",
@@ -95001,6 +95024,92 @@
         "step": 0.05,
         "value": 0.25,
         "valueText": "0.25"
+      }
+    ],
+    "jpZoningUseDistricts": [
+      {
+        "label": "用途分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "住居系（1–8）",
+            "value": "residential"
+          },
+          {
+            "label": "商業系（9–10）",
+            "value": "commercial"
+          },
+          {
+            "label": "工業系（11–13）",
+            "value": "industrial"
+          },
+          {
+            "label": "第一種低層住居專用地域",
+            "value": "1"
+          },
+          {
+            "label": "第二種低層住居專用地域",
+            "value": "2"
+          },
+          {
+            "label": "第一種中高層住居專用地域",
+            "value": "3"
+          },
+          {
+            "label": "第二種中高層住居專用地域",
+            "value": "4"
+          },
+          {
+            "label": "第一種住居地域",
+            "value": "5"
+          },
+          {
+            "label": "第二種住居地域",
+            "value": "6"
+          },
+          {
+            "label": "準住居地域",
+            "value": "7"
+          },
+          {
+            "label": "田園住居地域",
+            "value": "8"
+          },
+          {
+            "label": "近鄰商業地域",
+            "value": "9"
+          },
+          {
+            "label": "商業地域",
+            "value": "10"
+          },
+          {
+            "label": "準工業地域",
+            "value": "11"
+          },
+          {
+            "label": "工業地域",
+            "value": "12"
+          },
+          {
+            "label": "工業專用地域",
+            "value": "13"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "lakesPondsOsm": [

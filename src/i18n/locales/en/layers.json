@@ -1312,5 +1312,7 @@
   "layer.jpPublicOffices": "Municipal Offices & Public Halls",
   "layer.jpBusStops": "Bus Stops",
   "layer.jpLandslideWarningAreas": "Sediment Disaster Warning Areas",
-  "layer.jpInlandFloodAreas": "Inland Flood Inundation Assumption Areas"
+  "layer.jpInlandFloodAreas": "Inland Flood Inundation Assumption Areas",
+  "layer.jpZoningUseDistricts": "Use Districts (Zoning)",
+  "layer.jpNationalForests": "National Forests"
 }

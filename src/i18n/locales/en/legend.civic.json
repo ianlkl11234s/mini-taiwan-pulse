@@ -169,5 +169,17 @@
   "legend.civic.jpInlandFloodScope": "Covers only 28 municipalities (within 22 prefectures); everything else is \"not covered\"",
   "legend.civic.jpInlandFloodScenario": "Assumed maximum-scale rainfall (the only scenario; no planned-scale scenario and no per-feature rainfall)",
   "legend.civic.jpInlandFloodNoData": "No data does not mean no risk; the actual inland flooding extent may be larger than the assumed area",
-  "legend.civic.jpInlandFloodDistinct": "This is inland (storm-water) flooding, a different layer from \"Flood inundation assumption\" (river flooding); the two must not be merged"
+  "legend.civic.jpInlandFloodDistinct": "This is inland (storm-water) flooding, a different layer from \"Flood inundation assumption\" (river flooding); the two must not be merged",
+  "legend.civic.jpZoningTitle": "Use districts (zoning)",
+  "legend.civic.jpZoningNoDecision": "Municipalities marked \"–\" (no use districts decided, 169 in total) are not drawn; this is not missing data",
+  "legend.civic.jpZoningMissing": "Inagawa Town (Hyogo) and Nobeoka City (Miyazaki) are not covered (data not published)",
+  "legend.civic.jpZoningOutside": "No polygons outside city planning areas is normal, not missing data",
+  "legend.civic.jpZoningDisclaimer": "For reference only; boundaries are approximate and may not be current (data dates differ by municipality); not for building confirmation applications or real-estate disclosure",
+  "legend.civic.jpZoningVintage": "FY2024 edition (updated 2025-11), {count} polygons; Rural residential has only 1 polygon nationwide",
+  "legend.civic.jpForestTitle": "National forests (function type)",
+  "legend.civic.jpForestBlank": "Function type blank (unclassified in source)",
+  "legend.civic.jpForestScope": "National forests only (about 30% of Japan's forest); private forests are not included, and blank areas do not mean no forest",
+  "legend.civic.jpForestMerged": "Each polygon merges adjacent sub-compartments with the same office, forest name, function type, protection forest and reserve; it is not a sub-compartment",
+  "legend.civic.jpForestProtected": "Sub-compartments of undisclosed reserves have blank attributes; blank does not mean not a reserve",
+  "legend.civic.jpForestZoom": "Shown from zoom 8; overzoomed from zoom 14; no crustal-deformation correction was applied, so Tohoku may be off by a few meters"
 }

@@ -126,6 +126,9 @@ public/world/jp_evacuation_sites.pmtiles
 public/world/jp_public_offices.pmtiles
 # 日本第二波面圖層（土砂災害警戒區域 108MB 走 S3 deploy-assets/world/；jp_inland_flood_areas 15MB git-track）
 public/world/jp_landslide_warning_areas.pmtiles
+# 日本第三波面圖層（用途地域 59.5MB、国有林 103MB，走 S3 deploy-assets/world/）
+public/world/jp_zoning_use_districts.pmtiles
+public/world/jp_national_forests.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

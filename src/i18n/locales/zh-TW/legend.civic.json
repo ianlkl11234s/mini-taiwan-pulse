@@ -169,5 +169,17 @@
   "legend.civic.jpInlandFloodScope": "只涵蓋 28 個市町村（22 個都道府縣內）；其餘一律是「未涵蓋」",
   "legend.civic.jpInlandFloodScenario": "想定最大規模降雨（唯一情境，沒有計畫規模，也沒有逐筆降雨量）",
   "legend.civic.jpInlandFloodNoData": "無資料≠無風險；實際內水氾濫範圍可能大於想定區域",
-  "legend.civic.jpInlandFloodDistinct": "這是內水（雨水出水），和「洪水浸水想定」（外水、河川氾濫）是不同的層，不可合併"
+  "legend.civic.jpInlandFloodDistinct": "這是內水（雨水出水），和「洪水浸水想定」（外水、河川氾濫）是不同的層，不可合併",
+  "legend.civic.jpZoningTitle": "用途地域",
+  "legend.civic.jpZoningNoDecision": "「－」（該市町村沒有決定用途地域，共 169 個）不畫，不是缺資料",
+  "legend.civic.jpZoningMissing": "兵庫縣猪名川町、宮崎縣延岡市（資料非公開）未涵蓋",
+  "legend.civic.jpZoningOutside": "都市計畫區域外沒有面是正常的，不是缺資料",
+  "legend.civic.jpZoningDisclaimer": "僅供參考、範圍概略、不一定是最新（各市町村資料時點不同）；不可用於建築確認申請或不動產重要事項說明",
+  "legend.civic.jpZoningVintage": "令和6年度版（2025-11 更新），{count} 面；田園住居地域全國僅 1 面",
+  "legend.civic.jpForestTitle": "国有林（機能類型）",
+  "legend.civic.jpForestBlank": "機能類型空白（來源未分類）",
+  "legend.civic.jpForestScope": "僅國有林（約占全國森林三成），民有林不在內；空白處不代表沒有森林",
+  "legend.civic.jpForestMerged": "每個面是同署、国有林、機能類型、保安林、保護林相同的相連小班合併，不是小班",
+  "legend.civic.jpForestProtected": "保護林「非公表」的小班屬性空白，空白不等於不是保護林",
+  "legend.civic.jpForestZoom": "放大到 z8 以上才顯示；z14 以上為放大顯示（overzoom）；座標未做地殼變動補正，東北可能差數公尺"
 }

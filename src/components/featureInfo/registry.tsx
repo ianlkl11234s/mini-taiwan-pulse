@@ -61,7 +61,7 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpPopulationMeshPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
@@ -431,6 +431,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpBusStops: JpBusStopsPanel,
   jpLandslideWarningAreas: JpLandslideWarningAreasPanel,
   jpInlandFloodAreas: JpInlandFloodAreasPanel,
+  jpZoningUseDistricts: JpZoningUseDistrictsPanel,
+  jpNationalForests: JpNationalForestsPanel,
   jmaAmedas: JmaAmedasPanel,
   jmaWarnings: JmaWarningsPanel,
   jmaQuakes: JmaQuakesPanel,
@@ -971,6 +973,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpBusStops: "公車站 バス停",
   jpLandslideWarningAreas: "土砂災害警戒區域 土砂災害警戒区域",
   jpInlandFloodAreas: "內水浸水想定區域 雨水出水浸水想定区域",
+  jpZoningUseDistricts: "用途地域 用途地域",
+  jpNationalForests: "国有林 国有林",
   jmaAmedas: "AMeDAS 即時觀測 アメダス",
   jmaWarnings: "警報・注意報",
   jmaQuakes: "地震 地震情報",

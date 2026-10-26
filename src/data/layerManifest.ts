@@ -9,6 +9,8 @@ import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
 import { JP_LANDSLIDE_LAYER_COLOR } from "./jpLandslideWarningTypes";
 import { JP_INLAND_FLOOD_LAYER_COLOR } from "./jpInlandFloodTypes";
+import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
+import { JP_FOREST_LAYER_COLOR } from "./jpNationalForestTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -2523,6 +2525,56 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["palette", "slider"] },
     description: "日本內水（雨水出水）浸水想定區域，浸水深 8 級；只涵蓋 28 個市町村、想定最大規模降雨；無資料不代表無風險",
     topics: ["世界", "日本", "內水", "淹水", "浸水想定", "防災"],
+  },
+  jpZoningUseDistricts: {
+    key: "jpZoningUseDistricts",
+    section: { theme: "底圖", group: "土地使用分區 Zoning" },
+    ...layerName({ zh: "用途地域", alt: "用途地域", qualifier: "令和6年度" }),
+    expandable: true,
+    color: JP_ZONING_LAYER_COLOR,
+    icon: LandPlot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_zoning_use_districts", confidence: "HIGH" }],
+      processing: "国土数値情報 A55 都市計画決定情報 令和6年度版（只取用途地域）47 都道府縣 1,214 市區町村 102,244 面，13 類（含容積率、建蔽率）",
+      note: "「－」（該市無決定，169 個市町村）不畫；猪名川町、延岡市為非公開未涵蓋；都市計画区域外沒有面是正常的；概略位置、僅供參考、非最新、各市資料時點不同；容積率／建蔽率空值是未記載不是 0；PMTiles z8–14",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpZoningUseDistrictsLayer 自建 mapbox-pmtiles source；source-layer=jp_zoning_use_districts，minzoom=8 maxzoom=14；59.5MB 走 S3 deploy-assets/world/",
+      staticAssets: ["./world/jp_zoning_use_districts.pmtiles"],
+    },
+    legend: "jpZoningUseDistricts",
+    popup: "jpZoningUseDistricts",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本都市計畫用途地域 13 類（住居系、商業系、工業系），含容積率與建蔽率；概略位置、僅供參考，無用途地域與未涵蓋的市町村見圖例",
+    topics: ["世界", "日本", "用途地域", "土地使用分區", "都市計畫", "容積率"],
+  },
+  jpNationalForests: {
+    key: "jpNationalForests",
+    section: { theme: "林業", group: "分區" },
+    ...layerName({ zh: "国有林", alt: "国有林", qualifier: "2024年度" }),
+    expandable: true,
+    color: JP_FOREST_LAYER_COLOR,
+    icon: TreePine,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_national_forests", confidence: "HIGH" }],
+      processing: "林野庁 国有林GISデータ 2024（令和6）年度版：975,666 小班依同縣、署、国有林名、機能類型、保安林、保護林、緑の回廊合併成 116,747 個面",
+      note: "只有國有林（約占全國森林三成），民有林不在內，空白處不代表沒有森林；面不是小班；保護林非公表者屬性空白；JGD2000 轉 WGS84 未做地殼變動補正；PMTiles z8–13，z14 起 overzoom",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpNationalForestsLayer 自建 mapbox-pmtiles source；source-layer=jp_national_forests，minzoom=8 maxzoom=13；z14+ overzoom；103MB 走 S3 deploy-assets/world/",
+      staticAssets: ["./world/jp_national_forests.pmtiles"],
+    },
+    legend: "jpNationalForests",
+    popup: "jpNationalForests",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本国有林（依機能類型分 6 類）；僅國有林、民有林不在內；合併分類面、非小班",
+    topics: ["世界", "日本", "国有林", "森林", "林業", "保安林"],
   },
   jpSchools: {
     key: "jpSchools",

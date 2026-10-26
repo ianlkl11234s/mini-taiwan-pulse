@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { JpBusStopsPanel, JpEvacuationSitesPanel, JpInlandFloodAreasPanel, JpLandslideWarningAreasPanel, JpPublicOfficesPanel } from "../japanPanels";
+import { JpBusStopsPanel, JpEvacuationSitesPanel, JpInlandFloodAreasPanel, JpLandslideWarningAreasPanel, JpNationalForestsPanel, JpPublicOfficesPanel, JpZoningUseDistrictsPanel } from "../japanPanels";
 
 describe("日本第一波 popup 資料語意", () => {
   it("避難場所：緊急避難場所列出適用災害，並保留法定意義與資料時效警語", () => {
@@ -65,5 +65,37 @@ describe("日本第一波 popup 資料語意", () => {
     expect(html).toContain("28 個市町村");
     expect(html).toContain("無資料不代表");
     expect(html).toContain("雨水出水");
+  });
+
+  it("用途地域：容積率、建蔽率空值寫未記載而不是 0；有值照顯示", () => {
+    const render = (extra: Record<string, unknown>) => renderToStaticMarkup(createElement(JpZoningUseDistrictsPanel, {
+      props: { youto_code: 10, youto_ja: "商業地域", prefecture_code: "13", municipality: "新宿区", ...extra },
+    }));
+    const empty = render({});
+    expect(empty).toContain("商業地域");
+    expect(empty).toContain(">未記載<");
+    expect(empty).not.toContain(">0%<");
+    expect(empty).toContain("僅供參考");
+    const full = render({ far_pct: 500, bcr_pct: 80 });
+    expect(full).toContain("500%");
+    expect(full).toContain("80%");
+    expect(full).not.toContain(">未記載<");
+    expect(full).toContain("都市計画決定情報");
+  });
+
+  it("国有林：僅國有林警語；保護林空白不等於非保護林；保安林顯示日文名", () => {
+    const html = renderToStaticMarkup(createElement(JpNationalForestsPanel, {
+      props: { forest_name: "平瀬", bureau: "九州森林管理局", office: "屋久島森林管理署", function_type_en: "water_conservation", protection_forest_en: "water_conservation,landslide_prevention_planned", main_species: "スギ", planted_ratio: 0.27, area_ha: 265.21 },
+    }));
+    expect(html).toContain("平瀬");
+    expect(html).toContain("屋久島森林管理署");
+    expect(html).toContain("水源涵養");
+    expect(html).toContain("水源かん養保安林");
+    expect(html).toContain("土砂崩壊防備保安林（見込み地）");
+    expect(html).toContain("27%");
+    expect(html).toContain("265.2 ha");
+    expect(html).toContain("民有林不在內");
+    expect(html).toContain("不代表不是保護林");
+    expect(html).toContain("国有林GISデータ");
   });
 });

@@ -169,5 +169,17 @@
   "legend.civic.jpInlandFloodScope": "22都道府県内の28市町村のみが対象です。それ以外はすべて「未対応」です",
   "legend.civic.jpInlandFloodScenario": "想定最大規模降雨（唯一のシナリオ。計画規模はなく、個別の降雨量もありません）",
   "legend.civic.jpInlandFloodNoData": "データなし＝リスクなし、ではありません。実際の内水氾濫の範囲は想定区域より広い場合があります",
-  "legend.civic.jpInlandFloodDistinct": "これは内水（雨水出水）で、「洪水浸水想定」（外水・河川氾濫）とは別のレイヤーです。統合できません"
+  "legend.civic.jpInlandFloodDistinct": "これは内水（雨水出水）で、「洪水浸水想定」（外水・河川氾濫）とは別のレイヤーです。統合できません",
+  "legend.civic.jpZoningTitle": "用途地域",
+  "legend.civic.jpZoningNoDecision": "「－」（用途地域の決定なし、169市町村）は描画しません。データ欠損ではありません",
+  "legend.civic.jpZoningMissing": "兵庫県猪名川町、宮崎県延岡市（非公開）は未対応です",
+  "legend.civic.jpZoningOutside": "都市計画区域外にポリゴンがないのは正常で、欠損ではありません",
+  "legend.civic.jpZoningDisclaimer": "参考情報で、範囲は概略、最新とは限りません（市町村ごとにデータ時点が異なります）。建築確認申請や重要事項説明には使えません",
+  "legend.civic.jpZoningVintage": "令和6年度版（2025-11更新）、{count}面。田園住居地域は全国で1面のみ",
+  "legend.civic.jpForestTitle": "国有林（機能類型）",
+  "legend.civic.jpForestBlank": "機能類型が空白（原データで未分類）",
+  "legend.civic.jpForestScope": "国有林のみ（全国の森林の約3割）で、民有林は含みません。空白の場所が森林なしとは限りません",
+  "legend.civic.jpForestMerged": "1面は、同じ署・国有林名・機能類型・保安林・保護林が共通する隣接小班を統合したもので、小班そのものではありません",
+  "legend.civic.jpForestProtected": "保護林が「非公表」の小班は属性が空白です。空白＝保護林ではない、ではありません",
+  "legend.civic.jpForestZoom": "ズーム8以上で表示、ズーム14以上はオーバーズーム。地殻変動補正は未実施で、東北では数m程度ずれる場合があります"
 }
