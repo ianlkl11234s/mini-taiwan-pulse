@@ -204,7 +204,7 @@ export const MICROPLASTIC_STEPS = [
   { min: 1000, label: "≥ 1,000", color: "#581c87" },
 ] as const;
 export function microplasticColorExpr(): unknown[] {
-  return ["case", ["!", ["has", "surface_mean_total_per_m3"]], ATLAS_OTHER_COLOR,
+  return ["case", ["!=", ["typeof", ["get", "surface_mean_total_per_m3"]], "number"], ATLAS_OTHER_COLOR,
     ["step", ["to-number", ["get", "surface_mean_total_per_m3"], 0], MICROPLASTIC_STEPS[0].color,
       ...MICROPLASTIC_STEPS.slice(1).flatMap((step) => [step.min, step.color])]];
 }
