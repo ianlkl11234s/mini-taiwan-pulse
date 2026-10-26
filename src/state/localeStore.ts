@@ -15,6 +15,7 @@ import { DEFAULT_LOCALE, LOCALES, isLocale, matchLocale, type Locale } from "../
 import { lookup, translate, type Messages, type TranslateVars } from "../i18n/translate";
 import type { MessageKey } from "../i18n/keys";
 import { formatDateTime, formatNumber } from "../i18n/format";
+import { syncCanonicalLink } from "../i18n/canonical";
 
 const STORAGE_KEY = "mini-taiwan:locale:v1";
 
@@ -106,7 +107,7 @@ const listeners = new Set<() => void>();
 
 function publish(next: LocaleSnapshot) {
   snapshot = next;
-  if (typeof document !== "undefined") document.documentElement.lang = LOCALES[next.active].htmlLang;
+  if (typeof document !== "undefined") { document.documentElement.lang = LOCALES[next.active].htmlLang; syncCanonicalLink(); }
   for (const listener of listeners) listener();
 }
 

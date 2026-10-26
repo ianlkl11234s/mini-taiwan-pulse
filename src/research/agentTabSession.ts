@@ -68,6 +68,8 @@ export type AgentTabSessionOptions = {
   queryHandler?: QueryHandler | null;
   acquireLease?: (studyId: string, tabId: string) => Promise<ConnectionLease | null>;
   newTabId?: () => string;
+  /** 儲存的 study 租約被別的分頁持有（複製分頁）：不自建新 study，交給呼叫端收回開放狀態。 */
+  onDuplicateTab?: () => void;
   schedule?: (callback: () => void, ms: number) => () => void;
 };
 
@@ -146,6 +148,7 @@ export class AgentTabSession {
     let lease: ConnectionLease | null = null;
     try {
       let ref = await this.resume();
+      if (ref === "duplicate") return;
       if (ref) lease = this.lease;
       else {
         const created = await this.client.createStudy((this.options.newTabId ?? (() => crypto.randomUUID()))());
@@ -171,13 +174,17 @@ export class AgentTabSession {
   }
 
   /** Resume this tab's study after a reload; null means "make a new one". */
-  private async resume(): Promise<{ studyId: string; tabId: string } | null> {
+  private async resume(): Promise<{ studyId: string; tabId: string } | "duplicate" | null> {
     const { storage, userId } = this.options;
     const stored = storage.read();
     if (!stored || stored.userId !== userId) { if (stored) storage.clear(); return null; }
     const lease = await this.acquire(stored.studyId, stored.tabId);
     if (this.stopped) { lease?.release(); return null; }
-    if (!lease) { storage.clear(); return null; }
+    if (!lease) {
+      storage.clear();
+      if (this.options.onDuplicateTab) { this.options.onDuplicateTab(); return "duplicate"; }
+      return null;
+    }
     try {
       const status = await this.client.browserStatus(stored.studyId, stored.tabId);
       this.lease = lease;

@@ -13,6 +13,7 @@ describe("SEO／AEO 靜態資產", () => {
       expect(robots).toContain(`User-agent: ${bot}`);
     }
     expect(robots).toContain(`Sitemap: ${ORIGIN}/sitemap.xml`);
+    expect(robots).not.toMatch(/Disallow: \/card\//); // 要讓爬蟲看得到 nginx 的 noindex header
   });
 
   it("sitemap.xml 列出三個語言網址與 hreflang", () => {
