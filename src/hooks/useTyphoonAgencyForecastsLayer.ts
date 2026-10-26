@@ -97,7 +97,7 @@ export function useTyphoonAgencyForecastsLayer(
         .catch((err) => console.warn("[TyphoonAgencyForecasts] refresh failed:", err));
     }, REFRESH_MS);
     return () => { cancelled = true; clearInterval(timer); };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 
   const ensureSource = useCallback((map: MapboxMap) => {
     if (!dataReadyRef.current) return false;
