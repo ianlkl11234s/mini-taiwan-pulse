@@ -11058,7 +11058,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "agricultureLayerFactory.ensureAgriLeisureFarmZonesLayers：自建 PmTiles source agri-leisure-farm-zones（public/agriculture/leisure_farm_zones_2025.pmtiles，source-layer leisure_farm_zones，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      note: "agricultureLayerFactory.ensureAgriLeisureFarmZonesLayers：自建 PmTiles source agri-leisure-farm-zones（public/agriculture/leisure_farm_zones_2025.pmtiles，source-layer leisure_farm_zones，z6-13）+ fill＋outline 兩個子圖層（ensureSimplePolyLayer） —— 非 OVERLAY_REGISTRY",
       staticAssets: ["./agriculture/leisure_farm_zones_2025.pmtiles"],
     },
     legend: null,
@@ -11082,7 +11082,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "agricultureLayerFactory.ensureAgriRuralRegenLayers：自建 PmTiles source agri-rural-regen（public/agriculture/rural_regen_communities_2025.pmtiles，source-layer rural_regen_communities，z7-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      note: "agricultureLayerFactory.ensureAgriRuralRegenLayers：自建 PmTiles source agri-rural-regen（public/agriculture/rural_regen_communities_2025.pmtiles，source-layer rural_regen_communities，z7-13）+ fill＋outline 兩個子圖層（ensureSimplePolyLayer） —— 非 OVERLAY_REGISTRY",
       staticAssets: ["./agriculture/rural_regen_communities_2025.pmtiles"],
     },
     legend: null,
@@ -11134,7 +11134,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "agricultureLayerFactory.ensureAgriSoilLayers：自建 PmTiles source agri-soil（public/agriculture/soil_map_national.pmtiles，source-layer soil，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      note: "agricultureLayerFactory.ensureAgriSoilLayers：自建 PmTiles source agri-soil（public/agriculture/soil_map_national.pmtiles，source-layer soil，z6-13）+ fill＋outline 兩個子圖層（ensureSimplePolyLayer） —— 非 OVERLAY_REGISTRY",
       staticAssets: ["./agriculture/soil_map_national.pmtiles"],
     },
     legend: null,
