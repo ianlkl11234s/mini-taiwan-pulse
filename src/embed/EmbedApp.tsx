@@ -347,6 +347,7 @@ export function EmbedApp() {
           overlayParams={params}
           isDarkTheme={isDark}
           railSystems={url.railSystems}
+          embedded
         />
       )}
 

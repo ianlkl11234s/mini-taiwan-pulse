@@ -35,9 +35,9 @@ function legendEntries(payload: CardPayloadV1): { label: string; color: string }
   return [];
 }
 
-function statValue(stat: CardPayloadV1["stats"][number]): { number: string; unit: string | null } {
+function statValue(stat: CardPayloadV1["stats"][number], noData: string): { number: string; unit: string | null } {
   const kind = vizKindForCard(stat.value_kind);
-  const number = formatVizNumber(stat.value, kind);
+  const number = formatVizNumber(stat.value, kind, noData);
   return { number, unit: stat.value !== null && stat.unit && kind !== "percent" ? stat.unit : null };
 }
 
@@ -74,7 +74,7 @@ export function AnalysisCard({ payload, mapSlot, expiresAt, expiryNote, variant 
       {payload.data_period && <p className="analysis-card__period">{t("analysisCard.period", { label: payload.data_period.label })}</p>}
       {payload.stats.length > 0 && <dl className="analysis-card__stats">
         {payload.stats.slice(0, 3).map((stat, index) => {
-          const value = statValue(stat);
+          const value = statValue(stat, t("analysisCard.rank.noData"));
           return <div key={index} className="analysis-card__stat">
             <dt>{stat.label}</dt>
             <dd><span style={{ fontFamily: FONT_DATA }}>{value.number}</span>{value.unit ? <small>{value.unit}</small> : null}</dd>

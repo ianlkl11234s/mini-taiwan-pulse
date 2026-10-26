@@ -35,8 +35,8 @@ function formatPercent(value: number): string {
 }
 
 /** A missing value is always "無資料" — never 0, never an empty string. */
-export function formatVizNumber(value: number | null | undefined, kind: VizNumberKind): string {
-  if (value === null || value === undefined || !Number.isFinite(value)) return "無資料";
+export function formatVizNumber(value: number | null | undefined, kind: VizNumberKind, noDataLabel = "無資料"): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return noDataLabel;
   if (kind === "count") return formatCount(value);
   if (kind === "density") return formatDensity(value);
   if (kind === "percent") return formatPercent(value);

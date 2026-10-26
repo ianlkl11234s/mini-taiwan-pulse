@@ -55,5 +55,10 @@
   "analysisCard.legend.fillSize": "塗り：{fill} · サイズ：{size}",
   "analysisCard.legend.flowStatic": "（流量が多いため、流れの表現は無効）",
   "analysisCard.legend.sparse": "疎",
-  "analysisCard.legend.dense": "密"
+  "analysisCard.legend.dense": "密",
+  "analysisCard.rank.noData": "データなし",
+  "analysisCard.rank.other": "その他 {count} 区域",
+  "analysisCard.rank.summaryEmpty": "ランキング棒グラフ、データはまだありません",
+  "analysisCard.rank.summary": "ランキング棒グラフ、全 {count} 件、高い順。最高は「{label}」{value}",
+  "analysisCard.mapFailed": "地図の境界を一時的に読み込めません"
 }

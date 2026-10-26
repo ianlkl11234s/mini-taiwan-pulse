@@ -13,7 +13,8 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
   const { t, formatNumber } = useLocale();
   const numberText = (value: number | undefined): string => (value == null ? t("paramsPanel.hf.notProvided") : formatNumber(value));
   const [manifest, setManifest] = useState<HistoricalFlightManifest | null>(null);
-  const [error, setError] = useState("");
+  // null = 無錯誤；{ message: undefined } = 非 Error 的失敗（render 時才翻譯預設訊息，切語系會跟著變）
+  const [error, setError] = useState<{ message?: string } | null>(null);
   const selection = useHistoricalFlightSelection(country);
   const status = useHistoricalFlightStatus(country);
   const retryRevision = useHistoricalFlightRetryRevision(country);
@@ -21,8 +22,8 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
   useEffect(() => {
     let cancelled = false;
     fetchHistoricalFlightManifest()
-      .then((result) => { if (!cancelled) { setManifest(result); setError(""); } })
-      .catch((reason: unknown) => { if (!cancelled) setError(reason instanceof Error ? reason.message : t("paramsPanel.hf.manifestError")); });
+      .then((result) => { if (!cancelled) { setManifest(result); setError(null); } })
+      .catch((reason: unknown) => { if (!cancelled) setError({ message: reason instanceof Error ? reason.message : undefined }); });
     return () => { cancelled = true; };
   }, [retryRevision]);
 
@@ -63,7 +64,7 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
           {samples.filter((sample) => sample.date !== selection.date).map((sample) => <option key={sample.date} value={sample.date}>{sample.date} · {selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? t("paramsPanel.hf.availableAirports", { count: aggregateForDate(sample.date).availableAirportCount }) : sample.label}</option>)}
         </select>
       </label>
-      {error && <div style={{ marginTop: 5, color: "#ef5350" }}>{error}</div>}
+      {error && <div style={{ marginTop: 5, color: "#ef5350" }}>{error.message ?? t("paramsPanel.hf.manifestError")}</div>}
       {selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS && selectedCountrySamples.length > 0 && <div style={{ marginTop: 6, lineHeight: 1.45 }}>
         <div>{t("paramsPanel.hf.allAirportsDate", { date: selection.date })}</div>
         <div>{t("paramsPanel.hf.summary", { available: selectedAggregate.availableAirportCount, points: numberText(selectedAggregate.combinedPointCount) })}</div>

@@ -73,5 +73,8 @@
   "legend.water.dzTitle": "Drinking water source quality protection zones (Ministry of Environment)",
   "legend.water.dzDashed": "{label} (dashed)",
   "legend.water.dzSource": "Ministry of Environment GISEPA_P_13 (2026-07-20 edition) · Open Government Data License, version 1.0",
-  "legend.water.dzNote": "Announced under the Drinking Water Management Act. Its legal basis and extent differ from the water resources \"Control Zones\" (tap water quality and quantity protection zones designated by the Water Resources Agency under the Water Supply Act), so the two must not be treated as the same layer."
+  "legend.water.dzNote": "Announced under the Drinking Water Management Act. Its legal basis and extent differ from the water resources \"Control Zones\" (tap water quality and quantity protection zones designated by the Water Resources Agency under the Water Supply Act), so the two must not be treated as the same layer.",
+  "legend.water.reservoirStaticTitle": "Reservoirs",
+  "legend.water.reservoirStaticArea": "Reservoir extent",
+  "legend.water.reservoirStaticNote": "The embedded map shows reservoir extents and dam locations only, without live water levels."
 }

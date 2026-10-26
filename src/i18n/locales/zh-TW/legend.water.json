@@ -73,5 +73,8 @@
   "legend.water.dzTitle": "飲用水水源水質保護區（環境部）",
   "legend.water.dzDashed": "{label}（虛線）",
   "legend.water.dzSource": "環境部 GISEPA_P_13（2026-07-20 版）· 政府資料開放授權條款第 1 版",
-  "legend.water.dzNote": "依飲用水管理條例公告；與水資源「管制區」（水利署依自來水法劃設的自來水水質水量保護區）法源與範圍不同，不可視為同一圖層。"
+  "legend.water.dzNote": "依飲用水管理條例公告；與水資源「管制區」（水利署依自來水法劃設的自來水水質水量保護區）法源與範圍不同，不可視為同一圖層。",
+  "legend.water.reservoirStaticTitle": "水庫",
+  "legend.water.reservoirStaticArea": "蓄水範圍",
+  "legend.water.reservoirStaticNote": "嵌入地圖只顯示蓄水範圍與壩體位置，不含即時水情。"
 }

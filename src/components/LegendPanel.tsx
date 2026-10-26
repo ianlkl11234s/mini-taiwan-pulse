@@ -37,7 +37,7 @@ import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLeg
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
-import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
+import { DrinkingWaterProtectionZonesLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
@@ -78,6 +78,8 @@ interface LegendPanelProps {
    * undefined ＝ 全部，圖例維持原樣。
    */
   railSystems?: readonly string[];
+  /** `/embed` 傳 true：嵌入版沒有動態資料（如水庫即時水情），圖例要對齊實際渲染內容。 */
+  embedded?: boolean;
 }
 
 export interface LegendContext {
@@ -91,6 +93,8 @@ export interface LegendContext {
   isDark: boolean;
   /** 見 LegendPanelProps.railSystems。只有 RailLegend 消費。 */
   railSystems?: readonly string[];
+  /** 見 LegendPanelProps.embedded。 */
+  embedded?: boolean;
   /** 目前語系（render 不是元件，不能呼叫 hook；registry 裡 inline 傳入的文字用它翻譯）。 */
   i18n: LocaleSnapshot;
 }
@@ -436,7 +440,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     } isDark={isDark} taiwanOnly={!visibility.ooklaMobilePerformance && !visibility.ooklaFixedPerformance} />,
   },
   // R6 段 2：水庫即時水情平面圓點（警示等級色＋容量大小）
-  { id: "waterReservoirs", render: () => <ReservoirStatusLegend /> },
+  { id: "waterReservoirs", render: ({ embedded }) => embedded ? <ReservoirStaticLegend /> : <ReservoirStatusLegend /> },
   { id: "waterCanals", render: ({ isDark }) => <WaterCanalLegend isDark={isDark} /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -535,7 +539,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
 ];
 
 export const LegendPanel = memo(function LegendPanel({
-  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false,
+  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems, compact = false, embedded = false,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const i18n = useLocale();
@@ -621,7 +625,7 @@ export const LegendPanel = memo(function LegendPanel({
           <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
             <Fragment key={entry.id}>
-              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, i18n })}
+              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems, embedded, i18n })}
             </Fragment>
           ))}
         </div>
