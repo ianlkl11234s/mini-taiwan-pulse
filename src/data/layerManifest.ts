@@ -567,7 +567,7 @@ const JP_MEDICAL_SOURCE = { kind: "custom" as const, note: "useJpMedicalLayers �
 function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, icon: LucideIcon): LayerManifestEntry {
   const category = JP_MEDICAL_CATEGORIES[index]!;
   return {
-    key, section: { theme: "醫療設施", group: "Navii 設施名錄" }, ...layerName({ zh: category.zh, alt: category.ja }), expandable: true,
+    key, section: { theme: "醫療", group: "點位" }, ...layerName({ zh: category.zh, alt: category.ja }), expandable: true,
     color: category.color, icon,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
       processing: "Navii 原始 record_kind 獨立成層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
@@ -581,7 +581,7 @@ function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, ic
 function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerManifestEntry {
   const group = JP_MEDICAL_CARE_GROUPS[index]!;
   return {
-    key, section: { theme: "長照服務", group: "服務使用情境" }, ...layerName({ zh: group.zh, alt: group.ja }), expandable: true,
+    key, section: { theme: "社福長照", group: key === "jpCareResidential" ? "住宿照顧" : "長照與托育" }, ...layerName({ zh: group.zh, alt: group.ja }), expandable: true,
     color: group.color, icon: HeartHandshake,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
       processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
@@ -595,7 +595,7 @@ function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerMani
 function jpMedicalAreaManifest(key: JpAreaManifestKey, index: number): LayerManifestEntry {
   const level = JP_MEDICAL_AREA_LEVELS[index]!;
   return {
-    key, section: { theme: "醫療圈", group: "2020 歷史邊界" }, ...layerName({ zh: level.zh, alt: level.ja, qualifier: "2020" }), expandable: true,
+    key, section: { theme: "醫療", group: "分析" }, ...layerName({ zh: level.zh, alt: level.ja, qualifier: "2020" }), expandable: true,
     color: level.color, icon: Map,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_areas", confidence: "HIGH" }],
       processing: "国土数値情報 A38 2020 歷史版；三個層級各自成層",
@@ -944,7 +944,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "污染", "列管"],
   },
   jpAccommodationCanonical: {
-    key: "jpAccommodationCanonical", section: { theme: "旅宿", group: "總覽" },
+    key: "jpAccommodationCanonical", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿去重總覽", alt: "宿泊施設の統合一覧" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationCanonical, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "27,194 source rows 保守去重為 25,961 entities；502 null geometry；82 review/conflict 未自動合併。", note: "PARTIAL_DEDUP_CONSERVATIVE；不是全國官方旅宿 SSOT，來源 badges、授權集合與 provenance 必須保留。" },
@@ -953,7 +953,7 @@ export const LAYER_MANIFEST = {
     description: "日本旅宿保守去重總覽 25,961 entities；來源不等同權威合併，缺名／缺類型／缺 geometry 仍保留 null。", topics: ["日本", "旅宿", "canonical", "來源血緣"],
   },
   jpAccommodationDensity: {
-    key: "jpAccommodationDensity", section: { theme: "旅宿", group: "總覽" },
+    key: "jpAccommodationDensity", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿密度網格", alt: "宿泊施設密度グリッド" }), expandable: true,
     color: JP_ACCOMMODATION_DENSITY_LAYER_COLOR, icon: Grid3x3,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "25,459 筆 drawable canonical entities 以 EPSG:6933 聚合為 450m / 1.5km 網格；sum(n_records) 均守恆。", note: "只計 canonical；不叠加 OSM coverage，避免重複計數。502 筆 null geometry 未入格。" },
@@ -968,7 +968,7 @@ export const LAYER_MANIFEST = {
     topics: ["日本", "旅宿", "密度", "網格"],
   },
   jpAccommodationJta: {
-    key: "jpAccommodationJta", section: { theme: "旅宿", group: "來源" },
+    key: "jpAccommodationJta", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "觀光廳登錄飯店／旅館", alt: "観光庁登録ホテル・旅館" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationJta, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_jta", confidence: "HIGH" }], processing: "2026-03-31 register 2,282 rows；GSI 地址衍生 2,242 點。", note: "法定登錄子集，不是全日本旅館業 SSOT；ryokan 表頭差 1，狀態 PARTIAL。" },
@@ -977,7 +977,7 @@ export const LAYER_MANIFEST = {
     description: "觀光廳《國際觀光ホテル整備法》登錄子集；40 筆 geometry miss 不補 0,0。", topics: ["日本", "旅宿", "觀光廳", "JTA"],
   },
   jpAccommodationLocal: {
-    key: "jpAccommodationLocal", section: { theme: "旅宿", group: "來源" },
+    key: "jpAccommodationLocal", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "地方旅館業許可", alt: "地方自治体の旅館業許可" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationLocal, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_local", confidence: "HIGH" }], processing: "京都市、靜岡市、東京都江東區 4,410 rows；個資已排除；3,948 有 geometry。", note: "coverage 僅三個轄區；462 geometry miss，不能解讀成全日本 coverage。" },
@@ -986,7 +986,7 @@ export const LAYER_MANIFEST = {
     description: "地方政府旅館業許可首批 4,410 rows；coverage 限京都市、靜岡市、江東區。", topics: ["日本", "旅宿", "地方許可"],
   },
   jpAccommodationOsm: {
-    key: "jpAccommodationOsm", section: { theme: "旅宿", group: "來源" },
+    key: "jpAccommodationOsm", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "住宿涵蓋", alt: "宿泊施設カバレッジ", qualifier: "OpenStreetMap" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationOsm, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_osm", confidence: "HIGH" }], processing: "2026-09-10 OSM snapshot；20,502 unique elements。", note: "© OpenStreetMap contributors, ODbL 1.0；社群繪製 coverage，不是完整或官方名冊。" },
@@ -996,68 +996,68 @@ export const LAYER_MANIFEST = {
   },
 
   jpNaturalParksNational: {
-    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園（歷史資料）" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksNational", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksQuasiNational: {
-    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園（歷史資料）" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksQuasiNational", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksPrefectural: {
-    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園（歷史資料）" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksPrefectural", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
 
   jpNatureConservationArea: {
-    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保育（歷史資料）" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
+    key: "jpNatureConservationArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpPrimitiveNatureEnvironmentArea: {
-    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保育（歷史資料）" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
+    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpNatureConservationSpecialDistrict: {
-    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保育（歷史資料）" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
+    key: "jpNatureConservationSpecialDistrict", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
 
   jpWildlifeProtectionNational: {
-    key: "jpWildlifeProtectionNational", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, ...layerName({ zh: "國家指定鳥獸保護區", alt: "国指定鳥獣保護区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
+    key: "jpWildlifeProtectionNational", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "國家指定鳥獸保護區", alt: "国指定鳥獣保護区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDistrict: {
-    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, ...layerName({ zh: "鳥獸特別保護地區", alt: "鳥獣保護区特別保護地区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護地區", alt: "鳥獣保護区特別保護地区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDesignatedArea: {
-    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, ...layerName({ zh: "鳥獸特別保護指定區域", alt: "特別保護指定区域" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護指定區域", alt: "特別保護指定区域" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
 
   jpWorldHeritageCultural: {
-    key: "jpWorldHeritageCultural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, ...layerName({ zh: "UNESCO 文化遺產代表點", alt: "UNESCO 文化遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
+    key: "jpWorldHeritageCultural", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 文化遺產代表點", alt: "UNESCO 文化遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
     upstream: { status: "catalog_missing", datasets: [], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_cultural。", note: "CC BY-SA 4.0；代表點不是 property boundary；22 rows 中 1 筆 null geometry。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageCultural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "文化"],
   },
   jpWorldHeritageNatural: {
-    key: "jpWorldHeritageNatural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, ...layerName({ zh: "UNESCO 自然遺產代表點", alt: "UNESCO 自然遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
+    key: "jpWorldHeritageNatural", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 自然遺產代表點", alt: "UNESCO 自然遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
     upstream: { status: "catalog_missing", datasets: [], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_natural。", note: "CC BY-SA 4.0；5 個代表點不是 property boundary。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageNatural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行自然遺產 5 個代表點；非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "自然"],
   },
   jpWorldNaturalHeritageHistorical: {
-    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "歷史範圍" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
+    key: "jpWorldNaturalHeritageHistorical", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
     upstream: { status: "catalog_missing", datasets: [], processing: "KSJ A28-10 2011 snapshot；3 polygons。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；只含知床、白神山地、屋久島，缺現行 2 處。" }, dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load A28 historical GeoJSON polygon", staticAssets: ["./world/jp_world_natural_heritage_ksj_2011.geojson"] }, legend: null, popup: "jpWorldNaturalHeritageHistorical", params: { count: 1, kinds: ["slider"] }, description: "A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。", topics: ["日本", "世界遺產", "historical", "A28"],
   },
   jpRamsarSites: {
-    key: "jpRamsarSites", section: { theme: "自然保護", group: "濕地與海域" }, ...layerName({ zh: "拉姆薩濕地名冊衍生點", alt: "ラムサール条約湿地名簿の派生点" }), expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
+    key: "jpRamsarSites", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "拉姆薩濕地名冊衍生點", alt: "ラムサール条約湿地名簿の派生点" }), expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省名冊 54 rows；GSI 衍生 10 NAME_MATCH + 44 ADMIN_OR_OTHER_CENTROID。", note: "LICENSE_UNVERIFIED + HOLD_GEOMETRY；預設只顯示 NAME_MATCH，所有點都不是 Ramsar boundary。" }, dataClass: "D", source: { kind: "custom", note: "Ramsar GeoJSON；原始 filter_layer_id + geocode_quality filter", staticAssets: ["./world/jp_ramsar_moe_current.geojson"] }, legend: null, popup: "jpRamsarSites", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。", topics: ["日本", "Ramsar", "濕地", "HOLD_GEOMETRY"],
   },
   jpMarineEbsaCoastal: {
-    key: "jpMarineEbsaCoastal", section: { theme: "自然保護", group: "濕地與海域" }, ...layerName({ zh: "沿岸生態重要海域", alt: "沿岸EBSA", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
+    key: "jpMarineEbsaCoastal", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "沿岸生態重要海域", alt: "沿岸EBSA", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 1, kinds: ["slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
   },
 
@@ -1901,19 +1901,19 @@ export const LAYER_MANIFEST = {
   jpMedicalAreasSecondary: jpMedicalAreaManifest("jpMedicalAreasSecondary", 1),
   jpMedicalAreasTertiary: jpMedicalAreaManifest("jpMedicalAreasTertiary", 2),
 
-  jpWaterDams: { key: "jpWaterDams", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "水壩", alt: "ダム", qualifier: "2014" }), expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
-  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
-  jpWaterRivers: { key: "jpWaterRivers", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "河川流路", alt: "河川", qualifier: "2006–2009" }), expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
-  jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "上水道相關設施", qualifier: "2010" }), expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
-  jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "給水區域", alt: "給水区域", qualifier: "2010" }), expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
-  jpWaterSewerFacilities: { key: "jpWaterSewerFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "下水道設施", qualifier: "2012" }), expandable: true, color: "#1d4ed8", icon: Container, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=sewer; subtype from P22a/P22b", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSewerFacilities", popup: "jpWaterSewerFacilities", params: { count: 1, kinds: ["slider"] }, description: "2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。", topics: ["日本", "水資源", "下水道", "歷史", "OWNER_ONLY"] },
-  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "高松供排水相關設施", qualifier: "高松市" }), expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
-  jpWaterQualityStations: { key: "jpWaterQualityStations", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "水質測定點", alt: "水質測定地点", qualifier: "2024" }), expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_quality", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
-  jpWaterLevelStations: { key: "jpWaterLevelStations", section: { theme: "水資源", group: "水資源靜態資料" }, ...layerName({ zh: "橫濱水位站", qualifier: "横浜市" }), expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
-  jpWaterGroundwaterSites: { key: "jpWaterGroundwaterSites", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, ...layerName({ zh: "地下水等觀測點（24縣）" }), expandable: true, color: "#8b5cf6", icon: MapPin, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=groundwater", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterGroundwaterSites", popup: "jpWaterGroundwaterSites", params: { count: 1, kinds: ["slider"] }, description: "GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。", topics: ["日本", "水資源", "地下水", "OWNER_ONLY"] },
-  jpWaterNilimDams: { key: "jpWaterNilimDams", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, ...layerName({ zh: "水壩位置（46縣）", qualifier: "NILIM" }), expandable: true, color: "#2563eb", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=nilim", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterNilimDams", popup: "jpWaterNilimDams", params: { count: 1, kinds: ["slider"] }, description: "NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。", topics: ["日本", "水資源", "水壩", "OWNER_ONLY"] },
-  jpWaterAgriculturalPonds: { key: "jpWaterAgriculturalPonds", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, ...layerName({ zh: "農業蓄水池", qualifier: "2026-03" }), expandable: true, color: "#65a30d", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_agri_civic", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=agri; source datum unknown", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterAgriculturalPonds", popup: "jpWaterAgriculturalPonds", params: { count: 2, kinds: ["palette", "slider"] }, description: "MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。", topics: ["日本", "水資源", "農業", "OWNER_ONLY"] },
-  jpWaterFloodHazard: { key: "jpWaterFloodHazard", section: { theme: "水資源", group: "背景" }, ...layerName({ zh: "洪水浸水想定（最大規模）" }), expandable: true, color: "#64748b", icon: CloudRain, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hazard_pollution", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Official external GSI XYZ raster z2–17; disabled by default; source/terms: disaportal.gsi.go.jp hazard-map open-data pages; no feature attributes/popup" }, legend: "jpWaterFloodHazard", popup: null, params: { count: 1, kinds: ["slider"] }, description: "官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。", topics: ["日本", "水資源", "洪水", "背景"] },
+  jpWaterDams: { key: "jpWaterDams", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩", alt: "ダム", qualifier: "2014" }), expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
+  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
+  jpWaterRivers: { key: "jpWaterRivers", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "河川流路", alt: "河川", qualifier: "2006–2009" }), expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "上水道相關設施", qualifier: "2010" }), expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "給水區域", alt: "給水区域", qualifier: "2010" }), expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSewerFacilities: { key: "jpWaterSewerFacilities", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "下水道設施", qualifier: "2012" }), expandable: true, color: "#1d4ed8", icon: Container, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=sewer; subtype from P22a/P22b", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSewerFacilities", popup: "jpWaterSewerFacilities", params: { count: 1, kinds: ["slider"] }, description: "2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。", topics: ["日本", "水資源", "下水道", "歷史", "OWNER_ONLY"] },
+  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "高松供排水相關設施", qualifier: "高松市" }), expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
+  jpWaterQualityStations: { key: "jpWaterQualityStations", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "水質測定點", alt: "水質測定地点", qualifier: "2024" }), expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_quality", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
+  jpWaterLevelStations: { key: "jpWaterLevelStations", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "橫濱水位站", qualifier: "横浜市" }), expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
+  jpWaterGroundwaterSites: { key: "jpWaterGroundwaterSites", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "地下水等觀測點（24縣）" }), expandable: true, color: "#8b5cf6", icon: MapPin, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=groundwater", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterGroundwaterSites", popup: "jpWaterGroundwaterSites", params: { count: 1, kinds: ["slider"] }, description: "GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。", topics: ["日本", "水資源", "地下水", "OWNER_ONLY"] },
+  jpWaterNilimDams: { key: "jpWaterNilimDams", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩位置（46縣）", qualifier: "NILIM" }), expandable: true, color: "#2563eb", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=nilim", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterNilimDams", popup: "jpWaterNilimDams", params: { count: 1, kinds: ["slider"] }, description: "NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。", topics: ["日本", "水資源", "水壩", "OWNER_ONLY"] },
+  jpWaterAgriculturalPonds: { key: "jpWaterAgriculturalPonds", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "農業蓄水池", qualifier: "2026-03" }), expandable: true, color: "#65a30d", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_agri_civic", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=agri; source datum unknown", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterAgriculturalPonds", popup: "jpWaterAgriculturalPonds", params: { count: 2, kinds: ["palette", "slider"] }, description: "MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。", topics: ["日本", "水資源", "農業", "OWNER_ONLY"] },
+  jpWaterFloodHazard: { key: "jpWaterFloodHazard", section: { theme: "災害", group: "淹水 Flooding" }, ...layerName({ zh: "洪水浸水想定（最大規模）" }), expandable: true, color: "#64748b", icon: CloudRain, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hazard_pollution", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Official external GSI XYZ raster z2–17; disabled by default; source/terms: disaportal.gsi.go.jp hazard-map open-data pages; no feature attributes/popup" }, legend: "jpWaterFloodHazard", popup: null, params: { count: 1, kinds: ["slider"] }, description: "官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。", topics: ["日本", "水資源", "洪水", "背景"] },
 
   jpReligionGsi: {
     key: "jpReligionGsi",
@@ -1999,7 +1999,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   jpAdminPrefecture: {
     key: "jpAdminPrefecture",
-    section: { theme: "行政區", group: "面" },
+    section: { theme: "底圖", group: "行政邊界" },
     ...layerName({ zh: "都道府縣界", alt: "都道府県境" }),
     expandable: true,
     color: "#f59e0b",
@@ -2024,7 +2024,7 @@ export const LAYER_MANIFEST = {
 
   jpAdminBoundaries: {
     key: "jpAdminBoundaries",
-    section: { theme: "行政區", group: "面" },
+    section: { theme: "底圖", group: "行政邊界" },
     ...layerName({ zh: "市區町村界", alt: "市区町村境" }),
     expandable: true,
     color: "#fbbf24",
@@ -2049,7 +2049,7 @@ export const LAYER_MANIFEST = {
 
   jpStations: {
     key: "jpStations",
-    section: { theme: "交通", group: "點位" },
+    section: { theme: "交通", group: "場站" },
     ...layerName({ zh: "車站", alt: "駅" }),
     expandable: true,
     color: "#38bdf8",
@@ -2074,7 +2074,7 @@ export const LAYER_MANIFEST = {
 
   jpAirports: {
     key: "jpAirports",
-    section: { theme: "交通", group: "點位" },
+    section: { theme: "交通", group: "樞紐節點" },
     ...layerName({ zh: "機場", alt: "空港" }),
     expandable: true,
     color: "#a78bfa",
@@ -2099,7 +2099,7 @@ export const LAYER_MANIFEST = {
 
   jpRailways: {
     key: "jpRailways",
-    section: { theme: "交通", group: "線" },
+    section: { theme: "交通", group: "路網" },
     ...layerName({ zh: "鐵道路線", alt: "鉄道路線" }),
     expandable: true,
     color: JP_RAILWAY_LAYER_COLOR,
@@ -2124,7 +2124,7 @@ export const LAYER_MANIFEST = {
 
   jpHistoricalFlightTrails: {
     key: "jpHistoricalFlightTrails",
-    section: { theme: "交通", group: "線" },
+    section: { theme: "交通", group: "歷史軌跡" },
     ...layerName({ zh: "歷史航班軌跡", alt: "Japan" }),
     expandable: true,
     color: "#4d99ff",
@@ -2374,7 +2374,7 @@ export const LAYER_MANIFEST = {
   },
   jpPoliceFacilities: {
     key: "jpPoliceFacilities",
-    section: { theme: "治安", group: "點位" },
+    section: { theme: "執法治安", group: "警政" },
     ...layerName({ zh: "警察設施", alt: "警察施設" }),
     expandable: true,
     color: JP_POLICE_LAYER_COLOR,
@@ -2399,7 +2399,7 @@ export const LAYER_MANIFEST = {
   },
   jpEvacuationSites: {
     key: "jpEvacuationSites",
-    section: { theme: "民防避難", group: "點位" },
+    section: { theme: "災害", group: "避難設施" },
     ...layerName({ zh: "避難場所", alt: "指定緊急避難場所・指定避難所" }),
     expandable: true,
     color: JP_EVACUATION_LAYER_COLOR,
@@ -2449,7 +2449,7 @@ export const LAYER_MANIFEST = {
   },
   jpBusStops: {
     key: "jpBusStops",
-    section: { theme: "交通", group: "點位" },
+    section: { theme: "交通", group: "場站" },
     ...layerName({ zh: "公車站", alt: "バス停" }),
     expandable: true,
     color: JP_BUS_STOP_LAYER_COLOR,
@@ -2474,7 +2474,7 @@ export const LAYER_MANIFEST = {
   },
   jpSchools: {
     key: "jpSchools",
-    section: { theme: "教育", group: "點位" },
+    section: { theme: "教育", group: "學校 Schools" },
     ...layerName({ zh: "學校", alt: "学校" }),
     expandable: true,
     color: JP_SCHOOL_LAYER_COLOR,
@@ -2501,7 +2501,7 @@ export const LAYER_MANIFEST = {
   // ── 日本氣象廳 JMA 即時 4 層（gis-platform migration 435；public view；當下快照，不接 timeStore）──
   jmaAmedas: {
     key: "jmaAmedas",
-    section: { theme: "氣象防災", group: "即時觀測" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "AMeDAS 即時觀測", alt: "アメダス" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAmedas,
@@ -2522,7 +2522,7 @@ export const LAYER_MANIFEST = {
   },
   jmaWarnings: {
     key: "jmaWarnings",
-    section: { theme: "氣象防災", group: "即時觀測" },
+    section: { theme: "災害", group: "即時警示" },
     ...layerName({ zh: "警報・注意報", alt: "警報・注意報" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaWarnings,
@@ -2547,7 +2547,7 @@ export const LAYER_MANIFEST = {
   },
   jmaQuakes: {
     key: "jmaQuakes",
-    section: { theme: "氣象防災", group: "地震與火山" },
+    section: { theme: "災害", group: "地震 / 斷層" },
     ...layerName({ zh: "地震（近 7 天）", alt: "地震情報" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaQuakes,
@@ -2568,7 +2568,7 @@ export const LAYER_MANIFEST = {
   },
   jmaVolcanoes: {
     key: "jmaVolcanoes",
-    section: { theme: "氣象防災", group: "地震與火山" },
+    section: { theme: "災害", group: "火山" },
     ...layerName({ zh: "火山警戒", alt: "噴火警戒レベル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaVolcanoes,
@@ -2591,7 +2591,7 @@ export const LAYER_MANIFEST = {
   // RPC 契約 gis-platform docs/jma-time-rpcs.md（migration 463/464）。
   jmaLightning: {
     key: "jmaLightning",
-    section: { theme: "氣象防災", group: "即時觀測" },
+    section: { theme: "災害", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "雷監視 LIDEN", qualifier: "日本" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaLightning,
@@ -2612,7 +2612,7 @@ export const LAYER_MANIFEST = {
   },
   jmaWbgt: {
     key: "jmaWbgt",
-    section: { theme: "氣象防災", group: "即時觀測" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "暑熱指數 WBGT", alt: "暑さ指数" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaWbgt,
@@ -2633,7 +2633,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSnowcap: {
     key: "jmaSnowcap",
-    section: { theme: "氣象防災", group: "季節觀測" },
+    section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "山頂初冠雪", alt: "初冠雪" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaSnowcap,
@@ -2654,7 +2654,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAutumnLeaves: {
     key: "jmaAutumnLeaves",
-    section: { theme: "氣象防災", group: "季節觀測" },
+    section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "紅葉・黃葉前線", alt: "紅葉前線" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaAutumnLeaves,
@@ -2675,7 +2675,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSakura: {
     key: "jmaSakura",
-    section: { theme: "氣象防災", group: "季節觀測" },
+    section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "櫻花前線", alt: "桜前線" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaSakura,
@@ -2696,7 +2696,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRainySeason: {
     key: "jmaRainySeason",
-    section: { theme: "氣象防災", group: "季節觀測" },
+    section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "梅雨入梅・出梅", alt: "梅雨入り・明け" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaRainySeason,
@@ -2723,7 +2723,7 @@ export const LAYER_MANIFEST = {
   // RPC get_weather_imagery_manifest 取幀清單 → image source＋raster-color 上色（色票 SSOT = jmaTypes.ts）。
   jmaSnowDepth: {
     key: "jmaSnowDepth",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "解析積雪深", alt: "積雪深（解析）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSnowDepth,
@@ -2747,7 +2747,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRadar: {
     key: "jmaRadar",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "雨雲雷達", alt: "雨雲の動き（ナウキャスト）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRadar,
@@ -2771,7 +2771,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRasrf: {
     key: "jmaRasrf",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "解析雨量", alt: "解析雨量" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRasrf,
@@ -2795,7 +2795,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskLand: {
     key: "jmaRiskLand",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "災害", group: "崩塌 Landslide" },
     ...layerName({ zh: "土砂災害危險度", alt: "土砂キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskLand,
@@ -2819,7 +2819,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskInund: {
     key: "jmaRiskInund",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "浸水危險度", alt: "浸水キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskInund,
@@ -2843,7 +2843,7 @@ export const LAYER_MANIFEST = {
   },
   jmaUvIndex: {
     key: "jmaUvIndex",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "紫外線指數", alt: "UVインデックス（解析）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaUvIndex,
@@ -2867,7 +2867,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSst: {
     key: "jmaSst",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "海洋", group: "海域環境 Marine Environment" },
     ...layerName({ zh: "日別海面水溫", alt: "日別海面水温" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSst,
@@ -2891,7 +2891,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSeaIce: {
     key: "jmaSeaIce",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "海洋", group: "海域環境 Marine Environment" },
     ...layerName({ zh: "鄂霍次克海海冰", alt: "海氷分布（オホーツク海）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSeaIce,
@@ -2915,7 +2915,7 @@ export const LAYER_MANIFEST = {
   },
   jmaHimawari: {
     key: "jmaHimawari",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "向日葵紅外雲圖", alt: "ひまわり雲画像（赤外）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaHimawari,
@@ -2939,7 +2939,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaSnowFirst: {
     key: "jmaAnaSnowFirst",
-    section: { theme: "氣象防災", group: "分析" },
+    section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "初雪日", alt: "初積雪日" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaSnowFirst,
@@ -2963,7 +2963,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaSnowDays: {
     key: "jmaAnaSnowDays",
-    section: { theme: "氣象防災", group: "分析" },
+    section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "積雪日數", alt: "積雪日数" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaSnowDays,
@@ -2987,7 +2987,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRainDays: {
     key: "jmaAnaRainDays",
-    section: { theme: "氣象防災", group: "分析" },
+    section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "雨日數（當月）", alt: "雨日数（当月）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRainDays,
@@ -3011,7 +3011,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRiskLandHours: {
     key: "jmaAnaRiskLandHours",
-    section: { theme: "氣象防災", group: "分析" },
+    section: { theme: "災害", group: "崩塌 Landslide" },
     ...layerName({ zh: "土砂警戒時數（當月）", alt: "土砂キキクル警戒時間" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRiskLandHours,
@@ -3035,7 +3035,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRiskInundHours: {
     key: "jmaAnaRiskInundHours",
-    section: { theme: "氣象防災", group: "分析" },
+    section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "浸水警戒時數（當月）", alt: "浸水キキクル警戒時間" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRiskInundHours,
@@ -3059,7 +3059,7 @@ export const LAYER_MANIFEST = {
   },
   gibsSnowCover: {
     key: "gibsSnowCover",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "衛星雪覆蓋", alt: "積雪域（衛星 NDSI）", qualifier: "NASA GIBS" }),
     expandable: true,
     color: GIBS_SNOW_LAYER_COLOR,
@@ -3083,7 +3083,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskFlood: {
     key: "jmaRiskFlood",
-    section: { theme: "氣象防災", group: "解析影像" },
+    section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "洪水危險度", alt: "洪水キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskFlood,
@@ -3107,7 +3107,7 @@ export const LAYER_MANIFEST = {
   },
   jmaKosa: {
     key: "jmaKosa",
-    section: { theme: "氣象防災", group: "預報圖" },
+    section: { theme: "環境氣候", group: "空品" },
     ...layerName({ zh: "黃砂預測", alt: "黄砂予測" }),
     expandable: false,
     color: JMA_LAYER_COLORS.jmaKosa,
@@ -3132,7 +3132,7 @@ export const LAYER_MANIFEST = {
 
   jpPopulationMesh1km: {
     key: "jpPopulationMesh1km",
-    section: { theme: "人口", group: "面" },
+    section: { theme: "人口社經", group: "人口分布" },
     ...layerName({ zh: "人口網格", alt: "人口メッシュ" }),
     expandable: true,
     color: JP_POPULATION_MESH_LAYER_COLOR,
@@ -4891,7 +4891,7 @@ export const LAYER_MANIFEST = {
 
   jpCanopyHeight: {
     key: "jpCanopyHeight",
-    section: { theme: "高度與地表", group: "日本高度（分區資料）" },
+    section: { theme: "林業", group: "分區" },
     ...layerName({ zh: "樹冠高度", alt: "CHMv2" }),
     expandable: true,
     color: "#238b45",
@@ -6945,7 +6945,7 @@ export const LAYER_MANIFEST = {
 
   jpBuildingHeight: {
     key: "jpBuildingHeight",
-    section: { theme: "高度與地表", group: "日本高度（分區資料）" },
+    section: { theme: "底圖", group: "建成環境" },
     ...layerName({ zh: "建物高度", alt: "PLATEAU" }),
     expandable: true,
     color: "#fc8d59",
