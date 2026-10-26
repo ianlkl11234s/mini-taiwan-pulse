@@ -197,7 +197,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-25: +1 公車擁擠模擬（模擬面板，busCrowdingSim）。
     // 2026-10-25: +1 郵局外幣現鈔經辦局 G10 外幣（postOfficeFxCounters）。
     // 2026-10-25: +3 日本第一波（避難場所 jpEvacuationSites、役所與公民館 jpPublicOffices、公車站 jpBusStops）。
-    expect(keys.length).toBe(1320);
+    // 2026-10-26: +2 日本第二波面圖層（土砂災害警戒區域 jpLandslideWarningAreas、內水浸水想定區域 jpInlandFloodAreas）。
+    expect(keys.length).toBe(1322);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

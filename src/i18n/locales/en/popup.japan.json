@@ -84,5 +84,17 @@
   "popup.japan.busClass": "Bus class",
   "popup.japan.busRouteCount": "Number of routes",
   "popup.japan.busScopeNote": "2022 edition; excludes demand-responsive and expressway buses",
-  "popup.japan.notes": "Note"
+  "popup.japan.notes": "Note",
+  "popup.japan.landslideDefault": "Sediment disaster warning area",
+  "popup.japan.landslideZone": "Zone type",
+  "popup.japan.landslidePhenomenon": "Phenomenon",
+  "popup.japan.landslideDesignation": "Designation status",
+  "popup.japan.landslideLicense": "License restriction",
+  "popup.japan.landslideAccuracyNote": "Approximate position (about 1:25,000–1:50,000), not a legal map; does not cover every designated area in the prefecture; not for real-estate disclosure or applications",
+  "popup.japan.landslideNestedNote": "Special warning (red) zones lie inside warning (yellow) zones; do not add counts or areas",
+  "popup.japan.inlandFloodDefault": "Inland flood inundation assumption area",
+  "popup.japan.inlandFloodDepth": "Inundation depth",
+  "popup.japan.inlandFloodScenario": "Rainfall scenario",
+  "popup.japan.inlandFloodScenarioValue": "Assumed maximum-scale rainfall (the only scenario)",
+  "popup.japan.inlandFloodNote": "Covers only 28 municipalities; no data does not mean no inland flood risk; a different layer from river flooding (flood inundation assumption)"
 }

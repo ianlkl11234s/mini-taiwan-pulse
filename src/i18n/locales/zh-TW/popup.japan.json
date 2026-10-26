@@ -84,5 +84,17 @@
   "popup.japan.busClass": "バス區分",
   "popup.japan.busRouteCount": "系統數",
   "popup.japan.busScopeNote": "2022 年度版，不含デマンドバス與高速バス",
-  "popup.japan.notes": "注意"
+  "popup.japan.notes": "注意",
+  "popup.japan.landslideDefault": "土砂災害警戒區域 土砂災害警戒区域",
+  "popup.japan.landslideZone": "區域種別",
+  "popup.japan.landslidePhenomenon": "現象",
+  "popup.japan.landslideDesignation": "指定狀態",
+  "popup.japan.landslideLicense": "授權限制",
+  "popup.japan.landslideAccuracyNote": "概略位置（精度約 1/25,000–1/50,000），非法定圖書；不涵蓋各縣所有指定區域，不可作為不動產說明或申請根據",
+  "popup.japan.landslideNestedNote": "紅區（特別警戒）在黃區（警戒）之內，面數與面積不可相加",
+  "popup.japan.inlandFloodDefault": "內水浸水想定區域 雨水出水浸水想定区域",
+  "popup.japan.inlandFloodDepth": "浸水深",
+  "popup.japan.inlandFloodScenario": "降雨情境",
+  "popup.japan.inlandFloodScenarioValue": "想定最大規模降雨（唯一情境）",
+  "popup.japan.inlandFloodNote": "只涵蓋 28 個市町村；無資料不代表沒有內水淹水風險；與外水洪水（洪水浸水想定）是不同的層"
 }

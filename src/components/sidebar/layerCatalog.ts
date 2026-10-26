@@ -215,8 +215,8 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-// 2026-10-03 依日本面板的大分類（layerPanels.ts `JAPAN_MACRO_GROUPS`）重排：同一大分類的主題相鄰。
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "基礎建設", "人口", "交通", "旅宿", "醫療設施", "長照服務", "醫療圈", "治安", "民防避難", "教育", "宗教", "自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"];
+// 2026-10-26 改用台灣主題系統（15 個主題，title＝台灣主題中文短名）；順序依全站大分類（`THEME_MACRO_GROUPS`）排，同類內照此陣列。
+export const JAPAN_TAB_THEME_TITLES: string[] = ["底圖", "交通", "人口社經", "基礎建設", "教育", "社福長照", "宗教", "觀光", "醫療", "災害", "執法治安", "環境氣候", "海洋", "水資源", "林業"];
 
 /**
  * 「模擬 Simulation」rail tab 的主題清單（simulation PLAN Phase 1）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）；
@@ -2164,52 +2164,30 @@ const THEME_CATALOG: ThemeDef[] = [
   //    行政區 / 交通 / 教育 / 人口 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
   //    2026-10-03 使用者決定：日本主題一律預設收合，與台灣一致。
   // ───────────────────────────────────────────────────────────────
+  // 2026-10-26 重整：日本主題改用台灣的主題系統（主題 title＝台灣主題的中文短名，群組名沿用台灣原字串）；
+  // 日本特有群組：火山、積雪、季節觀測、自來水。避難場所依使用者決定併入「災害／避難設施」，不另設民防避難主題。
   {
-    title: "醫療設施",
-    defaultCollapsed: true,
-    groups: [{ title: "Navii 設施名錄", layers: [
-      fromManifest("jpMedicalHospitals"), fromManifest("jpMedicalClinics"), fromManifest("jpMedicalDental"),
-      fromManifest("jpMedicalMaternity"), fromManifest("jpMedicalPharmacies"),
-    ] }],
-  },
-  {
-    title: "長照服務",
-    defaultCollapsed: true,
-    groups: [{ title: "服務使用情境", layers: [
-      fromManifest("jpCarePlanning"), fromManifest("jpCareHomeVisit"), fromManifest("jpCareDayServices"),
-      fromManifest("jpCareResidential"), fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"),
-    ] }],
-  },
-  {
-    title: "醫療圈",
-    defaultCollapsed: true,
-    groups: [{ title: "2020 歷史邊界", layers: [
-      fromManifest("jpMedicalAreasPrimary"), fromManifest("jpMedicalAreasSecondary"), fromManifest("jpMedicalAreasTertiary"),
-    ] }],
-  },
-  {
-    title: "水資源",
-    defaultCollapsed: true,
-    groups: [{ title: "水資源靜態資料", layers: [
-      fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities"),
-      fromManifest("jpWaterLakes"), fromManifest("jpWaterLocalFacilities"),
-      fromManifest("jpWaterQualityStations"), fromManifest("jpWaterLevelStations"),
-    ] }, { title: "補充資料（覆蓋與定位限制見圖例）", layers: [
-      fromManifest("jpWaterGroundwaterSites"), fromManifest("jpWaterNilimDams"), fromManifest("jpWaterAgriculturalPonds"),
-    ] }, { title: "背景", layers: [fromManifest("jpWaterFloodHazard")] }],
-  },
-  {
-    title: "行政區",
+    title: "底圖",
     defaultCollapsed: true,
     groups: [
-      {
-        title: "面",
-        layers: [
-          fromManifest("jpAdminPrefecture"),
-          fromManifest("jpAdminBoundaries"),
-        ],
-      },
+      { title: "行政邊界", layers: [fromManifest("jpAdminPrefecture"), fromManifest("jpAdminBoundaries")] },
+      { title: "建成環境", layers: [fromManifest("jpBuildingHeight")] },
     ],
+  },
+  {
+    title: "交通",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("jpStations"), fromManifest("jpBusStops")] },
+      { title: "歷史軌跡", layers: [fromManifest("jpHistoricalFlightTrails")] },
+      { title: "路網", layers: [fromManifest("jpRailways")] },
+      { title: "樞紐節點", layers: [fromManifest("jpAirports")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km")] }],
   },
   {
     title: "基礎建設",
@@ -2217,140 +2195,127 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [{ title: "公共設施", layers: [fromManifest("jpPublicOffices")] }],
   },
   {
-    title: "交通",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "點位",
-        layers: [
-          fromManifest("jpStations"),
-          fromManifest("jpAirports"),
-          fromManifest("jpBusStops"),
-        ],
-      },
-      {
-        title: "線",
-        layers: [
-          fromManifest("jpRailways"),
-          fromManifest("jpHistoricalFlightTrails"),
-        ],
-      },
-    ],
-  },
-  {
-    title: "旅宿",
-    defaultCollapsed: true,
-    groups: [
-      { title: "總覽", layers: [
-        fromManifest("jpAccommodationCanonical"),
-        fromManifest("jpAccommodationDensity"),
-      ] },
-      { title: "來源", layers: [
-        fromManifest("jpAccommodationJta"),
-        fromManifest("jpAccommodationLocal"),
-        fromManifest("jpAccommodationOsm"),
-      ] },
-    ],
-  },
-  {
-    title: "自然保護",
-    defaultCollapsed: true,
-    groups: [
-      ...localResearchGroup("自然公園（歷史資料）", [
-        "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
-      ]),
-      ...localResearchGroup("自然保育（歷史資料）", [
-        "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
-      ]),
-      ...localResearchGroup("鳥獸保護 2025-04", [
-        "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
-      ]),
-      { title: "濕地與海域", layers: [
-        ...(IS_PRODUCTION ? [] : [fromManifest("jpRamsarSites")]),
-        fromManifest("jpMarineEbsaCoastal"),
-      ] },
-    ],
-  },
-  {
-    title: "世界遺產",
-    defaultCollapsed: true,
-    groups: [
-      { title: "UNESCO 現行名錄", layers: [fromManifest("jpWorldHeritageCultural"), fromManifest("jpWorldHeritageNatural")] },
-      ...localResearchGroup("歷史範圍", ["jpWorldNaturalHeritageHistorical"]),
-    ],
-  },
-  {
-    title: "治安",
-    defaultCollapsed: true,
-    groups: [{ title: "點位", layers: [fromManifest("jpPoliceFacilities")] }],
-  },
-  {
-    title: "民防避難",
-    defaultCollapsed: true,
-    groups: [{ title: "點位", layers: [fromManifest("jpEvacuationSites")] }],
-  },
-  {
     title: "教育",
     defaultCollapsed: true,
-    groups: [
-      {
-        title: "點位",
-        layers: [
-          fromManifest("jpSchools"),
-        ],
-      },
-    ],
+    groups: [{ title: "學校 Schools", layers: [fromManifest("jpSchools")] }],
   },
   {
-    title: "人口",
+    title: "社福長照",
     defaultCollapsed: true,
     groups: [
-      {
-        title: "面",
-        layers: [
-          fromManifest("jpPopulationMesh1km"),
-        ],
-      },
+      { title: "住宿照顧", layers: [fromManifest("jpCareResidential")] },
+      { title: "長照與托育", layers: [
+        fromManifest("jpCarePlanning"), fromManifest("jpCareHomeVisit"), fromManifest("jpCareDayServices"),
+        fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"),
+      ] },
     ],
   },
   {
     title: "宗教",
     defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("jpReligionGsi"), fromManifest("jpReligionOsm"), fromManifest("jpReligionWikidata")] }],
+  },
+  {
+    title: "觀光",
+    defaultCollapsed: true,
     groups: [
-      {
-        title: "點位",
-        layers: [
-          fromManifest("jpReligionGsi"),
-          fromManifest("jpReligionOsm"),
-          fromManifest("jpReligionWikidata"),
-        ],
-      },
+      ...localResearchGroup("玩・自然 Nature", [
+        "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
+      ]),
+      { title: "玩・人文 Heritage", layers: [
+        fromManifest("jpWorldHeritageCultural"), fromManifest("jpWorldHeritageNatural"),
+        ...(IS_PRODUCTION ? [] : [fromManifest("jpWorldNaturalHeritageHistorical")]),
+      ] },
+      { title: "住・食 Stay & Eat", layers: [
+        fromManifest("jpAccommodationCanonical"), fromManifest("jpAccommodationDensity"),
+        fromManifest("jpAccommodationJta"), fromManifest("jpAccommodationLocal"), fromManifest("jpAccommodationOsm"),
+      ] },
     ],
   },
   {
-    title: "高度與地表",
-    defaultCollapsed: true,
-    groups: [{ title: "日本高度（分區資料）", layers: [fromManifest("jpBuildingHeight"), fromManifest("jpCanopyHeight")] }],
-  },
-  {
-    title: "氣象防災",
+    title: "醫療",
     defaultCollapsed: true,
     groups: [
-      { title: "即時觀測", layers: [fromManifest("jmaAmedas"), fromManifest("jmaWarnings"), fromManifest("jmaLightning"), fromManifest("jmaWbgt")] },
-      { title: "地震與火山", layers: [fromManifest("jmaQuakes"), fromManifest("jmaVolcanoes")] },
+      { title: "點位", layers: [
+        fromManifest("jpMedicalHospitals"), fromManifest("jpMedicalClinics"), fromManifest("jpMedicalDental"),
+        fromManifest("jpMedicalMaternity"), fromManifest("jpMedicalPharmacies"),
+      ] },
+      { title: "分析", layers: [
+        fromManifest("jpMedicalAreasPrimary"), fromManifest("jpMedicalAreasSecondary"), fromManifest("jpMedicalAreasTertiary"),
+      ] },
+    ],
+  },
+  {
+    title: "災害",
+    defaultCollapsed: true,
+    groups: [
+      { title: "即時警示", layers: [fromManifest("jmaWarnings")] },
+      { title: "地震 / 斷層", layers: [fromManifest("jmaQuakes")] },
+      { title: "火山", layers: [fromManifest("jmaVolcanoes")] },
+      { title: "雷暴", layers: [fromManifest("jmaLightning")] },
+      { title: "崩塌 Landslide", layers: [fromManifest("jpLandslideWarningAreas"), fromManifest("jmaRiskLand"), fromManifest("jmaAnaRiskLandHours")] },
+      { title: "淹水 Flooding", layers: [
+        fromManifest("jpWaterFloodHazard"), fromManifest("jpInlandFloodAreas"), fromManifest("jmaRiskFlood"), fromManifest("jmaRiskInund"), fromManifest("jmaAnaRiskInundHours"),
+      ] },
+      { title: "避難設施", layers: [fromManifest("jpEvacuationSites")] },
+    ],
+  },
+  {
+    title: "執法治安",
+    defaultCollapsed: true,
+    groups: [{ title: "警政", layers: [fromManifest("jpPoliceFacilities")] }],
+  },
+  {
+    title: "環境氣候",
+    defaultCollapsed: true,
+    groups: [
+      { title: "氣象", layers: [
+        fromManifest("jmaAmedas"), fromManifest("jmaWbgt"), fromManifest("jmaRadar"), fromManifest("jmaRasrf"),
+        fromManifest("jmaAnaRainDays"), fromManifest("jmaHimawari"), fromManifest("jmaUvIndex"),
+      ] },
+      { title: "積雪", layers: [
+        fromManifest("jmaSnowDepth"), fromManifest("gibsSnowCover"), fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"),
+      ] },
       { title: "季節觀測", layers: [
         fromManifest("jmaSakura"), fromManifest("jmaAutumnLeaves"), fromManifest("jmaSnowcap"), fromManifest("jmaRainySeason"),
       ] },
-      { title: "解析影像", layers: [
-        fromManifest("jmaRadar"), fromManifest("jmaRasrf"), fromManifest("jmaRiskLand"), fromManifest("jmaRiskInund"), fromManifest("jmaRiskFlood"),
-        fromManifest("jmaSnowDepth"), fromManifest("gibsSnowCover"), fromManifest("jmaUvIndex"), fromManifest("jmaSst"), fromManifest("jmaSeaIce"), fromManifest("jmaHimawari"),
-      ] },
-      { title: "預報圖", layers: [fromManifest("jmaKosa")] },
-      { title: "分析", layers: [
-        fromManifest("jmaAnaSnowFirst"), fromManifest("jmaAnaSnowDays"), fromManifest("jmaAnaRainDays"),
-        fromManifest("jmaAnaRiskLandHours"), fromManifest("jmaAnaRiskInundHours"),
+      { title: "空品", layers: [fromManifest("jmaKosa")] },
+      { title: "水質與污水 Water Quality", layers: [fromManifest("jpWaterQualityStations"), fromManifest("jpWaterSewerFacilities")] },
+    ],
+  },
+  {
+    title: "海洋",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境 Marine Environment", layers: [fromManifest("jmaSst"), fromManifest("jmaSeaIce")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [
+        fromManifest("jpMarineEbsaCoastal"),
+        ...(IS_PRODUCTION ? [] : [
+          "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
+          "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
+          "jpRamsarSites",
+        ].map((key) => fromManifest(key as ManifestKey))),
       ] },
     ],
+  },
+  {
+    title: "水資源",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [
+        fromManifest("jpWaterDams"), fromManifest("jpWaterNilimDams"), fromManifest("jpWaterLevelStations"),
+        fromManifest("jpWaterGroundwaterSites"), fromManifest("jpWaterAgriculturalPonds"),
+      ] },
+      { title: "面 / 線", layers: [fromManifest("jpWaterRivers"), fromManifest("jpWaterLakes")] },
+      { title: "自來水", layers: [
+        fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterLocalFacilities"),
+      ] },
+    ],
+  },
+  {
+    title: "林業",
+    defaultCollapsed: true,
+    groups: [{ title: "分區", layers: [fromManifest("jpCanopyHeight")] }],
   },
 
 ];
@@ -2440,24 +2405,22 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   [COMMUNICATIONS_THEME_TITLE]: "publicLife",
   "全球氣候 Global Climate": "environment",
   "全球海事 Global Maritime": "intelligence",
-  // 日本 tab 在 desktop 仍獨立；mobile 依資料語意併入既有大分類，不再掛在「世界」。
-  "行政區": "baseline",
+  // 日本 tab 在 desktop 仍獨立；主題 title＝台灣主題的中文短名（機器字串不同），大分類同台灣對應主題。
+  "底圖": "baseline",
   "交通": "city",
-  "旅宿": "publicLife",
-  "自然保護": "environment",
-  "世界遺產": "environment",
-  "治安": "safety",
-  "民防避難": "safety",
+  "人口社經": "city",
   "基礎建設": "publicLife",
   "教育": "publicLife",
-  "人口": "city",
+  "社福長照": "publicLife",
   "宗教": "publicLife",
-  "醫療設施": "safety",
-  "長照服務": "publicLife",
-  "醫療圈": "safety",
-  "高度與地表": "environment",
+  "觀光": "publicLife",
+  "醫療": "safety",
+  "災害": "safety",
+  "執法治安": "safety",
+  "環境氣候": "environment",
+  "海洋": "environment",
   "水資源": "environment",
-  "氣象防災": "safety",
+  "林業": "environment",
   "雙北跨河橋梁中斷": "city",
   "臺北 307 走廊公車擁擠": "city",
 };
@@ -2560,22 +2523,20 @@ const THEME_NAMES: Record<string, ThemeName> = {
   [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
   "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
   "全球海事 Global Maritime": { zh: "全球海事", sub: "Global Maritime" },
-  "行政區": { zh: "行政區", sub: "行政区域" },
+  "底圖": { zh: "底圖", sub: "ベースマップ" },
   "交通": { zh: "交通", sub: "交通" },
-  "旅宿": { zh: "旅宿", sub: "宿泊" },
-  "自然保護": { zh: "自然保護", sub: "自然保護" },
-  "世界遺產": { zh: "世界遺產", sub: "世界遺産" },
-  "治安": { zh: "治安", sub: "治安" },
-  "民防避難": { zh: "民防避難", sub: "避難・防災" },
+  "人口社經": { zh: "人口社經", sub: "人口・社会経済" },
   "基礎建設": { zh: "基礎建設", sub: "インフラ" },
   "教育": { zh: "教育", sub: "教育" },
-  "人口": { zh: "人口", sub: "人口" },
+  "社福長照": { zh: "社福長照", sub: "社会福祉・介護" },
   "宗教": { zh: "宗教", sub: "宗教" },
-  "醫療設施": { zh: "醫療設施", sub: "医療施設" },
-  "長照服務": { zh: "長照服務", sub: "介護サービス" },
-  "醫療圈": { zh: "醫療圈", sub: "医療圏" },
-  "高度與地表": { zh: "高度與地表", sub: "高さ・地表" },
-  "氣象防災": { zh: "氣象防災", sub: "気象・防災" },
+  "觀光": { zh: "觀光", sub: "観光" },
+  "醫療": { zh: "醫療", sub: "医療" },
+  "災害": { zh: "災害", sub: "災害" },
+  "執法治安": { zh: "執法治安", sub: "警察・治安" },
+  "環境氣候": { zh: "環境氣候", sub: "環境・気候" },
+  "海洋": { zh: "海洋", sub: "海洋" },
+  "林業": { zh: "林業", sub: "林業" },
   "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
   "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
   "水資源": { zh: "水資源", sub: "水資源" },

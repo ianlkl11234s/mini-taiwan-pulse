@@ -46,5 +46,21 @@
   "enum.jpBusClass.community": "コミュニティバス",
   "enum.jpBusClass.route_public": "公営路線バス",
   "enum.jpBusClass.other": "その他",
-  "enum.jpBusClass.mixed": "公営路線・コミュニティバス共用"
+  "enum.jpBusClass.mixed": "公営路線・コミュニティバス共用",
+  "enum.jpLandslideZone.red": "土砂災害特別警戒区域（レッドゾーン）",
+  "enum.jpLandslideZone.yellow": "土砂災害警戒区域（イエローゾーン）",
+  "enum.jpLandslidePhenomenon.steep_slope_failure": "急傾斜地の崩壊",
+  "enum.jpLandslidePhenomenon.debris_flow": "土石流",
+  "enum.jpLandslidePhenomenon.landslide": "地すべり",
+  "enum.jpLandslideDesignation.designated": "指定済",
+  "enum.jpLandslideDesignation.pre_designation": "指定前（基礎調査結果の公表段階、正式指定はまだ）",
+  "enum.jpLandslideLicenseNote.商用利用不可": "商用利用不可",
+  "enum.jpInlandFloodDepth.lt_0_3m": "0.3m未満",
+  "enum.jpInlandFloodDepth.gte_20m": "20m以上",
+  "enum.jpInlandFloodDepth.0_3_to_0_5m": "0.3m以上0.5m未満",
+  "enum.jpInlandFloodDepth.0_5_to_1m": "0.5m以上1m未満",
+  "enum.jpInlandFloodDepth.1_to_3m": "1m以上3m未満",
+  "enum.jpInlandFloodDepth.3_to_5m": "3m以上5m未満",
+  "enum.jpInlandFloodDepth.5_to_10m": "5m以上10m未満",
+  "enum.jpInlandFloodDepth.10_to_20m": "10m以上20m未満"
 }

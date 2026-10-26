@@ -8,6 +8,8 @@ import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTI
 import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_ATTRIBUTION } from "../../data/jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_ATTRIBUTION } from "../../data/jpPublicOfficeTypes";
 import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusStopTypes";
+import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
+import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
@@ -849,6 +851,38 @@ export function JpBusStopsLegend() {
     <LegendNote>{i18n.t("legend.civic.jpBusScope")}</LegendNote>
     <LegendNote>{JP_BUS_STOP_ATTRIBUTION}</LegendNote>
     <DenseHeatmapLegendRow layers={["jpBusStops"]} />
+  </div>;
+}
+
+/** 日本土砂災害警戒區域（A33）：黃／紅兩區；紅區在黃區之內、概略位置、非法定圖書。 */
+export function JpLandslideWarningAreasLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpLandslideTitle")} />
+    {JP_LANDSLIDE_ZONES.map(z => <LegendRow key={z.value} swatch={<SwatchSquare color={z.color} />}>{enumLabel("jpLandslideZone", z.value, z.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpLandslideNested")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideAccuracy")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslidePre")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideVintage", { count: i18n.formatNumber(JP_LANDSLIDE_FEATURE_COUNT) })}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideZoom")}</LegendNote>
+    <LegendNote>{JP_LANDSLIDE_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本內水浸水想定區域（A51）：浸水深 8 級；只涵蓋 28 市町村、想定最大規模降雨；無資料≠無風險。 */
+export function JpInlandFloodAreasLegend() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const colors = usePaletteRamp("jpInlandFloodAreas", t.isDark, JP_INLAND_FLOOD_STEPS);
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpInlandFloodTitle")} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>{i18n.t("legend.civic.jpInlandFloodDepthHead")}</div>
+    {JP_INLAND_FLOOD_DEPTH_CLASSES.map((c, i) => <LegendRow key={c.value} swatch={<SwatchSquare color={colors[i]!} />}>{enumLabel("jpInlandFloodDepth", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodScope")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodScenario")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodNoData")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodDistinct")}</LegendNote>
+    <LegendNote>{JP_INLAND_FLOOD_ATTRIBUTION}</LegendNote>
   </div>;
 }
 

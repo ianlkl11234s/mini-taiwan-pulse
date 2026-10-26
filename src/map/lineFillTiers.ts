@@ -263,6 +263,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
+  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
   "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
   "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/hooks/useJpMedicalLayers.ts
   "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/hooks/useJpMedicalLayers.ts

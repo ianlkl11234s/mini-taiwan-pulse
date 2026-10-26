@@ -250,6 +250,8 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 （2026-10-25 補：日本第一波 `jpEvacuationSites`（199k，S 階）、`jpPublicOffices`（79k，M 階）、`jpBusStops`（278k，S 階）三層依 R5 新增，出點縮放 z12／z10／z12，透明度預設 0.6／0.75／0.6；無描邊例外。）
 
+（2026-10-26 補：日本第二波面層 `jpLandslideWarningAreas`（HOOK_FILL_TIERS `coverage`，紅黃災害語意色、`fill-sort-key` 紅疊黃）、`jpInlandFloodAreas`（`graded`，色盤庫 PuBu 8 階）；網格可換色 +1。）
+
 **P-5 icon 與 circle 的選用**：預設 circle。只有「形狀本身帶語意且 circle 分不出」時才用 icon（例：變電所菱形、方向箭頭），且 ≤ 5k 點；icon 顯示尺寸對齊點的直徑：預設 M 階 9px；形狀在 9px 分不清時用 L 階 13px（`icon-size` = 目標 px ÷ sprite 原圖邊長；P-1 採固定半徑後，icon 也固定大小）。icon 也必須有對應的圖例圖示。
 
 **P-6 選取與裝飾**：選取狀態**只用** R2 選取圈（`spec.md` §5.4，`src/map/selectionRing.ts`；`useSelectedFeatureHalo` 已是它的別名），圖層不自己畫選取高亮。光暈／漣漪等裝飾子圖層只給即時或進行中資料（呼應 viz-library M8：同時 ≤ 20 個脈衝）。拍板：現有 92 層的裝飾子圖層**逐層檢視**。

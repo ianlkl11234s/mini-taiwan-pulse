@@ -1310,5 +1310,7 @@
   "layer.postOfficeFxCounters": "Post Offices Exchanging Foreign Cash",
   "layer.jpEvacuationSites": "Designated Evacuation Sites & Shelters",
   "layer.jpPublicOffices": "Municipal Offices & Public Halls",
-  "layer.jpBusStops": "Bus Stops"
+  "layer.jpBusStops": "Bus Stops",
+  "layer.jpLandslideWarningAreas": "Sediment Disaster Warning Areas",
+  "layer.jpInlandFloodAreas": "Inland Flood Inundation Assumption Areas"
 }

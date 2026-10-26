@@ -84,5 +84,17 @@
   "popup.japan.busClass": "バス区分",
   "popup.japan.busRouteCount": "系統数",
   "popup.japan.busScopeNote": "2022年度版。デマンドバス・高速バスを含みません",
-  "popup.japan.notes": "注意"
+  "popup.japan.notes": "注意",
+  "popup.japan.landslideDefault": "土砂災害警戒区域",
+  "popup.japan.landslideZone": "区域区分",
+  "popup.japan.landslidePhenomenon": "現象の種類",
+  "popup.japan.landslideDesignation": "指定状況",
+  "popup.japan.landslideLicense": "利用制限",
+  "popup.japan.landslideAccuracyNote": "概略位置（精度は1/25,000〜1/50,000程度）で法定図書ではありません。県内の全指定区域を網羅しておらず、不動産の重要事項説明や申請の根拠には使えません",
+  "popup.japan.landslideNestedNote": "特別警戒区域（赤）は警戒区域（黄）の内側にあります。面数・面積は合算できません",
+  "popup.japan.inlandFloodDefault": "内水浸水想定区域",
+  "popup.japan.inlandFloodDepth": "浸水深",
+  "popup.japan.inlandFloodScenario": "降雨シナリオ",
+  "popup.japan.inlandFloodScenarioValue": "想定最大規模降雨（唯一のシナリオ）",
+  "popup.japan.inlandFloodNote": "28市町村のみが対象です。データなし＝内水氾濫リスクなし、ではありません。外水（洪水浸水想定）とは別のレイヤーです"
 }

@@ -61,7 +61,7 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpPopulationMeshPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
@@ -429,6 +429,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpEvacuationSites: JpEvacuationSitesPanel,
   jpPublicOffices: JpPublicOfficesPanel,
   jpBusStops: JpBusStopsPanel,
+  jpLandslideWarningAreas: JpLandslideWarningAreasPanel,
+  jpInlandFloodAreas: JpInlandFloodAreasPanel,
   jmaAmedas: JmaAmedasPanel,
   jmaWarnings: JmaWarningsPanel,
   jmaQuakes: JmaQuakesPanel,
@@ -967,6 +969,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpEvacuationSites: "避難場所 指定緊急避難場所・指定避難所",
   jpPublicOffices: "役所與公民館 市町村役場・公民館",
   jpBusStops: "公車站 バス停",
+  jpLandslideWarningAreas: "土砂災害警戒區域 土砂災害警戒区域",
+  jpInlandFloodAreas: "內水浸水想定區域 雨水出水浸水想定区域",
   jmaAmedas: "AMeDAS 即時觀測 アメダス",
   jmaWarnings: "警報・注意報",
   jmaQuakes: "地震 地震情報",

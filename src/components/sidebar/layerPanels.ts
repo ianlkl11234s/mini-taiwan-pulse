@@ -50,12 +50,13 @@ function sharedMacroGroups(themes: readonly ThemeDef[]): PanelMacroGroup[] {
 }
 
 // 「世界」入口：主題依全站大分類排（2026-10-03 使用者決定 W-A，公共生活→環境與資源→情報），同類內照登記陣列。
-// 「日本」入口順序照登記陣列；台灣入口渲染其餘非統計主題。
+// 「日本」入口同樣依全站大分類排（2026-10-26）；台灣入口渲染其餘非統計主題。
 export const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => macroGroupIndex(a.title) - macroGroupIndex(b.title)
     || WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 export const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
+  .sort((a, b) => macroGroupIndex(a.title) - macroGroupIndex(b.title)
+    || JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
 /** 「模擬」入口（站主限定）：雙北跨河橋梁中斷、臺北 307 走廊公車擁擠兩個主題。 */
 export const SIMULATION_THEMES = THEMES.filter((t) => SIMULATION_TAB_THEME_TITLES.includes(t.title));
@@ -79,14 +80,8 @@ export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "基準", en: "Baseline", themes: ["地圖參考 Map Reference"] },
 ];
 
-/** 日本：5 類（2026-10-03 使用者決定，PLAN.md §3）。`JAPAN_TAB_THEME_TITLES` 已照這個順序排。 */
-export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = [
-  { zh: "行政與人口", themes: ["行政區", "基礎建設", "人口"] },
-  { zh: "交通與旅宿", themes: ["交通", "旅宿"] },
-  { zh: "醫療與照護", themes: ["醫療設施", "長照服務", "醫療圈"] },
-  { zh: "社會", themes: ["治安", "民防避難", "教育", "宗教"] },
-  { zh: "自然與環境", themes: ["自然保護", "世界遺產", "水資源", "高度與地表", "氣象防災"] },
-];
+/** 日本：沿用台灣共用大分類（2026-10-26 使用者決定；主題 title＝台灣主題中文短名，大分類同台灣對應主題）。 */
+export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THEMES);
 
 /** 統計入口的「全部關閉」範圍：含只為相容舊網址存在的統計 render key。 */
 export const STATISTICS_ALL_OFF_KEYS = [...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])];

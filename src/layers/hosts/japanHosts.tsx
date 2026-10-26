@@ -13,6 +13,8 @@ import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { useJpEvacuationSitesLayer } from "../../hooks/useJpEvacuationSitesLayer";
 import { useJpPublicOfficesLayer } from "../../hooks/useJpPublicOfficesLayer";
 import { useJpBusStopsLayer } from "../../hooks/useJpBusStopsLayer";
+import { useJpLandslideWarningAreasLayer } from "../../hooks/useJpLandslideWarningAreasLayer";
+import { useJpInlandFloodAreasLayer } from "../../hooks/useJpInlandFloodAreasLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
@@ -145,6 +147,23 @@ export const JpBusStopsHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpBusStops");
   useJpBusStopsLayer(deps.mapRef, deps.layerVisibility.jpBusStops,
     p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const JpLandslideWarningAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpLandslideWarningAreasLayer");
+  const p = useKeyOverlayParams("jpLandslideWarningAreas");
+  useJpLandslideWarningAreasLayer(deps.mapRef, deps.layerVisibility.jpLandslideWarningAreas,
+    p.jpLandslideWarningAreasOpacity ?? 0.7,
+    p.jpLandslideWarningAreasZoneIdx ?? 0, p.jpLandslideWarningAreasPhenomenonIdx ?? 0);
+  return null;
+};
+
+export const JpInlandFloodAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpInlandFloodAreasLayer");
+  const p = useKeyOverlayParams("jpInlandFloodAreas");
+  useJpInlandFloodAreasLayer(deps.mapRef, deps.layerVisibility.jpInlandFloodAreas,
+    p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme);
   return null;
 };
 

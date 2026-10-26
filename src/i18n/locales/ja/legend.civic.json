@@ -157,5 +157,17 @@
   "legend.civic.jpOfficeHidden": "集会施設（49,488件、62%）は標準で非表示です。施設分類の設定で表示できます",
   "legend.civic.jpBusTitle": "バス停（バス区分）",
   "legend.civic.jpBusScope": "2022年度版（2022年8月頃作成）。デマンドバス・高速バスを含みません",
-  "legend.civic.jpBusCount": "全国278,515か所"
+  "legend.civic.jpBusCount": "全国278,515か所",
+  "legend.civic.jpLandslideTitle": "土砂災害警戒区域",
+  "legend.civic.jpLandslideNested": "特別警戒区域（赤）は警戒区域（黄）の内側にあります。面数・面積は合算できません。地図上では赤を黄の上に重ねて表示します",
+  "legend.civic.jpLandslideAccuracy": "概略位置（精度は1/25,000〜1/50,000程度）で法定図書ではありません。各県の全指定区域を網羅していません。不動産の重要事項説明や申請の根拠には使えません",
+  "legend.civic.jpLandslidePre": "「指定前」は基礎調査結果の公表段階で、正式な指定はまだです。設定の「区域種別」「現象」で絞り込めます",
+  "legend.civic.jpLandslideVintage": "令和7年度版（基準2025-08-01、{count}面）。県ごとに整備時点が異なり、最も古いものは2024年3月末です。指定・解除は即時には反映されません",
+  "legend.civic.jpLandslideZoom": "ズーム8以上で表示、ズーム13以上はオーバーズーム表示",
+  "legend.civic.jpInlandFloodTitle": "内水浸水想定区域",
+  "legend.civic.jpInlandFloodDepthHead": "浸水深（浅い→深い）",
+  "legend.civic.jpInlandFloodScope": "22都道府県内の28市町村のみが対象です。それ以外はすべて「未対応」です",
+  "legend.civic.jpInlandFloodScenario": "想定最大規模降雨（唯一のシナリオ。計画規模はなく、個別の降雨量もありません）",
+  "legend.civic.jpInlandFloodNoData": "データなし＝リスクなし、ではありません。実際の内水氾濫の範囲は想定区域より広い場合があります",
+  "legend.civic.jpInlandFloodDistinct": "これは内水（雨水出水）で、「洪水浸水想定」（外水・河川氾濫）とは別のレイヤーです。統合できません"
 }
