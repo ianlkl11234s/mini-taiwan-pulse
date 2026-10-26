@@ -157,5 +157,17 @@
   "legend.civic.jpOfficeHidden": "集會施設（49,488 處，佔 62%）預設隱藏，可用「設施分類」打開",
   "legend.civic.jpBusTitle": "公車站（バス區分）",
   "legend.civic.jpBusScope": "2022 年度版（作成約 2022-08），不含デマンドバス與高速バス",
-  "legend.civic.jpBusCount": "全國 278,515 站"
+  "legend.civic.jpBusCount": "全國 278,515 站",
+  "legend.civic.jpLandslideTitle": "土砂災害警戒區域",
+  "legend.civic.jpLandslideNested": "紅區在黃區之內：面數與面積不可相加；地圖上紅區疊在黃區上面",
+  "legend.civic.jpLandslideAccuracy": "概略位置（精度約 1/25,000–1/50,000），非法定圖書，不涵蓋各縣所有指定區域；不可作為不動產說明或申請根據",
+  "legend.civic.jpLandslidePre": "「指定前」是基礎調查結果公表，尚未正式指定；可用「區域種別」「現象」篩選",
+  "legend.civic.jpLandslideVintage": "令和7年度版（基準 2025-08-01，{count} 面）；各縣整備時點不一，最舊到 2024-03 底；指定／解除不會即時反映",
+  "legend.civic.jpLandslideZoom": "放大到 z8 以上才顯示；z13 以上為放大顯示（overzoom）",
+  "legend.civic.jpInlandFloodTitle": "內水浸水想定區域",
+  "legend.civic.jpInlandFloodDepthHead": "浸水深（由淺到深）",
+  "legend.civic.jpInlandFloodScope": "只涵蓋 28 個市町村（22 個都道府縣內）；其餘一律是「未涵蓋」",
+  "legend.civic.jpInlandFloodScenario": "想定最大規模降雨（唯一情境，沒有計畫規模，也沒有逐筆降雨量）",
+  "legend.civic.jpInlandFloodNoData": "無資料≠無風險；實際內水氾濫範圍可能大於想定區域",
+  "legend.civic.jpInlandFloodDistinct": "這是內水（雨水出水），和「洪水浸水想定」（外水、河川氾濫）是不同的層，不可合併"
 }

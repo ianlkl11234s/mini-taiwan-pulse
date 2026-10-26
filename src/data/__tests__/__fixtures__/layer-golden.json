@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1320,
+    "keyCount": 1322,
     "sections": [
       "gisLayers",
       "overlays",
@@ -960,6 +960,18 @@
         "jp-bus-stops-circle"
       ],
       "type": "jpBusStops"
+    },
+    {
+      "layers": [
+        "jp-landslide-warning-areas-fill"
+      ],
+      "type": "jpLandslideWarningAreas"
+    },
+    {
+      "layers": [
+        "jp-inland-flood-areas-fill"
+      ],
+      "type": "jpInlandFloodAreas"
     },
     {
       "layers": [
@@ -93120,6 +93132,147 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "jpInlandFloodAreas": [
+      {
+        "defaultValue": "PuBu",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jpLandslideWarningAreas": [
+      {
+        "label": "區域種別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看特別警戒（紅）",
+            "value": "red"
+          },
+          {
+            "label": "只看警戒（黃）",
+            "value": "yellow"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "現象",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "急傾斜地崩壞（急傾斜地の崩壊）",
+            "value": "steep_slope_failure"
+          },
+          {
+            "label": "土石流",
+            "value": "debris_flow"
+          },
+          {
+            "label": "地滑り",
+            "value": "landslide"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "jpMarineEbsaCoastal": [

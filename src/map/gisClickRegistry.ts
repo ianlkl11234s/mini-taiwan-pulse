@@ -229,6 +229,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-evacuation-sites-circle"], type: "jpEvacuationSites" },
   { layers: ["jp-public-offices-circle"], type: "jpPublicOffices" },
   { layers: ["jp-bus-stops-circle"], type: "jpBusStops" },
+  { layers: ["jp-landslide-warning-areas-fill"], type: "jpLandslideWarningAreas" },
+  { layers: ["jp-inland-flood-areas-fill"], type: "jpInlandFloodAreas" },
   { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
   { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
   { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },

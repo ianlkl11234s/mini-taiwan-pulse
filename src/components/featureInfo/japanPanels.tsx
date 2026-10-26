@@ -15,6 +15,14 @@ import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
 } from "../../data/jpPopulationMeshModes";
 import { JP_WATER_FACILITY_CATEGORIES } from "../../data/jpWaterTypes";
+import {
+  JP_LANDSLIDE_ZONES, JP_LANDSLIDE_PHENOMENA, JP_LANDSLIDE_DESIGNATIONS, JP_LANDSLIDE_LAYER_COLOR,
+  JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_SOURCE_URL, JP_LANDSLIDE_LICENSE, JP_LANDSLIDE_DATA_AS_OF,
+} from "../../data/jpLandslideWarningTypes";
+import {
+  JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_LAYER_COLOR,
+  JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_SOURCE_URL, JP_INLAND_FLOOD_LICENSE, JP_INLAND_FLOOD_DATA_AS_OF,
+} from "../../data/jpInlandFloodTypes";
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
@@ -408,6 +416,51 @@ export function JpPublicOfficesPanel({ props }: { props: Record<string, unknown>
     <Row label={t("popup.japan.dataAsOf")} value={JP_PUBLIC_OFFICE_DATA_AS_OF} />
     <Row label={t("popup.japan.notes")} value={t("popup.japan.officeBasisNote")} />
     <SourceFooter props={{ source_org: JP_PUBLIC_OFFICE_ATTRIBUTION, source_url: JP_PUBLIC_OFFICE_SOURCE_URL, license: JP_PUBLIC_OFFICE_LICENSE, fetched_at: JP_PUBLIC_OFFICE_DATA_AS_OF }} />
+  </>;
+}
+
+/**
+ * 日本土砂災害警戒區域（A33）：概略位置、非法定圖書；紅區在黃區之內。
+ * 京都府等有 license_note 的 tile 才顯示授權限制列，沒有值就不顯示。
+ */
+export function JpLandslideWarningAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const zone = JP_LANDSLIDE_ZONES.find(z => z.value === props.zone_class);
+  const phenomenon = JP_LANDSLIDE_PHENOMENA.find(p => p.value === props.phenomenon_en);
+  const designation = JP_LANDSLIDE_DESIGNATIONS.find(d => d.value === props.designation_status);
+  const na = t("popup.common.notProvided");
+  const pref = JP_PREFECTURE_NAMES[policeText(props.prefecture_code)];
+  const licenseNote = policeText(props.license_note);
+  return <>
+    <Title color={zone?.color ?? JP_LANDSLIDE_LAYER_COLOR}>{policeText(props.area_name) || t("popup.japan.landslideDefault")}</Title>
+    <Row label={t("popup.japan.landslideZone")} value={zone ? enumLabel("jpLandslideZone", zone.value, zone.label, i18n) : na} />
+    <Row label={t("popup.japan.landslidePhenomenon")} value={phenomenon ? enumLabel("jpLandslidePhenomenon", phenomenon.value, phenomenon.label, i18n) : na} />
+    <Row label={t("popup.japan.landslideDesignation")} value={designation ? enumLabel("jpLandslideDesignation", designation.value, designation.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    {licenseNote ? <Row label={t("popup.japan.landslideLicense")} value={enumLabel("jpLandslideLicenseNote", licenseNote, licenseNote, i18n)} /> : null}
+    <Row label={t("popup.japan.dataAsOf")} value={JP_LANDSLIDE_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.landslideAccuracyNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.landslideNestedNote")} />
+    <SourceFooter props={{ source_org: JP_LANDSLIDE_ATTRIBUTION, source_url: JP_LANDSLIDE_SOURCE_URL, license: JP_LANDSLIDE_LICENSE, fetched_at: JP_LANDSLIDE_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本內水浸水想定區域（A51）：想定最大規模降雨、只涵蓋 28 市町村；無資料≠無風險。 */
+export function JpInlandFloodAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const depth = JP_INLAND_FLOOD_DEPTH_CLASSES.find(c => c.value === props.depth_class);
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={JP_INLAND_FLOOD_LAYER_COLOR}>{policeText(props.municipality) || t("popup.japan.inlandFloodDefault")}</Title>
+    <Row label={t("popup.japan.inlandFloodDepth")} value={depth ? enumLabel("jpInlandFloodDepth", depth.value, depth.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row label={t("popup.japan.inlandFloodScenario")} value={t("popup.japan.inlandFloodScenarioValue")} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_INLAND_FLOOD_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.inlandFloodNote")} />
+    <SourceFooter props={{ source_org: JP_INLAND_FLOOD_ATTRIBUTION, source_url: JP_INLAND_FLOOD_SOURCE_URL, license: JP_INLAND_FLOOD_LICENSE, fetched_at: JP_INLAND_FLOOD_DATA_AS_OF }} />
   </>;
 }
 

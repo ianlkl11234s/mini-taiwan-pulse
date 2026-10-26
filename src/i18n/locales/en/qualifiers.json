@@ -16,5 +16,7 @@
   "qualifier.環境部": "MOENV",
   "qualifier.核安會": "NSC",
   "qualifier.舊版": "Legacy",
-  "qualifier.推估・研究中": "Estimated · Research"
+  "qualifier.推估・研究中": "Estimated · Research",
+  "qualifier.令和7年度": "FY2025",
+  "qualifier.想定最大規模": "Max assumed scale"
 }

@@ -2253,9 +2253,9 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "地震 / 斷層", layers: [fromManifest("jmaQuakes")] },
       { title: "火山", layers: [fromManifest("jmaVolcanoes")] },
       { title: "雷暴", layers: [fromManifest("jmaLightning")] },
-      { title: "崩塌 Landslide", layers: [fromManifest("jmaRiskLand"), fromManifest("jmaAnaRiskLandHours")] },
+      { title: "崩塌 Landslide", layers: [fromManifest("jpLandslideWarningAreas"), fromManifest("jmaRiskLand"), fromManifest("jmaAnaRiskLandHours")] },
       { title: "淹水 Flooding", layers: [
-        fromManifest("jpWaterFloodHazard"), fromManifest("jmaRiskFlood"), fromManifest("jmaRiskInund"), fromManifest("jmaAnaRiskInundHours"),
+        fromManifest("jpWaterFloodHazard"), fromManifest("jpInlandFloodAreas"), fromManifest("jmaRiskFlood"), fromManifest("jmaRiskInund"), fromManifest("jmaAnaRiskInundHours"),
       ] },
       { title: "避難設施", layers: [fromManifest("jpEvacuationSites")] },
     ],

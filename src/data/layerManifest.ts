@@ -7,6 +7,8 @@ import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
+import { JP_LANDSLIDE_LAYER_COLOR } from "./jpLandslideWarningTypes";
+import { JP_INLAND_FLOOD_LAYER_COLOR } from "./jpInlandFloodTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
 import { WASTE_FACILITY_COLORS } from "./wasteFacilityColors";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -2471,6 +2473,56 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["palette", "slider", "slider"] },
     description: "日本全國公車站（2022 年度版，27.9 萬站），依民營／社區／公營路線分色",
     topics: ["世界", "日本", "交通", "公車"],
+  },
+  jpLandslideWarningAreas: {
+    key: "jpLandslideWarningAreas",
+    section: { theme: "災害", group: "崩塌 Landslide" },
+    ...layerName({ zh: "土砂災害警戒區域", alt: "土砂災害警戒区域", qualifier: "令和7年度" }),
+    expandable: true,
+    color: JP_LANDSLIDE_LAYER_COLOR,
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_landslide_warning_areas", confidence: "HIGH" }],
+      processing: "国土数値情報 A33 令和7年度版 47 都道府縣 1,793,171 面：急傾斜地崩壊／土石流／地滑り × 警戒（黃）／特別警戒（紅）× 指定済／指定前",
+      note: "紅區在黃區之內，面數與面積不可相加；精度 1/25,000–1/50,000 概略位置，非法定圖書，不涵蓋各縣所有指定區域；各縣整備時點不一（最舊群馬 2024-03 底）；京都府資料商用利用不可（tile 帶 license_note）；PMTiles z8–12，z13 起 overzoom",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpLandslideWarningAreasLayer 自建 mapbox-pmtiles source；source-layer=jp_landslide_warning_areas，minzoom=8 maxzoom=12；z13+ overzoom；108MB 走 S3 deploy-assets/world/",
+      staticAssets: ["./world/jp_landslide_warning_areas.pmtiles"],
+    },
+    legend: "jpLandslideWarningAreas",
+    popup: "jpLandslideWarningAreas",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "日本土砂災害警戒區域（黃）與特別警戒區域（紅；在黃區之內），可依區域種別、現象篩選；概略位置、非法定圖書",
+    topics: ["世界", "日本", "土砂災害", "崩塌", "土石流", "地滑", "防災"],
+  },
+  jpInlandFloodAreas: {
+    key: "jpInlandFloodAreas",
+    section: { theme: "災害", group: "淹水 Flooding" },
+    ...layerName({ zh: "內水浸水想定區域", alt: "雨水出水（内水）浸水想定区域", qualifier: "想定最大規模" }),
+    expandable: true,
+    color: JP_INLAND_FLOOD_LAYER_COLOR,
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_inland_flood_areas", confidence: "HIGH" }],
+      processing: "国土数値情報 A51 令和7年度 202,357 面，浸水深 8 級（depth_rank 1–8）；只涵蓋 22 都道府縣內的 28 個市町村",
+      note: "只有「想定最大規模降雨」一個情境；無資料≠無風險；內水（雨水出水）與外水洪水（jpWaterFloodHazard）是不同的層，不可合併；PMTiles z8–14",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpInlandFloodAreasLayer 自建 mapbox-pmtiles source；source-layer=jp_inland_flood_areas，minzoom=8 maxzoom=14；15MB git-track",
+      staticAssets: ["./world/jp_inland_flood_areas.pmtiles"],
+    },
+    legend: "jpInlandFloodAreas",
+    popup: "jpInlandFloodAreas",
+    params: { count: 2, kinds: ["palette", "slider"] },
+    description: "日本內水（雨水出水）浸水想定區域，浸水深 8 級；只涵蓋 28 個市町村、想定最大規模降雨；無資料不代表無風險",
+    topics: ["世界", "日本", "內水", "淹水", "浸水想定", "防災"],
   },
   jpSchools: {
     key: "jpSchools",

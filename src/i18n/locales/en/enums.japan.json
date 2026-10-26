@@ -46,5 +46,15 @@
   "enum.jpBusClass.community": "Community bus",
   "enum.jpBusClass.route_public": "Public (municipal) route bus",
   "enum.jpBusClass.other": "Other",
-  "enum.jpBusClass.mixed": "Public route + community bus (shared stop)"
+  "enum.jpBusClass.mixed": "Public route + community bus (shared stop)",
+  "enum.jpLandslideZone.red": "Special warning area (red zone)",
+  "enum.jpLandslideZone.yellow": "Warning area (yellow zone)",
+  "enum.jpLandslidePhenomenon.steep_slope_failure": "Steep slope failure",
+  "enum.jpLandslidePhenomenon.debris_flow": "Debris flow",
+  "enum.jpLandslidePhenomenon.landslide": "Landslide (jisuberi)",
+  "enum.jpLandslideDesignation.designated": "Designated",
+  "enum.jpLandslideDesignation.pre_designation": "Pre-designation (basic survey results published, not yet formally designated)",
+  "enum.jpLandslideLicenseNote.商用利用不可": "Commercial use not permitted",
+  "enum.jpInlandFloodDepth.lt_0_3m": "Under 0.3 m",
+  "enum.jpInlandFloodDepth.gte_20m": "20 m or more"
 }

@@ -39,6 +39,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpEvacuationSites",
   "jpPublicOffices",
   "jpBusStops",
+  // 日本第二波面層：panel 自掛出典（A33 另含各縣原典與京都府 license_note）與授權
+  "jpLandslideWarningAreas",
+  "jpInlandFloodAreas",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

@@ -1277,5 +1277,11 @@
   "param.支所・出張所": "Branch offices",
   "param.其他行政服務": "Other administrative services",
   "param.公立公民館": "Public community halls",
-  "param.集會施設": "Assembly facilities"
+  "param.集會施設": "Assembly facilities",
+  "param.區域種別": "Zone type",
+  "param.只看特別警戒（紅）": "Special warning (red) only",
+  "param.只看警戒（黃）": "Warning (yellow) only",
+  "param.現象": "Phenomenon",
+  "param.急傾斜地崩壞（急傾斜地の崩壊）": "Steep slope failure",
+  "param.地滑り": "Landslide (jisuberi)"
 }

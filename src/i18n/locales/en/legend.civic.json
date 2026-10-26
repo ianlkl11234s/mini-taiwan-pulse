@@ -157,5 +157,17 @@
   "legend.civic.jpOfficeHidden": "Assembly facilities (49,488, 62%) are hidden by default; enable them with the facility class setting",
   "legend.civic.jpBusTitle": "Bus stops (by bus class)",
   "legend.civic.jpBusScope": "2022 edition (compiled around 2022-08); excludes demand-responsive and expressway buses",
-  "legend.civic.jpBusCount": "278,515 stops nationwide"
+  "legend.civic.jpBusCount": "278,515 stops nationwide",
+  "legend.civic.jpLandslideTitle": "Sediment disaster warning areas",
+  "legend.civic.jpLandslideNested": "Special warning (red) zones lie inside warning (yellow) zones: do not add counts or areas; red is drawn on top of yellow",
+  "legend.civic.jpLandslideAccuracy": "Approximate positions (about 1:25,000–1:50,000), not a legal map; does not cover every designated area in each prefecture; not for real-estate disclosure or applications",
+  "legend.civic.jpLandslidePre": "\"Pre-designation\" means basic survey results have been published but the zone is not yet formally designated; filter by zone type or phenomenon in the settings",
+  "legend.civic.jpLandslideVintage": "FY2025 edition (as of 2025-08-01, {count} polygons); each prefecture's survey date differs, the oldest is end of March 2024; designations and lifts are not reflected in real time",
+  "legend.civic.jpLandslideZoom": "Shown from zoom 8; overzoomed from zoom 13",
+  "legend.civic.jpInlandFloodTitle": "Inland flood inundation assumption areas",
+  "legend.civic.jpInlandFloodDepthHead": "Inundation depth (shallow to deep)",
+  "legend.civic.jpInlandFloodScope": "Covers only 28 municipalities (within 22 prefectures); everything else is \"not covered\"",
+  "legend.civic.jpInlandFloodScenario": "Assumed maximum-scale rainfall (the only scenario; no planned-scale scenario and no per-feature rainfall)",
+  "legend.civic.jpInlandFloodNoData": "No data does not mean no risk; the actual inland flooding extent may be larger than the assumed area",
+  "legend.civic.jpInlandFloodDistinct": "This is inland (storm-water) flooding, a different layer from \"Flood inundation assumption\" (river flooding); the two must not be merged"
 }

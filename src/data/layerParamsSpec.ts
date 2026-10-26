@@ -70,6 +70,7 @@ import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
+import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -2054,6 +2055,20 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", category: "data", name: "jpPublicOfficesClass", label: "設施分類", default: "default",
       options: [{ value: "default", label: "預設（不含集會施設）" }, { value: "all", label: "全部" }, ...JP_PUBLIC_OFFICE_CLASSES],
       out: "jpPublicOfficesClassIdx", encode: ["default", "all", ...JP_PUBLIC_OFFICE_CLASSES.map(c => c.value)] },
+  ],
+  jpLandslideWarningAreas: [
+    opacitySlider("jpLandslideWarningAreasOpacity", 0.7),
+    // 紅區在黃區之內（不是挖洞）：兩種面各自獨立，篩選只決定畫哪一種
+    { kind: "select", category: "data", name: "jpLandslideWarningAreasZone", label: "區域種別", default: "all",
+      options: [{ value: "all", label: "全部" }, { value: "red", label: "只看特別警戒（紅）" }, { value: "yellow", label: "只看警戒（黃）" }],
+      out: "jpLandslideWarningAreasZoneIdx", encode: ["all", "red", "yellow"] },
+    { kind: "select", category: "data", name: "jpLandslideWarningAreasPhenomenon", label: "現象", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_LANDSLIDE_PHENOMENA],
+      out: "jpLandslideWarningAreasPhenomenonIdx", encode: ["all", ...JP_LANDSLIDE_PHENOMENA.map(p => p.value)] },
+  ],
+  jpInlandFloodAreas: [
+    gridPalette("jpInlandFloodAreasPalette", "PuBu"),
+    opacitySlider("jpInlandFloodAreasOpacity", 0.7),
   ],
   jpBusStops: [heatmapPalette("jpBusStops"), opacitySlider("jpBusStopsOpacity", densePointOpacity(278_515)), scaleSlider("jpBusStopsScale", 1)],
   jpSchools: [heatmapPalette("jpSchools"), opacitySlider("jpSchoolsOpacity", densePointOpacity(56_807)), scaleSlider("jpSchoolsScale", 1)],
