@@ -11,7 +11,7 @@ vi.mock("../../lib/loadingRegistry", () => ({
   withLoading: (_id: string, _label: string, promise: Promise<unknown>) => Promise.resolve(promise),
 }));
 
-import { fetchPressureIndex, parsePressureSignals, isoWeekThursdayMs } from "../intelLoaders";
+import { fetchPressureIndex, parsePressureSignals, isoWeekThursdayMs, latestIsoWeek } from "../intelLoaders";
 
 describe("fetchPressureIndex", () => {
   beforeEach(() => {
@@ -96,5 +96,19 @@ describe("isoWeekThursdayMs", () => {
   it("rejects invalid weeks", () => {
     expect(isoWeekThursdayMs(0, now)).toBeNull();
     expect(isoWeekThursdayMs(54, now)).toBeNull();
+  });
+});
+
+describe("latestIsoWeek", () => {
+  it("跨年時 W1 晚於 W52", () => {
+    const now = Date.parse("2027-01-09T04:00:00Z"); // 2027 W1 週六
+    expect(latestIsoWeek([52, 1, 51], now)).toBe(1);
+  });
+  it("同年取最大週次", () => {
+    const now = Date.parse("2026-10-03T04:00:00Z");
+    expect(latestIsoWeek([38, 40, 39], now)).toBe(40);
+  });
+  it("全部無效回 0", () => {
+    expect(latestIsoWeek([0, 99])).toBe(0);
   });
 });

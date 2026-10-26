@@ -530,7 +530,8 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
   if (rows.length === 0) return EMPTY_HEALTH;
   const rowWeek = (r: { week?: unknown }) => { const w = Number(r?.week ?? 0); return Number.isFinite(w) ? w : 0; };
   // 整批 week＝各疾病中最新的一週（不再取第一列，避免第一列剛好是落後的疾病）
-  const week = rows.reduce((m: number, r: { week?: unknown }) => Math.max(m, rowWeek(r)), 0);
+  // ISO 週次跨年不能直接比大小（W52 與隔年 W1）：換成週四時間再取最新者
+  const week = latestIsoWeek(rows.map(rowWeek));
   const diseases: CdcDisease[] = [];
   for (const r of rows) {
     const raw = String(r.id ?? "");
@@ -571,6 +572,17 @@ export function isoWeekThursdayMs(week: number, nowMs: number = Date.now()): num
     if (ms <= nowMs + 7 * 86_400_000) return ms;
   }
   return null;
+}
+
+/** 在一批 ISO 週次中選出時間上最新的一週（跨年 W1 晚於 W52）；全部無效回 0。 */
+export function latestIsoWeek(weeks: number[], nowMs: number = Date.now()): number {
+  let best = 0;
+  let bestMs = -Infinity;
+  for (const w of weeks) {
+    const ms = isoWeekThursdayMs(w, nowMs);
+    if (ms !== null && ms > bestMs) { best = w; bestMs = ms; }
+  }
+  return best;
 }
 
 export const fetchPublicHealthWeekly = cachedOnce(_fetchPublicHealthWeeklyRaw, TTL_WEEKLY);

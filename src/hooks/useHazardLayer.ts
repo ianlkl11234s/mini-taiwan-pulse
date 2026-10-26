@@ -100,7 +100,7 @@ export function useLightningLayer(
 
     const recompute = (ts: number) => {
       const lifeSec = Math.max(60, minutesRef.current * 60);
-      fcRef.current = toLightningFCAt(dayBufferRef.current, ts, lifeSec);
+      fcRef.current = toLightningFCAt(dayBufferRef.current, ts, lifeSec, source);
       feed();
     };
 
@@ -151,9 +151,9 @@ export function useLightningLayer(
   useEffect(() => {
     if (!visible) return;
     const lifeSec = Math.max(60, minutes * 60);
-    fcRef.current = toLightningFCAt(dayBufferRef.current, timeStore.getTime(), lifeSec);
+    fcRef.current = toLightningFCAt(dayBufferRef.current, timeStore.getTime(), lifeSec, source);
     feed();
-  }, [minutes, visible, feed]);
+  }, [minutes, visible, feed, source]);
 }
 
 export function useNuclearLayer(

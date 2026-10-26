@@ -3,7 +3,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
-import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airportPaxLoader";
+import { fetchAirportHourlyPax, hasMissingHourBuckets, type AirportPaxBucket } from "../../../data/airportPaxLoader";
 import { useMonitorResource } from "../../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./MonitorDataStatus";
 import { useMonitorV2 } from "./monitorStyle";
@@ -68,8 +68,10 @@ export function AirportPaxCard({ open }: Props) {
   }, [query.data]);
   const sumOrNull = (pts: SparklinePoint[]) => (pts.length ? pts.reduce((s, p) => s + p.v, 0) : null);
   // 任一桶缺值（null／非數字）→ 小計只是下限，不能當 24 小時總數
-  const partialIn = query.data.some((r) => r.pax_in == null || !Number.isFinite(Number(r.pax_in)));
-  const partialOut = query.data.some((r) => r.pax_out == null || !Number.isFinite(Number(r.pax_out)));
+  // 整桶（小時）缺席也算缺資料：與 24 小時預期視窗比對
+  const missingBuckets = useMemo(() => hasMissingHourBuckets(query.data, 24), [query.data]);
+  const partialIn = missingBuckets || query.data.some((r) => r.pax_in == null || !Number.isFinite(Number(r.pax_in)));
+  const partialOut = missingBuckets || query.data.some((r) => r.pax_out == null || !Number.isFinite(Number(r.pax_out)));
   // 兩條線共用 X 軸值域，出境點超出入境首尾時不被裁掉
   const timeDomain = useMemo(() => {
     const ts = [...inSeriesV2, ...outSeriesV2].map((p) => p.t);

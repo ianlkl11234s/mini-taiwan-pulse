@@ -27,13 +27,14 @@ function fmtAge(ts: unknown, tr: I18n["t"]): string {
   return tr("popup.hazard.daysAgo", { count: Math.floor(dt / 86400) });
 }
 
-function fmtTime(ts: unknown, formatDateTime: I18n["formatDateTime"]): string {
+function fmtTime(ts: unknown, formatDateTime: I18n["formatDateTime"], timeZone?: string): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
   const d = new Date(ts * 1000);
   return formatDateTime(d, {
     month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit",
     hour12: false,
+    ...(timeZone ? { timeZone, timeZoneName: "short" as const } : {}),
   });
 }
 
@@ -130,7 +131,7 @@ export function LightningStrikePanel({ props }: { props: Record<string, unknown>
         value={intensity != null ? `${intensity.toFixed(1)} kA` : "—"}
         color={intensity != null && Math.abs(intensity) > 30 ? "#ef4444" : undefined}
       />
-      <Row label={tr("popup.hazard.strikeTime")} value={fmtTime(props.strike_ts, formatDateTime)} />
+      <Row label={tr("popup.hazard.strikeTime")} value={fmtTime(props.strike_ts, formatDateTime, props.source === "jma" ? "Asia/Tokyo" : undefined)} />
       <Row field="age" value={fmtAge(props.strike_ts, tr)} />
     </div>
   );
