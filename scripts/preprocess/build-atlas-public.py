@@ -172,8 +172,12 @@ def tile(features: list[dict], out: Path, layer: str, zmin: int, zmax: int, kind
     with tempfile.TemporaryDirectory() as tmp:
         mid = Path(tmp) / f"{layer}.geojson"
         write_collection(mid, features)
-        subprocess.run(["tippecanoe", "-o", str(out), "--force", "-l", layer, "-Z", str(zmin), "-z", str(zmax), *flags,
-                        "--quiet", str(mid)], check=True)
+        # 公開 PMTiles 的 metadata（name／description／generator_options）會記下 -o 與輸入路徑：
+        # 在暫存目錄內以相對路徑呼叫，並明設 -n／-N，避免把本機工作區路徑寫進公開資產。
+        tmp_out = f"{layer}.pmtiles"
+        subprocess.run(["tippecanoe", "-o", tmp_out, "--force", "-l", layer, "-n", layer, "-N", layer,
+                        "-Z", str(zmin), "-z", str(zmax), *flags, "--quiet", mid.name], check=True, cwd=tmp)
+        shutil.move(str(Path(tmp) / tmp_out), str(out))
 
 
 def audit_zoom_counts(pmtiles: Path, expected: Callable[[int], int], zmin: int, zmax: int) -> dict[int, int]:
