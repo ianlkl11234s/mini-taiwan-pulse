@@ -363,6 +363,8 @@ export function toLightningFCAt(
   rows: LightningStrike[],
   currentTs: number,
   lifeSec: number,
+  /** 資料來源；寫進 properties.source，popup 依此決定時區（jma → JST） */
+  source?: LightningSource,
 ): GeoJSON.FeatureCollection<GeoJSON.Point> {
   const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
   for (const r of rows) {
@@ -377,6 +379,7 @@ export function toLightningFCAt(
         intensity_ka: r.intensity_ka,
         strike_type: r.strike_type,
         alpha: a,
+        ...(source ? { source } : {}),
       },
     });
   }
