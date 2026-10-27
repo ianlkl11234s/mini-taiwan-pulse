@@ -264,16 +264,6 @@
     "class": "display_only",
     "note": "display_only: 變電所 EHV bloom 視覺實驗層，借用 energyLoader.fetchOsmSubstations 資料，純視覺疊加、無自有資料來源、無 legend/popup。"
   },
-  "wasteRoute": {
-    "l2": "none",
-    "class": "unclear",
-    "note": "unclear: 逐檔 grep 全 repo 找不到任何實際讀取端（僅 type 宣告＋三張全量表），layerConsistency 註解稱『由 wasteTruck 子 UI 控制』但該 UI 不存在；沒有可查的資料來源，無法判斷屬於哪一類。廢棄物主題真正在用的是另一 key `wasteStopsStatic`（不在此清單）。"
-  },
-  "wasteStop": {
-    "l2": "none",
-    "class": "unclear",
-    "note": "unclear: 同 wasteRoute，無任何 consumer（僅 type 宣告＋三張全量表），無法判斷資料形態；注意與已上線、有 OVERLAY_REGISTRY entry 的 `wasteStopsStatic`（不同 key，不在此清單）不可混淆。"
-  },
   "waterEffluentLive": {
     "l2": "none",
     "class": "live_only",

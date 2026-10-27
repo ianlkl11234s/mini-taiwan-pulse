@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "Published period",
   "statisticsSelect.unavailableForYear": "{label} (not available for this school year)",
+  "statisticsSelect.unavailableForPeriod": "{label} (not available for the selected period)",
   "statisticsSelect.partialPeriod": "{year}, months {from}–{to} (partial period)",
   "statisticsSelect.periodYear": "{year}",
   "statisticsSelect.pointInTime": "{date} (point in time)",
@@ -17,5 +18,8 @@
   "statisticsSelect.ytdPeriod": "{year}, months {start}–{end} cumulative",
   "statisticsSelect.variantWithPeriod": "{label} ({period})",
   "statisticsSelect.variantDetail": "{label} – {detail}",
-  "statisticsSelect.variantPopCompare": "{label} (population comparison)"
+  "statisticsSelect.variantPopCompare": "{label} (population comparison)",
+  "statisticsSelect.notice.disjoint": "The two bases have no overlapping period; switched to the closest one, {period}.",
+  "statisticsSelect.notice.villageOnly": "The village level has only one period ({period}); period switched.",
+  "statisticsSelect.notice.villageOnlyNoPeriod": "The village level has only one period; period switched."
 }

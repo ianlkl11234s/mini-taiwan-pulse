@@ -205,6 +205,16 @@ export function renderBody(post: BlogPost, publicDir: string, warn: (msg: string
       },
       image({ href, text }) {
         // /blog 的 CSP img-src 只開 'self' data:，外站圖片在正式站會被擋：build 時就報錯，要求下載到文章資料夾
+        // 同源絕對網址（BLOG_ORIGIN）等同站內路徑：轉成站內路徑照常檢查檔案、輸出
+        const sameOrigin = href.startsWith(`${BLOG_ORIGIN}/`);
+        if (sameOrigin) {
+          const pathname = decodeURI(new URL(href).pathname);
+          if (!existsSync(join(publicDir, pathname))) {
+            warn(`[blog] ${post.slug}：找不到圖片 public${pathname}，先略過`);
+            return "";
+          }
+          return `<figure class="blog-figure"><img src="${escapeHtml(pathname)}" alt="${escapeHtml(text)}" loading="lazy" decoding="async"><figcaption>${escapeHtml(text)}</figcaption></figure>`;
+        }
         if (/^(https?:)?\/\//.test(href)) throw new Error(`[blog] ${post.slug}：不支援外站圖片 ${href}，請下載到 public/blog/${post.slug}/`);
         if (!existsSync(join(publicDir, "blog", post.slug, href))) {
           warn(`[blog] ${post.slug}：找不到圖片 public/blog/${post.slug}/${href}，先略過`);

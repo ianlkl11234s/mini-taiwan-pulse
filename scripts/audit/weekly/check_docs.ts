@@ -391,7 +391,9 @@ async function main() {
     metrics.d2 = {
       total_folders: featureFolders.length,
       missing_readme: missingReadme,
-      optional_missing: incomplete.map((i) => ({ folder: i.folder, missing: i.missing })),
+      optional_missing: incomplete
+        .map((i) => ({ folder: i.folder, missing: i.missing.filter((f) => f !== "README.md") }))
+        .filter((i) => i.missing.length > 0),
     };
     if (missingReadme.length === 0) {
       findings.push({

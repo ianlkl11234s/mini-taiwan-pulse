@@ -550,6 +550,13 @@ done
 # pull 端整夾 sync 已存在；nginx `/world/` 先讀 /data，再 fallback 到 git/dist 小檔。
 for f in \
   public/world/jp_population_mesh_1km.pmtiles \
+  public/world/jp_evacuation_sites.pmtiles \
+  public/world/jp_public_offices.pmtiles \
+  public/world/jp_landslide_warning_areas.pmtiles \
+  public/world/jp_zoning_use_districts.pmtiles \
+  public/world/jp_national_forests.pmtiles \
+  public/world/jp_welfare_facilities.pmtiles \
+  public/world/jp_major_roads.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

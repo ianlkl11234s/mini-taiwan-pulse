@@ -1307,5 +1307,18 @@
   "layer.securitiesFuturesInstitutions": "証券・先物の拠点",
   "layer.insuranceInstitutions": "保険会社・保険代理店",
   "layer.busCrowdingSim": "バス区間の定員超過便割合",
-  "layer.postOfficeFxCounters": "外貨現金取扱郵便局"
+  "layer.postOfficeFxCounters": "外貨現金取扱郵便局",
+  "layer.jpEvacuationSites": "指定緊急避難場所・指定避難所",
+  "layer.jpPublicOffices": "市町村役場・公民館",
+  "layer.jpBusStops": "バス停",
+  "layer.jpLandslideWarningAreas": "土砂災害警戒区域",
+  "layer.jpInlandFloodAreas": "内水浸水想定区域",
+  "layer.jpZoningUseDistricts": "用途地域",
+  "layer.jpNationalForests": "国有林",
+  "layer.jpWelfareDisability": "障害者福祉施設",
+  "layer.jpWelfareChild": "児童福祉施設",
+  "layer.jpMajorRoads": "主要道路（国道・都道府県道）",
+  "layer.jpExpressways": "高速道路",
+  "layer.jpGsiHillshade": "陰影起伏図",
+  "layer.jpGsiRelief": "色別標高図"
 }

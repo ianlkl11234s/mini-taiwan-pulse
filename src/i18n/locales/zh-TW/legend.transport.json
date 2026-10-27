@@ -103,5 +103,14 @@
   "legend.transport.busSimLoad2": "八成到滿載",
   "legend.transport.busSimLoad3": "超載",
   "legend.transport.busSimReplayDefinition": "車上負載：推估載客量占車輛容量（假設值）的比例；路段＝20 分鐘內最近一班離站的負載，沒有班次的路段不畫",
-  "legend.transport.busSimReplayVehicles": "圓點＝模擬公車（拉近顯示行進方向）；靠站停留不計；站序與線形對不上的 23 條路線、永和接駁線（無線形）的班次不畫"
+  "legend.transport.busSimReplayVehicles": "圓點＝模擬公車（拉近顯示行進方向）；靠站停留不計；站序與線形對不上的 23 條路線、永和接駁線（無線形）的班次不畫",
+  "legend.transport.jpRoadTitle": "主要道路（依道路等級）",
+  "legend.transport.jpRoadScope": "只有國道、都道府縣道與高速道路，不含市町村道；不可用來算道路密度、可達性或里程，沒畫的地方不代表沒有路",
+  "legend.transport.jpRoadZoom": "z6–8 只畫國道與高速，都道府縣道放大到 z9 才出現；2024-09 時點",
+  "legend.transport.jpRoadOverlap": "高速路段與「高速道路」層重疊，請擇一開啟",
+  "legend.transport.jpExpresswayTitle": "高速道路（依路線種別）",
+  "legend.transport.jpExpresswayProvisional": "暫定供用（同色淡化，多為單側一車道）",
+  "legend.transport.jpExpresswayAsOf": "2025 年現況（2025-12-31 時點），之後通車的路段不含",
+  "legend.transport.jpExpresswaySaPa": "接合部沒有 SA/PA 類別；名稱含 SA/PA 的 33 點只是附設交流道，不是完整的服務區清單",
+  "legend.transport.jpExpresswayZoom": "IC／JCT 點放大到 z9 才顯示；路線種別篩選只作用在線"
 }

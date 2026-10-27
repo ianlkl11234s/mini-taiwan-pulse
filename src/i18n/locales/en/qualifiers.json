@@ -16,5 +16,12 @@
   "qualifier.環境部": "MOENV",
   "qualifier.核安會": "NSC",
   "qualifier.舊版": "Legacy",
-  "qualifier.推估・研究中": "Estimated · Research"
+  "qualifier.推估・研究中": "Estimated · Research",
+  "qualifier.令和7年度": "FY2025",
+  "qualifier.想定最大規模": "Max assumed scale",
+  "qualifier.令和6年度": "FY2024",
+  "qualifier.2024年度": "FY2024",
+  "qualifier.令和5年度": "FY2023",
+  "qualifier.2025": "2025",
+  "qualifier.地理院タイル": "GSI Tiles"
 }

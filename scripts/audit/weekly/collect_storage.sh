@@ -402,11 +402,13 @@ try:
         aws_secret_access_key=os.environ["R2_SECRET_ACCESS_KEY"],
         region_name="auto", config=Config(retries={"max_attempts": 3}, read_timeout=30, connect_timeout=10),
     )
+    partial = False
     try:
         buckets = [b["Name"] for b in c.list_buckets()["Buckets"]]
     except Exception:
         buckets = os.environ["R2_BUCKETS_FALLBACK"].split()
         result["metrics"]["r2_bucket_list_source"] = "fallback_known_list"
+        partial = True
 
     sizes, builds = {}, {}
     for b in buckets:
@@ -431,9 +433,14 @@ try:
     total = sum(t for t, _ in sizes.values())
     result["metrics"]["r2_account_total_bytes"] = total
     listing = "; ".join(f"{b}: {t/G:.2f}GB/{n}物件" for b, (t, n) in sizes.items())
-    add("green", f"R2 全帳號 {total/G:.2f} GB（{len(sizes)} 個 bucket）", "", listing)
+    if partial:
+        # ListBuckets 失敗、只掃了寫死清單：不能代表全帳號，不評 green、不套帳號門檻
+        add("yellow", f"R2 僅掃描已知 bucket 清單 {total/G:.2f} GB（{len(sizes)} 個 bucket），非全帳號",
+            "ListBuckets 失敗（token 可能無權限），帳號總量未驗證；其他 bucket 未計入", listing)
+    else:
+        add("green", f"R2 全帳號 {total/G:.2f} GB（{len(sizes)} 個 bucket）", "", listing)
 
-    if total / G > ACC_GB:
+    if not partial and total / G > ACC_GB:
         add("yellow", f"R2 帳號總量 {total/G:.1f} GB 超過門檻 {ACC_GB:g} GB", "", listing)
     if "mini-tw-pulse" in sizes and sizes["mini-tw-pulse"][0] / G > MP_GB:
         add("yellow", f"mini-tw-pulse {sizes['mini-tw-pulse'][0]/G:.1f} GB 超過門檻 {MP_GB:g} GB", "imagery/ 為主要成長來源", "")

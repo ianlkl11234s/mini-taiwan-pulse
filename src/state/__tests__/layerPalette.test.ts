@@ -79,8 +79,8 @@ describe("R7 顏色解析器", () => {
     expect(heatmapStackFactor(vis(["medClinic", "rainGauge"]))).toBe(1);
   });
 
-  it("熱區色盤清單：43 層，每層都有 registry 或 hook 熱區", () => {
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(43);
+  it("熱區色盤清單：48 層，每層都有 registry 或 hook 熱區", () => {
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(48);
     for (const key of HEATMAP_PALETTE_KEYS) {
       expect(getParamsSpec(key)!.some((s) => s.kind === "palette" && s.default === "magma")).toBe(true);
     }

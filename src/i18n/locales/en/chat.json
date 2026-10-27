@@ -37,5 +37,6 @@
   "chat.key.delete": "Delete key",
   "chat.key.risk": "Your key is stored only in this browser (in memory, sessionStorage, or localStorage, as chosen above). Chats connect directly to the provider's API; this site's servers never handle or log your key. Consider creating a separate key with a low usage limit (for example an OpenAI project key with a monthly spending cap, an Anthropic workspace key, or the Gemini free tier) to reduce the risk if it leaks.",
   "chat.toolDone": "Map action done",
-  "chat.toolFailed": "Tool failed"
+  "chat.toolFailed": "Tool failed",
+  "chat.key.testOk": "Key verified"
 }

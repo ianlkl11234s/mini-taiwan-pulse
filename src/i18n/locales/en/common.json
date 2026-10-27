@@ -90,5 +90,6 @@
   "attribution.other": "Other",
   "attribution.openSource": "Open source page (new tab)",
   "embed.openInSite": "Open in Mini Taiwan Pulse",
-  "attribution.privacy": "Privacy"
+  "attribution.privacy": "Privacy",
+  "embed.mapUnavailable": "The map could not start. Please make sure your browser supports WebGL 2."
 }

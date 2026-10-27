@@ -9,6 +9,7 @@ describe("resilientFetch retry safety", () => {
     ["REST scene PATCH", "https://example.test/rest/v1/user_scenes?id=eq.x", "PATCH"],
     ["Auth POST", "https://example.test/auth/v1/token", "POST"],
     ["denylisted write RPC", "https://example.test/rest/v1/rpc/log_session_events", "POST"],
+    ["account deletion RPC", "https://example.test/rest/v1/rpc/delete_my_account", "POST"],
   ])("does not retry %s after a 500", async (_label, url, method) => {
     const fetchMock = vi.fn().mockResolvedValue(new Response("failed", { status: 500 }));
     vi.stubGlobal("fetch", fetchMock);

@@ -198,6 +198,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
+  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpExpresswaysLayer.ts
+  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
   "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
@@ -263,6 +265,9 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCareHomeVisit/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
+  "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
+  "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
+  "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
   "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts
   "jpMedicalAreasPrimary/jp-medical-areas-1-fill": "background", // src/hooks/useJpMedicalLayers.ts
   "jpMedicalAreasSecondary/jp-medical-areas-2-fill": "background", // src/hooks/useJpMedicalLayers.ts
@@ -279,6 +284,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-fill": "coverage", // src/hooks/useJpTourismLayers.ts
   "jpPopulationMesh1km/jp-population-mesh-fill": "coverage", // src/hooks/useJpPopulationMeshLayer.ts
   "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-fill": "coverage", // src/hooks/useJpTourismLayers.ts
+  "jpZoningUseDistricts/jp-zoning-use-districts-fill": "coverage", // src/hooks/useJpZoningUseDistrictsLayer.ts
   "jpWaterLakes/jp-water-jpWaterLakes": "coverage", // src/hooks/useJpWaterLayers.ts
   "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas": "background", // src/hooks/useJpWaterLayers.ts
   "jpWildlifeProtectionNational/jp-tourism-jp-wildlife-protection-national-fill": "coverage", // src/hooks/useJpTourismLayers.ts

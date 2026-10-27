@@ -417,6 +417,10 @@ export type ExpandableLayerKey =
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km"
+  | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
+  | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
+  | "jpZoningUseDistricts" | "jpNationalForests"
+  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -929,6 +933,14 @@ export interface FeatureInfo {
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
+    // 日本第一波圖層（避難場所／役所與公民館／公車站，靜態 PMTiles 點層）
+    | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
+    // 日本第二波面圖層（土砂災害警戒區域／內水浸水想定區域，靜態 PMTiles 面層）
+    | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
+    // 日本第三波面圖層（用途地域／国有林，靜態 PMTiles 面層）
+    | "jpZoningUseDistricts" | "jpNationalForests"
+    // 日本第四波（福祉兩層、主要道路、高速道路；地理院地形 raster 無 popup 不列）
+    | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1706,6 +1718,19 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jpEvacuationSites: boolean;   // 日本避難場所（PMTiles point，199,346 筆；指定緊急避難場所＋指定避難所）
+  jpPublicOffices: boolean;     // 日本役所與公民館（PMTiles point，79,532 筆；5 類，集會施設預設隱藏）
+  jpBusStops: boolean;          // 日本公車站（PMTiles point，278,515 筆；2022 年度版）
+  jpLandslideWarningAreas: boolean; // 日本土砂災害警戒區域（PMTiles polygon，1,793,171 面；黃／紅區）
+  jpZoningUseDistricts: boolean; // 日本用途地域（PMTiles polygon，102,244 面；13 類）
+  jpNationalForests: boolean;   // 日本国有林（PMTiles polygon，116,747 面；僅國有林）
+  jpWelfareDisability: boolean; // 日本障礙福祉設施（PMTiles point，75,945 點；與 jpWelfareChild 共用 source）
+  jpWelfareChild: boolean;      // 日本兒童福祉設施（PMTiles point，78,627 點）
+  jpMajorRoads: boolean;        // 日本主要道路（PMTiles line，1,838,441 線段；國道／縣道／高速）
+  jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
+  jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
+  jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
+  jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
   jmaQuakes: boolean;     // 日本地震（近 7 天，每事件最新一報）

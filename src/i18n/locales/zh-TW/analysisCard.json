@@ -55,5 +55,11 @@
   "analysisCard.legend.fillSize": "填色：{fill} · 大小：{size}",
   "analysisCard.legend.flowStatic": "（流量較多，暫不啟用流動效果）",
   "analysisCard.legend.sparse": "稀疏",
-  "analysisCard.legend.dense": "密集"
+  "analysisCard.legend.dense": "密集",
+  "analysisCard.rank.noData": "無資料",
+  "analysisCard.rank.other": "其他 {count} 區",
+  "analysisCard.rank.summaryEmpty": "排名長條圖，暫無資料",
+  "analysisCard.rank.summary": "排名長條圖，共 {count} 項，由高到低；最高「{label}」{value}",
+  "analysisCard.mapFailed": "地圖邊界暫時無法載入",
+  "analysisCard.mapUnavailable": "地圖無法啟動，請確認瀏覽器支援 WebGL 2。"
 }

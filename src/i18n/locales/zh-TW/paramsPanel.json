@@ -56,5 +56,14 @@
   "paramsPanel.pause": "暫停",
   "paramsPanel.playbackSpeed": "倍速",
   "paramsPanel.playbackSpeedOption": "{n} 分鐘／秒",
-  "paramsPanel.playbackRestart": "從頭播放"
+  "paramsPanel.playbackRestart": "從頭播放",
+  "paramsPanel.hf.status.loading": "正在載入完整解析度軌跡…",
+  "paramsPanel.hf.status.noneAll_TW": "此日期全部台灣機場皆無可用軌跡。",
+  "paramsPanel.hf.status.noneAll_JP": "此日期全部日本機場皆無可用軌跡。",
+  "paramsPanel.hf.status.readyAll": "{available}/{total} 機場可用 · 部分資料 · 原始解析度",
+  "paramsPanel.hf.status.noTrack": "此機場日期尚無軌跡，請選其他代表日。",
+  "paramsPanel.hf.status.ready": "部分資料 · 原始解析度",
+  "paramsPanel.hf.status.mismatch": "歷史軌跡樣本與目錄不一致",
+  "paramsPanel.hf.status.loadFailed": "歷史軌跡載入失敗",
+  "paramsPanel.hf.status.manifestFailed": "無法讀取機場目錄，請重試。"
 }

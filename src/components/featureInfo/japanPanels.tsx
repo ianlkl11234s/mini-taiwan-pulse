@@ -1,5 +1,8 @@
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
-import { Row, Title } from "./shared";
+import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_HAZARDS, JP_EVACUATION_LAYER_COLOR, JP_EVACUATION_ATTRIBUTION, JP_EVACUATION_DATA_AS_OF, JP_EVACUATION_SOURCE_URL, JP_EVACUATION_LICENSE } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_LAYER_COLOR, JP_PUBLIC_OFFICE_ATTRIBUTION, JP_PUBLIC_OFFICE_DATA_AS_OF, JP_PUBLIC_OFFICE_SOURCE_URL, JP_PUBLIC_OFFICE_LICENSE } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_LAYER_COLOR, JP_BUS_STOP_ATTRIBUTION, JP_BUS_STOP_DATA_AS_OF, JP_BUS_STOP_SOURCE_URL, JP_BUS_STOP_LICENSE, JP_PREFECTURE_NAMES } from "../../data/jpBusStopTypes";
+import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import {
@@ -12,6 +15,29 @@ import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
 } from "../../data/jpPopulationMeshModes";
 import { JP_WATER_FACILITY_CATEGORIES } from "../../data/jpWaterTypes";
+import {
+  JP_LANDSLIDE_ZONES, JP_LANDSLIDE_PHENOMENA, JP_LANDSLIDE_DESIGNATIONS, JP_LANDSLIDE_LAYER_COLOR,
+  JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_SOURCE_URL, JP_LANDSLIDE_LICENSE, JP_LANDSLIDE_DATA_AS_OF,
+} from "../../data/jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_LAYER_COLOR, JP_ZONING_ATTRIBUTION, JP_ZONING_SOURCE_URL, JP_ZONING_LICENSE, JP_ZONING_DATA_AS_OF } from "../../data/jpZoningUseDistrictTypes";
+import {
+  JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_PROTECTION, JP_FOREST_PROTECTED, JP_FOREST_PLANNED_SUFFIX,
+  JP_FOREST_ATTRIBUTION, JP_FOREST_SOURCE_URL, JP_FOREST_LICENSE, JP_FOREST_DATA_AS_OF,
+} from "../../data/jpNationalForestTypes";
+import {
+  JP_WELFARE_CATEGORIES, JP_WELFARE_ACCURACY_LEVELS, JP_WELFARE_LAYER_COLOR, jpWelfareCategoryColor,
+  JP_WELFARE_ATTRIBUTION, JP_WELFARE_SOURCE_URL, JP_WELFARE_LICENSE, JP_WELFARE_DATA_AS_OF, type JpWelfareLayerKey,
+} from "../../data/jpWelfareFacilityTypes";
+import {
+  JP_ROAD_CLASSES, JP_ROAD_LAYER_COLOR, JP_ROAD_WIDTH_CLASSES, JP_ROAD_STATES,
+  JP_ROAD_ATTRIBUTION, JP_ROAD_SOURCE_URL, JP_ROAD_LICENSE, JP_ROAD_DATA_AS_OF,
+  JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_OTHER, JP_EXPRESSWAY_SERVICE_STATUS, JP_EXPRESSWAY_JUNCTION_TYPES, JP_EXPRESSWAY_LAYER_COLOR,
+  JP_EXPRESSWAY_ATTRIBUTION, JP_EXPRESSWAY_SOURCE_URL, JP_EXPRESSWAY_LICENSE, JP_EXPRESSWAY_DATA_AS_OF,
+} from "../../data/jpRoadTypes";
+import {
+  JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_LAYER_COLOR,
+  JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_SOURCE_URL, JP_INLAND_FLOOD_LICENSE, JP_INLAND_FLOOD_DATA_AS_OF,
+} from "../../data/jpInlandFloodTypes";
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
@@ -361,5 +387,270 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
     <Row field="coordPrecision" value={precision[precisionKey] ? enumLabel("jpGeomPrecision", precisionKey, precision[precisionKey], i18n) : na} />
     <Row label={t("popup.japan.positionSource")} value={sourceKey ? enumLabel("jpGeometrySource", sourceKey, sourceKey === "gsi_address" ? "国土地理院 AddressSearch" : "国土地理院最適化ベクトルタイル", i18n) : na} />
     <Row field="attribution" value={JP_POLICE_ATTRIBUTION} />
+  </>;
+}
+
+/** MVT boolean 可能以 true／"true"／1 出現；null 欄位在 tile 內不存在。 */
+const mvtTrue = (v: unknown): boolean => v === true || v === "true" || v === 1 || v === "1";
+
+/** 日本避難場所：兩種場所法定意義不同（不可相加）；災害種別僅指定緊急避難場所有值。 */
+export function JpEvacuationSitesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const siteType = JP_EVACUATION_SITE_TYPES.find(st => st.value === props.site_type);
+  const isEmergency = props.site_type === "emergency_site";
+  const hazards = isEmergency ? JP_EVACUATION_HAZARDS.filter(h => mvtTrue(props[h.field])) : [];
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={siteType?.color ?? JP_EVACUATION_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.evacDefault")}</Title>
+    <Row label={t("popup.japan.evacSiteType")} value={siteType ? enumLabel("jpEvacSite", siteType.value, siteType.label, i18n) : na} />
+    {isEmergency && <Row label={t("popup.japan.evacHazards")} value={hazards.length ? hazards.map(h => enumLabel("jpEvacHazard", h.value, h.label, i18n)).join("、") : t("popup.japan.evacHazardsNone")} />}
+    {props.site_type === "shelter" && mvtTrue(props.is_welfare_shelter) && <Row label={t("popup.japan.evacWelfare")} value={t("popup.japan.evacWelfareValue")} />}
+    {mvtTrue(props.same_address_as_other_type) && <Row label={t("popup.japan.evacSameAddress")} value={t("popup.japan.evacSameAddressValue")} />}
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row label={t("popup.japan.evacMunicipality")} value={policeText(props.municipality) || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_EVACUATION_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.evacLegalNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.evacStaleNote")} />
+    <SourceFooter props={{ source_org: JP_EVACUATION_ATTRIBUTION, source_url: JP_EVACUATION_SOURCE_URL, license: JP_EVACUATION_LICENSE, fetched_at: JP_EVACUATION_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本役所與公民館（P05）：2022-04 基準，不能當現況營運名冊。 */
+export function JpPublicOfficesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_PUBLIC_OFFICE_CLASSES.find(c => c.value === props.facility_class);
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={cls?.color ?? JP_PUBLIC_OFFICE_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.officeDefault")}</Title>
+    <Row label={t("popup.japan.officeClass")} value={cls ? enumLabel("jpPublicOfficeClass", cls.value, cls.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_PUBLIC_OFFICE_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.officeBasisNote")} />
+    <SourceFooter props={{ source_org: JP_PUBLIC_OFFICE_ATTRIBUTION, source_url: JP_PUBLIC_OFFICE_SOURCE_URL, license: JP_PUBLIC_OFFICE_LICENSE, fetched_at: JP_PUBLIC_OFFICE_DATA_AS_OF }} />
+  </>;
+}
+
+/**
+ * 日本土砂災害警戒區域（A33）：概略位置、非法定圖書；紅區在黃區之內。
+ * 京都府等有 license_note 的 tile 才顯示授權限制列，沒有值就不顯示。
+ */
+export function JpLandslideWarningAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const zone = JP_LANDSLIDE_ZONES.find(z => z.value === props.zone_class);
+  const phenomenon = JP_LANDSLIDE_PHENOMENA.find(p => p.value === props.phenomenon_en);
+  const designation = JP_LANDSLIDE_DESIGNATIONS.find(d => d.value === props.designation_status);
+  const na = t("popup.common.notProvided");
+  const pref = JP_PREFECTURE_NAMES[policeText(props.prefecture_code)];
+  const licenseNote = policeText(props.license_note);
+  return <>
+    <Title color={zone?.color ?? JP_LANDSLIDE_LAYER_COLOR}>{policeText(props.area_name) || t("popup.japan.landslideDefault")}</Title>
+    <Row label={t("popup.japan.landslideZone")} value={zone ? enumLabel("jpLandslideZone", zone.value, zone.label, i18n) : na} />
+    <Row label={t("popup.japan.landslidePhenomenon")} value={phenomenon ? enumLabel("jpLandslidePhenomenon", phenomenon.value, phenomenon.label, i18n) : na} />
+    <Row label={t("popup.japan.landslideDesignation")} value={designation ? enumLabel("jpLandslideDesignation", designation.value, designation.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    {licenseNote ? <Row label={t("popup.japan.landslideLicense")} value={enumLabel("jpLandslideLicenseNote", licenseNote, licenseNote, i18n)} /> : null}
+    <Row label={t("popup.japan.dataAsOf")} value={JP_LANDSLIDE_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.landslideAccuracyNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.landslideNestedNote")} />
+    <SourceFooter props={{ source_org: JP_LANDSLIDE_ATTRIBUTION, source_url: JP_LANDSLIDE_SOURCE_URL, license: JP_LANDSLIDE_LICENSE, fetched_at: JP_LANDSLIDE_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本內水浸水想定區域（A51）：想定最大規模降雨、只涵蓋 28 市町村；無資料≠無風險。 */
+export function JpInlandFloodAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const depth = JP_INLAND_FLOOD_DEPTH_CLASSES.find(c => c.value === props.depth_class);
+  const na = t("popup.common.notProvided");
+  return <>
+    <Title color={JP_INLAND_FLOOD_LAYER_COLOR}>{policeText(props.municipality) || t("popup.japan.inlandFloodDefault")}</Title>
+    <Row label={t("popup.japan.inlandFloodDepth")} value={depth ? enumLabel("jpInlandFloodDepth", depth.value, depth.label, i18n) : na} />
+    <Row label={t("popup.japan.prefectureZh")} value={policeText(props.prefecture) || na} />
+    <Row label={t("popup.japan.inlandFloodScenario")} value={t("popup.japan.inlandFloodScenarioValue")} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_INLAND_FLOOD_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.inlandFloodNote")} />
+    <SourceFooter props={{ source_org: JP_INLAND_FLOOD_ATTRIBUTION, source_url: JP_INLAND_FLOOD_SOURCE_URL, license: JP_INLAND_FLOOD_LICENSE, fetched_at: JP_INLAND_FLOOD_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本用途地域（A55）：容積率、建蔽率空值寫「未記載」，不可當 0。 */
+export function JpZoningUseDistrictsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_ZONING_CLASSES.find(c => c.code === Number(props.youto_code));
+  const na = t("popup.common.notProvided");
+  const unrecorded = t("popup.japan.zoningUnrecorded");
+  const pct = (v: unknown) => { const s = policeText(v); return s === "" || Number.isNaN(Number(s)) ? unrecorded : `${Number(s)}%`; };
+  const pref = JP_PREFECTURE_NAMES[policeText(props.prefecture_code)];
+  const ja = policeText(props.youto_ja) || cls?.ja || "";
+  const label = cls ? enumLabel("jpZoningClass", cls.code, cls.label, i18n) : "";
+  return <>
+    <Title color={cls?.color ?? JP_ZONING_LAYER_COLOR}>{ja || t("popup.japan.zoningDefault")}</Title>
+    <Row label={t("popup.japan.zoningClass")} value={label && label !== ja ? `${label}（${ja}）` : ja || na} />
+    <Row label={t("popup.japan.zoningFar")} value={pct(props.far_pct)} />
+    <Row label={t("popup.japan.zoningBcr")} value={pct(props.bcr_pct)} />
+    <Row label={t("popup.japan.zoningMunicipality")} value={policeText(props.municipality) || na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_ZONING_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.zoningNote")} />
+    <SourceFooter props={{ source_org: JP_ZONING_ATTRIBUTION, source_url: JP_ZONING_SOURCE_URL, license: JP_ZONING_LICENSE, fetched_at: JP_ZONING_DATA_AS_OF }} />
+  </>;
+}
+
+/** 保安林／保護林清單（逗號分隔的 en 碼）→ 日文名；`_planned` 後綴＝見込み地。 */
+function forestList(raw: unknown, dict: Readonly<Record<string, string>>, plannedLabel: string): string {
+  return policeText(raw).split(",").map(code => code.trim()).filter(Boolean).map(code => {
+    const planned = code.endsWith(JP_FOREST_PLANNED_SUFFIX);
+    const base = planned ? code.slice(0, -JP_FOREST_PLANNED_SUFFIX.length) : code;
+    return `${dict[base] ?? base}${planned ? `（${plannedLabel}）` : ""}`;
+  }).join(" / ");
+}
+
+/** 日本国有林：只有國有林；面是合併分類面不是小班；保護林非公表者屬性空白。 */
+export function JpNationalForestsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const fn = JP_FOREST_FUNCTION_TYPES.find(f => f.value === props.function_type_en);
+  const na = t("popup.common.notProvided");
+  const planted = policeText(props.planted_ratio);
+  const area = policeText(props.area_ha);
+  const plannedLabel = t("popup.japan.forestPlanned");
+  const protection = forestList(props.protection_forest_en, JP_FOREST_PROTECTION, plannedLabel);
+  const protectedForest = forestList(props.protected_forest_en, JP_FOREST_PROTECTED, plannedLabel);
+  const office = [policeText(props.bureau), policeText(props.office)].filter(Boolean).join(" ");
+  return <>
+    <Title color={fn?.color ?? JP_FOREST_BLANK_COLOR}>{policeText(props.forest_name) || t("popup.japan.forestDefault")}</Title>
+    <Row label={t("popup.japan.forestOffice")} value={office || na} />
+    <Row label={t("popup.japan.forestFunction")} value={fn ? enumLabel("jpForestFunction", fn.value, fn.label, i18n) : t("popup.japan.forestFunctionBlank")} />
+    <Row label={t("popup.japan.forestProtection")} value={protection || na} />
+    <Row label={t("popup.japan.forestProtected")} value={protectedForest || t("popup.japan.forestProtectedBlank")} />
+    <Row label={t("popup.japan.forestCorridor")} value={policeText(props.green_corridor) || na} />
+    <Row label={t("popup.japan.forestSpecies")} value={policeText(props.main_species) || na} />
+    <Row label={t("popup.japan.forestPlanted")} value={planted !== "" && !Number.isNaN(Number(planted)) ? `${Math.round(Number(planted) * 100)}%` : na} />
+    <Row label={t("popup.japan.forestArea")} value={area !== "" && !Number.isNaN(Number(area)) ? `${Number(area).toFixed(1)} ha` : na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_FOREST_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.forestScopeNote")} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.forestMergedNote")} />
+    <SourceFooter props={{ source_org: JP_FOREST_ATTRIBUTION, source_url: JP_FOREST_SOURCE_URL, license: JP_FOREST_LICENSE, fetched_at: JP_FOREST_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本障礙／兒童福祉設施（P14 令和5年度）：license_note 非空才顯示；位置正確度 4–5 是代表點。 */
+function JpWelfarePanel({ props, layerKey }: { props: Record<string, unknown>; layerKey: JpWelfareLayerKey }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const code = policeText(props.category_code);
+  const cat = JP_WELFARE_CATEGORIES.find(c => c.code === code);
+  const na = t("popup.common.notProvided");
+  const ja = policeText(props.category_ja) || cat?.ja || "";
+  const label = cat ? enumLabel("jpWelfareCategory", cat.code, cat.label, i18n) : "";
+  const acc = Number(policeText(props.position_accuracy));
+  const accLabel = JP_WELFARE_ACCURACY_LEVELS[acc];
+  const licenseNote = policeText(props.license_note);
+  const place = [policeText(props.pref), policeText(props.municipality)].filter(Boolean).join(" ");
+  return <>
+    <Title color={jpWelfareCategoryColor(code) ?? JP_WELFARE_LAYER_COLOR[layerKey]}>{policeText(props.name) || ja || t("popup.japan.welfareDefault")}</Title>
+    <Row label={t("popup.japan.welfareCategory")} value={label && label !== ja ? `${label}（${ja}）` : ja || na} />
+    <Row label={t("popup.japan.welfareMinor")} value={policeText(props.minor_ja)} />
+    <Row label={t("popup.japan.prefectureZh")} value={place || na} />
+    <Row field="address" value={policeText(props.address) || na} />
+    <Row label={t("popup.japan.welfareAccuracy")} value={accLabel ? enumLabel("jpWelfareAccuracy", acc, accLabel, i18n) : na} />
+    {licenseNote && <Row label={t("popup.japan.welfareLicense")} value={licenseNote} />}
+    <Row label={t("popup.japan.dataAsOf")} value={JP_WELFARE_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.welfareNote")} />
+    <SourceFooter props={{ source_org: JP_WELFARE_ATTRIBUTION, source_url: JP_WELFARE_SOURCE_URL, license: JP_WELFARE_LICENSE, fetched_at: JP_WELFARE_DATA_AS_OF }} />
+  </>;
+}
+
+export function JpWelfareDisabilityPanel({ props }: { props: Record<string, unknown> }) {
+  return <JpWelfarePanel props={props} layerKey="jpWelfareDisability" />;
+}
+
+export function JpWelfareChildPanel({ props }: { props: Record<string, unknown> }) {
+  return <JpWelfarePanel props={props} layerKey="jpWelfareChild" />;
+}
+
+/** 日本主要道路（N13）：tile 只有代碼，顯示名查表；不含市町村道。 */
+export function JpMajorRoadsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_ROAD_CLASSES.find(c => c.code === Number(props.road_class_code));
+  const na = t("popup.common.notProvided");
+  const width = policeText(props.width_class);
+  const state = policeText(props.road_state);
+  const toll = props.toll === true || props.toll === "true" ? t("popup.japan.roadTollYes")
+    : props.toll === false || props.toll === "false" ? t("popup.japan.roadTollNo") : na;
+  return <>
+    <Title color={cls?.color ?? JP_ROAD_LAYER_COLOR}>{cls ? `${enumLabel("jpRoadClass", cls.value, cls.label, i18n)}（${cls.ja}）` : t("popup.japan.roadDefault")}</Title>
+    <Row label={t("popup.japan.roadWidth")} value={JP_ROAD_WIDTH_CLASSES[width] ?? na} />
+    <Row label={t("popup.japan.roadToll")} value={toll} />
+    <Row label={t("popup.japan.roadState")} value={JP_ROAD_STATES[state] ?? na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_ROAD_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.roadNote")} />
+    <SourceFooter props={{ source_org: JP_ROAD_ATTRIBUTION, source_url: JP_ROAD_SOURCE_URL, license: JP_ROAD_LICENSE, fetched_at: JP_ROAD_DATA_AS_OF }} />
+  </>;
+}
+
+/** 日本高速道路（N06 2025 現況）：同一 layerType 兩種要素——有 junction_type_en 的是 IC／JCT 點，否則是路線段。 */
+export function JpExpresswaysPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const na = t("popup.common.notProvided");
+  const opened = policeText(props.opened_year);
+  const footer = <SourceFooter props={{ source_org: JP_EXPRESSWAY_ATTRIBUTION, source_url: JP_EXPRESSWAY_SOURCE_URL, license: JP_EXPRESSWAY_LICENSE, fetched_at: JP_EXPRESSWAY_DATA_AS_OF }} />;
+  const jType = policeText(props.junction_type_en);
+  if (jType) {
+    const jt = JP_EXPRESSWAY_JUNCTION_TYPES.find(j => j.value === jType);
+    const saPa = props.attached_to_sa_pa === true || props.attached_to_sa_pa === "true";
+    return <>
+      <Title color={jt?.color ?? JP_EXPRESSWAY_LAYER_COLOR}>{policeText(props.name) || t("popup.japan.expresswayJunctionDefault")}</Title>
+      <Row label={t("popup.japan.expresswayJunctionType")} value={jt ? `${enumLabel("jpExpresswayJunction", jt.value, jt.label, i18n)}（${jt.ja}）` : na} />
+      <Row label={t("popup.japan.expresswayRoutes")} value={policeText(props.route_names) || na} />
+      <Row label={t("popup.japan.expresswayOpened")} value={opened || na} />
+      {saPa && <Row label={t("popup.japan.notes")} value={t("popup.japan.expresswaySaPa")} />}
+      <Row label={t("popup.japan.dataAsOf")} value={JP_EXPRESSWAY_DATA_AS_OF} />
+      <Row label={t("popup.japan.notes")} value={t("popup.japan.expresswayJunctionNote")} />
+      {footer}
+    </>;
+  }
+  const catValue = policeText(props.road_category_en);
+  const cat = JP_EXPRESSWAY_CATEGORIES.find(c => c.value === catValue) ?? (catValue === JP_EXPRESSWAY_OTHER.value ? JP_EXPRESSWAY_OTHER : undefined);
+  const statusValue = policeText(props.service_status_en);
+  const status = JP_EXPRESSWAY_SERVICE_STATUS[statusValue];
+  const lanes = policeText(props.lanes);
+  return <>
+    <Title color={cat?.color ?? JP_EXPRESSWAY_LAYER_COLOR}>{policeText(props.route_name) || t("popup.japan.expresswayDefault")}</Title>
+    <Row label={t("popup.japan.expresswayCategory")} value={cat ? `${enumLabel("jpExpresswayCategory", cat.value, cat.label, i18n)}（${cat.ja}）` : na} />
+    <Row label={t("popup.japan.expresswayStatus")} value={status ? enumLabel("jpExpresswayStatus", statusValue, status.label, i18n) : na} />
+    <Row label={t("popup.japan.expresswayLanes")} value={lanes !== "" && !Number.isNaN(Number(lanes)) ? String(Number(lanes)) : t("popup.japan.zoningUnrecorded")} />
+    <Row label={t("popup.japan.expresswayOpened")} value={opened || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_EXPRESSWAY_DATA_AS_OF} />
+    {footer}
+  </>;
+}
+
+/** 日本公車站（P11 2022 年度版）：PMTiles 只帶 route_count，不含系統名；縣名由 pref_code 對照。 */
+export function JpBusStopsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const cls = JP_BUS_STOP_CLASSES.find(c => c.value === props.bus_class);
+  const na = t("popup.common.notProvided");
+  const pref = JP_PREFECTURE_NAMES[policeText(props.pref_code)];
+  const routeCount = policeText(props.route_count);
+  return <>
+    <Title color={cls?.color ?? JP_BUS_STOP_LAYER_COLOR}>{policeText(props.stop_name) || t("popup.japan.busDefault")}</Title>
+    <Row label={t("popup.japan.busOperator")} value={policeText(props.operator) || na} />
+    <Row label={t("popup.japan.busClass")} value={cls ? enumLabel("jpBusClass", cls.value, cls.label, i18n) : na} />
+    <Row label={t("popup.japan.busRouteCount")} value={routeCount || na} />
+    <Row label={t("popup.japan.prefectureZh")} value={pref || na} />
+    <Row label={t("popup.japan.dataAsOf")} value={JP_BUS_STOP_DATA_AS_OF} />
+    <Row label={t("popup.japan.notes")} value={t("popup.japan.busScopeNote")} />
+    <SourceFooter props={{ source_org: JP_BUS_STOP_ATTRIBUTION, source_url: JP_BUS_STOP_SOURCE_URL, license: JP_BUS_STOP_LICENSE, fetched_at: JP_BUS_STOP_DATA_AS_OF }} />
   </>;
 }

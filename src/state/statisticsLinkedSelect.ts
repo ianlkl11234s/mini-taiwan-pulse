@@ -38,7 +38,8 @@ import { isStatisticsChoropleth } from '../data/statisticsLayerRegistry';
 import { regionalStatisticsStore } from './regionalStatisticsStore';
 import { layerVisibilityStore } from './layerVisibilityStore';
 import { statisticsDisplayModeStore } from './statisticsDisplayModeStore';
-import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from './medicalStatisticsSelection';
+import zhStatisticsSelect from '../i18n/locales/zh-TW/statisticsSelect.json';
+import { canSelectMedicalStatisticsVariant, prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from './medicalStatisticsSelection';
 import {
   LINKED_SELECT_NOT_READY, LINKED_SELECT_VALUE_INVALID, linkedSelectSpecs, linkedSelectValues, registerLinkedSelectProvider,
   resolveLinkedSelectChange, type LinkedSelectField, type LinkedSelectSnapshot, type LinkedSelectStatus, type LinkedSelectTuple,
@@ -235,6 +236,8 @@ function buildModel(key: string): StatisticsModel {
   };
 }
 
+const ZH_UNAVAILABLE_FOR_PERIOD = zhStatisticsSelect['statisticsSelect.unavailableForPeriod'];
+
 /** 介面短句：中文（或沒傳 i18n）用原文，外文查 statisticsSelect.json */
 function uiText(i18n: I18nContext | undefined, key: MessageKey, zh: string): string {
   return !i18n || i18n.active === 'zh-TW' ? zh : i18n.lookup(key) ?? zh;
@@ -326,14 +329,19 @@ registerLinkedSelectProvider(STATISTICS_VARIANT_PROVIDER, {
     const group = getMedicalStatisticsGroup(layerKey);
     if (!group) return { status: 'idle', options: [], value: '' };
     const error = variantErrors.get(group.key);
+    const current = statisticsVariantValue(layerKey) as keyof LayerVisibility;
     return {
       status: variantPending.has(group.key) ? 'loading' : error ? 'error' : 'ready',
       ...(error ? { error } : {}),
-      options: group.options.map((option) => ({
-        label: option.label,
-        value: option.key,
-        localize: (i18n: I18nContext) => statisticsVariantLabel(option.label, i18n) ?? statisticsTitle(option.key, option.label, i18n),
-      })),
+      options: group.options.map((option) => {
+        const localize = (i18n: I18nContext) => statisticsVariantLabel(option.label, i18n) ?? statisticsTitle(option.key, option.label, i18n);
+        // 目前期別在目標口徑沒有對應期別（例：部分期間的件數切到只含完整年度的每十萬人率）→ 停用並說明，不靜默失敗。
+        if (!canSelectMedicalStatisticsVariant(current, option.key)) {
+          const text = (i18n?: I18nContext) => uiText(i18n, 'statisticsSelect.unavailableForPeriod', ZH_UNAVAILABLE_FOR_PERIOD).replace('{label}', i18n ? localize(i18n) : option.label);
+          return { label: text(), value: option.key, disabled: true, localize: text };
+        }
+        return { label: option.label, value: option.key, localize };
+      }),
       value: statisticsVariantValue(layerKey),
     };
   },

@@ -1307,5 +1307,18 @@
   "layer.securitiesFuturesInstitutions": "Securities & Futures Offices",
   "layer.insuranceInstitutions": "Insurers & Insurance Agencies",
   "layer.busCrowdingSim": "Bus Segment Overloaded-Trip Share",
-  "layer.postOfficeFxCounters": "Post Offices Exchanging Foreign Cash"
+  "layer.postOfficeFxCounters": "Post Offices Exchanging Foreign Cash",
+  "layer.jpEvacuationSites": "Designated Evacuation Sites & Shelters",
+  "layer.jpPublicOffices": "Municipal Offices & Public Halls",
+  "layer.jpBusStops": "Bus Stops",
+  "layer.jpLandslideWarningAreas": "Sediment Disaster Warning Areas",
+  "layer.jpInlandFloodAreas": "Inland Flood Inundation Assumption Areas",
+  "layer.jpZoningUseDistricts": "Use Districts (Zoning)",
+  "layer.jpNationalForests": "National Forests",
+  "layer.jpWelfareDisability": "Disability Welfare Facilities",
+  "layer.jpWelfareChild": "Child Welfare Facilities",
+  "layer.jpMajorRoads": "Major Roads",
+  "layer.jpExpressways": "Expressways",
+  "layer.jpGsiHillshade": "Hillshade (GSI)",
+  "layer.jpGsiRelief": "Color Elevation Map (GSI)"
 }

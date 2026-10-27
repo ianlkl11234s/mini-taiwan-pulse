@@ -158,7 +158,7 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
   else if (month) parts.push(`${period}${colon}${monthText}`);
   else if (release) parts.push(`${period}${colon}${statisticsPeriodLabel(release, i18n)}`);
   for (const [key, value] of Object.entries(dimensions ?? {})) {
-    if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'quarter' || key === 'agency_fund') continue;
+    if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'quarter' || key === 'agency_fund' || key === 'industry_name') continue;
     parts.push(`${statisticsDimensionLabel(key, i18n)}${colon}${statisticsDimensionValueLabel(key, value, datasetId, i18n)}`);
   }
   if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`${statisticsDimensionLabel('agency_fund', i18n)}${colon}${dimensions.agency_fund}`);

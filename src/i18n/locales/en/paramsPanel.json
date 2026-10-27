@@ -56,5 +56,14 @@
   "paramsPanel.pause": "Pause",
   "paramsPanel.playbackSpeed": "Speed",
   "paramsPanel.playbackSpeedOption": "{n} min/s",
-  "paramsPanel.playbackRestart": "Restart from beginning"
+  "paramsPanel.playbackRestart": "Restart from beginning",
+  "paramsPanel.hf.status.loading": "Loading full-resolution tracks…",
+  "paramsPanel.hf.status.noneAll_TW": "No usable tracks at any Taiwan airport on this date.",
+  "paramsPanel.hf.status.noneAll_JP": "No usable tracks at any Japan airport on this date.",
+  "paramsPanel.hf.status.readyAll": "{available}/{total} airports available · partial data · original resolution",
+  "paramsPanel.hf.status.noTrack": "No tracks for this airport and date yet; pick another sample day.",
+  "paramsPanel.hf.status.ready": "Partial data · original resolution",
+  "paramsPanel.hf.status.mismatch": "Historical track sample does not match the catalog",
+  "paramsPanel.hf.status.loadFailed": "Failed to load historical tracks",
+  "paramsPanel.hf.status.manifestFailed": "Could not read the airport catalog. Please retry."
 }

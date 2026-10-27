@@ -237,6 +237,8 @@ const NO_POPUP_LEDGER = new Set([
   // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
   // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
   "waterFloodExtreme", "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
+  // 日本第四波：地理院タイル地形 raster（已上色成品 PNG，無 feature 屬性）
+  "jpGsiHillshade", "jpGsiRelief",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -548,7 +550,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
       expect(themeName(title).sub, title).toBeTruthy();
     }
     expect(themeName("宗教")).toEqual({ zh: "宗教", sub: "宗教" });
-    expect(themeName("長照服務")).toEqual({ zh: "長照服務", sub: "介護サービス" });
+    expect(themeName("社福長照")).toEqual({ zh: "社福長照", sub: "社会福祉・介護" });
   });
 
   it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致", () => {
@@ -567,9 +569,13 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     }
   });
 
-  it("日本大分類照使用者決定的 5 類", () => {
-    expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["行政與人口", "交通與旅宿", "醫療與照護", "社會", "自然與環境"]);
+  it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {
+    expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["基準", "移動與城市", "公共生活", "安全與治理", "環境與資源"]);
     expect(LAYER_PANELS.find((panel) => panel.id === "japan")!.macroGroups).toBe(JAPAN_MACRO_GROUPS);
+    for (const group of JAPAN_MACRO_GROUPS) {
+      const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
+      for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
+    }
   });
 
   it("統計大分類照使用者決定的 5 類（S-B），世界沿用台灣大分類名（W-A）", () => {

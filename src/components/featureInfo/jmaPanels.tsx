@@ -42,9 +42,9 @@ function windDir(value: unknown, tr: I18n["t"]): string {
   return key ? tr(key) : String(n);
 }
 
-function Footer({ fetchedAt }: { fetchedAt?: unknown }) {
+function Footer() {
   const { t: tr } = useLocale();
-  return <SourceFooter props={{ source_org: tr("popup.jma.footerOrg", { org: ORG }), source_url: JMA_SOURCE_URL, license: JMA_LICENSE, fetched_at: formatJst(fetchedAt) }} />;
+  return <SourceFooter props={{ source_org: tr("popup.jma.footerOrg", { org: ORG }), source_url: JMA_SOURCE_URL, license: JMA_LICENSE }} />;
 }
 
 export function JmaAmedasPanel({ props }: PanelProps) {
@@ -77,7 +77,7 @@ export function JmaAmedasPanel({ props }: PanelProps) {
       <Row field="elevation" value={measure_(props.alt_m, "m", 0)} />
       <Row field="description" value={tr("popup.jma.amedasNote")} />
     </PopupDetails>
-    <Footer fetchedAt={props.observed_at} />
+    <Footer />
   </>;
 }
 
@@ -117,7 +117,7 @@ export function JmaWarningsPanel({ props }: PanelProps) {
       <Row field="updated" value={tr("popup.jma.warningUpdated")} />
       <Row label={tr("popup.jma.cityCode")} value={text(props.admin_code)} mono />
     </PopupDetails>
-    <Footer fetchedAt={first?.control_datetime} />
+    <Footer />
   </>;
 }
 
@@ -141,7 +141,7 @@ export function JmaQuakesPanel({ props }: PanelProps) {
       <Row field="description" value={tr("popup.jma.quakeNote")} />
       <Row field="eventId" value={text(props.event_id)} mono />
     </PopupDetails>
-    <Footer fetchedAt={props.report_time} />
+    <Footer />
   </>;
 }
 
@@ -158,6 +158,6 @@ export function JmaVolcanoesPanel({ props }: PanelProps) {
       <Row label={tr("popup.jma.reading")} value={tr("popup.jma.volcanoNote")} />
       <Row label={tr("popup.jma.volcanoCode")} value={text(props.volcano_code)} mono />
     </PopupDetails>
-    <Footer fetchedAt={props.report_time} />
+    <Footer />
   </>;
 }

@@ -10,6 +10,17 @@ import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
 import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
+import { useJpEvacuationSitesLayer } from "../../hooks/useJpEvacuationSitesLayer";
+import { useJpPublicOfficesLayer } from "../../hooks/useJpPublicOfficesLayer";
+import { useJpBusStopsLayer } from "../../hooks/useJpBusStopsLayer";
+import { useJpLandslideWarningAreasLayer } from "../../hooks/useJpLandslideWarningAreasLayer";
+import { useJpInlandFloodAreasLayer } from "../../hooks/useJpInlandFloodAreasLayer";
+import { useJpZoningUseDistrictsLayer } from "../../hooks/useJpZoningUseDistrictsLayer";
+import { useJpNationalForestsLayer } from "../../hooks/useJpNationalForestsLayer";
+import { useJpWelfareFacilitiesLayer } from "../../hooks/useJpWelfareFacilitiesLayer";
+import { useJpMajorRoadsLayer } from "../../hooks/useJpMajorRoadsLayer";
+import { useJpExpresswaysLayer } from "../../hooks/useJpExpresswaysLayer";
+import { useJpGsiTerrainLayer } from "../../hooks/useJpGsiTerrainLayers";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
@@ -116,6 +127,101 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
   useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
     p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1,
     p.jpPoliceFacilitiesTypeIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpEvacuationSitesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpEvacuationSitesLayer");
+  const p = useKeyOverlayParams("jpEvacuationSites");
+  useJpEvacuationSitesLayer(deps.mapRef, deps.layerVisibility.jpEvacuationSites,
+    p.jpEvacuationSitesOpacity ?? 0.6, p.jpEvacuationSitesScale ?? 1,
+    p.jpEvacuationSitesFilterIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpPublicOfficesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPublicOfficesLayer");
+  const p = useKeyOverlayParams("jpPublicOffices");
+  useJpPublicOfficesLayer(deps.mapRef, deps.layerVisibility.jpPublicOffices,
+    p.jpPublicOfficesOpacity ?? 0.75, p.jpPublicOfficesScale ?? 1,
+    p.jpPublicOfficesClassIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpBusStopsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpBusStopsLayer");
+  const p = useKeyOverlayParams("jpBusStops");
+  useJpBusStopsLayer(deps.mapRef, deps.layerVisibility.jpBusStops,
+    p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const JpLandslideWarningAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpLandslideWarningAreasLayer");
+  const p = useKeyOverlayParams("jpLandslideWarningAreas");
+  useJpLandslideWarningAreasLayer(deps.mapRef, deps.layerVisibility.jpLandslideWarningAreas,
+    p.jpLandslideWarningAreasOpacity ?? 0.7,
+    p.jpLandslideWarningAreasZoneIdx ?? 0, p.jpLandslideWarningAreasPhenomenonIdx ?? 0);
+  return null;
+};
+
+export const JpInlandFloodAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpInlandFloodAreasLayer");
+  const p = useKeyOverlayParams("jpInlandFloodAreas");
+  useJpInlandFloodAreasLayer(deps.mapRef, deps.layerVisibility.jpInlandFloodAreas,
+    p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+export const JpZoningUseDistrictsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpZoningUseDistrictsLayer");
+  const p = useKeyOverlayParams("jpZoningUseDistricts");
+  useJpZoningUseDistrictsLayer(deps.mapRef, deps.layerVisibility.jpZoningUseDistricts,
+    p.jpZoningUseDistrictsOpacity ?? 0.7, p.jpZoningUseDistrictsClassIdx ?? 0);
+  return null;
+};
+
+export const JpNationalForestsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpNationalForestsLayer");
+  const p = useKeyOverlayParams("jpNationalForests");
+  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7);
+  return null;
+};
+
+export const JpWelfareFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpWelfareFacilitiesLayer");
+  const d = useKeyOverlayParams("jpWelfareDisability");
+  const c = useKeyOverlayParams("jpWelfareChild");
+  useJpWelfareFacilitiesLayer(deps.mapRef, "jpWelfareDisability", deps.layerVisibility.jpWelfareDisability,
+    d.jpWelfareDisabilityOpacity ?? 0.6, d.jpWelfareDisabilityScale ?? 1,
+    d.jpWelfareDisabilityCategoryIdx ?? 0, d.jpWelfareDisabilityAccuracyIdx ?? 0, deps.isDarkTheme);
+  useJpWelfareFacilitiesLayer(deps.mapRef, "jpWelfareChild", deps.layerVisibility.jpWelfareChild,
+    c.jpWelfareChildOpacity ?? 0.6, c.jpWelfareChildScale ?? 1,
+    c.jpWelfareChildCategoryIdx ?? 0, c.jpWelfareChildAccuracyIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpMajorRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMajorRoadsLayer");
+  const p = useKeyOverlayParams("jpMajorRoads");
+  useJpMajorRoadsLayer(deps.mapRef, deps.layerVisibility.jpMajorRoads, p.jpMajorRoadsOpacity ?? 0.85, p.jpMajorRoadsClassIdx ?? 0);
+  return null;
+};
+
+export const JpExpresswaysHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpExpresswaysLayer");
+  const p = useKeyOverlayParams("jpExpressways");
+  useJpExpresswaysLayer(deps.mapRef, deps.layerVisibility.jpExpressways, p.jpExpresswaysOpacity ?? 0.85,
+    p.jpExpresswaysCategoryIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const JpGsiTerrainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpGsiTerrainLayers");
+  const h = useKeyOverlayParams("jpGsiHillshade");
+  const r = useKeyOverlayParams("jpGsiRelief");
+  useJpGsiTerrainLayer(deps.mapRef, "jpGsiRelief", deps.layerVisibility.jpGsiRelief, r.jpGsiReliefOpacity ?? 0.7);
+  useJpGsiTerrainLayer(deps.mapRef, "jpGsiHillshade", deps.layerVisibility.jpGsiHillshade, h.jpGsiHillshadeOpacity ?? 0.7);
   return null;
 };
 

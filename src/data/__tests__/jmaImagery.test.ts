@@ -114,13 +114,34 @@ describe("JMA imagery 選幀", () => {
   });
 });
 
+describe("JMA imagery 選幀：near-now 只對過去時間成立（F149）", () => {
+  it("t 在未來（> now）不套即時容忍度，仍用回放 maxStale", () => {
+    const radar = JMA_IMAGERY_PRODUCTS.radar;
+    const radarFrames = rowsToJmaImageryFrames([row("2026-10-15T00:00:00Z", { product: "radar" })], CDN).get("radar") ?? [];
+    const now = ms("2026-10-15T00:00:00Z");
+    // 幀比 t 舊 60 分：已超過 radar.maxStale(15)，但在 liveMaxStale(90) 內
+    const past = pickJmaImageryFrame(radarFrames, now + 60 * 60_000, radar, false, now + 60 * 60_000);
+    expect(past.kind === "frame").toBe(true); // t == now，視為現在
+    const future = pickJmaImageryFrame(radarFrames, now + 60 * 60_000, radar, false, now);
+    expect(future).toMatchObject({ kind: "uncovered", reason: "stale" });
+  });
+});
+
 describe("JMA imagery 時間窗", () => {
   it("前推 maxStale，讓台北 00:00 也找得到前一幀；未來不超過 now+1h", () => {
     const now = ms("2026-10-15T12:00:00Z");
     const w = jmaImageryWindowFor(["2026-10-15"], SNOW, now);
-    expect(w.sinceIso).toBe(new Date(ms("2026-10-14T16:00:00Z") - 90 * 60_000).toISOString());
+    // F126／F150：前推取 max(回放容忍, 即時容忍)，即時容忍較大時邊界才不漏幀
+    expect(SNOW.liveMaxStaleMin).toBeGreaterThan(SNOW.maxStaleMin);
+    expect(w.sinceIso).toBe(new Date(ms("2026-10-14T16:00:00Z") - SNOW.liveMaxStaleMin * 60_000).toISOString());
     expect(w.untilIso).toBe("2026-10-15T13:00:00.000Z");
     expect(w.stepMinutes).toBe(0);
+  });
+
+  it("radar：前推 90 分（即時容忍）而不是 15 分（F150）", () => {
+    const radar = JMA_IMAGERY_PRODUCTS.radar;
+    const w = jmaImageryWindowFor(["2026-10-15"], radar, ms("2026-10-15T12:00:00Z"));
+    expect(w.sinceIso).toBe(new Date(ms("2026-10-14T16:00:00Z") - 90 * 60_000).toISOString());
   });
 
   const WEEK = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"];

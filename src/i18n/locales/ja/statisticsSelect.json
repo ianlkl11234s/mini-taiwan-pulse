@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "公開済みの期間",
   "statisticsSelect.unavailableForYear": "{label}（この学年は未提供）",
+  "statisticsSelect.unavailableForPeriod": "{label}（選択中の期間は未提供）",
   "statisticsSelect.partialPeriod": "{year}年{from}–{to}月（部分期間）",
   "statisticsSelect.periodYear": "{year}年",
   "statisticsSelect.pointInTime": "{date}（時点）",
@@ -17,5 +18,8 @@
   "statisticsSelect.ytdPeriod": "{year}年{start}～{end}月累計",
   "statisticsSelect.variantWithPeriod": "{label}（{period}）",
   "statisticsSelect.variantDetail": "{label}－{detail}",
-  "statisticsSelect.variantPopCompare": "{label}（人口比較）"
+  "statisticsSelect.variantPopCompare": "{label}（人口比較）",
+  "statisticsSelect.notice.disjoint": "2つの基準で対象期間が重ならないため、最も近い {period} に切り替えました。",
+  "statisticsSelect.notice.villageOnly": "村里レベルは1期間（{period}）のみのため、期間を切り替えました。",
+  "statisticsSelect.notice.villageOnlyNoPeriod": "村里レベルは1期間のみのため、期間を切り替えました。"
 }

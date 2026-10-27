@@ -53,8 +53,8 @@ const REQUEST_TIMEOUT_MS = 30_000;
 const MAX_RETRIES = 2;
 const RETRY_BACKOFF_MS = [500, 1500] as const;
 
-/** 寫入類 RPC denylist（2026-07 盤點：全 repo 僅 log_session_events 會寫入） */
-const WRITE_RPC_DENYLIST = ["log_session_events"] as const;
+/** 寫入類 RPC denylist（2026-07 盤點：log_session_events；2026-10 起含 delete_my_account） */
+const WRITE_RPC_DENYLIST = ["log_session_events", "delete_my_account"] as const;
 
 let activeRequests = 0;
 const waitQueue: Array<() => void> = [];

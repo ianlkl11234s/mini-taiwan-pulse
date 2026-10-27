@@ -68,6 +68,21 @@ import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
 import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
+import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
+import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_GROUPS } from "./jpZoningUseDistrictTypes";
+import { JP_WELFARE_ACCURACY_OPTIONS, JP_WELFARE_POINT_COUNT, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareMajor } from "./jpWelfareFacilityTypes";
+import { JP_EXPRESSWAY_CATEGORIES, JP_ROAD_FILTER_OPTIONS } from "./jpRoadTypes";
+
+/** 福祉類別 select：全部 → 該層色組 → 中分類單選（順序須與 jpWelfareFilter 一致）。 */
+function jpWelfareSelectOptions(major: JpWelfareMajor): { value: string; label: string }[] {
+  return [
+    { value: "all", label: "全部" },
+    ...jpWelfareGroupsOf(major).map(g => ({ value: `group:${g.value}`, label: `${g.label}（類組）` })),
+    ...jpWelfareCategoriesOf(major).map(c => ({ value: c.code, label: c.label })),
+  ];
+}
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -2037,6 +2052,82 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
       out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
   ],
+  jpEvacuationSites: [
+    heatmapPalette("jpEvacuationSites"),
+    opacitySlider("jpEvacuationSitesOpacity", densePointOpacity(199_346)), scaleSlider("jpEvacuationSitesScale", 1),
+    // 災害種別只有緊急避難場所有、福祉避難所只有指定避難所有，互斥 → 合成單一 select 避免選到空集合
+    { kind: "select", category: "data", name: "jpEvacuationSitesFilter", label: "災害種別", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_EVACUATION_FILTERS],
+      out: "jpEvacuationSitesFilterIdx", encode: ["all", ...JP_EVACUATION_FILTERS.map(f => f.value)] },
+  ],
+  jpPublicOffices: [
+    heatmapPalette("jpPublicOffices"),
+    opacitySlider("jpPublicOfficesOpacity", densePointOpacity(79_532)), scaleSlider("jpPublicOfficesScale", 1),
+    // 集會施設佔 62%，預設隱藏；idx 0=預設、1=全部、2–6=單一分類
+    { kind: "select", category: "data", name: "jpPublicOfficesClass", label: "設施分類", default: "default",
+      options: [{ value: "default", label: "預設（不含集會施設）" }, { value: "all", label: "全部" }, ...JP_PUBLIC_OFFICE_CLASSES],
+      out: "jpPublicOfficesClassIdx", encode: ["default", "all", ...JP_PUBLIC_OFFICE_CLASSES.map(c => c.value)] },
+  ],
+  jpLandslideWarningAreas: [
+    opacitySlider("jpLandslideWarningAreasOpacity", 0.7),
+    // 紅區在黃區之內（不是挖洞）：兩種面各自獨立，篩選只決定畫哪一種
+    { kind: "select", category: "data", name: "jpLandslideWarningAreasZone", label: "區域種別", default: "all",
+      options: [{ value: "all", label: "全部" }, { value: "red", label: "只看特別警戒（紅）" }, { value: "yellow", label: "只看警戒（黃）" }],
+      out: "jpLandslideWarningAreasZoneIdx", encode: ["all", "red", "yellow"] },
+    { kind: "select", category: "data", name: "jpLandslideWarningAreasPhenomenon", label: "現象", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_LANDSLIDE_PHENOMENA],
+      out: "jpLandslideWarningAreasPhenomenonIdx", encode: ["all", ...JP_LANDSLIDE_PHENOMENA.map(p => p.value)] },
+  ],
+  jpZoningUseDistricts: [
+    opacitySlider("jpZoningUseDistrictsOpacity", 0.7),
+    // 0=全部、1–3=住居／商業／工業系、4–16=13 類單選（encode 順序同 jpZoningFilter）
+    { kind: "select", category: "data", name: "jpZoningUseDistrictsClass", label: "用途分類", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_ZONING_GROUPS.map(g => ({ value: g.value, label: g.label })), ...JP_ZONING_CLASSES.map(c => ({ value: String(c.code), label: c.label }))],
+      out: "jpZoningUseDistrictsClassIdx", encode: ["all", ...JP_ZONING_GROUPS.map(g => g.value), ...JP_ZONING_CLASSES.map(c => String(c.code))] },
+  ],
+  jpNationalForests: [opacitySlider("jpNationalForestsOpacity", 0.7)],
+  // 福祉兩層共用 PMTiles：類別 select 0=全部、色組、中分類單選（encode 順序同 jpWelfareFilter）；定位精度 0=1–3（預設）、1=全部
+  jpWelfareDisability: [
+    heatmapPalette("jpWelfareDisability"),
+    opacitySlider("jpWelfareDisabilityOpacity", densePointOpacity(JP_WELFARE_POINT_COUNT.jpWelfareDisability)), scaleSlider("jpWelfareDisabilityScale", 1),
+    { kind: "select", category: "data", name: "jpWelfareDisabilityCategory", label: "設施類別", default: "all",
+      options: jpWelfareSelectOptions("disability"),
+      out: "jpWelfareDisabilityCategoryIdx", encode: jpWelfareSelectOptions("disability").map(o => o.value) },
+    { kind: "select", category: "data", name: "jpWelfareDisabilityAccuracy", label: "定位精度", default: "precise",
+      options: [...JP_WELFARE_ACCURACY_OPTIONS],
+      out: "jpWelfareDisabilityAccuracyIdx", encode: JP_WELFARE_ACCURACY_OPTIONS.map(o => o.value) },
+  ],
+  jpWelfareChild: [
+    heatmapPalette("jpWelfareChild"),
+    opacitySlider("jpWelfareChildOpacity", densePointOpacity(JP_WELFARE_POINT_COUNT.jpWelfareChild)), scaleSlider("jpWelfareChildScale", 1),
+    { kind: "select", category: "data", name: "jpWelfareChildCategory", label: "設施類別", default: "all",
+      options: jpWelfareSelectOptions("child"),
+      out: "jpWelfareChildCategoryIdx", encode: jpWelfareSelectOptions("child").map(o => o.value) },
+    { kind: "select", category: "data", name: "jpWelfareChildAccuracy", label: "定位精度", default: "precise",
+      options: [...JP_WELFARE_ACCURACY_OPTIONS],
+      out: "jpWelfareChildAccuracyIdx", encode: JP_WELFARE_ACCURACY_OPTIONS.map(o => o.value) },
+  ],
+  // 主要道路：0=全部、1–3=高速／國道／都道府縣道、4=只看有料（encode 順序同 jpRoadFilter）
+  jpMajorRoads: [
+    opacitySlider("jpMajorRoadsOpacity", 0.85),
+    { kind: "select", category: "data", name: "jpMajorRoadsClass", label: "道路分類", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_ROAD_FILTER_OPTIONS],
+      out: "jpMajorRoadsClassIdx", encode: ["all", ...JP_ROAD_FILTER_OPTIONS.map(o => o.value)] },
+  ],
+  // 高速道路：0=全部、1–5=路線種別（只篩線，IC 點不受影響）
+  jpExpressways: [
+    opacitySlider("jpExpresswaysOpacity", 0.85),
+    { kind: "select", category: "data", name: "jpExpresswaysCategory", label: "路線種別", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_EXPRESSWAY_CATEGORIES.map(c => ({ value: c.value, label: c.label }))],
+      out: "jpExpresswaysCategoryIdx", encode: ["all", ...JP_EXPRESSWAY_CATEGORIES.map(c => c.value)] },
+  ],
+  jpGsiHillshade: [{ kind: "slider", name: "jpGsiHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  jpGsiRelief: [{ kind: "slider", name: "jpGsiReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  jpInlandFloodAreas: [
+    gridPalette("jpInlandFloodAreasPalette", "PuBu"),
+    opacitySlider("jpInlandFloodAreasOpacity", 0.7),
+  ],
+  jpBusStops: [heatmapPalette("jpBusStops"), opacitySlider("jpBusStopsOpacity", densePointOpacity(278_515)), scaleSlider("jpBusStopsScale", 1)],
   jpSchools: [heatmapPalette("jpSchools"), opacitySlider("jpSchoolsOpacity", densePointOpacity(56_807)), scaleSlider("jpSchoolsScale", 1)],
   // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名
   // （非數值字串）⇒ 走 encode 存索引，overlayParams.jpPopulationMeshModeIdx 是 index。

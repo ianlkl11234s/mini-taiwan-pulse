@@ -17,7 +17,7 @@ import sys
 
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(BASE, "public/geo/port_polygons.geojson")
-DEFAULT_UPSTREAM = os.path.join(BASE, "../../../taipei-gis-analytics/data/processed/transportation/ports/ports_merged_latest.geojson")
+DEFAULT_UPSTREAM = os.path.join(BASE, "../taipei-gis-analytics/data/processed/transportation/ports/ports_merged_latest.geojson")
 
 CURATED = {
     # 商港

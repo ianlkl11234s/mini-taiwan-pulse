@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1317,
+    "keyCount": 1330,
     "sections": [
       "gisLayers",
       "overlays",
@@ -942,6 +942,73 @@
         "jp-schools-circle"
       ],
       "type": "jpSchools"
+    },
+    {
+      "layers": [
+        "jp-evacuation-sites-circle"
+      ],
+      "type": "jpEvacuationSites"
+    },
+    {
+      "layers": [
+        "jp-public-offices-circle"
+      ],
+      "type": "jpPublicOffices"
+    },
+    {
+      "layers": [
+        "jp-bus-stops-circle"
+      ],
+      "type": "jpBusStops"
+    },
+    {
+      "layers": [
+        "jp-landslide-warning-areas-fill"
+      ],
+      "type": "jpLandslideWarningAreas"
+    },
+    {
+      "layers": [
+        "jp-inland-flood-areas-fill"
+      ],
+      "type": "jpInlandFloodAreas"
+    },
+    {
+      "layers": [
+        "jp-zoning-use-districts-fill"
+      ],
+      "type": "jpZoningUseDistricts"
+    },
+    {
+      "layers": [
+        "jp-national-forests-fill"
+      ],
+      "type": "jpNationalForests"
+    },
+    {
+      "layers": [
+        "jp-welfare-disability-circle"
+      ],
+      "type": "jpWelfareDisability"
+    },
+    {
+      "layers": [
+        "jp-welfare-child-circle"
+      ],
+      "type": "jpWelfareChild"
+    },
+    {
+      "layers": [
+        "jp-expressway-junctions-circle",
+        "jp-expressways-line"
+      ],
+      "type": "jpExpressways"
+    },
+    {
+      "layers": [
+        "jp-major-roads-line"
+      ],
+      "type": "jpMajorRoads"
     },
     {
       "layers": [
@@ -14660,12 +14727,14 @@
             "dark": {
               "text-color": "#e5e7eb",
               "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25
+              "text-halo-width": 1.25,
+              "text-opacity": 1
             },
             "light": {
               "text-color": "#1f2937",
               "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25
+              "text-halo-width": 1.25,
+              "text-opacity": 1
             }
           },
           "suffix": "label",
@@ -37837,34 +37906,66 @@
               "circle-color": "#000000",
               "circle-opacity": 0,
               "circle-radius": [
-                "interpolate",
+                "+",
                 [
-                  "linear"
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "max",
+                      0,
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "output_mw"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0,
+                  3,
+                  63.245553203367585,
+                  20
                 ],
-                [
-                  "zoom"
-                ],
-                5,
-                10,
-                12,
-                18
+                6
               ]
             },
             "light": {
               "circle-color": "#000000",
               "circle-opacity": 0,
               "circle-radius": [
-                "interpolate",
+                "+",
                 [
-                  "linear"
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "max",
+                      0,
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "output_mw"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0,
+                  3,
+                  63.245553203367585,
+                  20
                 ],
-                [
-                  "zoom"
-                ],
-                5,
-                10,
-                12,
-                18
+                6
               ]
             }
           },
@@ -74780,11 +74881,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74828,11 +74933,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74884,11 +74993,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -74948,11 +75061,15 @@
               "circle-color": [
                 "case",
                 [
-                  "!",
+                  "!=",
                   [
-                    "has",
-                    "surface_mean_total_per_m3"
-                  ]
+                    "typeof",
+                    [
+                      "get",
+                      "surface_mean_total_per_m3"
+                    ]
+                  ],
+                  "number"
                 ],
                 "#94a3b8",
                 [
@@ -91798,6 +91915,10 @@
           {
             "label": "着雪注意報",
             "value": "26"
+          },
+          {
+            "label": "その他の注意報",
+            "value": "27"
           }
         ],
         "type": "select",
@@ -92242,6 +92363,103 @@
         ],
         "type": "select",
         "value": "0"
+      }
+    ],
+    "jpBusStops": [
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jpCanopyHeight": [
@@ -92783,6 +93001,223 @@
         "valueText": "0.75"
       }
     ],
+    "jpEvacuationSites": [
+      {
+        "label": "災害種別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "field": "hazard_flood",
+            "label": "洪水",
+            "value": "flood"
+          },
+          {
+            "field": "hazard_landslide",
+            "label": "崖崩れ等",
+            "value": "landslide"
+          },
+          {
+            "field": "hazard_storm_surge",
+            "label": "高潮",
+            "value": "storm_surge"
+          },
+          {
+            "field": "hazard_earthquake",
+            "label": "地震",
+            "value": "earthquake"
+          },
+          {
+            "field": "hazard_tsunami",
+            "label": "津波",
+            "value": "tsunami"
+          },
+          {
+            "field": "hazard_large_fire",
+            "label": "大規模な火事",
+            "value": "large_fire"
+          },
+          {
+            "field": "hazard_inland_flood",
+            "label": "内水氾濫",
+            "value": "inland_flood"
+          },
+          {
+            "field": "hazard_volcano",
+            "label": "火山現象",
+            "value": "volcano"
+          },
+          {
+            "field": "is_welfare_shelter",
+            "label": "只看指定福祉避難所",
+            "value": "welfare"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "jpExpressways": [
+      {
+        "label": "路線種別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "高速自動車國道",
+            "value": "national_expressway"
+          },
+          {
+            "label": "與高速自動車國道並行的汽車專用道",
+            "value": "parallel_expressway"
+          },
+          {
+            "label": "一般國道的汽車專用道",
+            "value": "national_route_expressway"
+          },
+          {
+            "label": "指定都市高速道路（首都高等）",
+            "value": "urban_expressway"
+          },
+          {
+            "label": "本州四國聯絡高速道路",
+            "value": "honshu_shikoku_expressway"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "jpGsiHillshade": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jpGsiRelief": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "jpHistoricalFlightTrails": [
       {
         "label": "方向 全部",
@@ -92852,6 +93287,185 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "jpInlandFloodAreas": [
+      {
+        "defaultValue": "PuBu",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jpLandslideWarningAreas": [
+      {
+        "label": "區域種別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看特別警戒（紅）",
+            "value": "red"
+          },
+          {
+            "label": "只看警戒（黃）",
+            "value": "yellow"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "現象",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "急傾斜地崩壞（急傾斜地の崩壊）",
+            "value": "steep_slope_failure"
+          },
+          {
+            "label": "土石流",
+            "value": "debris_flow"
+          },
+          {
+            "label": "地滑り",
+            "value": "landslide"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "jpMajorRoads": [
+      {
+        "label": "道路分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "高速道路等",
+            "value": "expressway"
+          },
+          {
+            "label": "國道",
+            "value": "national"
+          },
+          {
+            "label": "都道府縣道",
+            "value": "prefectural"
+          },
+          {
+            "label": "只看有料道路",
+            "value": "toll"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "jpMarineEbsaCoastal": [
@@ -93338,6 +93952,17 @@
         "valueText": "0.80"
       }
     ],
+    "jpNationalForests": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "jpNaturalParksNational": [
       {
         "label": "透明度 0.28",
@@ -93661,6 +94286,148 @@
         "step": 0.05,
         "value": 0.3,
         "valueText": "0.30"
+      }
+    ],
+    "jpPublicOffices": [
+      {
+        "label": "設施分類",
+        "options": [
+          {
+            "label": "預設（不含集會施設）",
+            "value": "default"
+          },
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "color": "#7c3aed",
+            "count": 1908,
+            "label": "市區町村本廳",
+            "value": "main_office"
+          },
+          {
+            "color": "#2563eb",
+            "count": 4272,
+            "label": "支所・出張所",
+            "value": "branch_office"
+          },
+          {
+            "color": "#14b8a6",
+            "count": 2562,
+            "label": "其他行政服務",
+            "value": "other_service"
+          },
+          {
+            "color": "#f59e0b",
+            "count": 21302,
+            "label": "公立公民館",
+            "value": "public_hall"
+          },
+          {
+            "color": "#94a3b8",
+            "count": 49488,
+            "label": "集會施設",
+            "value": "assembly_facility"
+          }
+        ],
+        "type": "select",
+        "value": "default"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "jpRailways": [
@@ -94356,6 +95123,376 @@
         "valueText": "0.80"
       }
     ],
+    "jpWelfareChild": [
+      {
+        "label": "設施類別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "入所・養護（類組）",
+            "value": "group:residential"
+          },
+          {
+            "label": "保育（類組）",
+            "value": "group:nursery"
+          },
+          {
+            "label": "發展支援（類組）",
+            "value": "group:development"
+          },
+          {
+            "label": "社區據點（類組）",
+            "value": "group:community"
+          },
+          {
+            "label": "助產・家庭支援・居住（類組）",
+            "value": "group:family"
+          },
+          {
+            "label": "服務事業所（類組）",
+            "value": "group:service"
+          },
+          {
+            "label": "其他（類組）",
+            "value": "group:other"
+          },
+          {
+            "label": "兒童福祉設施（未分中類）",
+            "value": "0500"
+          },
+          {
+            "label": "助產設施",
+            "value": "0501"
+          },
+          {
+            "label": "乳兒院",
+            "value": "0502"
+          },
+          {
+            "label": "保育所等",
+            "value": "0504"
+          },
+          {
+            "label": "地域型保育事業所",
+            "value": "0505"
+          },
+          {
+            "label": "認可外保育設施",
+            "value": "0506"
+          },
+          {
+            "label": "兒童養護設施",
+            "value": "0507"
+          },
+          {
+            "label": "障礙兒入所設施",
+            "value": "0508"
+          },
+          {
+            "label": "兒童發展支援中心",
+            "value": "0509"
+          },
+          {
+            "label": "兒童心理治療設施",
+            "value": "0510"
+          },
+          {
+            "label": "兒童自立支援設施",
+            "value": "0511"
+          },
+          {
+            "label": "兒童家庭支援中心",
+            "value": "0512"
+          },
+          {
+            "label": "兒童館",
+            "value": "0513"
+          },
+          {
+            "label": "兒童遊園",
+            "value": "0514"
+          },
+          {
+            "label": "其他兒童福祉設施",
+            "value": "0599"
+          },
+          {
+            "label": "兒童福祉服務事業所",
+            "value": "9912"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "精確到町丁目（1–3）",
+            "value": "precise"
+          },
+          {
+            "label": "全部（含市町村／縣代表點）",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "precise"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "jpWelfareDisability": [
+      {
+        "label": "設施類別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "入所・養護（類組）",
+            "value": "group:residential"
+          },
+          {
+            "label": "社區據點（類組）",
+            "value": "group:community"
+          },
+          {
+            "label": "助產・家庭支援・居住（類組）",
+            "value": "group:family"
+          },
+          {
+            "label": "服務事業所（類組）",
+            "value": "group:service"
+          },
+          {
+            "label": "障礙者支援設施",
+            "value": "0301"
+          },
+          {
+            "label": "地域活動支援中心",
+            "value": "0302"
+          },
+          {
+            "label": "福祉之家",
+            "value": "0303"
+          },
+          {
+            "label": "障礙者服務事業所",
+            "value": "9911"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "精確到町丁目（1–3）",
+            "value": "precise"
+          },
+          {
+            "label": "全部（含市町村／縣代表點）",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "precise"
+      },
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jpWildlifeProtectionNational": [
       {
         "label": "透明度 0.25",
@@ -94438,6 +95575,92 @@
         "step": 0.05,
         "value": 0.25,
         "valueText": "0.25"
+      }
+    ],
+    "jpZoningUseDistricts": [
+      {
+        "label": "用途分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "住居系（1–8）",
+            "value": "residential"
+          },
+          {
+            "label": "商業系（9–10）",
+            "value": "commercial"
+          },
+          {
+            "label": "工業系（11–13）",
+            "value": "industrial"
+          },
+          {
+            "label": "第一種低層住居專用地域",
+            "value": "1"
+          },
+          {
+            "label": "第二種低層住居專用地域",
+            "value": "2"
+          },
+          {
+            "label": "第一種中高層住居專用地域",
+            "value": "3"
+          },
+          {
+            "label": "第二種中高層住居專用地域",
+            "value": "4"
+          },
+          {
+            "label": "第一種住居地域",
+            "value": "5"
+          },
+          {
+            "label": "第二種住居地域",
+            "value": "6"
+          },
+          {
+            "label": "準住居地域",
+            "value": "7"
+          },
+          {
+            "label": "田園住居地域",
+            "value": "8"
+          },
+          {
+            "label": "近鄰商業地域",
+            "value": "9"
+          },
+          {
+            "label": "商業地域",
+            "value": "10"
+          },
+          {
+            "label": "準工業地域",
+            "value": "11"
+          },
+          {
+            "label": "工業地域",
+            "value": "12"
+          },
+          {
+            "label": "工業專用地域",
+            "value": "13"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "lakesPondsOsm": [

@@ -37,5 +37,6 @@
   "chat.key.delete": "刪除金鑰",
   "chat.key.risk": "金鑰只存在你的瀏覽器（依上方選擇存在記憶體 / sessionStorage / localStorage），對話時直接連到對應服務商的 API，本站伺服器不會經手也不會記錄金鑰內容。建議另外申請一把使用額度較低的專用 key（例如 OpenAI 專案 key 設定月花費上限、Anthropic workspace key、或 Gemini 免費額度），降低外洩時的風險。",
   "chat.toolDone": "已執行地圖操作",
-  "chat.toolFailed": "工具執行失敗"
+  "chat.toolFailed": "工具執行失敗",
+  "chat.key.testOk": "金鑰驗證成功"
 }

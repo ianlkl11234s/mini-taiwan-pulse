@@ -1,9 +1,13 @@
 import { useSyncExternalStore } from 'react';
 import { HISTORICAL_FLIGHT_ALL_AIRPORTS, type HistoricalFlightCountry } from '../data/historicalFlightTrailsTypes';
 
+/** 狀態訊息代碼：面板在 render 時用 t() 翻譯（切語系會跟著變）。 */
+export type HistoricalFlightStatusCode = 'loading' | 'noneAll' | 'readyAll' | 'noTrack' | 'ready' | 'mismatch' | 'loadFailed' | 'manifestFailed';
 export interface HistoricalFlightStatus {
   state: 'idle' | 'loading' | 'ready' | 'unavailable' | 'error';
+  /** 外部來源原文（樣本備註、例外訊息）；有值時優先顯示原文，不翻譯。 */
   message: string; count?: number;
+  code?: HistoricalFlightStatusCode; params?: Record<string, string | number>;
 }
 const statuses: Record<HistoricalFlightCountry, HistoricalFlightStatus> = {
   TW: { state: 'idle', message: '' }, JP: { state: 'idle', message: '' },

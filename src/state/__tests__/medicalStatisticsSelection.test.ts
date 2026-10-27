@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getStatisticsPeriodNotice, prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
+import { canSelectMedicalStatisticsVariant, getStatisticsPeriodNotice, prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../medicalStatisticsSelection';
 import { regionalStatisticsStore } from '../regionalStatisticsStore';
 import { layerVisibilityStore, buildDefaultVisibility } from '../layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../statisticsDisplayModeStore';
@@ -122,7 +122,7 @@ describe('demographics level switching (村里只有 11508 一期)', () => {
     expect(regionalStatisticsStore.getSnapshot(village).selection).toMatchObject({ releaseId: 'pas-share-age-65-plus-village-11508', dimensions: { month: '08', roc_year: '115' }, allowReleaseFallback: false });
     expect(members.filter(key => layerVisibilityStore.getAll()[key])).toEqual([village]);
     // 期別被改動要明示（guidelines §3：不可靜默跳年份）
-    expect(getStatisticsPeriodNotice(village)).toBe('村里層僅有 115 年 8 月一期，已切換期別。');
+    expect(getStatisticsPeriodNotice(village)).toEqual({ key: 'statisticsSelect.notice.villageOnly', vars: { period: '115 年 8 月' } });
   });
   it('shows no period notice when the county period already matches the village period, and clears it on switching away', () => {
     select(county, '11412');
@@ -163,7 +163,7 @@ describe('disjoint-period variants（臺北市污水接管普及率新舊口徑�
     layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [publicKey]: true });
     expect(selectMedicalStatisticsVariant(publicKey, legacyKey, sewer)).toBe(true);
     expect(regionalStatisticsStore.getSnapshot(legacyKey).selection?.dimensions).toMatchObject({ roc_year: '108', month: '04' });
-    expect(getStatisticsPeriodNotice(legacyKey)).toBe('兩種口徑的資料期間不重疊，已切換到最接近的 2019-04。');
+    expect(getStatisticsPeriodNotice(legacyKey)).toEqual({ key: 'statisticsSelect.notice.disjoint', vars: { period: '2019-04' } });
     expect(sewer.filter(key => layerVisibilityStore.getAll()[key])).toEqual([legacyKey]);
   });
 
@@ -172,5 +172,52 @@ describe('disjoint-period variants（臺北市污水接管普及率新舊口徑�
     layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [legacyKey]: true });
     expect(selectMedicalStatisticsVariant(legacyKey, publicKey, sewer)).toBe(true);
     expect(regionalStatisticsStore.getSnapshot(publicKey).selection?.dimensions).toMatchObject({ roc_year: '108', month: '05' });
+  });
+});
+
+describe('最近不重疊期別退回只限污水接管（F265／F267／F271）', () => {
+  const setFirst = (key: string, predicate: (option: ReturnType<typeof atlasRecipeReleaseOptions>[number]) => boolean = () => true) => {
+    const recipe = getAtlasRecipe(key)!;
+    const option = atlasRecipeReleaseOptions(recipe).find(predicate)!;
+    regionalStatisticsStore.setSelection(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level as never, releaseId: option.release_id, dimensions: option.dimensions });
+    return option;
+  };
+
+  it('癌症篩檢 2 年窗切子宮頸 3 年窗：期別不重疊也不退回最接近期別', () => {
+    const from = 'statsHealthBreastScreening2yr' as const;
+    const to = 'statsHealthCervicalScreening3yr' as const;
+    setFirst(from);
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [from]: true });
+    expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(false);
+    expect(layerVisibilityStore.getAll()[from]).toBe(true);
+    expect(getStatisticsPeriodNotice(to)).toBeUndefined();
+  });
+
+  it('死因 5 年合計（cause=06）切逐年：不退回最近年份、不把死因重設成 all', () => {
+    const from = 'statsMortalityDeaths5yrTownship' as const;
+    const to = 'statsMortalityRateTownship' as const;
+    const option = setFirst(from, candidate => candidate.dimensions.cause === '06');
+    layerVisibilityStore.setAll({ ...buildDefaultVisibility(), [from]: true });
+    const before = regionalStatisticsStore.getSnapshot(to).selection;
+    expect(option.dimensions.cause).toBe('06');
+    expect(selectMedicalStatisticsVariant(from, to, [from, to])).toBe(false);
+    expect(regionalStatisticsStore.getSnapshot(to).selection).toBe(before);
+  });
+});
+
+describe('部分期間切每十萬人率：不相容選項停用（F213）', () => {
+  it('2026 年 1–6 月件數 → 每十萬人率不可選；完整年度 2025 可選', () => {
+    const from = 'statsCrimeResidentialBurglaryCasesTownship' as const;
+    const to = 'statsCrimeResidentialBurglaryPer100kTownship' as const;
+    const recipe = getAtlasRecipe(from)!;
+    const options = atlasRecipeReleaseOptions(recipe);
+    const partial = options.find(option => !option.period_end.endsWith('-12-31'))!;
+    const full = options.find(option => option.period_start.endsWith('-01-01') && option.period_end.endsWith('-12-31'))!;
+    expect(partial).toBeDefined();
+    const select = (option: typeof partial) => regionalStatisticsStore.setSelection(from, { layerKey: from, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level as never, releaseId: option.release_id, dimensions: option.dimensions });
+    select(partial);
+    expect(canSelectMedicalStatisticsVariant(from, to)).toBe(false);
+    select(full);
+    expect(canSelectMedicalStatisticsVariant(from, to)).toBe(true);
   });
 });

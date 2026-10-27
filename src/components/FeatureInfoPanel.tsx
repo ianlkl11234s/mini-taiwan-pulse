@@ -35,6 +35,21 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
   "regionalStatistic",
   "publicToilet",
+  // 日本第一波三層：tile 無來源欄，panel 補出典／授權並自掛 SourceFooter
+  "jpEvacuationSites",
+  "jpPublicOffices",
+  "jpBusStops",
+  // 日本第二波面層：panel 自掛出典（A33 另含各縣原典與京都府 license_note）與授權
+  "jpLandslideWarningAreas",
+  "jpInlandFloodAreas",
+  // 日本第三波面層：panel 自掛出典與授權
+  "jpZoningUseDistricts",
+  "jpNationalForests",
+  // 日本第四波：panel 自掛出典與授權（福祉另含自治體別 license_note）
+  "jpWelfareDisability",
+  "jpWelfareChild",
+  "jpMajorRoads",
+  "jpExpressways",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

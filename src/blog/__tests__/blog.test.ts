@@ -185,4 +185,12 @@ describe("封面與圖片", () => {
     const post = toPost("---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](https://example.com/a.jpg)\n");
     expect(() => renderPostPage(post, [post], join(root, "public"))).toThrow(/不支援外站圖片/);
   });
+
+  it("同源絕對網址（BLOG_ORIGIN）轉成站內路徑；檔案不存在則略過（F264）", () => {
+    const ok = toPost(`---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](${ORIGIN}/blog/taipei-street-trees-map/cover-dark.jpg)\n`);
+    const html = renderPostPage(ok, [ok], join(root, "public"));
+    expect(html).toContain('<img src="/blog/taipei-street-trees-map/cover-dark.jpg" alt="x"');
+    const missing = toPost(`---\nslug: one\ntopic: layers\ntitle: t\ndescription: d\ndate: 2026-01-01\n---\n![x](${ORIGIN}/blog/nope/none.jpg)\n`);
+    expect(renderPostPage(missing, [missing], join(root, "public"))).not.toContain("/blog/nope/none.jpg");
+  });
 });

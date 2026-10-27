@@ -5,6 +5,14 @@ import { THEMED_PAINT_COLORS, GOV_SERVICE_PAINT_COLORS } from "../../map/layerPa
 import { JpMedicalStatus } from "../JpMedicalStatus";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../../data/jpMedicalTypes";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
+import { JP_EVACUATION_SITE_TYPES, JP_EVACUATION_ATTRIBUTION } from "../../data/jpEvacuationSiteTypes";
+import { JP_PUBLIC_OFFICE_CLASSES, JP_PUBLIC_OFFICE_ATTRIBUTION } from "../../data/jpPublicOfficeTypes";
+import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusStopTypes";
+import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
+import { JP_ZONING_CLASSES, JP_ZONING_ATTRIBUTION, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningUseDistrictTypes";
+import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_ATTRIBUTION } from "../../data/jpNationalForestTypes";
+import { JP_WELFARE_ATTRIBUTION, JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
+import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
@@ -808,6 +816,109 @@ export function JpPoliceFacilitiesLegend() {
   </div>;
 }
 
+/** 日本避難場所：兩色＝兩種法定場所（不可相加）；警語依 GSI 頁面原文要旨。 */
+export function JpEvacuationSitesLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpEvacTitle")} />
+    {JP_EVACUATION_SITE_TYPES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpEvacSite", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpEvacLegal")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacFilterNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacStale")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpEvacDate")}</LegendNote>
+    <LegendNote>{JP_EVACUATION_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpEvacuationSites"]} />
+  </div>;
+}
+
+/** 日本役所與公民館：5 類分色，集會施設預設隱藏；2022-04 基準。 */
+export function JpPublicOfficesLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpOfficeTitle")} />
+    {JP_PUBLIC_OFFICE_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpPublicOfficeClass", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpOfficeHidden")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpOfficeBasis")}</LegendNote>
+    <LegendNote>{JP_PUBLIC_OFFICE_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpPublicOffices"]} />
+  </div>;
+}
+
+/** 日本公車站：bus_class 5 色；2022 年度版，不含デマンドバス與高速バス。 */
+export function JpBusStopsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpBusTitle")} />
+    {JP_BUS_STOP_CLASSES.map(c => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{enumLabel("jpBusClass", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpBusCount")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpBusScope")}</LegendNote>
+    <LegendNote>{JP_BUS_STOP_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["jpBusStops"]} />
+  </div>;
+}
+
+/** 日本土砂災害警戒區域（A33）：黃／紅兩區；紅區在黃區之內、概略位置、非法定圖書。 */
+export function JpLandslideWarningAreasLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpLandslideTitle")} />
+    {JP_LANDSLIDE_ZONES.map(z => <LegendRow key={z.value} swatch={<SwatchSquare color={z.color} />}>{enumLabel("jpLandslideZone", z.value, z.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpLandslideNested")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideAccuracy")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslidePre")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideVintage", { count: i18n.formatNumber(JP_LANDSLIDE_FEATURE_COUNT) })}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpLandslideZoom")}</LegendNote>
+    <LegendNote>{JP_LANDSLIDE_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本內水浸水想定區域（A51）：浸水深 8 級；只涵蓋 28 市町村、想定最大規模降雨；無資料≠無風險。 */
+export function JpInlandFloodAreasLegend() {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  const colors = usePaletteRamp("jpInlandFloodAreas", t.isDark, JP_INLAND_FLOOD_STEPS);
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpInlandFloodTitle")} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>{i18n.t("legend.civic.jpInlandFloodDepthHead")}</div>
+    {JP_INLAND_FLOOD_DEPTH_CLASSES.map((c, i) => <LegendRow key={c.value} swatch={<SwatchSquare color={colors[i]!} />}>{enumLabel("jpInlandFloodDepth", c.value, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodScope")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodScenario")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodNoData")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpInlandFloodDistinct")}</LegendNote>
+    <LegendNote>{JP_INLAND_FLOOD_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本用途地域（A55）：13 類；無決定不畫、猪名川町／延岡市未涵蓋、區域外沒有面是正常的。 */
+export function JpZoningUseDistrictsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpZoningTitle")} />
+    {JP_ZONING_CLASSES.map(c => <LegendRow key={c.code} swatch={<SwatchSquare color={c.color} />}>{enumLabel("jpZoningClass", c.code, c.label, i18n)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpZoningNoDecision")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningMissing")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningOutside")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningDisclaimer")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpZoningVintage", { count: i18n.formatNumber(JP_ZONING_FEATURE_COUNT) })}</LegendNote>
+    <LegendNote>{JP_ZONING_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 日本国有林：機能類型 6 類加空白；僅國有林，民有林不在內。 */
+export function JpNationalForestsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.civic.jpForestTitle")} />
+    {JP_FOREST_FUNCTION_TYPES.map(f => <LegendRow key={f.value} swatch={<SwatchSquare color={f.color} />}>{enumLabel("jpForestFunction", f.value, f.label, i18n)}</LegendRow>)}
+    <LegendRow swatch={<SwatchSquare color={JP_FOREST_BLANK_COLOR} />}>{i18n.t("legend.civic.jpForestBlank")}</LegendRow>
+    <LegendNote>{i18n.t("legend.civic.jpForestScope")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestMerged")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestProtected")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpForestZoom")}</LegendNote>
+    <LegendNote>{JP_FOREST_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
 export function JpMedicalLegend({ layerKey }: { layerKey: string }) {
   const t = useLegendTheme();
   const i18n = useLocale();
@@ -892,5 +1003,24 @@ export function PublicLifeCoverageLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {[['#e2e8f0', '0'], ['#bfdbfe', '1–4'], ['#60a5fa', '5–14'], ['#1d4ed8', '15+']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchSquare color={c!} />{i18n.t("legend.civic.coverageCount", { range: l! })}</div>)}
     <div style={{ marginTop: 5 }}>{i18n.t("legend.civic.coverageNote")}</div>
+  </div>;
+}
+
+/** 日本障礙／兒童福祉設施（P14）：依性質色組列出所含中分類；自治體未提供≠沒有；預設不畫代表點。 */
+export function JpWelfareFacilitiesLegend({ layerKey }: { layerKey: JpWelfareLayerKey }) {
+  const i18n = useLocale();
+  const major = JP_WELFARE_LAYER_MAJOR[layerKey];
+  const cats = jpWelfareCategoriesOf(major);
+  return <div>
+    <LegendTitle zh={i18n.t(major === "disability" ? "legend.civic.jpWelfareDisabilityTitle" : "legend.civic.jpWelfareChildTitle")} />
+    {jpWelfareGroupsOf(major).map(g => <LegendRow key={g.value} swatch={<SwatchDot color={g.color} />}>
+      {cats.filter(c => c.group === g.value).map(c => enumLabel("jpWelfareCategory", c.code, c.label, i18n)).join("、")}
+    </LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpWelfareMissing")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareAccuracy")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareLicense")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareStale")}</LegendNote>
+    <LegendNote>{JP_WELFARE_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={[layerKey]} />
   </div>;
 }

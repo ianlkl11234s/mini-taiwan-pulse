@@ -4,7 +4,7 @@
 
 ## 上游產物 → 前端交付
 
-`python3 scripts/preprocess/build-atlas-public.py --src <analytics>/data/processed`（`--only <layer_key>` 可單層重產）。輸入 26 個 dataset 的 processed GeoJSON，輸出見 README 圖層表。
+`python3 scripts/preprocess/build-atlas-public.py --src <analytics>/data/processed`（`--only <layer_key>` 可單層重產）。輸入 26 個 dataset 的 processed GeoJSON，輸出見 README 圖層表。 其中海域保護與漁業 7 個 dataset 的欄位契約另見 [`../marine-protected-fishery/handoff.md`](../marine-protected-fishery/handoff.md)。
 
 ## 硬依賴欄位（改一定爆）
 

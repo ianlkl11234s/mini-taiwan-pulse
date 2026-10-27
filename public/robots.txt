@@ -2,38 +2,48 @@
 # 歡迎搜尋引擎與 AI 助理的爬蟲讀取公開頁面。
 User-agent: *
 Allow: /
-Disallow: /card/
+# /card/ 不列 Disallow：讓爬蟲抓得到頁面，才看得到 nginx 送的 X-Robots-Tag: noindex
 Disallow: /api/
 
 # AI 搜尋與助理爬蟲：明示允許
 User-agent: GPTBot
 Allow: /
+Disallow: /api/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /api/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /api/
 
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /api/
 
 User-agent: Claude-User
 Allow: /
+Disallow: /api/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /api/
 
 User-agent: Perplexity-User
 Allow: /
+Disallow: /api/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /api/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /api/
 
 Sitemap: https://mini-taiwan-pulse.itsmigu.com/sitemap.xml

@@ -1,6 +1,7 @@
 {
   "statisticsSelect.publishedPeriod": "已公開期別",
   "statisticsSelect.unavailableForYear": "{label}（此學年未提供）",
+  "statisticsSelect.unavailableForPeriod": "{label}（目前期別未提供）",
   "statisticsSelect.partialPeriod": "{year} 年 {from}–{to} 月（部分期別）",
   "statisticsSelect.periodYear": "{year} 年",
   "statisticsSelect.pointInTime": "{date}（時點）",
@@ -17,5 +18,8 @@
   "statisticsSelect.ytdPeriod": "{year} 年 {start}–{end} 月累計",
   "statisticsSelect.variantWithPeriod": "{label}（{period}）",
   "statisticsSelect.variantDetail": "{label}－{detail}",
-  "statisticsSelect.variantPopCompare": "{label}（人口比較）"
+  "statisticsSelect.variantPopCompare": "{label}（人口比較）",
+  "statisticsSelect.notice.disjoint": "兩種口徑的資料期間不重疊，已切換到最接近的 {period}。",
+  "statisticsSelect.notice.villageOnly": "村里層僅有 {period}一期，已切換期別。",
+  "statisticsSelect.notice.villageOnlyNoPeriod": "村里層僅有一期，已切換期別。"
 }

@@ -263,6 +263,8 @@ export const EXTRUSION = {
  * 房價格網 3D 高度倍率：滑桿現在是「倍率」（0.25–10，乘 propertyValueHeightBase）。
  * 舊版 v1 嵌入網址的 `p.propertyValueGridElevationScale=40` 是直接當基準高度（單位＝基準本身），
  * 超出滑桿範圍的值視為舊制，換算成倍率後夾回範圍，避免 3D 高度暴增約 40 倍。
+ * ⚠️ 已知歧義：網址沒有版本欄位，恰好等於 10 的值無法分辨（舊滑桿最小值＝0.25 倍；新倍率上限＝10 倍），
+ * 一律當新制 10 倍；邊界案例，影響範圍小，刻意不處理。
  */
 export function propertyValueGridHeightScale(raw: number | undefined): number {
   const [min, max] = [0.25, 10];

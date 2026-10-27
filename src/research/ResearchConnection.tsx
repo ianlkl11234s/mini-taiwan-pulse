@@ -33,7 +33,7 @@ export function agentAllowedAtStart(): boolean {
   if (TEST_IDENTITY) return true;
   if (typeof window === "undefined") return false;
   try {
-    if (new URLSearchParams(window.location.search ?? "").get("agent") === "1") return true;
+    if (new URLSearchParams(window.location.search ?? "").get("agent") === "1") { rememberAgentAllowed(true); return true; }
     return window.sessionStorage.getItem(AGENT_ALLOWED_KEY) === "1";
   } catch { return false; }
 }
@@ -96,6 +96,8 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
       onState: snapshot => callbacks.current.onState(snapshot),
       onConnection: context => callbacks.current.onConnection(context),
       onView: next => { setView(next); setNotice(null); },
+      // 複製分頁會繼承 sessionStorage 的 opt-in，但拿不到原分頁的租約：收回 opt-in，要使用者重新按允許。
+      onDuplicateTab: () => { rememberAgentAllowed(false); setAllowed(false); },
     });
     tab.current = tabSession;
     tabSession.start();

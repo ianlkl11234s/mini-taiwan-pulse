@@ -119,13 +119,16 @@ export async function loadJmaImageryManifest(
       p_since: c.sinceIso,
       p_until: c.untilIso,
       p_step_minutes: window.stepMinutes,
-    }))),
+    }))).then((chunkResults) => {
+      // 任一塊失敗要讓 loading registry 記為失敗，不能等到 withLoading 之後才 throw
+      for (const { error } of chunkResults) {
+        if (error) throw new Error(`get_weather_imagery_manifest: ${error.message}`);
+      }
+      return chunkResults;
+    }),
   );
   const rows: JmaImageryManifestRow[] = [];
-  for (const { data, error } of results) {
-    if (error) throw new Error(`get_weather_imagery_manifest: ${error.message}`);
-    rows.push(...((data ?? []) as JmaImageryManifestRow[]));
-  }
+  for (const { data } of results) rows.push(...((data ?? []) as JmaImageryManifestRow[]));
   return rowsToJmaImageryFrames(rows, IMAGERY_CDN_BASE);
 }
 
@@ -138,7 +141,7 @@ export function jmaImageryWindowFor(
   const keys = [...dateKeys].sort();
   const first = keys[0]!;
   const last = keys[keys.length - 1]!;
-  const sinceMs = new Date(`${first}T00:00:00+08:00`).getTime() - product.maxStaleMin * 60_000;
+  const sinceMs = new Date(`${first}T00:00:00+08:00`).getTime() - Math.max(product.maxStaleMin, product.liveMaxStaleMin) * 60_000;
   let untilMs = new Date(`${last}T00:00:00+08:00`).getTime() + 24 * 3600_000;
   untilMs = Math.min(untilMs, nowMs + 3600_000);
   // 不在這裡截 8 天：截掉的會是最近的日子；RPC 的 8 天上限由 jmaImageryWindowChunks 分塊處理
@@ -201,7 +204,7 @@ export function pickJmaImageryFrame(
     }
   }
   if (!chosen) return { kind: "uncovered", reason: "no_frame", frame: null };
-  const nearNow = !live && nowMs - tMs < product.liveMaxStaleMin * 60_000;
+  const nearNow = !live && tMs <= nowMs && nowMs - tMs < product.liveMaxStaleMin * 60_000;
   const maxStale = (live || nearNow ? product.liveMaxStaleMin : product.maxStaleMin) * 60_000;
   if (tMs - chosen.validTimeMs > maxStale) return { kind: "uncovered", reason: "stale", frame: chosen };
   if (chosen.status === "missing" || !chosen.url || chosen.lonMin == null || chosen.lonMax == null

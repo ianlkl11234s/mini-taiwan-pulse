@@ -20,4 +20,8 @@
 - Google 定位或 Google Places 推得的座標維持現狀，不要求額外標注或改授權欄。
 - UI 與地圖樣式以 `docs/design-system/spec.md`、`docs/design-system/map-layers.md` 為準，規格允許的做法不再提；鏡頭自動 fit 上限 zoom 16 是刻意設計。
 - 分析口徑：未涵蓋 ≠ 0，必要的資料限制但書都要寫；`ds_poi_medical` 是已接受來源。
+- 授權只禁止「商用」不算明確受限：個人非營利網站照常上線，popup／來源卡標示限制即可。
+- 颱風多來源路徑維持單源優先：優先來源有任何點就只用它，不依時段回退次優來源。
+- 統計的「最近不重疊期別」退回只限污水接管公式，癌症篩檢等其他統計不退回；部分期間下沒有對應期別的口徑選項要停用並標示原因（例「（目前期別未提供）」）。
+- 多語版 SEO：`?lang=en`／`ja` 的 canonical 指向自己的語版網址、與 hreflang 一致；`/card/` 不放 robots.txt Disallow，由 nginx noindex header 控制。
 - 正本在 gis-agent-system reports/code-review/POLICIES.md。
