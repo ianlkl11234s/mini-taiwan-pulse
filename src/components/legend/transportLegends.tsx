@@ -13,6 +13,11 @@ import { RAIL_LINES, RAIL_OPERATORS, railLegendLines, railMetroOperatorNames, re
 import { PORT_CLASSES, PORT_CLASS_FALLBACK } from "../../data/transportHubTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../../data/jpRailwayTypes";
+import {
+  JP_ROAD_CLASSES, JP_ROAD_ATTRIBUTION, JP_EXPRESSWAY_CATEGORIES, JP_EXPRESSWAY_PROVISIONAL_MIX, JP_EXPRESSWAY_JUNCTION_TYPES, JP_EXPRESSWAY_ATTRIBUTION,
+} from "../../data/jpRoadTypes";
+import { mixWithWhite } from "../../data/jpZoningUseDistrictTypes";
+import { LINE_WIDTH } from "../../map/mapStyleScale";
 import { SATELLITE_COLORS, SATELLITE_LABELS } from "../../data/satelliteTypes";
 import { parkingAvailabilityColor, PARKING_NEUTRAL_STOPS, AVAILABILITY_NULL_COLOR, SOURCE_CATEGORY_META } from "../../data/parkingLoader";
 import { FireCatRows, FlatArrowRow } from "./legendShared";
@@ -261,6 +266,38 @@ export function JpRailwaysLegend() {
     <div>
       <LegendTitle zh={i18n.t("legend.transport.jpRailTitle")} />
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: enumLabel("jpStationType", r.value, r.label, i18n) }))} />
+    </div>
+  );
+}
+
+/** 日本主要道路（N13）：三級線色＋L-1 線寬；不含市町村道、不可算密度／里程。 */
+export function JpMajorRoadsLegend() {
+  const i18n = useLocale();
+  return (
+    <div>
+      <LegendTitle zh={i18n.t("legend.transport.jpRoadTitle")} />
+      {JP_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={LINE_WIDTH[c.tier][1]} />}>{enumLabel("jpRoadClass", c.value, c.label, i18n)}</LegendRow>)}
+      <LegendNote>{i18n.t("legend.transport.jpRoadScope")}</LegendNote>
+      <LegendNote>{i18n.t("legend.transport.jpRoadZoom")}</LegendNote>
+      <LegendNote>{i18n.t("legend.transport.jpRoadOverlap")}</LegendNote>
+      <LegendNote>{JP_ROAD_ATTRIBUTION}</LegendNote>
+    </div>
+  );
+}
+
+/** 日本高速道路（N06 2025 現況）：路線種別色、暫定供用淡色；IC／JCT 點 z9 起。 */
+export function JpExpresswaysLegend() {
+  const i18n = useLocale();
+  return (
+    <div>
+      <LegendTitle zh={i18n.t("legend.transport.jpExpresswayTitle")} />
+      {JP_EXPRESSWAY_CATEGORIES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={LINE_WIDTH.emphasis[1]} />}>{enumLabel("jpExpresswayCategory", c.value, c.label, i18n)}</LegendRow>)}
+      <LegendRow swatch={<SwatchLine color={mixWithWhite(JP_EXPRESSWAY_CATEGORIES[0].color, JP_EXPRESSWAY_PROVISIONAL_MIX)} width={LINE_WIDTH.emphasis[1]} />}>{i18n.t("legend.transport.jpExpresswayProvisional")}</LegendRow>
+      {JP_EXPRESSWAY_JUNCTION_TYPES.map((j) => <LegendRow key={j.value} swatch={<SwatchDot color={j.color} />}>{enumLabel("jpExpresswayJunction", j.value, j.label, i18n)}</LegendRow>)}
+      <LegendNote>{i18n.t("legend.transport.jpExpresswayAsOf")}</LegendNote>
+      <LegendNote>{i18n.t("legend.transport.jpExpresswaySaPa")}</LegendNote>
+      <LegendNote>{i18n.t("legend.transport.jpExpresswayZoom")}</LegendNote>
+      <LegendNote>{JP_EXPRESSWAY_ATTRIBUTION}</LegendNote>
     </div>
   );
 }

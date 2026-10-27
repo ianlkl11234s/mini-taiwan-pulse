@@ -103,5 +103,14 @@
   "legend.transport.busSimLoad2": "8割〜満員",
   "legend.transport.busSimLoad3": "定員超過",
   "legend.transport.busSimReplayDefinition": "車内の混雑：推計乗車量が車両定員（仮定値）に占める割合。区間は20分以内に最後に出発した便の混雑で、便のない区間は描画しません",
-  "legend.transport.busSimReplayVehicles": "点＝シミュレーションのバス（拡大すると進行方向を表示）。停留所での停車時間は考慮しません。停留所の順序と路線形状が合わない23路線と、永和シャトル（路線形状なし）の便は描画しません"
+  "legend.transport.busSimReplayVehicles": "点＝シミュレーションのバス（拡大すると進行方向を表示）。停留所での停車時間は考慮しません。停留所の順序と路線形状が合わない23路線と、永和シャトル（路線形状なし）の便は描画しません",
+  "legend.transport.jpRoadTitle": "主要道路（道路種別）",
+  "legend.transport.jpRoadScope": "国道・都道府県道・高速道路のみで、市区町村道は含みません。道路密度・到達性・延長の算出には使えず、描かれていない場所に道路がないわけではありません",
+  "legend.transport.jpRoadZoom": "ズーム6〜8は国道と高速のみ、都道府県道はズーム9から表示。2024年9月時点",
+  "legend.transport.jpRoadOverlap": "高速区間は「高速道路」レイヤーと重なるため、どちらか一方を表示してください",
+  "legend.transport.jpExpresswayTitle": "高速道路（路線種別）",
+  "legend.transport.jpExpresswayProvisional": "暫定供用（同色の淡色、主に片側1車線）",
+  "legend.transport.jpExpresswayAsOf": "2025年12月31日時点の現況。その後に開通した区間は含みません",
+  "legend.transport.jpExpresswaySaPa": "接合部種別にSA/PAはありません。名称にSA/PAを含む33点は併設のICで、SA・PAの完全な一覧ではありません",
+  "legend.transport.jpExpresswayZoom": "IC・JCTはズーム9から表示。路線種別の絞り込みは線のみに適用"
 }

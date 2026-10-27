@@ -95,5 +95,11 @@
   "legend.urban.amountSmall": "{n} 萬元",
   "legend.urban.amountLarge": "{n} 億元",
   "legend.urban.amountHuge": "{n} 兆元",
-  "legend.urban.amountDollar": "{n} 元"
+  "legend.urban.amountDollar": "{n} 元",
+  "legend.urban.jpGsiHillshadeTitle": "陰影起伏圖",
+  "legend.urban.jpGsiHillshadeNote": "灰階地形陰影，只表示起伏，不含數值",
+  "legend.urban.jpGsiReliefTitle": "色別標高圖",
+  "legend.urban.jpGsiReliefNote": "依標高著色（色階見國土地理院說明頁），顏色只代表標高範圍，非精確數值",
+  "legend.urban.jpGsiReliefSea": "海域部用海上保安庁海洋情報部的資料製作",
+  "legend.urban.jpGsiSource": "出典：國土地理院（地理院タイル），外部圖磚直連"
 }

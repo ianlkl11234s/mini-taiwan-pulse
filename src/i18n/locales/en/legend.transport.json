@@ -103,5 +103,14 @@
   "legend.transport.busSimLoad2": "80% to full",
   "legend.transport.busSimLoad3": "Overloaded",
   "legend.transport.busSimReplayDefinition": "On-board load: estimated load as a share of vehicle capacity (an assumed value); segments show the most recent departure within 20 minutes, and segments with no trip are not drawn",
-  "legend.transport.busSimReplayVehicles": "Dots = simulated buses (direction shown when zoomed in); dwell time at stops is ignored; trips on 23 routes whose stop order doesn't match the route shape, and on the Yonghe shuttle (no route shape), are not drawn"
+  "legend.transport.busSimReplayVehicles": "Dots = simulated buses (direction shown when zoomed in); dwell time at stops is ignored; trips on 23 routes whose stop order doesn't match the route shape, and on the Yonghe shuttle (no route shape), are not drawn",
+  "legend.transport.jpRoadTitle": "Major roads (by road class)",
+  "legend.transport.jpRoadScope": "National, prefectural and expressway roads only — municipal roads are not included. Do not use for road density, accessibility or length; undrawn areas do not mean there is no road",
+  "legend.transport.jpRoadZoom": "Zoom 6–8 shows only national roads and expressways; prefectural roads appear from zoom 9. As of 2024-09",
+  "legend.transport.jpRoadOverlap": "Expressway segments overlap the \"Expressways\" layer; turn on only one",
+  "legend.transport.jpExpresswayTitle": "Expressways (by route type)",
+  "legend.transport.jpExpresswayProvisional": "Provisional service (lighter shade; mostly one lane each way)",
+  "legend.transport.jpExpresswayAsOf": "Status as of 2025-12-31; sections opened later are not included",
+  "legend.transport.jpExpresswaySaPa": "Junction types have no SA/PA category; the 33 points named SA/PA are attached interchanges, not a complete list of service areas",
+  "legend.transport.jpExpresswayZoom": "IC / JCT points appear from zoom 9; the route-type filter applies to lines only"
 }
