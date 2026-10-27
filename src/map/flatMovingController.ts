@@ -68,12 +68,20 @@ export function railFlatFeatures(trains: readonly RailTrain[]): GeoJSON.FeatureC
   return { type: "FeatureCollection", features };
 }
 
+/**
+ * 垃圾車選取／拾取的唯一鍵：車號 + 縣市 + 路線。
+ * 只用 vehicle_no 時，跨縣市同車號或同車多條路線的 trail row 會互相覆蓋，點到別列資料。
+ */
+export function wasteTruckKey(row: Pick<WasteTrailRow, "vehicle_no" | "city" | "route_id">): string {
+  return `${row.city}|${row.vehicle_no}|${row.route_id ?? ""}`;
+}
+
 /** 垃圾車 → GeoJSON（色＝WASTE_STATUS_COLORS；停車／離線較小（parked）；alpha＝淡入淡出／過期淡化）。 */
 export function wasteFlatFeatures(placements: readonly WasteTruckPlacement[]): GeoJSON.FeatureCollection<GeoJSON.Point, FlatMovingProps> {
   return {
     type: "FeatureCollection",
     features: placements.map(({ row, frame, bearing }) => pointFeature(frame.lng, frame.lat, {
-      key: row.vehicle_no,
+      key: wasteTruckKey(row),
       color: WASTE_STATUS_COLORS[frame.status] ?? WASTE_STATUS_COLORS.unknown,
       tier: frame.status === "parked" || frame.status === "offline" ? "parked" : "moving",
       alpha: frame.alpha,
@@ -259,7 +267,7 @@ export function createFlatMovingController(deps: FlatMovingDeps) {
       const nowSec = wasteVisualTimeSec(timeStore.getTime(), Date.now());
       const placements = computeWasteTruckFrames(trails, nowSec, { maxCount: 500, withBearing: true });
       wasteByKey.clear();
-      for (const p of placements) wasteByKey.set(p.row.vehicle_no, p.row);
+      for (const p of placements) wasteByKey.set(wasteTruckKey(p.row), p.row);
       const selRow = selection.wasteTruck ? wasteByKey.get(selection.wasteTruck) : undefined;
       let trail: GeoJSON.FeatureCollection = EMPTY_FEATURES;
       if (selRow) {

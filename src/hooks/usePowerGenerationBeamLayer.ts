@@ -4,6 +4,7 @@ import {
   POWER_GENERATION_BEAM_LAYER_ID,
   powerGenerationBeamModule,
   mountLazyCustomLayer,
+  removeLazyCustomLayer,
 } from "../map/lazyThreeLayers";
 import {
   fetchPowerGeneration24h,
@@ -95,14 +96,22 @@ export function usePowerGenerationBeamLayer(
   // → CustomLayer 永遠沒 addLayer，14 廠 fetch 成功但畫面沒柱。修法走 try/catch + idle retry
   useEffect(() => {
     console.log("[PowerBeam] mount effect run; beamOn=", beamOn, "mapReady=", !!mapRef.current);
-    if (!beamOn) return; // R6 段 2：立體效果關 → 不下載、不掛光柱
     const map = mapRef.current;
+    if (!beamOn) {
+      // R6 段 2：立體效果關 → 不下載、不掛光柱；已掛的移除（不佔 GPU）
+      if (map) {
+        try { removeLazyCustomLayer(map, POWER_GENERATION_BEAM_LAYER_ID); } catch { /* map 可能已銷毀 */ }
+      }
+      return;
+    }
     if (!map) {
       console.log("[PowerBeam] mount: mapRef.current=null，等下次 deps 改變");
       return;
     }
 
+    let cancelled = false;
     const tryMount = () => {
+      if (cancelled || !beamOnRef.current) return;
       if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) return;
       try {
         // C1b：three 模組第一次可見才載入；錨點佔住原位置
@@ -123,7 +132,9 @@ export function usePowerGenerationBeamLayer(
     // 未來 setStyle (Dark/Light 切換) 後也要重新掛
     map.on("style.load", tryMount);
     return () => {
+      cancelled = true;
       map.off("style.load", tryMount);
+      map.off("idle", tryMount);
     };
   }, [mapRef, beamOn, mapTick]);
 

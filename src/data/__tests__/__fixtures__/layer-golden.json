@@ -14727,12 +14727,14 @@
             "dark": {
               "text-color": "#e5e7eb",
               "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25
+              "text-halo-width": 1.25,
+              "text-opacity": 1
             },
             "light": {
               "text-color": "#1f2937",
               "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25
+              "text-halo-width": 1.25,
+              "text-opacity": 1
             }
           },
           "suffix": "label",
@@ -37904,34 +37906,66 @@
               "circle-color": "#000000",
               "circle-opacity": 0,
               "circle-radius": [
-                "interpolate",
+                "+",
                 [
-                  "linear"
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "max",
+                      0,
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "output_mw"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0,
+                  3,
+                  63.245553203367585,
+                  20
                 ],
-                [
-                  "zoom"
-                ],
-                5,
-                10,
-                12,
-                18
+                6
               ]
             },
             "light": {
               "circle-color": "#000000",
               "circle-opacity": 0,
               "circle-radius": [
-                "interpolate",
+                "+",
                 [
-                  "linear"
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "sqrt",
+                    [
+                      "max",
+                      0,
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "output_mw"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0,
+                  3,
+                  63.245553203367585,
+                  20
                 ],
-                [
-                  "zoom"
-                ],
-                5,
-                10,
-                12,
-                18
+                6
               ]
             }
           },
