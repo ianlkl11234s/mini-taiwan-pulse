@@ -22,7 +22,7 @@ DEFAULT_INPUTS = [
     os.path.join(BASE, "public/geo/bus_stations_intercity.geojson"),
 ]
 DEFAULT_SOURCE = os.path.join(
-    BASE, "../../../taipei-gis-analytics/data/processed/transportation/bus/bus_stops_all.geojson"
+    BASE, "../taipei-gis-analytics/data/processed/transportation/bus/bus_stops_all.geojson"
 )
 
 

@@ -38,6 +38,9 @@ def main():
             if not frame.get("reviewed"):
                 skipped["notDone"] += 1
                 continue
+            if any(box.get("suggested") for box in frame["boxes"]):
+                skipped["pendingSuggestions"] += 1  # 待確認的『機車?』不是真值
+                continue
             if frame.get("cameraId") is None or frame.get("receivedAt") is None:
                 skipped["notATrainingStill"] += 1  # e.g. 9/29 replay frames: separate night test set
                 continue
