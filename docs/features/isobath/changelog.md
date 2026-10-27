@@ -7,7 +7,15 @@
 ## 2026-10-16 — 盤點關閉
 
 - ISO-1 gebco_isobath.pmtiles 落地：PR #160（v1.15.0），正式站 `/base_map/gebco_isobath.pmtiles` 回 206。
-- ISO-2 上游 handoff：`taipei-gis-analytics/docs/handoff/gebco_isobath.md` 已存在（雙向欄位校對未逐項重驗）。
+- ISO-2 上游 handoff：`taipei-gis-analytics/docs/handoff/gebco_isobath.md` 已存在。
+
+## 2026-10-27 — ISO-2 欄位契約逐項比對
+
+對照上游 handoff（2026-08-23，origin/master）與本 repo 現行程式，逐項一致：
+- source-layer `isobath`、zoom 4–12：`overlayRegistry.ts` `pmtiles: { sourceLayer: "isobath", minzoom: 4, maxzoom: 12 }`。
+- `kind`（`"band"`／`"line"`）：兩個 sub-layer 以 `["==", ["get", "kind"], …]` 分流。
+- `depth_m`（line，負值整數 11 級）、`dmin`／`dmax`（band，負值整數 12 級）：`baseMapPanels.tsx` 的 `IsobathLinePanel`／`IsobathBandPanel` 讀取，色票在 `src/data/isobathTypes.ts`。
+- 結論：雙向欄位契約一致，ISO-2 驗收成立，不需補回 BACKLOG。
 
 ## YYYY-MM-DD — PR #NN <squash commit hash>
 - <what changed>

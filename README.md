@@ -8,7 +8,7 @@
 後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星、區域統計……
 全部疊在同一張 3D 地圖與同一條時間軸上，並可以讓本機的 AI Agent 直接操作地圖做空間分析。
 
-> 數字統計時點 2026-10-04。圖層登記以 [`src/data/layerManifest.ts`](src/data/layerManifest.ts) 為準，側欄主題以 [`src/components/sidebar/layerCatalog.ts`](src/components/sidebar/layerCatalog.ts) 的 `THEMES` 為準。
+> 數字統計時點：有自帶日期的列（例如 L2 可分析）以該日期為準；其餘以 2026-10-04 為基準，可能落後，需要精確數字時重新計算。圖層登記以 [`src/data/layerManifest.ts`](src/data/layerManifest.ts) 為準，側欄主題以 [`src/components/sidebar/layerCatalog.ts`](src/components/sidebar/layerCatalog.ts) 的 `THEMES` 為準。
 
 ---
 

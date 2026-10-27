@@ -571,6 +571,8 @@ export function useThreeJsLayers({
       () => {
         // 等待期間換了地圖／切底圖（錨點會在 style.load 後的 addAllLayers 重建，屆時 bundle 已在，直接加）
         if (mapInstanceRef.current !== map || !map.getLayer(THREE_LAYERS_ANCHOR_ID) || map.getLayer("flight-3d")) return;
+        // 載入期間使用者可能已把立體效果／圖層關掉 → 不再掛（下次開啟會再 ensure）
+        if (!anyThreeLayerVisible(layerVisibilityStore.getAll(), stereoTogglesFromRefs())) return;
         addThreeLayersBeforeAnchor(map);
         repaint();
       },

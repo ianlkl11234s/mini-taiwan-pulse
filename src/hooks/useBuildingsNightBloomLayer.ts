@@ -40,7 +40,10 @@ export function useBuildingsNightBloomLayer(
       return;
     }
 
+    let cancelled = false;
     const tryMount = () => {
+      // 已取消（effect cleanup）或已不可見：不再掛載（含 idle 重試排隊中的情況）
+      if (cancelled || !visibleRef.current) return;
       if (map.getLayer(BUILDINGS_NIGHT_BLOOM_LAYER_ID)) return;
       try {
         // C1b：three 模組第一次可見才載入；錨點佔住原位置
@@ -60,7 +63,9 @@ export function useBuildingsNightBloomLayer(
     tryMount();
     map.on("style.load", tryMount);
     return () => {
+      cancelled = true;
       map.off("style.load", tryMount);
+      map.off("idle", tryMount);
     };
   }, [mapRef, visible, mapTick]);
 }

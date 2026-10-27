@@ -28,7 +28,7 @@
 
 - `src/map/*CustomLayer.ts` 19 個：buildingsNightBloom、bus、earthquakeRipple、fireStation、gfwV4Track、historicalFlightTrails、lighthouse、osmPowerLinesGlow、powerGenerationBeam、powerPlantGlow、powerRegionBars、realEstatePoints、reservoir、stationPillar、substationEhvGlow、temperatureWave、wasteFacility、wasteSchedule、wasteTruck。
 - `src/three/*Scene.ts` 20 個（含 Flight、Ship、Rail、GlowPoints、WasteMusicNote 等沒有對應 CustomLayer 檔名的）。
-- `docs/design-system/layer-style-inventory.json` 中標 `unresolved` 的 Three.js 層（G-1 原寫 13 層，實為 14 層（漏 wfMonitoring），有檔案指標）。
+- `docs/design-system/layer-style-inventory.json` 中有 `threeFiles` 或 `render` 含 `three/custom` 的項目（不要只篩 `unresolved`：G-1 原寫 13 層，實為 14 層，漏了 `wfMonitoring`——它是 `resolution: static-scan` 但有 `threeFiles`）。
 - 開關與延後載入：`src/map/lazyThreeLayers.ts`（打開才建，#464／#476）。
 
 每層要記下：圖層 key、中文名、資料來源與幾何（點／線／面／移動物件）、是否時間動態（timeStore 訂閱）、現在有沒有平面替代（例：捷運已有「Mapbox 點位／實際範圍（光暈示意）」兩模式、車站光柱預設關 #393）、點數、popup 與圖例現況、效能（移動物件數量）。

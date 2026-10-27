@@ -44,6 +44,8 @@ export function collectLayerAttributions(views: readonly MapSourceView[]): strin
 export interface AttributionMapLike {
   getStyle(): { sources?: Record<string, any>; layers?: any[] } | undefined | null;
   getSource(id: string): any;
+  /** 有提供時，排除目前縮放不在 minzoom／maxzoom 範圍內（實際不渲染）的 layer */
+  getZoom?(): number;
 }
 
 /** 以公開 API 讀出所有 source 的 view（style 尚未載入或序列化失敗時回空陣列）。 */
@@ -55,9 +57,20 @@ export function readMapSourceViews(map: AttributionMapLike): MapSourceView[] {
     return [];
   }
   if (!style?.sources) return [];
+  let zoom: number | null = null;
+  try {
+    const z = map.getZoom?.();
+    if (typeof z === "number" && Number.isFinite(z)) zoom = z;
+  } catch { /* 地圖已銷毀：不做 zoom 篩選 */ }
   const used = new Set<string>();
   for (const layer of style.layers ?? []) {
-    if (typeof layer?.source === "string" && layer.layout?.visibility !== "none") used.add(layer.source);
+    if (typeof layer?.source !== "string" || layer.layout?.visibility === "none") continue;
+    // 目前縮放下不渲染的 layer（minzoom 含、maxzoom 不含）不算在用，來源不列入
+    if (zoom !== null) {
+      if (typeof layer.minzoom === "number" && zoom < layer.minzoom) continue;
+      if (typeof layer.maxzoom === "number" && zoom >= layer.maxzoom) continue;
+    }
+    used.add(layer.source);
   }
   return Object.entries(style.sources).map(([id, spec]) => {
     const instance = map.getSource(id);

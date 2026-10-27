@@ -66,8 +66,12 @@ export function useJmaTimeDriver<T>(opts: {
     const run = (tSec: number, force = false) => {
       const nowSec = Date.now() / 1000;
       const req = jmaTimeRequest(key, tSec, nowSec);
-      if (!force && req.cacheKey === currentKey) return;
-      currentKey = req.cacheKey;
+      // 季節類 live／history 同日共用同一個日期 cacheKey → 桶身分要再帶 history 旗標，否則同日切模式會被略過
+      const bucketId = `${req.cacheKey}|${req.history ? "h" : "l"}`;
+      if (!force && bucketId === currentKey) return;
+      // 換桶：先清掉舊桶已套用的資料，避免舊時刻的畫面留在新時間上（輪詢／同桶強制重查不清，免閃爍）
+      if (currentKey !== null && bucketId !== currentKey) applyRef.current(null, req);
+      currentKey = bucketId;
       const mySeq = ++seq;
       if (!req.history || !req.coverageLayer) { load(req, mySeq); return; }
       fetchJmaTimeCoverage()
