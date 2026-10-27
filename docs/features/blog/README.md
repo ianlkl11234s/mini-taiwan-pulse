@@ -1,7 +1,7 @@
 # Pulse 筆記（/blog）
 
 > **Slug**：`blog`
-> **狀態**：active（已合 develop，尚未發布到正式站）
+> **狀態**：active（v2.13.0 已發布到正式站；後續文章依 article-plan 進度）
 > **Owner**：migu
 > **相關 PR**：#670（文章專區＋第一篇）、#673（地圖站入口）
 > **寫文章**：照 [`.claude/skills/blog-writing/SKILL.md`](../../../.claude/skills/blog-writing/SKILL.md)；要寫哪些看 [article-plan.md](./article-plan.md)
@@ -111,6 +111,6 @@ npm run build && npx vite preview --port 4399
 
 ## 待辦
 
-- 發布到正式站（develop → master 由使用者拍板）後，到正式站驗收：文章、列表、主題頁、關於頁、RSS、301／404、嵌入地圖手勢。
+- 已於 v2.13.0 上正式站並驗過：文章、列表、關於、RSS 200，`/blog/nope/` 404、`/blog/rail` 301，台北捷運嵌入地圖有列車（30 倍速）。尚未驗：主題頁；嵌入地圖手勢待手機實機（BACKLOG BLOG-V）。
 - 首頁 `index.html` 的靜態說明可以加一個 `/blog/` 連結，讓爬蟲從首頁就找得到。
 - Search Console 提交 sitemap（使用者操作）。

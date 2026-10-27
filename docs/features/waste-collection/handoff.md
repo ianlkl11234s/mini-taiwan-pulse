@@ -20,7 +20,7 @@
 
 - **GPS 座標是來源原始 WGS84 點**，非推算。`status` 由 collector 依 `location` 字串關鍵字（停車場／區隊／清潔隊／車隊）判成 `parked`，其餘為 `collecting`，因此 `collecting` 不保證真的在收運。
 - **經 TGOS 補座標的表定停靠點，位置是門牌地理編碼推得的**（hwms 原始資料缺經緯度；哪些城市／筆數靠 TGOS、哪些本來就有座標，逐城比例未查到）。TGOS 回傳為 TWD97（EPSG:3826），需轉 WGS84（research/progress.md、phase-1-handoff.md）。地址對不到或對到門牌中心都可能與實際停車點有偏差，使用者端不得當成精確停靠位置。
-- 表定動畫的車輛位置是依時刻表＋OSRM 沿路網**推算**，並非實測；`schedule_inferred` 欄位標記該路線的時刻是否為推斷（301 migration 的 RPC 回傳）。
+- 表定動畫的車輛位置是依時刻表在 stops 之間做**直線插值**推算（`WasteScheduleScene.ts`，v1 stops-as-polyline，會穿越建物與水域），並非實測，也不是沿路網；OSRM 沿路網整合是 BL-17（[`research/schedule-osrm-plan.md`](./research/schedule-osrm-plan.md)），尚未實作。`schedule_inferred` 欄位標記該路線的時刻是否為推斷（301 migration 的 RPC 回傳）。
 - 設施投放點若 `geometry IS NULL`，RPC 直接排除（未地理編碼者不回傳）。
 - 無 GPS 的城市（含臺北）不顯示即時車；「未涵蓋」不等於沒有垃圾車。
 

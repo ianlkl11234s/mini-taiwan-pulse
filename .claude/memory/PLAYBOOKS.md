@@ -821,8 +821,10 @@ psql "$SUPABASE_DB_URL" -f migrations/<next>.sql  # gis-platform，先 apply 線
 # - 改 RPC → psql 跑各種參數確認形狀
 # - 改前端 → dev server + agent-browser 截圖驗證
 
-# 4. push + PR
-git add <自己改的檔> && git commit -m "<type>: <subject>"   # 平行 session 下不用 add -A && git push -u origin <branch>
+# 4. push + PR（平行 session 下不用 add -A，只 add 自己改的檔）
+git add <自己改的檔>
+git commit -m "<type>: <subject>"
+git push -u origin <branch>
 gh pr create --base develop --title "<title>" --body "<summary + 自我檢查結果 + 截圖路徑>"
 
 # 5. 等 CI + Codex review（時間依 queue 而定）

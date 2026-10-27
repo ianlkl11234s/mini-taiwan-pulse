@@ -45,7 +45,7 @@ CI 在 PR 時跑、`layer-onboarding` 在接線時跑、`wrap-up` 在 session �
 7. **必須在主工作樹跑，不要在 `git worktree` 裡跑**（2026-08-21 實測）。
    worktree 只有 git 追蹤的檔案——`public/` 的 1125 個檔在 worktree 裡只剩 156 個
    （PMTiles／大 GeoJSON 全被 gitignore 走 S3），且 `../data-collectors` 等 sibling repo
-   的相對路徑會失效。結果是 A3／A5／D5 給出嚴重偏低的假數字、上游探測整組失效，
+   的相對路徑會失效。結果是 A3／A5 給出嚴重偏低的假數字、上游探測整組失效，
    **而且不會報錯**——它會安靜地告訴你「只有 18 個 PMTiles」。
    主樹被平行 session 佔用時，寧可等，不要改在 worktree 跑。
 
