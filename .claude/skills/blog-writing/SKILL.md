@@ -99,10 +99,12 @@ ln -s ../../node_modules .worktrees/blog-<slug>/node_modules
 
 ## 8. 驗證與給使用者看
 
+以下指令都要針對文章 worktree 執行（不 `cd`，所以每條都指定位置；漏掉會測到主 checkout）。`WT` 代表 worktree 的絕對路徑 `<repo>/.worktrees/blog-<slug>`：
+
 ```bash
-npx vitest run src/blog src/map/__tests__/seoAssets.test.ts
-npm run build                         # 有 [blog] 警告（找不到圖片）要處理
-npx vite preview --port 4399          # 背景執行
+npx vitest run --root "$WT" src/blog src/map/__tests__/seoAssets.test.ts
+npm --prefix "$WT" run build          # 有 [blog] 警告（找不到圖片）要處理
+npm --prefix "$WT" run preview -- --port 4399   # 背景執行
 ```
 
 - `open http://localhost:4399/blog/<slug>/`，直接在使用者的瀏覽器打開。不要只丟截圖路徑，使用者要看實際網頁。

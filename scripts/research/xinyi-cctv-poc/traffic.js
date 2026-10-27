@@ -56,11 +56,12 @@ export function pointInRoi(point, roi) {
 function index(camera) {
   if (cache.has(camera)) return cache.get(camera);
   const frames = (camera.frames || []).filter(f => Number.isFinite(f.t) && f.t >= 0).slice().sort((a, b) => a.t - b.t);
-  const uniqueFrames = frames.filter(f => f.duplicateOfPrevious !== true && f.uniqueContent !== false);
+  // 只有「與前一幀相同」才算重複（A→B→A 的第二個 A 是新畫面）；uniqueContent 是對全部歷史雜湊的全域指標，不用來沿用偵測。
+  const uniqueFrames = frames.filter(f => f.duplicateOfPrevious !== true);
   const byId = new Map(), excluded = [], excludedForeground = [];
   let lastSnapshot = new Map(), lastUniqueTime = -Infinity;
   for (const frame of frames) {
-    const duplicate = frame.duplicateOfPrevious === true || frame.uniqueContent === false;
+    const duplicate = frame.duplicateOfPrevious === true;
     if (duplicate) {
       // Reuse the last distinct image's accepted boxes, including their local
       // tracker IDs. Re-running a detector on identical pixels is not evidence.

@@ -156,6 +156,8 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["jpEvacuationSites", "useJpEvacuationSitesLayer.ts", 199_346],
   ["jpPublicOffices", "useJpPublicOfficesLayer.ts", 79_532],
   ["jpBusStops", "useJpBusStopsLayer.ts", 278_515],
+  ["jpWelfareDisability", "useJpWelfareFacilitiesLayer.ts", 75_945],
+  ["jpWelfareChild", "useJpWelfareFacilitiesLayer.ts", 78_627],
   ["fireEvents", "useFireEventsLayer.ts", 15_398],
   ["fireLatest", "useFireLatestLayer.ts", 15_398],
 ];

@@ -132,7 +132,8 @@ export const localeStore = {
     activate(readInitialLocale());
   },
   set(locale: Locale): void {
-    if (locale === snapshot.locale) return;
+    // 語系包下載失敗時 snapshot.locale 已是新語系、active 仍是舊的 → 再點同語言要能重試
+    if (locale === snapshot.locale && snapshot.active === locale) return;
     try {
       if (typeof localStorage !== "undefined") localStorage.setItem(STORAGE_KEY, locale);
     } catch { /* 偏好存不了不影響切換 */ }

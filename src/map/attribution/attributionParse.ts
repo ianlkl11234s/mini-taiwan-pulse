@@ -5,7 +5,8 @@
  * 這裡只負責「讀得懂就分組、讀不懂就原文放進其他」：
  * - 一串含多個來源時，以「 | 」或「；©」切開，各自成一筆。
  * - 授權：以最後一個「·」後段為準（須像授權名稱）；否則在全文找已知授權關鍵字；都沒有 → 其他。
- * - 含 `<a href>` 的字串（GFW 等 hook 自帶）：取連結文字與 http(s) 網址，其餘標籤一律去除，
+ * - 含 `<a href>` 的字串（GFW 等 hook 自帶）：取連結文字與 http(s) 網址，其餘標籤一律去除；
+ *   一段內有多個連結以「·」相接時，每個連結各成一筆（不丟掉第二個之後的連結），
  *   **不輸出任何 HTML**，元件以 React `<a>` 自行渲染。
  */
 
@@ -72,6 +73,9 @@ function stripHtml(raw: string): { text: string; href: string | null } {
 export function splitAttribution(raw: string): string[] {
   return raw
     .split(/\s+\|\s+|；(?=\s*©)/)
+    // 一段內有多個 <a href>（例：「來源」與「利用條件」兩個連結以「·」相接）→ 各自成一筆，
+    // 否則 stripHtml 只取第一個連結，其餘（授權／利用條件）連結會遺失
+    .flatMap((piece) => piece.split(/(?<=<\/a>)\s*[·・]\s*(?=<a\b)/i))
     .map((s) => s.trim())
     .filter(Boolean);
 }

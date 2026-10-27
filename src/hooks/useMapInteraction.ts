@@ -13,7 +13,7 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
-import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection } from "../map/flatMovingController";
+import { pickFlatTrain, pickFlatWasteTruck, railTrainKey, setFlatMovingSelection, wasteTruckKey } from "../map/flatMovingController";
 import { layerParamRefs } from "../state/layerParamRefs";
 import { reservoirFeatureProps } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
@@ -152,7 +152,8 @@ export function useMapInteraction(
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
       // R6 段 3：立體效果關時 RailScene 不再更新（位置是舊的），改從 Mapbox 平面層拾取；tooltip 相同
-      if (vis?.rail) {
+      // 列車隱藏（railTrainVisible=false）時 RailScene 不再清空舊位置，不可拾取殘留列車
+      if (vis?.rail && layerParamRefs.railTrainVisible.current) {
         const railScene = railSceneRef?.current;
         const flat = !layerParamRefs.railTrain3D.current;
         if (flat || railScene) {
@@ -198,7 +199,7 @@ export function useMapInteraction(
             ? pickFlatWasteTruck(map, e.point.x, e.point.y)
             : truckScene!.pickTruck(e.point.x, e.point.y, w, h);
           if (row) {
-            setFlatMovingSelection("wasteTruck", row.vehicle_no);
+            setFlatMovingSelection("wasteTruck", wasteTruckKey(row));
             setFeatureInfo({
               layerType: "wasteTruck",
               properties: {

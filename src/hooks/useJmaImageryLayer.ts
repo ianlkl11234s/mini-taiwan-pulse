@@ -29,6 +29,8 @@ import { useMapReadyTick } from "./useMapReadyTick";
 
 const LIVE_REFRESH_MS = 5 * 60_000;
 const PREFETCH_AHEAD = 2;
+/** 影像載入失敗後，同一張幀至少隔這麼久才重試 */
+const IMAGE_RETRY_MS = 30_000;
 
 interface UseJmaImageryLayerOptions {
   mapRef: React.RefObject<MapboxMap | null>;
@@ -51,6 +53,10 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
   const prefetchedRef = useRef<Set<string>>(new Set());
+  /** 已套用但影像尚未載入完成的幀：載入完成後才回報 shown */
+  const pendingShownRef = useRef<JmaImageryFrame | null>(null);
+  /** 影像載入失敗的 url 與時間：短時間內不重試同一張，避免每秒重打 */
+  const failedRef = useRef<{ url: string; at: number } | null>(null);
 
   // ── manifest 載入 ──
   useEffect(() => {
@@ -62,6 +68,8 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     }
     let disposed = false;
     let loadedKey: string | null = null;
+    /** 已送出、尚未回應的視窗 key：subscribeDate／subscribeWindowDateKeys 同時觸發時不重複打 manifest RPC */
+    let inflightKey: string | null = null;
     let seq = 0;
 
     const load = async (force: boolean) => {
@@ -70,17 +78,20 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       if (!keys.includes(today)) keys.push(today);
       const win = jmaImageryWindowFor(keys, spec, Date.now());
       const key = `${win.sinceIso}|${win.untilIso}`;
-      if (!force && key === loadedKey) return;
+      if (!force && (key === loadedKey || key === inflightKey)) return;
       const mySeq = ++seq;
+      inflightKey = key;
       if (framesRef.current == null) setJmaImageryStatus(product, { state: "loading", validTimeIso: null });
       try {
         const result = await loadJmaImageryManifest([product], win, spec.cadenceMin);
         if (disposed || mySeq !== seq) return;
         framesRef.current = result.get(product) ?? [];
         loadedKey = key;
+        inflightKey = null;
         runRef.current?.(timeStore.getTime());
       } catch (err) {
         if (disposed || mySeq !== seq) return;
+        inflightKey = null;
         console.warn(`[JMA Imagery] manifest load failed ${product}`, err);
         setJmaImageryStatus(product, { state: "error", validTimeIso: null, message: err instanceof Error ? err.message : String(err) });
       }
@@ -129,6 +140,8 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       }
       const f = pick.frame;
       const url = f.url!;
+      const failed = failedRef.current;
+      if (failed && failed.url === url && Date.now() - failed.at < IMAGE_RETRY_MS) return; // 保留 error 狀態，稍後再試
       const bbox = { lonMin: f.lonMin!, lonMax: f.lonMax!, latMin: f.latMin!, latMax: f.latMax! };
       if (!handleRef.current) {
         handleRef.current = createJmaImageryLayer(map, {
@@ -137,18 +150,25 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
           paint: (op) => jmaImageryRasterPaint(spec, op),
         });
         currentUrlRef.current = url;
+        pendingShownRef.current = f;
         keepLoadingUntilMapIdle(map, `jma-imagery-render:${product}`, `JMA 影像 渲染中`, null);
       } else {
         handleRef.current.ensure();
         if (currentUrlRef.current !== url) {
           handleRef.current.setFrame(url, bbox);
           currentUrlRef.current = url;
+          pendingShownRef.current = f;
           keepLoadingUntilMapIdle(map, `jma-imagery-render:${product}`, `JMA 影像 渲染中`, null);
         }
         handleRef.current.setVisible(true);
         handleRef.current.setOpacity(opacityRef.current);
       }
-      setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso, frameStatus: f.status });
+      if (pendingShownRef.current) {
+        // 影像還在載入：先維持 loading，等 sourcedata／idle 才回報 shown（失敗則走 error 事件）
+        setJmaImageryStatus(product, { state: "loading", validTimeIso: null });
+      } else {
+        setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso, frameStatus: f.status });
+      }
       // 預抓後續幾幀（CDN immutable，播放時不閃）
       const idx = frames.indexOf(f);
       for (const next of frames.slice(idx + 1, idx + 1 + PREFETCH_AHEAD)) {
@@ -171,6 +191,29 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       }
     };
     const onStyleLoad = () => safeRun(timeStore.getTime());
+    const confirmShown = () => {
+      const f = pendingShownRef.current;
+      if (!f || disposed) return;
+      pendingShownRef.current = null;
+      setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso, frameStatus: f.status });
+    };
+    const onSourceData = (e: { sourceId?: string }) => {
+      if (e.sourceId !== sourceId || !pendingShownRef.current) return;
+      try { if (map.isSourceLoaded(sourceId)) confirmShown(); } catch { /* style 轉換中 */ }
+    };
+    const onMapError = (e: { sourceId?: string; error?: Error }) => {
+      if (e.sourceId !== sourceId) return;
+      const url = currentUrlRef.current;
+      if (url) failedRef.current = { url, at: Date.now() };
+      currentUrlRef.current = null; // 清掉 → 重試時會重新 setFrame
+      pendingShownRef.current = null;
+      setJmaImageryStatus(product, { state: "error", validTimeIso: null, message: e.error?.message ?? "影像載入失敗" });
+    };
+    // 保底：萬一 sourcedata 沒觸發，idle 時仍回報 shown
+    const onIdle = () => { if (pendingShownRef.current && failedRef.current?.url !== currentUrlRef.current) confirmShown(); };
+    map.on("sourcedata", onSourceData);
+    map.on("error", onMapError);
+    map.on("idle", onIdle);
 
     safeRun(timeStore.getTime());
     const unsubTime = visible ? timeStore.subscribeThrottled(1000, safeRun) : null;
@@ -179,6 +222,9 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       disposed = true;
       unsubTime?.();
       map.off("style.load", onStyleLoad);
+      map.off("sourcedata", onSourceData);
+      map.off("error", onMapError);
+      map.off("idle", onIdle);
       if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };

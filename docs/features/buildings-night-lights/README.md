@@ -1,7 +1,7 @@
 # 建物夜景燈光 Buildings Night Lights
 
 > **Slug**：`buildings-night-lights`
-> **狀態**：dev（未 push）
+> **狀態**：已上線（v1.10.0；PR #78／#80）
 > **Owner**：migu
 > **啟動日期**：2026-07-22
 > **分支**：`feat/buildings-night-lights`

@@ -201,7 +201,9 @@ tester.run("no-current-time-deps", rule("no-current-time-deps"), {
     // 不是 deps 位置／不是指定 hook
     "useState([currentTime]);",
     "useEffect(() => {}, deps);",
-    "useEffect(() => {}, [obj[currentTime]]);",
+    // 巢狀函式參數名／物件 key 不算
+    "useEffect(() => {}, [list.map((currentTime) => currentTime)]);",
+    "useEffect(() => {}, [{ currentTime: 1 }]);",
   ],
   invalid: [
     { code: "useEffect(() => { load(currentTime); }, [currentTime]);", errors: errs(1) },
@@ -210,6 +212,10 @@ tester.run("no-current-time-deps", rule("no-current-time-deps"), {
     { code: "const v = useMemo(() => f(currentTime), [currentTime, x]);", errors: errs(1) },
     { code: "const cb = React.useCallback(() => f(), [currentTime]);", errors: errs(1) },
     { code: "React.useEffect(() => {}, [a.b.currentTime, currentTime]);", errors: errs(2) },
+    { code: "useEffect(() => {}, [currentTime + offset]);", errors: errs(1) },
+    { code: "useMemo(() => 1, [f(currentTime)]);", errors: errs(1) },
+    { code: "useEffect(() => {}, [obj[currentTime]]);", errors: errs(1) },
+    { code: "useEffect(() => {}, [Math.floor(state.currentTime / 1000)]);", errors: errs(1) },
   ],
 });
 
@@ -238,6 +244,11 @@ tester.run("owner-only-no-external-source", rule("owner-only-no-external-source"
     { code: "const e = import.meta.env.BASE_URL_X;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: "const e = import.meta.env.BASE_URL.length;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: "const e = import.meta.env;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const e = import.meta.env.BASE_URL["replace"]("a", "b");', options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL?.replace('a', 'b');", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: "const e = import.meta.env.BASE_URL /* x */ .replace('a', 'b');", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
+    { code: 'const u = "https://ok.test/p" + "?x=1";', options: [{ allowUrls: ["https://ok.test/p"] }], errors: URL_ERR },
+    { code: 'const u = "https://ok.test/p".concat("?x=1");', options: [{ allowUrls: ["https://ok.test/p"] }], errors: URL_ERR },
     { code: "const e = import.meta;", options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: 'const e = import.meta["env"].BASE_URL;', options: [{ allowImportMeta: ["env.BASE_URL"] }], errors: META_ERR },
     { code: 'const t = "http://localhost/foo";', options: [{ allowUrls: ["http://localhost/"] }], errors: URL_ERR },

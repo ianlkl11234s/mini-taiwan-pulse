@@ -8,7 +8,7 @@ import { useOverlayParams } from "../layers/layerParamsAccess";
 import { useHeatmapStackFactor } from "../state/layerPalette";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay, swapPmtilesSourceIfMigrated } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, refreshFallbackHydratedOverlay, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay, swapPmtilesSourceIfMigrated } from "./overlayManager";
 import { MIGRATED_ASSET_KEYS, onLayerAssetIndexReady } from "../data/layerAssetIndex";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
@@ -349,8 +349,16 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // 索引已 ready 時 addAllOverlays 本身就拿到 CDN，下面的 swap 是 no-op
       offLayerAssetIndexReady?.();
       offLayerAssetIndexReady = onLayerAssetIndexReady(() => {
+        const visNow = layerVisibilityStore.getAll();
         for (const config of OVERLAY_REGISTRY) {
-          if (!config.pmtiles || !MIGRATED_ASSET_KEYS.has(config.sourceUrl)) continue;
+          if (!MIGRATED_ASSET_KEYS.has(config.sourceUrl)) continue;
+          // 靜態 GeoJSON：索引就緒前已用部署時版本 hydrate 的，改抓 CDN（不是 pmtiles／dynamic）
+          if (!config.pmtiles) {
+            if (!config.dynamicData) {
+              refreshFallbackHydratedOverlay(map, config, isOverlayVisible(config, visNow, overlayParamsRef.current));
+            }
+            continue;
+          }
           try {
             swapPmtilesSourceIfMigrated(map, config);
           } catch (error) {

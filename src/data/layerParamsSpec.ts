@@ -72,6 +72,17 @@ import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
 import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
 import { JP_ZONING_CLASSES, JP_ZONING_GROUPS } from "./jpZoningUseDistrictTypes";
+import { JP_WELFARE_ACCURACY_OPTIONS, JP_WELFARE_POINT_COUNT, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareMajor } from "./jpWelfareFacilityTypes";
+import { JP_EXPRESSWAY_CATEGORIES, JP_ROAD_FILTER_OPTIONS } from "./jpRoadTypes";
+
+/** 福祉類別 select：全部 → 該層色組 → 中分類單選（順序須與 jpWelfareFilter 一致）。 */
+function jpWelfareSelectOptions(major: JpWelfareMajor): { value: string; label: string }[] {
+  return [
+    { value: "all", label: "全部" },
+    ...jpWelfareGroupsOf(major).map(g => ({ value: `group:${g.value}`, label: `${g.label}（類組）` })),
+    ...jpWelfareCategoriesOf(major).map(c => ({ value: c.code, label: c.label })),
+  ];
+}
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -2075,6 +2086,43 @@ export const LAYER_PARAMS_SPEC = {
       out: "jpZoningUseDistrictsClassIdx", encode: ["all", ...JP_ZONING_GROUPS.map(g => g.value), ...JP_ZONING_CLASSES.map(c => String(c.code))] },
   ],
   jpNationalForests: [opacitySlider("jpNationalForestsOpacity", 0.7)],
+  // 福祉兩層共用 PMTiles：類別 select 0=全部、色組、中分類單選（encode 順序同 jpWelfareFilter）；定位精度 0=1–3（預設）、1=全部
+  jpWelfareDisability: [
+    heatmapPalette("jpWelfareDisability"),
+    opacitySlider("jpWelfareDisabilityOpacity", densePointOpacity(JP_WELFARE_POINT_COUNT.jpWelfareDisability)), scaleSlider("jpWelfareDisabilityScale", 1),
+    { kind: "select", category: "data", name: "jpWelfareDisabilityCategory", label: "設施類別", default: "all",
+      options: jpWelfareSelectOptions("disability"),
+      out: "jpWelfareDisabilityCategoryIdx", encode: jpWelfareSelectOptions("disability").map(o => o.value) },
+    { kind: "select", category: "data", name: "jpWelfareDisabilityAccuracy", label: "定位精度", default: "precise",
+      options: [...JP_WELFARE_ACCURACY_OPTIONS],
+      out: "jpWelfareDisabilityAccuracyIdx", encode: JP_WELFARE_ACCURACY_OPTIONS.map(o => o.value) },
+  ],
+  jpWelfareChild: [
+    heatmapPalette("jpWelfareChild"),
+    opacitySlider("jpWelfareChildOpacity", densePointOpacity(JP_WELFARE_POINT_COUNT.jpWelfareChild)), scaleSlider("jpWelfareChildScale", 1),
+    { kind: "select", category: "data", name: "jpWelfareChildCategory", label: "設施類別", default: "all",
+      options: jpWelfareSelectOptions("child"),
+      out: "jpWelfareChildCategoryIdx", encode: jpWelfareSelectOptions("child").map(o => o.value) },
+    { kind: "select", category: "data", name: "jpWelfareChildAccuracy", label: "定位精度", default: "precise",
+      options: [...JP_WELFARE_ACCURACY_OPTIONS],
+      out: "jpWelfareChildAccuracyIdx", encode: JP_WELFARE_ACCURACY_OPTIONS.map(o => o.value) },
+  ],
+  // 主要道路：0=全部、1–3=高速／國道／都道府縣道、4=只看有料（encode 順序同 jpRoadFilter）
+  jpMajorRoads: [
+    opacitySlider("jpMajorRoadsOpacity", 0.85),
+    { kind: "select", category: "data", name: "jpMajorRoadsClass", label: "道路分類", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_ROAD_FILTER_OPTIONS],
+      out: "jpMajorRoadsClassIdx", encode: ["all", ...JP_ROAD_FILTER_OPTIONS.map(o => o.value)] },
+  ],
+  // 高速道路：0=全部、1–5=路線種別（只篩線，IC 點不受影響）
+  jpExpressways: [
+    opacitySlider("jpExpresswaysOpacity", 0.85),
+    { kind: "select", category: "data", name: "jpExpresswaysCategory", label: "路線種別", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_EXPRESSWAY_CATEGORIES.map(c => ({ value: c.value, label: c.label }))],
+      out: "jpExpresswaysCategoryIdx", encode: ["all", ...JP_EXPRESSWAY_CATEGORIES.map(c => c.value)] },
+  ],
+  jpGsiHillshade: [{ kind: "slider", name: "jpGsiHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  jpGsiRelief: [{ kind: "slider", name: "jpGsiReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpInlandFloodAreas: [
     gridPalette("jpInlandFloodAreasPalette", "PuBu"),
     opacitySlider("jpInlandFloodAreasOpacity", 0.7),

@@ -81,6 +81,15 @@ def main():
     run_id = now.strftime("%Y%m%dT%H%M%S")
     results = []
     lock = threading.Lock()
+    # 跨 run 去重：載入既有 manifest 的 sha256，避免重複凍結畫面再入庫、同時落入 train／val
+    known_hashes = set()
+    manifest_path = OUT / "manifest.jsonl"
+    if manifest_path.exists():
+        for line in manifest_path.read_text().splitlines():
+            try:
+                known_hashes.add(json.loads(line)["sha256"])
+            except (ValueError, KeyError):
+                continue
 
     def collect(camera):
         row = {"runId": run_id, "cameraId": camera["id"], "number": camera["number"], "startedAt": now.isoformat()}
@@ -94,7 +103,7 @@ def main():
             folder = OUT / f"{now:%Y%m%d}" / camera["id"]
             folder.mkdir(parents=True, exist_ok=True)
             manifest = OUT / "manifest.jsonl"
-            seen, saved = set(), 0
+            seen, saved = known_hashes, 0
             for received, jpeg in frames:
                 digest = hashlib.sha256(jpeg).hexdigest()
                 if digest in seen:
