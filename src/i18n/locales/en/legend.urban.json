@@ -95,5 +95,11 @@
   "legend.urban.amountSmall": "NT${n} million",
   "legend.urban.amountLarge": "NT${n} billion",
   "legend.urban.amountHuge": "NT${n} trillion",
-  "legend.urban.amountDollar": "NT${n}"
+  "legend.urban.amountDollar": "NT${n}",
+  "legend.urban.jpGsiHillshadeTitle": "Hillshade",
+  "legend.urban.jpGsiHillshadeNote": "Grayscale terrain shading showing relief only, no values",
+  "legend.urban.jpGsiReliefTitle": "Color-coded elevation",
+  "legend.urban.jpGsiReliefNote": "Colored by elevation (see the GSI explanation page for the color scale); colors indicate elevation ranges, not exact values",
+  "legend.urban.jpGsiReliefSea": "Sea areas use data from the Hydrographic and Oceanographic Department, Japan Coast Guard",
+  "legend.urban.jpGsiSource": "Source: Geospatial Information Authority of Japan (GSI Tiles), loaded directly from the external tile server"
 }

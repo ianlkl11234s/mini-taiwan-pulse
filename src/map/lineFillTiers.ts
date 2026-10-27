@@ -198,6 +198,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpNatureConservationSpecialDistrict/jp-tourism-jp-nature-conservation-special-district-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpPrimitiveNatureEnvironmentArea/jp-tourism-jp-primitive-nature-environment-area-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpTourismLayers.ts
   "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
+  "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpExpresswaysLayer.ts
+  "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
   "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts

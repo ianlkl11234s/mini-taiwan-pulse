@@ -1314,5 +1314,11 @@
   "layer.jpLandslideWarningAreas": "Sediment Disaster Warning Areas",
   "layer.jpInlandFloodAreas": "Inland Flood Inundation Assumption Areas",
   "layer.jpZoningUseDistricts": "Use Districts (Zoning)",
-  "layer.jpNationalForests": "National Forests"
+  "layer.jpNationalForests": "National Forests",
+  "layer.jpWelfareDisability": "Disability Welfare Facilities",
+  "layer.jpWelfareChild": "Child Welfare Facilities",
+  "layer.jpMajorRoads": "Major Roads",
+  "layer.jpExpressways": "Expressways",
+  "layer.jpGsiHillshade": "Hillshade (GSI)",
+  "layer.jpGsiRelief": "Color Elevation Map (GSI)"
 }

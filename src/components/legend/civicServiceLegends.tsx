@@ -11,6 +11,7 @@ import { JP_BUS_STOP_CLASSES, JP_BUS_STOP_ATTRIBUTION } from "../../data/jpBusSt
 import { JP_LANDSLIDE_ZONES, JP_LANDSLIDE_ATTRIBUTION, JP_LANDSLIDE_FEATURE_COUNT } from "../../data/jpLandslideWarningTypes";
 import { JP_ZONING_CLASSES, JP_ZONING_ATTRIBUTION, JP_ZONING_FEATURE_COUNT } from "../../data/jpZoningUseDistrictTypes";
 import { JP_FOREST_FUNCTION_TYPES, JP_FOREST_BLANK_COLOR, JP_FOREST_ATTRIBUTION } from "../../data/jpNationalForestTypes";
+import { JP_WELFARE_ATTRIBUTION, JP_WELFARE_LAYER_MAJOR, jpWelfareCategoriesOf, jpWelfareGroupsOf, type JpWelfareLayerKey } from "../../data/jpWelfareFacilityTypes";
 import { JP_INLAND_FLOOD_DEPTH_CLASSES, JP_INLAND_FLOOD_ATTRIBUTION, JP_INLAND_FLOOD_STEPS } from "../../data/jpInlandFloodTypes";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
@@ -1002,5 +1003,24 @@ export function PublicLifeCoverageLegend() {
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
     {[['#e2e8f0', '0'], ['#bfdbfe', '1–4'], ['#60a5fa', '5–14'], ['#1d4ed8', '15+']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><SwatchSquare color={c!} />{i18n.t("legend.civic.coverageCount", { range: l! })}</div>)}
     <div style={{ marginTop: 5 }}>{i18n.t("legend.civic.coverageNote")}</div>
+  </div>;
+}
+
+/** 日本障礙／兒童福祉設施（P14）：依性質色組列出所含中分類；自治體未提供≠沒有；預設不畫代表點。 */
+export function JpWelfareFacilitiesLegend({ layerKey }: { layerKey: JpWelfareLayerKey }) {
+  const i18n = useLocale();
+  const major = JP_WELFARE_LAYER_MAJOR[layerKey];
+  const cats = jpWelfareCategoriesOf(major);
+  return <div>
+    <LegendTitle zh={i18n.t(major === "disability" ? "legend.civic.jpWelfareDisabilityTitle" : "legend.civic.jpWelfareChildTitle")} />
+    {jpWelfareGroupsOf(major).map(g => <LegendRow key={g.value} swatch={<SwatchDot color={g.color} />}>
+      {cats.filter(c => c.group === g.value).map(c => enumLabel("jpWelfareCategory", c.code, c.label, i18n)).join("、")}
+    </LegendRow>)}
+    <LegendNote>{i18n.t("legend.civic.jpWelfareMissing")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareAccuracy")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareLicense")}</LegendNote>
+    <LegendNote>{i18n.t("legend.civic.jpWelfareStale")}</LegendNote>
+    <LegendNote>{JP_WELFARE_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={[layerKey]} />
   </div>;
 }

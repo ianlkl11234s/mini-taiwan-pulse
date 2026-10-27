@@ -2,7 +2,7 @@
 
 > 處理大型時序 / 高運算 RPC 的標準 pattern。任何 RPC 響應 > 1s 或回傳 > 10k rows 都必須套用。
 >
-> 2026-10-16 校正：`realtime` schema 已併入 `live`（ADR-0010／migration 312），範本內表名改用 `live.*`；pg_cron 現行頻率是每 15 分鐘（2026-04-09 IO 事故後降頻）；cron 內日期一律用台北時區。
+> 2026-10-16 校正：`realtime` schema 已併入 `live`（ADR-0010／migration 312），範本內表名改用 `live.*`；pg_cron 現行頻率是 today 每 30 分並錯開分鐘、yesterday 每日一次（2026-04-09 IO 事故後降頻，migration 302 起拆成兩個 job）；cron 內日期一律用台北時區。
 
 ## 為什麼要做
 
@@ -15,7 +15,7 @@ Supabase Supavisor pooler **強制覆寫** `statement_timeout = 2min`，且 anon
 
 ```
 原始大表 (live.xxx_positions, 百萬列)
-    ↓ (per-day refresh function，pg_cron 每 15 分鐘)
+    ↓ (per-day refresh function，pg_cron：today 每 30 分錯開分鐘、yesterday 每日一次)
 預聚合 table (live.xxx_daily, PK=(day, key))
     ↓ (薄 SELECT RPC，毫秒級)
 前端 RPC call
@@ -106,9 +106,12 @@ GRANT EXECUTE ON FUNCTION public.get_xxx_day(date) TO anon, authenticated;
 GRANT SELECT ON live.xxx_daily TO anon, authenticated;
 
 -- 5) pg_cron 排程
-SELECT cron.schedule('refresh-xxx', '*/15 * * * *',
-    $$SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date);
-      SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);$$);
+-- today：每 30 分，<m> 是 0–29 的偏移分鐘，必須和其他 refresh job 錯開（不要全落在 00/30，見 cron_throttle.sql）
+SELECT cron.schedule('refresh-xxx', '<m>,<m+30> * * * *',
+    $$SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date);$$);
+-- yesterday：昨日資料不再變動，每日一次（17:xx UTC = 台北 01:xx），分鐘同樣錯開
+SELECT cron.schedule('refresh-xxx-yesterday', '<m> 17 * * *',
+    $$SELECT public.refresh_xxx_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);$$);
 -- ⚠️ cron 內禁用 current_date（DB session 是 UTC，台北 00:00–08:00 會漏 refresh 今天；2026-06-17 事故，migration 208）
 SELECT cron.schedule('cleanup-xxx', '0 18 * * *',
     $$SELECT public.cleanup_xxx_daily(7);$$);

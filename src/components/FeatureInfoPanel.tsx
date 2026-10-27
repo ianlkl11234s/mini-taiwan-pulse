@@ -45,6 +45,11 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 日本第三波面層：panel 自掛出典與授權
   "jpZoningUseDistricts",
   "jpNationalForests",
+  // 日本第四波：panel 自掛出典與授權（福祉另含自治體別 license_note）
+  "jpWelfareDisability",
+  "jpWelfareChild",
+  "jpMajorRoads",
+  "jpExpressways",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",
