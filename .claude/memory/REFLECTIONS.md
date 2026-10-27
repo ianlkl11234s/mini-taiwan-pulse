@@ -2156,3 +2156,26 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：新增 BLOG-1（持續寫文）、BLOG-V（上線後未目視項）。
 - `docs/LESSONS.md`：§6 加第 9 條（SEO 內容要在原始 HTML）。
 
+## 2026-10-27 v2.15.0 與 Codex review 第二輪
+
+### What worked
+
+- 278 則分「必要／還好」兩段修，先合必要、套 migration，再整批修還好；每個 PR 合完都看 develop CI，四個 mini PR 交會沒有出現 golden 漂移。
+- 正式庫 migration 先在交易內套用、用 `pg_get_functiondef` 比對正式庫現行定義再套，抓到 485 的 F197 測試失敗，補了 487。
+- 發版前逐一列出範圍外 PR（日本 #704–#716）請使用者確認，並用 S3 大小逐檔核對大檔，不只信 CHANGELOG 的「已上傳」。
+
+### Friction / limits
+
+- 把含連線字串的 psql 指令存進 zsh 變數再展開，錯誤訊息把 DB 密碼印進對話紀錄；之後一律用會遮蔽輸出的包裝腳本，派工 prompt 也明禁。
+- 我把 488「可能回 0 列」當風險報給使用者，但其實沒查證；子代理實測後確認上界是 `now()`，風險不存在。示警前要先驗。
+- worktree 的 symlink node_modules 加中文路徑讓 vite-node 腳本找不到套件，`--options.deps.external` 也救不了，要改 `cp -Rc` 副本。
+
+### 下次
+
+- layer-status 重產與 review 未修項見 BACKLOG RV27-*；下一輪 review 起點 `2026-10-26T16:15:33Z`。
+
+### Memory output
+
+- `STATUS.md`：改寫為 v2.15.0 checkpoint。
+- `BACKLOG.md`：新增 RV27-1～3、V215-V；SEC-6 補 DB 憑證必換。
+
