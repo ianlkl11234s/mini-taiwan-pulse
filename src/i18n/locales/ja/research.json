@@ -223,5 +223,6 @@
   "research.session.reconnecting": "Agent を切断しました。新しい接続を準備しています…",
   "research.activity.log": "Agent の操作履歴",
   "research.activity.latest": "最新の操作",
-  "research.activity.previous": "これまでの操作"
+  "research.activity.previous": "これまでの操作",
+  "research.session.staleRebuilding": "このタブの接続は無効になりました。新しい接続を準備しています…"
 }

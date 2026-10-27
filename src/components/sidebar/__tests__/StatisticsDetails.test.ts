@@ -26,6 +26,10 @@ describe('statisticsDimensionSummary', () => {
     })).toBe('期間：民國 114 年・07 月；基金：交通部航港局-前瞻基礎建設計畫第5期特別預算');
   });
 
+  it('hides selector-only industry_name but keeps industry_code (F268)', () => {
+    expect(statisticsDimensionSummary({ roc_year: '114', industry_code: '26', industry_name: '電子零組件製造業' })).toBe('期間：民國 114 年；產業中類：26');
+  });
+
   it('does not render empty dimensions as empty fields', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', month: '', agency_fund: '' })).toBe('期間：民國 114 年');
     expect(statisticsDimensionSummary({})).toBe('');

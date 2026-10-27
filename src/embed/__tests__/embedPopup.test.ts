@@ -80,6 +80,14 @@ describe("buildPopupHtml — 欄位過濾", () => {
     expect(rows).toBe(5);
   });
 
+  it("巢狀屬性不輸出 [object Object]：陣列逐項、物件轉 JSON，且仍跳脫（F234）", () => {
+    const out = html({ tags: [{ a: 1 }, { b: "<x>" }], names: ["甲", "乙"], meta: { k: "v" } });
+    expect(out).not.toContain("[object Object]");
+    expect(out).toContain("甲、乙");
+    expect(out).toContain("&lt;x&gt;");
+    expect(out).toContain("&quot;k&quot;:&quot;v&quot;");
+  });
+
   it("完全沒有可顯示欄位時給提示，不是空白框", () => {
     expect(html({ osm_id: 1, lon: 121, lat: 25 })).toContain("沒有可顯示的欄位");
   });

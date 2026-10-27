@@ -56,6 +56,8 @@ describe("手機時間軸條主題 (R8-2)", () => {
       const cond = bg as ts.ConditionalExpression;
       expect(cond.condition.getText()).toBe("isDarkTheme");
       expect(cond.whenFalse.getText()).toMatch(/^LIGHT\./);
+      // 深色分支也要有斷言：必須是半透明黑底（不能被換成亮色或漏掉）
+      expect(cond.whenTrue.getText()).toMatch(/^"rgba\(0,\s*0,\s*0,/);
     }
   });
 });

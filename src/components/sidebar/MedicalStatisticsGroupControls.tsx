@@ -46,6 +46,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     if (visibility[selected] && !visibility[expandedLayer as keyof LayerVisibility]) onLayerClick(selected, 'statistics-variant-switch');
   }, [expanded, selected, expandedLayer, visibility, onLayerClick]);
   const periodNotice = useSyncExternalStore(subscribeStatisticsPeriodNotice, () => (selected ? getStatisticsPeriodNotice(selected) : undefined));
+  // notice 物件是 store 內穩定參照；文字在此以目前語系翻譯
   if (!group || !selected) return null;
   const visual = getStatisticsVisual(group.options[0]!.key, group.label);
   // 群組名是配方中文；外文查 `enum.statGroup.<中文>`，查不到維持中文（與其他資料標籤同規則）。
@@ -76,7 +77,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     {expanded && <>
       {active.length > 1 && <p style={{ margin: '2px 12px 0 22px', color: dimColor, fontSize: FONT_SIZE.sm }}>{t('paramsPanel.groupOverlap', { count: active.length, option: group.optionLabel ?? t('paramsPanel.groupOptionDefault') })}</p>}
       {renderControls(selected)}
-      {periodNotice && <p role="status" style={{ margin: '2px 12px 4px 22px', color: '#fbbf24', fontSize: FONT_SIZE.sm }}>{periodNotice}</p>}
+      {periodNotice && <p role="status" style={{ margin: '2px 12px 4px 22px', color: '#fbbf24', fontSize: FONT_SIZE.sm }}>{t(periodNotice.key, periodNotice.vars)}</p>}
     </>}
   </div>;
 }

@@ -1,3 +1,4 @@
+import { useLocale, type LocaleSnapshot } from "../../state/localeStore";
 import { FONT_DATA } from "../../styles/designTokens";
 import { formatVizNumber, type VizNumberKind } from "../vizFormat";
 import { categoricalFor, type Theme } from "../vizSpec";
@@ -29,37 +30,39 @@ const LABEL_MAX_CHARS = 9;
 
 /** Sorts by value descending (missing values last); beyond `maxItems` the remainder collapses into
  *  one grey "其他 N 區" row averaging their non-null values (spec P1: "前 10＋「其他 N 區」（平均）"). */
-export function rankBarsWithOther(items: readonly RankBarItem[], theme: Theme, maxItems: number): RankBarItem[] {
+export function rankBarsWithOther(items: readonly RankBarItem[], theme: Theme, maxItems: number, otherLabel: (count: number) => string = count => `其他 ${count} 區`): RankBarItem[] {
   const sorted = [...items].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
   if (sorted.length <= maxItems) return sorted;
   const top = sorted.slice(0, maxItems);
   const rest = sorted.slice(maxItems);
   const restValues = rest.map(item => item.value).filter((value): value is number => value !== null);
   const average = restValues.length ? restValues.reduce((sum, value) => sum + value, 0) / restValues.length : null;
-  return [...top, { id: "__rank-bars-other__", label: `其他 ${rest.length} 區`, value: average, color: categoricalFor(theme).other }];
+  return [...top, { id: "__rank-bars-other__", label: otherLabel(rest.length), value: average, color: categoricalFor(theme).other }];
 }
 
 function truncateLabel(label: string): string {
   return label.length > LABEL_MAX_CHARS ? `${label.slice(0, LABEL_MAX_CHARS - 1)}…` : label;
 }
 
-function valueText(value: number | null, kind: VizNumberKind, unit: string | null): string {
-  const text = formatVizNumber(value, kind);
+function valueText(value: number | null, kind: VizNumberKind, unit: string | null, noData?: string): string {
+  const text = formatVizNumber(value, kind, noData);
   return value !== null && unit && kind !== "percent" ? `${text}${unit}` : text;
 }
 
-function summaryLabel(display: readonly RankBarItem[], kind: VizNumberKind, unit: string | null, title: string | undefined): string {
+function summaryLabel(display: readonly RankBarItem[], kind: VizNumberKind, unit: string | null, title: string | undefined, t: LocaleSnapshot["t"], noData: string): string {
   const prefix = title ? `${title}：` : "";
   const first = display[0];
-  if (!first) return `${prefix}排名長條圖，暫無資料`;
-  return `${prefix}排名長條圖，共 ${display.length} 項，由高到低；最高「${first.label}」${valueText(first.value, kind, unit)}`;
+  if (!first) return `${prefix}${t("analysisCard.rank.summaryEmpty")}`;
+  return `${prefix}${t("analysisCard.rank.summary", { count: display.length, label: first.label, value: valueText(first.value, kind, unit, noData) })}`;
 }
 
 export function RankBars({ items, theme, valueKind = "count", unit = null, title, maxItems = 10 }: RankBarsProps) {
-  const display = rankBarsWithOther(items, theme, maxItems);
+  const { t } = useLocale();
+  const noData = t("analysisCard.rank.noData");
+  const display = rankBarsWithOther(items, theme, maxItems, count => t("analysisCard.rank.other", { count }));
   const domain = barDomain(display.map(item => item.value));
   const height = Math.max(ROW_HEIGHT, display.length * ROW_HEIGHT);
-  const summary = summaryLabel(display, valueKind, unit, title);
+  const summary = summaryLabel(display, valueKind, unit, title, t, noData);
   return (
     <div className="agent-rank-bars">
       {title && <div className="agent-rank-bars__title">{title}</div>}
@@ -72,7 +75,7 @@ export function RankBars({ items, theme, valueKind = "count", unit = null, title
               <text x={0} y={ROW_HEIGHT / 2} dy="0.32em" fontSize={9} fill="currentColor">{truncateLabel(item.label)}</text>
               <rect x={LABEL_WIDTH} y={4} width={barWidth} height={ROW_HEIGHT - 8} fill={item.color} rx={2} />
               <text x={LABEL_WIDTH + barWidth + 4} y={ROW_HEIGHT / 2} dy="0.32em" fontSize={9} fill="currentColor" style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>
-                {valueText(item.value, valueKind, unit)}
+                {valueText(item.value, valueKind, unit, noData)}
               </text>
             </g>
           );

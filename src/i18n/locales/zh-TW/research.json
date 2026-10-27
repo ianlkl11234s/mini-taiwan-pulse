@@ -223,5 +223,6 @@
   "research.session.reconnecting": "已中斷 Agent，正在準備新的連線…",
   "research.activity.log": "Agent 動作紀錄",
   "research.activity.latest": "最新動作",
-  "research.activity.previous": "先前動作"
+  "research.activity.previous": "先前動作",
+  "research.session.staleRebuilding": "這個分頁的連線已失效，正在重新準備…"
 }

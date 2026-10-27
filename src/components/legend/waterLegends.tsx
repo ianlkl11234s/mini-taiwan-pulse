@@ -485,6 +485,19 @@ export function ReservoirStatusLegend() {
   );
 }
 
+/** /embed 專用：嵌入版只載靜態的蓄水範圍與壩體，沒有即時水情圓點，不能畫警示等級與容量大小圖例。 */
+export function ReservoirStaticLegend() {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  return (
+    <div>
+      <LegendTitle zh={i18n.t("legend.water.reservoirStaticTitle")} en="Reservoirs" />
+      <LegendRow swatch={<SwatchSquare color={t.isDark ? RESERVOIR_WATER_COLOR.dark : RESERVOIR_WATER_COLOR.light} />}>{i18n.t("legend.water.reservoirStaticArea")}</LegendRow>
+      <LegendNote>{i18n.t("legend.water.reservoirStaticNote")}</LegendNote>
+    </div>
+  );
+}
+
 export function RiverRpiStationsLegend() {
   const i18n = useLocale();
   return (

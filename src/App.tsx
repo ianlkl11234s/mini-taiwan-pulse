@@ -3089,8 +3089,10 @@ export default function App() {
         }}
       >
         {privateUiFeatureInfo && (
-          // popup 優先保留自身高度，圖例吃剩下的空間；預留 36px 給圖例標題列＋間距
-          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 0, maxHeight: "calc(100% - 36px)" }}>
+          // popup 優先保留自身高度，圖例吃剩下的空間（圖例 flexShrink 較大，先縮）；
+          // AQI 切換器、黃砂面板是 flexShrink:0 的固定高度兄弟，同時開啟時 popup 可縮（minHeight:0）並自行捲動，
+          // 不再用固定扣 36px 的 maxHeight（合計高度超出 dock 會往上蓋住工具列）
+          <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", flexShrink: 1, minHeight: 0, maxHeight: "100%", overflowY: "auto" }}>
             <FeatureInfoPanel
               feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
@@ -3117,7 +3119,7 @@ export default function App() {
             <JmaKosaPanel isDark={isDarkTheme} />
           </div>
         )}
-        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <div style={{ pointerEvents: "auto", display: "flex", flexDirection: "column", minHeight: 0, flexShrink: 8 }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
           {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (

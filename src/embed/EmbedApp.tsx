@@ -104,6 +104,7 @@ export function EmbedApp() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [ready, setReady] = useState(false);
+  const [mapFailed, setMapFailed] = useState(false);
   // 回放真的跑起來才顯示播放列 —— 快照 404 時不該留一顆按不動的孤兒按鈕
   const [replayOn, setReplayOn] = useState(false);
 
@@ -145,17 +146,25 @@ export function EmbedApp() {
     const framed = window.self !== window.top;
     const locale = localeStore.getSnapshot().locale;
 
-    const map = new maplibregl.Map({
-      container,
-      style: buildBasemapStyle(isDark, locale),
-      cooperativeGestures: framed,
-      ...(framed ? { locale: COOPERATIVE_GESTURE_TEXT[locale] } : {}),
-      center: cam.center,
-      zoom: cam.zoom,
-      pitch: narrow ? 0 : cam.pitch,
-      bearing: cam.bearing,
-      attributionControl: false,   // 自繪於右下（不可被 ui= 關閉）
-    });
+    // MapLibre v6 只支援 WebGL2：建構失敗顯示提示，不留空白
+    let map: maplibregl.Map;
+    try {
+      map = new maplibregl.Map({
+        container,
+        style: buildBasemapStyle(isDark, locale),
+        cooperativeGestures: framed,
+        ...(framed ? { locale: COOPERATIVE_GESTURE_TEXT[locale] } : {}),
+        center: cam.center,
+        zoom: cam.zoom,
+        pitch: narrow ? 0 : cam.pitch,
+        bearing: cam.bearing,
+        attributionControl: false,   // 自繪於右下（不可被 ui= 關閉）
+      });
+    } catch (error) {
+      console.error("[embed] map init failed", error);
+      setMapFailed(true);
+      return;
+    }
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
@@ -318,6 +327,7 @@ export function EmbedApp() {
     <div style={{ position: "absolute", inset: 0, background: isDark ? "#0d0f12" : "#f2f4f6" }}>
       <style>{POPUP_CSS}{isDark ? "" : POPUP_CSS_LIGHT}</style>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
+      {mapFailed && <div role="alert" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, textAlign: "center", color: isDark ? "#e5e7eb" : "#1f2937" }}>{t("embed.mapUnavailable")}</div>}
 
       {/* 連回完整站台 */}
       <a
@@ -347,6 +357,7 @@ export function EmbedApp() {
           overlayParams={params}
           isDarkTheme={isDark}
           railSystems={url.railSystems}
+          embedded
         />
       )}
 

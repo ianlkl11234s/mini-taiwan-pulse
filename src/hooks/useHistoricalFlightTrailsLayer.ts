@@ -6,6 +6,11 @@ import { historicalFlightTrailsModule } from '../map/lazyThreeLayers';
 import { setHistoricalFlightStatus, useHistoricalFlightRetryRevision } from '../state/historicalFlightTrailsStore';
 import { useMapReadyTick } from './useMapReadyTick';
 
+/** 內部錯誤只帶狀態代碼，訊息交給面板翻譯。 */
+class HistoricalFlightCodeError extends Error {
+  constructor(readonly code: 'mismatch') { super(code); }
+}
+
 /** Static airport/event-day data. Never subscribes to the realtime clock or database. */
 export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean,
   country: HistoricalFlightCountry, params: HistoricalFlightParams) {
@@ -28,7 +33,7 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
   useEffect(() => {
     if (!visible) { setHistoricalFlightStatus(country, { state: 'idle', message: '' }); return; }
     let cancelled = false;
-    setHistoricalFlightStatus(country, { state: 'loading', message: '正在載入完整解析度軌跡…' });
+    setHistoricalFlightStatus(country, { state: 'loading', message: '', code: 'loading' });
     void (async () => {
       const manifest = await fetchHistoricalFlightManifest();
       if (cancelled) return;
@@ -37,13 +42,13 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
         if (cancelled) return;
         if (!result) {
           setLoaded(null);
-          setHistoricalFlightStatus(country, { state: 'unavailable', message: `此日期全部 ${country === 'TW' ? '台灣' : '日本'}機場皆無可用軌跡。` });
+          setHistoricalFlightStatus(country, { state: 'unavailable', message: '', code: 'noneAll', params: { country } });
           return;
         }
         setLoaded({ selector, data: result.data });
         setHistoricalFlightStatus(country, {
           state: 'ready',
-          message: `${result.availableAirportCount}/${result.totalAirportCount} 機場可用 · 部分資料 · 原始解析度`,
+          message: '', code: 'readyAll', params: { available: result.availableAirportCount, total: result.totalAirportCount },
           count: result.data.features.length,
         });
         return;
@@ -51,19 +56,19 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
       const sample = manifest.samples.find(item => item.country === country && item.airport === airport && item.date === date);
       if (!sample?.asset) {
         setLoaded(null);
-        setHistoricalFlightStatus(country, { state: 'unavailable', message: sample?.note || '此機場日期尚無軌跡，請選其他代表日。' });
+        setHistoricalFlightStatus(country, { state: 'unavailable', message: sample?.note || '', code: 'noTrack' });
         return;
       }
       const data = await fetchHistoricalFlightAsset(sample.asset);
       if (cancelled) return;
       if (data.meta.country !== country || data.meta.airport !== airport || data.meta.date !== date
-        || data.features.length !== sample.flight_count) throw new Error('歷史軌跡樣本與目錄不一致');
+        || data.features.length !== sample.flight_count) throw new HistoricalFlightCodeError('mismatch');
       setLoaded({ selector, data });
-      setHistoricalFlightStatus(country, { state: 'ready', message: '部分資料 · 原始解析度', count: sample.flight_count });
+      setHistoricalFlightStatus(country, { state: 'ready', message: '', code: 'ready', count: sample.flight_count });
     })().catch((error: unknown) => {
       if (cancelled) return;
       setLoaded(null);
-      setHistoricalFlightStatus(country, { state: 'error', message: error instanceof Error ? error.message : '歷史軌跡載入失敗' });
+      setHistoricalFlightStatus(country, { state: 'error', message: error instanceof Error && !(error instanceof HistoricalFlightCodeError) ? error.message : '', code: error instanceof HistoricalFlightCodeError ? error.code : 'loadFailed' });
     });
     // Shared cache promises are allowed to finish; stale selections can never overwrite the map.
     return () => { cancelled = true; };

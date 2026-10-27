@@ -3,16 +3,16 @@
 > 由 `scripts/research/build-layer-status.mjs` 產生，請勿手改；逐層明細見 [layer-status.csv](./layer-status.csv)。
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
-- 圖層總數：**1174**；L1 可操作：**1174/1174**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**954/1174**（81.3%）
+- 圖層總數：**1172**；L1 可操作：**1172/1172**
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**954/1172**（81.4%）
 - 共用混合幾何表但缺逐層 rowFilter（不計入上列）：27
-- 只有舊瀏覽器 reader：6；尚不可分析：182
+- 只有舊瀏覽器 reader：6；尚不可分析：180
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 664 | 340 | 199 | 2 | 5 | 114 | 4 |
+| 臺灣圖層 | 662 | 340 | 199 | 2 | 5 | 112 | 4 |
 | 統計 | 421 | 1 | 412 | 3 | 0 | 5 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 64 | 15 | 0 | 2 | 0 | 46 | 1 |
@@ -81,8 +81,6 @@
 | override: live_only: 非地圖圖層，是 top-left 供電燈號 KPI 卡片（usePowerDashboard RPC 5 分鐘 poll，cron 10 分鐘寫入），無 geometry、無 legend/popup，價值在備轉容量率隨時間變化，需時間序列匯出而非空間快照。 | 1 |
 | override: live_only: 北中南東 4 區用電 3D bars，與 powerStatusHud 共用同一份 usePowerDashboard RPC（不重複拉取），4 區僅為粗略聚合質心非真實設施點，核心價值是用電量/備轉指標隨時間變化，需時間序列匯出。 | 1 |
 | override: unclear: 全 repo 僅有 type 宣告與三張全量表的值，layerConsistency 僅記載 baseline，無任何 loader/hook/RPC 實作（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）；沒有可查的資料來源，無法判斷屬於哪一類。 | 1 |
-| override: unclear: 逐檔 grep 全 repo 找不到任何實際讀取端（僅 type 宣告＋三張全量表），layerConsistency 註解稱『由 wasteTruck 子 UI 控制』但該 UI 不存在；沒有可查的資料來源，無法判斷屬於哪一類。廢棄物主題真正在用的是另一 key `wasteStopsStatic`（不在此清單）。 | 1 |
-| override: unclear: 同 wasteRoute，無任何 consumer（僅 type 宣告＋三張全量表），無法判斷資料形態；注意與已上線、有 OVERLAY_REGISTRY entry 的 `wasteStopsStatic`（不同 key，不在此清單）不可混淆。 | 1 |
 
 - `upstream_catalog_missing`：manifest 未對應到 analytics 目錄 dataset（多為前端自建、即時或外部來源）。
 - `dataset_not_in_warehouse`：有 upstream dataset，但 analytics 沒有可建表的 manifest／檔案。

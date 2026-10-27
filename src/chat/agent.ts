@@ -215,7 +215,7 @@ export async function testKey(
       prompt: "ping",
       maxOutputTokens: 1,
     });
-    return { ok: true, message: "金鑰驗證成功" };
+    return { ok: true, message: localeStore.getSnapshot().t("chat.key.testOk") };
   } catch (err) {
     return { ok: false, message: classifyError(err) };
   }

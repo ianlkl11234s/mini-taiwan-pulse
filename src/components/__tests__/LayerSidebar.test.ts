@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import ts from "typescript";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -47,5 +49,29 @@ describe("LayerSidebar light statistics toggles", () => {
     }
     expect(railPalette(false)).toBe(LIGHT_PALETTE);
     expect(railPalette(true)).toBe(DARK_PALETTE);
+  });
+});
+
+// LayerSidebar 本體 render 需要整包圖層狀態，改以 AST 驗證 provider 接線：
+// palette 由 railPalette(isDarkTheme) 產生，且整棵樹包在 RailThemeContext.Provider value={palette} 內。
+describe("LayerSidebar RailThemeContext wiring", () => {
+  const source = ts.createSourceFile("LayerSidebar.tsx", readFileSync("src/components/LayerSidebar.tsx", "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const providers: ts.JsxOpeningElement[] = [];
+  const paletteDecls: ts.VariableDeclaration[] = [];
+  (function visit(node: ts.Node) {
+    if (ts.isJsxOpeningElement(node) && node.tagName.getText() === "RailThemeContext.Provider") providers.push(node);
+    if (ts.isVariableDeclaration(node) && node.name.getText() === "palette") paletteDecls.push(node);
+    ts.forEachChild(node, visit);
+  })(source);
+
+  it("palette = railPalette(isDarkTheme)", () => {
+    expect(paletteDecls).toHaveLength(1);
+    expect(paletteDecls[0]!.initializer?.getText()).toBe("railPalette(isDarkTheme)");
+  });
+
+  it("RailThemeContext.Provider 只有一個，value 是上面的 palette", () => {
+    expect(providers).toHaveLength(1);
+    const value = providers[0]!.attributes.properties.find((p): p is ts.JsxAttribute => ts.isJsxAttribute(p) && p.name.getText() === "value");
+    expect(value?.initializer && ts.isJsxExpression(value.initializer) ? value.initializer.expression?.getText() : undefined).toBe("palette");
   });
 });

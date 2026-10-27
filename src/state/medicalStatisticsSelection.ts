@@ -23,14 +23,16 @@ type Recipe = { dataset_id: string; indicator_id: string; level: string; label: 
 const METRIC_DIMENSIONS = new Set(['source_field', 'denominator_period', 'bed_measure']);
 
 /** 切換變體時期別被改動的提示（guidelines §3：不可靜默跳年份）。key = 切換後的圖層。 */
-const periodNotices = new Map<string, string>();
+/** 期別切換提示：存 i18n key＋參數，元件端用 t() 輸出（切語系跟著變）。 */
+export type StatisticsPeriodNotice = { key: 'statisticsSelect.notice.disjoint' | 'statisticsSelect.notice.villageOnly' | 'statisticsSelect.notice.villageOnlyNoPeriod'; vars?: Record<string, string> };
+const periodNotices = new Map<string, StatisticsPeriodNotice>();
 const periodNoticeListeners = new Set<() => void>();
-function setPeriodNotice(key: string, notice: string | undefined) {
-  if ((periodNotices.get(key) ?? undefined) === notice) return;
+function setPeriodNotice(key: string, notice: StatisticsPeriodNotice | undefined) {
+  if (JSON.stringify(periodNotices.get(key) ?? null) === JSON.stringify(notice ?? null)) return;
   if (notice) periodNotices.set(key, notice); else periodNotices.delete(key);
   for (const listener of periodNoticeListeners) listener();
 }
-export function getStatisticsPeriodNotice(key: string): string | undefined {
+export function getStatisticsPeriodNotice(key: string): StatisticsPeriodNotice | undefined {
   return periodNotices.get(key);
 }
 export function subscribeStatisticsPeriodNotice(listener: () => void): () => void {
@@ -179,8 +181,9 @@ export function selectMedicalStatisticsVariant(from: keyof LayerVisibility, to: 
   const { option, samePeriod, disjointPeriod, demographicsTarget } = resolved;
   const periodText = demographicsTarget ? demographicsVillageOnlyPeriod(demographicsTarget) : undefined;
   setPeriodNotice(to, samePeriod ? undefined
-    : disjointPeriod ? `兩種口徑的資料期間不重疊，已切換到最接近的 ${disjointPeriod.period_start.slice(0, 7)}。`
-    : `村里層僅有${periodText ? ` ${periodText}` : ''}一期，已切換期別。`);
+    : disjointPeriod ? { key: 'statisticsSelect.notice.disjoint', vars: { period: disjointPeriod.period_start.slice(0, 7) } }
+    : periodText ? { key: 'statisticsSelect.notice.villageOnly', vars: { period: periodText } }
+    : { key: 'statisticsSelect.notice.villageOnlyNoPeriod' });
   setPeriodNotice(from, undefined);
   regionalStatisticsStore.setSelection(to, { layerKey: to, datasetId: target.dataset_id, indicatorId: target.indicator_id, level: target.level as StatisticsRecipe['level'], label: target.label, releaseId: option.release_id, dimensions: option.dimensions, allowReleaseFallback: false, includeHealth: true });
   const opacity = layerParamsStore.getParam(from, `${from}Opacity`);

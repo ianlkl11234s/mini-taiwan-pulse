@@ -73,5 +73,8 @@
   "legend.water.dzTitle": "飲用水水源水質保護区（環境部）",
   "legend.water.dzDashed": "{label}（破線）",
   "legend.water.dzSource": "環境部 GISEPA_P_13（2026-07-20版）・政府データオープンライセンス第1版",
-  "legend.water.dzNote": "飲用水管理条例に基づき公告されたものです。水資源の「管制区」（水利署が水道法に基づき指定する水道水質水量保護区）とは根拠法令も範囲も異なるため、同じレイヤーとして扱わないでください。"
+  "legend.water.dzNote": "飲用水管理条例に基づき公告されたものです。水資源の「管制区」（水利署が水道法に基づき指定する水道水質水量保護区）とは根拠法令も範囲も異なるため、同じレイヤーとして扱わないでください。",
+  "legend.water.reservoirStaticTitle": "貯水池",
+  "legend.water.reservoirStaticArea": "貯水範囲",
+  "legend.water.reservoirStaticNote": "埋め込み地図では貯水範囲とダムの位置のみを表示し、リアルタイムの水情報は含みません。"
 }

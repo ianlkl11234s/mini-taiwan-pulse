@@ -55,5 +55,11 @@
   "analysisCard.legend.fillSize": "Fill: {fill} · Size: {size}",
   "analysisCard.legend.flowStatic": " (high flow volume; flow animation off)",
   "analysisCard.legend.sparse": "Sparse",
-  "analysisCard.legend.dense": "Dense"
+  "analysisCard.legend.dense": "Dense",
+  "analysisCard.rank.noData": "No data",
+  "analysisCard.rank.other": "Other {count} areas",
+  "analysisCard.rank.summaryEmpty": "Ranked bar chart, no data yet",
+  "analysisCard.rank.summary": "Ranked bar chart, {count} items, high to low; highest: \"{label}\" {value}",
+  "analysisCard.mapFailed": "Map boundaries are temporarily unavailable",
+  "analysisCard.mapUnavailable": "The map could not start. Please make sure your browser supports WebGL 2."
 }

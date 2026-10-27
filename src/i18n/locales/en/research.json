@@ -223,5 +223,6 @@
   "research.session.reconnecting": "Agent disconnected. Preparing a new connection…",
   "research.activity.log": "Agent activity log",
   "research.activity.latest": "Latest action",
-  "research.activity.previous": "Previous actions"
+  "research.activity.previous": "Previous actions",
+  "research.session.staleRebuilding": "This tab's connection has expired. Preparing a new one…"
 }

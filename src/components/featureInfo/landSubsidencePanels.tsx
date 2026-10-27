@@ -89,7 +89,7 @@ function StationTrend({ props }: Props) {
   const [ring, setRing] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!stationId || obsCount <= 0) { setRows([]); return; }
+    if (!stationId || obsCount <= 0) { setRows([]); setFailed(false); setRing(null); return; }
     let cancelled = false;
     setRows(null); setFailed(false); setRing(null);
     fetchLandSubsidenceTimeseries(stationId)

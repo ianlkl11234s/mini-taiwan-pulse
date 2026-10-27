@@ -134,7 +134,8 @@
   bottom: calc(28px + var(--mobile-sheet-inset, 0px));
   width: 380px;
   max-width: calc(100vw - 32px);
-  max-height: min(55vh, 440px);
+  /* 卡片底緣 = 28px + 手機面板高度；上緣再留 16px，卡片不會被面板擠出視窗 */
+  max-height: min(55vh, 440px, calc(100dvh - var(--mobile-sheet-inset, 0px) - 44px));
   display: flex;
   flex-direction: column;
   background: var(--pa-card-bg);

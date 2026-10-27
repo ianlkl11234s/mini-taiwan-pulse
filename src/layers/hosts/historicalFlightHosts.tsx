@@ -48,7 +48,7 @@ export const HistoricalFlightTrailsHost: LayerHostComponent = ({ deps }) => {
     void fetchHistoricalFlightManifest().then((manifest) => {
       const airport = manifest.airports.find((item) => item.country === "TW" && item.icao === twSelection.airport);
       if (!cancelled && airport && deps.mapRef.current) deps.mapRef.current.flyTo({ center: airport.center, zoom: 8, pitch: 60, duration: 700 });
-    }).catch(() => { if (!cancelled) setHistoricalFlightStatus("TW", { state: "error", message: "無法讀取機場目錄，請重試。" }); });
+    }).catch(() => { if (!cancelled) setHistoricalFlightStatus("TW", { state: "error", message: "", code: "manifestFailed" }); });
     return () => { cancelled = true; };
   }, [deps.mapRef, twFocusRequest, twSelection.airport]);
   useEffect(() => {
@@ -61,7 +61,7 @@ export const HistoricalFlightTrailsHost: LayerHostComponent = ({ deps }) => {
     void fetchHistoricalFlightManifest().then((manifest) => {
       const airport = manifest.airports.find((item) => item.country === "JP" && item.icao === jpSelection.airport);
       if (!cancelled && airport && deps.mapRef.current) deps.mapRef.current.flyTo({ center: airport.center, zoom: 8, pitch: 60, duration: 700 });
-    }).catch(() => { if (!cancelled) setHistoricalFlightStatus("JP", { state: "error", message: "無法讀取機場目錄，請重試。" }); });
+    }).catch(() => { if (!cancelled) setHistoricalFlightStatus("JP", { state: "error", message: "", code: "manifestFailed" }); });
     return () => { cancelled = true; };
   }, [deps.mapRef, jpFocusRequest, jpSelection.airport]);
   return null;

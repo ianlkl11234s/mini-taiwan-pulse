@@ -162,6 +162,33 @@ describe("AgentTabSession (P3, no pairing code)", () => {
     expect(fake.client.revoke).toHaveBeenCalledWith("study-1");
     expect(storage.value).toBeNull();
   });
+
+  it("sign-out while createStudy is still pending waits for it, then revokes the new study (F238)", async () => {
+    const fake = fakeClient(); const storage = memoryStorage();
+    let release!: () => void;
+    fake.client.createStudy.mockImplementationOnce(async (tabId: string) => { await new Promise<void>(resolve => { release = resolve; }); return { studyId: "late-study", tabId }; });
+    const { tab } = session(fake, storage); active.push(tab);
+    tab.start(); await flush();
+    const closing = tab.revokeForSignOut();
+    await flush();
+    expect(fake.client.revoke).not.toHaveBeenCalled();
+    release(); await flush();
+    await expect(closing).resolves.toBe(true);
+    expect(fake.client.revoke).toHaveBeenCalledWith("late-study");
+    expect(storage.value).toBeNull();
+  });
+
+  it("a study created after the tab was stopped is revoked instead of left orphaned (F238)", async () => {
+    const fake = fakeClient(); const storage = memoryStorage();
+    let release!: () => void;
+    fake.client.createStudy.mockImplementationOnce(async (tabId: string) => { await new Promise<void>(resolve => { release = resolve; }); return { studyId: "orphan", tabId }; });
+    const { tab } = session(fake, storage); active.push(tab);
+    tab.start(); await flush();
+    tab.stop();
+    release(); await flush();
+    expect(fake.client.revoke).toHaveBeenCalledWith("orphan");
+    expect(storage.value).toBeNull();
+  });
 });
 
 describe("sessionTabStorage", () => {

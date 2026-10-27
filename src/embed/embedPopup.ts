@@ -80,6 +80,9 @@ function formatValue(v: unknown): string {
   if (typeof v === "number" && Number.isFinite(v)) {
     return escapeHtml(Number.isInteger(v) ? v.toLocaleString("en-US") : v.toFixed(2));
   }
+  // MapLibre v6 保留巢狀屬性：陣列逐項格式化、物件轉 JSON，不要輸出 [object Object]
+  if (Array.isArray(v)) return v.filter((item) => !isEmpty(item)).map(formatValue).join("、");
+  if (v !== null && typeof v === "object") return escapeHtml(JSON.stringify(v));
   return escapeHtml(v);
 }
 
