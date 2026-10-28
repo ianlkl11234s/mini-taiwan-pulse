@@ -46,6 +46,7 @@ import {
   LAYER_MACRO_GROUPS,
   THEMES,
   THEME_NAME_TITLES,
+  THEME_SCOPE,
   WORLD_TAB_THEME_TITLES,
   themeMacroGroup,
   themeName,
@@ -499,6 +500,14 @@ describe("區域統計 sidebar 接線", () => {
     }
     expect(readFileSync('src/components/MobileBottomSheet.tsx', 'utf8')).toContain('zIndex: 40');
     expect(readFileSync('src/App.tsx', 'utf8')).toContain('onLayerClick={handleLayerClick}');
+  });
+});
+
+describe("主題國家主體（THEME_SCOPE）", () => {
+  it("每個主題都登記了國家主體，且沒有多出不存在的主題", () => {
+    const titles = new Set(THEMES.map((theme) => theme.title));
+    expect([...titles].filter((title) => !(title in THEME_SCOPE))).toEqual([]);
+    expect(Object.keys(THEME_SCOPE).filter((title) => !titles.has(title))).toEqual([]);
   });
 });
 

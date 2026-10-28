@@ -26,6 +26,7 @@ import { COMPARISON_STATISTICS_KEYS, STATISTICS_COMPARISONS_UI_ENABLED } from ".
 import { isRailCode } from "../constants/railLines";
 import { DEFAULT_LOCALE, matchLocale, type Locale } from "../i18n/locales";
 import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
+import { DEFAULT_COUNTRY, isCountryCode, type CountryCode } from "../constants/countries";
 
 export const URL_STATE_VERSION = 1;
 
@@ -75,6 +76,11 @@ export interface UrlState {
   railSystems?: string[];
   /** 介面語系（`?lang=`）。zh-TW 為預設，buildUrl 不寫；主站的 localeStore 另外直接讀網址。 */
   lang?: Locale;
+  /**
+   * 國家主體（`?c=jp`，選填欄位不升版）。網址一律小寫國碼；台灣是預設，buildUrl 不寫。
+   * 未給時主站依相機中心所屬國決定（`countryStore.resolveInitialCountry`）。
+   */
+  country?: CountryCode;
 }
 
 export interface ParseOptions {
@@ -250,6 +256,10 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
   const lang = matchLocale(q.get("lang"));
   if (lang) state.lang = lang;
 
+  // 只收小寫國碼（同 `style=` 的格式契約）；未知國碼 drop。
+  const country = q.get("c");
+  if (country && /^[a-z]{2}$/.test(country) && isCountryCode(country.toUpperCase())) state.country = country.toUpperCase() as CountryCode;
+
   return state;
 }
 
@@ -292,6 +302,7 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));
   if (state.lang && state.lang !== DEFAULT_LOCALE) q.set("lang", state.lang);
+  if (state.country && state.country !== DEFAULT_COUNTRY) q.set("c", state.country.toLowerCase());
 
   const sep = base.includes("?") ? "&" : "?";
   return `${base}${sep}${q.toString()}`;
