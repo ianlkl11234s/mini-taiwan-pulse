@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
@@ -31,8 +31,9 @@ export function CountryChip({ code, color }: { code: CountryCode; color: string 
  * 圖層／統計面板頂部的國家選單（spec §5.41，2026-10-28 國家主體化）。
  * 觸發列＝chip＋國名＋chevron；彈出層沿用 §5.19 popover 的外殼與互動（點外部或 Esc 關閉、menuitemradio）。
  * 選國家才 flyTo（`onSelect` 由呼叫端決定）；國家狀態本身在 `countryStore`。
+ * `trailing`：同一列右側的按鈕（面板的「全部關閉」），省一列高度。
  */
-export function CountryMenu({ country, onSelect }: { country: CountryCode; onSelect: (code: CountryCode) => void }) {
+export function CountryMenu({ country, onSelect, trailing }: { country: CountryCode; onSelect: (code: CountryCode) => void; trailing?: ReactNode }) {
   const { COLOR_SCHEME, PANEL_BORDER, ALLOFF_BG, ALLOFF_BORDER, TEXT_STRONG, DIM, INACTIVE_TEXT, ROW_HOVER, ROW_ACTIVE } = useRailTheme();
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
@@ -57,7 +58,7 @@ export function CountryMenu({ country, onSelect }: { country: CountryCode; onSel
   }, [open]);
 
   return (
-    <div ref={containerRef} style={{ position: "relative", padding: "4px 12px 0" }}>
+    <div ref={containerRef} style={{ position: "relative", padding: "4px 12px 4px", display: "flex", gap: 6 }}>
       <button
         type="button"
         aria-haspopup="menu"
@@ -69,7 +70,8 @@ export function CountryMenu({ country, onSelect }: { country: CountryCode; onSel
           display: "flex",
           alignItems: "center",
           gap: 6,
-          width: "100%",
+          flex: 1,
+          minWidth: 0,
           padding: "5px 8px",
           background: ALLOFF_BG,
           border: `1px solid ${ALLOFF_BORDER}`,
@@ -86,6 +88,7 @@ export function CountryMenu({ country, onSelect }: { country: CountryCode; onSel
         <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{countryName}</span>
         <ChevronDown size={12} color={DIM} aria-hidden />
       </button>
+      {trailing}
       {open && (
         <div
           role="menu"
