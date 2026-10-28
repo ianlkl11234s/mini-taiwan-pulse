@@ -1,4 +1,5 @@
-import { SIMULATION_TAB_THEME_TITLES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES, WORLD_TAB_THEME_TITLES, themeScope } from "../components/sidebar/layerCatalog";
+import { SIMULATION_TAB_THEME_TITLES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES, WORLD_TAB_THEME_TITLES } from "../components/sidebar/layerCatalog";
+import { LAYER_MANIFEST, type LayerManifestEntry, type ManifestKey } from "../data/layerManifest";
 import { isCountryCode, type CountryCode } from "../constants/countries";
 
 export type ExplorationPanel = "layers" | "statistics" | "world" | "simulation";
@@ -38,12 +39,17 @@ function keysForThemes(themes: readonly typeof THEMES[number][]): Set<string> {
 const statisticsKeys = STATISTICS_TAB_CHOROPLETH_LAYER_KEYS;
 const worldKeys = keysForThemes(THEMES.filter(theme => WORLD_TAB_THEME_TITLES.includes(theme.title)));
 const simulationKeys = keysForThemes(THEMES.filter(theme => SIMULATION_TAB_THEME_TITLES.includes(theme.title)));
-/** 國家主題樹的 layer key → 國家（依 `THEME_SCOPE`）。 */
+/**
+ * 國家主題樹的 layer key → 國家。讀 manifest `country`（不從主題 title 查），主題 title 跨國重名時仍唯一；
+ * 只收 THEMES 裡實際上架的圖層。
+ */
 const countryByKey = new Map<string, CountryCode>();
 for (const theme of THEMES) {
-  const scope = themeScope(theme.title);
-  if (!isCountryCode(scope)) continue;
-  for (const group of theme.groups) for (const layer of group.layers) if (!countryByKey.has(layer.key)) countryByKey.set(layer.key, scope);
+  for (const group of theme.groups) for (const layer of group.layers) {
+    const entry: LayerManifestEntry | undefined = LAYER_MANIFEST[layer.key as ManifestKey];
+    const country = entry?.country;
+    if (isCountryCode(country) && !countryByKey.has(layer.key)) countryByKey.set(layer.key, country);
+  }
 }
 
 /** 第一個屬於國家主題樹的圖層所屬國（世界、統計以外）；都不是回 undefined。 */

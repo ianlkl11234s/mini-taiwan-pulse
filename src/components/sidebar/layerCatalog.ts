@@ -25,7 +25,6 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // 3. 每主題內子群順序：點位 → 線/面 → 即時 → 分析
 
 import type { LayerVisibility, TransportType } from "../../types";
-import type { CountryCode } from "../../constants/countries";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
@@ -38,7 +37,7 @@ import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, atlasDataThemeGroups, 
 
 import {
   LAYER_MANIFEST, manifestColors,
-  type ManifestKey, type LayerManifestEntry, type LayerName,
+  type ManifestKey, type LayerManifestEntry, type LayerName, type LayerCountry,
 } from "../../data/layerManifest";
 
 /**
@@ -198,7 +197,7 @@ export const TAIWAN_TELECOM_THEME_TITLE = "通訊 Telecom";
 export const FRANCE_TELECOM_THEME_TITLE = "通訊";
 
 /** 主題屬於哪個國家主體（或世界、模擬）。見 `THEME_SCOPE`。 */
-export type ThemeScope = CountryCode | "WORLD" | "SIM";
+export type ThemeScope = LayerCountry;
 
 /**
  * 主題 → 國家主體對照（議題 1「國家主體化」，2026-10-28）。每個主題都要登記（layerConsistency 測試擋漏）。
