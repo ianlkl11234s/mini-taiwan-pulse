@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS, Z_INDEX } from "../../styles/designTokens";
+import { ELEVATION, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
 import { COUNTRIES, countryDef, type CountryCode } from "../../constants/countries";
 import { useLocale } from "../../state/localeStore";
@@ -33,7 +33,7 @@ export function CountryChip({ code, color }: { code: CountryCode; color: string 
  * 選國家才 flyTo（`onSelect` 由呼叫端決定）；國家狀態本身在 `countryStore`。
  */
 export function CountryMenu({ country, onSelect }: { country: CountryCode; onSelect: (code: CountryCode) => void }) {
-  const { BG_PANEL, PANEL_BORDER, ALLOFF_BG, ALLOFF_BORDER, TEXT_STRONG, DIM, INACTIVE_TEXT, ROW_HOVER, ROW_ACTIVE } = useRailTheme();
+  const { COLOR_SCHEME, PANEL_BORDER, ALLOFF_BG, ALLOFF_BORDER, TEXT_STRONG, DIM, INACTIVE_TEXT, ROW_HOVER, ROW_ACTIVE } = useRailTheme();
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState<CountryCode | null>(null);
@@ -96,7 +96,8 @@ export function CountryMenu({ country, onSelect }: { country: CountryCode; onSel
             left: 12,
             right: 12,
             zIndex: Z_INDEX.popover,
-            background: BG_PANEL,
+            // 不透明底：面板本身半透明，彈出層再疊半透明會讓下方「全部關閉」、搜尋框的字透出來
+            background: COLOR_SCHEME === "dark" ? SURFACE.app : LIGHT.surfaceSolid,
             border: `1px solid ${PANEL_BORDER}`,
             borderRadius: RADIUS.xl,
             boxShadow: ELEVATION.lg,
