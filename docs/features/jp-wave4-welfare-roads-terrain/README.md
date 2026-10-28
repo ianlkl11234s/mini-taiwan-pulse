@@ -43,3 +43,4 @@
 
 - 主站 CSP 轉 enforcing 前，`img-src`／`connect-src` 要確認涵蓋 `cyberjapandata.gsi.go.jp`（目前 Report-Only 的 img-src 是 `https:`，不擋）。
 - 有料道路是否要另外的視覺編碼（目前只在 popup／篩選）。
+- 市町村道未收（全收粗估超過 1GB）：等 Zeabur 搬遷、大檔改放 R2 後再另開一層，見 BACKLOG `JPRD-1`。

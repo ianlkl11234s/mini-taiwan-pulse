@@ -69,7 +69,13 @@ for (const key of MANIFEST_KEYS) {
     tableUsers.get(item.table).add(key);
   }
 }
-const PANEL_LABEL = { layers: "臺灣圖層", statistics: "統計", world: "世界", japan: "日本" };
+const PANEL_LABEL = { statistics: "統計", world: "世界" };
+/** 「圖層」入口依國家主體分欄（2026-10-28 國家主體化；舊「日本」入口併入圖層入口的日本）。 */
+const COUNTRY_PANEL_LABEL = { TW: "臺灣圖層", JP: "日本", FR: "法國" };
+function panelLabel(target) {
+  if (target.panel === "layers") return COUNTRY_PANEL_LABEL[target.country ?? "TW"];
+  return PANEL_LABEL[target.panel] ?? target.panel;
+}
 
 function sourceKinds(entry) {
   const sources = Array.isArray(entry.source) ? entry.source : [entry.source];
@@ -137,11 +143,11 @@ function classify(key) {
     ...stats.filter(id => !(recipeMatched && id === recipe.dataset_id)).map(id => extras.statsDatasets[id].lastPeriod),
     recipePeriod,
   ].sort().at(-1) ?? "";
-  const panel = panelForExplorationLayers([key]);
+  const target = panelForExplorationLayers([key]);
   return {
     layer_key: key,
     label: entry.section === null ? "" : entry.label,
-    panel: PANEL_LABEL[panel] ?? panel,
+    panel: panelLabel(target),
     theme: entry.section?.theme ?? "(orphan)",
     source_kind: sourceKinds(entry),
     upstream_status: entry.upstream?.status ?? "",
@@ -171,7 +177,7 @@ writeFileSync(resolve(docsDir, "layer-status.csv"), [columns.join(","), ...rows.
 
 const count = (list, key) => list.reduce((acc, row) => { acc[row[key]] = (acc[row[key]] ?? 0) + 1; return acc; }, {});
 const L2_ORDER = ["spatial", "statistics", "attribute", "browser_reader", "none", "display_only"];
-const panels = ["臺灣圖層", "統計", "世界", "日本"];
+const panels = ["臺灣圖層", "統計", "世界", "日本", "法國"];
 const table = (headers, body) => [`| ${headers.join(" | ")} |`, `|${headers.map(() => "---").join("|")}|`, ...body.map(cells => `| ${cells.join(" | ")} |`)].join("\n");
 const l2Present = L2_ORDER.filter(l2 => rows.some(row => row.l2_analysis === l2));
 const panelRows = panels.map(panel => {

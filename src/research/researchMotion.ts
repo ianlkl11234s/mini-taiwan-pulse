@@ -34,6 +34,11 @@ export function prefersReducedMotion(): boolean {
   try { return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; }
 }
 
+/** True while an Agent camera move (moveResearchCamera) is in flight; the viewport country hint skips these. */
+export function isResearchMotionActive(map: MapboxMap): boolean {
+  return motions.has(map);
+}
+
 /** Stops only an active research motion. A later motion always resolves an earlier one as false. */
 export function cancelResearchMotion(map: MapboxMap): void {
   const motion = motions.get(map);

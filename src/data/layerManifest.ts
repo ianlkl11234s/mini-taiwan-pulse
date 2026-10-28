@@ -1,3 +1,4 @@
+import type { CountryCode } from "../constants/countries";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
@@ -256,6 +257,12 @@ export function layerName(name: LayerName): { name: LayerName; label: string } {
   return { name, label: composeLayerLabel(name) };
 }
 
+/**
+ * 圖層的國家主體（議題 1「國家主體化」PR 4）：國家碼，或不分國家的世界、模擬入口。
+ * `layerCatalog.ts` 的 `ThemeScope` 是它的別名。定義在這裡而非 catalog，避免 manifest ↔ catalog 互相 import。
+ */
+export type LayerCountry = CountryCode | "WORLD" | "SIM";
+
 /** sidebar 座標：THEMES 的主題 title + 子群 title（Phase 1 只宣告，不派生位置） */
 export interface LayerSection {
   theme: string;
@@ -340,6 +347,12 @@ interface LayerManifestBase {
  * 在 THEMES 裡的 key（338 個）—— 有 sidebar 座標，也就有一筆 LayerDef 可派生。
  */
 export interface LayerManifestThemedEntry extends LayerManifestBase {
+  /**
+   * 國家主體（PR 4，2026-10-28）。圖層屬於哪個國家的主題樹，或世界／模擬入口。
+   * 現在由測試釘住 = `THEME_SCOPE[section.theme]`；之後主題 title 可跨國重名
+   * （日本、法國都叫「通訊」）時，以本欄為圖層國家歸屬的正本。
+   */
+  country: LayerCountry;
   /** sidebar 座標（觸點 #8 的位置資訊） */
   section: LayerSection;
   /**
@@ -372,6 +385,8 @@ export interface LayerManifestThemedEntry extends LayerManifestBase {
 export interface LayerManifestOrphanEntry extends LayerManifestBase {
   /** null = 不在 THEMES。這是本 union 的判別欄位。 */
   section: null;
+  /** orphan 不在任何主題樹，沒有國家主體。 */
+  country?: never;
   name?: never;
   label?: never;
   expandable?: never;
@@ -411,7 +426,7 @@ export const AGRI_CATALOG_DATASET_ALIASES: Readonly<Record<string, string>> = {
 /** 24 enabled recipes share the dynamic Statistics renderer; this derives only their manifest registration. */
 const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
+  country: "TW", section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
   ...layerName({ zh: recipe.label }), expandable: true, color: AGRI_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
   upstream: { status: "verified", datasets: [{ datasetId: AGRI_CATALOG_DATASET_ALIASES[recipe.dataset_id] ?? recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -426,7 +441,7 @@ const SOCIAL_STATISTICS_COLORS: Record<string, string> = {
 /** Social-statistics recipes use the shared dynamic Statistics renderer. */
 const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  section: { theme: recipe.group, group: recipe.subgroup },
+  country: "TW", section: { theme: recipe.group, group: recipe.subgroup },
   ...layerName({ zh: recipe.label }), expandable: true, color: SOCIAL_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
   upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -438,7 +453,7 @@ const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STA
 /** Labor recipes are an incremental local delivery and share the dynamic Statistics renderer. */
 const LABOR_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LABOR_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
   key: recipe.layer_key,
-  section: { theme: "工作與所得 Work & Income", group: recipe.subgroup },
+  country: "TW", section: { theme: "工作與所得 Work & Income", group: recipe.subgroup },
   ...layerName({ zh: recipe.label }), expandable: true, color: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).accent, icon: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).icon,
   upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
   source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -452,7 +467,7 @@ const ENVIRONMENT_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ENVIRONMENT_E
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    section: { theme: ENVIRONMENT_STATISTICS_THEME_TITLES[recipe.group] ?? recipe.group, group: recipe.subgroup },
+    country: "TW", section: { theme: ENVIRONMENT_STATISTICS_THEME_TITLES[recipe.group] ?? recipe.group, group: recipe.subgroup },
     ...layerName({ zh: recipe.label }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -468,7 +483,7 @@ const DEMOGRAPHICS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(DEMOGRAPHICS
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: { theme: DEMOGRAPHICS_STATISTICS_THEME_TITLE, group: recipe.subgroup },
     ...layerName({ zh: demographicsDisplayLabel(recipe), qualifier: DEMOGRAPHICS_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -484,7 +499,7 @@ const ADDICTION_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ADDICTION_ENABL
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    section: { theme: ADDICTION_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: { theme: ADDICTION_STATISTICS_THEME_TITLE, group: recipe.subgroup },
     ...layerName({ zh: recipe.label, qualifier: ADDICTION_LEVEL_QUALIFIERS[recipe.level] ?? "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -499,7 +514,7 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    section: { theme: LANDSLIDE_STATISTICS_THEME_TITLE, group: recipe.subgroup },
+    country: "TW", section: { theme: LANDSLIDE_STATISTICS_THEME_TITLE, group: recipe.subgroup },
     ...layerName({ zh: recipe.label, qualifier: "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -514,7 +529,7 @@ const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATI
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    section: { theme: recipe.data_theme, group: recipe.subgroup },
+    country: "TW", section: { theme: recipe.data_theme, group: recipe.subgroup },
     ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
@@ -530,7 +545,7 @@ const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRE
   const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(candidate => candidate.layer_key === metric.layerKey)!;
   return [view.key, {
     key: view.key,
-    section: { theme: '教育與少子化統計', group: '學校所在地縣市別' },
+    country: "TW", section: { theme: '教育與少子化統計', group: '學校所在地縣市別' },
     ...layerName({ zh: view.label }), expandable: true, color: SOCIAL_STATISTICS_COLORS['教育與少子化統計'], icon: Recycle,
     upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
     source: { kind: 'custom', note: `Fixed ${view.stage} presentation view over immutable ${recipe.dataset_id} releases; regionalStatisticsMap runtime` },
@@ -556,7 +571,7 @@ const COMPARISON_UPSTREAM: UpstreamRef = {
 };
 
 const COMPARISON_MANIFEST_ENTRIES = Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
-  key: recipe.layer_key, section: { theme: '統計比較', group: recipe.groupLabel }, ...layerName({ zh: recipe.label }),
+  key: recipe.layer_key, country: "TW", section: { theme: '統計比較', group: recipe.groupLabel }, ...layerName({ zh: recipe.label }),
   expandable: true, color: '#2563eb', icon: Recycle,
   upstream: COMPARISON_UPSTREAM, dataClass: 'D',
   source: { kind: 'custom', note: 'Offline derived immutable Statistics artifacts; exact release allowlist and regionalStatisticsMap runtime' },
@@ -573,7 +588,7 @@ const JP_MEDICAL_SOURCE = { kind: "custom" as const, note: "useJpMedicalLayers �
 function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, icon: LucideIcon): LayerManifestEntry {
   const category = JP_MEDICAL_CATEGORIES[index]!;
   return {
-    key, section: { theme: "醫療", group: "點位" }, ...layerName({ zh: category.zh, alt: category.ja }), expandable: true,
+    key, country: "JP", section: { theme: "醫療", group: "點位" }, ...layerName({ zh: category.zh, alt: category.ja }), expandable: true,
     color: category.color, icon,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
       processing: "Navii 原始 record_kind 獨立成層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
@@ -587,7 +602,7 @@ function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, ic
 function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerManifestEntry {
   const group = JP_MEDICAL_CARE_GROUPS[index]!;
   return {
-    key, section: { theme: "社福長照", group: key === "jpCareResidential" ? "住宿照顧" : "長照與托育" }, ...layerName({ zh: group.zh, alt: group.ja }), expandable: true,
+    key, country: "JP", section: { theme: "社福長照", group: key === "jpCareResidential" ? "住宿照顧" : "長照與托育" }, ...layerName({ zh: group.zh, alt: group.ja }), expandable: true,
     color: group.color, icon: HeartHandshake,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
       processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
@@ -601,7 +616,7 @@ function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerMani
 function jpMedicalAreaManifest(key: JpAreaManifestKey, index: number): LayerManifestEntry {
   const level = JP_MEDICAL_AREA_LEVELS[index]!;
   return {
-    key, section: { theme: "醫療", group: "分析" }, ...layerName({ zh: level.zh, alt: level.ja, qualifier: "2020" }), expandable: true,
+    key, country: "JP", section: { theme: "醫療", group: "分析" }, ...layerName({ zh: level.zh, alt: level.ja, qualifier: "2020" }), expandable: true,
     color: level.color, icon: Map,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_areas", confidence: "HIGH" }],
       processing: "国土数値情報 A38 2020 歷史版；三個層級各自成層",
@@ -624,7 +639,7 @@ export const LAYER_MANIFEST = {
   ...ATLAS_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
-    key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
+    key: "statsMaritimeSubsidyCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
     ...layerName({ zh: "航港局獎補助金額（受補助對象所在地）" }), expandable: true, color: "#2563eb", icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "maritime_bureau_subsidy_county", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC plus verified county geometry; regionalStatisticsMap runtime" },
@@ -632,7 +647,7 @@ export const LAYER_MANIFEST = {
     description: "依受補助對象所在地彙總的航港局獎補助金額；不是工程地、港口投資地或最終受益地。PARTIAL coverage、未分配金額與缺值會明確揭露。", topics: ["統計", "交通", "航港", "行政區"],
   },
   statsCivilAeronauticsSubsidyCounty: {
-    key: "statsCivilAeronauticsSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "民航獎補助" },
+    key: "statsCivilAeronauticsSubsidyCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航獎補助" },
     ...layerName({ zh: "民航局獎補助費（受補助對象所在地）" }), expandable: true, color: "#d97706", icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "civil_aeronautics_subsidy_county", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable 112Q4 statistics releases plus verified county geometry; regionalStatisticsMap runtime" },
@@ -640,7 +655,7 @@ export const LAYER_MANIFEST = {
     description: "112Q4 年度累計歷史快照，依受補助對象所在地縣市呈現；不是機場、工程或實際受益地。不得跨預算類型或期別合計。", topics: ["統計", "交通", "民航", "行政區", "歷史版本"],
   },
   statsTaipeiTrafficViolationCitations: {
-    key: "statsTaipeiTrafficViolationCitations", section: { theme: "交通統計 Transport Statistics", group: "臺北市違規舉發" },
+    key: "statsTaipeiTrafficViolationCitations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北市違規舉發" },
     ...layerName({ zh: "臺北市交通違規舉發筆數（法條）" }), expandable: true, color: "#7c3aed", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "taipei_traffic_violation_citations_135096", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable Taipei-only law-article statistics releases plus verified county geometry; regionalStatisticsMap runtime" },
@@ -648,39 +663,39 @@ export const LAYER_MANIFEST = {
     description: "臺北市法條分類交通違規舉發筆數；其餘縣市為缺資料，法條間不得相加推論唯一事件或人數。", topics: ["統計", "交通", "違規", "臺北市", "行政區"],
   },
   statsTaichungRoadNoiseMonitoringStations: {
-    key: "statsTaichungRoadNoiseMonitoringStations", section: { theme: "交通統計 Transport Statistics", group: "臺中道路噪音監測" },
+    key: "statsTaichungRoadNoiseMonitoringStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺中道路噪音監測" },
     ...layerName({ zh: "臺中市道路交通噪音監測站數" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "taichung_road_noise_monitoring_stations_89477", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Immutable Taichung-only control-zone releases plus verified county geometry; regionalStatisticsMap runtime" },
     legend: "statsTaichungRoadNoiseMonitoringStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaichungRoadNoiseMonitoringStations"),
     description: "臺中市道路交通噪音監測站數，依管制區類別呈現；不是不合格站數、噪音均值或暴露人口。", topics: ["統計", "交通", "噪音", "臺中市", "行政區"],
   },
-  statsBusOperatingRouteLengthKm: { key: "statsBusOperatingRouteLengthKm", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業里程" }), expandable: true, color: "#2563eb", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingRouteLengthKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingRouteLengthKm"), description: "114 年縣市市區客運期末營業里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusApprovedRouteCount: { key: "statsBusApprovedRouteCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "核定路線數" }), expandable: true, color: "#16a34a", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusApprovedRouteCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusApprovedRouteCount"), description: "114 年縣市市區客運核定路線數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsUrbanBusOperatorCount: { key: "statsUrbanBusOperatorCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "市區客運業家數" }), expandable: true, color: "#c026d3", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsUrbanBusOperatorCount", popup: "regionalStatistic", params: statisticsManifestParams("statsUrbanBusOperatorCount"), description: "114 年縣市市區客運業家數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingVehicleCount: { key: "statsBusOperatingVehicleCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業車輛" }), expandable: true, color: "#ea580c", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleCount"), description: "114 年縣市市區客運期末營業車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusAccessibleVehicleCount: { key: "statsBusAccessibleVehicleCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末無障礙車輛" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusAccessibleVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusAccessibleVehicleCount"), description: "114 年縣市市區客運期末無障礙車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusElectricVehicleCount: { key: "statsBusElectricVehicleCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末電動車輛" }), expandable: true, color: "#ca8a04", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusElectricVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusElectricVehicleCount"), description: "114 年縣市市區客運期末電動車輛；7 縣市來源為缺資料，非零。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingTripCount: { key: "statsBusOperatingTripCount", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車次數" }), expandable: true, color: "#7c3aed", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingTripCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingTripCount"), description: "114 年縣市市區客運營業行車次數；不是不重複乘客或唯一事件。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsBusOperatingVehicleKm: { key: "statsBusOperatingVehicleKm", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車里程" }), expandable: true, color: "#dc2626", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleKm"), description: "114 年縣市市區客運營業行車里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
-  statsTmrtStationOutboundCounty: { key: "statsTmrtStationOutboundCounty", section: { theme: "交通統計 Transport Statistics", group: "中捷車站出站人次" }, ...layerName({ zh: "中捷車站所在地出站人次" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "tmrt_station_outbound_county", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 2025-12 facility-crosswalk statistics release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTmrtStationOutboundCounty", popup: "regionalStatistic", params: statisticsManifestParams("statsTmrtStationOutboundCounty"), description: "中捷車站所在地出站人次歷史快照；不是不重複旅客、居民旅運或全市旅次。", topics: ["統計", "交通", "捷運", "臺中市", "歷史版本"] },
-  statsTaipeiUrbanRentalStations: { key: "statsTaipeiUrbanRentalStations", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車租借站數" }), expandable: true, color: "#2563eb", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalStations"), description: "110 年臺北市 12 區市區自行車租借站數；不是即時站點、車輛可用量或全臺統計。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiUrbanRentalTrips: { key: "statsTaipeiUrbanRentalTrips", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車年租借次數" }), expandable: true, color: "#16a34a", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalTrips"), description: "110 年臺北市 12 區市區自行車年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideRentalStations: { key: "statsTaipeiRiversideRentalStations", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園租借站數" }), expandable: true, color: "#0891b2", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalStations"), description: "110 年臺北市 12 區河濱公園自行車租借站數；不是市區站數或即時服務狀態。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideBicycles: { key: "statsTaipeiRiversideBicycles", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園自行車數" }), expandable: true, color: "#ea580c", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideBicycles", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideBicycles"), description: "110 年臺北市 12 區河濱公園自行車數；不是可租車輛即時庫存。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsTaipeiRiversideRentalTrips: { key: "statsTaipeiRiversideRentalTrips", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園年租借次數" }), expandable: true, color: "#7c3aed", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalTrips"), description: "110 年臺北市 12 區河濱公園年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
-  statsA1AccidentCount: { key: "statsA1AccidentCount", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故件數" }), expandable: true, color: "#dc2626", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1AccidentCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1AccidentCount"), description: "114 年 A1 當場或 24 小時內死亡事故件數；不是全部交通事故。連江缺資料與未分配事件會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsA1DeathCount: { key: "statsA1DeathCount", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故死亡人數" }), expandable: true, color: "#991b1b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1DeathCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1DeathCount"), description: "114 年 A1 當場或 24 小時內死亡人數；不是全事故死亡或事故件數。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsA1InjuryCount: { key: "statsA1InjuryCount", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故受傷人數" }), expandable: true, color: "#f59e0b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1InjuryCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1InjuryCount"), description: "114 年 A1 當場或 24 小時內死亡事故的受傷人數；不是全部交通事故傷者。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
-  statsAirportTakeoffsLandings: { key: "statsAirportTakeoffsLandings", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地起降架次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportTakeoffsLandings", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportTakeoffsLandings"), description: "115 年 7 月各機場所在地起降架次；不是居民活動或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsAirportPassengerMovements: { key: "statsAirportPassengerMovements", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地旅客人次" }), expandable: true, color: "#16a34a", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportPassengerMovements"), description: "115 年 7 月各機場所在地旅客人次，含入境、出境與過境；不是居民或不重複旅客。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsAirportCargoTonnes: { key: "statsAirportCargoTonnes", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地貨運量" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportCargoTonnes", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportCargoTonnes"), description: "115 年 7 月各機場所在地貨運量；不是居民貨運或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
-  statsTaoyuanAirportArrivals: { key: "statsTaoyuanAirportArrivals", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地入境旅客人次" }), expandable: true, color: "#0891b2", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportArrivals", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportArrivals"), description: "2022 年桃園機場所在地入境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportDepartures: { key: "statsTaoyuanAirportDepartures", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地出境旅客人次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportDepartures", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportDepartures"), description: "2022 年桃園機場所在地出境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportTransit: { key: "statsTaoyuanAirportTransit", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地過境旅客人次" }), expandable: true, color: "#ea580c", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportTransit", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportTransit"), description: "2022 年桃園機場所在地過境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
-  statsTaoyuanAirportPassengerMovements: { key: "statsTaoyuanAirportPassengerMovements", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地旅客人次總計" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportPassengerMovements"), description: "2022 年桃園機場所在地旅客人次總計；這是總計欄位，不可再與入境、出境、過境指標相加。僅桃園市有值。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsBusOperatingRouteLengthKm: { key: "statsBusOperatingRouteLengthKm", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業里程" }), expandable: true, color: "#2563eb", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingRouteLengthKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingRouteLengthKm"), description: "114 年縣市市區客運期末營業里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusApprovedRouteCount: { key: "statsBusApprovedRouteCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "核定路線數" }), expandable: true, color: "#16a34a", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusApprovedRouteCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusApprovedRouteCount"), description: "114 年縣市市區客運核定路線數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsUrbanBusOperatorCount: { key: "statsUrbanBusOperatorCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "市區客運業家數" }), expandable: true, color: "#c026d3", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsUrbanBusOperatorCount", popup: "regionalStatistic", params: statisticsManifestParams("statsUrbanBusOperatorCount"), description: "114 年縣市市區客運業家數；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingVehicleCount: { key: "statsBusOperatingVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末營業車輛" }), expandable: true, color: "#ea580c", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleCount"), description: "114 年縣市市區客運期末營業車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusAccessibleVehicleCount: { key: "statsBusAccessibleVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末無障礙車輛" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusAccessibleVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusAccessibleVehicleCount"), description: "114 年縣市市區客運期末無障礙車輛；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusElectricVehicleCount: { key: "statsBusElectricVehicleCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "期末電動車輛" }), expandable: true, color: "#ca8a04", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusElectricVehicleCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusElectricVehicleCount"), description: "114 年縣市市區客運期末電動車輛；7 縣市來源為缺資料，非零。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingTripCount: { key: "statsBusOperatingTripCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車次數" }), expandable: true, color: "#7c3aed", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingTripCount", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingTripCount"), description: "114 年縣市市區客運營業行車次數；不是不重複乘客或唯一事件。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsBusOperatingVehicleKm: { key: "statsBusOperatingVehicleKm", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "市區客運營運概況" }, ...layerName({ zh: "營業行車里程" }), expandable: true, color: "#dc2626", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "segis_bus_operation_county_315fh_1d3", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 114Y county statistics releases plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsBusOperatingVehicleKm", popup: "regionalStatistic", params: statisticsManifestParams("statsBusOperatingVehicleKm"), description: "114 年縣市市區客運營業行車里程；不是即時路況、乘客量或唯一線路數。", topics: ["統計", "交通", "公車", "行政區"] },
+  statsTmrtStationOutboundCounty: { key: "statsTmrtStationOutboundCounty", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "中捷車站出站人次" }, ...layerName({ zh: "中捷車站所在地出站人次" }), expandable: true, color: "#0891b2", icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "tmrt_station_outbound_county", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable 2025-12 facility-crosswalk statistics release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTmrtStationOutboundCounty", popup: "regionalStatistic", params: statisticsManifestParams("statsTmrtStationOutboundCounty"), description: "中捷車站所在地出站人次歷史快照；不是不重複旅客、居民旅運或全市旅次。", topics: ["統計", "交通", "捷運", "臺中市", "歷史版本"] },
+  statsTaipeiUrbanRentalStations: { key: "statsTaipeiUrbanRentalStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車租借站數" }), expandable: true, color: "#2563eb", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalStations"), description: "110 年臺北市 12 區市區自行車租借站數；不是即時站點、車輛可用量或全臺統計。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiUrbanRentalTrips: { key: "statsTaipeiUrbanRentalTrips", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "市區自行車年租借次數" }), expandable: true, color: "#16a34a", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiUrbanRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiUrbanRentalTrips"), description: "110 年臺北市 12 區市區自行車年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideRentalStations: { key: "statsTaipeiRiversideRentalStations", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園租借站數" }), expandable: true, color: "#0891b2", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalStations", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalStations"), description: "110 年臺北市 12 區河濱公園自行車租借站數；不是市區站數或即時服務狀態。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideBicycles: { key: "statsTaipeiRiversideBicycles", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園自行車數" }), expandable: true, color: "#ea580c", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideBicycles", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideBicycles"), description: "110 年臺北市 12 區河濱公園自行車數；不是可租車輛即時庫存。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsTaipeiRiversideRentalTrips: { key: "statsTaipeiRiversideRentalTrips", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "臺北自行車使用（110 年）" }, ...layerName({ zh: "河濱公園年租借次數" }), expandable: true, color: "#7c3aed", icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "segis_taipei_bicycle_usage_township_110", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable SEGIS 110Y Taipei-township release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaipeiRiversideRentalTrips", popup: "regionalStatistic", params: statisticsManifestParams("statsTaipeiRiversideRentalTrips"), description: "110 年臺北市 12 區河濱公園年租借人次；不是不重複騎士或即時旅次。", topics: ["統計", "交通", "自行車", "臺北市", "鄉鎮市區", "歷史版本"] },
+  statsA1AccidentCount: { key: "statsA1AccidentCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故件數" }), expandable: true, color: "#dc2626", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1AccidentCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1AccidentCount"), description: "114 年 A1 當場或 24 小時內死亡事故件數；不是全部交通事故。連江缺資料與未分配事件會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsA1DeathCount: { key: "statsA1DeathCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故死亡人數" }), expandable: true, color: "#991b1b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1DeathCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1DeathCount"), description: "114 年 A1 當場或 24 小時內死亡人數；不是全事故死亡或事故件數。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsA1InjuryCount: { key: "statsA1InjuryCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "A1 交通事故（114 年）" }, ...layerName({ zh: "A1 交通事故受傷人數" }), expandable: true, color: "#f59e0b", icon: AlertTriangle, upstream: { status: "verified", datasets: [{ datasetId: "npa_a1_accident_county_177136", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable NPA 114Y A1 county release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsA1InjuryCount", popup: "regionalStatistic", params: statisticsManifestParams("statsA1InjuryCount"), description: "114 年 A1 當場或 24 小時內死亡事故的受傷人數；不是全部交通事故傷者。連江缺資料與未分配人數會揭露。", topics: ["統計", "交通", "事故", "行政區"] },
+  statsAirportTakeoffsLandings: { key: "statsAirportTakeoffsLandings", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地起降架次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportTakeoffsLandings", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportTakeoffsLandings"), description: "115 年 7 月各機場所在地起降架次；不是居民活動或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsAirportPassengerMovements: { key: "statsAirportPassengerMovements", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地旅客人次" }), expandable: true, color: "#16a34a", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportPassengerMovements"), description: "115 年 7 月各機場所在地旅客人次，含入境、出境與過境；不是居民或不重複旅客。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsAirportCargoTonnes: { key: "statsAirportCargoTonnes", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "民航各機場所在地活動（115 年 7 月）" }, ...layerName({ zh: "機場所在地貨運量" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "caa_airport_activity_county_33238", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable CAA 115-07 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsAirportCargoTonnes", popup: "regionalStatistic", params: statisticsManifestParams("statsAirportCargoTonnes"), description: "115 年 7 月各機場所在地貨運量；不是居民貨運或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。", topics: ["統計", "交通", "民航", "行政區"] },
+  statsTaoyuanAirportArrivals: { key: "statsTaoyuanAirportArrivals", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地入境旅客人次" }), expandable: true, color: "#0891b2", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportArrivals", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportArrivals"), description: "2022 年桃園機場所在地入境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportDepartures: { key: "statsTaoyuanAirportDepartures", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地出境旅客人次" }), expandable: true, color: "#2563eb", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportDepartures", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportDepartures"), description: "2022 年桃園機場所在地出境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportTransit: { key: "statsTaoyuanAirportTransit", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地過境旅客人次" }), expandable: true, color: "#ea580c", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportTransit", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportTransit"), description: "2022 年桃園機場所在地過境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
+  statsTaoyuanAirportPassengerMovements: { key: "statsTaoyuanAirportPassengerMovements", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "桃園機場所在地旅客活動（2022 年）" }, ...layerName({ zh: "桃園機場所在地旅客人次總計" }), expandable: true, color: "#7c3aed", icon: Plane, upstream: { status: "verified", datasets: [{ datasetId: "taoyuan_airport_passengers_county_32997", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Immutable Taoyuan Airport 2022 facility-crosswalk release plus verified geometry; regionalStatisticsMap runtime" }, legend: "statsTaoyuanAirportPassengerMovements", popup: "regionalStatistic", params: statisticsManifestParams("statsTaoyuanAirportPassengerMovements"), description: "2022 年桃園機場所在地旅客人次總計；這是總計欄位，不可再與入境、出境、過境指標相加。僅桃園市有值。", topics: ["統計", "交通", "民航", "桃園市", "歷史版本"] },
   statsOffstreetSmallCarParkingSpacesCount: {
-    key: "statsOffstreetSmallCarParkingSpacesCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsOffstreetSmallCarParkingSpacesCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "小型汽車路外停車位" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -688,7 +703,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的小型汽車路外停車位；不是道路流量或居民比率。", topics: ["統計", "交通", "停車", "行政區"],
   },
   statsOnstreetSmallCarParkingSpacesCount: {
-    key: "statsOnstreetSmallCarParkingSpacesCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsOnstreetSmallCarParkingSpacesCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "小型汽車路邊停車位" }), expandable: true, color: "#16a34a", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -696,7 +711,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的小型汽車路邊停車位；不是道路流量或居民比率。", topics: ["統計", "交通", "停車", "行政區"],
   },
   statsMotorcycleRegisteredCount: {
-    key: "statsMotorcycleRegisteredCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsMotorcycleRegisteredCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "機車登記數" }), expandable: true, color: "#c026d3", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -704,7 +719,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的機車登記數；不是居民比率或道路流量。", topics: ["統計", "交通", "車籍", "行政區"],
   },
   statsAutomobileRegisteredCount: {
-    key: "statsAutomobileRegisteredCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsAutomobileRegisteredCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "汽車登記數" }), expandable: true, color: "#2563eb", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -712,7 +727,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的汽車登記數；不是居民比率或道路流量。", topics: ["統計", "交通", "車籍", "行政區"],
   },
   statsAutomobileLicenseHoldersCount: {
-    key: "statsAutomobileLicenseHoldersCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsAutomobileLicenseHoldersCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "汽車駕照持有人數" }), expandable: true, color: "#ea580c", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -720,7 +735,7 @@ export const LAYER_MANIFEST = {
     description: "縣市原生行政區統計的汽車駕照持有人數；不是居民比率或道路流量。", topics: ["統計", "交通", "駕照", "行政區"],
   },
   statsMotorcycleLicenseHoldersCount: {
-    key: "statsMotorcycleLicenseHoldersCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
+    key: "statsMotorcycleLicenseHoldersCount", country: "TW", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     ...layerName({ zh: "機車駕照持有人數" }), expandable: true, color: "#ca8a04", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "dgbas_county_transport_supply_10935", confidence: "HIGH" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned county statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -729,7 +744,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWaterSupplyHistorical: {
-    key: "statsWaterSupplyHistorical", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
+    key: "statsWaterSupplyHistorical", country: "TW", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
     ...layerName({ zh: "供水普及率（2015 年，7 縣市）" }), expandable: true, color: "#06b6d4", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "water_supply_county_historical", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -738,7 +753,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsPigWaterCounty: {
-    key: "statsPigWaterCounty", section: { theme: "水資源統計 Water Statistics", group: "畜牧用水" },
+    key: "statsPigWaterCounty", country: "TW", section: { theme: "水資源統計 Water Statistics", group: "畜牧用水" },
     ...layerName({ zh: "養豬用水量（歷史統計）" }), expandable: true, color: "#0891b2", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "livestock_pig_water_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -747,7 +762,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWasteRecyclingRate: {
-    key: "statsWasteRecyclingRate", section: { theme: "廢棄物統計 Waste Statistics", group: "回收成果" },
+    key: "statsWasteRecyclingRate", country: "TW", section: { theme: "廢棄物統計 Waste Statistics", group: "回收成果" },
     ...layerName({ zh: "一般廢棄物回收率" }), expandable: true, color: "#059669", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_recycling_rate_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -755,7 +770,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsResidentialElectricity: {
-    key: "statsResidentialElectricity", section: { theme: "能源統計 Energy Statistics", group: "住宅用電" },
+    key: "statsResidentialElectricity", country: "TW", section: { theme: "能源統計 Energy Statistics", group: "住宅用電" },
     ...layerName({ zh: "住宅每月售電量" }), expandable: true, color: "#f59e0b", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "residential_electricity_sales_county_monthly", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -763,7 +778,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsRiceHarvest: {
-    key: "statsRiceHarvest", section: { theme: "農業統計 Agriculture Statistics", group: "稻作生產" },
+    key: "statsRiceHarvest", country: "TW", section: { theme: "農業統計 Agriculture Statistics", group: "稻作生產" },
     ...layerName({ zh: "全年稻作收穫面積（複種計次）" }), expandable: true, color: "#84cc16", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "rice_harvested_area_township", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -771,7 +786,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsBirthsTownship: {
-    key: "statsBirthsTownship", section: { theme: "人口統計 Population Statistics", group: "出生登記" },
+    key: "statsBirthsTownship", country: "TW", section: { theme: "人口統計 Population Statistics", group: "出生登記" },
     ...layerName({ zh: "每月出生數（歷史快照）" }), expandable: true, color: "#a78bfa", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "village_births_township_monthly", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -780,7 +795,7 @@ export const LAYER_MANIFEST = {
   },
 
   statsWasteCounty: {
-    key: "statsWasteCounty", section: { theme: "廢棄物統計 Waste Statistics", group: "清運量能" },
+    key: "statsWasteCounty", country: "TW", section: { theme: "廢棄物統計 Waste Statistics", group: "清運量能" },
     ...layerName({ zh: "垃圾清運車輛數" }), expandable: true, color: "#10b981", icon: Truck,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
@@ -788,7 +803,7 @@ export const LAYER_MANIFEST = {
     description: "依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關", topics: ["統計", "行政區", "歷史版本"],
   },
   statsRecyclingCounty: {
-    key: "statsRecyclingCounty", section: { theme: "資源回收統計 Recycling Statistics", group: "資源回收量能" },
+    key: "statsRecyclingCounty", country: "TW", section: { theme: "資源回收統計 Recycling Statistics", group: "資源回收量能" },
     ...layerName({ zh: "資源回收車輛數" }), expandable: true, color: "#eab308", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
@@ -799,7 +814,7 @@ export const LAYER_MANIFEST = {
   // ① 純 registry 靜態 GeoJSON —— 最單純的形狀：legend 獨佔、popup 與 key 同名
   cctv: {
     key: "cctv",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "道路攝影機", alt: "CCTV" }),
     expandable: true,
     color: "#26c6da",
@@ -821,7 +836,7 @@ export const LAYER_MANIFEST = {
   //    popup layerType "newsEvent" 與 key "newsEvents" **不同名**，正是要收編的漂移點
   newsEvents: {
     key: "newsEvents",
-    section: { theme: "情勢 Situation", group: "事件" },
+    country: "TW", section: { theme: "情勢 Situation", group: "事件" },
     ...layerName({ zh: "新聞事件", alt: "News Events" }),
     expandable: true,
     color: "#ff9800",
@@ -846,7 +861,7 @@ export const LAYER_MANIFEST = {
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件
   urbanZoningTaipei: {
     key: "urbanZoningTaipei",
-    section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
     ...layerName({ zh: "北市土地使用分區", alt: "Taipei Zoning" }),
     expandable: true,
     color: "#f2c94c",
@@ -876,7 +891,7 @@ export const LAYER_MANIFEST = {
   //    逼 source 欄位處理 kind:"custom" 形狀，正是要測的體質差異。
   rail: {
     key: "rail",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "鐵道", alt: "Rail" }),
     expandable: true,
     color: "#ee6c00",
@@ -900,7 +915,7 @@ export const LAYER_MANIFEST = {
   // 靜態軌道路線：geojson overlay（無時刻表、無 Three.js）。即時列車請看上面的 `rail`。
   railRoutes: {
     key: "railRoutes",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "軌道路線", alt: "Rail Routes" }),
     expandable: true,
     color: "#ee6c00",
@@ -924,7 +939,7 @@ export const LAYER_MANIFEST = {
   //    順帶覆蓋「PMTiles + 圖例共用 + labelMobile + upstream.processing」複合形狀
   pollutionFacility: {
     key: "pollutionFacility",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "污染潛勢設施", alt: "Facility" }),
     expandable: true,
     color: "#f97316",
@@ -950,7 +965,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "污染", "列管"],
   },
   jpAccommodationCanonical: {
-    key: "jpAccommodationCanonical", section: { theme: "觀光", group: "住・食 Stay & Eat" },
+    key: "jpAccommodationCanonical", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿去重總覽", alt: "宿泊施設の統合一覧" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationCanonical, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "27,194 source rows 保守去重為 25,961 entities；502 null geometry；82 review/conflict 未自動合併。", note: "PARTIAL_DEDUP_CONSERVATIVE；不是全國官方旅宿 SSOT，來源 badges、授權集合與 provenance 必須保留。" },
@@ -959,7 +974,7 @@ export const LAYER_MANIFEST = {
     description: "日本旅宿保守去重總覽 25,961 entities；來源不等同權威合併，缺名／缺類型／缺 geometry 仍保留 null。", topics: ["日本", "旅宿", "canonical", "來源血緣"],
   },
   jpAccommodationDensity: {
-    key: "jpAccommodationDensity", section: { theme: "觀光", group: "住・食 Stay & Eat" },
+    key: "jpAccommodationDensity", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿密度網格", alt: "宿泊施設密度グリッド" }), expandable: true,
     color: JP_ACCOMMODATION_DENSITY_LAYER_COLOR, icon: Grid3x3,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "25,459 筆 drawable canonical entities 以 EPSG:6933 聚合為 450m / 1.5km 網格；sum(n_records) 均守恆。", note: "只計 canonical；不叠加 OSM coverage，避免重複計數。502 筆 null geometry 未入格。" },
@@ -974,7 +989,7 @@ export const LAYER_MANIFEST = {
     topics: ["日本", "旅宿", "密度", "網格"],
   },
   jpAccommodationJta: {
-    key: "jpAccommodationJta", section: { theme: "觀光", group: "住・食 Stay & Eat" },
+    key: "jpAccommodationJta", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "觀光廳登錄飯店／旅館", alt: "観光庁登録ホテル・旅館" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationJta, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_jta", confidence: "HIGH" }], processing: "2026-03-31 register 2,282 rows；GSI 地址衍生 2,242 點。", note: "法定登錄子集，不是全日本旅館業 SSOT；ryokan 表頭差 1，狀態 PARTIAL。" },
@@ -983,7 +998,7 @@ export const LAYER_MANIFEST = {
     description: "觀光廳《國際觀光ホテル整備法》登錄子集；40 筆 geometry miss 不補 0,0。", topics: ["日本", "旅宿", "觀光廳", "JTA"],
   },
   jpAccommodationLocal: {
-    key: "jpAccommodationLocal", section: { theme: "觀光", group: "住・食 Stay & Eat" },
+    key: "jpAccommodationLocal", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "地方旅館業許可", alt: "地方自治体の旅館業許可" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationLocal, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_local", confidence: "HIGH" }], processing: "京都市、靜岡市、東京都江東區 4,410 rows；個資已排除；3,948 有 geometry。", note: "coverage 僅三個轄區；462 geometry miss，不能解讀成全日本 coverage。" },
@@ -992,7 +1007,7 @@ export const LAYER_MANIFEST = {
     description: "地方政府旅館業許可首批 4,410 rows；coverage 限京都市、靜岡市、江東區。", topics: ["日本", "旅宿", "地方許可"],
   },
   jpAccommodationOsm: {
-    key: "jpAccommodationOsm", section: { theme: "觀光", group: "住・食 Stay & Eat" },
+    key: "jpAccommodationOsm", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "住宿涵蓋", alt: "宿泊施設カバレッジ", qualifier: "OpenStreetMap" }), expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationOsm, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_osm", confidence: "HIGH" }], processing: "2026-09-10 OSM snapshot；20,502 unique elements。", note: "© OpenStreetMap contributors, ODbL 1.0；社群繪製 coverage，不是完整或官方名冊。" },
@@ -1002,68 +1017,68 @@ export const LAYER_MANIFEST = {
   },
 
   jpNaturalParksNational: {
-    key: "jpNaturalParksNational", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksNational", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksQuasiNational: {
-    key: "jpNaturalParksQuasiNational", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksQuasiNational", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksPrefectural: {
-    key: "jpNaturalParksPrefectural", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
+    key: "jpNaturalParksPrefectural", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
 
   jpNatureConservationArea: {
-    key: "jpNatureConservationArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
+    key: "jpNatureConservationArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpPrimitiveNatureEnvironmentArea: {
-    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
+    key: "jpPrimitiveNatureEnvironmentArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpNatureConservationSpecialDistrict: {
-    key: "jpNatureConservationSpecialDistrict", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
+    key: "jpNatureConservationSpecialDistrict", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
     upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
 
   jpWildlifeProtectionNational: {
-    key: "jpWildlifeProtectionNational", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "國家指定鳥獸保護區", alt: "国指定鳥獣保護区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
+    key: "jpWildlifeProtectionNational", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "國家指定鳥獸保護區", alt: "国指定鳥獣保護区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDistrict: {
-    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護地區", alt: "鳥獣保護区特別保護地区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDistrict", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護地區", alt: "鳥獣保護区特別保護地区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDesignatedArea: {
-    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護指定區域", alt: "特別保護指定区域" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDesignatedArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護指定區域", alt: "特別保護指定区域" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
 
   jpWorldHeritageCultural: {
-    key: "jpWorldHeritageCultural", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 文化遺產代表點", alt: "UNESCO 文化遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
+    key: "jpWorldHeritageCultural", country: "JP", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 文化遺產代表點", alt: "UNESCO 文化遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
     upstream: { status: "catalog_missing", datasets: [], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_cultural。", note: "CC BY-SA 4.0；代表點不是 property boundary；22 rows 中 1 筆 null geometry。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageCultural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "文化"],
   },
   jpWorldHeritageNatural: {
-    key: "jpWorldHeritageNatural", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 自然遺產代表點", alt: "UNESCO 自然遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
+    key: "jpWorldHeritageNatural", country: "JP", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "UNESCO 自然遺產代表點", alt: "UNESCO 自然遺産代表点" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
     upstream: { status: "catalog_missing", datasets: [], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_natural。", note: "CC BY-SA 4.0；5 個代表點不是 property boundary。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageNatural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行自然遺產 5 個代表點；非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "自然"],
   },
   jpWorldNaturalHeritageHistorical: {
-    key: "jpWorldNaturalHeritageHistorical", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
+    key: "jpWorldNaturalHeritageHistorical", country: "JP", section: { theme: "觀光", group: "玩・人文 Heritage" }, ...layerName({ zh: "世界自然遺產歷史範圍", alt: "世界自然遺産の歴史的範囲", qualifier: "2011" }), expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
     upstream: { status: "catalog_missing", datasets: [], processing: "KSJ A28-10 2011 snapshot；3 polygons。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；只含知床、白神山地、屋久島，缺現行 2 處。" }, dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load A28 historical GeoJSON polygon", staticAssets: ["./world/jp_world_natural_heritage_ksj_2011.geojson"] }, legend: null, popup: "jpWorldNaturalHeritageHistorical", params: { count: 1, kinds: ["slider"] }, description: "A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。", topics: ["日本", "世界遺產", "historical", "A28"],
   },
   jpRamsarSites: {
-    key: "jpRamsarSites", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "拉姆薩濕地名冊衍生點", alt: "ラムサール条約湿地名簿の派生点" }), expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
+    key: "jpRamsarSites", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "拉姆薩濕地名冊衍生點", alt: "ラムサール条約湿地名簿の派生点" }), expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省名冊 54 rows；GSI 衍生 10 NAME_MATCH + 44 ADMIN_OR_OTHER_CENTROID。", note: "LICENSE_UNVERIFIED + HOLD_GEOMETRY；預設只顯示 NAME_MATCH，所有點都不是 Ramsar boundary。" }, dataClass: "D", source: { kind: "custom", note: "Ramsar GeoJSON；原始 filter_layer_id + geocode_quality filter", staticAssets: ["./world/jp_ramsar_moe_current.geojson"] }, legend: null, popup: "jpRamsarSites", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。", topics: ["日本", "Ramsar", "濕地", "HOLD_GEOMETRY"],
   },
   jpMarineEbsaCoastal: {
-    key: "jpMarineEbsaCoastal", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "沿岸生態重要海域", alt: "沿岸EBSA", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
+    key: "jpMarineEbsaCoastal", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "沿岸生態重要海域", alt: "沿岸EBSA", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
     upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 1, kinds: ["slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
   },
 
@@ -1075,7 +1090,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   religionTemples: {
     key: "religionTemples",
-    section: { theme: "宗教 Religion", group: "點位" },
+    country: "TW", section: { theme: "宗教 Religion", group: "點位" },
     ...layerName({ zh: "寺廟", alt: "Temples" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionTemples,
@@ -1103,7 +1118,7 @@ export const LAYER_MANIFEST = {
 
   religionChurches: {
     key: "religionChurches",
-    section: { theme: "宗教 Religion", group: "點位" },
+    country: "TW", section: { theme: "宗教 Religion", group: "點位" },
     ...layerName({ zh: "教會", alt: "Churches" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionChurches,
@@ -1124,7 +1139,7 @@ export const LAYER_MANIFEST = {
 
   religionAncestralHalls: {
     key: "religionAncestralHalls",
-    section: { theme: "宗教 Religion", group: "點位" },
+    country: "TW", section: { theme: "宗教 Religion", group: "點位" },
     ...layerName({ zh: "宗祠", alt: "Ancestral Halls" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionAncestralHalls,
@@ -1145,7 +1160,7 @@ export const LAYER_MANIFEST = {
 
   religionFoundations: {
     key: "religionFoundations",
-    section: { theme: "宗教 Religion", group: "點位" },
+    country: "TW", section: { theme: "宗教 Religion", group: "點位" },
     ...layerName({ zh: "宗教基金會", alt: "Foundations" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionFoundations,
@@ -1166,7 +1181,7 @@ export const LAYER_MANIFEST = {
 
   religionOtherWorship: {
     key: "religionOtherWorship",
-    section: { theme: "宗教 Religion", group: "點位" },
+    country: "TW", section: { theme: "宗教 Religion", group: "點位" },
     ...layerName({ zh: "其他宗教場所", alt: "Other Worship" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionOtherWorship,
@@ -1187,7 +1202,7 @@ export const LAYER_MANIFEST = {
 
   religionTop100: {
     key: "religionTop100",
-    section: { theme: "宗教 Religion", group: "精選" },
+    country: "TW", section: { theme: "宗教 Religion", group: "精選" },
     ...layerName({ zh: "宗教百景", alt: "Top 100" }),
     expandable: true,
     color: RELIGION_LAYER_COLORS.religionTop100,
@@ -1214,7 +1229,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   funeralFacilities: {
     key: "funeralFacilities",
-    section: { theme: "殯葬 Funeral", group: "點位" },
+    country: "TW", section: { theme: "殯葬 Funeral", group: "點位" },
     ...layerName({ zh: "殯葬設施", alt: "Facilities" }),
     expandable: true,
     color: FUNERAL_LAYER_COLORS.funeralFacilities,
@@ -1235,7 +1250,7 @@ export const LAYER_MANIFEST = {
 
   funeralOperators: {
     key: "funeralOperators",
-    section: { theme: "殯葬 Funeral", group: "點位" },
+    country: "TW", section: { theme: "殯葬 Funeral", group: "點位" },
     ...layerName({ zh: "禮儀業者", alt: "Operators" }),
     expandable: true,
     color: FUNERAL_LAYER_COLORS.funeralOperators,
@@ -1256,7 +1271,7 @@ export const LAYER_MANIFEST = {
 
   cemeteryOsm: {
     key: "cemeteryOsm",
-    section: { theme: "殯葬 Funeral", group: "墓區範圍" },
+    country: "TW", section: { theme: "殯葬 Funeral", group: "墓區範圍" },
     ...layerName({ zh: "墓區範圍", alt: "OSM Cemeteries" }),
     expandable: true,
     color: FUNERAL_LAYER_COLORS.cemeteryOsm,
@@ -1284,7 +1299,7 @@ export const LAYER_MANIFEST = {
 
   cemeteryZoning: {
     key: "cemeteryZoning",
-    section: { theme: "殯葬 Funeral", group: "墓區範圍" },
+    country: "TW", section: { theme: "殯葬 Funeral", group: "墓區範圍" },
     ...layerName({ zh: "都計墓葬用地（北北）", alt: "Zoning" }),
     expandable: true,
     color: FUNERAL_LAYER_COLORS.cemeteryZoning,
@@ -1307,7 +1322,7 @@ export const LAYER_MANIFEST = {
   // 由 hook 自行 join 既有的鄉鎮界 PMTiles。派生機制不適用，真實來源記在 source.note。
   funeralOperatorDensity: {
     key: "funeralOperatorDensity",
-    section: { theme: "殯葬 Funeral", group: "分析" },
+    country: "TW", section: { theme: "殯葬 Funeral", group: "分析" },
     ...layerName({ zh: "業者密度", alt: "Operator Density" }),
     expandable: true,
     color: FUNERAL_LAYER_COLORS.funeralOperatorDensity,
@@ -1338,7 +1353,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   culturalFacilities: {
     key: "culturalFacilities",
-    section: { theme: "文化 Culture", group: "設施 Facilities" },
+    country: "TW", section: { theme: "文化 Culture", group: "設施 Facilities" },
     ...layerName({ zh: "文化設施", alt: "Cultural Facilities" }),
     expandable: true,
     color: "#ef8a3c",
@@ -1359,7 +1374,7 @@ export const LAYER_MANIFEST = {
 
   culturalMuseums: {
     key: "culturalMuseums",
-    section: { theme: "文化 Culture", group: "設施 Facilities" },
+    country: "TW", section: { theme: "文化 Culture", group: "設施 Facilities" },
     ...layerName({ zh: "地方文化館", alt: "Local Museums" }),
     expandable: true,
     color: "#b5651d",
@@ -1380,7 +1395,7 @@ export const LAYER_MANIFEST = {
 
   artsEvents: {
     key: "artsEvents",
-    section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
+    country: "TW", section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
     ...layerName({ zh: "藝文活動", alt: "Arts Events" }),
     expandable: true,
     color: "#4d9de0",
@@ -1401,7 +1416,7 @@ export const LAYER_MANIFEST = {
 
   performingVenues: {
     key: "performingVenues",
-    section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
+    country: "TW", section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
     ...layerName({ zh: "表演場館", alt: "Performing Venues" }),
     expandable: true,
     color: "#7c4dff",
@@ -1423,7 +1438,7 @@ export const LAYER_MANIFEST = {
   // 批 1 唯一 dataClass C：dynamicData 空 FeatureCollection 起手，loader 輪詢 RPC 餵入
   librarySeats: {
     key: "librarySeats",
-    section: { theme: "文化 Culture", group: "即時 Realtime" },
+    country: "TW", section: { theme: "文化 Culture", group: "即時 Realtime" },
     ...layerName({ zh: "圖書館即時座位", alt: "Library Seats" }),
     expandable: true,
     color: "#22c55e",
@@ -1451,7 +1466,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   fireStations: {
     key: "fireStations",
-    section: { theme: "消防 Fire & Rescue", group: "點位" },
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
     ...layerName({ zh: "消防分隊", alt: "Fire Station" }),
     expandable: true,
     color: "#e53935",
@@ -1471,7 +1486,7 @@ export const LAYER_MANIFEST = {
 
   fireHydrants: {
     key: "fireHydrants",
-    section: { theme: "消防 Fire & Rescue", group: "點位" },
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
     ...layerName({ zh: "消防栓", alt: "Hydrant" }),
     expandable: true,
     color: "#2196f3",
@@ -1504,7 +1519,7 @@ export const LAYER_MANIFEST = {
   //   真實來源（Supabase RPC / PMTiles factory）記在 source.note。
   fireEvents: {
     key: "fireEvents",
-    section: { theme: "消防 Fire & Rescue", group: "事件" },
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "事件" },
     ...layerName({ zh: "火災歷史", alt: "Fire History" }),
     expandable: true,
     color: "#ff5722",
@@ -1527,7 +1542,7 @@ export const LAYER_MANIFEST = {
 
   fireLatest: {
     key: "fireLatest",
-    section: { theme: "消防 Fire & Rescue", group: "事件" },
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "事件" },
     ...layerName({ zh: "火災最新年度", alt: "Latest" }),
     expandable: true,
     color: "#ff1744",
@@ -1550,7 +1565,7 @@ export const LAYER_MANIFEST = {
 
   fireIsochrone: {
     key: "fireIsochrone",
-    section: { theme: "消防 Fire & Rescue", group: "分析" },
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "分析" },
     ...layerName({ zh: "救援等時圈", alt: "Isochrone" }),
     expandable: true,
     color: "#22c55e",
@@ -1580,7 +1595,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   urbanFormGrid: {
     key: "urbanFormGrid",
-    section: { theme: "都市分析 Urban Analysis", group: "都市紋理" },
+    country: "TW", section: { theme: "都市分析 Urban Analysis", group: "都市紋理" },
     ...layerName({ zh: "都市紋理網格", alt: "Urban Form" }),
     expandable: true,
     color: "#8d9c6b",
@@ -1610,7 +1625,7 @@ export const LAYER_MANIFEST = {
   // PoliceJusticeLegend 上，依拍板④取該 entry 的首個 key。批 4 搬執法治安時同一組 id。
   civilDefenseShelter: {
     key: "civilDefenseShelter",
-    section: { theme: "民防避難 Civil Defense", group: "避難設施" },
+    country: "TW", section: { theme: "民防避難 Civil Defense", group: "避難設施" },
     ...layerName({ zh: "防空避難", alt: "Civil Defense Shelters" }),
     expandable: true,
     color: "#64748b",
@@ -1637,7 +1652,7 @@ export const LAYER_MANIFEST = {
 
   worldTrashDebris: {
     key: "worldTrashDebris",
-    section: { theme: "全球環境 Global Environment", group: "廢棄物觀測 Waste Observations" },
+    country: "WORLD", section: { theme: "全球環境 Global Environment", group: "廢棄物觀測 Waste Observations" },
     ...layerName({ zh: "垃圾與殘骸觀測", alt: "Trash & Debris Observations" }),
     expandable: true,
     color: "#f59e0b",
@@ -1663,7 +1678,7 @@ export const LAYER_MANIFEST = {
 
   coralReefDistribution: {
     key: "coralReefDistribution",
-    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    country: "WORLD", section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
     ...layerName({ zh: "珊瑚礁歷史分布", alt: "Historical Coral Reefs" }),
     expandable: true,
     color: CORAL_REEF_COLOR,
@@ -1688,7 +1703,7 @@ export const LAYER_MANIFEST = {
 
   allenCoralAtlas: {
     key: "allenCoralAtlas",
-    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    country: "WORLD", section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
     ...layerName({ zh: "珊瑚礁棲地分類", alt: "Allen Coral Atlas", qualifier: "私人研究" }),
     expandable: true,
     color: "#ee6c83",
@@ -1713,7 +1728,7 @@ export const LAYER_MANIFEST = {
 
   globalEvents: {
     key: "globalEvents",
-    section: { theme: "全球情勢 Global Situation", group: "重大事件 Major Events" },
+    country: "WORLD", section: { theme: "全球情勢 Global Situation", group: "重大事件 Major Events" },
     ...layerName({ zh: "全球重大事件", alt: "Global Events" }),
     expandable: true,
     color: "#f97316",
@@ -1738,7 +1753,7 @@ export const LAYER_MANIFEST = {
 
   aisstreamVessels: {
     key: "aisstreamVessels",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "AISStream 船舶", alt: "AISStream Vessels" }),
     expandable: true,
     color: "#22d3ee",
@@ -1763,7 +1778,7 @@ export const LAYER_MANIFEST = {
 
   gfwVesselPresence: {
     key: "gfwVesselPresence",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 舊版每日船舶", alt: "Historical Presence" }),
     expandable: true,
     color: "#f59e0b",
@@ -1788,7 +1803,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyGrid: {
     key: "gfwHourlyGrid",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時船舶網格", alt: "Hourly Grid" }),
     expandable: true,
     color: "#fb923c",
@@ -1814,7 +1829,7 @@ export const LAYER_MANIFEST = {
 
   gfwHourlyTracks: {
     key: "gfwHourlyTracks",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 小時近似航跡", alt: "Hourly Tracks" }),
     expandable: true,
     color: "#5eead4",
@@ -1840,7 +1855,7 @@ export const LAYER_MANIFEST = {
 
   gfwFishingEffort: {
     key: "gfwFishingEffort",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW 每日捕撈活動", alt: "Fishing Effort" }),
     expandable: true,
     color: "#22c55e",
@@ -1866,7 +1881,7 @@ export const LAYER_MANIFEST = {
 
   gfwDarkVessels: {
     key: "gfwDarkVessels",
-    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    country: "WORLD", section: { theme: "全球海事 Global Maritime", group: "船舶" },
     ...layerName({ zh: "GFW SAR 未匹配", alt: "AIS Unmatched Detections" }),
     expandable: true,
     color: "#f43f5e",
@@ -1907,23 +1922,23 @@ export const LAYER_MANIFEST = {
   jpMedicalAreasSecondary: jpMedicalAreaManifest("jpMedicalAreasSecondary", 1),
   jpMedicalAreasTertiary: jpMedicalAreaManifest("jpMedicalAreasTertiary", 2),
 
-  jpWaterDams: { key: "jpWaterDams", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩", alt: "ダム", qualifier: "2014" }), expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
-  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
-  jpWaterRivers: { key: "jpWaterRivers", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "河川流路", alt: "河川", qualifier: "2006–2009" }), expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
-  jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "上水道相關設施", qualifier: "2010" }), expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
-  jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "給水區域", alt: "給水区域", qualifier: "2010" }), expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
-  jpWaterSewerFacilities: { key: "jpWaterSewerFacilities", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "下水道設施", qualifier: "2012" }), expandable: true, color: "#1d4ed8", icon: Container, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=sewer; subtype from P22a/P22b", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSewerFacilities", popup: "jpWaterSewerFacilities", params: { count: 1, kinds: ["slider"] }, description: "2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。", topics: ["日本", "水資源", "下水道", "歷史", "OWNER_ONLY"] },
-  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "高松供排水相關設施", qualifier: "高松市" }), expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
-  jpWaterQualityStations: { key: "jpWaterQualityStations", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "水質測定點", alt: "水質測定地点", qualifier: "2024" }), expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_quality", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
-  jpWaterLevelStations: { key: "jpWaterLevelStations", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "橫濱水位站", qualifier: "横浜市" }), expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
-  jpWaterGroundwaterSites: { key: "jpWaterGroundwaterSites", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "地下水等觀測點（24縣）" }), expandable: true, color: "#8b5cf6", icon: MapPin, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=groundwater", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterGroundwaterSites", popup: "jpWaterGroundwaterSites", params: { count: 1, kinds: ["slider"] }, description: "GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。", topics: ["日本", "水資源", "地下水", "OWNER_ONLY"] },
-  jpWaterNilimDams: { key: "jpWaterNilimDams", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩位置（46縣）", qualifier: "NILIM" }), expandable: true, color: "#2563eb", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=nilim", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterNilimDams", popup: "jpWaterNilimDams", params: { count: 1, kinds: ["slider"] }, description: "NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。", topics: ["日本", "水資源", "水壩", "OWNER_ONLY"] },
-  jpWaterAgriculturalPonds: { key: "jpWaterAgriculturalPonds", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "農業蓄水池", qualifier: "2026-03" }), expandable: true, color: "#65a30d", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_agri_civic", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=agri; source datum unknown", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterAgriculturalPonds", popup: "jpWaterAgriculturalPonds", params: { count: 2, kinds: ["palette", "slider"] }, description: "MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。", topics: ["日本", "水資源", "農業", "OWNER_ONLY"] },
-  jpWaterFloodHazard: { key: "jpWaterFloodHazard", section: { theme: "災害", group: "淹水 Flooding" }, ...layerName({ zh: "洪水浸水想定（最大規模）" }), expandable: true, color: "#64748b", icon: CloudRain, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hazard_pollution", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Official external GSI XYZ raster z2–17; disabled by default; source/terms: disaportal.gsi.go.jp hazard-map open-data pages; no feature attributes/popup" }, legend: "jpWaterFloodHazard", popup: null, params: { count: 1, kinds: ["slider"] }, description: "官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。", topics: ["日本", "水資源", "洪水", "背景"] },
+  jpWaterDams: { key: "jpWaterDams", country: "JP", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩", alt: "ダム", qualifier: "2014" }), expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
+  jpWaterLakes: { key: "jpWaterLakes", country: "JP", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "湖沼", alt: "湖沼", qualifier: "2005" }), expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
+  jpWaterRivers: { key: "jpWaterRivers", country: "JP", section: { theme: "水資源", group: "面 / 線" }, ...layerName({ zh: "河川流路", alt: "河川", qualifier: "2006–2009" }), expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", country: "JP", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "上水道相關設施", qualifier: "2010" }), expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", country: "JP", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "給水區域", alt: "給水区域", qualifier: "2010" }), expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSewerFacilities: { key: "jpWaterSewerFacilities", country: "JP", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "下水道設施", qualifier: "2012" }), expandable: true, color: "#1d4ed8", icon: Container, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_ksj", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=sewer; subtype from P22a/P22b", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSewerFacilities", popup: "jpWaterSewerFacilities", params: { count: 1, kinds: ["slider"] }, description: "2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。", topics: ["日本", "水資源", "下水道", "歷史", "OWNER_ONLY"] },
+  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", country: "JP", section: { theme: "水資源", group: "自來水" }, ...layerName({ zh: "高松供排水相關設施", qualifier: "高松市" }), expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
+  jpWaterQualityStations: { key: "jpWaterQualityStations", country: "JP", section: { theme: "環境氣候", group: "水質與污水 Water Quality" }, ...layerName({ zh: "水質測定點", alt: "水質測定地点", qualifier: "2024" }), expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_quality", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
+  jpWaterLevelStations: { key: "jpWaterLevelStations", country: "JP", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "橫濱水位站", qualifier: "横浜市" }), expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_local", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
+  jpWaterGroundwaterSites: { key: "jpWaterGroundwaterSites", country: "JP", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "地下水等觀測點（24縣）" }), expandable: true, color: "#8b5cf6", icon: MapPin, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=groundwater", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterGroundwaterSites", popup: "jpWaterGroundwaterSites", params: { count: 1, kinds: ["slider"] }, description: "GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。", topics: ["日本", "水資源", "地下水", "OWNER_ONLY"] },
+  jpWaterNilimDams: { key: "jpWaterNilimDams", country: "JP", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "水壩位置（46縣）", qualifier: "NILIM" }), expandable: true, color: "#2563eb", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hydro", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=nilim", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterNilimDams", popup: "jpWaterNilimDams", params: { count: 1, kinds: ["slider"] }, description: "NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。", topics: ["日本", "水資源", "水壩", "OWNER_ONLY"] },
+  jpWaterAgriculturalPonds: { key: "jpWaterAgriculturalPonds", country: "JP", section: { theme: "水資源", group: "點位" }, ...layerName({ zh: "農業蓄水池", qualifier: "2026-03" }), expandable: true, color: "#65a30d", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_agri_civic", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=agri; source datum unknown", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterAgriculturalPonds", popup: "jpWaterAgriculturalPonds", params: { count: 2, kinds: ["palette", "slider"] }, description: "MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。", topics: ["日本", "水資源", "農業", "OWNER_ONLY"] },
+  jpWaterFloodHazard: { key: "jpWaterFloodHazard", country: "JP", section: { theme: "災害", group: "淹水 Flooding" }, ...layerName({ zh: "洪水浸水想定（最大規模）" }), expandable: true, color: "#64748b", icon: CloudRain, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_hazard_pollution", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Official external GSI XYZ raster z2–17; disabled by default; source/terms: disaportal.gsi.go.jp hazard-map open-data pages; no feature attributes/popup" }, legend: "jpWaterFloodHazard", popup: null, params: { count: 1, kinds: ["slider"] }, description: "官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。", topics: ["日本", "水資源", "洪水", "背景"] },
 
   jpReligionGsi: {
     key: "jpReligionGsi",
-    section: { theme: "宗教", group: "點位" },
+    country: "JP", section: { theme: "宗教", group: "點位" },
     ...layerName({ zh: "宗教設施", alt: "宗教施設", qualifier: "国土地理院" }),
     expandable: true,
     color: JP_RELIGION_COLORS.shinto,
@@ -1949,7 +1964,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionOsm: {
     key: "jpReligionOsm",
-    section: { theme: "宗教", group: "點位" },
+    country: "JP", section: { theme: "宗教", group: "點位" },
     ...layerName({ zh: "宗教設施", alt: "宗教施設", qualifier: "OpenStreetMap" }),
     expandable: true,
     color: JP_RELIGION_COLORS.buddhist,
@@ -1975,7 +1990,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionWikidata: {
     key: "jpReligionWikidata",
-    section: { theme: "宗教", group: "點位" },
+    country: "JP", section: { theme: "宗教", group: "點位" },
     ...layerName({ zh: "宗教設施", alt: "宗教施設", qualifier: "Wikidata" }),
     expandable: true,
     color: JP_RELIGION_COLORS.christian,
@@ -2005,7 +2020,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   jpAdminPrefecture: {
     key: "jpAdminPrefecture",
-    section: { theme: "底圖", group: "行政邊界" },
+    country: "JP", section: { theme: "底圖", group: "行政邊界" },
     ...layerName({ zh: "都道府縣界", alt: "都道府県境" }),
     expandable: true,
     color: "#f59e0b",
@@ -2030,7 +2045,7 @@ export const LAYER_MANIFEST = {
 
   jpAdminBoundaries: {
     key: "jpAdminBoundaries",
-    section: { theme: "底圖", group: "行政邊界" },
+    country: "JP", section: { theme: "底圖", group: "行政邊界" },
     ...layerName({ zh: "市區町村界", alt: "市区町村境" }),
     expandable: true,
     color: "#fbbf24",
@@ -2055,7 +2070,7 @@ export const LAYER_MANIFEST = {
 
   jpStations: {
     key: "jpStations",
-    section: { theme: "交通", group: "場站" },
+    country: "JP", section: { theme: "交通", group: "場站" },
     ...layerName({ zh: "車站", alt: "駅" }),
     expandable: true,
     color: "#38bdf8",
@@ -2080,7 +2095,7 @@ export const LAYER_MANIFEST = {
 
   jpAirports: {
     key: "jpAirports",
-    section: { theme: "交通", group: "樞紐節點" },
+    country: "JP", section: { theme: "交通", group: "樞紐節點" },
     ...layerName({ zh: "機場", alt: "空港" }),
     expandable: true,
     color: "#a78bfa",
@@ -2105,7 +2120,7 @@ export const LAYER_MANIFEST = {
 
   jpRailways: {
     key: "jpRailways",
-    section: { theme: "交通", group: "路網" },
+    country: "JP", section: { theme: "交通", group: "路網" },
     ...layerName({ zh: "鐵道路線", alt: "鉄道路線" }),
     expandable: true,
     color: JP_RAILWAY_LAYER_COLOR,
@@ -2130,7 +2145,7 @@ export const LAYER_MANIFEST = {
 
   jpHistoricalFlightTrails: {
     key: "jpHistoricalFlightTrails",
-    section: { theme: "交通", group: "歷史軌跡" },
+    country: "JP", section: { theme: "交通", group: "歷史軌跡" },
     ...layerName({ zh: "歷史航班軌跡", alt: "Japan" }),
     expandable: true,
     color: "#4d99ff",
@@ -2157,7 +2172,7 @@ export const LAYER_MANIFEST = {
   osmBridgeCarriers: {
     key: "osmBridgeCarriers",
     expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "OSM 橋梁承載線" }),
     color: NETWORK_STRUCTURES_COLORS.carriers,
     icon: Network,
@@ -2177,7 +2192,7 @@ export const LAYER_MANIFEST = {
   osmBridgeFootprints: {
     key: "osmBridgeFootprints",
     expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "OSM 橋梁輪廓" }),
     color: NETWORK_STRUCTURES_COLORS.footprint,
     icon: Network,
@@ -2193,7 +2208,7 @@ export const LAYER_MANIFEST = {
   officialBridgesNewTaipei: {
     key: "officialBridgesNewTaipei",
     expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "新北市轄管橋梁" }),
     color: NETWORK_STRUCTURES_COLORS.official,
     icon: Network,
@@ -2208,7 +2223,7 @@ export const LAYER_MANIFEST = {
   bridgeComparisonNewTaipei: {
     key: "bridgeComparisonNewTaipei",
     expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "新北橋梁 OSM 比對" }),
     color: NETWORK_STRUCTURES_COLORS.matched,
     icon: Network,
@@ -2223,7 +2238,7 @@ export const LAYER_MANIFEST = {
   tainanBridgeInspections: {
     key: "tainanBridgeInspections",
     expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "臺南橋梁定期檢測紀錄" }),
     color: "#a855f7",
     icon: Network,
@@ -2238,7 +2253,7 @@ export const LAYER_MANIFEST = {
   },
   officialBridgesHsinchu: {
     key: "officialBridgesHsinchu", expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "新竹市橋梁清冊" }), color: "#22d3ee", icon: Network,
     upstream: { status: "verified", datasets: [{ datasetId: "network_structures", confidence: "HIGH" }], processing: "新竹市官方橋梁清冊；橋頭尾連線是近似軸線，未與檢測名冊推定配對。" },
     dataClass: "B",
@@ -2250,7 +2265,7 @@ export const LAYER_MANIFEST = {
   },
   taipeiRoadTunnels: {
     key: "taipeiRoadTunnels", expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "臺北市道路隧道" }), color: "#f59e0b", icon: Network,
     upstream: { status: "verified", datasets: [{ datasetId: "tunnels", confidence: "HIGH" }], processing: "臺北市官方登錄點；方向端點僅保留屬性，不推定隧道線形。" }, dataClass: "B",
     source: { kind: "pmtiles", sourceId: "taipei-road-tunnels", url: "./network_structures/taipei_road_tunnels_20260924.pmtiles", sourceLayer: "taipei_road_tunnels", minzoom: 7, maxzoom: 15 },
@@ -2260,7 +2275,7 @@ export const LAYER_MANIFEST = {
   },
   tainanRoadTunnels: {
     key: "tainanRoadTunnels", expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "臺南市道路隧道" }), color: "#fb923c", icon: Network,
     upstream: { status: "verified", datasets: [{ datasetId: "tunnels", confidence: "MED" }], processing: "臺南市官方登錄點；原始 X/Y 未宣告 CRS，WGS84 是數值範圍推定。" }, dataClass: "B",
     source: { kind: "pmtiles", sourceId: "tainan-road-tunnels", url: "./network_structures/tainan_road_tunnels_20260924.pmtiles", sourceLayer: "tainan_road_tunnels", minzoom: 7, maxzoom: 15 },
@@ -2270,7 +2285,7 @@ export const LAYER_MANIFEST = {
   },
   changhuaTrafficSignals: {
     key: "changhuaTrafficSignals", expandable: true,
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "彰化縣道路號誌" }), color: "#84cc16", icon: Network,
     upstream: { status: "verified", datasets: [{ datasetId: "roadside_facilities", confidence: "HIGH" }], processing: "彰化縣官方號誌清冊點；不推定路口中心或即時燈態。" }, dataClass: "B",
     source: { kind: "pmtiles", sourceId: "changhua-traffic-signals", url: "./network_structures/changhua_traffic_signals_20260924.pmtiles", sourceLayer: "changhua_traffic_signals", minzoom: 7, maxzoom: 15 },
@@ -2281,7 +2296,7 @@ export const LAYER_MANIFEST = {
   bssNationalBridgePreview: {
     key: "bssNationalBridgePreview",
     expandable: true,
-    section: { theme: "交通 Move", group: "橋梁研究（進行中）" },
+    country: "TW", section: { theme: "交通 Move", group: "橋梁研究（進行中）" },
     ...layerName({ zh: "全臺橋梁方向候選", qualifier: "進行中" }),
     color: "#22d3ee",
     icon: Network,
@@ -2302,7 +2317,7 @@ export const LAYER_MANIFEST = {
   bssNationalBridgePointsPreview: {
     key: "bssNationalBridgePointsPreview",
     expandable: true,
-    section: { theme: "交通 Move", group: "橋梁研究（進行中）" },
+    country: "TW", section: { theme: "交通 Move", group: "橋梁研究（進行中）" },
     ...layerName({ zh: "全臺橋梁清冊點位", qualifier: "進行中" }),
     color: "#facc15",
     icon: Network,
@@ -2323,7 +2338,7 @@ export const LAYER_MANIFEST = {
   bridgeResilienceTwinCity: {
     key: "bridgeResilienceTwinCity",
     expandable: true,
-    section: { theme: "雙北跨河橋梁中斷", group: "橋梁中斷" },
+    country: "SIM", section: { theme: "雙北跨河橋梁中斷", group: "橋梁中斷" },
     ...layerName({ zh: "雙北跨河橋梁韌性", qualifier: "推估・研究中" }),
     color: "#f59e0b",
     icon: Network,
@@ -2344,7 +2359,7 @@ export const LAYER_MANIFEST = {
   busCrowdingSim: {
     key: "busCrowdingSim",
     expandable: true,
-    section: { theme: "臺北 307 走廊公車擁擠", group: "公車擁擠" },
+    country: "SIM", section: { theme: "臺北 307 走廊公車擁擠", group: "公車擁擠" },
     ...layerName({ zh: "公車路段超載班次比例", qualifier: "推估・研究中" }),
     color: BUS_CROWDING_REPRESENTATIVE_COLOR,
     icon: Bus,
@@ -2364,7 +2379,7 @@ export const LAYER_MANIFEST = {
   },
   bridgeRainThresholds: {
     key: "bridgeRainThresholds",
-    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    country: "TW", section: { theme: "交通 Move", group: "路網結構 Network Structures" },
     ...layerName({ zh: "一級監控橋梁參考雨量" }),
     expandable: true,
     color: "#ef4444",
@@ -2380,7 +2395,7 @@ export const LAYER_MANIFEST = {
   },
   jpPoliceFacilities: {
     key: "jpPoliceFacilities",
-    section: { theme: "執法治安", group: "警政" },
+    country: "JP", section: { theme: "執法治安", group: "警政" },
     ...layerName({ zh: "警察設施", alt: "警察施設" }),
     expandable: true,
     color: JP_POLICE_LAYER_COLOR,
@@ -2405,7 +2420,7 @@ export const LAYER_MANIFEST = {
   },
   jpEvacuationSites: {
     key: "jpEvacuationSites",
-    section: { theme: "災害", group: "避難設施" },
+    country: "JP", section: { theme: "災害", group: "避難設施" },
     ...layerName({ zh: "避難場所", alt: "指定緊急避難場所・指定避難所" }),
     expandable: true,
     color: JP_EVACUATION_LAYER_COLOR,
@@ -2430,7 +2445,7 @@ export const LAYER_MANIFEST = {
   },
   jpPublicOffices: {
     key: "jpPublicOffices",
-    section: { theme: "基礎建設", group: "公共設施" },
+    country: "JP", section: { theme: "基礎建設", group: "公共設施" },
     ...layerName({ zh: "役所與公民館", alt: "市町村役場・公民館" }),
     expandable: true,
     color: JP_PUBLIC_OFFICE_LAYER_COLOR,
@@ -2455,7 +2470,7 @@ export const LAYER_MANIFEST = {
   },
   jpBusStops: {
     key: "jpBusStops",
-    section: { theme: "交通", group: "場站" },
+    country: "JP", section: { theme: "交通", group: "場站" },
     ...layerName({ zh: "公車站", alt: "バス停" }),
     expandable: true,
     color: JP_BUS_STOP_LAYER_COLOR,
@@ -2480,7 +2495,7 @@ export const LAYER_MANIFEST = {
   },
   jpLandslideWarningAreas: {
     key: "jpLandslideWarningAreas",
-    section: { theme: "災害", group: "崩塌 Landslide" },
+    country: "JP", section: { theme: "災害", group: "崩塌 Landslide" },
     ...layerName({ zh: "土砂災害警戒區域", alt: "土砂災害警戒区域", qualifier: "令和7年度" }),
     expandable: true,
     color: JP_LANDSLIDE_LAYER_COLOR,
@@ -2505,7 +2520,7 @@ export const LAYER_MANIFEST = {
   },
   jpInlandFloodAreas: {
     key: "jpInlandFloodAreas",
-    section: { theme: "災害", group: "淹水 Flooding" },
+    country: "JP", section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "內水浸水想定區域", alt: "雨水出水（内水）浸水想定区域", qualifier: "想定最大規模" }),
     expandable: true,
     color: JP_INLAND_FLOOD_LAYER_COLOR,
@@ -2530,7 +2545,7 @@ export const LAYER_MANIFEST = {
   },
   jpZoningUseDistricts: {
     key: "jpZoningUseDistricts",
-    section: { theme: "底圖", group: "土地使用分區 Zoning" },
+    country: "JP", section: { theme: "底圖", group: "土地使用分區 Zoning" },
     ...layerName({ zh: "用途地域", alt: "用途地域", qualifier: "令和6年度" }),
     expandable: true,
     color: JP_ZONING_LAYER_COLOR,
@@ -2555,7 +2570,7 @@ export const LAYER_MANIFEST = {
   },
   jpNationalForests: {
     key: "jpNationalForests",
-    section: { theme: "林業", group: "分區" },
+    country: "JP", section: { theme: "林業", group: "分區" },
     ...layerName({ zh: "国有林", alt: "国有林", qualifier: "2024年度" }),
     expandable: true,
     color: JP_FOREST_LAYER_COLOR,
@@ -2580,7 +2595,7 @@ export const LAYER_MANIFEST = {
   },
   jpWelfareDisability: {
     key: "jpWelfareDisability",
-    section: { theme: "社福長照", group: "住宿照顧" },
+    country: "JP", section: { theme: "社福長照", group: "住宿照顧" },
     ...layerName({ zh: "障礙福祉設施", alt: "障害者福祉施設", qualifier: "令和5年度" }),
     expandable: true,
     color: JP_WELFARE_LAYER_COLOR.jpWelfareDisability,
@@ -2605,7 +2620,7 @@ export const LAYER_MANIFEST = {
   },
   jpWelfareChild: {
     key: "jpWelfareChild",
-    section: { theme: "社福長照", group: "長照與托育" },
+    country: "JP", section: { theme: "社福長照", group: "長照與托育" },
     ...layerName({ zh: "兒童福祉設施", alt: "児童福祉施設", qualifier: "令和5年度" }),
     expandable: true,
     color: JP_WELFARE_LAYER_COLOR.jpWelfareChild,
@@ -2630,7 +2645,7 @@ export const LAYER_MANIFEST = {
   },
   jpMajorRoads: {
     key: "jpMajorRoads",
-    section: { theme: "交通", group: "路網" },
+    country: "JP", section: { theme: "交通", group: "路網" },
     ...layerName({ zh: "主要道路", alt: "国道・都道府県道", qualifier: "2024年度" }),
     expandable: true,
     color: JP_ROAD_LAYER_COLOR,
@@ -2655,7 +2670,7 @@ export const LAYER_MANIFEST = {
   },
   jpExpressways: {
     key: "jpExpressways",
-    section: { theme: "交通", group: "路網" },
+    country: "JP", section: { theme: "交通", group: "路網" },
     ...layerName({ zh: "高速道路", alt: "高速道路", qualifier: "2025" }),
     expandable: true,
     color: JP_EXPRESSWAY_LAYER_COLOR,
@@ -2680,7 +2695,7 @@ export const LAYER_MANIFEST = {
   },
   jpGsiHillshade: {
     key: "jpGsiHillshade",
-    section: { theme: "底圖", group: "地形" },
+    country: "JP", section: { theme: "底圖", group: "地形" },
     ...layerName({ zh: "陰影起伏圖", alt: "陰影起伏図", qualifier: "地理院タイル" }),
     expandable: true,
     color: "#6b7280",
@@ -2704,7 +2719,7 @@ export const LAYER_MANIFEST = {
   },
   jpGsiRelief: {
     key: "jpGsiRelief",
-    section: { theme: "底圖", group: "地形" },
+    country: "JP", section: { theme: "底圖", group: "地形" },
     ...layerName({ zh: "色別標高圖", alt: "色別標高図", qualifier: "地理院タイル" }),
     expandable: true,
     color: "#65a30d",
@@ -2728,7 +2743,7 @@ export const LAYER_MANIFEST = {
   },
   jpSchools: {
     key: "jpSchools",
-    section: { theme: "教育", group: "學校 Schools" },
+    country: "JP", section: { theme: "教育", group: "學校 Schools" },
     ...layerName({ zh: "學校", alt: "学校" }),
     expandable: true,
     color: JP_SCHOOL_LAYER_COLOR,
@@ -2755,7 +2770,7 @@ export const LAYER_MANIFEST = {
   // ── 日本氣象廳 JMA 即時 4 層（gis-platform migration 435；public view；當下快照，不接 timeStore）──
   jmaAmedas: {
     key: "jmaAmedas",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "AMeDAS 即時觀測", alt: "アメダス" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAmedas,
@@ -2776,7 +2791,7 @@ export const LAYER_MANIFEST = {
   },
   jmaWarnings: {
     key: "jmaWarnings",
-    section: { theme: "災害", group: "即時警示" },
+    country: "JP", section: { theme: "災害", group: "即時警示" },
     ...layerName({ zh: "警報・注意報", alt: "警報・注意報" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaWarnings,
@@ -2801,7 +2816,7 @@ export const LAYER_MANIFEST = {
   },
   jmaQuakes: {
     key: "jmaQuakes",
-    section: { theme: "災害", group: "地震 / 斷層" },
+    country: "JP", section: { theme: "災害", group: "地震 / 斷層" },
     ...layerName({ zh: "地震（近 7 天）", alt: "地震情報" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaQuakes,
@@ -2822,7 +2837,7 @@ export const LAYER_MANIFEST = {
   },
   jmaVolcanoes: {
     key: "jmaVolcanoes",
-    section: { theme: "災害", group: "火山" },
+    country: "JP", section: { theme: "災害", group: "火山" },
     ...layerName({ zh: "火山警戒", alt: "噴火警戒レベル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaVolcanoes,
@@ -2845,7 +2860,7 @@ export const LAYER_MANIFEST = {
   // RPC 契約 gis-platform docs/jma-time-rpcs.md（migration 463/464）。
   jmaLightning: {
     key: "jmaLightning",
-    section: { theme: "災害", group: "雷暴" },
+    country: "JP", section: { theme: "災害", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "雷監視 LIDEN", qualifier: "日本" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaLightning,
@@ -2866,7 +2881,7 @@ export const LAYER_MANIFEST = {
   },
   jmaWbgt: {
     key: "jmaWbgt",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "暑熱指數 WBGT", alt: "暑さ指数" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaWbgt,
@@ -2887,7 +2902,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSnowcap: {
     key: "jmaSnowcap",
-    section: { theme: "環境氣候", group: "季節觀測" },
+    country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "山頂初冠雪", alt: "初冠雪" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaSnowcap,
@@ -2908,7 +2923,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAutumnLeaves: {
     key: "jmaAutumnLeaves",
-    section: { theme: "環境氣候", group: "季節觀測" },
+    country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "紅葉・黃葉前線", alt: "紅葉前線" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaAutumnLeaves,
@@ -2929,7 +2944,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSakura: {
     key: "jmaSakura",
-    section: { theme: "環境氣候", group: "季節觀測" },
+    country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "櫻花前線", alt: "桜前線" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaSakura,
@@ -2950,7 +2965,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRainySeason: {
     key: "jmaRainySeason",
-    section: { theme: "環境氣候", group: "季節觀測" },
+    country: "JP", section: { theme: "環境氣候", group: "季節觀測" },
     ...layerName({ zh: "梅雨入梅・出梅", alt: "梅雨入り・明け" }),
     expandable: true,
     color: JMA_POINT_LAYER_COLORS.jmaRainySeason,
@@ -2977,7 +2992,7 @@ export const LAYER_MANIFEST = {
   // RPC get_weather_imagery_manifest 取幀清單 → image source＋raster-color 上色（色票 SSOT = jmaTypes.ts）。
   jmaSnowDepth: {
     key: "jmaSnowDepth",
-    section: { theme: "環境氣候", group: "積雪" },
+    country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "解析積雪深", alt: "積雪深（解析）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSnowDepth,
@@ -3001,7 +3016,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRadar: {
     key: "jmaRadar",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "雨雲雷達", alt: "雨雲の動き（ナウキャスト）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRadar,
@@ -3025,7 +3040,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRasrf: {
     key: "jmaRasrf",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "解析雨量", alt: "解析雨量" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRasrf,
@@ -3049,7 +3064,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskLand: {
     key: "jmaRiskLand",
-    section: { theme: "災害", group: "崩塌 Landslide" },
+    country: "JP", section: { theme: "災害", group: "崩塌 Landslide" },
     ...layerName({ zh: "土砂災害危險度", alt: "土砂キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskLand,
@@ -3073,7 +3088,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskInund: {
     key: "jmaRiskInund",
-    section: { theme: "災害", group: "淹水 Flooding" },
+    country: "JP", section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "浸水危險度", alt: "浸水キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskInund,
@@ -3097,7 +3112,7 @@ export const LAYER_MANIFEST = {
   },
   jmaUvIndex: {
     key: "jmaUvIndex",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "紫外線指數", alt: "UVインデックス（解析）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaUvIndex,
@@ -3121,7 +3136,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSst: {
     key: "jmaSst",
-    section: { theme: "海洋", group: "海域環境 Marine Environment" },
+    country: "JP", section: { theme: "海洋", group: "海域環境 Marine Environment" },
     ...layerName({ zh: "日別海面水溫", alt: "日別海面水温" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSst,
@@ -3145,7 +3160,7 @@ export const LAYER_MANIFEST = {
   },
   jmaSeaIce: {
     key: "jmaSeaIce",
-    section: { theme: "海洋", group: "海域環境 Marine Environment" },
+    country: "JP", section: { theme: "海洋", group: "海域環境 Marine Environment" },
     ...layerName({ zh: "鄂霍次克海海冰", alt: "海氷分布（オホーツク海）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaSeaIce,
@@ -3169,7 +3184,7 @@ export const LAYER_MANIFEST = {
   },
   jmaHimawari: {
     key: "jmaHimawari",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "向日葵紅外雲圖", alt: "ひまわり雲画像（赤外）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaHimawari,
@@ -3193,7 +3208,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaSnowFirst: {
     key: "jmaAnaSnowFirst",
-    section: { theme: "環境氣候", group: "積雪" },
+    country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "初雪日", alt: "初積雪日" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaSnowFirst,
@@ -3217,7 +3232,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaSnowDays: {
     key: "jmaAnaSnowDays",
-    section: { theme: "環境氣候", group: "積雪" },
+    country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "積雪日數", alt: "積雪日数" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaSnowDays,
@@ -3241,7 +3256,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRainDays: {
     key: "jmaAnaRainDays",
-    section: { theme: "環境氣候", group: "氣象" },
+    country: "JP", section: { theme: "環境氣候", group: "氣象" },
     ...layerName({ zh: "雨日數（當月）", alt: "雨日数（当月）" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRainDays,
@@ -3265,7 +3280,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRiskLandHours: {
     key: "jmaAnaRiskLandHours",
-    section: { theme: "災害", group: "崩塌 Landslide" },
+    country: "JP", section: { theme: "災害", group: "崩塌 Landslide" },
     ...layerName({ zh: "土砂警戒時數（當月）", alt: "土砂キキクル警戒時間" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRiskLandHours,
@@ -3289,7 +3304,7 @@ export const LAYER_MANIFEST = {
   },
   jmaAnaRiskInundHours: {
     key: "jmaAnaRiskInundHours",
-    section: { theme: "災害", group: "淹水 Flooding" },
+    country: "JP", section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "浸水警戒時數（當月）", alt: "浸水キキクル警戒時間" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaAnaRiskInundHours,
@@ -3313,7 +3328,7 @@ export const LAYER_MANIFEST = {
   },
   gibsSnowCover: {
     key: "gibsSnowCover",
-    section: { theme: "環境氣候", group: "積雪" },
+    country: "JP", section: { theme: "環境氣候", group: "積雪" },
     ...layerName({ zh: "衛星雪覆蓋", alt: "積雪域（衛星 NDSI）", qualifier: "NASA GIBS" }),
     expandable: true,
     color: GIBS_SNOW_LAYER_COLOR,
@@ -3337,7 +3352,7 @@ export const LAYER_MANIFEST = {
   },
   jmaRiskFlood: {
     key: "jmaRiskFlood",
-    section: { theme: "災害", group: "淹水 Flooding" },
+    country: "JP", section: { theme: "災害", group: "淹水 Flooding" },
     ...layerName({ zh: "洪水危險度", alt: "洪水キキクル" }),
     expandable: true,
     color: JMA_LAYER_COLORS.jmaRiskFlood,
@@ -3361,7 +3376,7 @@ export const LAYER_MANIFEST = {
   },
   jmaKosa: {
     key: "jmaKosa",
-    section: { theme: "環境氣候", group: "空品" },
+    country: "JP", section: { theme: "環境氣候", group: "空品" },
     ...layerName({ zh: "黃砂預測", alt: "黄砂予測" }),
     expandable: false,
     color: JMA_LAYER_COLORS.jmaKosa,
@@ -3386,7 +3401,7 @@ export const LAYER_MANIFEST = {
 
   jpPopulationMesh1km: {
     key: "jpPopulationMesh1km",
-    section: { theme: "人口社經", group: "人口分布" },
+    country: "JP", section: { theme: "人口社經", group: "人口分布" },
     ...layerName({ zh: "人口網格", alt: "人口メッシュ" }),
     expandable: true,
     color: JP_POPULATION_MESH_LAYER_COLOR,
@@ -3419,7 +3434,7 @@ export const LAYER_MANIFEST = {
   //    字面陣列解析器抓不到 → 需 extractGisConstRefTypes 才驗得出 popup 宣告為真。
   plaActivity: {
     key: "plaActivity",
-    section: { theme: "情勢 Situation", group: "軍事" },
+    country: "TW", section: { theme: "情勢 Situation", group: "軍事" },
     ...layerName({ zh: "共機活動區", alt: "PLA Activity" }),
     expandable: true,
     color: "#38bdf8",
@@ -3449,7 +3464,7 @@ export const LAYER_MANIFEST = {
   //    共機活動區大面積 polygon 之後，海峽內的船會點不到。
   vesselWatch: {
     key: "vesselWatch",
-    section: { theme: "情勢 Situation", group: "軍事" },
+    country: "TW", section: { theme: "情勢 Situation", group: "軍事" },
     ...layerName({ zh: "特殊船舶", alt: "Vessel Watch" }),
     expandable: true,
     // rose-400：刻意與 `ships`（#1ad9e5 青）拉開 —— 兩層同時開時要一眼分得出
@@ -3497,7 +3512,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
-    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     ...layerName({ zh: "OSM 通訊海纜", alt: "Submarine Cable" }),
     expandable: true,
     color: "#26c6da",
@@ -3517,7 +3532,7 @@ export const LAYER_MANIFEST = {
 
   landingStations: {
     key: "landingStations",
-    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     ...layerName({ zh: "OSM 海纜登陸站", alt: "Landing Station" }),
     expandable: true,
     color: "#ffb74d",
@@ -3537,7 +3552,7 @@ export const LAYER_MANIFEST = {
 
   internetExchangePoints: {
     key: "internetExchangePoints",
-    section: { theme: "全球通訊 Global Communications", group: "網路互連 Internet Exchange" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "網路互連 Internet Exchange" },
     ...layerName({ zh: "網際網路交換中心", alt: "Internet Exchange" }),
     expandable: true,
     color: "#22C55E",
@@ -3561,7 +3576,7 @@ export const LAYER_MANIFEST = {
 
   anfrWirelessSites: {
     key: "anfrWirelessSites",
-    section: { theme: "全球通訊 Global Communications", group: "官方無線站點 Official Wireless Sites" },
+    country: "FR", section: { theme: "通訊", group: "官方無線站點 Official Wireless Sites" },
     ...layerName({ zh: "法國 ANFR 5G 3500 無線站點概覽", alt: "France ANFR 5G 3500 Overview" }),
     expandable: true,
     color: "#F97316",
@@ -3581,7 +3596,7 @@ export const LAYER_MANIFEST = {
 
   osmCommunicationSites: {
     key: "osmCommunicationSites",
-    section: { theme: "全球通訊 Global Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
     ...layerName({ zh: "OSM 通訊塔候選點概覽", alt: "OpenStreetMap Communication Candidates" }),
     expandable: true,
     color: "#38BDF8",
@@ -3601,7 +3616,7 @@ export const LAYER_MANIFEST = {
 
   ripeAtlasProbes: {
     key: "ripeAtlasProbes",
-    section: { theme: "全球通訊 Global Communications", group: "量測節點 Measurement Nodes" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "量測節點 Measurement Nodes" },
     ...layerName({ zh: "RIPE Atlas 連線量測節點", alt: "Connected Probes" }),
     expandable: true,
     color: "#22D3EE",
@@ -3622,7 +3637,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobilePerformance: {
     key: "ooklaMobilePerformance",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 行動網路效能格網", alt: "Mobile Performance Grid" }),
     expandable: true,
     color: "#F46D43",
@@ -3643,7 +3658,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedPerformance: {
     key: "ooklaFixedPerformance",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 固定網路效能格網", alt: "Fixed Performance Grid" }),
     expandable: true,
     color: "#FDAE61",
@@ -3664,7 +3679,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobileTaiwan: {
     key: "ooklaMobileTaiwan",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    country: "TW", section: { theme: "通訊 Telecom", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 台灣行動細格", alt: "Taiwan Mobile Fine Grid" }),
     expandable: true,
     color: "#F46D43",
@@ -3688,7 +3703,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedTaiwan: {
     key: "ooklaFixedTaiwan",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    country: "TW", section: { theme: "通訊 Telecom", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 台灣固定網路細格", alt: "Taiwan Fixed Fine Grid" }),
     expandable: true,
     color: "#4575B4",
@@ -3712,7 +3727,7 @@ export const LAYER_MANIFEST = {
 
   convenienceStores: {
     key: "convenienceStores",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "超商", alt: "Convenience Store" }),
     expandable: true,
     color: "#26c6da",
@@ -3732,7 +3747,7 @@ export const LAYER_MANIFEST = {
 
   postOffices: {
     key: "postOffices",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "郵局", alt: "Post Office" }),
     expandable: true,
     color: "#d32f2f",
@@ -3752,7 +3767,7 @@ export const LAYER_MANIFEST = {
 
   iPostBoxes: {
     key: "iPostBoxes",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "i郵箱", alt: "iPost Box" }),
     expandable: true,
     color: "#ef6c00",
@@ -3772,7 +3787,7 @@ export const LAYER_MANIFEST = {
 
   communityCenters: {
     key: "communityCenters",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "活動中心（部分縣市）", alt: "Community Center" }),
     expandable: true,
     color: "#26a69a",
@@ -3792,7 +3807,7 @@ export const LAYER_MANIFEST = {
 
   govServiceOffices: {
     key: "govServiceOffices",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "機關便民據點", alt: "Gov Service Office" }),
     expandable: true,
     color: "#8d6e63",
@@ -3812,7 +3827,7 @@ export const LAYER_MANIFEST = {
 
   publicLibraries: {
     key: "publicLibraries",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "公共圖書館", alt: "Public Library" }),
     expandable: true,
     color: "#5c6bc0",
@@ -3832,7 +3847,7 @@ export const LAYER_MANIFEST = {
 
   welfareCenters: {
     key: "welfareCenters",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "社福中心", alt: "Welfare Center" }),
     expandable: true,
     color: "#ec407a",
@@ -3852,7 +3867,7 @@ export const LAYER_MANIFEST = {
 
   animalAdoption: {
     key: "animalAdoption",
-    section: { theme: "動物福利 Animal Welfare", group: "認領養與收容 Adoption & Shelter" },
+    country: "TW", section: { theme: "動物福利 Animal Welfare", group: "認領養與收容 Adoption & Shelter" },
     ...layerName({ zh: "待認領養動物", alt: "Animal Adoption" }),
     expandable: true,
     color: "#f59e0b",
@@ -3873,7 +3888,7 @@ export const LAYER_MANIFEST = {
 
   animalShelterPressure: {
     key: "animalShelterPressure",
-    section: { theme: "動物福利 Animal Welfare", group: "收容成果與壓力" },
+    country: "TW", section: { theme: "動物福利 Animal Welfare", group: "收容成果與壓力" },
     ...layerName({ zh: "收容壓力", alt: "Shelter Pressure" }),
     expandable: true,
     color: "#f97316",
@@ -3897,7 +3912,7 @@ export const LAYER_MANIFEST = {
 
   animalWelfarePoints: {
     key: "animalWelfarePoints",
-    section: { theme: "動物福利 Animal Welfare", group: "服務據點 Service Points" },
+    country: "TW", section: { theme: "動物福利 Animal Welfare", group: "服務據點 Service Points" },
     ...layerName({ zh: "動物服務據點", alt: "Animal Services" }),
     expandable: true,
     color: "#2563eb",
@@ -3918,7 +3933,7 @@ export const LAYER_MANIFEST = {
 
   retailMarkets: {
     key: "retailMarkets",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "公有市場", alt: "Public Market" }),
     expandable: true,
     color: "#66bb6a",
@@ -3938,7 +3953,7 @@ export const LAYER_MANIFEST = {
 
   publicToilets: {
     key: "publicToilets",
-    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
     ...layerName({ zh: "公廁", alt: "Public Toilet" }),
     expandable: true,
     color: "#7e57c2",
@@ -3974,7 +3989,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   sportsSchool: {
     key: "sportsSchool",
-    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
     ...layerName({ zh: "學校場館", alt: "School" }),
     expandable: true,
     color: "#5c6bc0",
@@ -3994,7 +4009,7 @@ export const LAYER_MANIFEST = {
 
   sportsPublicOther: {
     key: "sportsPublicOther",
-    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
     ...layerName({ zh: "其他公共場館", alt: "Other Public Venues" }),
     expandable: true,
     color: "#26a69a",
@@ -4014,7 +4029,7 @@ export const LAYER_MANIFEST = {
 
   sportsPrivate: {
     key: "sportsPrivate",
-    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
     ...layerName({ zh: "民營場館", alt: "Private Venues" }),
     expandable: true,
     color: "#ef6c00",
@@ -4034,7 +4049,7 @@ export const LAYER_MANIFEST = {
 
   sportsPark: {
     key: "sportsPark",
-    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
     ...layerName({ zh: "運動公園/開放空間", alt: "Park" }),
     expandable: true,
     color: "#66bb6a",
@@ -4054,7 +4069,7 @@ export const LAYER_MANIFEST = {
 
   sportsCenter: {
     key: "sportsCenter",
-    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
     ...layerName({ zh: "國民運動中心", alt: "Sports Center" }),
     expandable: true,
     color: "#ec407a",
@@ -4074,7 +4089,7 @@ export const LAYER_MANIFEST = {
 
   parksTaipei: {
     key: "parksTaipei",
-    section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" },
+    country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" },
     ...layerName({ zh: "公園", alt: "Parks" }),
     expandable: true,
     color: "#7cb342",
@@ -4116,7 +4131,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   tourAttractions: {
     key: "tourAttractions",
-    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
     ...layerName({ zh: "觀光景點", alt: "Attractions" }),
     expandable: true,
     color: "#e65100",
@@ -4137,7 +4152,7 @@ export const LAYER_MANIFEST = {
 
   tourHotSprings: {
     key: "tourHotSprings",
-    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
     ...layerName({ zh: "溫泉露頭", alt: "Hot Springs" }),
     expandable: true,
     color: "#d81b60",
@@ -4158,7 +4173,7 @@ export const LAYER_MANIFEST = {
 
   tourHotSpringZones: {
     key: "tourHotSpringZones",
-    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
     ...layerName({ zh: "溫泉露頭區", alt: "Hot Spring Zones" }),
     expandable: true,
     color: "#c2185b",
@@ -4180,7 +4195,7 @@ export const LAYER_MANIFEST = {
 
   tourScenicAreas: {
     key: "tourScenicAreas",
-    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
     ...layerName({ zh: "國家風景區", alt: "Scenic Areas" }),
     expandable: true,
     color: "#26a69a",
@@ -4201,7 +4216,7 @@ export const LAYER_MANIFEST = {
 
   tourHeritage: {
     key: "tourHeritage",
-    section: { theme: "觀光 Tourism", group: "玩・人文 Heritage" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・人文 Heritage" },
     ...layerName({ zh: "文化資產", alt: "Heritage" }),
     expandable: true,
     color: "#6d4c41",
@@ -4222,7 +4237,7 @@ export const LAYER_MANIFEST = {
 
   tourEvents: {
     key: "tourEvents",
-    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
     ...layerName({ zh: "觀光活動・節慶", alt: "Tourism Events" }),
     expandable: true,
     color: "#f9a825",
@@ -4243,7 +4258,7 @@ export const LAYER_MANIFEST = {
 
   tourFactories: {
     key: "tourFactories",
-    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
     ...layerName({ zh: "觀光工廠", alt: "Tourism Factories" }),
     expandable: true,
     color: "#546e7a",
@@ -4264,7 +4279,7 @@ export const LAYER_MANIFEST = {
 
   tourAmusementParks: {
     key: "tourAmusementParks",
-    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
     ...layerName({ zh: "民營遊樂園", alt: "Amusement Parks" }),
     expandable: true,
     color: "#00acc1",
@@ -4285,7 +4300,7 @@ export const LAYER_MANIFEST = {
 
   tourCamping: {
     key: "tourCamping",
-    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
     ...layerName({ zh: "露營場", alt: "Campgrounds" }),
     expandable: true,
     color: "#7cb342",
@@ -4306,7 +4321,7 @@ export const LAYER_MANIFEST = {
 
   tourHotels: {
     key: "tourHotels",
-    section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿", alt: "Hotels & B&Bs" }),
     expandable: true,
     color: "#1976d2",
@@ -4327,7 +4342,7 @@ export const LAYER_MANIFEST = {
 
   tourRestaurants: {
     key: "tourRestaurants",
-    section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
+    country: "TW", section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "觀光餐飲", alt: "Restaurants" }),
     expandable: true,
     color: "#c62828",
@@ -4371,7 +4386,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   schools: {
     key: "schools",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "學校總覽", alt: "All Schools" }),
     expandable: true,
     // ⚠️ 不在 EDUCATION_LAYER_COLORS 裡：總覽層沿用搬進教育主題前的舊色
@@ -4393,7 +4408,7 @@ export const LAYER_MANIFEST = {
 
   eduSchoolElementary: {
     key: "eduSchoolElementary",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "國小", alt: "Elementary" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduSchoolElementary,
@@ -4414,7 +4429,7 @@ export const LAYER_MANIFEST = {
 
   eduSchoolJunior: {
     key: "eduSchoolJunior",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "國中", alt: "Junior High" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduSchoolJunior,
@@ -4435,7 +4450,7 @@ export const LAYER_MANIFEST = {
 
   eduSchoolSenior: {
     key: "eduSchoolSenior",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "高中職", alt: "Senior High" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduSchoolSenior,
@@ -4456,7 +4471,7 @@ export const LAYER_MANIFEST = {
 
   eduSchoolUniversity: {
     key: "eduSchoolUniversity",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "大專", alt: "University" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduSchoolUniversity,
@@ -4477,7 +4492,7 @@ export const LAYER_MANIFEST = {
 
   eduSchoolSpecial: {
     key: "eduSchoolSpecial",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "特教", alt: "Special Education" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduSchoolSpecial,
@@ -4498,7 +4513,7 @@ export const LAYER_MANIFEST = {
 
   eduRemoteSchools: {
     key: "eduRemoteSchools",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "偏遠地區學校", alt: "Remote Schools" }),
     expandable: true,
     // 偏遠三級（偏遠／特偏／極偏）的中間色代表整層，見 educationTypes.ts
@@ -4520,7 +4535,7 @@ export const LAYER_MANIFEST = {
 
   eduUniversityStudents: {
     key: "eduUniversityStudents",
-    section: { theme: "教育 Education", group: "學校 Schools" },
+    country: "TW", section: { theme: "教育 Education", group: "學校 Schools" },
     ...layerName({ zh: "大專學生數", alt: "University Students" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduUniversityStudents,
@@ -4545,7 +4560,7 @@ export const LAYER_MANIFEST = {
 
   eduCampusPolygon: {
     key: "eduCampusPolygon",
-    section: { theme: "教育 Education", group: "校地 Campus" },
+    country: "TW", section: { theme: "教育 Education", group: "校地 Campus" },
     ...layerName({ zh: "校地範圍", alt: "Campus Area" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduCampusPolygon,
@@ -4573,7 +4588,7 @@ export const LAYER_MANIFEST = {
 
   eduCampusArea: {
     key: "eduCampusArea",
-    section: { theme: "教育 Education", group: "校地 Campus" },
+    country: "TW", section: { theme: "教育 Education", group: "校地 Campus" },
     ...layerName({ zh: "校地面積", alt: "Campus Size" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduCampusArea,
@@ -4601,7 +4616,7 @@ export const LAYER_MANIFEST = {
 
   eduDistrictElementary: {
     key: "eduDistrictElementary",
-    section: { theme: "教育 Education", group: "學區 District" },
+    country: "TW", section: { theme: "教育 Education", group: "學區 District" },
     ...layerName({ zh: "國小學區", alt: "Elementary District" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduDistrictElementary,
@@ -4630,7 +4645,7 @@ export const LAYER_MANIFEST = {
 
   eduDistrictJunior: {
     key: "eduDistrictJunior",
-    section: { theme: "教育 Education", group: "學區 District" },
+    country: "TW", section: { theme: "教育 Education", group: "學區 District" },
     ...layerName({ zh: "國中學區", alt: "Junior High District" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduDistrictJunior,
@@ -4658,7 +4673,7 @@ export const LAYER_MANIFEST = {
 
   eduDistrictSenior: {
     key: "eduDistrictSenior",
-    section: { theme: "教育 Education", group: "學區 District" },
+    country: "TW", section: { theme: "教育 Education", group: "學區 District" },
     ...layerName({ zh: "高中就學區（縣市級）", alt: "Senior High District" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduDistrictSenior,
@@ -4683,7 +4698,7 @@ export const LAYER_MANIFEST = {
 
   eduKindergarten: {
     key: "eduKindergarten",
-    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    country: "TW", section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
     ...layerName({ zh: "幼兒園", alt: "Kindergarten" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduKindergarten,
@@ -4704,7 +4719,7 @@ export const LAYER_MANIFEST = {
 
   eduCramSchool: {
     key: "eduCramSchool",
-    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    country: "TW", section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
     ...layerName({ zh: "短期補習班", alt: "Cram School" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduCramSchool,
@@ -4733,7 +4748,7 @@ export const LAYER_MANIFEST = {
 
   eduAfterschoolCare: {
     key: "eduAfterschoolCare",
-    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    country: "TW", section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
     ...layerName({ zh: "兒童課後照顧中心", alt: "Afterschool Care" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduAfterschoolCare,
@@ -4754,7 +4769,7 @@ export const LAYER_MANIFEST = {
 
   eduMutualCare: {
     key: "eduMutualCare",
-    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    country: "TW", section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
     ...layerName({ zh: "互助教保服務中心", alt: "Mutual Care" }),
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduMutualCare,
@@ -4797,7 +4812,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   welfareNursingHomes: {
     key: "welfareNursingHomes",
-    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "住宿照顧" },
     ...layerName({ zh: "護理機構", alt: "Nursing Homes" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareNursingHomes,
@@ -4818,7 +4833,7 @@ export const LAYER_MANIFEST = {
 
   welfareElderlyHomes: {
     key: "welfareElderlyHomes",
-    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "住宿照顧" },
     ...layerName({ zh: "老人住宿機構", alt: "Elderly Homes" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareElderlyHomes,
@@ -4839,7 +4854,7 @@ export const LAYER_MANIFEST = {
 
   welfareDisability: {
     key: "welfareDisability",
-    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "住宿照顧" },
     ...layerName({ zh: "身障福利機構", alt: "Disability" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareDisability,
@@ -4860,7 +4875,7 @@ export const LAYER_MANIFEST = {
 
   welfareLtcInstitutions: {
     key: "welfareLtcInstitutions",
-    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" },
     ...layerName({ zh: "長照立案機構", alt: "LTC Institutions" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareLtcInstitutions,
@@ -4881,7 +4896,7 @@ export const LAYER_MANIFEST = {
 
   welfareChildcare: {
     key: "welfareChildcare",
-    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" },
     ...layerName({ zh: "托嬰中心", alt: "Childcare" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareChildcare,
@@ -4902,7 +4917,7 @@ export const LAYER_MANIFEST = {
 
   welfareChildServices: {
     key: "welfareChildServices",
-    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" },
     ...layerName({ zh: "兒少服務", alt: "Child Services" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareChildServices,
@@ -4923,7 +4938,7 @@ export const LAYER_MANIFEST = {
 
   welfareGovOffices: {
     key: "welfareGovOffices",
-    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" },
     ...layerName({ zh: "公部門社福據點", alt: "Gov Offices" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareGovOffices,
@@ -4944,7 +4959,7 @@ export const LAYER_MANIFEST = {
 
   welfareMentalHealth: {
     key: "welfareMentalHealth",
-    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" },
     ...layerName({ zh: "心理衛生機構", alt: "Mental Health" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareMentalHealth,
@@ -4965,7 +4980,7 @@ export const LAYER_MANIFEST = {
 
   welfareSocialWorkOrgs: {
     key: "welfareSocialWorkOrgs",
-    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    country: "TW", section: { theme: "社福長照 Welfare", group: "公部門與民間" },
     ...layerName({ zh: "社福團體", alt: "Social Work Orgs" }),
     expandable: true,
     color: WELFARE_LAYER_COLORS.welfareSocialWorkOrgs,
@@ -5009,7 +5024,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   forestCompartments: {
     key: "forestCompartments",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "林班", alt: "Compartments" }),
     expandable: true,
     color: "#15803D",
@@ -5036,7 +5051,7 @@ export const LAYER_MANIFEST = {
 
   forestReserve: {
     key: "forestReserve",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "保安林", alt: "Reserve" }),
     expandable: true,
     color: "#0F766E",
@@ -5063,7 +5078,7 @@ export const LAYER_MANIFEST = {
 
   forestRecreation: {
     key: "forestRecreation",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "森林遊樂區", alt: "Recreation" }),
     expandable: true,
     color: "#65A30D",
@@ -5087,7 +5102,7 @@ export const LAYER_MANIFEST = {
 
   forestFlatParks: {
     key: "forestFlatParks",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "平地森林", alt: "Flat Parks" }),
     expandable: true,
     color: "#A3E635",
@@ -5112,7 +5127,7 @@ export const LAYER_MANIFEST = {
 
   canopyHeight: {
     key: "canopyHeight",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "樹冠高度", alt: "Canopy Height" }),
     expandable: true,
     color: "#33691e",
@@ -5145,7 +5160,7 @@ export const LAYER_MANIFEST = {
 
   jpCanopyHeight: {
     key: "jpCanopyHeight",
-    section: { theme: "林業", group: "分區" },
+    country: "JP", section: { theme: "林業", group: "分區" },
     ...layerName({ zh: "樹冠高度", alt: "CHMv2" }),
     expandable: true,
     color: "#238b45",
@@ -5166,7 +5181,7 @@ export const LAYER_MANIFEST = {
 
   canopyGiants: {
     key: "canopyGiants",
-    section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
     ...layerName({ zh: "樹冠巨木", alt: "Canopy Giants" }),
     expandable: true,
     color: "#a50026",
@@ -5194,7 +5209,7 @@ export const LAYER_MANIFEST = {
 
   forestTreatmentWorks: {
     key: "forestTreatmentWorks",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "治理工程", alt: "Treatment Works" }),
     expandable: true,
     color: "#F59E0B",
@@ -5218,7 +5233,7 @@ export const LAYER_MANIFEST = {
 
   forestTrailSigns: {
     key: "forestTrailSigns",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "步道路標", alt: "Trail Signs" }),
     expandable: true,
     color: "#84CC16",
@@ -5242,7 +5257,7 @@ export const LAYER_MANIFEST = {
 
   forestSignalPoints: {
     key: "forestSignalPoints",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "通訊點", alt: "Signal Points" }),
     expandable: true,
     color: "#22C55E",
@@ -5266,7 +5281,7 @@ export const LAYER_MANIFEST = {
 
   forestEducationCenters: {
     key: "forestEducationCenters",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "自然教育中心", alt: "Natural Education Centers" }),
     expandable: true,
     color: "#0EA5E9",
@@ -5290,7 +5305,7 @@ export const LAYER_MANIFEST = {
 
   mountainHuts: {
     key: "mountainHuts",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "山屋・高山營地", alt: "Mountain Huts" }),
     expandable: true,
     color: "#ec4899",
@@ -5311,7 +5326,7 @@ export const LAYER_MANIFEST = {
 
   forestDamLakes: {
     key: "forestDamLakes",
-    section: { theme: "林業 Forestry", group: "點位" },
+    country: "TW", section: { theme: "林業 Forestry", group: "點位" },
     ...layerName({ zh: "堰塞湖", alt: "Dam Lakes" }),
     expandable: true,
     color: "#06B6D4",
@@ -5335,7 +5350,7 @@ export const LAYER_MANIFEST = {
 
   forestRoads: {
     key: "forestRoads",
-    section: { theme: "林業 Forestry", group: "線" },
+    country: "TW", section: { theme: "林業 Forestry", group: "線" },
     ...layerName({ zh: "林道", alt: "Forest Roads" }),
     expandable: true,
     color: "#A16207",
@@ -5363,7 +5378,7 @@ export const LAYER_MANIFEST = {
 
   forestAlishanRail: {
     key: "forestAlishanRail",
-    section: { theme: "林業 Forestry", group: "線" },
+    country: "TW", section: { theme: "林業 Forestry", group: "線" },
     ...layerName({ zh: "阿里山鐵路", alt: "Alishan Rail" }),
     expandable: true,
     color: "#92400E",
@@ -5389,7 +5404,7 @@ export const LAYER_MANIFEST = {
 
   hikingTrails: {
     key: "hikingTrails",
-    section: { theme: "林業 Forestry", group: "線" },
+    country: "TW", section: { theme: "林業 Forestry", group: "線" },
     ...layerName({ zh: "全台步道", alt: "Hiking Trails" }),
     expandable: true,
     color: "#d62728",
@@ -5416,7 +5431,7 @@ export const LAYER_MANIFEST = {
 
   forestWildlife: {
     key: "forestWildlife",
-    section: { theme: "林業 Forestry", group: "生態" },
+    country: "TW", section: { theme: "林業 Forestry", group: "生態" },
     ...layerName({ zh: "野生動物分布", alt: "Wildlife" }),
     expandable: true,
     color: "#A855F7",
@@ -5448,7 +5463,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   realEstateRentalGrid: {
     key: "realEstateRentalGrid",
-    section: { theme: "房地產 Real Estate", group: "租賃" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "租賃" },
     ...layerName({ zh: "租賃熱力圖", alt: "Rental Grid" }),
     expandable: true,
     color: "#41919A",
@@ -5475,7 +5490,7 @@ export const LAYER_MANIFEST = {
 
   realEstateRentalPoint: {
     key: "realEstateRentalPoint",
-    section: { theme: "房地產 Real Estate", group: "租賃" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "租賃" },
     ...layerName({ zh: "租賃交易點", alt: "Rental Point" }),
     expandable: true,
     color: "#41919A",
@@ -5499,7 +5514,7 @@ export const LAYER_MANIFEST = {
 
   realEstateSaleGrid: {
     key: "realEstateSaleGrid",
-    section: { theme: "房地產 Real Estate", group: "買賣" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "買賣" },
     ...layerName({ zh: "買賣熱力圖", alt: "Sale Grid" }),
     expandable: true,
     color: "#d73027",
@@ -5526,7 +5541,7 @@ export const LAYER_MANIFEST = {
 
   realEstateSalePoint: {
     key: "realEstateSalePoint",
-    section: { theme: "房地產 Real Estate", group: "買賣" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "買賣" },
     ...layerName({ zh: "買賣交易點", alt: "Sale Point" }),
     expandable: true,
     color: "#d73027",
@@ -5550,7 +5565,7 @@ export const LAYER_MANIFEST = {
 
   realEstatePresaleGrid: {
     key: "realEstatePresaleGrid",
-    section: { theme: "房地產 Real Estate", group: "預售" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "預售" },
     ...layerName({ zh: "預售熱力圖", alt: "Presale Grid" }),
     expandable: true,
     color: "#fd8d3c",
@@ -5577,7 +5592,7 @@ export const LAYER_MANIFEST = {
 
   realEstatePresalePoint: {
     key: "realEstatePresalePoint",
-    section: { theme: "房地產 Real Estate", group: "預售" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "預售" },
     ...layerName({ zh: "預售交易點", alt: "Presale Point" }),
     expandable: true,
     color: "#fd8d3c",
@@ -5601,7 +5616,7 @@ export const LAYER_MANIFEST = {
 
   propertyValueAdmin: {
     key: "propertyValueAdmin",
-    section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
+    country: "TW", section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
     ...layerName({ zh: "不動產總市值行政區", alt: "Property Value" }),
     expandable: true,
     color: "#ec7014",
@@ -5634,7 +5649,7 @@ export const LAYER_MANIFEST = {
 
   propertyValueGrid: {
     key: "propertyValueGrid",
-    section: { theme: "房地產 Real Estate", group: "總市值" },
+    country: "TW", section: { theme: "房地產 Real Estate", group: "總市值" },
     ...layerName({ zh: "不動產總市值網格", alt: "Value Grid" }),
     expandable: true,
     color: "#ed6925",
@@ -5690,7 +5705,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   medHospital: {
     key: "medHospital",
-    section: { theme: "醫療 Medical", group: "點位" },
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
     ...layerName({ zh: "醫院", alt: "Hospital" }),
     expandable: true,
     color: "#e53935",
@@ -5710,7 +5725,7 @@ export const LAYER_MANIFEST = {
 
   medClinic: {
     key: "medClinic",
-    section: { theme: "醫療 Medical", group: "點位" },
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
     ...layerName({ zh: "診所 / 其他醫療", alt: "Clinic" }),
     expandable: true,
     color: "#42a5f5",
@@ -5737,7 +5752,7 @@ export const LAYER_MANIFEST = {
 
   medPharmacy: {
     key: "medPharmacy",
-    section: { theme: "醫療 Medical", group: "點位" },
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
     ...layerName({ zh: "藥局", alt: "Pharmacy" }),
     expandable: true,
     color: "#66bb6a",
@@ -5764,7 +5779,7 @@ export const LAYER_MANIFEST = {
 
   medAED: {
     key: "medAED",
-    section: { theme: "醫療 Medical", group: "點位" },
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
     ...layerName({ zh: "AED 點位", alt: "AED" }),
     expandable: true,
     color: "#fdd835",
@@ -5791,7 +5806,7 @@ export const LAYER_MANIFEST = {
 
   medLTC: {
     key: "medLTC",
-    section: { theme: "醫療 Medical", group: "點位" },
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
     ...layerName({ zh: "長照機構", alt: "LTC" }),
     expandable: true,
     color: "#ab47bc",
@@ -5818,7 +5833,7 @@ export const LAYER_MANIFEST = {
 
   erHospital: {
     key: "erHospital",
-    section: { theme: "醫療 Medical", group: "即時 Emergency" },
+    country: "TW", section: { theme: "醫療 Medical", group: "即時 Emergency" },
     ...layerName({ zh: "急診壅塞", alt: "ER" }),
     expandable: true,
     color: "#ef4444",
@@ -5843,7 +5858,7 @@ export const LAYER_MANIFEST = {
 
   medIsochrone: {
     key: "medIsochrone",
-    section: { theme: "醫療 Medical", group: "分析" },
+    country: "TW", section: { theme: "醫療 Medical", group: "分析" },
     ...layerName({ zh: "醫療等時圈", alt: "Isochrone" }),
     expandable: true,
     color: "#22c55e",
@@ -5877,7 +5892,7 @@ export const LAYER_MANIFEST = {
   //    但 factory 實際 filter 的 level 是 `over15`（> 15 分鐘）。description 記渲染實況。
   medDesert: {
     key: "medDesert",
-    section: { theme: "醫療 Medical", group: "分析" },
+    country: "TW", section: { theme: "醫療 Medical", group: "分析" },
     ...layerName({ zh: "醫療沙漠", alt: "Desert" }),
     expandable: true,
     color: "#ef4444",
@@ -5912,7 +5927,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   policeStation: {
     key: "policeStation",
-    section: { theme: "執法治安 Law & Order", group: "警政" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警政" },
     ...layerName({ zh: "警察機關", alt: "Police" }),
     expandable: true,
     color: "#1e40af", // 警察 — 深藍
@@ -5932,7 +5947,7 @@ export const LAYER_MANIFEST = {
 
   womenChildWarning: {
     key: "womenChildWarning",
-    section: { theme: "執法治安 Law & Order", group: "警政" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警政" },
     ...layerName({ zh: "婦幼警示點", alt: "Women/Child Warning" }),
     expandable: true,
     color: "#ec4899", // 婦幼 — 粉
@@ -5952,7 +5967,7 @@ export const LAYER_MANIFEST = {
 
   speedCamera: {
     key: "speedCamera",
-    section: { theme: "執法治安 Law & Order", group: "警政" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警政" },
     ...layerName({ zh: "測速照相", alt: "Speed Camera" }),
     expandable: true,
     color: "#dc2626", // 測速 — 紅
@@ -5972,7 +5987,7 @@ export const LAYER_MANIFEST = {
 
   speedZoneSegment: {
     key: "speedZoneSegment",
-    section: { theme: "執法治安 Law & Order", group: "警政" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警政" },
     ...layerName({ zh: "區間測速", alt: "Speed Zone" }),
     expandable: true,
     color: "#b91c1c", // 區間測速 — 深紅
@@ -5992,7 +6007,7 @@ export const LAYER_MANIFEST = {
 
   policeIsoSubstation: {
     key: "policeIsoSubstation",
-    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
     ...layerName({ zh: "派出所", qualifier: "5/10 min" }),
     expandable: true,
     color: "#1e40af",
@@ -6019,7 +6034,7 @@ export const LAYER_MANIFEST = {
 
   policeIsoPrecinct: {
     key: "policeIsoPrecinct",
-    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
     ...layerName({ zh: "分局", qualifier: "15/30 min" }),
     expandable: true,
     color: "#3b82f6",
@@ -6046,7 +6061,7 @@ export const LAYER_MANIFEST = {
 
   policeIsoCityDept: {
     key: "policeIsoCityDept",
-    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
     ...layerName({ zh: "縣市警局", qualifier: "30/60 min" }),
     expandable: true,
     color: "#60a5fa",
@@ -6073,7 +6088,7 @@ export const LAYER_MANIFEST = {
 
   court: {
     key: "court",
-    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "司法矯正" },
     ...layerName({ zh: "法院", alt: "Courts" }),
     expandable: true,
     color: "#7c3aed", // 法院 — 紫
@@ -6093,7 +6108,7 @@ export const LAYER_MANIFEST = {
 
   prosecutorsOffice: {
     key: "prosecutorsOffice",
-    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "司法矯正" },
     ...layerName({ zh: "檢察署", alt: "Prosecutors" }),
     expandable: true,
     color: "#a855f7", // 檢察署 — 淺紫
@@ -6113,7 +6128,7 @@ export const LAYER_MANIFEST = {
 
   correctionalFacility: {
     key: "correctionalFacility",
-    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "司法矯正" },
     ...layerName({ zh: "矯正機關", alt: "Correctional" }),
     expandable: true,
     color: "#374151", // 矯正 — 鐵灰
@@ -6133,7 +6148,7 @@ export const LAYER_MANIFEST = {
 
   courtJurisdiction: {
     key: "courtJurisdiction",
-    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "司法矯正" },
     ...layerName({ zh: "法院管轄區", alt: "Jurisdiction" }),
     expandable: true,
     color: "#c4b5fd", // 法院管轄區 — 紫白（polygon fill）
@@ -6160,7 +6175,7 @@ export const LAYER_MANIFEST = {
 
   theftTaoyuan: {
     key: "theftTaoyuan",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
     ...layerName({ zh: "桃園竊盜", alt: "Theft Taoyuan" }),
     expandable: true,
     color: "#f59e0b", // 竊盜 — 橙
@@ -6180,7 +6195,7 @@ export const LAYER_MANIFEST = {
 
   trafficAccidentYearly: {
     key: "trafficAccidentYearly",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
     ...layerName({ zh: "A1 死亡事故", alt: "Fatal Accident" }),
     expandable: true,
     color: "#fb7185", // A1 死亡 — 玫紅
@@ -6200,7 +6215,7 @@ export const LAYER_MANIFEST = {
 
   accidentTaipei: {
     key: "accidentTaipei",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
     ...layerName({ zh: "北市事故點", alt: "Taipei Dots" }),
     expandable: true,
     color: "#fda4af", // 北市事故 — 淡玫
@@ -6220,7 +6235,7 @@ export const LAYER_MANIFEST = {
 
   a1AccidentRealtime: {
     key: "a1AccidentRealtime",
-    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
     ...layerName({ zh: "A1 即時事故", alt: "A1 Realtime" }),
     expandable: true,
     color: "#ef4444", // A1 realtime — 鮮紅
@@ -6244,7 +6259,7 @@ export const LAYER_MANIFEST = {
 
   investigationBureau: {
     key: "investigationBureau",
-    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
     ...layerName({ zh: "調查局", alt: "MJIB" }),
     expandable: true,
     color: "#0f766e", // 調查局 — 墨綠
@@ -6264,7 +6279,7 @@ export const LAYER_MANIFEST = {
 
   antiCorruptionOffice: {
     key: "antiCorruptionOffice",
-    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
     ...layerName({ zh: "廉政署", alt: "AAC" }),
     expandable: true,
     color: "#14b8a6", // 廉政 — 青
@@ -6284,7 +6299,7 @@ export const LAYER_MANIFEST = {
 
   immigrationOffice: {
     key: "immigrationOffice",
-    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
     ...layerName({ zh: "移民署", alt: "Immigration" }),
     expandable: true,
     color: "#0ea5e9", // 移民 — 天藍
@@ -6304,7 +6319,7 @@ export const LAYER_MANIFEST = {
 
   coastGuardStation: {
     key: "coastGuardStation",
-    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
     ...layerName({ zh: "海巡", alt: "Coast Guard" }),
     expandable: true,
     color: "#0284c7", // 海巡 — 海藍
@@ -6332,7 +6347,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   popCount: {
     key: "popCount",
-    section: { theme: "人口社經 People", group: "人口分布" },
+    country: "TW", section: { theme: "人口社經 People", group: "人口分布" },
     ...layerName({ zh: "人口數", alt: "Population" }),
     expandable: true,
     color: "#f9bd31",
@@ -6358,7 +6373,7 @@ export const LAYER_MANIFEST = {
 
   h3Population: {
     key: "h3Population",
-    section: { theme: "人口社經 People", group: "人口分布" },
+    country: "TW", section: { theme: "人口社經 People", group: "人口分布" },
     ...layerName({ zh: "人流模擬", alt: "Pop. Flow" }),
     expandable: true,
     color: "#ff6b6b",
@@ -6384,7 +6399,7 @@ export const LAYER_MANIFEST = {
 
   indicators: {
     key: "indicators",
-    section: { theme: "人口社經 People", group: "人口分布" },
+    country: "TW", section: { theme: "人口社經 People", group: "人口分布" },
     ...layerName({ zh: "人口指標", alt: "Indicators" }),
     expandable: true,
     color: "#e25822",
@@ -6410,7 +6425,7 @@ export const LAYER_MANIFEST = {
 
   socioeconomic: {
     key: "socioeconomic",
-    section: { theme: "人口社經 People", group: "社經" },
+    country: "TW", section: { theme: "人口社經 People", group: "社經" },
     ...layerName({ zh: "社經面貌", alt: "Socio-Econ" }),
     expandable: true,
     color: "#7c4dff",
@@ -6436,7 +6451,7 @@ export const LAYER_MANIFEST = {
 
   spatialEconomy: {
     key: "spatialEconomy",
-    section: { theme: "人口社經 People", group: "社經" },
+    country: "TW", section: { theme: "人口社經 People", group: "社經" },
     ...layerName({ zh: "空間經濟", alt: "Spatial-Econ" }),
     expandable: true,
     color: "#ff6e40",
@@ -6462,7 +6477,7 @@ export const LAYER_MANIFEST = {
 
   youbikeFullness: {
     key: "youbikeFullness",
-    section: { theme: "交通 Move", group: "共享運具" },
+    country: "TW", section: { theme: "交通 Move", group: "共享運具" },
     ...layerName({ zh: "YouBike 有車率", alt: "Fullness" }),
     expandable: true,
     color: "#f57c00",
@@ -6487,7 +6502,7 @@ export const LAYER_MANIFEST = {
 
   companyPoints: {
     key: "companyPoints",
-    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "整體公司" },
     ...layerName({ zh: "公司登記分布", alt: "Company Registry" }),
     expandable: true,
     color: "#2563eb",
@@ -6521,7 +6536,7 @@ export const LAYER_MANIFEST = {
 
   companyCapitalGrid: {
     key: "companyCapitalGrid",
-    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "整體公司" },
     ...layerName({ zh: "公司資本額網格", alt: "Company Capital Grid" }),
     expandable: true,
     color: "#7c3aed",
@@ -6545,7 +6560,7 @@ export const LAYER_MANIFEST = {
 
   companyIndustryDistribution: {
     key: "companyIndustryDistribution",
-    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "整體公司" },
     ...layerName({ zh: "登記產業分布", alt: "Company Industry" }),
     expandable: true, color: "#318ac2", icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "company_demographics_grid", confidence: "HIGH" }], processing: "202608 公司登記快照；第一順位行業中類聚合，不代表實際主營產業。" },
@@ -6559,7 +6574,7 @@ export const LAYER_MANIFEST = {
 
   companyAgeStructure: {
     key: "companyAgeStructure",
-    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "整體公司" },
     ...layerName({ zh: "公司年齡結構", alt: "Company Age" }),
     expandable: true, color: "#f97316", icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "company_demographics_grid", confidence: "HIGH" }], processing: "202608 snapshot；設立年缺失、無效值和已知值分開保留。" },
@@ -6573,7 +6588,7 @@ export const LAYER_MANIFEST = {
 
   manufacturingCompanyPoints: {
     key: "manufacturingCompanyPoints",
-    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "製造業公司登記點位", alt: "Manufacturing Registry" }),
     expandable: true,
     color: "#f97316",
@@ -6590,7 +6605,7 @@ export const LAYER_MANIFEST = {
 
   factoryLocations: {
     key: "factoryLocations",
-    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "生產中工廠登記", alt: "Factory Locations" }),
     expandable: true,
     color: FACTORY_LOCATION_COLOR,
@@ -6607,7 +6622,7 @@ export const LAYER_MANIFEST = {
 
   regulatedFacilities: {
     key: "regulatedFacilities",
-    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "列管設施", alt: "Regulated Facilities" }),
     expandable: true,
     color: REGULATED_FACILITY_COLOR,
@@ -6623,7 +6638,7 @@ export const LAYER_MANIFEST = {
   },
 
   factoryDensityGrid: {
-    key: "factoryDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    key: "factoryDensityGrid", country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "生產中工廠密度", alt: "Factory Density" }), expandable: true, color: "#21a685", icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }], processing: "202606 生產中工廠登記，有座標 records 密度；不代表產能。" },
     dataClass: "B", source: industrialDensitySources("factoryDensityGrid"),
@@ -6633,7 +6648,7 @@ export const LAYER_MANIFEST = {
   },
 
   manufacturingCompanyDensityGrid: {
-    key: "manufacturingCompanyDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    key: "manufacturingCompanyDensityGrid", country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "製造業公司登記密度", alt: "Manufacturing Registry Density" }), expandable: true, color: "#21a685", icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }], processing: "202608 製造業公司登記地址密度，不代表實際工廠位置。" },
     dataClass: "B", source: industrialDensitySources("manufacturingCompanyDensityGrid"),
@@ -6643,7 +6658,7 @@ export const LAYER_MANIFEST = {
   },
 
   regulatedFacilityDensityGrid: {
-    key: "regulatedFacilityDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    key: "regulatedFacilityDensityGrid", country: "TW", section: { theme: "工商登記 Business Registry", group: "製造業" },
     ...layerName({ zh: "列管設施密度", alt: "Regulated Facility Density" }), expandable: true, color: "#21a685", icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "regulated_facilities", confidence: "HIGH" }], processing: "20260818 active 列管設施密度，不代表排放、裁罰或風險。" },
     dataClass: "B", source: industrialDensitySources("regulatedFacilityDensityGrid"),
@@ -6654,7 +6669,7 @@ export const LAYER_MANIFEST = {
 
   industrialParkBoundaries: {
     key: "industrialParkBoundaries",
-    section: { theme: "工商登記 Business Registry", group: "園區" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "園區" },
     ...layerName({ zh: "產業園區邊界", alt: "Industrial Parks" }),
     expandable: true,
     color: INDUSTRIAL_PARK_COLOR,
@@ -6675,7 +6690,7 @@ export const LAYER_MANIFEST = {
 
   industrialParkComparison: {
     key: "industrialParkComparison",
-    section: { theme: "工商登記 Business Registry", group: "園區" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "園區" },
     ...layerName({ zh: "園區商工比較", alt: "Industrial Park Metrics" }),
     expandable: true,
     color: INDUSTRIAL_PARK_COMPARISON_COLORS[4],
@@ -6696,7 +6711,7 @@ export const LAYER_MANIFEST = {
 
   commonRegistrationAddresses: {
     key: "commonRegistrationAddresses",
-    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    country: "TW", section: { theme: "工商登記 Business Registry", group: "整體公司" },
     ...layerName({ zh: "共同登記地址", alt: "Shared Address" }),
     expandable: true,
     color: COMMON_REGISTRATION_BASE_COLOR,
@@ -6730,7 +6745,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   earthquakesGlobal: {
     key: "earthquakesGlobal",
-    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "事件" },
     ...layerName({ zh: "全球地震", alt: "USGS Earthquake" }),
     expandable: true,
     color: "#dc2626",
@@ -6753,7 +6768,7 @@ export const LAYER_MANIFEST = {
 
   typhoonTracks: {
     key: "typhoonTracks",
-    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "事件" },
     ...layerName({ zh: "颱風軌跡", alt: "Typhoon Track" }),
     expandable: true,
     color: "#a855f7",
@@ -6779,7 +6794,7 @@ export const LAYER_MANIFEST = {
 
   typhoonAgencyForecasts: {
     key: "typhoonAgencyForecasts",
-    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "事件" },
     ...layerName({ zh: "各國颱風預報", alt: "Agency Forecasts" }),
     expandable: true,
     color: "#22c55e",
@@ -6802,7 +6817,7 @@ export const LAYER_MANIFEST = {
 
   windField: {
     key: "windField",
-    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
     ...layerName({ zh: "風場", alt: "Wind Field", qualifier: "10m" }),
     expandable: true,
     color: "#94a3b8",
@@ -6825,7 +6840,7 @@ export const LAYER_MANIFEST = {
 
   oceanCurrents: {
     key: "oceanCurrents",
-    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
     ...layerName({ zh: "海流", alt: "Ocean Currents" }),
     expandable: true,
     color: "#0ea5e9",
@@ -6848,7 +6863,7 @@ export const LAYER_MANIFEST = {
 
   dustForecast: {
     key: "dustForecast",
-    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    country: "WORLD", section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
     ...layerName({ zh: "沙塵預報", alt: "Dust Forecast" }),
     expandable: true,
     color: "#b45309",
@@ -6886,7 +6901,7 @@ export const LAYER_MANIFEST = {
 
   countyBoundary: {
     key: "countyBoundary",
-    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "行政邊界" },
     ...layerName({ zh: "縣市界", alt: "County" }),
     expandable: true,
     color: "#4b5563",
@@ -6913,7 +6928,7 @@ export const LAYER_MANIFEST = {
 
   townshipBoundary: {
     key: "townshipBoundary",
-    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "行政邊界" },
     ...layerName({ zh: "鄉鎮市區界", alt: "Township" }),
     expandable: true,
     color: "#6b7280",
@@ -6942,7 +6957,7 @@ export const LAYER_MANIFEST = {
 
   villageBoundary: {
     key: "villageBoundary",
-    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "行政邊界" },
     ...layerName({ zh: "村里界", alt: "Village" }),
     expandable: true,
     color: "#9ca3af",
@@ -6974,7 +6989,7 @@ export const LAYER_MANIFEST = {
   // 與那 4 個分類色是兩件事（照底圖批拍板①判準寫字面 hex）。
   maritimeBoundary: {
     key: "maritimeBoundary",
-    section: { theme: "底圖 Base Map", group: "海域界線" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "海域界線" },
     ...layerName({ zh: "領海界線", alt: "Maritime Boundary" }),
     expandable: true,
     color: "#38bdf8",
@@ -7004,7 +7019,7 @@ export const LAYER_MANIFEST = {
 
   contour25k: {
     key: "contour25k",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "等高線", alt: "Contour", qualifier: "25k・10m" }),
     expandable: true,
     color: "#8B4513",
@@ -7031,7 +7046,7 @@ export const LAYER_MANIFEST = {
 
   contourDtm20: {
     key: "contourDtm20",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "等高線", alt: "Contour", qualifier: "DTM20・20m" }),
     expandable: true,
     color: "#a16207",
@@ -7064,7 +7079,7 @@ export const LAYER_MANIFEST = {
   //    **HEADER_LABELS 有條目也不等於有 popup**（osmExpressway 批 8 同款）。
   hillshade: {
     key: "hillshade",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "山體陰影", alt: "Hillshade" }),
     expandable: true,
     color: "#6b7280",
@@ -7088,7 +7103,7 @@ export const LAYER_MANIFEST = {
 
   slopeVector: {
     key: "slopeVector",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "坡度分級", alt: "Slope", qualifier: "6 級" }),
     expandable: true,
     color: "#fc8d59",
@@ -7112,7 +7127,7 @@ export const LAYER_MANIFEST = {
 
   aspectVector: {
     key: "aspectVector",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "坡向分級", alt: "Aspect", qualifier: "8 向" }),
     expandable: true,
     color: "#ff7f00",
@@ -7140,7 +7155,7 @@ export const LAYER_MANIFEST = {
   // 順序＝GIS_LAYERS 出現序（line 排在陸域等高線旁，fill 因覆蓋全海域排在大面積面層那批）。
   isobath: {
     key: "isobath",
-    section: { theme: "底圖 Base Map", group: "地形" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "地形" },
     ...layerName({ zh: "海底等深線", alt: "Isobath" }),
     expandable: true,
     color: "#0a4272",
@@ -7168,7 +7183,7 @@ export const LAYER_MANIFEST = {
 
   buildingsGba: {
     key: "buildingsGba",
-    section: { theme: "底圖 Base Map", group: "建成環境" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "建成環境" },
     ...layerName({ zh: "建物輪廓", alt: "Buildings" }),
     expandable: true,
     color: "#78909c",
@@ -7199,7 +7214,7 @@ export const LAYER_MANIFEST = {
 
   jpBuildingHeight: {
     key: "jpBuildingHeight",
-    section: { theme: "底圖", group: "建成環境" },
+    country: "JP", section: { theme: "底圖", group: "建成環境" },
     ...layerName({ zh: "建物高度", alt: "PLATEAU" }),
     expandable: true,
     color: "#fc8d59",
@@ -7228,7 +7243,7 @@ export const LAYER_MANIFEST = {
   // 沿用其既有 id**，不回頭改試點（搬移階段不夾帶）。批 6 的 pollution 家族同款。
   urbanZoningNewTaipei: {
     key: "urbanZoningNewTaipei",
-    section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
     ...layerName({ zh: "新北土地使用分區", alt: "New Taipei Zoning" }),
     expandable: true,
     color: "#eb5757",
@@ -7256,7 +7271,7 @@ export const LAYER_MANIFEST = {
 
   nonUrbanZoning: {
     key: "nonUrbanZoning",
-    section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
     ...layerName({ zh: "非都市土地使用分區", alt: "Non-Urban Zoning" }),
     expandable: true,
     color: "#a2c14e",
@@ -7284,7 +7299,7 @@ export const LAYER_MANIFEST = {
 
   osmRoadDrive: {
     key: "osmRoadDrive",
-    section: { theme: "底圖 Base Map", group: "道路底圖" },
+    country: "TW", section: { theme: "底圖 Base Map", group: "道路底圖" },
     ...layerName({ zh: "OSM 道路", alt: "OSM Roads" }),
     expandable: true,
     color: "#fb923c",
@@ -7333,7 +7348,7 @@ export const LAYER_MANIFEST = {
   // legend 也是 5 層共用一筆（首個 key `lifelineAlerts`，拍板④）。
   lifelineAlerts: {
     key: "lifelineAlerts",
-    section: { theme: "災害 Hazard", group: "即時警示" },
+    country: "TW", section: { theme: "災害 Hazard", group: "即時警示" },
     ...layerName({ zh: "民生中斷", alt: "Lifeline" }),
     expandable: true,
     color: "#facc15",
@@ -7356,7 +7371,7 @@ export const LAYER_MANIFEST = {
 
   floodAlerts: {
     key: "floodAlerts",
-    section: { theme: "災害 Hazard", group: "即時警示" },
+    country: "TW", section: { theme: "災害 Hazard", group: "即時警示" },
     ...layerName({ zh: "水文防汛", alt: "Flood Alerts" }),
     expandable: true,
     color: "#2563eb",
@@ -7379,7 +7394,7 @@ export const LAYER_MANIFEST = {
 
   weatherAlerts: {
     key: "weatherAlerts",
-    section: { theme: "災害 Hazard", group: "即時警示" },
+    country: "TW", section: { theme: "災害 Hazard", group: "即時警示" },
     ...layerName({ zh: "氣象特報", alt: "Weather Alerts" }),
     expandable: true,
     color: "#7c3aed",
@@ -7402,7 +7417,7 @@ export const LAYER_MANIFEST = {
 
   transitAlerts: {
     key: "transitAlerts",
-    section: { theme: "災害 Hazard", group: "即時警示" },
+    country: "TW", section: { theme: "災害 Hazard", group: "即時警示" },
     ...layerName({ zh: "交通阻斷", alt: "Transit Alerts" }),
     expandable: true,
     color: "#f97316",
@@ -7425,7 +7440,7 @@ export const LAYER_MANIFEST = {
 
   safetyAlerts: {
     key: "safetyAlerts",
-    section: { theme: "災害 Hazard", group: "即時警示" },
+    country: "TW", section: { theme: "災害 Hazard", group: "即時警示" },
     ...layerName({ zh: "安全環境", alt: "Safety Alerts" }),
     expandable: true,
     color: "#ef4444",
@@ -7450,7 +7465,7 @@ export const LAYER_MANIFEST = {
   //    是**單數形 `earthquakeGlobal`**。兩者相鄰又只差一個 Global，別互抄。
   earthquakes: {
     key: "earthquakes",
-    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    country: "TW", section: { theme: "災害 Hazard", group: "地震 / 斷層" },
     ...layerName({ zh: "地震", alt: "Earthquake" }),
     expandable: true,
     color: "#ff3b30",
@@ -7478,7 +7493,7 @@ export const LAYER_MANIFEST = {
   //    陣列順序＝GIS_LAYERS 出現順序（first-hit-wins，重排會改掉點擊命中哪一層）。
   earthquakeReplay: {
     key: "earthquakeReplay",
-    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    country: "TW", section: { theme: "災害 Hazard", group: "地震 / 斷層" },
     ...layerName({ zh: "地震回放", alt: "EQ Replay" }),
     expandable: true,
     color: "#e11d48",
@@ -7502,26 +7517,26 @@ export const LAYER_MANIFEST = {
   },
 
   soilLiquefactionPotential: {
-    key: "soilLiquefactionPotential", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "土壤液化潛勢", alt: "Soil Liquefaction" }), expandable: true,
+    key: "soilLiquefactionPotential", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "土壤液化潛勢", alt: "Soil Liquefaction" }), expandable: true,
     color: "#ff0000", icon: Layers,
     upstream: { status: "verified", datasets: [{ datasetId: "soil_liquefaction_potential", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED：官方圖台公開瀏覽，尚未確認可再利用授權。" },
     dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API /api/private-research/soil-liquefaction/tiles; private soil-liquefaction.pmtiles; source-layer=potential; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "soilLiquefactionPotential", popup: "soilLiquefactionPotential", params: { count: 1, kinds: ["slider"] },
     description: "經濟部地質調查及礦業管理中心土壤液化潛勢（高／中／低為官方綜合類別）；未調查區以斜線標示，不等於低潛勢。", topics: ["災害", "土壤液化", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"],
   },
-  weakSoilClay0To5: { key: "weakSoilClay0To5", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "0–5m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_0_5m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay0To5", params: { count: 1, kinds: ["slider"] }, description: "地表下 0–5m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  weakSoilSand0To5: { key: "weakSoilSand0To5", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "0–5m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_0_5m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand0To5", params: { count: 1, kinds: ["slider"] }, description: "地表下 0–5m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  weakSoilClay5To10: { key: "weakSoilClay5To10", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "5–10m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_5_10m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay5To10", params: { count: 1, kinds: ["slider"] }, description: "地表下 5–10m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  weakSoilSand5To10: { key: "weakSoilSand5To10", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "5–10m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_5_10m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand5To10", params: { count: 1, kinds: ["slider"] }, description: "地表下 5–10m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  weakSoilClay10To20: { key: "weakSoilClay10To20", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "10–20m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_10_20m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay10To20", params: { count: 1, kinds: ["slider"] }, description: "地表下 10–20m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  weakSoilSand10To20: { key: "weakSoilSand10To20", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "10–20m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_10_20m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand10To20", params: { count: 1, kinds: ["slider"] }, description: "地表下 10–20m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
-  liquefactionMonitoringSites: { key: "liquefactionMonitoringSites", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "土壤液化監測站" }), expandable: true, color: "#2563eb", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "liquefaction_monitoring_sites", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED：官方 JS 公開列點，尚未確認再利用授權。" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=monitoring_sites; 11 official site locations, not live observations", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "liquefactionMonitoringSites", popup: "liquefactionMonitoringSites", params: { count: 1, kinds: ["slider"] }, description: "官方圖台列出的 11 個土壤液化監測站位置與名稱；不是即時觀測值。", topics: ["災害", "土壤液化", "監測", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilClay0To5: { key: "weakSoilClay0To5", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "0–5m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_0_5m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay0To5", params: { count: 1, kinds: ["slider"] }, description: "地表下 0–5m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilSand0To5: { key: "weakSoilSand0To5", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "0–5m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_0_5m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand0To5", params: { count: 1, kinds: ["slider"] }, description: "地表下 0–5m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilClay5To10: { key: "weakSoilClay5To10", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "5–10m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_5_10m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay5To10", params: { count: 1, kinds: ["slider"] }, description: "地表下 5–10m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilSand5To10: { key: "weakSoilSand5To10", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "5–10m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_5_10m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand5To10", params: { count: 1, kinds: ["slider"] }, description: "地表下 5–10m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilClay10To20: { key: "weakSoilClay10To20", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層黏土", qualifier: "10–20m" }), expandable: true, color: "#787878", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=soft_clay_thickness_10_20m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilClay", popup: "weakSoilClay10To20", params: { count: 1, kinds: ["slider"] }, description: "地表下 10–20m 弱層黏土厚度（SPT-N≤4；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  weakSoilSand10To20: { key: "weakSoilSand10To20", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "弱層砂土", qualifier: "10–20m" }), expandable: true, color: "#fca253", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "weak_soil_profile", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=weak_soil; field=loose_sand_thickness_10_20m (m, 0 = no weak layer, null = missing)", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "weakSoilSand", popup: "weakSoilSand10To20", params: { count: 1, kinds: ["slider"] }, description: "地表下 10–20m 弱層砂土厚度（SPT-N≤10；m，0＝無弱層、缺值斜線）；僅供初步評估。", topics: ["災害", "土壤液化", "弱層", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
+  liquefactionMonitoringSites: { key: "liquefactionMonitoringSites", country: "TW", section: { theme: "災害 Hazard", group: "土壤液化" }, ...layerName({ zh: "土壤液化監測站" }), expandable: true, color: "#2563eb", icon: Layers, upstream: { status: "verified", datasets: [{ datasetId: "liquefaction_monitoring_sites", confidence: "HIGH" }], note: "OWNER_ONLY / RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED：官方 JS 公開列點，尚未確認再利用授權。" }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private soil-liquefaction.pmtiles; source-layer=monitoring_sites; 11 official site locations, not live observations", staticAssets: ["PRIVATE_OWNER_ONLY: soil-liquefaction.pmtiles"] }, legend: "liquefactionMonitoringSites", popup: "liquefactionMonitoringSites", params: { count: 1, kinds: ["slider"] }, description: "官方圖台列出的 11 個土壤液化監測站位置與名稱；不是即時觀測值。", topics: ["災害", "土壤液化", "監測", "OWNER_ONLY", "RIGHTS_HOLD_REUSE_TERMS_UNCONFIRMED"] },
 
   // 本批唯一 dataClass A，也是唯一 `params: null`（地調所固定線位，有意沒有控件，
   // 非抽取器漏掃；Phase 4 起本欄位即唯一表達，見 NO_PARAMS_LEDGER）。
   // popup `activeFault` 是**去複數 s 的單數形**（同批 2 基礎建設 11/11 的形狀）。
   activeFaults: {
     key: "activeFaults",
-    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    country: "TW", section: { theme: "災害 Hazard", group: "地震 / 斷層" },
     ...layerName({ zh: "活動斷層", alt: "Fault Zone" }),
     expandable: true,
     color: "#ef5350",
@@ -7547,7 +7562,7 @@ export const LAYER_MANIFEST = {
   // 但 **popup 共用 `lightningStrike`**（多對一，同批 1 fireEvents/fireLatest）。
   lightning: {
     key: "lightning",
-    section: { theme: "災害 Hazard", group: "雷暴" },
+    country: "TW", section: { theme: "災害 Hazard", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "Lightning 60min", qualifier: "台電" }),
     expandable: true,
     color: "#fb923c",
@@ -7571,7 +7586,7 @@ export const LAYER_MANIFEST = {
 
   lightningCwa: {
     key: "lightningCwa",
-    section: { theme: "災害 Hazard", group: "雷暴" },
+    country: "TW", section: { theme: "災害 Hazard", group: "雷暴" },
     ...layerName({ zh: "落雷", alt: "Lightning 60min", qualifier: "氣象署" }),
     expandable: true,
     color: "#a78bfa",
@@ -7596,7 +7611,7 @@ export const LAYER_MANIFEST = {
 
   mountainRescueIncidents: {
     key: "mountainRescueIncidents",
-    section: { theme: "災害 Hazard", group: "山域事故 Mountain Rescue" },
+    country: "TW", section: { theme: "災害 Hazard", group: "山域事故 Mountain Rescue" },
     ...layerName({ zh: "山域事故", alt: "Mountain Rescue" }),
     expandable: true,
     color: "#f2c94c",
@@ -7621,7 +7636,7 @@ export const LAYER_MANIFEST = {
 
   // ══════════ 崩塌 Landslide（農水署大規模崩塌 111–115 年版、公路局省道歷史災情、農水署年度全島崩塌地）══════════
   landslideDodAreas: {
-    key: "landslideDodAreas", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌潛勢區", alt: "Large-scale Landslide Areas" }), expandable: true,
+    key: "landslideDodAreas", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌潛勢區", alt: "Large-scale Landslide Areas" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.landslideDodAreas, icon: Mountain,
     upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_areas", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌潛勢區 111–115 年版（data.gov.tw 152081 等 5 筆）；322 面，逐年處數不同（36→94），跨年比較用 lslno_old。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-areas", url: "./hazards/landslide_dod_areas.geojson" },
@@ -7630,7 +7645,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
   },
   landslideDodImpact: {
-    key: "landslideDodImpact", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌影響範圍", alt: "Landslide Impact Zones" }), expandable: true,
+    key: "landslideDodImpact", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "大規模崩塌影響範圍", alt: "Landslide Impact Zones" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.landslideDodImpact, icon: House,
     upstream: { status: "verified", datasets: [{ datasetId: "landslide_dod_impact", confidence: "HIGH" }], note: "農業部農村發展及水土保持署大規模崩塌影響範圍 111–115 年版（data.gov.tw 159098 等 5 筆）；322 面。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "landslide-dod-impact", url: "./hazards/landslide_dod_impact.geojson" },
@@ -7639,7 +7654,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "崩塌", "大規模崩塌", "保全戶"],
   },
   highwayDisasterHistory: {
-    key: "highwayDisasterHistory", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "省道歷史災情", alt: "Highway Disaster History" }), expandable: true,
+    key: "highwayDisasterHistory", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "省道歷史災情", alt: "Highway Disaster History" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.highwayDisasterHistory, icon: Route,
     upstream: { status: "verified", datasets: [{ datasetId: "highway_disaster_history", confidence: "HIGH" }], note: "交通部公路局道路（橋梁）歷史災情（data.gov.tw 31020）；通報 2014-01-13～2026-10-04 共 16,163 點（292 筆無座標未畫）。2018 年起通報筆數暴增約 10 倍，疑為通報制度改變。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "highway-disaster-history", url: "./hazards/highway_disaster_history.pmtiles", sourceLayer: "highway_disaster_history", minzoom: 5, maxzoom: 12 },
@@ -7648,7 +7663,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "崩塌", "落石", "道路"],
   },
   landslideAnnual: {
-    key: "landslideAnnual", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
+    key: "landslideAnnual", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "年度全島崩塌地", alt: "Annual Landslide Inventory" }), expandable: true,
     color: LANDSLIDE_LAYER_COLORS.landslideAnnual, icon: Layers,
     upstream: { status: "verified", datasets: [{ datasetId: "landslide_annual_swcb", confidence: "HIGH" }], note: "農業部農村發展及水土保持署年度全島崩塌地（衛星影像判釋）；只有 2017、2018、2023、2024 四年共 143,511 面，2019–2022 未納入、2016 以前為林業署另一口徑未納入；2024 為 V2 版（影像 2024-12～2025-05）。107MB PMTiles 走 S3 deploy-assets/hazards/；z<10 切片會遺漏小面，圖層 z10 起顯示。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "landslide-annual", url: "./hazards/landslide_annual_swcb_20261006.pmtiles", sourceLayer: "landslide_annual", minzoom: 6, maxzoom: 14 },
@@ -7659,7 +7674,7 @@ export const LAYER_MANIFEST = {
 
   // ══════════ atlas 批次 2026-10（26 層點／線／面；資料 scripts/preprocess/build-atlas-public.py）══════════
   indigenousTribes: {
-    key: "indigenousTribes", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原住民族部落", alt: "Indigenous Tribes" }), expandable: true,
+    key: "indigenousTribes", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原住民族部落", alt: "Indigenous Tribes" }), expandable: true,
     color: ATLAS_LAYER_COLORS.indigenousTribes, icon: Tent,
     upstream: { status: "verified", datasets: [{ datasetId: "indigenous_tribes", confidence: "HIGH" }], note: "原民會部落位置 GIS 點位表（data.gov.tw 156632，2022-07）比對現行核定部落（7093，2026-09）；735 點，13 點不在現行核定名單（灰色），另 13 個核定部落無點位未上圖。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-tribes", url: "./indigenous_rural/indigenous_tribes.geojson" },
@@ -7668,7 +7683,7 @@ export const LAYER_MANIFEST = {
     topics: ["原住民族", "部落", "族別"],
   },
   indigenousIsolationRisk: {
-    key: "indigenousIsolationRisk", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原鄉易成孤島地區", alt: "Indigenous Isolation-risk Areas" }), expandable: true,
+    key: "indigenousIsolationRisk", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原鄉易成孤島地區", alt: "Indigenous Isolation-risk Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.indigenousIsolationRisk, icon: Mountain,
     upstream: { status: "verified", datasets: [{ datasetId: "indigenous_isolation_risk_areas", confidence: "HIGH" }], note: "原民會原住民族地區易成孤島地區清冊（data.gov.tw 170259，114 年度）；168 點為地區代表中心點，3 點以村里代表點代替。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-isolation-risk", url: "./indigenous_rural/indigenous_isolation_risk_areas.geojson" },
@@ -7677,7 +7692,7 @@ export const LAYER_MANIFEST = {
     topics: ["原住民族", "孤島", "防災", "土石流"],
   },
   agriRuralCommunityVillages: {
-    key: "agriRuralCommunityVillages", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" }, ...layerName({ zh: "農村社區分類（村里）", alt: "Rural Community Villages" }), expandable: true,
+    key: "agriRuralCommunityVillages", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" }, ...layerName({ zh: "農村社區分類（村里）", alt: "Rural Community Villages" }), expandable: true,
     color: ATLAS_LAYER_COLORS.agriRuralCommunityVillages, icon: Sprout,
     upstream: { status: "verified", datasets: [{ datasetId: "rural_community_villages", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 農村社區分類（平地／丘陵／高山，4,271 村里面）；PMTiles z7–12 逐 zoom 4,271 面完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "agri-rural-community-villages", url: "./indigenous_rural/rural_community_villages.pmtiles", sourceLayer: "rural_community_villages", minzoom: 7, maxzoom: 12 },
@@ -7686,7 +7701,7 @@ export const LAYER_MANIFEST = {
     topics: ["農村", "農村社區", "村里"],
   },
   provincialRoadSigns: {
-    key: "provincialRoadSigns", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道交通標誌", alt: "Provincial Road Signs" }), expandable: true,
+    key: "provincialRoadSigns", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道交通標誌", alt: "Provincial Road Signs" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadSigns, icon: Construction,
     upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_signs", confidence: "HIGH" }], note: "交通部公路局 省道標誌清查（data.gov.tw 146233 等 9 筆）；22,522 點，9 類（速限、測速取締、限高、限重、彎路、險坡、行人、兒童、交流道名稱）。PMTiles z9–14 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-signs", url: "./geo/provincial_road_signs.pmtiles", sourceLayer: "provincial_road_signs", minzoom: 9, maxzoom: 14 },
@@ -7695,7 +7710,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "省道", "標誌", "速限", "限高"],
   },
   provincialRoadMileposts: {
-    key: "provincialRoadMileposts", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道里程牌", alt: "Provincial Road Mileposts" }), expandable: true,
+    key: "provincialRoadMileposts", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道里程牌", alt: "Provincial Road Mileposts" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadMileposts, icon: Milestone,
     upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_mileposts", confidence: "HIGH" }], note: "交通部公路局 省道里程牌（data.gov.tw 7040）；30,098 點，PMTiles z11–14 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-mileposts", url: "./geo/provincial_road_mileposts.pmtiles", sourceLayer: "provincial_road_mileposts", minzoom: 11, maxzoom: 14 },
@@ -7704,7 +7719,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "省道", "里程"],
   },
   freewayTrafficSigns: {
-    key: "freewayTrafficSigns", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交通標誌", alt: "Freeway Traffic Signs" }), expandable: true,
+    key: "freewayTrafficSigns", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交通標誌", alt: "Freeway Traffic Signs" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayTrafficSigns, icon: Signpost,
     upstream: { status: "verified", datasets: [{ datasetId: "freeway_traffic_signs", confidence: "HIGH" }], note: "交通部高速公路局 交通標誌（data.gov.tw 98447）；51,405 點，約 1／4 來源未給標誌代碼名稱。PMTiles z10–14 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "freeway-traffic-signs", url: "./geo/freeway_traffic_signs.pmtiles", sourceLayer: "freeway_traffic_signs", minzoom: 10, maxzoom: 14 },
@@ -7713,7 +7728,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "國道", "標誌", "里程"],
   },
   freewayInterchanges: {
-    key: "freewayInterchanges", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交流道", alt: "Freeway Interchanges" }), expandable: true,
+    key: "freewayInterchanges", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道交流道", alt: "Freeway Interchanges" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayInterchanges, icon: Route,
     upstream: { status: "verified", datasets: [{ datasetId: "freeway_interchanges", confidence: "HIGH" }], note: "交通部高速公路局 國道交流道（data.gov.tw 166496）；207 點。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "freeway-interchanges", url: "./geo/freeway_interchanges.geojson" },
@@ -7722,7 +7737,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "國道", "交流道"],
   },
   freewayEcoSensitive: {
-    key: "freewayEcoSensitive", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
+    key: "freewayEcoSensitive", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "國道生態敏感路段", alt: "Freeway Eco-sensitive Sections" }), expandable: true,
     color: ATLAS_LAYER_COLORS.freewayEcoSensitive, icon: Sprout,
     upstream: { status: "verified", datasets: [{ datasetId: "freeway_eco_sensitive_sections", confidence: "HIGH" }], note: "交通部高速公路局 國道生態敏感路段（data.gov.tw 31290）；200 面，敏感等級 1–3 為來源分級（方向未說明）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "freeway-eco-sensitive", url: "./geo/freeway_eco_sensitive_sections.geojson" },
@@ -7731,7 +7746,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "國道", "生態"],
   },
   provincialRoadMonitored: {
-    key: "provincialRoadMonitored", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道防救災監控路段", alt: "Provincial Road Monitored Sections" }), expandable: true,
+    key: "provincialRoadMonitored", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道防救災監控路段", alt: "Provincial Road Monitored Sections" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadMonitored, icon: TrafficCone,
     upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_monitored_sections", confidence: "HIGH" }], note: "交通部公路局 省道防救災監控路段（data.gov.tw 16193 等 4 筆）；110 筆（102 線、8 點只有起點座標）。PMTiles z8–12 逐 zoom 完整（z5–7 極短路段會退化，故 z8 起）。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "provincial-road-monitored", url: "./geo/provincial_road_monitored_sections.pmtiles", sourceLayer: "provincial_road_monitored_sections", minzoom: 8, maxzoom: 12 },
@@ -7740,7 +7755,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "省道", "防災", "封路", "雨量"],
   },
   provincialRoadEmergencyBays: {
-    key: "provincialRoadEmergencyBays", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道緊急避車彎", alt: "Provincial Road Emergency Bays" }), expandable: true,
+    key: "provincialRoadEmergencyBays", country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" }, ...layerName({ zh: "省道緊急避車彎", alt: "Provincial Road Emergency Bays" }), expandable: true,
     color: ATLAS_LAYER_COLORS.provincialRoadEmergencyBays, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "provincial_road_emergency_bays", confidence: "HIGH" }], note: "交通部公路局 省道緊急避車彎（data.gov.tw 99940，112–113 年清單）；47 筆（34 點、13 線）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "provincial-road-emergency-bays", url: "./geo/provincial_road_emergency_bays.geojson" },
@@ -7749,7 +7764,7 @@ export const LAYER_MANIFEST = {
     topics: ["交通", "省道", "避車彎"],
   },
   floodDisasterPointsNcdr: {
-    key: "floodDisasterPointsNcdr", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "淹水災點（NCDR）", alt: "Flood Disaster Points" }), expandable: true,
+    key: "floodDisasterPointsNcdr", country: "TW", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "淹水災點（NCDR）", alt: "Flood Disaster Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.floodDisasterPointsNcdr, icon: CloudRain,
     upstream: { status: "verified", datasets: [{ datasetId: "flood_disaster_points_ncdr", confidence: "HIGH" }], note: "國家災害防救科技中心 淹水災點（2021–2025，8,646 點，只到年）；2023 年覆蓋不足，筆數是通報列數。PMTiles z5–12 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "flood-disaster-points-ncdr", url: "./hazards/flood_disaster_points_ncdr.pmtiles", sourceLayer: "flood_disaster_points_ncdr", minzoom: 5, maxzoom: 12 },
@@ -7758,7 +7773,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "淹水", "災點"],
   },
   taipeiWaterloggingHistory: {
-    key: "taipeiWaterloggingHistory", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "臺北市歷年積水範圍", alt: "Taipei Waterlogging History" }), expandable: true,
+    key: "taipeiWaterloggingHistory", country: "TW", section: { theme: "災害 Hazard", group: "淹水 Flooding" }, ...layerName({ zh: "臺北市歷年積水範圍", alt: "Taipei Waterlogging History" }), expandable: true,
     color: ATLAS_LAYER_COLORS.taipeiWaterloggingHistory, icon: Droplets,
     upstream: { status: "verified", datasets: [{ datasetId: "taipei_waterlogging_history", confidence: "HIGH" }], note: "臺北市政府工務局水利工程處 歷年積水範圍（data.gov.tw 143898）；739 面，深度單位依值域推定為公分。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "taipei-waterlogging-history", url: "./hazards/taipei_waterlogging_history.geojson" },
@@ -7767,7 +7782,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "淹水", "積水", "臺北"],
   },
   swcbDisasterPhotoPoints: {
-    key: "swcbDisasterPhotoPoints", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
+    key: "swcbDisasterPhotoPoints", country: "TW", section: { theme: "災害 Hazard", group: "崩塌 Landslide" }, ...layerName({ zh: "土砂災害照片點位", alt: "Sediment Disaster Photo Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.swcbDisasterPhotoPoints, icon: Camera,
     upstream: { status: "verified", datasets: [{ datasetId: "swcb_disaster_photo_points", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 土砂災害照片（data.gov.tw 138000、174226）；34,419 點，只放照片連結不嵌影像。PMTiles z5–12 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "swcb-disaster-photo-points", url: "./hazards/swcb_disaster_photo_points.pmtiles", sourceLayer: "swcb_disaster_photo_points", minzoom: 5, maxzoom: 12 },
@@ -7776,7 +7791,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "崩塌", "土石流", "照片"],
   },
   cetaceanStrandings: {
-    key: "cetaceanStrandings", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "鯨豚擱淺", alt: "Cetacean Strandings" }), expandable: true,
+    key: "cetaceanStrandings", country: "TW", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "鯨豚擱淺", alt: "Cetacean Strandings" }), expandable: true,
     color: ATLAS_LAYER_COLORS.cetaceanStrandings, icon: Fish,
     upstream: { status: "verified", datasets: [{ datasetId: "cetacean_strandings", confidence: "HIGH" }], note: "海洋保育署 MARN 鯨豚擱淺（data.gov.tw 157624，2020–2026-06）；1,019 事件中 936 有座標上圖，6 點座標與通報縣市不一致（橘色）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "cetacean-strandings", url: "./marine/cetacean_strandings.geojson" },
@@ -7785,7 +7800,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "鯨豚", "擱淺", "海豚"],
   },
   seaTurtleStrandings: {
-    key: "seaTurtleStrandings", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "海龜擱淺", alt: "Sea Turtle Strandings" }), expandable: true,
+    key: "seaTurtleStrandings", country: "TW", section: { theme: "海洋 Marine", group: "擱淺 Strandings" }, ...layerName({ zh: "海龜擱淺", alt: "Sea Turtle Strandings" }), expandable: true,
     color: ATLAS_LAYER_COLORS.seaTurtleStrandings, icon: Turtle,
     upstream: { status: "verified", datasets: [{ datasetId: "sea_turtle_strandings", confidence: "HIGH" }], note: "海洋保育署 MARN 海龜擱淺（2020–2026-06）；2,262 事件中 1,719 有座標上圖（約 24% 無座標），1 點座標與通報縣市不一致（橘色）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "sea-turtle-strandings", url: "./marine/sea_turtle_strandings.geojson" },
@@ -7794,7 +7809,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "海龜", "擱淺"],
   },
   beachWaterQuality: {
-    key: "beachWaterQuality", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海水浴場水質", alt: "Beach Water Quality" }), expandable: true,
+    key: "beachWaterQuality", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海水浴場水質", alt: "Beach Water Quality" }), expandable: true,
     color: ATLAS_LAYER_COLORS.beachWaterQuality, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "beach_water_quality", confidence: "HIGH" }], note: "環境部 海水浴場水質監測（20 站，2019–2024 游泳季）；顏色為最近一次採樣等級。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "beach-water-quality", url: "./marine/beach_water_quality.geojson" },
@@ -7803,7 +7818,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "水質", "海水浴場"],
   },
   marineMicroplastics: {
-    key: "marineMicroplastics", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋微塑膠調查站", alt: "Marine Microplastics Survey" }), expandable: true,
+    key: "marineMicroplastics", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋微塑膠調查站", alt: "Marine Microplastics Survey" }), expandable: true,
     color: ATLAS_LAYER_COLORS.marineMicroplastics, icon: FlaskConical,
     upstream: { status: "verified", datasets: [{ datasetId: "marine_microplastics_survey", confidence: "HIGH" }], note: "海洋委員會 海洋微塑膠調查（25 站，2021-04～2023-11）；站位為各航次座標平均，2 站航次位置差 >1 km 需複核。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "marine-microplastics", url: "./marine/marine_microplastics_stations.geojson" },
@@ -7812,7 +7827,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "微塑膠", "污染"],
   },
   marinePollutionIncidents: {
-    key: "marinePollutionIncidents", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋污染事件", alt: "Marine Pollution Incidents" }), expandable: true,
+    key: "marinePollutionIncidents", country: "TW", section: { theme: "海洋 Marine", group: "海域環境 Marine Environment" }, ...layerName({ zh: "海洋污染事件", alt: "Marine Pollution Incidents" }), expandable: true,
     color: ATLAS_LAYER_COLORS.marinePollutionIncidents, icon: Biohazard,
     upstream: { status: "verified", datasets: [{ datasetId: "marine_pollution_incidents", confidence: "HIGH" }], note: "海洋保育署 海洋污染事件（2003 起，1,821 件）；1,759 件有座標上圖，62 件無座標（含 2 件來源為 (0,0)）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "marine-pollution-incidents", url: "./marine/marine_pollution_incidents.geojson" },
@@ -7821,7 +7836,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "污染", "油污", "應變"],
   },
   namrEdnaSurveySites: {
-    key: "namrEdnaSurveySites", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "環境 DNA 調查站位", alt: "eDNA Survey Sites" }), expandable: true,
+    key: "namrEdnaSurveySites", country: "TW", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "環境 DNA 調查站位", alt: "eDNA Survey Sites" }), expandable: true,
     color: ATLAS_LAYER_COLORS.namrEdnaSurveySites, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "namr_edna_survey_sites", confidence: "HIGH" }], note: "國家海洋研究院 環境 DNA 調查站位（119 站，度分秒換算）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "namr-edna-survey-sites", url: "./marine/namr_edna_survey_sites.geojson" },
@@ -7831,7 +7846,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海域保護與漁業 G08（2026-10-17）：analytics data/processed/marine → build-atlas-public.py → public/marine/ ──
   natureReserves: {
-    key: "natureReserves", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
+    key: "natureReserves", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
     color: ATLAS_LAYER_COLORS.natureReserves, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "nature_reserves", confidence: "HIGH" }], note: "農業部林業及自然保育署 自然保留區（24 面，全國含陸域）；日期為法定公告日。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "nature-reserves", url: "./marine/nature_reserves.geojson" },
@@ -7840,7 +7855,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "保護區", "自然保留區", "保育"],
   },
   wildlifeProtectedAreas: {
-    key: "wildlifeProtectedAreas", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
+    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wildlifeProtectedAreas, icon: Leaf,
     upstream: { status: "verified", datasets: [{ datasetId: "wildlife_protected_areas", confidence: "HIGH" }], note: "農業部林業及自然保育署 野生動物保護區（32 面，同名多面為分區，全國含陸域）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wildlife-protected-areas", url: "./marine/wildlife_protected_areas.geojson" },
@@ -7849,7 +7864,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "保護區", "野生動物", "保育"],
   },
   openFishingLocations: {
-    key: "openFishingLocations", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "開放捕魚點", alt: "Open Fishing Locations" }), expandable: true,
+    key: "openFishingLocations", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "開放捕魚點", alt: "Open Fishing Locations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.openFishingLocations, icon: Fish,
     upstream: { status: "verified", datasets: [{ datasetId: "open_fishing_locations", confidence: "HIGH" }], note: "海洋委員會海洋保育署 開放捕魚點位（155 點，資源更新 2026-07-22）；點位不是範圍。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "open-fishing-locations", url: "./marine/open_fishing_locations.geojson" },
@@ -7858,7 +7873,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "釣魚", "釣點", "開放捕魚"],
   },
   coastalAreaExtents: {
-    key: "coastalAreaExtents", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
+    key: "coastalAreaExtents", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.coastalAreaExtents, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "coastal_area_extents", confidence: "HIGH" }], note: "內政部國家公園署 111 年海岸地區範圍（data.gov.tw 20821，343 面；7 面面積 < 1 m² 的退化面未上圖）。PMTiles z5–12，小島礁依面積延後出現，z12 起 336 面完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "coastal-area-extents", url: "./marine/coastal_area_extents.pmtiles", sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
@@ -7867,7 +7882,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "海岸", "海岸地區", "近岸海域"],
   },
   artificialReefCenters: {
-    key: "artificialReefCenters", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "人工魚礁區（中心位置）", alt: "Artificial Reef Areas (centers)" }), expandable: true,
+    key: "artificialReefCenters", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "人工魚礁區（中心位置）", alt: "Artificial Reef Areas (centers)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.artificialReefCenters, icon: Anchor,
     upstream: { status: "verified", datasets: [{ datasetId: "artificial_reef_areas", confidence: "HIGH" }], note: "農業部漁業署 人工魚礁禁漁區（88 處）；依公告座標文字解析的中心位置，非範圍（10 處為頂點平均）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "artificial-reef-centers", url: "./marine/artificial_reef_areas.geojson" },
@@ -7876,7 +7891,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "漁業", "人工魚礁", "禁漁區"],
   },
   protectedReefCenters: {
-    key: "protectedReefCenters", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "保護礁區（中心位置）", alt: "Protected Reef Areas (centers)" }), expandable: true,
+    key: "protectedReefCenters", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "保護礁區（中心位置）", alt: "Protected Reef Areas (centers)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.protectedReefCenters, icon: Hexagon,
     upstream: { status: "verified", datasets: [{ datasetId: "protected_reef_areas", confidence: "HIGH" }], note: "農業部漁業署 保護礁禁漁區（68 處，67 處有點；1 處來源僅有地名描述未上圖）；中心位置，非範圍。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "protected-reef-centers", url: "./marine/protected_reef_areas.geojson" },
@@ -7885,7 +7900,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "漁業", "保護礁", "禁漁區"],
   },
   setNetFishingAreas: {
-    key: "setNetFishingAreas", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "定置漁業權區", alt: "Set-net Fishery Right Areas" }), expandable: true,
+    key: "setNetFishingAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "定置漁業權區", alt: "Set-net Fishery Right Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.setNetFishingAreas, icon: Grid3x3,
     upstream: { status: "verified", datasets: [{ datasetId: "set_net_fishing_areas", confidence: "HIGH" }], note: "農業部漁業署 定置漁業權區（65 面，114-08-05 版；來源 EPSG:3857 已轉經緯度）。授權：漁業署網站著作權聲明，未見開放授權。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "set-net-fishing-areas", url: "./marine/set_net_fishing_areas.geojson" },
@@ -7895,7 +7910,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 地層下陷＋海堤 G19（2026-10-17）：analytics data/processed/water_resources → build-land-subsidence-public.py → public/hazards/ ──
   landSubsidenceStations: {
-    key: "landSubsidenceStations", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
+    key: "landSubsidenceStations", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landSubsidenceStations, icon: TrendingDown,
     upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_stations", confidence: "HIGH" }], note: "經濟部水利署 GNSS 測站 42／磁環分層監測井 62／深層水準樁 9（上圖 112；金湖國小上游座標錯不上圖）；popup 趨勢走 RPC get_land_subsidence_timeseries（mig 474）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "land-subsidence-stations", url: "./hazards/land_subsidence_stations.geojson" },
@@ -7904,7 +7919,7 @@ export const LAYER_MANIFEST = {
     topics: ["地層下陷", "水資源", "地下水", "GNSS", "監測站"],
   },
   landSubsidenceCumulative: {
-    key: "landSubsidenceCumulative", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "累積下陷量等值線", alt: "Cumulative Subsidence Contours" }), expandable: true,
+    key: "landSubsidenceCumulative", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "累積下陷量等值線", alt: "Cumulative Subsidence Contours" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landSubsidenceCumulative, icon: Spline,
     upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_contours", confidence: "HIGH" }], note: "經濟部水利署 累積下陷量等值線（data.gov.tw 58361）507 條；預設各縣市最新期 125 條。PMTiles z5–13，z9 起 696 條完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "land-subsidence-contours", url: "./hazards/land_subsidence_contours.pmtiles", sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
@@ -7913,7 +7928,7 @@ export const LAYER_MANIFEST = {
     topics: ["地層下陷", "等值線", "累積下陷量", "水資源"],
   },
   landSubsidenceRate: {
-    key: "landSubsidenceRate", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "平均下陷速率等值線", alt: "Subsidence Rate Contours" }), expandable: true,
+    key: "landSubsidenceRate", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "平均下陷速率等值線", alt: "Subsidence Rate Contours" }), expandable: true,
     color: ATLAS_LAYER_COLORS.landSubsidenceRate, icon: Spline,
     upstream: { status: "verified", datasets: [{ datasetId: "land_subsidence_contours", confidence: "HIGH" }], note: "經濟部水利署 平均下陷速率等值線（data.gov.tw 58362）189 條；預設各縣市最新期 41 條。缺 2015–2017、2018–2019 全台圖。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "land-subsidence-contours", url: "./hazards/land_subsidence_contours.pmtiles", sourceLayer: "contours", minzoom: 5, maxzoom: 13 },
@@ -7922,7 +7937,7 @@ export const LAYER_MANIFEST = {
     topics: ["地層下陷", "等值線", "下陷速率", "水資源"],
   },
   seawallZones: {
-    key: "seawallZones", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "一般性海堤區域", alt: "Seawall Zones" }), expandable: true,
+    key: "seawallZones", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "一般性海堤區域", alt: "Seawall Zones" }), expandable: true,
     color: ATLAS_LAYER_COLORS.seawallZones, icon: BrickWall,
     upstream: { status: "verified", datasets: [{ datasetId: "seawall_zones_wra", confidence: "HIGH" }], note: "經濟部水利署 一般性海堤區域（data.gov.tw 129277）239 面，上游建置 2024-06-12；管理單位統一為第N河川分署。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "seawall-zones", url: "./hazards/seawall_zones.geojson" },
@@ -7932,7 +7947,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 文化幣藝文消費點 G23（2026-10-24）：analytics data/processed/culture/culture_coin_venues_moc → build-atlas-public.py → public/culture/ ──
   cultureCoinVenues: {
-    key: "cultureCoinVenues", section: { theme: "文化 Culture", group: "藝文消費 Culture Coin" }, ...layerName({ zh: "文化幣藝文消費點", alt: "Culture Coin Venues" }), expandable: true,
+    key: "cultureCoinVenues", country: "TW", section: { theme: "文化 Culture", group: "藝文消費 Culture Coin" }, ...layerName({ zh: "文化幣藝文消費點", alt: "Culture Coin Venues" }), expandable: true,
     color: ATLAS_LAYER_COLORS.cultureCoinVenues, icon: Ticket,
     upstream: { status: "verified", datasets: [{ datasetId: "culture_coin_venues_moc", confidence: "HIGH" }], note: "文化部 文化幣藝文消費點（data.gov.tw 177601）店家 4,264 處，資料下載日 2026-10-24；342 處來源 (0,0) 依地址回補；不含街頭藝人 550 筆。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "culture-coin-venues", url: "./culture/culture_coin_venues.geojson" },
@@ -7943,7 +7958,7 @@ export const LAYER_MANIFEST = {
   // ── 原民會文化健康站 G20（2026-10-24）：analytics data/processed/welfare/cultural_health_stations_cip → build-atlas-public.py → public/welfare/ ──
   // ── 國營事業與國有資產 G16（2026-10-24）：analytics socioeconomic/state_assets 07_export_points → build-atlas-public.py → public/state_assets/ ──
   twcServiceOffices: {
-    key: "twcServiceOffices", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水廠所", alt: "TWC Offices" }), expandable: true,
+    key: "twcServiceOffices", country: "TW", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水廠所", alt: "TWC Offices" }), expandable: true,
     color: ATLAS_LAYER_COLORS.twcServiceOffices, icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "twc_service_offices", confidence: "HIGH" }], note: "台灣自來水公司 各區處廠所地址及座標（data.gov.tw 86110，metadata 2024-11-22）137 個單位；16 個與其他單位同址。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "twc-service-offices", url: "./state_assets/twc_service_offices.geojson" },
@@ -7952,7 +7967,7 @@ export const LAYER_MANIFEST = {
     topics: ["自來水", "台水", "國營事業", "服務所", "營運所"],
   },
   twcWaterFacilities: {
-    key: "twcWaterFacilities", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水淨水設施", alt: "TWC Water Facilities" }), expandable: true,
+    key: "twcWaterFacilities", country: "TW", section: { theme: "水資源 Water", group: "自來水（台水）" }, ...layerName({ zh: "台水淨水設施", alt: "TWC Water Facilities" }), expandable: true,
     color: ATLAS_LAYER_COLORS.twcWaterFacilities, icon: Droplets,
     upstream: { status: "verified", datasets: [{ datasetId: "twc_water_facilities", confidence: "HIGH" }], note: "台灣自來水公司 供水轄區資訊（淨水場、水井、海淡廠；data.gov.tw 36602，metadata 2024-08-22）487 列、486 有座標；19 列連結大型淨水場 17 座（設計出水量）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "twc-water-facilities", url: "./state_assets/twc_water_facilities.geojson" },
@@ -7961,7 +7976,7 @@ export const LAYER_MANIFEST = {
     topics: ["自來水", "台水", "淨水場", "水井", "海水淡化", "國營事業"],
   },
   taisugarSugarMills: {
-    key: "taisugarSugarMills", section: { theme: "工商登記 Business Registry", group: "國營事業" }, ...layerName({ zh: "台糖糖廠據點", alt: "Taisugar Sugar Mills" }), expandable: true,
+    key: "taisugarSugarMills", country: "TW", section: { theme: "工商登記 Business Registry", group: "國營事業" }, ...layerName({ zh: "台糖糖廠據點", alt: "Taisugar Sugar Mills" }), expandable: true,
     color: ATLAS_LAYER_COLORS.taisugarSugarMills, icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "taisugar_sugar_mills", confidence: "HIGH" }], note: "台灣糖業公司 各糖廠據點（data.gov.tw 41592，metadata 2024-08-14）14 處；南靖改用地址定位。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "taisugar-sugar-mills", url: "./state_assets/taisugar_sugar_mills.geojson" },
@@ -7970,7 +7985,7 @@ export const LAYER_MANIFEST = {
     topics: ["台糖", "糖廠", "國營事業", "觀光工廠"],
   },
   statePropertyTenderListings: {
-    key: "statePropertyTenderListings", section: { theme: "房地產 Real Estate", group: "國有財產標售" }, ...layerName({ zh: "國有財產待標售標的", alt: "State Property for Tender" }), expandable: true,
+    key: "statePropertyTenderListings", country: "TW", section: { theme: "房地產 Real Estate", group: "國有財產標售" }, ...layerName({ zh: "國有財產待標售標的", alt: "State Property for Tender" }), expandable: true,
     color: ATLAS_LAYER_COLORS.statePropertyTenderListings, icon: Gavel,
     upstream: { status: "verified", datasets: [{ datasetId: "state_property_tender_listings", confidence: "HIGH" }], note: "財政部國有財產署 國有非公用土地／房地未標脫資訊（data.gov.tw 9659、13152）2026-10-24 快照 955 筆、947 有座標；土地依地號宗地中心、房地依門牌定位。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "state-property-tender-listings", url: "./state_assets/state_property_tender_listings.geojson" },
@@ -7979,7 +7994,7 @@ export const LAYER_MANIFEST = {
     topics: ["國有財產", "標售", "國有地", "不動產", "國產署"],
   },
   atmSitesFisc: {
-    key: "atmSitesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
+    key: "atmSitesFisc", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "ATM 裝設點（財金公司名冊）", alt: "ATM Sites (FISC Roster)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.atmSitesFisc, icon: CreditCard,
     upstream: { status: "verified", datasets: [{ datasetId: "atm_sites_fisc", confidence: "HIGH" }], note: "財金資訊公司 金融機構 ATM 位置查詢一覽表（data.gov.tw 24333）名冊快照 2026-10-24：27,412 裝設點、27,390 有座標；座標依序取數位發展部 175482、中華郵政 6121、地址定位與 Google，逐點標定位精度。裝設點不等於機台數。PMTiles z5–12 逐 zoom 完整。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "atm-sites-fisc", url: "./finance/atm_sites_fisc.pmtiles", sourceLayer: "atm_sites_fisc", minzoom: 5, maxzoom: 12 },
@@ -7988,7 +8003,7 @@ export const LAYER_MANIFEST = {
     topics: ["ATM", "金融", "提款機", "無障礙", "金融可及性"],
   },
   financialBranchesFisc: {
-    key: "financialBranchesFisc", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "金融機構總分支機構", alt: "Financial Institution Branches" }), expandable: true,
+    key: "financialBranchesFisc", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "金融機構總分支機構", alt: "Financial Institution Branches" }), expandable: true,
     color: ATLAS_LAYER_COLORS.financialBranchesFisc, icon: Landmark,
     upstream: { status: "verified", datasets: [{ datasetId: "financial_branches_fisc", confidence: "HIGH" }], note: "財金資訊公司「總分支機構位置」查詢一覽表（data.gov.tw 24323）名冊快照 2026-10-24：4,989 處、4,988 有座標；座標來源混合，逐點標定位精度。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "financial-branches-fisc", url: "./finance/financial_branches_fisc.geojson" },
@@ -7997,7 +8012,7 @@ export const LAYER_MANIFEST = {
     topics: ["銀行", "分行", "金融", "農會信用部", "金融可及性"],
   },
   securitiesFuturesInstitutions: {
-    key: "securitiesFuturesInstitutions", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "證券期貨據點", alt: "Securities & Futures Offices" }), expandable: true,
+    key: "securitiesFuturesInstitutions", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "證券期貨據點", alt: "Securities & Futures Offices" }), expandable: true,
     color: ATLAS_LAYER_COLORS.securitiesFuturesInstitutions, icon: TrendingUp,
     upstream: { status: "verified", datasets: [{ datasetId: "securities_futures_institutions", confidence: "HIGH" }], note: "證交所證券商分公司（data.gov.tw 44723）、期交所期貨商總／分公司（17480、17481）、投信投顧公會投信／投顧（44656、44657）名冊 2026-10-24 下載：1,071 處、1,038 有座標（33 處名冊未列營業地址）；座標沿用同址 G10 金融點位或地址定位，逐點標定位精度。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "securities-futures-institutions", url: "./finance/securities_futures_institutions.geojson" },
@@ -8006,7 +8021,7 @@ export const LAYER_MANIFEST = {
     topics: ["證券", "期貨", "投信", "投顧", "券商", "金融"],
   },
   insuranceInstitutions: {
-    key: "insuranceInstitutions", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "保險公司與保險代理人", alt: "Insurers & Insurance Agencies" }), expandable: true,
+    key: "insuranceInstitutions", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "保險公司與保險代理人", alt: "Insurers & Insurance Agencies" }), expandable: true,
     color: ATLAS_LAYER_COLORS.insuranceInstitutions, icon: Umbrella,
     upstream: { status: "verified", datasets: [{ datasetId: "insurance_institutions", confidence: "HIGH" }], note: "保發中心保險公司基本資料含分公司（data.gov.tw 122361）392 處＋保代公會代理人公司（14516、15326、142715）去重 263 家，2026-10-24 下載：655 處皆有座標；座標沿用同址 G10 金融點位或地址定位，逐點標定位精度。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "insurance-institutions", url: "./finance/insurance_institutions.geojson" },
@@ -8015,7 +8030,7 @@ export const LAYER_MANIFEST = {
     topics: ["保險", "壽險", "產險", "保險代理人", "金融"],
   },
   postOfficeFxCounters: {
-    key: "postOfficeFxCounters", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "郵局外幣現鈔經辦局", alt: "Post Offices Exchanging Foreign Cash" }), expandable: true,
+    key: "postOfficeFxCounters", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "金融據點" }, ...layerName({ zh: "郵局外幣現鈔經辦局", alt: "Post Offices Exchanging Foreign Cash" }), expandable: true,
     color: ATLAS_LAYER_COLORS.postOfficeFxCounters, icon: Coins,
     upstream: { status: "verified", datasets: [{ datasetId: "post_office_fx_cash_counters", confidence: "HIGH" }], note: "中華郵政外幣現鈔及旅行支票經辦局網頁名冊（data.gov.tw 170638）290 局，2026-10-25 下載；座標全取自中華郵政全國營業據點（5950）同電腦局號。非外幣收兌處。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "post-office-fx-counters", url: "./finance/post_office_fx_cash_counters.geojson" },
@@ -8024,7 +8039,7 @@ export const LAYER_MANIFEST = {
     topics: ["外幣", "外幣兌換", "換匯", "郵局", "旅行支票", "金融"],
   },
   culturalHealthStations: {
-    key: "culturalHealthStations", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
+    key: "culturalHealthStations", country: "TW", section: { theme: "社福長照 Welfare", group: "長照與托育" }, ...layerName({ zh: "原民文化健康站", alt: "Indigenous Cultural Health Stations" }), expandable: true,
     color: ATLAS_LAYER_COLORS.culturalHealthStations, icon: HousePlus,
     upstream: { status: "verified", datasets: [{ datasetId: "cultural_health_stations_cip", confidence: "HIGH" }], note: "原住民族委員會 原住民族文化健康站通訊錄（data.gov.tw 157725，2025-07-22）525 站；191 站離線 geocode 到站址，334 站只到鄉鎮中心（同鄉鎮併一圈）；不含電話。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "cultural-health-stations", url: "./welfare/cultural_health_stations.geojson" },
@@ -8033,7 +8048,7 @@ export const LAYER_MANIFEST = {
     topics: ["社福", "長照", "原住民", "文化健康站", "部落"],
   },
   placeNames: {
-    key: "placeNames", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,
+    key: "placeNames", country: "TW", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "臺灣地名", alt: "Taiwan Place Names" }), expandable: true,
     color: ATLAS_LAYER_COLORS.placeNames, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "place_names_moi", confidence: "HIGH" }], note: "內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等 5 筆）；39,252 筆有座標，同一實體只畫一點、精度 >1.2 km 的 105 點不上圖，共 36,431 點；依類別 z9／z12／z14 分級（PMTiles 逐 zoom 稽核相符）。" },
     dataClass: "B", source: { kind: "pmtiles", sourceId: "place-names-moi", url: "./geo/place_names_moi.pmtiles", sourceLayer: "place_names_moi", minzoom: 9, maxzoom: 14 },
@@ -8042,7 +8057,7 @@ export const LAYER_MANIFEST = {
     topics: ["底圖", "地名", "聚落", "地標"],
   },
   triangulationPoints: {
-    key: "triangulationPoints", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "三角點", alt: "Triangulation Points" }), expandable: true,
+    key: "triangulationPoints", country: "TW", section: { theme: "底圖 Base Map", group: "地名 Gazetteer" }, ...layerName({ zh: "三角點", alt: "Triangulation Points" }), expandable: true,
     color: ATLAS_LAYER_COLORS.triangulationPoints, icon: Mountain,
     upstream: { status: "verified", datasets: [{ datasetId: "triangulation_points_moi", confidence: "HIGH" }], note: "內政部 三角點（data.gov.tw 26485）；2,658 點，TWD67 度分秒以七參數換算 WGS84（約 ±10 m）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "triangulation-points-moi", url: "./geo/triangulation_points_moi.geojson" },
@@ -8051,7 +8066,7 @@ export const LAYER_MANIFEST = {
     topics: ["底圖", "三角點", "測量", "高程"],
   },
   wraFloodgatesCentral: {
-    key: "wraFloodgatesCentral", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管水門", alt: "Central Floodgates" }), expandable: true,
+    key: "wraFloodgatesCentral", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管水門", alt: "Central Floodgates" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wraFloodgatesCentral, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "wra_floodgates_central", confidence: "HIGH" }], note: "經濟部水利署 水門位置（data.gov.tw 32722）；808 點，多為 1999–2000 測量成果，非現況、無啟閉狀態。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wra-floodgates-central", url: "./geo/wra_floodgates_central.geojson" },
@@ -8060,7 +8075,7 @@ export const LAYER_MANIFEST = {
     topics: ["水利", "水門", "閘門"],
   },
   wraCentralDrainage: {
-    key: "wraCentralDrainage", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管區域排水", alt: "Central Regional Drainage" }), expandable: true,
+    key: "wraCentralDrainage", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "中央管區域排水", alt: "Central Regional Drainage" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wraCentralDrainage, icon: Droplets,
     upstream: { status: "verified", datasets: [{ datasetId: "wra_central_drainage", confidence: "HIGH" }], note: "經濟部水利署 中央管區域排水設施範圍；33 條。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wra-central-drainage", url: "./geo/wra_central_drainage.geojson" },
@@ -8069,7 +8084,7 @@ export const LAYER_MANIFEST = {
     topics: ["水利", "排水"],
   },
   iowStructureMonitoring: {
-    key: "iowStructureMonitoring", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "水利結構監測站", alt: "IoW Structure Monitoring" }), expandable: true,
+    key: "iowStructureMonitoring", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "水利結構監測站", alt: "IoW Structure Monitoring" }), expandable: true,
     color: ATLAS_LAYER_COLORS.iowStructureMonitoring, icon: Activity,
     upstream: { status: "verified", datasets: [{ datasetId: "iow_structure_monitoring_stations", confidence: "HIGH" }], note: "經濟部水利署 IoT 堤防結構安全與閘門監測站（data.gov.tw 142981 等；堤防 27、閘門 75）；站點基底，非即時數值。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "iow-structure-monitoring", url: "./geo/wra_iow_structure_monitoring.geojson" },
@@ -8078,7 +8093,7 @@ export const LAYER_MANIFEST = {
     topics: ["水利", "堤防", "監測", "IoT"],
   },
   wraDredgingPoints: {
-    key: "wraDredgingPoints", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川疏濬工程", alt: "River Dredging Projects" }), expandable: true,
+    key: "wraDredgingPoints", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川疏濬工程", alt: "River Dredging Projects" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wraDredgingPoints, icon: Shovel,
     upstream: { status: "verified", datasets: [{ datasetId: "wra_dredging_points", confidence: "HIGH" }], note: "經濟部水利署 河川疏濬工程（137 件，快照）；113 件座標只到小數 2 位（約 ±1 km）、23 件 1 位、1 件整數度。數量單位來源未註明。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wra-dredging-points", url: "./geo/wra_dredging_points.geojson" },
@@ -8087,7 +8102,7 @@ export const LAYER_MANIFEST = {
     topics: ["水利", "疏濬", "河川"],
   },
   wraEcologySurveySites: {
-    key: "wraEcologySurveySites", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川生態調查站", alt: "River Ecology Survey Sites" }), expandable: true,
+    key: "wraEcologySurveySites", country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" }, ...layerName({ zh: "河川生態調查站", alt: "River Ecology Survey Sites" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wraEcologySurveySites, icon: Leaf,
     upstream: { status: "verified", datasets: [{ datasetId: "wra_ecology_survey_sites", confidence: "HIGH" }], note: "經濟部水利署 河川生態調查（1995–2019，1,195 站，2019 後停更）；調查紀錄 140,841 筆另存分析倉庫。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wra-ecology-survey-sites", url: "./geo/wra_ecology_survey_sites.geojson" },
@@ -8101,7 +8116,7 @@ export const LAYER_MANIFEST = {
   // （hazard-nuclear-core / -halo）才看得出來。
   nuclearRadiation: {
     key: "nuclearRadiation",
-    section: { theme: "災害 Hazard", group: "核安" },
+    country: "TW", section: { theme: "災害 Hazard", group: "核安" },
     ...layerName({ zh: "核安輻射", alt: "Radiation" }),
     expandable: true,
     color: "#22c55e",
@@ -8147,7 +8162,7 @@ export const LAYER_MANIFEST = {
 
   satellitesTaiwan: {
     key: "satellitesTaiwan",
-    section: { theme: "太空 Space", group: "台灣" },
+    country: "TW", section: { theme: "太空 Space", group: "台灣" },
     ...layerName({ zh: "台灣", alt: "FORMOSAT / TRITON / IRIS-C" }),
     expandable: true,
     color: "#4fc3f7",
@@ -8167,7 +8182,7 @@ export const LAYER_MANIFEST = {
 
   satellitesYaogan: {
     key: "satellitesYaogan",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "遙感", alt: "Yaogan" }),
     expandable: true,
     color: "#ef5350",
@@ -8187,7 +8202,7 @@ export const LAYER_MANIFEST = {
 
   satellitesJilin: {
     key: "satellitesJilin",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "吉林", alt: "Jilin" }),
     expandable: true,
     color: "#ff7043",
@@ -8207,7 +8222,7 @@ export const LAYER_MANIFEST = {
 
   satellitesGaofen: {
     key: "satellitesGaofen",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "高分", alt: "Gaofen" }),
     expandable: true,
     color: "#ec407a",
@@ -8227,7 +8242,7 @@ export const LAYER_MANIFEST = {
 
   satellitesTJS: {
     key: "satellitesTJS",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "TJS / TJSW GEO 情報" }),
     expandable: true,
     color: "#ba68c8",
@@ -8247,7 +8262,7 @@ export const LAYER_MANIFEST = {
 
   satellitesBeidou: {
     key: "satellitesBeidou",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "北斗", alt: "BD-3 PNT" }),
     expandable: true,
     color: "#5e7ce2",
@@ -8267,7 +8282,7 @@ export const LAYER_MANIFEST = {
 
   satellitesShiyan: {
     key: "satellitesShiyan",
-    section: { theme: "太空 Space", group: "中國" },
+    country: "TW", section: { theme: "太空 Space", group: "中國" },
     ...layerName({ zh: "試驗", alt: "Shiyan / Shijian" }),
     expandable: true,
     color: "#9e9e9e",
@@ -8287,7 +8302,7 @@ export const LAYER_MANIFEST = {
 
   satellitesUSA: {
     key: "satellitesUSA",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "美國", alt: "KH / BlackSky / Planet" }),
     expandable: true,
     color: "#93c5fd",
@@ -8307,7 +8322,7 @@ export const LAYER_MANIFEST = {
 
   satellitesJapan: {
     key: "satellitesJapan",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "日本", alt: "IGS / ALOS" }),
     expandable: true,
     color: "#fb7185",
@@ -8327,7 +8342,7 @@ export const LAYER_MANIFEST = {
 
   satellitesRussia: {
     key: "satellitesRussia",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "俄羅斯", alt: "PERSONA / RESURS / COSMOS" }),
     expandable: true,
     color: "#a8a29e",
@@ -8347,7 +8362,7 @@ export const LAYER_MANIFEST = {
 
   satellitesIndia: {
     key: "satellitesIndia",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "印度", alt: "CARTOSAT / RISAT / EOS" }),
     expandable: true,
     color: "#f59e0b",
@@ -8367,7 +8382,7 @@ export const LAYER_MANIFEST = {
 
   satellitesKorea: {
     key: "satellitesKorea",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "韓國", alt: "KOMPSAT" }),
     expandable: true,
     color: "#2dd4bf",
@@ -8387,7 +8402,7 @@ export const LAYER_MANIFEST = {
 
   satellitesFrance: {
     key: "satellitesFrance",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "法國", alt: "CSO / PLEIADES / ELISA" }),
     expandable: true,
     color: "#3b82f6",
@@ -8407,7 +8422,7 @@ export const LAYER_MANIFEST = {
 
   satellitesGermany: {
     key: "satellitesGermany",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "德國", alt: "SAR-Lupe / SARah" }),
     expandable: true,
     color: "#fde047",
@@ -8427,7 +8442,7 @@ export const LAYER_MANIFEST = {
 
   satellitesItaly: {
     key: "satellitesItaly",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "義大利", alt: "COSMO-SkyMed" }),
     expandable: true,
     color: "#34d399",
@@ -8447,7 +8462,7 @@ export const LAYER_MANIFEST = {
 
   satellitesIsrael: {
     key: "satellitesIsrael",
-    section: { theme: "太空 Space", group: "國際偵察" },
+    country: "TW", section: { theme: "太空 Space", group: "國際偵察" },
     ...layerName({ zh: "以色列", alt: "Ofeq / EROS" }),
     expandable: true,
     color: "#c4b5fd",
@@ -8491,7 +8506,7 @@ export const LAYER_MANIFEST = {
 
   weatherStations: {
     key: "weatherStations",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "氣象站", alt: "Weather Station" }),
     expandable: true,
     color: "#4dd0e1",
@@ -8517,7 +8532,7 @@ export const LAYER_MANIFEST = {
   // createCwaImageryLayer 建 Mapbox image source（非 OVERLAY_REGISTRY）→ 依 timeStore 換圖。
   cwaCloudImagery: {
     key: "cwaCloudImagery",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "衛星雲圖", alt: "Cloud Imagery" }),
     expandable: true,
     color: "#b0c4de",
@@ -8540,7 +8555,7 @@ export const LAYER_MANIFEST = {
 
   cwaRadarImagery: {
     key: "cwaRadarImagery",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "雷達回波", alt: "Radar Imagery" }),
     expandable: true,
     color: "#4fc3f7",
@@ -8564,7 +8579,7 @@ export const LAYER_MANIFEST = {
   // 溫度波（3D）與溫度網格（2D fill）**共用同一份 RPC 資料**，差別只在呈現方式。
   temperatureWave: {
     key: "temperatureWave",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "溫度波", alt: "Temperature Wave" }),
     expandable: true,
     color: "#ff6b35",
@@ -8587,7 +8602,7 @@ export const LAYER_MANIFEST = {
 
   temperatureGrid: {
     key: "temperatureGrid",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "溫度網格", alt: "Temperature Grid" }),
     expandable: true,
     color: "#f46d43",
@@ -8611,7 +8626,7 @@ export const LAYER_MANIFEST = {
   // ⚠️ raster PMTiles → 無 sourceLayer（同批 3 的 canopyHeight）。
   urbanHeat: {
     key: "urbanHeat",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "都市熱島", alt: "Urban Heat" }),
     expandable: true,
     color: "#b2182b",
@@ -8642,7 +8657,7 @@ export const LAYER_MANIFEST = {
 
   aqiImagery: {
     key: "aqiImagery",
-    section: { theme: "環境氣候 Environment", group: "空品" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "空品" },
     ...layerName({ zh: "空氣品質色階", alt: "AQI Raster" }),
     expandable: true,
     color: "#8bc34a",
@@ -8669,7 +8684,7 @@ export const LAYER_MANIFEST = {
   //    `return []` 字面上，現已收束到本欄位。）
   aqiStations: {
     key: "aqiStations",
-    section: { theme: "環境氣候 Environment", group: "空品" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "空品" },
     ...layerName({ zh: "空氣品質測站", alt: "AQI Station" }),
     expandable: true,
     color: "#00bcd4",
@@ -8692,7 +8707,7 @@ export const LAYER_MANIFEST = {
 
   aqiMicroSensors: {
     key: "aqiMicroSensors",
-    section: { theme: "環境氣候 Environment", group: "空品" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "空品" },
     ...layerName({ zh: "LASS 微型感測", alt: "Micro Sensor" }),
     expandable: true,
     color: "#7e57c2",
@@ -8716,7 +8731,7 @@ export const LAYER_MANIFEST = {
   // 六層刻意保持獨立：測站／群眾量測／法定分類／裁處／設備清單不可合成噪音分數。
   officialNoiseMonitoring: {
     key: "officialNoiseMonitoring",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "官方噪音測站", alt: "Official Monitoring" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.officialNoiseMonitoring,
@@ -8741,7 +8756,7 @@ export const LAYER_MANIFEST = {
 
   noiseCaptureGrid: {
     key: "noiseCaptureGrid",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "公民格網", qualifier: "NoiseCapture" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.noiseCaptureGrid,
@@ -8778,7 +8793,7 @@ export const LAYER_MANIFEST = {
 
   noiseControlZones: {
     key: "noiseControlZones",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "噪音管制區", alt: "Control Zones" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.noiseControlZones,
@@ -8803,7 +8818,7 @@ export const LAYER_MANIFEST = {
 
   aviationNoiseZones: {
     key: "aviationNoiseZones",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "航空噪音法定里別", alt: "Aviation Zones" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.aviationNoiseZones,
@@ -8828,7 +8843,7 @@ export const LAYER_MANIFEST = {
 
   noiseEnforcementEvents: {
     key: "noiseEnforcementEvents",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "噪音裁處事件", alt: "Enforcement" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.noiseEnforcementEvents,
@@ -8853,7 +8868,7 @@ export const LAYER_MANIFEST = {
 
   soundCameraLocations: {
     key: "soundCameraLocations",
-    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
     ...layerName({ zh: "聲音照相設備", alt: "Sound Camera" }),
     expandable: true,
     color: NOISE_LAYER_COLORS.soundCameraLocations,
@@ -8879,7 +8894,7 @@ export const LAYER_MANIFEST = {
   // 水質與污水 4 層（taipei-gis-analytics output/environment-layers，2026-10-02 快照，隨 dist 打包）。
   riverRpiStations: {
     key: "riverRpiStations",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "河川污染指數測站", alt: "River RPI" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.riverRpiStations,
@@ -8899,7 +8914,7 @@ export const LAYER_MANIFEST = {
   },
   waterQualityStations: {
     key: "waterQualityStations",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "水質監測站", alt: "Water Quality" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.waterQualityStations,
@@ -8919,7 +8934,7 @@ export const LAYER_MANIFEST = {
   },
   sewageTreatmentPlants: {
     key: "sewageTreatmentPlants",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "公共污水處理廠", alt: "Sewage Plants" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.sewageTreatmentPlants,
@@ -8940,7 +8955,7 @@ export const LAYER_MANIFEST = {
   // ≠ waterProtectionZones（水利署依自來水法劃設的自來水水質水量保護區）：法源、主管機關、範圍皆不同，不合併、不同色。
   drinkingWaterProtectionZones: {
     key: "drinkingWaterProtectionZones",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "飲用水水源保護區", alt: "Drinking Water", qualifier: "環境部" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.drinkingWaterProtectionZones,
@@ -8962,7 +8977,7 @@ export const LAYER_MANIFEST = {
   // ── 環境第二波（2026-10-02）：5 個靜態 GeoJSON（taipei-gis-analytics data/processed，隨 dist 打包）──
   seaWaterQualityStations: {
     key: "seaWaterQualityStations",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "海域水質測站", alt: "Sea Water" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.seaWaterQualityStations,
@@ -8982,7 +8997,7 @@ export const LAYER_MANIFEST = {
   },
   riverRpiSegments: {
     key: "riverRpiSegments",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "河川污染指數河段（推估）", alt: "River RPI Segments" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.riverRpiSegments,
@@ -9003,7 +9018,7 @@ export const LAYER_MANIFEST = {
   },
   pm25ManualStations: {
     key: "pm25ManualStations",
-    section: { theme: "環境氣候 Environment", group: "空品" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "空品" },
     ...layerName({ zh: "PM2.5 手動採樣站", alt: "PM2.5 Manual" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.pm25ManualStations,
@@ -9024,7 +9039,7 @@ export const LAYER_MANIFEST = {
   },
   dioxinStations: {
     key: "dioxinStations",
-    section: { theme: "環境氣候 Environment", group: "空品" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "空品" },
     ...layerName({ zh: "環境空氣戴奧辛測站", alt: "Dioxin" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.dioxinStations,
@@ -9045,7 +9060,7 @@ export const LAYER_MANIFEST = {
   },
   incineratorEmissions: {
     key: "incineratorEmissions",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "焚化廠空污監測", alt: "Incinerators" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.incineratorEmissions,
@@ -9068,7 +9083,7 @@ export const LAYER_MANIFEST = {
   // ── 環境第二波：即時 4 層（public RPC，migration 419–422；當下快照，不接 timeStore）──
   nuscGammaRadiation: {
     key: "nuscGammaRadiation",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "環境輻射", alt: "Gamma", qualifier: "核安會" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.nuscGammaRadiation,
@@ -9089,7 +9104,7 @@ export const LAYER_MANIFEST = {
   },
   waterEffluentLive: {
     key: "waterEffluentLive",
-    section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "水質與污水 Water Quality" },
     ...layerName({ zh: "放流水連線監測", alt: "Effluent" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.waterEffluentLive,
@@ -9110,7 +9125,7 @@ export const LAYER_MANIFEST = {
   },
   cemsStackLive: {
     key: "cemsStackLive",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "煙道 CEMS 連線監測", alt: "CEMS" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.cemsStackLive,
@@ -9131,7 +9146,7 @@ export const LAYER_MANIFEST = {
   },
   cwaUvDaily: {
     key: "cwaUvDaily",
-    section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
     ...layerName({ zh: "紫外線（前一天最大值）", alt: "UV" }),
     expandable: true,
     color: ENVIRONMENT_LAYER_COLORS.cwaUvDaily,
@@ -9156,7 +9171,7 @@ export const LAYER_MANIFEST = {
   // popup 也是 3 → 1（同一筆 GIS_LAYERS 條目列了 3 個 layer id → pollutionPenalty）。
   pollutionPenaltyCritical: {
     key: "pollutionPenaltyCritical",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "重大裁處", alt: "Critical Penalty" }),
     expandable: true,
     color: "#ef4444",
@@ -9184,7 +9199,7 @@ export const LAYER_MANIFEST = {
 
   pollutionPenaltyGeneral: {
     key: "pollutionPenaltyGeneral",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "一般裁處", alt: "General Penalty" }),
     expandable: true,
     color: "#94a3b8",
@@ -9212,7 +9227,7 @@ export const LAYER_MANIFEST = {
 
   pollutionPenaltyMobile: {
     key: "pollutionPenaltyMobile",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "移動污染", alt: "Mobile Penalty" }),
     expandable: true,
     color: "#22c55e",
@@ -9242,7 +9257,7 @@ export const LAYER_MANIFEST = {
   //    entry / 同一個 PollutionSeverityLegend 元件）—— 拍板④例外條款第二例。
   pollutionSite: {
     key: "pollutionSite",
-    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" },
     ...layerName({ zh: "污染場址", alt: "Site" }),
     expandable: true,
     color: "#111827",
@@ -9270,7 +9285,7 @@ export const LAYER_MANIFEST = {
 
   streetTreesTaipeiDiff: {
     key: "streetTreesTaipeiDiff",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "行道樹變化", alt: "Street Tree Diff" }),
     expandable: true,
     color: "#2e7d32",
@@ -9297,7 +9312,7 @@ export const LAYER_MANIFEST = {
 
   streetTreesTaipei3epoch: {
     key: "streetTreesTaipei3epoch",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "行道樹三時點", alt: "Street Tree 3-Epoch" }),
     expandable: true,
     color: "#558b2f",
@@ -9325,7 +9340,7 @@ export const LAYER_MANIFEST = {
 
   streetTreesNational: {
     key: "streetTreesNational",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "行道樹全國", alt: "Street Trees TW" }),
     expandable: true,
     color: "#43a047",
@@ -9353,7 +9368,7 @@ export const LAYER_MANIFEST = {
 
   protectedTreesNational: {
     key: "protectedTreesNational",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "受保護樹木", alt: "Protected Trees" }),
     expandable: true,
     color: "#00695c",
@@ -9378,7 +9393,7 @@ export const LAYER_MANIFEST = {
 
   riversideTreesTaipei: {
     key: "riversideTreesTaipei",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "河濱喬木", alt: "Riverside Trees" }),
     expandable: true,
     color: "#0288d1",
@@ -9403,7 +9418,7 @@ export const LAYER_MANIFEST = {
 
   treePitsTaipei: {
     key: "treePitsTaipei",
-    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    country: "TW", section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
     ...layerName({ zh: "人行道樹穴", alt: "Tree Pits" }),
     expandable: true,
     color: "#8d6e63",
@@ -9454,7 +9469,7 @@ export const LAYER_MANIFEST = {
 
   waterFacilities: {
     key: "waterFacilities",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "水利設施", alt: "Facility" }),
     expandable: true,
     color: "#fbbf24",
@@ -9478,7 +9493,7 @@ export const LAYER_MANIFEST = {
 
   waterMonitorStations: {
     key: "waterMonitorStations",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "監測站", alt: "Monitor" }),
     expandable: true,
     color: "#f472b6",
@@ -9505,7 +9520,7 @@ export const LAYER_MANIFEST = {
   //    popup 也是陣列，順序＝GIS_LAYERS 出現序（waterDam 在 waterReservoirPoly 前）。
   waterReservoirs: {
     key: "waterReservoirs",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "水庫", alt: "Reservoir" }),
     expandable: true,
     color: "#06b6d4",
@@ -9545,7 +9560,7 @@ export const LAYER_MANIFEST = {
 
   marineObservationCwa: {
     key: "marineObservationCwa",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "CWA 海洋觀測站", alt: "CWA Marine" }),
     expandable: true,
     color: "#22d3ee",
@@ -9569,7 +9584,7 @@ export const LAYER_MANIFEST = {
 
   marineObservationIsohe: {
     key: "marineObservationIsohe",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "ISOHE 港區海氣象", alt: "ISOHE Port" }),
     expandable: true,
     color: "#f59e0b",
@@ -9597,7 +9612,7 @@ export const LAYER_MANIFEST = {
   //    一筆 GIS_LAYERS 條目，因欄位契約相同而共用 `groundwater` layerType 與 panel。
   groundwaterWells: {
     key: "groundwaterWells",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "水井點位", alt: "Wells" }),
     expandable: true,
     color: "#64748b",
@@ -9623,7 +9638,7 @@ export const LAYER_MANIFEST = {
 
   rainGauge: {
     key: "rainGauge",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "即時雨量", alt: "Rain Gauge" }),
     expandable: true,
     color: "#3b82f6",
@@ -9646,7 +9661,7 @@ export const LAYER_MANIFEST = {
 
   riverLevel: {
     key: "riverLevel",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "河川水位", alt: "River Level" }),
     expandable: true,
     color: "#22d3ee",
@@ -9669,7 +9684,7 @@ export const LAYER_MANIFEST = {
 
   floodSensor: {
     key: "floodSensor",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "都市淹水感測", alt: "USWG" }),
     expandable: true,
     color: "#ef4444",
@@ -9692,7 +9707,7 @@ export const LAYER_MANIFEST = {
 
   iotWraRiver: {
     key: "iotWraRiver",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "IoT 河川", alt: "IoT River" }),
     expandable: true,
     color: "#06b6d4",
@@ -9717,7 +9732,7 @@ export const LAYER_MANIFEST = {
 
   iotWraStructure: {
     key: "iotWraStructure",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "IoT 水工結構", alt: "IoT Structure" }),
     expandable: true,
     color: "#a855f7",
@@ -9743,7 +9758,7 @@ export const LAYER_MANIFEST = {
   // 北市三層走同一支 wicTaipeiLoader 的三個 RPC（get_taipei_{sewer,evacuate,pumb}_latest）。
   taipeiSewer: {
     key: "taipeiSewer",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "北市下水道水位", alt: "Sewer (TP)" }),
     expandable: true,
     color: "#3b82f6",
@@ -9766,7 +9781,7 @@ export const LAYER_MANIFEST = {
 
   taipeiEvacuate: {
     key: "taipeiEvacuate",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "北市疏散門", alt: "Evacuate Gate (TP)" }),
     expandable: true,
     color: "#22c55e",
@@ -9790,7 +9805,7 @@ export const LAYER_MANIFEST = {
   // ⚠️ label 的「Pumb」是現況拼字（正字為 Pump）—— 黃金快照釘住，搬移不夾帶修正。
   taipeiPumb: {
     key: "taipeiPumb",
-    section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "北市抽水站", alt: "Pump Station (TP)" }),
     expandable: true,
     color: "#06b6d4",
@@ -9813,7 +9828,7 @@ export const LAYER_MANIFEST = {
 
   waterBasins: {
     key: "waterBasins",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "流域", alt: "Basin" }),
     expandable: true,
     color: "#4dd0e1",
@@ -9841,7 +9856,7 @@ export const LAYER_MANIFEST = {
   //    河川面在前、河川中心線在後，順序＝OVERLAY_REGISTRY 出現序。
   waterRivers: {
     key: "waterRivers",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "河川", alt: "River" }),
     expandable: true,
     color: "#38bdf8",
@@ -9880,7 +9895,7 @@ export const LAYER_MANIFEST = {
 
   waterLevees: {
     key: "waterLevees",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "堤防", alt: "Levee" }),
     expandable: true,
     color: "#f59e0b",
@@ -9909,7 +9924,7 @@ export const LAYER_MANIFEST = {
 
   waterCanals: {
     key: "waterCanals",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "灌排渠道", alt: "Canal" }),
     expandable: true,
     color: "#a78bfa",
@@ -9938,7 +9953,7 @@ export const LAYER_MANIFEST = {
 
   waterProtectionZones: {
     key: "waterProtectionZones",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "管制區", alt: "Protection" }),
     expandable: true,
     color: "#10b981",
@@ -9964,7 +9979,7 @@ export const LAYER_MANIFEST = {
 
   waterDetentionBasins: {
     key: "waterDetentionBasins",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "滯洪池", alt: "Detention" }),
     expandable: true,
     color: "#0284c7",
@@ -9990,7 +10005,7 @@ export const LAYER_MANIFEST = {
   //    彩色動態層，也才是 GIS_LAYERS `groundwater-circle` 的擁有者。
   groundwater: {
     key: "groundwater",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "地下水井", alt: "Groundwater" }),
     expandable: true,
     color: "#0ea5e9",
@@ -10013,7 +10028,7 @@ export const LAYER_MANIFEST = {
 
   lakesPondsOsm: {
     key: "lakesPondsOsm",
-    section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
     ...layerName({ zh: "湖泊 / 埤塘", alt: "Lakes & Ponds" }),
     expandable: true,
     color: "#4fc3f7",
@@ -10040,7 +10055,7 @@ export const LAYER_MANIFEST = {
 
   waterFloodExtreme: {
     key: "waterFloodExtreme",
-    section: { theme: "水資源 Water", group: "分析" },
+    country: "TW", section: { theme: "水資源 Water", group: "分析" },
     ...layerName({ zh: "淹水潛勢", alt: "Flood", qualifier: "650mm/24h" }),
     expandable: true,
     color: "#fb7185",
@@ -10070,7 +10085,7 @@ export const LAYER_MANIFEST = {
   //    只掃 dataClass === "B" 會漏掉這支，檔路徑記在 note 裡。
   floodSensorIsochrone: {
     key: "floodSensorIsochrone",
-    section: { theme: "水資源 Water", group: "分析" },
+    country: "TW", section: { theme: "水資源 Water", group: "分析" },
     ...layerName({ zh: "淹水 3 分步行圈（雙北）", alt: "Isochrone" }),
     expandable: true,
     color: "#ef4444",
@@ -10094,7 +10109,7 @@ export const LAYER_MANIFEST = {
 
   precipRaster: {
     key: "precipRaster",
-    section: { theme: "水資源 Water", group: "分析" },
+    country: "TW", section: { theme: "水資源 Water", group: "分析" },
     ...layerName({ zh: "累積雨量柵格", alt: "Precip Raster" }),
     expandable: true,
     color: "#60a5fa",
@@ -10148,7 +10163,7 @@ export const LAYER_MANIFEST = {
 
   wasteTruck: {
     key: "wasteTruck",
-    section: { theme: "廢棄物 Waste", group: "即時" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "即時" },
     ...layerName({ zh: "垃圾車（含音符）", alt: "Truck" }),
     expandable: true,
     color: "#fbbf24",
@@ -10179,7 +10194,7 @@ export const LAYER_MANIFEST = {
   //    （獨立 tooltip 狀態，同列車／公車），不是 setFeatureInfo → 不構成 FeatureInfo 接線。
   wasteSchedule: {
     key: "wasteSchedule",
-    section: { theme: "廢棄物 Waste", group: "即時" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "即時" },
     ...layerName({ zh: "垃圾車（表定）", alt: "Schedule" }),
     expandable: true,
     color: "#fbbf24",
@@ -10209,7 +10224,7 @@ export const LAYER_MANIFEST = {
   // ⚠️ label 開頭是**全形空白 + └**（sidebar 縮排成 wasteSchedule 的子項），逐字元照抄
   wasteScheduleNote: {
     key: "wasteScheduleNote",
-    section: { theme: "廢棄物 Waste", group: "即時" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "即時" },
     ...layerName({ zh: "表定音符", alt: "Notes" }),
     color: "#fff8d6",
     icon: CalendarDays,
@@ -10231,7 +10246,7 @@ export const LAYER_MANIFEST = {
 
   wasteCleaningSquads: {
     key: "wasteCleaningSquads",
-    section: { theme: "廢棄物 Waste", group: "即時" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "即時" },
     ...layerName({ zh: "清潔隊", alt: "Squads" }),
     color: "#22c55e",
     icon: Brush,
@@ -10253,7 +10268,7 @@ export const LAYER_MANIFEST = {
 
   wasteStopsStatic: {
     key: "wasteStopsStatic",
-    section: { theme: "廢棄物 Waste", group: "投放點" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "投放點" },
     ...layerName({ zh: "全台清運點位（靜態）", alt: "Stops" }),
     expandable: true,
     color: "#fbbf24",
@@ -10286,7 +10301,7 @@ export const LAYER_MANIFEST = {
   //    各自以 point_type 切分成自己的 source（**不是**共用 sourceId —— 是 4 份 setData）。
   wdClothes: {
     key: "wdClothes",
-    section: { theme: "廢棄物 Waste", group: "投放點" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "投放點" },
     ...layerName({ zh: "衣物回收箱", alt: "Clothes" }),
     expandable: true,
     color: "#f97316",
@@ -10309,7 +10324,7 @@ export const LAYER_MANIFEST = {
 
   wdMixed: {
     key: "wdMixed",
-    section: { theme: "廢棄物 Waste", group: "投放點" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "投放點" },
     ...layerName({ zh: "混合投放點", alt: "Mixed" }),
     expandable: true,
     color: "#14b8a6",
@@ -10332,7 +10347,7 @@ export const LAYER_MANIFEST = {
 
   wdRecyclingContainer: {
     key: "wdRecyclingContainer",
-    section: { theme: "廢棄物 Waste", group: "投放點" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "投放點" },
     ...layerName({ zh: "街頭資收桶", alt: "Container" }),
     expandable: true,
     color: "#84cc16",
@@ -10355,7 +10370,7 @@ export const LAYER_MANIFEST = {
 
   wdBattery: {
     key: "wdBattery",
-    section: { theme: "廢棄物 Waste", group: "投放點" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "投放點" },
     ...layerName({ zh: "電池回收", alt: "Battery" }),
     expandable: true,
     color: "#fbbf24",
@@ -10382,7 +10397,7 @@ export const LAYER_MANIFEST = {
   //    ⚠️ `wfMonitoring` **兩套都在**（6 個 3D scene 之一，同時也在 8 個 circle 子層裡）。
   wfIncinerator: {
     key: "wfIncinerator",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "焚化爐", alt: "Incinerator" }),
     expandable: true,
     color: WASTE_FACILITY_COLORS.incinerator!,
@@ -10406,7 +10421,7 @@ export const LAYER_MANIFEST = {
 
   wfLandfill: {
     key: "wfLandfill",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "衛生掩埋場", alt: "Landfill" }),
     expandable: true,
     color: WASTE_FACILITY_COLORS.landfill!,
@@ -10429,7 +10444,7 @@ export const LAYER_MANIFEST = {
 
   wfLandfillCoastal: {
     key: "wfLandfillCoastal",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "濱海掩埋場", alt: "Coastal" }),
     expandable: true,
     color: WASTE_FACILITY_COLORS.landfill_coastal!,
@@ -10452,7 +10467,7 @@ export const LAYER_MANIFEST = {
 
   wfTransfer: {
     key: "wfTransfer",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "轉運站", alt: "Transfer" }),
     expandable: true,
     color: WASTE_FACILITY_COLORS.transfer_station!,
@@ -10475,7 +10490,7 @@ export const LAYER_MANIFEST = {
 
   wfMedical: {
     key: "wfMedical",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "醫療廢棄物", alt: "Medical" }),
     expandable: true,
     color: WASTE_FACILITY_COLORS.medical_waste!,
@@ -10501,7 +10516,7 @@ export const LAYER_MANIFEST = {
   //    popup 兩邊都是 wasteFacility，宣告不受影響。
   wfMonitoring: {
     key: "wfMonitoring",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "地下水監測井", alt: "Monitor" }),
     expandable: true,
     color: "#3b82f6",
@@ -10524,7 +10539,7 @@ export const LAYER_MANIFEST = {
 
   wfRecycling: {
     key: "wfRecycling",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "資源回收廠", alt: "Recycling" }),
     expandable: true,
     color: "#22c55e",
@@ -10547,7 +10562,7 @@ export const LAYER_MANIFEST = {
 
   wfScrapYard: {
     key: "wfScrapYard",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "廢車 / 廢金屬", alt: "Scrap" }),
     expandable: true,
     color: "#737373",
@@ -10570,7 +10585,7 @@ export const LAYER_MANIFEST = {
 
   wfOther: {
     key: "wfOther",
-    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    country: "TW", section: { theme: "廢棄物 Waste", group: "處理設施" },
     ...layerName({ zh: "其他事廢設施", alt: "Other" }),
     expandable: true,
     color: "#6b7280",
@@ -10616,7 +10631,7 @@ export const LAYER_MANIFEST = {
 
   agriPOI: {
     key: "agriPOI",
-    section: { theme: "農業 Agriculture", group: "點位" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "點位" },
     ...layerName({ zh: "休農場 / 田媽媽 / 特色農旅", alt: "POI" }),
     expandable: true,
     color: "#6a1b9a",
@@ -10640,7 +10655,7 @@ export const LAYER_MANIFEST = {
 
   agriRetail: {
     key: "agriRetail",
-    section: { theme: "農業 Agriculture", group: "點位" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "點位" },
     ...layerName({ zh: "農產零售商", alt: "Retail" }),
     expandable: true,
     color: "#e91e63",
@@ -10667,7 +10682,7 @@ export const LAYER_MANIFEST = {
 
   agriProduceWholesale: {
     key: "agriProduceWholesale",
-    section: { theme: "農業 Agriculture", group: "點位" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "點位" },
     ...layerName({ zh: "蔬果批發商", alt: "Produce Wholesale" }),
     expandable: true,
     color: "#3f51b5",
@@ -10694,7 +10709,7 @@ export const LAYER_MANIFEST = {
 
   agriWholesaleMarket: {
     key: "agriWholesaleMarket",
-    section: { theme: "農業 Agriculture", group: "點位" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "點位" },
     ...layerName({ zh: "農產批發市場", alt: "Wholesale Market" }),
     expandable: true,
     color: "#ffd600",
@@ -10726,7 +10741,7 @@ export const LAYER_MANIFEST = {
   //    manifest 的 `gated` 對齊的是 LayerDef → 照現況不填。
   livestockFarmPig: {
     key: "livestockFarmPig",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·豬", alt: "Pig Farms" }),
     expandable: true,
     color: "#ec6a5e",
@@ -10750,7 +10765,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmChicken: {
     key: "livestockFarmChicken",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·雞", alt: "Chicken Farms" }),
     expandable: true,
     color: "#f4b400",
@@ -10774,7 +10789,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmCattle: {
     key: "livestockFarmCattle",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·牛", alt: "Cattle Farms" }),
     expandable: true,
     color: "#6d4c41",
@@ -10798,7 +10813,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmDuck: {
     key: "livestockFarmDuck",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·鴨", alt: "Duck Farms" }),
     expandable: true,
     color: "#00897b",
@@ -10822,7 +10837,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmGoose: {
     key: "livestockFarmGoose",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·鵝", alt: "Goose Farms" }),
     expandable: true,
     color: "#26c6da",
@@ -10846,7 +10861,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmSheep: {
     key: "livestockFarmSheep",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·羊", alt: "Sheep/Goat Farms" }),
     expandable: true,
     color: "#ab47bc",
@@ -10870,7 +10885,7 @@ export const LAYER_MANIFEST = {
 
   livestockFarmOther: {
     key: "livestockFarmOther",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "畜禽飼養場·其他", alt: "Other Farms" }),
     expandable: true,
     color: "#9e9e9e",
@@ -10894,7 +10909,7 @@ export const LAYER_MANIFEST = {
 
   livestockSlaughter: {
     key: "livestockSlaughter",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "屠宰場", alt: "Slaughterhouses" }),
     expandable: true,
     color: "#c62828",
@@ -10918,7 +10933,7 @@ export const LAYER_MANIFEST = {
 
   livestockFeed: {
     key: "livestockFeed",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "飼料廠", alt: "Feed Factories" }),
     expandable: true,
     color: "#455a64",
@@ -10942,7 +10957,7 @@ export const LAYER_MANIFEST = {
 
   livestockMarket: {
     key: "livestockMarket",
-    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
     ...layerName({ zh: "拍賣/批發市場", alt: "Markets" }),
     expandable: true,
     color: "#d500f9",
@@ -10967,7 +10982,7 @@ export const LAYER_MANIFEST = {
   // ── 🐟 養殖漁業 Aquaculture ────────────────────────────────────────
   aquaculturePonds: {
     key: "aquaculturePonds",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "逐口魚塭", alt: "Aquaculture Ponds" }),
     expandable: true,
     color: "#26c6da",
@@ -10994,7 +11009,7 @@ export const LAYER_MANIFEST = {
 
   aquacultureZone: {
     key: "aquacultureZone",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "養殖漁業生產區", alt: "Production Zone" }),
     expandable: true,
     color: "#66bb6a",
@@ -11018,7 +11033,7 @@ export const LAYER_MANIFEST = {
 
   aquacultureCageNet: {
     key: "aquacultureCageNet",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "海上箱網", alt: "Cage Net" }),
     expandable: true,
     color: "#5c6bc0",
@@ -11042,7 +11057,7 @@ export const LAYER_MANIFEST = {
 
   aquacultureWaterSatellite: {
     key: "aquacultureWaterSatellite",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "衛星偵測養殖水體", alt: "Satellite Detected" }),
     expandable: true,
     color: "#26c6da",
@@ -11069,7 +11084,7 @@ export const LAYER_MANIFEST = {
 
   aquacultureWaterSatelliteMoa: {
     key: "aquacultureWaterSatelliteMoa",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "魚塭·官方標籤版", alt: "MOA Labeled", qualifier: "2026-07" }),
     expandable: true,
     color: "#26c6da",
@@ -11106,7 +11121,7 @@ export const LAYER_MANIFEST = {
   //        overlayRegistry 同一處註解需一起同步。
   aquacultureWaterUnion: {
     key: "aquacultureWaterUnion",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "魚塭·整合版（官方∪衛星）", alt: "Union" }),
     expandable: true,
     color: "#26c6da",
@@ -11133,7 +11148,7 @@ export const LAYER_MANIFEST = {
 
   aquacultureIntegrated: {
     key: "aquacultureIntegrated",
-    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
     ...layerName({ zh: "養殖漁業整合", alt: "Integrated" }),
     expandable: true,
     color: "#26c6da",
@@ -11169,7 +11184,7 @@ export const LAYER_MANIFEST = {
   //    觸點 #20 的部署清單只掃 `dataClass === "B"` 會全部漏掉，檔路徑記在 note 裡。
   agriculture: {
     key: "agriculture",
-    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
     ...layerName({ zh: "農田範圍", alt: "FTW Fields", qualifier: "2025" }),
     expandable: true,
     color: "#2e7d32",
@@ -11196,7 +11211,7 @@ export const LAYER_MANIFEST = {
 
   agriLeisureFarmZones: {
     key: "agriLeisureFarmZones",
-    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
     ...layerName({ zh: "休閒農業區", alt: "Leisure Farm Zones" }),
     expandable: true,
     color: "#66bb6a",
@@ -11220,7 +11235,7 @@ export const LAYER_MANIFEST = {
 
   agriRuralRegen: {
     key: "agriRuralRegen",
-    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
     ...layerName({ zh: "農村再生社區", alt: "Rural Regen" }),
     expandable: true,
     color: "#ffb74d",
@@ -11244,7 +11259,7 @@ export const LAYER_MANIFEST = {
 
   ecoNetworkZones: {
     key: "ecoNetworkZones",
-    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
     ...layerName({ zh: "國土綠網分區", alt: "Eco Network Zones" }),
     expandable: true,
     color: "#4caf50",
@@ -11272,7 +11287,7 @@ export const LAYER_MANIFEST = {
   // ── 土壤 ───────────────────────────────────────────────────────────
   agriSoil: {
     key: "agriSoil",
-    section: { theme: "農業 Agriculture", group: "土壤" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "土壤" },
     ...layerName({ zh: "全台土壤分類", alt: "Soil Map" }),
     expandable: true,
     color: "#8d6e63",
@@ -11296,7 +11311,7 @@ export const LAYER_MANIFEST = {
 
   agriSoilFertility: {
     key: "agriSoilFertility",
-    section: { theme: "農業 Agriculture", group: "土壤" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "土壤" },
     ...layerName({ zh: "土壤肥力", alt: "Soil Fertility", qualifier: "250m" }),
     expandable: true,
     color: "#00897b",
@@ -11320,7 +11335,7 @@ export const LAYER_MANIFEST = {
 
   agriCropSuitability: {
     key: "agriCropSuitability",
-    section: { theme: "農業 Agriculture", group: "土壤" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "土壤" },
     ...layerName({ zh: "作物適栽", alt: "Crop Suitability" }),
     expandable: true,
     color: "#1b5e20",
@@ -11345,7 +11360,7 @@ export const LAYER_MANIFEST = {
   // ── 線 ─────────────────────────────────────────────────────────────
   farmRoads: {
     key: "farmRoads",
-    section: { theme: "農業 Agriculture", group: "線" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "線" },
     ...layerName({ zh: "農路", alt: "Farm Roads" }),
     expandable: true,
     color: "#a4b494",
@@ -11396,7 +11411,7 @@ export const LAYER_MANIFEST = {
   // ── 樞紐節點 ───────────────────────────────────────────────────────
   ports: {
     key: "ports",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "港口", alt: "Port" }),
     expandable: true,
     color: "#4a90d9",
@@ -11419,7 +11434,7 @@ export const LAYER_MANIFEST = {
 
   airports: {
     key: "airports",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "機場", alt: "Airport" }),
     expandable: true,
     color: "#daa520",
@@ -11442,7 +11457,7 @@ export const LAYER_MANIFEST = {
 
   lighthouses: {
     key: "lighthouses",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "燈塔", alt: "Lighthouse" }),
     expandable: true,
     color: "#ffd700",
@@ -11465,7 +11480,7 @@ export const LAYER_MANIFEST = {
 
   aviationControl: {
     key: "aviationControl",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "飛航情報/終端管制", alt: "FIR + TMA" }),
     expandable: true,
     color: "#4682B4",
@@ -11489,7 +11504,7 @@ export const LAYER_MANIFEST = {
 
   aviationRestricted: {
     key: "aviationRestricted",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "機場管制/限航/危險", alt: "CTR+RCR+DANGER" }),
     expandable: true,
     color: "#DC3545",
@@ -11514,7 +11529,7 @@ export const LAYER_MANIFEST = {
 
   droneNoFlyZone: {
     key: "droneNoFlyZone",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "無人機紅區／未分類快照", alt: "Drone NFZ" }),
     expandable: true,
     color: "#DC3545",
@@ -11538,7 +11553,7 @@ export const LAYER_MANIFEST = {
 
   droneRestrictedZone: {
     key: "droneRestrictedZone",
-    section: { theme: "交通 Move", group: "樞紐節點" },
+    country: "TW", section: { theme: "交通 Move", group: "樞紐節點" },
     ...layerName({ zh: "無人機黃區快照", alt: "Drone Restricted" }),
     expandable: true,
     color: "#FFC107",
@@ -11564,7 +11579,7 @@ export const LAYER_MANIFEST = {
   // ── 場站 ───────────────────────────────────────────────────────────
   stationsTHSR: {
     key: "stationsTHSR",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "高鐵站", alt: "THSR Station" }),
     expandable: true,
     color: "#ff8c00",
@@ -11589,7 +11604,7 @@ export const LAYER_MANIFEST = {
 
   stationsTRA: {
     key: "stationsTRA",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "台鐵站", alt: "TRA Station" }),
     expandable: true,
     color: "#b8a080",
@@ -11617,7 +11632,7 @@ export const LAYER_MANIFEST = {
 
   stationsMetro: {
     key: "stationsMetro",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "捷運站", alt: "Metro Station" }),
     expandable: true,
     color: "#00bcd4",
@@ -11639,7 +11654,7 @@ export const LAYER_MANIFEST = {
 
   busStationsCity: {
     key: "busStationsCity",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "市區公車站", alt: "City Bus" }),
     expandable: true,
     color: "#66bb6a",
@@ -11668,7 +11683,7 @@ export const LAYER_MANIFEST = {
 
   busStationsIntercity: {
     key: "busStationsIntercity",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "公路客運站", alt: "Intercity" }),
     expandable: true,
     color: "#ab47bc",
@@ -11693,7 +11708,7 @@ export const LAYER_MANIFEST = {
 
   bikeStations: {
     key: "bikeStations",
-    section: { theme: "交通 Move", group: "場站" },
+    country: "TW", section: { theme: "交通 Move", group: "場站" },
     ...layerName({ zh: "公共自行車", alt: "Bike Station" }),
     expandable: true,
     color: "#ffca28",
@@ -11716,7 +11731,7 @@ export const LAYER_MANIFEST = {
   //    （bus tooltip / flight tooltip），不構成 FeatureInfo 接線 → popup: null。
   flights: {
     key: "flights",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "航班", alt: "Flight" }),
     expandable: true,
     color: "#64aaff",
@@ -11741,7 +11756,7 @@ export const LAYER_MANIFEST = {
 
   historicalFlightTrails: {
     key: "historicalFlightTrails",
-    section: { theme: "交通 Move", group: "歷史軌跡" },
+    country: "TW", section: { theme: "交通 Move", group: "歷史軌跡" },
     ...layerName({ zh: "歷史航班軌跡", alt: "Taiwan" }),
     expandable: true,
     color: "#4d99ff",
@@ -11767,7 +11782,7 @@ export const LAYER_MANIFEST = {
 
   ships: {
     key: "ships",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "船舶", alt: "Ship" }),
     expandable: true,
     color: "#1ad9e5",
@@ -11792,7 +11807,7 @@ export const LAYER_MANIFEST = {
 
   busLive: {
     key: "busLive",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "公車", alt: "Bus" }),
     expandable: true,
     color: "#4fc3f7",
@@ -11820,7 +11835,7 @@ export const LAYER_MANIFEST = {
 
   busIntercityLive: {
     key: "busIntercityLive",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "公路客運", alt: "Intercity" }),
     expandable: true,
     color: "#ba68c8",
@@ -11844,7 +11859,7 @@ export const LAYER_MANIFEST = {
 
   touristShuttleLive: {
     key: "touristShuttleLive",
-    section: { theme: "交通 Move", group: "即時運具" },
+    country: "TW", section: { theme: "交通 Move", group: "即時運具" },
     ...layerName({ zh: "台灣好行", alt: "Tourist Shuttle" }),
     expandable: true,
     color: "#26a69a",
@@ -11889,7 +11904,7 @@ export const LAYER_MANIFEST = {
   // ── 路網 ───────────────────────────────────────────────────────────
   highways: {
     key: "highways",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "國道", alt: "Highway" }),
     expandable: true,
     color: "#ff6b6b",
@@ -11919,7 +11934,7 @@ export const LAYER_MANIFEST = {
 
   osmExpressway: {
     key: "osmExpressway",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "快速道路", alt: "Expressway" }),
     expandable: true,
     color: "#FF8C00",
@@ -11948,7 +11963,7 @@ export const LAYER_MANIFEST = {
 
   provincialRoads: {
     key: "provincialRoads",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "省道", alt: "Provincial Road" }),
     expandable: true,
     color: "#ffa94d",
@@ -11978,7 +11993,7 @@ export const LAYER_MANIFEST = {
 
   cyclingRoutes: {
     key: "cyclingRoutes",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "自行車道", alt: "Cycling Route" }),
     expandable: true,
     color: "#66bb6a",
@@ -12001,7 +12016,7 @@ export const LAYER_MANIFEST = {
 
   etcGantry: {
     key: "etcGantry",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "ETC 收費門架", alt: "Gantry" }),
     expandable: true,
     color: "#f06292",
@@ -12021,7 +12036,7 @@ export const LAYER_MANIFEST = {
 
   serviceArea: {
     key: "serviceArea",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "國道服務區", alt: "Service Area" }),
     expandable: true,
     color: "#4db6ac",
@@ -12043,7 +12058,7 @@ export const LAYER_MANIFEST = {
 
   serviceAreaPolygon: {
     key: "serviceAreaPolygon",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "國道服務區範圍", alt: "SA Area" }),
     expandable: true,
     color: "#4db6ac",
@@ -12067,7 +12082,7 @@ export const LAYER_MANIFEST = {
 
   taxiStand: {
     key: "taxiStand",
-    section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "路網" },
     ...layerName({ zh: "計程車招呼站", alt: "Taxi Stand" }),
     expandable: true,
     color: "#ffd54f",
@@ -12088,7 +12103,7 @@ export const LAYER_MANIFEST = {
   // ── 即時監控 ───────────────────────────────────────────────────────
   freewayCongestion: {
     key: "freewayCongestion",
-    section: { theme: "交通 Move", group: "即時監控" },
+    country: "TW", section: { theme: "交通 Move", group: "即時監控" },
     ...layerName({ zh: "國道壅塞", alt: "Congestion" }),
     expandable: true,
     color: "#ef5350",
@@ -12115,7 +12130,7 @@ export const LAYER_MANIFEST = {
 
   roadCongestion: {
     key: "roadCongestion",
-    section: { theme: "交通 Move", group: "即時監控" },
+    country: "TW", section: { theme: "交通 Move", group: "即時監控" },
     ...layerName({ zh: "省道路況", alt: "Provincial", qualifier: "v1" }),
     expandable: true,
     color: "#fb923c",
@@ -12141,7 +12156,7 @@ export const LAYER_MANIFEST = {
 
   roadEvents: {
     key: "roadEvents",
-    section: { theme: "交通 Move", group: "即時監控" },
+    country: "TW", section: { theme: "交通 Move", group: "即時監控" },
     ...layerName({ zh: "即時路況", alt: "Road Events" }),
     expandable: true,
     color: "#ef4444",
@@ -12169,7 +12184,7 @@ export const LAYER_MANIFEST = {
   // 共用 legend ≠ 共用 popup，兩個維度要分開查）。
   parkingOnstreet: {
     key: "parkingOnstreet",
-    section: { theme: "交通 Move", group: "停車 Parking" },
+    country: "TW", section: { theme: "交通 Move", group: "停車 Parking" },
     ...layerName({ zh: "路邊停車", alt: "On-street" }),
     expandable: true,
     color: "#64748b",
@@ -12194,7 +12209,7 @@ export const LAYER_MANIFEST = {
 
   parkingOffstreet: {
     key: "parkingOffstreet",
-    section: { theme: "交通 Move", group: "停車 Parking" },
+    country: "TW", section: { theme: "交通 Move", group: "停車 Parking" },
     ...layerName({ zh: "場外停車場", alt: "Off-street" }),
     expandable: true,
     color: "#22c55e",
@@ -12247,7 +12262,7 @@ export const LAYER_MANIFEST = {
   // ── 電力 · 廠 ──────────────────────────────────────────────────────
   facPrimary: {
     key: "facPrimary",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 主要・運轉中", alt: "Primary" }),
     expandable: true,
     color: "#F2D64B",
@@ -12273,7 +12288,7 @@ export const LAYER_MANIFEST = {
 
   facSecondary: {
     key: "facSecondary",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 小型分散", alt: "Secondary" }),
     expandable: true,
     color: "#8C7C4A",
@@ -12297,7 +12312,7 @@ export const LAYER_MANIFEST = {
 
   facPlanned: {
     key: "facPlanned",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 未來規劃", alt: "Planned" }),
     expandable: true,
     color: "#F2E085",
@@ -12321,7 +12336,7 @@ export const LAYER_MANIFEST = {
 
   facHistorical: {
     key: "facHistorical",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 歷史・退役", alt: "Historical" }),
     expandable: true,
     color: "#525252",
@@ -12345,7 +12360,7 @@ export const LAYER_MANIFEST = {
 
   facOsmSupplement: {
     key: "facOsmSupplement",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 OSM 補充", alt: "Supplement" }),
     expandable: true,
     color: "#94a3b8",
@@ -12369,7 +12384,7 @@ export const LAYER_MANIFEST = {
 
   powerGenerationUnit: {
     key: "powerGenerationUnit",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "機組即時出力", alt: "Live Output" }),
     expandable: true,
     color: "#f97316",
@@ -12399,7 +12414,7 @@ export const LAYER_MANIFEST = {
 
   powerPlantGlow: {
     key: "powerPlantGlow",
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "發電廠 Bloom 測試" }),
     expandable: true,
     color: "#f0abfc",
@@ -12425,7 +12440,7 @@ export const LAYER_MANIFEST = {
     key: "aviationRestrictedGlow",
     // ⚠️ 名字與資料都是航空，THEMES 位置卻在能源／電力 · 廠（跟其他 Bloom 測試層同組）。
     //    按名字猜主題會猜錯 —— 區塊註解不可信的第九種變形。
-    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
     ...layerName({ zh: "機場管制/限航 Rim Glow 測試" }),
     expandable: true,
     color: "#f87171",
@@ -12451,7 +12466,7 @@ export const LAYER_MANIFEST = {
   // ── 電力 · 電網 ────────────────────────────────────────────────────
   osmSubstations: {
     key: "osmSubstations",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "變電所 區域", alt: "Substation" }),
     expandable: true,
     color: "#f97316",
@@ -12478,7 +12493,7 @@ export const LAYER_MANIFEST = {
 
   osmSubstationsEhv: {
     key: "osmSubstationsEhv",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "變電所 超高壓", alt: "EHV" }),
     expandable: true,
     color: "#ef4444",
@@ -12502,7 +12517,7 @@ export const LAYER_MANIFEST = {
 
   osmPowerLines: {
     key: "osmPowerLines",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "高壓輸電線", alt: "Power Lines" }),
     expandable: true,
     color: "#62D9AD",
@@ -12526,7 +12541,7 @@ export const LAYER_MANIFEST = {
 
   osmPowerTowers: {
     key: "osmPowerTowers",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "高壓鐵塔", alt: "Power Towers" }),
     expandable: true,
     color: "#468BA6",
@@ -12551,7 +12566,7 @@ export const LAYER_MANIFEST = {
 
   powerPoles: {
     key: "powerPoles",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "電桿", alt: "Power Poles" }),
     expandable: true,
     color: "#94a3b8",
@@ -12578,7 +12593,7 @@ export const LAYER_MANIFEST = {
 
   powerLinesGlow: {
     key: "powerLinesGlow",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "高壓輸電線 Bloom 測試" }),
     expandable: true,
     color: "#22d3ee",
@@ -12602,7 +12617,7 @@ export const LAYER_MANIFEST = {
 
   substationEhvGlow: {
     key: "substationEhvGlow",
-    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
     ...layerName({ zh: "變電所 EHV Bloom 測試" }),
     expandable: true,
     color: "#fb923c",
@@ -12644,7 +12659,7 @@ export const LAYER_MANIFEST = {
   // ── 石化 · 加油站 ──────────────────────────────────────────────────
   gasStationCpc: {
     key: "gasStationCpc",
-    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 加油站" },
     ...layerName({ zh: "加油站 中油", alt: "CPC" }),
     expandable: true,
     color: "#00875A",
@@ -12668,7 +12683,7 @@ export const LAYER_MANIFEST = {
 
   gasStationFpcc: {
     key: "gasStationFpcc",
-    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 加油站" },
     ...layerName({ zh: "加油站 台塑", alt: "FPCC" }),
     expandable: true,
     color: "#1E40AF",
@@ -12692,7 +12707,7 @@ export const LAYER_MANIFEST = {
 
   gasStationTaisugar: {
     key: "gasStationTaisugar",
-    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 加油站" },
     ...layerName({ zh: "加油站 台糖", alt: "Taisugar" }),
     expandable: true,
     color: "#EA580C",
@@ -12716,7 +12731,7 @@ export const LAYER_MANIFEST = {
 
   gasStationOther: {
     key: "gasStationOther",
-    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 加油站" },
     ...layerName({ zh: "加油站 其他 / 私營", alt: "Other" }),
     expandable: true,
     color: "#D1D5DB",
@@ -12740,7 +12755,7 @@ export const LAYER_MANIFEST = {
 
   gasStationCanonical: {
     key: "gasStationCanonical",
-    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 加油站" },
     ...layerName({ zh: "加油站 SSOT 合併", alt: "Canonical" }),
     expandable: true,
     color: "#0FBFBF",
@@ -12765,7 +12780,7 @@ export const LAYER_MANIFEST = {
   // ── 石化 · 油氣 ────────────────────────────────────────────────────
   lpgSubpackaging: {
     key: "lpgSubpackaging",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "LPG 分裝 / 儲存場", alt: "Subpackaging" }),
     expandable: true,
     color: "#F2622E",
@@ -12789,7 +12804,7 @@ export const LAYER_MANIFEST = {
 
   lpgRetailers: {
     key: "lpgRetailers",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "LPG 加氣站 / 瓦斯行", alt: "Retailer" }),
     expandable: true,
     color: "#D9863D",
@@ -12813,7 +12828,7 @@ export const LAYER_MANIFEST = {
 
   lngTerminal: {
     key: "lngTerminal",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "LNG 接收站", alt: "Terminal" }),
     expandable: true,
     color: "#F2B84B",
@@ -12837,7 +12852,7 @@ export const LAYER_MANIFEST = {
 
   pipelineGas: {
     key: "pipelineGas",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "天然氣主幹線", alt: "Gas Pipeline" }),
     expandable: true,
     color: "#F2D64B",
@@ -12861,7 +12876,7 @@ export const LAYER_MANIFEST = {
 
   pipelineOilGas: {
     key: "pipelineOilGas",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "油氣管線", alt: "OSM Oil/Gas Pipeline" }),
     expandable: true,
     color: "#EDF249",
@@ -12885,7 +12900,7 @@ export const LAYER_MANIFEST = {
 
   industrialRefinery: {
     key: "industrialRefinery",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "煉油 / 化工廠", alt: "Refinery" }),
     expandable: true,
     color: "#F97316",
@@ -12909,7 +12924,7 @@ export const LAYER_MANIFEST = {
 
   industrialStorageTank: {
     key: "industrialStorageTank",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "油氣儲槽", alt: "Storage Tank" }),
     expandable: true,
     color: "#06B6D4",
@@ -12933,7 +12948,7 @@ export const LAYER_MANIFEST = {
 
   industrialPowerPlant: {
     key: "industrialPowerPlant",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "火力廠", alt: "polygon Thermal Plant" }),
     expandable: true,
     color: "#D946EF",
@@ -12959,7 +12974,7 @@ export const LAYER_MANIFEST = {
 
   coalTerminal: {
     key: "coalTerminal",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "煤炭碼頭", alt: "Coal Terminal" }),
     expandable: true,
     color: "#3B82F6",
@@ -12983,7 +12998,7 @@ export const LAYER_MANIFEST = {
 
   fossilFuelInfra: {
     key: "fossilFuelInfra",
-    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    country: "TW", section: { theme: "能源 Energy", group: "石化 · 油氣" },
     ...layerName({ zh: "石化能源設施", alt: "Fossil Fuel", qualifier: "舊版" }),
     expandable: true,
     color: "#1f2937",
@@ -13039,7 +13054,7 @@ export const LAYER_MANIFEST = {
   // ── 再生能源 ───────────────────────────────────────────────────────
   offshoreWindZones: {
     key: "offshoreWindZones",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "離岸風場", alt: "Offshore Wind" }),
     expandable: true,
     color: "#22d3ee",
@@ -13063,7 +13078,7 @@ export const LAYER_MANIFEST = {
 
   osmWindTurbines: {
     key: "osmWindTurbines",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "風機", alt: "Wind Turbines" }),
     expandable: true,
     color: "#67e8f9",
@@ -13089,7 +13104,7 @@ export const LAYER_MANIFEST = {
 
   windPlan: {
     key: "windPlan",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "風電場規劃", alt: "Wind Plan" }),
     expandable: true,
     color: "#7efcb0",
@@ -13112,7 +13127,7 @@ export const LAYER_MANIFEST = {
 
   geothermalWells: {
     key: "geothermalWells",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "地熱井", alt: "Geothermal" }),
     expandable: true,
     color: "#ef4444",
@@ -13136,7 +13151,7 @@ export const LAYER_MANIFEST = {
 
   renewablePermitsTaipei: {
     key: "renewablePermitsTaipei",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "北市再生能源許可", alt: "Renewable Permits" }),
     expandable: true,
     color: "#fbbf24",
@@ -13161,7 +13176,7 @@ export const LAYER_MANIFEST = {
 
   evChargingStations: {
     key: "evChargingStations",
-    section: { theme: "能源 Energy", group: "再生能源" },
+    country: "TW", section: { theme: "能源 Energy", group: "再生能源" },
     ...layerName({ zh: "電動車充電站", alt: "EV Charging" }),
     expandable: true,
     color: "#10b981",
@@ -13192,7 +13207,7 @@ export const LAYER_MANIFEST = {
   //    刪手寫表時一律用精確錨定，別用前綴 grep。
   gasCoverageAll: {
     key: "gasCoverageAll",
-    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    country: "TW", section: { theme: "能源 Energy", group: "覆蓋分析" },
     ...layerName({ zh: "加油站 最近距離", alt: "Coverage All" }),
     expandable: true,
     color: "#F2A516",
@@ -13225,7 +13240,7 @@ export const LAYER_MANIFEST = {
 
   gasCoverageCpc: {
     key: "gasCoverageCpc",
-    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    country: "TW", section: { theme: "能源 Energy", group: "覆蓋分析" },
     ...layerName({ zh: "中油 最近距離", alt: "Coverage CPC" }),
     expandable: true,
     color: "#41AEF2",
@@ -13252,7 +13267,7 @@ export const LAYER_MANIFEST = {
 
   gasCoverageFpcc: {
     key: "gasCoverageFpcc",
-    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    country: "TW", section: { theme: "能源 Energy", group: "覆蓋分析" },
     ...layerName({ zh: "台塑 最近距離", alt: "Coverage FPCC" }),
     expandable: true,
     color: "#22C55E",
@@ -13279,7 +13294,7 @@ export const LAYER_MANIFEST = {
 
   gasCoverageTaisugar: {
     key: "gasCoverageTaisugar",
-    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    country: "TW", section: { theme: "能源 Energy", group: "覆蓋分析" },
     ...layerName({ zh: "台糖 最近距離", alt: "Coverage Taisugar" }),
     expandable: true,
     color: "#F2522E",
@@ -13306,7 +13321,7 @@ export const LAYER_MANIFEST = {
 
   evIsland: {
     key: "evIsland",
-    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    country: "TW", section: { theme: "能源 Energy", group: "覆蓋分析" },
     ...layerName({ zh: "充電站 最近距離", alt: "EV Island" }),
     expandable: true,
     color: "#F23535",
@@ -13538,33 +13553,33 @@ export const LAYER_MANIFEST = {
   },
 
   // ══════════ 公共生活 Public life（OSM snapshot；非完整官方清冊）══════════
-  drinkingWaterPoints: { key: "drinkingWaterPoints", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
-  publicWasteBaskets: { key: "publicWasteBaskets", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
-  materialRecyclingPoints: { key: "materialRecyclingPoints", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
-  disasterShelters: { key: "disasterShelters", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
-  playgrounds: { key: "playgrounds", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" }, ...layerName({ zh: "遊戲場", alt: "Playgrounds" }), expandable: true, color: PUBLIC_LIFE_COLORS.playgrounds, icon: PartyPopper, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "playgrounds", url: "./public_life/playgrounds.geojson" }, legend: "playgrounds", popup: "playgrounds", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊戲場 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "公園", "OSM"] },
-  accessibleParkFacilities: { key: "accessibleParkFacilities", section: { theme: "基礎建設 Infrastructure", group: "無障礙 Accessibility" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
-  bicycleSupport: { key: "bicycleSupport", section: { theme: "交通 Move", group: "共享運具" }, ...layerName({ zh: "自行車支援", alt: "Bicycle Support" }), expandable: true, color: PUBLIC_LIFE_COLORS.bicycleSupport, icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "bicycle-support", url: "./public_life/bicycle_support.pmtiles", sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, legend: "bicycleSupport", popup: "bicycleSupport", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] }, description: "OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。", topics: ["公共生活", "自行車", "OSM"] },
-  nationalParks: { key: "nationalParks", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, legend: "nationalParks", popup: "nationalParks", params: { count: 1, kinds: ["slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
-  visitorCentres: { key: "visitorCentres", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
-  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
+  drinkingWaterPoints: { key: "drinkingWaterPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "飲水點", alt: "Drinking Water" }), expandable: true, color: PUBLIC_LIFE_COLORS.drinkingWaterPoints, icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "drinking-water-points", url: "./public_life/drinking_water_points.pmtiles", sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, legend: "drinkingWaterPoints", popup: "drinkingWaterPoints", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。", topics: ["公共生活", "OSM", "飲水"] },
+  publicWasteBaskets: { key: "publicWasteBaskets", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共垃圾桶", alt: "Waste Baskets" }), expandable: true, color: PUBLIC_LIFE_COLORS.publicWasteBaskets, icon: Trash2, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "public-waste-baskets", url: "./public_life/public_waste_baskets.geojson" }, legend: "publicWasteBaskets", popup: "publicWasteBaskets", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "OSM", "廢棄物"] },
+  materialRecyclingPoints: { key: "materialRecyclingPoints", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "資源回收點", alt: "Recycling" }), expandable: true, color: PUBLIC_LIFE_COLORS.materialRecyclingPoints, icon: Recycle, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；materials 未標註時不推論可回收材料。" }, dataClass: "A", source: { kind: "geojson", sourceId: "material-recycling-points", url: "./public_life/material_recycling_points.geojson" }, legend: "materialRecyclingPoints", popup: "materialRecyclingPoints", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "OSM 標記資源回收點；僅顯示來源明列的材料。", topics: ["公共生活", "OSM", "回收"] },
+  disasterShelters: { key: "disasterShelters", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "預定收容處所", alt: "Disaster Shelters" }), expandable: true, color: PUBLIC_LIFE_COLORS.disasterShelters, icon: ShieldAlert, upstream: { status: "verified", datasets: [{ datasetId: "emergency_response.shelters", confidence: "HIGH" }], note: "內政部消防署 73242 預定收容處所；不代表目前已開設。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "disaster-shelters", url: "./public_life/disaster_shelters.pmtiles", sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, legend: "disasterShelters", popup: "disasterShelters", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。", topics: ["公共生活", "災害", "政府開放資料"] },
+  playgrounds: { key: "playgrounds", country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" }, ...layerName({ zh: "遊戲場", alt: "Playgrounds" }), expandable: true, color: PUBLIC_LIFE_COLORS.playgrounds, icon: PartyPopper, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "playgrounds", url: "./public_life/playgrounds.geojson" }, legend: "playgrounds", popup: "playgrounds", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊戲場 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "公園", "OSM"] },
+  accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "無障礙 Accessibility" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
+  bicycleSupport: { key: "bicycleSupport", country: "TW", section: { theme: "交通 Move", group: "共享運具" }, ...layerName({ zh: "自行車支援", alt: "Bicycle Support" }), expandable: true, color: PUBLIC_LIFE_COLORS.bicycleSupport, icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "bicycle-support", url: "./public_life/bicycle_support.pmtiles", sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, legend: "bicycleSupport", popup: "bicycleSupport", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] }, description: "OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。", topics: ["公共生活", "自行車", "OSM"] },
+  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, legend: "nationalParks", popup: "nationalParks", params: { count: 1, kinds: ["slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
+  visitorCentres: { key: "visitorCentres", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
+  publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
 
   // ══════════ 減害服務 Harm Reduction（官方名冊；座標由地址定位，少數為推估）══════════
-  harmReductionNeedle: { key: "harmReductionNeedle", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "清潔針具據點", alt: "Needle & Syringe Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionNeedle, icon: Syringe, upstream: { status: "verified", datasets: [{ datasetId: "harm_reduction_needle_points", confidence: "HIGH" }], note: "疾管署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單；990 點全數定位（綠島鄉衛生所、連江縣衛生局 2 點依機構名稱人工核對）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-needle", url: "./harm_reduction/needle_points.geojson" }, legend: "harmReductionNeedle", popup: "harmReductionNeedle", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] }, description: "清潔針具衛教諮詢站、針具自動服務機與回收桶，一個據點可同時提供多類服務。", topics: ["醫療", "減害", "公共衛生"] },
-  harmReductionTreatment: { key: "harmReductionTreatment", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "替代療法與藥癮戒治", alt: "Substitution & Addiction Treatment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTreatment, icon: Pill, upstream: { status: "verified", datasets: [{ datasetId: "drug_treatment_facilities", confidence: "HIGH" }], note: "衛福部指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353；226 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-treatment", url: "./harm_reduction/drug_treatment_facilities.geojson" }, legend: "harmReductionTreatment", popup: "harmReductionTreatment", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "替代治療、指定藥癮戒治機構與衛星給藥點，可看美沙冬／丁基原啡因供應。", topics: ["醫療", "減害", "藥癮治療"] },
-  harmReductionHivSelftest: { key: "harmReductionHivSelftest", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋自我篩檢通路", alt: "HIV Self-test Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivSelftest, icon: TestTube, upstream: { status: "verified", datasets: [{ datasetId: "hiv_selftest_outlets", confidence: "HIGH" }], note: "疾管署愛滋自我篩檢通路（快照 2026-10-06）；681 點全數定位（1 點來源無地址，依名稱人工核對）；不含庫存。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-selftest", url: "./harm_reduction/hiv_selftest_outlets.geojson" }, legend: "harmReductionHivSelftest", popup: "harmReductionHivSelftest", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "可取得愛滋自我篩檢試劑的自動服務機與實體通路（衛生局所、藥局、醫療院所等）。", topics: ["醫療", "減害", "愛滋"] },
-  harmReductionHivTesting: { key: "harmReductionHivTesting", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋篩檢與指定醫療", alt: "HIV Testing & Care" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivTesting, icon: Stethoscope, upstream: { status: "verified", datasets: [{ datasetId: "hiv_testing_sites", confidence: "HIGH" }], note: "疾管署匿名篩檢（2026-09-22／07-22）、指定醫事機構與藥局（2026-07-15）、多元性別健康中心（2026-06-12）；694 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-testing", url: "./harm_reduction/hiv_testing_sites.geojson" }, legend: "harmReductionHivTesting", popup: "harmReductionHivTesting", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "匿名篩檢院所、愛滋指定醫事機構與藥局、多元性別健康中心。", topics: ["醫療", "減害", "愛滋"] },
-  harmReductionPreventionCenters: { key: "harmReductionPreventionCenters", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "毒品危害防制中心", alt: "Drug Abuse Prevention Centers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPreventionCenters, icon: ShieldPlus, upstream: { status: "verified", datasets: [{ datasetId: "drug_prevention_centers", confidence: "HIGH" }], note: "法務部 data.gov.tw 13717（2024-02-01）＋10091；23 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prevention-centers", url: "./harm_reduction/drug_prevention_centers.geojson" }, legend: "harmReductionPreventionCenters", popup: "harmReductionPreventionCenters", params: { count: 2, kinds: ["slider", "slider"] }, description: "各縣市毒品危害防制中心，提供個案追蹤輔導與轉介。", topics: ["醫療", "減害", "毒品防制"] },
+  harmReductionNeedle: { key: "harmReductionNeedle", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "清潔針具據點", alt: "Needle & Syringe Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionNeedle, icon: Syringe, upstream: { status: "verified", datasets: [{ datasetId: "harm_reduction_needle_points", confidence: "HIGH" }], note: "疾管署清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單；990 點全數定位（綠島鄉衛生所、連江縣衛生局 2 點依機構名稱人工核對）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-needle", url: "./harm_reduction/needle_points.geojson" }, legend: "harmReductionNeedle", popup: "harmReductionNeedle", params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] }, description: "清潔針具衛教諮詢站、針具自動服務機與回收桶，一個據點可同時提供多類服務。", topics: ["醫療", "減害", "公共衛生"] },
+  harmReductionTreatment: { key: "harmReductionTreatment", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "替代療法與藥癮戒治", alt: "Substitution & Addiction Treatment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTreatment, icon: Pill, upstream: { status: "verified", datasets: [{ datasetId: "drug_treatment_facilities", confidence: "HIGH" }], note: "衛福部指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353；226 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-treatment", url: "./harm_reduction/drug_treatment_facilities.geojson" }, legend: "harmReductionTreatment", popup: "harmReductionTreatment", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "替代治療、指定藥癮戒治機構與衛星給藥點，可看美沙冬／丁基原啡因供應。", topics: ["醫療", "減害", "藥癮治療"] },
+  harmReductionHivSelftest: { key: "harmReductionHivSelftest", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋自我篩檢通路", alt: "HIV Self-test Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivSelftest, icon: TestTube, upstream: { status: "verified", datasets: [{ datasetId: "hiv_selftest_outlets", confidence: "HIGH" }], note: "疾管署愛滋自我篩檢通路（快照 2026-10-06）；681 點全數定位（1 點來源無地址，依名稱人工核對）；不含庫存。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-selftest", url: "./harm_reduction/hiv_selftest_outlets.geojson" }, legend: "harmReductionHivSelftest", popup: "harmReductionHivSelftest", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "可取得愛滋自我篩檢試劑的自動服務機與實體通路（衛生局所、藥局、醫療院所等）。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionHivTesting: { key: "harmReductionHivTesting", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "愛滋篩檢與指定醫療", alt: "HIV Testing & Care" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionHivTesting, icon: Stethoscope, upstream: { status: "verified", datasets: [{ datasetId: "hiv_testing_sites", confidence: "HIGH" }], note: "疾管署匿名篩檢（2026-09-22／07-22）、指定醫事機構與藥局（2026-07-15）、多元性別健康中心（2026-06-12）；694 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-hiv-testing", url: "./harm_reduction/hiv_testing_sites.geojson" }, legend: "harmReductionHivTesting", popup: "harmReductionHivTesting", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "匿名篩檢院所、愛滋指定醫事機構與藥局、多元性別健康中心。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionPreventionCenters: { key: "harmReductionPreventionCenters", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "毒品危害防制中心", alt: "Drug Abuse Prevention Centers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPreventionCenters, icon: ShieldPlus, upstream: { status: "verified", datasets: [{ datasetId: "drug_prevention_centers", confidence: "HIGH" }], note: "法務部 data.gov.tw 13717（2024-02-01）＋10091；23 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prevention-centers", url: "./harm_reduction/drug_prevention_centers.geojson" }, legend: "harmReductionPreventionCenters", popup: "harmReductionPreventionCenters", params: { count: 2, kinds: ["slider", "slider"] }, description: "各縣市毒品危害防制中心，提供個案追蹤輔導與轉介。", topics: ["醫療", "減害", "毒品防制"] },
   // ── 第二批（2026-10-06）：治療 → 預防／減害 → 社會復歸；酒駕事故掛「執法治安 › 治安態勢」──
-  harmReductionAlcohol: { key: "harmReductionAlcohol", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "酒癮治療與酒駕酒癮評估", alt: "Alcohol Treatment & DUI Assessment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAlcohol, icon: Wine, upstream: { status: "verified", datasets: [{ datasetId: "alcohol_treatment_facilities", confidence: "HIGH" }], note: "衛福部心理健康司酒癮治療費用補助方案及酒駕酒癮評估機構名單（2026-08-07）；135 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-alcohol", url: "./harm_reduction/alcohol_treatment_facilities.geojson" }, legend: "harmReductionAlcohol", popup: "harmReductionAlcohol", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "酒癮治療指定機構、酒癮治療費用補助方案與酒駕酒癮評估機構；popup 註明是否也提供藥癮治療。", topics: ["醫療", "減害", "酒癮"] },
-  harmReductionSmokingCessation: { key: "harmReductionSmokingCessation", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "戒菸服務機構", alt: "Smoking Cessation Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionSmokingCessation, icon: CigaretteOff, upstream: { status: "verified", datasets: [{ datasetId: "smoking_cessation_providers", confidence: "HIGH" }], note: "國健署戒菸服務合約機構（2026-10-06 官網匯出，來源無版本日）；2,277 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-smoking-cessation", url: "./harm_reduction/smoking_cessation_providers.geojson" }, legend: "harmReductionSmokingCessation", popup: "harmReductionSmokingCessation", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供戒菸門診（給藥）或戒菸衛教的醫院、診所、藥局與衛生所。", topics: ["醫療", "減害", "戒菸"] },
-  harmReductionInternetAddiction: { key: "harmReductionInternetAddiction", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "網路成癮治療資源", alt: "Internet Addiction Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionInternetAddiction, icon: MonitorSmartphone, upstream: { status: "verified", datasets: [{ datasetId: "internet_addiction_services", confidence: "HIGH" }], note: "衛福部各縣市網路成癮治療服務資源表（2026-07-28）；455 點，不含連江縣；機構類型依名稱歸類。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-internet-addiction", url: "./harm_reduction/internet_addiction_services.geojson" }, legend: "harmReductionInternetAddiction", popup: "harmReductionInternetAddiction", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "各縣市網路成癮治療的醫療院所與心理諮商所。", topics: ["醫療", "減害", "心理健康"] },
-  harmReductionPrep: { key: "harmReductionPrep", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "PrEP 服務醫院", alt: "HIV PrEP Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPrep, icon: HeartPulse, upstream: { status: "verified", datasets: [{ datasetId: "prep_service_sites", confidence: "HIGH" }], note: "疾管署 PrEP 服務醫院名單（2026-09-02）；178 點可定位（1 點無地址未畫）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prep", url: "./harm_reduction/prep_service_sites.geojson" }, legend: "harmReductionPrep", popup: "harmReductionPrep", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供公費或自費愛滋暴露前預防性投藥（PrEP）的醫院與診所。", topics: ["醫療", "減害", "愛滋"] },
-  harmReductionCondomOutlets: { key: "harmReductionCondomOutlets", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "保險套販售點", alt: "Condom Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionCondomOutlets, icon: Package, upstream: { status: "verified", datasets: [{ datasetId: "condom_outlets", confidence: "HIGH" }], note: "高雄、新竹市、屏東、嘉義市 data.gov.tw（2023-08～2026-08）；74 點，僅 4 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-condom-outlets", url: "./harm_reduction/condom_outlets.geojson" }, legend: "harmReductionCondomOutlets", popup: "harmReductionCondomOutlets", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "保險套自動販賣機與平價保險套藥局；僅高雄、新竹市、屏東、嘉義市有開放名冊。", topics: ["醫療", "減害", "性健康"] },
-  harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
-  harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
-  harmReductionAftercare: { key: "harmReductionAftercare", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
-  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", section: { theme: "執法治安 Law & Order", group: "治安態勢" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
+  harmReductionAlcohol: { key: "harmReductionAlcohol", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "酒癮治療與酒駕酒癮評估", alt: "Alcohol Treatment & DUI Assessment" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAlcohol, icon: Wine, upstream: { status: "verified", datasets: [{ datasetId: "alcohol_treatment_facilities", confidence: "HIGH" }], note: "衛福部心理健康司酒癮治療費用補助方案及酒駕酒癮評估機構名單（2026-08-07）；135 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-alcohol", url: "./harm_reduction/alcohol_treatment_facilities.geojson" }, legend: "harmReductionAlcohol", popup: "harmReductionAlcohol", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "酒癮治療指定機構、酒癮治療費用補助方案與酒駕酒癮評估機構；popup 註明是否也提供藥癮治療。", topics: ["醫療", "減害", "酒癮"] },
+  harmReductionSmokingCessation: { key: "harmReductionSmokingCessation", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "戒菸服務機構", alt: "Smoking Cessation Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionSmokingCessation, icon: CigaretteOff, upstream: { status: "verified", datasets: [{ datasetId: "smoking_cessation_providers", confidence: "HIGH" }], note: "國健署戒菸服務合約機構（2026-10-06 官網匯出，來源無版本日）；2,277 點。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-smoking-cessation", url: "./harm_reduction/smoking_cessation_providers.geojson" }, legend: "harmReductionSmokingCessation", popup: "harmReductionSmokingCessation", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供戒菸門診（給藥）或戒菸衛教的醫院、診所、藥局與衛生所。", topics: ["醫療", "減害", "戒菸"] },
+  harmReductionInternetAddiction: { key: "harmReductionInternetAddiction", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "網路成癮治療資源", alt: "Internet Addiction Services" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionInternetAddiction, icon: MonitorSmartphone, upstream: { status: "verified", datasets: [{ datasetId: "internet_addiction_services", confidence: "HIGH" }], note: "衛福部各縣市網路成癮治療服務資源表（2026-07-28）；455 點，不含連江縣；機構類型依名稱歸類。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-internet-addiction", url: "./harm_reduction/internet_addiction_services.geojson" }, legend: "harmReductionInternetAddiction", popup: "harmReductionInternetAddiction", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "各縣市網路成癮治療的醫療院所與心理諮商所。", topics: ["醫療", "減害", "心理健康"] },
+  harmReductionPrep: { key: "harmReductionPrep", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "PrEP 服務醫院", alt: "HIV PrEP Providers" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionPrep, icon: HeartPulse, upstream: { status: "verified", datasets: [{ datasetId: "prep_service_sites", confidence: "HIGH" }], note: "疾管署 PrEP 服務醫院名單（2026-09-02）；178 點可定位（1 點無地址未畫）。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-prep", url: "./harm_reduction/prep_service_sites.geojson" }, legend: "harmReductionPrep", popup: "harmReductionPrep", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "提供公費或自費愛滋暴露前預防性投藥（PrEP）的醫院與診所。", topics: ["醫療", "減害", "愛滋"] },
+  harmReductionCondomOutlets: { key: "harmReductionCondomOutlets", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "保險套販售點", alt: "Condom Outlets" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionCondomOutlets, icon: Package, upstream: { status: "verified", datasets: [{ datasetId: "condom_outlets", confidence: "HIGH" }], note: "高雄、新竹市、屏東、嘉義市 data.gov.tw（2023-08～2026-08）；74 點，僅 4 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-condom-outlets", url: "./harm_reduction/condom_outlets.geojson" }, legend: "harmReductionCondomOutlets", popup: "harmReductionCondomOutlets", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] }, description: "保險套自動販賣機與平價保險套藥局；僅高雄、新竹市、屏東、嘉義市有開放名冊。", topics: ["醫療", "減害", "性健康"] },
+  harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
+  harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
+  harmReductionAftercare: { key: "harmReductionAftercare", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
+  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
 
   medICUBeds: {
     key: "medICUBeds",

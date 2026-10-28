@@ -1,0 +1,63 @@
+/* 右上視野提示卡（design-system §5.42）。位置由元件 inline 的 top／right 決定（Monitor split 讓到 dock 左邊）。 */
+.country-hint {
+  --ch-surface: var(--surface-strong);
+  --ch-border: var(--border-panel);
+  --ch-strong: var(--text-strong);
+  --ch-muted: var(--text-muted);
+  --ch-elevation: var(--elevation-lg);
+  --ch-control-bg: var(--control-bg);
+  --ch-control-bg-hover: var(--control-bg-hover);
+  --ch-control-border: var(--control-border);
+  --ch-accent: var(--accent);
+  --ch-accent-faint: var(--accent-faint);
+  position: absolute;
+  z-index: var(--z-toolbar);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--ch-border);
+  border-radius: var(--radius-xl);
+  background: var(--ch-surface);
+  box-shadow: var(--ch-elevation);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--ch-strong);
+  font: var(--font-md)/1.5 var(--font-cjk);
+  animation: country-hint-enter 0.22s ease-out;
+}
+.country-hint--light {
+  --ch-surface: var(--light-surface-strong);
+  --ch-border: var(--light-border);
+  --ch-strong: var(--light-text-strong);
+  --ch-muted: var(--light-text-muted);
+  --ch-elevation: var(--light-elevation-lg);
+  --ch-control-bg: var(--light-control-bg);
+  --ch-control-bg-hover: var(--light-control-bg-hover);
+  --ch-control-border: var(--light-control-border);
+  --ch-accent: var(--light-accent);
+  --ch-accent-faint: var(--light-accent-faint);
+}
+.country-hint__head { display: flex; align-items: center; gap: var(--space-sm); }
+.country-hint__title { margin: 0; font-weight: var(--font-weight-semibold); }
+.country-hint__detail { margin: 2px 0 0; color: var(--ch-muted); font-size: var(--font-base); }
+.country-hint__actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
+.country-hint__btn {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--ch-control-border);
+  border-radius: var(--radius-md);
+  background: var(--ch-control-bg);
+  color: var(--ch-strong);
+  font: 500 var(--font-base)/1 var(--font-cjk);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.country-hint__btn:hover { background: var(--ch-control-bg-hover); }
+.country-hint__btn:focus-visible { outline: 2px solid var(--ch-accent); outline-offset: 2px; }
+.country-hint__btn--primary { border-color: var(--ch-accent); background: var(--ch-accent-faint); color: var(--ch-accent); font-weight: var(--font-weight-semibold); }
+.country-hint__btn--primary:hover { background: var(--ch-accent-faint); }
+@keyframes country-hint-enter { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .country-hint { animation: none; } }

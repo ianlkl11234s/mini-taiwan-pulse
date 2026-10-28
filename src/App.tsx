@@ -75,7 +75,10 @@ import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
-import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
+import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
+import { countryDef, type CountryCode } from "./constants/countries";
+import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
+import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
 import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
@@ -119,6 +122,8 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
+import { CountryViewportHint } from "./components/CountryViewportHint";
+import { useViewportCountry } from "./hooks/useViewportCountry";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -212,6 +217,19 @@ export default function App() {
   // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
   // 會在每次操作後把鏡頭拉回網址指定的位置。
   const urlStateRef = useRef<UrlState>(parseUrlState(window.location.search));
+  // 國家主體：mount 時依網址決定一次（c= → 相機中心所屬國 → 台灣）；之後只由使用者切換。
+  const countryInitRef = useRef(false);
+  if (!countryInitRef.current) {
+    countryInitRef.current = true;
+    const { country: urlCountry, camera: urlCamera, layers: urlLayers } = urlStateRef.current;
+    countryStore.set(resolveInitialCountry(urlCountry, urlCamera, countryForLayerKeys(urlLayers ?? [])));
+  }
+  const country = useCountry();
+  // 只有在國家選單選國家時才飛到該國（網址、場景快照、Agent 切國家都不飛）
+  const handleCountryFly = useCallback((code: CountryCode) => {
+    const { center, zoom, pitch, bearing } = countryDef(code).camera;
+    mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
+  }, []);
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -487,6 +505,8 @@ export default function App() {
   const [showInfo, setShowInfo] = useState(false);
   const { t, locale } = useLocale();
   const [chatOpen, setChatOpen] = useState(false);
+  /** Agent 活動卡（右上）是否在畫面上：出現時隱藏視野提示（§5.42） */
+  const [agentActivityVisible, setAgentActivityVisible] = useState(false);
   // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
   const [agentOpen, setAgentOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
@@ -1912,6 +1932,7 @@ export default function App() {
         date,
         hour,
         lang: localeStore.getSnapshot().locale,
+        country: countryStore.getSnapshot(),
       },
       window.location.pathname,
     );
@@ -1927,7 +1948,19 @@ export default function App() {
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     return () => { map.off("moveend", onMoveEnd); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale]);
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
+
+  // 右上浮動元件共用的 right：Monitor split 時讓到 dock 左邊（LoadingStatus §5.30、視野提示 §5.42）
+  const topRightOffset = splitActive
+    ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+    : isMobile ? "10px" : "16px";
+  // 視野提示（§5.42）：手機、拍攝模式、AI 對話框或 Agent 活動卡開著時停用；私人畫面判斷時讀 ref
+  const viewportHint = useViewportCountry({
+    map: mapPrepared ? mapRef.current : null,
+    enabled: !isMobile && !captureMode && !chatOpen && !agentActivityVisible,
+    isPrivateView: () => privateViewRef.current,
+    lockedKeys,
+  });
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
@@ -2119,6 +2152,7 @@ export default function App() {
         showToggle={false}
         uiHidden={captureMode}
         onAnalysisResultFeature={handleAnalysisResultFeature}
+        onActivityVisibleChange={setAgentActivityVisible}
         analysisResultSelected={featureInfo?.layerType === "analysisResult"}
       />}
 
@@ -2425,15 +2459,7 @@ export default function App() {
               monitorSplitActive={monitorOpen && monitorMode === "split"}
               compactLayers={monitorOpen && monitorMode === "split"}
               showSimulation={isOwner && !memberAuthLoading}
-              onJapanOpen={() => {
-                mapRef.current?.flyTo({
-                  center: JAPAN_CAMERA.center,
-                  zoom: JAPAN_CAMERA.zoom,
-                  pitch: JAPAN_CAMERA.pitch,
-                  bearing: JAPAN_CAMERA.bearing,
-                  speed: 1.0,
-                });
-              }}
+              onCountryFly={handleCountryFly}
             />
           </div>
 
@@ -2727,7 +2753,7 @@ export default function App() {
                       onBulkSetVisibility={handleBulkSetVisibility}
                       onAllOff={handleAllOff}
                       showSimulation={isOwner && !memberAuthLoading}
-                      onJapanOpen={() => mapRef.current?.flyTo({ center: JAPAN_CAMERA.center, zoom: JAPAN_CAMERA.zoom, pitch: JAPAN_CAMERA.pitch, bearing: JAPAN_CAMERA.bearing, speed: 1.0 })}
+                      onCountryFly={handleCountryFly}
                     />
                   </div>
                 )}
@@ -3137,10 +3163,19 @@ export default function App() {
           isDarkTheme={isDarkTheme}
           top={isMobile ? 52 : 60}
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
-          rightOffset={splitActive
-            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
-            : isMobile ? "10px" : "16px"}
+          rightOffset={topRightOffset}
         />
+      {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體，不自動切換；手機第一版不做 ── */}
+      {viewportHint.target && (
+        <CountryViewportHint
+          target={viewportHint.target}
+          current={country}
+          onSwitch={viewportHint.switchTo}
+          onKeep={viewportHint.keep}
+          isDarkTheme={isDarkTheme}
+          rightOffset={topRightOffset}
+        />
+      )}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel

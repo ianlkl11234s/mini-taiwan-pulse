@@ -19,6 +19,7 @@ import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
+import { countryStore } from "../state/countryStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
@@ -63,6 +64,8 @@ const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
+  /** Reports whether the top-right activity card is on screen (App hides the viewport country hint, design-system §5.42). */
+  onActivityVisibleChange?: (visible: boolean) => void;
   /** True while the docked FeatureInfoPanel shows an analysis result (App: featureInfo.layerType === "analysisResult").
    *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
   analysisResultSelected?: boolean };
@@ -208,6 +211,9 @@ export function MainMapConnection(props: Props) {
   // null＝尚未有訊息，畫面顯示預設引導語（隨介面語系），其餘訊息在產生當下依語系翻譯
   const [message, setMessage] = useState<string | null>(null);
   const latest = useRef(props); latest.current = props;
+  const activityVisible = activityCardVisible(activity, props.uiHidden);
+  useEffect(() => { latest.current.onActivityVisibleChange?.(activityVisible); }, [activityVisible]);
+  useEffect(() => () => latest.current.onActivityVisibleChange?.(false), []);
   // describeDataset throws for ids outside the frontend descriptors (e.g. warehouse lineage ids); fall back to the manifest label.
   const describedLabelOrManifest = (id: string): string | undefined => {
     try { return describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]; }
@@ -466,7 +472,8 @@ export function MainMapConnection(props: Props) {
             () => epoch === connectionEpoch.current,
           );
           // tilesSettled=false: sources/tiles still loading (or an animated layer keeps reloading); camera/layers below are still authoritative.
-          result = { observedAt: new Date().toISOString(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
+          // country: the panel's current country subject ("TW"/"JP"/"FR"), not derived from the camera centre.
+          result = { observedAt: new Date().toISOString(), country: countryStore.getSnapshot(), tilesSettled: liveMap.isStyleLoaded(), camera: live.bridge.getCamera(), viewport: resolveViewportContext(liveMap), time: live.timeline?.getContext() ?? null, following: followingRef.current, selection: live.selection ?? null, selectionSource: live.selection ? "feature" : null, visibleLayerKeys: liveVisible.slice(0, 100), totalVisible: liveVisible.length, truncated: liveVisible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(liveMap, presentedAnalysisRef.current, resultCollectionRef.current),
             // AG-1: rendered-viewport digest; counts drawn features only (SPEC-prod-connect §2.7).
             bounds: viewportBounds(liveMap), visibleSummary };
           break;
