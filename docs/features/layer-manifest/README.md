@@ -19,6 +19,12 @@
 - `src/data/upstreamRegistry.ts` 的 layer-to-dataset bridge
 - legend keys 與 manifest 的對應關係
 
+`country`（2026-10-28，國家主體化 PR 4）：每筆在主題樹裡的 entry 必填 `"TW"`／`"JP"`／`"FR"`
+（國家主題樹）或 `"WORLD"`／`"SIM"`（世界、模擬入口）；`section: null` 的 orphan 不填。現在由
+`layerManifest.test.ts` 釘住等於 `THEME_SCOPE[section.theme]`。之後主題 title 跨國重名
+（例：日本、法國都叫「通訊」）時，圖層的國家歸屬以本欄為正本；Agent 開圖層時切國家
+（`explorationNavigation.ts`）已改讀本欄。
+
 參數的完整 UI 規格仍由 `src/data/layerParamsSpec.ts` 管理；manifest 只保存可驗證的
 `count`／`kinds` 形狀，兩邊由契約測試對帳。
 
