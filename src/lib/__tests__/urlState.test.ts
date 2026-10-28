@@ -467,3 +467,21 @@ describe("網址長度（十幾個圖層會不會太長）", () => {
     expect(url.length).toBeLessThan(2000);
   });
 });
+
+describe("country（c=，國家主體）", () => {
+  it("只收小寫已知國碼，轉成大寫 CountryCode", () => {
+    expect(parseUrlState("?v=1&c=jp").country).toBe("JP");
+    expect(parseUrlState("?v=1&c=fr").country).toBe("FR");
+    expect(parseUrlState("?v=1&c=tw").country).toBe("TW");
+    expect(parseUrlState("?v=1&c=JP").country).toBeUndefined();
+    expect(parseUrlState("?v=1&c=kr").country).toBeUndefined();
+    expect(parseUrlState("?v=1&c=").country).toBeUndefined();
+  });
+
+  it("buildUrl 寫小寫、台灣不寫，且可 round-trip", () => {
+    expect(buildUrl({ country: "TW" }, "/")).toBe("/?v=1");
+    const url = buildUrl({ country: "JP" }, "/");
+    expect(url).toBe("/?v=1&c=jp");
+    expect(parseUrlState(url.slice(1)).country).toBe("JP");
+  });
+});

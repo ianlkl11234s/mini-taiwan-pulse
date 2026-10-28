@@ -25,6 +25,7 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // 3. 每主題內子群順序：點位 → 線/面 → 即時 → 分析
 
 import type { LayerVisibility, TransportType } from "../../types";
+import type { CountryCode } from "../../constants/countries";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 import { getMedicalStatisticsGroup } from "../../data/medicalStatisticsGroups";
 import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TITLES, type EnvironmentRecipe } from "../../data/environmentStatisticsRecipes";
@@ -192,37 +193,128 @@ export const GLOBAL_SITUATION_THEME_TITLE = "全球情勢 Global Situation";
 export const GLOBAL_ENVIRONMENT_THEME_TITLE = "全球環境 Global Environment";
 export const COMMUNICATIONS_THEME_TITLE = "全球通訊 Global Communications";
 
-/**
- * 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。
- * 只決定 membership 與同一大分類內的先後；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定（layerPanels.ts `WORLD_THEMES`）。
- */
-export const WORLD_TAB_THEME_TITLES: string[] = [
-  GLOBAL_SITUATION_THEME_TITLE,
-  "全球海事 Global Maritime",
-  "全球氣候 Global Climate",
-  GLOBAL_ENVIRONMENT_THEME_TITLE,
-  COMMUNICATIONS_THEME_TITLE,
-];
+/** 主題屬於哪個國家主體（或世界、模擬）。見 `THEME_SCOPE`。 */
+export type ThemeScope = CountryCode | "WORLD" | "SIM";
 
 /**
- * 「日本 Japan」rail tab 的抬頭名（LayersPanel 標題）。tab 本身已是「日本」，
- * 故底下不再包一層「日本」主題，而是 行政區 / 交通 / 宗教 直接當頂層主題。
+ * 主題 → 國家主體對照（議題 1「國家主體化」，2026-10-28）。每個主題都要登記（layerConsistency 測試擋漏）。
+ * 用主題而非 layer key 前綴判斷，因為日本主題有大量 `jma*` 等非 `jp` 前綴的圖層。
+ * ⚠️ 主題 title 全站唯一：第三國若也用「交通」會撞名，屆時改由 manifest 欄位當正本。
+ * 物件插入順序有意義：同一 scope 內的先後＝下方派生陣列的順序（世界、日本面板在同一大分類內依此排）。
  */
-export const JAPAN_THEME_TITLE = "日本 Japan";
+export const THEME_SCOPE: Readonly<Record<string, ThemeScope>> = {
+  // 世界（只放語意明確的全球主題；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定）
+  [GLOBAL_SITUATION_THEME_TITLE]: "WORLD",
+  "全球海事 Global Maritime": "WORLD",
+  "全球氣候 Global Climate": "WORLD",
+  [GLOBAL_ENVIRONMENT_THEME_TITLE]: "WORLD",
+  [COMMUNICATIONS_THEME_TITLE]: "WORLD",
+  // 日本（2026-10-26 改用台灣主題系統：title＝台灣主題中文短名，與台灣主題是不同字串）
+  "底圖": "JP",
+  "交通": "JP",
+  "人口社經": "JP",
+  "基礎建設": "JP",
+  "教育": "JP",
+  "社福長照": "JP",
+  "宗教": "JP",
+  "觀光": "JP",
+  "醫療": "JP",
+  "災害": "JP",
+  "執法治安": "JP",
+  "環境氣候": "JP",
+  "海洋": "JP",
+  "水資源": "JP",
+  "林業": "JP",
+  // 模擬（站主限定入口）
+  "雙北跨河橋梁中斷": "SIM",
+  "臺北 307 走廊公車擁擠": "SIM",
+  // 台灣：一般主題
+  "底圖 Base Map": "TW",
+  "交通 Move": "TW",
+  "原民與農村 Indigenous & Rural": "TW",
+  "人口社經 People": "TW",
+  "都市分析 Urban Analysis": "TW",
+  "房地產 Real Estate": "TW",
+  "工商登記 Business Registry": "TW",
+  "基礎建設 Infrastructure": "TW",
+  "教育 Education": "TW",
+  "社福長照 Welfare": "TW",
+  "運動休閒 Sports & Leisure": "TW",
+  "文化 Culture": "TW",
+  "宗教 Religion": "TW",
+  "殯葬 Funeral": "TW",
+  "觀光 Tourism": "TW",
+  "醫療 Medical": "TW",
+  "消防 Fire & Rescue": "TW",
+  "災害 Hazard": "TW",
+  "民防避難 Civil Defense": "TW",
+  "執法治安 Law & Order": "TW",
+  "能源 Energy": "TW",
+  "廢棄物 Waste": "TW",
+  "環境氣候 Environment": "TW",
+  "海洋 Marine": "TW",
+  "水資源 Water": "TW",
+  "農業 Agriculture": "TW",
+  "動物福利 Animal Welfare": "TW",
+  "林業 Forestry": "TW",
+  "太空 Space": "TW",
+  "情勢 Situation": "TW",
+  // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
+  "工作與所得 Work & Income": "TW",
+  "房地產統計 Real Estate Statistics": "TW",
+  "交通統計 Transport Statistics": "TW",
+  "人口統計 Population Statistics": "TW",
+  "財稅與消費統計 Fiscal & Consumption Statistics": "TW",
+  "原民與農村統計 Indigenous & Rural Statistics": "TW",
+  "國有資產統計 State Assets Statistics": "TW",
+  "住宅存量與使用": "TW",
+  "統計比較": "TW",
+  [ADDICTION_STATISTICS_THEME_TITLE]: "TW",
+  "疾病與健康統計 Disease & Health Statistics": "TW",
+  "體育統計 Sports Statistics": "TW",
+  "文化統計 Culture Statistics": "TW",
+  "教育與少子化統計": "TW",
+  "醫療與長照統計": "TW",
+  "治安統計 Crime Statistics": "TW",
+  "水資源統計 Water Statistics": "TW",
+  "廢棄物統計 Waste Statistics": "TW",
+  "資源回收統計 Recycling Statistics": "TW",
+  "水質與污水統計 Water Quality & Sewage Statistics": "TW",
+  "空氣品質統計 Air Quality Statistics": "TW",
+  "污染與公害統計 Pollution & Nuisance Statistics": "TW",
+  "環境治理統計 Environmental Enforcement Statistics": "TW",
+  "能源統計 Energy Statistics": "TW",
+  "農業統計 Agriculture Statistics": "TW",
+  "農業統計": "TW",
+  "畜牧統計": "TW",
+  "漁業統計": "TW",
+  "林業統計": "TW",
+  [LANDSLIDE_STATISTICS_THEME_TITLE]: "TW",
+  "災害風險統計 Disaster Risk Statistics": "TW",
+  "海洋統計 Marine Statistics": "TW",
+};
+
+/** 某 scope 的主題 title（依 `THEME_SCOPE` 登記順序）。 */
+export function themeTitlesForScope(scope: ThemeScope): string[] {
+  return Object.entries(THEME_SCOPE).filter(([, value]) => value === scope).map(([title]) => title);
+}
+
+/** 主題所屬 scope；未登記回 undefined（測試保證 THEMES 全部有登記）。 */
+export function themeScope(title: string): ThemeScope | undefined {
+  return THEME_SCOPE[title];
+}
+
+/** 劃入「世界」入口的主題清單（`THEME_SCOPE` 派生；只決定 membership 與同一大分類內的先後）。 */
+export const WORLD_TAB_THEME_TITLES: string[] = themeTitlesForScope("WORLD");
+
+/** 劃入「日本」的主題清單（`THEME_SCOPE` 派生；順序依全站大分類排，同類內照登記順序）。 */
+export const JAPAN_TAB_THEME_TITLES: string[] = themeTitlesForScope("JP");
 
 /**
- * 劃入「日本」rail tab 的主題清單（陣列順序＝日本 tab 內顯示順序）。
- * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
- * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
+ * 「模擬 Simulation」入口的主題清單（`THEME_SCOPE` 派生）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）。
+ * 主題 title 是識別字串，顯示名稱查 `THEME_NAMES`。
  */
-// 2026-10-26 改用台灣主題系統（15 個主題，title＝台灣主題中文短名）；順序依全站大分類（`THEME_MACRO_GROUPS`）排，同類內照此陣列。
-export const JAPAN_TAB_THEME_TITLES: string[] = ["底圖", "交通", "人口社經", "基礎建設", "教育", "社福長照", "宗教", "觀光", "醫療", "災害", "執法治安", "環境氣候", "海洋", "水資源", "林業"];
-
-/**
- * 「模擬 Simulation」rail tab 的主題清單（simulation PLAN Phase 1）。只有站主看得到入口（D-1，layerPanels.ts `visibleLayerPanels`）；
- * 桌機主 Layers panel 用它把這批主題濾掉。主題 title 是識別字串，顯示名稱查 `THEME_NAMES`。
- */
-export const SIMULATION_TAB_THEME_TITLES: string[] = ["雙北跨河橋梁中斷", "臺北 307 走廊公車擁擠"];
+export const SIMULATION_TAB_THEME_TITLES: string[] = themeTitlesForScope("SIM");
 
 /** 環境統計依 recipe 的中分類／小分組派生；raw 在 ratio 前，toggle 群組只在第一個成員渲染。 */
 function environmentLayers(match: (recipe: EnvironmentRecipe) => boolean): LayerDef[] {

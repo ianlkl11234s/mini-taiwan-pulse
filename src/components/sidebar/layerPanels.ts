@@ -1,6 +1,6 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { LAYER_MACRO_GROUPS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { LAYER_MACRO_GROUPS, THEMES, themeScope, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
 
 /**
  * 圖層面板五個入口（台灣／統計／世界／日本／模擬；模擬只對站主顯示）—— 桌機 rail 與手機底部面板共用同一份定義
@@ -60,7 +60,8 @@ export const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
 /** 「模擬」入口（站主限定）：雙北跨河橋梁中斷、臺北 307 走廊公車擁擠兩個主題。 */
 export const SIMULATION_THEMES = THEMES.filter((t) => SIMULATION_TAB_THEME_TITLES.includes(t.title));
-export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !SIMULATION_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
+/** 台灣入口：`THEME_SCOPE` 為 TW 的主題，扣掉統計資料主題、再濾掉統計面（統計面在統計入口）。 */
+export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => themeScope(t.title) === "TW" && !statisticsDataThemeTitles.has(t.title)));
 
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);

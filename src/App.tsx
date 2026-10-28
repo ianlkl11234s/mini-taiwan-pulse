@@ -75,7 +75,9 @@ import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
-import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
+import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
+import { JAPAN_CAMERA } from "./constants/countries";
+import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
 import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
@@ -212,6 +214,13 @@ export default function App() {
   // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
   // 會在每次操作後把鏡頭拉回網址指定的位置。
   const urlStateRef = useRef<UrlState>(parseUrlState(window.location.search));
+  // 國家主體：mount 時依網址決定一次（c= → 相機中心所屬國 → 台灣）；之後只由使用者切換。
+  const countryInitRef = useRef(false);
+  if (!countryInitRef.current) {
+    countryInitRef.current = true;
+    countryStore.set(resolveInitialCountry(urlStateRef.current.country, urlStateRef.current.camera));
+  }
+  const country = useCountry();
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -1912,6 +1921,7 @@ export default function App() {
         date,
         hour,
         lang: localeStore.getSnapshot().locale,
+        country: countryStore.getSnapshot(),
       },
       window.location.pathname,
     );
@@ -1927,7 +1937,7 @@ export default function App() {
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     return () => { map.off("moveend", onMoveEnd); };
-  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale]);
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
