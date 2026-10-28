@@ -848,7 +848,7 @@ export function MainMapConnection(props: Props) {
   const panelOpen = props.embedded || open;
   const showToggle = props.showToggle ?? !props.embedded;
   return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
-    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityVisible ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
+    {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={activityCardVisible(activity, props.uiHidden) ? undefined : { display: "none" }}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>{t("research.panel.toggle")}</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
       {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow={t("research.panel.eyebrow")} title={t("research.panel.title")} onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
