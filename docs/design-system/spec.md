@@ -969,7 +969,7 @@
 - **位置**：面板標頭（§5.1）下、「全部關閉」上，padding `4px 12px 0`；世界、模擬入口不顯示。手機分頁下同樣位置。
 - **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
 - **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
-- **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊觸發列、底 `BG_PANEL`、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
+- **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊觸發列、底**不透明**（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`；彈出層疊在半透明面板上，半透明底會讓下方按鈕與搜尋框的字透出）、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
 - **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
 - **網址**：非台灣時帶 `c=<小寫國碼>`；開站初始國家＝`c=` → 網址相機中心所屬國 →（網址沒有相機時）第一個國家圖層所屬國 → 台灣，不存 localStorage。
 - **未涵蓋**：統計只有台灣。他國時統計入口不畫主題樹，改顯示「{國名}目前沒有統計資料」（12px `DIM`）＋「切回台灣」按鈕（外觀同「全部關閉」）；國家選單、全部關閉、單一／可重疊仍保留。
