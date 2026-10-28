@@ -6,7 +6,9 @@ import { SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 // 與桌機 IconRailSidebar 共用同一套面板元件與四個入口定義（layer-panel-unify P7）
 import { LayersPanel } from "./sidebar/LayersPanel";
-import { LAYER_PANELS, layerPanelDef, visibleLayerPanels, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
+import { LAYER_PANELS, resolveLayerPanel, visibleLayerPanels, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
+import { countryStore, useCountry } from "../state/countryStore";
+import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext } from "./sidebar/railTheme";
 import { useLocale } from "../state/localeStore";
 
@@ -41,10 +43,10 @@ interface LayerSidebarProps {
   onDisplayModeChange: (mode: DisplayMode) => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  /** 「全部關閉」（台灣／世界／日本入口；統計入口只關統計） */
+  /** 「全部關閉」（世界、模擬入口；圖層入口只關目前國家、統計入口只關統計） */
   onAllOff?: () => void;
-  /** 切到日本分頁時（App 飛到日本，同桌機） */
-  onJapanOpen?: () => void;
+  /** 使用者在國家選單選了國家（App 飛到該國，同桌機） */
+  onCountryFly?: (code: CountryCode) => void;
   /** 站主才為 true：模擬分頁只對站主顯示（simulation PLAN D-1）；未傳＝不顯示。 */
   showSimulation?: boolean;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
@@ -71,7 +73,7 @@ export function LayerSidebar({
   onDisplayModeChange,
   onBulkSetVisibility,
   onAllOff,
-  onJapanOpen,
+  onCountryFly,
   showSimulation,
   onMemberToggle,
   memberActive,
@@ -98,7 +100,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen} showSimulation={showSimulation}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} showSimulation={showSimulation}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -188,7 +190,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onJapanOpen={onJapanOpen} showSimulation={showSimulation}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} showSimulation={showSimulation}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -199,13 +201,13 @@ export function LayerSidebar({
 // ── Sidebar Content ──
 
 /**
- * 手機底部面板（layer-panel-unify P7）：分頁＝桌機 rail 的四個入口（台灣／統計／世界／日本），
+ * 手機底部面板（layer-panel-unify P7）：分頁＝桌機 rail 的入口（圖層／統計／世界，站主多模擬），
  * 內容直接用桌機同一個 `LayersPanel`（列、主題列、展開區、搜尋全部共用，不再有手機專用的列）。
  */
 function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onJapanOpen, showSimulation,
+  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onCountryFly, showSimulation,
   onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
@@ -222,7 +224,7 @@ function SidebarContent({
   onDisplayModeChange: (mode: DisplayMode) => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onAllOff?: () => void;
-  onJapanOpen?: () => void;
+  onCountryFly?: (code: CountryCode) => void;
   showSimulation?: boolean;
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -233,14 +235,16 @@ function SidebarContent({
   const { t } = useLocale();
   const { TEXT_STRONG, DIM, ROW_ACTIVE, ALLOFF_BG } = palette;
   const [tab, setTab] = useState<LayerPanelId>("layers");
-  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "", simulation: "" });
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", simulation: "" });
   const panels = visibleLayerPanels(!!showSimulation);
   const panelIds = panels.map((entry) => entry.id);
-  // 站主身分消失時，目前停在模擬分頁就退回台灣
-  const panel = layerPanelDef(panelIds.includes(tab) ? tab : "layers");
-  const openTab = (next: LayerPanelId) => {
-    if (next === "japan" && tab !== "japan") onJapanOpen?.();
-    setTab(next);
+  // 國家主體：與桌機、統計共用（countryStore）
+  const country = useCountry();
+  // 站主身分消失時，目前停在模擬分頁就退回圖層
+  const panel = resolveLayerPanel(panelIds.includes(tab) ? tab : "layers", country);
+  const selectCountry = (code: CountryCode) => {
+    countryStore.set(code);
+    onCountryFly?.(code);
   };
 
   return (
@@ -265,7 +269,7 @@ function SidebarContent({
       <div role="tablist" aria-label={t("sidebar.tabsAria")} style={{ display: "flex", gap: 4, margin: "0 12px 6px" }}>
         {panels.map((entry) => {
           const active = tab === entry.id;
-          return <button key={entry.id} type="button" role="tab" aria-selected={active} onClick={() => openTab(entry.id)} style={{ flex: 1, minWidth: 0, border: "none", borderRadius: RADIUS.lg, padding: "6px 4px", cursor: "pointer", background: active ? ROW_ACTIVE : "transparent", color: active ? TEXT_STRONG : DIM, fontSize: FONT_SIZE.md, fontWeight: 700, fontFamily: FONT_CJK }}>{t(`panel.${entry.id}.short`)}</button>;
+          return <button key={entry.id} type="button" role="tab" aria-selected={active} onClick={() => setTab(entry.id)} style={{ flex: 1, minWidth: 0, border: "none", borderRadius: RADIUS.lg, padding: "6px 4px", cursor: "pointer", background: active ? ROW_ACTIVE : "transparent", color: active ? TEXT_STRONG : DIM, fontSize: FONT_SIZE.md, fontWeight: 700, fontFamily: FONT_CJK }}>{t(`panel.${entry.id}.short`)}</button>;
         })}
       </div>
       {onMemberToggle && (
@@ -283,10 +287,18 @@ function SidebarContent({
         </button>
       )}
       <LayersPanel
-        key={panel.id}
+        // 切國家要 remount：主題收合狀態只在掛載時讀 defaultCollapsed
+        key={`${panel.id}:${panel.countryScoped ? country : ""}`}
         panelId={panel.id}
         availablePanelIds={panelIds}
-        onSearchInPanel={(target, query) => { setPanelSearch((prev) => ({ ...prev, [target]: query })); openTab(target); }}
+        country={country}
+        covered={panel.covered}
+        onCountrySelect={panel.countryScoped ? selectCountry : undefined}
+        onSearchInPanel={(target, query, targetCountry) => {
+          setPanelSearch((prev) => ({ ...prev, [target]: query }));
+          if (targetCountry) countryStore.set(targetCountry);
+          setTab(target);
+        }}
         search={panelSearch[panel.id]}
         onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
         themes={panel.themes}

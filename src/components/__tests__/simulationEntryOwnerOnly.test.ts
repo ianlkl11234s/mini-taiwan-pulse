@@ -26,7 +26,7 @@ const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSideba
 
 describe("模擬入口只對站主顯示（simulation PLAN D-1）", () => {
   it("visibleLayerPanels：非站主不含模擬，站主含模擬且排在最後", () => {
-    expect(visibleLayerPanels(false).map((panel) => panel.id)).toEqual(["layers", "statistics", "world", "japan"]);
+    expect(visibleLayerPanels(false).map((panel) => panel.id)).toEqual(["layers", "statistics", "world"]);
     expect(visibleLayerPanels(true)).toBe(LAYER_PANELS);
     expect(visibleLayerPanels(true)[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
@@ -41,7 +41,8 @@ describe("模擬入口只對站主顯示（simulation PLAN D-1）", () => {
     expect(mobile({ showSimulation: true })).toContain(">模擬<");
     const guest = mobile({});
     expect(guest).not.toContain(">模擬<");
-    expect(guest).toContain(">日本<");
+    expect(guest).toContain(">世界<");
+    expect(guest).not.toContain(">日本<");
   });
 });
 
@@ -60,7 +61,7 @@ describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   });
 
   it("Agent 開啟該圖層時導向模擬面板", () => {
-    expect(panelForExplorationLayers(["bridgeResilienceTwinCity"])).toBe("simulation");
+    expect(panelForExplorationLayers(["bridgeResilienceTwinCity"]).panel).toBe("simulation");
   });
 });
 
@@ -69,6 +70,6 @@ describe("公車擁擠模擬（Phase 2 第一刀）", () => {
     const theme = layerPanelDef("simulation").themes[1]!;
     expect(LAYER_MANIFEST.busCrowdingSim.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
     expect(new Set(getThemeLayerKeys(MAIN_THEMES)).has("busCrowdingSim")).toBe(false);
-    expect(panelForExplorationLayers(["busCrowdingSim"])).toBe("simulation");
+    expect(panelForExplorationLayers(["busCrowdingSim"]).panel).toBe("simulation");
   });
 });

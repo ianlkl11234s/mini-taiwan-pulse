@@ -1,17 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { explorationLayerKeys, panelForExplorationLayers } from "../explorationNavigation";
+import { countryForLayerKeys, explorationLayerKeys, panelForExplorationLayers } from "../explorationNavigation";
 
 describe("panelForExplorationLayers", () => {
-  it("uses the shared statistics membership plus world and Japan theme slices", () => {
-    expect(panelForExplorationLayers(["statsBusOperatingRouteLengthKm"])).toBe("statistics");
-    expect(panelForExplorationLayers(["statsCrimeDrugCasesTownship"])).toBe("statistics");
-    expect(panelForExplorationLayers(["jpReligionGsi"])).toBe("japan");
+  it("uses the shared statistics membership plus world theme slices", () => {
+    expect(panelForExplorationLayers(["statsBusOperatingRouteLengthKm"])).toEqual({ panel: "statistics", country: "TW" });
+    expect(panelForExplorationLayers(["statsCrimeDrugCasesTownship"])).toEqual({ panel: "statistics", country: "TW" });
+    expect(panelForExplorationLayers(["submarineCables"])).toEqual({ panel: "world" });
+  });
+
+  it("opens the Layers panel in the layer's country (Japan, France, Taiwan)", () => {
+    expect(panelForExplorationLayers(["jpReligionGsi"])).toEqual({ panel: "layers", country: "JP" });
+    expect(panelForExplorationLayers(["jpStations"])).toEqual({ panel: "layers", country: "JP" });
+    expect(panelForExplorationLayers(["anfrWirelessSites"])).toEqual({ panel: "layers", country: "FR" });
+    expect(panelForExplorationLayers(["ooklaMobileTaiwan"])).toEqual({ panel: "layers", country: "TW" });
   });
 
   it("keeps references, ordinary, and unknown layer keys in the main Layers panel", () => {
-    expect(panelForExplorationLayers(["countyBoundary"])).toBe("layers");
-    expect(panelForExplorationLayers(["schools"])).toBe("layers");
-    expect(panelForExplorationLayers(["not-a-layer"])).toBe("layers");
+    expect(panelForExplorationLayers(["countyBoundary"])).toEqual({ panel: "layers", country: "TW" });
+    expect(panelForExplorationLayers(["schools"])).toEqual({ panel: "layers", country: "TW" });
+    expect(panelForExplorationLayers(["not-a-layer"])).toEqual({ panel: "layers" });
+  });
+});
+
+describe("countryForLayerKeys", () => {
+  it("回傳第一個國家主題樹圖層的國家，世界圖層與未知 key 略過", () => {
+    expect(countryForLayerKeys(["submarineCables", "jpStations"])).toBe("JP");
+    expect(countryForLayerKeys(["anfrWirelessSites"])).toBe("FR");
+    expect(countryForLayerKeys(["schools", "jpStations"])).toBe("TW");
+    expect(countryForLayerKeys(["submarineCables", "not-a-layer"])).toBeUndefined();
   });
 });
 

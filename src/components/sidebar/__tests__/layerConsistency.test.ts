@@ -39,6 +39,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 
 import {
+  STATISTICS_TAB_CHOROPLETH_LAYER_KEYS,
   GLOBAL_ENVIRONMENT_THEME_TITLE,
   GLOBAL_SITUATION_THEME_TITLE,
   JAPAN_TAB_THEME_TITLES,
@@ -51,7 +52,7 @@ import {
   themeMacroGroup,
   themeName,
 } from "../layerCatalog";
-import { JAPAN_MACRO_GROUPS, LAYER_PANELS } from "../layerPanels";
+import { JAPAN_MACRO_GROUPS, JAPAN_THEMES, LAYER_PANELS, PANEL_COUNTRIES, countryLayerKeys, resolveLayerPanel } from "../layerPanels";
 import { hasLayerDetails } from "../../LayerSidebar";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
@@ -562,8 +563,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(themeName("社福長照")).toEqual({ zh: "社福長照", sub: "社会福祉・介護" });
   });
 
-  it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致", () => {
-    for (const panel of LAYER_PANELS) {
+  it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致（圖層入口逐國檢查）", () => {
+    for (const panel of [...LAYER_PANELS, ...PANEL_COUNTRIES.map((code) => ({ ...resolveLayerPanel("layers", code), id: `layers:${code}` }))]) {
       if (!panel.macroGroups) continue;
       const titles = panel.themes.map((theme) => theme.title);
       const groupOf = (title: string) => panel.macroGroups!.findIndex((group) => group.themes.includes(title));
@@ -578,9 +579,18 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     }
   });
 
+  it("圖層入口「全部關閉」只關目前國家（§8 乙）：台灣不含統計面與日本層，日本含日本層", () => {
+    const tw = new Set<string>(countryLayerKeys("TW"));
+    expect([...STATISTICS_TAB_CHOROPLETH_LAYER_KEYS].filter((key) => tw.has(key))).toEqual([]);
+    expect(tw.has("jpStations")).toBe(false);
+    expect(tw.has("ooklaMobileTaiwan")).toBe(true);
+    expect(countryLayerKeys("JP")).toContain("jpStations");
+    expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
+  });
+
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {
     expect(JAPAN_MACRO_GROUPS.map((group) => group.zh)).toEqual(["基準", "移動與城市", "公共生活", "安全與治理", "環境與資源"]);
-    expect(LAYER_PANELS.find((panel) => panel.id === "japan")!.macroGroups).toBe(JAPAN_MACRO_GROUPS);
+    expect(resolveLayerPanel("layers", "JP").macroGroups).toBe(JAPAN_MACRO_GROUPS);
     for (const group of JAPAN_MACRO_GROUPS) {
       const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
       for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
@@ -602,7 +612,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
   });
 
   it("日本主題一律預設收合，與台灣一致（2026-10-03 使用者決定）", () => {
-    for (const theme of LAYER_PANELS.find((panel) => panel.id === "japan")!.themes) {
+    for (const theme of JAPAN_THEMES) {
       expect(theme.defaultCollapsed, theme.title).toBe(true);
     }
   });

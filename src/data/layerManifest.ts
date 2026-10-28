@@ -3561,7 +3561,7 @@ export const LAYER_MANIFEST = {
 
   anfrWirelessSites: {
     key: "anfrWirelessSites",
-    section: { theme: "全球通訊 Global Communications", group: "官方無線站點 Official Wireless Sites" },
+    section: { theme: "通訊", group: "官方無線站點 Official Wireless Sites" },
     ...layerName({ zh: "法國 ANFR 5G 3500 無線站點概覽", alt: "France ANFR 5G 3500 Overview" }),
     expandable: true,
     color: "#F97316",
@@ -3664,7 +3664,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobileTaiwan: {
     key: "ooklaMobileTaiwan",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "通訊 Telecom", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 台灣行動細格", alt: "Taiwan Mobile Fine Grid" }),
     expandable: true,
     color: "#F46D43",
@@ -3688,7 +3688,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedTaiwan: {
     key: "ooklaFixedTaiwan",
-    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "通訊 Telecom", group: "網路效能格網 Network Performance Grid" },
     ...layerName({ zh: "Ookla 台灣固定網路細格", alt: "Taiwan Fixed Fine Grid" }),
     expandable: true,
     color: "#4575B4",
