@@ -2196,3 +2196,20 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加 10-28 段（第四波正式站驗收）。
 - `BACKLOG.md`：新增 JPRD-2、JPW4-1；BC-4b 補 gsi／jma 網域。JPRD-1 已在 #720。
 
+## 2026-10-28 國家主體化（議題 1）→ v2.16.0／v2.16.1
+
+### What worked
+
+- 先用 artifact 示意頁讓使用者選 A–E，再拆 PR 1–4 實作，使用者看測試站後只追加兩個小調整（一行版、台灣飛全台）。
+- 發版後自己開正式站驗收，抓到切國家時飛行途中閃出舊提示，當天修成 v2.16.1，並用每 0.5 秒取樣的方式前後對照（修正前前 4 秒都出現、修正後 0/19）。
+
+### Friction / limits
+
+- #723、#724 從 #722 較早的 commit 分出，合完 #722 後要各自先合 develop、重跑 CI；#724 另有 CHANGELOG 衝突。疊層 PR 合併前先用 `merge-base --is-ancestor` 檢查每個兄弟分支。
+- 單元測試只測停穩後的判斷，沒涵蓋「國家改了但視野還是舊的」這個時間窗；時序類 UI 要在瀏覽器取樣驗證。
+- agent-browser 第一次 open 停在 about:blank，`eval` 拿到空字串；要重新 open 並確認 `location.href` 再判斷。
+
+### Memory output
+
+- `STATUS.md`：改寫為 v2.16.0／v2.16.1 checkpoint。
+- `BACKLOG.md`：新增 MC-1～MC-4。
