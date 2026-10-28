@@ -40,7 +40,7 @@
   "statistics.backToTaiwan": "台湾に戻る",
   "countryHint.aria": "表示中の国のお知らせ",
   "countryHint.title": "現在{country}を表示中です",
-  "countryHint.detail": "レイヤーパネルは{country}のままです",
+  "countryHint.detail": "レイヤーパネルは{country}用のままです",
   "countryHint.switch": "{country}に切り替え",
   "countryHint.keep": "{country}のままにする",
   "panel.simulation.title": "シミュレーション",

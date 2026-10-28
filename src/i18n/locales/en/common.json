@@ -40,7 +40,7 @@
   "statistics.backToTaiwan": "Back to Taiwan",
   "countryHint.aria": "Viewport country hint",
   "countryHint.title": "You're viewing {country}",
-  "countryHint.detail": "The layer panel still shows {country}",
+  "countryHint.detail": "The layer panel still lists {country} layers",
   "countryHint.switch": "Switch to {country}",
   "countryHint.keep": "Stay on {country}",
   "panel.simulation.title": "Simulation",
