@@ -213,13 +213,21 @@ export function useViewportCountry({
     return dispose;
   }, [map, enabled, dismissals]);
 
-  // 國家主體改變（手動切、按「切換到〇〇」、Agent 開他國圖層）→ 重新啟用所有提示。
+  // 國家主體改變（手動切、按「切換到〇〇」、Agent 開他國圖層）→ 重新啟用所有提示，並丟掉舊的視野判斷：
+  // 從選單切國家時鏡頭正要飛走，沿用舊視野會在飛行途中閃出「目前視野在〇〇」（2026-10-28 正式站發現）。
+  // 地圖停著就立刻重判；正在移動則等 moveend 停穩後再判。
   const previousCountry = useRef(country);
   useEffect(() => {
     if (previousCountry.current === country) return;
     previousCountry.current = country;
     if (dismissals.clear()) setDismissVersion((v) => v + 1);
-  }, [country, dismissals]);
+    if (!map || !enabled || map.isMoving() || isPrivateViewRef.current()) {
+      setView(null);
+      return;
+    }
+    const c = map.getCenter();
+    setView(viewportCountryAt([c.lng, c.lat], map.getZoom()));
+  }, [country, dismissals, map, enabled]);
 
   const target = enabled
     ? viewportHintTarget({
