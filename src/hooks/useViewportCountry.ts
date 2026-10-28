@@ -137,7 +137,8 @@ export function createViewportSettleWatcher({
   const onStart = () => {
     if (timer) clearTimeout(timer);
     timer = undefined;
-    if (isAgentMotion()) agentMoved = true;
+    // 每段移動重新判定：Agent 飛完後使用者在 600ms 內接著拖，那一段算手動
+    agentMoved = isAgentMotion();
   };
   const onEnd = () => {
     if (timer) clearTimeout(timer);

@@ -174,4 +174,23 @@ describe("視野提示：停穩 600ms", () => {
     expect(onSettle).toHaveBeenCalledOnce();
     dispose();
   });
+
+  it("Agent 飛完、還沒停穩 600ms 就接著手動拖，那一段照常判斷", () => {
+    vi.useFakeTimers();
+    const map = fakeMap(TOKYO, 8);
+    let agent = true;
+    const onSettle = vi.fn();
+    const onSkip = vi.fn();
+    const dispose = createViewportSettleWatcher({ map, isAgentMotion: () => agent, onSettle, onSkip });
+    map.emit("movestart");
+    agent = false;
+    map.emit("moveend");
+    vi.advanceTimersByTime(VIEWPORT_HINT_SETTLE_MS / 2);
+    map.emit("movestart");
+    map.emit("moveend");
+    vi.advanceTimersByTime(VIEWPORT_HINT_SETTLE_MS);
+    expect(onSkip).not.toHaveBeenCalled();
+    expect(onSettle).toHaveBeenCalledOnce();
+    dispose();
+  });
 });
