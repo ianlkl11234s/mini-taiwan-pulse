@@ -2179,3 +2179,20 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：改寫為 v2.15.0 checkpoint。
 - `BACKLOG.md`：新增 RV27-1～3、V215-V；SEC-6 補 DB 憑證必換。
 
+## 2026-10-28 日本第四波收尾
+
+### What worked
+
+- C098、C099 依使用者「不商用」重新判斷理由後取消，沒有為了做滿清單硬做。
+- 主要道路超過目標時先精簡 tile 屬性（149.5→141.9MB），沒有偷降 maxzoom 丟 feature。
+
+### Friction / limits
+
+- 回報「尚未上正式站」前沒查 master：另一個 session 10-27 已把 #716 隨 v2.15.0 發布。報上線狀態前要跑 `git merge-base --is-ancestor <merge> origin/master` 並看正式站版號。
+- 把派工自訂的「PMTiles ≤150MB」講成上限，使用者追問才說清楚。回報裡的限制要分硬限制（附出處）與自訂目標（附理由與放寬條件）。
+
+### Memory output
+
+- `STATUS.md`：加 10-28 段（第四波正式站驗收）。
+- `BACKLOG.md`：新增 JPRD-2、JPW4-1；BC-4b 補 gsi／jma 網域。JPRD-1 已在 #720。
+
