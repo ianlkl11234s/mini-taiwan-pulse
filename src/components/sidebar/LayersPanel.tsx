@@ -167,8 +167,32 @@ export function LayersPanel({
   return (
     <>
       {onClose && <RailPanelHeader title={title} onClose={onClose} />}
-      {onCountrySelect && <CountryMenu country={country} onSelect={onCountrySelect} />}
-      {allOff && (
+      {onCountrySelect ? (
+        <CountryMenu
+          country={country}
+          onSelect={onCountrySelect}
+          trailing={allOff && (
+            <button
+              type="button"
+              onClick={allOff}
+              style={{
+                flexShrink: 0,
+                padding: "5px 10px",
+                background: ALLOFF_BG,
+                border: `1px solid ${ALLOFF_BORDER}`,
+                borderRadius: RADIUS.lg,
+                color: INACTIVE_TEXT,
+                fontSize: FONT_SIZE.base,
+                cursor: "pointer",
+                fontFamily: FONT_CJK,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("layers.allOff")}
+            </button>
+          )}
+        />
+      ) : allOff && (
         <div style={{ padding: "4px 12px 4px" }}>
           <button
             type="button"

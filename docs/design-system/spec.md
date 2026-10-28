@@ -337,7 +337,7 @@
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
 - **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
-- **圖層面板（2026-10-03 面板統一 A 段；2026-10-28 國家主體化改為四個入口）**：桌機 rail 四個入口（圖層 Layers／統計 Statistics／世界 World／模擬 Simulation；模擬入口只對站主顯示，非站主與載入中不出現；原「日本」入口併入圖層入口，用國家選單切換，§5.41）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：（圖層、統計）國家選單 →「全部關閉」→ 搜尋 →（統計）單一／可重疊。圖層入口的「全部關閉」只關目前國家的圖層（2026-10-28 使用者決定乙）；統計入口只關統計；世界、模擬入口維持全站關閉。桌機有 PanelHeader；手機改用分頁（順序同 rail：圖層／統計／世界，站主多一個模擬），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
+- **圖層面板（2026-10-03 面板統一 A 段；2026-10-28 國家主體化改為四個入口）**：桌機 rail 四個入口（圖層 Layers／統計 Statistics／世界 World／模擬 Simulation；模擬入口只對站主顯示，非站主與載入中不出現；原「日本」入口併入圖層入口，用國家選單切換，§5.41）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：（圖層、統計）國家選單＋「全部關閉」同一列 → 搜尋 →（統計）單一／可重疊。圖層入口的「全部關閉」只關目前國家的圖層（2026-10-28 使用者決定乙）；統計入口只關統計；世界、模擬入口維持全站關閉。桌機有 PanelHeader；手機改用分頁（順序同 rail：圖層／統計／世界，站主多一個模擬），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
 - **rail 底部站內連結（2026-10-23）**：rail 只放開面板的按鈕，唯一例外是最下方、以分隔線隔開的「Pulse 筆記」連結（`RailLink`，lucide `BookOpen`，真的 `<a href="/blog/?theme=…">`，依目前底圖帶 `dark`／`light`）。手機版同一入口放在標頭「⋯」選單（§5.29），不外露。新增其他離開地圖的連結前先問站主，不要在 rail 疊加。
 - **搜尋（P9）**：各入口只搜自己的主題（圖層入口只搜目前國家）；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口與其他國家的相符筆數（例「世界還有 2 筆相符」「日本還有 3 筆相符」），點了切到該入口（或切國家，不飛鏡頭）並帶入關鍵字。
 
@@ -967,11 +967,11 @@
 ### 5.41 國家選單（2026-10-28 國家主體化）
 
 - **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份 `constants/countries.ts`（目前 TW／JP／FR）。
-- **位置**：面板標頭（§5.1）下、「全部關閉」上，padding `4px 12px 0`；世界、模擬入口不顯示。手機分頁下同樣位置。
+- **位置**：面板標頭（§5.1）下，與「全部關閉」同一列（2026-10-28 使用者要求併成一行省高度）：選單 `flex: 1` 在左、「全部關閉」靠右（padding `5px 10px`、不換行），列 padding `4px 12px 4px`、間距 6；世界、模擬入口沒有國家選單，「全部關閉」維持整列寬。手機分頁下同樣位置。
 - **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
 - **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
-- **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊觸發列、底**不透明**（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`；彈出層疊在半透明面板上，半透明底會讓下方按鈕與搜尋框的字透出）、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
-- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
+- **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊整列（含「全部關閉」）、底**不透明**（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`；彈出層疊在半透明面板上，半透明底會讓下方按鈕與搜尋框的字透出）、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
+- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭（台灣＝全台總覽，同 `cameraPresets` 的 overview；開站預設鏡頭仍是台北）；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
 - **網址**：非台灣時帶 `c=<小寫國碼>`；開站初始國家＝`c=` → 網址相機中心所屬國 →（網址沒有相機時）第一個國家圖層所屬國 → 台灣，不存 localStorage。
 - **未涵蓋**：統計只有台灣。他國時統計入口不畫主題樹，改顯示「{國名}目前沒有統計資料」（12px `DIM`）＋「切回台灣」按鈕（外觀同「全部關閉」）；國家選單、全部關閉、單一／可重疊仍保留。
 - **禁止**：自動依視野切國家（只提示，見 §5.42）；在 rail 為單一國家另開入口。

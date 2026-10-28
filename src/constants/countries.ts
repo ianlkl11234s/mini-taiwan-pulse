@@ -7,7 +7,7 @@
  *   （例：釣魚台一帶判為無國家）。2026-10-28 細修鄰國邊境（日內瓦、杜林、安道爾、廈門等不再誤判），
  *   但仍是矩形近似：邊境上的小城鎮（例：摩納哥、聖讓德呂茲）可能判錯，單元測試釘住常見城市。
  */
-import { DEFAULT_CAMERA } from "../map/cameraPresets";
+import { ALL_PRESETS } from "../map/cameraPresets";
 
 export type CountryCode = "TW" | "JP" | "FR";
 
@@ -42,12 +42,11 @@ export const JAPAN_CAMERA: CountryCamera = { center: [137.5, 37.5], zoom: 4.7, p
 /** 法國本土＋科西嘉（海外領地先不列）。 */
 export const FRANCE_CAMERA: CountryCamera = { center: [2.6, 46.4], zoom: 4.9, pitch: 0, bearing: 0 };
 
-const TAIWAN_CAMERA: CountryCamera = {
-  center: DEFAULT_CAMERA.center,
-  zoom: DEFAULT_CAMERA.zoom,
-  pitch: DEFAULT_CAMERA.pitch,
-  bearing: DEFAULT_CAMERA.bearing,
-};
+/** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
+const TAIWAN_CAMERA: CountryCamera = (() => {
+  const overview = ALL_PRESETS.find((preset) => preset.id === "overview")!;
+  return { center: overview.center, zoom: overview.zoom, pitch: overview.pitch, bearing: overview.bearing };
+})();
 
 /** 陣列順序＝國家選單由上到下。 */
 export const COUNTRIES: readonly CountryDef[] = [
