@@ -2646,7 +2646,7 @@ const THEME_NAMES: Record<string, ThemeName> = {
   [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },
   [GLOBAL_ENVIRONMENT_THEME_TITLE]: { zh: "全球環境", sub: "Global Environment" },
   [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
-  [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecom" },
+  [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecommunications" },
   // 法國主題副標用法文（比照日本主題用日文）
   [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
   "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
