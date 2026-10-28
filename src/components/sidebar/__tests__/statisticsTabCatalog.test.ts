@@ -178,10 +178,10 @@ describe("Layers 與 Statistics 分頁", () => {
   it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
     expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set(EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary")));
     const filtered = withoutStatisticsLayers([
-      { title: "混合主題", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
+      { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
     ]);
     expect(filtered).toEqual([
-      { title: "混合主題", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
+      { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
     ]);
   });
 });

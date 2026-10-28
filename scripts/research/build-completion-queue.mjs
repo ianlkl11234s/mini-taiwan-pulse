@@ -4,20 +4,19 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
-import { WORLD_TAB_THEME_TITLES } from "../../src/components/sidebar/layerCatalog.ts";
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 // 2026-09-26 起舊台帳已封存；此工具屬逐家族 reader 時期遺留腳本，若重跑仍讀寫封存目錄。
 const ledger = JSON.parse(readFileSync(resolve(root, "docs/features/general-analysis/archive/2026-09-pre-warehouse/p0-source-family-ledger-20260925-current.json"), "utf8"));
 const byKey = new Map(ledger.entries.map(entry => [entry.layerKey, entry]));
 const groups = ["taiwan_gis", "county_statistics", "global_gis", "japan_gis"];
-const worldThemes = new Set(WORLD_TAB_THEME_TITLES);
 
 function groupOf(key, manifest) {
   // These hidden research entries retain their geography even when absent from the visible Japan rail.
   if (key.startsWith("jp")) return "japan_gis";
   if (key.startsWith("stats") || /統計|Statistics/.test(manifest.section?.theme ?? "")) return "county_statistics";
-  if (worldThemes.has(manifest.section?.theme)) return "global_gis";
+  // 以 manifest country 判斷（主題 title 只在同一國家內唯一）
+  if (manifest.country === "WORLD") return "global_gis";
   return "taiwan_gis";
 }
 
