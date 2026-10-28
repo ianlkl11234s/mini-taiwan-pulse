@@ -57,6 +57,9 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| MC-1 | P2 | conditional | 主題識別名與顯示名拆開，讓不同國家可以有同名主題（2026-10-28 國家主體化遺留）。 | Trigger: 第二個國家要加與既有主題同名的主題（例：日本「通訊」）。Owner: mini。現況：主題 title 全站唯一，`layerCatalog.ts` `THEME_SCOPE` 以 title 當鍵，台灣用「通訊 Telecom」、法國用「通訊」暫時避開。First action: 主題加獨立 id，`THEME_SCOPE` 改 (country, id) 鍵，顯示名另存。 | 兩國同名主題各自顯示、`layerManifest.test` 與 layerConsistency 綠。[多國化計畫](../../../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic1-website.md) |
+| MC-2 | P2 | ready | Agent 知道 `map_context.country`（#723 已回傳 TW／JP／FR，但 MCP 沒說明這個欄位）。 | 在 mini-pulse-gis-mcp `server.ts`（map_context 說明，約 608 行）、`toolsets.ts`（約 40 行）與 pulse-conductor skill 補 country 欄位語意與用法。 | 配對正式站切到日本後問 Agent「我現在在看哪一國」，回答日本；eval 補一題回歸。 |
+| MC-3 | P3 | ready | 國家選單與視野提示補目視（v2.16.0／v2.16.1 只驗了桌機暗色選單、切法國、切回全台、飛行中不閃提示）。 | 正式站逐項開：淡色底圖的提示卡、Monitor split、真實 Agent session 中提示被抑制、統計面板切日本後「切回台灣」、手拖到東京跳提示並按「保持」。 | 每項有截圖或照實標 not run；發現問題另開修正 PR。 |
 | AG-5 | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
 | AG-10 | P2 | blocked | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | owner decision：要不要做「面板偵測新版本並提示重新整理」（目前 src 沒有任何版本偵測，2026-10-05 查）。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
@@ -86,6 +89,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| MC-4 | P2 | blocked | 多國化議題 2（MCP 跨國比較）、議題 3（主站遷移、43GB 同步）定方向。 | Blocked: 等使用者討論（2026-10-28 只完成議題 1）。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 議題 3 先唯讀量 S3 deploy-assets 依資料夾的組成。 | 兩個議題各有拍板紀錄（寫進專案 README 或 ADR）。 |
 | BR-5 | P2 | blocked | Add science-park analysis only from authoritative geometry. | Acquire provenance-backed polygons; do not infer geometry from membership. | Explicit flags, source, tests and handoff. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
 | BR-6 | P2 | ready | Improve Business Registry geocoding without substituting company coordinates. | TGOS is the chosen source: p01/p02 backfill (analytics `690be1bd`) cut 202609 misses 2,600→2,421 with denominator 656,713 stable, ambiguous kept unresolved; LOCAL_ONLY. Next: decide whether to run further TGOS packs and publish a dated 202609 asset (ties to BR-C-202609) without overwriting 202608. | Misses decrease with denominator stable; unresolved reasons retained; published asset has new dated filename and checksum. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
 | MO-6 | P3 | ready | Add a central-bank exchange-rate signal; TWSE work is no longer part of this item. | Define source, freshness and card/timeline use. | Rate data and provenance appear in Monitor. Merges legacy MO-6/MO-16. `docs/archive/2026-10-04/proposal/monitor-mode.md` |
