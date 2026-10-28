@@ -189,7 +189,7 @@ async function main() {
     for (const g of LAYER_MACRO_GROUPS) actualMacro[g.key] = { zh: g.zh, themes: 0, toggles: 0 };
     const macroKeys = new Map<string, Set<string>>(LAYER_MACRO_GROUPS.map((g) => [g.key, new Set<string>()]));
     for (const theme of THEMES) {
-      const mk = themeMacroGroup(theme.title);
+      const mk = themeMacroGroup(theme);
       actualMacro[mk]!.themes += 1;
       for (const grp of theme.groups) for (const l of grp.layers) macroKeys.get(mk)!.add(String(l.key));
     }
