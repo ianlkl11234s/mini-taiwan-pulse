@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { explorationLayerKeys, panelForExplorationLayers } from "../explorationNavigation";
+import { countryForLayerKeys, explorationLayerKeys, panelForExplorationLayers } from "../explorationNavigation";
 
 describe("panelForExplorationLayers", () => {
   it("uses the shared statistics membership plus world theme slices", () => {
@@ -19,6 +19,15 @@ describe("panelForExplorationLayers", () => {
     expect(panelForExplorationLayers(["countyBoundary"])).toEqual({ panel: "layers", country: "TW" });
     expect(panelForExplorationLayers(["schools"])).toEqual({ panel: "layers", country: "TW" });
     expect(panelForExplorationLayers(["not-a-layer"])).toEqual({ panel: "layers" });
+  });
+});
+
+describe("countryForLayerKeys", () => {
+  it("回傳第一個國家主題樹圖層的國家，世界圖層與未知 key 略過", () => {
+    expect(countryForLayerKeys(["submarineCables", "jpStations"])).toBe("JP");
+    expect(countryForLayerKeys(["anfrWirelessSites"])).toBe("FR");
+    expect(countryForLayerKeys(["schools", "jpStations"])).toBe("TW");
+    expect(countryForLayerKeys(["submarineCables", "not-a-layer"])).toBeUndefined();
   });
 });
 

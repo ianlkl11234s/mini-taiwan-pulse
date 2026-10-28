@@ -46,6 +46,15 @@ for (const theme of THEMES) {
   for (const group of theme.groups) for (const layer of group.layers) if (!countryByKey.has(layer.key)) countryByKey.set(layer.key, scope);
 }
 
+/** 第一個屬於國家主題樹的圖層所屬國（世界、統計以外）；都不是回 undefined。 */
+export function countryForLayerKeys(keys: readonly string[]): CountryCode | undefined {
+  for (const key of keys) {
+    const country = countryByKey.get(key);
+    if (country) return country;
+  }
+  return undefined;
+}
+
 /** Uses the same theme slices as IconRailSidebar's layer panels. 統計只有台灣，所以帶 TW；世界、模擬不分國家。 */
 export function panelForExplorationLayers(keys: readonly string[]): ExplorationTarget {
   for (const key of keys) {

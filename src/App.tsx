@@ -78,6 +78,7 @@ import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { countryDef, type CountryCode } from "./constants/countries";
 import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
+import { countryForLayerKeys } from "./research/explorationNavigation";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
 import { DataSourcePanel } from "./components/sidebar/DataSourcePanel";
@@ -218,7 +219,8 @@ export default function App() {
   const countryInitRef = useRef(false);
   if (!countryInitRef.current) {
     countryInitRef.current = true;
-    countryStore.set(resolveInitialCountry(urlStateRef.current.country, urlStateRef.current.camera));
+    const { country: urlCountry, camera: urlCamera, layers: urlLayers } = urlStateRef.current;
+    countryStore.set(resolveInitialCountry(urlCountry, urlCamera, countryForLayerKeys(urlLayers ?? [])));
   }
   const country = useCountry();
   // 只有在國家選單選國家時才飛到該國（網址、場景快照、Agent 切國家都不飛）
