@@ -1,12 +1,14 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { LAYER_MACRO_GROUPS, THEMES, themeScope, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { LAYER_MACRO_GROUPS, THEMES, themeScope, themeTitlesForScope, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { COUNTRIES, type CountryCode } from "../../constants/countries";
 
 /**
- * 圖層面板五個入口（台灣／統計／世界／日本／模擬；模擬只對站主顯示）—— 桌機 rail 與手機底部面板共用同一份定義
+ * 圖層面板四個入口（圖層／統計／世界／模擬；模擬只對站主顯示）—— 桌機 rail 與手機底部面板共用同一份定義
  * （layer-panel-unify P7）。每個入口只差主題清單與兩三個開關，面板本體都是 `LayersPanel`。
+ * 「圖層」與「統計」依目前國家主體（`countryStore`）換內容：圖層＝該國主題樹，統計只有台灣（2026-10-28 國家主體化）。
  */
-export type LayerPanelId = "layers" | "statistics" | "world" | "japan" | "simulation";
+export type LayerPanelId = "layers" | "statistics" | "world" | "simulation";
 
 /**
  * 面板內的大分類（spec §5.5、layer-panel-unify P4）。每個入口一份定義，資料驅動：
@@ -32,6 +34,9 @@ export interface LayerPanelDef {
   allOffKeys?: (keyof LayerVisibility)[];
   /** 統計入口的「單一／可重疊」切換 */
   statisticsModeControl?: boolean;
+  /** 依國家主體換內容的入口（頂部顯示國家選單）；`countries` 給了＝只涵蓋這些國家，其他國家顯示未涵蓋 */
+  countryScoped?: boolean;
+  countries?: readonly CountryCode[];
 }
 
 export function getThemeLayerKeys(themes: readonly ThemeDef[]): (keyof LayerVisibility)[] {
@@ -63,6 +68,10 @@ export const SIMULATION_THEMES = THEMES.filter((t) => SIMULATION_TAB_THEME_TITLE
 /** 台灣入口：`THEME_SCOPE` 為 TW 的主題，扣掉統計資料主題、再濾掉統計面（統計面在統計入口）。 */
 export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => themeScope(t.title) === "TW" && !statisticsDataThemeTitles.has(t.title)));
 
+/** 法國：目前只有「通訊」（ANFR，2026-10-28）。 */
+const FRANCE_TAB_THEME_TITLES = themeTitlesForScope("FR");
+export const FRANCE_THEMES = THEMES.filter((t) => FRANCE_TAB_THEME_TITLES.includes(t.title));
+
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
 
@@ -84,18 +93,60 @@ export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
 /** 日本：沿用台灣共用大分類（2026-10-26 使用者決定；主題 title＝台灣主題中文短名，大分類同台灣對應主題）。 */
 export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THEMES);
 
+/** 法國：沿用全站大分類。 */
+export const FRANCE_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(FRANCE_THEMES);
+
+const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroups: PanelMacroGroup[] }> = {
+  TW: { themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS },
+  JP: { themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },
+  FR: { themes: FRANCE_THEMES, macroGroups: FRANCE_MACRO_GROUPS },
+};
+
+/** 某國在「圖層」入口的主題樹。 */
+export function countryLayerThemes(code: CountryCode): ThemeDef[] {
+  return COUNTRY_LAYER_THEMES[code].themes;
+}
+
+/** 某國「圖層」入口的全部圖層 key（「全部關閉」只關這些，§8 乙）。 */
+const countryAllOffCache = new Map<CountryCode, (keyof LayerVisibility)[]>();
+export function countryLayerKeys(code: CountryCode): (keyof LayerVisibility)[] {
+  let keys = countryAllOffCache.get(code);
+  if (!keys) {
+    keys = getThemeLayerKeys(countryLayerThemes(code));
+    countryAllOffCache.set(code, keys);
+  }
+  return keys;
+}
+
 /** 統計入口的「全部關閉」範圍：含只為相容舊網址存在的統計 render key。 */
 export const STATISTICS_ALL_OFF_KEYS = [...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])];
 
-/** 五個入口，順序＝桌機 rail 由上到下＝手機分頁由左到右。 */
+/** 四個入口，順序＝桌機 rail 由上到下＝手機分頁由左到右。`layers` 的 `themes` 是台灣（預設國家）版本，實際依國家用 `resolveLayerPanel`。 */
 export const LAYER_PANELS: readonly LayerPanelDef[] = [
-  { id: "layers", title: "台灣 Taiwan", shortTitle: "台灣", themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS },
-  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true },
+  { id: "layers", title: "圖層 Layers", shortTitle: "圖層", themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS, countryScoped: true },
+  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true, countryScoped: true, countries: ["TW"] },
   { id: "world", title: "世界 World", shortTitle: "世界", themes: WORLD_THEMES, macroGroups: WORLD_MACRO_GROUPS },
-  { id: "japan", title: "日本 Japan", shortTitle: "日本", themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },
   // 模擬：大分類先不分（macroGroups 不給）。只有站主看得到 → 一律經 `visibleLayerPanels(isOwner)` 取清單。
   { id: "simulation", title: "模擬 Simulation", shortTitle: "模擬", themes: SIMULATION_THEMES },
 ];
+
+/** 依國家主體解析後的入口內容。`covered=false`：本入口不涵蓋此國（統計在非台灣），面板顯示未涵蓋空狀態。 */
+export interface ResolvedLayerPanel extends LayerPanelDef {
+  covered: boolean;
+}
+
+export function resolveLayerPanel(id: LayerPanelId, country: CountryCode): ResolvedLayerPanel {
+  const def = layerPanelDef(id);
+  if (id === "layers") {
+    const { themes, macroGroups } = COUNTRY_LAYER_THEMES[country];
+    return { ...def, themes, macroGroups, allOffKeys: countryLayerKeys(country), covered: true };
+  }
+  const covered = !def.countries || def.countries.includes(country);
+  return covered ? { ...def, covered } : { ...def, themes: [], macroGroups: [], covered };
+}
+
+/** 有資料的國家（國家選單順序）。 */
+export const PANEL_COUNTRIES: readonly CountryCode[] = COUNTRIES.map((country) => country.code);
 
 /** 只有站主看得到「模擬」入口（simulation PLAN D-1）；非站主（含未登入、載入中）回傳不含模擬的清單。 */
 export function visibleLayerPanels(isOwner: boolean): readonly LayerPanelDef[] {
@@ -104,13 +155,14 @@ export function visibleLayerPanels(isOwner: boolean): readonly LayerPanelDef[] {
 
 export const layerPanelDef = (id: LayerPanelId): LayerPanelDef => LAYER_PANELS.find((panel) => panel.id === id)!;
 
-const panelKeyCache = new Map<LayerPanelId, Set<string>>();
-/** 某入口的全部圖層 key（搜尋「其他面板還有 N 筆」用）。 */
-export function panelLayerKeys(id: LayerPanelId): Set<string> {
-  let keys = panelKeyCache.get(id);
+const panelKeyCache = new Map<string, Set<string>>();
+/** 某入口在某國的全部圖層 key（搜尋「其他面板還有 N 筆」用）；國家省略＝台灣。 */
+export function panelLayerKeys(id: LayerPanelId, country: CountryCode = "TW"): Set<string> {
+  const cacheKey = `${id}:${country}`;
+  let keys = panelKeyCache.get(cacheKey);
   if (!keys) {
-    keys = new Set(getThemeLayerKeys(layerPanelDef(id).themes));
-    panelKeyCache.set(id, keys);
+    keys = new Set(getThemeLayerKeys(resolveLayerPanel(id, country).themes));
+    panelKeyCache.set(cacheKey, keys);
   }
   return keys;
 }

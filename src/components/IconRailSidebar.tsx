@@ -25,7 +25,9 @@ import { panelForExplorationLayers, type ExplorationPanel } from "../research/ex
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
 import { useLocale } from "../state/localeStore";
 import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
-import { visibleLayerPanels, type LayerPanelId } from "./sidebar/layerPanels";
+import { resolveLayerPanel, visibleLayerPanels, type LayerPanelId } from "./sidebar/layerPanels";
+import { countryStore, useCountry } from "../state/countryStore";
+import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
 
 // 既有 export 維持原路徑（測試與其他模組從這裡 import）
@@ -73,8 +75,8 @@ interface IconRailSidebarProps {
   monitorSplitActive?: boolean;
   /** split 開啟時把 Layers 浮動面板縮短，避免擋住台灣本島 */
   compactLayers?: boolean;
-  /** 打開「日本」rail tab 時觸發（App 用來 flyTo 日本；clone SatelliteConsole 自動飛台灣模式） */
-  onJapanOpen?: () => void;
+  /** 使用者在國家選單選了國家（App 用來 flyTo 該國）；網址、Agent 切國家都不呼叫 */
+  onCountryFly?: (code: CountryCode) => void;
   /** 站主才為 true：模擬入口只對站主顯示（simulation PLAN D-1）；未傳＝不顯示（含未登入、載入中）。 */
   showSimulation?: boolean;
   /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
@@ -108,7 +110,7 @@ export function IconRailSidebar({
   startClosed = false,
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
-  onJapanOpen,
+  onCountryFly,
   showSimulation = false,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
@@ -122,7 +124,13 @@ export function IconRailSidebar({
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   // 四個入口各自保留搜尋字（P9：各面板搜自己）
-  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", japan: "", simulation: "" });
+  const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", simulation: "" });
+  // 國家主體：圖層與統計共用，桌機與手機共用（countryStore）
+  const country = useCountry();
+  const selectCountry = (code: CountryCode) => {
+    countryStore.set(code);
+    onCountryFly?.(code);
+  };
   const panels = visibleLayerPanels(showSimulation);
   const panelIds = panels.map((panel) => panel.id);
 
@@ -148,7 +156,9 @@ export function IconRailSidebar({
         ? (detail as { layerKeys: unknown[] }).layerKeys.filter((key): key is string => typeof key === "string") : [];
       if (rawKeys.length) {
         const found = panelForExplorationLayers(rawKeys);
-        const panel: ExplorationPanel = panelIds.includes(found) ? found : "layers";
+        // Agent 開他國圖層：先切國家主體再開面板（不飛鏡頭，鏡頭由 Agent 自己決定）
+        if (found.country) countryStore.set(found.country);
+        const panel: ExplorationPanel = panelIds.includes(found.panel) ? found.panel : "layers";
         lastExplorationPanel.current = panel;
         closeExternalPanels();
         setActivePanel(panel);
@@ -181,10 +191,8 @@ export function IconRailSidebar({
     // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
     // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
     if (willOpen) {
-      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "japan" || panel === "simulation") lastExplorationPanel.current = panel;
+      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "simulation") lastExplorationPanel.current = panel;
       closeExternalPanels();
-      // 打開「日本」tab → 自動飛日本（App 用 mapRef flyTo）
-      if (panel === "japan") onJapanOpen?.();
     }
     setActivePanel((prev) => (prev === panel ? null : panel));
   };
@@ -258,14 +266,6 @@ export function IconRailSidebar({
           active={activePanel === "world"}
           onClick={() => togglePanel("world")}
           tooltip={t("panel.world.title")}
-        />
-
-        {/* 🗾 日本 Japan（clone 世界 tab；打開自動飛日本） */}
-        <RailIcon
-          icon={JapanGlyph}
-          active={activePanel === "japan"}
-          onClick={() => togglePanel("japan")}
-          tooltip={t("panel.japan.title")}
         />
 
         {/* 🧪 模擬 Simulation：只對站主顯示（D-1） */}
@@ -388,14 +388,21 @@ export function IconRailSidebar({
               animation: "panelFadeIn 0.25s ease-out",
             }}
           >
-            {panels.map((panel) => activePanel === panel.id && (
+            {panels.map((entry) => activePanel === entry.id && (() => {
+              const panel = resolveLayerPanel(entry.id, country);
+              return (
               <LayersPanel
-                key={panel.id}
+                // 切國家要 remount：主題收合狀態是 useState initializer，只在掛載時讀 defaultCollapsed
+                key={`${panel.id}:${panel.countryScoped ? country : ""}`}
                 panelId={panel.id}
                 availablePanelIds={panelIds}
-                onSearchInPanel={(target, query) => {
+                country={country}
+                covered={panel.covered}
+                onCountrySelect={panel.countryScoped ? selectCountry : undefined}
+                onSearchInPanel={(target, query, targetCountry) => {
                   setPanelSearch((prev) => ({ ...prev, [target]: query }));
-                  togglePanel(target);
+                  if (targetCountry) countryStore.set(targetCountry);
+                  if (target !== activePanel) togglePanel(target);
                 }}
                 search={panelSearch[panel.id]}
                 onSearchChange={(value) => setPanelSearch((prev) => ({ ...prev, [panel.id]: value }))}
@@ -420,7 +427,8 @@ export function IconRailSidebar({
                 onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
-            ))}
+              );
+            })())}
             {activePanel === "locations" && (
               <LocationsPanel
                 search={locationSearch}
@@ -476,35 +484,6 @@ function WorldGlyph({ size = 20 }: { size?: number }) {
         size={badge}
         style={{ position: "absolute", right: -3, bottom: -3, strokeWidth: 2.5 }}
       />
-    </span>
-  );
-}
-
-// 「日本」rail icon：比照 WorldGlyph 的「Layers 底 + 右下角徽章」構圖 ——
-// 世界是 Layers＋地球，日本是 Layers＋右下「JP」圓徽（currentColor 隨 active/dim 變色，非紅點）。
-// 圓徽底色用 rail 背景做 knockout，讓 JP 兩字在 Layers 線條上仍清楚。
-function JapanGlyph({ size = 20 }: { size?: number }) {
-  const { BG_RAIL } = useRailTheme();
-  const badge = Math.round(size * 0.66);
-  return (
-    // aria-hidden：「JP」是裝飾文字，button 名稱應走 RailIcon 的 title「日本 Japan」
-    // （否則 button 的 accessible name 會被可見文字 JP 蓋過）。
-    <span aria-hidden style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
-      <Layers size={size} />
-      <span
-        style={{
-          position: "absolute", right: -4, bottom: -4,
-          width: badge, height: badge, borderRadius: "50%",
-          background: BG_RAIL,
-          border: "1.5px solid currentColor",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: Math.round(badge * 0.5),
-          fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
-          fontFamily: FONT_CJK,
-        }}
-      >
-        JP
-      </span>
     </span>
   );
 }

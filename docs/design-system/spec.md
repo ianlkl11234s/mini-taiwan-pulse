@@ -1,4 +1,4 @@
-最後更新：2026-10-24（新增 §5.40 模擬面板，規格先行）
+最後更新：2026-10-28（新增 §5.41 國家選單；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -40,6 +40,7 @@
 | 刪除、撤銷等無法復原的操作 | §5.39 |
 | 調整地圖上的點／線／面數值、圖例樣式 | §13 → [`map-layers.md`](./map-layers.md) |
 | 模擬面板（播放、可信度、前後切換、差異圖） | §5.40 |
+| 圖層／統計面板的國家切換 | §5.41 |
 
 ## 1. 原則
 
@@ -335,9 +336,9 @@
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
 - **實作**：`src/components/sidebar/PanelHeader.tsx`（傳 `eyebrow` 即走 H2；不傳 eyebrow 的舊分支第二輪已改 `FONT_CJK`，視覺仍是舊版標頭）。
-- **圖層面板（2026-10-03 面板統一 A 段）**：桌機 rail 五個入口（台灣 Taiwan／統計 Statistics／世界 World／日本 Japan／模擬 Simulation；模擬入口只對站主顯示，非站主與載入中不出現）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：「全部關閉」→ 搜尋 →（統計）單一／可重疊。桌機有 PanelHeader；手機改用分頁（順序同 rail：台灣／統計／世界／日本，站主多一個模擬），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
+- **圖層面板（2026-10-03 面板統一 A 段；2026-10-28 國家主體化改為四個入口）**：桌機 rail 四個入口（圖層 Layers／統計 Statistics／世界 World／模擬 Simulation；模擬入口只對站主顯示，非站主與載入中不出現；原「日本」入口併入圖層入口，用國家選單切換，§5.41）與手機底部面板是**同一個元件** `sidebar/LayersPanel.tsx`，入口定義只有一份 `sidebar/layerPanels.ts` `LAYER_PANELS`（主題清單、大分類、「全部關閉」範圍、統計單一／可重疊）。面板頂部：（圖層、統計）國家選單 →「全部關閉」→ 搜尋 →（統計）單一／可重疊。圖層入口的「全部關閉」只關目前國家的圖層（2026-10-28 使用者決定乙）；統計入口只關統計；世界、模擬入口維持全站關閉。桌機有 PanelHeader；手機改用分頁（順序同 rail：圖層／統計／世界，站主多一個模擬），分頁下是「我的」。色票 `sidebar/railTheme.ts`（`railPalette(isDarkTheme)`＋`RailThemeContext`），面板外的清單要用共用列也從這裡包 Provider。手機面板與外殼 `MobileBottomSheet` 跟隨底圖主題（2026-10-03 收尾修正；暗色底 `rgba(0,0,0,0.7)` 維持，淡色 `LIGHT.surfaceStrong`＋上緣 `LIGHT.border`），抽屜內的底圖選單、地名開關、地點跳轉同樣吃 `isDarkTheme`，不得寫死 `isDarkTheme={true}`。
 - **rail 底部站內連結（2026-10-23）**：rail 只放開面板的按鈕，唯一例外是最下方、以分隔線隔開的「Pulse 筆記」連結（`RailLink`，lucide `BookOpen`，真的 `<a href="/blog/?theme=…">`，依目前底圖帶 `dark`／`light`）。手機版同一入口放在標頭「⋯」選單（§5.29），不外露。新增其他離開地圖的連結前先問站主，不要在 rail 疊加。
-- **搜尋（P9）**：各入口只搜自己的主題；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口的相符筆數（例「日本還有 3 筆相符」），點了切到該入口並帶入關鍵字。
+- **搜尋（P9）**：各入口只搜自己的主題（圖層入口只搜目前國家）；結果列就是一般圖層列（可直接開關、收藏星號、可展開），名稱下一行小字「主題・群組」；結果末尾列出其他入口與其他國家的相符筆數（例「世界還有 2 筆相符」「日本還有 3 筆相符」），點了切到該入口（或切國家，不飛鏡頭）並帶入關鍵字。
 
 ### 5.2 停靠 popup（B 版「細線緊湊」）
 
@@ -380,7 +381,7 @@
 **主題列（LT1，第二輪拍板）**
 
 - **資料**（2026-10-03 B 段）：`theme.title` 是識別字串（manifest `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**。顯示名稱查 `layerCatalog.ts` 的 `themeName(title)` → `{ zh, sub? }`（`THEME_NAMES` 表；新增主題要補一列，`layerConsistency` 測試擋漏列）。舊的 `splitThemeTitle()` 已移除。
-- **副標**：台灣、統計、世界用英文；**日本 14 個主題用日文漢字**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「長照服務 介護サービス」），不去重。沒有 `sub` 時只顯示中文。
+- **副標**：台灣、統計、世界用英文；**日本主題用日文**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「社福長照 社会福祉・介護」），不去重；法國主題用法文（例「通訊 Télécommunications」）。沒有 `sub` 時只顯示中文。他國主題 title 用中文短名（與台灣主題是不同字串，title 全站唯一）。
 - **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
 - **空間不足**（2026-10-03 收尾修正）：中文主名與計數 `white-space: nowrap`、不縮；**只省略副標**（`text-overflow: ellipsis`），同圖層列 `LayerNameLine`。中文字可在任意字間斷行，不設 nowrap 會先被擠成兩行（例「人口與教 / 育」）。
@@ -392,10 +393,10 @@
 **大分類（P4，2026-10-03 B 段）**
 
 - **資料驅動**：每個入口一份定義 `LayerPanelDef.macroGroups`（`sidebar/layerPanels.ts`，`{ zh, en?, themes }[]`）；面板依陣列順序顯示，主題在清單裡必須按組相鄰（測試鎖住）。沒給就不分。
-- **現況**：台灣沿用全站 6 類（`LAYER_MACRO_GROUPS`＋`THEME_MACRO_GROUPS`，後者同時決定 `THEMES` 排序）；日本（2026-10-26 起改沿用台灣共用大分類與主題系統，以下為舊紀錄）5 類：行政與人口（行政區、人口）、交通與旅宿（交通、旅宿）、醫療與照護（醫療設施、長照服務、醫療圈）、社會（治安、教育、宗教）、自然與環境（自然保護、世界遺產、水資源、高度與地表）。
+- **現況**：台灣、日本、法國（圖層入口依國家切換）都沿用全站 6 類（`LAYER_MACRO_GROUPS`＋`THEME_MACRO_GROUPS`，後者同時決定 `THEMES` 排序）；主題屬於哪國由 `layerCatalog.ts` `THEME_SCOPE` 決定。日本 2026-10-26 以前的舊紀錄5 類：行政與人口（行政區、人口）、交通與旅宿（交通、旅宿）、醫療與照護（醫療設施、長照服務、醫療圈）、社會（治安、教育、宗教）、自然與環境（自然保護、世界遺產、水資源、高度與地表）。
 - **統計 5 類**（2026-10-03 使用者決定 S-B，依政府統計領域；`STATISTICS_MACRO_GROUPS`）：人口與社會（人口與教育、醫療與長照、犯罪與治安）、經濟與住宅（工作與所得、住宅與不動產）、交通（公共運輸、道路與車輛、交通用地）、土地與環境（農林漁牧、環境與資源）、基準（地圖參考）。原「人口與社會」「交通與運輸」兩個大主題拆成 7 個主題，只動主題／小分組歸屬，圖層 key、資料、manifest 名稱不變；預設收合沿用拆分前（從人口與社會拆出的展開、從交通與運輸拆出的收合）。
 - **世界 3 類**（W-A）：沿用台灣大分類名與同一張對照 `THEME_MACRO_GROUPS`（`WORLD_MACRO_GROUPS` 由它派生，不另立一份）：公共生活（全球通訊）、環境與資源（全球氣候、全球環境）、情報（全球情勢、全球海事）；主題不改名，`WORLD_THEMES` 依大分類排序，`WORLD_TAB_THEME_TITLES` 只管 membership 與同類內先後。
-- **預設收合**：台灣、世界、日本主題一律預設收合（日本 2026-10-03 起，原本展開）；統計見上。
+- **預設收合**：各國圖層主題與世界主題一律預設收合（日本 2026-10-03 起，原本展開）；切國家時面板重新掛載，收合狀態回到預設；統計見上。
 
 **大分類標題（LT1）**
 
@@ -909,7 +910,7 @@
 
 ### 5.40 模擬面板（S-1～S-4，規格先行，2026-10-24）
 
-> 狀態：**規格先行、尚未實作**。規劃見 [`../features/simulation/PLAN.md`](../features/simulation/PLAN.md)。模擬面板是 rail 第五個入口，沿用 `LayersPanel`（§5.1、§5.5）：每個實驗＝一個主題，控制項一律走 `layerParamsSpec.ts`（§5.11）。本節只補一般圖層沒有的四件事。
+> 狀態：**規格先行、尚未實作**。規劃見 [`../features/simulation/PLAN.md`](../features/simulation/PLAN.md)。模擬面板是 rail 第四個入口（2026-10-28 日本入口併入圖層入口後），沿用 `LayersPanel`（§5.1、§5.5）：每個實驗＝一個主題，控制項一律走 `layerParamsSpec.ts`（§5.11）。本節只補一般圖層沒有的四件事。
 
 **共通**
 
@@ -961,6 +962,19 @@
 - **缺值／未涵蓋**：照 F-3 缺值畫法（透明底＋單向細斜線），與「無變化」分開，不可畫成 0。
 - **線（路段）**：差異以線色表示，線寬照 L-1 不隨差值變；推估路段一律 `[2,2]` 虛線（L-2）。
 - **數字**：popup 寫「基準 → 情境（差 +N）」三個值，單位照 §6.2；只能看範圍的指標寫「+A～+B」。
+
+### 5.41 國家選單（2026-10-28 國家主體化）
+
+- **用途**：圖層、統計兩個入口共用同一個國家主體（`state/countryStore.ts`），桌機與手機共用；任一面板改國家，另一個跟著變。國家清單只有一份 `constants/countries.ts`（目前 TW／JP／FR）。
+- **位置**：面板標頭（§5.1）下、「全部關閉」上，padding `4px 12px 0`；世界、模擬入口不顯示。手機分頁下同樣位置。
+- **觸發列**：外觀同「全部關閉」按鈕（`ALLOFF_BG` 底、`1px ALLOFF_BORDER`、`RADIUS.lg`、padding `5px 8px`）；內容＝國碼 chip → 國名（12px 600 `TEXT_STRONG`、單行省略）→ `ChevronDown` 12px `DIM`。`aria-haspopup="menu"`，`aria-label`／`title`「切換國家（目前：{國名}）」。
+- **國碼 chip**：兩字國碼（不用國旗 emoji），沿用 §5.21 `chipOutline(color)`（10px `FONT_DATA` 600、padding `2px 5px`、圓角 3），不新增徽章公式；未選中用 `INACTIVE_TEXT`，選單中選中項用 `TEXT_STRONG`。
+- **彈出層**：沿用 §5.19 popover（top `100% + 6px`、左右對齊觸發列、底 `BG_PANEL`、`1px PANEL_BORDER`、`RADIUS.xl`、`ELEVATION.lg`、padding 4、`Z_INDEX.popover`）；選項 `role="menuitemradio"`，chip＋國名，選中 `ROW_ACTIVE` 底＋600 字、hover `ROW_HOVER`；點外部或 Esc 關閉。
+- **鏡頭**：只有在選單選國家（或統計未涵蓋時按「切回台灣」）才 flyTo 該國預設鏡頭；網址 `c=`、Agent 開他國圖層、搜尋提示切國家都**不飛**。
+- **網址**：非台灣時帶 `c=<小寫國碼>`；開站初始國家＝`c=` → 網址相機中心所屬國 → 台灣，不存 localStorage。
+- **未涵蓋**：統計只有台灣。他國時統計入口不畫主題樹，改顯示「{國名}目前沒有統計資料」（12px `DIM`）＋「切回台灣」按鈕（外觀同「全部關閉」）；國家選單、全部關閉、單一／可重疊仍保留。
+- **禁止**：自動依視野切國家（視野提示見 PR 3 規劃，不自動切換）；在 rail 為單一國家另開入口。
+- **實作**：`src/components/sidebar/CountryMenu.tsx`、`sidebar/layerPanels.ts` `resolveLayerPanel`。
 
 ## 6. 文案規則
 

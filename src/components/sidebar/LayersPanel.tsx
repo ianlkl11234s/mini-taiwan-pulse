@@ -7,7 +7,9 @@ import { useLocale } from "../../state/localeStore";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
 import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeName, type ThemeDef } from "./layerCatalog";
-import { LAYER_PANELS, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
+import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
+import { CountryMenu } from "./CountryMenu";
+import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
 import { PanelHeader as SharedPanelHeader } from "./PanelHeader";
 import { StatisticsModeControl } from "./StatisticsModeControl";
 import { MedicalStatisticsGroupControls } from "./MedicalStatisticsGroupControls";
@@ -64,8 +66,14 @@ export interface LayersPanelProps {
   panelId?: LayerPanelId;
   /** 目前使用者看得到的入口（模擬只對站主）；「其他面板還有 N 筆」只算這些。未給＝全部。 */
   availablePanelIds?: readonly LayerPanelId[];
-  /** 切到另一個入口並帶入關鍵字（P9） */
-  onSearchInPanel?: (panelId: LayerPanelId, query: string) => void;
+  /** 切到另一個入口並帶入關鍵字（P9）；`country` 有值時同時切國家主體（不飛鏡頭） */
+  onSearchInPanel?: (panelId: LayerPanelId, query: string, country?: CountryCode) => void;
+  /** 目前國家主體（國家選單、「其他面板」提示用）；未給＝台灣 */
+  country?: CountryCode;
+  /** 給了才顯示頂部國家選單（圖層、統計入口）；選了國家由呼叫端切國家並 flyTo */
+  onCountrySelect?: (code: CountryCode) => void;
+  /** false＝本入口不涵蓋目前國家（統計在非台灣）：不畫主題樹，改顯示未涵蓋空狀態＋「切回台灣」 */
+  covered?: boolean;
 }
 
 /**
@@ -82,6 +90,7 @@ export function LayersPanel({
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
   panelId, availablePanelIds, onSearchInPanel,
+  country = DEFAULT_COUNTRY, onCountrySelect, covered = true,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const i18n = useLocale();
@@ -116,12 +125,27 @@ export function LayersPanel({
     lockedKeys,
   });
   const visibleSearchResults = searchResults.slice(0, 50);
+  // 其他入口（同一國家；統計不涵蓋目前國家時算台灣的統計）＋其他國家的「圖層」入口（顯示國名）
   const otherPanelHits = q && panelId
-    ? LAYER_PANELS.filter((panel) => panel.id !== panelId && (!availablePanelIds || availablePanelIds.includes(panel.id))).map((panel) => ({
-      id: panel.id,
-      shortTitle: t(`panel.${panel.id}.short`),
-      count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id), lockedKeys }).length,
-    })).filter((hit) => hit.count > 0)
+    ? [
+      ...LAYER_PANELS.filter((panel) => panel.id !== panelId && (!availablePanelIds || availablePanelIds.includes(panel.id))).map((panel) => {
+        const hitCountry = panel.countries && !panel.countries.includes(country) ? panel.countries[0]! : country;
+        return {
+          key: panel.id,
+          id: panel.id,
+          country: hitCountry === country ? undefined : hitCountry,
+          shortTitle: t(`panel.${panel.id}.short`),
+          count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry), lockedKeys }).length,
+        };
+      }),
+      ...PANEL_COUNTRIES.filter((code) => code !== country).map((code) => ({
+        key: `layers:${code}`,
+        id: "layers" as LayerPanelId,
+        country: code as CountryCode | undefined,
+        shortTitle: t(countryDef(code).labelKey),
+        count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys("layers", code), lockedKeys }).length,
+      })),
+    ].filter((hit) => hit.count > 0)
     : [];
   // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
@@ -143,6 +167,7 @@ export function LayersPanel({
   return (
     <>
       {onClose && <RailPanelHeader title={title} onClose={onClose} />}
+      {onCountrySelect && <CountryMenu country={country} onSelect={onCountrySelect} />}
       {allOff && (
         <div style={{ padding: "4px 12px 4px" }}>
           <button
@@ -255,9 +280,9 @@ export function LayersPanel({
             {/* P9：各面板搜自己，結果末尾提示其他入口的相符筆數，點了切過去並帶入關鍵字 */}
             {onSearchInPanel && otherPanelHits.map((hit) => (
               <button
-                key={hit.id}
+                key={hit.key}
                 type="button"
-                onClick={() => onSearchInPanel(hit.id, search)}
+                onClick={() => onSearchInPanel(hit.id, search, hit.country)}
                 style={{ display: "flex", alignItems: "center", gap: 6, width: "calc(100% - 24px)", margin: "6px 12px 0", padding: "6px 8px", border: `1px dashed ${ALLOFF_BORDER}`, borderRadius: RADIUS.lg, background: "transparent", color: INACTIVE_TEXT, cursor: "pointer", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "left" }}
               >
                 <span style={{ flex: 1 }}>{otherPanelHitText(t("layers.otherPanelHits", { panel: hit.shortTitle, count: COUNT_MARK }), hit.count)}</span>
@@ -265,6 +290,21 @@ export function LayersPanel({
               </button>
             ))}
           </>
+        ) : !covered ? (
+          <div style={{ padding: "16px 12px", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
+            <div style={{ color: DIM, fontSize: FONT_SIZE.md, fontFamily: FONT_CJK }}>
+              {t("statistics.uncovered", { country: t(countryDef(country).labelKey) })}
+            </div>
+            {onCountrySelect && (
+              <button
+                type="button"
+                onClick={() => onCountrySelect(DEFAULT_COUNTRY)}
+                style={{ padding: "5px 10px", background: ALLOFF_BG, border: `1px solid ${ALLOFF_BORDER}`, borderRadius: RADIUS.lg, color: TEXT_STRONG, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK, cursor: "pointer" }}
+              >
+                {t("statistics.backToTaiwan")}
+              </button>
+            )}
+          </div>
         ) : themesToRender.map((theme, themeIndex) => {
           const isCollapsed = collapsedThemes.has(theme.title);
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));

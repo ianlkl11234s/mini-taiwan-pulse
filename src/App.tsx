@@ -76,7 +76,7 @@ import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
-import { JAPAN_CAMERA } from "./constants/countries";
+import { countryDef, type CountryCode } from "./constants/countries";
 import { countryStore, resolveInitialCountry, useCountry } from "./state/countryStore";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
@@ -221,6 +221,11 @@ export default function App() {
     countryStore.set(resolveInitialCountry(urlStateRef.current.country, urlStateRef.current.camera));
   }
   const country = useCountry();
+  // 只有在國家選單選國家時才飛到該國（網址、場景快照、Agent 切國家都不飛）
+  const handleCountryFly = useCallback((code: CountryCode) => {
+    const { center, zoom, pitch, bearing } = countryDef(code).camera;
+    mapRef.current?.flyTo({ center, zoom, pitch, bearing, speed: 1.0 });
+  }, []);
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -2435,15 +2440,7 @@ export default function App() {
               monitorSplitActive={monitorOpen && monitorMode === "split"}
               compactLayers={monitorOpen && monitorMode === "split"}
               showSimulation={isOwner && !memberAuthLoading}
-              onJapanOpen={() => {
-                mapRef.current?.flyTo({
-                  center: JAPAN_CAMERA.center,
-                  zoom: JAPAN_CAMERA.zoom,
-                  pitch: JAPAN_CAMERA.pitch,
-                  bearing: JAPAN_CAMERA.bearing,
-                  speed: 1.0,
-                });
-              }}
+              onCountryFly={handleCountryFly}
             />
           </div>
 
@@ -2737,7 +2734,7 @@ export default function App() {
                       onBulkSetVisibility={handleBulkSetVisibility}
                       onAllOff={handleAllOff}
                       showSimulation={isOwner && !memberAuthLoading}
-                      onJapanOpen={() => mapRef.current?.flyTo({ center: JAPAN_CAMERA.center, zoom: JAPAN_CAMERA.zoom, pitch: JAPAN_CAMERA.pitch, bearing: JAPAN_CAMERA.bearing, speed: 1.0 })}
+                      onCountryFly={handleCountryFly}
                     />
                   </div>
                 )}

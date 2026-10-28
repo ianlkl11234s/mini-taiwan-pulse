@@ -290,5 +290,7 @@
   "theme.季節觀測": "季節観測",
   "theme.自來水": "上水道",
   "theme.淹水 Flooding": "浸水",
-  "theme.海域環境 Marine Environment": "海域環境"
+  "theme.海域環境 Marine Environment": "海域環境",
+  "theme.通訊 Telecom": "通信",
+  "theme.通訊": "通信"
 }

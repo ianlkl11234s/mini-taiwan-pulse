@@ -192,6 +192,10 @@ function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
 export const GLOBAL_SITUATION_THEME_TITLE = "全球情勢 Global Situation";
 export const GLOBAL_ENVIRONMENT_THEME_TITLE = "全球環境 Global Environment";
 export const COMMUNICATIONS_THEME_TITLE = "全球通訊 Global Communications";
+/** 台灣「通訊」主題（Ookla 台灣細格）。title 全站唯一，與法國「通訊」不同字串。 */
+export const TAIWAN_TELECOM_THEME_TITLE = "通訊 Telecom";
+/** 法國「通訊」主題（ANFR）。照日本主題做法用中文短名。 */
+export const FRANCE_TELECOM_THEME_TITLE = "通訊";
 
 /** 主題屬於哪個國家主體（或世界、模擬）。見 `THEME_SCOPE`。 */
 export type ThemeScope = CountryCode | "WORLD" | "SIM";
@@ -225,6 +229,8 @@ export const THEME_SCOPE: Readonly<Record<string, ThemeScope>> = {
   "海洋": "JP",
   "水資源": "JP",
   "林業": "JP",
+  // 法國（2026-10-28）
+  [FRANCE_TELECOM_THEME_TITLE]: "FR",
   // 模擬（站主限定入口）
   "雙北跨河橋梁中斷": "SIM",
   "臺北 307 走廊公車擁擠": "SIM",
@@ -259,6 +265,7 @@ export const THEME_SCOPE: Readonly<Record<string, ThemeScope>> = {
   "林業 Forestry": "TW",
   "太空 Space": "TW",
   "情勢 Situation": "TW",
+  [TAIWAN_TELECOM_THEME_TITLE]: "TW",
   // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
   "工作與所得 Work & Income": "TW",
   "房地產統計 Real Estate Statistics": "TW",
@@ -1931,10 +1938,6 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        title: "官方無線站點 Official Wireless Sites",
-        layers: [fromManifest("anfrWirelessSites")],
-      },
-      {
         title: "群眾無線站點 Crowdsourced Wireless Sites",
         layers: [fromManifest("osmCommunicationSites")],
       },
@@ -1947,6 +1950,19 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("ooklaMobilePerformance"),
           fromManifest("ooklaFixedPerformance"),
+        ],
+      },
+    ],
+  },
+
+  // 📡 台灣「通訊」（2026-10-28 國家主體化 §8：Ookla 台灣細格自世界「全球通訊」移入）
+  {
+    title: TAIWAN_TELECOM_THEME_TITLE,
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "網路效能格網 Network Performance Grid",
+        layers: [
           fromManifest("ooklaMobileTaiwan"),
           fromManifest("ooklaFixedTaiwan"),
         ],
@@ -2412,6 +2428,20 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [{ title: "分區", layers: [fromManifest("jpNationalForests"), fromManifest("jpCanopyHeight")] }],
   },
 
+  // ───────────────────────────────────────────────────────────────
+  // 🇫🇷 法國（2026-10-28 國家主體化 §8：ANFR 自世界「全球通訊」移入；title 照日本做法用中文短名）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: FRANCE_TELECOM_THEME_TITLE,
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "官方無線站點 Official Wireless Sites",
+        layers: [fromManifest("anfrWirelessSites")],
+      },
+    ],
+  },
+
 ];
 
 /**
@@ -2497,6 +2527,8 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
   [GLOBAL_ENVIRONMENT_THEME_TITLE]: "environment",
   [COMMUNICATIONS_THEME_TITLE]: "publicLife",
+  [TAIWAN_TELECOM_THEME_TITLE]: "publicLife",
+  [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
   "全球氣候 Global Climate": "environment",
   "全球海事 Global Maritime": "intelligence",
   // 日本 tab 在 desktop 仍獨立；主題 title＝台灣主題的中文短名（機器字串不同），大分類同台灣對應主題。
@@ -2615,6 +2647,9 @@ const THEME_NAMES: Record<string, ThemeName> = {
   [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },
   [GLOBAL_ENVIRONMENT_THEME_TITLE]: { zh: "全球環境", sub: "Global Environment" },
   [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
+  [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecom" },
+  // 法國主題副標用法文（比照日本主題用日文）
+  [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
   "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
   "全球海事 Global Maritime": { zh: "全球海事", sub: "Global Maritime" },
   "底圖": { zh: "底圖", sub: "ベースマップ" },
