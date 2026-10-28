@@ -64,6 +64,8 @@ const tr: LocaleSnapshot["t"] = (key, vars) => localeStore.getSnapshot().t(key, 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
   onAnalysisResultFeature?: (properties: AnalysisResultPanelProperties | null) => void;
+  /** Reports whether the top-right activity card is on screen (App hides the viewport country hint, design-system §5.42). */
+  onActivityVisibleChange?: (visible: boolean) => void;
   /** True while the docked FeatureInfoPanel shows an analysis result (App: featureInfo.layerType === "analysisResult").
    *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
   analysisResultSelected?: boolean };
@@ -209,6 +211,9 @@ export function MainMapConnection(props: Props) {
   // null＝尚未有訊息，畫面顯示預設引導語（隨介面語系），其餘訊息在產生當下依語系翻譯
   const [message, setMessage] = useState<string | null>(null);
   const latest = useRef(props); latest.current = props;
+  const activityVisible = activityCardVisible(activity, props.uiHidden);
+  useEffect(() => { latest.current.onActivityVisibleChange?.(activityVisible); }, [activityVisible]);
+  useEffect(() => () => latest.current.onActivityVisibleChange?.(false), []);
   // describeDataset throws for ids outside the frontend descriptors (e.g. warehouse lineage ids); fall back to the manifest label.
   const describedLabelOrManifest = (id: string): string | undefined => {
     try { return describeDataset(id, latest.current.locked).label ?? latest.current.labels[id]; }

@@ -122,6 +122,8 @@ import type { MapBridge } from "./chat/types";
 import { BookOpen, Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
+import { CountryViewportHint } from "./components/CountryViewportHint";
+import { useViewportCountry } from "./hooks/useViewportCountry";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -503,6 +505,8 @@ export default function App() {
   const [showInfo, setShowInfo] = useState(false);
   const { t, locale } = useLocale();
   const [chatOpen, setChatOpen] = useState(false);
+  /** Agent 活動卡（右上）是否在畫面上：出現時隱藏視野提示（§5.42） */
+  const [agentActivityVisible, setAgentActivityVisible] = useState(false);
   // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
   const [agentOpen, setAgentOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
@@ -1946,6 +1950,18 @@ export default function App() {
     return () => { map.off("moveend", onMoveEnd); };
   }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
 
+  // 右上浮動元件共用的 right：Monitor split 時讓到 dock 左邊（LoadingStatus §5.30、視野提示 §5.42）
+  const topRightOffset = splitActive
+    ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+    : isMobile ? "10px" : "16px";
+  // 視野提示（§5.42）：手機、拍攝模式、AI 對話框或 Agent 活動卡開著時停用；私人畫面判斷時讀 ref
+  const viewportHint = useViewportCountry({
+    map: mapPrepared ? mapRef.current : null,
+    enabled: !isMobile && !captureMode && !chatOpen && !agentActivityVisible,
+    isPrivateView: () => privateViewRef.current,
+    lockedKeys,
+  });
+
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
     bulkSetVisibility: (keys, visible) =>
@@ -2136,6 +2152,7 @@ export default function App() {
         showToggle={false}
         uiHidden={captureMode}
         onAnalysisResultFeature={handleAnalysisResultFeature}
+        onActivityVisibleChange={setAgentActivityVisible}
         analysisResultSelected={featureInfo?.layerType === "analysisResult"}
       />}
 
@@ -3146,10 +3163,19 @@ export default function App() {
           isDarkTheme={isDarkTheme}
           top={isMobile ? 52 : 60}
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
-          rightOffset={splitActive
-            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
-            : isMobile ? "10px" : "16px"}
+          rightOffset={topRightOffset}
         />
+      {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體，不自動切換；手機第一版不做 ── */}
+      {viewportHint.target && (
+        <CountryViewportHint
+          target={viewportHint.target}
+          current={country}
+          onSwitch={viewportHint.switchTo}
+          onKeep={viewportHint.keep}
+          isDarkTheme={isDarkTheme}
+          rightOffset={topRightOffset}
+        />
+      )}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel

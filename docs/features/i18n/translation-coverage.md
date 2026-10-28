@@ -353,3 +353,12 @@
 - 案件發生地（鄉鎮市區精度）＝事件の発生地（郷鎮市区単位の精度）；受騙地或報案地＝被害地か届出地か。
 - 授權句＝政府データオープンライセンス第1版（OGDL-1.0。data.gov.tw のライセンス欄の値は 1、原文未確認）（沿用既有 statLicense 的「原文未確認」）。
 - 仍不確定：強制性交維持台灣法律用語直譯（日本 2023 年起改稱不同意性交等）。
+
+### 國家選單／視野提示卡（2026-10-28，英日各 2 輪校對）
+- 範圍：`panel.layers.*`、`country.*`、`statistics.uncovered`／`backToTaiwan`、`countryHint.*`、主題「通訊 Telecom」（台灣）與「通訊」（法國）。
+- 圖層＝Layers／レイヤー（面板 title 與 short 都不縮寫）；台灣／日本／法國＝Taiwan／Japan／France、台湾／日本／フランス。
+- 切換國家＝Switch country／国を切り替え；切換到{country}＝Switch to {country}／{country}に切り替え；保持{country}＝Stay on {country}／{country}のままにする；切回台灣＝Back to Taiwan／台湾に戻る。按鈕與 aria 用動作式，日文不加敬體。
+- 目前視野在{country}＝You're viewing {country}／現在{country}を表示中です；視野國家提示＝Viewport country hint／表示中の国のお知らせ。
+- 圖層面板仍是{country}的圖層＝The layer panel still lists {country} layers／レイヤーパネルは{country}用のままです（{country} 是面板目前的國家；英文補 layers、日文加「用」避免讀成面板在顯示國家本身）。
+- {country}目前沒有統計資料＝No statistics for {country} yet／{country}の統計データはまだありません（此處不套「未涵蓋」用語）。
+- 通訊（台灣、法國主題）＝Telecommunications／通信：同一概念兩國統一，台灣原本的 "Telecom" 改掉。
