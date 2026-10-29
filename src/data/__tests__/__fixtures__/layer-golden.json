@@ -2059,6 +2059,12 @@
     },
     {
       "layers": [
+        "water-flood-extreme-fill"
+      ],
+      "type": "waterFloodExtreme"
+    },
+    {
+      "layers": [
         "water-reservoir-status-circle"
       ],
       "type": "waterDam"
@@ -14954,7 +14960,23 @@
       "id": "waterFloodExtreme",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15047,7 +15069,23 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15071,11 +15109,14 @@
       "pmtiles": {
         "maxzoom": 13,
         "minzoom": 5,
-        "sourceLayer": "flood_extreme"
+        "sourceLayer": "flood_scenario"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "glow"
+      ],
       "sourceId": "water-flood-extreme",
-      "sourceUrl": "./geo/water_flood_extreme.pmtiles"
+      "sourceUrl": "./geo/water_flood_650mm_24hr.pmtiles"
     },
     {
       "dynamicData": null,
@@ -136535,6 +136576,53 @@
       }
     ],
     "waterFloodExtreme": [
+      {
+        "label": "降雨情境",
+        "options": [
+          {
+            "label": "150 mm / 6 h",
+            "value": "150mm_6hr"
+          },
+          {
+            "label": "250 mm / 6 h",
+            "value": "250mm_6hr"
+          },
+          {
+            "label": "350 mm / 6 h",
+            "value": "350mm_6hr"
+          },
+          {
+            "label": "200 mm / 12 h",
+            "value": "200mm_12hr"
+          },
+          {
+            "label": "300 mm / 12 h",
+            "value": "300mm_12hr"
+          },
+          {
+            "label": "400 mm / 12 h",
+            "value": "400mm_12hr"
+          },
+          {
+            "label": "200 mm / 24 h",
+            "value": "200mm_24hr"
+          },
+          {
+            "label": "350 mm / 24 h",
+            "value": "350mm_24hr"
+          },
+          {
+            "label": "500 mm / 24 h",
+            "value": "500mm_24hr"
+          },
+          {
+            "label": "650 mm / 24 h",
+            "value": "650mm_24hr"
+          }
+        ],
+        "type": "select",
+        "value": "650mm_24hr"
+      },
       {
         "label": "深度",
         "options": [

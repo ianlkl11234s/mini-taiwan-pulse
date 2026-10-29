@@ -879,7 +879,7 @@
   "layer.waterRivers": "Rivers",
   "layer.waterLevees": "Levees",
   "layer.waterCanals": "Irrigation & Drainage Canals",
-  "layer.waterProtectionZones": "Water Protection & River Control Zones",
+  "layer.waterProtectionZones": "Water Supply Protection & Groundwater Control Zones",
   "layer.waterDetentionBasins": "Detention Ponds",
   "layer.groundwater": "Groundwater Wells",
   "layer.waterFloodExtreme": "Flood Potential",

@@ -10,6 +10,7 @@ import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RA
 import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { fireStationColorMatch } from "../data/fireTypes";
+import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -4212,17 +4213,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 淹水潛勢 (flood_650mm_24hr, 極端情境；可調 floodMinDepth 篩選) ──
-  // PMTiles 向量切片（原 80MB GeoJSON → 按需載入；depth_class/county 屬性保留供 paint match）
+  // ── 淹水潛勢 10 降雨情境（floodScenarioIdx 換檔，預設 650mm/24h；可調 floodMinDepth 篩選）──
+  // 一個情境一支 PMTiles（scripts/export/export-flood-scenarios.sh），切情境換 source url；
+  // depth_class 已在匯出時正規化（離島髒值 0.3-0.>3.0／0.>3.0-1.0 → 0.3-0.5／0.5-1.0）
   {
     id: "waterFloodExtreme",
-    sourceUrl: "./geo/water_flood_extreme.pmtiles",
+    sourceUrl: floodScenarioUrl(FLOOD_SCENARIO_DEFAULT),
+    sourceUrlByParam: { param: "floodScenarioIdx", urls: FLOOD_SCENARIOS.map((s) => floodScenarioUrl(s.value)) },
     sourceId: "water-flood-extreme",
-    pmtiles: { sourceLayer: "flood_extreme", minzoom: 5, maxzoom: 13 },
+    attribution: "經濟部水利署 淹水潛勢圖（data.gov.tw 25766）· 政府資料開放授權條款第1版 · 模式模擬，僅供防災整備",
+    pmtiles: { sourceLayer: "flood_scenario", minzoom: 5, maxzoom: 13 },
+    // floodMinDepth 除了把 opacity 打 0，也用 filter 排除低於門檻的面：
+    // 補 popup 後，只靠 opacity 0 的面仍會被 queryRenderedFeatures 點到（看不到卻跳出說明框）。
+    rebuildOnParamChange: ["fill", "glow"],
+    rebuildOnParamKeys: ["floodMinDepth"],
     layers: [
       {
         suffix: "fill",
         type: "fill",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           // floodMinDepth: 0 (全部) / 0.5 / 1 / 2 / 3
           const min = params?.floodMinDepth ?? 0;
@@ -4255,6 +4264,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "line",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           const min = params?.floodMinDepth ?? 0;
           const ALL_CLASSES = ["0.3-0.5", "0.5-1.0", "1.0-2.0", "2.0-3.0", ">3.0"];
