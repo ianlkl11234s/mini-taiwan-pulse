@@ -92,11 +92,6 @@ export const GB_MPA_TYPES: readonly { value: GbMpaType; color: string }[] = [
   { value: "ncmpa", color: "#14b8a6" },
   { value: "drmpa", color: "#5eead4" },
 ];
-/**
- * 英格蘭 HPMA（Highly Protected Marine Area）授權 HOLD 不收；但上游切片的 NE MCZ 檔內含 3 筆
- * （site_code UKEHPMA001–003），前端以 site_code 前綴濾掉，待資料 worker 上游移除。
- */
-export const GB_MPA_HPMA_CODE_PREFIX = "UKEHPMA";
 export const GB_MPA_SOURCES: Readonly<Record<string, { attribution: string; url: string }>> = {
   Opendata_NE: { attribution: "© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right 2023.", url: "https://www.arcgis.com/home/item.html?id=82bf811005484412a75c438738d51f82" },
   SNH_Maps: { attribution: "© NatureScot 2023, Contains Ordnance Survey data © Crown copyright and database right. All rights reserved , License No. EK001-20140401. Not to be used for Navigation", url: "https://www.arcgis.com/home/item.html?id=0fb8cf7077604d7fa7c9367559befd7b" },
@@ -177,9 +172,8 @@ export function gbTrailCategory(raw: unknown): GbTrailCategoryDef | undefined {
   return typeof raw === "string" ? GB_TRAIL_CATEGORIES.find((c) => c.raw.includes(raw)) : undefined;
 }
 
-/** Natural England 句的 `[year]` 是來源授權頁原文佔位，照抄不自行填年份。 */
 export const GB_TRAIL_SOURCES: Readonly<Record<string, { attribution: string; url: string }>> = {
-  "Natural England": { attribution: "© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right [year].", url: "https://www.arcgis.com/home/item.html?id=6a67e9afbcb646549be437fbff12d6ed" },
+  "Natural England": { attribution: "© Natural England copyright. Contains Ordnance Survey data © Crown copyright and database right 2026.", url: "https://www.arcgis.com/home/item.html?id=6a67e9afbcb646549be437fbff12d6ed" },
   "Forestry England": { attribution: "Contains, or is based on, information supplied by the Forestry Commission. © Crown copyright and database right 2026 Ordnance Survey AC0000814847", url: "https://www.arcgis.com/home/item.html?id=c1b69c1180d1455b84409bcd8b0abeb3" },
   "Forestry and Land Scotland": { attribution: "Contains public sector information licensed under the Open Government Licence v3.0. (Forestry and Land Scotland)", url: "https://www.arcgis.com/home/item.html?id=ec0710139a764ed4b46fc802f07308b5" },
   "Natural Resources Wales:national_trail": { attribution: "Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.", url: "https://datamap.gov.wales/layers/inspire-nrw:NRW_NATIONAL_TRAIL" },
@@ -235,11 +229,10 @@ export const GB_AW_STATUS: Readonly<Record<string, GbAncientWoodlandStatus>> = {
   "Ancient Semi Natural Woodland Deleted": "deleted",
   "Plantation on Ancient Woodland Site Deleted": "deleted",
 };
-/** Natural England／NatureScot 句的 `[Year]`、`(year)` 為來源授權頁原文佔位，照抄不自行填年份。 */
 export const GB_TREE_SOURCES: Readonly<Record<string, { attribution: string; url: string }>> = {
   "Planning Data (MHCLG)": { attribution: "© Crown copyright and database right 2026", url: "https://www.planning.data.gov.uk/dataset/tree-preservation-zone" },
-  "Natural England": { attribution: "© Natural England [Year]; © Crown Copyright and database rights [year]. Ordnance Survey AC0000851168; © 2015 Getmapping plc and Bluesky International Ltd; © Woodland Trust; © Forest Commission; Contains, or is based on, information supplied by the Forestry Commission. © Crown copyright and database right [Year] Ordnance Survey [100021242]; © and database right Crown copyright and Landmark Information Group Ltd. All rights reserved [year]; © Ancient Tree Hunt", url: "https://www.arcgis.com/home/item.html?id=a14064ca50e242c4a92d020764a6d9df" },
-  NatureScot: { attribution: "© Scottish Natural Heritage Contains Ordnance Survey data © Crown copyright and database right (year)", url: "https://www.arcgis.com/home/item.html?id=f51238bf8c8f4f859831c9a6ebd2598b" },
+  "Natural England": { attribution: "© Natural England 2026; © Crown Copyright and database rights 2026. Ordnance Survey AC0000851168; © 2015 Getmapping plc and Bluesky International Ltd; © Woodland Trust; © Forest Commission; Contains, or is based on, information supplied by the Forestry Commission. © Crown copyright and database right 2026 Ordnance Survey [100021242]; © and database right Crown copyright and Landmark Information Group Ltd. All rights reserved 2026; © Ancient Tree Hunt", url: "https://www.arcgis.com/home/item.html?id=a14064ca50e242c4a92d020764a6d9df" },
+  NatureScot: { attribution: "© Scottish Natural Heritage Contains Ordnance Survey data © Crown copyright and database right 2023", url: "https://www.arcgis.com/home/item.html?id=f51238bf8c8f4f859831c9a6ebd2598b" },
   "Natural Resources Wales": { attribution: "Contains Natural Resources Wales information © Natural Resources Wales and Database Right. All rights Reserved. Contains Ordnance Survey Data. Ordnance Survey Licence number AC0000849444. Crown Copyright and Database Right.", url: "https://datamap.gov.wales/layers/inspire-nrw:NRW_ANCIENT_WOODLAND_INVENTORY_2021" },
 };
 export const GB_TPO_TREE_URL = "https://www.planning.data.gov.uk/dataset/tree";

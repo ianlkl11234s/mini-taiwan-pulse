@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1389,
+    "keyCount": 1392,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1375,6 +1375,25 @@
         "gb-care-services-circle"
       ],
       "type": "gbCareServices"
+    },
+    {
+      "layers": [
+        "gb-arts-venues-circle"
+      ],
+      "type": "gbArtsVenues"
+    },
+    {
+      "layers": [
+        "gb-cultural-facilities-circle"
+      ],
+      "type": "gbCulturalFacilities"
+    },
+    {
+      "layers": [
+        "gb-visitor-other-circle",
+        "gb-visitor-attraction-circle"
+      ],
+      "type": "gbVisitorExperience"
     },
     {
       "layers": [
@@ -90361,6 +90380,26 @@
         "valueText": "0.85"
       }
     ],
+    "gbArtsVenues": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbBathingWaters": [
       {
         "label": "透明度 0.85",
@@ -90482,6 +90521,26 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbCulturalFacilities": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -91001,6 +91060,26 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbVisitorExperience": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",

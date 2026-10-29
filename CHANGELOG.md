@@ -83,6 +83,8 @@
   - 發版注意事項：`public/world/gb_power_grid.pmtiles`（22.1MB，電網線與變電所共用）於發版當天上傳 S3 `deploy-assets/world/`（`scripts/deploy/upload-deploy-assets.sh` 已加進 world 大檔清單）；`gb_power_plants.pmtiles`（1.6MB）、`gb_renewables.pmtiles`（17.6MB）、`gb_fuel_stations.pmtiles`（4.7MB）、`gb_oil_gas.pmtiles`（1.5MB）已 git-track，不需上傳。未上傳就發版，電網線與變電所在正式站會是空的
 - 英國第 7 波新增 6 個公共服務圖層，主題與群組比照台灣同類圖層：「教育 › 學校」學校（英格蘭 GIAS、蘇格蘭、威爾斯、北愛共 30,658 校，依幼兒、小學、中學、一貫制、繼續教育、大學、特殊學校、學生轉介單位分色；蘇格蘭只有公立與 grant-aided 學校，北愛為 2016 年名冊）；「醫療 › 點位」醫療院所（醫院 1,415、GP 診所 7,435、藥局 12,447，縮放 9 級以下只顯示醫院；英格蘭與威爾斯醫院為 NHS 院址名稱比對、非官方清單；北愛未涵蓋）；「社福長照 › 住宿照顧」照護之家（CQC 與 Care Inspectorate 15,758 處）與「社福長照 › 長照與托育」長照服務（居家照顧、支持性住宅、Shared Lives 等 17,237 處，點位為機構登記地址；兩層皆威爾斯、北愛未涵蓋）；「消防 › 點位」消防站（英格蘭官方 1,398 站實心、蘇格蘭／威爾斯／北愛 OSM 補缺 589 站空心，座標未核對的站在彈窗註明）；「執法治安 › 司法矯正」法院（英格蘭與威爾斯 450 處，依刑事、郡／家事、治安法院、審裁處、其他分色）。以郵遞區號中心定位的點在彈窗註明「非建物位置」
   - 5 個 PMTiles（`public/world/gb_schools.pmtiles` 15.1MB、`gb_health_facilities.pmtiles` 7.2MB、`gb_care_services.pmtiles` 16.3MB、`gb_fire_stations.pmtiles` 1.9MB、`gb_courts.pmtiles` 0.6MB）都已 git-track，發版不需上傳
+- 英國第 8 波新增 3 個文化與觀光圖層，主題與群組比照台灣同類圖層：「文化 › 設施」文化設施（博物館 3,079、美術館／畫廊 1,282、圖書館 3,951；北愛公共圖書館 98 館為 Libraries NI 官方名錄實心，其餘為 OSM 補缺空心）、「文化 › 藝文活動」藝文場館（OSM 劇院、電影院、藝術中心、音樂廳 3,210 處）、「觀光 › 玩・自然」觀光體驗（OSM 景點、遊客中心、動物園、主題樂園、水族館 7,050 處，景點縮放 9 級起）；四地皆涵蓋，彈窗的開放時間、收費、無障礙沒標的寫「未標示」，非公眾開放的地點另註明
+  - 3 個 PMTiles（`public/world/gb_cultural_facilities.pmtiles` 6.1MB、`gb_arts_venues.pmtiles` 2.2MB、`gb_visitor_experience.pmtiles` 4.8MB）都已 git-track，發版不需上傳
 
 ## v2.17.0 — 2026-10-29 — 淹水 10 種降雨情境、急救責任醫院分級、海洋保育補接
 

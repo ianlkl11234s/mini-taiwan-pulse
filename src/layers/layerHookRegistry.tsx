@@ -93,6 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
+import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
@@ -324,6 +325,10 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbCareServicesLayer", keys: ["gbCareServices"], Host: GbCareServicesHost },
   { id: "useGbFireStationsLayer", keys: ["gbFireStations"], Host: GbFireStationsHost },
   { id: "useGbCourtsLayer", keys: ["gbCourts"], Host: GbCourtsHost },
+  // 英國第 8 波（文化設施、藝文場館、觀光體驗）
+  { id: "useGbCulturalFacilitiesLayer", keys: ["gbCulturalFacilities"], Host: GbCulturalFacilitiesHost },
+  { id: "useGbArtsVenuesLayer", keys: ["gbArtsVenues"], Host: GbArtsVenuesHost },
+  { id: "useGbVisitorExperienceLayer", keys: ["gbVisitorExperience"], Host: GbVisitorExperienceHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

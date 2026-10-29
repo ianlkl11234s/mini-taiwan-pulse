@@ -5,6 +5,7 @@ import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
+import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
@@ -262,5 +263,27 @@ export const GbCourtsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCourtsLayer");
   const p = useKeyOverlayParams("gbCourts");
   useGbCourtsLayer(deps.mapRef, deps.layerVisibility.gbCourts, p.gbCourtsOpacity ?? 0.85, p.gbCourtsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 8 波：文化設施、藝文場館、觀光體驗。 */
+export const GbCulturalFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCulturalFacilitiesLayer");
+  const p = useKeyOverlayParams("gbCulturalFacilities");
+  useGbCulturalFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbCulturalFacilities, p.gbCulturalFacilitiesOpacity ?? 0.8, p.gbCulturalFacilitiesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbArtsVenuesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbArtsVenuesLayer");
+  const p = useKeyOverlayParams("gbArtsVenues");
+  useGbArtsVenuesLayer(deps.mapRef, deps.layerVisibility.gbArtsVenues, p.gbArtsVenuesOpacity ?? 0.8, p.gbArtsVenuesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbVisitorExperienceHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbVisitorExperienceLayer");
+  const p = useKeyOverlayParams("gbVisitorExperience");
+  useGbVisitorExperienceLayer(deps.mapRef, deps.layerVisibility.gbVisitorExperience, p.gbVisitorExperienceOpacity ?? 0.8, p.gbVisitorExperienceScale ?? 1, deps.isDarkTheme);
   return null;
 };

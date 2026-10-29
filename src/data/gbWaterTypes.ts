@@ -23,7 +23,7 @@ export type GbNation = "England" | "Scotland" | "Wales" | "Northern Ireland";
 export const GB_RIVERS_COLOR = "#38bdf8";
 export const GB_RIVERS_COLOR_LIGHT = "#0284c7";
 export const GB_RIVERS_CANAL_COLOR = "#a78bfa";
-/** 湖中連接段（form=lake）淡化倍率。`fictitious` 欄位上游轉型有誤（全為 true），暫不使用。 */
+/** 湖中連接段（form=lake）淡化倍率。`fictitious` 欄位為 false 或 null，不使用。 */
 export const GB_RIVERS_FADED_FACTOR = 0.45;
 
 export type GbRiverForm = "inlandRiver" | "tidalRiver" | "lake" | "canal";

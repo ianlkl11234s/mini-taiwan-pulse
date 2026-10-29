@@ -55,6 +55,11 @@ import {
   gbCareKind, gbCivicText, gbCourtKind, gbHealthColor, gbHealthKind, gbIsPostcodeCentroid, gbSchoolCategory,
 } from "../../data/gbCivicTypes";
 import { GB_CARE_KIND_KEYS, GB_COURT_KIND_KEYS, GB_HEALTH_KIND_KEYS, GB_SCHOOL_CATEGORY_KEYS } from "../legend/gbCivicLegends";
+import {
+  GB_ARTS_COLOR, GB_CULTURAL_COLOR, GB_CULTURE_FETCHED_AT, GB_CULTURE_ODBL, GB_CULTURE_OGL_V3, GB_CULTURE_RESTRICTED_ACCESS,
+  GB_LIBRARIES_NI_ATTRIBUTION, GB_LIBRARIES_NI_URL, GB_VISITOR_COLOR, gbArtsKind, gbCultureText, gbCulturalKind, gbVisitorKind,
+} from "../../data/gbCultureTypes";
+import { GB_ARTS_KIND_KEYS, GB_CULTURAL_KIND_KEYS, GB_VISITOR_KIND_KEYS } from "../legend/gbCultureLegends";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { LinkRow } from "./atlasPanels";
 import type { MessageKey } from "../../i18n/keys";
@@ -1019,5 +1024,114 @@ export function GbCourtsPanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     <PostcodeRow props={props} />
     {civicFooter(GB_COURTS_ATTRIBUTION, GB_COURTS_URL, props)}
+  </>;
+}
+
+// ─────────────────────────── 英國第 8 波：文化與觀光 ───────────────────────────
+
+/** OSM 細類（subtype）對照；未對照的顯示原值。 */
+const GB_CULTURE_SUBTYPE_KEYS: Readonly<Record<string, MessageKey>> = {
+  history: "popup.culture.gbSubHistory", local: "popup.culture.gbSubLocal", local_history: "popup.culture.gbSubLocalHistory",
+  transport: "popup.culture.gbSubTransport", railway: "popup.culture.gbSubRailway", military: "popup.culture.gbSubMilitary",
+  war: "popup.culture.gbSubMilitary", art: "popup.culture.gbSubArt", technology: "popup.culture.gbSubTechnology",
+  science: "popup.culture.gbSubScience", nature: "popup.culture.gbSubNature", person: "popup.culture.gbSubPerson",
+  aerospace: "popup.culture.gbSubAviation", aviation: "popup.culture.gbSubAviation", archaeological: "popup.culture.gbSubArchaeological",
+  maritime: "popup.culture.gbSubMaritime", living_history: "popup.culture.gbSubLivingHistory", open_air: "popup.culture.gbSubOpenAir",
+  agriculture: "popup.culture.gbSubAgriculture", children: "popup.culture.gbSubChildren", public: "popup.culture.gbSubPublic",
+  amphi: "popup.culture.gbSubAmphi", petting_zoo: "popup.culture.gbSubPettingZoo", wildlife_park: "popup.culture.gbSubWildlifePark",
+  safari_park: "popup.culture.gbSubSafariPark", falconry: "popup.culture.gbSubFalconry", aviary: "popup.culture.gbSubAviary",
+  birds: "popup.culture.gbSubAviary", farm_park: "popup.culture.gbSubFarmPark", enclosure: "popup.culture.gbSubEnclosure",
+  maze: "popup.culture.gbSubMaze", garden: "popup.culture.gbSubGarden", formal_garden: "popup.culture.gbSubGarden",
+};
+const GB_CULTURE_FEE_KEYS: Readonly<Record<string, MessageKey>> = {
+  yes: "popup.culture.gbFeeYes", no: "popup.culture.gbFeeNo", donation: "popup.culture.gbFeeDonation",
+};
+const GB_CULTURE_WHEELCHAIR_KEYS: Readonly<Record<string, MessageKey>> = {
+  yes: "popup.culture.gbWheelchairYes", designated: "popup.culture.gbWheelchairYes", limited: "popup.culture.gbWheelchairLimited",
+  no: "popup.culture.gbWheelchairNo", bad: "popup.culture.gbWheelchairNo",
+};
+
+/** 三層共用：開放時間、收費、無障礙（null＝未標示，不等於沒有）、開放對象、郵遞區號、地區、OSM／Wikidata 連結、來源。 */
+function GbCultureCommonRows({ props, fee = true, postcode = true }: { props: Record<string, unknown>; fee?: boolean; postcode?: boolean }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const unmarked = t("popup.culture.gbUnmarked");
+  const mapped = (raw: string, keys: Readonly<Record<string, MessageKey>>) => (!raw ? unmarked : keys[raw] ? t(keys[raw]!) : raw);
+  const access = gbCultureText(props.access);
+  const osm = props.source === "osm";
+  const osmId = gbCultureText(props.osm_id);
+  const wikidata = gbCultureText(props.wikidata);
+  const nationText = gbCultureText(props.nation);
+  const place = nationText ? [nation(nationText), gbCultureText(props.lad_name)].filter(Boolean).join(" · ") : t("popup.culture.gbNationUnstated");
+  return <>
+    <Row label={t("popup.culture.gbOpeningHours")} value={gbCultureText(props.opening_hours) || unmarked} />
+    {fee ? <Row label={t("popup.culture.gbFee")} value={mapped(gbCultureText(props.fee), GB_CULTURE_FEE_KEYS)} /> : null}
+    <Row label={t("popup.culture.gbWheelchair")} value={mapped(gbCultureText(props.wheelchair), GB_CULTURE_WHEELCHAIR_KEYS)} />
+    {GB_CULTURE_RESTRICTED_ACCESS.has(access) ? <Row label={t("popup.culture.gbAccess")} value={t("popup.culture.gbAccessRestricted", { v: access })} /> : null}
+    {postcode ? <Row label={t("popup.culture.gbPostcode")} value={gbCultureText(props.postcode) || unmarked} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    <Row label={t("popup.culture.gbSource")} value={osm ? t("popup.culture.gbSourceOsm") : t("popup.culture.gbSourceLni")} />
+    {osm && osmId ? <LinkRow label="OSM" url={`https://www.openstreetmap.org/${osmId.replace(/^n/, "node/").replace(/^w/, "way/").replace(/^r/, "relation/")}`} /> : null}
+    {wikidata ? <LinkRow label="Wikidata" url={`https://www.wikidata.org/wiki/${wikidata}`} /> : null}
+    {osm
+      ? <SourceFooter props={{ source_org: GB_OSM_ATTRIBUTION, source_url: GB_OSM_URL, license: GB_CULTURE_ODBL, fetched_at: GB_CULTURE_FETCHED_AT }} />
+      : <SourceFooter props={{ source_org: GB_LIBRARIES_NI_ATTRIBUTION, source_url: GB_LIBRARIES_NI_URL, license: GB_CULTURE_OGL_V3, fetched_at: GB_CULTURE_FETCHED_AT }} />}
+  </>;
+}
+function useCultureTitle() {
+  const { t } = useLocale();
+  return (props: Record<string, unknown>, kindLabel: string) => gbCultureText(props.name) || t("popup.culture.gbUnnamed", { kind: kindLabel });
+}
+function useSubtype() {
+  const { t } = useLocale();
+  return (props: Record<string, unknown>) => {
+    const raw = gbCultureText(props.subtype);
+    return raw.split(";").map((v) => v.trim()).filter(Boolean).map((v) => (GB_CULTURE_SUBTYPE_KEYS[v] ? t(GB_CULTURE_SUBTYPE_KEYS[v]!) : v)).join(", ");
+  };
+}
+
+/** 英國文化設施：名稱、類別、細類（博物館）、共用列；北愛官方圖書館來源 Libraries NI。 */
+export function GbCulturalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const title = useCultureTitle();
+  const subtype = useSubtype();
+  const k = gbCulturalKind(props.kind);
+  const kindLabel = k ? t(GB_CULTURAL_KIND_KEYS[k.value]) : gbCultureText(props.kind);
+  return <>
+    <Title color={k?.color ?? GB_CULTURAL_COLOR}>{title(props, kindLabel)}</Title>
+    <Row label={t("popup.culture.gbKind")} value={kindLabel} />
+    {props.source === "osm" ? <Row label={t("popup.culture.gbSubtype")} value={subtype(props)} /> : null}
+    <GbCultureCommonRows props={props} />
+  </>;
+}
+
+/** 英國藝文場館：名稱、類別、劇場型式（劇院）、共用列（不列收費：本層 99% 未標示）。 */
+export function GbArtsVenuesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const title = useCultureTitle();
+  const subtype = useSubtype();
+  const k = gbArtsKind(props.kind);
+  const kindLabel = k ? t(GB_ARTS_KIND_KEYS[k.value]) : gbCultureText(props.kind);
+  const form = props.kind === "theatre" ? subtype(props) : "";
+  return <>
+    <Title color={k?.color ?? GB_ARTS_COLOR}>{title(props, kindLabel)}</Title>
+    <Row label={t("popup.culture.gbKind")} value={kindLabel} />
+    <Row label={t("popup.culture.gbTheatreForm")} value={form} />
+    <GbCultureCommonRows props={props} fee={false} />
+  </>;
+}
+
+/** 英國觀光體驗：名稱、類別、細類（遊客中心不列）、共用列；nation 缺值（海上）顯示未載明。 */
+export function GbVisitorExperiencePanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const title = useCultureTitle();
+  const subtype = useSubtype();
+  const k = gbVisitorKind(props.kind);
+  const kindLabel = k ? t(GB_VISITOR_KIND_KEYS[k.value]) : gbCultureText(props.kind);
+  return <>
+    <Title color={k?.color ?? GB_VISITOR_COLOR}>{title(props, kindLabel)}</Title>
+    <Row label={t("popup.culture.gbKind")} value={kindLabel} />
+    {props.kind !== "visitor_centre" ? <Row label={t("popup.culture.gbSubtype")} value={subtype(props)} /> : null}
+    <GbCultureCommonRows props={props} postcode={false} />
   </>;
 }

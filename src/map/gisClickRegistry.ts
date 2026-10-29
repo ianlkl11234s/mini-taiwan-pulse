@@ -313,6 +313,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-schools-circle"], type: "gbSchools" },
   { layers: ["gb-care-homes-circle"], type: "gbCareHomes" },
   { layers: ["gb-care-services-circle"], type: "gbCareServices" },
+  // 英國第 8 波：文化與觀光點（藝文場館 → 文化設施 → 觀光體驗非景點 → 景點）
+  { layers: ["gb-arts-venues-circle"], type: "gbArtsVenues" },
+  { layers: ["gb-cultural-facilities-circle"], type: "gbCulturalFacilities" },
+  { layers: ["gb-visitor-other-circle", "gb-visitor-attraction-circle"], type: "gbVisitorExperience" },
   // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
   { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
   { layers: ["gb-renewables-circle"], type: "gbRenewables" },

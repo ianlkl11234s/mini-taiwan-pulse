@@ -431,6 +431,7 @@ export type ExpandableLayerKey =
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
+  | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -973,6 +974,8 @@ export interface FeatureInfo {
     | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
     // 英國第 7 波：學校、醫療、住宿照顧、長照服務、消防站、法院
     | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
+    // 英國第 8 波：文化設施、藝文場館、觀光體驗
+    | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1786,7 +1789,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
   gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
-  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，152 面、HPMA 3 面不畫）
+  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
   gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）
   gbForestRecreation: boolean;  // 英國森林遊憩設施（FE＋NRW，24,487 點）
   gbTrails: boolean;            // 英國步道（國家步道 42＋公有林步道 4,400）
@@ -1804,6 +1807,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbCareServices: boolean;      // 英國長照服務（同檔 care_home=false，17,237）
   gbFireStations: boolean;      // 英國消防站（MHCLG 官方 1,398＋OSM 補缺 589）
   gbCourts: boolean;            // 英國法院與審裁處（HMCTS FaCT，450；英格蘭＋威爾斯）
+  gbCulturalFacilities: boolean; // 英國博物館、美術館／畫廊、圖書館（Libraries NI 官方 98＋OSM 8,214）
+  gbArtsVenues: boolean;        // 英國劇院、電影院、藝術中心、音樂廳（OSM，3,210）
+  gbVisitorExperience: boolean; // 英國景點、遊客中心、動物園、主題樂園、水族館（OSM，7,050）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

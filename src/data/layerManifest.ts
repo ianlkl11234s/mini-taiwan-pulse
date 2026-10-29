@@ -159,6 +159,7 @@ import { NETWORK_STRUCTURES_COLORS } from "./networkStructuresTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { GB_CARE_HOMES_COLOR, GB_CARE_SERVICES_COLOR, GB_COURTS_COLOR, GB_FIRE_COLOR, GB_HEALTH_COLOR, GB_SCHOOLS_COLOR } from "./gbCivicTypes";
+import { GB_ARTS_COLOR, GB_CULTURAL_COLOR, GB_VISITOR_COLOR } from "./gbCultureTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 import {
   COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
@@ -4151,13 +4152,13 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_marine_protected_areas", confidence: "HIGH" }],
-      processing: "NE MCZ＋NatureScot NC MPA／DR MPA＋DAERA MCZ，切片 152 面；其中 3 筆英格蘭 HPMA（site_code UKEHPMA001–003）因授權 HOLD 由前端 filter 不畫，實際顯示 149 面；PMTiles z4–12",
+      processing: "NE MCZ＋NatureScot NC MPA／DR MPA＋DAERA MCZ，149 面（英格蘭 HPMA 授權 HOLD，上游已移除）；PMTiles z4–12",
       note: "OGL v3.0；3/4（威爾斯 Skomer MCZ 無開放圖層，未涵蓋）；英格蘭 HPMA 授權 HOLD；不可用於航行",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_marine_protected_areas，filter 排除 site_code UKEHPMA*，minzoom=4 maxzoom=12；3.5MB git-track",
+      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_marine_protected_areas，minzoom=4 maxzoom=12；3.5MB git-track",
       staticAssets: ["./world/gb_marine_protected_areas.pmtiles"],
     },
     legend: "gbMarineProtectedAreas",
@@ -4609,6 +4610,85 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "英格蘭與威爾斯法院與審裁處：刑事法院、郡法院／家事法院、治安法院、審裁處、其他司法服務據點",
     topics: ["英國", "法院", "審裁處", "司法"],
+  },
+
+  // ── 英國第 8 波：文化與觀光（文化設施、藝文場館、觀光體驗）──
+  gbCulturalFacilities: {
+    key: "gbCulturalFacilities",
+    country: "GB", section: { theme: "文化", group: "設施 Facilities" },
+    ...layerName({ zh: "文化設施", alt: "Museums, Galleries & Libraries" }),
+    expandable: true,
+    color: GB_CULTURAL_COLOR,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_cultural_facilities", confidence: "MED" }],
+      processing: "博物館 3,079、美術館／畫廊 1,282、圖書館 3,951，共 8,312 點；北愛公共圖書館用 Libraries NI 官方 98 館（Irish Grid 轉 EPSG:4326），其餘為 OSM（Overpass 2026-10-29，與官方重複 102 筆已去除）；PMTiles z5–13",
+      note: "OGL v3.0（Libraries NI）＋ODbL（© OpenStreetMap contributors）；4/4 涵蓋，但官方名錄只有北愛公共圖書館，其餘為 OSM 補缺、非完整官方清冊；畫廊含商業畫廊",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCultureLayers 自建 mapbox-pmtiles source；gb_cultural_facilities.pmtiles；source-layer=gb_cultural_facilities，minzoom=5 maxzoom=13（layer minzoom 7）；6.1MB git-track",
+      staticAssets: ["./world/gb_cultural_facilities.pmtiles"],
+    },
+    legend: "gbCulturalFacilities",
+    popup: "gbCulturalFacilities",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國博物館、美術館／畫廊、圖書館（北愛公共圖書館為官方名錄，其餘為 OSM 補缺）",
+    topics: ["英國", "博物館", "美術館", "畫廊", "圖書館", "文化", "OSM"],
+  },
+
+  gbArtsVenues: {
+    key: "gbArtsVenues",
+    country: "GB", section: { theme: "文化", group: "藝文活動 Arts & Events" },
+    ...layerName({ zh: "藝文場館", alt: "Arts Venues" }),
+    expandable: true,
+    color: GB_ARTS_COLOR,
+    icon: Theater,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_arts_venues", confidence: "MED" }],
+      processing: "OSM（Overpass 2026-10-29）劇院 1,592、電影院 831、藝術中心 756、音樂廳 31，共 3,210 點；PMTiles z5–13",
+      note: "ODbL（© OpenStreetMap contributors）；4/4 涵蓋，非完整官方清冊；音樂廳在 OSM 常標為劇院或藝術中心，數字偏少",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCultureLayers 自建 mapbox-pmtiles source；gb_arts_venues.pmtiles；source-layer=gb_arts_venues，minzoom=5 maxzoom=13（layer minzoom 7）；2.2MB git-track",
+      staticAssets: ["./world/gb_arts_venues.pmtiles"],
+    },
+    legend: "gbArtsVenues",
+    popup: "gbArtsVenues",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國劇院、電影院、藝術中心、音樂廳（OSM）",
+    topics: ["英國", "劇院", "電影院", "藝術中心", "音樂廳", "表演", "OSM"],
+  },
+
+  gbVisitorExperience: {
+    key: "gbVisitorExperience",
+    country: "GB", section: { theme: "觀光", group: "玩・自然 Nature" },
+    ...layerName({ zh: "觀光體驗", alt: "Visitor Attractions" }),
+    expandable: true,
+    color: GB_VISITOR_COLOR,
+    icon: Camera,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_visitor_experience", confidence: "MED" }],
+      processing: "OSM（Overpass 2026-10-29）景點 5,436、遊客中心 1,089、動物園 285、主題樂園 192、水族館 48，共 7,050 點（園區內設施 621 筆不收）；PMTiles z5–13",
+      note: "ODbL（© OpenStreetMap contributors）；4/4 涵蓋，非完整官方清冊；園區內展區與遊樂器材不另列、露營場未收；1 筆位於英國海域（nation 未載明）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCultureLayers 自建 mapbox-pmtiles source；gb_visitor_experience.pmtiles；source-layer=gb_visitor_experience，minzoom=5 maxzoom=13（景點 layer minzoom 9、其他 7）；4.8MB git-track",
+      staticAssets: ["./world/gb_visitor_experience.pmtiles"],
+    },
+    legend: "gbVisitorExperience",
+    popup: "gbVisitorExperience",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國景點、遊客中心、動物園、主題樂園、水族館（OSM；景點縮放 9 級起顯示）",
+    topics: ["英國", "景點", "遊客中心", "動物園", "主題樂園", "水族館", "觀光", "OSM"],
   },
 
   osmCommunicationSites: {

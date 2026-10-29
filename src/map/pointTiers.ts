@@ -298,6 +298,9 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbCareServices: "M", // 英國長照服務（z9 起） · src/hooks/useGbCivicLayers.ts
   gbFireStations: "M", // 英國消防站（OSM 補缺空心） · src/hooks/useGbCivicLayers.ts
   gbCourts: "M", // 英國法院與審裁處 · src/hooks/useGbCivicLayers.ts
+  gbCulturalFacilities: "M", // 英國文化設施（OSM 補缺空心） · src/hooks/useGbCultureLayers.ts
+  gbArtsVenues: "M", // 英國藝文場館 · src/hooks/useGbCultureLayers.ts
+  gbVisitorExperience: "M", // 英國觀光體驗（景點 z9 起） · src/hooks/useGbCultureLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
