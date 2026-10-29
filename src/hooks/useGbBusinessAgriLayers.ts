@@ -191,10 +191,11 @@ function ensureHatchImages(map: MapboxMap) {
   return undefined;
 }
 
+/** 1 km 方格相鄰面：關 antialias，避免半透明邊緣重疊成白色格線（比照 temperatureGrid）。 */
 export function useGbSoilParentMaterialLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
   const def = opacityDefault("gbSoilParentMaterial", 0.55);
   const fill = (op: number) => hookFillPaint("gbSoilParentMaterial", GB_SOIL_FILL_ID,
-    { "fill-color": soilDepthColor(isDark), "fill-opacity": clamp01(op) }, { "fill-color": soilDepthColor(isDark), "fill-opacity": def }, isDark);
+    { "fill-color": soilDepthColor(isDark), "fill-opacity": clamp01(op), "fill-antialias": false }, { "fill-color": soilDepthColor(isDark), "fill-opacity": def }, isDark);
   const hatch = (op: number) => hookFillPaint("gbSoilParentMaterial", GB_SOIL_NA_FILL_ID,
     { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": clamp01(op) }, { "fill-pattern": hatchImageId("missing", isDark), "fill-opacity": def }, isDark);
   useGbPmtilesLayers(mapRef, SOIL_SOURCE, visible, () => [
