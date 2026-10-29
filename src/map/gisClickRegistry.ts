@@ -306,6 +306,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 英國第 3 波：點（測站、浴場）→ 線（防洪、北愛侵蝕風險、河川）→ 侵蝕面，都排在建成區、行政界前面
   // 英國第 4 波：倫敦車站排在樞紐前（King's Cross 等共站），點 → 線 → 收費區大面
   // 英國第 5 波：點（TPO 單株、森林遊憩）→ 線（步道）排最前；小面（TPO 範圍、開放進入地、古老林地、林地）→ 海洋保護區 → 保護區大面
+  // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
+  { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
+  { layers: ["gb-renewables-circle"], type: "gbRenewables" },
+  { layers: ["gb-fuel-stations-circle"], type: "gbFuelStations" },
+  { layers: ["gb-substations-circle"], type: "gbSubstations" },
+  { layers: ["gb-power-lines-line", "gb-power-cables-line"], type: "gbPowerLines" },
   { layers: ["gb-tpo-circle"], type: "gbTreeProtection" },
   { layers: ["gb-forest-recreation-circle", "gb-forest-recreation-signage-circle"], type: "gbForestRecreation" },
   { layers: ["gb-trails-national-line", "gb-trails-forest-line"], type: "gbTrails" },
@@ -328,6 +334,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-woodland-fill"], type: "gbWoodland" },
   { layers: ["gb-marine-protected-areas-line", "gb-marine-protected-areas-fill"], type: "gbMarineProtectedAreas" },
   { layers: ["gb-protected-areas-line", "gb-protected-areas-fill"], type: "gbProtectedAreas" },
+  { layers: ["gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
   { layers: ["gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
   { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },

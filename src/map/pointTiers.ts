@@ -288,6 +288,10 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbLondonStations: "M", // 倫敦軌道車站 London Rail Stations · src/hooks/useGbTransportLayers.ts
   gbLondonBikePoints: "S", // 倫敦公共自行車（比照 bikeStations S） · src/hooks/useGbTransportLayers.ts
   gbForestRecreation: "M", // 英國森林遊憩設施（指標 z12 起另用 S） · src/hooks/useGbNatureLayers.ts
+  gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
+  gbRenewables: "M", // 英國再生能源專案（施工中黃框） · src/hooks/useGbEnergyLayers.ts
+  gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts
+  gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z8 起、z4–9 只有 ≥132kV） · src/hooks/useGbEnergyLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts

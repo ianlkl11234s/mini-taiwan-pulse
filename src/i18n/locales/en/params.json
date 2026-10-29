@@ -1349,5 +1349,11 @@
   "param.兩期": "Both periods",
   "param.景觀類": "Landscape",
   "param.國內法保護區": "Domestic designations",
-  "param.國際指定": "International designations"
+  "param.國際指定": "International designations",
+  "param.審查階段": "Planning stage",
+  "param.運轉中＋施工中": "Operational + under construction",
+  "param.已核准待建": "Consented",
+  "param.審查中": "In planning",
+  "param.未推進": "Not proceeding",
+  "param.已除役": "Decommissioned"
 }

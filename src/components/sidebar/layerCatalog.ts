@@ -331,6 +331,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 5 波：環境氣候（保護區、樹木保護）、林業（林地、森林遊憩、步道、開放進入地）
     "環境氣候",
     "林業",
+    // 第 6 波：能源（電廠、電網、再生能源、加油站、離岸油氣田；比照台灣「能源 Energy」）
+    "能源",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2640,6 +2642,20 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "線", layers: [fromManifest("gbTrails")] },
     ],
   },
+  {
+    // 第 6 波：比照台灣「能源 Energy」的群組——facPrimary（電力 · 廠）、osmPowerLines／osmSubstations（電力 · 電網）、
+    // osmWindTurbines 等（再生能源）、gasStation*（石化 · 加油站）、fossilFuelInfra／pipelineOilGas（石化 · 油氣）
+    title: "能源",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("gbPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("gbPowerLines"), fromManifest("gbSubstations")] },
+      { title: "再生能源", layers: [fromManifest("gbRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("gbFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("gbOilGasFields")] },
+    ],
+  },
 
 ];
 
@@ -2759,6 +2775,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "交通": "city",
     "環境氣候": "environment",
     "林業": "environment",
+    "能源": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2904,6 +2921,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "交通": { zh: "交通", sub: "Transport" },
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "林業": { zh: "林業", sub: "Forestry" },
+    "能源": { zh: "能源", sub: "Energy" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

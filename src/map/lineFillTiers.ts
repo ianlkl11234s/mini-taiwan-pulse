@@ -188,6 +188,9 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
   "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useGbNatureLayers.ts
   "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/hooks/useGbNatureLayers.ts
+  "gbPowerLines/gb-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓 5 級（比照 osmPowerLines）· src/hooks/useGbEnergyLayers.ts
+  "gbPowerLines/gb-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useGbEnergyLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/hooks/useGbEnergyLayers.ts
   "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/hooks/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
@@ -291,6 +294,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
   "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
+  "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/hooks/useGbEnergyLayers.ts
   "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/hooks/useGbTransportLayers.ts
   "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
