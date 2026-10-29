@@ -10,7 +10,7 @@
 
 | 項目 | 內容 |
 |---|---|
-| 檔案 | `public/geo/emergency_hospitals.geojson`（81KB，git-track）；契約 URL 不可任意搬 |
+| 檔案 | `public/geo/emergency_hospitals.geojson`（131KB，git-track）；契約 URL 不可任意搬 |
 | 來源 | Supabase `safety.emergency_hospitals`（analytics `docs/data-catalog/emergency_response/hospitals.md`，dataset_id `hospitals`） |
 | 授權 | OGDL-Taiwan-1.0 / 政府資料開放授權條款（縣市開放資料 13 份 + 衛福部公告名冊） |
 | 快照 | 資料庫 `imported_at` 2026-05-16（上游最後執行 2026-05-16）；來源 PDF 為衛福部 110.6.28 名冊 + 114 年度評定 |
