@@ -4,7 +4,7 @@ import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, WORLD_THEMES } from "../layerPanels";
+import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, WORLD_THEMES } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -153,7 +153,7 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["圖層", "統計", "世界", "模擬"]);
     expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
     const nonStatisticsTitles = THEMES.filter(theme => !statisticsDataTitles.has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES)]));
   });
 

@@ -23,5 +23,22 @@
   "popup.baseMap.bridge": "橋梁",
   "popup.baseMap.tunnel": "隧道",
   "popup.baseMap.slopeValue": "{cls}級坡 · {range}（建管）",
-  "popup.baseMap.basepointName": "基點名稱"
+  "popup.baseMap.basepointName": "基點名稱",
+  "popup.baseMap.gbNationEngland": "英格蘭",
+  "popup.baseMap.gbNationScotland": "蘇格蘭",
+  "popup.baseMap.gbNationWales": "威爾斯",
+  "popup.baseMap.gbNationNorthernIreland": "北愛爾蘭",
+  "popup.baseMap.gbAreaTypeLSOA21": "英格蘭／威爾斯 LSOA（2021）",
+  "popup.baseMap.gbAreaTypeDZ22": "蘇格蘭 Data Zone（2022）",
+  "popup.baseMap.gbAreaTypeDZ21": "北愛 Data Zone（2021）",
+  "popup.baseMap.gbAreaTypeSDZ21": "北愛 Super Data Zone（2021）",
+  "popup.baseMap.gbLad": "地方政府區",
+  "popup.baseMap.gbNameWelsh": "威爾斯語名",
+  "popup.baseMap.gbGssCode": "GSS 代碼",
+  "popup.baseMap.gbNation": "地區",
+  "popup.baseMap.gbDataVersion": "資料版本",
+  "popup.baseMap.gbSmallArea": "統計小區",
+  "popup.baseMap.gbNotes": "備註",
+  "popup.baseMap.gbSmallAreaNote": "普查統計單元，不是行政區；四地年份與人口規模不同，不可跨國比較",
+  "popup.baseMap.gbAreaType": "小區類型"
 }

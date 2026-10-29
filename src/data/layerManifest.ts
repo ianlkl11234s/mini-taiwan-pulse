@@ -3594,6 +3594,61 @@ export const LAYER_MANIFEST = {
     topics: ["通訊", "行動網路", "5G", "全球"],
   },
 
+  // ══════════════════════════════════════════════════════════════
+  // 🇬🇧 英國 United Kingdom（2026-10-29 第 0b 波：C001 行政邊界）
+  // ══════════════════════════════════════════════════════════════
+  gbAdminBoundaries: {
+    key: "gbAdminBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "地方政府區 LAD", alt: "Local Authority Districts" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_lad", confidence: "HIGH" }],
+      processing: "ONS LAD May 2026 UK BGC，361 筆（England 296、Scotland 32、Wales 22、Northern Ireland 11）；PMTiles z2–12",
+      note: "OGL v3.0；4/4 涵蓋；GSS 代碼為 May 2026 年版",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=gb_admin_lad，minzoom=2 maxzoom=12（layer minzoom 4）",
+      staticAssets: ["./world/gb_admin_lad.pmtiles"],
+    },
+    legend: "gbAdminBoundaries",
+    popup: "gbAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國四地地方政府區界（ONS LAD May 2026，361 區）",
+    topics: ["英國", "行政區", "邊界"],
+  },
+
+  gbSmallAreaBoundaries: {
+    key: "gbSmallAreaBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "統計小區", alt: "Statistical Small Areas" }),
+    expandable: true,
+    color: "#6b7280",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_small_areas", confidence: "HIGH" }],
+      processing: "LSOA21 35,672＋蘇格蘭 DZ22 7,392＋北愛 DZ21 3,780（small_areas）、北愛 SDZ21 850（ni_sdz）；每筆帶所屬 LAD；PMTiles z8–13",
+      note: "四地年份與人口規模不同，不可跨國比較；北愛 DZ 與 SDZ 重疊，只能擇一顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=small_areas／ni_sdz，minzoom=8 maxzoom=13；56.8MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_admin_small_areas.pmtiles"],
+    },
+    legend: "gbSmallAreaBoundaries",
+    popup: "gbSmallAreaBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "英國四地普查統計小區界（英格蘭／威爾斯 LSOA 2021、蘇格蘭 Data Zone 2022、北愛 Data Zone／Super Data Zone 2021）",
+    topics: ["英國", "行政區", "統計區"],
+  },
+
   osmCommunicationSites: {
     key: "osmCommunicationSites",
     country: "WORLD", section: { theme: "全球通訊 Global Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
