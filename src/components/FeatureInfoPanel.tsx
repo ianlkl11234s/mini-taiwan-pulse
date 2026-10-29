@@ -55,6 +55,11 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 英國第 0b 波：panel 自掛四地各自的署名與授權
   "gbAdminBoundaries",
   "gbSmallAreaBoundaries",
+  "gbMaritimeLimits",
+  "gbBuiltUpAreas",
+  "gbGreenspace",
+  "gbSportsFacilities",
+  "gbCemeteries",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

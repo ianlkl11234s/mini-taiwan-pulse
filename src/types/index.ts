@@ -425,6 +425,7 @@ export type ExpandableLayerKey =
   | "jpZoningUseDistricts" | "jpNationalForests"
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
+  | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -955,6 +956,8 @@ export interface FeatureInfo {
     | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways"
     // 英國第 0b 波：行政邊界（LAD、統計小區）
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
+    // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
+    | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1750,6 +1753,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
+  gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
+  gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）
+  gbGreenspace: boolean;        // 英國公園綠地（OS Open Greenspace category=park，80,918）
+  gbSportsFacilities: boolean;  // 英國運動場地（同檔 category=sports，54,852）
+  gbCemeteries: boolean;        // 英國墓園與宗教場地（同檔 category=burial，30,208）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

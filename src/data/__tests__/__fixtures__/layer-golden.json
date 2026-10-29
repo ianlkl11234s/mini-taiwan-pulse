@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1353,
+    "keyCount": 1358,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1324,6 +1324,38 @@
         "jp-admin-municipality-fill"
       ],
       "type": "jpAdminBoundaries"
+    },
+    {
+      "layers": [
+        "gb-maritime-limits-line",
+        "gb-maritime-limits-dashed",
+        "gb-maritime-limits-closing"
+      ],
+      "type": "gbMaritimeLimits"
+    },
+    {
+      "layers": [
+        "gb-greenspace-park-fill"
+      ],
+      "type": "gbGreenspace"
+    },
+    {
+      "layers": [
+        "gb-greenspace-sports-fill"
+      ],
+      "type": "gbSportsFacilities"
+    },
+    {
+      "layers": [
+        "gb-greenspace-burial-fill"
+      ],
+      "type": "gbCemeteries"
+    },
+    {
+      "layers": [
+        "gb-built-up-areas-fill"
+      ],
+      "type": "gbBuiltUpAreas"
     },
     {
       "layers": [
@@ -90127,6 +90159,50 @@
         "valueText": "0.85"
       }
     ],
+    "gbBuiltUpAreas": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "gbCemeteries": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "gbGreenspace": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "gbMaritimeLimits": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "gbSmallAreaBoundaries": [
       {
         "label": "北愛層級",
@@ -90151,6 +90227,17 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "gbSportsFacilities": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "geothermalWells": [

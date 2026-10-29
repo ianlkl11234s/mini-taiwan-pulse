@@ -178,6 +178,9 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
+  "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
+  "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -269,6 +272,10 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
+  "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
+  "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
+  "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
+  "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
   "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts
   "jpMarineEbsaCoastal/jp-tourism-jp-marine-ebsa-coastal-fill": "coverage", // src/hooks/useJpTourismLayers.ts

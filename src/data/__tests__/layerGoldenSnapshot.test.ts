@@ -204,7 +204,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +18 英國統計（gb 家族 18 個 LAD 統計層 statsGb*）。
     // 2026-10-29: +1 急救責任醫院分級（emergencyHospitals）。
     // 2026-10-29: +2 海洋保育補接 G33（海域野生動物保護區與棲息環境 marineWildlifeAreas、全海域生態系調查點位 marineEcologicalMonitoringSites）。
-    expect(keys.length).toBe(1353);
+    // 2026-10-29: +5 英國第 1 波（海域界線 gbMaritimeLimits、建成區 gbBuiltUpAreas、綠地三層 gbGreenspace／gbSportsFacilities／gbCemeteries）。
+    expect(keys.length).toBe(1358);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

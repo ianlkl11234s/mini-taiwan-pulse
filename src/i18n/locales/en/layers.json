@@ -1343,5 +1343,10 @@
   "layer.statsGbPrivateRent": "Average Private Rent (England & Wales)",
   "layer.statsGbPrivateRentChange": "Private Rent Annual Change (England & Wales)",
   "layer.marineWildlifeAreas": "Marine Wildlife Habitat & Protected Areas",
-  "layer.marineEcologicalMonitoringSites": "Marine Ecosystem Survey Sites"
+  "layer.marineEcologicalMonitoringSites": "Marine Ecosystem Survey Sites",
+  "layer.gbMaritimeLimits": "Maritime Limits and Boundaries",
+  "layer.gbBuiltUpAreas": "Built-up Areas",
+  "layer.gbGreenspace": "Parks and Green Space",
+  "layer.gbSportsFacilities": "Sports Facilities",
+  "layer.gbCemeteries": "Cemeteries and Religious Grounds"
 }
