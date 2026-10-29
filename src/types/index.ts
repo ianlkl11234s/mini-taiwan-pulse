@@ -126,6 +126,8 @@ export type ExpandableLayerKey =
   | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
   // 海域保護與漁業 G08（2026-10-17，7 層）
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+  // 海洋保育補接 G33（2026-10-29）
+  | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -860,6 +862,7 @@ export interface FeatureInfo {
     | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+    | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "culturalHealthStations"
@@ -1280,6 +1283,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   artificialReefCenters: boolean;
   protectedReefCenters: boolean;
   setNetFishingAreas: boolean;
+  /** 海洋保育補接 G33（2026-10-29）：海保署 6 個海域野生動物範圍、國研院全海域生態系調查點位 54 */
+  marineWildlifeAreas: boolean;
+  marineEcologicalMonitoringSites: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
   landSubsidenceStations: boolean;
   landSubsidenceCumulative: boolean;

@@ -270,6 +270,11 @@ export const COASTAL_AREA_TYPE_OPTIONS: readonly AtlasOption[] = [
   { value: "濱海陸地", label: "濱海陸地", color: "#a8a29e" },
   { value: "近岸海域", label: "近岸海域", color: "#64748b" },
 ];
+/** 海洋保育補接 G33：6 面的法定類別（野保法重要棲息環境 vs 野生動物保護區），分色、不合併。 */
+export const MARINE_WILDLIFE_AREA_OPTIONS: readonly AtlasOption[] = [
+  { value: "habitat", label: "野生動物重要棲息環境", color: "#2563eb" },
+  { value: "protected", label: "野生動物保護區", color: "#0d9488" },
+];
 /** G08 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*），併入 atlasLegends 的 ORGS。 */
 export const MARINE_PROTECTION_ORGS = {
   forestry: "農業部林業及自然保育署", fa: "農業部漁業署", nps: "內政部國家公園署",
@@ -430,6 +435,8 @@ export const ATLAS_NOTES = {
   wildlifeProtectedAreas: "全國野生動物保護區（含陸域，不限海域）；同名多面為不同分區。僅供參考，不構成法規適用判斷。",
   openFishingLocations: "海洋保育署公布的開放捕魚點位；點位不是範圍，不代表可進入或安全。僅供參考，不構成法規適用判斷。",
   coastalAreaExtents: "111 年版（2022-09-13）海岸地區範圍，非現行海岸線或管制；7 筆來源面積不到 1 m² 的退化面（金門）未上圖，小島礁放大後才出現。僅供參考，不構成法規適用判斷。",
+  marineWildlifeAreas: "海保署公布的 6 個海域野生動物範圍：中華白海豚重要棲息環境與貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區；兩者是不同法定類別，分色顯示。這 5 個保護區不在「野生動物保護區」圖層（只含林保署 16 區）。僅供參考，不構成法規適用判斷。",
+  marineEcologicalMonitoringSites: "國家海洋研究院「全海域生態系調查點位」54 個站位清單（來源資源日 2025-07-21）；是站位清單，不是監測結果，也不是即時監測或目前生態狀況；沒有點不代表沒有資料。",
   artificialReefCenters: "中心位置，非範圍：依公告座標文字解析的人工魚礁禁漁區中心點，範圍規則見彈窗文字；部分點是所列頂點平均（非官方中心）。僅供參考，不構成法規適用判斷。",
   protectedReefCenters: "中心位置，非範圍：依公告座標文字解析的保護礁禁漁區中心點（多為 A、B 兩點連線中點）；1 筆來源僅有地名描述，未上圖。僅供參考，不構成法規適用判斷。",
   setNetFishingAreas: "定置漁業權區（114-08-05 版），來源座標系統已轉為經緯度；不代表現行許可、可否進入或航行安全。僅供參考，不構成法規適用判斷。",

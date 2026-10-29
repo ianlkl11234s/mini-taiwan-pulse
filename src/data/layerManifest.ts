@@ -7893,6 +7893,25 @@ export const LAYER_MANIFEST = {
     description: "海洋保育署公布的開放捕魚點位；點位不代表可進入或安全。",
     topics: ["海洋", "釣魚", "釣點", "開放捕魚"],
   },
+  // ── 海洋保育補接 G33（2026-10-29）：analytics → build-atlas-public.py → public/marine/ ──
+  marineWildlifeAreas: {
+    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marineWildlifeAreas, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "white_dolphin_habitat", confidence: "HIGH" }], note: "海洋委員會海洋保育署 iocean（data.gov.tw 157562）6 面：中華白海豚重要棲息環境 1 面（野生動物重要棲息環境）＋貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區。官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84，本層採由 SHP 轉出的正確經緯度成品。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-wildlife-areas", url: "./marine/marine_wildlife_areas.geojson" },
+    legend: "marineWildlifeAreas", popup: "marineWildlifeAreas", params: { count: 1, kinds: ["slider"] },
+    description: "海保署公布的 6 個海域野生動物範圍：中華白海豚重要棲息環境與 5 個野生動物保護區（法定類別不同，分色）；不在「野生動物保護區」圖層內。僅供參考，不構成法規適用判斷。",
+    topics: ["海洋", "保護區", "野生動物", "白海豚", "保育"],
+  },
+  marineEcologicalMonitoringSites: {
+    key: "marineEcologicalMonitoringSites", country: "TW", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "全海域生態系調查點位", alt: "Marine Ecosystem Survey Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine_ecological_monitoring_sites", confidence: "HIGH" }], note: "國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350，54 站；站位清單，不是監測結果）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-ecological-monitoring-sites", url: "./marine/marine_ecological_monitoring_sites.geojson" },
+    legend: "marineEcologicalMonitoringSites", popup: "marineEcologicalMonitoringSites", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國家海洋研究院全海域生態系調查的 54 個站位；站位清單，不是監測結果或目前生態狀況。",
+    topics: ["海洋", "生態系", "調查", "珊瑚礁"],
+  },
   coastalAreaExtents: {
     key: "coastalAreaExtents", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.coastalAreaExtents, icon: Waves,

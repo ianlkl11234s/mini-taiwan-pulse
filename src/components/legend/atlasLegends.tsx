@@ -6,7 +6,7 @@ import {
   ECOLOGY_SPECIES_STEPS, ECO_SENSITIVE_LEVEL_OPTIONS, EMERGENCY_BAY_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS,
   GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MICROPLASTIC_STEPS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS,
   POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS,
-  TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS, MARINE_PROTECTION_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_ORGS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
@@ -104,6 +104,8 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   // 海域保護與漁業 G08（2026-10-17）
   natureReserves: () => <AtlasLegend layer="natureReserves" en="Nature Reserves" kind="square" source={src("forestry")} rows={single("natureReserves", "legend.atlas.protectedAreaWithLand")} />,
   wildlifeProtectedAreas: () => <AtlasLegend layer="wildlifeProtectedAreas" en="Wildlife Protected Areas" kind="square" source={src("forestry")} rows={single("wildlifeProtectedAreas", "legend.atlas.protectedAreaWithLand")} />,
+  marineWildlifeAreas: () => <AtlasLegend layer="marineWildlifeAreas" en="Marine Wildlife Habitat & Protected Areas" kind="square" source={src("oca", ["157562"])} domain="atlasMarineWildlife" rows={MARINE_WILDLIFE_AREA_OPTIONS} />,
+  marineEcologicalMonitoringSites: () => <AtlasLegend layer="marineEcologicalMonitoringSites" en="Marine Ecosystem Survey Sites" source={src("namr", ["171350"])} rows={single("marineEcologicalMonitoringSites", "legend.atlas.surveySite")} />,
   openFishingLocations: () => <AtlasLegend layer="openFishingLocations" en="Open Fishing Locations" source={src("oca")} rows={single("openFishingLocations", "legend.atlas.fishingPoint")} />,
   coastalAreaExtents: () => <AtlasLegend layer="coastalAreaExtents" en="Coastal Area Extents (2022 edition)" kind="square" source={src("nps", ["20821"])} domain="atlasCoastal" rows={COASTAL_AREA_TYPE_OPTIONS} />,
   artificialReefCenters: () => <AtlasLegend layer="artificialReefCenters" en="Artificial Reef Areas (centers)" source={src("fa")} rows={single("artificialReefCenters", "legend.atlas.reefCenter")} />,

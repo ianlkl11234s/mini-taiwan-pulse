@@ -1321,5 +1321,7 @@
   "layer.jpMajorRoads": "Major Roads",
   "layer.jpExpressways": "Expressways",
   "layer.jpGsiHillshade": "Hillshade (GSI)",
-  "layer.jpGsiRelief": "Color Elevation Map (GSI)"
+  "layer.jpGsiRelief": "Color Elevation Map (GSI)",
+  "layer.marineWildlifeAreas": "Marine Wildlife Habitat & Protected Areas",
+  "layer.marineEcologicalMonitoringSites": "Marine Ecosystem Survey Sites"
 }
