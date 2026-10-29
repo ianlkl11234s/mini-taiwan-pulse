@@ -23,5 +23,22 @@
   "popup.baseMap.bridge": "橋",
   "popup.baseMap.tunnel": "トンネル",
   "popup.baseMap.slopeValue": "{cls}級傾斜 · {range}（建築管理）",
-  "popup.baseMap.basepointName": "基点名"
+  "popup.baseMap.basepointName": "基点名",
+  "popup.baseMap.gbNationEngland": "イングランド",
+  "popup.baseMap.gbNationScotland": "スコットランド",
+  "popup.baseMap.gbNationWales": "ウェールズ",
+  "popup.baseMap.gbNationNorthernIreland": "北アイルランド",
+  "popup.baseMap.gbAreaTypeLSOA21": "イングランド・ウェールズ LSOA（2021）",
+  "popup.baseMap.gbAreaTypeDZ22": "スコットランド Data Zone（2022）",
+  "popup.baseMap.gbAreaTypeDZ21": "北アイルランド Data Zone（2021）",
+  "popup.baseMap.gbAreaTypeSDZ21": "北アイルランド Super Data Zone（2021）",
+  "popup.baseMap.gbLad": "地方自治体区域",
+  "popup.baseMap.gbNameWelsh": "ウェールズ語名",
+  "popup.baseMap.gbGssCode": "GSS コード",
+  "popup.baseMap.gbNation": "構成国",
+  "popup.baseMap.gbDataVersion": "データ版",
+  "popup.baseMap.gbSmallArea": "統計小地域",
+  "popup.baseMap.gbNotes": "備考",
+  "popup.baseMap.gbSmallAreaNote": "国勢調査の統計単位で行政区域ではありません。4 地域で年次と人口規模が異なるため、国をまたいだ比較はできません",
+  "popup.baseMap.gbAreaType": "小地域の種類"
 }

@@ -101,5 +101,17 @@
   "legend.urban.jpGsiReliefTitle": "色別標高圖",
   "legend.urban.jpGsiReliefNote": "依標高著色（色階見國土地理院說明頁），顏色只代表標高範圍，非精確數值",
   "legend.urban.jpGsiReliefSea": "海域部用海上保安庁海洋情報部的資料製作",
-  "legend.urban.jpGsiSource": "出典：國土地理院（地理院タイル），外部圖磚直連"
+  "legend.urban.jpGsiSource": "出典：國土地理院（地理院タイル），外部圖磚直連",
+  "legend.urban.gbLadTitle": "地方政府區 LAD",
+  "legend.urban.gbLadRow": "地方政府區界（361 區）",
+  "legend.urban.gbCoverage": "涵蓋 4/4：英格蘭、蘇格蘭、威爾斯、北愛爾蘭（不含曼島、海峽群島）",
+  "legend.urban.gbDataVersion": "資料版本：{version}",
+  "legend.urban.gbSmallAreaTitle": "統計小區",
+  "legend.urban.gbSmallAreaLSOA21": "英格蘭／威爾斯 LSOA（2021）",
+  "legend.urban.gbSmallAreaDZ22": "蘇格蘭 Data Zone（2022）",
+  "legend.urban.gbSmallAreaDZ21": "北愛 Data Zone（2021）",
+  "legend.urban.gbSmallAreaSDZ21": "北愛 Super Data Zone（2021，「北愛層級」切換）",
+  "legend.urban.gbSmallAreaNiLevel": "北愛 Data Zone 與 Super Data Zone 範圍重疊，一次只顯示一種",
+  "legend.urban.gbSmallAreaNotComparable": "四地的小區年份與人口規模不同，不可跨國比較；跨四地比較請用地方政府區",
+  "legend.urban.gbSmallAreaZoom": "放大到 z8 以上才顯示"
 }

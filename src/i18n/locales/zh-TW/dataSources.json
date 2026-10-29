@@ -70,6 +70,7 @@
   "dataSources.label.addictionRaw": "原始成癮與減害統計快照",
   "dataSources.label.landslide": "原始崩塌與水土保持統計快照",
   "dataSources.label.atlasDerived": "衍生統計（同期分子÷分母）",
+  "dataSources.label.atlasDerivedAggregate": "衍生統計（由來源細項彙整）",
   "dataSources.label.atlasRaw": "原始{theme}快照",
   "dataSources.label.demoDerived": "衍生人口統計（本層級加總後計算）",
   "dataSources.label.demoRaw": "原始戶籍人口統計快照",

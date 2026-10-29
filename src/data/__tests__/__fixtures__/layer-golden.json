@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1330,
+    "keyCount": 1350,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1324,6 +1324,19 @@
         "jp-admin-municipality-fill"
       ],
       "type": "jpAdminBoundaries"
+    },
+    {
+      "layers": [
+        "gb-small-areas-fill",
+        "gb-ni-sdz-fill"
+      ],
+      "type": "gbSmallAreaBoundaries"
+    },
+    {
+      "layers": [
+        "gb-admin-lad-fill"
+      ],
+      "type": "gbAdminBoundaries"
     },
     {
       "layers": [
@@ -3605,6 +3618,24 @@
         "statsDebitMerchantsExclBulk-fill",
         "statsDebitMerchants-fill",
         "statsDebitMerchantAddresses-fill",
+        "statsGbPopulation-fill",
+        "statsGbPopulationDensity-fill",
+        "statsGbMedianAge-fill",
+        "statsGbRuralShareEw-fill",
+        "statsGbFarFromTownShareEw-fill",
+        "statsGbRuralShareSco-fill",
+        "statsGbImdScoreEng-fill",
+        "statsGbImdShare10Eng-fill",
+        "statsGbWimdShare10-fill",
+        "statsGbWimdShare20-fill",
+        "statsGbSimdShare10-fill",
+        "statsGbSimdShare20-fill",
+        "statsGbNimdmShare10-fill",
+        "statsGbNimdmShare20-fill",
+        "statsGbHousePrice-fill",
+        "statsGbHousePriceChange-fill",
+        "statsGbPrivateRent-fill",
+        "statsGbPrivateRentChange-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -89662,6 +89693,43 @@
         "valueText": "1.7"
       }
     ],
+    "gbAdminBoundaries": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "gbSmallAreaBoundaries": [
+      {
+        "label": "北愛層級",
+        "options": [
+          {
+            "label": "Data Zone",
+            "value": "dz"
+          },
+          {
+            "label": "Super Data Zone",
+            "value": "sdz"
+          }
+        ],
+        "type": "select",
+        "value": "dz"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "geothermalWells": [
       {
         "label": "透明度 0.85",
@@ -125225,6 +125293,632 @@
       }
     ],
     "statsFoodWasteCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbFarFromTownShareEw": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "鄉村人口比例",
+            "value": "statsGbRuralShareEw"
+          },
+          {
+            "label": "遠離主要城鎮人口比例",
+            "value": "statsGbFarFromTownShareEw"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbFarFromTownShareEw"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbHousePrice": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均房價",
+            "value": "statsGbHousePrice"
+          },
+          {
+            "label": "房價年增率",
+            "value": "statsGbHousePriceChange"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbHousePrice"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbHousePriceChange": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均房價",
+            "value": "statsGbHousePrice"
+          },
+          {
+            "label": "房價年增率",
+            "value": "statsGbHousePriceChange"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbHousePriceChange"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbImdScoreEng": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "IMD 平均分數",
+            "value": "statsGbImdScoreEng"
+          },
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbImdShare10Eng"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbImdScoreEng"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbImdShare10Eng": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "IMD 平均分數",
+            "value": "statsGbImdScoreEng"
+          },
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbImdShare10Eng"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbImdShare10Eng"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbMedianAge": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "總人口",
+            "value": "statsGbPopulation"
+          },
+          {
+            "label": "人口密度",
+            "value": "statsGbPopulationDensity"
+          },
+          {
+            "label": "年齡中位數",
+            "value": "statsGbMedianAge"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbMedianAge"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbNimdmShare10": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbNimdmShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbNimdmShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbNimdmShare10"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbNimdmShare20": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbNimdmShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbNimdmShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbNimdmShare20"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbPopulation": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "總人口",
+            "value": "statsGbPopulation"
+          },
+          {
+            "label": "人口密度",
+            "value": "statsGbPopulationDensity"
+          },
+          {
+            "label": "年齡中位數",
+            "value": "statsGbMedianAge"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbPopulation"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbPopulationDensity": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "總人口",
+            "value": "statsGbPopulation"
+          },
+          {
+            "label": "人口密度",
+            "value": "statsGbPopulationDensity"
+          },
+          {
+            "label": "年齡中位數",
+            "value": "statsGbMedianAge"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbPopulationDensity"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbPrivateRent": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均私人租金",
+            "value": "statsGbPrivateRent"
+          },
+          {
+            "label": "私人租金年變動率",
+            "value": "statsGbPrivateRentChange"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbPrivateRent"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbPrivateRentChange": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "平均私人租金",
+            "value": "statsGbPrivateRent"
+          },
+          {
+            "label": "私人租金年變動率",
+            "value": "statsGbPrivateRentChange"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbPrivateRentChange"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbRuralShareEw": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "鄉村人口比例",
+            "value": "statsGbRuralShareEw"
+          },
+          {
+            "label": "遠離主要城鎮人口比例",
+            "value": "statsGbFarFromTownShareEw"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbRuralShareEw"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbRuralShareSco": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbSimdShare10": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbSimdShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbSimdShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbSimdShare10"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbSimdShare20": [
+      {
+        "label": "口徑",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbSimdShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbSimdShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbSimdShare20"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbWimdShare10": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbWimdShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbWimdShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbWimdShare10"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbWimdShare20": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "最剝奪 10% 小區占比",
+            "value": "statsGbWimdShare10"
+          },
+          {
+            "label": "最剝奪 20% 小區占比",
+            "value": "statsGbWimdShare20"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbWimdShare20"
+      },
       {
         "label": "資料期別",
         "options": [],

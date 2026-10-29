@@ -31,7 +31,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
-import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
+import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -318,6 +318,12 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
   FR: [
     // 法國（2026-10-28）
     FRANCE_TELECOM_THEME_TITLE,
+  ],
+  GB: [
+    // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
+    "底圖",
+    // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
+    ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
   WORLD: [
     // 世界（只放語意明確的全球主題；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定）
@@ -681,11 +687,24 @@ const STATISTICS_TAB_REFERENCE_LAYER_KEYS = new Set<keyof LayerVisibility>([
 ]);
 
 /**
+ * 英國統計分頁（2026-10-29 統計面板多國化）：人口／社經／住宅，主題與群組由 gb 家族 recipe 派生
+ * （社經下四地剝奪指數各一個小群組，各自圖例、不可跨國比較）。
+ */
+export const GB_STATISTICS_TAB_THEMES: ThemeDef[] = GB_STATISTICS_TAB_THEME_TITLES.map((title) => ({
+  title, country: "GB", groups: atlasGroups(atlasTabThemeGroups(title, "GB")),
+}));
+
+/** 英國完整目錄（THEMES，country GB）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
+const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.map((title) => ({
+  title, country: "GB", groups: atlasGroups(atlasDataThemeGroups(title, "GB")),
+}));
+
+/**
  * 實際統計面在 Statistics tab 與一般 Layers 的共同 membership。
  * 設施、等時圈和行政邊界不在此集合，避免它們因為同畫面出現而被誤分類為統計。
  */
 export const STATISTICS_TAB_CHOROPLETH_LAYER_KEYS = new Set<string>(
-  STATISTICS_TAB_THEMES
+  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES]
     .flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)))
     .filter((key) => !STATISTICS_TAB_REFERENCE_LAYER_KEYS.has(key)),
 );
@@ -724,7 +743,7 @@ for (const recipe of COMPARISON_UI_RECIPES) {
 }
 
 // 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
-for (const layer of STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(group => group.layers))) {
+for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
   const group = getMedicalStatisticsGroup(layer.key);
   if (group) layer.variant = { group: group.key, lead: group.options[0]?.key === layer.key };
 }
@@ -735,6 +754,7 @@ for (const layer of STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(
  */
 const THEME_CATALOG: ThemeDef[] = [
   ...STATISTICS_DATA_THEMES,
+  ...GB_STATISTICS_DATA_THEMES,
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
@@ -2524,6 +2544,18 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
 
+  // ───────────────────────────────────────────────────────────────
+  // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("gbAdminBoundaries"), fromManifest("gbSmallAreaBoundaries")] },
+    ],
+  },
+
 ];
 
 /**
@@ -2632,6 +2664,14 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   },
   FR: {
     [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
+  },
+  GB: {
+    // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
+    "底圖": "baseline",
+    // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
+    "人口統計": "city",
+    "社經統計": "city",
+    "住宅統計": "city",
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
@@ -2763,6 +2803,17 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   FR: {
     // 法國主題副標用法文（比照日本主題用日文）
     [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
+  },
+  GB: {
+    // 英國主題副標用英文（比照日本用日文、法國用法文）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    // 英國統計：完整目錄三個、統計分頁三個
+    "人口統計": { zh: "人口統計", sub: "Population Statistics" },
+    "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
+    "住宅統計": { zh: "住宅統計", sub: "Housing Statistics" },
+    "人口": { zh: "人口", sub: "Population" },
+    "社經": { zh: "社經", sub: "Socio-economic" },
+    "住宅": { zh: "住宅", sub: "Housing" },
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },

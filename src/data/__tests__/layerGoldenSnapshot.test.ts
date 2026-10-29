@@ -200,7 +200,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-26: +2 日本第二波面圖層（土砂災害警戒區域 jpLandslideWarningAreas、內水浸水想定區域 jpInlandFloodAreas）。
     // 2026-10-26: +2 日本第三波面圖層（用途地域 jpZoningUseDistricts、国有林 jpNationalForests）。
     // 2026-10-27: +6 日本第四波（福祉 jpWelfareDisability／jpWelfareChild、主要道路 jpMajorRoads、高速道路 jpExpressways、地理院地形 jpGsiHillshade／jpGsiRelief）。
-    expect(keys.length).toBe(1330);
+    // 2026-10-29: +2 英國第 0b 波（地方政府區 gbAdminBoundaries、統計小區 gbSmallAreaBoundaries）。
+    // 2026-10-29: +18 英國統計（gb 家族 18 個 LAD 統計層 statsGb*）。
+    expect(keys.length).toBe(1350);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

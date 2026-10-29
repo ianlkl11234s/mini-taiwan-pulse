@@ -23,7 +23,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
-import { ATLAS_ENABLED_STATISTICS_RECIPES, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -141,6 +141,7 @@ import {
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
+import type { StatisticsLevel } from "./regionalStatisticsLoader";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
@@ -524,18 +525,28 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   }];
 })) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
 
+/** atlas 統計的層級短名（名稱 qualifier 與 topics）：英國 LAD＝地方行政區。 */
+function atlasLevelQualifier(level: StatisticsLevel): string {
+  return level === "gb_lad" ? "地方行政區" : level === "township" ? "鄉鎮" : "縣市";
+}
+
+/** 英國統計只有 LAD 一個層級，名稱本身已帶地區括號，不再加層級 qualifier（避免雙括號）。 */
+function atlasNameQualifier(level: StatisticsLevel): string | undefined {
+  return level === "gb_lad" ? undefined : atlasLevelQualifier(level);
+}
+
 /** Atlas recipes（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋；縣市＋鄉鎮）share the dynamic Statistics renderer. */
 const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: recipe.data_theme, group: recipe.subgroup },
-    ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    country: atlasRecipeCountry(recipe), section: { theme: recipe.data_theme, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: atlasNameQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
     description: recipe.disclosure,
-    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, recipe.level === "township" ? "鄉鎮" : "縣市"],
+    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, atlasLevelQualifier(recipe.level), ...(atlasRecipeCountry(recipe) === "GB" ? ["英國"] : [])],
   }];
 })) as Record<AtlasStatisticsLayerKey, LayerManifestEntry>;
 
@@ -3592,6 +3603,61 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）",
     topics: ["通訊", "行動網路", "5G", "全球"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // 🇬🇧 英國 United Kingdom（2026-10-29 第 0b 波：C001 行政邊界）
+  // ══════════════════════════════════════════════════════════════
+  gbAdminBoundaries: {
+    key: "gbAdminBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "地方政府區 LAD", alt: "Local Authority Districts" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_lad", confidence: "HIGH" }],
+      processing: "ONS LAD May 2026 UK BGC，361 筆（England 296、Scotland 32、Wales 22、Northern Ireland 11）；PMTiles z2–12",
+      note: "OGL v3.0；4/4 涵蓋；GSS 代碼為 May 2026 年版",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=gb_admin_lad，minzoom=2 maxzoom=12（layer minzoom 4）",
+      staticAssets: ["./world/gb_admin_lad.pmtiles"],
+    },
+    legend: "gbAdminBoundaries",
+    popup: "gbAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國四地地方政府區界（ONS LAD May 2026，361 區）",
+    topics: ["英國", "行政區", "邊界"],
+  },
+
+  gbSmallAreaBoundaries: {
+    key: "gbSmallAreaBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "統計小區", alt: "Statistical Small Areas" }),
+    expandable: true,
+    color: "#6b7280",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_small_areas", confidence: "HIGH" }],
+      processing: "LSOA21 35,672＋蘇格蘭 DZ22 7,392＋北愛 DZ21 3,780（small_areas）、北愛 SDZ21 850（ni_sdz）；每筆帶所屬 LAD；PMTiles z8–13",
+      note: "四地年份與人口規模不同，不可跨國比較；北愛 DZ 與 SDZ 重疊，只能擇一顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=small_areas／ni_sdz，minzoom=8 maxzoom=13；56.8MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_admin_small_areas.pmtiles"],
+    },
+    legend: "gbSmallAreaBoundaries",
+    popup: "gbSmallAreaBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "英國四地普查統計小區界（英格蘭／威爾斯 LSOA 2021、蘇格蘭 Data Zone 2022、北愛 Data Zone／Super Data Zone 2021）",
+    topics: ["英國", "行政區", "統計區"],
   },
 
   osmCommunicationSites: {

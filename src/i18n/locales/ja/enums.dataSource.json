@@ -22,5 +22,6 @@
   "enum.dataSourceLevel.statistical_min": "最小統計区",
   "enum.dataSourceLevel.statistical_l1": "第1級統計区",
   "enum.dataSourceLevel.statistical_l2": "第2級統計区",
-  "enum.dataSourceLevel.prosecutor_district": "地方検察署の管轄区"
+  "enum.dataSourceLevel.prosecutor_district": "地方検察署の管轄区",
+  "enum.dataSourceLevel.gb_lad": "地方自治体（LAD）"
 }
