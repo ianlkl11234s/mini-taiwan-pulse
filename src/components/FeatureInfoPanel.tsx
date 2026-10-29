@@ -47,9 +47,14 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpNationalForests",
   // 日本第四波：panel 自掛出典與授權（福祉另含自治體別 license_note）
   "jpWelfareDisability",
+  // 淹水潛勢 10 情境：tile 無來源欄，panel 補水利署出處／授權並自掛 SourceFooter
+  "waterFloodExtreme",
   "jpWelfareChild",
   "jpMajorRoads",
   "jpExpressways",
+  // 英國第 0b 波：panel 自掛四地各自的署名與授權
+  "gbAdminBoundaries",
+  "gbSmallAreaBoundaries",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

@@ -17,6 +17,8 @@ import { CULTURE_ENABLED_STATISTICS_KEYS, CULTURE_STATISTICS_DOCUMENT } from "./
 import { STATE_ASSETS_ENABLED_STATISTICS_KEYS, STATE_ASSETS_STATISTICS_DOCUMENT } from "./stateAssetsStatisticsRecipes";
 import { FINANCE_ACCESS_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_STATISTICS_DOCUMENT } from "./financeAccessStatisticsRecipes";
 import { FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT } from "./financeAccessExtStatisticsRecipes";
+import { GB_ENABLED_STATISTICS_KEYS, GB_STATISTICS_DOCUMENT } from "./gbStatisticsRecipes";
+import type { CountryCode } from "../constants/countries";
 import { ATLAS_LAZY_FAMILIES, atlasLazyRecipeDetailsDocument, type AtlasLazyRecipeFamily } from "./statisticsRecipeDetails";
 
 export type { AtlasRecipe, AtlasRecipeCatalogEntry, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
@@ -35,6 +37,7 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument |
   [STATE_ASSETS_ENABLED_STATISTICS_KEYS, STATE_ASSETS_STATISTICS_DOCUMENT],
   [FINANCE_ACCESS_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_STATISTICS_DOCUMENT],
   [FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT],
+  [GB_ENABLED_STATISTICS_KEYS, GB_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
@@ -42,7 +45,7 @@ export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...SPORTS_ENABLED_STATISTICS_KEYS, ...HAZARD_ENABLED_STATISTICS_KEYS, ...MARINE_ENABLED_STATISTICS_KEYS,
   ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, ...MORTALITY_ENABLED_STATISTICS_KEYS,
   ...CULTURE_ENABLED_STATISTICS_KEYS, ...STATE_ASSETS_ENABLED_STATISTICS_KEYS, ...FINANCE_ACCESS_ENABLED_STATISTICS_KEYS,
-  ...FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS,
+  ...FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, ...GB_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -275,20 +278,31 @@ export const ATLAS_STATISTICS_TOGGLE_GROUPS = [...new Set(ATLAS_ENABLED_STATISTI
   })
   .filter((group) => group.options.length > 1);
 
+/** recipe 的國家主體（缺省＝台灣）。 */
+export function atlasRecipeCountry(recipe: Pick<AtlasRecipeCatalogEntry, "country">): CountryCode {
+  return recipe.country ?? "TW";
+}
+
+/** 英國統計分頁的主題（依 gb 家族 recipe 的 tab_theme 出現順序：人口→社經→住宅）。 */
+export const GB_STATISTICS_TAB_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "GB").map((recipe) => recipe.tab_theme))];
+/** 英國完整目錄（THEMES，country GB）的統計主題。 */
+export const GB_STATISTICS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "GB").map((recipe) => recipe.data_theme))];
+
 function groupsBy(select: (recipe: AtlasRecipeCatalogEntry) => boolean, groupOf: (recipe: AtlasRecipeCatalogEntry) => string = (recipe) => recipe.subgroup): Array<{ title: string; keys: string[] }> {
   const recipes = ATLAS_ENABLED_STATISTICS_RECIPES.filter(select);
   return [...new Set(recipes.map(groupOf))]
     .map((title) => ({ title, keys: recipes.filter((recipe) => groupOf(recipe) === title).map((recipe) => recipe.layer_key) }));
 }
 
-/** Layers 完整目錄（STATISTICS_DATA_THEMES）的主題，依家族順序。 */
-export const ATLAS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => recipe.data_theme))];
+/** 台灣 Layers 完整目錄（STATISTICS_DATA_THEMES）的主題，依家族順序（不含英國）。 */
+export const ATLAS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "TW").map((recipe) => recipe.data_theme))];
 
-export function atlasDataThemeGroups(theme: string) {
-  return groupsBy((recipe) => recipe.data_theme === theme);
+/** 主題身分是 (country, title)：群組只取同國家的 recipe（缺省＝台灣）。 */
+export function atlasDataThemeGroups(theme: string, country: CountryCode = "TW") {
+  return groupsBy((recipe) => atlasRecipeCountry(recipe) === country && recipe.data_theme === theme);
 }
 
-/** Statistics 分頁主題下的群組（含併入既有主題的群組）。 */
-export function atlasTabThemeGroups(theme: string) {
-  return groupsBy((recipe) => recipe.tab_theme === theme, (recipe) => recipe.tab_group ?? recipe.subgroup);
+/** Statistics 分頁主題下的群組（含併入既有主題的群組）；只取同國家的 recipe（缺省＝台灣）。 */
+export function atlasTabThemeGroups(theme: string, country: CountryCode = "TW") {
+  return groupsBy((recipe) => atlasRecipeCountry(recipe) === country && recipe.tab_theme === theme, (recipe) => recipe.tab_group ?? recipe.subgroup);
 }

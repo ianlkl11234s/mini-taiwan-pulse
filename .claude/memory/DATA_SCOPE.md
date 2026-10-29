@@ -184,7 +184,7 @@ water_dams.geojson             壩體點位（已顯示，帶 compare_id）
 water_reservoirs.geojson       水庫蓄水範圍 polygon（已顯示，帶 compare_id）
 water_facilities.geojson       水利設施（已顯示）
 water_monitor_stations.geojson 監測站（已顯示）
-water_flood_extreme.geojson    650mm/24h 淹水潛勢（已顯示，單情境）
+water_flood_<情境>.pmtiles     淹水潛勢 10 降雨情境各一支（2026-10-29 起；舊 water_flood_extreme 退役）
 ```
 
 其他專案靜態 GeoJSON（非水資源）：`airports.geojson`、`port-polygons.geojson`、

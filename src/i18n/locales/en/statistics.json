@@ -36,6 +36,7 @@
   "statistics.level.statistical_l1": "Level-1 statistical area",
   "statistics.level.statistical_l2": "Level-2 statistical area",
   "statistics.level.prosecutor_district": "District Prosecutors' Office jurisdiction",
+  "statistics.level.gb_lad": "Local authority district",
   "statistics.details.previewAgri": "Local preview · real delivered data · not yet published to the production API",
   "statistics.details.previewLabor": "Labor and income local preview · verified incremental snapshot · not yet published to the production CDN",
   "statistics.details.previewDemographics": "Demographics local preview · verified incremental snapshot · not yet published to the production CDN",

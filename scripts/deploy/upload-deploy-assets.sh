@@ -557,6 +557,7 @@ for f in \
   public/world/jp_national_forests.pmtiles \
   public/world/jp_welfare_facilities.pmtiles \
   public/world/jp_major_roads.pmtiles \
+  public/world/gb_admin_small_areas.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

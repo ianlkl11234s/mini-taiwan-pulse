@@ -176,8 +176,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-24: +23 國有資產 G16（國有地／房地／出租／住宅用地、台糖、行政執行署拍定）。
     // 2026-10-24: +11 金融據點 G10（ATM 台數／每萬人、金融欠缺鄉鎮旗標／機構數、金融機構家數、分支機構與 ATM 裝設點縣市／鄉鎮）。
     // 2026-10-24: +10 金融延伸 G10 延伸（工商普查金融業場所單位、金融卡類交易縣市分佈、壽險分支機構、金融卡特約商店鄉鎮）。
-    expect(STATISTICS_KEYS).toHaveLength(705);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(717);
+    // 2026-10-29: +18 英國統計（ONS LAD：人口 6、四地剝奪 8、房價租金 4）。
+    expect(STATISTICS_KEYS).toHaveLength(723);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(735);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

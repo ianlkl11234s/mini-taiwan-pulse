@@ -41,7 +41,7 @@
   "enum.canalAttr.下游不具引灌需求": "下流に灌漑需要なし",
   "enum.canalSource.wfs": "農田水利署 WFS",
   "enum.canalSource.arcgis": "宜蘭管理処 ArcGIS",
-  "enum.waterProtectionZone.protection": "飲用水水源保護区域",
+  "enum.waterProtectionZone.protection": "水道水質水量保護区",
   "enum.waterProtectionZone.groundwater_control_2": "地下水の過剰採取禁止",
   "enum.waterProtectionZone.groundwater_control_1": "地下水の過剰採取制限",
   "enum.waterProtectionZone.groundwater_region": "地下水区分"

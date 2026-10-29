@@ -540,6 +540,9 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   // 🌊 海域保護與漁業 G08（2026-10-17）：popup 依賴欄（魚礁 point_basis 決定「非官方中心」說明）。
   "marine/nature_reserves.geojson": [{ field: "name", type: "string" }, { field: "source_area_ha", type: "number", nullable: true }],
   "marine/wildlife_protected_areas.geojson": [{ field: "name", type: "string" }, { field: "source_area_ha", type: "number", nullable: true }],
+  // 🌊 海洋保育補接 G33（2026-10-29）：著色依 category；popup 依 counties／law／data_provider；站位 popup 依 region／ecosystem_type。
+  "marine/marine_wildlife_areas.geojson": [{ field: "name", type: "string" }, { field: "category", type: "string" }, { field: "counties", type: "string" }, { field: "law", type: "string" }, { field: "data_provider", type: "string" }],
+  "marine/marine_ecological_monitoring_sites.geojson": [{ field: "name", type: "string" }, { field: "region", type: "string" }, { field: "ecosystem_type", type: "string" }, { field: "description", type: "string" }],
   "marine/open_fishing_locations.geojson": [{ field: "county", type: "string" }],
   "marine/artificial_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],
   "marine/protected_reef_areas.geojson": [{ field: "point_basis", type: "string" }, { field: "geometry_kind", type: "string" }],

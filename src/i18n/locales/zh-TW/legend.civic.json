@@ -187,5 +187,8 @@
   "legend.civic.jpWelfareMissing": "某縣某類為 0 筆＝自治體未提供或非公開，不等於沒有（例：母子生活支援施設多數自治體非公開）",
   "legend.civic.jpWelfareAccuracy": "預設只畫位置正確度 1–3；4–5 是市町村／縣的代表點（共 2,736 筆，會堆在同一點），可在「定位精度」切換",
   "legend.civic.jpWelfareLicense": "部分自治體附商用條件（彈窗會標示）；未列條件的縣不代表明示可商用",
-  "legend.civic.jpWelfareStale": "令和5年度版，可能非最新；個人保育者名稱已遮蔽為類別名"
+  "legend.civic.jpWelfareStale": "令和5年度版，可能非最新；個人保育者名稱已遮蔽為類別名",
+  "legend.civic.emergencyHospitalTitle": "急救責任醫院分級",
+  "legend.civic.emergencyHospitalNote1": "分級是急救能力等級，不代表危險程度；「未標分級」是來源沒寫分級，不代表非急救責任醫院或能力較低。",
+  "legend.civic.emergencyHospitalNote2": "全國 252 家；縣市開放資料與衛福部名冊合併，座標由地址轉換；快照 {asOf}。"
 }
