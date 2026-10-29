@@ -1379,5 +1379,8 @@
   "layer.gbCareHomes": "ケアホーム",
   "layer.gbCareServices": "介護サービス",
   "layer.gbFireStations": "消防署",
-  "layer.gbCourts": "裁判所・審判所"
+  "layer.gbCourts": "裁判所・審判所",
+  "layer.gbCulturalFacilities": "博物館・美術館・図書館",
+  "layer.gbArtsVenues": "芸術・映画施設",
+  "layer.gbVisitorExperience": "観光スポット・レジャー施設"
 }

@@ -1379,5 +1379,8 @@
   "layer.gbCareHomes": "Care Homes",
   "layer.gbCareServices": "Care Services",
   "layer.gbFireStations": "Fire Stations",
-  "layer.gbCourts": "Courts & Tribunals"
+  "layer.gbCourts": "Courts & Tribunals",
+  "layer.gbCulturalFacilities": "Museums, Galleries & Libraries",
+  "layer.gbArtsVenues": "Arts Venues",
+  "layer.gbVisitorExperience": "Visitor Attractions"
 }

@@ -339,6 +339,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "醫療",
     "消防",
     "執法治安",
+    // 第 8 波：文化（文化設施、藝文場館）、觀光（觀光體驗；比照台灣主題位置）
+    "文化",
+    "觀光",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2698,6 +2701,24 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "司法矯正", layers: [fromManifest("gbCourts")] }],
   },
+  // 第 8 波：文化與觀光，主題與群組比照台灣同類圖層位置——culturalFacilities／culturalMuseums（文化 › 設施 Facilities）、
+  // performingVenues（文化 › 藝文活動 Arts & Events）、tourAttractions／visitorCentres（觀光 › 玩・自然 Nature；
+  // 景點＋遊客中心佔本層 92%，主題樂園對應的 tourAmusementParks 在 玩・體驗，一層只能放一群取多數）
+  {
+    title: "文化",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "設施 Facilities", layers: [fromManifest("gbCulturalFacilities")] },
+      { title: "藝文活動 Arts & Events", layers: [fromManifest("gbArtsVenues")] },
+    ],
+  },
+  {
+    title: "觀光",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "玩・自然 Nature", layers: [fromManifest("gbVisitorExperience")] }],
+  },
 
 ];
 
@@ -2823,6 +2844,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "醫療": "safety",
     "消防": "safety",
     "執法治安": "safety",
+    "文化": "publicLife",
+    "觀光": "publicLife",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2974,6 +2997,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "醫療": { zh: "醫療", sub: "Medical" },
     "消防": { zh: "消防", sub: "Fire & Rescue" },
     "執法治安": { zh: "執法治安", sub: "Law & Order" },
+    "文化": { zh: "文化", sub: "Culture" },
+    "觀光": { zh: "觀光", sub: "Tourism" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

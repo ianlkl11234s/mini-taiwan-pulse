@@ -38,6 +38,7 @@ import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, Fr
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
+import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
 import { GbFuelStationsLegend, GbOilGasFieldsLegend, GbPowerLinesLegend, GbPowerPlantsLegend, GbRenewablesLegend, GbSubstationsLegend } from "./legend/gbEnergyLegends";
 import { GbForestRecreationLegend, GbMarineProtectedAreasLegend, GbOpenAccessLandLegend, GbProtectedAreasLegend, GbTrailsLegend, GbTreeProtectionLegend, GbWoodlandLegend } from "./legend/gbNatureLegends";
@@ -311,6 +312,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbCareServices", render: () => <GbCareServicesLegend /> },
   { id: "gbFireStations", render: () => <GbFireStationsLegend /> },
   { id: "gbCourts", render: () => <GbCourtsLegend /> },
+  { id: "gbCulturalFacilities", render: () => <GbCulturalFacilitiesLegend /> },
+  { id: "gbArtsVenues", render: () => <GbArtsVenuesLegend /> },
+  { id: "gbVisitorExperience", render: () => <GbVisitorExperienceLegend /> },
   { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
   { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
