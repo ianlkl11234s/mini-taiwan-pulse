@@ -5977,11 +5977,11 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "speed_cameras", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "speed-camera", url: "./police_justice/speed_cameras/speed_cameras_20260626.geojson" },
+    source: { kind: "geojson", sourceId: "speed-camera", url: "./police_justice/speed_cameras/speed_cameras_20260824.geojson" },
     legend: "policeStation",
     popup: "speedCamera",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "固定式測速照相點位",
+    description: "固定式測速照相點位（2026-08-24 版 2,805 點，含國道、闖紅燈、平交道與 TGOS 補點）",
     topics: ["治安", "交通執法", "POI"],
   },
 

@@ -66,6 +66,9 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 修正
+- 「測速照相」圖層換成 2026-08-24 新版資料：由 2,056 點增為 2,805 點（新增 TGOS 內政主題補點約 775 筆，其餘為警政署一般／國道／闖紅燈／平交道）。⚠️ 發版當天、develop 合進 master 之前，須先把 `speed_cameras_20260824.geojson`（3,980,585 bytes）上傳到 S3 deploy-assets 的 `police_justice/speed_cameras/`，否則圖層載入失敗
+
 ## v2.16.1 — 2026-10-28 — 切換國家時不再閃舊提示
 
 ### 修正

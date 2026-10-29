@@ -2540,7 +2540,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("womenChildWarningScale", 1),
     opacitySlider("womenChildWarningOpacity", 0.9),
   ],
-  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", densePointOpacity(2_056))],
+  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", densePointOpacity(2_805))],
   speedZoneSegment: [
     { kind: "slider", name: "speedZoneSegmentWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 5, step: 0.1 },
     opacitySlider("speedZoneSegmentOpacity", 0.85),

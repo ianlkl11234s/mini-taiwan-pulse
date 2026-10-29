@@ -8800,7 +8800,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "speedCamera",
-    sourceUrl: "./police_justice/speed_cameras/speed_cameras_20260626.geojson",
+    sourceUrl: "./police_justice/speed_cameras/speed_cameras_20260824.geojson",
     sourceId: "speed-camera",
     rebuildOnParamChange: ["speedCameraOpacity", "speedCameraScale"],
     // 顏色按 subtype（4 類）：general 紅 / freeway 暗紅 / red_light 玫紅 / railway 黃

@@ -210,7 +210,7 @@ VERIFIED_RAW_FAMILIES["traffic:speed_cameras:20260824"] = {
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed listing date does not establish current enforcement state.",
   coverageAndMissingness: "2,805 Point listing rows; 62 coord_suspect remain attribute-only, 2,743 pass Taiwan coordinate subset. 25 suspect rows lack fetched_at.",
   geometry: "Source WGS84 Point; no enforcement direction or active-status claim.", sourceSha256: "ce46f68a1ae617a0ae6a14ecaf470613b5a7587cb5b2c5f57709a80c596bb740",
-  localDisplayReceipt: "Current display is 20260626 while query source is 20260824; no same-version alignment. Taipei query map 15 Points ready/readback.",
+  localDisplayReceipt: "Display asset is now 20260824, same version as the query source (full file, incl. 62 coord_suspect points on Kinmen/Matsu that are drawn at their listed coordinates). Taipei query map 15 Points ready/readback.",
 };
 VERIFIED_RAW_FAMILIES["fire:stations:20260710"] = {
   sourceArtifact: "taipei-gis-analytics/data/processed/fire/fire_stations/fire_stations_20260710.geojson",
