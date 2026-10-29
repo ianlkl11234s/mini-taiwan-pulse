@@ -5,6 +5,7 @@ import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
+import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
@@ -218,5 +219,48 @@ export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbOilGasFieldsLayer");
   const p = useKeyOverlayParams("gbOilGasFields");
   useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 7 波：學校、醫療、照護之家、長照服務（後兩者共用 gb_care_services.pmtiles）、消防站、法院。 */
+export const GbSchoolsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSchoolsLayer");
+  const p = useKeyOverlayParams("gbSchools");
+  useGbSchoolsLayer(deps.mapRef, deps.layerVisibility.gbSchools, p.gbSchoolsOpacity ?? 0.8, p.gbSchoolsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbHealthFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbHealthFacilitiesLayer");
+  const p = useKeyOverlayParams("gbHealthFacilities");
+  useGbHealthFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbHealthFacilities, p.gbHealthFacilitiesOpacity ?? 0.8, p.gbHealthFacilitiesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCareHomesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCareHomesLayer");
+  const p = useKeyOverlayParams("gbCareHomes");
+  useGbCareHomesLayer(deps.mapRef, deps.layerVisibility.gbCareHomes, p.gbCareHomesOpacity ?? 0.8, p.gbCareHomesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCareServicesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCareServicesLayer");
+  const p = useKeyOverlayParams("gbCareServices");
+  useGbCareServicesLayer(deps.mapRef, deps.layerVisibility.gbCareServices, p.gbCareServicesOpacity ?? 0.8, p.gbCareServicesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbFireStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFireStationsLayer");
+  const p = useKeyOverlayParams("gbFireStations");
+  useGbFireStationsLayer(deps.mapRef, deps.layerVisibility.gbFireStations, p.gbFireStationsOpacity ?? 0.85, p.gbFireStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbCourtsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCourtsLayer");
+  const p = useKeyOverlayParams("gbCourts");
+  useGbCourtsLayer(deps.mapRef, deps.layerVisibility.gbCourts, p.gbCourtsOpacity ?? 0.85, p.gbCourtsScale ?? 1, deps.isDarkTheme);
   return null;
 };

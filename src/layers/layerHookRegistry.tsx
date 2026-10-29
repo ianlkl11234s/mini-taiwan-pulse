@@ -93,6 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
+import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -316,6 +317,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbSubstationsLayer", keys: ["gbSubstations"], Host: GbSubstationsHost },
   { id: "useGbFuelStationsLayer", keys: ["gbFuelStations"], Host: GbFuelStationsHost },
   { id: "useGbOilGasFieldsLayer", keys: ["gbOilGasFields"], Host: GbOilGasFieldsHost },
+  // 英國第 7 波（學校、醫療、照護之家、長照服務、消防站、法院）
+  { id: "useGbSchoolsLayer", keys: ["gbSchools"], Host: GbSchoolsHost },
+  { id: "useGbHealthFacilitiesLayer", keys: ["gbHealthFacilities"], Host: GbHealthFacilitiesHost },
+  { id: "useGbCareHomesLayer", keys: ["gbCareHomes"], Host: GbCareHomesHost },
+  { id: "useGbCareServicesLayer", keys: ["gbCareServices"], Host: GbCareServicesHost },
+  { id: "useGbFireStationsLayer", keys: ["gbFireStations"], Host: GbFireStationsHost },
+  { id: "useGbCourtsLayer", keys: ["gbCourts"], Host: GbCourtsHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

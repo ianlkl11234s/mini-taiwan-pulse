@@ -1373,5 +1373,11 @@
   "layer.gbPowerLines": "Power Lines",
   "layer.gbSubstations": "Substations",
   "layer.gbFuelStations": "Fuel Stations",
-  "layer.gbOilGasFields": "Offshore Oil & Gas Fields"
+  "layer.gbOilGasFields": "Offshore Oil & Gas Fields",
+  "layer.gbSchools": "Schools",
+  "layer.gbHealthFacilities": "Health Facilities",
+  "layer.gbCareHomes": "Care Homes",
+  "layer.gbCareServices": "Care Services",
+  "layer.gbFireStations": "Fire Stations",
+  "layer.gbCourts": "Courts & Tribunals"
 }

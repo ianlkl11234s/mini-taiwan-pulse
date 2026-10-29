@@ -306,6 +306,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 英國第 3 波：點（測站、浴場）→ 線（防洪、北愛侵蝕風險、河川）→ 侵蝕面，都排在建成區、行政界前面
   // 英國第 4 波：倫敦車站排在樞紐前（King's Cross 等共站），點 → 線 → 收費區大面
   // 英國第 5 波：點（TPO 單株、森林遊憩）→ 線（步道）排最前；小面（TPO 範圍、開放進入地、古老林地、林地）→ 海洋保護區 → 保護區大面
+  // 英國第 7 波：公共服務點（消防站、法院、醫院 → GP／藥局 → 學校 → 照護）排在 GB 點層最前
+  { layers: ["gb-fire-stations-circle"], type: "gbFireStations" },
+  { layers: ["gb-courts-circle"], type: "gbCourts" },
+  { layers: ["gb-health-hospital-circle", "gb-health-primary-circle"], type: "gbHealthFacilities" },
+  { layers: ["gb-schools-circle"], type: "gbSchools" },
+  { layers: ["gb-care-homes-circle"], type: "gbCareHomes" },
+  { layers: ["gb-care-services-circle"], type: "gbCareServices" },
   // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
   { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
   { layers: ["gb-renewables-circle"], type: "gbRenewables" },
