@@ -13,5 +13,6 @@
   "enum.regionalStatisticsInput.population": "Denominator population",
   "enum.regionalStatisticsInput.heads": "Livestock headcount",
   "enum.regionalStatisticsInput.farms": "Number of farms",
-  "enum.regionalStatisticsInput.source_participation_rate_pct": "Source labor force participation rate (%)"
+  "enum.regionalStatisticsInput.source_participation_rate_pct": "Source labor force participation rate (%)",
+  "enum.regionalStatisticsInput.official_complete_national_sum": "National total in the same category"
 }

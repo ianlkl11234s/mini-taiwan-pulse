@@ -23,7 +23,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
-import { ATLAS_ENABLED_STATISTICS_RECIPES, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -141,6 +141,7 @@ import {
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
+import type { StatisticsLevel } from "./regionalStatisticsLoader";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
@@ -524,18 +525,23 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   }];
 })) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
 
+/** atlas 統計的層級短名（名稱 qualifier 與 topics）：英國 LAD＝地方行政區。 */
+function atlasLevelQualifier(level: StatisticsLevel): string {
+  return level === "gb_lad" ? "地方行政區" : level === "township" ? "鄉鎮" : "縣市";
+}
+
 /** Atlas recipes（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋；縣市＋鄉鎮）share the dynamic Statistics renderer. */
 const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: recipe.data_theme, group: recipe.subgroup },
-    ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    country: atlasRecipeCountry(recipe), section: { theme: recipe.data_theme, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: atlasLevelQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
     description: recipe.disclosure,
-    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, recipe.level === "township" ? "鄉鎮" : "縣市"],
+    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, atlasLevelQualifier(recipe.level), ...(atlasRecipeCountry(recipe) === "GB" ? ["英國"] : [])],
   }];
 })) as Record<AtlasStatisticsLayerKey, LayerManifestEntry>;
 
