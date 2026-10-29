@@ -109,6 +109,7 @@ const SOURCE_LABEL_KEY = {
   addictionRaw: "dataSources.label.addictionRaw",
   landslide: "dataSources.label.landslide",
   atlasDerived: "dataSources.label.atlasDerived",
+  atlasDerivedAggregate: "dataSources.label.atlasDerivedAggregate",
   atlasRaw: "dataSources.label.atlasRaw",
   demoDerived: "dataSources.label.demoDerived",
   demoRaw: "dataSources.label.demoRaw",

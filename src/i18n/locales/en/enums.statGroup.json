@@ -32,5 +32,14 @@
   "enum.statGroup.金融及保險業場所單位（縣市）": "Finance & insurance establishments (county)",
   "enum.statGroup.金融卡類交易縣市分佈": "Financial-card transactions by county",
   "enum.statGroup.壽險業分支機構（縣市）": "Life insurer offices (county)",
-  "enum.statGroup.金融卡特約商店（鄉鎮）": "Debit-card merchants (township)"
+  "enum.statGroup.金融卡特約商店（鄉鎮）": "Debit-card merchants (township)",
+  "enum.statGroup.年中人口推估": "Mid-year population estimates",
+  "enum.statGroup.城鄉（英格蘭、威爾斯）": "Urban & rural (England & Wales)",
+  "enum.statGroup.鄉村人口比例（蘇格蘭）": "Rural population share (Scotland)",
+  "enum.statGroup.英格蘭剝奪指數（IoD2025）": "English deprivation index (IoD2025)",
+  "enum.statGroup.威爾斯剝奪指數（WIMD 2025）": "Welsh deprivation index (WIMD 2025)",
+  "enum.statGroup.蘇格蘭剝奪指數（SIMD 2020v2）": "Scottish deprivation index (SIMD 2020v2)",
+  "enum.statGroup.北愛剝奪指數（NIMDM 2017）": "Northern Ireland deprivation measure (NIMDM 2017)",
+  "enum.statGroup.房價（UK HPI）": "House prices (UK HPI)",
+  "enum.statGroup.私人租金（PIPR）": "Private rents (PIPR)"
 }

@@ -2,6 +2,7 @@
 // 只放型別，讓各家族檔與 atlasStatisticsRecipes.ts 共用而不互相 import。
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
 import type { StatisticsReleaseSummary } from "./statisticsRecipeCatalog";
+import type { CountryCode } from "../constants/countries";
 
 export interface AtlasReleaseOption {
   release_id: string;
@@ -20,8 +21,11 @@ export interface AtlasDimension {
   options: Array<{ value: string; label: string }>;
 }
 
-/** ascending＝淺 → 深為低 → 高；descending＝反轉（社會脆弱度的能力構面：值越低越深）。 */
-export type AtlasScaleDirection = "ascending" | "descending";
+/**
+ * ascending＝淺 → 深為低 → 高；descending＝反轉（社會脆弱度的能力構面：值越低越深）；
+ * diverging＝以 0 為界的雙向 PuOr（棕負紫正；英國房價／租金年變動率），breaks 必為 [a, b, 0, c, d]。
+ */
+export type AtlasScaleDirection = "ascending" | "descending" | "diverging";
 
 export interface AtlasScale {
   breaks: number[];
@@ -35,6 +39,8 @@ export interface AtlasRecipe {
   layer_key: string;
   enabled: boolean;
   family: string;
+  /** 國家主體（缺省＝台灣）。英國統計（gb 家族）為 GB，目錄與統計分頁依此分國家。 */
+  country?: CountryCode;
   label: string;
   /** Statistics 群組 key（同一概念一列；原始數／比例、縣市／鄉鎮在群組選單內切換）。 */
   group: string;
@@ -88,6 +94,13 @@ export interface AtlasRecipe {
   source_landing_url: string;
   source_download_url: string;
   source_title: string;
+  /** 來源要求的署名原文（英國 OGL）；圖例與 popup 都要顯示。台灣家族不帶。 */
+  attribution?: string;
+  /** 來源涵蓋／未涵蓋的地區（英國四地）；未涵蓋地區的值為 not_applicable，顯示「未涵蓋」。 */
+  scope_nations?: string[];
+  uncovered_nations?: string[];
+  /** 衍生方法（derived 為 true 且不是「同期分子÷分母」時，例如由小區排名彙整）；資料來源總覽用。 */
+  derived_method?: string;
 }
 
 export interface AtlasRecipeDocument {
