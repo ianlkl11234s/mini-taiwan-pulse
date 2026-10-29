@@ -4448,6 +4448,7 @@ export type GeneratedStaticKey =
   | "popup.hazard.gbLandslideUnnamed"
   | "popup.hazard.gbLastYear"
   | "popup.hazard.gbLocality"
+  | "popup.hazard.gbMagTypeBgs"
   | "popup.hazard.gbNoData"
   | "popup.hazard.gbOffshore"
   | "popup.hazard.gbOnshore"

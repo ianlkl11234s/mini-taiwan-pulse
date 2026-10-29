@@ -5,7 +5,8 @@
  * `docs/data-catalog/energy/gb_gamma_dose.md` 與 `docs/topic-research/united_kingdom_opendata/waves/w9/layer-plan.md`（2026-10-29）。
  *
  * 色票沿用台灣同語意圖層（資料色，spec §3.16），不自訂新色：
- *   GeoSure 易發性 低／中／顯著＝台灣土壤液化潛勢 低／中／高三階色（SOIL_POTENTIAL_CLASSES；同第 3 波北愛海岸風險線）。
+ *   GeoSure 易發性 低／中／顯著＝台灣土壤液化潛勢 低／中／高三階色（經 GB_EROSION_RISKS 取用，第 3 波北愛海岸風險線同色；
+ *     不直接 import soilLiquefactionTypes，因為那是站主限定模組，import 會把本檔變成 owner-only）。
  *     ⚠️ GeoSure 不是液化：只借三階順序色，文字一律寫「地質災害易發性」。
  *   山崩紀錄點＝台灣年度全島崩塌地色（LANDSLIDE_LAYER_COLORS.landslideAnnual）；BGS 已複核實心、未複核空心。
  *   氡氣 6 級：設計規範沒有六級災害序列 token；1 km 方格屬網格（map-layers G-3），借網格色盤 YlOrBr 重取樣 6 階
@@ -14,7 +15,7 @@
  *   地震＝spec §3.15 earthquake 語意色 #ff3b30（台灣 earthquakes 同色）；儀器記錄實心、歷史地震空心環，不另借第二色。
  *     半徑依規模，沿用日本地震 JMA_QUAKE_RADIUS_STOPS。
  */
-import { SOIL_POTENTIAL_CLASSES } from "./soilLiquefactionTypes";
+import { GB_EROSION_RISKS } from "./gbWaterTypes";
 import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 import { STATISTICS_SEQUENTIAL_SCHEMES as SEQ } from "./statisticsVisuals";
 import { paletteRamp, resampleRamp } from "../map/palettes";
@@ -50,12 +51,12 @@ export function gbGeoHazard(value: unknown) {
 }
 
 export type GbSusceptibility = "Low" | "Moderate" | "Significant";
-const soilColor = (value: string) => SOIL_POTENTIAL_CLASSES.find((c) => c.value === value)!.color;
+const riskColor = (value: string) => GB_EROSION_RISKS.find((c) => c.value === value)!.color;
 /** 宣告順序＝圖例順序（低 → 顯著）。 */
 export const GB_SUSCEPTIBILITY: readonly { value: GbSusceptibility; color: string }[] = [
-  { value: "Low", color: soilColor("low") },
-  { value: "Moderate", color: soilColor("medium") },
-  { value: "Significant", color: soilColor("high") },
+  { value: "Low", color: riskColor("Low") },
+  { value: "Moderate", color: riskColor("Moderate") },
+  { value: "Significant", color: riskColor("High") },
 ];
 export const GB_GEOSURE_COLOR = GB_SUSCEPTIBILITY[2]!.color;
 export function gbSusceptibility(value: unknown) {

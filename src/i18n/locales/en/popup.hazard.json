@@ -89,5 +89,6 @@
   "popup.hazard.gbQuakeSetting": "Location",
   "popup.hazard.gbOffshore": "Offshore",
   "popup.hazard.gbOnshore": "Onshore",
-  "popup.hazard.gbQuakeDataEnd": "BGS earthquake catalogue data up to {date}"
+  "popup.hazard.gbQuakeDataEnd": "BGS earthquake catalogue data up to {date}",
+  "popup.hazard.gbMagTypeBgs": "BGS combined magnitude"
 }

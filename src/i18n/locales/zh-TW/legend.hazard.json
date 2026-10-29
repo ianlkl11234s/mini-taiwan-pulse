@@ -142,7 +142,7 @@
   "legend.hazard.gbLandslideNote": "一點＝一次山崩調查紀錄，不是山崩範圍；縮放 7 級起顯示",
   "legend.hazard.gbLandslideCoverage": "涵蓋 3/4：英格蘭、蘇格蘭、威爾斯；北愛爾蘭未涵蓋（國家山崩資料庫不含）",
   "legend.hazard.gbLandslideLicense": "授權：BGS 圖資服務聲明為 Open Government Licence；BGS 資料集頁另寫索引資料「下載需申請」，各處說法不一",
-  "legend.hazard.gbRadonClass": "住宅超過行動水平 {band}（{n} 格）",
+  "legend.hazard.gbRadonClass": "{band}（{n} 格）",
   "legend.hazard.gbRadonMeaning": "每 1 km 方格內住宅氡濃度超過行動水平的估計比例；每格以格內最高潛勢分級，屬指示性",
   "legend.hazard.gbCoverageUk4": "涵蓋 4/4：英格蘭、蘇格蘭、威爾斯、北愛爾蘭",
   "legend.hazard.gbNoData": "未標示／無資料",

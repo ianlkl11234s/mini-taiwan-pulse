@@ -142,7 +142,7 @@
   "legend.hazard.gbLandslideNote": "1 点＝1 件の地すべり調査記録で、地すべりの範囲ではありません。ズーム 7 以上で表示",
   "legend.hazard.gbLandslideCoverage": "対象 3/4：イングランド、スコットランド、ウェールズ。北アイルランドは対象外（国家地すべりデータベースに含まれない）",
   "legend.hazard.gbLandslideLicense": "ライセンス：BGS の地図サービスは Open Government Licence と記載する一方、BGS のデータセットページは索引データを「申請によりダウンロード可」としており、記載が一致しません",
-  "legend.hazard.gbRadonClass": "対策レベル超過の住宅 {band}（{n} メッシュ）",
+  "legend.hazard.gbRadonClass": "{band}（{n} メッシュ）",
   "legend.hazard.gbRadonMeaning": "1 km メッシュごとに、ラドン濃度が対策レベルを超える住宅の推定割合。各メッシュは内部の最も高い区分で表示した目安です",
   "legend.hazard.gbCoverageUk4": "対象 4/4：イングランド、スコットランド、ウェールズ、北アイルランド",
   "legend.hazard.gbNoData": "記載なし／データなし",

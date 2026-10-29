@@ -89,5 +89,6 @@
   "popup.hazard.gbQuakeSetting": "位置",
   "popup.hazard.gbOffshore": "海域",
   "popup.hazard.gbOnshore": "陸域",
-  "popup.hazard.gbQuakeDataEnd": "BGS 地震カタログは {date} までのデータ"
+  "popup.hazard.gbQuakeDataEnd": "BGS 地震カタログは {date} までのデータ",
+  "popup.hazard.gbMagTypeBgs": "BGS 総合マグニチュード"
 }

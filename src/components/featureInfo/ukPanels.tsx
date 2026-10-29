@@ -1201,12 +1201,17 @@ export function GbGroundStabilityPanel({ props }: { props: Record<string, unknow
   const nation = useNationLabel();
   const hazard = gbGeoHazard(props.hazard);
   const susc = gbSusceptibility(props.susceptibility);
+  const suscText = susc ? t(GB_SUSCEPTIBILITY_KEYS[susc.value]) : "";
+  // 英文介面的中文標籤與原文相同時不重複括號
+  const suscLabel = !susc ? text(props.susceptibility) || t("popup.hazard.gbNoData")
+    : suscText === susc.value ? suscText : t("popup.hazard.gbWithOriginal", { label: suscText, original: susc.value });
   const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
   return <>
     <Title color={susc?.color ?? GB_GEOSURE_COLOR}>{t("popup.hazard.gbGeoSureTitle")}</Title>
     <Row label={t("popup.hazard.gbGeoHazard")} value={hazard ? t(GB_GEO_HAZARD_KEYS[hazard.value]) : text(props.hazard_zh) || text(props.hazard)} />
-    <Row label={t("popup.hazard.gbSusceptibility")} value={susc ? t("popup.hazard.gbWithOriginal", { label: t(GB_SUSCEPTIBILITY_KEYS[susc.value]), original: susc.value }) : text(props.susceptibility) || t("popup.hazard.gbNoData")} />
-    {text(props.advisory) ? <Row label="" value={t("popup.hazard.gbAdvisory")} /> : null}
+    <Row label={t("popup.hazard.gbSusceptibility")} value={suscLabel} />
+    {/* advisory：整格分級較低但格內局部有顯著；整格已是顯著時不重複 */}
+    {text(props.advisory) && susc?.value !== "Significant" ? <Row label="" value={t("popup.hazard.gbAdvisory")} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={place} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbGeoSureNotice")} />
     <SourceFooter props={{ source_org: GB_GEOSURE_ATTRIBUTION, source_url: GB_GEOSURE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
@@ -1286,11 +1291,13 @@ export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }
   const depth = hazardNumber(props.depth_km);
   const when = historical ? text(props.date) : text(props.datetime_utc).replace("T", " ").replace(/Z$/, " UTC");
   const offshore = props.setting === "offshore";
+  // 上游把歷史地震的 BGS 綜合規模寫成「BGS MAG（綜合）」中文字串 → 顯示層依語系翻
+  const magType = text(props.mag_type).startsWith("BGS MAG") ? t("popup.hazard.gbMagTypeBgs") : text(props.mag_type);
   const place = offshore ? t("popup.hazard.gbOffshore") : [t("popup.hazard.gbOnshore"), nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
   return <>
     <Title color={GB_QUAKE_COLOR}>{t(historical ? "popup.hazard.gbQuakeTitleHistorical" : "popup.hazard.gbQuakeTitleInstrumental")}</Title>
     <Row label={t(historical ? "popup.hazard.gbQuakeDate" : "popup.hazard.gbQuakeTime")} value={when || t("popup.hazard.gbNoData")} />
-    <Row label={t("popup.hazard.gbQuakeMag")} value={mag == null ? t("popup.hazard.gbQuakeMagUnknown") : `${formatNumber(mag, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${text(props.mag_type) ? ` (${text(props.mag_type)})` : ""}`} />
+    <Row label={t("popup.hazard.gbQuakeMag")} value={mag == null ? t("popup.hazard.gbQuakeMagUnknown") : `${formatNumber(mag, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${magType ? ` (${magType})` : ""}`} />
     <Row label={t("popup.hazard.gbQuakeDepth")} value={depth == null ? t("popup.hazard.gbNoData") : t("popup.hazard.gbQuakeDepthValue", { km: formatNumber(depth, { maximumFractionDigits: 1 }) })} />
     {historical ? <Row label={t("popup.hazard.gbQuakeIntensity")} value={text(props.intensity)} /> : null}
     {historical ? <Row label={t("popup.hazard.gbLocality")} value={text(props.locality)} /> : null}

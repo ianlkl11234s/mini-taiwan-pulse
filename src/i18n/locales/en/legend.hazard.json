@@ -142,7 +142,7 @@
   "legend.hazard.gbLandslideNote": "One point = one landslide survey record, not the landslide extent; shown from zoom 7",
   "legend.hazard.gbLandslideCoverage": "Coverage 3/4: England, Scotland, Wales; Northern Ireland not covered (not in the National Landslide Database)",
   "legend.hazard.gbLandslideLicense": "Licence: the BGS map service states the Open Government Licence, while the BGS dataset page says index data is “available on request”; the sources do not fully agree",
-  "legend.hazard.gbRadonClass": "Homes above the Action Level: {band} ({n} squares)",
+  "legend.hazard.gbRadonClass": "{band} ({n} squares)",
   "legend.hazard.gbRadonMeaning": "Estimated share of homes in each 1 km square with radon above the Action Level; each square takes the highest potential within it and is indicative only",
   "legend.hazard.gbCoverageUk4": "Coverage 4/4: England, Scotland, Wales, Northern Ireland",
   "legend.hazard.gbNoData": "Not stated / no data",
