@@ -10,7 +10,7 @@ import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RA
 import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { fireStationColorMatch } from "../data/fireTypes";
-import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioUrl } from "../data/floodScenarios";
+import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -4223,10 +4223,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "water-flood-extreme",
     attribution: "經濟部水利署 淹水潛勢圖（data.gov.tw 25766）· 政府資料開放授權條款第1版 · 模式模擬，僅供防災整備",
     pmtiles: { sourceLayer: "flood_scenario", minzoom: 5, maxzoom: 13 },
+    // floodMinDepth 除了把 opacity 打 0，也用 filter 排除低於門檻的面：
+    // 補 popup 後，只靠 opacity 0 的面仍會被 queryRenderedFeatures 點到（看不到卻跳出說明框）。
+    rebuildOnParamChange: ["fill", "glow"],
+    rebuildOnParamKeys: ["floodMinDepth"],
     layers: [
       {
         suffix: "fill",
         type: "fill",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           // floodMinDepth: 0 (全部) / 0.5 / 1 / 2 / 3
           const min = params?.floodMinDepth ?? 0;
@@ -4259,6 +4264,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "line",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           const min = params?.floodMinDepth ?? 0;
           const ALL_CLASSES = ["0.3-0.5", "0.5-1.0", "1.0-2.0", "2.0-3.0", ">3.0"];

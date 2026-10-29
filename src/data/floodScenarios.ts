@@ -49,3 +49,15 @@ export const FLOOD_HAZARD_SOURCE = {
   source_url: "https://data.gov.tw/dataset/25766",
   license: "政府資料開放授權條款第1版",
 } as const;
+
+/** 深度級距下限（m），與 overlayRegistry `waterFloodExtreme` paint 的 CLASS_MIN 同表 */
+const FLOOD_DEPTH_CLASS_MIN: Readonly<Record<string, number>> = {
+  "0.3-0.5": 0.3, "0.5-1.0": 0.5, "1.0-2.0": 1.0, "2.0-3.0": 2.0, ">3.0": 3.0,
+};
+
+/** floodMinDepth 門檻以上的級距才進圖層（filter 讓被篩掉的面點不到） */
+export function floodDepthFilter(params?: Record<string, number>): unknown[] {
+  const min = params?.floodMinDepth ?? 0;
+  const visible = Object.keys(FLOOD_DEPTH_CLASS_MIN).filter((c) => FLOOD_DEPTH_CLASS_MIN[c]! >= min);
+  return ["in", ["get", "depth_class"], ["literal", visible]];
+}

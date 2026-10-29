@@ -14960,7 +14960,23 @@
       "id": "waterFloodExtreme",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15053,7 +15069,23 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15079,7 +15111,10 @@
         "minzoom": 5,
         "sourceLayer": "flood_scenario"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "glow"
+      ],
       "sourceId": "water-flood-extreme",
       "sourceUrl": "./geo/water_flood_650mm_24hr.pmtiles"
     },
