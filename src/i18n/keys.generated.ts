@@ -3889,7 +3889,6 @@ export type GeneratedStaticKey =
   | "popup.forestry.gbRecDistrict"
   | "popup.forestry.gbRecInstall"
   | "popup.forestry.gbRecNrwCode"
-  | "popup.forestry.gbRecTitle"
   | "popup.forestry.gbRecUnnamed"
   | "popup.forestry.gbTrailClass"
   | "popup.forestry.gbTrailGrade"
