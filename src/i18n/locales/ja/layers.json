@@ -1396,5 +1396,11 @@
   "layer.gbRadiation": "環境放射線",
   "layer.gbEarthquakes": "地震カタログ",
   "layer.gbMajorRoads": "主要道路網",
-  "layer.gbTrafficCountsAadf": "年平均日交通量"
+  "layer.gbTrafficCountsAadf": "年平均日交通量",
+  "layer.gbPlanningConstraints": "計画規制区域",
+  "layer.gbBrownfield": "ブラウンフィールド登録簿",
+  "layer.gbRecyclingCentres": "リサイクル拠点",
+  "layer.gbWastePermits": "廃棄物処理許可施設",
+  "layer.gbPollutionInventory": "汚染物質排出報告施設",
+  "layer.gbNoise": "戦略騒音地図"
 }

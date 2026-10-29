@@ -74,6 +74,14 @@ import {
   GB_QUAKE_DATA_END, GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
 } from "../../data/gbHazardTypes";
 import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
+import {
+  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_OWNERSHIP, GB_BROWNFIELD_URL, GB_ENV_FETCHED_AT, GB_ENV_ODBL, GB_ENV_OGL_V3,
+  GB_NOISE_COLOR, GB_NOISE_SOURCES, GB_PLANNING_COLOR, GB_PLANNING_SOURCE_URLS, GB_PLANNING_SOURCES, GB_POLLUTION_ATTRIBUTION,
+  GB_POLLUTION_COLOR, GB_POLLUTION_LICENSE, GB_POLLUTION_URL, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_COLOR, GB_RECYCLING_URL,
+  GB_WASTE_ISSUED_PLACEHOLDER, GB_WASTE_PERMITS_COLOR, gbBrownfieldStatus, gbNoiseBand, gbPlanningConstraint, gbRecyclingKind,
+  gbWasteAuthority, type GbBrownfieldOwnership,
+} from "../../data/gbEnvPlanningTypes";
+import { GB_BROWNFIELD_STATUS_KEYS, GB_PLANNING_CONSTRAINT_KEYS, GB_RECYCLING_KIND_KEYS } from "../legend/gbEnvPlanningLegends";
 import type { MessageKey } from "../../i18n/keys";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
@@ -1394,5 +1402,148 @@ export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }
     <Row label={t("popup.hazard.gbQuakeSetting")} value={place} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbQuakeDataEnd", { date: GB_QUAKE_DATA_END })} />
     <SourceFooter props={{ source_org: GB_QUAKE_ATTRIBUTION, source_url: GB_QUAKE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
+  </>;
+}
+
+// ─────────────────────────── 第 11 波環境與規劃 ───────────────────────────
+
+/** 數值欄 null／非數值 → null（不寫 0）。 */
+const envNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+/** 日期欄只取 YYYY-MM-DD。 */
+const envDate = (value: unknown) => text(value).slice(0, 10);
+
+/** 規劃限制區：名稱、類別、指定機關、指定日（null「未載明」）、綠帶核心區、編號。 */
+export function GbPlanningConstraintsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const c = gbPlanningConstraint(props.constraint);
+  const src = GB_PLANNING_SOURCES[text(props.source) as keyof typeof GB_PLANNING_SOURCES];
+  const url = props.source === "planning_data" && c ? GB_PLANNING_SOURCE_URLS[c.value] : src?.url ?? "";
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={c?.color ?? GB_PLANNING_COLOR}>{text(props.name) || t("popup.environmentLayer.gbUnnamed")}</Title>
+    <Row label={t("popup.environmentLayer.gbPlanCategory")} value={c ? t(GB_PLANNING_CONSTRAINT_KEYS[c.value]) : text(props.constraint)} />
+    <Row label={t("popup.environmentLayer.gbPlanOrg")} value={text(props.organisation) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPlanStart")} value={envDate(props.start_date) || t("popup.environmentLayer.gbNotStated")} />
+    {c?.value === "green_belt" ? <Row label={t("popup.environmentLayer.gbPlanGreenBeltCore")} value={text(props.green_belt_core) || t("popup.environmentLayer.gbNotStated")} /> : null}
+    <Row label={t("popup.environmentLayer.gbReference")} value={text(props.reference)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    <SourceFooter props={{ source_org: src?.org ?? "", source_url: url, license: GB_ENV_OGL_V3, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
+const GB_OWNERSHIP_KEYS: Record<GbBrownfieldOwnership, MessageKey> = {
+  public: "popup.environmentLayer.gbBfOwnPublic",
+  not_public: "popup.environmentLayer.gbBfOwnNotPublic",
+  mixed: "popup.environmentLayer.gbBfOwnMixed",
+  unknown: "popup.environmentLayer.gbBfOwnUnknown",
+};
+
+/** 棕地登記冊：場址、地址、面積、可建戶數、所有權、許可狀態與類型、LPA；固定註明面積為 LPA 原填值。 */
+export function GbBrownfieldPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const status = gbBrownfieldStatus(props.permission_status);
+  const ha = envNumber(props.hectares);
+  const min = envNumber(props.min_net_dwellings);
+  const max = envNumber(props.max_net_dwellings);
+  const f = (v: number) => formatNumber(v, { maximumFractionDigits: 0 });
+  const dwellings = min == null && max == null ? t("popup.environmentLayer.gbNotStated")
+    : min != null && max != null && min !== max ? t("popup.environmentLayer.gbBfDwellingsRange", { min: f(min), max: f(max) })
+      : t("popup.environmentLayer.gbBfDwellingsValue", { n: f((min ?? max)!) });
+  const own = text(props.ownership) as GbBrownfieldOwnership;
+  const ownLabel = GB_BROWNFIELD_OWNERSHIP.includes(own) ? t(GB_OWNERSHIP_KEYS[own]) : t("popup.environmentLayer.gbNotStated");
+  const permission = [t(GB_BROWNFIELD_STATUS_KEYS[status.value]), text(props.permission_type)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={GB_BROWNFIELD_COLOR}>{text(props.site_address) || text(props.name) || t("popup.environmentLayer.gbUnnamed")}</Title>
+    <Row label={t("popup.environmentLayer.gbReference")} value={text(props.reference) || text(props.name)} />
+    <Row label={t("popup.environmentLayer.gbBfArea")} value={ha == null ? t("popup.environmentLayer.gbNotStated") : t("popup.environmentLayer.gbBfHa", { v: formatNumber(ha, { maximumFractionDigits: 2 }) })} />
+    <Row label={t("popup.environmentLayer.gbBfDwellings")} value={dwellings} />
+    <Row label={t("popup.environmentLayer.gbBfOwnership")} value={ownLabel} />
+    <Row label={t("popup.environmentLayer.gbBfStatus")} value={permission} />
+    <Row label={t("popup.environmentLayer.gbBfDate")} value={envDate(props.permission_date) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbBfLpa")} value={text(props.organisation)} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbBfHectaresNote")} />
+    <SourceFooter props={{ source_org: GB_BROWNFIELD_ATTRIBUTION, source_url: GB_BROWNFIELD_URL, license: GB_ENV_OGL_V3, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
+const GB_YES_NO_KEYS: Record<string, MessageKey> = {
+  yes: "popup.environmentLayer.gbYes", no: "popup.environmentLayer.gbNo", limited: "popup.environmentLayer.gbLimited",
+};
+
+/** 回收點（OSM）：名稱（null「未命名」）、類別、開放時間、收費、無障礙；固定一行 OSM 完整度說明。 */
+export function GbRecyclingCentresPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const kind = gbRecyclingKind(props.kind);
+  const yn = (v: unknown) => (GB_YES_NO_KEYS[text(v)] ? t(GB_YES_NO_KEYS[text(v)]!) : text(v) || t("popup.environmentLayer.gbNotStated"));
+  return <>
+    <Title color={kind?.color ?? GB_RECYCLING_COLOR}>{text(props.name) || t("popup.environmentLayer.gbUnnamed")}</Title>
+    <Row label={t("popup.environmentLayer.gbCategory")} value={kind ? t(GB_RECYCLING_KIND_KEYS[kind.value]) : text(props.kind)} />
+    <Row label={t("popup.environmentLayer.gbRecHours")} value={text(props.opening_hours) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbRecFee")} value={yn(props.fee)} />
+    <Row label={t("popup.environmentLayer.gbRecWheelchair")} value={yn(props.wheelchair)} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbRecOsmNote")} />
+    <SourceFooter props={{ source_org: GB_RECYCLING_ATTRIBUTION, source_url: GB_RECYCLING_URL, license: GB_ENV_ODBL, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
+/** 廢棄物處理許可：場址、設施類型（null 用設施代碼）、許可編號、狀態、發證日、主管機關；無持有人欄。 */
+export function GbWastePermitsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const authority = gbWasteAuthority(props.authority);
+  const issued = envDate(props.issued);
+  const size = text(props.size_band);
+  return <>
+    <Title color={GB_WASTE_PERMITS_COLOR}>{text(props.site_name) || t("popup.environmentLayer.gbUnnamed")}</Title>
+    <Row label={t("popup.environmentLayer.gbWasteFacility")} value={text(props.facility_type) || text(props.facility_code) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbWastePermitRef")} value={text(props.permit_ref)} />
+    <Row label={t("popup.environmentLayer.gbWasteStatus")} value={text(props.status)} />
+    <Row label={t("popup.environmentLayer.gbWasteIssued")} value={issued && issued !== GB_WASTE_ISSUED_PLACEHOLDER ? issued : t("popup.environmentLayer.gbNotStated")} />
+    {size && size !== "Data Unavailable" ? <Row label={t("popup.environmentLayer.gbWasteSize")} value={size} /> : null}
+    <Row label={t("popup.environmentLayer.gbWasteAuthority")} value={text(props.authority)} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.site_town) || text(props.lad_name)].filter(Boolean).join(" · ")} />
+    {props.authority === "NIEA" ? <Row label="" value={t("popup.environmentLayer.gbWasteNiSnapshot")} /> : null}
+    {authority ? <SourceFooter props={{ source_org: authority.attribution, source_url: authority.url, license: authority.license, fetched_at: GB_ENV_FETCHED_AT }} /> : null}
+  </>;
+}
+
+/** 污染排放申報（蘇格蘭 SEPA SPRI 2017）：場址、部門、活動、年份、空氣／水體是否申報排放、申報書連結。 */
+export function GbPollutionInventoryPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const release = (v: unknown) => (v === "yes" ? t("popup.environmentLayer.gbPolYes") : v === "no" ? t("popup.environmentLayer.gbPolNo") : t("popup.environmentLayer.gbPolNotReported"));
+  return <>
+    <Title color={GB_POLLUTION_COLOR}>{text(props.site_name) || text(props.site_ref)}</Title>
+    <Row label={t("popup.environmentLayer.gbPolSector")} value={text(props.sector) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolActivity")} value={text(props.activity) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolYear")} value={text(props.year)} />
+    <Row label={t("popup.environmentLayer.gbPolAir")} value={release(props.release_air)} />
+    <Row label={t("popup.environmentLayer.gbPolWater")} value={release(props.release_water)} />
+    <LinkRow label={t("popup.environmentLayer.gbPolReturn")} url={text(props.return_url)} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbPolNote")} />
+    <SourceFooter props={{ source_org: GB_POLLUTION_ATTRIBUTION, source_url: GB_POLLUTION_URL, license: GB_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
+/** 策略噪音：來源（道路／鐵路）、Lden 帶、模型輪次；固定一行模型估計說明。 */
+export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const band = gbNoiseBand(props.band_min_db);
+  const src = GB_NOISE_SOURCES[text(props.source) as keyof typeof GB_NOISE_SOURCES];
+  const round = text(props.round);
+  return <>
+    <Title color={band?.color ?? GB_NOISE_COLOR}>{t(props.noise_source === "rail" ? "popup.environmentLayer.gbNoiseRail" : "popup.environmentLayer.gbNoiseRoad")}</Title>
+    <Row label={t("popup.environmentLayer.gbNoiseBand")} value={band ? `${band.label} dB(A)` : text(props.band) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbNoiseRound")} value={round === "Round 4" ? t("popup.environmentLayer.gbNoiseRound4") : round ? t("popup.environmentLayer.gbNoiseRound3") : t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbNoiseNote")} />
+    {src ? <SourceFooter props={{ source_org: src.org, source_url: src.url, license: "Open Government Licence", fetched_at: GB_ENV_FETCHED_AT }} /> : null}
   </>;
 }

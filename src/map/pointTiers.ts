@@ -307,6 +307,10 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/hooks/useGbHazardLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
+  gbBrownfield: "S", // 英格蘭棕地（30,303 點，z9 起；許可進度以填色強度區分） · src/hooks/useGbEnvPlanningLayers.ts
+  gbRecyclingCentres: "M", // 回收中心 M（回收桶 S，依 kind） · src/hooks/useGbEnvPlanningLayers.ts
+  gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z8 起） · src/hooks/useGbEnvPlanningLayers.ts
+  gbPollutionInventory: "M", // 蘇格蘭污染排放申報（比照台灣 pollutionFacility） · src/hooks/useGbEnvPlanningLayers.ts
   gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
   jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts

@@ -151,6 +151,9 @@ public/world/gb_power_grid.pmtiles
 # 英國 C003 地形（PNG raster 重匯出：山體陰影 107.5MB、色別標高 116.1MB，走 S3 deploy-assets/world/）
 public/world/gb_terrain_hillshade.pmtiles
 public/world/gb_terrain_relief.pmtiles
+# 英國第 11 波（規劃限制區 25.5MB、策略噪音 26.5MB 走 S3 deploy-assets/world/；棕地 18.9MB、回收點 4.6MB、廢棄物許可 7.5MB、污染排放（只含蘇格蘭）1.7MB git-track）
+public/world/gb_planning_constraints.pmtiles
+public/world/gb_noise.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

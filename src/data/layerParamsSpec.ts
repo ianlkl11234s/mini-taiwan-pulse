@@ -2015,6 +2015,53 @@ export const LAYER_PARAMS_SPEC = {
   gbRadon: [opacitySlider("gbRadonOpacity", 0.7)],
   gbRadiation: [opacitySlider("gbRadiationOpacity", 0.9), scaleSlider("gbRadiationScale", 1)],
   gbEarthquakes: [opacitySlider("gbEarthquakesOpacity", 0.8), scaleSlider("gbEarthquakesScale", 1)],
+  // 英國第 11 波環境與規劃：規劃限制（覆蓋面＋類別選單，預設保育區）、棕地（點＋許可狀態選單）、回收點、
+  // 廢棄物許可（點＋主管機關選單）、污染排放（點，只有蘇格蘭）、噪音（分級面＋道路／鐵路選單）
+  gbPlanningConstraints: [
+    opacitySlider("gbPlanningConstraintsOpacity", 0.35),
+    {
+      kind: "select", category: "data", name: "gbPlanningConstraintsView", label: "類別", default: "conservation_area",
+      options: [
+        { label: "保育區", value: "conservation_area" }, { label: "Article 4 指令區", value: "article_4" },
+        { label: "綠帶", value: "green_belt" }, { label: "全部", value: "all" },
+      ],
+      out: "gbPlanningConstraintsViewIdx", encode: ["conservation_area", "article_4", "green_belt", "all"],
+    },
+  ],
+  gbBrownfield: [
+    opacitySlider("gbBrownfieldOpacity", densePointOpacity(30_303)),
+    scaleSlider("gbBrownfieldScale", 1),
+    {
+      kind: "select", category: "data", name: "gbBrownfieldStatus", label: "許可狀態", default: "all",
+      options: [
+        { label: "全部", value: "all" }, { label: "已有規劃許可", value: "permissioned" }, { label: "審議中", value: "pending" },
+        { label: "未取得許可", value: "not_permissioned" }, { label: "已完成", value: "completed" }, { label: "其他・未載明", value: "other" },
+      ],
+      out: "gbBrownfieldStatusIdx", encode: ["all", "permissioned", "pending", "not_permissioned", "completed", "other"],
+    },
+  ],
+  gbRecyclingCentres: [opacitySlider("gbRecyclingCentresOpacity", densePointOpacity(12_959)), scaleSlider("gbRecyclingCentresScale", 1)],
+  gbWastePermits: [
+    opacitySlider("gbWastePermitsOpacity", densePointOpacity(8_711)),
+    scaleSlider("gbWastePermitsScale", 1),
+    {
+      kind: "select", category: "data", name: "gbWastePermitsAuthority", label: "主管機關", default: "all",
+      options: [
+        { label: "全部", value: "all" }, { label: "英格蘭環境署 EA", value: "Environment Agency" },
+        { label: "蘇格蘭環保署 SEPA", value: "SEPA" }, { label: "北愛環境署 NIEA", value: "NIEA" },
+      ],
+      out: "gbWastePermitsAuthorityIdx", encode: ["all", "Environment Agency", "SEPA", "NIEA"],
+    },
+  ],
+  gbPollutionInventory: [opacitySlider("gbPollutionInventoryOpacity", densePointOpacity(1_450)), scaleSlider("gbPollutionInventoryScale", 1)],
+  gbNoise: [
+    opacitySlider("gbNoiseOpacity", 0.55),
+    {
+      kind: "select", category: "data", name: "gbNoiseSource", label: "噪音來源", default: "road",
+      options: [{ label: "道路", value: "road" }, { label: "鐵路", value: "rail" }],
+      out: "gbNoiseSourceIdx", encode: ["road", "rail"],
+    },
+  ],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

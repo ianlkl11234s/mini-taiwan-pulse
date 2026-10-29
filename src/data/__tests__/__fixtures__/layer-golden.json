@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1406,
+    "keyCount": 1412,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1518,6 +1518,43 @@
         "gb-london-rail-lines-line"
       ],
       "type": "gbLondonRailLines"
+    },
+    {
+      "layers": [
+        "gb-pollution-inventory-circle"
+      ],
+      "type": "gbPollutionInventory"
+    },
+    {
+      "layers": [
+        "gb-waste-permits-circle"
+      ],
+      "type": "gbWastePermits"
+    },
+    {
+      "layers": [
+        "gb-recycling-centre-circle",
+        "gb-recycling-container-circle"
+      ],
+      "type": "gbRecyclingCentres"
+    },
+    {
+      "layers": [
+        "gb-brownfield-circle"
+      ],
+      "type": "gbBrownfield"
+    },
+    {
+      "layers": [
+        "gb-planning-constraints-fill"
+      ],
+      "type": "gbPlanningConstraints"
+    },
+    {
+      "layers": [
+        "gb-noise-fill"
+      ],
+      "type": "gbNoise"
     },
     {
       "layers": [
@@ -90474,6 +90511,57 @@
         "valueText": "1.0"
       }
     ],
+    "gbBrownfield": [
+      {
+        "label": "許可狀態",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "已有規劃許可",
+            "value": "permissioned"
+          },
+          {
+            "label": "審議中",
+            "value": "pending"
+          },
+          {
+            "label": "未取得許可",
+            "value": "not_permissioned"
+          },
+          {
+            "label": "已完成",
+            "value": "completed"
+          },
+          {
+            "label": "其他・未載明",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbBuiltUpAreas": [
       {
         "label": "透明度 0.70",
@@ -90925,6 +91013,32 @@
         "valueText": "0.85"
       }
     ],
+    "gbNoise": [
+      {
+        "label": "噪音來源",
+        "options": [
+          {
+            "label": "道路",
+            "value": "road"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          }
+        ],
+        "type": "select",
+        "value": "road"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "gbOilGasFields": [
       {
         "label": "透明度 0.60",
@@ -90945,6 +91059,60 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "gbPlanningConstraints": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "保育區",
+            "value": "conservation_area"
+          },
+          {
+            "label": "Article 4 指令區",
+            "value": "article_4"
+          },
+          {
+            "label": "綠帶",
+            "value": "green_belt"
+          },
+          {
+            "label": "全部",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "conservation_area"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      }
+    ],
+    "gbPollutionInventory": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbPowerLines": [
@@ -91041,6 +91209,26 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "gbRecyclingCentres": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbRenewables": [
@@ -91331,6 +91519,49 @@
       }
     ],
     "gbVisitorExperience": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbWastePermits": [
+      {
+        "label": "主管機關",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "英格蘭環境署 EA",
+            "value": "Environment Agency"
+          },
+          {
+            "label": "蘇格蘭環保署 SEPA",
+            "value": "SEPA"
+          },
+          {
+            "label": "北愛環境署 NIEA",
+            "value": "NIEA"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
       {
         "label": "透明度 0.80",
         "max": 1,

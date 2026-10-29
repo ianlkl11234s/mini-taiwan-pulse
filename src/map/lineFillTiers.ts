@@ -193,6 +193,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbOilGasFields/gb-oil-gas-fields-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣田外框（依類型色）· src/hooks/useGbEnergyLayers.ts
   "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/hooks/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 規劃限制區外框（依類別色）· src/hooks/useGbEnvPlanningLayers.ts
   "gbMajorRoads/gb-major-roads-line": {"width": "keep", "opacity": "standard"}, // 寬依 road_class 對 L-1 三階（高速強調／A 標準／B 細，L-5）· src/hooks/useGbTransportLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -290,6 +291,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
+  "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts
+  "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/hooks/useGbEnvPlanningLayers.ts
   "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/hooks/useGbHazardLayers.ts
   "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/hooks/useGbHazardLayers.ts
   "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/hooks/useGbNatureLayers.ts
