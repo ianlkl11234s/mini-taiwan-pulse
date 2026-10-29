@@ -44,7 +44,7 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
     description: "全國海巡機關點位。欄位 facility_subtype（機關類型）、county（縣市）。",
   },
   speedCameras: {
-    url: "./police_justice/speed_cameras/speed_cameras_20260626.geojson",
+    url: "./police_justice/speed_cameras/speed_cameras_20260824.geojson",
     label: "測速照相",
     description:
       "全國固定式測速照相點位。欄位 facility_subtype（種類）、limit_kph（速限）、county（縣市）。",
