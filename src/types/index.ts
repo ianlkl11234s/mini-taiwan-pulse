@@ -426,6 +426,7 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
+  | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -958,6 +959,8 @@ export interface FeatureInfo {
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
     | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
+    // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
+    | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1758,6 +1761,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbGreenspace: boolean;        // 英國公園綠地（OS Open Greenspace category=park，80,918）
   gbSportsFacilities: boolean;  // 英國運動場地（同檔 category=sports，54,852）
   gbCemeteries: boolean;        // 英國墓園與宗教場地（同檔 category=burial，30,208）
+  gbRivers: boolean;            // 英國河川（OS Open Rivers＋DAERA Strahler，PMTiles line 211,092 段）
+  gbHydroStations: boolean;     // 英國水文測站（EA＋SEPA，PMTiles point 6,261）
+  gbFloodDefenceAssets: boolean; // 英國防洪設施（EA＋NRW＋Dynamic Coast，PMTiles line 145,958 段）
+  gbCoastalErosionRisk: boolean; // 英國海岸侵蝕（NCERM／Dynamic Coast 面＋北愛風險線，88,793）
+  gbBathingWaters: boolean;     // 英國浴場（EA／NRW／SEPA／DAERA，PMTiles point 724）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

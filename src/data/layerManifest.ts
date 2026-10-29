@@ -3665,7 +3665,7 @@ export const LAYER_MANIFEST = {
   // 待上游重匯出成 PNG 再接，本波未登記。
   gbMaritimeLimits: {
     key: "gbMaritimeLimits",
-    country: "GB", section: { theme: "海洋", group: "海域界線" },
+    country: "GB", section: { theme: "底圖", group: "海域界線" },
     ...layerName({ zh: "海域界線", alt: "Maritime Limits and Boundaries" }),
     expandable: true,
     color: "#38bdf8",
@@ -3791,6 +3791,139 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "英格蘭、蘇格蘭、威爾斯的墓園與教堂院地等宗教場地範圍（OS Open Greenspace）",
     topics: ["英國", "墓園", "殯葬", "宗教"],
+  },
+
+  // 🇬🇧 英國第 3 波（2026-10-29：C099 河川、C098 水文測站、C101 防洪設施、C102 海岸侵蝕、C095 浴場）
+  // 位置對齊台灣同類：waterRivers／waterLevees（水資源 › 面 / 線）、riverLevel／rainGauge（水資源 › 點位）、
+  // beachWaterQuality（海洋 › 海域環境）；海岸侵蝕台灣無同類，歸「災害 › 海岸侵蝕」。
+  gbRivers: {
+    key: "gbRivers",
+    country: "GB", section: { theme: "水資源", group: "面 / 線" },
+    ...layerName({ zh: "河川", alt: "Rivers" }),
+    expandable: true,
+    color: "#38bdf8",
+    icon: GitBranch,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_rivers", confidence: "HIGH" }],
+      processing: "OS Open Rivers 2026-10（大不列顛 193,722 段，含河名與 form）＋DAERA Rivers Strahler Ranking（北愛 17,370 段，Strahler 1–7、無河名）；PMTiles z5–12，有名河段與北愛 Strahler≥4 z6 起、其餘 z9 起",
+      note: "OGL v3.0；4/4 涵蓋；兩地分類不同（GB 依 form、北愛依 Strahler），圖例分開列",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbWaterLayers 自建 mapbox-pmtiles source；source-layer=gb_rivers，minzoom=5 maxzoom=12（layer minzoom 6）；34.9MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_rivers.pmtiles"],
+    },
+    legend: "gbRivers",
+    popup: "gbRivers",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國河網：大不列顛河川、感潮河段、運河（OS Open Rivers）與北愛河段 Strahler 級數（DAERA）",
+    topics: ["英國", "河川", "水系", "水資源"],
+  },
+
+  gbHydroStations: {
+    key: "gbHydroStations",
+    country: "GB", section: { theme: "水資源", group: "點位" },
+    ...layerName({ zh: "水文測站", alt: "Hydrometric Stations" }),
+    expandable: true,
+    color: "#22d3ee",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_hydro_stations", confidence: "HIGH" }],
+      processing: "EA flood-monitoring /id/stations 5,486 站＋SEPA KiWIS 775 站＝6,261 站（水位 4,658、雨量 1,335、流量 239、其他 15、未標參數 14）；只有站點、不含讀數；PMTiles z5–12",
+      note: "OGL v3.0；2/4 涵蓋（英格蘭、蘇格蘭；威爾斯、北愛未涵蓋，跨界 EA 站照實標 nation）；588 站位置只到 1 公里方格中心",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbWaterLayers 自建 mapbox-pmtiles source；source-layer=gb_hydro_stations，minzoom=5 maxzoom=12（layer minzoom 7）；3.1MB git-track",
+      staticAssets: ["./world/gb_hydro_stations.pmtiles"],
+    },
+    legend: "gbHydroStations",
+    popup: "gbHydroStations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英格蘭（Environment Agency）與蘇格蘭（SEPA）的水位、雨量、流量測站位置（不含即時讀數）",
+    topics: ["英國", "水位站", "雨量站", "測站", "水資源"],
+  },
+
+  gbFloodDefenceAssets: {
+    key: "gbFloodDefenceAssets",
+    country: "GB", section: { theme: "水資源", group: "面 / 線" },
+    ...layerName({ zh: "防洪設施", alt: "Flood Defences" }),
+    expandable: true,
+    color: "#f59e0b",
+    icon: Shield,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_flood_defences", confidence: "HIGH" }],
+      processing: "EA AIMS Spatial Flood Defences 141,416＋NRW flood defence locations 2,384＋Dynamic Coast 海岸人工防護 2,158＝145,958 段；人工設施 z7 起、天然高地 z10 起；PMTiles z6–13",
+      note: "OGL v3.0；3/4 涵蓋（北愛未涵蓋；蘇格蘭僅海岸人工防護、內陸防洪未涵蓋）；Dynamic Coast analyses cannot be used for property-level assessments",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbWaterLayers 自建 mapbox-pmtiles source；source-layer=gb_flood_defences，minzoom=6 maxzoom=13（layer minzoom 7）；28.5MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_flood_defences.pmtiles"],
+    },
+    legend: "gbFloodDefenceAssets",
+    popup: "gbFloodDefenceAssets",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英格蘭、威爾斯的堤防、防洪牆、閘門與天然高地，以及蘇格蘭海岸人工防護（EA／NRW／Dynamic Coast）",
+    topics: ["英國", "堤防", "防洪", "海堤", "水資源"],
+  },
+
+  gbCoastalErosionRisk: {
+    key: "gbCoastalErosionRisk",
+    country: "GB", section: { theme: "災害", group: "海岸侵蝕" },
+    ...layerName({ zh: "海岸侵蝕風險", alt: "Coastal Erosion Risk" }),
+    expandable: true,
+    color: "#fb923c",
+    icon: TrendingDown,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_coastal_erosion", confidence: "HIGH" }],
+      processing: "EA NCERM 2024 SMP×70CC 2055／2105（14,995 面）＋NRW NCERM 2023 SMP 中期／長期（2,649 面）＋Dynamic Coast 高排放 2050／2100（71,027 面）＋DAERA 2019 高階風險評估（122 線）；PMTiles z6–14",
+      note: "OGL v3.0；4/4 涵蓋但四地方法不同、不可跨地比較；北愛為風險等級線、非侵蝕投影；Dynamic Coast analyses cannot be used for property-level assessments",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbWaterLayers 自建 mapbox-pmtiles source；source-layer=gb_coastal_erosion（kind=erosion_zone 面、risk_appraisal 線），minzoom=6 maxzoom=14（layer minzoom 8）；17.8MB git-track",
+      staticAssets: ["./world/gb_coastal_erosion.pmtiles"],
+    },
+    legend: "gbCoastalErosionRisk",
+    popup: "gbCoastalErosionRisk",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "英國海岸侵蝕預估範圍（英格蘭、威爾斯至 2105，蘇格蘭至 2100）與北愛海岸侵蝕高階風險等級；四地方法不同",
+    topics: ["英國", "海岸侵蝕", "海岸", "災害", "氣候變遷"],
+  },
+
+  gbBathingWaters: {
+    key: "gbBathingWaters",
+    country: "GB", section: { theme: "海洋", group: "海域環境" },
+    ...layerName({ zh: "浴場水質", alt: "Bathing Waters" }),
+    expandable: true,
+    color: "#0891b2",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_bathing_waters", confidence: "HIGH" }],
+      processing: "EA 489（現行 464、已除名 25）＋NRW 112＋SEPA 90＋DAERA 33＝724 處；預設只顯示現行指定 699 處；蘇格蘭、北愛為浴場範圍代表點；PMTiles z5–13",
+      note: "OGL v3.0；4/4 涵蓋；北愛來源未附水質分級（顯示「無分級資料」，不是差）；英格蘭分級年度 2025，威、蘇來源未標年度",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbWaterLayers 自建 mapbox-pmtiles source；source-layer=gb_bathing_waters，filter designated=true，minzoom=5 maxzoom=13（layer minzoom 6）；0.8MB git-track",
+      staticAssets: ["./world/gb_bathing_waters.pmtiles"],
+    },
+    legend: "gbBathingWaters",
+    popup: "gbBathingWaters",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國指定浴場（海水、河川、湖泊）位置與水質分級（EA／NRW／SEPA／DAERA）",
+    topics: ["英國", "浴場", "海水浴場", "水質", "海洋"],
   },
 
   osmCommunicationSites: {

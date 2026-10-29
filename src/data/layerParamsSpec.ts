@@ -1922,6 +1922,19 @@ export const LAYER_PARAMS_SPEC = {
   gbGreenspace: [opacitySlider("gbGreenspaceOpacity", 0.7)],
   gbSportsFacilities: [opacitySlider("gbSportsFacilitiesOpacity", 0.7)],
   gbCemeteries: [opacitySlider("gbCemeteriesOpacity", 0.7)],
+  // 英國第 3 波：河川／防洪設施（線透明度）、測站與浴場（點透明度＋大小）、海岸侵蝕（面透明度＋期別）
+  gbRivers: [opacitySlider("gbRiversOpacity", 0.85)],
+  gbHydroStations: [opacitySlider("gbHydroStationsOpacity", densePointOpacity(6_261)), scaleSlider("gbHydroStationsScale", 1)],
+  gbFloodDefenceAssets: [opacitySlider("gbFloodDefenceAssetsOpacity", 0.85)],
+  gbCoastalErosionRisk: [
+    opacitySlider("gbCoastalErosionRiskOpacity", 0.7),
+    {
+      kind: "select", category: "data", name: "gbCoastalErosionRiskPeriod", label: "期別", default: "long",
+      options: [{ label: "長期（2100／2105）", value: "long" }, { label: "短期（2050／2055）", value: "short" }, { label: "兩期", value: "both" }],
+      out: "gbCoastalErosionRiskPeriodIdx", encode: ["long", "short", "both"],
+    },
+  ],
+  gbBathingWaters: [opacitySlider("gbBathingWatersOpacity", 0.85), scaleSlider("gbBathingWatersScale", 1)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

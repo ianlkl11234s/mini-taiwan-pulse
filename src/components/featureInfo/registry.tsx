@@ -64,7 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbAdminBoundariesPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbGreenspacePanel, GbMaritimeLimitsPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel } from "./ukPanels";
+import { GbAdminBoundariesPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbGreenspacePanel, GbHydroStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
@@ -432,6 +432,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbGreenspace: GbGreenspacePanel,
   gbSportsFacilities: GbSportsFacilitiesPanel,
   gbCemeteries: GbCemeteriesPanel,
+  gbRivers: GbRiversPanel,
+  gbHydroStations: GbHydroStationsPanel,
+  gbFloodDefenceAssets: GbFloodDefenceAssetsPanel,
+  gbCoastalErosionRisk: GbCoastalErosionRiskPanel,
+  gbBathingWaters: GbBathingWatersPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -985,6 +990,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbGreenspace: "公園綠地 Greenspace",
   gbSportsFacilities: "運動場地 Sports Facilities",
   gbCemeteries: "墓園與宗教場地 Cemeteries",
+  gbRivers: "河川 Rivers",
+  gbHydroStations: "水文測站 Hydrometric Stations",
+  gbFloodDefenceAssets: "防洪設施 Flood Defences",
+  gbCoastalErosionRisk: "海岸侵蝕風險 Coastal Erosion",
+  gbBathingWaters: "浴場水質 Bathing Waters",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",
