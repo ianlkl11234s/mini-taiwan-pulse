@@ -113,7 +113,7 @@
   "popup.transport.gbAadfBus": "Buses and coaches",
   "popup.transport.gbAadfMoto": "Motorcycles",
   "popup.transport.gbAadfCycle": "Pedal cycles",
-  "popup.transport.gbVehPerDay": "{n} /day",
+  "popup.transport.gbVehPerDay": "{n} vehicles/day",
   "popup.transport.gbAadfMethod": "Method",
   "popup.transport.gbAadfMethodCounted": "Counted this year",
   "popup.transport.gbAadfMethodEstimated": "DfT estimate, not counted this year",
