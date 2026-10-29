@@ -5,6 +5,7 @@ import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
+import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -174,5 +175,48 @@ export const GbTreeProtectionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbTreeProtectionLayer");
   const p = useKeyOverlayParams("gbTreeProtection");
   useGbTreeProtectionLayer(deps.mapRef, deps.layerVisibility.gbTreeProtection, p.gbTreeProtectionOpacity ?? 0.7, p.gbTreeProtectionScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 6 波：電廠、再生能源、電網線、變電所（後兩者共用 gb_power_grid.pmtiles）、加油站、離岸油氣田。 */
+export const GbPowerPlantsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPowerPlantsLayer");
+  const p = useKeyOverlayParams("gbPowerPlants");
+  useGbPowerPlantsLayer(deps.mapRef, deps.layerVisibility.gbPowerPlants, p.gbPowerPlantsOpacity ?? 0.8, p.gbPowerPlantsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbRenewablesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRenewablesLayer");
+  const p = useKeyOverlayParams("gbRenewables");
+  useGbRenewablesLayer(deps.mapRef, deps.layerVisibility.gbRenewables, p.gbRenewablesOpacity ?? 0.75, p.gbRenewablesScale ?? 1, p.gbRenewablesStatusIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const GbPowerLinesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPowerLinesLayer");
+  const p = useKeyOverlayParams("gbPowerLines");
+  useGbPowerLinesLayer(deps.mapRef, deps.layerVisibility.gbPowerLines, p.gbPowerLinesOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbSubstationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSubstationsLayer");
+  const p = useKeyOverlayParams("gbSubstations");
+  useGbSubstationsLayer(deps.mapRef, deps.layerVisibility.gbSubstations, p.gbSubstationsOpacity ?? 0.75, p.gbSubstationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbFuelStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFuelStationsLayer");
+  const p = useKeyOverlayParams("gbFuelStations");
+  useGbFuelStationsLayer(deps.mapRef, deps.layerVisibility.gbFuelStations, p.gbFuelStationsOpacity ?? 0.8, p.gbFuelStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbOilGasFieldsLayer");
+  const p = useKeyOverlayParams("gbOilGasFields");
+  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, deps.isDarkTheme);
   return null;
 };

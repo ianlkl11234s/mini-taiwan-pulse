@@ -93,7 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { GbAdminHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -309,6 +309,13 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbTrailsLayer", keys: ["gbTrails"], Host: GbTrailsHost },
   { id: "useGbOpenAccessLandLayer", keys: ["gbOpenAccessLand"], Host: GbOpenAccessLandHost },
   { id: "useGbTreeProtectionLayer", keys: ["gbTreeProtection"], Host: GbTreeProtectionHost },
+  // 英國第 6 波（電廠、再生能源、電網線、變電所、加油站、離岸油氣田）
+  { id: "useGbPowerPlantsLayer", keys: ["gbPowerPlants"], Host: GbPowerPlantsHost },
+  { id: "useGbRenewablesLayer", keys: ["gbRenewables"], Host: GbRenewablesHost },
+  { id: "useGbPowerLinesLayer", keys: ["gbPowerLines"], Host: GbPowerLinesHost },
+  { id: "useGbSubstationsLayer", keys: ["gbSubstations"], Host: GbSubstationsHost },
+  { id: "useGbFuelStationsLayer", keys: ["gbFuelStations"], Host: GbFuelStationsHost },
+  { id: "useGbOilGasFieldsLayer", keys: ["gbOilGasFields"], Host: GbOilGasFieldsHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

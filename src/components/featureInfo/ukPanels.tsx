@@ -40,6 +40,13 @@ import {
 import {
   GB_ACCESS_TYPE_KEYS, GB_DESIGNATION_KEYS, GB_MPA_TYPE_KEYS, GB_RECREATION_KEYS, GB_TRAIL_CATEGORY_KEYS, GB_TREE_CATEGORY_KEYS, GB_WOODLAND_GROUP_KEYS,
 } from "../legend/gbNatureLegends";
+import {
+  GB_ENERGY_FETCHED_AT, GB_ENERGY_ODBL, GB_ENERGY_OGL_V3, GB_FIELD_TYPES, GB_FUEL_STATION_COLOR, GB_FUEL_TYPES, GB_NSTA_ATTRIBUTION, GB_NSTA_LICENSE,
+  GB_NSTA_URL, GB_OIL_GAS_COLOR, GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_POWER_LINES_COLOR, GB_POWER_PLANTS_ATTRIBUTION, GB_POWER_PLANTS_COLOR,
+  GB_POWER_PLANTS_URL, GB_RENEWABLES_ATTRIBUTION, GB_RENEWABLES_COLOR, GB_RENEWABLES_URL, GB_SUBSTATIONS_COLOR, gbEnergyText, gbFieldYear,
+  gbFuelGroup, gbTechGroup, gbVoltageClass, type GbFuelType, type GbStatusGroup,
+} from "../../data/gbEnergyTypes";
+import { GB_FIELD_TYPE_KEYS, GB_FUEL_GROUP_KEYS, GB_STATUS_GROUP_KEYS, GB_TECH_GROUP_KEYS, GB_VOLTAGE_KEYS } from "../legend/gbEnergyLegends";
 import { LinkRow } from "./atlasPanels";
 import type { MessageKey } from "../../i18n/keys";
 
@@ -674,5 +681,175 @@ export function GbTreeProtectionPanel({ props }: { props: Record<string, unknown
     </>}
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {natureFooter(footer)}
+  </>;
+}
+
+// ─────────────────────────── 英國第 6 波：能源 ───────────────────────────
+
+const STATUS_GROUPS: readonly GbStatusGroup[] = ["operational", "construction", "consented", "in_planning", "not_proceeding", "decommissioned"];
+function useMw() {
+  const { t } = useLocale();
+  return (value: unknown) => {
+    const n = num(value);
+    return n != null ? t("popup.energy.gbMw", { value: n.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }) : "";
+  };
+}
+/** 地區：四地＋地方政府；nation 為 null（離岸電纜、海上平台）顯示「離岸，未歸四地」。 */
+function usePlaceLabel() {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  return (props: Record<string, unknown>) => {
+    const n = gbEnergyText(props.nation);
+    if (!n) return t("popup.energy.gbOffshoreNation");
+    return [nation(n), gbEnergyText(props.lad_name)].filter(Boolean).join(" · ");
+  };
+}
+const energyFooter = (org: string, url: string, license: string) =>
+  <SourceFooter props={{ source_org: org, source_url: url, license, fetched_at: GB_ENERGY_FETCHED_AT }} />;
+
+/** 英國電廠（DUKES 5.11）：名稱、公司、燃料、容量、啟用年、併網等級、地區；null 顯示「未載明」。 */
+export function GbPowerPlantsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const mw = useMw();
+  const place = usePlaceLabel();
+  const g = gbFuelGroup(props.fuel_group);
+  const unstated = t("popup.energy.gbUnstated");
+  const grid = gbEnergyText(props.grid_connection);
+  const fuelRaw = [gbEnergyText(props.primary_fuel), gbEnergyText(props.type)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={g?.color ?? GB_POWER_PLANTS_COLOR}>{gbEnergyText(props.site_name) || t("popup.energy.gbPlantTitle")}</Title>
+    <Row label={t("popup.energy.gbCompany")} value={gbEnergyText(props.company) || unstated} />
+    <Row label={t("popup.energy.gbFuel")} value={[g ? t(GB_FUEL_GROUP_KEYS[g.value]) : "", fuelRaw].filter(Boolean).join(" · ") || unstated} />
+    <Row label={t("popup.energy.gbCapacity")} value={mw(props.capacity_mw) || unstated} />
+    <Row label={t("popup.energy.gbCommissioned")} value={gbEnergyText(props.year_commissioned) || unstated} mono />
+    <Row label={t("popup.energy.gbGridConnection")} value={grid === "HV" ? t("popup.energy.gbGridHv") : grid === "LV" ? t("popup.energy.gbGridLv") : unstated} />
+    {gbEnergyText(props.chp) === "Yes" ? <Row label={t("popup.energy.gbChp")} value={t("popup.energy.gbYes")} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {energyFooter(GB_POWER_PLANTS_ATTRIBUTION, GB_POWER_PLANTS_URL, GB_ENERGY_OGL_V3)}
+  </>;
+}
+
+/** 英國再生能源專案（REPD）：案場名、技術、容量、審查階段、運轉日或核准日、審查機關、風機（風電才顯示）、地區。 */
+export function GbRenewablesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const mw = useMw();
+  const place = usePlaceLabel();
+  const g = gbTechGroup(props.tech_group);
+  const status = STATUS_GROUPS.find((s) => s === props.status_group);
+  const rawStatus = gbEnergyText(props.status);
+  const operational = gbEnergyText(props.date_operational);
+  const granted = gbEnergyText(props.date_granted);
+  const wind = props.tech_group === "wind_onshore" || props.tech_group === "wind_offshore";
+  const turbines = gbEnergyText(props.turbines);
+  const height = num(props.turbine_height_m);
+  return <>
+    <Title color={g?.color ?? GB_RENEWABLES_COLOR}>{gbEnergyText(props.site_name) || t("popup.energy.gbRenewTitle")}</Title>
+    <Row label={t("popup.energy.gbTechnology")} value={[g ? t(GB_TECH_GROUP_KEYS[g.value]) : "", gbEnergyText(props.technology)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.energy.gbStorageType")} value={gbEnergyText(props.storage_type)} />
+    <Row label={t("popup.energy.gbCapacity")} value={mw(props.capacity_mw)} />
+    <Row label={t("popup.energy.gbStatus")} value={[...new Set([status ? t(GB_STATUS_GROUP_KEYS[status]) : "", rawStatus].filter(Boolean))].join(" · ")} />
+    {operational
+      ? <Row label={t("popup.energy.gbDateOperational")} value={operational.slice(0, 10)} mono />
+      : <Row label={t("popup.energy.gbDateGranted")} value={granted.slice(0, 10)} mono />}
+    <Row label={t("popup.energy.gbPlanningAuthority")} value={gbEnergyText(props.planning_authority)} />
+    {wind && turbines ? <Row label={t("popup.energy.gbTurbines")} value={height != null ? t("popup.energy.gbTurbinesHeight", { n: turbines, height: height.toLocaleString() }) : turbines} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {energyFooter(GB_RENEWABLES_ATTRIBUTION, GB_RENEWABLES_URL, GB_ENERGY_OGL_V3)}
+  </>;
+}
+
+const LOCATION_CABLE = new Set(["underground", "underwater", "tunnel"]);
+function useKv() {
+  const { t } = useLocale();
+  return (props: Record<string, unknown>) => {
+    const raw = gbEnergyText(props.voltage);
+    if (!raw) return t("popup.energy.gbVoltageUntagged");
+    const kv = raw.split(";").map((v) => Number(v.trim())).filter((n) => Number.isFinite(n) && n > 0).map((n) => (n / 1000).toLocaleString());
+    const value = kv.length ? `${kv.join(" / ")} kV` : raw;
+    // 只有「輸電」「配電」兩級的圖例名多帶資訊；其餘（132、33–66 kV）與數值重複不再附
+    const v = gbVoltageClass(props.voltage_class);
+    return v && VOLTAGE_NAMED.has(v.value) ? `${value} · ${t(GB_VOLTAGE_KEYS[v.value])}` : value;
+  };
+}
+const VOLTAGE_NAMED = new Set(["transmission_275_400", "distribution_lt33"]);
+
+/** 英國電網線（OSM）：名稱或編號、電壓、類型（架空線／地下或海底電纜）、營運者、線長、地區。 */
+export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = usePlaceLabel();
+  const kv = useKv();
+  const v = gbVoltageClass(props.voltage_class);
+  const cable = props.kind === "cable";
+  const loc = gbEnergyText(props.location);
+  const km = num(props.length_km);
+  return <>
+    <Title color={v?.color ?? GB_POWER_LINES_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbLineUnnamed")}</Title>
+    <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
+    <Row label={t("popup.energy.gbLineKind")} value={cable ? t(loc === "underwater" ? "popup.energy.gbCableSubsea" : "popup.energy.gbCableUnderground") : LOCATION_CABLE.has(loc) ? t("popup.energy.gbCableUnderground") : t("popup.energy.gbOverhead")} />
+    {gbEnergyText(props.ref) && gbEnergyText(props.name) ? <Row label={t("popup.energy.gbRef")} value={gbEnergyText(props.ref)} mono /> : null}
+    <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
+    <Row label={t("popup.energy.gbLength")} value={km != null ? (km < 0.1 ? t("popup.energy.gbKmUnder") : t("popup.energy.gbKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) })) : ""} />
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}
+  </>;
+}
+
+/** 英國變電所（OSM）：名稱、電壓、類型（transmission／distribution…原值）、營運者、地區。 */
+export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = usePlaceLabel();
+  const kv = useKv();
+  const v = gbVoltageClass(props.voltage_class);
+  return <>
+    <Title color={v?.color ?? GB_SUBSTATIONS_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbSubstationUnnamed")}</Title>
+    <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
+    <Row label={t("popup.energy.gbSubstationType")} value={gbEnergyText(props.substation).replace(/_/g, " ")} />
+    <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}
+  </>;
+}
+
+const GB_FUEL_TYPE_KEYS: Record<GbFuelType, MessageKey> = {
+  fuel_diesel: "popup.energy.gbFuelDiesel", fuel_octane_95: "popup.energy.gbFuelOctane95", fuel_octane_98: "popup.energy.gbFuelOctane98",
+  fuel_e10: "popup.energy.gbFuelE10", fuel_lpg: "popup.energy.gbFuelLpg", fuel_hgv_diesel: "popup.energy.gbFuelHgvDiesel",
+  fuel_adblue: "popup.energy.gbFuelAdblue", fuel_cng: "popup.energy.gbFuelCng", fuel_hydrogen: "popup.energy.gbFuelHydrogen",
+};
+const PUBLIC_ACCESS = new Set(["", "yes", "permissive"]);
+
+/** 英國加油站（OSM）：站名（null 用品牌）、品牌、營業時間、有標的油品（只列 yes；全未標寫「OSM 未標油品」）、非公眾開放標示。 */
+export function GbFuelStationsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = usePlaceLabel();
+  const brand = gbEnergyText(props.brand);
+  const fuels = GB_FUEL_TYPES.filter((f) => gbEnergyText(props[f]).toLowerCase() === "yes").map((f) => t(GB_FUEL_TYPE_KEYS[f]));
+  const access = gbEnergyText(props.access).toLowerCase();
+  return <>
+    <Title color={GB_FUEL_STATION_COLOR}>{gbEnergyText(props.name) || brand || t("popup.energy.gbFuelStationTitle")}</Title>
+    <Row label={t("popup.energy.gbBrand")} value={brand} />
+    <Row label={t("popup.energy.gbOpeningHours")} value={gbEnergyText(props.opening_hours)} mono />
+    <Row label={t("popup.energy.gbFuels")} value={fuels.length ? fuels.join("、") : t("popup.energy.gbFuelsUntagged")} />
+    {!PUBLIC_ACCESS.has(access) ? <Row label={t("popup.energy.gbAccess")} value={t("popup.energy.gbAccessRestricted", { value: access })} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}
+  </>;
+}
+
+/** 英國離岸油氣田（NSTA）：名稱、類型、狀態、發現年、投產年、水深、作業者；範圍為英國大陸棚、不歸四地；非商用授權。 */
+export function GbOilGasFieldsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const type = GB_FIELD_TYPES.find((f) => f.value === props.field_type);
+  const depth = num(props.depth_m);
+  return <>
+    <Title color={type?.color ?? GB_OIL_GAS_COLOR}>{gbEnergyText(props.field_name) || t("popup.energy.gbFieldTitle")}</Title>
+    <Row label={t("popup.energy.gbFieldType")} value={type ? t(GB_FIELD_TYPE_KEYS[type.value]) : gbEnergyText(props.field_type)} />
+    <Row label={t("popup.energy.gbStatus")} value={gbEnergyText(props.status)} />
+    <Row label={t("popup.energy.gbDiscovered")} value={gbFieldYear(props.discovery_date)} mono />
+    <Row label={t("popup.energy.gbProduction")} value={gbFieldYear(props.production_date)} mono />
+    <Row label={t("popup.energy.gbDepth")} value={depth != null ? t("popup.energy.gbMeters", { value: depth.toLocaleString(undefined, { maximumFractionDigits: 0 }) }) : ""} />
+    <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
+    <Row label={t("popup.baseMap.gbNation")} value={t("popup.energy.gbUkcs")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.gbNstaLicense")} />
+    {energyFooter(GB_NSTA_ATTRIBUTION, GB_NSTA_URL, `${GB_NSTA_LICENSE} · ${t("popup.energy.gbNonCommercial")}`)}
   </>;
 }

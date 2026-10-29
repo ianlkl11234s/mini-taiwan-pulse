@@ -1367,5 +1367,11 @@
   "layer.gbForestRecreation": "Forest Recreation Features",
   "layer.gbTrails": "Trails",
   "layer.gbOpenAccessLand": "Open Access Land",
-  "layer.gbTreeProtection": "Tree Protection"
+  "layer.gbTreeProtection": "Tree Protection",
+  "layer.gbPowerPlants": "Power Stations",
+  "layer.gbRenewables": "Renewable Energy Projects",
+  "layer.gbPowerLines": "Power Lines",
+  "layer.gbSubstations": "Substations",
+  "layer.gbFuelStations": "Fuel Stations",
+  "layer.gbOilGasFields": "Offshore Oil & Gas Fields"
 }

@@ -1367,5 +1367,11 @@
   "layer.gbForestRecreation": "森林レクリエーション施設",
   "layer.gbTrails": "トレイル",
   "layer.gbOpenAccessLand": "立ち入り開放地",
-  "layer.gbTreeProtection": "樹木保護"
+  "layer.gbTreeProtection": "樹木保護",
+  "layer.gbPowerPlants": "発電所",
+  "layer.gbRenewables": "再生可能エネルギー事業",
+  "layer.gbPowerLines": "送配電線",
+  "layer.gbSubstations": "変電所",
+  "layer.gbFuelStations": "ガソリンスタンド",
+  "layer.gbOilGasFields": "洋上油ガス田"
 }

@@ -1958,6 +1958,21 @@ export const LAYER_PARAMS_SPEC = {
   gbTrails: [opacitySlider("gbTrailsOpacity", 0.85)],
   gbOpenAccessLand: [opacitySlider("gbOpenAccessLandOpacity", 0.6)],
   gbTreeProtection: [opacitySlider("gbTreeProtectionOpacity", 0.7), scaleSlider("gbTreeProtectionScale", 1)],
+  // 英國第 6 波：能源（再生能源含「審查階段」互斥檢視；點層透明度＋大小；線／面透明度）
+  gbPowerPlants: [opacitySlider("gbPowerPlantsOpacity", densePointOpacity(1_364)), scaleSlider("gbPowerPlantsScale", 1)],
+  gbRenewables: [
+    opacitySlider("gbRenewablesOpacity", densePointOpacity(14_613)),
+    scaleSlider("gbRenewablesScale", 1),
+    {
+      kind: "select", category: "data", name: "gbRenewablesStatus", label: "審查階段", default: "built",
+      options: [{ label: "運轉中＋施工中", value: "built" }, { label: "已核准待建", value: "consented" }, { label: "審查中", value: "in_planning" }, { label: "未推進", value: "not_proceeding" }, { label: "已除役", value: "decommissioned" }],
+      out: "gbRenewablesStatusIdx", encode: ["built", "consented", "in_planning", "not_proceeding", "decommissioned"],
+    },
+  ],
+  gbPowerLines: [opacitySlider("gbPowerLinesOpacity", 0.85)],
+  gbSubstations: [opacitySlider("gbSubstationsOpacity", densePointOpacity(59_195)), scaleSlider("gbSubstationsScale", 1)],
+  gbFuelStations: [opacitySlider("gbFuelStationsOpacity", densePointOpacity(8_535)), scaleSlider("gbFuelStationsScale", 1)],
+  gbOilGasFields: [opacitySlider("gbOilGasFieldsOpacity", 0.6)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

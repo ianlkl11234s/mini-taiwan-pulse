@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1377,
+    "keyCount": 1383,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1341,6 +1341,37 @@
     },
     {
       "layers": [
+        "gb-power-plants-circle"
+      ],
+      "type": "gbPowerPlants"
+    },
+    {
+      "layers": [
+        "gb-renewables-circle"
+      ],
+      "type": "gbRenewables"
+    },
+    {
+      "layers": [
+        "gb-fuel-stations-circle"
+      ],
+      "type": "gbFuelStations"
+    },
+    {
+      "layers": [
+        "gb-substations-circle"
+      ],
+      "type": "gbSubstations"
+    },
+    {
+      "layers": [
+        "gb-power-lines-line",
+        "gb-power-cables-line"
+      ],
+      "type": "gbPowerLines"
+    },
+    {
+      "layers": [
         "gb-tpo-circle"
       ],
       "type": "gbTreeProtection"
@@ -1477,6 +1508,13 @@
         "gb-protected-areas-fill"
       ],
       "type": "gbProtectedAreas"
+    },
+    {
+      "layers": [
+        "gb-oil-gas-fields-line",
+        "gb-oil-gas-fields-fill"
+      ],
+      "type": "gbOilGasFields"
     },
     {
       "layers": [
@@ -90389,6 +90427,26 @@
         "valueText": "1.0"
       }
     ],
+    "gbFuelStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbGreenspace": [
       {
         "label": "透明度 0.70",
@@ -90524,6 +90582,17 @@
         "valueText": "0.85"
       }
     ],
+    "gbOilGasFields": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "gbOpenAccessLand": [
       {
         "label": "透明度 0.60",
@@ -90533,6 +90602,37 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "gbPowerLines": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "gbPowerPlants": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbProtectedAreas": [
@@ -90567,6 +90667,53 @@
         "step": 0.05,
         "value": 0.45,
         "valueText": "0.45"
+      }
+    ],
+    "gbRenewables": [
+      {
+        "label": "審查階段",
+        "options": [
+          {
+            "label": "運轉中＋施工中",
+            "value": "built"
+          },
+          {
+            "label": "已核准待建",
+            "value": "consented"
+          },
+          {
+            "label": "審查中",
+            "value": "in_planning"
+          },
+          {
+            "label": "未推進",
+            "value": "not_proceeding"
+          },
+          {
+            "label": "已除役",
+            "value": "decommissioned"
+          }
+        ],
+        "type": "select",
+        "value": "built"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbRivers": [
@@ -90626,6 +90773,26 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbSubstations": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",

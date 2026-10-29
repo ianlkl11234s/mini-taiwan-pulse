@@ -429,6 +429,7 @@ export type ExpandableLayerKey =
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
+  | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -967,6 +968,8 @@ export interface FeatureInfo {
     | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
     | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
+    // 英國第 6 波：電廠、再生能源、電網線、變電所、加油站、離岸油氣田
+    | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1786,6 +1789,12 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbTrails: boolean;            // 英國步道（國家步道 42＋公有林步道 4,400）
   gbOpenAccessLand: boolean;    // 英國開放進入地（CRoW，英格蘭＋威爾斯 48,034 面）
   gbTreeProtection: boolean;    // 英國樹木保護（TPO 試辦機關＋古老林地，502,408）
+  gbPowerPlants: boolean;       // 英國電廠（DESNZ DUKES 5.11，1,364）
+  gbRenewables: boolean;        // 英國再生能源與儲能專案（DESNZ REPD，14,613；預設運轉中＋施工中）
+  gbPowerLines: boolean;        // 英國輸配電線（OSM，19,907；gb_power_grid.pmtiles）
+  gbSubstations: boolean;       // 英國變電所（OSM，59,195；與電網線同檔）
+  gbFuelStations: boolean;      // 英國加油站（OSM，8,535）
+  gbOilGasFields: boolean;      // 英國離岸油氣田（NSTA，478 面；非商用授權）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）
