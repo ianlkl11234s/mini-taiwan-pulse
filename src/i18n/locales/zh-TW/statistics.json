@@ -36,6 +36,7 @@
   "statistics.level.statistical_l1": "第一級統計區",
   "statistics.level.statistical_l2": "第二級統計區",
   "statistics.level.prosecutor_district": "地檢署轄區",
+  "statistics.level.gb_lad": "地方行政區",
   "statistics.details.previewAgri": "本地 Preview · 真實交付資料 · 尚未發布至正式 API",
   "statistics.details.previewLabor": "勞動與所得本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN",
   "statistics.details.previewDemographics": "人口統計本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN",

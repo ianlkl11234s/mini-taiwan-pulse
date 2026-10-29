@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
 import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../../data/medicalIsochroneTypes";
 import { medicalColorByCat } from "../../data/medicalPOITypes";
+import { emergencyHospitalColor, emergencyHospitalLevelOf, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
 import {
   classifyErCongestion, ER_LEVEL_COLORS, ER_LEVEL_LABELS, ER_CONGESTION_THRESHOLDS,
 } from "../../data/erCongestionTypes";
 import { fetchErHospital24h } from "../../data/erHospitalLoader";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { Row } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
+import { DARK_FEATURE, useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
 import { enumLabel } from "../../i18n/dataText";
@@ -87,6 +88,34 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
           ) : null}
         </>
       ) : null}
+    </>
+  );
+}
+
+/** 急救責任醫院分級 popup —— 分級空值顯示「未標分級」，不留白、不當一般級。 */
+export function EmergencyHospitalLevelPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const i18n = useLocale();
+  const { t: tr } = i18n;
+  const level = emergencyHospitalLevelOf(props.level_group);
+  const color = emergencyHospitalColor(level.value, t === DARK_FEATURE);
+  const levelText = enumLabel("emergencyHospitalLevel", level.value, level.label, i18n);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? tr("popup.medical.emergencyHospital"))}
+        </div>
+      </div>
+      <Row label={tr("popup.medical.emergencyLevel")} value={levelText} color={color} />
+      <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
+      <Row field="address" value={String(props.address ?? "")} />
+      <Row field="phone" value={String(props.phone ?? "")} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6, lineHeight: 1.4 }}>
+        {level.value === "unrated" ? `${tr("popup.medical.emergencyUnratedNote")} ` : ""}
+        {tr("popup.medical.emergencyDataNote", { asOf: EMERGENCY_HOSPITAL_DATA_AS_OF })}
+      </div>
     </>
   );
 }

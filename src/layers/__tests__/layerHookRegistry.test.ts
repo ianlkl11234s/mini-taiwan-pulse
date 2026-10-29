@@ -163,7 +163,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "funeralFacilities", "funeralOperators", "govServiceOffices", "iPostBoxes",
   "immigrationOffice", "internetExchangePoints", "anfrWirelessSites", "osmCommunicationSites", "ripeAtlasProbes", "ooklaMobilePerformance", "ooklaFixedPerformance",
   "ooklaMobileTaiwan", "ooklaFixedTaiwan", "investigationBureau", "landingStations", "livestockFeed",
-  "livestockMarket", "medHospital", "mountainHuts", "mountainRescueIncidents", "parksTaipei",
+  "emergencyHospitals", "livestockMarket", "medHospital", "mountainHuts", "mountainRescueIncidents", "parksTaipei",
   "performingVenues", "policeStation", "postOffices", "prosecutorsOffice",
   "protectedTreesNational", "publicLibraries", "publicToilets", "religionAncestralHalls",
   "religionChurches", "religionFoundations", "religionOtherWorship", "religionTop100",

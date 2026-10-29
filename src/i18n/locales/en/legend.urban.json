@@ -101,5 +101,17 @@
   "legend.urban.jpGsiReliefTitle": "Color-coded elevation",
   "legend.urban.jpGsiReliefNote": "Colored by elevation (see the GSI explanation page for the color scale); colors indicate elevation ranges, not exact values",
   "legend.urban.jpGsiReliefSea": "Sea areas use data from the Hydrographic and Oceanographic Department, Japan Coast Guard",
-  "legend.urban.jpGsiSource": "Source: Geospatial Information Authority of Japan (GSI Tiles), loaded directly from the external tile server"
+  "legend.urban.jpGsiSource": "Source: Geospatial Information Authority of Japan (GSI Tiles), loaded directly from the external tile server",
+  "legend.urban.gbLadTitle": "Local Authority Districts (LAD)",
+  "legend.urban.gbLadRow": "Local authority boundary (361 districts)",
+  "legend.urban.gbCoverage": "Coverage 4/4: England, Scotland, Wales, Northern Ireland (Isle of Man and Channel Islands not covered)",
+  "legend.urban.gbDataVersion": "Data version: {version}",
+  "legend.urban.gbSmallAreaTitle": "Statistical small areas",
+  "legend.urban.gbSmallAreaLSOA21": "England & Wales LSOA (2021)",
+  "legend.urban.gbSmallAreaDZ22": "Scotland Data Zone (2022)",
+  "legend.urban.gbSmallAreaDZ21": "Northern Ireland Data Zone (2021)",
+  "legend.urban.gbSmallAreaSDZ21": "Northern Ireland Super Data Zone (2021, switch via \"NI level\")",
+  "legend.urban.gbSmallAreaNiLevel": "Northern Ireland Data Zones and Super Data Zones overlap; only one is shown at a time",
+  "legend.urban.gbSmallAreaNotComparable": "Years and population sizes differ between the four nations, so small areas are not comparable across nations; use local authority districts for UK-wide comparison",
+  "legend.urban.gbSmallAreaZoom": "Shown from zoom 8"
 }

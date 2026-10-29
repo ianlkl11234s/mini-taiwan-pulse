@@ -472,5 +472,8 @@
   "enum.statDim.交易類型": "取引種別",
   "enum.statDimValue.交易類型.金融卡交易": "金融カード取引",
   "enum.statDimValue.交易類型.國際卡在台提款": "海外カードの台湾内引き出し",
-  "enum.statDimValue.交易類型.跨行通匯": "他行振込"
+  "enum.statDimValue.交易類型.跨行通匯": "他行振込",
+  "enum.statLevel.gb_lad": "地方自治体（LAD）",
+  "enum.statBoundary.ONS_LAD_202405": "英国国家統計局 地方自治体境界（2024 年 5 月版）",
+  "enum.statBoundary.ONS_LAD_202605": "英国国家統計局 地方自治体境界（2026 年 5 月版）"
 }

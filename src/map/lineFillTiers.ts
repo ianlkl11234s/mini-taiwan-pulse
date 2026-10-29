@@ -90,8 +90,8 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   urbanFormGrid: "grid", // 都市紋理網格 Urban Form
   urbanZoningNewTaipei: "coverage", // 新北土地使用分區 New Taipei Zoning
   urbanZoningTaipei: "coverage", // 北市土地使用分區 Taipei Zoning
-  waterFloodExtreme: "keep", // 淹水潛勢 Flood 650mm/24h
-  waterProtectionZones: "keep", // 管制區 Protection
+  waterFloodExtreme: "keep", // 淹水潛勢 Flood（10 降雨情境）
+  waterProtectionZones: "keep", // 自來水保護區與地下水管制 Water Supply Protection
   waterReservoirs: "coverage", // 水庫 Reservoir
   waterRivers: "coverage", // 河川 River
   windPlan: "background", // 風電場規劃 Wind Plan
@@ -175,6 +175,9 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "globalEvents/global-events-relations-line": {"width": "thin", "opacity": "keep"}, // src/hooks/useGlobalEventsLayer.ts
   "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
+  "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
   "jpCareDayServices/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
