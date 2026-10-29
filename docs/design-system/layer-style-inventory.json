@@ -18,22 +18,22 @@
   ]
  },
  "summary": {
-  "layerKeys": 1330,
-  "overlayConfigs": 406,
-  "runtimeSublayers": 763,
+  "layerKeys": 1333,
+  "overlayConfigs": 409,
+  "runtimeSublayers": 769,
   "byResolution": {
-   "runtime": 381,
+   "runtime": 384,
    "static-scan": 198,
    "unresolved": 34,
    "shared-renderer": 717
   },
   "byGeometry": {
-   "point": 414,
+   "point": 416,
    "heatmap": 84,
-   "line": 230,
-   "polygon": 916,
+   "line": 231,
+   "polygon": 917,
    "raster": 39,
-   "label": 51,
+   "label": 52,
    "3d": 27,
    "grid": 14,
    "point/label": 3
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 5
   },
-  "legendEntries": 1078,
+  "legendEntries": 1081,
   "legendTypes": {
-   "square-swatch": 64,
+   "square-swatch": 65,
    "svg-icon": 18,
-   "dot-swatch": 155,
+   "dot-swatch": 157,
    "gradient+dot-swatch": 42,
    "square-swatch+hatch(missing)": 719,
    "gradient+size+dot-swatch": 3,
@@ -66,7 +66,7 @@
    "square-swatch+svg-icon": 1
   },
   "legendResolution": {
-   "ssr": 329,
+   "ssr": 332,
    "static": 749
   },
   "legendsWithIssues": 39,
@@ -99,15 +99,15 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 266,
+    "n": 268,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
     "p75": 5.143,
     "max": 15.3,
     "mostCommon": [
-     "4.5×131",
-     "5.143×32",
+     "4.5×132",
+     "5.143×33",
      "3×25",
      "6.5×14",
      "3.45×7",
@@ -118,18 +118,18 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 138
+    "decorationExcluded": 139
    },
    "circle-radius@z14": {
-    "n": 266,
+    "n": 268,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
     "p75": 6,
     "max": 24.48,
     "mostCommon": [
-     "4.5×133",
-     "6×35",
+     "4.5×134",
+     "6×36",
      "3×25",
      "6.5×15",
      "3.45×7",
@@ -140,18 +140,18 @@
     "dataDrivenCounted": 42,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 138
+    "decorationExcluded": 139
    },
    "circle-stroke-width@z14": {
-    "n": 271,
+    "n": 273,
     "min": 0.6,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×185",
-     "1.2×53",
+     "1×186",
+     "1.2×54",
      "1.4×10",
      "1.3×4",
      "1.5×3",
@@ -162,10 +162,10 @@
     "dataDrivenCounted": 35,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 138
+    "decorationExcluded": 139
    },
    "circle-opacity": {
-    "n": 267,
+    "n": 269,
     "min": 0.08,
     "p25": 0.75,
     "median": 0.8,
@@ -173,8 +173,8 @@
     "max": 1,
     "mostCommon": [
      "0.8×61",
-     "0.85×58",
-     "0.9×41",
+     "0.85×59",
+     "0.9×42",
      "0.75×30",
      "0.45×14",
      "0.6×8",
@@ -184,10 +184,10 @@
     "dataDrivenCounted": 40,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 138
+    "decorationExcluded": 139
    },
    "line-width@z10": {
-    "n": 124,
+    "n": 125,
     "min": 0.15,
     "p25": 0.5,
     "median": 1,
@@ -196,7 +196,7 @@
     "mostCommon": [
      "1×55",
      "0.5×27",
-     "0.733×9",
+     "0.733×10",
      "2×8",
      "0.35×4",
      "0.15×3",
@@ -209,7 +209,7 @@
     "decorationExcluded": 26
    },
    "line-width@z14": {
-    "n": 124,
+    "n": 125,
     "min": 0.15,
     "p25": 1,
     "median": 1,
@@ -219,7 +219,7 @@
      "1×43",
      "0.5×21",
      "2×18",
-     "1.4×10",
+     "1.4×11",
      "3.5×8",
      "1.2×5",
      "0.7×4",
@@ -231,14 +231,14 @@
     "decorationExcluded": 26
    },
    "line-opacity": {
-    "n": 124,
+    "n": 125,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.8,
     "p75": 0.85,
     "max": 1,
     "mostCommon": [
-     "0.6×43",
+     "0.6×44",
      "0.8×32",
      "0.85×28",
      "0.75×6",
@@ -253,9 +253,9 @@
     "decorationExcluded": 26
    },
    "fill-opacity": {
-    "n": 106,
+    "n": 107,
     "min": 0,
-    "p25": 0.24,
+    "p25": 0.25,
     "median": 0.35,
     "p75": 0.495,
     "max": 0.7,
@@ -265,9 +265,9 @@
      "0.7×14",
      "0×10",
      "0.55×8",
+     "0.3×4",
      "0.495×4",
-     "0.5×4",
-     "0.3×3"
+     "0.5×4"
     ],
     "dataDrivenCounted": 17,
     "notSet": 0,
@@ -331,19 +331,19 @@
      "0.13×1"
     ],
     "dataDrivenCounted": 2,
-    "notSet": 52,
+    "notSet": 53,
     "unresolved": 0,
     "decorationExcluded": 0
    },
    "text-size@z14": {
-    "n": 52,
+    "n": 53,
     "min": 11,
     "p25": 12,
     "median": 12,
     "p75": 12,
     "max": 13,
     "mostCommon": [
-     "12×49",
+     "12×50",
      "13×2",
      "11×1"
     ],
@@ -353,14 +353,14 @@
     "decorationExcluded": 0
    },
    "text-halo-width": {
-    "n": 52,
+    "n": 53,
     "min": 1.2,
     "p25": 1.25,
     "median": 1.25,
     "p75": 1.25,
     "max": 1.25,
     "mostCommon": [
-     "1.25×51",
+     "1.25×52",
      "1.2×1"
     ],
     "dataDrivenCounted": 0,
@@ -483,22 +483,22 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 269,
+   "隨底圖切換": 271,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #0a0a14 → 淡 #ffffff": 188,
-   "暗 #0f172a → 淡 #ffffff": 52,
+   "暗 #0a0a14 → 淡 #ffffff": 189,
+   "暗 #0f172a → 淡 #ffffff": 53,
    "暗 #0d1117 → 淡 #ffffff": 1
   },
   "decorationSublayers": {
-   "count": 164,
+   "count": 165,
    "byType": {
-    "circle": 138,
+    "circle": 139,
     "line": 26
    },
-   "keys": 141
+   "keys": 142
   },
   "lineDash": [
    "drinkingWaterProtectionZones/distance-outline=[2,2]",
@@ -514,20 +514,20 @@
    "waterBasins/line=[2,2]"
   ],
   "lineCapJoin": {
-   "cap=(預設 butt) join=(預設 miter)": 85,
+   "cap=(預設 butt) join=(預設 miter)": 86,
    "cap=round join=round": 33,
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 494,
-   "of": 763,
+   "sublayersWithDiff": 498,
+   "of": 769,
    "byProperty": {
-    "circle-stroke-color": 269,
-    "circle-stroke-opacity": 218,
-    "line-color": 78,
-    "text-color": 52,
-    "text-halo-color": 52,
-    "circle-color": 39,
+    "circle-stroke-color": 271,
+    "circle-stroke-opacity": 219,
+    "line-color": 79,
+    "text-color": 53,
+    "text-halo-color": 53,
+    "circle-color": 40,
     "heatmap-color": 36,
     "fill-color": 31,
     "circle-opacity": 12,
@@ -538,12 +538,12 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 197,
-   "circle:constant": 190,
-   "line:constant": 101,
-   "symbol:constant": 52,
+   "circle:categorical": 198,
+   "circle:constant": 192,
+   "line:constant": 102,
+   "symbol:constant": 53,
    "line:categorical": 46,
-   "fill:categorical": 43,
+   "fill:categorical": 44,
    "heatmap:sequential": 36,
    "fill:constant": 34,
    "fill:sequential-step": 14,
@@ -560,7 +560,7 @@
    "line:data-driven": 1
   },
   "textFont": {
-   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 50,
+   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 51,
    "[\"DIN Pro Bold\",\"Arial Unicode MS Bold\"]": 2
   },
   "statisticsProfile": {
@@ -687,6 +687,7 @@
   {"id":"earthquakes","members":["earthquakes"],"components":["EarthquakeLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","16x16●","4x4●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"earthquakesGlobal","members":["earthquakesGlobal"],"components":["EarthquakeGlobalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["14x14●","18x18●","4x4●","8x8●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"ecoNetworkZones","members":["ecoNetworkZones"],"components":["EcoNetworkZonesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":12,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":12,"paintComparable":true},
+  {"id":"emergencyHospitals","members":["emergencyHospitals"],"components":["EmergencyHospitalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"erHospital","members":["erHospital"],"components":["ErCongestionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
   {"id":"facOffshore","members":["facOffshore"],"components":["FacOffshoreLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":3,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["24x8"],"swatchColorCount":1,"paintComparable":true},
   {"id":"facPrimary","members":["facHistorical","facOsmSupplement","facPlanned","facPrimary","facSecondary"],"components":["FacilityFuelLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":13,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"colorsNotInPaint":["#1f4373","#3c92a6","#8c5d42","#8c7c4a","#d100ff","#d9863d","#f2622e","#f2d64b","#f2e085"],"issues":["9/11 個色票不在圖層 paint 中","成員 facPrimary, facSecondary, facPlanned, facHistorical, facOsmSupplement 另有 hook（useEnergyPoiLayer）可能在 runtime 覆寫 paint，色票差異需人工確認"]},
@@ -839,10 +840,12 @@
   {"id":"livestockSlaughter","members":["livestockFeed","livestockMarket","livestockSlaughter"],"components":["LivestockFacilityLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"manufacturingCompanyDensityGrid","members":["manufacturingCompanyDensityGrid"],"components":["IndustrialDensityGridLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":7,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":7,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"manufacturingCompanyPoints","members":["manufacturingCompanyPoints"],"components":["CompanyPointsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":13,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
+  {"id":"marineEcologicalMonitoringSites","members":["marineEcologicalMonitoringSites"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"marineMicroplastics","members":["marineMicroplastics"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"marineObservationCwa","members":["marineObservationCwa"],"components":["MarineObservationLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":false},
   {"id":"marineObservationIsohe","members":["marineObservationIsohe"],"components":["MarineObservationLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":false},
   {"id":"marinePollutionIncidents","members":["marinePollutionIncidents"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":3,"paintComparable":true},
+  {"id":"marineWildlifeAreas","members":["marineWildlifeAreas"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":2,"paintComparable":true},
   {"id":"maritimeBoundary","members":["maritimeBoundary"],"components":["MaritimeBoundaryLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+svg-icon","features":{"dot":1,"square":0,"line":0,"dashed":1,"gradient":0,"hatch":0,"svg":3,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"materialRecyclingPoints","members":["materialRecyclingPoints"],"components":["PublicLifeOsmLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"medHospital","members":["medAED","medClinic","medHospital","medLTC","medPharmacy"],"components":["MedicalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":12,"paintComparable":true},
@@ -1819,6 +1822,7 @@
   "eduSchoolSpecial": {"label":"特教 Special Education","theme":"教育 Education","dataClass":"A","color":"#78909c","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"school","params":{"opacity":{"name":"eduSchoolsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"schoolScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"special","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#78909c"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "eduSchoolUniversity": {"label":"大專 University","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"school","params":{"opacity":{"name":"eduSchoolsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"schoolScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"university","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "eduUniversityStudents": {"label":"大專學生數 University Students","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"eduUniversityStudents","params":{"opacity":{"name":"eduUniversityStudentsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"eduUniversityStudentsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"bubble","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":3,"max":22},"z14":{"min":3,"max":22}},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#90a4ae","#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "emergencyHospitals": {"label":"急救責任醫院分級 Emergency Hospitals","theme":"醫療 Medical","dataClass":"A","color":"#a5b4fc","legend":"emergencyHospitals","legendType":"dot-swatch","popup":"emergencyHospitalLevel","params":{"opacity":{"name":"emergencyHospitalsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"emergencyHospitalsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "erHospital": {"label":"急診壅塞 ER","theme":"醫療 Medical","dataClass":"C","color":"#ef4444","legend":"erHospital","legendType":"dot-swatch","popup":"erHospital","params":{"opacity":{"name":"erHospitalOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"erHospitalScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.5,"z14":6.5},"circle-stroke-width":{"z10":{"min":1,"max":2.2},"z14":{"min":1,"max":2.2}},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"categorical","count":2,"dark":["#ffffff","#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "etcGantry": {"label":"ETC 收費門架 Gantry","theme":"交通 Move","dataClass":"A","color":"#f06292","legend":null,"legendType":null,"popup":"etcGantry","params":{"opacity":{"name":"etcGantryOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"etcGantryScale","default":1,"min":0.3,"max":3},"height":{"name":"etcGantryZ","default":0,"min":0,"max":100},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5,"z14":10},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
   "evChargingStations": {"label":"電動車充電站 EV Charging","theme":"能源 Energy","dataClass":"C","color":"#10b981","legend":null,"legendType":null,"popup":"evCharging","params":{"opacity":{"name":"evChargingOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"evChargingScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#10b981"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
@@ -2050,10 +2054,12 @@
   "lpgSubpackaging": {"label":"LPG 分裝 / 儲存場 Subpackaging","theme":"能源 Energy","dataClass":"C","color":"#F2622E","legend":"gasStationCpc","legendType":"dot-swatch+square-swatch+svg-icon","popup":"lpgSubpackaging","params":{"opacity":{"name":"lpgSubpackagingOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"lpgSubpackagingScale","default":1.1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f2622e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "manufacturingCompanyDensityGrid": {"label":"製造業公司登記密度 Manufacturing Registry Density","theme":"工商登記 Business Registry","dataClass":"B","color":"#21a685","legend":"manufacturingCompanyDensityGrid","legendType":"square-swatch","popup":"manufacturingCompanyDensityGrid","params":{"opacity":{"name":"manufacturingCompanyDensityGridOpacity","default":0.85,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","minzoom":4,"maxzoom":10.01,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"categorical","count":8,"lightDiffers":true}},"themeDiff":["fill-color"]},{"suffix":"fill","type":"fill","role":"main","geometry":"grid","render":"fill","minzoom":10,"values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"categorical","count":8,"lightDiffers":true}},"themeDiff":["fill-color"]}],"geometry":["grid"],"render":["fill"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "manufacturingCompanyPoints": {"label":"製造業公司登記點位 Manufacturing Registry","theme":"工商登記 Business Registry","dataClass":"B","color":"#f97316","legend":"manufacturingCompanyPoints","legendType":"gradient+dot-swatch","popup":"manufacturingCompanyPoints","params":{"opacity":{"name":"manufacturingCompanyPointsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"manufacturingCompanyPointsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"manufacturing-heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.07,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"manufacturing-circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":1.75,"z14":4.5},"circle-stroke-width":{"z10":0,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":6},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "marineEcologicalMonitoringSites": {"label":"全海域生態系調查點位 Marine Ecosystem Survey Sites","theme":"海洋 Marine","dataClass":"A","color":"#4f46e5","legend":"marineEcologicalMonitoringSites","legendType":"dot-swatch","popup":"marineEcologicalMonitoringSites","params":{"opacity":{"name":"marineEcologicalMonitoringSitesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineEcologicalMonitoringSitesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineMicroplastics": {"label":"海洋微塑膠調查站 Marine Microplastics Survey","theme":"海洋 Marine","dataClass":"A","color":"#9333ea","legend":"marineMicroplastics","legendType":"dot-swatch","popup":"marineMicroplastics","params":{"opacity":{"name":"marineMicroplasticsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineMicroplasticsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":14.143,"z14":16.2},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":5}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7.857,"z14":9},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineObservationCwa": {"label":"CWA 海洋觀測站 CWA Marine","theme":"水資源 Water","dataClass":"D","color":"#22d3ee","legend":"marineObservationCwa","legendType":"dot-swatch","popup":"marineObservation","params":{"opacity":{"name":"marineObservationCwaOpacity","default":0.9,"min":0.1,"max":1},"controls":1},"hooks":["useMarineObservationLayers"],"siblings":["marineObservationIsohe"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMarineObservationLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-blur":[0.75],"circle-color":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-opacity":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-radius":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "marineObservationIsohe": {"label":"ISOHE 港區海氣象 ISOHE Port","theme":"水資源 Water","dataClass":"D","color":"#f59e0b","legend":"marineObservationIsohe","legendType":"dot-swatch","popup":"marineObservation","params":{"opacity":{"name":"marineObservationIsoheOpacity","default":0.9,"min":0.1,"max":1},"controls":1},"hooks":["useMarineObservationLayers"],"siblings":["marineObservationCwa"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useMarineObservationLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-blur":[0.75],"circle-color":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-opacity":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-radius":["non-literal @src/hooks/useMarineObservationLayer.ts","non-literal @src/hooks/useMarineObservationLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "marinePollutionIncidents": {"label":"海洋污染事件 Marine Pollution Incidents","theme":"海洋 Marine","dataClass":"A","color":"#1f2937","legend":"marinePollutionIncidents","legendType":"dot-swatch","popup":"marinePollutionIncidents","params":{"opacity":{"name":"marinePollutionIncidentsOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"marinePollutionIncidentsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":4}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":4},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":14,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.8,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "marineWildlifeAreas": {"label":"海域野生動物保護區與棲息環境 Marine Wildlife Habitat & Protected Areas","theme":"海洋 Marine","dataClass":"A","color":"#0d9488","legend":"marineWildlifeAreas","legendType":"square-swatch","popup":"marineWildlifeAreas","params":{"opacity":{"name":"marineWildlifeAreasOpacity","default":0.3,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.3},"colors":{"fill-color":{"kind":"categorical","count":3,"dark":["#2563eb","#0d9488","#94a3b8"]}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.733,"z14":1.4},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#e2e8f0"],"lightDiffers":true,"light":["#2563eb","#0d9488","#94a3b8"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "maritimeBoundary": {"label":"領海界線 Maritime Boundary","theme":"底圖 Base Map","dataClass":"B","color":"#38bdf8","legend":"maritimeBoundary","legendType":"dot-swatch+svg-icon","popup":"maritimeBoundary","params":{"opacity":{"name":"maritimeBoundaryOpacity","default":0.65,"min":0.1,"max":1},"lineWidth":{"name":"maritimeBoundaryWidth","default":1,"min":0.3,"max":4},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":2},"line-opacity":0.6,"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"categorical","count":3,"dark":["#f59e0b","#ef4444","#94a3b8"]}}},{"suffix":"line-24nm","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1,"z14":2},"line-opacity":0.6,"line-dasharray":[4,3],"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"categorical","count":2,"dark":["#a78bfa","#94a3b8"]}}},{"suffix":"point","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":5,"values":{"circle-radius":{"z10":4,"z14":5},"circle-stroke-width":{"z10":0.6,"z14":0.6},"circle-opacity":0.65,"circle-stroke-opacity":0.52},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#fbbf24","#94a3b8"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0d1117"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]}],"geometry":["line","point"],"render":["circle","line"],"ironRules":{"opacity":true,"pointSize":false,"legend":true,"popup":true}},
   "materialRecyclingPoints": {"label":"資源回收點 Recycling","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#22c55e","legend":"materialRecyclingPoints","legendType":"dot-swatch","popup":"materialRecyclingPoints","params":{"opacity":{"name":"materialRecyclingPointsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"materialRecyclingPointsScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#22c55e"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#22c55e"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":14,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "medAED": {"label":"AED 點位 AED","theme":"醫療 Medical","dataClass":"B","color":"#fdd835","legend":"medHospital","legendType":"gradient+dot-swatch","popup":"medicalPOI","params":{"opacity":{"name":"medAEDOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"medAEDScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":5,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":4,"z14":8},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#fdd835"],"lightDiffers":true,"light":["#f9a825"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#fdd835"],"lightDiffers":true,"light":["#f9a825"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
