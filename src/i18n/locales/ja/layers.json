@@ -1353,5 +1353,12 @@
   "layer.gbHydroStations": "水文観測所",
   "layer.gbFloodDefenceAssets": "洪水防御施設",
   "layer.gbCoastalErosionRisk": "海岸侵食リスク",
-  "layer.gbBathingWaters": "海水浴場等の水質"
+  "layer.gbBathingWaters": "海水浴場等の水質",
+  "layer.gbTransportHubs": "交通拠点",
+  "layer.gbStationUsage": "駅の年間乗降人員",
+  "layer.gbLondonRailLines": "ロンドン鉄道路線",
+  "layer.gbLondonStations": "ロンドン鉄道駅",
+  "layer.gbLondonBikePoints": "ロンドンのシェアサイクル（Santander Cycles）",
+  "layer.gbLondonJamCams": "ロンドン道路カメラ",
+  "layer.gbLondonChargingZones": "ロンドン課金・低排出ゾーン"
 }

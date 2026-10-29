@@ -1353,5 +1353,12 @@
   "layer.gbHydroStations": "Hydrometric Stations",
   "layer.gbFloodDefenceAssets": "Flood Defences",
   "layer.gbCoastalErosionRisk": "Coastal Erosion Risk",
-  "layer.gbBathingWaters": "Bathing Water Quality"
+  "layer.gbBathingWaters": "Bathing Water Quality",
+  "layer.gbTransportHubs": "Transport Hubs",
+  "layer.gbStationUsage": "Station Usage",
+  "layer.gbLondonRailLines": "London Rail Lines",
+  "layer.gbLondonStations": "London Rail Stations",
+  "layer.gbLondonBikePoints": "Santander Cycles",
+  "layer.gbLondonJamCams": "London Traffic Cameras",
+  "layer.gbLondonChargingZones": "London Charging & Low Emission Zones"
 }

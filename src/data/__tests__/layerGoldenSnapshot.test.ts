@@ -206,7 +206,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +2 海洋保育補接 G33（海域野生動物保護區與棲息環境 marineWildlifeAreas、全海域生態系調查點位 marineEcologicalMonitoringSites）。
     // 2026-10-29: +5 英國第 1 波（海域界線 gbMaritimeLimits、建成區 gbBuiltUpAreas、綠地三層 gbGreenspace／gbSportsFacilities／gbCemeteries）。
     // 2026-10-29: +5 英國第 3 波（河川 gbRivers、水文測站 gbHydroStations、防洪設施 gbFloodDefenceAssets、海岸侵蝕 gbCoastalErosionRisk、浴場 gbBathingWaters）。
-    expect(keys.length).toBe(1363);
+    // 2026-10-29: +7 英國第 4 波（交通樞紐 gbTransportHubs、車站年進出人次 gbStationUsage、倫敦軌道路線 gbLondonRailLines／車站 gbLondonStations、單車站 gbLondonBikePoints、道路攝影機 gbLondonJamCams、收費區 gbLondonChargingZones）。
+    expect(keys.length).toBe(1370);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

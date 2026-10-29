@@ -601,7 +601,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ooklaMobileTaiwan")).toBe(true);
     expect(countryLayerKeys("JP")).toContain("jpStations");
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
-    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries", "gbCoastalErosionRisk", "gbBathingWaters", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets"]);
+    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries", "gbLondonStations", "gbStationUsage", "gbLondonBikePoints", "gbLondonRailLines", "gbLondonJamCams", "gbTransportHubs", "gbLondonChargingZones", "gbCoastalErosionRisk", "gbBathingWaters", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets"]);
     expect(tw.has("gbAdminBoundaries")).toBe(false);
   });
 

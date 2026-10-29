@@ -27,6 +27,8 @@ const GB = "GB" as ThemeScope;
 
 const jpTransport: ThemeDef = { title: "交通", country: "JP", groups: [{ title: "鐵道", layers: [] }] };
 const gbTransport: ThemeDef = { title: "交通", country: GB, groups: [{ title: "Rail", layers: [] }] };
+// 英國第 4 波起真實表已有 GB「交通」；「未登記不可借用日本同名主題」改用 GB 沒有的「人口社經」驗
+const gbPeople: ThemeDef = { title: "人口社經", country: GB, groups: [{ title: "Population", layers: [] }] };
 const gbBaseMap: ThemeDef = { title: "底圖", country: GB, groups: [{ title: "行政邊界", layers: [] }] };
 const jpBaseMap: ThemeDef = { title: "底圖", country: "JP", groups: [{ title: "行政邊界", layers: [] }] };
 const fixtureThemes = [jpTransport, gbTransport, gbBaseMap, jpBaseMap];
@@ -62,8 +64,9 @@ describe("主題身分 (country, title)：不同國家同名主題各自解析",
   it("大分類依國家查；未登記的國家主題直接丟錯（不會誤用他國同名主題的設定）", () => {
     expect(themeMacroGroup(gbTransport, fixtureMacro)).toBe("city");
     expect(themeMacroGroup(gbBaseMap, fixtureMacro)).toBe("baseline");
-    // 真實表沒有 GB：即使日本有同名「交通」也不能借用
-    expect(() => themeMacroGroup(gbTransport)).toThrow(/GB:交通/);
+    // 真實表 GB 沒有「人口社經」：即使日本有同名主題也不能借用
+    expect(() => themeMacroGroup(gbPeople)).toThrow(/GB:人口社經/);
+    expect(themeMacroGroup(gbTransport)).toBe("city");
     expect(themeMacroGroup(jpTransport)).toBe("city");
   });
 
@@ -81,9 +84,10 @@ describe("主題身分 (country, title)：不同國家同名主題各自解析",
   });
 
   it("zh-TW 主題列：同名主題顯示各自的副標", () => {
-    // localizeThemeTitle 讀真實 THEME_NAMES：日本「交通」有日文副標；GB 未登記時退回整串中文、無副標
+    // localizeThemeTitle 讀真實 THEME_NAMES：日本「交通」有日文副標、英國「交通」有英文副標；GB 未登記的主題退回整串中文、無副標
     expect(localizeThemeTitle(jpTransport, i18nOf("zh-TW"))).toEqual({ primary: "交通", sub: "交通" });
-    expect(localizeThemeTitle(gbTransport, i18nOf("zh-TW"))).toEqual({ primary: "交通", sub: undefined });
+    expect(localizeThemeTitle(gbTransport, i18nOf("zh-TW"))).toEqual({ primary: "交通", sub: "Transport" });
+    expect(localizeThemeTitle(gbPeople, i18nOf("zh-TW"))).toEqual({ primary: "人口社經", sub: undefined });
   });
 });
 

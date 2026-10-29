@@ -42,11 +42,12 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
-interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
-interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void }
+export interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
+export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void }
 
-/** 共用掛載流程：加 source → 逐一加 layer（初始隱藏）→ 顯示並更新 paint／filter；換底圖（style.load）重掛。 */
-function useGbPmtilesLayers(
+/** 共用掛載流程：加 source → 逐一加 layer（初始隱藏）→ 顯示並更新 paint／filter；換底圖（style.load）重掛。
+ *  第 4 波交通層也用（同一 source 可被多個 key 各自呼叫；隱藏只關自己的 layer，不移除 source）。 */
+export function useGbPmtilesLayers(
   mapRef: React.RefObject<MapboxMap | null>,
   source: SourceSpec,
   visible: boolean,

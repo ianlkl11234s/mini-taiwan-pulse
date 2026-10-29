@@ -4,6 +4,7 @@ import { useGbAdminLayers } from "../../hooks/useGbAdminLayers";
 import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
+import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -82,5 +83,45 @@ export const GbBathingWatersHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbBathingWatersLayer");
   const p = useKeyOverlayParams("gbBathingWaters");
   useGbBathingWatersLayer(deps.mapRef, deps.layerVisibility.gbBathingWaters, p.gbBathingWatersOpacity ?? 0.85, p.gbBathingWatersScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 4 波：交通樞紐＋站客流（共用 gb_transport_hubs）、倫敦軌道線＋車站（共用 gb_london_rail）、單車站、攝影機、收費區。 */
+export const GbTransportHubsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTransportHubsLayer");
+  const hubs = useKeyOverlayParams("gbTransportHubs");
+  const usage = useKeyOverlayParams("gbStationUsage");
+  useGbTransportHubsLayer(deps.mapRef, deps.layerVisibility.gbTransportHubs, hubs.gbTransportHubsOpacity ?? 0.8, hubs.gbTransportHubsScale ?? 1, deps.isDarkTheme);
+  useGbStationUsageLayer(deps.mapRef, deps.layerVisibility.gbStationUsage, usage.gbStationUsageOpacity ?? 0.8, usage.gbStationUsageScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonRailHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonRailLayers");
+  const lines = useKeyOverlayParams("gbLondonRailLines");
+  const stations = useKeyOverlayParams("gbLondonStations");
+  useGbLondonRailLinesLayer(deps.mapRef, deps.layerVisibility.gbLondonRailLines, lines.gbLondonRailLinesOpacity ?? 0.85, deps.isDarkTheme);
+  useGbLondonStationsLayer(deps.mapRef, deps.layerVisibility.gbLondonStations, stations.gbLondonStationsOpacity ?? 0.85, stations.gbLondonStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonBikePointsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonBikePointsLayer");
+  const p = useKeyOverlayParams("gbLondonBikePoints");
+  useGbLondonBikePointsLayer(deps.mapRef, deps.layerVisibility.gbLondonBikePoints, p.gbLondonBikePointsOpacity ?? 0.85, p.gbLondonBikePointsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonJamCamsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonJamCamsLayer");
+  const p = useKeyOverlayParams("gbLondonJamCams");
+  useGbLondonJamCamsLayer(deps.mapRef, deps.layerVisibility.gbLondonJamCams, p.gbLondonJamCamsOpacity ?? 0.85, p.gbLondonJamCamsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbLondonChargingZonesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLondonChargingZonesLayer");
+  const p = useKeyOverlayParams("gbLondonChargingZones");
+  useGbLondonChargingZonesLayer(deps.mapRef, deps.layerVisibility.gbLondonChargingZones, p.gbLondonChargingZonesOpacity ?? 0.7, deps.isDarkTheme);
   return null;
 };

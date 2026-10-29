@@ -93,7 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { GbAdminHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbHydroStationsHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbHydroStationsHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -295,6 +295,12 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbFloodDefencesLayer", keys: ["gbFloodDefenceAssets"], Host: GbFloodDefencesHost },
   { id: "useGbCoastalErosionLayer", keys: ["gbCoastalErosionRisk"], Host: GbCoastalErosionHost },
   { id: "useGbBathingWatersLayer", keys: ["gbBathingWaters"], Host: GbBathingWatersHost },
+  // 英國第 4 波（交通樞紐＋站客流、倫敦軌道線＋車站、單車站、攝影機、收費區）
+  { id: "useGbTransportHubsLayer", keys: ["gbTransportHubs", "gbStationUsage"], Host: GbTransportHubsHost },
+  { id: "useGbLondonRailLayers", keys: ["gbLondonRailLines", "gbLondonStations"], Host: GbLondonRailHost },
+  { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
+  { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
+  { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },
