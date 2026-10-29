@@ -65,7 +65,7 @@
   "popup.transport.gbCameraOfflineAtFetch": "{date} 取得時はオフライン",
   "popup.transport.gbCameraImage": "ライブ画像を見る",
   "popup.transport.gbCameraVideo": "動画クリップ",
-  "popup.transport.gbZoneCongestion": "渋滞税ゾーン（Congestion Charge）",
+  "popup.transport.gbZoneCongestion": "混雑課金ゾーン（Congestion Charge）",
   "popup.transport.gbZoneUlezLez": "超低排出ゾーン／低排出ゾーン（ULEZ／LEZ、同一境界）",
   "popup.transport.gbZoneArea": "面積",
   "popup.transport.gbZoneAreaValue": "{n} km²",

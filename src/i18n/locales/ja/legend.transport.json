@@ -133,7 +133,7 @@
   "legend.transport.gbJamCam": "道路カメラ（TfL JamCams）",
   "legend.transport.gbJamCamOffline": "2026-10-29 取得時オフライン（中空）",
   "legend.transport.gbJamCamNote": "オンライン状態は取得時点のもので、リアルタイムではありません",
-  "legend.transport.gbZoneCongestion": "渋滞税ゾーン",
+  "legend.transport.gbZoneCongestion": "混雑課金ゾーン",
   "legend.transport.gbZoneUlezLez": "ULEZ／LEZ（同一境界）",
   "legend.transport.gbZoneNote": "TfL の 2023 年 ULEZ 公式境界ファイルは LEZ と同一"
 }

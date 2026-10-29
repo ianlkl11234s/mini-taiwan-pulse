@@ -486,7 +486,8 @@ export function GbLondonChargingZonesPanel({ props }: { props: Record<string, un
   return <>
     <Title color={zone?.color ?? GB_CHARGING_ZONE_COLOR}>{zone ? t(GB_ZONE_KEYS[zone.value]) : text(props.zone)}</Title>
     <Row label={t("popup.transport.gbZoneArea")} value={area == null ? "" : t("popup.transport.gbZoneAreaValue", { n: i18n.formatNumber(area, { maximumFractionDigits: 2 }) })} />
-    <Row label={t("popup.transport.gbBoundaryVersion")} value={text(props.boundary_version)} />
+    {/* 來源字串可能帶中文括號註記（ULEZ「內容＝LEZ 邊界」），只顯示版本代碼；同一邊界已在區名與圖例說明 */}
+    <Row label={t("popup.transport.gbBoundaryVersion")} value={text(props.boundary_version).split("（")[0]!.trim()} mono />
     <Row label="" value={t("popup.transport.gbZoneTfLNote")} />
     <TflFooter url={GB_TFL_OPEN_DATA_URL} />
   </>;

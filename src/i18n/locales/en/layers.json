@@ -1358,7 +1358,7 @@
   "layer.gbStationUsage": "Station Usage",
   "layer.gbLondonRailLines": "London Rail Lines",
   "layer.gbLondonStations": "London Rail Stations",
-  "layer.gbLondonBikePoints": "London Cycle Hire (Santander Cycles)",
+  "layer.gbLondonBikePoints": "Santander Cycles",
   "layer.gbLondonJamCams": "London Traffic Cameras",
   "layer.gbLondonChargingZones": "London Charging & Low Emission Zones"
 }
