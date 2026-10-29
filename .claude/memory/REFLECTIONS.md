@@ -2213,3 +2213,21 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `STATUS.md`：改寫為 v2.16.0／v2.16.1 checkpoint。
 - `BACKLOG.md`：新增 MC-1～MC-4。
+
+## 2026-10-29 台灣新圖層第一批（G29–G34）→ #734–#737 合 develop
+
+### What worked
+
+- 盤點加入北科大課程的六層現象法（軌 4），跨現象重複的缺口（急救醫院分級、管制區語意錯誤）直接變成第一批題目。
+- 淹水多情境先回答「會不會太重」：查出當初只上一種是 GeoJSON 時代的排序決定，改一情境一支 PMTiles 後使用者載入量不變，實測 10 支共約 80 MiB。
+
+### Friction / limits
+
+- 四個 PR 開完到合併之間，其他 session 合了英國 #738／#739，每個 PR 都和 develop 在 CHANGELOG、LegendPanel import、i18n、golden 測試筆數上衝突。依序「合一個→下一個先合 develop→重產 golden／inventory→等 CI」才不會累積錯。
+- 主 checkout 被他人未追蹤檔擋住拉取；`&&` 串接讓後續複製步驟一起被跳過，要分開重跑。
+- worktree 刪除前要先把 gitignored 發版資產搬回主 checkout，否則發版當天找不到檔。
+
+### Memory output
+
+- `BACKLOG.md`：TWL-1～7（#745）。
+- `STATUS.md`：加 10-29 段。
