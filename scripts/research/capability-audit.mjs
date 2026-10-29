@@ -1180,6 +1180,7 @@ const VERIFIED_RAW_FAMILY_BY_DATASET = {
   dgbas_county_transport_supply_10935: "dgbas:county_transport_supply:2023-2024",
   jp_water_ksj: "mlit:ksj_water:inspected-20260918",
   network_performance_grid: "ookla:network_performance:2026q1",
+  network_performance_grid_tw: "ookla:network_performance:2026q1",
   all_venues: "sports:all_venues:20260704",
   segis_taipei_bicycle_usage_township_110: "segis:3792EA_1D2:2021",
   schools: "moe:schools:113-academic-year",
@@ -1284,6 +1285,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   segis_taipei_bicycle_usage_township_110: { status: "RIGHTS_HOLD", familyKey: "segis:3792EA_1D2:2021", reason: "raw lineage/version is verified but inspected catalog/manifest does not record a license" },
   crop_township_statistics: { status: "EVIDENCE_GAP", reason: "catalog names a per-page raw receipt, but it is absent from this checkout" },
   network_performance_grid: { status: "RIGHTS_HOLD", familyKey: "ookla:network_performance:2026q1", reason: "raw lineage is verified but CC BY-NC-SA 4.0 requires non-commercial/attribution clearance" },
+  network_performance_grid_tw: { status: "RIGHTS_HOLD", familyKey: "ookla:network_performance:2026q1", reason: "raw lineage is verified but CC BY-NC-SA 4.0 requires non-commercial/attribution clearance" },
   network_structures: { status: "EVIDENCE_GAP", reason: "processed bundle mixes distinct Geofabrik OSM PBF, NTPC official CSV, and NLSC boundary inputs; no single raw-family receipt is present in this checkout" },
 };
 
