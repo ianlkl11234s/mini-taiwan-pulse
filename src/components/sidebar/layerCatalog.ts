@@ -1499,6 +1499,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "點位",
         layers: [
           fromManifest("medHospital"),
+          fromManifest("emergencyHospitals"),
           fromManifest("medClinic"),
           fromManifest("medPharmacy"),
           fromManifest("medAED"),

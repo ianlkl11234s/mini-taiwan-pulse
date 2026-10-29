@@ -5723,6 +5723,27 @@ export const LAYER_MANIFEST = {
     topics: ["醫療", "醫院", "POI"],
   },
 
+  emergencyHospitals: {
+    key: "emergencyHospitals",
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
+    ...layerName({ zh: "急救責任醫院分級", alt: "Emergency Hospitals" }),
+    expandable: true,
+    color: "#a5b4fc",
+    icon: HeartPulse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hospitals", confidence: "HIGH" }],
+      processing: "analytics safety.emergency_hospitals 252 家（縣市開放資料 13 份 + 衛福部名冊）；座標為地址地理編碼；2026-05 匯入快照；29 家來源未標分級（未標分級 ≠ 一般級）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "emergency-hospitals", url: "./geo/emergency_hospitals.geojson" },
+    legend: "emergencyHospitals",
+    popup: "emergencyHospitalLevel",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全國急救責任醫院 252 家，依重度／中度／一般分級上色（29 家來源未標分級另列灰色，快照 2026-05）",
+    topics: ["醫療", "急救責任醫院", "急診", "分級"],
+  },
+
   medClinic: {
     key: "medClinic",
     country: "TW", section: { theme: "醫療 Medical", group: "點位" },

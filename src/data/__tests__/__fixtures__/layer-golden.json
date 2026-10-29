@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1330,
+    "keyCount": 1331,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1945,6 +1945,12 @@
         "er-hospital-circle"
       ],
       "type": "erHospital"
+    },
+    {
+      "layers": [
+        "emergency-hospitals-circle"
+      ],
+      "type": "emergencyHospitalLevel"
     },
     {
       "layers": [
@@ -12091,6 +12097,70 @@
       ],
       "sourceId": "medical-hospitals",
       "sourceUrl": "./geo/medical_hospitals.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "emergencyHospitals",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level_group"
+                ],
+                "heavy",
+                "#e0e7ff",
+                "moderate",
+                "#a5b4fc",
+                "general",
+                "#6366f1",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level_group"
+                ],
+                "heavy",
+                "#312e81",
+                "moderate",
+                "#6366f1",
+                "general",
+                "#a5b4fc",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "emergency-hospitals",
+      "sourceUrl": "./geo/emergency_hospitals.geojson"
     },
     {
       "dynamicData": null,
@@ -87848,6 +87918,26 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "emergencyHospitals": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

@@ -414,6 +414,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["medical-aed-circle"], type: "medicalPOI" },
   { layers: ["medical-ltc-circle"], type: "medicalPOI" },
   { layers: ["er-hospital-circle"], type: "erHospital" },
+  { layers: ["emergency-hospitals-circle"], type: "emergencyHospitalLevel" },
   { layers: ["library-seats-circle"], type: "librarySeats" },
   { layers: ["parking-onstreet-fill", "parking-onstreet-circle"], type: "parkingOnstreet" },
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },

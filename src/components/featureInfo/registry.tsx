@@ -108,7 +108,7 @@ import {
   HeritagePanel, EventsPanel, FactoriesPanel,
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
-import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
+import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
@@ -351,6 +351,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   medicalPOI: MedicalPOIPanel,
   medicalIsochrone: MedicalIsochronePanel,
   erHospital: EmergencyHospitalPanel,
+  emergencyHospitalLevel: EmergencyHospitalLevelPanel,
   parkingOnstreet: ParkingOnstreetPanel,
   parkingOffstreet: ParkingOffstreetPanel,
   satellite: SatellitePanel,
@@ -889,6 +890,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   erHospital: "急診壅塞",
+  emergencyHospitalLevel: "急救責任醫院",
   parkingOnstreet: "路邊停車",
   parkingOffstreet: "場外停車場",
   satellite: "衛星",

@@ -705,6 +705,7 @@
   "layer.propertyValueAdmin": "不動産時価総額（行政区別）",
   "layer.propertyValueGrid": "不動産時価総額（グリッド）",
   "layer.medHospital": "病院",
+  "layer.emergencyHospitals": "救急責任病院（等級別）",
   "layer.medClinic": "診療所・その他医療",
   "layer.medPharmacy": "薬局",
   "layer.medAED": "AED設置場所",

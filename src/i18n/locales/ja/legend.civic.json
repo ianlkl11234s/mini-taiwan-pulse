@@ -187,5 +187,8 @@
   "legend.civic.jpWelfareMissing": "ある県のある分類が0件でも、自治体が未提供・非公開なだけで、施設がないとは限りません（例：母子生活支援施設は多くの自治体で非公開）",
   "legend.civic.jpWelfareAccuracy": "既定では位置正確度1〜3のみ表示。4〜5は市区町村・都道府県の代表点（計2,736件、同じ点に重なる）で、「位置精度」で切り替えられます",
   "legend.civic.jpWelfareLicense": "一部の自治体は商用利用に条件あり（ポップアップに表示）。条件の記載がない県も商用利用可と明示されたわけではありません",
-  "legend.civic.jpWelfareStale": "令和5年度版のため最新でない場合があります。個人の保育事業者名は分類名に置き換えています"
+  "legend.civic.jpWelfareStale": "令和5年度版のため最新でない場合があります。個人の保育事業者名は分類名に置き換えています",
+  "legend.civic.emergencyHospitalTitle": "救急責任病院の等級",
+  "legend.civic.emergencyHospitalNote1": "等級は救急対応能力の区分で、危険度ではありません。「等級未記載」は出典に等級が書かれていないだけで、指定外・能力が低いという意味ではありません。",
+  "legend.civic.emergencyHospitalNote2": "全国252病院。県市のオープンデータと衛生福利部の名簿を統合し、座標は住所から変換。スナップショット {asOf}。"
 }

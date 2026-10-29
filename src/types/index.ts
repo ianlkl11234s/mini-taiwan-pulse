@@ -246,6 +246,7 @@ export type ExpandableLayerKey =
   | "fireIsochrone"
   | "medDesert"
   | "medHospital"
+  | "emergencyHospitals"
   | "medClinic"
   | "medPharmacy"
   | "medAED"
@@ -819,6 +820,7 @@ export interface FeatureInfo {
     | "welfareGovOffices" | "welfareMentalHealth" | "welfareSocialWorkOrgs"
     | "animalAdoption" | "animalShelterPressure" | "animalWelfarePoints"
     | "medicalPOI"
+    | "emergencyHospitalLevel"
     | "medicalIsochrone"
     | "erHospital"
     | "parkingOnstreet" | "parkingOffstreet"
@@ -1479,6 +1481,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   tourRestaurants: boolean;       // 觀光餐飲（~3,688 點，單色）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
+  emergencyHospitals: boolean; // 急救責任醫院分級（252 家，重度／中度／一般／未標分級）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）
   medPharmacy: boolean;    // 藥局（NHI pharmacy 7680）
   medAED: boolean;         // AED（15490）
