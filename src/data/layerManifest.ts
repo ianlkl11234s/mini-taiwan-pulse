@@ -9763,9 +9763,13 @@ export const LAYER_MANIFEST = {
     expandable: true,
     color: "#3b82f6",
     icon: Waves,
+    // 2026-10-29 改正：原掛 storm_drainage_pipes（scripts/audit/10_apply_class_b_fixes.py 硬配）是靜態
+    // 雨水下水道管網，不是即時水位；analytics catalog 沒有 WIC 下水道水位的對應文件。
     upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "storm_drainage_pipes", confidence: "MED" }],
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors wic_sewer：GET https://wic.gov.taipei/OpenData/API/Sewer/Get（臺北市水利處 WIC 下水道水位）→ live.taipei_sewer_measurements → RPC get_taipei_sewer_latest。",
+      note: "即時水位無 analytics catalog 對應文件；storm_drainage_pipes 是雨水下水道管網（靜態），不是本層來源。",
     },
     dataClass: "D",
     source: {
