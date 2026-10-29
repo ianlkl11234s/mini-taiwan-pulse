@@ -1653,7 +1653,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
   policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
   womenChildWarning: boolean;         // 185 婦幼警示點
-  speedCamera: boolean;               // 2,056 測速照相
+  speedCamera: boolean;               // 2,805 測速照相
   speedZoneSegment: boolean;          // 25 區間測速路段（LineString）
   court: boolean;                     // 35 法院（最高/高/地方/行政/智慧財產/少年及家事）
   prosecutorsOffice: boolean;         // 29 檢察署
