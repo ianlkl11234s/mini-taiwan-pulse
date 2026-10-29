@@ -67,6 +67,9 @@ export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => t.countr
 /** 法國：目前只有「通訊」（ANFR，2026-10-28）。 */
 export const FRANCE_THEMES = scopeThemes("FR");
 
+/** 英國：2026-10-29 第 0b 波起（底圖／行政邊界），之後各波照台灣主題名加入。 */
+export const UK_THEMES = scopeThemes("GB");
+
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
 
@@ -91,6 +94,9 @@ export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THE
 /** 法國：沿用全站大分類。 */
 export const FRANCE_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(FRANCE_THEMES);
 
+/** 英國：沿用全站大分類。 */
+export const UK_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(UK_THEMES);
+
 /**
  * 各國「圖層」入口的主題樹。新增國家：`CountryCode` 加碼後這裡會缺鍵報 tsc 錯；
  * 台灣以外照 `{ themes: scopeThemes(code), macroGroups: sharedMacroGroups(themes) }` 登記。
@@ -99,6 +105,7 @@ const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroup
   TW: { themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS },
   JP: { themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },
   FR: { themes: FRANCE_THEMES, macroGroups: FRANCE_MACRO_GROUPS },
+  GB: { themes: UK_THEMES, macroGroups: UK_MACRO_GROUPS },
 };
 
 /** 某國在「圖層」入口的主題樹。 */

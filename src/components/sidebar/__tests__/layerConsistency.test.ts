@@ -601,6 +601,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ooklaMobileTaiwan")).toBe(true);
     expect(countryLayerKeys("JP")).toContain("jpStations");
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
+    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries"]);
+    expect(tw.has("gbAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {

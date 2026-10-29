@@ -319,6 +319,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 法國（2026-10-28）
     FRANCE_TELECOM_THEME_TITLE,
   ],
+  GB: [
+    // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
+    "底圖",
+  ],
   WORLD: [
     // 世界（只放語意明確的全球主題；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定）
     GLOBAL_SITUATION_THEME_TITLE,
@@ -2524,6 +2528,18 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
 
+  // ───────────────────────────────────────────────────────────────
+  // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("gbAdminBoundaries"), fromManifest("gbSmallAreaBoundaries")] },
+    ],
+  },
+
 ];
 
 /**
@@ -2632,6 +2648,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   },
   FR: {
     [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
+  },
+  GB: {
+    // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
+    "底圖": "baseline",
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
@@ -2763,6 +2783,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   FR: {
     // 法國主題副標用法文（比照日本主題用日文）
     [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
+  },
+  GB: {
+    // 英國主題副標用英文（比照日本用日文、法國用法文）
+    "底圖": { zh: "底圖", sub: "Base Map" },
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },

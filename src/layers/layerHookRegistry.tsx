@@ -93,6 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
+import { GbAdminHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -283,6 +284,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpExpresswaysLayer", keys: ["jpExpressways"], Host: JpExpresswaysHost },
   { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
+  // 英國（2026-10-29 第 0b 波）
+  { id: "useGbAdminLayers", keys: ["gbAdminBoundaries", "gbSmallAreaBoundaries"], Host: GbAdminHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1330,
+    "keyCount": 1332,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1324,6 +1324,19 @@
         "jp-admin-municipality-fill"
       ],
       "type": "jpAdminBoundaries"
+    },
+    {
+      "layers": [
+        "gb-small-areas-fill",
+        "gb-ni-sdz-fill"
+      ],
+      "type": "gbSmallAreaBoundaries"
+    },
+    {
+      "layers": [
+        "gb-admin-lad-fill"
+      ],
+      "type": "gbAdminBoundaries"
     },
     {
       "layers": [
@@ -89619,6 +89632,43 @@
         "step": 0.1,
         "value": 1.7,
         "valueText": "1.7"
+      }
+    ],
+    "gbAdminBoundaries": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "gbSmallAreaBoundaries": [
+      {
+        "label": "北愛層級",
+        "options": [
+          {
+            "label": "Data Zone",
+            "value": "dz"
+          },
+          {
+            "label": "Super Data Zone",
+            "value": "sdz"
+          }
+        ],
+        "type": "select",
+        "value": "dz"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "geothermalWells": [

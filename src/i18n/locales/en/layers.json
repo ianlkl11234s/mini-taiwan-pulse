@@ -1320,5 +1320,7 @@
   "layer.jpMajorRoads": "Major Roads",
   "layer.jpExpressways": "Expressways",
   "layer.jpGsiHillshade": "Hillshade (GSI)",
-  "layer.jpGsiRelief": "Color Elevation Map (GSI)"
+  "layer.jpGsiRelief": "Color Elevation Map (GSI)",
+  "layer.gbAdminBoundaries": "Local Authority Districts (LAD)",
+  "layer.gbSmallAreaBoundaries": "Statistical Small Areas"
 }

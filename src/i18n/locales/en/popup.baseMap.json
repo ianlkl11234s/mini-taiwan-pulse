@@ -23,5 +23,22 @@
   "popup.baseMap.bridge": "Bridge",
   "popup.baseMap.tunnel": "Tunnel",
   "popup.baseMap.slopeValue": "Class {cls} slope · {range} (building code)",
-  "popup.baseMap.basepointName": "Base point name"
+  "popup.baseMap.basepointName": "Base point name",
+  "popup.baseMap.gbNationEngland": "England",
+  "popup.baseMap.gbNationScotland": "Scotland",
+  "popup.baseMap.gbNationWales": "Wales",
+  "popup.baseMap.gbNationNorthernIreland": "Northern Ireland",
+  "popup.baseMap.gbAreaTypeLSOA21": "England & Wales LSOA (2021)",
+  "popup.baseMap.gbAreaTypeDZ22": "Scotland Data Zone (2022)",
+  "popup.baseMap.gbAreaTypeDZ21": "Northern Ireland Data Zone (2021)",
+  "popup.baseMap.gbAreaTypeSDZ21": "Northern Ireland Super Data Zone (2021)",
+  "popup.baseMap.gbLad": "Local authority district",
+  "popup.baseMap.gbNameWelsh": "Welsh name",
+  "popup.baseMap.gbGssCode": "GSS code",
+  "popup.baseMap.gbNation": "Nation",
+  "popup.baseMap.gbDataVersion": "Data version",
+  "popup.baseMap.gbSmallArea": "Statistical small area",
+  "popup.baseMap.gbNotes": "Notes",
+  "popup.baseMap.gbSmallAreaNote": "Census statistical unit, not an administrative area; years and population sizes differ between the four nations, so not comparable across nations",
+  "popup.baseMap.gbAreaType": "Area type"
 }

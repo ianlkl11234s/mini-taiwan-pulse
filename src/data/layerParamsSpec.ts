@@ -1912,6 +1912,16 @@ export const LAYER_PARAMS_SPEC = {
   jpMarineEbsaCoastal: [opacitySlider("jpMarineEbsaCoastalOpacity", 0.22)],
   jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
+  // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
+  gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  gbSmallAreaBoundaries: [
+    opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "gbSmallAreaBoundariesNiLevel", label: "北愛層級", default: "dz",
+      options: [{ label: "Data Zone", value: "dz" }, { label: "Super Data Zone", value: "sdz" }],
+      out: "gbSmallAreaBoundariesNiLevelIdx", encode: ["dz", "sdz"],
+    },
+  ],
   jpStations: [
     opacitySlider("jpStationsOpacity", densePointOpacity(9_046)),
     scaleSlider("jpStationsScale", 1),
