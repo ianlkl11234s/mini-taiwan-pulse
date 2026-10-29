@@ -1341,5 +1341,7 @@
   "layer.statsGbHousePrice": "Average House Price (UK HPI)",
   "layer.statsGbHousePriceChange": "House Price Annual Change (UK HPI)",
   "layer.statsGbPrivateRent": "Average Private Rent (England & Wales)",
-  "layer.statsGbPrivateRentChange": "Private Rent Annual Change (England & Wales)"
+  "layer.statsGbPrivateRentChange": "Private Rent Annual Change (England & Wales)",
+  "layer.marineWildlifeAreas": "Marine Wildlife Habitat & Protected Areas",
+  "layer.marineEcologicalMonitoringSites": "Marine Ecosystem Survey Sites"
 }

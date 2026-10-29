@@ -688,6 +688,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["set-net-fishing-areas-fill", "set-net-fishing-areas-outline"], type: "setNetFishingAreas" },
   { layers: ["seawall-zones-fill", "seawall-zones-outline"], type: "seawallZones" },
   { layers: ["wildlife-protected-areas-fill", "wildlife-protected-areas-outline"], type: "wildlifeProtectedAreas" },
+  { layers: ["marine-ecological-monitoring-sites-circle", "marine-ecological-monitoring-sites-glow"], type: "marineEcologicalMonitoringSites" },
+  { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
   { layers: ["nature-reserves-fill", "nature-reserves-outline"], type: "natureReserves" },
   { layers: ["agri-rural-community-villages-fill", "agri-rural-community-villages-outline"], type: "agriRuralCommunityVillages" },
   { layers: ["coastal-area-extents-fill", "coastal-area-extents-outline"], type: "coastalAreaExtents" },

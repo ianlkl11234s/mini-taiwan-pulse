@@ -566,6 +566,50 @@ def build_wildlife_protected(m, feats):
     return [feature(f["geometry"], protected_area_props(f["properties"], m)) for f in drop_unmapped("wildlifeProtectedAreas", feats)]
 
 
+# 海域野生動物保護區與重要棲息環境（G33，2026-10-29）-------------------------------
+# 來源 data.gov.tw 157562（海保署 iocean「中華白海豚重要棲息環境之圖資」，實含 6 面：白海豚重要棲息環境 1＋
+# 貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區）。analytics 的 fishery/white_dolphin_habitat
+# 是舊格式 manifest（沒有 provenance），所以來源欄在這裡寫死。法律類別不同（野保法第 8 條重要棲息環境 vs 第 10 條保護區），
+# 以 category 分色，圖例不合併。上游官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84；analytics 成品（由 SHP 轉出）是正確經緯度。
+MARINE_WILDLIFE_SOURCE = {
+    "source_org": "海洋委員會海洋保育署（iocean）", "source_url": "https://data.gov.tw/dataset/157562",
+    "license": OGDL, "fetched_at": "2026-06-07",
+}
+
+
+@layer("marineWildlifeAreas", "fishery", "white_dolphin_habitat", "marine/marine_wildlife_areas.geojson")
+def build_marine_wildlife(m, feats):
+    out = []
+    for f in drop_unmapped("marineWildlifeAreas", feats):
+        p = f["properties"]
+        name = s(p.get("protectnam"))
+        if not name:
+            raise SystemExit("marineWildlifeAreas: protectnam 空白")
+        updated = s(p.get("update_tim")) or ""
+        out.append(feature(f["geometry"], {
+            "id": str(p["OBJECTID"]), "name": name,
+            "category": "habitat" if "重要棲息環境" in name else "protected",
+            "counties": s(p.get("countyname")), "law": s(p.get("law")), "data_provider": s(p.get("data_sourc")),
+            **MARINE_WILDLIFE_SOURCE, "vintage": updated[:10] or None,
+        }))
+    return out
+
+
+@layer("marineEcologicalMonitoringSites", "marine", "marine_ecological_monitoring_sites", "marine/marine_ecological_monitoring_sites.geojson")
+def build_marine_ecology_sites(m, feats):
+    out = []
+    for f in drop_unmapped("marineEcologicalMonitoringSites", feats):
+        p = f["properties"]
+        out.append(feature(f["geometry"], {
+            "id": str(p["station_id"]), "name": s(p.get("station_name_zh")),
+            "name_en": (s(p.get("station_name_en")) or "").replace("_", " ") or None,
+            "region": s(p.get("geographic_region")), "ecosystem_type": s(p.get("ecosystem_type")),
+            "description": s(p.get("description")), "precision_note": "來源座標",
+            **source_props(m), "vintage": s(m.get("last_updated")),
+        }))
+    return out
+
+
 @layer("openFishingLocations", "marine", "open_fishing_locations", "marine/open_fishing_locations.geojson")
 def build_open_fishing(m, feats):
     return [feature(f["geometry"], {

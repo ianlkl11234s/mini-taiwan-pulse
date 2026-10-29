@@ -1896,6 +1896,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "調查站網 Survey Sites",
         layers: [
           fromManifest("namrEdnaSurveySites"),
+          fromManifest("marineEcologicalMonitoringSites"),
         ],
       },
       {
@@ -1903,6 +1904,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("natureReserves"),
           fromManifest("wildlifeProtectedAreas"),
+          fromManifest("marineWildlifeAreas"),
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
           fromManifest("artificialReefCenters"),

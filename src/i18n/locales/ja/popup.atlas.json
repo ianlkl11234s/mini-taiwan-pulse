@@ -229,5 +229,13 @@
   "popup.atlas.insuranceAgencyLines": "取扱種目",
   "popup.atlas.postFxService": "外貨現金・トラベラーズチェックの売買を取り扱う郵便局（中華郵政）",
   "popup.atlas.postFxNotExchangeShop": "郵便局の取扱いであり、中央銀行認可の外貨両替所ではありません。取扱通貨と営業時間は郵便局の案内をご確認ください",
-  "popup.atlas.postFxZip": "郵便番号"
+  "popup.atlas.postFxZip": "郵便番号",
+  "popup.atlas.legalBasis": "根拠法",
+  "popup.atlas.dataProvider": "図資の提供機関",
+  "popup.atlas.sourceUpdated": "出典の更新日",
+  "popup.atlas.marineWildlifeCaution": "出典の図資どおりの範囲です。重要生息環境と保護区は法的区分が異なり、同じ規制として扱うことはできません",
+  "popup.atlas.englishName": "英語名",
+  "popup.atlas.ecosystemType": "生態系の種類",
+  "popup.atlas.siteDescription": "地点の説明",
+  "popup.atlas.ecologySiteCaution": "地点の一覧であり、調査結果や現在の生態系の状況ではありません。点がないことはデータがないことを意味しません"
 }
