@@ -23,5 +23,15 @@
   "popup.funeral.zoningId": "用途地域番号",
   "popup.funeral.zoningNote1": "ⓘ 都市計画上の",
   "popup.funeral.zoningNoteBold": "法定指定",
-  "popup.funeral.zoningNote2": "（実際の利用範囲ではありません）。現在は台北市と新北市のみデータがあります"
+  "popup.funeral.zoningNote2": "（実際の利用範囲ではありません）。現在は台北市と新北市のみデータがあります",
+  "popup.funeral.gbUnnamed": "名称なし",
+  "popup.funeral.gbKind": "種別",
+  "popup.funeral.gbHours": "営業時間",
+  "popup.funeral.gbWheelchair": "車いす対応",
+  "popup.funeral.gbPostcode": "郵便番号",
+  "popup.funeral.gbNotStated": "記載なし",
+  "popup.funeral.gbYes": "可",
+  "popup.funeral.gbNo": "不可",
+  "popup.funeral.gbLimited": "一部",
+  "popup.funeral.gbOsmNote": "出典：OpenStreetMap のボランティアデータ。網羅度は地域差あり"
 }

@@ -340,6 +340,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-station-usage-circle"], type: "gbStationUsage" },
   { layers: ["gb-transport-hubs-circle"], type: "gbTransportHubs" },
   { layers: ["gb-london-rail-lines-line"], type: "gbLondonRailLines" },
+  // 英國第 12 波：點（殯葬 → 養殖 → 製造業 → 公司）先於面（土壤母質）
+  { layers: ["gb-funeral-crematorium-circle", "gb-funeral-directors-circle"], type: "gbFuneral" },
+  { layers: ["gb-aquaculture-circle"], type: "gbAquaculture" },
+  { layers: ["gb-manufacturing-circle"], type: "gbManufacturing" },
+  { layers: ["gb-companies-circle"], type: "gbCompanies" },
+  { layers: ["gb-soil-parent-material-fill", "gb-soil-parent-material-na"], type: "gbSoilParentMaterial" },
   // 英國第 11 波：點（污染 → 廢棄物許可 → 回收中心 → 回收桶 → 棕地）先於面（規劃限制區、噪音）
   { layers: ["gb-pollution-inventory-circle"], type: "gbPollutionInventory" },
   { layers: ["gb-waste-permits-circle"], type: "gbWastePermits" },

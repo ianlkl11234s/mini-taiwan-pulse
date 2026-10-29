@@ -292,6 +292,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-fill": "graded", // 土層深度 5 級（bilbao 序列色）· src/hooks/useGbBusinessAgriLayers.ts
+  "gbSoilParentMaterial/gb-soil-parent-material-na": "coverage", // 未分類＝缺值斜線（F-3）· src/hooks/useGbBusinessAgriLayers.ts
   "gbNoise/gb-noise-fill": "graded", // Lden 五帶（台灣 NoiseCapture dB 色階）· src/hooks/useGbEnvPlanningLayers.ts
   "gbGroundStability/gb-geosure-fill": "graded", // GeoSure 易發性三級（比照土壤液化潛勢）· src/hooks/useGbHazardLayers.ts
   "gbRadon/gb-radon-fill": "grid", // 氡氣 1 km 方格 6 級（網格色盤）· src/hooks/useGbHazardLayers.ts

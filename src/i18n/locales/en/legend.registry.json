@@ -51,5 +51,12 @@
   "legend.registry.busStationsCity": "City bus stops",
   "legend.registry.busStationsIntercity": "Intercity bus stops",
   "legend.registry.convenienceStores": "Convenience stores",
-  "legend.registry.wasteStopsStatic": "Waste collection stops (nationwide)"
+  "legend.registry.wasteStopsStatic": "Waste collection stops (nationwide)",
+  "legend.registry.gbCoSizeTitle": "Companies per district",
+  "legend.registry.gbMfgSizeTitle": "Manufacturing companies per district",
+  "legend.registry.gbCoDistrictNote": "Each dot is one postcode district ({n} districts, {total} companies), aggregated by registered-office postcode district — not trading locations",
+  "legend.registry.gbMfgNote": "Manufacturing = first registered SIC code in section C ({total} companies); districts with none are not drawn",
+  "legend.registry.gbCoAgentNote": "Districts hosting company-formation agent addresses appear inflated",
+  "legend.registry.gbCoNiNote": "Northern Ireland: not covered (postcode licence restriction)",
+  "legend.registry.gbCoLicenceNote": "Companies House register snapshot {date}; no re-use restrictions on the public register, source must be acknowledged (not OGL)"
 }

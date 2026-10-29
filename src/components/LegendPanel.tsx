@@ -40,6 +40,7 @@ import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, Co
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
 import { GbSurplusLandLegend, GbTerrainHillshadeLegend, GbTerrainReliefLegend } from "./legend/gbLandLegends";
+import { GbAquacultureLegend, GbCompaniesLegend, GbFuneralLegend, GbManufacturingLegend, GbSoilParentMaterialLegend } from "./legend/gbBusinessAgriLegends";
 import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
 import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadiationLegend, GbRadonLegend } from "./legend/gbHazardLegends";
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
@@ -297,6 +298,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },
   { id: "gbLondonChargingZones", render: () => <GbLondonChargingZonesLegend /> },
   { id: "gbMajorRoads", render: () => <GbMajorRoadsLegend /> },
+  { id: "gbCompanies", render: () => <GbCompaniesLegend /> },
+  { id: "gbManufacturing", render: () => <GbManufacturingLegend /> },
+  { id: "gbFuneral", render: () => <GbFuneralLegend /> },
+  { id: "gbAquaculture", render: () => <GbAquacultureLegend /> },
+  { id: "gbSoilParentMaterial", render: () => <GbSoilParentMaterialLegend /> },
   { id: "gbPlanningConstraints", render: () => <GbPlanningConstraintsLegend /> },
   { id: "gbBrownfield", render: () => <GbBrownfieldLegend /> },
   { id: "gbRecyclingCentres", render: () => <GbRecyclingCentresLegend /> },

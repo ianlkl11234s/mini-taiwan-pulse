@@ -162,6 +162,7 @@ import { GB_CARE_HOMES_COLOR, GB_CARE_SERVICES_COLOR, GB_COURTS_COLOR, GB_FIRE_C
 import { GB_ARTS_COLOR, GB_CULTURAL_COLOR, GB_VISITOR_COLOR } from "./gbCultureTypes";
 import { GB_SURPLUS_COLOR, GB_TERRAIN_LEGEND_COLOR, GB_TERRAIN_RELIEF_COLOR } from "./gbLandTypes";
 import { GB_GAMMA_COLOR, GB_GEOSURE_COLOR, GB_LANDSLIDE_COLOR, GB_QUAKE_COLOR, GB_RADON_COLOR } from "./gbHazardTypes";
+import { GB_AQUACULTURE_COLOR, GB_COMPANIES_COLOR, GB_FUNERAL_COLOR, GB_MANUFACTURING_COLOR, GB_SOIL_COLOR } from "./gbBusinessAgriTypes";
 import { GB_BROWNFIELD_COLOR, GB_NOISE_COLOR, GB_PLANNING_COLOR, GB_POLLUTION_COLOR, GB_RECYCLING_COLOR, GB_WASTE_PERMITS_COLOR } from "./gbEnvPlanningTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 import {
@@ -5106,6 +5107,135 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "英國道路與鐵路策略噪音地圖（全日加權 Lden，55 dB 以上分 5 帶，模型估計非實測）；北愛未涵蓋，威爾斯只有道路（2017）",
     topics: ["英國", "噪音", "道路噪音", "鐵路噪音", "環境"],
+  },
+
+  // 🇬🇧 英國第 12 波（2026-10-29：C029 公司登記、C030 製造業、C051 殯葬設施、C106 養殖場、C108 土壤母質；C033／C049 Overpass 未抓、CROME HOLD）
+  // 位置對齊台灣：companyPoints（工商登記 › 整體公司）、manufacturingCompanyPoints（工商登記 › 製造業）、
+  // funeralFacilities／funeralOperators（殯葬 › 點位）、aquaculture*（農業 › 養殖漁業）、agriSoil（農業 › 土壤）。
+  gbCompanies: {
+    key: "gbCompanies",
+    country: "GB", section: { theme: "工商登記", group: "整體公司" },
+    ...layerName({ zh: "公司登記", alt: "Registered Companies", qualifier: "郵遞區號聚合" }),
+    expandable: true,
+    color: GB_COMPANIES_COLOR,
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_companies", confidence: "MED" }],
+      processing: "Companies House Free Company Data Product（snapshot 2026-10-01）5,493,067 家，依登記地址郵遞區號對 ONSPD Aug 2026 定位後聚合成 2,835 個 postcode district 中心點；SicText_1 對 SIC 2007 section A–U 計數（c_A…c_U、c_dormant、c_none、c_unmapped）；北愛 BT 郵遞區號只計數不上圖；PMTiles z5–12；檔內只有聚合數字（無公司名、無個資）",
+      note: "非 OGL：Companies House 指引「public register 無再利用限制、須註明來源」（待使用者確認）；ONSPD 部分 OGL v3.0；3/4 涵蓋（北愛未涵蓋：LPS 郵遞區號授權限內部使用）；依登記地址聚合，不是營業地點；代辦登記地址集中的 district 偏高",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbBusinessAgriLayers 自建 mapbox-pmtiles source（與 gbManufacturing 共用）；source-layer=gb_companies，circle 半徑依 total 5 級，minzoom=5 maxzoom=12（layer minzoom 6）；3.4MB git-track",
+      staticAssets: ["./world/gb_companies.pmtiles"],
+    },
+    legend: "gbCompanies",
+    popup: "gbCompanies",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國公司登記家數（Companies House 2026-10-01 快照，依登記地址郵遞區號 district 聚合 2,835 點、共 549 萬家），不是營業地點；北愛未涵蓋",
+    topics: ["英國", "公司登記", "工商", "產業", "Companies House"],
+  },
+  gbManufacturing: {
+    key: "gbManufacturing",
+    country: "GB", section: { theme: "工商登記", group: "製造業" },
+    ...layerName({ zh: "製造業公司", alt: "Manufacturing Companies", qualifier: "郵遞區號聚合" }),
+    expandable: true,
+    color: GB_MANUFACTURING_COLOR,
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_companies", confidence: "MED" }],
+      processing: "同 gbCompanies 檔的 c_C 欄（第一個 SIC 代碼屬 section C 製造業）229,621 家；137 個 district 為 0 不畫",
+      note: "非 OGL：Companies House 指引「public register 無再利用限制、須註明來源」（待使用者確認）；3/4 涵蓋（北愛未涵蓋）；依登記地址聚合，不是工廠位置",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbBusinessAgriLayers 自建 mapbox-pmtiles source（與 gbCompanies 共用）；source-layer=gb_companies，filter c_C>0，circle 半徑依 c_C 5 級；3.4MB git-track",
+      staticAssets: ["./world/gb_companies.pmtiles"],
+    },
+    legend: "gbManufacturing",
+    popup: "gbManufacturing",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國製造業公司家數（SIC section C，依登記地址郵遞區號 district 聚合，共 23 萬家），不是工廠位置；北愛未涵蓋",
+    topics: ["英國", "製造業", "公司登記", "工商", "產業"],
+  },
+  gbFuneral: {
+    key: "gbFuneral",
+    country: "GB", section: { theme: "殯葬", group: "點位" },
+    ...layerName({ zh: "火葬場與葬儀社", alt: "Crematoria and Funeral Directors", qualifier: "OSM" }),
+    expandable: true,
+    color: GB_FUNERAL_COLOR,
+    icon: Cross,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_funeral", confidence: "MED" }],
+      processing: "OpenStreetMap amenity=crematorium 314＋shop=funeral_directors 3,033（Overpass，2026-10-29T06:58Z）共 3,347 點；面以中心點表示；PMTiles z5–13",
+      note: "ODbL（© OpenStreetMap contributors）；4/4 涵蓋（全 OSM，完整度依地區而異）；官方火葬場名錄無開放版",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbBusinessAgriLayers 自建 mapbox-pmtiles source；source-layer=gb_funeral，依 kind 分兩個 circle（火葬場 minzoom 6、葬儀社 minzoom 10）；2.2MB git-track",
+      staticAssets: ["./world/gb_funeral.pmtiles"],
+    },
+    legend: "gbFuneral",
+    popup: "gbFuneral",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國火葬場 314 處與葬儀社 3,033 家（OpenStreetMap 志願者資料，完整度依地區而異）",
+    topics: ["英國", "殯葬", "火葬場", "葬儀社", "OSM"],
+  },
+  gbAquaculture: {
+    key: "gbAquaculture",
+    country: "GB", section: { theme: "農業", group: "養殖漁業 Aquaculture" },
+    ...layerName({ zh: "養殖場", alt: "Aquaculture Sites" }),
+    expandable: true,
+    color: GB_AQUACULTURE_COLOR,
+    icon: Fish,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_aquaculture", confidence: "HIGH" }],
+      processing: "Scotland Marine Directorate Aquadat（WFS aquaculture_sites，EPSG:27700）3,074 點＋DAERA 北愛貝類養殖許可 55（許可水域面取代表點，保留 area_ha）共 3,129；status 保留官方四態 active 1,558／inactive 502／deregistered 1,014／licensed 55；PMTiles z5–13",
+      note: "OGL v3.0（Scottish Government 指定署名句；OpenDataNI license_id=uk-ogl）；2/4 涵蓋（英格蘭、威爾斯未涵蓋：Cefas 名冊無座標）；前端預設只畫現役（active＋licensed），已註銷不呈現為現役",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbBusinessAgriLayers 自建 mapbox-pmtiles source；source-layer=gb_aquaculture，filter 依狀態選單（預設 status in active,licensed），minzoom=5 maxzoom=13（layer minzoom 6）；2.7MB git-track",
+      staticAssets: ["./world/gb_aquaculture.pmtiles"],
+    },
+    legend: "gbAquaculture",
+    popup: "gbAquaculture",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "蘇格蘭魚類、貝類養殖場與放養釣魚場，以及北愛貝類養殖許可水域；預設只顯示現役，可切換暫停營運與已註銷；英格蘭、威爾斯未涵蓋",
+    topics: ["英國", "養殖", "漁業", "鮭魚", "貝類", "蘇格蘭"],
+  },
+  gbSoilParentMaterial: {
+    key: "gbSoilParentMaterial",
+    country: "GB", section: { theme: "農業", group: "土壤" },
+    ...layerName({ zh: "土壤母質", alt: "Soil Parent Material", qualifier: "BGS 1 km" }),
+    expandable: true,
+    color: GB_SOIL_COLOR,
+    icon: Layers,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_soil_parent_material", confidence: "HIGH" }],
+      processing: "BGS Soil Parent Material Model 1 km（英格蘭、蘇格蘭、威爾斯）35,466 面；欄位 parent_material、carbonate、grain_size、soil_group、soil_texture、soil_depth 保留 BGS 原文；EPSG:27700 → 4326；PMTiles z5–12（coalesce-densest）",
+      note: "OGL v3.0（BGS 資料集頁「Please acknowledge reproduced BGS materials」，署名 Contains British Geological Survey materials © UKRI 2026）；3/4 涵蓋（北愛未涵蓋）；1 km 模型推估，非實地土壤調查",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbBusinessAgriLayers 自建 mapbox-pmtiles source；source-layer=gb_soil_parent_material，fill 依 soil_depth 5 級＋NA 缺值斜線，minzoom=5 maxzoom=12（layer minzoom 6）；19.3MB git-track",
+      staticAssets: ["./world/gb_soil_parent_material.pmtiles"],
+    },
+    legend: "gbSoilParentMaterial",
+    popup: "gbSoilParentMaterial",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國土壤母質模型（BGS 1 km），依土層深度淺到深 5 級上色，點選可看母質、質地、土壤群與碳酸鹽；北愛未涵蓋",
+    topics: ["英國", "土壤", "母質", "地質", "農業", "BGS"],
   },
 
   osmCommunicationSites: {

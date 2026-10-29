@@ -7,6 +7,7 @@ import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLa
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
+import { useGbAquacultureLayer, useGbCompaniesLayer, useGbFuneralLayer, useGbManufacturingLayer, useGbSoilParentMaterialLayer } from "../../hooks/useGbBusinessAgriLayers";
 import { useGbBrownfieldLayer, useGbNoiseLayer, useGbPlanningConstraintsLayer, useGbPollutionInventoryLayer, useGbRecyclingCentresLayer, useGbWastePermitsLayer } from "../../hooks/useGbEnvPlanningLayers";
 import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, useGbRadiationLayer, useGbRadonLayer } from "../../hooks/useGbHazardLayers";
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
@@ -409,5 +410,45 @@ export const GbNoiseHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbNoiseLayer");
   const p = useKeyOverlayParams("gbNoise");
   useGbNoiseLayer(deps.mapRef, deps.layerVisibility.gbNoise, p.gbNoiseOpacity ?? 0.55, p.gbNoiseSourceIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：公司登記（郵遞區號 district 聚合，依家數分級半徑）。 */
+export const GbCompaniesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbCompaniesLayer");
+  const p = useKeyOverlayParams("gbCompanies");
+  useGbCompaniesLayer(deps.mapRef, deps.layerVisibility.gbCompanies, p.gbCompaniesOpacity ?? 0.8, p.gbCompaniesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：製造業公司（同檔 c_C）。 */
+export const GbManufacturingHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbManufacturingLayer");
+  const p = useKeyOverlayParams("gbManufacturing");
+  useGbManufacturingLayer(deps.mapRef, deps.layerVisibility.gbManufacturing, p.gbManufacturingOpacity ?? 0.8, p.gbManufacturingScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：火葬場與葬儀社（OSM）。 */
+export const GbFuneralHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbFuneralLayer");
+  const p = useKeyOverlayParams("gbFuneral");
+  useGbFuneralLayer(deps.mapRef, deps.layerVisibility.gbFuneral, p.gbFuneralOpacity ?? 0.8, p.gbFuneralScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：養殖場（狀態選單，預設現役）。 */
+export const GbAquacultureHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbAquacultureLayer");
+  const p = useKeyOverlayParams("gbAquaculture");
+  useGbAquacultureLayer(deps.mapRef, deps.layerVisibility.gbAquaculture, p.gbAquacultureOpacity ?? 0.8, p.gbAquacultureScale ?? 1, p.gbAquacultureStatusIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 12 波：土壤母質（依土層深度分級）。 */
+export const GbSoilParentMaterialHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSoilParentMaterialLayer");
+  const p = useKeyOverlayParams("gbSoilParentMaterial");
+  useGbSoilParentMaterialLayer(deps.mapRef, deps.layerVisibility.gbSoilParentMaterial, p.gbSoilParentMaterialOpacity ?? 0.55, deps.isDarkTheme);
   return null;
 };

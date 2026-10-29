@@ -2054,6 +2054,23 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   gbPollutionInventory: [opacitySlider("gbPollutionInventoryOpacity", densePointOpacity(1_450)), scaleSlider("gbPollutionInventoryScale", 1)],
+  // 英國第 12 波：公司登記／製造業（district 聚合點，大小滑桿）、殯葬（點）、養殖（點＋狀態選單，預設現役）、土壤母質（分級面）
+  gbCompanies: [opacitySlider("gbCompaniesOpacity", densePointOpacity(2_835)), scaleSlider("gbCompaniesScale", 1)],
+  gbManufacturing: [opacitySlider("gbManufacturingOpacity", densePointOpacity(2_698)), scaleSlider("gbManufacturingScale", 1)],
+  gbFuneral: [opacitySlider("gbFuneralOpacity", densePointOpacity(3_347)), scaleSlider("gbFuneralScale", 1)],
+  gbAquaculture: [
+    opacitySlider("gbAquacultureOpacity", densePointOpacity(3_129)),
+    scaleSlider("gbAquacultureScale", 1),
+    {
+      kind: "select", category: "data", name: "gbAquacultureStatus", label: "狀態", default: "current",
+      options: [
+        { label: "現役（營運中・北愛許可）", value: "current" }, { label: "暫停營運", value: "inactive" },
+        { label: "已註銷", value: "deregistered" }, { label: "全部", value: "all" },
+      ],
+      out: "gbAquacultureStatusIdx", encode: ["current", "inactive", "deregistered", "all"],
+    },
+  ],
+  gbSoilParentMaterial: [opacitySlider("gbSoilParentMaterialOpacity", 0.55)],
   gbNoise: [
     opacitySlider("gbNoiseOpacity", 0.55),
     {

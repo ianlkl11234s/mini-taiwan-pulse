@@ -51,5 +51,12 @@
   "legend.registry.busStationsCity": "市内バス停",
   "legend.registry.busStationsIntercity": "都市間バス停",
   "legend.registry.convenienceStores": "コンビニ",
-  "legend.registry.wasteStopsStatic": "全台の収集ポイント"
+  "legend.registry.wasteStopsStatic": "全台の収集ポイント",
+  "legend.registry.gbCoSizeTitle": "地区ごとの会社数",
+  "legend.registry.gbMfgSizeTitle": "地区ごとの製造業の会社数",
+  "legend.registry.gbCoDistrictNote": "1 点＝郵便番号ディストリクト 1 区（{n} 区・計 {total} 社）。登記住所の郵便番号ディストリクトで集計しており、営業拠点の位置ではありません",
+  "legend.registry.gbMfgNote": "製造業＝最初に登録された SIC コードがセクション C（計 {total} 社）。0 社の地区は表示しません",
+  "legend.registry.gbCoAgentNote": "登記代行業者の住所が集中する地区は多めに出ます",
+  "legend.registry.gbCoNiNote": "北アイルランド：対象外（郵便番号のライセンス制限）",
+  "legend.registry.gbCoLicenceNote": "Companies House 登記スナップショット {date}。公開登記簿は再利用制限なし・出典表示が必要（OGL ではありません）"
 }

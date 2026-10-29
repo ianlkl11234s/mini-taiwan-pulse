@@ -84,5 +84,11 @@
   "legend.culture.gbZoo": "動物園",
   "legend.culture.gbAquarium": "水族館",
   "legend.culture.gbVisitorNote": "園區內的動物展區與遊樂器材不另列；露營場未收；動物園與水族館同色",
-  "legend.culture.gbAttractionZoom": "景點縮放 9 級起顯示，其他類別 7 級起"
+  "legend.culture.gbAttractionZoom": "景點縮放 9 級起顯示，其他類別 7 級起",
+  "legend.culture.gbFunCrematorium": "火葬場",
+  "legend.culture.gbFunDirectors": "葬儀社",
+  "legend.culture.gbFunRow": "{label}（{n}，z{z} 起）",
+  "legend.culture.gbFunOsmNote": "OSM 補缺：全層來自 OpenStreetMap（{time}），完整度依地區而異",
+  "legend.culture.gbFunNations": "英格蘭 {e}・蘇格蘭 {s}・威爾斯 {w}・北愛 {ni}（4/4 涵蓋）",
+  "legend.culture.gbFunCemNote": "墓園見「底圖 › 綠地與開放空間」的墓園與宗教場地圖層"
 }

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1412,
+    "keyCount": 1417,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1518,6 +1518,38 @@
         "gb-london-rail-lines-line"
       ],
       "type": "gbLondonRailLines"
+    },
+    {
+      "layers": [
+        "gb-funeral-crematorium-circle",
+        "gb-funeral-directors-circle"
+      ],
+      "type": "gbFuneral"
+    },
+    {
+      "layers": [
+        "gb-aquaculture-circle"
+      ],
+      "type": "gbAquaculture"
+    },
+    {
+      "layers": [
+        "gb-manufacturing-circle"
+      ],
+      "type": "gbManufacturing"
+    },
+    {
+      "layers": [
+        "gb-companies-circle"
+      ],
+      "type": "gbCompanies"
+    },
+    {
+      "layers": [
+        "gb-soil-parent-material-fill",
+        "gb-soil-parent-material-na"
+      ],
+      "type": "gbSoilParentMaterial"
     },
     {
       "layers": [
@@ -90471,6 +90503,49 @@
         "valueText": "0.85"
       }
     ],
+    "gbAquaculture": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "現役（營運中・北愛許可）",
+            "value": "current"
+          },
+          {
+            "label": "暫停營運",
+            "value": "inactive"
+          },
+          {
+            "label": "已註銷",
+            "value": "deregistered"
+          },
+          {
+            "label": "全部",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "current"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbArtsVenues": [
       {
         "label": "透明度 0.80",
@@ -90654,6 +90729,26 @@
         "valueText": "0.70"
       }
     ],
+    "gbCompanies": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbCourts": [
       {
         "label": "透明度 0.85",
@@ -90766,6 +90861,26 @@
       }
     ],
     "gbFuelStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbFuneral": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -90989,6 +91104,26 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "gbManufacturing": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "gbMarineProtectedAreas": [
@@ -91333,6 +91468,17 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "gbSoilParentMaterial": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       }
     ],
     "gbSportsFacilities": [
