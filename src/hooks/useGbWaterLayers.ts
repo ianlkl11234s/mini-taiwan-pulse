@@ -43,7 +43,8 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
 }
 
 export interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
-export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void }
+/** `before`（選填）：addLayer 的 beforeId（地形 raster 插在底圖第一個 symbol 下）；不給＝疊在最上面。 */
+export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void; before?: (map: MapboxMap) => string | undefined }
 
 /** 共用掛載流程：加 source → 逐一加 layer（初始隱藏）→ 顯示並更新 paint／filter；換底圖（style.load）重掛。
  *  第 4 波交通層也用（同一 source 可被多個 key 各自呼叫；隱藏只關自己的 layer，不移除 source）。 */
@@ -75,7 +76,7 @@ export function useGbPmtilesLayers(
         } as any);
       }
       for (const l of layers) {
-        if (!map.getLayer(l.id)) map.addLayer(l.layer());
+        if (!map.getLayer(l.id)) map.addLayer(l.layer(), l.before?.(map));
         map.setLayoutProperty(l.id, "visibility", "visible");
         l.update(map);
       }

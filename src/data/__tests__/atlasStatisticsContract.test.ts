@@ -28,10 +28,10 @@ function publishedReleases(key: string): StatisticsRelease[] {
 }
 
 describe("atlas 批次統計契約", () => {
-  it("183 個 recipe（atlas 66＋治安 36＋臺北市局處 11＋死因 6＋街頭藝人 2＋國有資產 23＋金融據點 11＋金融延伸 10＋英國 18）、17,895 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
-    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(183);
-    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(183);
-    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(17895);
+  it("187 個 recipe（atlas 66＋治安 36＋臺北市局處 11＋死因 6＋街頭藝人 2＋國有資產 23＋金融據點 11＋金融延伸 10＋英國 22）、17,899 個 exact selector，key 不重複且都有 manifest 與資料來源卡", () => {
+    expect(ATLAS_ENABLED_STATISTICS_KEYS).toHaveLength(187);
+    expect(new Set(ATLAS_ENABLED_STATISTICS_KEYS).size).toBe(187);
+    expect(ATLAS_ENABLED_STATISTICS_RECIPES.reduce((sum, recipe) => sum + atlasRecipeReleaseOptions(recipe).length, 0)).toBe(17899);
     for (const key of ATLAS_ENABLED_STATISTICS_KEYS) {
       expect(LAYER_MANIFEST[key].legend, key).toBe(key);
       expect(getStatisticsDataSourceDefinition(key)?.datasetIds, key).toEqual([getAtlasRecipe(key)!.dataset_id]);

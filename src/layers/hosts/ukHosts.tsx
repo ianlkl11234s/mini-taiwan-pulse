@@ -6,6 +6,7 @@ import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
+import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
@@ -285,5 +286,23 @@ export const GbVisitorExperienceHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbVisitorExperienceLayer");
   const p = useKeyOverlayParams("gbVisitorExperience");
   useGbVisitorExperienceLayer(deps.mapRef, deps.layerVisibility.gbVisitorExperience, p.gbVisitorExperienceOpacity ?? 0.8, p.gbVisitorExperienceScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國 C003 地形兩層（raster，只有透明度）：先掛色別標高、再掛山體陰影（陰影疊在上面）。 */
+export const GbTerrainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTerrainLayers");
+  const h = useKeyOverlayParams("gbTerrainHillshade");
+  const r = useKeyOverlayParams("gbTerrainRelief");
+  useGbTerrainLayer(deps.mapRef, "gbTerrainRelief", deps.layerVisibility.gbTerrainRelief, r.gbTerrainReliefOpacity ?? 0.7);
+  useGbTerrainLayer(deps.mapRef, "gbTerrainHillshade", deps.layerVisibility.gbTerrainHillshade, h.gbTerrainHillshadeOpacity ?? 0.5);
+  return null;
+};
+
+/** 英國 C028 公有地標售。 */
+export const GbSurplusLandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbSurplusLandLayer");
+  const p = useKeyOverlayParams("gbSurplusLand");
+  useGbSurplusLandLayer(deps.mapRef, deps.layerVisibility.gbSurplusLand, p.gbSurplusLandOpacity ?? 0.9, p.gbSurplusLandScale ?? 1, deps.isDarkTheme);
   return null;
 };

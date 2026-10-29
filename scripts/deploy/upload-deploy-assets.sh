@@ -567,6 +567,8 @@ for f in \
   public/world/gb_open_access_land.pmtiles \
   public/world/gb_tree_protection.pmtiles \
   public/world/gb_power_grid.pmtiles \
+  public/world/gb_terrain_hillshade.pmtiles \
+  public/world/gb_terrain_relief.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

@@ -159,5 +159,21 @@
   "enum.statLegendNote.City of London 與 Isles of Scilly 沒有獨立數值，標為無資料。": "The City of London and the Isles of Scilly have no separate values; marked no data.",
   "enum.statLegendNote.每年取 9 月一期。": "One period per year (September).",
   "enum.statLegendNote.署名：Source: Office for National Statistics, Price Index of Private Rents, UK: monthly price statistics (21 October 2026 edition), licensed under the Open Government Licence v3.0.": "Attribution: Source: Office for National Statistics, Price Index of Private Rents, UK: monthly price statistics (21 October 2026 edition), licensed under the Open Government Licence v3.0.",
-  "enum.statLegendNote.與去年同月相比的租金指數變動（%）；棕色為下跌、紫色為上漲；樣本少的小區域波動大。": "Change in the rent index against the same month last year (%); brown = fall, purple = rise; small areas with few records fluctuate more."
+  "enum.statLegendNote.與去年同月相比的租金指數變動（%）；棕色為下跌、紫色為上漲；樣本少的小區域波動大。": "Change in the rent index against the same month last year (%); brown = fall, purple = rise; small areas with few records fluctuate more.",
+  "enum.statLegendNote.0 公頃自成最淺一級（該區沒有蔬果面積，是官方數值，不是缺值）。": "0 ha is its own lightest class (the area has no fruit or vegetable land; this is an official value, not missing data).",
+  "enum.statLegendNote.其他耕作物＝不含穀物的耕作物（如油菜、甜菜、馬鈴薯、豆類），面積 ÷ 農戶總面積。": "Other arable crops = arable crops excluding cereals (e.g. oilseed rape, sugar beet, potatoes, pulses); area ÷ total area on holdings.",
+  "enum.statLegendNote.分級：多數地方行政區很小、少數集中產區很大，門檻 50／250／1,000 公頃大致每級放大 4–5 倍（對數間距）。": "Classes: most districts are small and a few producing areas are very large, so the 50 / 250 / 1,000 ha thresholds grow about 4–5× per class (log spacing).",
+  "enum.statLegendNote.占比分母為同表「農戶總面積」；四類不涵蓋全部土地利用（另有休耕、林地等），合計不等於 100%。": "The share denominator is “total area on holdings” from the same table; the four categories do not cover all land use (fallow, woodland, etc. are excluded), so they do not add up to 100%.",
+  "enum.statLegendNote.原始值 0 是官方數值（該區沒有此類面積），不是缺值。": "A source value of 0 is official (the area has none of this land), not missing data.",
+  "enum.statLegendNote.沒有商業農戶的地方行政區，蔬果面積是官方值 0（不是缺值）。": "In districts with no commercial holdings, the fruit & vegetables area is an official 0 (not missing data).",
+  "enum.statLegendNote.沒有商業農戶（農戶總面積為 0）的地方行政區，占比無法計算，標為「無農戶」，不是 0。": "Districts with no commercial holdings (total area on holdings is 0) have no computable share; they are marked “No holdings”, not 0.",
+  "enum.statLegendNote.無農戶（占比無法計算）": "No holdings (share cannot be computed)",
+  "enum.statLegendNote.穀物面積 ÷ 農戶總面積。": "Cereals area ÷ total area on holdings.",
+  "enum.statLegendNote.署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.": "Attribution: Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+  "enum.statLegendNote.英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。": "Sample-survey estimates for commercial holdings in England (Defra June Survey, June 2025); estimates carry sampling error.",
+  "enum.statLegendNote.草地（5 年內暫時草地、5 年以上永久草地與專用粗放放牧地）面積 ÷ 農戶總面積。": "Grassland (temporary grass under 5 years, permanent grass 5 years and over, and sole-right rough grazing) area ÷ total area on holdings.",
+  "enum.statLegendNote.蔬菜與水果面積（公頃）。": "Area of vegetables and fruit (ha).",
+  "enum.statLegendNote.遮蔽（少於 5 戶）": "Suppressed (fewer than 5 holdings)",
+  "enum.statLegendNote.遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。": "Suppressed = withheld by the source because fewer than 5 holdings are involved, or secondarily suppressed to protect another suppressed cell; it is not 0 and must not be back-calculated. If the numerator or denominator of a share is suppressed, the share is suppressed too.",
+  "enum.statLegendNote.面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。": "Areas are allocated to the district where the holding is based, not where the land actually lies."
 }

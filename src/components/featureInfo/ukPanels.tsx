@@ -62,6 +62,10 @@ import {
 import { GB_ARTS_KIND_KEYS, GB_CULTURAL_KIND_KEYS, GB_VISITOR_KIND_KEYS } from "../legend/gbCultureLegends";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { LinkRow } from "./atlasPanels";
+import {
+  GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_FETCHED_AT, GB_SURPLUS_LICENSE, GB_SURPLUS_POSTCODE_PRECISION, GB_SURPLUS_SECTORS,
+  GB_SURPLUS_SOURCE_DATE, GB_SURPLUS_SOURCE_URL, gbSurplusStatus, type GbSurplusSector, type GbSurplusStatus,
+} from "../../data/gbLandTypes";
 import type { MessageKey } from "../../i18n/keys";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
@@ -1133,5 +1137,49 @@ export function GbVisitorExperiencePanel({ props }: { props: Record<string, unkn
     <Row label={t("popup.culture.gbKind")} value={kindLabel} />
     {props.kind !== "visitor_centre" ? <Row label={t("popup.culture.gbSubtype")} value={subtype(props)} /> : null}
     <GbCultureCommonRows props={props} postcode={false} />
+  </>;
+}
+
+// ─────────────────────────── C028 公有地標售 gbSurplusLand ───────────────────────────
+
+const GB_SURPLUS_STATUS_POPUP_KEYS: Record<GbSurplusStatus, MessageKey> = {
+  not_on_market: "popup.baseMap.gbSurplusNotOnMarket", under_offer: "popup.baseMap.gbSurplusUnderOffer", on_market: "popup.baseMap.gbSurplusOnMarket",
+};
+const GB_SURPLUS_SECTOR_KEYS: Record<GbSurplusSector, MessageKey> = {
+  nhs: "popup.baseMap.gbSurplusSectorNhs", wales_public: "popup.baseMap.gbSurplusSectorWales", central_civil: "popup.baseMap.gbSurplusSectorCentral",
+  mod: "popup.baseMap.gbSurplusSectorMod", scottish_gov: "popup.baseMap.gbSurplusSectorScotland",
+};
+/** 數值欄 null／非數值不顯示（不寫 0）。 */
+const surplusNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+
+/** 英國公有地標售：名稱、地址、標售進度、持有機關、用途、面積（null 不顯示）、產權編號、定位精度與來源。 */
+export function GbSurplusLandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const status = gbSurplusStatus(props.sale_status);
+  const statusLabel = status ? t(GB_SURPLUS_STATUS_POPUP_KEYS[status.value]) : text(props.sale_status);
+  const sector = text(props.sector) as GbSurplusSector;
+  const sectorLabel = GB_SURPLUS_SECTORS.includes(sector) ? t(GB_SURPLUS_SECTOR_KEYS[sector]) : text(props.sector);
+  const org = [text(props.parent_org), text(props.organisation)].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(" · ");
+  const address = [text(props.address), text(props.postcode)].filter(Boolean).join(" ");
+  const land = surplusNumber(props.land_area_ha);
+  const floor = surplusNumber(props.floor_area_m2);
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={GB_SURPLUS_COLOR}>{text(props.name) || t("popup.baseMap.gbSurplusUnnamed")}</Title>
+    <Row label={t("popup.baseMap.gbSurplusAddress")} value={address} />
+    <Row label={t("popup.baseMap.gbSurplusStatus")} value={statusLabel} />
+    <Row label={t("popup.baseMap.gbSurplusSector")} value={sectorLabel} />
+    <Row label={t("popup.baseMap.gbSurplusOrg")} value={org} />
+    <Row label={t("popup.baseMap.gbSurplusUsage")} value={text(props.land_usage)} />
+    <Row label={t("popup.baseMap.gbSurplusLandArea")} value={land == null ? "" : `${formatNumber(land, { maximumFractionDigits: 2 })} ${t("popup.baseMap.gbSurplusHa")}`} />
+    <Row label={t("popup.baseMap.gbSurplusFloorArea")} value={floor == null ? "" : `${formatNumber(floor, { maximumFractionDigits: 0 })} m²`} />
+    {land != null || floor != null ? <Row label="" value={t("popup.baseMap.gbSurplusUnitNote")} /> : null}
+    <Row label={t("popup.baseMap.gbSurplusTitleNo")} value={text(props.lr_title_no)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    {props.precision === GB_SURPLUS_POSTCODE_PRECISION ? <Row label="" value={t("popup.baseMap.gbSurplusPostcodeNote")} /> : null}
+    {sector === "mod" ? <Row label="" value={t("popup.baseMap.gbSurplusModNote")} /> : null}
+    <Row label={t("popup.baseMap.gbSurplusSourceDate")} value={GB_SURPLUS_SOURCE_DATE} />
+    <SourceFooter props={{ source_org: `${GB_SURPLUS_ATTRIBUTION} · ${ONSPD_ORG}`, source_url: GB_SURPLUS_SOURCE_URL, license: GB_SURPLUS_LICENSE, fetched_at: GB_SURPLUS_FETCHED_AT }} />
   </>;
 }

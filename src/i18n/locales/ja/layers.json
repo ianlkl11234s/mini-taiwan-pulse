@@ -1382,5 +1382,12 @@
   "layer.gbCourts": "裁判所・審判所",
   "layer.gbCulturalFacilities": "博物館・美術館・図書館",
   "layer.gbArtsVenues": "芸術・映画施設",
-  "layer.gbVisitorExperience": "観光スポット・レジャー施設"
+  "layer.gbVisitorExperience": "観光スポット・レジャー施設",
+  "layer.statsGbCropCerealsShare": "穀物面積の割合（イングランド）",
+  "layer.statsGbCropArableShare": "その他耕作物面積の割合（イングランド）",
+  "layer.statsGbCropFruitVegArea": "野菜・果樹面積（イングランド）",
+  "layer.statsGbCropGrasslandShare": "草地面積の割合（イングランド）",
+  "layer.gbTerrainHillshade": "陰影起伏",
+  "layer.gbTerrainRelief": "色別標高",
+  "layer.gbSurplusLand": "公有地の売却"
 }

@@ -229,6 +229,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | 日本警察設施 `jpPoliceFacilities` | `geom_status == "degraded"`（約略位置） | `#fb923c` 1.5px | `useJpPoliceFacilitiesLayer.ts`、`jpPoliceFacilityTypes.ts` |
 | 衛星 `satellites*` | `maneuver == 1`（變軌中） | `#ef4444` 2px（另有紅色 pulse ring） | `useSatellitesLayer.ts` |
 | 颱風軌跡 `typhoonTracks` | `point_type == "forecast"` | 空心環：填色透明＋`#38bdf8` 1.5px | `useTyphoonTracksLayer.ts` |
+| 英國公有地標售 `gbSurplusLand` | `sale_status == "not_on_market"`（尚未上市） | 同色空心框：填色 ×0.15＋`#9333ea` 1.5px；洽談中 ×0.55、上市中實心用底圖色細縫 | `useGbLandLayers.ts`、`gbLandTypes.ts` |
 | 地震 `earthquakes`、`earthquakesGlobal` | 描邊色＝依深度的點色 | 不套底圖色細縫 | `hookPointSpec.test.ts` `STROKE_EXEMPT` |
 
 其他描邊例外：

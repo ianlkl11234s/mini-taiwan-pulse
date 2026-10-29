@@ -15,5 +15,6 @@
   "enum.statPublisher.中央銀行金融業務檢查處": "Department of Financial Inspection, Central Bank",
   "enum.statPublisher.行政院主計總處": "Directorate-General of Budget, Accounting and Statistics (DGBAS)",
   "enum.statPublisher.財團法人保險事業發展中心": "Taiwan Insurance Institute",
-  "enum.statPublisher.Office for National Statistics (ONS)；蘇格蘭數字來自 National Records of Scotland，北愛來自 NISRA": "Office for National Statistics (ONS); Scottish figures from National Records of Scotland, Northern Ireland figures from NISRA"
+  "enum.statPublisher.Office for National Statistics (ONS)；蘇格蘭數字來自 National Records of Scotland，北愛來自 NISRA": "Office for National Statistics (ONS); Scottish figures from National Records of Scotland, Northern Ireland figures from NISRA",
+  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics"
 }

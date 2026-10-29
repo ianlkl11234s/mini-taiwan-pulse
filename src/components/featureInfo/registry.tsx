@@ -64,7 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbVisitorExperiencePanel } from "./ukPanels";
+import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbSurplusLandPanel, GbVisitorExperiencePanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
@@ -468,6 +468,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbCulturalFacilities: GbCulturalFacilitiesPanel,
   gbArtsVenues: GbArtsVenuesPanel,
   gbVisitorExperience: GbVisitorExperiencePanel,
+  gbSurplusLand: GbSurplusLandPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -1055,6 +1056,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbCulturalFacilities: "文化設施 Museums, Galleries & Libraries",
   gbArtsVenues: "藝文場館 Arts Venues",
   gbVisitorExperience: "觀光體驗 Visitor Attractions",
+  gbSurplusLand: "公有地標售 Surplus Public Land",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",

@@ -1382,5 +1382,12 @@
   "layer.gbCourts": "Courts & Tribunals",
   "layer.gbCulturalFacilities": "Museums, Galleries & Libraries",
   "layer.gbArtsVenues": "Arts Venues",
-  "layer.gbVisitorExperience": "Visitor Attractions"
+  "layer.gbVisitorExperience": "Visitor Attractions",
+  "layer.statsGbCropCerealsShare": "Cereals Share of Farmed Area (England)",
+  "layer.statsGbCropArableShare": "Other Arable Crops Share of Farmed Area (England)",
+  "layer.statsGbCropFruitVegArea": "Fruit & Vegetables Area (England)",
+  "layer.statsGbCropGrasslandShare": "Grassland Share of Farmed Area (England)",
+  "layer.gbTerrainHillshade": "Hillshade",
+  "layer.gbTerrainRelief": "Elevation Tint",
+  "layer.gbSurplusLand": "Surplus Public Land"
 }

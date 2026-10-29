@@ -297,6 +297,9 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsGbHousePrice$/, 'housing', House],
   [/^statsGbPrivateRent$/, 'housing', Receipt],
   [/^statsGb(?:HousePrice|PrivateRent)Change$/, 'housing', TrendingUpDown],
+  // 第 12 波作物面積：農業 YlGn（麥穗；草地用幼苗）
+  [/^statsGbCrop(?:CerealsShare|ArableShare|FruitVegArea)$/, 'agriculture', Wheat],
+  [/^statsGbCropGrasslandShare$/, 'agriculture', Sprout],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {

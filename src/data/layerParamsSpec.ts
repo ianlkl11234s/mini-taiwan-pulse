@@ -1984,6 +1984,10 @@ export const LAYER_PARAMS_SPEC = {
   gbCulturalFacilities: [opacitySlider("gbCulturalFacilitiesOpacity", densePointOpacity(8_312)), scaleSlider("gbCulturalFacilitiesScale", 1)],
   gbArtsVenues: [opacitySlider("gbArtsVenuesOpacity", densePointOpacity(3_210)), scaleSlider("gbArtsVenuesScale", 1)],
   gbVisitorExperience: [opacitySlider("gbVisitorExperienceOpacity", densePointOpacity(7_050)), scaleSlider("gbVisitorExperienceScale", 1)],
+  // 英國 C003 地形 raster（只有透明度；山體陰影預設 0.5 疊在底圖上，layer-plan 建議）、C028 公有地標售（點）
+  gbTerrainHillshade: [{ kind: "slider", name: "gbTerrainHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  gbTerrainRelief: [{ kind: "slider", name: "gbTerrainReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  gbSurplusLand: [opacitySlider("gbSurplusLandOpacity", 0.9), scaleSlider("gbSurplusLandScale", 1)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

@@ -163,7 +163,7 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES)]));
   });
 
-  it("統計入口依國家：台灣與 develop 相同、英國人口／社經／住宅、日本法國未涵蓋", () => {
+  it("統計入口依國家：台灣與 develop 相同、英國人口／社經／住宅／農業、日本法國未涵蓋", () => {
     const tw = resolveLayerPanel("statistics", "TW");
     expect(tw.covered).toBe(true);
     expect(tw.themes).toBe(STATISTICS_TAB_THEMES);
@@ -175,6 +175,7 @@ describe("Layers 與 Statistics 分頁", () => {
       { country: "GB", title: "人口", groups: ["年中人口推估", "城鄉"] },
       { country: "GB", title: "社經", groups: ["英格蘭（IoD2025）", "威爾斯（WIMD 2025）", "蘇格蘭（SIMD 2020v2）", "北愛爾蘭（NIMDM 2017）"] },
       { country: "GB", title: "住宅", groups: ["房價（UK HPI）", "租金（PIPR）"] },
+      { country: "GB", title: "農業", groups: ["作物面積"] },
     ]);
     expect(getThemeLayerKeys(gb.themes).sort()).toEqual([...GB_ENABLED_STATISTICS_KEYS].sort());
     for (const country of ["JP", "FR"] as const) {
