@@ -23,7 +23,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, DEMOGRAPHICS_STATISTICS_THEME_TITLE, demographicsDisclosure, demographicsDisplayLabel, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_THEME_TITLE, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
-import { ATLAS_ENABLED_STATISTICS_RECIPES, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 // ══════════════════════════════════════════════════════════════════
@@ -141,6 +141,7 @@ import {
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
+import type { StatisticsLevel } from "./regionalStatisticsLoader";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
@@ -349,8 +350,8 @@ interface LayerManifestBase {
 export interface LayerManifestThemedEntry extends LayerManifestBase {
   /**
    * 國家主體（PR 4，2026-10-28）。圖層屬於哪個國家的主題樹，或世界／模擬入口。
-   * 現在由測試釘住 = `THEME_SCOPE[section.theme]`；之後主題 title 可跨國重名
-   * （日本、法國都叫「通訊」）時，以本欄為圖層國家歸屬的正本。
+   * 圖層國家歸屬的正本。主題身分是 (country, section.theme)：主題 title 只在同一國家內唯一，
+   * 可跨國同名（例：日本「交通」與之後英國「交通」）；測試釘住 (country, section.theme) 對得到同國家的 THEMES 主題。
    */
   country: LayerCountry;
   /** sidebar 座標（觸點 #8 的位置資訊） */
@@ -524,18 +525,28 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
   }];
 })) as Record<LandslideStatisticsLayerKey, LayerManifestEntry>;
 
+/** atlas 統計的層級短名（名稱 qualifier 與 topics）：英國 LAD＝地方行政區。 */
+function atlasLevelQualifier(level: StatisticsLevel): string {
+  return level === "gb_lad" ? "地方行政區" : level === "township" ? "鄉鎮" : "縣市";
+}
+
+/** 英國統計只有 LAD 一個層級，名稱本身已帶地區括號，不再加層級 qualifier（避免雙括號）。 */
+function atlasNameQualifier(level: StatisticsLevel): string | undefined {
+  return level === "gb_lad" ? undefined : atlasLevelQualifier(level);
+}
+
 /** Atlas recipes（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋；縣市＋鄉鎮）share the dynamic Statistics renderer. */
 const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
-    country: "TW", section: { theme: recipe.data_theme, group: recipe.subgroup },
-    ...layerName({ zh: recipe.label, qualifier: recipe.level === "township" ? "鄉鎮" : "縣市" }), expandable: true, color: visual.accent, icon: visual.icon,
+    country: atlasRecipeCountry(recipe), section: { theme: recipe.data_theme, group: recipe.subgroup },
+    ...layerName({ zh: recipe.label, qualifier: atlasNameQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
     description: recipe.disclosure,
-    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, recipe.level === "township" ? "鄉鎮" : "縣市"],
+    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, atlasLevelQualifier(recipe.level), ...(atlasRecipeCountry(recipe) === "GB" ? ["英國"] : [])],
   }];
 })) as Record<AtlasStatisticsLayerKey, LayerManifestEntry>;
 
@@ -3592,6 +3603,61 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）",
     topics: ["通訊", "行動網路", "5G", "全球"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // 🇬🇧 英國 United Kingdom（2026-10-29 第 0b 波：C001 行政邊界）
+  // ══════════════════════════════════════════════════════════════
+  gbAdminBoundaries: {
+    key: "gbAdminBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "地方政府區 LAD", alt: "Local Authority Districts" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_lad", confidence: "HIGH" }],
+      processing: "ONS LAD May 2026 UK BGC，361 筆（England 296、Scotland 32、Wales 22、Northern Ireland 11）；PMTiles z2–12",
+      note: "OGL v3.0；4/4 涵蓋；GSS 代碼為 May 2026 年版",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=gb_admin_lad，minzoom=2 maxzoom=12（layer minzoom 4）",
+      staticAssets: ["./world/gb_admin_lad.pmtiles"],
+    },
+    legend: "gbAdminBoundaries",
+    popup: "gbAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國四地地方政府區界（ONS LAD May 2026，361 區）",
+    topics: ["英國", "行政區", "邊界"],
+  },
+
+  gbSmallAreaBoundaries: {
+    key: "gbSmallAreaBoundaries",
+    country: "GB", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "統計小區", alt: "Statistical Small Areas" }),
+    expandable: true,
+    color: "#6b7280",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_admin_small_areas", confidence: "HIGH" }],
+      processing: "LSOA21 35,672＋蘇格蘭 DZ22 7,392＋北愛 DZ21 3,780（small_areas）、北愛 SDZ21 850（ni_sdz）；每筆帶所屬 LAD；PMTiles z8–13",
+      note: "四地年份與人口規模不同，不可跨國比較；北愛 DZ 與 SDZ 重疊，只能擇一顯示",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbAdminLayers 自建 mapbox-pmtiles source；source-layer=small_areas／ni_sdz，minzoom=8 maxzoom=13；56.8MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_admin_small_areas.pmtiles"],
+    },
+    legend: "gbSmallAreaBoundaries",
+    popup: "gbSmallAreaBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "英國四地普查統計小區界（英格蘭／威爾斯 LSOA 2021、蘇格蘭 Data Zone 2022、北愛 Data Zone／Super Data Zone 2021）",
+    topics: ["英國", "行政區", "統計區"],
   },
 
   osmCommunicationSites: {
@@ -9784,9 +9850,13 @@ export const LAYER_MANIFEST = {
     expandable: true,
     color: "#3b82f6",
     icon: Waves,
+    // 2026-10-29 改正：原掛 storm_drainage_pipes（scripts/audit/10_apply_class_b_fixes.py 硬配）是靜態
+    // 雨水下水道管網，不是即時水位；analytics catalog 沒有 WIC 下水道水位的對應文件。
     upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "storm_drainage_pipes", confidence: "MED" }],
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors wic_sewer：GET https://wic.gov.taipei/OpenData/API/Sewer/Get（臺北市水利處 WIC 下水道水位）→ live.taipei_sewer_measurements → RPC get_taipei_sewer_latest。",
+      note: "即時水位無 analytics catalog 對應文件；storm_drainage_pipes 是雨水下水道管網（靜態），不是本層來源。",
     },
     dataClass: "D",
     source: {
@@ -9975,7 +10045,7 @@ export const LAYER_MANIFEST = {
   waterProtectionZones: {
     key: "waterProtectionZones",
     country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
-    ...layerName({ zh: "管制區", alt: "Protection" }),
+    ...layerName({ zh: "自來水保護區與地下水管制", alt: "Water Supply Protection", qualifier: "水利署" }),
     expandable: true,
     color: "#10b981",
     icon: ShieldCheck,
@@ -9994,8 +10064,8 @@ export const LAYER_MANIFEST = {
     // 「這裡受什麼法規管」。
     popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
-    description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
-    topics: ["水資源", "管制", "保護區"],
+    description: "水利署依自來水法公告的自來水水質水量保護區，以及地下水管制區（禁止／限制超抽）；與環境部飲用水水源保護區不同法源（依管制類別分色）",
+    topics: ["水資源", "管制", "保護區", "水源", "自來水", "地下水"],
   },
 
   waterDetentionBasins: {
@@ -10077,7 +10147,7 @@ export const LAYER_MANIFEST = {
   waterFloodExtreme: {
     key: "waterFloodExtreme",
     country: "TW", section: { theme: "水資源 Water", group: "分析" },
-    ...layerName({ zh: "淹水潛勢", alt: "Flood", qualifier: "650mm/24h" }),
+    ...layerName({ zh: "淹水潛勢", alt: "Flood" }),
     expandable: true,
     color: "#fb7185",
     icon: AlertTriangle,
@@ -10089,15 +10159,15 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "water-flood-extreme",
-      url: "./geo/water_flood_extreme.pmtiles",
-      sourceLayer: "flood_extreme",
+      url: "./geo/water_flood_650mm_24hr.pmtiles",
+      sourceLayer: "flood_scenario",
       minzoom: 5,
       maxzoom: 13,
     },
     legend: "waterFloodExtreme",
-    popup: null,
-    params: { count: 2, kinds: ["slider", "select"] },
-    description: "水利署淹水潛勢圖（650mm/24h 極端降雨情境，依淹水深度分級）",
+    popup: "waterFloodExtreme",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "水利署淹水潛勢圖，10 種降雨情境（6／12／24 小時）可切換，依淹水深度分級；模式模擬，僅供防災整備",
     topics: ["水資源", "淹水", "災害潛勢"],
   },
 

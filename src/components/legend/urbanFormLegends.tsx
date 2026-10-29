@@ -1,11 +1,12 @@
 // Legend sub-components (urbanFormLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
-import { mapSeamColor } from "../../map/mapStyleScale";
+import { BOUNDARY_GRAY, mapSeamColor } from "../../map/mapStyleScale";
+import { GB_LAD_ATTRIBUTION, GB_LAD_VERSION, GB_SMALL_AREA_TYPES } from "../../data/gbAdminTypes";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { THEMED_PAINT_COLORS } from "../../map/layerPaintColors";
 import { jpHeightCatalogStore } from "../../map/jpHeightLifecycle";
 import { getLoadedJpHeightCatalog } from "../../data/jpHeightCatalog";
 import { useSyncExternalStore } from "react";
-import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchGradient, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { ECO_NETWORK_ZONE_TYPES } from "../../data/ecoNetworkZoneTypes";
@@ -672,5 +673,43 @@ export function JpGsiReliefLegend() {
     <LegendNote>{i18n.t("legend.urban.jpGsiReliefNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.jpGsiReliefSea")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.jpGsiSource")}</LegendNote>
+  </div>;
+}
+
+/** 英國地方政府區 LAD（ONS May 2026）：單一中性灰界線，圖例只講範圍、版本與署名。 */
+export function GbAdminBoundariesLegend() {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.gbLadTitle")} />
+    <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{i18n.t("legend.urban.gbLadRow")}</LegendRow>
+    <LegendNote>{i18n.t("legend.urban.gbCoverage")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_LAD_VERSION })}</LegendNote>
+    <LegendNote>{GB_LAD_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+const GB_SMALL_AREA_LEGEND_KEYS = {
+  LSOA21: "legend.urban.gbSmallAreaLSOA21",
+  DZ22: "legend.urban.gbSmallAreaDZ22",
+  DZ21: "legend.urban.gbSmallAreaDZ21",
+  SDZ21: "legend.urban.gbSmallAreaSDZ21",
+} as const;
+
+/** 英國統計小區：四地各自的普查小區（同一中性灰線），逐項列年份與來源；不可跨國比較。 */
+export function GbSmallAreaBoundariesLegend() {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  const color = BOUNDARY_GRAY[t.isDark ? "dark" : "light"];
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.gbSmallAreaTitle")} />
+    {GB_SMALL_AREA_TYPES.map((type) => (
+      <LegendRow key={type.value} swatch={<SwatchLine color={color} width={1} />}>{i18n.t(GB_SMALL_AREA_LEGEND_KEYS[type.value])}</LegendRow>
+    ))}
+    <LegendNote>{i18n.t("legend.urban.gbSmallAreaNiLevel")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbSmallAreaNotComparable")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbSmallAreaZoom")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbCoverage")}</LegendNote>
+    {[...new Set(GB_SMALL_AREA_TYPES.map((type) => type.attribution))].map((text) => <LegendNote key={text}>{text}</LegendNote>)}
   </div>;
 }

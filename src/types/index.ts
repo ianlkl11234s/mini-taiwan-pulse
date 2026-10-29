@@ -422,6 +422,7 @@ export type ExpandableLayerKey =
   | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
   | "jpZoningUseDistricts" | "jpNationalForests"
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
+  | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -714,6 +715,12 @@ export interface OverlayConfig {
   /** 可選的整層 opacity 參數；overlayManager 會乘上既有 paint alpha。 */
   opacityParam?: string;
   sourceUrl: string;
+  /**
+   * PMTiles 依參數換檔（淹水潛勢 10 情境首用）：`params[param]` 當索引取 `urls`，
+   * 越界或缺值退回 `sourceUrl`。只有可見時才換 source（隱藏中切參數不抓檔）；
+   * 各檔的 source-layer 與 zoom 必須和 `pmtiles` 相同。
+   */
+  sourceUrlByParam?: { param: string; urls: readonly string[] };
   sourceId: string;
   /**
    * 靜態 GeoJSON 載入後的輕量幾何轉換。`centroid` 只把 Polygon /
@@ -828,7 +835,7 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "marineObservation"
-    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
+    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm" | "waterFloodExtreme"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
     | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
     | "waterProtectionZones"
@@ -943,6 +950,8 @@ export interface FeatureInfo {
     | "jpZoningUseDistricts" | "jpNationalForests"
     // 日本第四波（福祉兩層、主要道路、高速道路；地理院地形 raster 無 popup 不列）
     | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways"
+    // 英國第 0b 波：行政邊界（LAD、統計小區）
+    | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1733,6 +1742,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
   jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
+  gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
+  gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

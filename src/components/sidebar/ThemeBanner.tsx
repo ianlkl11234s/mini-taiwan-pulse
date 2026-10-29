@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
 import { localizeThemeTitle } from "./sectionText";
+import type { ThemeScope } from "./layerCatalog";
 import { RailToggle } from "./LayerRow";
 import { useRailTheme } from "./railTheme";
 
@@ -10,9 +11,11 @@ import { useRailTheme } from "./railTheme";
  * 空間不夠時只省略副標（同 `LayerNameLine`）；中文主名與計數不縮、不折行。
  */
 export function ThemeBanner({
-  title, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
+  title, country, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
 }: {
   title: string;
+  /** 主題所屬國家主體；與 `title` 一起決定顯示名稱（不同國家的主題可同名） */
+  country: ThemeScope;
   isCollapsed: boolean;
   onCount: number;
   totalCount: number;
@@ -24,7 +27,7 @@ export function ThemeBanner({
   // LT1（design-system §5.5）：title 是識別字串，顯示名稱查 THEME_NAMES（副標：英文，日本主題用日文）。
   const i18n = useLocale();
   const { t } = i18n;
-  const { primary: zh, sub } = localizeThemeTitle(title, i18n);
+  const { primary: zh, sub } = localizeThemeTitle({ country, title }, i18n);
   const shrinkPrimary = i18n.active !== "zh-TW";
   return (
     <div

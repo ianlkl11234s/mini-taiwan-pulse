@@ -201,5 +201,18 @@
   "theme.季節觀測": "Seasonal Observations",
   "theme.自來水": "Water Supply",
   "theme.通訊 Telecom": "Telecommunications",
-  "theme.通訊": "Telecommunications"
+  "theme.通訊": "Telecommunications",
+  "theme.人口": "Population",
+  "theme.住宅": "Housing",
+  "theme.人口統計": "Population Statistics",
+  "theme.社經統計": "Socio-economic Statistics",
+  "theme.住宅統計": "Housing Statistics",
+  "theme.年中人口推估": "Mid-year population estimates",
+  "theme.城鄉": "Urban & rural",
+  "theme.英格蘭（IoD2025）": "England (IoD2025)",
+  "theme.威爾斯（WIMD 2025）": "Wales (WIMD 2025)",
+  "theme.蘇格蘭（SIMD 2020v2）": "Scotland (SIMD 2020v2)",
+  "theme.北愛爾蘭（NIMDM 2017）": "Northern Ireland (NIMDM 2017)",
+  "theme.房價（UK HPI）": "House prices (UK HPI)",
+  "theme.租金（PIPR）": "Rents (PIPR)"
 }

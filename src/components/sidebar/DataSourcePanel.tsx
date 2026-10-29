@@ -21,7 +21,7 @@ import { LayerNameLine, ListRow } from "./LayerRow";
 import { SubGroupLabel } from "./ThemeBanner";
 import { LAYER_ICONS } from "./layerIcons";
 import { railPalette, RailThemeContext } from "./railTheme";
-import { THEMES, LAYER_COLORS, layerDisplayName, themeName } from "./layerCatalog";
+import { THEMES, LAYER_COLORS, layerDisplayName, themeKey, themeName, type ThemeRef } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
@@ -109,6 +109,7 @@ const SOURCE_LABEL_KEY = {
   addictionRaw: "dataSources.label.addictionRaw",
   landslide: "dataSources.label.landslide",
   atlasDerived: "dataSources.label.atlasDerived",
+  atlasDerivedAggregate: "dataSources.label.atlasDerivedAggregate",
   atlasRaw: "dataSources.label.atlasRaw",
   demoDerived: "dataSources.label.demoDerived",
   demoRaw: "dataSources.label.demoRaw",
@@ -417,9 +418,10 @@ export function DataSourceCard({
 
 // ── 主題 / 群組標題 ──
 
-function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
+function ThemeHeader({ p, theme }: { p: DsPalette; theme: ThemeRef }) {
   const i18n = useLocale();
-  const { zh, sub } = themeName(title);
+  const { title } = theme;
+  const { zh, sub } = themeName(theme);
   const foreign = i18n.active !== "zh-TW";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 10px 0", fontSize: FONT_SIZE.base, fontWeight: 600, color: p.text, fontFamily: FONT_CJK }}>
@@ -488,7 +490,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   const matchesFilter = (key: string) => statusFilter === "all" || statusOf(key) === statusFilter;
 
   const themedLayers = useMemo(() => {
-    const out: { theme: string; groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] }[] = [];
+    const out: { theme: ThemeRef; groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] }[] = [];
     for (const theme of THEMES) {
       const groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] = [];
       for (const g of theme.groups) {
@@ -499,7 +501,7 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
           .map((l) => ({ key: l.key, label: l.label }));
         if (layers.length > 0) groups.push({ title: g.title, layers });
       }
-      if (groups.length > 0) out.push({ theme: theme.title, groups });
+      if (groups.length > 0) out.push({ theme, groups });
     }
     return out;
   }, [q, statusFilter]);
@@ -584,8 +586,8 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
           )
         ) : (
           themedLayers.map((th) => (
-            <div key={th.theme}>
-              <ThemeHeader p={p} title={th.theme} />
+            <div key={themeKey(th.theme)}>
+              <ThemeHeader p={p} theme={th.theme} />
               {th.groups.map((g) => (
                 <div key={g.title}>
                   <SubGroupLabel>{localizeSectionTitle(g.title, i18n)}</SubGroupLabel>

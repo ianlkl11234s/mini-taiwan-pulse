@@ -31,7 +31,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
-import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
+import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -133,11 +133,33 @@ export interface SubGroupDef {
 }
 
 export interface ThemeDef {
-  /** 主題名 `中文 English` 格式 */
+  /**
+   * 主題識別字串（台灣 `中文 English`、日本／法國為台灣主題中文短名）。只在同一 `country` 內唯一：
+   * 主題的身分是 (country, title)，不同國家可以同名（例：日本「交通」與之後英國「交通」）。
+   * 畫面不直接顯示這串，顯示名稱查 `themeName(theme)`。
+   */
   title: string;
+  /** 主題屬於哪個國家主體（或世界、模擬）。與 `THEME_SCOPE[country]` 一致（layerConsistency 測試擋漏）。 */
+  country: ThemeScope;
   /** 預設是否摺疊 */
   defaultCollapsed?: boolean;
   groups: SubGroupDef[];
+}
+
+/** 只帶身分的主題參照（查顯示名稱、大分類用；`ThemeDef` 本身也符合）。 */
+export type ThemeRef = Pick<ThemeDef, "country" | "title">;
+
+/** 主題身分的單一字串（React key、摺疊狀態等需要一個字串鍵的地方）。 */
+export function themeKey(theme: ThemeRef): string {
+  return `${theme.country}:${theme.title}`;
+}
+
+/** 尚未標國家的主題（台灣統計兩套目錄先組好，再由 `taiwanThemes` 一次補上 country）。 */
+type CatalogTheme = Omit<ThemeDef, "country">;
+
+/** 台灣統計目錄（`STATISTICS_DATA_THEMES`／`STATISTICS_TAB_THEMES`）都屬台灣。 */
+function taiwanThemes(themes: readonly CatalogTheme[]): ThemeDef[] {
+  return themes.map((theme) => ({ ...theme, country: "TW" }));
 }
 
 // 舊型別保留 — 用於 SECTIONS derived flat 結構（兩個 sidebar 元件目前消費此型）
@@ -191,7 +213,7 @@ function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
 export const GLOBAL_SITUATION_THEME_TITLE = "全球情勢 Global Situation";
 export const GLOBAL_ENVIRONMENT_THEME_TITLE = "全球環境 Global Environment";
 export const COMMUNICATIONS_THEME_TITLE = "全球通訊 Global Communications";
-/** 台灣「通訊」主題（Ookla 台灣細格）。title 全站唯一，與法國「通訊」不同字串。 */
+/** 台灣「通訊」主題（Ookla 台灣細格）。title 只需在國家內唯一；台灣沿用 `中文 English` 格式。 */
 export const TAIWAN_TELECOM_THEME_TITLE = "通訊 Telecom";
 /** 法國「通訊」主題（ANFR）。照日本主題做法用中文短名。 */
 export const FRANCE_TELECOM_THEME_TITLE = "通訊";
@@ -200,114 +222,127 @@ export const FRANCE_TELECOM_THEME_TITLE = "通訊";
 export type ThemeScope = LayerCountry;
 
 /**
- * 主題 → 國家主體對照（議題 1「國家主體化」，2026-10-28）。每個主題都要登記（layerConsistency 測試擋漏）。
+ * 國家主體 → 主題 title 登記（議題 1「國家主體化」，2026-10-28；2026-10-29 改成以國家分組）。
+ * 每個主題都要登記，且與 `ThemeDef.country` 一致（layerConsistency 測試擋漏）。
  * 用主題而非 layer key 前綴判斷，因為日本主題有大量 `jma*` 等非 `jp` 前綴的圖層。
- * ⚠️ 主題 title 全站唯一：第三國若也用「交通」會撞名，屆時改由 manifest 欄位當正本。
- * 物件插入順序有意義：同一 scope 內的先後＝下方派生陣列的順序（世界、日本面板在同一大分類內依此排）。
+ * 主題身分是 (country, title)：title 只需在同一國家內唯一，不同國家可同名。
+ * 陣列順序有意義：同一 scope 內的先後＝世界、日本、法國面板在同一大分類內的順序（`scopeThemes`）。
+ * 新增國家：`CountryCode` 加碼後這裡、`THEME_NAMES`、`THEME_MACRO_GROUPS` 都會因缺鍵報 tsc 錯。
  */
-export const THEME_SCOPE: Readonly<Record<string, ThemeScope>> = {
-  // 世界（只放語意明確的全球主題；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定）
-  [GLOBAL_SITUATION_THEME_TITLE]: "WORLD",
-  "全球海事 Global Maritime": "WORLD",
-  "全球氣候 Global Climate": "WORLD",
-  [GLOBAL_ENVIRONMENT_THEME_TITLE]: "WORLD",
-  [COMMUNICATIONS_THEME_TITLE]: "WORLD",
-  // 日本（2026-10-26 改用台灣主題系統：title＝台灣主題中文短名，與台灣主題是不同字串）
-  "底圖": "JP",
-  "交通": "JP",
-  "人口社經": "JP",
-  "基礎建設": "JP",
-  "教育": "JP",
-  "社福長照": "JP",
-  "宗教": "JP",
-  "觀光": "JP",
-  "醫療": "JP",
-  "災害": "JP",
-  "執法治安": "JP",
-  "環境氣候": "JP",
-  "海洋": "JP",
-  "水資源": "JP",
-  "林業": "JP",
-  // 法國（2026-10-28）
-  [FRANCE_TELECOM_THEME_TITLE]: "FR",
-  // 模擬（站主限定入口）
-  "雙北跨河橋梁中斷": "SIM",
-  "臺北 307 走廊公車擁擠": "SIM",
-  // 台灣：一般主題
-  "底圖 Base Map": "TW",
-  "交通 Move": "TW",
-  "原民與農村 Indigenous & Rural": "TW",
-  "人口社經 People": "TW",
-  "都市分析 Urban Analysis": "TW",
-  "房地產 Real Estate": "TW",
-  "工商登記 Business Registry": "TW",
-  "基礎建設 Infrastructure": "TW",
-  "教育 Education": "TW",
-  "社福長照 Welfare": "TW",
-  "運動休閒 Sports & Leisure": "TW",
-  "文化 Culture": "TW",
-  "宗教 Religion": "TW",
-  "殯葬 Funeral": "TW",
-  "觀光 Tourism": "TW",
-  "醫療 Medical": "TW",
-  "消防 Fire & Rescue": "TW",
-  "災害 Hazard": "TW",
-  "民防避難 Civil Defense": "TW",
-  "執法治安 Law & Order": "TW",
-  "能源 Energy": "TW",
-  "廢棄物 Waste": "TW",
-  "環境氣候 Environment": "TW",
-  "海洋 Marine": "TW",
-  "水資源 Water": "TW",
-  "農業 Agriculture": "TW",
-  "動物福利 Animal Welfare": "TW",
-  "林業 Forestry": "TW",
-  "太空 Space": "TW",
-  "情勢 Situation": "TW",
-  [TAIWAN_TELECOM_THEME_TITLE]: "TW",
-  // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
-  "工作與所得 Work & Income": "TW",
-  "房地產統計 Real Estate Statistics": "TW",
-  "交通統計 Transport Statistics": "TW",
-  "人口統計 Population Statistics": "TW",
-  "財稅與消費統計 Fiscal & Consumption Statistics": "TW",
-  "原民與農村統計 Indigenous & Rural Statistics": "TW",
-  "國有資產統計 State Assets Statistics": "TW",
-  "住宅存量與使用": "TW",
-  "統計比較": "TW",
-  [ADDICTION_STATISTICS_THEME_TITLE]: "TW",
-  "疾病與健康統計 Disease & Health Statistics": "TW",
-  "體育統計 Sports Statistics": "TW",
-  "文化統計 Culture Statistics": "TW",
-  "教育與少子化統計": "TW",
-  "醫療與長照統計": "TW",
-  "治安統計 Crime Statistics": "TW",
-  "水資源統計 Water Statistics": "TW",
-  "廢棄物統計 Waste Statistics": "TW",
-  "資源回收統計 Recycling Statistics": "TW",
-  "水質與污水統計 Water Quality & Sewage Statistics": "TW",
-  "空氣品質統計 Air Quality Statistics": "TW",
-  "污染與公害統計 Pollution & Nuisance Statistics": "TW",
-  "環境治理統計 Environmental Enforcement Statistics": "TW",
-  "能源統計 Energy Statistics": "TW",
-  "農業統計 Agriculture Statistics": "TW",
-  "農業統計": "TW",
-  "畜牧統計": "TW",
-  "漁業統計": "TW",
-  "林業統計": "TW",
-  [LANDSLIDE_STATISTICS_THEME_TITLE]: "TW",
-  "災害風險統計 Disaster Risk Statistics": "TW",
-  "海洋統計 Marine Statistics": "TW",
+export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
+  TW: [
+    // 台灣：一般主題
+    "底圖 Base Map",
+    "交通 Move",
+    "原民與農村 Indigenous & Rural",
+    "人口社經 People",
+    "都市分析 Urban Analysis",
+    "房地產 Real Estate",
+    "工商登記 Business Registry",
+    "基礎建設 Infrastructure",
+    "教育 Education",
+    "社福長照 Welfare",
+    "運動休閒 Sports & Leisure",
+    "文化 Culture",
+    "宗教 Religion",
+    "殯葬 Funeral",
+    "觀光 Tourism",
+    "醫療 Medical",
+    "消防 Fire & Rescue",
+    "災害 Hazard",
+    "民防避難 Civil Defense",
+    "執法治安 Law & Order",
+    "能源 Energy",
+    "廢棄物 Waste",
+    "環境氣候 Environment",
+    "海洋 Marine",
+    "水資源 Water",
+    "農業 Agriculture",
+    "動物福利 Animal Welfare",
+    "林業 Forestry",
+    "太空 Space",
+    "情勢 Situation",
+    TAIWAN_TELECOM_THEME_TITLE,
+    // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
+    "工作與所得 Work & Income",
+    "房地產統計 Real Estate Statistics",
+    "交通統計 Transport Statistics",
+    "人口統計 Population Statistics",
+    "財稅與消費統計 Fiscal & Consumption Statistics",
+    "原民與農村統計 Indigenous & Rural Statistics",
+    "國有資產統計 State Assets Statistics",
+    "住宅存量與使用",
+    "統計比較",
+    ADDICTION_STATISTICS_THEME_TITLE,
+    "疾病與健康統計 Disease & Health Statistics",
+    "體育統計 Sports Statistics",
+    "文化統計 Culture Statistics",
+    "教育與少子化統計",
+    "醫療與長照統計",
+    "治安統計 Crime Statistics",
+    "水資源統計 Water Statistics",
+    "廢棄物統計 Waste Statistics",
+    "資源回收統計 Recycling Statistics",
+    "水質與污水統計 Water Quality & Sewage Statistics",
+    "空氣品質統計 Air Quality Statistics",
+    "污染與公害統計 Pollution & Nuisance Statistics",
+    "環境治理統計 Environmental Enforcement Statistics",
+    "能源統計 Energy Statistics",
+    "農業統計 Agriculture Statistics",
+    "農業統計",
+    "畜牧統計",
+    "漁業統計",
+    "林業統計",
+    LANDSLIDE_STATISTICS_THEME_TITLE,
+    "災害風險統計 Disaster Risk Statistics",
+    "海洋統計 Marine Statistics",
+  ],
+  JP: [
+    // 日本（2026-10-26 改用台灣主題系統：title＝台灣主題中文短名，與台灣主題是不同字串）
+    "底圖",
+    "交通",
+    "人口社經",
+    "基礎建設",
+    "教育",
+    "社福長照",
+    "宗教",
+    "觀光",
+    "醫療",
+    "災害",
+    "執法治安",
+    "環境氣候",
+    "海洋",
+    "水資源",
+    "林業",
+  ],
+  FR: [
+    // 法國（2026-10-28）
+    FRANCE_TELECOM_THEME_TITLE,
+  ],
+  GB: [
+    // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
+    "底圖",
+    // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
+    ...GB_STATISTICS_DATA_THEME_TITLES,
+  ],
+  WORLD: [
+    // 世界（只放語意明確的全球主題；面板順序由 `THEME_MACRO_GROUPS` 的大分類決定）
+    GLOBAL_SITUATION_THEME_TITLE,
+    "全球海事 Global Maritime",
+    "全球氣候 Global Climate",
+    GLOBAL_ENVIRONMENT_THEME_TITLE,
+    COMMUNICATIONS_THEME_TITLE,
+  ],
+  SIM: [
+    // 模擬（站主限定入口）
+    "雙北跨河橋梁中斷",
+    "臺北 307 走廊公車擁擠",
+  ],
 };
 
-/** 某 scope 的主題 title（依 `THEME_SCOPE` 登記順序）。 */
-export function themeTitlesForScope(scope: ThemeScope): string[] {
-  return Object.entries(THEME_SCOPE).filter(([, value]) => value === scope).map(([title]) => title);
-}
-
-/** 主題所屬 scope；未登記回 undefined（測試保證 THEMES 全部有登記）。 */
-export function themeScope(title: string): ThemeScope | undefined {
-  return THEME_SCOPE[title];
+/** 某 scope 的主題 title（依 `THEME_SCOPE` 登記順序）。`table` 只給測試換 fixture 用。 */
+export function themeTitlesForScope(scope: ThemeScope, table: Readonly<Partial<Record<ThemeScope, readonly string[]>>> = THEME_SCOPE): string[] {
+  return [...(table[scope] ?? [])];
 }
 
 /** 劃入「世界」入口的主題清單（`THEME_SCOPE` 派生；只決定 membership 與同一大分類內的先後）。 */
@@ -330,7 +365,7 @@ function environmentSubgroups(group: string): SubGroupDef[] {
   const subgroups = [...new Set(ENVIRONMENT_ENABLED_STATISTICS_RECIPES.filter((recipe) => recipe.group === group).map((recipe) => recipe.subgroup))];
   return subgroups.map((title) => ({ title, layers: environmentLayers((recipe) => recipe.group === group && recipe.subgroup === title) }));
 }
-const environmentDataTheme = (group: string): ThemeDef => ({ title: ENVIRONMENT_STATISTICS_THEME_TITLES[group]!, groups: environmentSubgroups(group) });
+const environmentDataTheme = (group: string): CatalogTheme => ({ title: ENVIRONMENT_STATISTICS_THEME_TITLES[group]!, groups: environmentSubgroups(group) });
 
 /** 人口統計（戶籍人口／年齡結構…）依 recipe subgroup 派生；Layers 階層保留縣市／鄉鎮小分組。 */
 function demographicsDataGroups(): SubGroupDef[] {
@@ -379,25 +414,25 @@ function mergeAtlasGroups(base: SubGroupDef[], extra: SubGroupDef[]): SubGroupDe
   return merged;
 }
 /** Statistics 分頁主題（新主題或併入既有主題的群組）。 */
-function atlasTabTheme(title: string): ThemeDef {
+function atlasTabTheme(title: string): CatalogTheme {
   return { title, defaultCollapsed: true, groups: atlasGroups(atlasTabThemeGroups(title)) };
 }
 
-const ATLAS_DATA_THEMES: ThemeDef[] = ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
+const ATLAS_DATA_THEMES: CatalogTheme[] = ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
 
 /**
  * atlas 的 data_theme 若與既有主題同名（例如臺北市局處統計併入「廢棄物統計」「工作與所得」），
  * 不另開主題：群組併進既有主題末尾，原位置的重複主題移除。
  */
-function foldAtlasDataThemes(themes: ThemeDef[]): ThemeDef[] {
-  const hostOf = (atlasTheme: ThemeDef) => themes.find((candidate) => candidate !== atlasTheme && !ATLAS_DATA_THEMES.includes(candidate) && candidate.title === atlasTheme.title);
+function foldAtlasDataThemes(themes: CatalogTheme[]): CatalogTheme[] {
+  const hostOf = (atlasTheme: CatalogTheme) => themes.find((candidate) => candidate !== atlasTheme && !ATLAS_DATA_THEMES.includes(candidate) && candidate.title === atlasTheme.title);
   const folded = themes.map((theme) => ({ theme, host: ATLAS_DATA_THEMES.includes(theme) ? hostOf(theme) : undefined }));
   for (const { theme, host } of folded) if (host) host.groups = mergeAtlasGroups(host.groups, theme.groups);
   return folded.filter(({ host }) => !host).map(({ theme }) => theme);
 }
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
-export const STATISTICS_DATA_THEMES: ThemeDef[] = foldAtlasDataThemes([
+export const STATISTICS_DATA_THEMES: ThemeDef[] = taiwanThemes(foldAtlasDataThemes([
   { title: "工作與所得 Work & Income", groups: [
     { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
     { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
@@ -469,7 +504,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = foldAtlasDataThemes([
     { title: "住宅使用類別", layers: [fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship")] },
     { title: "住宅使用比例", layers: [fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship")] },
   ] },
-]);
+]));
 
 /**
  * 統計專屬入口以「使用者想找的主題」重新索引既有 layers。
@@ -480,7 +515,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = foldAtlasDataThemes([
  * 2026-10-03 依統計面板大分類（layerPanels.ts `STATISTICS_MACRO_GROUPS`）拆主題並重排：同一大分類的主題相鄰；
  * 從原「人口與社會」拆出的主題維持展開、從原「交通與運輸」拆出的維持收合。
  */
-export const STATISTICS_TAB_THEMES: ThemeDef[] = [
+export const STATISTICS_TAB_THEMES: ThemeDef[] = taiwanThemes([
   {
     title: "人口與教育 Population & Education",
     defaultCollapsed: true,
@@ -643,7 +678,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("countyBoundary"), fromManifest("townshipBoundary")] },
     ],
   },
-];
+]);
 
 /** Statistics tab 的行政邊界僅供 choropleth 對照，仍屬一般 Layers 的地圖參考資料。 */
 const STATISTICS_TAB_REFERENCE_LAYER_KEYS = new Set<keyof LayerVisibility>([
@@ -652,11 +687,24 @@ const STATISTICS_TAB_REFERENCE_LAYER_KEYS = new Set<keyof LayerVisibility>([
 ]);
 
 /**
+ * 英國統計分頁（2026-10-29 統計面板多國化）：人口／社經／住宅，主題與群組由 gb 家族 recipe 派生
+ * （社經下四地剝奪指數各一個小群組，各自圖例、不可跨國比較）。
+ */
+export const GB_STATISTICS_TAB_THEMES: ThemeDef[] = GB_STATISTICS_TAB_THEME_TITLES.map((title) => ({
+  title, country: "GB", groups: atlasGroups(atlasTabThemeGroups(title, "GB")),
+}));
+
+/** 英國完整目錄（THEMES，country GB）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
+const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.map((title) => ({
+  title, country: "GB", groups: atlasGroups(atlasDataThemeGroups(title, "GB")),
+}));
+
+/**
  * 實際統計面在 Statistics tab 與一般 Layers 的共同 membership。
  * 設施、等時圈和行政邊界不在此集合，避免它們因為同畫面出現而被誤分類為統計。
  */
 export const STATISTICS_TAB_CHOROPLETH_LAYER_KEYS = new Set<string>(
-  STATISTICS_TAB_THEMES
+  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES]
     .flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)))
     .filter((key) => !STATISTICS_TAB_REFERENCE_LAYER_KEYS.has(key)),
 );
@@ -695,7 +743,7 @@ for (const recipe of COMPARISON_UI_RECIPES) {
 }
 
 // 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
-for (const layer of STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(group => group.layers))) {
+for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
   const group = getMedicalStatisticsGroup(layer.key);
   if (group) layer.variant = { group: group.key, lead: group.options[0]?.key === layer.key };
 }
@@ -706,11 +754,13 @@ for (const layer of STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(
  */
 const THEME_CATALOG: ThemeDef[] = [
   ...STATISTICS_DATA_THEMES,
+  ...GB_STATISTICS_DATA_THEMES,
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
   {
     title: "底圖 Base Map",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -778,6 +828,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "交通 Move",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -898,6 +949,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "原民與農村 Indigenous & Rural",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -921,6 +973,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "人口社經 People",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -946,6 +999,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "都市分析 Urban Analysis",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -962,6 +1016,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "房地產 Real Estate",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1007,6 +1062,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "工商登記 Business Registry",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1051,6 +1107,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "基礎建設 Infrastructure",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1098,6 +1155,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "能源 Energy",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1184,6 +1242,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "教育 Education",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1249,6 +1308,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "社福長照 Welfare",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1284,6 +1344,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "運動休閒 Sports & Leisure",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1311,6 +1372,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "文化 Culture",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1347,6 +1409,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "宗教 Religion",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1377,6 +1440,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "殯葬 Funeral",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1407,6 +1471,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "觀光 Tourism",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1450,6 +1515,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "廢棄物 Waste",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1493,6 +1559,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "醫療 Medical",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1546,6 +1613,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "消防 Fire & Rescue",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1576,6 +1644,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "災害 Hazard",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1652,6 +1721,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "民防避難 Civil Defense",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1668,6 +1738,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "執法治安 Law & Order",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1723,6 +1794,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "環境氣候 Environment",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1802,6 +1874,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "海洋 Marine",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1845,6 +1918,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "水資源 Water",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1922,6 +1996,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: COMMUNICATIONS_THEME_TITLE,
+    country: "WORLD",
     defaultCollapsed: true,
     groups: [
       {
@@ -1958,6 +2033,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // 📡 台灣「通訊」（2026-10-28 國家主體化 §8：Ookla 台灣細格自世界「全球通訊」移入）
   {
     title: TAIWAN_TELECOM_THEME_TITLE,
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -1975,6 +2051,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "全球氣候 Global Climate",
+    country: "WORLD",
     defaultCollapsed: true,
     groups: [
       {
@@ -2001,6 +2078,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "農業 Agriculture",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -2070,6 +2148,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "動物福利 Animal Welfare",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -2092,6 +2171,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "林業 Forestry",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -2138,6 +2218,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "太空 Space",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -2179,6 +2260,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "情勢 Situation",
+    country: "TW",
     defaultCollapsed: true,
     groups: [
       {
@@ -2202,6 +2284,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: GLOBAL_SITUATION_THEME_TITLE,
+    country: "WORLD",
     defaultCollapsed: true,
     groups: [
       {
@@ -2214,6 +2297,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: GLOBAL_ENVIRONMENT_THEME_TITLE,
+    country: "WORLD",
     defaultCollapsed: true,
     groups: [
       {
@@ -2234,6 +2318,7 @@ const THEME_CATALOG: ThemeDef[] = [
 
   {
     title: "全球海事 Global Maritime",
+    country: "WORLD",
     defaultCollapsed: true,
     groups: [
       {
@@ -2256,12 +2341,14 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "雙北跨河橋梁中斷",
+    country: "SIM",
     defaultCollapsed: true,
     groups: [{ title: "橋梁中斷", layers: [fromManifest("bridgeResilienceTwinCity")] }],
   },
   {
     // 公車擁擠模擬（simulation PLAN Phase 2 第一刀）：公開 TDX 衍生的本機靜態檔，站主限定只做 UI 鎖。
     title: "臺北 307 走廊公車擁擠",
+    country: "SIM",
     defaultCollapsed: true,
     groups: [{ title: "公車擁擠", layers: [fromManifest("busCrowdingSim")] }],
   },
@@ -2276,6 +2363,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // 日本特有群組：火山、積雪、季節觀測、自來水。避難場所依使用者決定併入「災害／避難設施」，不另設民防避難主題。
   {
     title: "底圖",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "行政邊界", layers: [fromManifest("jpAdminPrefecture"), fromManifest("jpAdminBoundaries")] },
@@ -2286,6 +2374,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "交通",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "場站", layers: [fromManifest("jpStations"), fromManifest("jpBusStops")] },
@@ -2296,21 +2385,25 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "人口社經",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km")] }],
   },
   {
     title: "基礎建設",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "公共設施", layers: [fromManifest("jpPublicOffices")] }],
   },
   {
     title: "教育",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "學校 Schools", layers: [fromManifest("jpSchools")] }],
   },
   {
     title: "社福長照",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "住宿照顧", layers: [fromManifest("jpCareResidential"), fromManifest("jpWelfareDisability")] },
@@ -2322,11 +2415,13 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "宗教",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "點位", layers: [fromManifest("jpReligionGsi"), fromManifest("jpReligionOsm"), fromManifest("jpReligionWikidata")] }],
   },
   {
     title: "觀光",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       ...localResearchGroup("玩・自然 Nature", [
@@ -2344,6 +2439,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "醫療",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "點位", layers: [
@@ -2357,6 +2453,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "災害",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "即時警示", layers: [fromManifest("jmaWarnings")] },
@@ -2372,11 +2469,13 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "執法治安",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "警政", layers: [fromManifest("jpPoliceFacilities")] }],
   },
   {
     title: "環境氣候",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "氣象", layers: [
@@ -2395,6 +2494,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "海洋",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "海域環境 Marine Environment", layers: [fromManifest("jmaSst"), fromManifest("jmaSeaIce")] },
@@ -2410,6 +2510,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "水資源",
+    country: "JP",
     defaultCollapsed: true,
     groups: [
       { title: "點位", layers: [
@@ -2424,6 +2525,7 @@ const THEME_CATALOG: ThemeDef[] = [
   },
   {
     title: "林業",
+    country: "JP",
     defaultCollapsed: true,
     groups: [{ title: "分區", layers: [fromManifest("jpNationalForests"), fromManifest("jpCanopyHeight")] }],
   },
@@ -2433,12 +2535,25 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: FRANCE_TELECOM_THEME_TITLE,
+    country: "FR",
     defaultCollapsed: true,
     groups: [
       {
         title: "官方無線站點 Official Wireless Sites",
         layers: [fromManifest("anfrWirelessSites")],
       },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("gbAdminBoundaries"), fromManifest("gbSmallAreaBoundaries")] },
     ],
   },
 
@@ -2459,229 +2574,275 @@ export const LAYER_MACRO_GROUPS = [
 
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
 
-const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
-  "工作與所得 Work & Income": "city",
-  "農業統計": "environment",
-  "畜牧統計": "environment",
-  "漁業統計": "environment",
-  "林業統計": "environment",
-  "交通統計 Transport Statistics": "city",
-  "水資源統計 Water Statistics": "environment",
-  "廢棄物統計 Waste Statistics": "environment",
-  "能源統計 Energy Statistics": "environment",
-  "農業統計 Agriculture Statistics": "environment",
-  "人口統計 Population Statistics": "city",
-  [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
-  [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
-  "疾病與健康統計 Disease & Health Statistics": "publicLife",
-  "財稅與消費統計 Fiscal & Consumption Statistics": "city",
-  "原民與農村統計 Indigenous & Rural Statistics": "city",
-  "體育統計 Sports Statistics": "publicLife",
-  "文化統計 Culture Statistics": "publicLife",
-  "國有資產統計 State Assets Statistics": "city",
-  "災害風險統計 Disaster Risk Statistics": "environment",
-  "海洋統計 Marine Statistics": "environment",
-  "治安統計 Crime Statistics": "safety",
-  "原民與農村 Indigenous & Rural": "city",
-  "海洋 Marine": "environment",
-  "統計比較": "publicLife",
-  "教育與少子化統計": "publicLife",
-  "醫療與長照統計": "publicLife",
-  "住宅存量與使用": "city",
-  "房地產統計 Real Estate Statistics": "city",
-  "資源回收統計 Recycling Statistics": "environment",
-  "水質與污水統計 Water Quality & Sewage Statistics": "environment",
-  "空氣品質統計 Air Quality Statistics": "environment",
-  "污染與公害統計 Pollution & Nuisance Statistics": "environment",
-  "環境治理統計 Environmental Enforcement Statistics": "environment",
-  "治安與交通 Safety & Transport": "safety",
-  "行政區參考 Administrative Boundaries": "baseline",
-  "底圖 Base Map": "baseline",
-  "交通 Move": "city",
-  "人口社經 People": "city",
-  "都市分析 Urban Analysis": "city",
-  "房地產 Real Estate": "city",
-  "工商登記 Business Registry": "city",
-  "基礎建設 Infrastructure": "publicLife",
-  "教育 Education": "publicLife",
-  "社福長照 Welfare": "publicLife",
-  "運動休閒 Sports & Leisure": "publicLife",
-  "文化 Culture": "publicLife",
-  "宗教 Religion": "publicLife",
-  "殯葬 Funeral": "publicLife",
-  "觀光 Tourism": "publicLife",
-  "醫療 Medical": "safety",
-  "消防 Fire & Rescue": "safety",
-  "災害 Hazard": "safety",
-  "民防避難 Civil Defense": "safety",
-  "執法治安 Law & Order": "safety",
-  "環境氣候 Environment": "environment",
-  "水資源 Water": "environment",
-  "廢棄物 Waste": "environment",
-  "能源 Energy": "environment",
-  "農業 Agriculture": "environment",
-  "動物福利 Animal Welfare": "environment",
-  "林業 Forestry": "environment",
-  "太空 Space": "intelligence",
-  "情勢 Situation": "intelligence",
-  [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
-  [GLOBAL_ENVIRONMENT_THEME_TITLE]: "environment",
-  [COMMUNICATIONS_THEME_TITLE]: "publicLife",
-  [TAIWAN_TELECOM_THEME_TITLE]: "publicLife",
-  [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
-  "全球氣候 Global Climate": "environment",
-  "全球海事 Global Maritime": "intelligence",
-  // 日本 tab 在 desktop 仍獨立；主題 title＝台灣主題的中文短名（機器字串不同），大分類同台灣對應主題。
-  "底圖": "baseline",
-  "交通": "city",
-  "人口社經": "city",
-  "基礎建設": "publicLife",
-  "教育": "publicLife",
-  "社福長照": "publicLife",
-  "宗教": "publicLife",
-  "觀光": "publicLife",
-  "醫療": "safety",
-  "災害": "safety",
-  "執法治安": "safety",
-  "環境氣候": "environment",
-  "海洋": "environment",
-  "水資源": "environment",
-  "林業": "environment",
-  "雙北跨河橋梁中斷": "city",
-  "臺北 307 走廊公車擁擠": "city",
+/** 主題 → 大分類，依國家主體分組（主題身分是 (country, title)）。 */
+type ThemeTable<T> = Readonly<Partial<Record<ThemeScope, Readonly<Record<string, T>>>>>;
+
+const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, LayerMacroGroup>>>> = {
+  TW: {
+    "工作與所得 Work & Income": "city",
+    "農業統計": "environment",
+    "畜牧統計": "environment",
+    "漁業統計": "environment",
+    "林業統計": "environment",
+    "交通統計 Transport Statistics": "city",
+    "水資源統計 Water Statistics": "environment",
+    "廢棄物統計 Waste Statistics": "environment",
+    "能源統計 Energy Statistics": "environment",
+    "農業統計 Agriculture Statistics": "environment",
+    "人口統計 Population Statistics": "city",
+    [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
+    [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
+    "疾病與健康統計 Disease & Health Statistics": "publicLife",
+    "財稅與消費統計 Fiscal & Consumption Statistics": "city",
+    "原民與農村統計 Indigenous & Rural Statistics": "city",
+    "體育統計 Sports Statistics": "publicLife",
+    "文化統計 Culture Statistics": "publicLife",
+    "國有資產統計 State Assets Statistics": "city",
+    "災害風險統計 Disaster Risk Statistics": "environment",
+    "海洋統計 Marine Statistics": "environment",
+    "治安統計 Crime Statistics": "safety",
+    "原民與農村 Indigenous & Rural": "city",
+    "海洋 Marine": "environment",
+    "統計比較": "publicLife",
+    "教育與少子化統計": "publicLife",
+    "醫療與長照統計": "publicLife",
+    "住宅存量與使用": "city",
+    "房地產統計 Real Estate Statistics": "city",
+    "資源回收統計 Recycling Statistics": "environment",
+    "水質與污水統計 Water Quality & Sewage Statistics": "environment",
+    "空氣品質統計 Air Quality Statistics": "environment",
+    "污染與公害統計 Pollution & Nuisance Statistics": "environment",
+    "環境治理統計 Environmental Enforcement Statistics": "environment",
+    "治安與交通 Safety & Transport": "safety",
+    "行政區參考 Administrative Boundaries": "baseline",
+    "底圖 Base Map": "baseline",
+    "交通 Move": "city",
+    "人口社經 People": "city",
+    "都市分析 Urban Analysis": "city",
+    "房地產 Real Estate": "city",
+    "工商登記 Business Registry": "city",
+    "基礎建設 Infrastructure": "publicLife",
+    "教育 Education": "publicLife",
+    "社福長照 Welfare": "publicLife",
+    "運動休閒 Sports & Leisure": "publicLife",
+    "文化 Culture": "publicLife",
+    "宗教 Religion": "publicLife",
+    "殯葬 Funeral": "publicLife",
+    "觀光 Tourism": "publicLife",
+    "醫療 Medical": "safety",
+    "消防 Fire & Rescue": "safety",
+    "災害 Hazard": "safety",
+    "民防避難 Civil Defense": "safety",
+    "執法治安 Law & Order": "safety",
+    "環境氣候 Environment": "environment",
+    "水資源 Water": "environment",
+    "廢棄物 Waste": "environment",
+    "能源 Energy": "environment",
+    "農業 Agriculture": "environment",
+    "動物福利 Animal Welfare": "environment",
+    "林業 Forestry": "environment",
+    "太空 Space": "intelligence",
+    "情勢 Situation": "intelligence",
+    [TAIWAN_TELECOM_THEME_TITLE]: "publicLife",
+  },
+  JP: {
+    // 日本 tab 在 desktop 仍獨立；主題 title＝台灣主題的中文短名（機器字串不同），大分類同台灣對應主題。
+    "底圖": "baseline",
+    "交通": "city",
+    "人口社經": "city",
+    "基礎建設": "publicLife",
+    "教育": "publicLife",
+    "社福長照": "publicLife",
+    "宗教": "publicLife",
+    "觀光": "publicLife",
+    "醫療": "safety",
+    "災害": "safety",
+    "執法治安": "safety",
+    "環境氣候": "environment",
+    "海洋": "environment",
+    "水資源": "environment",
+    "林業": "environment",
+  },
+  FR: {
+    [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
+  },
+  GB: {
+    // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
+    "底圖": "baseline",
+    // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
+    "人口統計": "city",
+    "社經統計": "city",
+    "住宅統計": "city",
+  },
+  WORLD: {
+    [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
+    [GLOBAL_ENVIRONMENT_THEME_TITLE]: "environment",
+    [COMMUNICATIONS_THEME_TITLE]: "publicLife",
+    "全球氣候 Global Climate": "environment",
+    "全球海事 Global Maritime": "intelligence",
+  },
+  SIM: {
+    "雙北跨河橋梁中斷": "city",
+    "臺北 307 走廊公車擁擠": "city",
+  },
 };
 
 /**
  * 主題的顯示名稱（spec §5.5 LT1、layer-panel-unify P3）。`theme.title` 是識別字串（manifest
  * `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**；畫面一律讀這張表。
+ * 依國家主體分組：同名主題（例：日本「交通」與之後英國「交通」）各自有顯示名稱與副標。
  * - `sub`：副標小字。台灣、統計、世界用英文；日本 15 個主題用日文漢字（P3 B，與中文同字也照樣顯示）。
- * 新增主題時補一列；`layerCatalog` 測試會擋漏列。
+ * 新增主題時在所屬國家補一列；`layerCatalog` 測試會擋漏列。
  */
 export interface ThemeName {
   zh: string;
   sub?: string;
 }
 
-const THEME_NAMES: Record<string, ThemeName> = {
-  // 統計入口的重組主題（STATISTICS_TAB_THEMES）
-  "人口與教育 Population & Education": { zh: "人口與教育", sub: "Population & Education" },
-  "醫療與長照 Health & Care": { zh: "醫療與長照", sub: "Health & Care" },
-  "成癮與減害 Addiction & Harm Reduction": { zh: "成癮與減害", sub: "Addiction & Harm Reduction" },
-  "犯罪與治安 Crime & Safety": { zh: "犯罪與治安", sub: "Crime & Safety" },
-  "住宅與不動產 Housing & Property": { zh: "住宅與不動產", sub: "Housing & Property" },
-  "公共運輸 Public Transport": { zh: "公共運輸", sub: "Public Transport" },
-  "道路與車輛 Roads & Vehicles": { zh: "道路與車輛", sub: "Roads & Vehicles" },
-  "交通用地 Transport Land": { zh: "交通用地", sub: "Transport Land" },
-  "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
-  "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
-  "崩塌與水土保持 Landslides & Soil Conservation": { zh: "崩塌與水土保持", sub: "Landslides & Soil Conservation" },
-  "財稅與消費 Fiscal & Consumption": { zh: "財稅與消費", sub: "Fiscal & Consumption" },
-  "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
-  "文化與藝文 Culture & Arts": { zh: "文化與藝文", sub: "Culture & Arts" },
-  "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
-  "海洋 Marine": { zh: "海洋", sub: "Marine" },
-  "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
-  "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
-  "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
-  "農業統計": { zh: "農業統計" },
-  "畜牧統計": { zh: "畜牧統計" },
-  "漁業統計": { zh: "漁業統計" },
-  "林業統計": { zh: "林業統計" },
-  "交通統計 Transport Statistics": { zh: "交通統計", sub: "Transport Statistics" },
-  "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
-  "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
-  "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
-  "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
-  "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
-  "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
-  "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
-  "疾病與健康統計 Disease & Health Statistics": { zh: "疾病與健康統計", sub: "Disease & Health Statistics" },
-  "財稅與消費統計 Fiscal & Consumption Statistics": { zh: "財稅與消費統計", sub: "Fiscal & Consumption Statistics" },
-  "原民與農村統計 Indigenous & Rural Statistics": { zh: "原民與農村統計", sub: "Indigenous & Rural Statistics" },
-  "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
-  "文化統計 Culture Statistics": { zh: "文化統計", sub: "Culture Statistics" },
-  "國有資產統計 State Assets Statistics": { zh: "國有資產統計", sub: "State Assets Statistics" },
-  "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
-  "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
-  "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
-  "統計比較": { zh: "統計比較" },
-  "教育與少子化統計": { zh: "教育與少子化統計" },
-  "醫療與長照統計": { zh: "醫療與長照統計" },
-  "住宅存量與使用": { zh: "住宅存量與使用" },
-  "房地產統計 Real Estate Statistics": { zh: "房地產統計", sub: "Real Estate Statistics" },
-  "資源回收統計 Recycling Statistics": { zh: "資源回收統計", sub: "Recycling Statistics" },
-  "水質與污水統計 Water Quality & Sewage Statistics": { zh: "水質與污水統計", sub: "Water Quality & Sewage Statistics" },
-  "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
-  "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
-  "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
-  "治安與交通 Safety & Transport": { zh: "治安與交通", sub: "Safety & Transport" },
-  "行政區參考 Administrative Boundaries": { zh: "行政區參考", sub: "Administrative Boundaries" },
-  "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
-  "交通 Move": { zh: "交通", sub: "Move" },
-  "人口社經 People": { zh: "人口社經", sub: "People" },
-  "都市分析 Urban Analysis": { zh: "都市分析", sub: "Urban Analysis" },
-  "房地產 Real Estate": { zh: "房地產", sub: "Real Estate" },
-  "工商登記 Business Registry": { zh: "工商登記", sub: "Business Registry" },
-  "基礎建設 Infrastructure": { zh: "基礎建設", sub: "Infrastructure" },
-  "教育 Education": { zh: "教育", sub: "Education" },
-  "社福長照 Welfare": { zh: "社福長照", sub: "Welfare" },
-  "運動休閒 Sports & Leisure": { zh: "運動休閒", sub: "Sports & Leisure" },
-  "文化 Culture": { zh: "文化", sub: "Culture" },
-  "宗教 Religion": { zh: "宗教", sub: "Religion" },
-  "殯葬 Funeral": { zh: "殯葬", sub: "Funeral" },
-  "觀光 Tourism": { zh: "觀光", sub: "Tourism" },
-  "醫療 Medical": { zh: "醫療", sub: "Medical" },
-  "消防 Fire & Rescue": { zh: "消防", sub: "Fire & Rescue" },
-  "災害 Hazard": { zh: "災害", sub: "Hazard" },
-  "民防避難 Civil Defense": { zh: "民防避難", sub: "Civil Defense" },
-  "執法治安 Law & Order": { zh: "執法治安", sub: "Law & Order" },
-  "環境氣候 Environment": { zh: "環境氣候", sub: "Environment" },
-  "水資源 Water": { zh: "水資源", sub: "Water" },
-  "廢棄物 Waste": { zh: "廢棄物", sub: "Waste" },
-  "能源 Energy": { zh: "能源", sub: "Energy" },
-  "農業 Agriculture": { zh: "農業", sub: "Agriculture" },
-  "動物福利 Animal Welfare": { zh: "動物福利", sub: "Animal Welfare" },
-  "林業 Forestry": { zh: "林業", sub: "Forestry" },
-  "太空 Space": { zh: "太空", sub: "Space" },
-  "情勢 Situation": { zh: "情勢", sub: "Situation" },
-  [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },
-  [GLOBAL_ENVIRONMENT_THEME_TITLE]: { zh: "全球環境", sub: "Global Environment" },
-  [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
-  [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecommunications" },
-  // 法國主題副標用法文（比照日本主題用日文）
-  [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
-  "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
-  "全球海事 Global Maritime": { zh: "全球海事", sub: "Global Maritime" },
-  "底圖": { zh: "底圖", sub: "ベースマップ" },
-  "交通": { zh: "交通", sub: "交通" },
-  "人口社經": { zh: "人口社經", sub: "人口・社会経済" },
-  "基礎建設": { zh: "基礎建設", sub: "インフラ" },
-  "教育": { zh: "教育", sub: "教育" },
-  "社福長照": { zh: "社福長照", sub: "社会福祉・介護" },
-  "宗教": { zh: "宗教", sub: "宗教" },
-  "觀光": { zh: "觀光", sub: "観光" },
-  "醫療": { zh: "醫療", sub: "医療" },
-  "災害": { zh: "災害", sub: "災害" },
-  "執法治安": { zh: "執法治安", sub: "警察・治安" },
-  "環境氣候": { zh: "環境氣候", sub: "環境・気候" },
-  "海洋": { zh: "海洋", sub: "海洋" },
-  "林業": { zh: "林業", sub: "林業" },
-  "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
-  "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
-  "水資源": { zh: "水資源", sub: "水資源" },
+const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName>>>> = {
+  TW: {
+    // 統計入口的重組主題（STATISTICS_TAB_THEMES）
+    "人口與教育 Population & Education": { zh: "人口與教育", sub: "Population & Education" },
+    "醫療與長照 Health & Care": { zh: "醫療與長照", sub: "Health & Care" },
+    "成癮與減害 Addiction & Harm Reduction": { zh: "成癮與減害", sub: "Addiction & Harm Reduction" },
+    "犯罪與治安 Crime & Safety": { zh: "犯罪與治安", sub: "Crime & Safety" },
+    "住宅與不動產 Housing & Property": { zh: "住宅與不動產", sub: "Housing & Property" },
+    "公共運輸 Public Transport": { zh: "公共運輸", sub: "Public Transport" },
+    "道路與車輛 Roads & Vehicles": { zh: "道路與車輛", sub: "Roads & Vehicles" },
+    "交通用地 Transport Land": { zh: "交通用地", sub: "Transport Land" },
+    "農林漁牧 Agriculture, Forestry & Fisheries": { zh: "農林漁牧", sub: "Agriculture, Forestry & Fisheries" },
+    "環境與資源 Environment & Resources": { zh: "環境與資源", sub: "Environment & Resources" },
+    "崩塌與水土保持 Landslides & Soil Conservation": { zh: "崩塌與水土保持", sub: "Landslides & Soil Conservation" },
+    "財稅與消費 Fiscal & Consumption": { zh: "財稅與消費", sub: "Fiscal & Consumption" },
+    "體育運動 Sports": { zh: "體育運動", sub: "Sports" },
+    "文化與藝文 Culture & Arts": { zh: "文化與藝文", sub: "Culture & Arts" },
+    "災害風險 Disaster Risk": { zh: "災害風險", sub: "Disaster Risk" },
+    "海洋 Marine": { zh: "海洋", sub: "Marine" },
+    "原民與農村 Indigenous & Rural": { zh: "原民與農村", sub: "Indigenous & Rural" },
+    "地圖參考 Map Reference": { zh: "地圖參考", sub: "Map Reference" },
+    "工作與所得 Work & Income": { zh: "工作與所得", sub: "Work & Income" },
+    "農業統計": { zh: "農業統計" },
+    "畜牧統計": { zh: "畜牧統計" },
+    "漁業統計": { zh: "漁業統計" },
+    "林業統計": { zh: "林業統計" },
+    "交通統計 Transport Statistics": { zh: "交通統計", sub: "Transport Statistics" },
+    "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
+    "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
+    "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
+    "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
+    "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
+    "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
+    "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
+    "疾病與健康統計 Disease & Health Statistics": { zh: "疾病與健康統計", sub: "Disease & Health Statistics" },
+    "財稅與消費統計 Fiscal & Consumption Statistics": { zh: "財稅與消費統計", sub: "Fiscal & Consumption Statistics" },
+    "原民與農村統計 Indigenous & Rural Statistics": { zh: "原民與農村統計", sub: "Indigenous & Rural Statistics" },
+    "體育統計 Sports Statistics": { zh: "體育統計", sub: "Sports Statistics" },
+    "文化統計 Culture Statistics": { zh: "文化統計", sub: "Culture Statistics" },
+    "國有資產統計 State Assets Statistics": { zh: "國有資產統計", sub: "State Assets Statistics" },
+    "災害風險統計 Disaster Risk Statistics": { zh: "災害風險統計", sub: "Disaster Risk Statistics" },
+    "海洋統計 Marine Statistics": { zh: "海洋統計", sub: "Marine Statistics" },
+    "治安統計 Crime Statistics": { zh: "治安統計", sub: "Crime Statistics" },
+    "統計比較": { zh: "統計比較" },
+    "教育與少子化統計": { zh: "教育與少子化統計" },
+    "醫療與長照統計": { zh: "醫療與長照統計" },
+    "住宅存量與使用": { zh: "住宅存量與使用" },
+    "房地產統計 Real Estate Statistics": { zh: "房地產統計", sub: "Real Estate Statistics" },
+    "資源回收統計 Recycling Statistics": { zh: "資源回收統計", sub: "Recycling Statistics" },
+    "水質與污水統計 Water Quality & Sewage Statistics": { zh: "水質與污水統計", sub: "Water Quality & Sewage Statistics" },
+    "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
+    "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
+    "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
+    "治安與交通 Safety & Transport": { zh: "治安與交通", sub: "Safety & Transport" },
+    "行政區參考 Administrative Boundaries": { zh: "行政區參考", sub: "Administrative Boundaries" },
+    "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
+    "交通 Move": { zh: "交通", sub: "Move" },
+    "人口社經 People": { zh: "人口社經", sub: "People" },
+    "都市分析 Urban Analysis": { zh: "都市分析", sub: "Urban Analysis" },
+    "房地產 Real Estate": { zh: "房地產", sub: "Real Estate" },
+    "工商登記 Business Registry": { zh: "工商登記", sub: "Business Registry" },
+    "基礎建設 Infrastructure": { zh: "基礎建設", sub: "Infrastructure" },
+    "教育 Education": { zh: "教育", sub: "Education" },
+    "社福長照 Welfare": { zh: "社福長照", sub: "Welfare" },
+    "運動休閒 Sports & Leisure": { zh: "運動休閒", sub: "Sports & Leisure" },
+    "文化 Culture": { zh: "文化", sub: "Culture" },
+    "宗教 Religion": { zh: "宗教", sub: "Religion" },
+    "殯葬 Funeral": { zh: "殯葬", sub: "Funeral" },
+    "觀光 Tourism": { zh: "觀光", sub: "Tourism" },
+    "醫療 Medical": { zh: "醫療", sub: "Medical" },
+    "消防 Fire & Rescue": { zh: "消防", sub: "Fire & Rescue" },
+    "災害 Hazard": { zh: "災害", sub: "Hazard" },
+    "民防避難 Civil Defense": { zh: "民防避難", sub: "Civil Defense" },
+    "執法治安 Law & Order": { zh: "執法治安", sub: "Law & Order" },
+    "環境氣候 Environment": { zh: "環境氣候", sub: "Environment" },
+    "水資源 Water": { zh: "水資源", sub: "Water" },
+    "廢棄物 Waste": { zh: "廢棄物", sub: "Waste" },
+    "能源 Energy": { zh: "能源", sub: "Energy" },
+    "農業 Agriculture": { zh: "農業", sub: "Agriculture" },
+    "動物福利 Animal Welfare": { zh: "動物福利", sub: "Animal Welfare" },
+    "林業 Forestry": { zh: "林業", sub: "Forestry" },
+    "太空 Space": { zh: "太空", sub: "Space" },
+    "情勢 Situation": { zh: "情勢", sub: "Situation" },
+    [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecommunications" },
+  },
+  JP: {
+    "底圖": { zh: "底圖", sub: "ベースマップ" },
+    "交通": { zh: "交通", sub: "交通" },
+    "人口社經": { zh: "人口社經", sub: "人口・社会経済" },
+    "基礎建設": { zh: "基礎建設", sub: "インフラ" },
+    "教育": { zh: "教育", sub: "教育" },
+    "社福長照": { zh: "社福長照", sub: "社会福祉・介護" },
+    "宗教": { zh: "宗教", sub: "宗教" },
+    "觀光": { zh: "觀光", sub: "観光" },
+    "醫療": { zh: "醫療", sub: "医療" },
+    "災害": { zh: "災害", sub: "災害" },
+    "執法治安": { zh: "執法治安", sub: "警察・治安" },
+    "環境氣候": { zh: "環境氣候", sub: "環境・気候" },
+    "海洋": { zh: "海洋", sub: "海洋" },
+    "林業": { zh: "林業", sub: "林業" },
+    "水資源": { zh: "水資源", sub: "水資源" },
+  },
+  FR: {
+    // 法國主題副標用法文（比照日本主題用日文）
+    [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
+  },
+  GB: {
+    // 英國主題副標用英文（比照日本用日文、法國用法文）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    // 英國統計：完整目錄三個、統計分頁三個
+    "人口統計": { zh: "人口統計", sub: "Population Statistics" },
+    "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
+    "住宅統計": { zh: "住宅統計", sub: "Housing Statistics" },
+    "人口": { zh: "人口", sub: "Population" },
+    "社經": { zh: "社經", sub: "Socio-economic" },
+    "住宅": { zh: "住宅", sub: "Housing" },
+  },
+  WORLD: {
+    [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },
+    [GLOBAL_ENVIRONMENT_THEME_TITLE]: { zh: "全球環境", sub: "Global Environment" },
+    [COMMUNICATIONS_THEME_TITLE]: { zh: "全球通訊", sub: "Global Communications" },
+    "全球氣候 Global Climate": { zh: "全球氣候", sub: "Global Climate" },
+    "全球海事 Global Maritime": { zh: "全球海事", sub: "Global Maritime" },
+  },
+  SIM: {
+    "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
+    "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
+  },
 };
 
-/** 主題標題 → 顯示名稱；查不到時整串當中文（測試保證 THEMES 全部有列）。 */
-export function themeName(title: string): ThemeName {
-  return THEME_NAMES[title] ?? { zh: title };
+/** 主題 → 顯示名稱；查不到時整串當中文（測試保證 THEMES 全部有列）。`names` 只給測試換 fixture 用。 */
+export function themeName(theme: ThemeRef, names: ThemeTable<ThemeName> = THEME_NAMES): ThemeName {
+  return names[theme.country]?.[theme.title] ?? { zh: theme.title };
 }
 
-/** 測試用：有登記顯示名稱的主題標題。 */
-export const THEME_NAME_TITLES: ReadonlySet<string> = new Set(Object.keys(THEME_NAMES));
+/** 測試用：有登記顯示名稱的主題（`themeKey` 字串）。 */
+export const THEME_NAME_KEYS: ReadonlySet<string> = new Set(
+  Object.entries(THEME_NAMES).flatMap(([country, names]) => Object.keys(names).map((title) => themeKey({ country: country as ThemeScope, title }))),
+);
 
-export function themeMacroGroup(title: string): LayerMacroGroup {
-  const group = THEME_MACRO_GROUPS[title];
-  if (!group) throw new Error(`[layerCatalog] 未分類的 theme: ${title}`);
+/** 主題 → 大分類；未登記直接丟錯。`groups` 只給測試換 fixture 用。 */
+export function themeMacroGroup(theme: ThemeRef, groups: ThemeTable<LayerMacroGroup> = THEME_MACRO_GROUPS): LayerMacroGroup {
+  const group = groups[theme.country]?.[theme.title];
+  if (!group) throw new Error(`[layerCatalog] 未分類的 theme: ${themeKey(theme)}`);
   return group;
 }
 
@@ -2691,8 +2852,29 @@ const MACRO_GROUP_ORDER = new Map(
 
 /** Sidebar 顯示順序；同一大分類內保留目錄原有順序。 */
 export const THEMES: ThemeDef[] = [...THEME_CATALOG].sort(
-  (a, b) => MACRO_GROUP_ORDER.get(themeMacroGroup(a.title))! - MACRO_GROUP_ORDER.get(themeMacroGroup(b.title))!,
+  (a, b) => MACRO_GROUP_ORDER.get(themeMacroGroup(a))! - MACRO_GROUP_ORDER.get(themeMacroGroup(b))!,
 );
+
+/** 以 (country, title) 找主題；找不到回 undefined。 */
+export function findTheme(country: ThemeScope, title: string, themes: readonly ThemeDef[] = THEMES): ThemeDef | undefined {
+  return themes.find((theme) => theme.country === country && theme.title === title);
+}
+
+/**
+ * 某 scope（世界、日本、法國…）的主題：先依全站大分類，同一大分類內照 `THEME_SCOPE` 登記順序。
+ * 台灣入口不走這裡（直接沿用 `THEMES` 順序，見 layerPanels.ts `MAIN_THEMES`）。
+ * `themes`／`tables` 只給測試換 fixture 用。
+ */
+export function scopeThemes(
+  scope: ThemeScope,
+  themes: readonly ThemeDef[] = THEMES,
+  tables: { scope?: Readonly<Partial<Record<ThemeScope, readonly string[]>>>; macroGroups?: ThemeTable<LayerMacroGroup> } = {},
+): ThemeDef[] {
+  const order = themeTitlesForScope(scope, tables.scope ?? THEME_SCOPE);
+  const macroIndex = (theme: ThemeDef) => MACRO_GROUP_ORDER.get(themeMacroGroup(theme, tables.macroGroups ?? THEME_MACRO_GROUPS))!;
+  return themes.filter((theme) => theme.country === scope)
+    .sort((a, b) => macroIndex(a) - macroIndex(b) || order.indexOf(a.title) - order.indexOf(b.title));
+}
 
 // ── SECTIONS（derived flat — backward compat for 兩個 sidebar 元件）──
 // 每個 SubGroup 攤平為一筆 SectionDef，title = `主題 English · 子群中文`，

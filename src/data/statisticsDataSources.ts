@@ -221,17 +221,19 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
     const selectorCount = atlas.release_options?.length ?? atlas.release_summary?.count ?? 0;
     const dimensionText = atlas.dimensions.length ? `；維度：${atlas.dimensions.map((dimension) => `${dimension.label}（預設 ${dimension.options.find((option) => option.value === dimension.default)?.label ?? dimension.default}）`).join("、")}` : "";
     const statusText = Object.values(atlas.status_labels).join("；");
+    // 衍生方法不是「同期分子÷分母」時（英國：蘇格蘭城鄉兩級相加、蘇格蘭／北愛剝奪由小區排名彙整）另用彙整標籤。
+    const derivedLabel = atlas.derived_method ? "atlasDerivedAggregate" : "atlasDerived";
     return {
       kind: atlas.derived ? "derived" : "source",
       datasetIds: [atlas.dataset_id],
-      label: atlas.derived ? "衍生統計（同期分子÷分母）" : `原始${atlas.data_theme.split(" ")[0]}快照`,
+      label: atlas.derived ? (atlas.derived_method ? "衍生統計（由來源細項彙整）" : "衍生統計（同期分子÷分母）") : `原始${atlas.data_theme.split(" ")[0]}快照`,
       metricLabel: atlas.label,
       unit: atlas.unit,
       level: atlas.level,
       period: periods ? periodLabel(periods) : summaryPeriodLabel(atlas.release_summary?.period_count ?? 0, null),
       contract: `只接受 ${selectorCount} 個已交付 exact release selector${dimensionText}；數值保留來源值，不重算。${statusText ? `${statusText}。` : ""}`,
       i18n: {
-        label: atlas.derived ? "atlasDerived" : "atlasRaw",
+        label: atlas.derived ? derivedLabel : "atlasRaw",
         contract: "atlas",
         params: {
           count: selectorCount,
@@ -240,7 +242,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
           ...(statusText ? { statusText } : {}),
         },
       },
-      disclosure: `位置口徑：${atlas.location_semantics} ${atlas.disclosure}`,
+      disclosure: [`位置口徑：${atlas.location_semantics} ${atlas.disclosure}`, atlas.derived_method ? `衍生方法：${atlas.derived_method}。` : undefined, atlas.attribution ? `署名：${atlas.attribution}` : undefined].filter(Boolean).join(" "),
       sourceUrl: atlas.source_landing_url,
       provider: atlas.publisher,
       license: atlas.license,
@@ -320,7 +322,7 @@ export function isDataSourceBrowserVisible(key: string): boolean {
 }
 
 export function statisticsSourceLevelLabel(level: string, i18n?: I18nContext): string {
-  const zh = ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區" } as Record<string, string>)[level] ?? level;
+  const zh = ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區", gb_lad: "地方行政區" } as Record<string, string>)[level] ?? level;
   return i18n ? enumLabel("dataSourceLevel", level, zh, i18n) : zh;
 }
 

@@ -70,6 +70,7 @@
   "dataSources.label.addictionRaw": "原データの依存症・ハームリダクション統計スナップショット",
   "dataSources.label.landslide": "原データの崩壊・水土保全統計スナップショット",
   "dataSources.label.atlasDerived": "派生統計（同期の分子÷分母）",
+  "dataSources.label.atlasDerivedAggregate": "派生統計（出典の明細から集計）",
   "dataSources.label.atlasRaw": "原データ（{theme}）スナップショット",
   "dataSources.label.demoDerived": "派生の人口統計（この階層で合算後に計算）",
   "dataSources.label.demoRaw": "原データの戸籍人口統計スナップショット",

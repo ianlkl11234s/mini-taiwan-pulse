@@ -101,5 +101,17 @@
   "legend.urban.jpGsiReliefTitle": "色別標高図",
   "legend.urban.jpGsiReliefNote": "標高で色分け（配色は国土地理院の説明ページを参照）。色は標高の範囲を示すもので、正確な数値ではありません",
   "legend.urban.jpGsiReliefSea": "海域部は海上保安庁海洋情報部の資料を使用して作成",
-  "legend.urban.jpGsiSource": "出典：国土地理院（地理院タイル）、外部タイルを直接表示"
+  "legend.urban.jpGsiSource": "出典：国土地理院（地理院タイル）、外部タイルを直接表示",
+  "legend.urban.gbLadTitle": "地方自治体区域（LAD）",
+  "legend.urban.gbLadRow": "地方自治体の境界（361 区域）",
+  "legend.urban.gbCoverage": "対象 4/4：イングランド、スコットランド、ウェールズ、北アイルランド（マン島・チャンネル諸島は対象外）",
+  "legend.urban.gbDataVersion": "データ版：{version}",
+  "legend.urban.gbSmallAreaTitle": "統計小地域",
+  "legend.urban.gbSmallAreaLSOA21": "イングランド・ウェールズ LSOA（2021）",
+  "legend.urban.gbSmallAreaDZ22": "スコットランド Data Zone（2022）",
+  "legend.urban.gbSmallAreaDZ21": "北アイルランド Data Zone（2021）",
+  "legend.urban.gbSmallAreaSDZ21": "北アイルランド Super Data Zone（2021、「北アイルランドの単位」で切替）",
+  "legend.urban.gbSmallAreaNiLevel": "北アイルランドの Data Zone と Super Data Zone は範囲が重なるため、一度に一方のみ表示",
+  "legend.urban.gbSmallAreaNotComparable": "4 地域で年次と人口規模が異なるため国をまたいだ比較はできません。英国全体の比較には地方自治体区域を使ってください",
+  "legend.urban.gbSmallAreaZoom": "ズーム 8 以上で表示"
 }

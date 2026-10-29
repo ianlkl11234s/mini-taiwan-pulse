@@ -94,6 +94,7 @@ export function deriveStatisticsRecipeCatalog(
  * - financeAccessExt（G10 延伸，1,175 selector；兩個金融卡交易層各 531 期×類型）：catalog 約 0.36 MB，仍小於 demographics 的 0.9 MB 內嵌目錄，
  *   且 Statistics 首屏要期別與交易類型維度，故同 financeAccess 保留 release_options。
  * - 死因 mortality（G20）：縣市 2,322＋鄉鎮 1,541＝3,863 個 selector（死因 43×性別×期別），同 taipeiAgency 按需載入。
+ * - 英國 gb（2026-10-29，ONS LAD 361 區，100 selector）：同 crime，selector 少、首屏即用；`delivery`（草稿斷點、狀態計數、bundle 路徑）只留在交付 JSON。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -117,4 +118,5 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "stateAssets", source: "src/data/stateAssetsStatisticsRecipes.json", catalog: "src/data/stateAssetsStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "financeAccess", source: "src/data/financeAccessStatisticsRecipes.json", catalog: "src/data/financeAccessStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "financeAccessExt", source: "src/data/financeAccessExtStatisticsRecipes.json", catalog: "src/data/financeAccessExtStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "gb", source: "src/data/gbStatisticsRecipes.json", catalog: "src/data/gbStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
 ] as const;

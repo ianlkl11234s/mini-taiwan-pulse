@@ -70,6 +70,7 @@
   "dataSources.label.addictionRaw": "Source addiction and harm-reduction statistics snapshot",
   "dataSources.label.landslide": "Source landslide and soil-and-water conservation statistics snapshot",
   "dataSources.label.atlasDerived": "Derived statistics (same-period numerator ÷ denominator)",
+  "dataSources.label.atlasDerivedAggregate": "Derived statistics (aggregated from source detail)",
   "dataSources.label.atlasRaw": "Source {theme} snapshot",
   "dataSources.label.demoDerived": "Derived demographic statistics (computed after summing at this level)",
   "dataSources.label.demoRaw": "Source registered population statistics snapshot",

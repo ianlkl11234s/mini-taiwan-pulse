@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fetchFloodSensorTimeseries } from "../../data/floodSensorLoader";
+import { FLOOD_HAZARD_SOURCE } from "../../data/floodScenarios";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
 import { fetchRainGaugeTimeseries } from "../../data/rainGaugeLoader";
 import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
-import { Row, formatTaiwanTime, formatTaiwanMinute } from "./shared";
+import { Row, SourceFooter, formatTaiwanTime, formatTaiwanMinute } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { placeName, placeTown } from "../../i18n/placeText";
@@ -775,6 +776,47 @@ export function LakesPondsPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+/**
+ * 淹水潛勢（水利署 10 降雨情境，`scripts/export/export-flood-scenarios.sh`）。
+ * 色票與 overlayRegistry `waterFloodExtreme` fill-color match 同一張；
+ * depth_class 已在匯出時正規化，未知值退回原字串＋預設色。
+ */
+const FLOOD_DEPTH_COLOR: Record<string, string> = {
+  "0.3-0.5": "#fee2e2", "0.5-1.0": "#fca5a5", "1.0-2.0": "#f87171", "2.0-3.0": "#dc2626", ">3.0": "#7f1d1d",
+};
+
+export function WaterFloodHazardPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const i18n = useLocale();
+  const depth = String(props.depth_class ?? "");
+  const color = FLOOD_DEPTH_COLOR[depth] ?? "#fca5a5";
+  const depthText = depth.startsWith(">") ? `> ${depth.slice(1)} m` : depth ? `${depth.replace("-", "–")} m` : "";
+  const hours = Number(props.duration_hr);
+  const mm = Number(props.rainfall_mm);
+  const county = String(props.county ?? "");
+  const town = String(props.town ?? "");
+  const place = [placeName(county, i18n), town ? placeTown(county, town, i18n) : ""].filter(Boolean).join(" ");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {i18n.t("popup.water.floodHazardTitle")}
+        </div>
+      </div>
+      {Number.isFinite(hours) && Number.isFinite(mm) && hours > 0 && (
+        <Row label={i18n.t("popup.water.floodHazardScenario")} value={i18n.t("popup.water.floodHazardScenarioValue", { hours, mm })} />
+      )}
+      <Row label={i18n.t("popup.water.floodHazardDepth")} value={depthText} color={color} mono />
+      <Row field="countyTownship" value={place} />
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted, lineHeight: 1.5 }}>
+        {i18n.t("popup.water.floodHazardDisclaimer")}
+      </div>
+      <SourceFooter props={{ ...props, ...FLOOD_HAZARD_SOURCE }} />
+    </>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════
 //  W2 popup 補強：水資源 8 層
 //  （no-popup-audit §5 工作包 1 + 2；欄位語意出處逐個標在各 panel 上方）
@@ -1029,7 +1071,7 @@ export function WaterCanalsPanel({ props }: { props: Record<string, unknown> }) 
  * `law_ref`（公告文號）是這層別處拿不到的資訊 —— 管制區的重點就是「這裡受什麼法規管」。
  */
 const PROTECTION_ZONE_KIND: Record<string, { color: string; label: string }> = {
-  protection: { color: "#10b981", label: "飲用水水源保護區" },
+  protection: { color: "#10b981", label: "自來水水質水量保護區" },
   groundwater_control_2: { color: "#ef4444", label: "地下水禁止超抽" },
   groundwater_control_1: { color: "#f97316", label: "地下水限制超抽" },
   groundwater_region: { color: "#94a3b8", label: "地下水分區" },

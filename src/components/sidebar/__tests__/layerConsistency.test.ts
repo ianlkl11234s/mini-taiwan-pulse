@@ -46,9 +46,10 @@ import {
   LAYER_COLORS,
   LAYER_MACRO_GROUPS,
   THEMES,
-  THEME_NAME_TITLES,
+  THEME_NAME_KEYS,
   THEME_SCOPE,
   WORLD_TAB_THEME_TITLES,
+  themeKey,
   themeMacroGroup,
   themeName,
 } from "../layerCatalog";
@@ -236,9 +237,9 @@ const NO_POPUP_LEDGER = new Set([
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
-  // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
-  // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
-  "waterFloodExtreme", "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
+  // 水資源：雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
+  // （waterFloodExtreme 已於 G29 10 情境改版補 popup，移出本表）
+  "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
   // 日本第四波：地理院タイル地形 raster（已上色成品 PNG，無 feature 屬性）
   "jpGsiHillshade", "jpGsiRelief",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
@@ -505,10 +506,24 @@ describe("區域統計 sidebar 接線", () => {
 });
 
 describe("主題國家主體（THEME_SCOPE）", () => {
-  it("每個主題都登記了國家主體，且沒有多出不存在的主題", () => {
-    const titles = new Set(THEMES.map((theme) => theme.title));
-    expect([...titles].filter((title) => !(title in THEME_SCOPE))).toEqual([]);
-    expect(Object.keys(THEME_SCOPE).filter((title) => !titles.has(title))).toEqual([]);
+  it("每個主題的 (country, title) 都登記在 THEME_SCOPE[country]，且沒有多出不存在的主題", () => {
+    const themeKeys = new Set(THEMES.map(themeKey));
+    const registered = Object.entries(THEME_SCOPE).flatMap(([country, titles]) => titles.map((title) => `${country}:${title}`));
+    expect([...themeKeys].filter((key) => !registered.includes(key))).toEqual([]);
+    expect(registered.filter((key) => !themeKeys.has(key))).toEqual([]);
+    expect(registered).toHaveLength(new Set(registered).size);
+  });
+
+  it("主題身分 (country, title) 全站唯一", () => {
+    expect(THEMES.length).toBe(new Set(THEMES.map(themeKey)).size);
+  });
+
+  it("每個面板（含各國圖層入口）只放單一國家主體的主題，title 在面板內唯一（大分類、摺疊狀態靠它）", () => {
+    for (const panel of [...LAYER_PANELS, ...PANEL_COUNTRIES.map((code) => ({ ...resolveLayerPanel("layers", code), id: `layers:${code}` }))]) {
+      const titles = panel.themes.map((theme) => theme.title);
+      expect(titles, panel.id).toHaveLength(new Set(titles).size);
+      expect(new Set(panel.themes.map((theme) => theme.country)).size, panel.id).toBeLessThanOrEqual(1);
+    }
   });
 });
 
@@ -549,18 +564,18 @@ describe("日本與世界 tab 命名規則", () => {
 
 describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () => {
   it("每個主題（含各入口重組的主題）都登記了顯示名稱（新增主題要補 THEME_NAMES）", () => {
-    const titles = [...THEMES, ...LAYER_PANELS.flatMap((panel) => panel.themes)].map((theme) => theme.title);
-    const missing = [...new Set(titles)].filter((title) => !THEME_NAME_TITLES.has(title));
+    const keys = [...THEMES, ...LAYER_PANELS.flatMap((panel) => panel.themes)].map(themeKey);
+    const missing = [...new Set(keys)].filter((key) => !THEME_NAME_KEYS.has(key));
     expect(missing).toEqual([]);
   });
 
   it("日本 15 個主題一律有日文副標，與中文同字也照樣顯示", () => {
     expect(JAPAN_TAB_THEME_TITLES).toHaveLength(15);
     for (const title of JAPAN_TAB_THEME_TITLES) {
-      expect(themeName(title).sub, title).toBeTruthy();
+      expect(themeName({ country: "JP", title }).sub, title).toBeTruthy();
     }
-    expect(themeName("宗教")).toEqual({ zh: "宗教", sub: "宗教" });
-    expect(themeName("社福長照")).toEqual({ zh: "社福長照", sub: "社会福祉・介護" });
+    expect(themeName({ country: "JP", title: "宗教" })).toEqual({ zh: "宗教", sub: "宗教" });
+    expect(themeName({ country: "JP", title: "社福長照" })).toEqual({ zh: "社福長照", sub: "社会福祉・介護" });
   });
 
   it("有大分類的面板：主題不漏不重、同一大分類相鄰、順序與定義一致（圖層入口逐國檢查）", () => {
@@ -586,6 +601,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ooklaMobileTaiwan")).toBe(true);
     expect(countryLayerKeys("JP")).toContain("jpStations");
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
+    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries"]);
+    expect(tw.has("gbAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {
@@ -593,7 +610,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(resolveLayerPanel("layers", "JP").macroGroups).toBe(JAPAN_MACRO_GROUPS);
     for (const group of JAPAN_MACRO_GROUPS) {
       const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
-      for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
+      for (const title of group.themes) expect(themeMacroGroup({ country: "JP", title }), title).toBe(key);
     }
   });
 
@@ -607,7 +624,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     // 世界大分類與 THEMES 排序讀同一張對照，不另立一份
     for (const group of panel("world").macroGroups!) {
       const key = LAYER_MACRO_GROUPS.find((candidate) => candidate.zh === group.zh)!.key;
-      for (const title of group.themes) expect(themeMacroGroup(title), title).toBe(key);
+      for (const title of group.themes) expect(themeMacroGroup({ country: "WORLD", title }), title).toBe(key);
     }
   });
 
@@ -626,7 +643,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     const titles = new Set<string>();
     for (const panel of LAYER_PANELS) {
       for (const theme of panel.themes) {
-        titles.add(themeName(theme.title).zh);
+        titles.add(themeName(theme).zh);
         for (const group of theme.groups) titles.add(group.title);
       }
     }
