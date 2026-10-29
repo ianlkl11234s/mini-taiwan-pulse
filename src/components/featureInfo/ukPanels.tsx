@@ -569,7 +569,7 @@ export function GbWoodlandPanel({ props }: { props: Record<string, unknown> }) {
   const raw = text(props.forest_type);
   return <>
     <Title color={ni ? GB_WOODLAND_NI_COLOR : group?.color ?? GB_WOODLAND_COLOR}>{ni ? t("legend.environment.gbWoodNi") : t("popup.forestry.gbWoodTitle")}</Title>
-    {!ni ? <Row label={t("popup.forestry.gbWoodType")} value={[group ? t(GB_WOODLAND_GROUP_KEYS[group.value]) : "", raw].filter(Boolean).join(" · ")} /> : null}
+    {!ni ? <Row label={t("popup.forestry.gbWoodType")} value={[group ? t(GB_WOODLAND_GROUP_KEYS[group.value]).replace(STRIP_PAREN, "") : "", raw].filter(Boolean).join(" · ")} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     <Row label={t("popup.forestry.gbWoodSource")} value={t(ni ? "popup.forestry.gbWoodNiSource" : "popup.forestry.gbWoodNfi")} />
     <SourceFooter props={ni
@@ -591,7 +591,7 @@ export function GbForestRecreationPanel({ props }: { props: Record<string, unkno
       ? t(GB_RECREATION_KEYS[cat.value]).replace(STRIP_PAREN, "")
       : wales ? t("popup.forestry.gbRecNrwCode", { code: text(props.type_code) || "—" }) : ""} />
     {!wales && asset ? <Row label={t("popup.forestry.gbRecAssetType")} value={asset} /> : null}
-    <Row label={t("popup.forestry.gbRecInstall")} value={text(props.install_date)} mono />
+    <Row label={t("popup.forestry.gbRecInstall")} value={/^(NaT|nan|None)$/i.test(text(props.install_date)) ? "" : text(props.install_date)} mono />
     <Row label={t("popup.forestry.gbRecDistrict")} value={text(props.district)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {natureFooter(GB_RECREATION_SOURCES[text(props.source)])}

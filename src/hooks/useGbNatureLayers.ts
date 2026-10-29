@@ -7,7 +7,7 @@ import {
   GB_FOREST_ROUTE_MINZOOM, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_HPMA_CODE_PREFIX, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
   GB_NATIONAL_TRAIL_MINZOOM, GB_NATURE_MAP_ATTRIBUTION, GB_RECREATION_CATEGORIES, GB_RECREATION_MINZOOM,
   GB_RECREATION_SIGNAGE_MINZOOM, GB_RECREATION_UNCLASSIFIED_COLOR, GB_TPO_MINZOOM, GB_TRAIL_CATEGORIES, GB_TRAIL_UNCLASSIFIED_COLOR,
-  GB_TREE_CATEGORIES, GB_WOODLAND_FALLBACK_COLOR, GB_WOODLAND_GROUPS, GB_WOODLAND_NI_COLOR, GB_WOODLAND_NI_KIND,
+  GB_TREE_CATEGORIES, GB_WOODLAND_FALLBACK_COLOR, GB_WOODLAND_GROUPS, GB_WOODLAND_NI_COLOR, GB_WOODLAND_MINZOOM, GB_WOODLAND_NI_KIND,
   type GbDesignationFilter,
 } from "../data/gbNatureTypes";
 import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
@@ -165,7 +165,7 @@ export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, vi
   useGbPmtilesLayers(mapRef, WOODLAND_SOURCE, visible, () => [{
     id: GB_WOODLAND_FILL_ID,
     layer: () => ({
-      id: GB_WOODLAND_FILL_ID, type: "fill", source: WOODLAND_SOURCE.id, "source-layer": "gb_woodland_nfi", minzoom: 7,
+      id: GB_WOODLAND_FILL_ID, type: "fill", source: WOODLAND_SOURCE.id, "source-layer": "gb_woodland_nfi", minzoom: GB_WOODLAND_MINZOOM,
       layout: { visibility: "none" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_WOODLAND_FILL_ID, "fill-opacity", paint(opacity)["fill-opacity"] as any),

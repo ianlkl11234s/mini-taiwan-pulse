@@ -120,6 +120,8 @@ export const GB_WOODLAND_GROUPS: readonly GbWoodlandGroupDef[] = [
 export const GB_WOODLAND_NI_COLOR = "#65a30d";
 export const GB_WOODLAND_FALLBACK_COLOR = "#64748b";
 export const GB_WOODLAND_NI_KIND = "ni_priority_habitat";
+/** layer-plan 建議 7；瀏覽器實測 z7 全英視角平移單幀最長 2.4 秒（z8 0.5 秒），改 z8 起。 */
+export const GB_WOODLAND_MINZOOM = 8;
 
 export function gbWoodlandGroup(forestType: unknown): GbWoodlandGroupDef | undefined {
   return typeof forestType === "string" ? GB_WOODLAND_GROUPS.find((g) => g.types.includes(forestType)) : undefined;

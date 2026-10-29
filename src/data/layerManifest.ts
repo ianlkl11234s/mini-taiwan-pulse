@@ -4182,7 +4182,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_woodland_nfi，minzoom=5 maxzoom=13（layer minzoom 7，低 zoom 不抓 tile）；128.9MB 走 S3 deploy-assets",
+      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_woodland_nfi，minzoom=5 maxzoom=13（layer minzoom 8，低 zoom 不抓 tile；layer-plan 建議 7，實測 z7 平移卡頓改 8）；128.9MB 走 S3 deploy-assets",
       staticAssets: ["./world/gb_woodland_nfi.pmtiles"],
     },
     legend: "gbWoodland",

@@ -136,7 +136,7 @@
   "legend.environment.gbWoodCleared": "暫時無林木（皆伐、整地、風倒、造林失敗）",
   "legend.environment.gbWoodNi": "北愛優先棲地林地（DAERA）",
   "legend.environment.gbWoodNiNote": "北愛不是 NFI 普查：改用 DAERA 優先棲地林地清冊，北愛官方說明此清冊不完整，空白不代表沒有林地",
-  "legend.environment.gbWoodZoom": "縮放 7 級起顯示（檔案大，低縮放不載入）",
+  "legend.environment.gbWoodZoom": "縮放 8 級起顯示（檔案大，低縮放不載入）",
   "legend.environment.gbWoodHeading": "大不列顛 NFI 2025 林型",
   "legend.environment.gbRecFurniture": "座椅、野餐桌等",
   "legend.environment.gbRecBuilt": "建物設施",

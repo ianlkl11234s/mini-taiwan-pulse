@@ -136,7 +136,7 @@
   "legend.environment.gbWoodCleared": "Temporarily unstocked (felled, ground prep, windblow, failed)",
   "legend.environment.gbWoodNi": "Northern Ireland priority habitat woodland (DAERA)",
   "legend.environment.gbWoodNiNote": "Northern Ireland is not covered by the NFI survey: DAERA's priority habitat woodland inventory is shown instead, which DAERA says is incomplete, so gaps do not mean no woodland",
-  "legend.environment.gbWoodZoom": "Shown from zoom 7 (large file, not loaded at low zoom)",
+  "legend.environment.gbWoodZoom": "Shown from zoom 8 (large file, not loaded at low zoom)",
   "legend.environment.gbWoodHeading": "Great Britain NFI 2025 woodland types",
   "legend.environment.gbRecFurniture": "Seats, picnic tables, etc.",
   "legend.environment.gbRecBuilt": "Built features",

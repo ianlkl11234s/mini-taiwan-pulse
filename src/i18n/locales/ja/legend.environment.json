@@ -136,7 +136,7 @@
   "legend.environment.gbWoodCleared": "一時的な無立木地（皆伐・地拵え・風倒・造林失敗）",
   "legend.environment.gbWoodNi": "北アイルランド優先生息地の森林（DAERA）",
   "legend.environment.gbWoodNiNote": "北アイルランドは NFI 調査の対象外：DAERA の優先生息地森林台帳を表示しています。DAERA によれば不完全な台帳で、空白は森林がないことを意味しません",
-  "legend.environment.gbWoodZoom": "ズーム 7 から表示（ファイルが大きいため低ズームでは読み込みません）",
+  "legend.environment.gbWoodZoom": "ズーム 8 から表示（ファイルが大きいため低ズームでは読み込みません）",
   "legend.environment.gbWoodHeading": "グレートブリテン NFI 2025 林型",
   "legend.environment.gbRecFurniture": "ベンチ・ピクニックテーブルなど",
   "legend.environment.gbRecBuilt": "建物・構造物",
