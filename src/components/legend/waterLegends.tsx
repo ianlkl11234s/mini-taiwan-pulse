@@ -349,7 +349,7 @@ export function GroundwaterLegend() {
 // 色票逐字取自 overlayRegistry.ts `waterProtectionZones` 的 **fill-color** match
 // （outline 用的是更亮的一組，圖例以面色為準，因為使用者看到的主要是面）。
 const WATER_PROTECTION_ZONE_CATS: { dark: string; light: string; label: string; code: string }[] = [
-  { dark: "#10b981", light: "#047857", label: "飲用水水源保護區 Protection", code: "protection" },
+  { dark: "#10b981", light: "#047857", label: "自來水水質水量保護區 Protection", code: "protection" },
   { dark: "#ef4444", light: "#b91c1c", label: "地下水禁止超抽 Ban", code: "groundwater_control_2" },
   { dark: "#f97316", light: "#c2410c", label: "地下水限制超抽 Restricted", code: "groundwater_control_1" },
   { dark: "#94a3b8", light: "#64748b", label: "地下水分區 Region", code: "groundwater_region" },

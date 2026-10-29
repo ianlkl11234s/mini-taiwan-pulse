@@ -9954,7 +9954,7 @@ export const LAYER_MANIFEST = {
   waterProtectionZones: {
     key: "waterProtectionZones",
     country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
-    ...layerName({ zh: "管制區", alt: "Protection" }),
+    ...layerName({ zh: "自來水保護區與地下水管制", alt: "Water Supply Protection", qualifier: "水利署" }),
     expandable: true,
     color: "#10b981",
     icon: ShieldCheck,
@@ -9973,8 +9973,8 @@ export const LAYER_MANIFEST = {
     // 「這裡受什麼法規管」。
     popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
-    description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
-    topics: ["水資源", "管制", "保護區"],
+    description: "水利署依自來水法公告的自來水水質水量保護區，以及地下水管制區（禁止／限制超抽）；與環境部飲用水水源保護區不同法源（依管制類別分色）",
+    topics: ["水資源", "管制", "保護區", "水源", "自來水", "地下水"],
   },
 
   waterDetentionBasins: {

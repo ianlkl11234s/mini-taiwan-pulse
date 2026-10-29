@@ -1071,7 +1071,7 @@ export function WaterCanalsPanel({ props }: { props: Record<string, unknown> }) 
  * `law_ref`（公告文號）是這層別處拿不到的資訊 —— 管制區的重點就是「這裡受什麼法規管」。
  */
 const PROTECTION_ZONE_KIND: Record<string, { color: string; label: string }> = {
-  protection: { color: "#10b981", label: "飲用水水源保護區" },
+  protection: { color: "#10b981", label: "自來水水質水量保護區" },
   groundwater_control_2: { color: "#ef4444", label: "地下水禁止超抽" },
   groundwater_control_1: { color: "#f97316", label: "地下水限制超抽" },
   groundwater_region: { color: "#94a3b8", label: "地下水分區" },

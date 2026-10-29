@@ -866,7 +866,7 @@
   "layer.waterRivers": "河川",
   "layer.waterLevees": "堤防",
   "layer.waterCanals": "灌漑・排水路",
-  "layer.waterProtectionZones": "規制区域",
+  "layer.waterProtectionZones": "水道水質水量保護区・地下水規制区域",
   "layer.waterDetentionBasins": "調整池",
   "layer.groundwater": "地下水井戸",
   "layer.lakesPondsOsm": "湖沼・ため池",

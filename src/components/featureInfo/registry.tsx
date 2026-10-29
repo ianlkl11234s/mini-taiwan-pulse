@@ -765,7 +765,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterRivers: "河川",
   waterLevees: "堤防 / 護岸",
   waterCanals: "灌排渠道",
-  waterProtectionZones: "水資源管制區",
+  waterProtectionZones: "自來水保護區與地下水管制",
   floodSensor: "都市淹水感測器",
   floodSensorIsochrone: "淹水 3 分步行圈",
   taipeiSewer: "北市雨水下水道水位",
