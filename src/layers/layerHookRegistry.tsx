@@ -93,7 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { GbAdminHost, GbMaritimeLimitsHost, GbOpenSpaceHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbHydroStationsHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -289,6 +289,12 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 英國第 1 波（海域界線、建成區、綠地三層）
   { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
   { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries"], Host: GbOpenSpaceHost },
+  // 英國第 3 波（河川、水文測站、防洪設施、海岸侵蝕、浴場）
+  { id: "useGbRiversLayer", keys: ["gbRivers"], Host: GbRiversHost },
+  { id: "useGbHydroStationsLayer", keys: ["gbHydroStations"], Host: GbHydroStationsHost },
+  { id: "useGbFloodDefencesLayer", keys: ["gbFloodDefenceAssets"], Host: GbFloodDefencesHost },
+  { id: "useGbCoastalErosionLayer", keys: ["gbCoastalErosionRisk"], Host: GbCoastalErosionHost },
+  { id: "useGbBathingWatersLayer", keys: ["gbBathingWaters"], Host: GbBathingWatersHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

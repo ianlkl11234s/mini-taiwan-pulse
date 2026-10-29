@@ -281,6 +281,8 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
   jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
   jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
+  gbHydroStations: "M", // 英國水文測站 Hydrometric Stations · src/hooks/useGbWaterLayers.ts
+  gbBathingWaters: "M", // 英國浴場 Bathing Waters · src/hooks/useGbWaterLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
   jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
   jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts

@@ -1348,5 +1348,10 @@
   "layer.gbBuiltUpAreas": "Built-up Areas",
   "layer.gbGreenspace": "Parks and Green Space",
   "layer.gbSportsFacilities": "Sports Facilities",
-  "layer.gbCemeteries": "Cemeteries and Religious Grounds"
+  "layer.gbCemeteries": "Cemeteries and Religious Grounds",
+  "layer.gbRivers": "Rivers",
+  "layer.gbHydroStations": "Hydrometric Stations",
+  "layer.gbFloodDefenceAssets": "Flood Defences",
+  "layer.gbCoastalErosionRisk": "Coastal Erosion Risk",
+  "layer.gbBathingWaters": "Bathing Water Quality"
 }

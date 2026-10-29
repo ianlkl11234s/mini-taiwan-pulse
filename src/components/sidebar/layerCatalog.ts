@@ -322,7 +322,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
+    // 第 3 波：災害（海岸侵蝕）、水資源（河川、測站、防洪設施）
+    "災害",
     "海洋",
+    "水資源",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2557,6 +2560,8 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "行政邊界", layers: [fromManifest("gbAdminBoundaries"), fromManifest("gbSmallAreaBoundaries")] },
+      // 第 1 波 C002（UKHO）；第 3 波由「海洋」搬來，對齊台灣 maritimeBoundary 的「底圖 › 海域界線」
+      { title: "海域界線", layers: [fromManifest("gbMaritimeLimits")] },
       // 第 1 波：建成區比照台灣「底圖 › 建成環境」（buildingsGba）
       { title: "建成環境", layers: [fromManifest("gbBuiltUpAreas")] },
       // 第 1 波：OS Open Greenspace 同一檔三層。台灣同類分在「運動休閒」（parksTaipei、sports*）與「殯葬」（cemeteryOsm），
@@ -2565,12 +2570,31 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    // 第 3 波 C102：台灣沒有海岸侵蝕圖層，依語意歸「災害」，自成一群
+    title: "災害",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海岸侵蝕", layers: [fromManifest("gbCoastalErosionRisk")] },
+    ],
+  },
+  {
     title: "海洋",
     country: "GB",
     defaultCollapsed: true,
     groups: [
-      // 第 1 波 C002（UKHO）。台灣同類 maritimeBoundary 在「底圖 › 海域界線」；英國依波次規劃放「海洋」
-      { title: "海域界線", layers: [fromManifest("gbMaritimeLimits")] },
+      // 第 3 波 C095：比照台灣 beachWaterQuality 的「海洋 › 海域環境」
+      { title: "海域環境", layers: [fromManifest("gbBathingWaters")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      // 第 3 波：比照台灣 riverLevel／rainGauge（點位）、waterRivers／waterLevees（面 / 線）
+      { title: "點位", layers: [fromManifest("gbHydroStations")] },
+      { title: "面 / 線", layers: [fromManifest("gbRivers"), fromManifest("gbFloodDefenceAssets")] },
     ],
   },
 
@@ -2686,7 +2710,9 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
     "底圖": "baseline",
+    "災害": "safety",
     "海洋": "environment",
+    "水資源": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2826,7 +2852,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）
     "底圖": { zh: "底圖", sub: "Base Map" },
+    "災害": { zh: "災害", sub: "Hazard" },
     "海洋": { zh: "海洋", sub: "Marine" },
+    "水資源": { zh: "水資源", sub: "Water" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

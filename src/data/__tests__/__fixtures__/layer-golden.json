@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1358,
+    "keyCount": 1363,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1338,6 +1338,37 @@
         "gb-greenspace-park-fill"
       ],
       "type": "gbGreenspace"
+    },
+    {
+      "layers": [
+        "gb-hydro-stations-circle"
+      ],
+      "type": "gbHydroStations"
+    },
+    {
+      "layers": [
+        "gb-bathing-waters-circle"
+      ],
+      "type": "gbBathingWaters"
+    },
+    {
+      "layers": [
+        "gb-flood-defences-line"
+      ],
+      "type": "gbFloodDefenceAssets"
+    },
+    {
+      "layers": [
+        "gb-coastal-erosion-ni-line",
+        "gb-coastal-erosion-fill"
+      ],
+      "type": "gbCoastalErosionRisk"
+    },
+    {
+      "layers": [
+        "gb-rivers-line"
+      ],
+      "type": "gbRivers"
     },
     {
       "layers": [
@@ -90159,6 +90190,26 @@
         "valueText": "0.85"
       }
     ],
+    "gbBathingWaters": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbBuiltUpAreas": [
       {
         "label": "透明度 0.70",
@@ -90181,6 +90232,47 @@
         "valueText": "0.70"
       }
     ],
+    "gbCoastalErosionRisk": [
+      {
+        "label": "期別",
+        "options": [
+          {
+            "label": "長期（2100／2105）",
+            "value": "long"
+          },
+          {
+            "label": "短期（2050／2055）",
+            "value": "short"
+          },
+          {
+            "label": "兩期",
+            "value": "both"
+          }
+        ],
+        "type": "select",
+        "value": "long"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "gbFloodDefenceAssets": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "gbGreenspace": [
       {
         "label": "透明度 0.70",
@@ -90192,7 +90284,38 @@
         "valueText": "0.70"
       }
     ],
+    "gbHydroStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbMaritimeLimits": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "gbRivers": [
       {
         "label": "透明度 0.85",
         "max": 1,
