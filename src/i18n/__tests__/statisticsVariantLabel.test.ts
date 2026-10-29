@@ -24,7 +24,7 @@ const context = (active: Locale) => {
 const HAN = /[㐀-鿿]/u;
 
 /** 日文與中文同形的詞（漢字詞本身就是日文） */
-const SAME_IN_JA = new Set(['死亡', '面積']);
+const SAME_IN_JA = new Set(['死亡', '面積', '人口密度']);
 
 const labels = [...new Set(STATISTICS_TOGGLE_GROUPS.flatMap((group) => group.options.map((option) => option.label)))];
 

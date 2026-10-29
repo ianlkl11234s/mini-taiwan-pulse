@@ -25,11 +25,11 @@ for (const [vision,matrix] of Object.entries(matrices)) {
       expect(recipe.colors.length).toBe(recipe.breaks.length+1);
       const values = recipe.colors.map(color=>lightness(color,matrix));
       const declared = getAtlasRecipe(key)?.legend.direction;
-      if (declared) {
+      if (declared && declared !== 'diverging') {
         // atlas 宣告方向（社會脆弱度 Z 分數）：不論正負都是序列色；descending 為反轉（值越低越深）。
         for (let i=1;i<values.length;i++) expect(declared === 'descending' ? values[i]! - values[i-1]! : values[i-1]! - values[i]!, key).toBeGreaterThan(5);
-      } else if (recipe.breaks.some(v=>v<0)) {
-        // Signed palettes become lighter towards zero, then darker away from zero.
+      } else if (declared === 'diverging' || recipe.breaks.some(v=>v<0)) {
+        // Signed palettes（含 atlas 明確宣告 diverging 的英國年變動率） become lighter towards zero, then darker away from zero.
         const zeroIndex = (recipe.breaks as readonly number[]).indexOf(0);
         expect(zeroIndex).toBeGreaterThanOrEqual(0);
         for (let i=1;i<=zeroIndex;i++) expect(values[i]! - values[i-1]!,key).toBeGreaterThan(5);

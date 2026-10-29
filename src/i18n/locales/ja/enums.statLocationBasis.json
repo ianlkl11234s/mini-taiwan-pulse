@@ -22,5 +22,10 @@
   "enum.statLocationBasis.金融及保險業場所單位所在縣市": "金融・保険業の事業所所在県市",
   "enum.statLocationBasis.交易發生地（交易系統記錄之縣市；跨行通匯疑為機構入帳地）": "取引発生地（取引システム記録の県市。振込は受取機関所在地の可能性）",
   "enum.statLocationBasis.壽險公司分公司、通訊處所在縣市": "生命保険会社の支社・営業所所在県市",
-  "enum.statLocationBasis.特約商店登記地址所在鄉鎮市區": "加盟店登録住所の郷鎮市区"
+  "enum.statLocationBasis.特約商店登記地址所在鄉鎮市區": "加盟店登録住所の郷鎮市区",
+  "enum.statLocationBasis.常住地所在地方行政區（LAD 2024 年界）": "常住地の地方自治体（2024 年 LAD 境界）",
+  "enum.statLocationBasis.居住地所在地方行政區（由普查小區分類彙整）": "居住地の地方自治体（国勢調査小地域の分類から集計）",
+  "enum.statLocationBasis.小區所在地方行政區（由小區排名彙整）": "小地域が属する地方自治体（小地域の順位から集計）",
+  "enum.statLocationBasis.房屋所在地方行政區（LAD 2026 年界）": "住宅の所在する地方自治体（2026 年 LAD 境界）",
+  "enum.statLocationBasis.租賃住宅所在地方行政區（LAD 2026 年界）": "賃貸住宅の所在する地方自治体（2026 年 LAD 境界）"
 }

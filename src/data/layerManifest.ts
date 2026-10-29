@@ -530,13 +530,18 @@ function atlasLevelQualifier(level: StatisticsLevel): string {
   return level === "gb_lad" ? "地方行政區" : level === "township" ? "鄉鎮" : "縣市";
 }
 
+/** 英國統計只有 LAD 一個層級，名稱本身已帶地區括號，不再加層級 qualifier（避免雙括號）。 */
+function atlasNameQualifier(level: StatisticsLevel): string | undefined {
+  return level === "gb_lad" ? undefined : atlasLevelQualifier(level);
+}
+
 /** Atlas recipes（疾病與健康、財稅與消費、原民與農村、體育、災害風險、海洋；縣市＋鄉鎮）share the dynamic Statistics renderer. */
 const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATISTICS_RECIPES.map((recipe) => {
   const visual = getStatisticsVisual(recipe.layer_key, recipe.label, recipe.subgroup);
   return [recipe.layer_key, {
     key: recipe.layer_key,
     country: atlasRecipeCountry(recipe), section: { theme: recipe.data_theme, group: recipe.subgroup },
-    ...layerName({ zh: recipe.label, qualifier: atlasLevelQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
+    ...layerName({ zh: recipe.label, qualifier: atlasNameQualifier(recipe.level) }), expandable: true, color: visual.accent, icon: visual.icon,
     upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),

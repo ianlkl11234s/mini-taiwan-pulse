@@ -292,5 +292,18 @@
   "theme.淹水 Flooding": "浸水",
   "theme.海域環境 Marine Environment": "海域環境",
   "theme.通訊 Telecom": "通信",
-  "theme.通訊": "通信"
+  "theme.通訊": "通信",
+  "theme.人口": "人口",
+  "theme.住宅": "住宅",
+  "theme.人口統計": "人口統計",
+  "theme.社經統計": "社会経済統計",
+  "theme.住宅統計": "住宅統計",
+  "theme.年中人口推估": "年央人口推計",
+  "theme.城鄉": "都市と農村",
+  "theme.英格蘭（IoD2025）": "イングランド（IoD2025）",
+  "theme.威爾斯（WIMD 2025）": "ウェールズ（WIMD 2025）",
+  "theme.蘇格蘭（SIMD 2020v2）": "スコットランド（SIMD 2020v2）",
+  "theme.北愛爾蘭（NIMDM 2017）": "北アイルランド（NIMDM 2017）",
+  "theme.房價（UK HPI）": "住宅価格（UK HPI）",
+  "theme.租金（PIPR）": "家賃（PIPR）"
 }

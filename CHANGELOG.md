@@ -69,6 +69,7 @@
 ### 新增
 - 國家選單新增 GB 英國（分享網址 `c=gb`；國土範圍含 Shetland、Orkney、外赫布里底、Scilly 與北愛，不含愛爾蘭共和國、曼島與海峽群島），英國「底圖 › 行政邊界」新增 2 個圖層：「地方政府區 LAD」361 區（ONS May 2026，四地全涵蓋）與「統計小區」（英格蘭／威爾斯 LSOA 2021、蘇格蘭 Data Zone 2022、北愛 Data Zone 2021，可切換北愛 Super Data Zone；z8 起顯示）；彈窗顯示名稱（威爾斯並列威爾斯語）、GSS 代碼、所屬地區與所屬 LAD，圖例標示各地資料版本、署名與「不可跨國比較」
   - 發版注意事項：`gb_admin_small_areas`（`public/world/gb_admin_small_areas.pmtiles` 56.8MB）於發版當天上傳 S3 `deploy-assets/world/`（`scripts/deploy/upload-deploy-assets.sh` 已加進 world 大檔清單）；`gb_admin_lad.pmtiles`（6.2MB）已 git-track，不需上傳。未上傳就發版，統計小區在正式站會是空的
+- 統計面板支援英國：統計頁籤選 GB 時顯示人口／社經／住宅 3 個主題、18 個地方政府區（LAD 361 區）統計層（年中人口、人口密度、年齡中位數、城鄉、英格蘭／威爾斯／蘇格蘭／北愛四地剝奪指數、UK HPI 房價與 PIPR 私人租金及年變動率）；來源沒涵蓋的地區一律顯示「未涵蓋」、不畫成 0，四地剝奪指數各用各的圖例，彈窗與圖例附來源署名；資料來源總覽同步補上英國原始與衍生統計
 
 ## v2.16.1 — 2026-10-28 — 切換國家時不再閃舊提示
 
