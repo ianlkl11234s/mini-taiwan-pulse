@@ -94,6 +94,7 @@ import {
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
 import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
+import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
@@ -329,6 +330,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbCulturalFacilitiesLayer", keys: ["gbCulturalFacilities"], Host: GbCulturalFacilitiesHost },
   { id: "useGbArtsVenuesLayer", keys: ["gbArtsVenues"], Host: GbArtsVenuesHost },
   { id: "useGbVisitorExperienceLayer", keys: ["gbVisitorExperience"], Host: GbVisitorExperienceHost },
+  // 英國 C003 地形（raster 兩層）、C028 公有地標售
+  { id: "useGbTerrainLayers", keys: ["gbTerrainHillshade", "gbTerrainRelief"], Host: GbTerrainHost },
+  { id: "useGbSurplusLandLayer", keys: ["gbSurplusLand"], Host: GbSurplusLandHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

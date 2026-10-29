@@ -144,5 +144,15 @@
   "legend.urban.gbFnCemetery": "Cemetery",
   "legend.urban.gbFnReligious": "Religious grounds (churchyards)",
   "legend.urban.gbReligiousNote": "Religious grounds are the grounds of churches and other places of worship; they often include burial grounds but are not cemeteries",
-  "legend.urban.gbGreenspaceZoom": "Shown from zoom {zoom}"
+  "legend.urban.gbGreenspaceZoom": "Shown from zoom {zoom}",
+  "legend.urban.gbHillshadeNote": "Grey-scale terrain shading (light from the north-west, 45° altitude); shows relief only, no values; sea is transparent",
+  "legend.urban.gbTerrainCoverage": "Coverage 3/4: England, Scotland, Wales; Northern Ireland not covered (OS Terrain 50 is Great Britain only)",
+  "legend.urban.gbTerrainResolution": "OS Terrain 50: 50 m grid digital terrain model (July 2026 release), tiles at zoom 5–11",
+  "legend.urban.gbReliefStops": "Colour stops (m): {stops}; colours blend continuously between stops",
+  "legend.urban.gbReliefNote": "Colours are baked into the tiles upstream (lowland green → tan → brown → grey-white summits); they show elevation ranges, not exact values; sea is transparent",
+  "legend.urban.gbSurplusNotOnMarket": "Surplus, not yet on the market ({n})",
+  "legend.urban.gbSurplusUnderOffer": "Under offer ({n})",
+  "legend.urban.gbSurplusOnMarket": "On the market ({n})",
+  "legend.urban.gbSurplusScope": "Only surplus assets registered by central government, the NHS, the Ministry of Defence and Welsh public bodies; most English council and Scottish / Northern Irish devolved-government assets are not included",
+  "legend.urban.gbSurplusCoverage": "420 sites: England 290, Wales 115, Scotland 14, Northern Ireland 1; data as of 2026-06-29"
 }

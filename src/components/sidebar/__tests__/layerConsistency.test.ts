@@ -242,6 +242,8 @@ const NO_POPUP_LEDGER = new Set([
   "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
   // 日本第四波：地理院タイル地形 raster（已上色成品 PNG，無 feature 屬性）
   "jpGsiHillshade", "jpGsiRelief",
+  // 英國 C003：OS Terrain 50 地形 raster（上游烘好的 PNG，無 feature 屬性）
+  "gbTerrainHillshade", "gbTerrainRelief",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -601,7 +603,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("ooklaMobileTaiwan")).toBe(true);
     expect(countryLayerKeys("JP")).toContain("jpStations");
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
-    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries", "gbLondonStations", "gbStationUsage", "gbLondonBikePoints", "gbLondonRailLines", "gbLondonJamCams", "gbTransportHubs", "gbLondonChargingZones", "gbSchools", "gbCareHomes", "gbCareServices", "gbCulturalFacilities", "gbArtsVenues", "gbVisitorExperience", "gbCoastalErosionRisk", "gbHealthFacilities", "gbFireStations", "gbCourts", "gbBathingWaters", "gbMarineProtectedAreas", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets", "gbProtectedAreas", "gbTreeProtection", "gbWoodland", "gbOpenAccessLand", "gbForestRecreation", "gbTrails", "gbPowerPlants", "gbPowerLines", "gbSubstations", "gbRenewables", "gbFuelStations", "gbOilGasFields"]);
+    expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries", "gbTerrainHillshade", "gbTerrainRelief", "gbLondonStations", "gbStationUsage", "gbLondonBikePoints", "gbLondonRailLines", "gbLondonJamCams", "gbTransportHubs", "gbLondonChargingZones", "gbSurplusLand", "gbSchools", "gbCareHomes", "gbCareServices", "gbCulturalFacilities", "gbArtsVenues", "gbVisitorExperience", "gbCoastalErosionRisk", "gbHealthFacilities", "gbFireStations", "gbCourts", "gbBathingWaters", "gbMarineProtectedAreas", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets", "gbProtectedAreas", "gbTreeProtection", "gbWoodland", "gbOpenAccessLand", "gbForestRecreation", "gbTrails", "gbPowerPlants", "gbPowerLines", "gbSubstations", "gbRenewables", "gbFuelStations", "gbOilGasFields"]);
     expect(tw.has("gbAdminBoundaries")).toBe(false);
   });
 

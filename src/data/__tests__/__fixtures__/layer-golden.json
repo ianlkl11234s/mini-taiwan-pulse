@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1392,
+    "keyCount": 1399,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1394,6 +1394,12 @@
         "gb-visitor-attraction-circle"
       ],
       "type": "gbVisitorExperience"
+    },
+    {
+      "layers": [
+        "gb-surplus-land-circle"
+      ],
+      "type": "gbSurplusLand"
     },
     {
       "layers": [
@@ -3895,6 +3901,10 @@
         "statsGbHousePriceChange-fill",
         "statsGbPrivateRent-fill",
         "statsGbPrivateRentChange-fill",
+        "statsGbCropCerealsShare-fill",
+        "statsGbCropArableShare-fill",
+        "statsGbCropFruitVegArea-fill",
+        "statsGbCropGrasslandShare-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -91020,6 +91030,48 @@
         "valueText": "1.0"
       }
     ],
+    "gbSurplusLand": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbTerrainHillshade": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "gbTerrainRelief": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
     "gbTrails": [
       {
         "label": "透明度 0.85",
@@ -126696,6 +126748,178 @@
       }
     ],
     "statsFoodWasteCounty": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbCropArableShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "穀物面積占比",
+            "value": "statsGbCropCerealsShare"
+          },
+          {
+            "label": "其他耕作物面積占比",
+            "value": "statsGbCropArableShare"
+          },
+          {
+            "label": "蔬果面積",
+            "value": "statsGbCropFruitVegArea"
+          },
+          {
+            "label": "草地面積占比",
+            "value": "statsGbCropGrasslandShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbCropArableShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbCropCerealsShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "穀物面積占比",
+            "value": "statsGbCropCerealsShare"
+          },
+          {
+            "label": "其他耕作物面積占比",
+            "value": "statsGbCropArableShare"
+          },
+          {
+            "label": "蔬果面積",
+            "value": "statsGbCropFruitVegArea"
+          },
+          {
+            "label": "草地面積占比",
+            "value": "statsGbCropGrasslandShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbCropCerealsShare"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbCropFruitVegArea": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "穀物面積占比",
+            "value": "statsGbCropCerealsShare"
+          },
+          {
+            "label": "其他耕作物面積占比",
+            "value": "statsGbCropArableShare"
+          },
+          {
+            "label": "蔬果面積",
+            "value": "statsGbCropFruitVegArea"
+          },
+          {
+            "label": "草地面積占比",
+            "value": "statsGbCropGrasslandShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbCropFruitVegArea"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsGbCropGrasslandShare": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "穀物面積占比",
+            "value": "statsGbCropCerealsShare"
+          },
+          {
+            "label": "其他耕作物面積占比",
+            "value": "statsGbCropArableShare"
+          },
+          {
+            "label": "蔬果面積",
+            "value": "statsGbCropFruitVegArea"
+          },
+          {
+            "label": "草地面積占比",
+            "value": "statsGbCropGrasslandShare"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsGbCropGrasslandShare"
+      },
       {
         "label": "資料期別",
         "options": [],

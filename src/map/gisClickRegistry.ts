@@ -317,6 +317,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-arts-venues-circle"], type: "gbArtsVenues" },
   { layers: ["gb-cultural-facilities-circle"], type: "gbCulturalFacilities" },
   { layers: ["gb-visitor-other-circle", "gb-visitor-attraction-circle"], type: "gbVisitorExperience" },
+  // 英國 C028 公有地標售（點）
+  { layers: ["gb-surplus-land-circle"], type: "gbSurplusLand" },
   // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
   { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
   { layers: ["gb-renewables-circle"], type: "gbRenewables" },

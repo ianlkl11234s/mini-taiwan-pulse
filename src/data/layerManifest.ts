@@ -160,6 +160,7 @@ import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { GB_CARE_HOMES_COLOR, GB_CARE_SERVICES_COLOR, GB_COURTS_COLOR, GB_FIRE_COLOR, GB_HEALTH_COLOR, GB_SCHOOLS_COLOR } from "./gbCivicTypes";
 import { GB_ARTS_COLOR, GB_CULTURAL_COLOR, GB_VISITOR_COLOR } from "./gbCultureTypes";
+import { GB_SURPLUS_COLOR, GB_TERRAIN_LEGEND_COLOR, GB_TERRAIN_RELIEF_COLOR } from "./gbLandTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 import {
   COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
@@ -3663,8 +3664,7 @@ export const LAYER_MANIFEST = {
   },
 
   // 🇬🇧 英國第 1 波（2026-10-29：C002 海域界線、C023 建成區、C044／C043／C052 綠地三層）
-  // C003 地形兩層（gb_terrain_hillshade／gb_terrain_relief）是 WEBP raster PMTiles，mapbox-pmtiles 1.0.56 只收 PNG／JPEG／MVT，
-  // 待上游重匯出成 PNG 再接，本波未登記。
+  // C003 地形兩層（gb_terrain_hillshade／gb_terrain_relief）已由 analytics #246 重匯出成 PNG，見下方 gbTerrainHillshade／gbTerrainRelief。
   gbMaritimeLimits: {
     key: "gbMaritimeLimits",
     country: "GB", section: { theme: "底圖", group: "海域界線" },
@@ -4689,6 +4689,85 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "英國景點、遊客中心、動物園、主題樂園、水族館（OSM；景點縮放 9 級起顯示）",
     topics: ["英國", "景點", "遊客中心", "動物園", "主題樂園", "水族館", "觀光", "OSM"],
+  },
+
+  // 🇬🇧 英國 C003 地形（OS Terrain 50 raster PNG PMTiles；比照台灣 hillshade 與日本地理院地形的「底圖 › 地形」）
+  gbTerrainHillshade: {
+    key: "gbTerrainHillshade",
+    country: "GB", section: { theme: "底圖", group: "地形" },
+    ...layerName({ zh: "山體陰影", alt: "Hillshade", qualifier: "OS Terrain 50" }),
+    expandable: true,
+    color: GB_TERRAIN_LEGEND_COLOR,
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_terrain50_relief", confidence: "HIGH" }],
+      processing: "OS Terrain 50（50 m 格網，2026-07）gdaldem hillshade -z 2 -az 315 -alt 45（沿用台灣參數）→ 灰階＋alpha PNG raster PMTiles z5–11，3,161 圖磚；海面透明",
+      note: "OS OpenData（OGL v3.0）；3/4 涵蓋（北愛未涵蓋）；已上色成品、沒有 feature 屬性與 popup；預設關閉",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbLandLayers 自建 mapbox-pmtiles raster source；gb_terrain_hillshade.pmtiles（PNG），minzoom=5 maxzoom=11，插在底圖第一個 symbol 下；107.5MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_terrain_hillshade.pmtiles"],
+    },
+    legend: "gbTerrainHillshade",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國山體陰影（OS Terrain 50，大不列顛；灰階地形起伏背景，北愛未涵蓋）",
+    topics: ["英國", "底圖", "地形", "陰影"],
+  },
+  gbTerrainRelief: {
+    key: "gbTerrainRelief",
+    country: "GB", section: { theme: "底圖", group: "地形" },
+    ...layerName({ zh: "色別標高", alt: "Elevation Tint", qualifier: "OS Terrain 50" }),
+    expandable: true,
+    color: GB_TERRAIN_RELIEF_COLOR,
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_terrain50_relief", confidence: "HIGH" }],
+      processing: "OS Terrain 50（50 m 格網，2026-07）gdaldem color-relief，-3～1,345 m 九停點（低地綠 → 黃褐 → 褐 → 山頂灰白）烘進 RGBA PNG raster PMTiles z5–11，3,161 圖磚；海面透明",
+      note: "OS OpenData（OGL v3.0）；3/4 涵蓋（北愛未涵蓋）；色階烘在圖磚內，顏色只代表標高範圍；沒有 feature 屬性與 popup；預設關閉",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbLandLayers 自建 mapbox-pmtiles raster source；gb_terrain_relief.pmtiles（PNG RGBA），minzoom=5 maxzoom=11，插在山體陰影下；116.1MB 走 S3 deploy-assets",
+      staticAssets: ["./world/gb_terrain_relief.pmtiles"],
+    },
+    legend: "gbTerrainRelief",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國色別標高（OS Terrain 50，大不列顛；依標高上色的地形背景，顏色非精確標高，北愛未涵蓋）",
+    topics: ["英國", "底圖", "地形", "標高"],
+  },
+
+  // 🇬🇧 英國 C028 公有地標售（比照台灣 statePropertyTenderListings 的「房地產 › 國有財產標售」）
+  gbSurplusLand: {
+    key: "gbSurplusLand",
+    country: "GB", section: { theme: "房地產", group: "公有財產標售" },
+    ...layerName({ zh: "公有地標售", alt: "Surplus Public Land" }),
+    expandable: true,
+    color: GB_SURPLUS_COLOR,
+    icon: Gavel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_surplus_land", confidence: "HIGH" }],
+      processing: "Cabinet Office Government Property Estate — Disposal（Surplus.xlsx，2026-06-29）433 列 → 420 點（13 列無座標且無有效郵遞區號不收）；BNG／Irish Grid 轉 EPSG:4326，2 筆以停用郵遞區號中心定位；PMTiles z4–12",
+      note: "OGL v3.0＋ONSPD 三段署名；4/4 名義涵蓋（England 290／Wales 115／Scotland 14／Northern Ireland 1）；只含中央政府、NHS、國防部與威爾斯公部門登錄資產",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbLandLayers 自建 mapbox-pmtiles source；gb_surplus_land.pmtiles；source-layer=gb_surplus_land，minzoom=4 maxzoom=12（layer minzoom 5）；0.77MB git-track",
+      staticAssets: ["./world/gb_surplus_land.pmtiles"],
+    },
+    legend: "gbSurplusLand",
+    popup: "gbSurplusLand",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國公部門列為 surplus 的待處分不動產（依標售進度：尚未上市／洽談中／上市標售中）",
+    topics: ["英國", "房地產", "公有地", "標售", "不動產"],
   },
 
   osmCommunicationSites: {

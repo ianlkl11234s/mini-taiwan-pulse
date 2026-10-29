@@ -432,6 +432,7 @@ export type ExpandableLayerKey =
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
   | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
+  | "gbTerrainHillshade" | "gbTerrainRelief" | "gbSurplusLand"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -976,6 +977,8 @@ export interface FeatureInfo {
     | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
     // 英國第 8 波：文化設施、藝文場館、觀光體驗
     | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
+    // 英國 C028 公有地標售（地形 raster 無 popup）
+    | "gbSurplusLand"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1810,6 +1813,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbCulturalFacilities: boolean; // 英國博物館、美術館／畫廊、圖書館（Libraries NI 官方 98＋OSM 8,214）
   gbArtsVenues: boolean;        // 英國劇院、電影院、藝術中心、音樂廳（OSM，3,210）
   gbVisitorExperience: boolean; // 英國景點、遊客中心、動物園、主題樂園、水族館（OSM，7,050）
+  gbTerrainHillshade: boolean;  // 英國山體陰影（OS Terrain 50，raster PNG PMTiles）
+  gbTerrainRelief: boolean;     // 英國色別標高（OS Terrain 50，raster PNG PMTiles）
+  gbSurplusLand: boolean;       // 英國公有地標售（Cabinet Office Disposal，420）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

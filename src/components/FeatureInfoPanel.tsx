@@ -94,6 +94,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbCulturalFacilities",
   "gbArtsVenues",
   "gbVisitorExperience",
+  "gbSurplusLand",
   "disasterShelters",
   "nationalParks",
   "osmBridgeCarriers",

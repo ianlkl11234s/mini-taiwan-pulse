@@ -144,5 +144,15 @@
   "legend.urban.gbFnCemetery": "墓園",
   "legend.urban.gbFnReligious": "宗教場地（教堂院地）",
   "legend.urban.gbReligiousNote": "宗教場地是教堂等宗教建物的院地，常含墓地但不等於墓園",
-  "legend.urban.gbGreenspaceZoom": "放大到 z{zoom} 以上才顯示"
+  "legend.urban.gbGreenspaceZoom": "放大到 z{zoom} 以上才顯示",
+  "legend.urban.gbHillshadeNote": "灰階地形陰影（光源西北、高度角 45°），只表示起伏，不含數值；海面透明",
+  "legend.urban.gbTerrainCoverage": "涵蓋 3/4：英格蘭、蘇格蘭、威爾斯；北愛爾蘭未涵蓋（OS Terrain 50 只有大不列顛）",
+  "legend.urban.gbTerrainResolution": "OS Terrain 50：50 m 格網數值地形（2026-07 版），圖磚縮放 5–11 級",
+  "legend.urban.gbReliefStops": "色階停點（m）：{stops}；停點間連續漸變",
+  "legend.urban.gbReliefNote": "色階由上游烘進圖磚（低地綠 → 黃褐 → 褐 → 山頂灰白），顏色只代表標高範圍，非精確數值；海面透明",
+  "legend.urban.gbSurplusNotOnMarket": "已列 surplus、尚未上市（{n}）",
+  "legend.urban.gbSurplusUnderOffer": "洽談中（已有出價，{n}）",
+  "legend.urban.gbSurplusOnMarket": "上市標售中（{n}）",
+  "legend.urban.gbSurplusScope": "只含中央政府、NHS、國防部與威爾斯公部門登錄的 surplus 資產；英格蘭地方議會與蘇格蘭、北愛自治政府資產多數不在此資料",
+  "legend.urban.gbSurplusCoverage": "420 處：英格蘭 290、威爾斯 115、蘇格蘭 14、北愛爾蘭 1；資料日期 2026-06-29"
 }

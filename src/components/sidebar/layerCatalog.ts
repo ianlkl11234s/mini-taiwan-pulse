@@ -342,6 +342,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 8 波：文化（文化設施、藝文場館）、觀光（觀光體驗；比照台灣主題位置）
     "文化",
     "觀光",
+    // C028 公有地標售（比照台灣「房地產 Real Estate」）
+    "房地產",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2583,6 +2585,8 @@ const THEME_CATALOG: ThemeDef[] = [
       // 第 1 波：OS Open Greenspace 同一檔三層。台灣同類分在「運動休閒」（parksTaipei、sports*）與「殯葬」（cemeteryOsm），
       // 英國目前沒有那兩個主題，先放底圖；之後開主題時整群搬過去即可
       { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbCemeteries")] },
+      // C003：OS Terrain 50 山體陰影／色別標高，比照台灣 hillshade 與日本地理院地形的「底圖 › 地形」
+      { title: "地形", layers: [fromManifest("gbTerrainHillshade"), fromManifest("gbTerrainRelief")] },
     ],
   },
   {
@@ -2719,6 +2723,14 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "玩・自然 Nature", layers: [fromManifest("gbVisitorExperience")] }],
   },
+  {
+    // C028：比照台灣 statePropertyTenderListings 的「房地產 › 國有財產標售」；英國資料含 NHS、國防部與威爾斯公部門，
+    // 不只國有，群組名改「公有財產標售」
+    title: "房地產",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "公有財產標售", layers: [fromManifest("gbSurplusLand")] }],
+  },
 
 ];
 
@@ -2846,6 +2858,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "執法治安": "safety",
     "文化": "publicLife",
     "觀光": "publicLife",
+    "房地產": "city",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3001,6 +3014,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "執法治安": { zh: "執法治安", sub: "Law & Order" },
     "文化": { zh: "文化", sub: "Culture" },
     "觀光": { zh: "觀光", sub: "Tourism" },
+    "房地產": { zh: "房地產", sub: "Real Estate" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
