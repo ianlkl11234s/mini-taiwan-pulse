@@ -1360,5 +1360,12 @@
   "layer.gbLondonStations": "ロンドン鉄道駅",
   "layer.gbLondonBikePoints": "ロンドンのシェアサイクル（Santander Cycles）",
   "layer.gbLondonJamCams": "ロンドン道路カメラ",
-  "layer.gbLondonChargingZones": "ロンドン課金・低排出ゾーン"
+  "layer.gbLondonChargingZones": "ロンドン課金・低排出ゾーン",
+  "layer.gbProtectedAreas": "保護地域",
+  "layer.gbMarineProtectedAreas": "海洋保護区",
+  "layer.gbWoodland": "森林",
+  "layer.gbForestRecreation": "森林レクリエーション施設",
+  "layer.gbTrails": "トレイル",
+  "layer.gbOpenAccessLand": "立ち入り開放地",
+  "layer.gbTreeProtection": "樹木保護"
 }

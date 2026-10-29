@@ -5,6 +5,7 @@ import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
+import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -123,5 +124,55 @@ export const GbLondonChargingZonesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbLondonChargingZonesLayer");
   const p = useKeyOverlayParams("gbLondonChargingZones");
   useGbLondonChargingZonesLayer(deps.mapRef, deps.layerVisibility.gbLondonChargingZones, p.gbLondonChargingZonesOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護（各自一個 PMTiles）。 */
+export const GbProtectedAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbProtectedAreasLayer");
+  const p = useKeyOverlayParams("gbProtectedAreas");
+  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+export const GbMarineProtectedAreasHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbMarineProtectedAreasLayer");
+  const p = useKeyOverlayParams("gbMarineProtectedAreas");
+  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, deps.isDarkTheme);
+  return null;
+};
+
+export const GbWoodlandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbWoodlandLayer");
+  const p = useKeyOverlayParams("gbWoodland");
+  useGbWoodlandLayer(deps.mapRef, deps.layerVisibility.gbWoodland, p.gbWoodlandOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+export const GbForestRecreationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbForestRecreationLayer");
+  const p = useKeyOverlayParams("gbForestRecreation");
+  useGbForestRecreationLayer(deps.mapRef, deps.layerVisibility.gbForestRecreation, p.gbForestRecreationOpacity ?? 0.75, p.gbForestRecreationScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTrailsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTrailsLayer");
+  const p = useKeyOverlayParams("gbTrails");
+  useGbTrailsLayer(deps.mapRef, deps.layerVisibility.gbTrails, p.gbTrailsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbOpenAccessLandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbOpenAccessLandLayer");
+  const p = useKeyOverlayParams("gbOpenAccessLand");
+  useGbOpenAccessLandLayer(deps.mapRef, deps.layerVisibility.gbOpenAccessLand, p.gbOpenAccessLandOpacity ?? 0.6, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTreeProtectionHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTreeProtectionLayer");
+  const p = useKeyOverlayParams("gbTreeProtection");
+  useGbTreeProtectionLayer(deps.mapRef, deps.layerVisibility.gbTreeProtection, p.gbTreeProtectionOpacity ?? 0.7, p.gbTreeProtectionScale ?? 1, deps.isDarkTheme);
   return null;
 };

@@ -37,5 +37,11 @@
   "popup.marine.historyError": "歷史觀測載入失敗，請稍後再試。",
   "popup.marine.datumConflict": "歷史資料含多個 vertical datum（{datums}），為避免錯誤比較，本圖不合併繪製。",
   "popup.marine.noWindowData": "此時間窗沒有有效數值；missing／invalid 不補 0。",
-  "popup.marine.excluded": "{n} 筆 missing／invalid／datum 不符資料未納入曲線，未轉成 0。"
+  "popup.marine.excluded": "{n} 筆 missing／invalid／datum 不符資料未納入曲線，未轉成 0。",
+  "popup.marine.gbMpaTitle": "海洋保護區",
+  "popup.marine.gbMpaType": "類型",
+  "popup.marine.gbMpaLead": "主管機關",
+  "popup.marine.gbMpaArea": "面積",
+  "popup.marine.gbMpaStatus": "狀態",
+  "popup.marine.gbMpaNav": "不可用於航行"
 }

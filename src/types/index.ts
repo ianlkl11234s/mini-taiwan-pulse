@@ -428,6 +428,7 @@ export type ExpandableLayerKey =
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
+  | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -964,6 +965,8 @@ export interface FeatureInfo {
     | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
     // 英國第 4 波：交通樞紐、站客流、倫敦軌道線／站、單車站、道路攝影機、收費區
     | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
+    // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
+    | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1776,6 +1779,13 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbLondonBikePoints: boolean;  // 倫敦 Santander Cycles 站（TfL，798）
   gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
+  gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
+  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，152 面、HPMA 3 面不畫）
+  gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）
+  gbForestRecreation: boolean;  // 英國森林遊憩設施（FE＋NRW，24,487 點）
+  gbTrails: boolean;            // 英國步道（國家步道 42＋公有林步道 4,400）
+  gbOpenAccessLand: boolean;    // 英國開放進入地（CRoW，英格蘭＋威爾斯 48,034 面）
+  gbTreeProtection: boolean;    // 英國樹木保護（TPO 試辦機關＋古老林地，502,408）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

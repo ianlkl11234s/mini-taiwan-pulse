@@ -1346,5 +1346,8 @@
   "param.北愛層級": "NI level",
   "param.長期（2100／2105）": "Long term (2100/2105)",
   "param.短期（2050／2055）": "Short term (2050/2055)",
-  "param.兩期": "Both periods"
+  "param.兩期": "Both periods",
+  "param.景觀類": "Landscape",
+  "param.國內法保護區": "Domestic designations",
+  "param.國際指定": "International designations"
 }

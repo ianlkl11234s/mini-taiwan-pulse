@@ -29,6 +29,17 @@ import {
   GB_TFL_OPEN_DATA_URL, GB_TRANSPORT_FETCHED_AT, GB_TRANSPORT_OGL_V3, gbChargingZone, gbHubType, gbLondonRailMode,
   gbLondonStationIsInterchange, type GbChargingZone, type GbHubType, type GbLondonRailMode,
 } from "../../data/gbTransportTypes";
+import {
+  GB_ACCESS_TYPES, GB_AW_STATUS, GB_MPA_COLOR, GB_MPA_DRMPA_URL, GB_MPA_SOURCES, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR, GB_NATURE_FETCHED_AT,
+  GB_NATURE_OGL_V3, GB_OPEN_ACCESS_COLOR, GB_OPEN_ACCESS_NRW_COMMON_URL, GB_OPEN_ACCESS_SOURCES, GB_PROTECTED_AREAS_COLOR,
+  GB_PROTECTED_SOURCE_URLS, GB_PROTECTED_SOURCES, GB_RECREATION_CATEGORIES, GB_RECREATION_SOURCES, GB_RECREATION_UNCLASSIFIED_COLOR,
+  GB_TPO_TREE_URL, GB_TRAIL_FLAG_STATUSES, GB_TRAIL_UNCLASSIFIED_COLOR, GB_TREE_CATEGORIES, GB_TREE_PROTECTION_COLOR, GB_TREE_SOURCES,
+  GB_WOODLAND_COLOR, GB_WOODLAND_FC_ATTRIBUTION, GB_WOODLAND_FC_URL, GB_WOODLAND_NI_ATTRIBUTION, GB_WOODLAND_NI_COLOR, GB_WOODLAND_NI_KIND,
+  GB_WOODLAND_NI_URL, gbDesignation, gbTrailCategory, gbTrailSource, gbWoodlandGroup, type GbAncientWoodlandStatus,
+} from "../../data/gbNatureTypes";
+import {
+  GB_ACCESS_TYPE_KEYS, GB_DESIGNATION_KEYS, GB_MPA_TYPE_KEYS, GB_RECREATION_KEYS, GB_TRAIL_CATEGORY_KEYS, GB_TREE_CATEGORY_KEYS, GB_WOODLAND_GROUP_KEYS,
+} from "../legend/gbNatureLegends";
 import { LinkRow } from "./atlasPanels";
 import type { MessageKey } from "../../i18n/keys";
 
@@ -490,5 +501,178 @@ export function GbLondonChargingZonesPanel({ props }: { props: Record<string, un
     <Row label={t("popup.transport.gbBoundaryVersion")} value={text(props.boundary_version).split("（")[0]!.trim()} mono />
     <Row label="" value={t("popup.transport.gbZoneTfLNote")} />
     <TflFooter url={GB_TFL_OPEN_DATA_URL} />
+  </>;
+}
+
+// ─────────────────────────── 英國第 5 波：自然與林業 ───────────────────────────
+
+/** 圖例字串尾端的括號補充（zoom、例子）在 popup 不顯示。 */
+const STRIP_PAREN = /\s*[（(][^（(]*[）)]$/;
+function useHectares() {
+  const { t } = useLocale();
+  return (value: unknown) => {
+    const n = num(value);
+    return n != null ? t("popup.baseMap.gbHectares", { value: n.toLocaleString(undefined, { maximumFractionDigits: 1 }) }) : "";
+  };
+}
+const natureFooter = (src: { attribution: string; url: string } | undefined) =>
+  src ? <SourceFooter props={{ source_org: src.attribution, source_url: src.url, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} /> : null;
+
+/** 英國保護區：名稱、類別（中文＋當地名稱）、地區、面積、代碼、來源機關。 */
+export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const ha = useHectares();
+  const d = gbDesignation(props.designation);
+  const local = text(props.designation_local);
+  const source = text(props.source);
+  const attribution = GB_PROTECTED_SOURCES[source];
+  const url = GB_PROTECTED_SOURCE_URLS[`${text(props.nation)}:${text(props.designation)}`] ?? "";
+  return <>
+    <Title color={d?.color ?? GB_PROTECTED_AREAS_COLOR}>{text(props.name) || t("popup.environmentLayer.gbPaTitle")}</Title>
+    <Row label={t("popup.environmentLayer.gbPaDesignation")} value={d ? t(GB_DESIGNATION_KEYS[d.value]) : text(props.designation)} />
+    {local ? <Row label={t("popup.environmentLayer.gbPaLocalName")} value={local.replace(/_/g, " ")} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.environmentLayer.gbPaArea")} value={ha(props.area_ha)} />
+    <Row label={t("popup.environmentLayer.gbPaSiteCode")} value={text(props.site_code)} mono />
+    <Row label={t("popup.environmentLayer.gbPaSourceOrg")} value={source} />
+    {attribution ? <SourceFooter props={{ source_org: attribution, source_url: url, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} /> : null}
+  </>;
+}
+
+/** 英國海洋保護區：名稱、類型、主管機關（null 不顯示）、面積、狀態、地區；不可用於航行。 */
+export function GbMarineProtectedAreasPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const ha = useHectares();
+  const type = GB_MPA_TYPES.find((m) => m.value === props.mpa_type);
+  const src = GB_MPA_SOURCES[text(props.source)];
+  const footer = src && props.mpa_type === "drmpa" ? { ...src, url: GB_MPA_DRMPA_URL } : src;
+  return <>
+    <Title color={type?.color ?? GB_MPA_COLOR}>{text(props.name) || t("popup.marine.gbMpaTitle")}</Title>
+    <Row label={t("popup.marine.gbMpaType")} value={type ? t(GB_MPA_TYPE_KEYS[type.value]) : text(props.mpa_type)} />
+    <Row label={t("popup.marine.gbMpaLead")} value={text(props.lead).replace(/_/g, " ")} />
+    <Row label={t("popup.marine.gbMpaArea")} value={ha(props.area_ha)} />
+    <Row label={t("popup.marine.gbMpaStatus")} value={text(props.status)} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.marine.gbMpaNav")} />
+    {natureFooter(footer)}
+  </>;
+}
+
+/** 英國林地：林型（中文＋原文）、地區、來源；北愛為優先棲地林地（非 NFI）。tiles 無面積欄。 */
+export function GbWoodlandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const ni = props.kind === GB_WOODLAND_NI_KIND;
+  const group = gbWoodlandGroup(props.forest_type);
+  const raw = text(props.forest_type);
+  return <>
+    <Title color={ni ? GB_WOODLAND_NI_COLOR : group?.color ?? GB_WOODLAND_COLOR}>{ni ? t("legend.environment.gbWoodNi") : t("popup.forestry.gbWoodTitle")}</Title>
+    {!ni ? <Row label={t("popup.forestry.gbWoodType")} value={[group ? t(GB_WOODLAND_GROUP_KEYS[group.value]) : "", raw].filter(Boolean).join(" · ")} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.forestry.gbWoodSource")} value={t(ni ? "popup.forestry.gbWoodNiSource" : "popup.forestry.gbWoodNfi")} />
+    <SourceFooter props={ni
+      ? { source_org: GB_WOODLAND_NI_ATTRIBUTION, source_url: GB_WOODLAND_NI_URL, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }
+      : { source_org: GB_WOODLAND_FC_ATTRIBUTION, source_url: GB_WOODLAND_FC_URL, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} />
+  </>;
+}
+
+/** 英國森林遊憩設施：名稱（null＝未命名）、類別、設施型、設置日期、森林區；威爾斯只有 NRW 代碼。 */
+export function GbForestRecreationPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const cat = GB_RECREATION_CATEGORIES.find((c) => c.value === props.category);
+  const wales = props.source === "Natural Resources Wales";
+  const asset = text(props.asset_type);
+  return <>
+    <Title color={cat?.color ?? GB_RECREATION_UNCLASSIFIED_COLOR}>{text(props.name) || t("popup.forestry.gbRecUnnamed")}</Title>
+    <Row label={t("popup.forestry.gbRecCategory")} value={cat
+      ? t(GB_RECREATION_KEYS[cat.value]).replace(STRIP_PAREN, "")
+      : wales ? t("popup.forestry.gbRecNrwCode", { code: text(props.type_code) || "—" }) : ""} />
+    {!wales && asset ? <Row label={t("popup.forestry.gbRecAssetType")} value={asset} /> : null}
+    <Row label={t("popup.forestry.gbRecInstall")} value={text(props.install_date)} mono />
+    <Row label={t("popup.forestry.gbRecDistrict")} value={text(props.district)} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    {natureFooter(GB_RECREATION_SOURCES[text(props.source)])}
+  </>;
+}
+
+/** 英國步道：路線名、類別、型態、難度、狀態（非官方／臨時要標）、長度（依圖形量測者加註）。 */
+export function GbTrailsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const national = props.route_class === "national_trail";
+  const cat = gbTrailCategory(props.category);
+  const status = text(props.status);
+  const km = num(props.length_km);
+  const measured = props.length_km_measured === true || props.length_km_measured === "true" || props.length_km_measured === "True";
+  const kmText = km != null ? t(measured ? "popup.forestry.gbTrailKmMeasured" : "popup.forestry.gbTrailKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) }) : "";
+  const classLabel = national
+    ? t("legend.environment.gbTrailNational").replace(STRIP_PAREN, "")
+    : [t("legend.environment.gbTrailForestHeading").replace(STRIP_PAREN, ""), cat ? t(GB_TRAIL_CATEGORY_KEYS[cat.value]).replace(STRIP_PAREN, "") : ""].filter(Boolean).join(" · ");
+  return <>
+    <Title color={national ? GB_NATIONAL_TRAIL_COLOR : cat?.color ?? GB_TRAIL_UNCLASSIFIED_COLOR}>{text(props.name) || t("popup.forestry.gbTrailUnnamed")}</Title>
+    <Row label={t("popup.forestry.gbTrailClass")} value={classLabel} />
+    <Row label={t("popup.forestry.gbTrailType")} value={text(props.route_type)} />
+    <Row label={t("popup.forestry.gbTrailGrade")} value={text(props.grade)} />
+    <Row label={t("popup.forestry.gbTrailStatus")} value={status ? (GB_TRAIL_FLAG_STATUSES.includes(status) ? `${status} · ${t("popup.forestry.gbTrailUnofficial")}` : status) : ""} />
+    <Row label={t("popup.forestry.gbTrailLength")} value={kmText} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    {natureFooter(gbTrailSource(props))}
+  </>;
+}
+
+/** 英國開放進入地：類別、同時屬於的其他類（旗標）、面積、地區；固定說明可徒步自由進入。 */
+export function GbOpenAccessLandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const ha = useHectares();
+  const type = GB_ACCESS_TYPES.find((a) => a.value === props.access_type);
+  const isTrue = (v: unknown) => v === true || v === "True" || v === "true";
+  const flags = GB_ACCESS_TYPES.filter((a) => a.value !== type?.value && isTrue(props[a.flag])).map((a) => t(GB_ACCESS_TYPE_KEYS[a.value]).replace(STRIP_PAREN, ""));
+  const nrwCommon = props.source === "Natural Resources Wales" && props.access_type === "common_land";
+  const src = GB_OPEN_ACCESS_SOURCES[text(props.source)];
+  return <>
+    <Title color={type?.color ?? GB_OPEN_ACCESS_COLOR}>{t("popup.forestry.gbOaTitle")}</Title>
+    <Row label={t("popup.forestry.gbOaType")} value={type ? t(GB_ACCESS_TYPE_KEYS[type.value]) : text(props.access_type)} />
+    {flags.length ? <Row label={t("popup.forestry.gbOaFlags")} value={flags.join("、")} /> : null}
+    <Row label={t("popup.forestry.gbOaArea")} value={ha(props.area_ha)} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("legend.environment.gbOaNote")} />
+    {natureFooter(src && nrwCommon ? { ...src, url: GB_OPEN_ACCESS_NRW_COMMON_URL } : src)}
+  </>;
+}
+
+const GB_AW_STATUS_KEYS: Record<GbAncientWoodlandStatus, MessageKey> = {
+  asnw: "popup.environmentLayer.gbAwAsnw", paws: "popup.environmentLayer.gbAwPaws", restored: "popup.environmentLayer.gbAwRestored",
+  unknown: "popup.environmentLayer.gbAwUnknown", longEstablished: "popup.environmentLayer.gbAwLongEstablished",
+  otherRoy: "popup.environmentLayer.gbAwOtherRoy", deleted: "popup.environmentLayer.gbAwDeleted",
+};
+
+/** 英國樹木保護：TPO → 編號、地方政府（加註只含試辦機關）；古老林地 → 類別（中文＋原文）、名稱、面積。 */
+export function GbTreeProtectionPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const ha = useHectares();
+  const cat = GB_TREE_CATEGORIES.find((c) => c.value === props.category);
+  const tpo = props.category === "tpo_zone" || props.category === "tpo_tree";
+  const aw = text(props.aw_status);
+  const awKey = GB_AW_STATUS[aw];
+  const src = GB_TREE_SOURCES[text(props.source)];
+  const footer = src && props.category === "tpo_tree" ? { ...src, url: GB_TPO_TREE_URL } : src;
+  return <>
+    <Title color={cat?.color ?? GB_TREE_PROTECTION_COLOR}>{tpo ? t(GB_TREE_CATEGORY_KEYS[cat!.value]) : text(props.name) || (cat ? t(GB_TREE_CATEGORY_KEYS[cat.value]) : t("popup.environmentLayer.gbTreeTitle"))}</Title>
+    <Row label={t("popup.environmentLayer.gbTreeCategory")} value={cat ? t(GB_TREE_CATEGORY_KEYS[cat.value]) : text(props.category)} />
+    {tpo ? <>
+      <Row label={t("popup.environmentLayer.gbTpoRef")} value={text(props.tpo_ref)} mono />
+      <Row label={t("popup.environmentLayer.gbTpoOrg")} value={text(props.organisation)} />
+      <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbTpoNote")} />
+    </> : <>
+      <Row label={t("popup.environmentLayer.gbAwStatus")} value={awKey ? `${t(GB_AW_STATUS_KEYS[awKey])} · ${aw}` : aw} />
+      <Row label={t("popup.environmentLayer.gbPaArea")} value={ha(props.area_ha)} />
+    </>}
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    {natureFooter(footer)}
   </>;
 }

@@ -1360,5 +1360,12 @@
   "layer.gbLondonStations": "London Rail Stations",
   "layer.gbLondonBikePoints": "Santander Cycles",
   "layer.gbLondonJamCams": "London Traffic Cameras",
-  "layer.gbLondonChargingZones": "London Charging & Low Emission Zones"
+  "layer.gbLondonChargingZones": "London Charging & Low Emission Zones",
+  "layer.gbProtectedAreas": "Protected Areas",
+  "layer.gbMarineProtectedAreas": "Marine Protected Areas",
+  "layer.gbWoodland": "Woodland",
+  "layer.gbForestRecreation": "Forest Recreation Features",
+  "layer.gbTrails": "Trails",
+  "layer.gbOpenAccessLand": "Open Access Land",
+  "layer.gbTreeProtection": "Tree Protection"
 }
