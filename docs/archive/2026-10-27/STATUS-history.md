@@ -3,6 +3,21 @@
 > 以下為 2026-10-23 以前的當期紀錄，僅供追溯；上線表為舊格式（無 upload／readback／pull 欄），不再更新。
 
 
+
+## 2026-10-28：日本第四波正式站驗收
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | 第四波 6 層（#716：障礙福祉、兒童福祉、主要道路、高速道路、地理院陰影起伏、色別標高）已隨 v2.15.0 上線；#720 BACKLOG 新增 JPRD-1。 |
+| **taipei-gis-analytics** | #228（三條 pipeline）、#229（README 數字）已合併；`japan_opendata/_status.md` 改為已上線。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| 日本第四波（#716） | done：#716 CI 綠 | done：golden 1324→1330、inventory | done：develop `b1a01e71` | done：`jp_welfare_facilities`、`jp_major_roads` 在 S3 `deploy-assets/world/` | done：大小與 sha256 一致 | done：正式站回 206 | done：v2.15.0 master `bcbba48b` | done：三個 PMTiles 2026-10-28 回 206 | done：2026-10-28 六層畫面、圖例、popup（raster 無 popup）、`errors` 無輸出 |
+
+- 下一步：市町村道等 Zeabur 搬遷後做（**JPRD-1**）；收費道路樣式待使用者決定（**JPRD-2**）；WAM NET 表單待使用者填（**JPW4-1**）；CSP enforcing 前補 gsi／jma 網域（**BC-4b**）。
+- 接手：日本 P1 第 1–4 波都已上線，下一輪從英國 P1 或日本 P2 選起，先讀 analytics `.claude/skills/country-opendata-scout/references/country-runs.md`。
+
 ## 2026-10-23：v2.11.3 圖例封頂、開站不閃文字
 
 | repo / system | 現況 |

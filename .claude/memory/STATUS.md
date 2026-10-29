@@ -1,9 +1,28 @@
 # Status
 
-**最後更新**：2026-10-28 國家主體化上線（v2.16.0＋v2.16.1）
+**最後更新**：2026-10-29 多國化議題 2（MCP 跨國比較）P0–P5 上線
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-29：多國化議題 2（MCP 跨國比較）P0–P5 上線
+
+| repo / system | 現況 |
+|---|---|
+| **mini-pulse-gis-mcp** | #85–#94 全部合併：geom_3826 只給台灣、registry country 骨幹、跨國行政區／人口／鄰接表、工具收 country＋admin_level（跨國並列不混算、缺資料回「未涵蓋＋缺什麼」）、H3（GHSL 2020）、pulse-conductor 多國回答格式；題庫 N05–N11 加多國樣板。 |
+| **pulse-data** | #44、#46、#48、#49、#50：673 份 registry 加 country、新國家接入文件 `docs/new-country-onboarding.md`、Ookla 台灣表、H3 兩表。 |
+| **taipei-gis-analytics** | #236（Ookla 拆表、日本水道轉 CSV）、#242（GHSL→H3 pipeline）。 |
+| **mini-taiwan-pulse** | #740 台灣 Ookla 兩圖層 datasetId 改 `network_performance_grid_tw`，已合 develop `cf00ccca`，未發版。 |
+| **.gis-agent-system** | 計畫與逐段上線紀錄：`projects/2026-10-multi-country/PLAN-topic2-mcp.md` §5（#28–#33）。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| MCP（analysis-prod） | done：main `e731b3a` CI 綠 | done：台灣 16 組舊呼叫輸出逐字相同 | N/A | N/A | N/A | done：checkout `e731b3a`＋`npm run build` | done：2026-10-29 主 session 讀 checkout 確認 | N/A | done：live map eval 最後一輪 11/11（#94） |
+| 分析倉庫 | done：duckdb 1.5.3 組裝 | done：對前版 11 項預期差異 | N/A | done：R2 `pulse-warehouse` | done：463 檔 sha 與本機組裝一致 | N/A | done：latest `20261029T052843Z` | N/A | done：主 session `/mcp` 重連後查 boundaries_admin TW 22／368／7,973、JP 47／1,898；H3 人口 TW 23,820,675、JP 125,244,811 |
+| mini #740 | done：CI 綠 | done：capability-audit 補新 id | done：develop `cf00ccca` | N/A | N/A | N/A | not run：等整批發版 | not run | not run |
+
+- 下一步：議題 3 主站遷移（**MC-4**）；多國遺留 **MC-6**～**MC-8**；#740 隨下次整批發版。
+- 接手：MCP 部署照 `.gis-agent-system/roadmap/status/agent-analysis-runbook.md`，一律先換 MCP 再切倉庫；部署後使用者要 `/mcp` 重連。
 
 ## 2026-10-28：國家主體化（v2.16.0＋v2.16.1）
 
@@ -17,19 +36,5 @@
 | v2.16.0 | done：#728 CI 綠 | done：CI（layerConsistency、golden、inventory） | done：develop `7c6b44f4` | N/A：無新資產 | N/A | N/A | done：master `e0a4474d` | done：`main-Bg1eBBYX.js` 含 "2.16.0" | done：選單同列、切法國（只剩通訊）、切回全台；not run：見 **MC-3** |
 | v2.16.1 | done：#731 CI 綠 | done：CI | done：develop `ebebbd1b` | N/A | N/A | N/A | done：master `301557e7` | done：`main-BFfdCd84.js` 含 "2.16.1" | done：切法國後 14 秒取樣 0/19 出現舊提示 |
 
-- 下一步：MCP 補 country 說明（**MC-2**）；補目視（**MC-3**）；同名主題前先拆識別名（**MC-1**）；議題 2、3 等使用者討論（**MC-4**）。
+- 下一步：補目視（**MC-3**）；同名主題前先拆識別名（**MC-1**）；議題 3 等使用者討論（**MC-4**）。
 - 接手：從 origin/develop 開分支；多國化脈絡先讀 `.gis-agent-system/projects/2026-10-multi-country/README.md`。
-
-## 2026-10-28：日本第四波正式站驗收
-
-| repo / system | 現況 |
-|---|---|
-| **mini-taiwan-pulse** | 第四波 6 層（#716：障礙福祉、兒童福祉、主要道路、高速道路、地理院陰影起伏、色別標高）已隨 v2.15.0 上線；#720 BACKLOG 新增 JPRD-1。 |
-| **taipei-gis-analytics** | #228（三條 pipeline）、#229（README 數字）已合併；`japan_opendata/_status.md` 改為已上線。 |
-
-| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
-|---|---|---|---|---|---|---|---|---|---|
-| 日本第四波（#716） | done：#716 CI 綠 | done：golden 1324→1330、inventory | done：develop `b1a01e71` | done：`jp_welfare_facilities`、`jp_major_roads` 在 S3 `deploy-assets/world/` | done：大小與 sha256 一致 | done：正式站回 206 | done：v2.15.0 master `bcbba48b` | done：三個 PMTiles 2026-10-28 回 206 | done：2026-10-28 六層畫面、圖例、popup（raster 無 popup）、`errors` 無輸出 |
-
-- 下一步：市町村道等 Zeabur 搬遷後做（**JPRD-1**）；收費道路樣式待使用者決定（**JPRD-2**）；WAM NET 表單待使用者填（**JPW4-1**）；CSP enforcing 前補 gsi／jma 網域（**BC-4b**）。
-- 接手：日本 P1 第 1–4 波都已上線，下一輪從英國 P1 或日本 P2 選起，先讀 analytics `.claude/skills/country-opendata-scout/references/country-runs.md`。
