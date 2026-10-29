@@ -148,6 +148,7 @@ import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATIO
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
+import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioLabel } from "./floodScenarios";
 import {
   ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
@@ -3562,6 +3563,12 @@ export const LAYER_PARAMS_SPEC = {
   // ── 數值型 select（out 吃 `Number(value)` 不是索引）──
   waterFloodExtreme: [
     opacitySlider("waterFloodOpacity", 1),
+    {
+      // 降雨情境：一個情境一支 PMTiles，overlayRegistry 依 floodScenarioIdx 換 source url（G29 方向 A）
+      kind: "select", name: "floodScenario", label: "降雨情境", default: FLOOD_SCENARIO_DEFAULT, category: "data",
+      options: FLOOD_SCENARIOS.map((s) => ({ label: floodScenarioLabel(s), value: s.value })),
+      out: "floodScenarioIdx", encode: FLOOD_SCENARIOS.map((s) => s.value),
+    },
     {
       kind: "select", name: "floodMinDepth", label: "深度", default: "0",
       options: [

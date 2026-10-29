@@ -315,43 +315,9 @@ SELECT jsonb_build_object(
   FROM public.water_facilities WHERE geom IS NOT NULL
 ) s;"
 
-# ── 7.5. 淹水潛勢 (flood_hazard_zones, 650mm/24hr) ──
-# 2356 polygon jsonb_agg 會 OOM，改用 \copy stream 逐筆 JSONL 再用 jq 組裝
-run_flood_stream () {
-  local out="$OUT_DIR/water_flood_extreme.geojson"
-  local tmp="$OUT_DIR/.water_flood_extreme.jsonl"
-  local t0
-  t0=$(date +%s)
-  printf "[RUN] %-40s " "淹水潛勢 (650mm/24hr stream)"
-  # 用 server-side COPY TO STDOUT（能與 SET statement_timeout 放同一 -c）
-  psql "$SUPABASE_DB_URL" "${PSQL_OPTS[@]}" -c "
-$PSQL_SET
-COPY (
-  SELECT jsonb_build_object(
-    'type','Feature','id',id,
-    'geometry', ST_AsGeoJSON(ST_Force2D(ST_SimplifyPreserveTopology(geom, 0.0001)))::jsonb,
-    'properties', jsonb_build_object('depth_class',flood_depth_class,'county',county)
-  )::text
-  FROM public.flood_hazard_zones
-  WHERE geom IS NOT NULL AND scenario='flood_650mm_24hr'
-) TO STDOUT
-" > "$tmp" &
-  CURRENT_PSQL_PID=$!
-  wait "$CURRENT_PSQL_PID" || { echo "FAILED"; return 1; }
-  CURRENT_PSQL_PID=""
-  # 包成 FeatureCollection
-  {
-    echo -n '{"type":"FeatureCollection","features":['
-    paste -sd',' "$tmp"
-    echo ']}'
-  } > "$out"
-  rm -f "$tmp"
-  local size
-  size=$(wc -c < "$out" | awk '{printf "%.0f", $1/1024}')
-  local ms=$(( $(date +%s) - t0 ))
-  echo "${size} KB, ${ms}s"
-}
-run_flood_stream
+# ── 7.5. 淹水潛勢 → 已移到 export-flood-scenarios.sh（2026-10-29，G29 方向 A）──
+# 改成 10 降雨情境各一支 public/geo/water_flood_<情境>.pmtiles（含深度級距正規化），
+# 舊的 water_flood_extreme.geojson（650mm/24h 單情境，前端早已不讀）不再產出。
 
 # ── 8. 監測站 (water_monitoring_stations) ──
 run_export "water_monitor_stations.geojson" "監測站" "

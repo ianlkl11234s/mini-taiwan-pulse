@@ -9829,9 +9829,13 @@ export const LAYER_MANIFEST = {
     expandable: true,
     color: "#3b82f6",
     icon: Waves,
+    // 2026-10-29 改正：原掛 storm_drainage_pipes（scripts/audit/10_apply_class_b_fixes.py 硬配）是靜態
+    // 雨水下水道管網，不是即時水位；analytics catalog 沒有 WIC 下水道水位的對應文件。
     upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "storm_drainage_pipes", confidence: "MED" }],
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors wic_sewer：GET https://wic.gov.taipei/OpenData/API/Sewer/Get（臺北市水利處 WIC 下水道水位）→ live.taipei_sewer_measurements → RPC get_taipei_sewer_latest。",
+      note: "即時水位無 analytics catalog 對應文件；storm_drainage_pipes 是雨水下水道管網（靜態），不是本層來源。",
     },
     dataClass: "D",
     source: {
@@ -10020,7 +10024,7 @@ export const LAYER_MANIFEST = {
   waterProtectionZones: {
     key: "waterProtectionZones",
     country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
-    ...layerName({ zh: "管制區", alt: "Protection" }),
+    ...layerName({ zh: "自來水保護區與地下水管制", alt: "Water Supply Protection", qualifier: "水利署" }),
     expandable: true,
     color: "#10b981",
     icon: ShieldCheck,
@@ -10039,8 +10043,8 @@ export const LAYER_MANIFEST = {
     // 「這裡受什麼法規管」。
     popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
-    description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
-    topics: ["水資源", "管制", "保護區"],
+    description: "水利署依自來水法公告的自來水水質水量保護區，以及地下水管制區（禁止／限制超抽）；與環境部飲用水水源保護區不同法源（依管制類別分色）",
+    topics: ["水資源", "管制", "保護區", "水源", "自來水", "地下水"],
   },
 
   waterDetentionBasins: {
@@ -10122,7 +10126,7 @@ export const LAYER_MANIFEST = {
   waterFloodExtreme: {
     key: "waterFloodExtreme",
     country: "TW", section: { theme: "水資源 Water", group: "分析" },
-    ...layerName({ zh: "淹水潛勢", alt: "Flood", qualifier: "650mm/24h" }),
+    ...layerName({ zh: "淹水潛勢", alt: "Flood" }),
     expandable: true,
     color: "#fb7185",
     icon: AlertTriangle,
@@ -10134,15 +10138,15 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "water-flood-extreme",
-      url: "./geo/water_flood_extreme.pmtiles",
-      sourceLayer: "flood_extreme",
+      url: "./geo/water_flood_650mm_24hr.pmtiles",
+      sourceLayer: "flood_scenario",
       minzoom: 5,
       maxzoom: 13,
     },
     legend: "waterFloodExtreme",
-    popup: null,
-    params: { count: 2, kinds: ["slider", "select"] },
-    description: "水利署淹水潛勢圖（650mm/24h 極端降雨情境，依淹水深度分級）",
+    popup: "waterFloodExtreme",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "水利署淹水潛勢圖，10 種降雨情境（6／12／24 小時）可切換，依淹水深度分級；模式模擬，僅供防災整備",
     topics: ["水資源", "淹水", "災害潛勢"],
   },
 

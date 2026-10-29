@@ -237,9 +237,9 @@ const NO_POPUP_LEDGER = new Set([
   // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
   // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
   "temperatureWave",
-  // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
-  // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
-  "waterFloodExtreme", "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
+  // 水資源：雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
+  // （waterFloodExtreme 已於 G29 10 情境改版補 popup，移出本表）
+  "precipRaster", "jpWaterFloodHazard", // official raster has no queryable feature properties/popup
   // 日本第四波：地理院タイル地形 raster（已上色成品 PNG，無 feature 屬性）
   "jpGsiHillshade", "jpGsiRelief",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效

@@ -714,6 +714,12 @@ export interface OverlayConfig {
   /** 可選的整層 opacity 參數；overlayManager 會乘上既有 paint alpha。 */
   opacityParam?: string;
   sourceUrl: string;
+  /**
+   * PMTiles 依參數換檔（淹水潛勢 10 情境首用）：`params[param]` 當索引取 `urls`，
+   * 越界或缺值退回 `sourceUrl`。只有可見時才換 source（隱藏中切參數不抓檔）；
+   * 各檔的 source-layer 與 zoom 必須和 `pmtiles` 相同。
+   */
+  sourceUrlByParam?: { param: string; urls: readonly string[] };
   sourceId: string;
   /**
    * 靜態 GeoJSON 載入後的輕量幾何轉換。`centroid` 只把 Polygon /
@@ -827,7 +833,7 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "marineObservation"
-    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
+    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm" | "waterFloodExtreme"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
     | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
     | "waterProtectionZones"
