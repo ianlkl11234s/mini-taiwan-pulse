@@ -47,6 +47,15 @@ import {
   gbFuelGroup, gbTechGroup, gbVoltageClass, type GbFuelType, type GbStatusGroup,
 } from "../../data/gbEnergyTypes";
 import { GB_FIELD_TYPE_KEYS, GB_FUEL_GROUP_KEYS, GB_STATUS_GROUP_KEYS, GB_TECH_GROUP_KEYS, GB_VOLTAGE_KEYS } from "../legend/gbEnergyLegends";
+import {
+  GB_CARE_CI_ATTRIBUTION, GB_CARE_CI_URL, GB_CARE_CQC_ATTRIBUTION, GB_CARE_CQC_URL, GB_CARE_HOMES_COLOR, GB_CARE_OFFICE_ADDRESS_KINDS,
+  GB_CARE_SERVICES_COLOR, GB_CIVIC_FETCHED_AT, GB_CIVIC_OGL_V3, GB_COURTS_ATTRIBUTION, GB_COURTS_COLOR, GB_COURTS_URL, GB_FIRE_COLOR,
+  GB_FIRE_MHCLG_ATTRIBUTION, GB_FIRE_MHCLG_URL, GB_HEALTH_COLOR, GB_HEALTH_ODS_ATTRIBUTION, GB_HEALTH_ODS_URL, GB_HEALTH_PHS_ATTRIBUTION,
+  GB_HEALTH_PHS_URL, GB_ONSPD_ATTRIBUTION, GB_SCHOOLS_ATTRIBUTION, GB_SCHOOLS_COLOR, GB_SCHOOLS_URL,
+  gbCareKind, gbCivicText, gbCourtKind, gbHealthColor, gbHealthKind, gbIsPostcodeCentroid, gbSchoolCategory,
+} from "../../data/gbCivicTypes";
+import { GB_CARE_KIND_KEYS, GB_COURT_KIND_KEYS, GB_HEALTH_KIND_KEYS, GB_SCHOOL_CATEGORY_KEYS } from "../legend/gbCivicLegends";
+import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 import { LinkRow } from "./atlasPanels";
 import type { MessageKey } from "../../i18n/keys";
 
@@ -851,5 +860,164 @@ export function GbOilGasFieldsPanel({ props }: { props: Record<string, unknown> 
     <Row label={t("popup.baseMap.gbNation")} value={t("popup.energy.gbUkcs")} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("legend.energy.gbNstaLicense")} />
     {energyFooter(GB_NSTA_ATTRIBUTION, GB_NSTA_URL, `${GB_NSTA_LICENSE} · ${t("popup.energy.gbNonCommercial")}`)}
+  </>;
+}
+
+// ─────────────────────────── 英國第 7 波：公共服務 ───────────────────────────
+
+const ONSPD_ORG = GB_ONSPD_ATTRIBUTION.join(" · ");
+/** 來源 footer：郵遞區號定位的點附 ONSPD 三段署名。 */
+function civicFooter(org: string, url: string, props: Record<string, unknown>, license = GB_CIVIC_OGL_V3) {
+  const onspd = gbIsPostcodeCentroid(props.precision);
+  return <SourceFooter props={{ source_org: onspd ? `${org} · ${ONSPD_ORG}` : org, source_url: url, license, fetched_at: GB_CIVIC_FETCHED_AT }} />;
+}
+/** 地區：四地＋地方政府。 */
+function useCivicPlace() {
+  const nation = useNationLabel();
+  return (props: Record<string, unknown>) => [nation(gbCivicText(props.nation)), gbCivicText(props.lad_name)].filter(Boolean).join(" · ");
+}
+/** 郵遞區號中心定位的位置註（非建物位置）。 */
+function PostcodeRow({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  if (!gbIsPostcodeCentroid(props.precision)) return null;
+  return <Row label={t("popup.publicLife.gbLocation")} value={t(props.precision === "postcode_centroid_terminated" ? "popup.publicLife.gbPostcodeTerminated" : "popup.publicLife.gbPostcodeCentroid")} />;
+}
+const withHttp = (url: string) => (!url ? "" : /^https?:\/\//i.test(url) ? url : `https://${url}`);
+
+const GB_SCHOOL_SOURCES: Record<string, { org: string; url: string }> = {
+  GIAS: { org: "DfE Get Information about Schools", url: GB_SCHOOLS_URL },
+  "gov.scot": { org: "Scottish Government School contact details", url: "https://www.gov.scot/publications/school-contact-details/" },
+  "gov.wales": { org: "Welsh Government Address list of schools", url: "https://gov.wales/addresses-and-phone-numbers-schools-and-pupil-referral-units" },
+  "DE NI": { org: "Department of Education NI Locate a school (2016)", url: "https://admin.opendatani.gov.uk/dataset/locate-a-school" },
+};
+
+/** 英國學校：校名、學段（＋來源類型原文）、年齡、學生數、容量、宗教性質、公費／獨立、網站、地區；北愛 2016 名冊註記。 */
+export function GbSchoolsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = useCivicPlace();
+  const c = gbSchoolCategory(props.category);
+  const type = gbCivicText(props.type);
+  const pupils = num(props.pupils);
+  const capacity = num(props.capacity);
+  const sector = gbCivicText(props.sector);
+  const statusNote = gbCivicText(props.status_note);
+  const isNi2016 = props.source === "DE NI" || statusNote.includes("2016");
+  const src = GB_SCHOOL_SOURCES[gbCivicText(props.source)];
+  const categoryLabel = c && c.value !== "other" ? t(GB_SCHOOL_CATEGORY_KEYS[c.value]) : t("popup.publicLife.gbSchoolPhaseUnstated");
+  return <>
+    <Title color={c?.color ?? GB_SCHOOLS_COLOR}>{gbCivicText(props.name) || t("popup.publicLife.gbSchoolTitle")}</Title>
+    <Row label={t("popup.publicLife.gbSchoolPhase")} value={[categoryLabel, type].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.publicLife.gbSchoolAge")} value={gbCivicText(props.age_range)} mono />
+    <Row label={t("popup.publicLife.gbSchoolPupils")} value={pupils != null ? pupils.toLocaleString() : ""} mono />
+    <Row label={t("popup.publicLife.gbSchoolCapacity")} value={capacity != null ? capacity.toLocaleString() : ""} mono />
+    <Row label={t("popup.publicLife.gbSchoolSector")} value={sector === "state_funded" ? t("popup.publicLife.gbSchoolStateFunded") : sector === "independent" ? t("popup.publicLife.gbSchoolIndependent") : ""} />
+    <Row label={t("popup.publicLife.gbSchoolManagement")} value={gbCivicText(props.management)} />
+    <Row label={t("popup.publicLife.gbSchoolReligion")} value={gbCivicText(props.religious_character)} />
+    <Row label={t("popup.publicLife.gbSchoolWelshMedium")} value={gbCivicText(props.welsh_medium)} />
+    <LinkRow label={t("popup.publicLife.gbWebsite")} url={withHttp(gbCivicText(props.website))} />
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {isNi2016 ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbSchoolNi2016")} /> : null}
+    {statusNote === "proposed_to_close" ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbSchoolProposedToClose")} /> : null}
+    <PostcodeRow props={props} />
+    {civicFooter(src?.org ?? GB_SCHOOLS_ATTRIBUTION, src?.url ?? GB_SCHOOLS_URL, props)}
+  </>;
+}
+
+/** 英國醫療：名稱、類別、ODS／PHS 代碼、所屬、GP 名冊人數（蘇格蘭）、合併院址數、地區；醫院名稱比對註記；全部為郵遞區號中心。 */
+export function GbHealthFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  const place = useCivicPlace();
+  const k = gbHealthKind(props.kind);
+  const listSize = num(props.list_size);
+  const sites = num(props.site_codes_n);
+  const phs = gbCivicText(props.source).startsWith("PHS");
+  return <>
+    <Title color={k ? gbHealthColor(k.value, isDark) : GB_HEALTH_COLOR}>{gbCivicText(props.name) || t("popup.publicLife.gbHealthTitle")}</Title>
+    <Row label={t("popup.publicLife.gbHealthKind")} value={k ? t(GB_HEALTH_KIND_KEYS[k.value]) : gbCivicText(props.kind)} />
+    <Row label={t("popup.publicLife.gbHealthCode")} value={gbCivicText(props.org_code)} mono />
+    <Row label={t("popup.publicLife.gbHealthParent")} value={gbCivicText(props.parent_code)} mono />
+    <Row label={t("popup.publicLife.gbHealthListSize")} value={listSize != null ? listSize.toLocaleString() : ""} mono />
+    {sites != null && sites > 1 ? <Row label={t("popup.publicLife.gbHealthSites")} value={t("popup.publicLife.gbHealthSitesValue", { n: sites })} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {props.hospital_basis === "name_match" ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbHealthNameMatch")} /> : null}
+    <PostcodeRow props={props} />
+    {civicFooter(phs ? GB_HEALTH_PHS_ATTRIBUTION : GB_HEALTH_ODS_ATTRIBUTION, phs ? GB_HEALTH_PHS_URL : GB_HEALTH_ODS_URL, props)}
+  </>;
+}
+
+/** 英國照護（照護之家與長照服務共用）：名稱、類型、床數、服務對象、評等、經營者、CQC 頁面、地區；居家照顧等為機構登記地址。 */
+function GbCarePanel({ props, fallbackColor }: { props: Record<string, unknown>; fallbackColor: string }) {
+  const { t } = useLocale();
+  const place = useCivicPlace();
+  const k = gbCareKind(props.care_kind);
+  const beds = num(props.beds);
+  const ci = props.source === "Care Inspectorate";
+  const rating = gbCivicText(props.rating);
+  const ciGrade = /^min grade (\d)$/.exec(rating);
+  return <>
+    <Title color={k?.color ?? fallbackColor}>{gbCivicText(props.name) || t("popup.publicLife.gbCareTitle")}</Title>
+    <Row label={t("popup.publicLife.gbCareKind")} value={k ? t(GB_CARE_KIND_KEYS[k.value]) : gbCivicText(props.care_kind)} />
+    <Row label={t("popup.publicLife.gbCareBeds")} value={beds != null && beds > 0 ? beds.toLocaleString() : ""} mono />
+    <Row label={t("popup.publicLife.gbCareUsers")} value={gbCivicText(props.user_bands).split(",").map((v) => v.trim()).filter(Boolean).join(", ")} />
+    <Row label={ci ? t("popup.publicLife.gbCareRatingCi") : t("popup.publicLife.gbCareRatingCqc")} value={ciGrade ? t("popup.publicLife.gbCareCiGrade", { n: ciGrade[1]! }) : rating} />
+    <Row label={t("popup.publicLife.gbCareProvider")} value={gbCivicText(props.provider)} />
+    <Row label={t("popup.publicLife.gbCareProviderSector")} value={gbCivicText(props.provider_sector)} />
+    <LinkRow label={t("popup.publicLife.gbCareCqcPage")} url={gbCivicText(props.url)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {GB_CARE_OFFICE_ADDRESS_KINDS.has(gbCivicText(props.care_kind)) ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.publicLife.gbCareOfficeAddress")} /> : null}
+    <PostcodeRow props={props} />
+    {civicFooter(ci ? GB_CARE_CI_ATTRIBUTION : GB_CARE_CQC_ATTRIBUTION, ci ? GB_CARE_CI_URL : GB_CARE_CQC_URL, props)}
+  </>;
+}
+export function GbCareHomesPanel({ props }: { props: Record<string, unknown> }) {
+  return <GbCarePanel props={props} fallbackColor={GB_CARE_HOMES_COLOR} />;
+}
+export function GbCareServicesPanel({ props }: { props: Record<string, unknown> }) {
+  return <GbCarePanel props={props} fallbackColor={GB_CARE_SERVICES_COLOR} />;
+}
+
+const GB_FIRE_STATION_TYPE_KEYS: Record<string, MessageKey> = {
+  main_station: "popup.publicLife.gbFireTypeMain", voluntary: "popup.publicLife.gbFireTypeVoluntary",
+  airport: "popup.publicLife.gbFireTypeAirport", airport2: "popup.publicLife.gbFireTypeAirport",
+};
+
+/** 英國消防站：站名、所屬消防局、站型（OSM）、來源（官方／OSM，附 OSM 連結）、座標檢核註記、地區。 */
+export function GbFireStationsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = useCivicPlace();
+  const osm = props.source === "osm";
+  const osmId = gbCivicText(props.osm_id);
+  const stationType = gbCivicText(props.station_type);
+  const coordNote = gbCivicText(props.coord_note);
+  return <>
+    <Title color={GB_FIRE_COLOR}>{gbCivicText(props.name) || t("popup.publicLife.gbFireTitle")}</Title>
+    <Row label={t("popup.publicLife.gbFireOperator")} value={gbCivicText(props.operator) || t("popup.publicLife.gbUnstated")} />
+    <Row label={t("popup.publicLife.gbFireType")} value={stationType ? (GB_FIRE_STATION_TYPE_KEYS[stationType] ? t(GB_FIRE_STATION_TYPE_KEYS[stationType]!) : stationType) : ""} />
+    <Row label={t("popup.publicLife.gbFireSource")} value={osm ? t("popup.publicLife.gbFireSourceOsm") : t("popup.publicLife.gbFireSourceOfficial")} />
+    {osm && osmId ? <LinkRow label={t("popup.publicLife.gbFireOsmLink")} url={`https://www.openstreetmap.org/${osmId}`} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    {coordNote ? <Row label={t("popup.publicLife.gbFireCoordNote")} value={coordNote.includes("未核對") ? t("popup.publicLife.gbFireCoordUnverified") : coordNote.includes("郵遞區號中心") ? t("popup.publicLife.gbFireCoordPostcode") : coordNote} /> : null}
+    <PostcodeRow props={props} />
+    {osm
+      ? civicFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, props, "ODbL 1.0")
+      : civicFooter(GB_FIRE_MHCLG_ATTRIBUTION, GB_FIRE_MHCLG_URL, props)}
+  </>;
+}
+
+/** 英國法院：名稱、類別、類型原文、法律領域、FaCT 連結、地區。 */
+export function GbCourtsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const place = useCivicPlace();
+  const k = gbCourtKind(props.court_kind);
+  return <>
+    <Title color={k?.color ?? GB_COURTS_COLOR}>{gbCivicText(props.name) || t("popup.publicLife.gbCourtTitle")}</Title>
+    <Row label={t("popup.publicLife.gbCourtKind")} value={k ? t(GB_COURT_KIND_KEYS[k.value]) : gbCivicText(props.court_kind)} />
+    <Row label={t("popup.publicLife.gbCourtTypes")} value={gbCivicText(props.types)} />
+    <Row label={t("popup.publicLife.gbCourtAreasOfLaw")} value={gbCivicText(props.areas_of_law).split("|").map((v) => v.trim()).filter(Boolean).join(", ")} />
+    <LinkRow label={t("popup.publicLife.gbCourtFact")} url={gbCivicText(props.url)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
+    <PostcodeRow props={props} />
+    {civicFooter(GB_COURTS_ATTRIBUTION, GB_COURTS_URL, props)}
   </>;
 }

@@ -333,6 +333,12 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "林業",
     // 第 6 波：能源（電廠、電網、再生能源、加油站、離岸油氣田；比照台灣「能源 Energy」）
     "能源",
+    // 第 7 波：公共服務（學校、醫療、照護、消防站、法院；比照台灣主題位置）
+    "教育",
+    "社福長照",
+    "醫療",
+    "消防",
+    "執法治安",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2656,6 +2662,42 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "石化 · 油氣", layers: [fromManifest("gbOilGasFields")] },
     ],
   },
+  // 第 7 波：公共服務，主題與群組比照台灣同類圖層位置——schools 等（教育 › 學校 Schools）、
+  // medHospital／medClinic／medPharmacy（醫療 › 點位）、welfareNursingHomes 等（社福長照 › 住宿照顧）、
+  // welfareLtcInstitutions（社福長照 › 長照與托育）、fireStations（消防 › 點位）、court（執法治安 › 司法矯正）
+  {
+    title: "教育",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "學校 Schools", layers: [fromManifest("gbSchools")] }],
+  },
+  {
+    title: "社福長照",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "住宿照顧", layers: [fromManifest("gbCareHomes")] },
+      { title: "長照與托育", layers: [fromManifest("gbCareServices")] },
+    ],
+  },
+  {
+    title: "醫療",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("gbHealthFacilities")] }],
+  },
+  {
+    title: "消防",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("gbFireStations")] }],
+  },
+  {
+    title: "執法治安",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "司法矯正", layers: [fromManifest("gbCourts")] }],
+  },
 
 ];
 
@@ -2776,6 +2818,11 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    "教育": "publicLife",
+    "社福長照": "publicLife",
+    "醫療": "safety",
+    "消防": "safety",
+    "執法治安": "safety",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2922,6 +2969,11 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "林業": { zh: "林業", sub: "Forestry" },
     "能源": { zh: "能源", sub: "Energy" },
+    "教育": { zh: "教育", sub: "Education" },
+    "社福長照": { zh: "社福長照", sub: "Welfare" },
+    "醫療": { zh: "醫療", sub: "Medical" },
+    "消防": { zh: "消防", sub: "Fire & Rescue" },
+    "執法治安": { zh: "執法治安", sub: "Law & Order" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

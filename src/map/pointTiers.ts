@@ -292,6 +292,12 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbRenewables: "M", // 英國再生能源專案（施工中黃框） · src/hooks/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts
   gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z8 起、z4–9 只有 ≥132kV） · src/hooks/useGbEnergyLayers.ts
+  gbSchools: "M", // 英國學校（30k 點，z9 起） · src/hooks/useGbCivicLayers.ts
+  gbHealthFacilities: "M", // 英國醫院（z7 起）、GP／藥局（z9 起） · src/hooks/useGbCivicLayers.ts
+  gbCareHomes: "M", // 英國照護之家（z9 起） · src/hooks/useGbCivicLayers.ts
+  gbCareServices: "M", // 英國長照服務（z9 起） · src/hooks/useGbCivicLayers.ts
+  gbFireStations: "M", // 英國消防站（OSM 補缺空心） · src/hooks/useGbCivicLayers.ts
+  gbCourts: "M", // 英國法院與審裁處 · src/hooks/useGbCivicLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts

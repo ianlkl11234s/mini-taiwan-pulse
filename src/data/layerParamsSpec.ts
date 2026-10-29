@@ -1973,6 +1973,13 @@ export const LAYER_PARAMS_SPEC = {
   gbSubstations: [opacitySlider("gbSubstationsOpacity", densePointOpacity(59_195)), scaleSlider("gbSubstationsScale", 1)],
   gbFuelStations: [opacitySlider("gbFuelStationsOpacity", densePointOpacity(8_535)), scaleSlider("gbFuelStationsScale", 1)],
   gbOilGasFields: [opacitySlider("gbOilGasFieldsOpacity", 0.6)],
+  // 英國第 7 波：公共服務（點層透明度＋大小）
+  gbSchools: [opacitySlider("gbSchoolsOpacity", densePointOpacity(30_658)), scaleSlider("gbSchoolsScale", 1)],
+  gbHealthFacilities: [opacitySlider("gbHealthFacilitiesOpacity", densePointOpacity(21_297)), scaleSlider("gbHealthFacilitiesScale", 1)],
+  gbCareHomes: [opacitySlider("gbCareHomesOpacity", densePointOpacity(15_758)), scaleSlider("gbCareHomesScale", 1)],
+  gbCareServices: [opacitySlider("gbCareServicesOpacity", densePointOpacity(17_237)), scaleSlider("gbCareServicesScale", 1)],
+  gbFireStations: [opacitySlider("gbFireStationsOpacity", densePointOpacity(1_987)), scaleSlider("gbFireStationsScale", 1)],
+  gbCourts: [opacitySlider("gbCourtsOpacity", densePointOpacity(450)), scaleSlider("gbCourtsScale", 1)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

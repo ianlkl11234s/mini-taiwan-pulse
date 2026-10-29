@@ -1373,5 +1373,11 @@
   "layer.gbPowerLines": "送配電線",
   "layer.gbSubstations": "変電所",
   "layer.gbFuelStations": "ガソリンスタンド",
-  "layer.gbOilGasFields": "洋上油ガス田"
+  "layer.gbOilGasFields": "洋上油ガス田",
+  "layer.gbSchools": "学校",
+  "layer.gbHealthFacilities": "医療機関",
+  "layer.gbCareHomes": "ケアホーム",
+  "layer.gbCareServices": "介護サービス",
+  "layer.gbFireStations": "消防署",
+  "layer.gbCourts": "裁判所・審判所"
 }

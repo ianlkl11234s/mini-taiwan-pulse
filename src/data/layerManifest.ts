@@ -158,6 +158,7 @@ import {
 import { NETWORK_STRUCTURES_COLORS } from "./networkStructuresTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
+import { GB_CARE_HOMES_COLOR, GB_CARE_SERVICES_COLOR, GB_COURTS_COLOR, GB_FIRE_COLOR, GB_HEALTH_COLOR, GB_SCHOOLS_COLOR } from "./gbCivicTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 import {
   COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
@@ -4451,6 +4452,163 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "英國大陸棚離岸油田、氣田、凝結油田範圍，生產中與已停產分深淺",
     topics: ["英國", "油田", "氣田", "北海", "能源"],
+  },
+
+  // ── 英國第 7 波：公共服務（學校、醫療、住宿照顧、長照服務、消防站、法院）──
+  gbSchools: {
+    key: "gbSchools",
+    country: "GB", section: { theme: "教育", group: "學校 Schools" },
+    ...layerName({ zh: "學校", alt: "Schools" }),
+    expandable: true,
+    color: GB_SCHOOLS_COLOR,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_schools", confidence: "HIGH" }],
+      processing: "England DfE GIAS 25,134／Scotland gov.scot 2,425（公立＋grant-aided）／Wales gov.wales 1,544／Northern Ireland DE 2016 名冊 1,555，共 30,658 校；學段 9 類；無座標者以 ONSPD 郵遞區號中心定位；PMTiles z5–12",
+      note: "OGL v3.0＋ONSPD 三段署名；4/4 涵蓋（北愛為 2016 舊名冊、蘇格蘭不含獨立學校）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_schools.pmtiles；source-layer=gb_schools，minzoom=5 maxzoom=12（layer minzoom 9）；15.1MB git-track",
+      staticAssets: ["./world/gb_schools.pmtiles"],
+    },
+    legend: "gbSchools",
+    popup: "gbSchools",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國學校：依學段分色（幼兒、小學、中學、一貫制、繼續教育、大學、特殊學校、學生轉介單位）",
+    topics: ["英國", "學校", "教育"],
+  },
+
+  gbHealthFacilities: {
+    key: "gbHealthFacilities",
+    country: "GB", section: { theme: "醫療", group: "點位" },
+    ...layerName({ zh: "醫療院所", alt: "Health Facilities" }),
+    expandable: true,
+    color: GB_HEALTH_COLOR,
+    icon: Hospital,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_health_facilities", confidence: "MED" }],
+      processing: "NHS ODS（ets、wlhbsite、epraccur、edispensary）＋Public Health Scotland：醫院 1,415（英格蘭與威爾斯為院址名稱比對）、GP 診所 7,435、藥局 12,447，共 21,297；全部以 ONSPD 郵遞區號中心定位；PMTiles z5–12",
+      note: "OGL v3.0（ODS 授權字句經 openprescribing 鏡像與 UK Government Web Archive 快照讀到）＋ONSPD 三段署名；3/4 涵蓋，北愛未涵蓋（BT 郵遞區號受 LPS 授權限制不可定位）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_health_facilities.pmtiles；source-layer=gb_health_facilities，minzoom=5 maxzoom=12（醫院 layer minzoom 7、GP／藥局 9）；7.2MB git-track",
+      staticAssets: ["./world/gb_health_facilities.pmtiles"],
+    },
+    legend: "gbHealthFacilities",
+    popup: "gbHealthFacilities",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國醫院、GP 診所、藥局（英格蘭、蘇格蘭、威爾斯；縮放 9 級以下只顯示醫院）",
+    topics: ["英國", "醫院", "診所", "藥局", "NHS", "醫療"],
+  },
+
+  gbCareHomes: {
+    key: "gbCareHomes",
+    country: "GB", section: { theme: "社福長照", group: "住宿照顧" },
+    ...layerName({ zh: "照護之家", alt: "Care Homes" }),
+    expandable: true,
+    color: GB_CARE_HOMES_COLOR,
+    icon: BedDouble,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_care_services", confidence: "HIGH" }],
+      processing: "CQC HSCA Active Locations 2026-10＋Care Inspectorate Datastore 2026-09 中 care_home=true 的 15,758 處（護理照護之家 4,489、照護之家 11,269）；蘇格蘭以 ONSPD 郵遞區號中心定位；PMTiles z5–12",
+      note: "OGL v3.0（CQC 要求網站標示使用 CQC 資訊）＋ONSPD 三段署名；2/4 涵蓋，威爾斯（CIW 名冊需申請）與北愛（來源無座標）未涵蓋；與長照服務同檔",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services.pmtiles；source-layer=gb_care_services，filter care_home=true，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB git-track",
+      staticAssets: ["./world/gb_care_services.pmtiles"],
+    },
+    legend: "gbCareHomes",
+    popup: "gbCareHomes",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國住宿型照護機構（護理照護之家、照護之家；英格蘭、蘇格蘭）",
+    topics: ["英國", "照護之家", "長照", "安養", "社福"],
+  },
+
+  gbCareServices: {
+    key: "gbCareServices",
+    country: "GB", section: { theme: "社福長照", group: "長照與托育" },
+    ...layerName({ zh: "長照服務", alt: "Care Services" }),
+    expandable: true,
+    color: GB_CARE_SERVICES_COLOR,
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_care_services", confidence: "HIGH" }],
+      processing: "CQC HSCA Active Locations 2026-10＋Care Inspectorate Datastore 2026-09 中 care_home=false 的 17,237 處（居家照顧 14,427、支持性住宅 2,319、Shared Lives 174、其他社區服務 317）；PMTiles z5–12",
+      note: "OGL v3.0（CQC 要求網站標示使用 CQC 資訊）＋ONSPD 三段署名；2/4 涵蓋，威爾斯與北愛未涵蓋；點位為服務機構登記地址；兒童照顧與托育未收；與照護之家同檔",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_care_services.pmtiles；source-layer=gb_care_services，filter care_home=false，minzoom=5 maxzoom=12（layer minzoom 9）；16.3MB（與 gbCareHomes 共用） git-track",
+      staticAssets: ["./world/gb_care_services.pmtiles"],
+    },
+    legend: "gbCareServices",
+    popup: "gbCareServices",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國社區長照服務（居家照顧、支持性住宅、Shared Lives、其他社區服務；英格蘭、蘇格蘭）",
+    topics: ["英國", "居家照顧", "長照", "社福"],
+  },
+
+  gbFireStations: {
+    key: "gbFireStations",
+    country: "GB", section: { theme: "消防", group: "點位" },
+    ...layerName({ zh: "消防站", alt: "Fire Stations" }),
+    expandable: true,
+    color: GB_FIRE_COLOR,
+    icon: Truck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_fire_stations", confidence: "MED" }],
+      processing: "England MHCLG Fire Stations（YE Mar 2026）官方 1,398 站＋Scotland／Wales／Northern Ireland OSM 補缺 589 站，共 1,987；5 站以郵遞區號中心修正、11 站座標未核對（coord_note）；PMTiles z4–12",
+      note: "OGL v3.0（MHCLG）＋ODbL 1.0（© OpenStreetMap contributors）；4/4 涵蓋（官方 1＋OSM 3）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_fire_stations.pmtiles；source-layer=gb_fire_stations，minzoom=4 maxzoom=12（layer minzoom 6）；1.9MB git-track",
+      staticAssets: ["./world/gb_fire_stations.pmtiles"],
+    },
+    legend: "gbFireStations",
+    popup: "gbFireStations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英國消防站：英格蘭為 MHCLG 官方清單，蘇格蘭、威爾斯、北愛為 OSM 補缺（空心）",
+    topics: ["英國", "消防站", "消防"],
+  },
+
+  gbCourts: {
+    key: "gbCourts",
+    country: "GB", section: { theme: "執法治安", group: "司法矯正" },
+    ...layerName({ zh: "法院", alt: "Courts & Tribunals" }),
+    expandable: true,
+    color: GB_COURTS_COLOR,
+    icon: Gavel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_courts", confidence: "HIGH" }],
+      processing: "HMCTS Find a Court or Tribunal（FaCT）450 處：England 405／Wales 34／Scotland 11（UK 層級審裁處聽證中心）；13 處以 ONSPD 定位；PMTiles z4–12",
+      note: "OGL v3.0＋ONSPD 三段署名；2/4 涵蓋（英格蘭與威爾斯；蘇格蘭、北愛法院另有司法體系未涵蓋）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbCivicLayers 自建 mapbox-pmtiles source；gb_courts.pmtiles；source-layer=gb_courts，minzoom=4 maxzoom=12（layer minzoom 6）；0.6MB git-track",
+      staticAssets: ["./world/gb_courts.pmtiles"],
+    },
+    legend: "gbCourts",
+    popup: "gbCourts",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "英格蘭與威爾斯法院與審裁處：刑事法院、郡法院／家事法院、治安法院、審裁處、其他司法服務據點",
+    topics: ["英國", "法院", "審裁處", "司法"],
   },
 
   osmCommunicationSites: {

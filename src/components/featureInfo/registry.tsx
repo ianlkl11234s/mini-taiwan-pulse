@@ -64,6 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
+import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -457,6 +458,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbSubstations: GbSubstationsPanel,
   gbFuelStations: GbFuelStationsPanel,
   gbOilGasFields: GbOilGasFieldsPanel,
+  gbSchools: GbSchoolsPanel,
+  gbHealthFacilities: GbHealthFacilitiesPanel,
+  gbCareHomes: GbCareHomesPanel,
+  gbCareServices: GbCareServicesPanel,
+  gbFireStations: GbFireStationsPanel,
+  gbCourts: GbCourtsPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -1035,6 +1042,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbSubstations: "變電所 Substations",
   gbFuelStations: "加油站 Fuel Stations",
   gbOilGasFields: "離岸油氣田 Offshore Oil & Gas Fields",
+  gbSchools: "學校 Schools",
+  gbHealthFacilities: "醫療院所 Health Facilities",
+  gbCareHomes: "照護之家 Care Homes",
+  gbCareServices: "長照服務 Care Services",
+  gbFireStations: "消防站 Fire Stations",
+  gbCourts: "法院 Courts & Tribunals",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",
