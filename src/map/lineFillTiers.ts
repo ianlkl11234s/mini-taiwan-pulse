@@ -90,7 +90,7 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   urbanFormGrid: "grid", // 都市紋理網格 Urban Form
   urbanZoningNewTaipei: "coverage", // 新北土地使用分區 New Taipei Zoning
   urbanZoningTaipei: "coverage", // 北市土地使用分區 Taipei Zoning
-  waterFloodExtreme: "keep", // 淹水潛勢 Flood 650mm/24h
+  waterFloodExtreme: "keep", // 淹水潛勢 Flood（10 降雨情境）
   waterProtectionZones: "keep", // 管制區 Protection
   waterReservoirs: "coverage", // 水庫 Reservoir
   waterRivers: "coverage", // 河川 River

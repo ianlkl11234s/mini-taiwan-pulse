@@ -430,6 +430,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-monitor-stations-core", "water-monitor-stations-glow"], type: "waterMonitor" },
   { layers: ["water-detention-basins-core", "water-detention-basins-glow"], type: "waterDetentionBasin" },
   { layers: ["lakes-ponds-osm-fill", "lakes-ponds-osm-line"], type: "lakesPondsOsm" },
+  { layers: ["water-flood-extreme-fill"], type: "waterFloodExtreme" },
   // R6 段 2：水庫即時水情平面圓點（同 waterDam 面板，帶蓄水率）；排在壩體前＝圓點蓋住壩體時先命中
   { layers: ["water-reservoir-status-circle"], type: "waterDam" },
   { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },

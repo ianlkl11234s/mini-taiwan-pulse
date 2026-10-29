@@ -461,7 +461,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "taipeiSewer", render: () => <TaipeiSewerLegend /> },
   { id: "taipeiPumb", render: () => <TaipeiPumbLegend /> },
   { id: "taipeiEvacuate", render: () => <TaipeiEvacuateLegend /> },
-  { id: "waterFloodExtreme", render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
+  { id: "waterFloodExtreme", render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} scenarioIdx={overlayParams.floodScenarioIdx} /> },
   { id: "medIsochrone", render: () => <MedicalIsochroneLegend /> },
   { id: "medHospital", render: ({ visibility, isDark }) => <MedicalLegend visibility={visibility} isDark={isDark} /> },
   { id: "erHospital", render: () => <ErCongestionLegend /> },

@@ -66,6 +66,15 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+- 淹水潛勢改成 10 種降雨情境可切換（6／12／24 小時，150–650 mm），預設維持 650 mm／24 h；圖例標題跟著情境變並註明「模式模擬，僅供防災整備，不得作為土地使用管制依據」，新增點擊 popup（降雨情境、淹水深度、縣市鄉鎮）。一個情境一支檔，切情境才載入該檔
+
+### 修正
+- 淹水潛勢澎湖、金門、連江原本有兩級深度（0.3–0.5 m、0.5–1.0 m）因上游標籤錯字而不顯示，匯出時已正規化，現在看得到
+
+### 注意事項
+- 發版當天要先上傳 10 支 `public/geo/water_flood_<情境>.pmtiles` 到 S3 deploy-assets（`upload-deploy-assets.sh` 的 water_*.pmtiles glob 會帶到），舊的 `water_flood_extreme.pmtiles` 不再使用
+
 ## v2.16.1 — 2026-10-28 — 切換國家時不再閃舊提示
 
 ### 修正

@@ -55,7 +55,15 @@ export interface OverlayEngineOptions {
   deferJpHeightSources?: boolean;
 }
 
-function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
+/** 依參數換檔的 PMTiles（`sourceUrlByParam`）此刻該用的 url；沒設定就是 `sourceUrl`。 */
+export function effectiveSourceUrl(config: OverlayConfig, params?: Record<string, number>): string {
+  const byParam = config.sourceUrlByParam;
+  if (!byParam) return config.sourceUrl;
+  const idx = params?.[byParam.param];
+  return (idx != null && Number.isInteger(idx) ? byParam.urls[idx] : undefined) ?? config.sourceUrl;
+}
+
+function defaultPmtilesSource(config: OverlayConfig, params?: Record<string, number>): Record<string, unknown> {
   // 呼叫端（MapView）須先 registerPmtilesSourceTypeOnce()
   // attribution：這個欄位在此**不會**被 mapbox-pmtiles 的 PmTilesSource 讀到——
   // 它繼承的 mapbox-gl-js VectorTileSource 建構子只 pick ['url','scheme','tileSize',
@@ -66,7 +74,7 @@ function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
   // 靜態圖層資產索引（ADR-0024 §4）：已遷移且索引已載入 → CDN 不可變路徑；索引還沒載完或失敗
   // → 部署時版本（fallback）。addSource 刻意維持同步、不等索引：延後會牽動 addAllOverlays 之後
   // 的可見性／主題／圖層順序時序。索引在開站時就開始抓（約兩次小請求），通常早於 style.load。
-  const resolved = resolveAssetUrl(config.sourceUrl);
+  const resolved = resolveAssetUrl(effectiveSourceUrl(config, params));
   if (resolved.source === "fallback") {
     console.warn(`[overlay] ${config.sourceId} 使用部署時版本：${resolved.reason}`);
   }
@@ -127,14 +135,43 @@ export interface OverlayStyleMap extends OverlayMap {
  * 非 PMTiles、不是由 addOverlay 預設路徑建立、resolver 不是 cdn、或 URL 已相同 → no-op。
  * @returns 是否真的換了
  */
-export function swapPmtilesSourceIfMigrated(map: OverlayStyleMap, config: OverlayConfig): boolean {
+export function swapPmtilesSourceIfMigrated(
+  map: OverlayStyleMap,
+  config: OverlayConfig,
+  params?: Record<string, number>,
+): boolean {
   if (!config.pmtiles) return false;
   const urls = pmtilesSourceUrlsOf(map);
   const currentUrl = urls.get(config.sourceId);
   if (currentUrl === undefined || !map.getSource(config.sourceId)) return false;
-  const resolved = resolveAssetUrl(config.sourceUrl);
+  const resolved = resolveAssetUrl(effectiveSourceUrl(config, params));
   if (resolved.source !== "cdn" || resolved.url === currentUrl) return false;
+  replacePmtilesSource(map, config, params);
+  return true;
+}
 
+/**
+ * `sourceUrlByParam` 的參數變了 → 把 source 換成該參數對應的檔（同 swap 的換法）。
+ * 只處理由 addOverlay 預設路徑建立的 source（embed 注入的不在追蹤表內）。
+ * @returns 是否真的換了
+ */
+function swapPmtilesSourceForParams(map: OverlayMap, config: OverlayConfig, params?: Record<string, number>): boolean {
+  if (!config.pmtiles || !config.sourceUrlByParam) return false;
+  const currentUrl = pmtilesSourceUrlsOf(map).get(config.sourceId);
+  if (currentUrl === undefined || !map.getSource(config.sourceId)) return false;
+  if (typeof (map as Partial<OverlayStyleMap>).getStyle !== "function") return false;
+  if (resolveAssetUrl(effectiveSourceUrl(config, params)).url === currentUrl) return false;
+  replacePmtilesSource(map as OverlayStyleMap, config, params);
+  return true;
+}
+
+/**
+ * 依 style 中的順序取出該 source 的所有 layer spec（visibility／paint／filter 都在 spec 內），
+ * 各自記下 beforeId，removeLayer → removeSource → 重新 addSource 並補 attribution →
+ * 依原順序 addLayer(spec, beforeId)。
+ */
+function replacePmtilesSource(map: OverlayStyleMap, config: OverlayConfig, params?: Record<string, number>): void {
+  const urls = pmtilesSourceUrlsOf(map);
   const styleLayers = map.getStyle()?.layers ?? [];
   const specs: Array<{ spec: Record<string, unknown>; beforeId: string | undefined }> = [];
   for (let i = 0; i < styleLayers.length; i++) {
@@ -145,12 +182,11 @@ export function swapPmtilesSourceIfMigrated(map: OverlayStyleMap, config: Overla
   }
   for (const { spec } of [...specs].reverse()) map.removeLayer(spec.id as string);
   map.removeSource(config.sourceId);
-  const source = defaultPmtilesSource(config);
+  const source = defaultPmtilesSource(config, params);
   map.addSource(config.sourceId, source as any);
   urls.set(config.sourceId, source.url as string);
   applyPmtilesAttribution(map, config);
   for (const { spec, beforeId } of specs) map.addLayer(spec, beforeId);
-  return true;
 }
 
 function layerId(config: OverlayConfig, suffix: string) {
@@ -310,7 +346,7 @@ export function addOverlay(
     if (config.pmtiles) {
       // PMTiles 向量切片。預設走 mapbox-pmtiles 自訂 source type（呼叫端 MapView 須先
       // registerPmtilesSourceTypeOnce()）；/embed 注入 pmtiles:// protocol 版本。
-      const source = (opts?.pmtilesSource ?? defaultPmtilesSource)(config);
+      const source = opts?.pmtilesSource ? opts.pmtilesSource(config) : defaultPmtilesSource(config, params);
       map.addSource(config.sourceId, source as any);
       // 只追蹤預設（主站 mapbox-pmtiles）路徑；embed 注入的 source 不參與索引 swap
       if (!opts?.pmtilesSource) pmtilesSourceUrlsOf(map).set(config.sourceId, source.url as string);
@@ -378,6 +414,8 @@ export function updateOverlayTheme(
   overlayVisible = true,
 ) {
   if (!map.getSource(config.sourceId)) return;
+  // 依參數換檔（只在可見時走到這裡，隱藏中切參數不會抓新檔）
+  swapPmtilesSourceForParams(map, config, params);
 
   const cache = paintCacheOf(map);
 

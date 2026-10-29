@@ -5,6 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LAYER_CONTRACT } from "../../data/jpWaterTypes";
 import { RESERVOIR_ALERT_LEGEND, RESERVOIR_CAPACITY_LEGEND_WAN, RESERVOIR_WATER_COLOR, reservoirAlertCss, reservoirCapacityRadius } from "../../map/r6FlatEncodings";
 import { DRINKING_WATER_ZONE_TYPES, ENVIRONMENT_LAYER_COLORS, RIVER_RPI_CLASSES, RIVER_RPI_NO_DATA_COLOR, WATER_QUALITY_STATION_TYPES } from "../../data/environmentLayerTypes";
+import { floodScenarioAt, floodScenarioLabel } from "../../data/floodScenarios";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -409,16 +410,20 @@ const WATER_FLOOD_DEPTH_CATS = [
   { classMin: 3.0, color: "#7f1d1d", label: "> 3.0 m" },
 ];
 
-export function WaterFloodExtremeLegend({ minDepth = 0 }: { minDepth?: number }) {
+export function WaterFloodExtremeLegend({ minDepth = 0, scenarioIdx }: { minDepth?: number; scenarioIdx?: number }) {
   const i18n = useLocale();
   const cats = WATER_FLOOD_DEPTH_CATS.filter((c) => c.classMin >= minDepth);
+  const scenario = floodScenarioAt(scenarioIdx);
   return (
     <div>
-      <LegendTitle zh={layerTitle("waterFloodExtreme", i18n)} en="Flood Depth" />
+      <LegendTitle zh={`${layerTitle("waterFloodExtreme", i18n)} · ${floodScenarioLabel(scenario)}`} en="Flood Depth" />
       <FireCatRows cats={cats} square />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
-        {i18n.t("legend.water.floodScenario")}
+        {i18n.t("legend.water.floodScenario", { hours: scenario.durationHr, mm: scenario.rainfallMm })}
         {minDepth > 0 && i18n.t("legend.water.floodFiltered", { depth: minDepth })}
+      </LegendNote>
+      <LegendNote style={{ marginTop: 2, lineHeight: 1.3 }}>
+        {i18n.t("legend.water.floodDisclaimer")}
       </LegendNote>
     </div>
   );

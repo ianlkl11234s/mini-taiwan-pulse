@@ -360,7 +360,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
             continue;
           }
           try {
-            swapPmtilesSourceIfMigrated(map, config);
+            swapPmtilesSourceIfMigrated(map, config, overlayParamsRef.current);
           } catch (error) {
             // style 切換途中：下一次 style.load 的 addAllOverlays 已會直接拿到 CDN
             console.warn(`[overlay] ${config.sourceId} 換成 CDN source 失敗：`, error);
