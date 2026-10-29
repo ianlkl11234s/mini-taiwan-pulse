@@ -142,5 +142,6 @@
   "popup.energy.gbDepth": "水深",
   "popup.energy.gbMeters": "{value} m",
   "popup.energy.gbUkcs": "英国大陸棚（洋上・4 地域に属さない）",
-  "popup.energy.gbNonCommercial": "非商用"
+  "popup.energy.gbNonCommercial": "非商用",
+  "popup.energy.gbKmUnder": "0.1 km 未満"
 }

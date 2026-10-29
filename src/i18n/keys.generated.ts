@@ -3496,6 +3496,7 @@ export type GeneratedStaticKey =
   | "popup.energy.gbGridHv"
   | "popup.energy.gbGridLv"
   | "popup.energy.gbKm"
+  | "popup.energy.gbKmUnder"
   | "popup.energy.gbLength"
   | "popup.energy.gbLineKind"
   | "popup.energy.gbLineUnnamed"

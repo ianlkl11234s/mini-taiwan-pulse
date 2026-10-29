@@ -142,5 +142,6 @@
   "popup.energy.gbDepth": "Water depth",
   "popup.energy.gbMeters": "{value} m",
   "popup.energy.gbUkcs": "UK Continental Shelf (offshore, not assigned to a nation)",
-  "popup.energy.gbNonCommercial": "non-commercial"
+  "popup.energy.gbNonCommercial": "non-commercial",
+  "popup.energy.gbKmUnder": "under 0.1 km"
 }

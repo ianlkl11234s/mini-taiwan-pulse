@@ -747,7 +747,7 @@ export function GbRenewablesPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.energy.gbTechnology")} value={[g ? t(GB_TECH_GROUP_KEYS[g.value]) : "", gbEnergyText(props.technology)].filter(Boolean).join(" · ")} />
     <Row label={t("popup.energy.gbStorageType")} value={gbEnergyText(props.storage_type)} />
     <Row label={t("popup.energy.gbCapacity")} value={mw(props.capacity_mw)} />
-    <Row label={t("popup.energy.gbStatus")} value={[status ? t(GB_STATUS_GROUP_KEYS[status]) : "", rawStatus].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.energy.gbStatus")} value={[...new Set([status ? t(GB_STATUS_GROUP_KEYS[status]) : "", rawStatus].filter(Boolean))].join(" · ")} />
     {operational
       ? <Row label={t("popup.energy.gbDateOperational")} value={operational.slice(0, 10)} mono />
       : <Row label={t("popup.energy.gbDateGranted")} value={granted.slice(0, 10)} mono />}
@@ -765,9 +765,13 @@ function useKv() {
     const raw = gbEnergyText(props.voltage);
     if (!raw) return t("popup.energy.gbVoltageUntagged");
     const kv = raw.split(";").map((v) => Number(v.trim())).filter((n) => Number.isFinite(n) && n > 0).map((n) => (n / 1000).toLocaleString());
-    return kv.length ? `${kv.join(" / ")} kV` : raw;
+    const value = kv.length ? `${kv.join(" / ")} kV` : raw;
+    // 只有「輸電」「配電」兩級的圖例名多帶資訊；其餘（132、33–66 kV）與數值重複不再附
+    const v = gbVoltageClass(props.voltage_class);
+    return v && VOLTAGE_NAMED.has(v.value) ? `${value} · ${t(GB_VOLTAGE_KEYS[v.value])}` : value;
   };
 }
+const VOLTAGE_NAMED = new Set(["transmission_275_400", "distribution_lt33"]);
 
 /** 英國電網線（OSM）：名稱或編號、電壓、類型（架空線／地下或海底電纜）、營運者、線長、地區。 */
 export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> }) {
@@ -780,11 +784,11 @@ export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> })
   const km = num(props.length_km);
   return <>
     <Title color={v?.color ?? GB_POWER_LINES_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbLineUnnamed")}</Title>
-    <Row label={t("popup.energy.gbVoltage")} value={`${kv(props)}${v ? ` · ${t(GB_VOLTAGE_KEYS[v.value])}` : ""}`} />
+    <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
     <Row label={t("popup.energy.gbLineKind")} value={cable ? t(loc === "underwater" ? "popup.energy.gbCableSubsea" : "popup.energy.gbCableUnderground") : LOCATION_CABLE.has(loc) ? t("popup.energy.gbCableUnderground") : t("popup.energy.gbOverhead")} />
     {gbEnergyText(props.ref) && gbEnergyText(props.name) ? <Row label={t("popup.energy.gbRef")} value={gbEnergyText(props.ref)} mono /> : null}
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
-    <Row label={t("popup.energy.gbLength")} value={km != null ? t("popup.energy.gbKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) }) : ""} />
+    <Row label={t("popup.energy.gbLength")} value={km != null ? (km < 0.1 ? t("popup.energy.gbKmUnder") : t("popup.energy.gbKm", { value: km.toLocaleString(undefined, { maximumFractionDigits: 1 }) })) : ""} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}
   </>;
@@ -798,7 +802,7 @@ export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }
   const v = gbVoltageClass(props.voltage_class);
   return <>
     <Title color={v?.color ?? GB_SUBSTATIONS_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbSubstationUnnamed")}</Title>
-    <Row label={t("popup.energy.gbVoltage")} value={`${kv(props)}${v ? ` · ${t(GB_VOLTAGE_KEYS[v.value])}` : ""}`} />
+    <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
     <Row label={t("popup.energy.gbSubstationType")} value={gbEnergyText(props.substation).replace(/_/g, " ")} />
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />

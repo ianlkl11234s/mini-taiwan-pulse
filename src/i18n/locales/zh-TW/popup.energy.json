@@ -142,5 +142,6 @@
   "popup.energy.gbDepth": "水深",
   "popup.energy.gbMeters": "{value} m",
   "popup.energy.gbUkcs": "英國大陸棚（離岸，不歸四地）",
-  "popup.energy.gbNonCommercial": "非商用"
+  "popup.energy.gbNonCommercial": "非商用",
+  "popup.energy.gbKmUnder": "不到 0.1 km"
 }
