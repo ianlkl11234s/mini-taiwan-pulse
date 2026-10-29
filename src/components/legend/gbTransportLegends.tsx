@@ -1,11 +1,12 @@
-// 英國第 4 波交通圖例（2026-10-29）：樞紐、站客流、倫敦軌道線／站、單車站、JamCams、收費區。
+// 英國第 4 波交通圖例（2026-10-29）：樞紐、站客流、倫敦軌道線／站、單車站、JamCams、收費區；第 10 波：主要路網、AADF 計數點。
 // 色票與署名 SSOT 在 data/gbTransportTypes.ts；TfL 四層＋車站一律附三句署名與「倫敦限定」。
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_TYPES, GB_HUBS_ATTRIBUTION, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR, GB_LONDON_RAIL_MODES,
   GB_LONDON_STATION_COLOR, GB_STATION_USAGE_BUCKETS, GB_STATION_USAGE_NO_DATA_COLOR, GB_TFL_ATTRIBUTIONS,
-  type GbChargingZone, type GbHubType, type GbLondonRailMode,
+  GB_AADF_BUCKETS, GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_ROAD_CLASSES, GB_ROADS_OSM_ATTRIBUTION, GB_ROADS_ODBL,
+  type GbChargingZone, type GbHubType, type GbLondonRailMode, type GbRoadClass,
 } from "../../data/gbTransportTypes";
 import { LINE_WIDTH, POINT_RADIUS, TRANSFER_STATION, transferRingColor } from "../../map/mapStyleScale";
 import { useLocale } from "../../state/localeStore";
@@ -129,5 +130,46 @@ export function GbLondonChargingZonesLegend() {
     {GB_CHARGING_ZONES.map((z) => <LegendRow key={z.value} swatch={<SwatchSquare color={z.color} stroke={z.color} />}>{i18n.t(ZONE_KEYS[z.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.transport.gbZoneNote")}</LegendNote>
     <TflNotes />
+  </div>;
+}
+
+// ─────────────────────────── 第 10 波 ───────────────────────────
+
+const ROAD_CLASS_KEYS: Record<GbRoadClass, MessageKey> = {
+  motorway: "legend.transport.gbRoadMotorway", a_road: "legend.transport.gbRoadA", b_road: "legend.transport.gbRoadB",
+};
+
+/** 英國主要路網：依等級 3 類（線寬強調／標準／細）；B 級只有北愛，大不列顛 B 級明寫未涵蓋；來源分官方 MRDB 與 OSM 補缺兩項。 */
+export function GbMajorRoadsLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={layerTitle("gbMajorRoads", i18n)} en="Major Roads" />
+    {GB_ROAD_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchLine color={c.color} width={LINE_WIDTH[c.width][1]} />}>{i18n.t(ROAD_CLASS_KEYS[c.value])}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.transport.gbRoadsBNotCovered")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRoadsSourceMrdb")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRoadsSourceOsm")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbRoadsBZoom")}</LegendNote>
+    <LegendNote>{GB_DFT_ROAD_TRAFFIC_ATTRIBUTION}</LegendNote>
+    <LegendNote>{`${GB_ROADS_OSM_ATTRIBUTION} (${GB_ROADS_ODBL})`}</LegendNote>
+  </div>;
+}
+
+const AADF_KEYS: readonly MessageKey[] = [
+  "legend.transport.gbAadfLt5k", "legend.transport.gbAadf5k", "legend.transport.gbAadf20k",
+  "legend.transport.gbAadf50k", "legend.transport.gbAadf100k",
+];
+
+/** AADF 交通計數點：5 級（色＋大小）；估算與抽樣說明；北愛未涵蓋。 */
+export function GbTrafficCountsAadfLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={layerTitle("gbTrafficCountsAadf", i18n)} en="Traffic Counts (AADF)" />
+    <LegendNote>{i18n.t("legend.transport.gbAadfTitleNote")}</LegendNote>
+    {GB_AADF_BUCKETS.map((b, i) => <LegendRow key={b.min} swatch={<SwatchDot color={b.color} />}>{i18n.t(AADF_KEYS[i]!)}</LegendRow>)}
+    <LegendNote>{i18n.t("legend.transport.gbAadfZoomNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbAadfEstimatedNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbAadfMinorNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.transport.gbAadfNi")}</LegendNote>
+    <LegendNote>{GB_DFT_ROAD_TRAFFIC_ATTRIBUTION}</LegendNote>
   </div>;
 }

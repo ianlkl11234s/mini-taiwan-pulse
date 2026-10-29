@@ -28,6 +28,8 @@ import {
   GB_TFL_BIKEPOINT_URL, GB_TFL_JAMCAM_URL, GB_TFL_LICENSE, GB_TFL_LINES_URL, GB_TFL_MAP_ATTRIBUTION,
   GB_TFL_OPEN_DATA_URL, GB_TRANSPORT_FETCHED_AT, GB_TRANSPORT_OGL_V3, gbChargingZone, gbHubType, gbLondonRailMode,
   gbLondonStationIsInterchange, type GbChargingZone, type GbHubType, type GbLondonRailMode,
+  GB_AADF_COLOR, GB_AADF_YEAR, GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_DFT_ROAD_TRAFFIC_URL, GB_MAJOR_ROADS_COLOR, GB_ROADS_ODBL,
+  GB_ROADS_OSM_ATTRIBUTION, GB_ROADS_OSM_URL, gbAadfBucketColor, gbRoadClass, type GbRoadCategory, type GbRoadClass,
 } from "../../data/gbTransportTypes";
 import {
   GB_ACCESS_TYPES, GB_AW_STATUS, GB_MPA_COLOR, GB_MPA_DRMPA_URL, GB_MPA_SOURCES, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR, GB_NATURE_FETCHED_AT,
@@ -532,6 +534,94 @@ export function GbLondonChargingZonesPanel({ props }: { props: Record<string, un
     <Row label={t("popup.transport.gbBoundaryVersion")} value={text(props.boundary_version).split("（")[0]!.trim()} mono />
     <Row label="" value={t("popup.transport.gbZoneTfLNote")} />
     <TflFooter url={GB_TFL_OPEN_DATA_URL} />
+  </>;
+}
+
+// ─────────────────────────── 英國第 10 波：主要路網、AADF 交通計數點 ───────────────────────────
+
+const GB_ROAD_CLASS_KEYS: Record<GbRoadClass, MessageKey> = {
+  motorway: "popup.transport.gbRoadClassMotorway", a_road: "popup.transport.gbRoadClassA", b_road: "popup.transport.gbRoadClassB",
+};
+const GB_ROAD_CATEGORY_KEYS: Record<GbRoadCategory, MessageKey> = {
+  TM: "popup.transport.gbRoadCatTM", PM: "popup.transport.gbRoadCatPM", TA: "popup.transport.gbRoadCatTA",
+  PA: "popup.transport.gbRoadCatPA", MB: "popup.transport.gbRoadCatMB", MCU: "popup.transport.gbRoadCatMCU",
+};
+function useRoadCategoryLabel() {
+  const { t } = useLocale();
+  return (value: unknown) => {
+    const code = text(value);
+    return code in GB_ROAD_CATEGORY_KEYS ? `${t(GB_ROAD_CATEGORY_KEYS[code as GbRoadCategory])} (${code})` : code;
+  };
+}
+
+/** 英國主要路網：編號、名稱、等級、DfT 類別、2025 AADF（估算要標；null＝無計數）、速限／車道（OSM）、長度、地區、來源。 */
+export function GbMajorRoadsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const nation = useNationLabel();
+  const category = useRoadCategoryLabel();
+  const cls = gbRoadClass(props.road_class);
+  const isOsm = props.source === "osm";
+  const aadf = num(props.aadf_all_motor_vehicles);
+  const aadfText = aadf == null
+    ? t(props.nation === "Northern Ireland" ? "popup.transport.gbAadfNoCountNi" : "popup.transport.gbAadfNoCount")
+    : t(props.aadf_estimation_method === "Counted" ? "popup.transport.gbAadfCountedValue" : "popup.transport.gbAadfEstimatedValue", { n: i18n.formatNumber(aadf) });
+  const length = num(props.length_km);
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={cls?.color ?? GB_MAJOR_ROADS_COLOR}>{[text(props.ref), text(props.name)].filter(Boolean).join(" ") || (cls ? t(GB_ROAD_CLASS_KEYS[cls.value]) : t("popup.transport.gbRoadClass"))}</Title>
+    <Row label={t("popup.transport.gbRoadRef")} value={text(props.ref)} mono />
+    <Row label={t("popup.transport.gbRoadName")} value={text(props.name)} />
+    <Row label={t("popup.transport.gbRoadClass")} value={cls ? t(GB_ROAD_CLASS_KEYS[cls.value]) : text(props.road_class)} />
+    <Row label={t("popup.transport.gbRoadCategory")} value={category(props.road_category)} />
+    <Row label={t("popup.transport.gbAadf")} value={aadfText} />
+    <Row label={t("popup.transport.gbMaxspeed")} value={text(props.maxspeed)} />
+    <Row label={t("popup.transport.gbLanes")} value={text(props.lanes)} />
+    <Row label={t("popup.transport.gbSegmentLength")} value={length == null ? "" : t("popup.transport.gbKmValue", { n: i18n.formatNumber(length, { maximumFractionDigits: 2 }) })} />
+    <Row label={t("popup.transport.gbNation")} value={place} />
+    <Row label={t("popup.transport.gbRoadSource")} value={t(isOsm ? "popup.transport.gbRoadSourceOsm" : "popup.transport.gbRoadSourceMrdb")} />
+    {!isOsm ? <Row label="" value={t("popup.transport.gbRoadMrdbNote")} /> : null}
+    <Row label={t("popup.transport.gbCoverage")} value={t("popup.transport.gbRoadBNotCovered")} />
+    {isOsm
+      ? <SourceFooter props={{ source_org: GB_ROADS_OSM_ATTRIBUTION, source_url: GB_ROADS_OSM_URL, license: GB_ROADS_ODBL, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
+      : <SourceFooter props={{ source_org: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, source_url: GB_DFT_ROAD_TRAFFIC_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />}
+  </>;
+}
+
+/** AADF 交通計數點（DfT 2025）：道路、類別、路段起訖、合計與分車種、資料方式（估算明寫非當年實測）。 */
+export function GbTrafficCountsAadfPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const nation = useNationLabel();
+  const category = useRoadCategoryLabel();
+  const all = num(props.all_motor_vehicles);
+  const veh = (value: unknown) => {
+    const n = num(value);
+    return n == null ? t("popup.transport.gbAadfNoCount") : t("popup.transport.gbVehPerDay", { n: i18n.formatNumber(n) });
+  };
+  const counted = props.estimation_method === "Counted";
+  const estimated = props.estimation_method === "Estimated";
+  const from = text(props.start_junction_road_name);
+  const to = text(props.end_junction_road_name);
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={gbAadfBucketColor(all) ?? GB_AADF_COLOR}>{text(props.road_name) || t("popup.transport.gbCountPoint")}</Title>
+    <Row label={t("popup.transport.gbRoadCategory")} value={category(props.road_category)} />
+    {from && to ? <Row label={t("popup.transport.gbAadfLink")} value={t("popup.transport.gbAadfLinkValue", { from, to })} /> : null}
+    <Row label={t("popup.transport.gbAadfAll")} value={veh(props.all_motor_vehicles)} />
+    <Row label={t("popup.transport.gbAadfCars")} value={veh(props.cars_and_taxis)} />
+    <Row label={t("popup.transport.gbAadfLgv")} value={veh(props.LGVs)} />
+    <Row label={t("popup.transport.gbAadfHgv")} value={veh(props.all_HGVs)} />
+    <Row label={t("popup.transport.gbAadfBus")} value={veh(props.buses_and_coaches)} />
+    <Row label={t("popup.transport.gbAadfMoto")} value={veh(props.two_wheeled_motor_vehicles)} />
+    <Row label={t("popup.transport.gbAadfCycle")} value={veh(props.pedal_cycles)} />
+    <Row label={t("popup.transport.gbAadfMethod")} value={counted ? t("popup.transport.gbAadfMethodCounted") : estimated ? t("popup.transport.gbAadfMethodEstimated") : text(props.estimation_method)} />
+    <Row label={t("popup.transport.gbAadfMethodDetail")} value={text(props.estimation_method_detailed)} />
+    <Row label={t("popup.transport.gbAadfYear")} value={text(props.year) || String(GB_AADF_YEAR)} mono />
+    <Row label={t("popup.transport.gbCountPointId")} value={text(props.count_point_id)} mono />
+    <Row label={t("popup.transport.gbNation")} value={place} />
+    <Row label={t("popup.transport.gbCoverage")} value={t("legend.transport.gbAadfNi")} />
+    <SourceFooter props={{ source_org: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, source_url: GB_DFT_ROAD_TRAFFIC_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
   </>;
 }
 

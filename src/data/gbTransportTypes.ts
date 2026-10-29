@@ -1,5 +1,5 @@
 /**
- * 英國第 4 波交通 7 層（C013 樞紐＋X005 站客流、G04-L TfL 軌道與車站、C011 BikePoint、G04-L JamCams、倫敦收費區）：
+ * 英國第 4 波交通 7 層＋第 10 波道路 2 層（C013 樞紐＋X005 站客流、G04-L TfL 軌道與車站、C011 BikePoint、G04-L JamCams、倫敦收費區）：
  * 類別、色票、署名 SSOT。圖例、popup 與 hook paint 三邊共用。
  * 授權原句與筆數驗算見 taipei-gis-analytics `docs/data-catalog/transportation/gb_transport_hubs.md`、`gb_london_*.md`
  * （2026-10-29 逐一打開授權頁）。
@@ -121,3 +121,63 @@ export const GB_CHARGING_ZONES: readonly GbChargingZoneDef[] = [
 ];
 export const GB_CHARGING_ZONE_COLOR = "#DC3545";
 export const gbChargingZone = (value: unknown) => GB_CHARGING_ZONES.find((z) => z.value === value);
+
+// ─────────────────────────── 第 10 波：C012 主要路網 gbMajorRoads ＋ C016 計數點 gbTrafficCountsAadf ───────────────────────────
+// 授權原句與筆數見 analytics `docs/data-catalog/transportation/gb_major_roads.md`、`gb_traffic_counts_aadf.md`（2026-10-29 讀取）。
+// 道路分級色借台灣 osmRoadDrive 的 highway 分級色（ROAD_DRIVE_PAINT_COLORS：motorway／primary／secondary）；
+// 交通量 5 級借第 4 波車站年進出人次（運量）序列色。兩者都是「借色，待確認」。
+
+export const GB_DFT_ROAD_TRAFFIC_ATTRIBUTION =
+  "Contains public sector information licensed under the Open Government Licence v3.0: Road traffic statistics (Department for Transport)";
+export const GB_DFT_ROAD_TRAFFIC_URL = "https://roadtraffic.dft.gov.uk/downloads";
+export const GB_ROADS_OSM_ATTRIBUTION = "© OpenStreetMap contributors";
+export const GB_ROADS_OSM_URL = "https://www.openstreetmap.org/copyright";
+export const GB_ROADS_ODBL = "ODbL 1.0";
+export const GB_ROADS_MAP_ATTRIBUTION = `${GB_DFT_ROAD_TRAFFIC_ATTRIBUTION} · ${GB_ROADS_OSM_ATTRIBUTION}`;
+export const GB_AADF_YEAR = 2025;
+
+export type GbRoadClass = "motorway" | "a_road" | "b_road";
+export type GbRoadWidthTier = "emphasis" | "standard" | "thin";
+export interface GbRoadClassDef { value: GbRoadClass; color: string; width: GbRoadWidthTier; segments: number }
+/** 宣告順序＝圖例順序。線寬依 L-5「等級對應 L-1」：高速公路強調、A 級標準、B 級細。 */
+export const GB_ROAD_CLASSES: readonly GbRoadClassDef[] = [
+  { value: "motorway", color: "#fb923c", width: "emphasis", segments: 1_524 },
+  { value: "a_road", color: "#fcd34d", width: "standard", segments: 25_383 },
+  { value: "b_road", color: "#9ca3af", width: "thin", segments: 6_278 },
+];
+export const GB_ROAD_FALLBACK_COLOR = "#e5e7eb";
+export const GB_MAJOR_ROADS_COLOR = "#fb923c";
+export const gbRoadClass = (value: unknown) => GB_ROAD_CLASSES.find((c) => c.value === value);
+
+/** DfT 道路類別代碼（MRDB 對到 AADF 計數點補上；北愛 OSM 為 null）。 */
+export type GbRoadCategory = "TM" | "PM" | "TA" | "PA" | "MB" | "MCU";
+
+/** AADF 計數點的 road_class（由 road_category 轉成）。z6–7 只畫前三類（幹線高速、地方高速、幹線 A 級）。 */
+export type GbAadfRoadClass = "trunk_motorway" | "principal_motorway" | "trunk_a" | "principal_a" | "minor_b" | "minor_c_unclassified";
+export const GB_AADF_ROAD_CLASSES: readonly GbAadfRoadClass[] = [
+  "trunk_motorway", "principal_motorway", "trunk_a", "principal_a", "minor_b", "minor_c_unclassified",
+];
+export const GB_AADF_MAJOR_CLASSES: readonly GbAadfRoadClass[] = ["trunk_motorway", "principal_motorway", "trunk_a"];
+export const GB_AADF_MAJOR_MINZOOM = 6;
+export const GB_AADF_ALL_MINZOOM = 8;
+
+/** 年平均日交通量（車輛／日）5 級；色沿用車站年進出人次（運量）序列，半徑依級距放大（數量語意，B 階）。 */
+export interface GbAadfBucket { min: number; color: string; radius: number }
+export const GB_AADF_BUCKETS: readonly GbAadfBucket[] = [
+  { min: 0, color: "#fde047", radius: 2.5 },
+  { min: 5_000, color: "#fb923c", radius: 3.5 },
+  { min: 20_000, color: "#ef4444", radius: 4.5 },
+  { min: 50_000, color: "#b91c1c", radius: 6 },
+  { min: 100_000, color: "#7f1d1d", radius: 7.5 },
+];
+export const GB_AADF_COLOR = "#ef4444";
+export const GB_AADF_COUNT = 22_334;
+export function gbAadfBucketIndex(value: number): number {
+  let idx = 0;
+  GB_AADF_BUCKETS.forEach((b, i) => { if (value >= b.min) idx = i; });
+  return idx;
+}
+export const gbAadfBucketColor = (value: number | null) => (value == null ? null : GB_AADF_BUCKETS[gbAadfBucketIndex(value)]!.color);
+
+/** 「資料方式」選單：全部／只看當年實測（Counted）／只看 DfT 估算（Estimated）。順序＝params encode。 */
+export const GB_AADF_METHOD_FILTERS = ["all", "counted", "estimated"] as const;

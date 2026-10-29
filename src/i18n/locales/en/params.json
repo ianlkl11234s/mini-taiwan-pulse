@@ -1362,5 +1362,8 @@
   "param.可壓縮地層": "Compressible ground",
   "param.可塌陷沉積物": "Collapsible deposits",
   "param.流沙": "Running sand",
-  "param.可溶岩（溶蝕）": "Soluble rocks (dissolution)"
+  "param.可溶岩（溶蝕）": "Soluble rocks (dissolution)",
+  "param.資料方式": "Data type",
+  "param.只看當年實測": "Counted this year only",
+  "param.只看 DfT 估算": "DfT estimates only"
 }

@@ -6,11 +6,14 @@ import {
   GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_FALLBACK_COLOR, GB_HUB_TYPES, GB_HUBS_ATTRIBUTION, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR,
   GB_LONDON_RAIL_FALLBACK_COLOR, GB_LONDON_RAIL_MODES, GB_LONDON_STATION_COLOR, GB_STATION_USAGE_BUCKETS, GB_STATION_USAGE_NO_DATA_COLOR,
   GB_TFL_MAP_ATTRIBUTION,
+  GB_AADF_ALL_MINZOOM, GB_AADF_BUCKETS, GB_AADF_MAJOR_CLASSES, GB_AADF_MAJOR_MINZOOM, GB_AADF_METHOD_FILTERS,
+  GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_ROAD_CLASSES, GB_ROAD_FALLBACK_COLOR, GB_ROADS_MAP_ATTRIBUTION,
 } from "../data/gbTransportTypes";
 import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 4 波交通 7 層：樞紐（點）＋站客流（點，同檔）、倫敦軌道線＋車站（同檔）、BikePoint、JamCams、收費區（面）。
+ * 第 10 波加主要路網（線）與 AADF 交通計數點（點）。
  * 同檔兩個 key 各自呼叫 useGbPmtilesLayers（共用 source，隱藏只關自己的 layer）；靜態資料、不訂閱時間。
  */
 export const GB_HUBS_CIRCLE_ID = "gb-transport-hubs-circle";
@@ -21,6 +24,9 @@ export const GB_BIKEPOINTS_CIRCLE_ID = "gb-london-bikepoints-circle";
 export const GB_JAMCAMS_CIRCLE_ID = "gb-london-jamcams-circle";
 export const GB_CHARGING_FILL_ID = "gb-london-charging-zones-fill";
 export const GB_CHARGING_LINE_ID = "gb-london-charging-zones-line";
+export const GB_MAJOR_ROADS_LINE_ID = "gb-major-roads-line";
+export const GB_AADF_MAJOR_CIRCLE_ID = "gb-traffic-counts-aadf-major-circle";
+export const GB_AADF_MINOR_CIRCLE_ID = "gb-traffic-counts-aadf-minor-circle";
 
 type Expr = unknown[];
 type MapRef = React.RefObject<MapboxMap | null>;
@@ -263,4 +269,95 @@ export function useGbLondonChargingZonesLayer(mapRef: MapRef, visible: boolean, 
       update: (map) => map.setPaintProperty(GB_CHARGING_LINE_ID, "line-opacity", linePaint(opacity)["line-opacity"] as any),
     },
   ], [opacity, isDark]);
+}
+
+// ─────────────────────────── 第 10 波：主要路網（gb_major_roads.pmtiles） ───────────────────────────
+
+const ROADS_SOURCE: SourceSpec = {
+  id: "gb-major-roads", file: "gb_major_roads.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_ROADS_MAP_ATTRIBUTION, loading: "英國主要路網載入中",
+};
+
+function roadClassMatch(pick: (c: (typeof GB_ROAD_CLASSES)[number]) => unknown, fallback: unknown): Expr {
+  const expr: unknown[] = ["match", ["coalesce", ["get", "road_class"], ""]];
+  for (const c of GB_ROAD_CLASSES) expr.push(c.value, pick(c));
+  expr.push(fallback);
+  return expr;
+}
+/** L-5：寬度依等級對應 L-1 三階（高速公路強調、A 級標準、B 級細），z10／z14 兩點插值。 */
+export function gbMajorRoadsWidthExpr(): Expr {
+  return ["interpolate", ["linear"], ["zoom"],
+    10, roadClassMatch((c) => LINE_WIDTH[c.width][0], LINE_WIDTH.thin[0]),
+    14, roadClassMatch((c) => LINE_WIDTH[c.width][1], LINE_WIDTH.thin[1])];
+}
+/** 高速公路畫在 A 級上、A 級畫在 B 級上。 */
+const ROAD_SORT: Expr = ["match", ["get", "road_class"], "motorway", 2, "a_road", 1, 0];
+
+export function useGbMajorRoadsLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
+  const def = opacityDefault("gbMajorRoads", 0.85);
+  const color = roadClassMatch((c) => c.color, GB_ROAD_FALLBACK_COLOR);
+  const paint = (op: number) => hookLinePaint("gbMajorRoads", GB_MAJOR_ROADS_LINE_ID,
+    { "line-color": color, "line-width": gbMajorRoadsWidthExpr(), "line-opacity": clamp01(op) },
+    { "line-color": color, "line-width": gbMajorRoadsWidthExpr(), "line-opacity": def }, isDark);
+  useGbPmtilesLayers(mapRef, ROADS_SOURCE, visible, () => [{
+    id: GB_MAJOR_ROADS_LINE_ID,
+    layer: () => ({
+      id: GB_MAJOR_ROADS_LINE_ID, type: "line", source: ROADS_SOURCE.id, "source-layer": "gb_major_roads", minzoom: 5,
+      layout: { visibility: "none", "line-cap": "round", "line-join": "round", "line-sort-key": ROAD_SORT }, paint: paint(opacity),
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(GB_MAJOR_ROADS_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
+  }], [opacity, isDark]);
+}
+
+// ─────────────────────────── 第 10 波：交通計數點 AADF（gb_traffic_counts_aadf.pmtiles） ───────────────────────────
+
+const AADF_SOURCE: SourceSpec = {
+  id: "gb-traffic-counts-aadf", file: "gb_traffic_counts_aadf.pmtiles", minzoom: 5, maxzoom: 13, attribution: GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, loading: "英國交通計數點載入中",
+};
+const IS_MAJOR_AADF: Expr = ["in", ["get", "road_class"], ["literal", [...GB_AADF_MAJOR_CLASSES]]];
+
+function aadfStep(pick: (b: (typeof GB_AADF_BUCKETS)[number]) => unknown): Expr {
+  const expr: unknown[] = ["step", ["get", "all_motor_vehicles"], pick(GB_AADF_BUCKETS[0]!)];
+  for (const b of GB_AADF_BUCKETS.slice(1)) expr.push(b.min, pick(b));
+  return expr;
+}
+/** 資料方式選單：0 全部、1 只看實測（Counted）、2 只看估算（Estimated）。 */
+export function gbAadfFilter(major: boolean, methodIdx: number): Expr {
+  const parts: unknown[] = ["all", ["has", "all_motor_vehicles"], major ? IS_MAJOR_AADF : ["!", IS_MAJOR_AADF]];
+  const method = GB_AADF_METHOD_FILTERS[methodIdx] ?? "all";
+  if (method === "counted") parts.push(["==", ["get", "estimation_method"], "Counted"]);
+  if (method === "estimated") parts.push(["==", ["get", "estimation_method"], "Estimated"]);
+  return parts;
+}
+
+function aadfPaint(isDark: boolean, opacity: number, scale: number) {
+  const op = clamp01(opacity);
+  const s = scale / scaleDefault("gbTrafficCountsAadf");
+  return {
+    "circle-radius": ["*", aadfStep((b) => b.radius), s],
+    "circle-color": aadfStep((b) => b.color),
+    "circle-opacity": op,
+    ...pointStrokePaint(isDark, op / opacityDefault("gbTrafficCountsAadf", 0.75)),
+  };
+}
+
+export function useGbTrafficCountsAadfLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, methodIdx: number, isDark: boolean) {
+  const build = (id: string, major: boolean) => ({
+    id,
+    layer: () => ({
+      id, type: "circle", source: AADF_SOURCE.id, "source-layer": "gb_traffic_counts_aadf",
+      minzoom: major ? GB_AADF_MAJOR_MINZOOM : GB_AADF_ALL_MINZOOM,
+      filter: gbAadfFilter(major, methodIdx),
+      // 交通量大的點畫在上面
+      layout: { visibility: "none", "circle-sort-key": ["get", "all_motor_vehicles"] },
+      paint: aadfPaint(isDark, opacity, scale),
+    } as unknown as AnyLayer),
+    update: (map: MapboxMap) => {
+      map.setFilter(id, gbAadfFilter(major, methodIdx) as any);
+      setPaint(map, id, aadfPaint(isDark, opacity, scale));
+    },
+  });
+  useGbPmtilesLayers(mapRef, AADF_SOURCE, visible, () => [
+    build(GB_AADF_MINOR_CIRCLE_ID, false),
+    build(GB_AADF_MAJOR_CIRCLE_ID, true),
+  ], [opacity, scale, methodIdx, isDark]);
 }
