@@ -38,6 +38,11 @@ def main(src: str, dst: str) -> None:
                 "level_group": GROUPS.get(level, "unrated"),
                 "address": r["address"] or "",
                 "phone": r["phone"] or "",
+                # 中央 SourceFooter 讀的來源欄（popup 否則顯示「來源資訊待補」）
+                "source_org": "衛生福利部名冊、各縣市政府開放資料",
+                "source_url": "https://dep.mohw.gov.tw/",
+                "license": "政府資料開放授權條款（OGDL-Taiwan-1.0）",
+                "fetched_at": "2026-05-16",
             }
             if level:
                 props["level"] = level
