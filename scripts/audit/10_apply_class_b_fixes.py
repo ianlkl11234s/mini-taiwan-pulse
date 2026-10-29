@@ -6,7 +6,7 @@ Findings from deep catalog search:
 - aqiStations / aqiMicroSensors → air_quality (already has 77 站 + LASS AirBox in md)
 - renewablePermitsTaipei → renewable (renewable.md 明確含北市 438 筆)
 - fossilFuelInfra → gem_coal_plants (or general fossil_fuel subtopic — using canonical)
-- taipeiSewer → storm_drainage_pipes (北市 dataset 145829)
+- （2026-10-29 撤回）taipeiSewer → storm_drainage_pipes：管網≠即時水位，manifest 已改 catalog_missing
 - h3Population → population (population.md 主 pipeline 涵蓋 H3 aggregation)
 """
 import csv
@@ -20,7 +20,7 @@ FIXES = {
     "aqiMicroSensors":        ("verified", "air_quality", "HIGH", "air_quality.md 明確涵蓋 LASS AirBox ~500 個微感測器"),
     "renewablePermitsTaipei": ("verified", "renewable", "HIGH", "renewable.md 明確涵蓋(b) 臺北市再生能源設置 438 筆"),
     "fossilFuelInfra":        ("verified", "gem_coal_plants", "MED", "energy/gem_* 系列涵蓋化石燃料基礎設施（coal_plants 為代表）"),
-    "taipeiSewer":            ("verified", "storm_drainage_pipes", "MED", "storm_drainage_pipes.md 含北市 dataset 145829 雨水下水道"),
+    # taipeiSewer 已撤回（2026-10-29）：storm_drainage_pipes 是靜態管網，不是 WIC 即時水位，維持 catalog_missing
     "h3Population":           ("verified", "population", "MED", "population.md 主 pipeline 涵蓋 H3 網格聚合"),
 }
 

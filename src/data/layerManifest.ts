@@ -3686,7 +3686,7 @@ export const LAYER_MANIFEST = {
     icon: Grid3x3,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "network_performance_grid", confidence: "HIGH" }],
+      datasets: [{ datasetId: "network_performance_grid_tw", confidence: "HIGH" }],
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
@@ -3710,7 +3710,7 @@ export const LAYER_MANIFEST = {
     icon: Grid3x3,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "network_performance_grid", confidence: "HIGH" }],
+      datasets: [{ datasetId: "network_performance_grid_tw", confidence: "HIGH" }],
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
@@ -5723,6 +5723,27 @@ export const LAYER_MANIFEST = {
     topics: ["醫療", "醫院", "POI"],
   },
 
+  emergencyHospitals: {
+    key: "emergencyHospitals",
+    country: "TW", section: { theme: "醫療 Medical", group: "點位" },
+    ...layerName({ zh: "急救責任醫院分級", alt: "Emergency Hospitals" }),
+    expandable: true,
+    color: "#a5b4fc",
+    icon: HeartPulse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hospitals", confidence: "HIGH" }],
+      processing: "analytics safety.emergency_hospitals 252 家（縣市開放資料 13 份 + 衛福部名冊）；座標為地址地理編碼；2026-05 匯入快照；29 家來源未標分級（未標分級 ≠ 一般級）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "emergency-hospitals", url: "./geo/emergency_hospitals.geojson" },
+    legend: "emergencyHospitals",
+    popup: "emergencyHospitalLevel",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全國急救責任醫院 252 家，依重度／中度／一般分級上色（29 家來源未標分級另列灰色，快照 2026-05）",
+    topics: ["醫療", "急救責任醫院", "急診", "分級"],
+  },
+
   medClinic: {
     key: "medClinic",
     country: "TW", section: { theme: "醫療 Medical", group: "點位" },
@@ -5977,11 +5998,11 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "speed_cameras", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "speed-camera", url: "./police_justice/speed_cameras/speed_cameras_20260626.geojson" },
+    source: { kind: "geojson", sourceId: "speed-camera", url: "./police_justice/speed_cameras/speed_cameras_20260824.geojson" },
     legend: "policeStation",
     popup: "speedCamera",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "固定式測速照相點位",
+    description: "固定式測速照相點位（2026-08-24 版 2,805 點，含國道、闖紅燈、平交道與 TGOS 補點）",
     topics: ["治安", "交通執法", "POI"],
   },
 
@@ -7871,6 +7892,25 @@ export const LAYER_MANIFEST = {
     legend: "openFishingLocations", popup: "openFishingLocations", params: { count: 2, kinds: ["slider", "slider"] },
     description: "海洋保育署公布的開放捕魚點位；點位不代表可進入或安全。",
     topics: ["海洋", "釣魚", "釣點", "開放捕魚"],
+  },
+  // ── 海洋保育補接 G33（2026-10-29）：analytics → build-atlas-public.py → public/marine/ ──
+  marineWildlifeAreas: {
+    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marineWildlifeAreas, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "white_dolphin_habitat", confidence: "HIGH" }], note: "海洋委員會海洋保育署 iocean（data.gov.tw 157562）6 面：中華白海豚重要棲息環境 1 面（野生動物重要棲息環境）＋貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區。官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84，本層採由 SHP 轉出的正確經緯度成品。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-wildlife-areas", url: "./marine/marine_wildlife_areas.geojson" },
+    legend: "marineWildlifeAreas", popup: "marineWildlifeAreas", params: { count: 1, kinds: ["slider"] },
+    description: "海保署公布的 6 個海域野生動物範圍：中華白海豚重要棲息環境與 5 個野生動物保護區（法定類別不同，分色）；不在「野生動物保護區」圖層內。僅供參考，不構成法規適用判斷。",
+    topics: ["海洋", "保護區", "野生動物", "白海豚", "保育"],
+  },
+  marineEcologicalMonitoringSites: {
+    key: "marineEcologicalMonitoringSites", country: "TW", section: { theme: "海洋 Marine", group: "調查站網 Survey Sites" }, ...layerName({ zh: "全海域生態系調查點位", alt: "Marine Ecosystem Survey Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "marine_ecological_monitoring_sites", confidence: "HIGH" }], note: "國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350，54 站；站位清單，不是監測結果）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "marine-ecological-monitoring-sites", url: "./marine/marine_ecological_monitoring_sites.geojson" },
+    legend: "marineEcologicalMonitoringSites", popup: "marineEcologicalMonitoringSites", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國家海洋研究院全海域生態系調查的 54 個站位；站位清單，不是監測結果或目前生態狀況。",
+    topics: ["海洋", "生態系", "調查", "珊瑚礁"],
   },
   coastalAreaExtents: {
     key: "coastalAreaExtents", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
@@ -9763,9 +9803,13 @@ export const LAYER_MANIFEST = {
     expandable: true,
     color: "#3b82f6",
     icon: Waves,
+    // 2026-10-29 改正：原掛 storm_drainage_pipes（scripts/audit/10_apply_class_b_fixes.py 硬配）是靜態
+    // 雨水下水道管網，不是即時水位；analytics catalog 沒有 WIC 下水道水位的對應文件。
     upstream: {
-      status: "verified",
-      datasets: [{ datasetId: "storm_drainage_pipes", confidence: "MED" }],
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data-collectors wic_sewer：GET https://wic.gov.taipei/OpenData/API/Sewer/Get（臺北市水利處 WIC 下水道水位）→ live.taipei_sewer_measurements → RPC get_taipei_sewer_latest。",
+      note: "即時水位無 analytics catalog 對應文件；storm_drainage_pipes 是雨水下水道管網（靜態），不是本層來源。",
     },
     dataClass: "D",
     source: {
@@ -9954,7 +9998,7 @@ export const LAYER_MANIFEST = {
   waterProtectionZones: {
     key: "waterProtectionZones",
     country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
-    ...layerName({ zh: "管制區", alt: "Protection" }),
+    ...layerName({ zh: "自來水保護區與地下水管制", alt: "Water Supply Protection", qualifier: "水利署" }),
     expandable: true,
     color: "#10b981",
     icon: ShieldCheck,
@@ -9973,8 +10017,8 @@ export const LAYER_MANIFEST = {
     // 「這裡受什麼法規管」。
     popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
-    description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
-    topics: ["水資源", "管制", "保護區"],
+    description: "水利署依自來水法公告的自來水水質水量保護區，以及地下水管制區（禁止／限制超抽）；與環境部飲用水水源保護區不同法源（依管制類別分色）",
+    topics: ["水資源", "管制", "保護區", "水源", "自來水", "地下水"],
   },
 
   waterDetentionBasins: {
@@ -10056,7 +10100,7 @@ export const LAYER_MANIFEST = {
   waterFloodExtreme: {
     key: "waterFloodExtreme",
     country: "TW", section: { theme: "水資源 Water", group: "分析" },
-    ...layerName({ zh: "淹水潛勢", alt: "Flood", qualifier: "650mm/24h" }),
+    ...layerName({ zh: "淹水潛勢", alt: "Flood" }),
     expandable: true,
     color: "#fb7185",
     icon: AlertTriangle,
@@ -10068,15 +10112,15 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "water-flood-extreme",
-      url: "./geo/water_flood_extreme.pmtiles",
-      sourceLayer: "flood_extreme",
+      url: "./geo/water_flood_650mm_24hr.pmtiles",
+      sourceLayer: "flood_scenario",
       minzoom: 5,
       maxzoom: 13,
     },
     legend: "waterFloodExtreme",
-    popup: null,
-    params: { count: 2, kinds: ["slider", "select"] },
-    description: "水利署淹水潛勢圖（650mm/24h 極端降雨情境，依淹水深度分級）",
+    popup: "waterFloodExtreme",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "水利署淹水潛勢圖，10 種降雨情境（6／12／24 小時）可切換，依淹水深度分級；模式模擬，僅供防災整備",
     topics: ["水資源", "淹水", "災害潛勢"],
   },
 

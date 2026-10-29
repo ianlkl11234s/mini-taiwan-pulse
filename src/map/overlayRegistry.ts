@@ -10,6 +10,7 @@ import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RA
 import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { fireStationColorMatch } from "../data/fireTypes";
+import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -268,7 +269,7 @@ import {
   FREEWAY_SIGNS_MIN_ZOOM, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MILEPOSTS_MIN_ZOOM, MONITORED_MIN_ZOOM,
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
-  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS,
+  STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
@@ -306,6 +307,7 @@ import {
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
 import { medicalPoiColor } from "../data/medicalPOITypes";
+import { emergencyHospitalColorExpression } from "../data/emergencyHospitalTypes";
 
 function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): OverlayConfig {
   return {
@@ -3384,6 +3386,32 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 急救責任醫院分級（252 家，靜態 geojson；顏色由 properties.level_group 決定）──
+  // 三級為序列色（暗／淡底圖方向相反，F-3）；未標分級灰色，不是「一般級」。色值 SSOT = emergencyHospitalTypes.ts。
+  {
+    id: "emergencyHospitals",
+    sourceUrl: "./geo/emergency_hospitals.geojson",
+    sourceId: "emergency-hospitals",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.emergencyHospitalsScale ?? 1;
+          const opacity = params?.emergencyHospitalsOpacity ?? 0.9;
+          return {
+            "circle-radius": 4.5 * scale,
+            "circle-color": emergencyHospitalColorExpression(isDark),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#0a0a14" : "#ffffff",
+            "circle-stroke-width": 1,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Medical: Clinics (診所，23,472 點) ──
   {
     id: "medClinic",
@@ -4212,17 +4240,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 淹水潛勢 (flood_650mm_24hr, 極端情境；可調 floodMinDepth 篩選) ──
-  // PMTiles 向量切片（原 80MB GeoJSON → 按需載入；depth_class/county 屬性保留供 paint match）
+  // ── 淹水潛勢 10 降雨情境（floodScenarioIdx 換檔，預設 650mm/24h；可調 floodMinDepth 篩選）──
+  // 一個情境一支 PMTiles（scripts/export/export-flood-scenarios.sh），切情境換 source url；
+  // depth_class 已在匯出時正規化（離島髒值 0.3-0.>3.0／0.>3.0-1.0 → 0.3-0.5／0.5-1.0）
   {
     id: "waterFloodExtreme",
-    sourceUrl: "./geo/water_flood_extreme.pmtiles",
+    sourceUrl: floodScenarioUrl(FLOOD_SCENARIO_DEFAULT),
+    sourceUrlByParam: { param: "floodScenarioIdx", urls: FLOOD_SCENARIOS.map((s) => floodScenarioUrl(s.value)) },
     sourceId: "water-flood-extreme",
-    pmtiles: { sourceLayer: "flood_extreme", minzoom: 5, maxzoom: 13 },
+    attribution: "經濟部水利署 淹水潛勢圖（data.gov.tw 25766）· 政府資料開放授權條款第1版 · 模式模擬，僅供防災整備",
+    pmtiles: { sourceLayer: "flood_scenario", minzoom: 5, maxzoom: 13 },
+    // floodMinDepth 除了把 opacity 打 0，也用 filter 排除低於門檻的面：
+    // 補 popup 後，只靠 opacity 0 的面仍會被 queryRenderedFeatures 點到（看不到卻跳出說明框）。
+    rebuildOnParamChange: ["fill", "glow"],
+    rebuildOnParamKeys: ["floodMinDepth"],
     layers: [
       {
         suffix: "fill",
         type: "fill",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           // floodMinDepth: 0 (全部) / 0.5 / 1 / 2 / 3
           const min = params?.floodMinDepth ?? 0;
@@ -4255,6 +4291,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "line",
+        filter: floodDepthFilter,
         paint: (isDark, params) => {
           const min = params?.floodMinDepth ?? 0;
           const ALL_CLASSES = ["0.3-0.5", "0.5-1.0", "1.0-2.0", "2.0-3.0", ">3.0"];
@@ -8800,7 +8837,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "speedCamera",
-    sourceUrl: "./police_justice/speed_cameras/speed_cameras_20260626.geojson",
+    sourceUrl: "./police_justice/speed_cameras/speed_cameras_20260824.geojson",
     sourceId: "speed-camera",
     rebuildOnParamChange: ["speedCameraOpacity", "speedCameraScale"],
     // 顏色按 subtype（4 類）：general 紅 / freeway 暗紅 / red_light 玫紅 / railway 黃
@@ -11803,6 +11840,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("marineMicroplastics", "./marine/marine_microplastics_stations.geojson", "marine-microplastics", microplasticColorExpr(), undefined, `海洋委員會 海洋微塑膠調查（2021–2023）· ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
   publicLifePointOverlay("marinePollutionIncidents", "./marine/marine_pollution_incidents.geojson", "marine-pollution-incidents", matchColorExpr("case_level", POLLUTION_LEVEL_OPTIONS), undefined, `海洋委員會海洋保育署 海洋污染事件 · ${OGDL_ATTR}`),
   publicLifePointOverlay("namrEdnaSurveySites", "./marine/namr_edna_survey_sites.geojson", "namr-edna-survey-sites", ATLAS_LAYER_COLORS.namrEdnaSurveySites, undefined, `國家海洋研究院 環境 DNA 調查站位 · ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
+  publicLifePointOverlay("marineEcologicalMonitoringSites", "./marine/marine_ecological_monitoring_sites.geojson", "marine-ecological-monitoring-sites", ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, undefined, `國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
   // ── 地名 ──
   publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
   publicLifePointOverlay("triangulationPoints", "./geo/triangulation_points_moi.geojson", "triangulation-points-moi", triangulationColorExpr(), undefined, `內政部國土測繪中心 三角點（data.gov.tw 26485）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
@@ -11825,6 +11863,11 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "wildlifeProtectedAreas", sourceUrl: "./marine/wildlife_protected_areas.geojson", sourceId: "wildlife-protected-areas",
     attribution: `農業部林業及自然保育署 野生動物保護區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("wildlifeProtectedAreas", ATLAS_LAYER_COLORS.wildlifeProtectedAreas, 0.3),
+  },
+  {
+    id: "marineWildlifeAreas", sourceUrl: "./marine/marine_wildlife_areas.geojson", sourceId: "marine-wildlife-areas",
+    attribution: `海洋委員會海洋保育署 中華白海豚重要棲息環境之圖資（data.gov.tw 157562）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("marineWildlifeAreas", matchColorExpr("category", MARINE_WILDLIFE_AREA_OPTIONS), 0.3),
   },
   {
     id: "coastalAreaExtents", sourceUrl: "./marine/coastal_area_extents.pmtiles", sourceId: "coastal-area-extents",

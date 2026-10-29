@@ -705,6 +705,7 @@
   "layer.propertyValueAdmin": "不動産時価総額（行政区別）",
   "layer.propertyValueGrid": "不動産時価総額（グリッド）",
   "layer.medHospital": "病院",
+  "layer.emergencyHospitals": "救急責任病院（等級別）",
   "layer.medClinic": "診療所・その他医療",
   "layer.medPharmacy": "薬局",
   "layer.medAED": "AED設置場所",
@@ -866,7 +867,7 @@
   "layer.waterRivers": "河川",
   "layer.waterLevees": "堤防",
   "layer.waterCanals": "灌漑・排水路",
-  "layer.waterProtectionZones": "規制区域",
+  "layer.waterProtectionZones": "水道水質水量保護区・地下水規制区域",
   "layer.waterDetentionBasins": "調整池",
   "layer.groundwater": "地下水井戸",
   "layer.lakesPondsOsm": "湖沼・ため池",
@@ -1320,5 +1321,7 @@
   "layer.jpMajorRoads": "主要道路（国道・都道府県道）",
   "layer.jpExpressways": "高速道路",
   "layer.jpGsiHillshade": "陰影起伏図",
-  "layer.jpGsiRelief": "色別標高図"
+  "layer.jpGsiRelief": "色別標高図",
+  "layer.marineWildlifeAreas": "海域の野生動物保護区・重要生息環境",
+  "layer.marineEcologicalMonitoringSites": "全海域生態系調査地点"
 }

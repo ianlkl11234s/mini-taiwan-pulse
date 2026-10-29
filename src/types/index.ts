@@ -126,6 +126,8 @@ export type ExpandableLayerKey =
   | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
   // 海域保護與漁業 G08（2026-10-17，7 層）
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+  // 海洋保育補接 G33（2026-10-29）
+  | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -246,6 +248,7 @@ export type ExpandableLayerKey =
   | "fireIsochrone"
   | "medDesert"
   | "medHospital"
+  | "emergencyHospitals"
   | "medClinic"
   | "medPharmacy"
   | "medAED"
@@ -713,6 +716,12 @@ export interface OverlayConfig {
   /** 可選的整層 opacity 參數；overlayManager 會乘上既有 paint alpha。 */
   opacityParam?: string;
   sourceUrl: string;
+  /**
+   * PMTiles 依參數換檔（淹水潛勢 10 情境首用）：`params[param]` 當索引取 `urls`，
+   * 越界或缺值退回 `sourceUrl`。只有可見時才換 source（隱藏中切參數不抓檔）；
+   * 各檔的 source-layer 與 zoom 必須和 `pmtiles` 相同。
+   */
+  sourceUrlByParam?: { param: string; urls: readonly string[] };
   sourceId: string;
   /**
    * 靜態 GeoJSON 載入後的輕量幾何轉換。`centroid` 只把 Polygon /
@@ -819,6 +828,7 @@ export interface FeatureInfo {
     | "welfareGovOffices" | "welfareMentalHealth" | "welfareSocialWorkOrgs"
     | "animalAdoption" | "animalShelterPressure" | "animalWelfarePoints"
     | "medicalPOI"
+    | "emergencyHospitalLevel"
     | "medicalIsochrone"
     | "erHospital"
     | "parkingOnstreet" | "parkingOffstreet"
@@ -826,7 +836,7 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "marineObservation"
-    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
+    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm" | "waterFloodExtreme"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
     | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
     | "waterProtectionZones"
@@ -852,6 +862,7 @@ export interface FeatureInfo {
     | "landslideDodArea" | "landslideDodImpact" | "highwayDisaster" | "landslideAnnual"
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
+    | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "culturalHealthStations"
@@ -1272,6 +1283,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   artificialReefCenters: boolean;
   protectedReefCenters: boolean;
   setNetFishingAreas: boolean;
+  /** 海洋保育補接 G33（2026-10-29）：海保署 6 個海域野生動物範圍、國研院全海域生態系調查點位 54 */
+  marineWildlifeAreas: boolean;
+  marineEcologicalMonitoringSites: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
   landSubsidenceStations: boolean;
   landSubsidenceCumulative: boolean;
@@ -1479,6 +1493,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   tourRestaurants: boolean;       // 觀光餐飲（~3,688 點，單色）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
+  emergencyHospitals: boolean; // 急救責任醫院分級（252 家，重度／中度／一般／未標分級）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）
   medPharmacy: boolean;    // 藥局（NHI pharmacy 7680）
   medAED: boolean;         // AED（15490）
@@ -1638,7 +1653,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
   policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
   womenChildWarning: boolean;         // 185 婦幼警示點
-  speedCamera: boolean;               // 2,056 測速照相
+  speedCamera: boolean;               // 2,805 測速照相
   speedZoneSegment: boolean;          // 25 區間測速路段（LineString）
   court: boolean;                     // 35 法院（最高/高/地方/行政/智慧財產/少年及家事）
   prosecutorsOffice: boolean;         // 29 檢察署

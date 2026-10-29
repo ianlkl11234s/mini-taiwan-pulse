@@ -210,7 +210,7 @@ VERIFIED_RAW_FAMILIES["traffic:speed_cameras:20260824"] = {
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed listing date does not establish current enforcement state.",
   coverageAndMissingness: "2,805 Point listing rows; 62 coord_suspect remain attribute-only, 2,743 pass Taiwan coordinate subset. 25 suspect rows lack fetched_at.",
   geometry: "Source WGS84 Point; no enforcement direction or active-status claim.", sourceSha256: "ce46f68a1ae617a0ae6a14ecaf470613b5a7587cb5b2c5f57709a80c596bb740",
-  localDisplayReceipt: "Current display is 20260626 while query source is 20260824; no same-version alignment. Taipei query map 15 Points ready/readback.",
+  localDisplayReceipt: "Display asset is now 20260824, same version as the query source (full file, incl. 62 coord_suspect points on Kinmen/Matsu that are drawn at their listed coordinates). Taipei query map 15 Points ready/readback.",
 };
 VERIFIED_RAW_FAMILIES["fire:stations:20260710"] = {
   sourceArtifact: "taipei-gis-analytics/data/processed/fire/fire_stations/fire_stations_20260710.geojson",
@@ -1180,6 +1180,7 @@ const VERIFIED_RAW_FAMILY_BY_DATASET = {
   dgbas_county_transport_supply_10935: "dgbas:county_transport_supply:2023-2024",
   jp_water_ksj: "mlit:ksj_water:inspected-20260918",
   network_performance_grid: "ookla:network_performance:2026q1",
+  network_performance_grid_tw: "ookla:network_performance:2026q1",
   all_venues: "sports:all_venues:20260704",
   segis_taipei_bicycle_usage_township_110: "segis:3792EA_1D2:2021",
   schools: "moe:schools:113-academic-year",
@@ -1284,6 +1285,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   segis_taipei_bicycle_usage_township_110: { status: "RIGHTS_HOLD", familyKey: "segis:3792EA_1D2:2021", reason: "raw lineage/version is verified but inspected catalog/manifest does not record a license" },
   crop_township_statistics: { status: "EVIDENCE_GAP", reason: "catalog names a per-page raw receipt, but it is absent from this checkout" },
   network_performance_grid: { status: "RIGHTS_HOLD", familyKey: "ookla:network_performance:2026q1", reason: "raw lineage is verified but CC BY-NC-SA 4.0 requires non-commercial/attribution clearance" },
+  network_performance_grid_tw: { status: "RIGHTS_HOLD", familyKey: "ookla:network_performance:2026q1", reason: "raw lineage is verified but CC BY-NC-SA 4.0 requires non-commercial/attribution clearance" },
   network_structures: { status: "EVIDENCE_GAP", reason: "processed bundle mixes distinct Geofabrik OSM PBF, NTPC official CSV, and NLSC boundary inputs; no single raw-family receipt is present in this checkout" },
 };
 

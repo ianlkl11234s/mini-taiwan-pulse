@@ -148,6 +148,7 @@ import { RIVER_RPI_FILTER_OPTIONS, RIVER_RPI_SEGMENT_MODES, WATER_QUALITY_STATIO
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
+import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioLabel } from "./floodScenarios";
 import {
   ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
@@ -1601,6 +1602,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("industrialParkComparisonOpacity", 0.68),
   ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
+  emergencyHospitals: [opacitySlider("emergencyHospitalsOpacity", 0.9), scaleSlider("emergencyHospitalsScale", 1.0)],
   medClinic: [heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
   medPharmacy: [opacitySlider("medPharmacyOpacity", densePointOpacity(7_680)), scaleSlider("medPharmacyScale", 1.0)],
   medAED: [heatmapPalette("medAED"), opacitySlider("medAEDOpacity", densePointOpacity(15_490)), scaleSlider("medAEDScale", 1.0)],
@@ -2540,7 +2542,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("womenChildWarningScale", 1),
     opacitySlider("womenChildWarningOpacity", 0.9),
   ],
-  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", densePointOpacity(2_056))],
+  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", densePointOpacity(2_805))],
   speedZoneSegment: [
     { kind: "slider", name: "speedZoneSegmentWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 5, step: 0.1 },
     opacitySlider("speedZoneSegmentOpacity", 0.85),
@@ -3104,6 +3106,12 @@ export const LAYER_PARAMS_SPEC = {
   wildlifeProtectedAreas: [
     opacitySlider("wildlifeProtectedAreasOpacity", 0.3),
   ],
+  marineWildlifeAreas: [
+    opacitySlider("marineWildlifeAreasOpacity", 0.3),
+  ],
+  marineEcologicalMonitoringSites: [
+    opacitySlider("marineEcologicalMonitoringSitesOpacity", densePointOpacity(54)), scaleSlider("marineEcologicalMonitoringSitesScale", 1),
+  ],
   openFishingLocations: [
     opacitySlider("openFishingLocationsOpacity", densePointOpacity(155)), scaleSlider("openFishingLocationsScale", 1),
   ],
@@ -3552,6 +3560,12 @@ export const LAYER_PARAMS_SPEC = {
   // ── 數值型 select（out 吃 `Number(value)` 不是索引）──
   waterFloodExtreme: [
     opacitySlider("waterFloodOpacity", 1),
+    {
+      // 降雨情境：一個情境一支 PMTiles，overlayRegistry 依 floodScenarioIdx 換 source url（G29 方向 A）
+      kind: "select", name: "floodScenario", label: "降雨情境", default: FLOOD_SCENARIO_DEFAULT, category: "data",
+      options: FLOOD_SCENARIOS.map((s) => ({ label: floodScenarioLabel(s), value: s.value })),
+      out: "floodScenarioIdx", encode: FLOOD_SCENARIOS.map((s) => s.value),
+    },
     {
       kind: "select", name: "floodMinDepth", label: "深度", default: "0",
       options: [

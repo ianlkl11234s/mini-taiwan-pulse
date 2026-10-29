@@ -229,5 +229,13 @@
   "popup.atlas.insuranceAgencyLines": "Lines handled",
   "popup.atlas.postFxService": "Buys and sells foreign cash and traveler's checks (Chunghwa Post designated office)",
   "popup.atlas.postFxNotExchangeShop": "A post office service, not a currency exchange shop licensed by the central bank; check the post office for currencies and hours",
-  "popup.atlas.postFxZip": "Postal code"
+  "popup.atlas.postFxZip": "Postal code",
+  "popup.atlas.legalBasis": "Legal basis",
+  "popup.atlas.dataProvider": "Map data provider",
+  "popup.atlas.sourceUpdated": "Source updated",
+  "popup.atlas.marineWildlifeCaution": "Extent as drawn in the source map data; a habitat and a protected area are different legal categories and must not be treated as the same restriction",
+  "popup.atlas.englishName": "English name",
+  "popup.atlas.ecosystemType": "Ecosystem type",
+  "popup.atlas.siteDescription": "Station description",
+  "popup.atlas.ecologySiteCaution": "Station list only; not survey results or the current ecosystem condition. No point does not mean no data"
 }

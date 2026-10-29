@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1330,
+    "keyCount": 1333,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1948,6 +1948,12 @@
     },
     {
       "layers": [
+        "emergency-hospitals-circle"
+      ],
+      "type": "emergencyHospitalLevel"
+    },
+    {
+      "layers": [
         "library-seats-circle"
       ],
       "type": "librarySeats"
@@ -2056,6 +2062,12 @@
         "lakes-ponds-osm-line"
       ],
       "type": "lakesPondsOsm"
+    },
+    {
+      "layers": [
+        "water-flood-extreme-fill"
+      ],
+      "type": "waterFloodExtreme"
     },
     {
       "layers": [
@@ -3850,6 +3862,20 @@
         "wildlife-protected-areas-outline"
       ],
       "type": "wildlifeProtectedAreas"
+    },
+    {
+      "layers": [
+        "marine-ecological-monitoring-sites-circle",
+        "marine-ecological-monitoring-sites-glow"
+      ],
+      "type": "marineEcologicalMonitoringSites"
+    },
+    {
+      "layers": [
+        "marine-wildlife-areas-fill",
+        "marine-wildlife-areas-outline"
+      ],
+      "type": "marineWildlifeAreas"
     },
     {
       "layers": [
@@ -12095,6 +12121,70 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "emergencyHospitals",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level_group"
+                ],
+                "heavy",
+                "#e0e7ff",
+                "moderate",
+                "#a5b4fc",
+                "general",
+                "#6366f1",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "level_group"
+                ],
+                "heavy",
+                "#312e81",
+                "moderate",
+                "#6366f1",
+                "general",
+                "#a5b4fc",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "emergency-hospitals",
+      "sourceUrl": "./geo/emergency_hospitals.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "medClinic",
       "layers": [
         {
@@ -14954,7 +15044,23 @@
       "id": "waterFloodExtreme",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15047,7 +15153,23 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "in",
+            [
+              "get",
+              "depth_class"
+            ],
+            [
+              "literal",
+              [
+                "0.3-0.5",
+                "0.5-1.0",
+                "1.0-2.0",
+                "2.0-3.0",
+                ">3.0"
+              ]
+            ]
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15071,11 +15193,14 @@
       "pmtiles": {
         "maxzoom": 13,
         "minzoom": 5,
-        "sourceLayer": "flood_extreme"
+        "sourceLayer": "flood_scenario"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "glow"
+      ],
       "sourceId": "water-flood-extreme",
-      "sourceUrl": "./geo/water_flood_extreme.pmtiles"
+      "sourceUrl": "./geo/water_flood_650mm_24hr.pmtiles"
     },
     {
       "dynamicData": null,
@@ -47080,7 +47205,7 @@
         "speedCameraScale"
       ],
       "sourceId": "speed-camera",
-      "sourceUrl": "./police_justice/speed_cameras/speed_cameras_20260626.geojson"
+      "sourceUrl": "./police_justice/speed_cameras/speed_cameras_20260824.geojson"
     },
     {
       "dynamicData": null,
@@ -75685,6 +75810,218 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "marineEcologicalMonitoringSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#4f46e5",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "marine-ecological-monitoring-sites",
+      "sourceUrl": "./marine/marine_ecological_monitoring_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "placeNames",
       "layers": [
         {
@@ -77475,6 +77812,113 @@
       ],
       "sourceId": "wildlife-protected-areas",
       "sourceUrl": "./marine/wildlife_protected_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "marineWildlifeAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "category"
+                ],
+                "habitat",
+                "#2563eb",
+                "protected",
+                "#0d9488",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "marine-wildlife-areas",
+      "sourceUrl": "./marine/marine_wildlife_areas.geojson"
     },
     {
       "dynamicData": null,
@@ -87859,6 +88303,26 @@
         "valueText": "1.0"
       }
     ],
+    "emergencyHospitals": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "erHospital": [
       {
         "label": "透明度 0.85",
@@ -96981,6 +97445,26 @@
         "valueText": "1.0"
       }
     ],
+    "marineEcologicalMonitoringSites": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "marineMicroplastics": [
       {
         "label": "透明度 0.85",
@@ -97041,6 +97525,17 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "marineWildlifeAreas": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "maritimeBoundary": [
@@ -136535,6 +137030,53 @@
       }
     ],
     "waterFloodExtreme": [
+      {
+        "label": "降雨情境",
+        "options": [
+          {
+            "label": "150 mm / 6 h",
+            "value": "150mm_6hr"
+          },
+          {
+            "label": "250 mm / 6 h",
+            "value": "250mm_6hr"
+          },
+          {
+            "label": "350 mm / 6 h",
+            "value": "350mm_6hr"
+          },
+          {
+            "label": "200 mm / 12 h",
+            "value": "200mm_12hr"
+          },
+          {
+            "label": "300 mm / 12 h",
+            "value": "300mm_12hr"
+          },
+          {
+            "label": "400 mm / 12 h",
+            "value": "400mm_12hr"
+          },
+          {
+            "label": "200 mm / 24 h",
+            "value": "200mm_24hr"
+          },
+          {
+            "label": "350 mm / 24 h",
+            "value": "350mm_24hr"
+          },
+          {
+            "label": "500 mm / 24 h",
+            "value": "500mm_24hr"
+          },
+          {
+            "label": "650 mm / 24 h",
+            "value": "650mm_24hr"
+          }
+        ],
+        "type": "select",
+        "value": "650mm_24hr"
+      },
       {
         "label": "深度",
         "options": [

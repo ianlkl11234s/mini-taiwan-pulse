@@ -746,6 +746,7 @@
   "layer.propertyValueAdmin": "Total Property Value by District",
   "layer.propertyValueGrid": "Total Property Value Grid",
   "layer.medHospital": "Hospitals",
+  "layer.emergencyHospitals": "Emergency Responsibility Hospitals (Graded)",
   "layer.medClinic": "Clinics & Other Medical Facilities",
   "layer.medPharmacy": "Pharmacies",
   "layer.medAED": "AED Locations",
@@ -879,7 +880,7 @@
   "layer.waterRivers": "Rivers",
   "layer.waterLevees": "Levees",
   "layer.waterCanals": "Irrigation & Drainage Canals",
-  "layer.waterProtectionZones": "Water Protection & River Control Zones",
+  "layer.waterProtectionZones": "Water Supply Protection & Groundwater Control Zones",
   "layer.waterDetentionBasins": "Detention Ponds",
   "layer.groundwater": "Groundwater Wells",
   "layer.waterFloodExtreme": "Flood Potential",
@@ -1320,5 +1321,7 @@
   "layer.jpMajorRoads": "Major Roads",
   "layer.jpExpressways": "Expressways",
   "layer.jpGsiHillshade": "Hillshade (GSI)",
-  "layer.jpGsiRelief": "Color Elevation Map (GSI)"
+  "layer.jpGsiRelief": "Color Elevation Map (GSI)",
+  "layer.marineWildlifeAreas": "Marine Wildlife Habitat & Protected Areas",
+  "layer.marineEcologicalMonitoringSites": "Marine Ecosystem Survey Sites"
 }
