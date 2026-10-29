@@ -17,6 +17,7 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare, useLegendT
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { type LayerVisibility } from "../../types";
 import { MEDICAL_POI_TYPES, medicalPoiColor } from "../../data/medicalPOITypes";
+import { EMERGENCY_HOSPITAL_LEVELS, EMERGENCY_HOSPITAL_DATA_AS_OF } from "../../data/emergencyHospitalTypes";
 import { ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS } from "../../data/publicLifePalette";
 import { JP_SCHOOL_TYPES } from "../../data/jpSchoolTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../../data/animalWelfarePointsTypes";
@@ -526,6 +527,31 @@ export function MedicalIsochroneLegend() {
       />
       <LegendNote style={{ marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {enumLabel("medicalNote", "isochrone", MEDICAL_ISOCHRONE_NOTE, i18n)}
+      </LegendNote>
+    </div>
+  );
+}
+
+/** 急救責任醫院分級圖例：三級序列 + 未標分級灰（色票 SSOT: data/emergencyHospitalTypes.ts）。 */
+export function EmergencyHospitalLegend({ isDark = true }: { isDark?: boolean }) {
+  const t = useLegendTheme();
+  const i18n = useLocale();
+  return (
+    <div>
+      <LegendTitle zh={i18n.t("legend.civic.emergencyHospitalTitle")} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {EMERGENCY_HOSPITAL_LEVELS.map((l) => (
+          <div key={l.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <SwatchDot color={isDark ? l.dark : l.light} opacity={0.9} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              {enumLabel("emergencyHospitalLevel", l.value, l.label, i18n)} · {i18n.formatNumber(l.count)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <LegendNote style={{ marginTop: 4 }}>
+        {i18n.t("legend.civic.emergencyHospitalNote1")}<br />
+        {i18n.t("legend.civic.emergencyHospitalNote2", { asOf: EMERGENCY_HOSPITAL_DATA_AS_OF })}
       </LegendNote>
     </div>
   );

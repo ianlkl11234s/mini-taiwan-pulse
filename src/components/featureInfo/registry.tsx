@@ -25,7 +25,7 @@ import {
 import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
   RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel, BridgeRainPanel,
-  WaterReservoirPolyPanel, LakesPondsPanel,
+  WaterReservoirPolyPanel, LakesPondsPanel, WaterFloodHazardPanel,
   IotWraRiverPanel, IotWraStructurePanel,
   WaterBasinsPanel, WaterRiversPanel, WaterLeveesPanel, WaterCanalsPanel,
   WaterProtectionZonesPanel,
@@ -109,7 +109,7 @@ import {
   HeritagePanel, EventsPanel, FactoriesPanel,
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
-import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
+import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
@@ -279,6 +279,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   waterReservoirPoly: WaterReservoirPolyPanel,
   waterDetentionBasin: WaterDetentionBasinPanel,
   lakesPondsOsm: LakesPondsPanel,
+  waterFloodExtreme: WaterFloodHazardPanel,
   rainGauge: RainGaugePanel,
   bridgeRainThresholds: BridgeRainPanel,
   riverLevel: RiverLevelPanel,
@@ -352,6 +353,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   medicalPOI: MedicalPOIPanel,
   medicalIsochrone: MedicalIsochronePanel,
   erHospital: EmergencyHospitalPanel,
+  emergencyHospitalLevel: EmergencyHospitalLevelPanel,
   parkingOnstreet: ParkingOnstreetPanel,
   parkingOffstreet: ParkingOffstreetPanel,
   satellite: SatellitePanel,
@@ -759,6 +761,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterReservoirPoly: "水庫蓄水範圍",
   waterDetentionBasin: "滯洪池",
   lakesPondsOsm: "湖泊/埤塘",
+  waterFloodExtreme: "淹水潛勢",
   rainGauge: "即時雨量站",
   bridgeRainThresholds: "一級監控橋梁參考雨量",
   riverLevel: "河川水位站",
@@ -771,7 +774,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterRivers: "河川",
   waterLevees: "堤防 / 護岸",
   waterCanals: "灌排渠道",
-  waterProtectionZones: "水資源管制區",
+  waterProtectionZones: "自來水保護區與地下水管制",
   floodSensor: "都市淹水感測器",
   floodSensorIsochrone: "淹水 3 分步行圈",
   taipeiSewer: "北市雨水下水道水位",
@@ -897,6 +900,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   erHospital: "急診壅塞",
+  emergencyHospitalLevel: "急救責任醫院",
   parkingOnstreet: "路邊停車",
   parkingOffstreet: "場外停車場",
   satellite: "衛星",

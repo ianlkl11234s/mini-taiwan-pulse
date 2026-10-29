@@ -19,5 +19,9 @@
   "popup.medical.informFlag": "Notification flag (inform)",
   "popup.medical.trend": "24h trend: waiting for general bed",
   "popup.medical.bedGap": "beds short",
-  "popup.medical.severe": "Severe"
+  "popup.medical.severe": "Severe",
+  "popup.medical.emergencyHospital": "Emergency responsibility hospital",
+  "popup.medical.emergencyLevel": "Grade",
+  "popup.medical.emergencyUnratedNote": "The source lists no grade; this does not mean it is not a designated hospital.",
+  "popup.medical.emergencyDataNote": "Data snapshot {asOf}; grades come from county open data and the MOHW roster and may have changed since."
 }

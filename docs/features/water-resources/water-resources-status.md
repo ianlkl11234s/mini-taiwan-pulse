@@ -227,10 +227,16 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 | BL-1 | `river_levees` 堤防 | 4,223 | MultiLineString | 輸水/防洪骨架 | ⭐ 高 ROI |
 | BL-2 | `water_protection_zones` 水源保護區 | 107 | MultiPolygon | 用水來源保護 | 合併 BL-3 為同一 toggle |
 | BL-3 | `groundwater_zones` 地下水管制區 | 21 | MultiPolygon | 管制/禁止超抽 | 合併 BL-2 |
-| **BL-4** | **`flood_hazard_zones` 淹水潛勢多情境** | **17,303** | **MultiPolygon** | **淹水模擬互動** | **記到 backlog（2026-04-23）** |
+| **BL-4** | **`flood_hazard_zones` 淹水潛勢多情境** | **17,303** | **MultiPolygon** | **淹水模擬互動** | **✅ 2026-10-29 做完（10 情境切換，一情境一支 PMTiles，見下）** |
 | BL-5 | `reservoir_daily_ops` 進出流時序 | 136+（累積中）| — | 水庫 panel 收支視覺化 | 探索 3D bar/capacity array |
 
 #### BL-4 淹水潛勢 slider — backlog 細節
+
+> **2026-10-29 完成（G29 方向 A）**：採 UX 1「Dropdown 情境＋深度色階」，但資料走靜態 PMTiles 而非 RPC——
+> `scripts/export/export-flood-scenarios.sh` 每個情境出一支 `public/geo/water_flood_<情境>.pmtiles`
+>（source-layer `flood_scenario`，10 支共約 84MB，最大 650mm/24h 17.5MB），前端 `sourceUrlByParam` 依
+> `floodScenarioIdx` 換 source url；預設 650mm/24h。離島深度級距髒值在匯出時正規化
+>（`0.3-0.>3.0`→`0.3-0.5`、`0.>3.0-1.0`→`0.5-1.0`）。以下為原 backlog 紀錄。
 
 10 種降雨情境（6hr×3 / 12hr×3 / 24hr×4）× 5 個淹水深度分級（0.3~>3m），共 17,303 polygon。
 
