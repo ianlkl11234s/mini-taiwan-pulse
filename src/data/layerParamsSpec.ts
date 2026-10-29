@@ -1943,6 +1943,17 @@ export const LAYER_PARAMS_SPEC = {
   gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
   gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],
+  // 英國第 10 波：主要路網（線透明度）、AADF 計數點（點透明度＋大小＋「資料方式」選單）
+  gbMajorRoads: [opacitySlider("gbMajorRoadsOpacity", 0.85)],
+  gbTrafficCountsAadf: [
+    opacitySlider("gbTrafficCountsAadfOpacity", densePointOpacity(22_334)),
+    scaleSlider("gbTrafficCountsAadfScale", 1),
+    {
+      kind: "select", category: "data", name: "gbTrafficCountsAadfMethod", label: "資料方式", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "只看當年實測", value: "counted" }, { label: "只看 DfT 估算", value: "estimated" }],
+      out: "gbTrafficCountsAadfMethodIdx", encode: ["all", "counted", "estimated"],
+    },
+  ],
   // 英國第 5 波：自然與林業（保護區含「類別」選項；點層透明度＋大小；面／線透明度）
   gbProtectedAreas: [
     opacitySlider("gbProtectedAreasOpacity", 0.45),

@@ -340,6 +340,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-station-usage-circle"], type: "gbStationUsage" },
   { layers: ["gb-transport-hubs-circle"], type: "gbTransportHubs" },
   { layers: ["gb-london-rail-lines-line"], type: "gbLondonRailLines" },
+  // 英國第 10 波：計數點（點）排在主要路網（線）前面
+  { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
+  { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
   { layers: ["gb-flood-defences-line"], type: "gbFloodDefenceAssets" },

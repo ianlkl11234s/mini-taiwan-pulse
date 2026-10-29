@@ -4114,6 +4114,61 @@ export const LAYER_MANIFEST = {
     topics: ["英國", "倫敦", "塞車費", "低排放區", "ULEZ", "交通"],
   },
 
+  // 🇬🇧 英國第 10 波（2026-10-29：C012 主要路網、C016 交通計數點 AADF）
+  // 位置對齊台灣「交通 Move › 路網」：highways／provincialRoads／osmExpressway（道路）、etcGantry（路側計數設施）。
+  // 台灣沒有年度交通量計數點圖層；國道壅塞／省道路況是即時、在「即時監控」，不對照。C014 橋隧、C018 道路設施 HOLD。
+  gbMajorRoads: {
+    key: "gbMajorRoads",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "主要路網", alt: "Major Roads" }),
+    expandable: true,
+    color: "#fb923c",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_major_roads", confidence: "HIGH" }],
+      processing: "大不列顛 DfT Major Roads Database 2025（高速公路 1,274＋A 級 16,667 段，計數點間概化直線，對 2025 AADF 補道路類別與交通量）＋北愛 OpenStreetMap（高速 250／A 級 8,716／B 級 6,278 段，實際線形）；33,185 段；PMTiles z4–12（z8 起才有 B 級）",
+      note: "OGL v3.0（DfT）＋ODbL 1.0（OSM）；高速公路與 A 級 4/4；B 級 1/4（僅北愛，大不列顛 B 級 HOLD：2026-10-29 Overpass 降級）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbTransportLayers 自建 mapbox-pmtiles source；source-layer=gb_major_roads，minzoom=4 maxzoom=12（layer minzoom 5）；11.0MB git-track",
+      staticAssets: ["./world/gb_major_roads.pmtiles"],
+    },
+    legend: "gbMajorRoads",
+    popup: "gbMajorRoads",
+    params: { count: 1, kinds: ["slider"] },
+    description: "英國高速公路與 A 級道路（大不列顛 DfT 主要道路資料庫、北愛 OpenStreetMap），北愛另含 B 級道路；大不列顛 B 級道路未涵蓋",
+    topics: ["英國", "道路", "高速公路", "路網", "交通"],
+  },
+
+  gbTrafficCountsAadf: {
+    key: "gbTrafficCountsAadf",
+    country: "GB", section: { theme: "交通", group: "路網" },
+    ...layerName({ zh: "年平均日交通量", alt: "Traffic Counts (AADF)" }),
+    expandable: true,
+    color: "#ef4444",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_traffic_counts_aadf", confidence: "HIGH" }],
+      processing: "DfT Road traffic statistics AADF（major and minor roads）只取 2025 年：22,334 計數點（當年實測 7,950／DfT 估算 14,384），分車種；easting／northing（EPSG:27700）轉 4326；PMTiles z5–13 不丟點",
+      note: "OGL v3.0；3/4（England／Scotland／Wales；北愛未涵蓋，DfI 另行計數）；估算點非當年實測；B 級與 C 級／未分級只有抽樣點",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGbTransportLayers 自建 mapbox-pmtiles source；source-layer=gb_traffic_counts_aadf，minzoom=5 maxzoom=13（幹線高速／地方高速／幹線 A 級 layer minzoom 6，其餘 8）；19.2MB git-track",
+      staticAssets: ["./world/gb_traffic_counts_aadf.pmtiles"],
+    },
+    legend: "gbTrafficCountsAadf",
+    popup: "gbTrafficCountsAadf",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "大不列顛 2025 年道路交通計數點的年平均日交通量（DfT AADF），依車輛數分 5 級，可只看當年實測或估算點；北愛未涵蓋",
+    topics: ["英國", "交通量", "車流", "計數點", "道路", "交通"],
+  },
+
   // 🇬🇧 英國第 5 波（2026-10-29：C054 保護區、C097 海洋保護區、C113 林地 NFI、C114 森林遊憩、C115 步道、X002 開放進入地、C093 樹木保護）
   // 位置對齊台灣：hikingTrails／forestTrailSigns（林業 › 線／點位）、protectedTreesNational（環境氣候 › 都市樹木）、
   // natureReserves 等（海洋 › 海域保護與漁業）；保護區由主 agent 決定放「環境氣候」自成「保護區」群。

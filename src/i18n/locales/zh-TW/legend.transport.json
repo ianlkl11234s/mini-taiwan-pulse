@@ -135,5 +135,22 @@
   "legend.transport.gbJamCamNote": "在線狀態為取得當下，非即時",
   "legend.transport.gbZoneCongestion": "塞車費區",
   "legend.transport.gbZoneUlezLez": "ULEZ／LEZ（同一邊界）",
-  "legend.transport.gbZoneNote": "TfL 的 2023 ULEZ 官方邊界檔與 LEZ 相同"
+  "legend.transport.gbZoneNote": "TfL 的 2023 ULEZ 官方邊界檔與 LEZ 相同",
+  "legend.transport.gbRoadMotorway": "高速公路（M）",
+  "legend.transport.gbRoadA": "A 級道路",
+  "legend.transport.gbRoadB": "B 級道路（僅北愛爾蘭）",
+  "legend.transport.gbRoadsBNotCovered": "大不列顛 B 級道路：未涵蓋（英格蘭、蘇格蘭、威爾斯的 B 級道路尚未收錄，不是沒有 B 級道路）",
+  "legend.transport.gbRoadsSourceMrdb": "官方：DfT 主要道路資料庫（大不列顛）：計數點之間的概化直線段，放大後不貼合實際道路",
+  "legend.transport.gbRoadsSourceOsm": "OSM 補缺（北愛爾蘭）：OpenStreetMap 實際線形",
+  "legend.transport.gbRoadsBZoom": "B 級道路放大到縮放 8 起才顯示",
+  "legend.transport.gbAadfTitleNote": "2025 年平均每日機動車輛數（輛／日）",
+  "legend.transport.gbAadfLt5k": "未滿 5,000",
+  "legend.transport.gbAadf5k": "5,000–20,000",
+  "legend.transport.gbAadf20k": "20,000–50,000",
+  "legend.transport.gbAadf50k": "50,000–100,000",
+  "legend.transport.gbAadf100k": "100,000 以上",
+  "legend.transport.gbAadfZoomNote": "縮放 6–7 只顯示高速公路與國家幹線 A 級；縮放 8 起顯示全部計數點",
+  "legend.transport.gbAadfEstimatedNote": "約 64% 的計數點是 DfT 估算值（非當年實測），可在設定切換「只看當年實測」",
+  "legend.transport.gbAadfMinorNote": "B 級與 C 級／未分級道路只有抽樣計數點，不代表全部小路",
+  "legend.transport.gbAadfNi": "北愛爾蘭：未涵蓋（DfI 另行計數）"
 }

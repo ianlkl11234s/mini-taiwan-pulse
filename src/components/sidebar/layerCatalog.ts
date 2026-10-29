@@ -2628,12 +2628,13 @@ const THEME_CATALOG: ThemeDef[] = [
   {
     // 第 4 波：群組比照台灣「交通 Move」——stationsMetro／bikeStations（場站）、railRoutes／cctv（路網）、ports／airports（樞紐節點）；
     // 收費區台灣無同類，自成「收費與低排放區」
+    // 第 10 波：主要路網比照台灣 highways／provincialRoads、AADF 計數點比照 etcGantry（路側計數設施），都在「路網」
     title: "交通",
     country: "GB",
     defaultCollapsed: true,
     groups: [
       { title: "場站", layers: [fromManifest("gbLondonStations"), fromManifest("gbStationUsage"), fromManifest("gbLondonBikePoints")] },
-      { title: "路網", layers: [fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
+      { title: "路網", layers: [fromManifest("gbMajorRoads"), fromManifest("gbTrafficCountsAadf"), fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
       { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
       { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
     ],

@@ -1394,5 +1394,7 @@
   "layer.gbLandslide": "地すべり記録",
   "layer.gbRadon": "ラドン指標地図",
   "layer.gbRadiation": "環境放射線",
-  "layer.gbEarthquakes": "地震カタログ"
+  "layer.gbEarthquakes": "地震カタログ",
+  "layer.gbMajorRoads": "主要道路網",
+  "layer.gbTrafficCountsAadf": "年平均日交通量"
 }

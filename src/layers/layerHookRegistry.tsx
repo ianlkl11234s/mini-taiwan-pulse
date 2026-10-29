@@ -93,7 +93,7 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
-import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
+import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
 import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
@@ -305,6 +305,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
   { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
   { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
+  // 英國第 10 波（主要路網、AADF 交通計數點）
+  { id: "useGbMajorRoadsLayer", keys: ["gbMajorRoads"], Host: GbMajorRoadsHost },
+  { id: "useGbTrafficCountsAadfLayer", keys: ["gbTrafficCountsAadf"], Host: GbTrafficCountsAadfHost },
   // 英國第 5 波（保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護）
   { id: "useGbProtectedAreasLayer", keys: ["gbProtectedAreas"], Host: GbProtectedAreasHost },
   { id: "useGbMarineProtectedAreasLayer", keys: ["gbMarineProtectedAreas"], Host: GbMarineProtectedAreasHost },

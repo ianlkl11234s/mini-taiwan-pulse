@@ -64,7 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbSurplusLandPanel, GbVisitorExperiencePanel } from "./ukPanels";
+import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
@@ -447,6 +447,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbLondonBikePoints: GbLondonBikePointsPanel,
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
+  gbMajorRoads: GbMajorRoadsPanel,
+  gbTrafficCountsAadf: GbTrafficCountsAadfPanel,
   gbProtectedAreas: GbProtectedAreasPanel,
   gbMarineProtectedAreas: GbMarineProtectedAreasPanel,
   gbWoodland: GbWoodlandPanel,
@@ -1040,6 +1042,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbLondonBikePoints: "倫敦公共自行車 Santander Cycles",
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
+  gbMajorRoads: "主要路網 Major Roads",
+  gbTrafficCountsAadf: "年平均日交通量 AADF",
   gbProtectedAreas: "保護區 Protected Areas",
   gbMarineProtectedAreas: "海洋保護區 Marine Protected Areas",
   gbWoodland: "林地 Woodland",

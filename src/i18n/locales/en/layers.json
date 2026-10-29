@@ -1394,5 +1394,7 @@
   "layer.gbLandslide": "Landslide Records",
   "layer.gbRadon": "Indicative Radon Atlas",
   "layer.gbRadiation": "Ambient Gamma Dose Rate",
-  "layer.gbEarthquakes": "Earthquake Catalogue"
+  "layer.gbEarthquakes": "Earthquake Catalogue",
+  "layer.gbMajorRoads": "Major Roads",
+  "layer.gbTrafficCountsAadf": "Annual Average Daily Traffic"
 }

@@ -428,6 +428,7 @@ export type ExpandableLayerKey =
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
+  | "gbMajorRoads" | "gbTrafficCountsAadf"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
@@ -970,6 +971,8 @@ export interface FeatureInfo {
     | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
     // 英國第 4 波：交通樞紐、站客流、倫敦軌道線／站、單車站、道路攝影機、收費區
     | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
+    // 英國第 10 波：主要路網、AADF 交通計數點
+    | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
     | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
     // 英國第 6 波：電廠、再生能源、電網線、變電所、加油站、離岸油氣田
@@ -1794,6 +1797,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbLondonBikePoints: boolean;  // 倫敦 Santander Cycles 站（TfL，798）
   gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
+  gbMajorRoads: boolean;        // 英國主要路網（DfT MRDB＋北愛 OSM，33,185 段）
+  gbTrafficCountsAadf: boolean; // 英國 AADF 交通計數點（DfT 2025，22,334 點）
   gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
   gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
   gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）

@@ -4,7 +4,7 @@ import { useGbAdminLayers } from "../../hooks/useGbAdminLayers";
 import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
 import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
-import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
+import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
 import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, useGbRadiationLayer, useGbRadonLayer } from "../../hooks/useGbHazardLayers";
@@ -345,5 +345,20 @@ export const GbEarthquakesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbEarthquakesLayer");
   const p = useKeyOverlayParams("gbEarthquakes");
   useGbEarthquakesLayer(deps.mapRef, deps.layerVisibility.gbEarthquakes, p.gbEarthquakesOpacity ?? 0.8, p.gbEarthquakesScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 10 波：主要路網（線）、AADF 交通計數點（點，含「資料方式」選單）。 */
+export const GbMajorRoadsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbMajorRoadsLayer");
+  const p = useKeyOverlayParams("gbMajorRoads");
+  useGbMajorRoadsLayer(deps.mapRef, deps.layerVisibility.gbMajorRoads, p.gbMajorRoadsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const GbTrafficCountsAadfHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbTrafficCountsAadfLayer");
+  const p = useKeyOverlayParams("gbTrafficCountsAadf");
+  useGbTrafficCountsAadfLayer(deps.mapRef, deps.layerVisibility.gbTrafficCountsAadf, p.gbTrafficCountsAadfOpacity ?? 0.75, p.gbTrafficCountsAadfScale ?? 1, p.gbTrafficCountsAadfMethodIdx ?? 0, deps.isDarkTheme);
   return null;
 };

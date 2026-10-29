@@ -135,5 +135,22 @@
   "legend.transport.gbJamCamNote": "Online status is as fetched, not live",
   "legend.transport.gbZoneCongestion": "Congestion Charge zone",
   "legend.transport.gbZoneUlezLez": "ULEZ / LEZ (same boundary)",
-  "legend.transport.gbZoneNote": "TfL's 2023 official ULEZ boundary file is identical to the LEZ boundary"
+  "legend.transport.gbZoneNote": "TfL's 2023 official ULEZ boundary file is identical to the LEZ boundary",
+  "legend.transport.gbRoadMotorway": "Motorway (M)",
+  "legend.transport.gbRoadA": "A road",
+  "legend.transport.gbRoadB": "B road (Northern Ireland only)",
+  "legend.transport.gbRoadsBNotCovered": "Great Britain B roads: not covered (B roads in England, Scotland and Wales are not yet included; this does not mean there are none)",
+  "legend.transport.gbRoadsSourceMrdb": "Official: DfT Major Roads Database (Great Britain): generalised straight segments between count points, not aligned with the actual road when zoomed in",
+  "legend.transport.gbRoadsSourceOsm": "OSM fill-in (Northern Ireland): actual OpenStreetMap alignment",
+  "legend.transport.gbRoadsBZoom": "B roads appear from zoom 8",
+  "legend.transport.gbAadfTitleNote": "2025 annual average daily motor vehicles (vehicles/day)",
+  "legend.transport.gbAadfLt5k": "Under 5,000",
+  "legend.transport.gbAadf5k": "5,000–20,000",
+  "legend.transport.gbAadf20k": "20,000–50,000",
+  "legend.transport.gbAadf50k": "50,000–100,000",
+  "legend.transport.gbAadf100k": "100,000 or more",
+  "legend.transport.gbAadfZoomNote": "Zoom 6–7 shows motorways and trunk A roads only; all count points from zoom 8",
+  "legend.transport.gbAadfEstimatedNote": "About 64% of count points are DfT estimates (not counted this year); switch to “Counted this year only” in the settings",
+  "legend.transport.gbAadfMinorNote": "B and C/unclassified roads have sample count points only, not every minor road",
+  "legend.transport.gbAadfNi": "Northern Ireland: not covered (counted separately by DfI)"
 }

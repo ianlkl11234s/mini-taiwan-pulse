@@ -307,6 +307,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/hooks/useGbHazardLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
+  gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
   jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
   jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts

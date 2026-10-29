@@ -72,6 +72,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbLondonBikePoints",
   "gbLondonJamCams",
   "gbLondonChargingZones",
+  "gbMajorRoads",
+  "gbTrafficCountsAadf",
   "gbProtectedAreas",
   "gbMarineProtectedAreas",
   "gbWoodland",
