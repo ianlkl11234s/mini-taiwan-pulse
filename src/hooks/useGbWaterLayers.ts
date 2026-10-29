@@ -93,7 +93,8 @@ const RIVERS_SOURCE: SourceSpec = {
   id: "gb-rivers", file: "gb_rivers.pmtiles", minzoom: 5, maxzoom: 12, attribution: GB_WATER_MAP_ATTRIBUTION.rivers, loading: "英國河川載入中",
 };
 const IS_NI_RIVER: Expr = ["==", ["get", "source"], "daera_strahler"];
-const IS_FADED_RIVER: Expr = ["any", ["==", ["get", "fictitious"], true], ["==", ["get", "form"], "lake"]];
+// `fictitious` 欄位在切片中全部為 true（上游 07_export.py `astype(bool)` 把字串 "false" 轉成 True），不可用；只依 form=lake 淡化。
+const IS_FADED_RIVER: Expr = ["==", ["get", "form"], "lake"];
 
 function riversColor(isDark: boolean): Expr {
   return ["match", ["get", "form"], "canal", GB_RIVERS_CANAL_COLOR, isDark ? GB_RIVERS_COLOR : GB_RIVERS_COLOR_LIGHT];

@@ -102,7 +102,6 @@
   "popup.water.gbRiverNoName": "河川区間（名称なし）",
   "popup.water.gbRiverUnnamed": "名称のない水路",
   "popup.water.gbRiverForm": "種別",
-  "popup.water.gbRiverFictitious": "湖面を横切る仮想の接続線で、実際の河道ではありません",
   "popup.water.gbRiverStrahler": "ストレーラー次数",
   "popup.water.gbHydroLevel": "水位観測所",
   "popup.water.gbHydroRainfall": "雨量観測所",
@@ -177,5 +176,9 @@
   "popup.water.gbWaterTransitional": "汽水域（河口）",
   "popup.water.gbBathingDesignated": "指定年",
   "popup.water.gbBathingStatusNote": "EA のリスク注記",
-  "popup.water.gbBathingCentroid": "浴場範囲の代表点です"
+  "popup.water.gbBathingCentroid": "浴場範囲の代表点です",
+  "popup.water.gbErosionScenarioEngland": "SMP 方針＋気候変動 70パーセンタイル（EA NCERM 2024）",
+  "popup.water.gbErosionScenarioWales": "SMP 方針（NRW NCERM 2023）",
+  "popup.water.gbErosionScenarioScotland": "高排出シナリオの海面上昇（Dynamic Coast FutureCoast）",
+  "popup.water.gbRiverName": "河川名"
 }

@@ -14,7 +14,7 @@ import {
   gbGreenspaceFunction, type GbGreenspaceFunctionId, type GbGreenspaceKey,
 } from "../../data/gbOpenSpaceTypes";
 import {
-  GB_BATHING_COLOR, GB_BATHING_SOURCES, GB_COASTAL_EROSION_COLOR, GB_EROSION_RISKS, GB_EROSION_SOURCES, GB_FLOOD_DEFENCE_COLOR,
+  GB_BATHING_COLOR, GB_BATHING_NO_CLASS_STROKE, GB_BATHING_SOURCES, GB_COASTAL_EROSION_COLOR, GB_EROSION_RISKS, GB_EROSION_SOURCES, GB_FLOOD_DEFENCE_COLOR,
   GB_FLOOD_DEFENCE_DC_ATTRIBUTION, GB_FLOOD_DEFENCE_DC_URL, GB_FLOOD_DEFENCE_EA_ATTRIBUTION, GB_FLOOD_DEFENCE_EA_URL,
   GB_FLOOD_DEFENCE_NRW_ATTRIBUTION, GB_FLOOD_DEFENCE_NRW_URL, GB_HYDRO_COLOR, GB_HYDRO_EA_ATTRIBUTION, GB_HYDRO_EA_URL,
   GB_HYDRO_GRID_PRECISION, GB_HYDRO_KINDS, GB_HYDRO_SEPA_ATTRIBUTION, GB_HYDRO_SEPA_URL, GB_OGL_V3, GB_RIVERS_COLOR,
@@ -187,7 +187,6 @@ export function GbRiversPanel({ props }: { props: Record<string, unknown> }) {
     <Title color={GB_RIVERS_COLOR}>{ni ? t("popup.water.gbRiverNoName") : name || t("popup.water.gbRiverUnnamed")}</Title>
     {!ni && nameAlt && nameAlt !== name ? <Row label={t("popup.baseMap.gbNameAlt")} value={nameAlt} /> : null}
     {!ni && form in GB_RIVER_FORM_KEYS ? <Row label={t("popup.water.gbRiverForm")} value={t(GB_RIVER_FORM_KEYS[form])} /> : null}
-    {!ni && props.fictitious === true ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.water.gbRiverFictitious")} /> : null}
     {ni && props.strahler != null ? <Row label={t("popup.water.gbRiverStrahler")} value={text(props.strahler)} /> : null}
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {lad ? <Row label={t("popup.baseMap.gbLadCode")} value={lad} /> : null}
@@ -256,7 +255,7 @@ export function GbFloodDefenceAssetsPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.water.gbFloodCondition")} value={props.condition != null && Number.isFinite(condition) ? t("popup.water.gbFloodConditionValue", { value: condition }) : t("popup.water.gbFloodConditionNone")} />
     <Row label={t("popup.water.gbFloodPurpose")} value={text(props.purpose)} />
     <Row label={t("popup.water.gbFloodMaintainer")} value={text(props.maintainer_type)} />
-    <Row label={t("popup.water.gbHydroRiver")} value={text(props.river)} />
+    <Row label={t("popup.water.gbRiverName")} value={text(props.river)} />
     <Row label={t("popup.water.gbAgency")} value={text(props.agency)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {dc ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.water.gbDynamicCoastNote")} /> : null}
@@ -266,6 +265,10 @@ export function GbFloodDefenceAssetsPanel({ props }: { props: Record<string, unk
 
 const GB_SMP_POLICY_KEYS: Partial<Record<string, MessageKey>> = {
   "Hold The Line": "popup.water.gbSmpHoldTheLine", "No Active Intervention": "popup.water.gbSmpNai", "Managed Realignment": "popup.water.gbSmpMr",
+};
+/** 上游 `scenario` 欄是中文說明字串；popup 依地區改用 i18n 文案，不直接印。 */
+const GB_EROSION_SCENARIO_KEYS: Partial<Record<GbNation, MessageKey>> = {
+  England: "popup.water.gbErosionScenarioEngland", Wales: "popup.water.gbErosionScenarioWales", Scotland: "popup.water.gbErosionScenarioScotland",
 };
 const GB_RISK_KEYS: Record<string, MessageKey> = { High: "popup.water.gbRiskHigh", Moderate: "popup.water.gbRiskModerate", Low: "popup.water.gbRiskLow" };
 
@@ -295,7 +298,7 @@ export function GbCoastalErosionRiskPanel({ props }: { props: Record<string, unk
       {nationKey !== "Scotland" ? <Row label={t("popup.water.gbSmpPolicy")} value={GB_SMP_POLICY_KEYS[policy] ? t("popup.water.gbWithOriginal", { label: t(GB_SMP_POLICY_KEYS[policy]!), original: policy }) : policy} /> : null}
       {nationKey === "England" ? <Row label={t("popup.water.gbErosionDefence")} value={text(props.defence_type)} /> : null}
       {nationKey !== "Scotland" ? <Row label={t("popup.water.gbSmpName")} value={text(props.smp_name)} /> : null}
-      <Row label={t("popup.water.gbErosionScenario")} value={text(props.scenario)} />
+      <Row label={t("popup.water.gbErosionScenario")} value={t(GB_EROSION_SCENARIO_KEYS[nationKey] ?? "popup.water.gbErosionScenarioEngland")} />
     </>}
     <Row label={t("popup.water.gbAgency")} value={text(props.agency)} />
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
@@ -327,7 +330,7 @@ export function GbBathingWatersPanel({ props }: { props: Record<string, unknown>
     ? t("popup.water.gbBathingNoClass")
     : cls ? t(GB_BATHING_CLASS_KEYS[cls.value]) : text(props.classification);
   return <>
-    <Title color={cls?.color ?? GB_BATHING_COLOR}>{name || t("popup.water.gbBathingWater")}</Title>
+    <Title color={cls?.color ?? (props.classification == null ? GB_BATHING_NO_CLASS_STROKE : GB_BATHING_COLOR)}>{name || t("popup.water.gbBathingWater")}</Title>
     {nameAlt && nameAlt !== name ? <Row label={t("popup.baseMap.gbNameWelsh")} value={nameAlt} /> : null}
     <Row label={t("popup.water.gbBathingClass")} value={year && props.classification != null ? t("popup.water.gbWithOriginal", { label: classLabel, original: year }) : classLabel} />
     <Row label={t("popup.water.gbBathingWaterType")} value={GB_WATER_TYPE_KEYS[waterType] ? t(GB_WATER_TYPE_KEYS[waterType]!) : waterType} />

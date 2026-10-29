@@ -108,11 +108,11 @@
   "legend.water.gbErosionWales": "威爾斯：{version}",
   "legend.water.gbErosionScotland": "蘇格蘭：{version}",
   "legend.water.gbErosionNi": "北愛爾蘭：{version} 高階風險評估（線，非投影）",
-  "legend.water.gbErosionShort": "短期預估侵蝕範圍（至 {year}）",
-  "legend.water.gbErosionLong": "長期預估侵蝕範圍（至 {year}）",
-  "legend.water.gbRiskHigh": "高風險",
-  "legend.water.gbRiskModerate": "中風險",
-  "legend.water.gbRiskLow": "低風險",
+  "legend.water.gbErosionShort": "{nation}短期預估侵蝕範圍（至 {year}）",
+  "legend.water.gbErosionLong": "{nation}長期預估侵蝕範圍（至 {year}）",
+  "legend.water.gbRiskHigh": "{nation}高風險",
+  "legend.water.gbRiskModerate": "{nation}中風險",
+  "legend.water.gbRiskLow": "{nation}低風險",
   "legend.water.gbErosionNotComparable": "四地評估方法與情境不同，顏色不代表同一尺度，不可跨地比較",
   "legend.water.gbErosionPeriodNote": "預設只顯示長期；可在圖層設定切換期別。z8 起顯示",
   "legend.water.gbBathingExcellent": "優 Excellent",
@@ -122,5 +122,9 @@
   "legend.water.gbBathingUnassessed": "未評（新指定或暫無分級）",
   "legend.water.gbBathingNoClass": "北愛爾蘭：來源未附分級（無分級資料，不是差）",
   "legend.water.gbBathingYear": "分級年度：英格蘭 2025；威爾斯、蘇格蘭來源未標年度",
-  "legend.water.gbBathingDesignated": "只顯示現行指定的 {count} 處（已除名者不顯示）；涵蓋 4/4"
+  "legend.water.gbBathingDesignated": "只顯示現行指定的 {count} 處（已除名者不顯示）；涵蓋 4/4",
+  "legend.water.gbNationEngland": "英格蘭",
+  "legend.water.gbNationWales": "威爾斯",
+  "legend.water.gbNationScotland": "蘇格蘭",
+  "legend.water.gbNationNi": "北愛"
 }

@@ -108,11 +108,11 @@
   "legend.water.gbErosionWales": "Wales: {version}",
   "legend.water.gbErosionScotland": "Scotland: {version}",
   "legend.water.gbErosionNi": "Northern Ireland: {version} high-level risk appraisal (lines, not a projection)",
-  "legend.water.gbErosionShort": "Short-term projected erosion (to {year})",
-  "legend.water.gbErosionLong": "Long-term projected erosion (to {year})",
-  "legend.water.gbRiskHigh": "High",
-  "legend.water.gbRiskModerate": "Moderate",
-  "legend.water.gbRiskLow": "Low",
+  "legend.water.gbErosionShort": "{nation}: short-term projected erosion (to {year})",
+  "legend.water.gbErosionLong": "{nation}: long-term projected erosion (to {year})",
+  "legend.water.gbRiskHigh": "{nation}: high risk",
+  "legend.water.gbRiskModerate": "{nation}: moderate risk",
+  "legend.water.gbRiskLow": "{nation}: low risk",
   "legend.water.gbErosionNotComparable": "Methods and scenarios differ by nation; colours are not on a common scale and cannot be compared across nations",
   "legend.water.gbErosionPeriodNote": "Long term shown by default; switch period in layer settings. Shown from z8",
   "legend.water.gbBathingExcellent": "Excellent",
@@ -122,5 +122,9 @@
   "legend.water.gbBathingUnassessed": "Not classified (newly designated or pending)",
   "legend.water.gbBathingNoClass": "Northern Ireland: no classification in source (not poor)",
   "legend.water.gbBathingYear": "Classification year: England 2025; Wales and Scotland sources do not state a year",
-  "legend.water.gbBathingDesignated": "Shows the {count} currently designated sites (de-designated hidden); coverage 4/4"
+  "legend.water.gbBathingDesignated": "Shows the {count} currently designated sites (de-designated hidden); coverage 4/4",
+  "legend.water.gbNationEngland": "England",
+  "legend.water.gbNationWales": "Wales",
+  "legend.water.gbNationScotland": "Scotland",
+  "legend.water.gbNationNi": "N. Ireland"
 }

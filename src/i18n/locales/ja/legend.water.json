@@ -108,11 +108,11 @@
   "legend.water.gbErosionWales": "ウェールズ：{version}",
   "legend.water.gbErosionScotland": "スコットランド：{version}",
   "legend.water.gbErosionNi": "北アイルランド：{version} 概略リスク評価（線、予測ではない）",
-  "legend.water.gbErosionShort": "短期の予測侵食範囲（{year}年まで）",
-  "legend.water.gbErosionLong": "長期の予測侵食範囲（{year}年まで）",
-  "legend.water.gbRiskHigh": "高リスク",
-  "legend.water.gbRiskModerate": "中リスク",
-  "legend.water.gbRiskLow": "低リスク",
+  "legend.water.gbErosionShort": "{nation}：短期の予測侵食範囲（{year}年まで）",
+  "legend.water.gbErosionLong": "{nation}：長期の予測侵食範囲（{year}年まで）",
+  "legend.water.gbRiskHigh": "{nation}：高リスク",
+  "legend.water.gbRiskModerate": "{nation}：中リスク",
+  "legend.water.gbRiskLow": "{nation}：低リスク",
   "legend.water.gbErosionNotComparable": "地域ごとに評価方法とシナリオが異なり、色は共通の尺度ではないため地域間で比較できません",
   "legend.water.gbErosionPeriodNote": "既定は長期のみ表示。レイヤー設定で期間を切り替え可能。z8 から表示",
   "legend.water.gbBathingExcellent": "優 Excellent",
@@ -122,5 +122,9 @@
   "legend.water.gbBathingUnassessed": "未評価（新規指定・分類保留）",
   "legend.water.gbBathingNoClass": "北アイルランド：提供元に分類なし（不良ではない）",
   "legend.water.gbBathingYear": "分類年度：イングランド 2025。ウェールズ、スコットランドは年度記載なし",
-  "legend.water.gbBathingDesignated": "現在指定されている {count} か所のみ表示（指定解除は非表示）。対象 4/4"
+  "legend.water.gbBathingDesignated": "現在指定されている {count} か所のみ表示（指定解除は非表示）。対象 4/4",
+  "legend.water.gbNationEngland": "イングランド",
+  "legend.water.gbNationWales": "ウェールズ",
+  "legend.water.gbNationScotland": "スコットランド",
+  "legend.water.gbNationNi": "北アイルランド"
 }

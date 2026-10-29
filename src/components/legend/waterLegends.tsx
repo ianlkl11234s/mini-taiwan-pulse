@@ -648,6 +648,10 @@ const GB_NATION_LEGEND_KEYS: Record<GbNation, MessageKey> = {
   England: "legend.water.gbErosionEngland", Wales: "legend.water.gbErosionWales",
   Scotland: "legend.water.gbErosionScotland", "Northern Ireland": "legend.water.gbErosionNi",
 };
+const GB_NATION_SHORT_KEYS: Record<GbNation, MessageKey> = {
+  England: "legend.water.gbNationEngland", Wales: "legend.water.gbNationWales",
+  Scotland: "legend.water.gbNationScotland", "Northern Ireland": "legend.water.gbNationNi",
+};
 const GB_RISK_LEGEND_KEYS: Record<string, MessageKey> = { High: "legend.water.gbRiskHigh", Moderate: "legend.water.gbRiskModerate", Low: "legend.water.gbRiskLow" };
 
 /** 英國海岸侵蝕：四地方法不同 → 依地區＋期別分列，不做統一色階；北愛是風險等級線。 */
@@ -660,12 +664,12 @@ export function GbCoastalErosionRiskLegend() {
       <LegendNote>{i18n.t(GB_NATION_LEGEND_KEYS[n], { version: GB_EROSION_SOURCES[n].version })}</LegendNote>
       {GB_EROSION_ZONES.filter((z) => z.nation === n).map((z) => (
         <LegendRow key={z.year} swatch={<SwatchSquare color={z.color} />}>
-          {i18n.t(z.period === "short" ? "legend.water.gbErosionShort" : "legend.water.gbErosionLong", { year: z.year })}
+          {i18n.t(z.period === "short" ? "legend.water.gbErosionShort" : "legend.water.gbErosionLong", { year: z.year, nation: i18n.t(GB_NATION_SHORT_KEYS[z.nation]) })}
         </LegendRow>
       ))}
     </div>)}
     <LegendNote>{i18n.t(GB_NATION_LEGEND_KEYS["Northern Ireland"], { version: GB_EROSION_SOURCES["Northern Ireland"].version })}</LegendNote>
-    {GB_EROSION_RISKS.map((r) => <LegendRow key={r.value} swatch={<SwatchLine color={r.color} width={LINE_WIDTH.emphasis[1]} />}>{i18n.t(GB_RISK_LEGEND_KEYS[r.value]!)}</LegendRow>)}
+    {GB_EROSION_RISKS.map((r) => <LegendRow key={r.value} swatch={<SwatchLine color={r.color} width={LINE_WIDTH.emphasis[1]} />}>{i18n.t(GB_RISK_LEGEND_KEYS[r.value]!, { nation: i18n.t(GB_NATION_SHORT_KEYS["Northern Ireland"]) })}</LegendRow>)}
     <LegendNote>{i18n.t("legend.water.gbErosionNotComparable")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbErosionPeriodNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbDynamicCoastNote")}</LegendNote>

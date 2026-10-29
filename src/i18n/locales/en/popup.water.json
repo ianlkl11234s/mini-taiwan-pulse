@@ -102,7 +102,6 @@
   "popup.water.gbRiverNoName": "River segment (unnamed)",
   "popup.water.gbRiverUnnamed": "Unnamed watercourse",
   "popup.water.gbRiverForm": "Type",
-  "popup.water.gbRiverFictitious": "Virtual connector across a lake, not an actual channel",
   "popup.water.gbRiverStrahler": "Strahler order",
   "popup.water.gbHydroLevel": "Water level",
   "popup.water.gbHydroRainfall": "Rainfall",
@@ -177,5 +176,9 @@
   "popup.water.gbWaterTransitional": "Transitional (estuary)",
   "popup.water.gbBathingDesignated": "Year designated",
   "popup.water.gbBathingStatusNote": "EA risk note",
-  "popup.water.gbBathingCentroid": "Representative point of the bathing water area"
+  "popup.water.gbBathingCentroid": "Representative point of the bathing water area",
+  "popup.water.gbErosionScenarioEngland": "SMP policy + climate change 70th percentile (EA NCERM 2024)",
+  "popup.water.gbErosionScenarioWales": "SMP policy (NRW NCERM 2023)",
+  "popup.water.gbErosionScenarioScotland": "High-emissions sea-level rise (Dynamic Coast FutureCoast)",
+  "popup.water.gbRiverName": "River"
 }

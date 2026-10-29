@@ -102,7 +102,6 @@
   "popup.water.gbRiverNoName": "河段（無河名）",
   "popup.water.gbRiverUnnamed": "未命名河段",
   "popup.water.gbRiverForm": "類型",
-  "popup.water.gbRiverFictitious": "穿越湖面的虛擬連接段，不是實際河道",
   "popup.water.gbRiverStrahler": "Strahler 級數",
   "popup.water.gbHydroLevel": "水位站",
   "popup.water.gbHydroRainfall": "雨量站",
@@ -177,5 +176,9 @@
   "popup.water.gbWaterTransitional": "河口過渡水域",
   "popup.water.gbBathingDesignated": "指定年份",
   "popup.water.gbBathingStatusNote": "EA 風險註記",
-  "popup.water.gbBathingCentroid": "為浴場範圍的代表點"
+  "popup.water.gbBathingCentroid": "為浴場範圍的代表點",
+  "popup.water.gbErosionScenarioEngland": "SMP 政策＋氣候變遷 70th 百分位（EA NCERM 2024）",
+  "popup.water.gbErosionScenarioWales": "SMP 政策（NRW NCERM 2023）",
+  "popup.water.gbErosionScenarioScotland": "高排放情境海平面上升（Dynamic Coast FutureCoast）",
+  "popup.water.gbRiverName": "河名"
 }
