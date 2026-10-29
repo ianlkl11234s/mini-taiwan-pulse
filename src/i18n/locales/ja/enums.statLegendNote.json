@@ -159,5 +159,21 @@
   "enum.statLegendNote.City of London 與 Isles of Scilly 沒有獨立數值，標為無資料。": "City of London と Isles of Scilly は独自の値がないため、データなしとしています。",
   "enum.statLegendNote.每年取 9 月一期。": "毎年 9 月の 1 期を使用。",
   "enum.statLegendNote.署名：Source: Office for National Statistics, Price Index of Private Rents, UK: monthly price statistics (21 October 2026 edition), licensed under the Open Government Licence v3.0.": "出典表示：Source: Office for National Statistics, Price Index of Private Rents, UK: monthly price statistics (21 October 2026 edition), licensed under the Open Government Licence v3.0.",
-  "enum.statLegendNote.與去年同月相比的租金指數變動（%）；棕色為下跌、紫色為上漲；樣本少的小區域波動大。": "前年同月比の家賃指数の変化（%）。茶色は下落、紫は上昇。標本の少ない小さな地域は変動が大きくなります。"
+  "enum.statLegendNote.與去年同月相比的租金指數變動（%）；棕色為下跌、紫色為上漲；樣本少的小區域波動大。": "前年同月比の家賃指数の変化（%）。茶色は下落、紫は上昇。標本の少ない小さな地域は変動が大きくなります。",
+  "enum.statLegendNote.0 公頃自成最淺一級（該區沒有蔬果面積，是官方數值，不是缺值）。": "0 ヘクタールは最も淡い独立した階級です（野菜・果樹の面積がない地域。公式の値であり欠測ではありません）。",
+  "enum.statLegendNote.其他耕作物＝不含穀物的耕作物（如油菜、甜菜、馬鈴薯、豆類），面積 ÷ 農戶總面積。": "その他耕作物＝穀物を除く耕作物（菜種、てん菜、ばれいしょ、豆類など）。面積 ÷ 経営体の総面積。",
+  "enum.statLegendNote.分級：多數地方行政區很小、少數集中產區很大，門檻 50／250／1,000 公頃大致每級放大 4–5 倍（對數間距）。": "階級：大半の地方自治体は小さく、一部の産地だけが非常に大きいため、閾値 50／250／1,000 ヘクタールは階級ごとに約 4〜5 倍（対数間隔）としています。",
+  "enum.statLegendNote.占比分母為同表「農戶總面積」；四類不涵蓋全部土地利用（另有休耕、林地等），合計不等於 100%。": "割合の分母は同じ表の「経営体の総面積」です。4 区分は全ての土地利用を含まない（休閑地、林地などを除く）ため、合計は 100% になりません。",
+  "enum.statLegendNote.原始值 0 是官方數值（該區沒有此類面積），不是缺值。": "元の値 0 は公式の値（その地域にこの区分の面積がない）であり、欠測ではありません。",
+  "enum.statLegendNote.沒有商業農戶的地方行政區，蔬果面積是官方值 0（不是缺值）。": "商業的農業経営体がない地方自治体では、野菜・果樹面積は公式の値 0 です（欠測ではありません）。",
+  "enum.statLegendNote.沒有商業農戶（農戶總面積為 0）的地方行政區，占比無法計算，標為「無農戶」，不是 0。": "商業的農業経営体がない（経営体の総面積が 0）地方自治体は割合を計算できないため「経営体なし」と表示し、0 にはしません。",
+  "enum.statLegendNote.無農戶（占比無法計算）": "経営体なし（割合を計算できない）",
+  "enum.statLegendNote.穀物面積 ÷ 農戶總面積。": "穀物面積 ÷ 経営体の総面積。",
+  "enum.statLegendNote.署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.": "出典表示：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+  "enum.statLegendNote.英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。": "イングランドの商業的農業経営体を対象とする標本調査による推計（Defra June Survey、2025 年 6 月）。推計値には標本誤差があります。",
+  "enum.statLegendNote.草地（5 年內暫時草地、5 年以上永久草地與專用粗放放牧地）面積 ÷ 農戶總面積。": "草地（5 年未満の一時草地、5 年以上の永年草地、専用粗放放牧地）面積 ÷ 経営体の総面積。",
+  "enum.statLegendNote.蔬菜與水果面積（公頃）。": "野菜と果樹の面積（ヘクタール）。",
+  "enum.statLegendNote.遮蔽（少於 5 戶）": "秘匿（5 経営体未満）",
+  "enum.statLegendNote.遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。": "秘匿＝5 経営体未満のため出典側で秘匿、または他の秘匿セルを守るための二次秘匿です。0 ではなく、逆算もできません。割合の分子・分母が秘匿の場合、割合も秘匿です。",
+  "enum.statLegendNote.面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。": "面積は経営体の所在する地方自治体に帰属させており、土地の実際の所在地ではありません。"
 }

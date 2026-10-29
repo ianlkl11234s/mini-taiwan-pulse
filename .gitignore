@@ -148,6 +148,9 @@ public/world/gb_open_access_land.pmtiles
 public/world/gb_tree_protection.pmtiles
 # 英國第 6 波（電網 22.1MB 走 S3 deploy-assets/world/；電廠 1.6MB、再生能源 17.6MB、加油站 4.7MB、離岸油氣田 1.5MB git-track）
 public/world/gb_power_grid.pmtiles
+# 英國 C003 地形（PNG raster 重匯出：山體陰影 107.5MB、色別標高 116.1MB，走 S3 deploy-assets/world/）
+public/world/gb_terrain_hillshade.pmtiles
+public/world/gb_terrain_relief.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

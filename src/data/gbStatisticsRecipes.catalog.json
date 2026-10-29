@@ -4,7 +4,7 @@
   "family": "gb",
   "country": "GB",
   "generated_from": {
-    "recipes": "gb-statistics-recipes.json",
+    "recipes": "gb-statistics-recipes.json、gb-statistics-recipes-crops.json",
     "bundles": "taipei-gis-analytics data/processed/<theme>/<dataset_id>/releases/<release_id>.json"
   },
   "release_selector": {
@@ -1871,6 +1871,331 @@
         "Wales"
       ],
       "uncovered_nations": [
+        "Scotland",
+        "Northern Ireland"
+      ]
+    },
+    {
+      "layer_key": "statsGbCropCerealsShare",
+      "enabled": true,
+      "family": "gb",
+      "country": "GB",
+      "label": "穀物面積占比（英格蘭）",
+      "group": "gbCrops",
+      "group_label": "作物面積（英格蘭）",
+      "option_label": "穀物面積占比",
+      "subgroup": "作物面積",
+      "data_theme": "農業統計",
+      "tab_theme": "農業",
+      "visual_theme": "agriculture",
+      "dataset_id": "gb_june_survey_crops_lad",
+      "indicator_id": "cereals_area_share_pct",
+      "level": "gb_lad",
+      "boundary_version": "ONS_LAD_202605",
+      "unit": "%",
+      "aggregation": "source_defined",
+      "default_release_id": "2025-06-cereals_area_share_pct-gb_lad-v1-3b6087f6b53d",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-06-cereals_area_share_pct-gb_lad-v1-3b6087f6b53d",
+          "period_start": "2025-06-01",
+          "period_end": "2025-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          13,
+          26,
+          35,
+          43
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "未涵蓋：威爾斯、蘇格蘭、北愛爾蘭（來源不含這些地區，不是 0）。",
+          "穀物面積 ÷ 農戶總面積。",
+          "英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。",
+          "面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。",
+          "遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。",
+          "沒有商業農戶（農戶總面積為 0）的地方行政區，占比無法計算，標為「無農戶」，不是 0。",
+          "原始值 0 是官方數值（該區沒有此類面積），不是缺值。",
+          "占比分母為同表「農戶總面積」；四類不涵蓋全部土地利用（另有休耕、林地等），合計不等於 100%。",
+          "署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0."
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "未涵蓋",
+        "missing": "無農戶（占比無法計算）",
+        "suppressed": "遮蔽（少於 5 戶）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）",
+      "disclosure": "Defra「Structure of the agricultural industry in England and the UK at June」的 Local authority 表（structure-england-june-local-authority-16apr26.ods，2025 工作表，2026-04-16 更新），英格蘭商業農戶抽樣調查推估的土地利用面積，依農戶歸戶到 296 個 LAD（LAD May 2026 代碼）。本資料取穀物、其他耕作物（不含穀物）、草地三類占農戶總面積的比例，以及蔬果面積（公頃）。「#」為少於 5 戶的抑制值（含二次抑制），標為資料抑制、不補 0。蘇格蘭、威爾斯、北愛未涵蓋。",
+      "publisher": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics",
+      "license": "Open Government Licence v3.0（原文：All content is available under the Open Government Licence v3.0, except where otherwise stated；https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/）",
+      "source_landing_url": "https://www.gov.uk/government/statistical-data-sets/structure-of-the-agricultural-industry-in-england-and-the-uk-at-june",
+      "source_download_url": "https://assets.publishing.service.gov.uk/media/69e0b21120b52e41448688cd/structure-england-june-local-authority-16apr26.ods",
+      "source_title": "Structure of the agricultural industry in England at June 2025: crop and grassland areas by local authority",
+      "attribution": "Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+      "scope_nations": [
+        "England"
+      ],
+      "uncovered_nations": [
+        "Wales",
+        "Scotland",
+        "Northern Ireland"
+      ]
+    },
+    {
+      "layer_key": "statsGbCropArableShare",
+      "enabled": true,
+      "family": "gb",
+      "country": "GB",
+      "label": "其他耕作物面積占比（英格蘭）",
+      "group": "gbCrops",
+      "group_label": "作物面積（英格蘭）",
+      "option_label": "其他耕作物面積占比",
+      "subgroup": "作物面積",
+      "data_theme": "農業統計",
+      "tab_theme": "農業",
+      "visual_theme": "agriculture",
+      "dataset_id": "gb_june_survey_crops_lad",
+      "indicator_id": "arable_excl_cereals_area_share_pct",
+      "level": "gb_lad",
+      "boundary_version": "ONS_LAD_202605",
+      "unit": "%",
+      "aggregation": "source_defined",
+      "default_release_id": "2025-06-arable_excl_cereals_area_share_pct-gb_lad-v1-a3e9f0996d0f",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-06-arable_excl_cereals_area_share_pct-gb_lad-v1-a3e9f0996d0f",
+          "period_start": "2025-06-01",
+          "period_end": "2025-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          5.2,
+          8.8,
+          11,
+          15
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "未涵蓋：威爾斯、蘇格蘭、北愛爾蘭（來源不含這些地區，不是 0）。",
+          "其他耕作物＝不含穀物的耕作物（如油菜、甜菜、馬鈴薯、豆類），面積 ÷ 農戶總面積。",
+          "英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。",
+          "面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。",
+          "遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。",
+          "沒有商業農戶（農戶總面積為 0）的地方行政區，占比無法計算，標為「無農戶」，不是 0。",
+          "原始值 0 是官方數值（該區沒有此類面積），不是缺值。",
+          "占比分母為同表「農戶總面積」；四類不涵蓋全部土地利用（另有休耕、林地等），合計不等於 100%。",
+          "署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0."
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "未涵蓋",
+        "missing": "無農戶（占比無法計算）",
+        "suppressed": "遮蔽（少於 5 戶）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）",
+      "disclosure": "Defra「Structure of the agricultural industry in England and the UK at June」的 Local authority 表（structure-england-june-local-authority-16apr26.ods，2025 工作表，2026-04-16 更新），英格蘭商業農戶抽樣調查推估的土地利用面積，依農戶歸戶到 296 個 LAD（LAD May 2026 代碼）。本資料取穀物、其他耕作物（不含穀物）、草地三類占農戶總面積的比例，以及蔬果面積（公頃）。「#」為少於 5 戶的抑制值（含二次抑制），標為資料抑制、不補 0。蘇格蘭、威爾斯、北愛未涵蓋。",
+      "publisher": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics",
+      "license": "Open Government Licence v3.0（原文：All content is available under the Open Government Licence v3.0, except where otherwise stated；https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/）",
+      "source_landing_url": "https://www.gov.uk/government/statistical-data-sets/structure-of-the-agricultural-industry-in-england-and-the-uk-at-june",
+      "source_download_url": "https://assets.publishing.service.gov.uk/media/69e0b21120b52e41448688cd/structure-england-june-local-authority-16apr26.ods",
+      "source_title": "Structure of the agricultural industry in England at June 2025: crop and grassland areas by local authority",
+      "attribution": "Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+      "scope_nations": [
+        "England"
+      ],
+      "uncovered_nations": [
+        "Wales",
+        "Scotland",
+        "Northern Ireland"
+      ]
+    },
+    {
+      "layer_key": "statsGbCropFruitVegArea",
+      "enabled": true,
+      "family": "gb",
+      "country": "GB",
+      "label": "蔬果面積（英格蘭）",
+      "group": "gbCrops",
+      "group_label": "作物面積（英格蘭）",
+      "option_label": "蔬果面積",
+      "subgroup": "作物面積",
+      "data_theme": "農業統計",
+      "tab_theme": "農業",
+      "visual_theme": "agriculture",
+      "dataset_id": "gb_june_survey_crops_lad",
+      "indicator_id": "fruit_veg_area_ha",
+      "level": "gb_lad",
+      "boundary_version": "ONS_LAD_202605",
+      "unit": "公頃",
+      "aggregation": "source_defined",
+      "default_release_id": "2025-06-fruit_veg_area_ha-gb_lad-v1-47617dc54a37",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-06-fruit_veg_area_ha-gb_lad-v1-47617dc54a37",
+          "period_start": "2025-06-01",
+          "period_end": "2025-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          0.1,
+          50,
+          250,
+          1000
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": "0 公頃自成最淺一級（該區沒有蔬果面積，是官方數值，不是缺值）。",
+        "display_note": null,
+        "notes": [
+          "未涵蓋：威爾斯、蘇格蘭、北愛爾蘭（來源不含這些地區，不是 0）。",
+          "蔬菜與水果面積（公頃）。",
+          "英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。",
+          "面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。",
+          "遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。",
+          "沒有商業農戶的地方行政區，蔬果面積是官方值 0（不是缺值）。",
+          "分級：多數地方行政區很小、少數集中產區很大，門檻 50／250／1,000 公頃大致每級放大 4–5 倍（對數間距）。",
+          "署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0."
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "未涵蓋",
+        "suppressed": "遮蔽（少於 5 戶）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 0
+      },
+      "derived": false,
+      "location_semantics": "農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）",
+      "disclosure": "Defra「Structure of the agricultural industry in England and the UK at June」的 Local authority 表（structure-england-june-local-authority-16apr26.ods，2025 工作表，2026-04-16 更新），英格蘭商業農戶抽樣調查推估的土地利用面積，依農戶歸戶到 296 個 LAD（LAD May 2026 代碼）。本資料取穀物、其他耕作物（不含穀物）、草地三類占農戶總面積的比例，以及蔬果面積（公頃）。「#」為少於 5 戶的抑制值（含二次抑制），標為資料抑制、不補 0。蘇格蘭、威爾斯、北愛未涵蓋。",
+      "publisher": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics",
+      "license": "Open Government Licence v3.0（原文：All content is available under the Open Government Licence v3.0, except where otherwise stated；https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/）",
+      "source_landing_url": "https://www.gov.uk/government/statistical-data-sets/structure-of-the-agricultural-industry-in-england-and-the-uk-at-june",
+      "source_download_url": "https://assets.publishing.service.gov.uk/media/69e0b21120b52e41448688cd/structure-england-june-local-authority-16apr26.ods",
+      "source_title": "Structure of the agricultural industry in England at June 2025: crop and grassland areas by local authority",
+      "attribution": "Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+      "scope_nations": [
+        "England"
+      ],
+      "uncovered_nations": [
+        "Wales",
+        "Scotland",
+        "Northern Ireland"
+      ]
+    },
+    {
+      "layer_key": "statsGbCropGrasslandShare",
+      "enabled": true,
+      "family": "gb",
+      "country": "GB",
+      "label": "草地面積占比（英格蘭）",
+      "group": "gbCrops",
+      "group_label": "作物面積（英格蘭）",
+      "option_label": "草地面積占比",
+      "subgroup": "作物面積",
+      "data_theme": "農業統計",
+      "tab_theme": "農業",
+      "visual_theme": "agriculture",
+      "dataset_id": "gb_june_survey_crops_lad",
+      "indicator_id": "grassland_area_share_pct",
+      "level": "gb_lad",
+      "boundary_version": "ONS_LAD_202605",
+      "unit": "%",
+      "aggregation": "source_defined",
+      "default_release_id": "2025-06-grassland_area_share_pct-gb_lad-v1-6ae5993be002",
+      "dimensions": [],
+      "release_options": [
+        {
+          "release_id": "2025-06-grassland_area_share_pct-gb_lad-v1-6ae5993be002",
+          "period_start": "2025-06-01",
+          "period_end": "2025-06-30",
+          "dimensions": {}
+        }
+      ],
+      "legend": {
+        "method": "fixed_breaks",
+        "breaks": [
+          23,
+          37,
+          53,
+          70
+        ],
+        "direction": "ascending",
+        "scale_note": null,
+        "zero_note": null,
+        "display_note": null,
+        "notes": [
+          "未涵蓋：威爾斯、蘇格蘭、北愛爾蘭（來源不含這些地區，不是 0）。",
+          "草地（5 年內暫時草地、5 年以上永久草地與專用粗放放牧地）面積 ÷ 農戶總面積。",
+          "英格蘭商業農戶抽樣調查推估（Defra June Survey，2025 年 6 月）；推估值有抽樣誤差。",
+          "面積依農戶歸戶到農戶所在的地方行政區，不是土地實際所在位置。",
+          "遮蔽＝涉及少於 5 戶而由來源抑制，或為保護已抑制格而二次抑制；不是 0，也不可反推。占比的分子或分母被遮蔽時，占比也遮蔽。",
+          "沒有商業農戶（農戶總面積為 0）的地方行政區，占比無法計算，標為「無農戶」，不是 0。",
+          "占比分母為同表「農戶總面積」；四類不涵蓋全部土地利用（另有休耕、林地等），合計不等於 100%。",
+          "署名：Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0."
+        ],
+        "by_dimension": null,
+        "dimension_notes": null
+      },
+      "status_labels": {
+        "not_applicable": "未涵蓋",
+        "missing": "無農戶（占比無法計算）",
+        "suppressed": "遮蔽（少於 5 戶）"
+      },
+      "format": {
+        "locale": "zh-TW",
+        "maximumFractionDigits": 1
+      },
+      "derived": false,
+      "location_semantics": "農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）",
+      "disclosure": "Defra「Structure of the agricultural industry in England and the UK at June」的 Local authority 表（structure-england-june-local-authority-16apr26.ods，2025 工作表，2026-04-16 更新），英格蘭商業農戶抽樣調查推估的土地利用面積，依農戶歸戶到 296 個 LAD（LAD May 2026 代碼）。本資料取穀物、其他耕作物（不含穀物）、草地三類占農戶總面積的比例，以及蔬果面積（公頃）。「#」為少於 5 戶的抑制值（含二次抑制），標為資料抑制、不補 0。蘇格蘭、威爾斯、北愛未涵蓋。",
+      "publisher": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics",
+      "license": "Open Government Licence v3.0（原文：All content is available under the Open Government Licence v3.0, except where otherwise stated；https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/）",
+      "source_landing_url": "https://www.gov.uk/government/statistical-data-sets/structure-of-the-agricultural-industry-in-england-and-the-uk-at-june",
+      "source_download_url": "https://assets.publishing.service.gov.uk/media/69e0b21120b52e41448688cd/structure-england-june-local-authority-16apr26.ods",
+      "source_title": "Structure of the agricultural industry in England at June 2025: crop and grassland areas by local authority",
+      "attribution": "Defra, Structure of the agricultural industry in England at June 2025 (OGL v3.0). Contains public sector information licensed under the Open Government Licence v3.0.",
+      "scope_nations": [
+        "England"
+      ],
+      "uncovered_nations": [
+        "Wales",
         "Scotland",
         "Northern Ireland"
       ]

@@ -247,5 +247,9 @@
   "enum.statVariant.平均房價": "平均住宅価格",
   "enum.statVariant.房價年增率": "前年比",
   "enum.statVariant.平均私人租金": "平均家賃",
-  "enum.statVariant.私人租金年變動率": "前年比"
+  "enum.statVariant.私人租金年變動率": "前年比",
+  "enum.statVariant.穀物面積占比": "穀物面積の割合",
+  "enum.statVariant.其他耕作物面積占比": "その他耕作物面積の割合",
+  "enum.statVariant.蔬果面積": "野菜・果樹面積",
+  "enum.statVariant.草地面積占比": "草地面積の割合"
 }

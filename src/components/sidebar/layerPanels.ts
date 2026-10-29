@@ -93,6 +93,8 @@ export const STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
 export const GB_STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "人口與社會", en: "Population & Society", themes: ["人口"] },
   { zh: "經濟與住宅", en: "Economy & Housing", themes: ["社經", "住宅"] },
+  // 第 12 波：作物面積，比照台灣「農林漁牧」所在的「土地與環境」
+  { zh: "土地與環境", en: "Land & Environment", themes: ["農業"] },
 ];
 
 /** 日本：沿用台灣共用大分類（2026-10-26 使用者決定；主題 title＝台灣主題中文短名，大分類同台灣對應主題）。 */

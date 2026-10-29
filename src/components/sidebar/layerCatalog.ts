@@ -2850,6 +2850,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
     "住宅統計": "city",
+    // 第 12 波：作物面積，同台灣「農業統計」歸環境與資源
+    "農業統計": "environment",
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
@@ -3006,6 +3008,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口": { zh: "人口", sub: "Population" },
     "社經": { zh: "社經", sub: "Socio-economic" },
     "住宅": { zh: "住宅", sub: "Housing" },
+    "農業統計": { zh: "農業統計", sub: "Agriculture Statistics" },
+    "農業": { zh: "農業", sub: "Agriculture" },
   },
   WORLD: {
     [GLOBAL_SITUATION_THEME_TITLE]: { zh: "全球情勢", sub: "Global Situation" },

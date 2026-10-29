@@ -41,5 +41,6 @@
   "enum.statGroup.蘇格蘭剝奪指數（SIMD 2020v2）": "スコットランド剥奪指数（SIMD 2020v2）",
   "enum.statGroup.北愛剝奪指數（NIMDM 2017）": "北アイルランド剥奪指数（NIMDM 2017）",
   "enum.statGroup.房價（UK HPI）": "住宅価格（UK HPI）",
-  "enum.statGroup.私人租金（PIPR）": "民間家賃（PIPR）"
+  "enum.statGroup.私人租金（PIPR）": "民間家賃（PIPR）",
+  "enum.statGroup.作物面積（英格蘭）": "作物面積（イングランド）"
 }
