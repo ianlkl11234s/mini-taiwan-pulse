@@ -23,5 +23,15 @@
   "popup.funeral.zoningId": "分區編號",
   "popup.funeral.zoningNote1": "ⓘ 都市計畫",
   "popup.funeral.zoningNoteBold": "法定劃設",
-  "popup.funeral.zoningNote2": "（非實際使用範圍），目前僅臺北市與新北市有此資料"
+  "popup.funeral.zoningNote2": "（非實際使用範圍），目前僅臺北市與新北市有此資料",
+  "popup.funeral.gbUnnamed": "未命名",
+  "popup.funeral.gbKind": "類別",
+  "popup.funeral.gbHours": "開放時間",
+  "popup.funeral.gbWheelchair": "輪椅可及",
+  "popup.funeral.gbPostcode": "郵遞區號",
+  "popup.funeral.gbNotStated": "未標示",
+  "popup.funeral.gbYes": "可",
+  "popup.funeral.gbNo": "不可",
+  "popup.funeral.gbLimited": "部分",
+  "popup.funeral.gbOsmNote": "資料來源：OpenStreetMap 志願者資料，完整度依地區而異"
 }

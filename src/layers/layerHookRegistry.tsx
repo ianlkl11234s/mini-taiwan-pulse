@@ -95,6 +95,7 @@ import {
 } from "./hosts/japanHosts";
 import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
 import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
+import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost, GbSoilParentMaterialHost } from "./hosts/ukHosts";
 import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
@@ -306,6 +307,12 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
   { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
   { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
+  // 英國第 12 波（公司登記、製造業、殯葬、養殖、土壤母質）
+  { id: "useGbCompaniesLayer", keys: ["gbCompanies"], Host: GbCompaniesHost },
+  { id: "useGbManufacturingLayer", keys: ["gbManufacturing"], Host: GbManufacturingHost },
+  { id: "useGbFuneralLayer", keys: ["gbFuneral"], Host: GbFuneralHost },
+  { id: "useGbAquacultureLayer", keys: ["gbAquaculture"], Host: GbAquacultureHost },
+  { id: "useGbSoilParentMaterialLayer", keys: ["gbSoilParentMaterial"], Host: GbSoilParentMaterialHost },
   // 英國第 11 波（規劃限制區、棕地、回收點、廢棄物許可、污染排放、噪音）
   { id: "useGbPlanningConstraintsLayer", keys: ["gbPlanningConstraints"], Host: GbPlanningConstraintsHost },
   { id: "useGbBrownfieldLayer", keys: ["gbBrownfield"], Host: GbBrownfieldHost },

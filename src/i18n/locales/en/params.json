@@ -1380,5 +1380,8 @@
   "param.蘇格蘭環保署 SEPA": "SEPA (Scotland)",
   "param.北愛環境署 NIEA": "NIEA (Northern Ireland)",
   "param.噪音來源": "Noise source",
-  "param.鐵路": "Rail"
+  "param.鐵路": "Rail",
+  "param.現役（營運中・北愛許可）": "Current (active, NI licensed)",
+  "param.暫停營運": "Inactive",
+  "param.已註銷": "Deregistered"
 }

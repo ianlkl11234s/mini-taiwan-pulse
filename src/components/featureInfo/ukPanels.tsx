@@ -82,6 +82,13 @@ import {
   gbWasteAuthority, type GbBrownfieldOwnership,
 } from "../../data/gbEnvPlanningTypes";
 import { GB_BROWNFIELD_STATUS_KEYS, GB_PLANNING_CONSTRAINT_KEYS, GB_RECYCLING_KIND_KEYS } from "../legend/gbEnvPlanningLegends";
+import {
+  GB_AQUACULTURE_ATTRIBUTION, GB_AQUACULTURE_COLOR, GB_AQUACULTURE_SOURCES, GB_COMPANIES_AGENT_SHARE, GB_COMPANIES_ATTRIBUTION,
+  GB_COMPANIES_COLOR, GB_COMPANIES_LICENSE, GB_COMPANIES_URL, GB_FUNERAL_ATTRIBUTION, GB_FUNERAL_COLOR, GB_FUNERAL_URL,
+  GB_MANUFACTURING_COLOR, GB_SOIL_ATTRIBUTION, GB_SOIL_COLOR, GB_SOIL_URL, GB_W12_FETCHED_AT, GB_W12_ODBL, GB_W12_OGL_V3,
+  gbAquacultureKind, gbAquacultureStatus, gbFuneralKind, gbSoilDepthColors, gbSoilDepthIndex, gbSplitList, gbTopSicSections,
+} from "../../data/gbBusinessAgriTypes";
+import { GB_AQUACULTURE_KIND_KEYS, GB_AQUACULTURE_STATUS_KEYS, GB_FUNERAL_KIND_KEYS, GB_SIC_SECTION_KEYS, GB_SOIL_DEPTH_KEYS } from "../legend/gbBusinessAgriLegends";
 import type { MessageKey } from "../../i18n/keys";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
@@ -1545,5 +1552,121 @@ export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbNoiseNote")} />
     {src ? <SourceFooter props={{ source_org: src.org, source_url: src.url, license: "Open Government Licence", fetched_at: GB_ENV_FETCHED_AT }} /> : null}
+  </>;
+}
+
+// ─────────────────────────── 第 12 波：公司登記、製造業、殯葬、養殖、土壤 ───────────────────────────
+
+const w12Number = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+
+/** 公司登記／製造業：只有郵遞區號 district 聚合數字（無公司名、無個資）。 */
+function GbCompanyDistrictPanel({ props, manufacturing }: { props: Record<string, unknown>; manufacturing: boolean }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const count = (v: unknown) => {
+    const x = w12Number(v);
+    return x == null ? t("popup.funeral.gbNotStated") : t("popup.businessRegistry.gbCoCount", { n: formatNumber(x) });
+  };
+  const top = gbTopSicSections(props);
+  const share = w12Number(props.top_postcode_share);
+  return <>
+    <Title color={manufacturing ? GB_MANUFACTURING_COLOR : GB_COMPANIES_COLOR}>{t("popup.businessRegistry.gbCoTitle", { d: text(props.postcode_district) })}</Title>
+    {manufacturing ? <Row label={t("popup.businessRegistry.gbCoMfg")} value={count(props.c_C)} /> : null}
+    <Row label={t("popup.businessRegistry.gbCoTotal")} value={count(props.total)} />
+    <Row label={t("popup.businessRegistry.gbCoActive")} value={count(props.active)} />
+    <Row label={t("popup.businessRegistry.gbCoTopSic")} value={top.map((s) => `${t(GB_SIC_SECTION_KEYS[s.section])} ${formatNumber(s.count)}`).join("、")} />
+    <Row label={t("popup.businessRegistry.gbCoDormant")} value={count(props.c_dormant)} />
+    <Row label={t("popup.businessRegistry.gbCoNoSic")} value={count(props.c_none)} />
+    <Row label={t("popup.businessRegistry.gbCoArea")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.businessRegistry.gbCoSnapshot")} value={text(props.snapshot)} />
+    {share != null && share > GB_COMPANIES_AGENT_SHARE ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.businessRegistry.gbCoAgentWarn")} /> : null}
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.businessRegistry.gbCoAggNote")} />
+    <SourceFooter props={{ source_org: GB_COMPANIES_ATTRIBUTION, source_url: GB_COMPANIES_URL, license: GB_COMPANIES_LICENSE, fetched_at: GB_W12_FETCHED_AT }} />
+  </>;
+}
+export function GbCompaniesPanel({ props }: { props: Record<string, unknown> }) {
+  return <GbCompanyDistrictPanel props={props} manufacturing={false} />;
+}
+export function GbManufacturingPanel({ props }: { props: Record<string, unknown> }) {
+  return <GbCompanyDistrictPanel props={props} manufacturing />;
+}
+
+const GB_W12_YES_NO_KEYS: Record<string, MessageKey> = {
+  yes: "popup.funeral.gbYes", no: "popup.funeral.gbNo", limited: "popup.funeral.gbLimited",
+};
+
+/** 殯葬設施（OSM）：名稱（null「未命名」）、類別、開放時間、輪椅可及、郵遞區號；固定一行 OSM 完整度說明。 */
+export function GbFuneralPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const kind = gbFuneralKind(props.kind);
+  const notStated = t("popup.funeral.gbNotStated");
+  const wc = text(props.wheelchair);
+  return <>
+    <Title color={kind?.color ?? GB_FUNERAL_COLOR}>{text(props.name) || t("popup.funeral.gbUnnamed")}</Title>
+    <Row label={t("popup.funeral.gbKind")} value={kind ? t(GB_FUNERAL_KIND_KEYS[kind.value]) : text(props.kind)} />
+    <Row label={t("popup.funeral.gbHours")} value={text(props.opening_hours) || notStated} />
+    <Row label={t("popup.funeral.gbWheelchair")} value={GB_W12_YES_NO_KEYS[wc] ? t(GB_W12_YES_NO_KEYS[wc]!) : wc || notStated} />
+    <Row label={t("popup.funeral.gbPostcode")} value={text(props.postcode) || notStated} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.funeral.gbOsmNote")} />
+    <SourceFooter props={{ source_org: GB_FUNERAL_ATTRIBUTION, source_url: GB_FUNERAL_URL, license: GB_W12_ODBL, fetched_at: GB_W12_FETCHED_AT }} />
+  </>;
+}
+
+const GB_AQ_WATER_TYPE_KEYS: Record<string, MessageKey> = {
+  freshwater: "popup.agri.gbAqFreshwater", seawater: "popup.agri.gbAqSeawater", both: "popup.agri.gbAqBoth",
+};
+
+/** 養殖場：場址名（北愛為許可編號）、類別、狀態、水域、物種、設施、管理區、面積（北愛）、官方場址頁（蘇格蘭）。 */
+export function GbAquaculturePanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const kind = gbAquacultureKind(props.kind);
+  const status = gbAquacultureStatus(props.status);
+  const isNi = props.source === "ni_daera";
+  const src = GB_AQUACULTURE_SOURCES[text(props.source) as keyof typeof GB_AQUACULTURE_SOURCES];
+  const notStated = t("popup.agri.gbNotStated");
+  const list = (v: unknown) => gbSplitList(v).join("、") || notStated;
+  const water = text(props.water_type);
+  const ha = w12Number(props.area_ha);
+  return <>
+    <Title color={kind?.color ?? GB_AQUACULTURE_COLOR}>{text(props.name) || text(props.site_id)}</Title>
+    <Row label={t(isNi ? "popup.agri.gbAqLicenceNo" : "popup.agri.gbAqSite")} value={isNi ? text(props.name) : text(props.site_id)} />
+    <Row label={t("popup.agri.gbAqKind")} value={kind ? t(GB_AQUACULTURE_KIND_KEYS[kind.value]) : text(props.kind)} />
+    <Row label={t("popup.agri.gbAqStatus")} value={status ? t(GB_AQUACULTURE_STATUS_KEYS[status.value]) : text(props.status) || notStated} />
+    {status?.value === "deregistered" ? <Row label={t("popup.baseMap.gbNotes")} value={t("popup.agri.gbAqDeregWarn")} /> : null}
+    <Row label={t("popup.agri.gbAqWater")} value={GB_AQ_WATER_TYPE_KEYS[water] ? t(GB_AQ_WATER_TYPE_KEYS[water]!) : water || notStated} />
+    <Row label={t("popup.agri.gbAqSpecies")} value={list(props.species)} />
+    {isNi ? null : <Row label={t("popup.agri.gbAqFacilities")} value={list(props.facilities)} />}
+    {isNi ? null : <Row label={t("popup.agri.gbAqMgmt")} value={text(props.mgmt_area) || notStated} />}
+    {isNi ? <Row label={t("popup.agri.gbAqArea")} value={ha == null ? notStated : t("popup.agri.gbAqHa", { v: formatNumber(ha, { maximumFractionDigits: 2 }) })} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <LinkRow label={t("popup.agri.gbAqDetail")} url={text(props.detail_url)} />
+    <SourceFooter props={{ source_org: src?.org ?? GB_AQUACULTURE_ATTRIBUTION, source_url: src?.url ?? "", license: GB_W12_OGL_V3, fetched_at: GB_W12_FETCHED_AT }} />
+  </>;
+}
+
+/** 土壤母質：母質、質地、土壤群、土層深度、碳酸鹽、粒徑（BGS 原文）；固定一行模型推估說明。 */
+export function GbSoilParentMaterialPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const theme = useFeatureTheme();
+  const idx = gbSoilDepthIndex(props.soil_depth);
+  const notStated = t("popup.agri.gbNotStated");
+  const raw = (v: unknown) => { const s = text(v); return s && s !== "NA" ? s : notStated; };
+  const depthKey = idx >= 0 ? GB_SOIL_DEPTH_KEYS[text(props.soil_depth) as keyof typeof GB_SOIL_DEPTH_KEYS] : null;
+  const km2 = w12Number(props.area_km2);
+  return <>
+    <Title color={idx >= 0 ? gbSoilDepthColors(theme !== LIGHT_FEATURE)[idx]! : GB_SOIL_COLOR}>{raw(props.parent_material)}</Title>
+    <Row label={t("popup.agri.gbSoilDepth")} value={depthKey ? t(depthKey) : t("legend.agri.gbSoilNa")} />
+    <Row label={t("popup.agri.gbSoilTexture")} value={raw(props.soil_texture)} />
+    <Row label={t("popup.agri.gbSoilGroup")} value={raw(props.soil_group)} />
+    <Row label={t("popup.agri.gbSoilCarbonate")} value={raw(props.carbonate)} />
+    <Row label={t("popup.agri.gbSoilGrain")} value={raw(props.grain_size)} />
+    {km2 == null ? null : <Row label={t("popup.agri.gbSoilArea")} value={t("popup.agri.gbSoilKm2", { v: formatNumber(km2, { maximumFractionDigits: 1 }) })} />}
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.agri.gbSoilModelNote")} />
+    <SourceFooter props={{ source_org: GB_SOIL_ATTRIBUTION, source_url: GB_SOIL_URL, license: GB_W12_OGL_V3, fetched_at: GB_W12_FETCHED_AT }} />
   </>;
 }

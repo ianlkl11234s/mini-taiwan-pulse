@@ -430,6 +430,7 @@ export type ExpandableLayerKey =
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
   | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+  | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
@@ -976,6 +977,8 @@ export interface FeatureInfo {
     | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
     | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+    // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
+    | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
     | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
     // 英國第 6 波：電廠、再生能源、電網線、變電所、加油站、離岸油氣田
@@ -1808,6 +1811,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
   gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
   gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
+  gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
+  gbManufacturing: boolean;     // 英國製造業公司（同檔 c_C，2,698 點）
+  gbFuneral: boolean;           // 英國火葬場與葬儀社（OSM，3,347 點）
+  gbAquaculture: boolean;       // 英國養殖場（蘇格蘭＋北愛，3,129 點）
+  gbSoilParentMaterial: boolean; // 英國土壤母質（BGS 1 km，35,466 面）
   gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
   gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
   gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）

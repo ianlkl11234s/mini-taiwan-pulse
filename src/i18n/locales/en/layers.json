@@ -1402,5 +1402,10 @@
   "layer.gbRecyclingCentres": "Recycling Points",
   "layer.gbWastePermits": "Waste Permit Sites",
   "layer.gbPollutionInventory": "Pollution Release Sites",
-  "layer.gbNoise": "Strategic Noise Map"
+  "layer.gbNoise": "Strategic Noise Map",
+  "layer.gbCompanies": "Registered Companies",
+  "layer.gbManufacturing": "Manufacturing Companies",
+  "layer.gbFuneral": "Crematoria and Funeral Directors",
+  "layer.gbAquaculture": "Aquaculture Sites",
+  "layer.gbSoilParentMaterial": "Soil Parent Material"
 }

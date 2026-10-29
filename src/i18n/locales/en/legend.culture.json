@@ -84,5 +84,11 @@
   "legend.culture.gbZoo": "Zoos",
   "legend.culture.gbAquarium": "Aquariums",
   "legend.culture.gbVisitorNote": "Animal exhibits and rides inside parks are not listed separately; campsites are not included; zoos and aquariums share one colour",
-  "legend.culture.gbAttractionZoom": "Attractions are shown from zoom 9, other types from zoom 7"
+  "legend.culture.gbAttractionZoom": "Attractions are shown from zoom 9, other types from zoom 7",
+  "legend.culture.gbFunCrematorium": "Crematorium",
+  "legend.culture.gbFunDirectors": "Funeral directors",
+  "legend.culture.gbFunRow": "{label} ({n}, from z{z})",
+  "legend.culture.gbFunOsmNote": "OSM gap-fill: the whole layer comes from OpenStreetMap ({time}); completeness varies by area",
+  "legend.culture.gbFunNations": "England {e} · Scotland {s} · Wales {w} · Northern Ireland {ni} (4/4 covered)",
+  "legend.culture.gbFunCemNote": "Cemeteries: see the Cemeteries and Religious Grounds layer under Base Map › Green & open space"
 }

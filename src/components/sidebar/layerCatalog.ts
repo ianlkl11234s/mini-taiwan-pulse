@@ -346,6 +346,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "廢棄物",
     // C028 公有地標售（比照台灣「房地產 Real Estate」）
     "房地產",
+    // 第 12 波：工商登記（公司、製造業）、殯葬（火葬場、葬儀社）、農業（養殖、土壤；比照台灣同名主題）
+    "工商登記",
+    "殯葬",
+    "農業",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2758,6 +2762,33 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "公有財產標售", layers: [fromManifest("gbSurplusLand")] }],
   },
+  {
+    // 第 12 波 C029／C030：比照台灣「工商登記 Business Registry」的「整體公司」（companyPoints）與「製造業」（manufacturingCompanyPoints）
+    title: "工商登記",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "整體公司", layers: [fromManifest("gbCompanies")] },
+      { title: "製造業", layers: [fromManifest("gbManufacturing")] },
+    ],
+  },
+  {
+    // 第 12 波 C051：比照台灣「殯葬 Funeral › 點位」（funeralFacilities 火化場、funeralOperators 禮儀業者）；墓園另在「底圖 › 綠地」
+    title: "殯葬",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [{ title: "點位", layers: [fromManifest("gbFuneral")] }],
+  },
+  {
+    // 第 12 波 C106／C108：比照台灣「農業 Agriculture」的「養殖漁業 Aquaculture」（aquaculture*）與「土壤」（agriSoil）
+    title: "農業",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "養殖漁業 Aquaculture", layers: [fromManifest("gbAquaculture")] },
+      { title: "土壤", layers: [fromManifest("gbSoilParentMaterial")] },
+    ],
+  },
 
 ];
 
@@ -2887,6 +2918,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "文化": "publicLife",
     "觀光": "publicLife",
     "房地產": "city",
+    // 第 12 波：同台灣「工商登記」「殯葬」「農業」
+    "工商登記": "city",
+    "殯葬": "publicLife",
+    "農業": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3044,6 +3079,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "文化": { zh: "文化", sub: "Culture" },
     "觀光": { zh: "觀光", sub: "Tourism" },
     "房地產": { zh: "房地產", sub: "Real Estate" },
+    "工商登記": { zh: "工商登記", sub: "Business Registry" },
+    "殯葬": { zh: "殯葬", sub: "Funeral" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

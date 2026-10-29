@@ -84,5 +84,11 @@
   "legend.culture.gbZoo": "動物園",
   "legend.culture.gbAquarium": "水族館",
   "legend.culture.gbVisitorNote": "園内の動物展示や遊具は個別に収録せず、キャンプ場は未収録。動物園と水族館は同色",
-  "legend.culture.gbAttractionZoom": "観光スポットはズーム 9 から、その他の種別はズーム 7 から表示"
+  "legend.culture.gbAttractionZoom": "観光スポットはズーム 9 から、その他の種別はズーム 7 から表示",
+  "legend.culture.gbFunCrematorium": "火葬場",
+  "legend.culture.gbFunDirectors": "葬儀社",
+  "legend.culture.gbFunRow": "{label}（{n}、z{z} 以上）",
+  "legend.culture.gbFunOsmNote": "OSM 補完：全件 OpenStreetMap 由来（{time}）、網羅度は地域差あり",
+  "legend.culture.gbFunNations": "イングランド {e}・スコットランド {s}・ウェールズ {w}・北アイルランド {ni}（4/4 対象）",
+  "legend.culture.gbFunCemNote": "墓地は「基図 › 緑地とオープンスペース」の墓地・宗教用地レイヤーを参照"
 }

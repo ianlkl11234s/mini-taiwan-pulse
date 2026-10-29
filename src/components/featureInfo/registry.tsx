@@ -65,6 +65,7 @@ import {
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
+import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPanel, GbSoilParentMaterialPanel } from "./ukPanels";
 import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
@@ -449,6 +450,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbLondonJamCams: GbLondonJamCamsPanel,
   gbLondonChargingZones: GbLondonChargingZonesPanel,
   gbMajorRoads: GbMajorRoadsPanel,
+  gbCompanies: GbCompaniesPanel,
+  gbManufacturing: GbManufacturingPanel,
+  gbFuneral: GbFuneralPanel,
+  gbAquaculture: GbAquaculturePanel,
+  gbSoilParentMaterial: GbSoilParentMaterialPanel,
   gbPlanningConstraints: GbPlanningConstraintsPanel,
   gbBrownfield: GbBrownfieldPanel,
   gbRecyclingCentres: GbRecyclingCentresPanel,
@@ -1050,6 +1056,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
   gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
   gbMajorRoads: "主要路網 Major Roads",
+  gbCompanies: "公司登記 Registered Companies",
+  gbManufacturing: "製造業公司 Manufacturing Companies",
+  gbFuneral: "火葬場與葬儀社 Crematoria & Funeral Directors",
+  gbAquaculture: "養殖場 Aquaculture Sites",
+  gbSoilParentMaterial: "土壤母質 Soil Parent Material",
   gbPlanningConstraints: "規劃限制區 Planning Constraints",
   gbBrownfield: "棕地登記冊 Brownfield Land",
   gbRecyclingCentres: "回收點 Recycling Points",

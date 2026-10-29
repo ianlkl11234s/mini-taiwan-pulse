@@ -23,5 +23,15 @@
   "popup.funeral.zoningId": "Zone ID",
   "popup.funeral.zoningNote1": "ⓘ This is the ",
   "popup.funeral.zoningNoteBold": "statutory designation",
-  "popup.funeral.zoningNote2": " under urban planning (not the actual area in use); currently only Taipei and New Taipei have this data"
+  "popup.funeral.zoningNote2": " under urban planning (not the actual area in use); currently only Taipei and New Taipei have this data",
+  "popup.funeral.gbUnnamed": "Unnamed",
+  "popup.funeral.gbKind": "Type",
+  "popup.funeral.gbHours": "Opening hours",
+  "popup.funeral.gbWheelchair": "Wheelchair access",
+  "popup.funeral.gbPostcode": "Postcode",
+  "popup.funeral.gbNotStated": "Not stated",
+  "popup.funeral.gbYes": "Yes",
+  "popup.funeral.gbNo": "No",
+  "popup.funeral.gbLimited": "Limited",
+  "popup.funeral.gbOsmNote": "Source: OpenStreetMap volunteer data; completeness varies by area"
 }
