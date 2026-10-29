@@ -58,7 +58,7 @@ function LayerPanelDemo({ isDark }: { isDark: boolean }) {
     <Sub title="主題列 ThemeBanner、大分類 MacroGroupLabel、L2 群組 SubGroupLabel、圖層列 LayerRow" kind="real">
       <RailPanel isDark={isDark}>
         <MacroGroupLabel zh="移動與城市" />
-        <ThemeBanner title="交通 Move" isCollapsed={collapsed} onCount={Object.values(on).filter(Boolean).length} totalCount={24} onToggleCollapse={() => setCollapsed((c) => !c)} onBulkToggle={() => setOn((s) => ({ cctv: !s.cctv, jpNaturalParksNational: s.jpNaturalParksNational }))} />
+        <ThemeBanner title="交通 Move" country="TW" isCollapsed={collapsed} onCount={Object.values(on).filter(Boolean).length} totalCount={24} onToggleCollapse={() => setCollapsed((c) => !c)} onBulkToggle={() => setOn((s) => ({ cctv: !s.cctv, jpNaturalParksNational: s.jpNaturalParksNational }))} />
         {!collapsed && <>
           <SubGroupLabel>路網</SubGroupLabel>
           <LayerRow layerKey="cctv" name={cctv.name} label={cctv.label} expandable active={on.cctv} locked={false} color={cctv.color} count={2386} isExpanded={expanded === "cctv"} Icon={cctv.icon} onLayerClick={click} onToggleVisibility={toggle} />
@@ -74,17 +74,17 @@ function LayerPanelDemo({ isDark }: { isDark: boolean }) {
           <ListRow label="私人圖層" ariaLabel="私人圖層（鎖定示範）" icon={<cctv.icon size={14} color={p.DIM} style={{ flexShrink: 0 }} />} locked expandable toggle={{ on: false, onChange: () => undefined }} />
         </>}
         <MacroGroupLabel zh="自然與環境" />
-        <ThemeBanner title="觀光" isCollapsed={false} onCount={on.jpNaturalParksNational ? 1 : 0} totalCount={6} onToggleCollapse={() => undefined} onBulkToggle={() => toggle("jpNaturalParksNational")} />
+        <ThemeBanner title="觀光" country="JP" isCollapsed={false} onCount={on.jpNaturalParksNational ? 1 : 0} totalCount={6} onToggleCollapse={() => undefined} onBulkToggle={() => toggle("jpNaturalParksNational")} />
         <SubGroupLabel>自然公園（歷史資料）</SubGroupLabel>
         <LayerRow layerKey="jpNaturalParksNational" name={park.name} label={park.label} expandable active={on.jpNaturalParksNational} locked={false} color={park.color} count={34} isExpanded={false} Icon={park.icon} onLayerClick={() => toggle("jpNaturalParksNational")} onToggleVisibility={toggle} />
         <MacroGroupLabel zh="醫療與照護" />
-        <ThemeBanner title="社福長照" isCollapsed onCount={0} totalCount={3} onToggleCollapse={() => undefined} onBulkToggle={() => undefined} />
+        <ThemeBanner title="社福長照" country="JP" isCollapsed onCount={0} totalCount={3} onToggleCollapse={() => undefined} onBulkToggle={() => undefined} />
       </RailPanel>
       <p className="ds-note" style={{ marginTop: 4 }}>名稱、色、icon 讀 <code>LAYER_MANIFEST</code> 真條目（<code>cctv</code>、<code>jpNaturalParksNational</code> 有外文與來源標籤）；計數為假資料。轉圈與鎖定列是 <code>ListRow</code>（<code>LayerRow</code> 底下的同一個元件）直接帶 <code>loading</code>／<code>locked</code>，不往全域 loadingRegistry 塞假任務。</p>
     </Sub>
     <Sub title="空間不足：主題列只截副標、中文與計數不折行；圖層列只截外文" kind="real">
       <RailPanel isDark={isDark} width={210}>
-        <ThemeBanner title="農林漁牧 Agriculture, Forestry & Fisheries" isCollapsed={false} onCount={2} totalCount={11} onToggleCollapse={() => undefined} onBulkToggle={() => undefined} />
+        <ThemeBanner title="農林漁牧 Agriculture, Forestry & Fisheries" country="TW" isCollapsed={false} onCount={2} totalCount={11} onToggleCollapse={() => undefined} onBulkToggle={() => undefined} />
         <LayerRow layerKey="jpNaturalParksNational" name={park.name} label={park.label} expandable active locked={false} color={park.color} count={34} isExpanded={false} Icon={park.icon} onLayerClick={() => undefined} onToggleVisibility={() => undefined} />
       </RailPanel>
     </Sub>

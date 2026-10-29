@@ -349,8 +349,8 @@ interface LayerManifestBase {
 export interface LayerManifestThemedEntry extends LayerManifestBase {
   /**
    * 國家主體（PR 4，2026-10-28）。圖層屬於哪個國家的主題樹，或世界／模擬入口。
-   * 現在由測試釘住 = `THEME_SCOPE[section.theme]`；之後主題 title 可跨國重名
-   * （日本、法國都叫「通訊」）時，以本欄為圖層國家歸屬的正本。
+   * 圖層國家歸屬的正本。主題身分是 (country, section.theme)：主題 title 只在同一國家內唯一，
+   * 可跨國同名（例：日本「交通」與之後英國「交通」）；測試釘住 (country, section.theme) 對得到同國家的 THEMES 主題。
    */
   country: LayerCountry;
   /** sidebar 座標（觸點 #8 的位置資訊） */

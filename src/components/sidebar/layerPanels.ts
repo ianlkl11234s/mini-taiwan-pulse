@@ -1,6 +1,6 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { LAYER_MACRO_GROUPS, THEMES, themeScope, themeTitlesForScope, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, SIMULATION_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
 import { COUNTRIES, type CountryCode } from "../../constants/countries";
 
 /**
@@ -17,7 +17,7 @@ export type LayerPanelId = "layers" | "statistics" | "world" | "simulation";
 export interface PanelMacroGroup {
   zh: string;
   en?: string;
-  /** 屬於這個大分類的主題 `title` */
+  /** 屬於這個大分類的主題 `title`（面板只放單一國家主體的主題，title 在面板內唯一；測試鎖住） */
   themes: readonly string[];
 }
 
@@ -43,34 +43,29 @@ export function getThemeLayerKeys(themes: readonly ThemeDef[]): (keyof LayerVisi
   return themes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)));
 }
 
-const macroGroupIndex = (title: string) => LAYER_MACRO_GROUPS.findIndex((group) => group.key === themeMacroGroup(title));
-
 /** 依全站大分類（`THEME_MACRO_GROUPS`）派生面板大分類；空的大分類不顯示。 */
 function sharedMacroGroups(themes: readonly ThemeDef[]): PanelMacroGroup[] {
   return LAYER_MACRO_GROUPS.map((group) => ({
     zh: group.zh,
     en: group.en,
-    themes: themes.filter((theme) => themeMacroGroup(theme.title) === group.key).map((theme) => theme.title),
+    themes: themes.filter((theme) => themeMacroGroup(theme) === group.key).map((theme) => theme.title),
   })).filter((group) => group.themes.length > 0);
 }
 
 // 「世界」入口：主題依全站大分類排（2026-10-03 使用者決定 W-A，公共生活→環境與資源→情報），同類內照登記陣列。
-// 「日本」入口同樣依全站大分類排（2026-10-26）；台灣入口渲染其餘非統計主題。
-export const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => macroGroupIndex(a.title) - macroGroupIndex(b.title)
-    || WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
-export const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
-  .sort((a, b) => macroGroupIndex(a.title) - macroGroupIndex(b.title)
-    || JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
+// 「日本」「法國」入口同樣依全站大分類排（2026-10-26）；台灣入口渲染其餘非統計主題。
+// 一律以 `ThemeDef.country` 篩（主題身分是 (country, title)，不同國家可同名）。
+export const WORLD_THEMES = scopeThemes("WORLD");
+export const JAPAN_THEMES = scopeThemes("JP");
+/** 統計資料主題都屬台灣（`taiwanThemes`），只在台灣內以 title 比對。 */
 const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
 /** 「模擬」入口（站主限定）：雙北跨河橋梁中斷、臺北 307 走廊公車擁擠兩個主題。 */
-export const SIMULATION_THEMES = THEMES.filter((t) => SIMULATION_TAB_THEME_TITLES.includes(t.title));
-/** 台灣入口：`THEME_SCOPE` 為 TW 的主題，扣掉統計資料主題、再濾掉統計面（統計面在統計入口）。 */
-export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => themeScope(t.title) === "TW" && !statisticsDataThemeTitles.has(t.title)));
+export const SIMULATION_THEMES = THEMES.filter((t) => t.country === "SIM");
+/** 台灣入口：country 為 TW 的主題，扣掉統計資料主題、再濾掉統計面（統計面在統計入口）。 */
+export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => t.country === "TW" && !statisticsDataThemeTitles.has(t.title)));
 
 /** 法國：目前只有「通訊」（ANFR，2026-10-28）。 */
-const FRANCE_TAB_THEME_TITLES = themeTitlesForScope("FR");
-export const FRANCE_THEMES = THEMES.filter((t) => FRANCE_TAB_THEME_TITLES.includes(t.title));
+export const FRANCE_THEMES = scopeThemes("FR");
 
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
@@ -96,6 +91,10 @@ export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THE
 /** 法國：沿用全站大分類。 */
 export const FRANCE_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(FRANCE_THEMES);
 
+/**
+ * 各國「圖層」入口的主題樹。新增國家：`CountryCode` 加碼後這裡會缺鍵報 tsc 錯；
+ * 台灣以外照 `{ themes: scopeThemes(code), macroGroups: sharedMacroGroups(themes) }` 登記。
+ */
 const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroups: PanelMacroGroup[] }> = {
   TW: { themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS },
   JP: { themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },

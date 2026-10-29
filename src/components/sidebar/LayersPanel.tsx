@@ -6,7 +6,7 @@ import { searchLayers } from "../../lib/layerSearch";
 import { useLocale } from "../../state/localeStore";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
-import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeName, type ThemeDef } from "./layerCatalog";
+import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
@@ -101,7 +101,7 @@ export function LayersPanel({
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
       for (const group of theme.groups) {
-        for (const layer of group.layers) context.set(layer.key, `${themeName(theme.title).zh}・${group.title}`);
+        for (const layer of group.layers) context.set(layer.key, `${themeName(theme).zh}・${group.title}`);
       }
     }
     return context;
@@ -110,7 +110,7 @@ export function LayersPanel({
   const displayContext = useMemo(() => {
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
-      const themeText = localizeThemeTitle(theme.title, i18n).primary;
+      const themeText = localizeThemeTitle(theme, i18n).primary;
       for (const group of theme.groups) {
         const groupText = localizeSectionTitle(group.title, i18n);
         for (const layer of group.layers) context.set(layer.key, `${themeText}・${groupText}`);
@@ -147,15 +147,15 @@ export function LayersPanel({
       })),
     ].filter((hit) => hit.count > 0)
     : [];
-  // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
+  // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。鍵用 `themeKey`（country:title），不同國家的同名主題各自記。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
-    () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
+    () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map(themeKey)),
   );
 
-  const toggleTheme = (title: string) => {
+  const toggleTheme = (key: string) => {
     setCollapsedThemes((prev) => {
       const next = new Set(prev);
-      if (next.has(title)) next.delete(title); else next.add(title);
+      if (next.has(key)) next.delete(key); else next.add(key);
       return next;
     });
   };
@@ -330,7 +330,7 @@ export function LayersPanel({
             )}
           </div>
         ) : themesToRender.map((theme, themeIndex) => {
-          const isCollapsed = collapsedThemes.has(theme.title);
+          const isCollapsed = collapsedThemes.has(themeKey(theme));
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;
           const someOn = onCount > 0;
@@ -354,14 +354,15 @@ export function LayersPanel({
           const showMacroLabel = macroGroup !== null && (previousTitle === null || !macroGroup.themes.includes(previousTitle));
 
           return (
-            <div key={theme.title}>
+            <div key={themeKey(theme)}>
               {showMacroLabel && <MacroGroupLabel zh={localizeMacroTitle(macroGroup.zh, i18n)} />}
               <ThemeBanner
                 title={theme.title}
+                country={theme.country}
                 isCollapsed={isCollapsed}
                 onCount={onCount}
                 totalCount={allKeys.length}
-                onToggleCollapse={() => toggleTheme(theme.title)}
+                onToggleCollapse={() => toggleTheme(themeKey(theme))}
                 onBulkToggle={handleBulkToggle}
               />
               {!isCollapsed && theme.groups.map((group) => (
