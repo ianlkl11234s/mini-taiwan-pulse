@@ -66,6 +66,12 @@ import {
   GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_FETCHED_AT, GB_SURPLUS_LICENSE, GB_SURPLUS_POSTCODE_PRECISION, GB_SURPLUS_SECTORS,
   GB_SURPLUS_SOURCE_DATE, GB_SURPLUS_SOURCE_URL, gbSurplusStatus, type GbSurplusSector, type GbSurplusStatus,
 } from "../../data/gbLandTypes";
+import {
+  GB_BGS_OGL, GB_DESNZ_OGL_V3, GB_GAMMA_ATTRIBUTION, GB_GAMMA_COLOR, GB_GAMMA_UNIT, GB_GAMMA_URL, GB_GEOSURE_ATTRIBUTION, GB_GEOSURE_COLOR,
+  GB_GEOSURE_URL, GB_HAZARD_FETCHED_AT, GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_URL, GB_QUAKE_ATTRIBUTION, GB_QUAKE_COLOR,
+  GB_QUAKE_DATA_END, GB_QUAKE_URL, GB_RADON_ATTRIBUTION, GB_RADON_COLOR, GB_RADON_URL, gbGammaColor, gbGeoHazard, gbRadonClass, gbSusceptibility,
+} from "../../data/gbHazardTypes";
+import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
 import type { MessageKey } from "../../i18n/keys";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
@@ -1181,5 +1187,115 @@ export function GbSurplusLandPanel({ props }: { props: Record<string, unknown> }
     {sector === "mod" ? <Row label="" value={t("popup.baseMap.gbSurplusModNote")} /> : null}
     <Row label={t("popup.baseMap.gbSurplusSourceDate")} value={GB_SURPLUS_SOURCE_DATE} />
     <SourceFooter props={{ source_org: `${GB_SURPLUS_ATTRIBUTION} · ${ONSPD_ORG}`, source_url: GB_SURPLUS_SOURCE_URL, license: GB_SURPLUS_LICENSE, fetched_at: GB_SURPLUS_FETCHED_AT }} />
+  </>;
+}
+
+// ─────────────────────────── 第 9 波災害地質 ───────────────────────────
+
+/** 數值欄 null／非數值 → null（不寫 0）。 */
+const hazardNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+
+/** GeoSure 地質災害易發性：災害、易發性（中文＋原文）、advisory、國家尺度提醒。 */
+export function GbGroundStabilityPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const hazard = gbGeoHazard(props.hazard);
+  const susc = gbSusceptibility(props.susceptibility);
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={susc?.color ?? GB_GEOSURE_COLOR}>{t("popup.hazard.gbGeoSureTitle")}</Title>
+    <Row label={t("popup.hazard.gbGeoHazard")} value={hazard ? t(GB_GEO_HAZARD_KEYS[hazard.value]) : text(props.hazard_zh) || text(props.hazard)} />
+    <Row label={t("popup.hazard.gbSusceptibility")} value={susc ? t("popup.hazard.gbWithOriginal", { label: t(GB_SUSCEPTIBILITY_KEYS[susc.value]), original: susc.value }) : text(props.susceptibility) || t("popup.hazard.gbNoData")} />
+    {text(props.advisory) ? <Row label="" value={t("popup.hazard.gbAdvisory")} /> : null}
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbGeoSureNotice")} />
+    <SourceFooter props={{ source_org: GB_GEOSURE_ATTRIBUTION, source_url: GB_GEOSURE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
+  </>;
+}
+
+const GB_LANDSLIDE_CHECK_KEYS: Record<string, MessageKey> = {
+  Y: "popup.hazard.gbCheckedY", N: "popup.hazard.gbCheckedN", U: "popup.hazard.gbCheckedU",
+};
+
+/** 山崩紀錄：名稱、地點、位置精度、BGS 複核、首次／最後已知年份（null＝未知）。 */
+export function GbLandslidePanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const acc = hazardNumber(props.location_accuracy_m);
+  const check = text(props.grid_checked_by_bgs);
+  const year = (v: unknown) => text(v) || t("popup.hazard.gbUnknown");
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ") || t("popup.hazard.gbNoData");
+  return <>
+    <Title color={GB_LANDSLIDE_COLOR}>{text(props.name) || t("popup.hazard.gbLandslideUnnamed")}</Title>
+    <Row label={t("popup.hazard.gbLocality")} value={text(props.locality).replace(/^[,\s]+/, "")} />
+    <Row label={t("popup.hazard.gbAccuracy")} value={acc == null ? t("popup.hazard.gbNoData") : t("popup.hazard.gbAccuracyValue", { m: formatNumber(acc) })} />
+    <Row label={t("popup.hazard.gbChecked")} value={GB_LANDSLIDE_CHECK_KEYS[check] ? t(GB_LANDSLIDE_CHECK_KEYS[check]!) : t("popup.hazard.gbNoData")} />
+    <Row label={t("popup.hazard.gbFirstYear")} value={year(props.first_known_year)} />
+    <Row label={t("popup.hazard.gbLastYear")} value={year(props.last_known_year)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbRecordNote")} />
+    <SourceFooter props={{ source_org: GB_LANDSLIDE_ATTRIBUTION, source_url: GB_LANDSLIDE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
+  </>;
+}
+
+/** 氡氣指示圖：格網代碼、分級與比例區間、指示性提醒。 */
+export function GbRadonPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const nation = useNationLabel();
+  const cls = gbRadonClass(props.radon_class);
+  return <>
+    <Title color={GB_RADON_COLOR}>{t("popup.hazard.gbRadonTitle")}</Title>
+    <Row label={t("popup.hazard.gbGridTile")} value={text(props.tile)} />
+    <Row label={t("popup.hazard.gbRadonBand")} value={cls ? t("popup.hazard.gbRadonClassValue", { c: cls.value, band: cls.band }) : t("popup.hazard.gbNoData")} />
+    <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbRadonNote")} />
+    <SourceFooter props={{ source_org: GB_RADON_ATTRIBUTION, source_url: GB_RADON_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
+  </>;
+}
+
+/** 加馬劑量率固定站：站名、月平均（最小／最大）、讀數筆數、期間；缺值寫「未標示／無資料」。 */
+export function GbRadiationPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const mean = hazardNumber(props.dose_mean);
+  const min = hazardNumber(props.dose_min);
+  const max = hazardNumber(props.dose_max);
+  const n = hazardNumber(props.readings_n);
+  const f = (v: number | null) => (v == null ? "—" : formatNumber(v, { maximumFractionDigits: 4 }));
+  const unit = text(props.units) || GB_GAMMA_UNIT;
+  const range = [text(props.first_reading), text(props.last_reading)].filter(Boolean).map((v) => v.replace("T", " ")).join(" – ");
+  const place = [nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={gbGammaColor(mean) ?? GB_GAMMA_COLOR}>{text(props.monitor_location) || text(props.station_id)}</Title>
+    <Row label={t("popup.hazard.gbGammaMean")} value={mean == null ? t("popup.hazard.gbNoData") : t("popup.hazard.gbGammaMeanValue", { mean: f(mean), min: f(min), max: f(max), unit })} />
+    <Row label={t("popup.hazard.gbGammaReadings")} value={n == null ? t("popup.hazard.gbNoData") : formatNumber(n)} />
+    <Row label={t("popup.hazard.gbGammaPeriod")} value={range || text(props.period)} />
+    <Row label={t("popup.hazard.gbGammaNetwork")} value={text(props.network)} />
+    <Row label={t("popup.baseMap.gbNation")} value={place} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbGammaNote")} />
+    <SourceFooter props={{ source_org: GB_GAMMA_ATTRIBUTION, source_url: GB_GAMMA_URL, license: GB_DESNZ_OGL_V3, fetched_at: GB_HAZARD_FETCHED_AT }} />
+  </>;
+}
+
+/** 地震目錄：時間（儀器記錄到分、歷史地震只到日、原字串）、規模＋類型、深度、震度、地點、海上／陸上。 */
+export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const historical = props.catalogue === "historical";
+  const mag = hazardNumber(props.magnitude);
+  const depth = hazardNumber(props.depth_km);
+  const when = historical ? text(props.date) : text(props.datetime_utc).replace("T", " ").replace(/Z$/, " UTC");
+  const offshore = props.setting === "offshore";
+  const place = offshore ? t("popup.hazard.gbOffshore") : [t("popup.hazard.gbOnshore"), nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ");
+  return <>
+    <Title color={GB_QUAKE_COLOR}>{t(historical ? "popup.hazard.gbQuakeTitleHistorical" : "popup.hazard.gbQuakeTitleInstrumental")}</Title>
+    <Row label={t(historical ? "popup.hazard.gbQuakeDate" : "popup.hazard.gbQuakeTime")} value={when || t("popup.hazard.gbNoData")} />
+    <Row label={t("popup.hazard.gbQuakeMag")} value={mag == null ? t("popup.hazard.gbQuakeMagUnknown") : `${formatNumber(mag, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${text(props.mag_type) ? ` (${text(props.mag_type)})` : ""}`} />
+    <Row label={t("popup.hazard.gbQuakeDepth")} value={depth == null ? t("popup.hazard.gbNoData") : t("popup.hazard.gbQuakeDepthValue", { km: formatNumber(depth, { maximumFractionDigits: 1 }) })} />
+    {historical ? <Row label={t("popup.hazard.gbQuakeIntensity")} value={text(props.intensity)} /> : null}
+    {historical ? <Row label={t("popup.hazard.gbLocality")} value={text(props.locality)} /> : null}
+    <Row label={t("popup.hazard.gbQuakeSetting")} value={place} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.hazard.gbQuakeDataEnd", { date: GB_QUAKE_DATA_END })} />
+    <SourceFooter props={{ source_org: GB_QUAKE_ATTRIBUTION, source_url: GB_QUAKE_URL, license: GB_BGS_OGL, fetched_at: GB_HAZARD_FETCHED_AT }} />
   </>;
 }

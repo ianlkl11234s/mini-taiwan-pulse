@@ -2595,6 +2595,12 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "GB",
     defaultCollapsed: true,
     groups: [
+      // 第 9 波 C066：比照台灣 earthquakes 的「災害 Hazard › 地震 / 斷層」
+      { title: "地震 / 斷層", layers: [fromManifest("gbEarthquakes")] },
+      // 第 9 波 C067／C072：GeoSure 六種地質災害與氡氣指示圖。台灣沒有同類圖層（GeoSure 不是液化，不放「土壤液化」），自成「地質災害」群
+      { title: "地質災害", layers: [fromManifest("gbGroundStability"), fromManifest("gbRadon")] },
+      // 第 9 波 C069：比照台灣 landslideAnnual 的「災害 Hazard › 崩塌 Landslide」
+      { title: "崩塌 Landslide", layers: [fromManifest("gbLandslide")] },
       { title: "海岸侵蝕", layers: [fromManifest("gbCoastalErosionRisk")] },
     ],
   },
@@ -2641,6 +2647,8 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       { title: "保護區", layers: [fromManifest("gbProtectedAreas")] },
       { title: "都市樹木 Urban Trees", layers: [fromManifest("gbTreeProtection")] },
+      // 第 9 波 C072：加馬劑量率比照台灣 nuscGammaRadiation（環境輻射）的「環境氣候 › 環境污染」
+      { title: "環境污染", layers: [fromManifest("gbRadiation")] },
     ],
   },
   {

@@ -1355,5 +1355,12 @@
   "param.已核准待建": "Consented",
   "param.審查中": "In planning",
   "param.未推進": "Not proceeding",
-  "param.已除役": "Decommissioned"
+  "param.已除役": "Decommissioned",
+  "param.災害種類": "Hazard type",
+  "param.山崩": "Landslides",
+  "param.脹縮土": "Shrink–swell clay",
+  "param.可壓縮地層": "Compressible ground",
+  "param.可塌陷沉積物": "Collapsible deposits",
+  "param.流沙": "Running sand",
+  "param.可溶岩（溶蝕）": "Soluble rocks (dissolution)"
 }

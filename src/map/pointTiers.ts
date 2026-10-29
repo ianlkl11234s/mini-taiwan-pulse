@@ -302,6 +302,9 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbArtsVenues: "M", // 英國藝文場館 · src/hooks/useGbCultureLayers.ts
   gbVisitorExperience: "M", // 英國觀光體驗（景點 z9 起） · src/hooks/useGbCultureLayers.ts
   gbSurplusLand: "M", // 英國公有地標售（進度以填色強度區分） · src/hooks/useGbLandLayers.ts
+  gbLandslide: "S", // 英國山崩紀錄（18,699 點，z7 起；已複核實心／未複核空心） · src/hooks/useGbHazardLayers.ts
+  gbRadiation: "M", // 英國加馬劑量率固定站（比照台灣環境輻射） · src/hooks/useGbHazardLayers.ts
+  gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/hooks/useGbHazardLayers.ts
   gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
   gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts

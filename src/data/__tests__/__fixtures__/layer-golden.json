@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1399,
+    "keyCount": 1404,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1400,6 +1400,37 @@
         "gb-surplus-land-circle"
       ],
       "type": "gbSurplusLand"
+    },
+    {
+      "layers": [
+        "gb-earthquakes-major-circle",
+        "gb-earthquakes-minor-circle"
+      ],
+      "type": "gbEarthquakes"
+    },
+    {
+      "layers": [
+        "gb-gamma-dose-circle"
+      ],
+      "type": "gbRadiation"
+    },
+    {
+      "layers": [
+        "gb-landslides-circle"
+      ],
+      "type": "gbLandslide"
+    },
+    {
+      "layers": [
+        "gb-radon-fill"
+      ],
+      "type": "gbRadon"
+    },
+    {
+      "layers": [
+        "gb-geosure-fill"
+      ],
+      "type": "gbGroundStability"
     },
     {
       "layers": [
@@ -90562,6 +90593,26 @@
         "valueText": "1.0"
       }
     ],
+    "gbEarthquakes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbFireStations": [
       {
         "label": "透明度 0.80",
@@ -90644,6 +90695,48 @@
         "valueText": "0.70"
       }
     ],
+    "gbGroundStability": [
+      {
+        "label": "災害種類",
+        "options": [
+          {
+            "label": "山崩",
+            "value": "landslides"
+          },
+          {
+            "label": "脹縮土",
+            "value": "shrink_swell"
+          },
+          {
+            "label": "可壓縮地層",
+            "value": "compressible_ground"
+          },
+          {
+            "label": "可塌陷沉積物",
+            "value": "collapsible_deposits"
+          },
+          {
+            "label": "流沙",
+            "value": "running_sand"
+          },
+          {
+            "label": "可溶岩（溶蝕）",
+            "value": "soluble_rocks"
+          }
+        ],
+        "type": "select",
+        "value": "landslides"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "gbHealthFacilities": [
       {
         "label": "透明度 0.75",
@@ -90673,6 +90766,26 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbLandslide": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",
@@ -90873,6 +90986,37 @@
         "step": 0.05,
         "value": 0.45,
         "valueText": "0.45"
+      }
+    ],
+    "gbRadiation": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbRadon": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "gbRenewables": [

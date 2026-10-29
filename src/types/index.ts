@@ -433,6 +433,7 @@ export type ExpandableLayerKey =
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
   | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
   | "gbTerrainHillshade" | "gbTerrainRelief" | "gbSurplusLand"
+  | "gbGroundStability" | "gbLandslide" | "gbRadon" | "gbRadiation" | "gbEarthquakes"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -979,6 +980,8 @@ export interface FeatureInfo {
     | "gbCulturalFacilities" | "gbArtsVenues" | "gbVisitorExperience"
     // 英國 C028 公有地標售（地形 raster 無 popup）
     | "gbSurplusLand"
+    // 英國第 9 波災害地質
+    | "gbGroundStability" | "gbLandslide" | "gbRadon" | "gbRadiation" | "gbEarthquakes"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1816,6 +1819,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbTerrainHillshade: boolean;  // 英國山體陰影（OS Terrain 50，raster PNG PMTiles）
   gbTerrainRelief: boolean;     // 英國色別標高（OS Terrain 50，raster PNG PMTiles）
   gbSurplusLand: boolean;       // 英國公有地標售（Cabinet Office Disposal，420）
+  gbGroundStability: boolean;   // 英國 GeoSure 地質災害易發性（5 km 六角格，6 種災害）
+  gbLandslide: boolean;         // 英國山崩紀錄（BGS NLD index，18,699）
+  gbRadon: boolean;             // 英國氡氣指示圖（1 km 方格，257,046）
+  gbRadiation: boolean;         // 英國環境加馬劑量率固定站（RREMS，83）
+  gbEarthquakes: boolean;       // 英國地震目錄（BGS，7,116）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

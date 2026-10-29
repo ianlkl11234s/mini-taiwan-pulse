@@ -212,7 +212,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +6 英國第 7 波（學校 gbSchools、醫療 gbHealthFacilities、照護之家 gbCareHomes、長照服務 gbCareServices、消防站 gbFireStations、法院 gbCourts）。
     // 2026-10-29: +3 英國第 8 波（文化設施 gbCulturalFacilities、藝文場館 gbArtsVenues、觀光體驗 gbVisitorExperience）。
     // 2026-10-29: +7 英國地形／公有地／作物（山體陰影 gbTerrainHillshade、色別標高 gbTerrainRelief、公有地標售 gbSurplusLand、作物統計 statsGbCrop* 4 層）。
-    expect(keys.length).toBe(1399);
+    // 2026-10-29: +5 英國第 9 波災害地質（GeoSure gbGroundStability、山崩 gbLandslide、氡氣 gbRadon、環境輻射 gbRadiation、地震目錄 gbEarthquakes）。
+    expect(keys.length).toBe(1404);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

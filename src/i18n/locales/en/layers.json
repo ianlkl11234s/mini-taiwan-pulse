@@ -1389,5 +1389,10 @@
   "layer.statsGbCropGrasslandShare": "Grassland Share of Farmed Area (England)",
   "layer.gbTerrainHillshade": "Hillshade",
   "layer.gbTerrainRelief": "Elevation Tint",
-  "layer.gbSurplusLand": "Surplus Public Land"
+  "layer.gbSurplusLand": "Surplus Public Land",
+  "layer.gbGroundStability": "Ground Hazard Susceptibility",
+  "layer.gbLandslide": "Landslide Records",
+  "layer.gbRadon": "Indicative Radon Atlas",
+  "layer.gbRadiation": "Ambient Gamma Dose Rate",
+  "layer.gbEarthquakes": "Earthquake Catalogue"
 }
