@@ -3686,7 +3686,7 @@ export const LAYER_MANIFEST = {
     icon: Grid3x3,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "network_performance_grid", confidence: "HIGH" }],
+      datasets: [{ datasetId: "network_performance_grid_tw", confidence: "HIGH" }],
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
@@ -3710,7 +3710,7 @@ export const LAYER_MANIFEST = {
     icon: Grid3x3,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "network_performance_grid", confidence: "HIGH" }],
+      datasets: [{ datasetId: "network_performance_grid_tw", confidence: "HIGH" }],
       note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0。2026-Q1 官方 z16 Parquet 聚合，產物為 --slim（整層常數在 FeatureCollection metadata／前端 OOKLA_GRID_META，不逐格重複）。",
     },
     dataClass: "B",
