@@ -138,7 +138,7 @@
   "legend.transport.gbZoneNote": "TfL's 2023 official ULEZ boundary file is identical to the LEZ boundary",
   "legend.transport.gbRoadMotorway": "Motorway (M)",
   "legend.transport.gbRoadA": "A road",
-  "legend.transport.gbRoadB": "B road (Northern Ireland only)",
+  "legend.transport.gbRoadB": "B road (Northern Ireland only; England, Scotland and Wales not covered)",
   "legend.transport.gbRoadsBNotCovered": "Great Britain B roads: not covered (B roads in England, Scotland and Wales are not yet included; this does not mean there are none)",
   "legend.transport.gbRoadsSourceMrdb": "Official: DfT Major Roads Database (Great Britain): generalised straight segments between count points, not aligned with the actual road when zoomed in",
   "legend.transport.gbRoadsSourceOsm": "OSM fill-in (Northern Ireland): actual OpenStreetMap alignment",

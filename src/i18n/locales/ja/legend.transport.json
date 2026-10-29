@@ -138,7 +138,7 @@
   "legend.transport.gbZoneNote": "TfL の 2023 年 ULEZ 公式境界ファイルは LEZ と同一",
   "legend.transport.gbRoadMotorway": "高速道路（M）",
   "legend.transport.gbRoadA": "A 級道路",
-  "legend.transport.gbRoadB": "B 級道路（北アイルランドのみ）",
+  "legend.transport.gbRoadB": "B 級道路（北アイルランドのみ。イングランド・スコットランド・ウェールズは対象外）",
   "legend.transport.gbRoadsBNotCovered": "グレートブリテンの B 級道路：対象外（イングランド・スコットランド・ウェールズの B 級道路は未収録で、存在しないわけではない）",
   "legend.transport.gbRoadsSourceMrdb": "公式：DfT 主要道路データベース（グレートブリテン）：計測地点間を結ぶ概略の直線区間で、拡大すると実際の道路と一致しない",
   "legend.transport.gbRoadsSourceOsm": "OSM 補完（北アイルランド）：OpenStreetMap の実際の線形",

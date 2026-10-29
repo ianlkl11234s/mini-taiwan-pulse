@@ -138,7 +138,7 @@
   "legend.transport.gbZoneNote": "TfL 的 2023 ULEZ 官方邊界檔與 LEZ 相同",
   "legend.transport.gbRoadMotorway": "高速公路（M）",
   "legend.transport.gbRoadA": "A 級道路",
-  "legend.transport.gbRoadB": "B 級道路（僅北愛爾蘭）",
+  "legend.transport.gbRoadB": "B 級道路（僅北愛爾蘭；英格蘭、蘇格蘭、威爾斯未涵蓋）",
   "legend.transport.gbRoadsBNotCovered": "大不列顛 B 級道路：未涵蓋（英格蘭、蘇格蘭、威爾斯的 B 級道路尚未收錄，不是沒有 B 級道路）",
   "legend.transport.gbRoadsSourceMrdb": "官方：DfT 主要道路資料庫（大不列顛）：計數點之間的概化直線段，放大後不貼合實際道路",
   "legend.transport.gbRoadsSourceOsm": "OSM 補缺（北愛爾蘭）：OpenStreetMap 實際線形",
