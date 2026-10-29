@@ -5684,7 +5684,6 @@ export type GeneratedStaticKey =
   | "popup.transport.gbAadfMoto"
   | "popup.transport.gbAadfNoCount"
   | "popup.transport.gbAadfNoCountNi"
-  | "popup.transport.gbAadfRoad"
   | "popup.transport.gbAadfYear"
   | "popup.transport.gbBoundaryVersion"
   | "popup.transport.gbCameraImage"

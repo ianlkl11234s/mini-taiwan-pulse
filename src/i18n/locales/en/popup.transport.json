@@ -104,7 +104,6 @@
   "popup.transport.gbRoadBNotCovered": "Great Britain B roads are not included in this layer",
   "popup.transport.gbCountPoint": "Traffic count point",
   "popup.transport.gbCountPointId": "Count point ID",
-  "popup.transport.gbAadfRoad": "Road",
   "popup.transport.gbAadfLink": "Link",
   "popup.transport.gbAadfLinkValue": "{from} → {to}",
   "popup.transport.gbAadfAll": "All motor vehicles",

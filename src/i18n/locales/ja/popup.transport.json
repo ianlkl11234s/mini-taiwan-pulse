@@ -104,7 +104,6 @@
   "popup.transport.gbRoadBNotCovered": "グレートブリテンの B 級道路は本レイヤー未収録",
   "popup.transport.gbCountPoint": "交通量計測地点",
   "popup.transport.gbCountPointId": "計測地点 ID",
-  "popup.transport.gbAadfRoad": "道路",
   "popup.transport.gbAadfLink": "区間",
   "popup.transport.gbAadfLinkValue": "{from} → {to}",
   "popup.transport.gbAadfAll": "自動車合計",

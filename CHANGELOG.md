@@ -88,6 +88,8 @@
   - 5 個 PMTiles（`public/world/gb_schools.pmtiles` 15.1MB、`gb_health_facilities.pmtiles` 7.2MB、`gb_care_services.pmtiles` 16.3MB、`gb_fire_stations.pmtiles` 1.9MB、`gb_courts.pmtiles` 0.6MB）都已 git-track，發版不需上傳
 - 英國第 8 波新增 3 個文化與觀光圖層，主題與群組比照台灣同類圖層：「文化 › 設施」文化設施（博物館 3,079、美術館／畫廊 1,282、圖書館 3,951；北愛公共圖書館 98 館為 Libraries NI 官方名錄實心，其餘為 OSM 補缺空心）、「文化 › 藝文活動」藝文場館（OSM 劇院、電影院、藝術中心、音樂廳 3,210 處）、「觀光 › 玩・自然」觀光體驗（OSM 景點、遊客中心、動物園、主題樂園、水族館 7,050 處，景點縮放 9 級起）；四地皆涵蓋，彈窗的開放時間、收費、無障礙沒標的寫「未標示」，非公眾開放的地點另註明
   - 3 個 PMTiles（`public/world/gb_cultural_facilities.pmtiles` 6.1MB、`gb_arts_venues.pmtiles` 2.2MB、`gb_visitor_experience.pmtiles` 4.8MB）都已 git-track，發版不需上傳
+- 英國第 10 波新增 2 個道路圖層，放在英國「交通 › 路網」（比照台灣國道／省道與 ETC 門架）：主要路網（大不列顛 DfT 主要道路資料庫的高速公路與 A 級道路，北愛為 OpenStreetMap 補缺並另含 B 級道路，共 33,185 段，依高速公路／A 級／B 級分色分粗細；圖例與彈窗明寫「大不列顛 B 級道路：未涵蓋」，DfT 路段為計數點間的概化直線；彈窗附 2025 年平均日交通量，估算值註明非當年實測，北愛顯示「無計數」）；年平均日交通量（DfT 2025 年 22,334 個計數點，依每日車輛數分 5 級，縮放 6–7 只顯示高速公路與幹線 A 級，可切換只看當年實測或 DfT 估算，彈窗列分車種交通量；北愛爾蘭未涵蓋）
+  - 2 個 PMTiles（`public/world/gb_major_roads.pmtiles` 11.0MB、`gb_traffic_counts_aadf.pmtiles` 19.2MB）都已 git-track，發版不需上傳
 
 ## v2.17.0 — 2026-10-29 — 淹水 10 種降雨情境、急救責任醫院分級、海洋保育補接
 

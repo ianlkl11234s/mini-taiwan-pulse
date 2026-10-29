@@ -104,7 +104,6 @@
   "popup.transport.gbRoadBNotCovered": "大不列顛 B 級道路未收錄於本圖層",
   "popup.transport.gbCountPoint": "交通計數點",
   "popup.transport.gbCountPointId": "計數點編號",
-  "popup.transport.gbAadfRoad": "道路",
   "popup.transport.gbAadfLink": "路段起訖",
   "popup.transport.gbAadfLinkValue": "{from} → {to}",
   "popup.transport.gbAadfAll": "機動車輛合計",
