@@ -3853,17 +3853,17 @@
     },
     {
       "layers": [
-        "marine-wildlife-areas-fill",
-        "marine-wildlife-areas-outline"
-      ],
-      "type": "marineWildlifeAreas"
-    },
-    {
-      "layers": [
         "marine-ecological-monitoring-sites-circle",
         "marine-ecological-monitoring-sites-glow"
       ],
       "type": "marineEcologicalMonitoringSites"
+    },
+    {
+      "layers": [
+        "marine-wildlife-areas-fill",
+        "marine-wildlife-areas-outline"
+      ],
+      "type": "marineWildlifeAreas"
     },
     {
       "layers": [
