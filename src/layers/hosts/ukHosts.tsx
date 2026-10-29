@@ -303,6 +303,6 @@ export const GbTerrainHost: LayerHostComponent = ({ deps }) => {
 export const GbSurplusLandHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbSurplusLandLayer");
   const p = useKeyOverlayParams("gbSurplusLand");
-  useGbSurplusLandLayer(deps.mapRef, deps.layerVisibility.gbSurplusLand, p.gbSurplusLandOpacity ?? 0.9, p.gbSurplusLandScale ?? 1);
+  useGbSurplusLandLayer(deps.mapRef, deps.layerVisibility.gbSurplusLand, p.gbSurplusLandOpacity ?? 0.9, p.gbSurplusLandScale ?? 1, deps.isDarkTheme);
   return null;
 };

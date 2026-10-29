@@ -49,7 +49,7 @@ export const GB_SURPLUS_STATUSES: readonly { value: GbSurplusStatus; fill: numbe
   { value: "under_offer", fill: 0.55, count: 44 },
   { value: "on_market", fill: 1, count: 42 },
 ];
-/** 空心／半實心的描邊寬（同色）。 */
+/** 尚未上市空心框的描邊寬（同色，資料編碼描邊 P-9）；其餘進度用底圖色細縫。 */
 export const GB_SURPLUS_STROKE_WIDTH = 1.5;
 export function gbSurplusStatus(value: unknown) {
   return GB_SURPLUS_STATUSES.find((s) => s.value === value);

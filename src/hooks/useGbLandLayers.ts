@@ -1,5 +1,5 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
-import { pointRadius } from "../map/mapStyleScale";
+import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
 import {
   GB_OS_TERRAIN_ATTRIBUTION, GB_SURPLUS_ATTRIBUTION, GB_SURPLUS_COLOR, GB_SURPLUS_MINZOOM, GB_SURPLUS_STATUSES, GB_SURPLUS_STROKE_WIDTH,
@@ -21,6 +21,7 @@ export const GB_SURPLUS_LAND_CIRCLE_ID = "gb-surplus-land-circle";
 type MapRef = React.RefObject<MapboxMap | null>;
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const scaleDefault = (key: string) => Number(paramDefault(key, `${key}Scale`) ?? 1);
+const opacityDefault = (key: string, fallback: number) => Number(paramDefault(key, `${key}Opacity`) ?? fallback);
 
 const TERRAIN_SOURCES: Readonly<Record<GbTerrainKey, SourceSpec>> = {
   gbTerrainHillshade: {
@@ -64,34 +65,39 @@ const SURPLUS_SOURCE: SourceSpec = {
   attribution: GB_SURPLUS_ATTRIBUTION, loading: "英國公有地標售載入中",
 };
 
-/** 標售進度：同一色相，填色強度由淡到強（尚未上市空心 → 洽談中 → 上市中實心），描邊同色。 */
+/**
+ * 標售進度：同一色相，填色強度由淡到強（尚未上市空心 → 洽談中 → 上市中實心）。
+ * 尚未上市＝同色空心框（資料編碼描邊，比照第 8 波文化設施 OSM 補缺）；其餘用底圖色細縫（P-2）。
+ */
+const IS_NOT_ON_MARKET = ["==", ["get", "sale_status"], "not_on_market"];
 function surplusFill(op: number): unknown[] {
   const expr: unknown[] = ["match", ["coalesce", ["get", "sale_status"], ""]];
   for (const s of GB_SURPLUS_STATUSES) expr.push(s.value, op * s.fill);
   expr.push(op * GB_SURPLUS_STATUSES[0]!.fill);
   return expr;
 }
-function surplusPaint(opacity: number, scale: number) {
+function surplusPaint(isDark: boolean, opacity: number, scale: number) {
   const op = clamp01(opacity);
+  const seam = pointStrokePaint(isDark, op / opacityDefault("gbSurplusLand", 0.9));
   return {
     "circle-radius": pointRadius("M", scale / scaleDefault("gbSurplusLand")),
     "circle-color": GB_SURPLUS_COLOR,
     "circle-opacity": surplusFill(op),
-    "circle-stroke-color": GB_SURPLUS_COLOR,
-    "circle-stroke-width": GB_SURPLUS_STROKE_WIDTH,
-    "circle-stroke-opacity": op,
+    "circle-stroke-color": ["case", IS_NOT_ON_MARKET, GB_SURPLUS_COLOR, seam["circle-stroke-color"]],
+    "circle-stroke-width": ["case", IS_NOT_ON_MARKET, GB_SURPLUS_STROKE_WIDTH, seam["circle-stroke-width"]],
+    "circle-stroke-opacity": ["case", IS_NOT_ON_MARKET, op, seam["circle-stroke-opacity"]],
   };
 }
 
-export function useGbSurplusLandLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number) {
+export function useGbSurplusLandLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
   useGbPmtilesLayers(mapRef, SURPLUS_SOURCE, visible, () => [{
     id: GB_SURPLUS_LAND_CIRCLE_ID,
     layer: () => ({
       id: GB_SURPLUS_LAND_CIRCLE_ID, type: "circle", source: SURPLUS_SOURCE.id, "source-layer": "gb_surplus_land",
-      minzoom: GB_SURPLUS_MINZOOM, layout: { visibility: "none" }, paint: surplusPaint(opacity, scale),
+      minzoom: GB_SURPLUS_MINZOOM, layout: { visibility: "none" }, paint: surplusPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => {
-      for (const [k, v] of Object.entries(surplusPaint(opacity, scale))) map.setPaintProperty(GB_SURPLUS_LAND_CIRCLE_ID, k as any, v as any);
+      for (const [k, v] of Object.entries(surplusPaint(isDark, opacity, scale))) map.setPaintProperty(GB_SURPLUS_LAND_CIRCLE_ID, k as any, v as any);
     },
-  }], [opacity, scale]);
+  }], [opacity, scale, isDark]);
 }

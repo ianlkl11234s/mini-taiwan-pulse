@@ -56,13 +56,13 @@ export const GB_SURPLUS_STATUS_KEYS: Record<GbSurplusStatus, MessageKey> = {
   on_market: "legend.urban.gbSurplusOnMarket",
 };
 
-/** 英國公有地標售：三個進度（同色，填色由淡到強）。 */
+/** 英國公有地標售：三個進度（同色，填色由淡到強；尚未上市＝同色空心框，其餘底圖色細縫）。 */
 export function GbSurplusLandLegend() {
   const i18n = useLocale();
   return <div>
     <LegendTitle zh={layerTitle("gbSurplusLand", i18n)} en="Surplus Public Land" />
     {GB_SURPLUS_STATUSES.map((s) => (
-      <LegendRow key={s.value} swatch={<SwatchDot color={`color-mix(in srgb, ${GB_SURPLUS_COLOR} ${s.fill * 100}%, transparent)`} opacity={1} stroke={GB_SURPLUS_COLOR} strokeWidth={GB_SURPLUS_STROKE_WIDTH} />}>
+      <LegendRow key={s.value} swatch={<SwatchDot color={`color-mix(in srgb, ${GB_SURPLUS_COLOR} ${s.fill * 100}%, transparent)`} opacity={1} {...(s.value === "not_on_market" ? { stroke: GB_SURPLUS_COLOR, strokeWidth: GB_SURPLUS_STROKE_WIDTH } : {})} />}>
         {i18n.t(GB_SURPLUS_STATUS_KEYS[s.value], { n: i18n.formatNumber(s.count) })}
       </LegendRow>
     ))}
