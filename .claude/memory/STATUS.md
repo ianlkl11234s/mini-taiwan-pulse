@@ -1,9 +1,24 @@
 # Status
 
-**最後更新**：2026-10-28 國家主體化上線（v2.16.0＋v2.16.1）
+**最後更新**：2026-10-29 台灣新圖層第一批合進 develop（未發版）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-29：台灣新圖層第一批（roadmap G29–G34，未發版）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #737 淹水潛勢 10 情境切換（一情境一支 PMTiles、`sourceUrlByParam`；「管制區」改名、北市下水道水位來源更正、離島深度級距正規化）、#734 急救責任醫院分級 252 家、#735 海域野生動物保護區與棲息環境 6 面＋全海域生態系調查點位 54 點、#736 測速照相換 2026-08-24 版 2,805 點，都已合 develop（最後 `6078db66`，CI 綠）；#745 BACKLOG 新增 TWL-1～7。 |
+| **.gis-agent-system** | scout 方法加軌 1b（新上架差集）與軌 4（現象驅動六層缺口）；`scout/2026-10-28/` 第二輪盤點；深挖 G29–G34，狀態已更新（master `d73e782`）。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| #734–#737 | done：各 PR 與 develop CI 綠 | done：CI（layerConsistency、golden、inventory） | done：develop `6078db66` | not run：10 支 `water_flood_*.pmtiles`＋`speed_cameras_20260824.geojson` 等發版（TWL-1） | not run | N/A | not run | not run | not run（只有 PR 期間本機截圖） |
+
+- 卡點：主 checkout 停在舊 develop，`git pull` 被未追蹤的 `public/world/gb_admin_lad.pmtiles`（英國 session 的檔，hash 與 develop 相同）擋住，需使用者同意才移開。gitignored 發版資產已複製到主 checkout `public/`。
+- 下一步：第二批三個 PR（**TWL-5**：災害暴露 G32＋G30、科技執法 G34、水 G31＋G29），同時最多 3 個 worktree；小修 TWL-2～4、統計層 TWL-7；第三批 TWL-6 等 Zeabur 搬遷。
+- 接手：從 origin/develop 開分支；各項細節看 `.gis-agent-system/roadmap/candidates/G29`～`G34`。
 
 ## 2026-10-28：國家主體化（v2.16.0＋v2.16.1）
 
