@@ -7,6 +7,7 @@ import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLa
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
+import { useGbBrownfieldLayer, useGbNoiseLayer, useGbPlanningConstraintsLayer, useGbPollutionInventoryLayer, useGbRecyclingCentresLayer, useGbWastePermitsLayer } from "../../hooks/useGbEnvPlanningLayers";
 import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, useGbRadiationLayer, useGbRadonLayer } from "../../hooks/useGbHazardLayers";
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
@@ -360,5 +361,53 @@ export const GbTrafficCountsAadfHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbTrafficCountsAadfLayer");
   const p = useKeyOverlayParams("gbTrafficCountsAadf");
   useGbTrafficCountsAadfLayer(deps.mapRef, deps.layerVisibility.gbTrafficCountsAadf, p.gbTrafficCountsAadfOpacity ?? 0.75, p.gbTrafficCountsAadfScale ?? 1, p.gbTrafficCountsAadfMethodIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：規劃限制區（類別選單，預設保育區）。 */
+export const GbPlanningConstraintsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPlanningConstraintsLayer");
+  const p = useKeyOverlayParams("gbPlanningConstraints");
+  useGbPlanningConstraintsLayer(deps.mapRef, deps.layerVisibility.gbPlanningConstraints, p.gbPlanningConstraintsOpacity ?? 0.35, p.gbPlanningConstraintsViewIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：棕地登記冊（許可狀態選單）。 */
+export const GbBrownfieldHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbBrownfieldLayer");
+  const p = useKeyOverlayParams("gbBrownfield");
+  useGbBrownfieldLayer(deps.mapRef, deps.layerVisibility.gbBrownfield, p.gbBrownfieldOpacity ?? 0.75, p.gbBrownfieldScale ?? 1, p.gbBrownfieldStatusIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：回收點（回收中心、回收桶，OSM）。 */
+export const GbRecyclingCentresHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRecyclingCentresLayer");
+  const p = useKeyOverlayParams("gbRecyclingCentres");
+  useGbRecyclingCentresLayer(deps.mapRef, deps.layerVisibility.gbRecyclingCentres, p.gbRecyclingCentresOpacity ?? 0.75, p.gbRecyclingCentresScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：廢棄物處理許可場址（主管機關選單）。 */
+export const GbWastePermitsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbWastePermitsLayer");
+  const p = useKeyOverlayParams("gbWastePermits");
+  useGbWastePermitsLayer(deps.mapRef, deps.layerVisibility.gbWastePermits, p.gbWastePermitsOpacity ?? 0.8, p.gbWastePermitsScale ?? 1, p.gbWastePermitsAuthorityIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：污染排放申報場址（只有蘇格蘭 SEPA）。 */
+export const GbPollutionInventoryHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbPollutionInventoryLayer");
+  const p = useKeyOverlayParams("gbPollutionInventory");
+  useGbPollutionInventoryLayer(deps.mapRef, deps.layerVisibility.gbPollutionInventory, p.gbPollutionInventoryOpacity ?? 0.8, p.gbPollutionInventoryScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 11 波：策略噪音地圖（道路／鐵路選單）。 */
+export const GbNoiseHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbNoiseLayer");
+  const p = useKeyOverlayParams("gbNoise");
+  useGbNoiseLayer(deps.mapRef, deps.layerVisibility.gbNoise, p.gbNoiseOpacity ?? 0.55, p.gbNoiseSourceIdx ?? 0, deps.isDarkTheme);
   return null;
 };

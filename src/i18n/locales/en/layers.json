@@ -1396,5 +1396,11 @@
   "layer.gbRadiation": "Ambient Gamma Dose Rate",
   "layer.gbEarthquakes": "Earthquake Catalogue",
   "layer.gbMajorRoads": "Major Roads",
-  "layer.gbTrafficCountsAadf": "Annual Average Daily Traffic"
+  "layer.gbTrafficCountsAadf": "Annual Average Daily Traffic",
+  "layer.gbPlanningConstraints": "Planning Constraints",
+  "layer.gbBrownfield": "Brownfield Land Register",
+  "layer.gbRecyclingCentres": "Recycling Points",
+  "layer.gbWastePermits": "Waste Permit Sites",
+  "layer.gbPollutionInventory": "Pollution Release Sites",
+  "layer.gbNoise": "Strategic Noise Map"
 }

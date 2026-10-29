@@ -342,6 +342,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 8 波：文化（文化設施、藝文場館）、觀光（觀光體驗；比照台灣主題位置）
     "文化",
     "觀光",
+    // 第 11 波：廢棄物（回收點、廢棄物許可；比照台灣「廢棄物 Waste」）
+    "廢棄物",
     // C028 公有地標售（比照台灣「房地產 Real Estate」）
     "房地產",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
@@ -2587,6 +2589,9 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbCemeteries")] },
       // C003：OS Terrain 50 山體陰影／色別標高，比照台灣 hillshade 與日本地理院地形的「底圖 › 地形」
       { title: "地形", layers: [fromManifest("gbTerrainHillshade"), fromManifest("gbTerrainRelief")] },
+      // 第 11 波 C005／C031：比照台灣 urbanZoning*／nonUrbanZoning 的「底圖 › 土地使用分區 Zoning」。
+      // 規劃限制區是法定分區疊加；棕地登記冊是地方規劃機關依法公告的「適合住宅開發土地」名冊，同屬規劃制度（同為 Planning Data 來源）
+      { title: "土地使用分區 Zoning", layers: [fromManifest("gbPlanningConstraints"), fromManifest("gbBrownfield")] },
     ],
   },
   {
@@ -2649,7 +2654,20 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "保護區", layers: [fromManifest("gbProtectedAreas")] },
       { title: "都市樹木 Urban Trees", layers: [fromManifest("gbTreeProtection")] },
       // 第 9 波 C072：加馬劑量率比照台灣 nuscGammaRadiation（環境輻射）的「環境氣候 › 環境污染」
-      { title: "環境污染", layers: [fromManifest("gbRadiation")] },
+      // 第 11 波 C092：污染排放申報比照台灣 pollutionFacility（申報工廠）；C090 噪音比照台灣「噪音／聲響 Noise」
+      { title: "環境污染", layers: [fromManifest("gbRadiation"), fromManifest("gbPollutionInventory")] },
+      { title: "噪音／聲響 Noise", layers: [fromManifest("gbNoise")] },
+    ],
+  },
+  {
+    // 第 11 波 C086／C087：比照台灣「廢棄物 Waste」——wdRecyclingContainer（投放點；本層回收桶 11,412 佔 88%，
+    // 回收中心 1,547 比照 wfRecycling 但一層只放一群，取多數）、wf*（處理設施）
+    title: "廢棄物",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "投放點", layers: [fromManifest("gbRecyclingCentres")] },
+      { title: "處理設施", layers: [fromManifest("gbWastePermits")] },
     ],
   },
   {
@@ -2860,6 +2878,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    "廢棄物": "environment",
     "教育": "publicLife",
     "社福長照": "publicLife",
     "醫療": "safety",
@@ -3016,6 +3035,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "Environment" },
     "林業": { zh: "林業", sub: "Forestry" },
     "能源": { zh: "能源", sub: "Energy" },
+    "廢棄物": { zh: "廢棄物", sub: "Waste" },
     "教育": { zh: "教育", sub: "Education" },
     "社福長照": { zh: "社福長照", sub: "Welfare" },
     "醫療": { zh: "醫療", sub: "Medical" },

@@ -214,7 +214,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +7 英國地形／公有地／作物（山體陰影 gbTerrainHillshade、色別標高 gbTerrainRelief、公有地標售 gbSurplusLand、作物統計 statsGbCrop* 4 層）。
     // 2026-10-29: +5 英國第 9 波災害地質（GeoSure gbGroundStability、山崩 gbLandslide、氡氣 gbRadon、環境輻射 gbRadiation、地震目錄 gbEarthquakes）。
     // 2026-10-29: +2 英國第 10 波道路（主要路網 gbMajorRoads、AADF 交通計數點 gbTrafficCountsAadf）。
-    expect(keys.length).toBe(1406);
+    // 2026-10-29: +6 英國第 11 波環境與規劃（規劃限制區 gbPlanningConstraints、棕地 gbBrownfield、回收點 gbRecyclingCentres、廢棄物許可 gbWastePermits、污染排放 gbPollutionInventory、噪音 gbNoise）。
+    expect(keys.length).toBe(1412);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

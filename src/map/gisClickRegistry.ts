@@ -340,6 +340,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-station-usage-circle"], type: "gbStationUsage" },
   { layers: ["gb-transport-hubs-circle"], type: "gbTransportHubs" },
   { layers: ["gb-london-rail-lines-line"], type: "gbLondonRailLines" },
+  // 英國第 11 波：點（污染 → 廢棄物許可 → 回收中心 → 回收桶 → 棕地）先於面（規劃限制區、噪音）
+  { layers: ["gb-pollution-inventory-circle"], type: "gbPollutionInventory" },
+  { layers: ["gb-waste-permits-circle"], type: "gbWastePermits" },
+  { layers: ["gb-recycling-centre-circle", "gb-recycling-container-circle"], type: "gbRecyclingCentres" },
+  { layers: ["gb-brownfield-circle"], type: "gbBrownfield" },
+  { layers: ["gb-planning-constraints-fill"], type: "gbPlanningConstraints" },
+  { layers: ["gb-noise-fill"], type: "gbNoise" },
   // 英國第 10 波：計數點（點）排在主要路網（線）前面
   { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
   { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },

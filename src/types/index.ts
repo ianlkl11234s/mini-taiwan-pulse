@@ -429,6 +429,7 @@ export type ExpandableLayerKey =
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
+  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
   | "gbSchools" | "gbHealthFacilities" | "gbCareHomes" | "gbCareServices" | "gbFireStations" | "gbCourts"
@@ -973,6 +974,8 @@ export interface FeatureInfo {
     | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
     // 英國第 10 波：主要路網、AADF 交通計數點
     | "gbMajorRoads" | "gbTrafficCountsAadf"
+    // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
+    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
     | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
     // 英國第 6 波：電廠、再生能源、電網線、變電所、加油站、離岸油氣田
@@ -1799,6 +1802,12 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
   gbMajorRoads: boolean;        // 英國主要路網（DfT MRDB＋北愛 OSM，33,185 段）
   gbTrafficCountsAadf: boolean; // 英國 AADF 交通計數點（DfT 2025，22,334 點）
+  gbPlanningConstraints: boolean; // 英國規劃限制區（保育區／Article 4／綠帶，18,727 面）
+  gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）
+  gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
+  gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
+  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
+  gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
   gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
   gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
   gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）

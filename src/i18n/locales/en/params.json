@@ -1365,5 +1365,20 @@
   "param.可溶岩（溶蝕）": "Soluble rocks (dissolution)",
   "param.資料方式": "Data type",
   "param.只看當年實測": "Counted this year only",
-  "param.只看 DfT 估算": "DfT estimates only"
+  "param.只看 DfT 估算": "DfT estimates only",
+  "param.保育區": "Conservation areas",
+  "param.Article 4 指令區": "Article 4 direction areas",
+  "param.綠帶": "Green belt",
+  "param.許可狀態": "Permission status",
+  "param.已有規劃許可": "Permissioned",
+  "param.審議中": "Pending decision",
+  "param.未取得許可": "Not permissioned",
+  "param.已完成": "Completed",
+  "param.其他・未載明": "Other / not stated",
+  "param.主管機關": "Regulator",
+  "param.英格蘭環境署 EA": "Environment Agency (England)",
+  "param.蘇格蘭環保署 SEPA": "SEPA (Scotland)",
+  "param.北愛環境署 NIEA": "NIEA (Northern Ireland)",
+  "param.噪音來源": "Noise source",
+  "param.鐵路": "Rail"
 }
