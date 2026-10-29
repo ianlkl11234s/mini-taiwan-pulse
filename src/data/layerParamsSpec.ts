@@ -1943,6 +1943,21 @@ export const LAYER_PARAMS_SPEC = {
   gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
   gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
   gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],
+  // 英國第 5 波：自然與林業（保護區含「類別」選項；點層透明度＋大小；面／線透明度）
+  gbProtectedAreas: [
+    opacitySlider("gbProtectedAreasOpacity", 0.45),
+    {
+      kind: "select", category: "data", name: "gbProtectedAreasGroup", label: "類別", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "景觀類", value: "landscape" }, { label: "國內法保護區", value: "domestic" }, { label: "國際指定", value: "international" }],
+      out: "gbProtectedAreasGroupIdx", encode: ["all", "landscape", "domestic", "international"],
+    },
+  ],
+  gbMarineProtectedAreas: [opacitySlider("gbMarineProtectedAreasOpacity", 0.5)],
+  gbWoodland: [opacitySlider("gbWoodlandOpacity", 0.7)],
+  gbForestRecreation: [opacitySlider("gbForestRecreationOpacity", densePointOpacity(24_487)), scaleSlider("gbForestRecreationScale", 1)],
+  gbTrails: [opacitySlider("gbTrailsOpacity", 0.85)],
+  gbOpenAccessLand: [opacitySlider("gbOpenAccessLandOpacity", 0.6)],
+  gbTreeProtection: [opacitySlider("gbTreeProtectionOpacity", 0.7), scaleSlider("gbTreeProtectionScale", 1)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

@@ -90,5 +90,12 @@
   "legend.maritime.allenTitleCoral": "珊瑚／藻類棲地",
   "legend.maritime.allenTitleBenthic": "淺海棲地分類",
   "legend.maritime.allenTitleGeo": "礁體地形分區",
-  "legend.maritime.allenAcquired": "取得日：{date}（非觀測日）；來源完整要素面積未裁切，不可作研究區總面積。"
+  "legend.maritime.allenAcquired": "取得日：{date}（非觀測日）；來源完整要素面積未裁切，不可作研究區總面積。",
+  "legend.maritime.gbMpaMcz": "海洋保育區（MCZ）",
+  "legend.maritime.gbMpaNcmpa": "自然保育 MPA（蘇格蘭）",
+  "legend.maritime.gbMpaDrmpa": "示範研究 MPA（Fair Isle）",
+  "legend.maritime.gbMpaWales": "威爾斯：未涵蓋（Skomer MCZ 無開放圖層）",
+  "legend.maritime.gbMpaHpma": "英格蘭高度保護海洋區（HPMA）：授權未確認，未收",
+  "legend.maritime.gbMpaSacSpa": "含海域的 SAC／SPA 見「保護區」圖層",
+  "legend.maritime.gbMpaNav": "不可用於航行"
 }

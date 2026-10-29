@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1370,
+    "keyCount": 1377,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1341,6 +1341,26 @@
     },
     {
       "layers": [
+        "gb-tpo-circle"
+      ],
+      "type": "gbTreeProtection"
+    },
+    {
+      "layers": [
+        "gb-forest-recreation-circle",
+        "gb-forest-recreation-signage-circle"
+      ],
+      "type": "gbForestRecreation"
+    },
+    {
+      "layers": [
+        "gb-trails-national-line",
+        "gb-trails-forest-line"
+      ],
+      "type": "gbTrails"
+    },
+    {
+      "layers": [
         "gb-london-stations-circle"
       ],
       "type": "gbLondonStations"
@@ -1424,6 +1444,39 @@
         "gb-london-charging-zones-fill"
       ],
       "type": "gbLondonChargingZones"
+    },
+    {
+      "layers": [
+        "gb-tpo-fill",
+        "gb-ancient-woodland-fill"
+      ],
+      "type": "gbTreeProtection"
+    },
+    {
+      "layers": [
+        "gb-open-access-land-fill"
+      ],
+      "type": "gbOpenAccessLand"
+    },
+    {
+      "layers": [
+        "gb-woodland-fill"
+      ],
+      "type": "gbWoodland"
+    },
+    {
+      "layers": [
+        "gb-marine-protected-areas-line",
+        "gb-marine-protected-areas-fill"
+      ],
+      "type": "gbMarineProtectedAreas"
+    },
+    {
+      "layers": [
+        "gb-protected-areas-line",
+        "gb-protected-areas-fill"
+      ],
+      "type": "gbProtectedAreas"
     },
     {
       "layers": [
@@ -90316,6 +90369,26 @@
         "valueText": "0.85"
       }
     ],
+    "gbForestRecreation": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbGreenspace": [
       {
         "label": "透明度 0.70",
@@ -90429,6 +90502,17 @@
         "valueText": "1.0"
       }
     ],
+    "gbMarineProtectedAreas": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
     "gbMaritimeLimits": [
       {
         "label": "透明度 0.85",
@@ -90438,6 +90522,51 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "gbOpenAccessLand": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
+    "gbProtectedAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "景觀類",
+            "value": "landscape"
+          },
+          {
+            "label": "國內法保護區",
+            "value": "domestic"
+          },
+          {
+            "label": "國際指定",
+            "value": "international"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
       }
     ],
     "gbRivers": [
@@ -90508,6 +90637,17 @@
         "valueText": "1.0"
       }
     ],
+    "gbTrails": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "gbTransportHubs": [
       {
         "label": "透明度 0.80",
@@ -90526,6 +90666,37 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "gbTreeProtection": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbWoodland": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "geothermalWells": [

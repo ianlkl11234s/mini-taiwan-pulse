@@ -37,5 +37,11 @@
   "popup.marine.historyError": "Failed to load historical observations. Please try again later.",
   "popup.marine.datumConflict": "The history contains multiple vertical datums ({datums}); to avoid misleading comparisons, this chart does not merge them.",
   "popup.marine.noWindowData": "No valid values in this time window; missing/invalid values are not filled with 0.",
-  "popup.marine.excluded": "{n} row(s) with missing, invalid or mismatched datum values were left out of the curve and not converted to 0."
+  "popup.marine.excluded": "{n} row(s) with missing, invalid or mismatched datum values were left out of the curve and not converted to 0.",
+  "popup.marine.gbMpaTitle": "Marine protected area",
+  "popup.marine.gbMpaType": "Type",
+  "popup.marine.gbMpaLead": "Lead body",
+  "popup.marine.gbMpaArea": "Area",
+  "popup.marine.gbMpaStatus": "Status",
+  "popup.marine.gbMpaNav": "Not to be used for navigation"
 }

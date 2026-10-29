@@ -185,6 +185,10 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/hooks/useGbWaterLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/hooks/useGbWaterLayers.ts
   "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/hooks/useGbTransportLayers.ts
+  "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useGbNatureLayers.ts
+  "gbTrails/gb-trails-national-line": {"width": "emphasis", "opacity": "standard"}, // 國家步道（粗線，比照 hikingTrails）· src/hooks/useGbNatureLayers.ts
+  "gbTrails/gb-trails-forest-line": {"width": "standard", "opacity": "standard"}, // 公有林步道依 category 分色 · src/hooks/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-line": {"width": "standard", "opacity": "standard"}, // 收費區外框 · src/hooks/useGbTransportLayers.ts
   "jpAirports/jp-airports-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAirportsLayer.ts
   "jpCareCombined/jp-medical-care-aggregate-outline": {"width": "keep", "opacity": "keep", "outline": "graded"}, // src/hooks/useJpMedicalLayers.ts
@@ -282,6 +286,12 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
+  "gbProtectedAreas/gb-protected-areas-fill": "keep", // 透明度：景觀類淡化（資料編碼）· src/hooks/useGbNatureLayers.ts
+  "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/hooks/useGbNatureLayers.ts
+  "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
+  "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
+  "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbLondonChargingZones/gb-london-charging-zones-fill": "coverage", // src/hooks/useGbTransportLayers.ts
   "jpInlandFloodAreas/jp-inland-flood-areas-fill": "graded", // src/hooks/useJpInlandFloodAreasLayer.ts
   "jpLandslideWarningAreas/jp-landslide-warning-areas-fill": "coverage", // src/hooks/useJpLandslideWarningAreasLayer.ts

@@ -328,6 +328,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "水資源",
     // 第 4 波：交通（樞紐、站客流、倫敦軌道、單車、攝影機、收費區）
     "交通",
+    // 第 5 波：環境氣候（保護區、樹木保護）、林業（林地、森林遊憩、步道、開放進入地）
+    "環境氣候",
+    "林業",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2587,6 +2590,8 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [
       // 第 3 波 C095：比照台灣 beachWaterQuality 的「海洋 › 海域環境」
       { title: "海域環境", layers: [fromManifest("gbBathingWaters")] },
+      // 第 5 波 C097：比照台灣 natureReserves／marineWildlifeAreas 的「海洋 › 海域保護與漁業」
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("gbMarineProtectedAreas")] },
     ],
   },
   {
@@ -2610,6 +2615,29 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "路網", layers: [fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
       { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
       { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
+    ],
+  },
+  {
+    // 第 5 波：保護區放「環境氣候」（主 agent 決定；台灣無完全對應，自成「保護區」群）；
+    // 樹木保護比照台灣 protectedTreesNational 的「環境氣候 › 都市樹木」（本層另含古老林地）
+    title: "環境氣候",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "保護區", layers: [fromManifest("gbProtectedAreas")] },
+      { title: "都市樹木 Urban Trees", layers: [fromManifest("gbTreeProtection")] },
+    ],
+  },
+  {
+    // 第 5 波：比照台灣「林業 Forestry」——forestCompartments（分區）、forestTrailSigns（點位）、hikingTrails（線）；
+    // 開放進入地台灣無同類，與步道同屬戶外通行，放「分區」（面）
+    title: "林業",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "分區", layers: [fromManifest("gbWoodland"), fromManifest("gbOpenAccessLand")] },
+      { title: "點位", layers: [fromManifest("gbForestRecreation")] },
+      { title: "線", layers: [fromManifest("gbTrails")] },
     ],
   },
 
@@ -2729,6 +2757,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "海洋": "environment",
     "水資源": "environment",
     "交通": "city",
+    "環境氣候": "environment",
+    "林業": "environment",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2872,6 +2902,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "海洋": { zh: "海洋", sub: "Marine" },
     "水資源": { zh: "水資源", sub: "Water" },
     "交通": { zh: "交通", sub: "Transport" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "林業": { zh: "林業", sub: "Forestry" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

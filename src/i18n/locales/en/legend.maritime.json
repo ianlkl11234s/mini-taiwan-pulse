@@ -90,5 +90,12 @@
   "legend.maritime.allenTitleCoral": "Coral / algae habitat",
   "legend.maritime.allenTitleBenthic": "Shallow-water benthic classes",
   "legend.maritime.allenTitleGeo": "Reef geomorphic zones",
-  "legend.maritime.allenAcquired": "Acquired on {date} (not the observation date); the full source feature area is not clipped and cannot be used as the study-area total."
+  "legend.maritime.allenAcquired": "Acquired on {date} (not the observation date); the full source feature area is not clipped and cannot be used as the study-area total.",
+  "legend.maritime.gbMpaMcz": "Marine Conservation Zone",
+  "legend.maritime.gbMpaNcmpa": "Nature Conservation MPA (Scotland)",
+  "legend.maritime.gbMpaDrmpa": "Demonstration & Research MPA (Fair Isle)",
+  "legend.maritime.gbMpaWales": "Wales: not covered (no open layer for Skomer MCZ)",
+  "legend.maritime.gbMpaHpma": "England's Highly Protected Marine Areas: licence unconfirmed, not included",
+  "legend.maritime.gbMpaSacSpa": "SACs/SPAs with marine parts are in the \"Protected Areas\" layer",
+  "legend.maritime.gbMpaNav": "Not to be used for navigation"
 }

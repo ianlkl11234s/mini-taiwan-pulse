@@ -38,6 +38,7 @@ import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, Fr
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { AgriCompanyLegend, AgriPOILegend, CommonRegistrationAddressesLegend, CompanyAgeStructureLegend, CompanyCapitalGridLegend, CompanyIndustryDistributionLegend, CompanyPointsLegend, CropSuitabilityLegend, FactoryLocationsLegend, ForestryLegend, IndustrialDensityGridLegend, IndustrialParkBoundariesLegend, IndustrialParkComparisonLegend, LivestockFacilityLegend, LivestockFarmLegend, RegulatedFacilitiesLegend, SoilFertilityLegend } from "./legend/agriIndustryLegends";
 import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalErosionRiskLegend, GbFloodDefenceAssetsLegend, GbHydroStationsLegend, GbRiversLegend, GroundwaterLegend, IotRiverLegend, IotStructureLegend, JpWaterFloodHazardLegend, JpWaterLegend, LakesPondsLegend, RainGaugeLegend, ReservoirStatusLegend, ReservoirStaticLegend, RiverLevelLegend, RiverRpiStationsLegend, SewageTreatmentPlantsLegend, TaipeiEvacuateLegend, TaipeiPumbLegend, TaipeiSewerLegend, WaterCanalLegend, WaterFacilityLegend, WaterFloodExtremeLegend, WaterMonitorStationLegend, WaterProtectionZoneLegend, WaterQualityStationsLegend } from "./legend/waterLegends";
+import { GbForestRecreationLegend, GbMarineProtectedAreasLegend, GbOpenAccessLandLegend, GbProtectedAreasLegend, GbTrailsLegend, GbTreeProtectionLegend, GbWoodlandLegend } from "./legend/gbNatureLegends";
 import { GbLondonBikePointsLegend, GbLondonChargingZonesLegend, GbLondonJamCamsLegend, GbLondonRailLinesLegend, GbLondonStationsLegend, GbStationUsageLegend, GbTransportHubsLegend } from "./legend/gbTransportLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
@@ -289,6 +290,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbLondonBikePoints", render: () => <GbLondonBikePointsLegend /> },
   { id: "gbLondonJamCams", render: () => <GbLondonJamCamsLegend /> },
   { id: "gbLondonChargingZones", render: () => <GbLondonChargingZonesLegend /> },
+  { id: "gbProtectedAreas", render: () => <GbProtectedAreasLegend /> },
+  { id: "gbMarineProtectedAreas", render: () => <GbMarineProtectedAreasLegend /> },
+  { id: "gbWoodland", render: () => <GbWoodlandLegend /> },
+  { id: "gbForestRecreation", render: () => <GbForestRecreationLegend /> },
+  { id: "gbTrails", render: () => <GbTrailsLegend /> },
+  { id: "gbOpenAccessLand", render: () => <GbOpenAccessLandLegend /> },
+  { id: "gbTreeProtection", render: () => <GbTreeProtectionLegend /> },
   { id: "jmaAmedas", render: () => <JmaAmedasLegend /> },
   { id: "jmaWarnings", render: () => <JmaWarningsLegend /> },
   { id: "jmaQuakes", render: () => <JmaQuakesLegend /> },
