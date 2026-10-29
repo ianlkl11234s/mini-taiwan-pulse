@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1363,
+    "keyCount": 1370,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1341,6 +1341,42 @@
     },
     {
       "layers": [
+        "gb-london-stations-circle"
+      ],
+      "type": "gbLondonStations"
+    },
+    {
+      "layers": [
+        "gb-london-jamcams-circle"
+      ],
+      "type": "gbLondonJamCams"
+    },
+    {
+      "layers": [
+        "gb-london-bikepoints-circle"
+      ],
+      "type": "gbLondonBikePoints"
+    },
+    {
+      "layers": [
+        "gb-station-usage-circle"
+      ],
+      "type": "gbStationUsage"
+    },
+    {
+      "layers": [
+        "gb-transport-hubs-circle"
+      ],
+      "type": "gbTransportHubs"
+    },
+    {
+      "layers": [
+        "gb-london-rail-lines-line"
+      ],
+      "type": "gbLondonRailLines"
+    },
+    {
+      "layers": [
         "gb-hydro-stations-circle"
       ],
       "type": "gbHydroStations"
@@ -1381,6 +1417,13 @@
         "gb-greenspace-burial-fill"
       ],
       "type": "gbCemeteries"
+    },
+    {
+      "layers": [
+        "gb-london-charging-zones-line",
+        "gb-london-charging-zones-fill"
+      ],
+      "type": "gbLondonChargingZones"
     },
     {
       "layers": [
@@ -90304,6 +90347,88 @@
         "valueText": "1.0"
       }
     ],
+    "gbLondonBikePoints": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbLondonChargingZones": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "gbLondonJamCams": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbLondonRailLines": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "gbLondonStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbMaritimeLimits": [
       {
         "label": "透明度 0.85",
@@ -90361,6 +90486,46 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "gbStationUsage": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbTransportHubs": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "geothermalWells": [

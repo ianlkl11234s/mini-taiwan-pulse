@@ -3975,7 +3975,7 @@ export const LAYER_MANIFEST = {
       staticAssets: ["./world/gb_transport_hubs.pmtiles"],
     },
     legend: "gbStationUsage",
-    popup: "gbTransportHubs",
+    popup: "gbStationUsage",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "大不列顛國鐵車站 2024-25 年進出站人次（ORR），依人次分 5 級",
     topics: ["英國", "車站", "鐵路", "客流", "運量", "交通"],
