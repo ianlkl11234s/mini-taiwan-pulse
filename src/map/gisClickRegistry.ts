@@ -304,6 +304,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-maritime-limits-line", "gb-maritime-limits-dashed", "gb-maritime-limits-closing"], type: "gbMaritimeLimits" },
   { layers: ["gb-greenspace-park-fill"], type: "gbGreenspace" },
   // 英國第 3 波：點（測站、浴場）→ 線（防洪、北愛侵蝕風險、河川）→ 侵蝕面，都排在建成區、行政界前面
+  // 英國第 4 波：倫敦車站排在樞紐前（King's Cross 等共站），點 → 線 → 收費區大面
+  { layers: ["gb-london-stations-circle"], type: "gbLondonStations" },
+  { layers: ["gb-london-jamcams-circle"], type: "gbLondonJamCams" },
+  { layers: ["gb-london-bikepoints-circle"], type: "gbLondonBikePoints" },
+  { layers: ["gb-station-usage-circle"], type: "gbStationUsage" },
+  { layers: ["gb-transport-hubs-circle"], type: "gbTransportHubs" },
+  { layers: ["gb-london-rail-lines-line"], type: "gbLondonRailLines" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
   { layers: ["gb-flood-defences-line"], type: "gbFloodDefenceAssets" },
@@ -311,6 +318,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-rivers-line"], type: "gbRivers" },
   { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
   { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
+  { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },
   { layers: ["gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
   { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },

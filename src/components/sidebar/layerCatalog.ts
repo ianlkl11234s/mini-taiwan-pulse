@@ -326,6 +326,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "災害",
     "海洋",
     "水資源",
+    // 第 4 波：交通（樞紐、站客流、倫敦軌道、單車、攝影機、收費區）
+    "交通",
     // 英國統計（完整目錄；統計分頁另有「人口／社經／住宅」，見 GB_STATISTICS_TAB_THEMES）
     ...GB_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2597,6 +2599,19 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "面 / 線", layers: [fromManifest("gbRivers"), fromManifest("gbFloodDefenceAssets")] },
     ],
   },
+  {
+    // 第 4 波：群組比照台灣「交通 Move」——stationsMetro／bikeStations（場站）、railRoutes／cctv（路網）、ports／airports（樞紐節點）；
+    // 收費區台灣無同類，自成「收費與低排放區」
+    title: "交通",
+    country: "GB",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("gbLondonStations"), fromManifest("gbStationUsage"), fromManifest("gbLondonBikePoints")] },
+      { title: "路網", layers: [fromManifest("gbLondonRailLines"), fromManifest("gbLondonJamCams")] },
+      { title: "樞紐節點", layers: [fromManifest("gbTransportHubs")] },
+      { title: "收費與低排放區", layers: [fromManifest("gbLondonChargingZones")] },
+    ],
+  },
 
 ];
 
@@ -2713,6 +2728,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "災害": "safety",
     "海洋": "environment",
     "水資源": "environment",
+    "交通": "city",
     // 英國統計（完整目錄）：同台灣「人口統計」「住宅存量與使用」歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -2855,6 +2871,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "災害": { zh: "災害", sub: "Hazard" },
     "海洋": { zh: "海洋", sub: "Marine" },
     "水資源": { zh: "水資源", sub: "Water" },
+    "交通": { zh: "交通", sub: "Transport" },
     // 英國統計：完整目錄三個、統計分頁三個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },

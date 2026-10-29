@@ -427,6 +427,7 @@ export type ExpandableLayerKey =
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
+  | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
   | "jmaLightning" | "jmaWbgt" | "jmaSnowcap" | "jmaAutumnLeaves" | "jmaSakura" | "jmaRainySeason";
 
@@ -961,6 +962,8 @@ export interface FeatureInfo {
     | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
     // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
     | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
+    // 英國第 4 波：交通樞紐、站客流、倫敦軌道線／站、單車站、道路攝影機、收費區
+    | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
     // 日本氣象廳即時 4 層
     | "jmaAmedas" | "jmaWarnings" | "jmaQuakes" | "jmaVolcanoes"
     // 日本氣象廳／環境省 時間軸點位與區域（P4）
@@ -1766,6 +1769,13 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbFloodDefenceAssets: boolean; // 英國防洪設施（EA＋NRW＋Dynamic Coast，PMTiles line 145,958 段）
   gbCoastalErosionRisk: boolean; // 英國海岸侵蝕（NCERM／Dynamic Coast 面＋北愛風險線，88,793）
   gbBathingWaters: boolean;     // 英國浴場（EA／NRW／SEPA／DAERA，PMTiles point 724）
+  gbTransportHubs: boolean;     // 英國交通樞紐（NaPTAN＋Translink，PMTiles point 3,281）
+  gbStationUsage: boolean;      // 英國車站年進出人次（ORR 2024-25，同檔 rail 2,638）
+  gbLondonRailLines: boolean;   // 倫敦軌道路線（TfL，20 線）
+  gbLondonStations: boolean;    // 倫敦軌道車站（TfL，457 站）
+  gbLondonBikePoints: boolean;  // 倫敦 Santander Cycles 站（TfL，798）
+  gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
+  gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
   jpInlandFloodAreas: boolean;  // 日本內水浸水想定區域（PMTiles polygon，202,357 面；28 市町村、想定最大規模）
   jmaAmedas: boolean;     // 日本 AMeDAS 即時觀測（public.jma_amedas_current）
   jmaWarnings: boolean;   // 日本警報・注意報（市町村界 choropleth）

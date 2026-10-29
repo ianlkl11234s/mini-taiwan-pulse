@@ -22,6 +22,14 @@ import {
   gbBathingClass, gbErosionZoneDef, gbFloodDefenceClass, type GbBathingClass, type GbFloodDefenceClass, type GbHydroKind,
   type GbNation, type GbRiverForm,
 } from "../../data/gbWaterTypes";
+import {
+  GB_BIKEPOINT_COLOR, GB_CHARGING_ZONE_COLOR, GB_HUB_FALLBACK_COLOR, GB_HUBS_ATTRIBUTION, GB_HUBS_NAPTAN_URL, GB_HUBS_TRANSLINK_URL,
+  GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR, GB_LONDON_RAIL_FALLBACK_COLOR, GB_LONDON_STATION_COLOR, GB_ORR_LICENSE_PDF_URL, GB_ORR_PERIOD,
+  GB_TFL_BIKEPOINT_URL, GB_TFL_JAMCAM_URL, GB_TFL_LICENSE, GB_TFL_LINES_URL, GB_TFL_MAP_ATTRIBUTION,
+  GB_TFL_OPEN_DATA_URL, GB_TRANSPORT_FETCHED_AT, GB_TRANSPORT_OGL_V3, gbChargingZone, gbHubType, gbLondonRailMode,
+  gbLondonStationIsInterchange, type GbChargingZone, type GbHubType, type GbLondonRailMode,
+} from "../../data/gbTransportTypes";
+import { LinkRow } from "./atlasPanels";
 import type { MessageKey } from "../../i18n/keys";
 
 const text = (value: unknown) => (value == null ? "" : String(value).trim());
@@ -340,5 +348,146 @@ export function GbBathingWatersPanel({ props }: { props: Record<string, unknown>
     <Row label={t("popup.baseMap.gbNation")} value={nation(props.nation)} />
     {props.precision === "polygon_centroid" ? <Row label={t("popup.water.gbPrecision")} value={t("popup.water.gbBathingCentroid")} /> : null}
     {src ? <SourceFooter props={{ source_org: src.attribution, source_url: text(props.url) || src.url, license: GB_OGL_V3, fetched_at: GB_WATER_FETCHED_AT }} /> : null}
+  </>;
+}
+
+// ─────────────────────────── 英國第 4 波：交通 ───────────────────────────
+
+const num = (value: unknown): number | null => {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
+
+const GB_HUB_TYPE_KEYS: Record<GbHubType, MessageKey> = {
+  rail: "popup.transport.gbHubRail", airport: "popup.transport.gbHubAirport", ferry: "popup.transport.gbHubFerry",
+  bus_station: "popup.transport.gbHubBusStation", interchange: "popup.transport.gbHubInterchange",
+};
+
+/** TfL 四層共用 footer：三句署名（逐字）＋條款頁；另列「倫敦限定」涵蓋。 */
+function TflFooter({ url }: { url: string }) {
+  const { t } = useLocale();
+  return <>
+    <Row label={t("popup.transport.gbCoverage")} value={t("popup.transport.gbLondonOnly")} />
+    <SourceFooter props={{ source_org: GB_TFL_MAP_ATTRIBUTION, source_url: url, license: GB_TFL_LICENSE, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
+  </>;
+}
+
+/** 英國交通樞紐（NaPTAN＋Translink）；鐵路站附 ORR 2024-25 客流。null 顯示「無 ORR 統計」，北愛顯示「ORR 未涵蓋」，不顯示 0。 */
+export function GbTransportHubsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const nation = useNationLabel();
+  const type = gbHubType(props.hub_type);
+  const isRail = props.hub_type === "rail";
+  const isNi = props.nation === "Northern Ireland";
+  const entries = num(props.entries_exits);
+  const rank = num(props.usage_rank);
+  const interchanges = num(props.interchanges);
+  const usage = isNi ? t("popup.transport.gbUsageNiNotCovered")
+    : entries == null ? t("popup.transport.gbUsageNoOrr")
+      : t("popup.transport.gbEntriesExitsValue", { n: i18n.formatNumber(entries), period: GB_ORR_PERIOD });
+  const ferryClass = props.ferry_class === "terminal" ? t("popup.transport.gbFerryTerminal")
+    : props.ferry_class === "landing" ? t("popup.transport.gbFerryLanding") : "";
+  return <>
+    <Title color={type?.color ?? GB_HUB_FALLBACK_COLOR}>{text(props.name) || t("popup.transport.gbHub")}</Title>
+    <Row label={t("popup.transport.gbHubType")} value={type ? t(GB_HUB_TYPE_KEYS[type.value]) : text(props.hub_type)} />
+    {ferryClass ? <Row label={t("popup.transport.gbFerryClass")} value={ferryClass} /> : null}
+    <Row label={t("popup.transport.gbNation")} value={nation(props.nation)} />
+    <Row label={t("popup.transport.gbLad")} value={text(props.lad_name)} />
+    {isRail ? <>
+      <Row label={t("popup.transport.gbCrs")} value={text(props.crs)} mono />
+      <Row label={t("popup.transport.gbEntriesExits")} value={usage} />
+      {entries != null && rank != null ? <Row label={t("popup.transport.gbUsageRank")} value={t("popup.transport.gbUsageRankValue", { n: i18n.formatNumber(rank) })} /> : null}
+      {entries != null && interchanges != null ? <Row label={t("popup.transport.gbInterchanges")} value={i18n.formatNumber(interchanges)} /> : null}
+      <Row label={t("popup.transport.gbMainOd")} value={text(props.main_od_station)} />
+      <Row label={t("popup.transport.gbFacilityOwner")} value={text(props.facility_owner)} />
+      <Row label={t("popup.transport.gbUsageNote")} value={text(props.usage_note)} />
+      {!isNi ? <>
+        <Row label={t("popup.transport.gbOrrLicense")} value={t("popup.transport.gbOrrLicenseNote")} />
+        <LinkRow label={t("popup.transport.gbOrrLicensePdf")} url={GB_ORR_LICENSE_PDF_URL} />
+      </> : null}
+    </> : null}
+    <SourceFooter props={{ source_org: GB_HUBS_ATTRIBUTION, source_url: props.source === "translink" ? GB_HUBS_TRANSLINK_URL : GB_HUBS_NAPTAN_URL, license: GB_TRANSPORT_OGL_V3, fetched_at: GB_TRANSPORT_FETCHED_AT }} />
+  </>;
+}
+
+/** 車站年進出人次：與樞紐同一份資料、同一個 popup。 */
+export const GbStationUsagePanel = GbTransportHubsPanel;
+
+const GB_RAIL_MODE_KEYS: Record<GbLondonRailMode, MessageKey> = {
+  tube: "popup.transport.gbModeTube", overground: "popup.transport.gbModeOverground", "elizabeth-line": "popup.transport.gbModeElizabeth",
+  dlr: "popup.transport.gbModeDlr", tram: "popup.transport.gbModeTram",
+};
+
+/** 倫敦軌道路線（TfL）：線名、運具。線色依運具，非官方線色。 */
+export function GbLondonRailLinesPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const mode = gbLondonRailMode(props.mode);
+  return <>
+    <Title color={mode?.color ?? GB_LONDON_RAIL_FALLBACK_COLOR}>{text(props.line_name) || t("popup.transport.gbRailMode")}</Title>
+    <Row label={t("popup.transport.gbRailMode")} value={mode ? t(GB_RAIL_MODE_KEYS[mode.value]) : text(props.mode)} />
+    <Row label="" value={t("popup.transport.gbRailColorNote")} />
+    <TflFooter url={GB_TFL_LINES_URL} />
+  </>;
+}
+
+/** 倫敦軌道車站（TfL）：站名、經過路線、票價區、轉乘站。 */
+export function GbLondonStationsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  return <>
+    <Title color={GB_LONDON_STATION_COLOR}>{text(props.name) || t("popup.transport.gbStation")}</Title>
+    <Row label={t("popup.transport.gbStationLines")} value={text(props.line_names)} />
+    <Row label={t("popup.transport.gbFareZone")} value={text(props.zone)} />
+    {gbLondonStationIsInterchange(props) ? <Row label={t("popup.transport.gbInterchangeStation")} value={t("popup.transport.gbYes")} /> : null}
+    <TflFooter url={GB_TFL_LINES_URL} />
+  </>;
+}
+
+/** 倫敦 Santander Cycles 站（TfL BikePoint）：樁數、啟用日、臨時站；不含即時空位。 */
+export function GbLondonBikePointsPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const docks = num(props.docks);
+  return <>
+    <Title color={GB_BIKEPOINT_COLOR}>{text(props.name) || t("legend.transport.gbBikePoint")}</Title>
+    <Row label={t("popup.transport.gbDocks")} value={docks == null ? "" : i18n.formatNumber(docks)} />
+    <Row label={t("popup.transport.gbInstallDate")} value={text(props.install_date)} />
+    {props.temporary === true ? <Row label={t("popup.transport.gbTemporary")} value={t("popup.transport.gbYes")} /> : null}
+    <Row label={t("popup.transport.gbLiveAvailability")} value={t("popup.transport.gbNotYetProvided")} />
+    <TflFooter url={GB_TFL_BIKEPOINT_URL} />
+  </>;
+}
+
+/** 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態（非即時）、外連影像（不嵌入、不代理）。 */
+export function GbLondonJamCamsPanel({ props }: { props: Record<string, unknown> }) {
+  const { t } = useLocale();
+  const offline = props.available_at_fetch === false;
+  return <>
+    <Title color={offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
+    <Row label={t("popup.transport.gbCameraView")} value={text(props.view)} />
+    <Row label={t("popup.transport.gbCameraStatus")} value={t(offline ? "popup.transport.gbCameraOfflineAtFetch" : "popup.transport.gbCameraOnlineAtFetch", { date: GB_TRANSPORT_FETCHED_AT })} />
+    <LinkRow label={t("popup.transport.gbCameraImage")} url={text(props.image_url)} />
+    <LinkRow label={t("popup.transport.gbCameraVideo")} url={text(props.video_url)} />
+    <TflFooter url={GB_TFL_JAMCAM_URL} />
+  </>;
+}
+
+const GB_ZONE_KEYS: Record<GbChargingZone, MessageKey> = {
+  congestion_charge: "popup.transport.gbZoneCongestion", ulez_lez: "popup.transport.gbZoneUlezLez",
+};
+
+/** 倫敦收費區（TfL）：區名（i18n，不用來源混語 name）、面積、邊界版本。 */
+export function GbLondonChargingZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const zone = gbChargingZone(props.zone);
+  const area = num(props.area_km2);
+  return <>
+    <Title color={zone?.color ?? GB_CHARGING_ZONE_COLOR}>{zone ? t(GB_ZONE_KEYS[zone.value]) : text(props.zone)}</Title>
+    <Row label={t("popup.transport.gbZoneArea")} value={area == null ? "" : t("popup.transport.gbZoneAreaValue", { n: i18n.formatNumber(area, { maximumFractionDigits: 2 }) })} />
+    <Row label={t("popup.transport.gbBoundaryVersion")} value={text(props.boundary_version)} />
+    <Row label="" value={t("popup.transport.gbZoneTfLNote")} />
+    <TflFooter url={GB_TFL_OPEN_DATA_URL} />
   </>;
 }

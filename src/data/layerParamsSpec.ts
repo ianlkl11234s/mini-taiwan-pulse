@@ -1935,6 +1935,14 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   gbBathingWaters: [opacitySlider("gbBathingWatersOpacity", 0.85), scaleSlider("gbBathingWatersScale", 1)],
+  // 英國第 4 波：交通（樞紐、站客流、倫敦軌道線／站、單車站、攝影機為點／線透明度＋點大小；收費區面透明度）
+  gbTransportHubs: [opacitySlider("gbTransportHubsOpacity", densePointOpacity(3_281)), scaleSlider("gbTransportHubsScale", 1)],
+  gbStationUsage: [opacitySlider("gbStationUsageOpacity", densePointOpacity(2_638)), scaleSlider("gbStationUsageScale", 1)],
+  gbLondonRailLines: [opacitySlider("gbLondonRailLinesOpacity", 0.85)],
+  gbLondonStations: [opacitySlider("gbLondonStationsOpacity", 0.85), scaleSlider("gbLondonStationsScale", 1)],
+  gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
+  gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
+  gbLondonChargingZones: [opacitySlider("gbLondonChargingZonesOpacity", 0.7)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {

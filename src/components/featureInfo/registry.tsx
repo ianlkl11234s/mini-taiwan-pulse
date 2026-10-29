@@ -64,7 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbAdminBoundariesPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbGreenspacePanel, GbHydroStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel } from "./ukPanels";
+import { GbAdminBoundariesPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbGreenspacePanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
@@ -437,6 +437,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbFloodDefenceAssets: GbFloodDefenceAssetsPanel,
   gbCoastalErosionRisk: GbCoastalErosionRiskPanel,
   gbBathingWaters: GbBathingWatersPanel,
+  gbTransportHubs: GbTransportHubsPanel,
+  gbStationUsage: GbStationUsagePanel,
+  gbLondonRailLines: GbLondonRailLinesPanel,
+  gbLondonStations: GbLondonStationsPanel,
+  gbLondonBikePoints: GbLondonBikePointsPanel,
+  gbLondonJamCams: GbLondonJamCamsPanel,
+  gbLondonChargingZones: GbLondonChargingZonesPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -995,6 +1002,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbFloodDefenceAssets: "防洪設施 Flood Defences",
   gbCoastalErosionRisk: "海岸侵蝕風險 Coastal Erosion",
   gbBathingWaters: "浴場水質 Bathing Waters",
+  gbTransportHubs: "交通樞紐 Transport Hubs",
+  gbStationUsage: "車站年進出人次 Station Usage",
+  gbLondonRailLines: "倫敦軌道路線 London Rail Lines",
+  gbLondonStations: "倫敦軌道車站 London Rail Stations",
+  gbLondonBikePoints: "倫敦公共自行車 Santander Cycles",
+  gbLondonJamCams: "倫敦道路攝影機 TfL JamCams",
+  gbLondonChargingZones: "倫敦收費與低排放區 Charging Zones",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",

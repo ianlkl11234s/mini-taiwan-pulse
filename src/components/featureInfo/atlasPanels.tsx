@@ -84,7 +84,7 @@ function isHttpUrl(value: string): boolean {
 }
 
 /** 外部連結列：只有 http(s) 才渲染成 <a>；其他（空值、非網址）退回純文字／不顯示。 */
-function LinkRow({ label, url }: { label: string; url: string }) {
+export function LinkRow({ label, url }: { label: string; url: string }) {
   const theme = useFeatureTheme();
   if (!url) return null;
   if (!isHttpUrl(url)) return <Row label={label} value={url} mono />;
