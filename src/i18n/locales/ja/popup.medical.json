@@ -19,5 +19,9 @@
   "popup.medical.informFlag": "通報フラグ (inform)",
   "popup.medical.trend": "24時間の一般病床待ちの推移",
   "popup.medical.bedGap": "病床不足",
-  "popup.medical.severe": "深刻"
+  "popup.medical.severe": "深刻",
+  "popup.medical.emergencyHospital": "救急責任病院",
+  "popup.medical.emergencyLevel": "等級",
+  "popup.medical.emergencyUnratedNote": "出典に等級の記載がありません。指定病院でないという意味ではありません。",
+  "popup.medical.emergencyDataNote": "データは {asOf} 時点のスナップショット。等級は県市オープンデータと衛生福利部名簿に基づき、その後変更されている可能性があります。"
 }

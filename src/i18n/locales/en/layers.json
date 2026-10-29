@@ -746,6 +746,7 @@
   "layer.propertyValueAdmin": "Total Property Value by District",
   "layer.propertyValueGrid": "Total Property Value Grid",
   "layer.medHospital": "Hospitals",
+  "layer.emergencyHospitals": "Emergency Responsibility Hospitals (Graded)",
   "layer.medClinic": "Clinics & Other Medical Facilities",
   "layer.medPharmacy": "Pharmacies",
   "layer.medAED": "AED Locations",

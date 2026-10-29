@@ -18,17 +18,17 @@
   ]
  },
  "summary": {
-  "layerKeys": 1350,
-  "overlayConfigs": 406,
-  "runtimeSublayers": 763,
+  "layerKeys": 1351,
+  "overlayConfigs": 407,
+  "runtimeSublayers": 764,
   "byResolution": {
-   "runtime": 381,
+   "runtime": 382,
    "static-scan": 200,
    "unresolved": 34,
    "shared-renderer": 735
   },
   "byGeometry": {
-   "point": 414,
+   "point": 415,
    "heatmap": 84,
    "line": 232,
    "polygon": 936,
@@ -43,11 +43,11 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 5
   },
-  "legendEntries": 1098,
+  "legendEntries": 1099,
   "legendTypes": {
    "square-swatch": 64,
    "svg-icon": 20,
-   "dot-swatch": 155,
+   "dot-swatch": 156,
    "gradient+dot-swatch": 42,
    "square-swatch+hatch(missing)": 737,
    "gradient+size+dot-swatch": 3,
@@ -66,7 +66,7 @@
    "square-swatch+svg-icon": 1
   },
   "legendResolution": {
-   "ssr": 331,
+   "ssr": 332,
    "static": 767
   },
   "legendsWithIssues": 39,
@@ -99,14 +99,14 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 266,
+    "n": 267,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
     "p75": 5.143,
     "max": 15.3,
     "mostCommon": [
-     "4.5×131",
+     "4.5×132",
      "5.143×32",
      "3×25",
      "6.5×14",
@@ -121,14 +121,14 @@
     "decorationExcluded": 138
    },
    "circle-radius@z14": {
-    "n": 266,
+    "n": 267,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
     "p75": 6,
     "max": 24.48,
     "mostCommon": [
-     "4.5×133",
+     "4.5×134",
      "6×35",
      "3×25",
      "6.5×15",
@@ -143,14 +143,14 @@
     "decorationExcluded": 138
    },
    "circle-stroke-width@z14": {
-    "n": 271,
+    "n": 272,
     "min": 0.6,
     "p25": 1,
     "median": 1,
     "p75": 1.2,
     "max": 2.2,
     "mostCommon": [
-     "1×185",
+     "1×186",
      "1.2×53",
      "1.4×10",
      "1.3×4",
@@ -165,7 +165,7 @@
     "decorationExcluded": 138
    },
    "circle-opacity": {
-    "n": 267,
+    "n": 268,
     "min": 0.08,
     "p25": 0.75,
     "median": 0.8,
@@ -174,7 +174,7 @@
     "mostCommon": [
      "0.8×61",
      "0.85×58",
-     "0.9×41",
+     "0.9×42",
      "0.75×30",
      "0.45×14",
      "0.6×8",
@@ -483,12 +483,12 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 269,
+   "隨底圖切換": 270,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #0a0a14 → 淡 #ffffff": 188,
+   "暗 #0a0a14 → 淡 #ffffff": 189,
    "暗 #0f172a → 淡 #ffffff": 52,
    "暗 #0d1117 → 淡 #ffffff": 1
   },
@@ -519,15 +519,15 @@
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 494,
-   "of": 763,
+   "sublayersWithDiff": 495,
+   "of": 764,
    "byProperty": {
-    "circle-stroke-color": 269,
-    "circle-stroke-opacity": 218,
+    "circle-stroke-color": 270,
+    "circle-stroke-opacity": 219,
     "line-color": 78,
     "text-color": 52,
     "text-halo-color": 52,
-    "circle-color": 39,
+    "circle-color": 40,
     "heatmap-color": 36,
     "fill-color": 31,
     "circle-opacity": 12,
@@ -538,7 +538,7 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 197,
+   "circle:categorical": 198,
    "circle:constant": 190,
    "line:constant": 101,
    "symbol:constant": 52,
@@ -687,6 +687,7 @@
   {"id":"earthquakes","members":["earthquakes"],"components":["EarthquakeLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+size+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["10x10●","16x16●","4x4●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"earthquakesGlobal","members":["earthquakesGlobal"],"components":["EarthquakeGlobalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["14x14●","18x18●","4x4●","8x8●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"ecoNetworkZones","members":["ecoNetworkZones"],"components":["EcoNetworkZonesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":12,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":12,"paintComparable":true},
+  {"id":"emergencyHospitals","members":["emergencyHospitals"],"components":["EmergencyHospitalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"erHospital","members":["erHospital"],"components":["ErCongestionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
   {"id":"facOffshore","members":["facOffshore"],"components":["FacOffshoreLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch+hatch(missing)","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":3,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["24x8"],"swatchColorCount":1,"paintComparable":true},
   {"id":"facPrimary","members":["facHistorical","facOsmSupplement","facPlanned","facPrimary","facSecondary"],"components":["FacilityFuelLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":13,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":11,"paintComparable":true,"colorsNotInPaint":["#1f4373","#3c92a6","#8c5d42","#8c7c4a","#d100ff","#d9863d","#f2622e","#f2d64b","#f2e085"],"issues":["9/11 個色票不在圖層 paint 中","成員 facPrimary, facSecondary, facPlanned, facHistorical, facOsmSupplement 另有 hook（useEnergyPoiLayer）可能在 runtime 覆寫 paint，色票差異需人工確認"]},
@@ -1839,6 +1840,7 @@
   "eduSchoolSpecial": {"label":"特教 Special Education","theme":"教育 Education","dataClass":"A","color":"#78909c","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"school","params":{"opacity":{"name":"eduSchoolsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"schoolScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"special","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#78909c"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "eduSchoolUniversity": {"label":"大專 University","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"school","params":{"opacity":{"name":"eduSchoolsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"schoolScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"university","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "eduUniversityStudents": {"label":"大專學生數 University Students","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"dot-swatch+square-swatch","popup":"eduUniversityStudents","params":{"opacity":{"name":"eduUniversityStudentsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"eduUniversityStudentsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"bubble","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":3,"max":22},"z14":{"min":3,"max":22}},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#90a4ae","#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "emergencyHospitals": {"label":"急救責任醫院分級 Emergency Hospitals","theme":"醫療 Medical","dataClass":"A","color":"#a5b4fc","legend":"emergencyHospitals","legendType":"dot-swatch","popup":"emergencyHospitalLevel","params":{"opacity":{"name":"emergencyHospitalsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"emergencyHospitalsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "erHospital": {"label":"急診壅塞 ER","theme":"醫療 Medical","dataClass":"C","color":"#ef4444","legend":"erHospital","legendType":"dot-swatch","popup":"erHospital","params":{"opacity":{"name":"erHospitalOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"erHospitalScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.5,"z14":6.5},"circle-stroke-width":{"z10":{"min":1,"max":2.2},"z14":{"min":1,"max":2.2}},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"categorical","count":2,"dark":["#ffffff","#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "etcGantry": {"label":"ETC 收費門架 Gantry","theme":"交通 Move","dataClass":"A","color":"#f06292","legend":null,"legendType":null,"popup":"etcGantry","params":{"opacity":{"name":"etcGantryOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"etcGantryScale","default":1,"min":0.3,"max":3},"height":{"name":"etcGantryZ","default":0,"min":0,"max":100},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5,"z14":10},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
   "evChargingStations": {"label":"電動車充電站 EV Charging","theme":"能源 Energy","dataClass":"C","color":"#10b981","legend":null,"legendType":null,"popup":"evCharging","params":{"opacity":{"name":"evChargingOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"evChargingScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#10b981"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},

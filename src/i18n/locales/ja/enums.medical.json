@@ -11,5 +11,9 @@
   "enum.erLevel.light": "やや混雑",
   "enum.erLevel.congested": "混雑",
   "enum.erLevel.severe": "深刻",
-  "enum.erLevel.nodata": "データなし"
+  "enum.erLevel.nodata": "データなし",
+  "enum.emergencyHospitalLevel.heavy": "重度級",
+  "enum.emergencyHospitalLevel.moderate": "中度級",
+  "enum.emergencyHospitalLevel.general": "一般級",
+  "enum.emergencyHospitalLevel.unrated": "等級未記載"
 }

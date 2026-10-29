@@ -11,5 +11,9 @@
   "enum.erLevel.light": "Slightly crowded",
   "enum.erLevel.congested": "Crowded",
   "enum.erLevel.severe": "Severe",
-  "enum.erLevel.nodata": "No data"
+  "enum.erLevel.nodata": "No data",
+  "enum.emergencyHospitalLevel.heavy": "Advanced",
+  "enum.emergencyHospitalLevel.moderate": "Intermediate",
+  "enum.emergencyHospitalLevel.general": "General",
+  "enum.emergencyHospitalLevel.unrated": "Grade not stated"
 }
