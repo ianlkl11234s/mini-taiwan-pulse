@@ -4,7 +4,7 @@ import { LINE_WIDTH, pointRadius, pointStrokePaint } from "../map/mapStyleScale"
 import { paramDefault } from "../data/layerParamsSpec";
 import {
   GB_ACCESS_TYPES, GB_ANCIENT_WOODLAND_MINZOOM, GB_DESIGNATION_FALLBACK_COLOR, GB_DESIGNATION_FILTERS, GB_DESIGNATIONS,
-  GB_FOREST_ROUTE_MINZOOM, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_HPMA_CODE_PREFIX, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
+  GB_FOREST_ROUTE_MINZOOM, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
   GB_NATIONAL_TRAIL_MINZOOM, GB_NATURE_MAP_ATTRIBUTION, GB_RECREATION_CATEGORIES, GB_RECREATION_MINZOOM,
   GB_RECREATION_SIGNAGE_MINZOOM, GB_RECREATION_UNCLASSIFIED_COLOR, GB_TPO_MINZOOM, GB_TRAIL_CATEGORIES, GB_TRAIL_UNCLASSIFIED_COLOR,
   GB_TREE_CATEGORIES, GB_WOODLAND_FALLBACK_COLOR, GB_WOODLAND_GROUPS, GB_WOODLAND_NI_COLOR, GB_WOODLAND_MINZOOM, GB_WOODLAND_NI_KIND,
@@ -117,8 +117,6 @@ export function useGbProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | nul
 const MPA_SOURCE: SourceSpec = {
   id: "gb-marine-protected-areas", file: "gb_marine_protected_areas.pmtiles", minzoom: 4, maxzoom: 12, attribution: GB_NATURE_MAP_ATTRIBUTION.mpa, loading: "英國海洋保護區載入中",
 };
-/** 英格蘭 HPMA 授權 HOLD：切片內 3 筆（site_code UKEHPMA…）不畫。 */
-export const GB_MPA_FILTER: Expr = ["!=", ["slice", ["coalesce", ["get", "site_code"], ""], 0, GB_MPA_HPMA_CODE_PREFIX.length], GB_MPA_HPMA_CODE_PREFIX];
 const mpaColor = (): Expr => matchColor("mpa_type", GB_MPA_TYPES.map((m) => [m.value, m.color] as const), GB_DESIGNATION_FALLBACK_COLOR);
 
 export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean) {
@@ -133,7 +131,7 @@ export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap
       id: GB_MPA_FILL_ID,
       layer: () => ({
         id: GB_MPA_FILL_ID, type: "fill", source: MPA_SOURCE.id, "source-layer": "gb_marine_protected_areas", minzoom: 4,
-        filter: GB_MPA_FILTER, layout: { visibility: "none" }, paint: fillPaint(opacity),
+        layout: { visibility: "none" }, paint: fillPaint(opacity),
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_MPA_FILL_ID, "fill-opacity", fillPaint(opacity)["fill-opacity"] as any),
     },
@@ -141,7 +139,7 @@ export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap
       id: GB_MPA_LINE_ID,
       layer: () => ({
         id: GB_MPA_LINE_ID, type: "line", source: MPA_SOURCE.id, "source-layer": "gb_marine_protected_areas", minzoom: 4,
-        filter: GB_MPA_FILTER, layout: { visibility: "none", "line-join": "round" }, paint: linePaint(opacity),
+        layout: { visibility: "none", "line-join": "round" }, paint: linePaint(opacity),
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_MPA_LINE_ID, "line-opacity", linePaint(opacity)["line-opacity"] as any),
     },

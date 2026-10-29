@@ -4151,13 +4151,13 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_marine_protected_areas", confidence: "HIGH" }],
-      processing: "NE MCZ＋NatureScot NC MPA／DR MPA＋DAERA MCZ，切片 152 面；其中 3 筆英格蘭 HPMA（site_code UKEHPMA001–003）因授權 HOLD 由前端 filter 不畫，實際顯示 149 面；PMTiles z4–12",
+      processing: "NE MCZ＋NatureScot NC MPA／DR MPA＋DAERA MCZ，149 面（英格蘭 HPMA 授權 HOLD，上游已移除）；PMTiles z4–12",
       note: "OGL v3.0；3/4（威爾斯 Skomer MCZ 無開放圖層，未涵蓋）；英格蘭 HPMA 授權 HOLD；不可用於航行",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_marine_protected_areas，filter 排除 site_code UKEHPMA*，minzoom=4 maxzoom=12；3.5MB git-track",
+      note: "useGbNatureLayers 自建 mapbox-pmtiles source；source-layer=gb_marine_protected_areas，minzoom=4 maxzoom=12；3.5MB git-track",
       staticAssets: ["./world/gb_marine_protected_areas.pmtiles"],
     },
     legend: "gbMarineProtectedAreas",

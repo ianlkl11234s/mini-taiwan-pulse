@@ -1786,7 +1786,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   gbLondonJamCams: boolean;     // 倫敦道路攝影機（TfL JamCams，890）
   gbLondonChargingZones: boolean; // 倫敦塞車費區＋ULEZ／LEZ（TfL，2 面）
   gbProtectedAreas: boolean;    // 英國保護區（NE／NatureScot／SG／NRW／DAERA，PMTiles polygon 8,642）
-  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，152 面、HPMA 3 面不畫）
+  gbMarineProtectedAreas: boolean; // 英國海洋保護區（MCZ／NC MPA，149 面；英格蘭 HPMA 上游已移除）
   gbWoodland: boolean;          // 英國林地（NFI 2025＋北愛優先棲地林地，620,027 面）
   gbForestRecreation: boolean;  // 英國森林遊憩設施（FE＋NRW，24,487 點）
   gbTrails: boolean;            // 英國步道（國家步道 42＋公有林步道 4,400）
