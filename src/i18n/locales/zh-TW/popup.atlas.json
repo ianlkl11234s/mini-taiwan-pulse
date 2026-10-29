@@ -229,5 +229,13 @@
   "popup.atlas.insuranceAgencyLines": "代理險種",
   "popup.atlas.postFxService": "可買賣外幣現鈔及旅行支票（中華郵政經辦局）",
   "popup.atlas.postFxNotExchangeShop": "這是郵局經辦，不是央行核准的外幣收兌處；可兌換幣別與營業時間以郵局公告為準",
-  "popup.atlas.postFxZip": "郵遞區號"
+  "popup.atlas.postFxZip": "郵遞區號",
+  "popup.atlas.legalBasis": "法律依據",
+  "popup.atlas.dataProvider": "圖資提供單位",
+  "popup.atlas.sourceUpdated": "來源更新日",
+  "popup.atlas.marineWildlifeCaution": "範圍依來源圖資繪製；重要棲息環境與保護區是不同的法定類別，不可視為同一種管制",
+  "popup.atlas.englishName": "英文名",
+  "popup.atlas.ecosystemType": "生態系類型",
+  "popup.atlas.siteDescription": "站位說明",
+  "popup.atlas.ecologySiteCaution": "站位清單，不是監測結果或目前生態狀況；沒有點不代表沒有資料"
 }

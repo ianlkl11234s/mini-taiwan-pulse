@@ -1320,5 +1320,7 @@
   "layer.jpMajorRoads": "主要道路（国道・都道府県道）",
   "layer.jpExpressways": "高速道路",
   "layer.jpGsiHillshade": "陰影起伏図",
-  "layer.jpGsiRelief": "色別標高図"
+  "layer.jpGsiRelief": "色別標高図",
+  "layer.marineWildlifeAreas": "海域の野生動物保護区・重要生息環境",
+  "layer.marineEcologicalMonitoringSites": "全海域生態系調査地点"
 }

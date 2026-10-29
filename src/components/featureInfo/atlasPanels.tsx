@@ -9,7 +9,7 @@ import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS,
   FREEWAY_SIGN_GROUP_OPTIONS, GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MONITOR_SERIES_OPTIONS,
   PLACE_CATEGORY_OPTIONS, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS,
-  SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
+  SWCB_PHOTO_CATEGORY_OPTIONS, TRIANGULATION_GRADE_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS, TRIBE_ETHNIC_OPTIONS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
@@ -555,6 +555,39 @@ function OpenFishingPanel({ props }: Props) {
   </>;
 }
 
+function MarineWildlifeAreaPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(MARINE_WILDLIFE_AREA_OPTIONS, props.category);
+  const kind = enumOf("atlasMarineWildlife", props.category, MARINE_WILDLIFE_AREA_OPTIONS.find((o) => o.value === props.category)?.label, i18n);
+  const counties = str(props.counties).split("、").filter(Boolean)
+    .map((county) => enumOf("atlasWildlifeCounty", county, placeName(county, i18n), i18n)).join(t("popup.common.listSeparator"));
+  return <>
+    <Title color={color}>{enumOf("atlasWildlifeArea", props.name, props.name, i18n)}</Title>
+    <Row field="type" value={kind} color={color} />
+    <Row field="county" value={counties} />
+    <Row label={t("popup.atlas.legalBasis")} value={enumOf("atlasWildlifeLaw", props.law, props.law, i18n)} />
+    <Row label={t("popup.atlas.dataProvider")} value={enumOf("atlasWildlifeProvider", props.data_provider, props.data_provider, i18n)} />
+    <Row label={t("popup.atlas.sourceUpdated")} value={str(props.vintage)} mono />
+    <MarineDisclaimer note={t("popup.atlas.marineWildlifeCaution")} />
+  </>;
+}
+
+function MarineEcologySitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.englishName")} value={str(props.name_en)} />
+    <Row field="region" value={enumOf("atlasMarineRegion", props.region, props.region, i18n)} />
+    <Row label={t("popup.atlas.ecosystemType")} value={enumList("atlasEcosystem", props.ecosystem_type, i18n)} />
+    <Row label={t("popup.atlas.siteDescription")} value={str(props.description)} />
+    <Precision props={props} />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.ecologySiteCaution")} />
+  </>;
+}
+
 function CoastalAreaPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -877,6 +910,8 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   wildlifeProtectedAreas: WildlifeProtectedPanel,
   openFishingLocations: OpenFishingPanel,
   coastalAreaExtents: CoastalAreaPanel,
+  marineWildlifeAreas: MarineWildlifeAreaPanel,
+  marineEcologicalMonitoringSites: MarineEcologySitePanel,
   artificialReefCenters: ArtificialReefPanel,
   protectedReefCenters: ProtectedReefPanel,
   setNetFishingAreas: SetNetPanel,
@@ -931,6 +966,8 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   wildlifeProtectedAreas: manifestZh("wildlifeProtectedAreas"),
   openFishingLocations: manifestZh("openFishingLocations"),
   coastalAreaExtents: manifestZh("coastalAreaExtents"),
+  marineWildlifeAreas: manifestZh("marineWildlifeAreas"),
+  marineEcologicalMonitoringSites: manifestZh("marineEcologicalMonitoringSites"),
   artificialReefCenters: manifestZh("artificialReefCenters"),
   protectedReefCenters: manifestZh("protectedReefCenters"),
   setNetFishingAreas: manifestZh("setNetFishingAreas"),

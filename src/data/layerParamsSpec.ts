@@ -3104,6 +3104,12 @@ export const LAYER_PARAMS_SPEC = {
   wildlifeProtectedAreas: [
     opacitySlider("wildlifeProtectedAreasOpacity", 0.3),
   ],
+  marineWildlifeAreas: [
+    opacitySlider("marineWildlifeAreasOpacity", 0.3),
+  ],
+  marineEcologicalMonitoringSites: [
+    opacitySlider("marineEcologicalMonitoringSitesOpacity", densePointOpacity(54)), scaleSlider("marineEcologicalMonitoringSitesScale", 1),
+  ],
   openFishingLocations: [
     opacitySlider("openFishingLocationsOpacity", densePointOpacity(155)), scaleSlider("openFishingLocationsScale", 1),
   ],

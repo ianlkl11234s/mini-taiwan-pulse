@@ -37,6 +37,9 @@ export const ATLAS_LAYER_COLORS = {
   artificialReefCenters: "#ea580c",
   protectedReefCenters: "#b45309",
   setNetFishingAreas: "#7c3aed",
+  // 海洋保育補接 G33（2026-10-29）
+  marineWildlifeAreas: "#0d9488",
+  marineEcologicalMonitoringSites: "#4f46e5",
   // 地層下陷＋海堤 G19（2026-10-17）
   landSubsidenceStations: "#0ea5e9",
   landSubsidenceCumulative: "#dc2626",
