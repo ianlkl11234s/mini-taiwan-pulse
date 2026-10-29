@@ -7,6 +7,7 @@ import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLa
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbStationUsageLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
+import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, useGbRadiationLayer, useGbRadonLayer } from "../../hooks/useGbHazardLayers";
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
@@ -304,5 +305,45 @@ export const GbSurplusLandHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbSurplusLandLayer");
   const p = useKeyOverlayParams("gbSurplusLand");
   useGbSurplusLandLayer(deps.mapRef, deps.layerVisibility.gbSurplusLand, p.gbSurplusLandOpacity ?? 0.9, p.gbSurplusLandScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：GeoSure 地質災害易發性（災害選單，一次一種）。 */
+export const GbGroundStabilityHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbGroundStabilityLayer");
+  const p = useKeyOverlayParams("gbGroundStability");
+  useGbGroundStabilityLayer(deps.mapRef, deps.layerVisibility.gbGroundStability, p.gbGroundStabilityOpacity ?? 0.55, p.gbGroundStabilityHazardIdx ?? 0, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：山崩紀錄點。 */
+export const GbLandslideHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbLandslideLayer");
+  const p = useKeyOverlayParams("gbLandslide");
+  useGbLandslideLayer(deps.mapRef, deps.layerVisibility.gbLandslide, p.gbLandslideOpacity ?? 0.7, p.gbLandslideScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：氡氣指示圖（1 km 網格，色階隨底圖）。 */
+export const GbRadonHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRadonLayer");
+  const p = useKeyOverlayParams("gbRadon");
+  useGbRadonLayer(deps.mapRef, deps.layerVisibility.gbRadon, p.gbRadonOpacity ?? 0.7, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：環境加馬劑量率固定站。 */
+export const GbRadiationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbRadiationLayer");
+  const p = useKeyOverlayParams("gbRadiation");
+  useGbRadiationLayer(deps.mapRef, deps.layerVisibility.gbRadiation, p.gbRadiationOpacity ?? 0.9, p.gbRadiationScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英國第 9 波：地震目錄（儀器記錄實心、歷史地震空心）。 */
+export const GbEarthquakesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbEarthquakesLayer");
+  const p = useKeyOverlayParams("gbEarthquakes");
+  useGbEarthquakesLayer(deps.mapRef, deps.layerVisibility.gbEarthquakes, p.gbEarthquakesOpacity ?? 0.8, p.gbEarthquakesScale ?? 1, deps.isDarkTheme);
   return null;
 };

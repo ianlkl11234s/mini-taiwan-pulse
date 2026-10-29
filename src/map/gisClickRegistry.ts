@@ -319,6 +319,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-visitor-other-circle", "gb-visitor-attraction-circle"], type: "gbVisitorExperience" },
   // 英國 C028 公有地標售（點）
   { layers: ["gb-surplus-land-circle"], type: "gbSurplusLand" },
+  // 英國第 9 波災害地質：點（地震 → 加馬站 → 山崩）先於面（氡氣方格、GeoSure 六角格）
+  { layers: ["gb-earthquakes-major-circle", "gb-earthquakes-minor-circle"], type: "gbEarthquakes" },
+  { layers: ["gb-gamma-dose-circle"], type: "gbRadiation" },
+  { layers: ["gb-landslides-circle"], type: "gbLandslide" },
+  { layers: ["gb-radon-fill"], type: "gbRadon" },
+  { layers: ["gb-geosure-fill"], type: "gbGroundStability" },
   // 英國第 6 波：點（電廠 → 再生能源 → 加油站 → 變電所）→ 電網線 → 油氣田大面
   { layers: ["gb-power-plants-circle"], type: "gbPowerPlants" },
   { layers: ["gb-renewables-circle"], type: "gbRenewables" },

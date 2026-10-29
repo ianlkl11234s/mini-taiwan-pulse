@@ -1389,5 +1389,10 @@
   "layer.statsGbCropGrasslandShare": "草地面積の割合（イングランド）",
   "layer.gbTerrainHillshade": "陰影起伏",
   "layer.gbTerrainRelief": "色別標高",
-  "layer.gbSurplusLand": "公有地の売却"
+  "layer.gbSurplusLand": "公有地の売却",
+  "layer.gbGroundStability": "地盤災害の起こりやすさ",
+  "layer.gbLandslide": "地すべり記録",
+  "layer.gbRadon": "ラドン指標地図",
+  "layer.gbRadiation": "環境放射線",
+  "layer.gbEarthquakes": "地震カタログ"
 }

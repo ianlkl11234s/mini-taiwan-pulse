@@ -1988,6 +1988,22 @@ export const LAYER_PARAMS_SPEC = {
   gbTerrainHillshade: [{ kind: "slider", name: "gbTerrainHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   gbTerrainRelief: [{ kind: "slider", name: "gbTerrainReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   gbSurplusLand: [opacitySlider("gbSurplusLandOpacity", 0.9), scaleSlider("gbSurplusLandScale", 1)],
+  // 英國第 9 波災害地質：GeoSure（分級面＋災害選單，一次一種）、氡氣（1 km 網格面）、山崩／加馬／地震（點透明度＋大小）
+  gbGroundStability: [
+    opacitySlider("gbGroundStabilityOpacity", 0.55),
+    {
+      kind: "select", category: "data", name: "gbGroundStabilityHazard", label: "災害種類", default: "landslides",
+      options: [
+        { label: "山崩", value: "landslides" }, { label: "脹縮土", value: "shrink_swell" }, { label: "可壓縮地層", value: "compressible_ground" },
+        { label: "可塌陷沉積物", value: "collapsible_deposits" }, { label: "流沙", value: "running_sand" }, { label: "可溶岩（溶蝕）", value: "soluble_rocks" },
+      ],
+      out: "gbGroundStabilityHazardIdx", encode: ["landslides", "shrink_swell", "compressible_ground", "collapsible_deposits", "running_sand", "soluble_rocks"],
+    },
+  ],
+  gbLandslide: [opacitySlider("gbLandslideOpacity", densePointOpacity(18_699)), scaleSlider("gbLandslideScale", 1)],
+  gbRadon: [opacitySlider("gbRadonOpacity", 0.7)],
+  gbRadiation: [opacitySlider("gbRadiationOpacity", 0.9), scaleSlider("gbRadiationScale", 1)],
+  gbEarthquakes: [opacitySlider("gbEarthquakesOpacity", 0.8), scaleSlider("gbEarthquakesScale", 1)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {
