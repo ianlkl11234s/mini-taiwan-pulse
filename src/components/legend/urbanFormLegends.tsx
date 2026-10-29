@@ -1,6 +1,8 @@
 // Legend sub-components (urbanFormLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
-import { BOUNDARY_GRAY, mapSeamColor } from "../../map/mapStyleScale";
+import { BOUNDARY_GRAY, LINE_DASH, LINE_WIDTH, mapSeamColor } from "../../map/mapStyleScale";
 import { GB_LAD_ATTRIBUTION, GB_LAD_VERSION, GB_SMALL_AREA_TYPES } from "../../data/gbAdminTypes";
+import { GB_MARITIME_ATTRIBUTION, GB_MARITIME_LIMIT_TYPES, GB_MARITIME_SOURCE_DATE, gbMaritimeLimitColor, type GbMaritimeLimitKind } from "../../data/gbMaritimeLimitTypes";
+import { GB_BUILT_UP_COLOR, GB_BUILT_UP_VERSION, GB_GREENSPACE_CATEGORIES, GB_GREENSPACE_VERSION, GB_OS_ATTRIBUTION, type GbGreenspaceFunctionId, type GbGreenspaceKey } from "../../data/gbOpenSpaceTypes";
 import { usePaletteRamp } from "../../state/layerPalette";
 import { THEMED_PAINT_COLORS } from "../../map/layerPaintColors";
 import { jpHeightCatalogStore } from "../../map/jpHeightLifecycle";
@@ -711,5 +713,77 @@ export function GbSmallAreaBoundariesLegend() {
     <LegendNote>{i18n.t("legend.urban.gbSmallAreaZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbCoverage")}</LegendNote>
     {[...new Set(GB_SMALL_AREA_TYPES.map((type) => type.attribution))].map((text) => <LegendNote key={text}>{text}</LegendNote>)}
+  </div>;
+}
+
+const GB_MARITIME_LEGEND_KEYS: Record<GbMaritimeLimitKind, MessageKey> = {
+  baseline: "legend.urban.gbMaritimeBaseline",
+  closing_line: "legend.urban.gbMaritimeClosingLine",
+  six_nm: "legend.urban.gbMaritimeSixNm",
+  territorial_sea: "legend.urban.gbMaritimeTerritorialSea",
+  eez: "legend.urban.gbMaritimeEez",
+  continental_shelf: "legend.urban.gbMaritimeContinentalShelf",
+  boundary: "legend.urban.gbMaritimeBoundary",
+  median_line: "legend.urban.gbMaritimeMedianLine",
+  national_limit: "legend.urban.gbMaritimeNationalLimit",
+};
+
+/** 英國海域界線（UKHO）：9 類線，色與線型同地圖（虛線＝L-2 界線 [4,3]）。 */
+export function GbMaritimeLimitsLegend() {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.gbMaritimeTitle")} />
+    {GB_MARITIME_LIMIT_TYPES.map((type) => (
+      <LegendRow key={type.value} swatch={<SwatchLine color={gbMaritimeLimitColor(type, t.isDark)} width={LINE_WIDTH[type.width][1]} dash={type.dashed ? LINE_DASH.boundary : undefined} />}>
+        {i18n.t(GB_MARITIME_LEGEND_KEYS[type.value])}
+      </LegendRow>
+    ))}
+    <LegendNote>{i18n.t("legend.urban.gbMaritimeClosingZoom")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbMaritimeCoverage")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbMaritimeIllustrative")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: `UKHO ${GB_MARITIME_SOURCE_DATE}` })}</LegendNote>
+    <LegendNote>{GB_MARITIME_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 英國建成區（OS Open Built Up Areas）：單一中性藍灰面。 */
+export function GbBuiltUpAreasLegend() {
+  const i18n = useLocale();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.gbBuiltUpTitle")} />
+    <LegendRow swatch={<SwatchSquare color={GB_BUILT_UP_COLOR} />}>{i18n.t("legend.urban.gbBuiltUpRow")}</LegendRow>
+    <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_BUILT_UP_VERSION })}</LegendNote>
+    <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+const GB_GREENSPACE_LEGEND_FN_KEYS: Record<GbGreenspaceFunctionId, MessageKey> = {
+  Park: "legend.urban.gbFnPark", Play: "legend.urban.gbFnPlay", Allotment: "legend.urban.gbFnAllotment",
+  PlayingField: "legend.urban.gbFnPlayingField", OtherSports: "legend.urban.gbFnOtherSports", Tennis: "legend.urban.gbFnTennis",
+  Bowling: "legend.urban.gbFnBowling", Golf: "legend.urban.gbFnGolf", Cemetery: "legend.urban.gbFnCemetery", Religious: "legend.urban.gbFnReligious",
+};
+
+const GB_GREENSPACE_TITLE_KEYS: Record<GbGreenspaceKey, MessageKey> = {
+  gbGreenspace: "legend.urban.gbGreenspaceTitle",
+  gbSportsFacilities: "legend.urban.gbSportsTitle",
+  gbCemeteries: "legend.urban.gbCemeteriesTitle",
+};
+
+/** 英國綠地三層（OS Open Greenspace，同一檔依 category 拆層）：每層列自己的 function 類別。 */
+export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) {
+  const i18n = useLocale();
+  const cfg = GB_GREENSPACE_CATEGORIES[layerKey];
+  return <div>
+    <LegendTitle zh={i18n.t(GB_GREENSPACE_TITLE_KEYS[layerKey])} />
+    {cfg.functions.map((f) => (
+      <LegendRow key={f.value} swatch={<SwatchSquare color={f.color} />}>{i18n.t(GB_GREENSPACE_LEGEND_FN_KEYS[f.id])}</LegendRow>
+    ))}
+    {layerKey === "gbCemeteries" ? <LegendNote>{i18n.t("legend.urban.gbReligiousNote")}</LegendNote> : null}
+    <LegendNote>{i18n.t("legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_GREENSPACE_VERSION })}</LegendNote>
+    <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>
   </div>;
 }

@@ -300,6 +300,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
   { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
+  // 英國第 1 波：海域界線（線）與綠地三層（小面）排在建成區、行政界（大面積背景）前面
+  { layers: ["gb-maritime-limits-line", "gb-maritime-limits-dashed", "gb-maritime-limits-closing"], type: "gbMaritimeLimits" },
+  { layers: ["gb-greenspace-park-fill"], type: "gbGreenspace" },
+  { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
+  { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
+  { layers: ["gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
   { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },
   { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },

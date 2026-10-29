@@ -1340,5 +1340,10 @@
   "layer.statsGbHousePrice": "平均住宅価格（UK HPI）",
   "layer.statsGbHousePriceChange": "住宅価格の前年比（UK HPI）",
   "layer.statsGbPrivateRent": "民間賃貸の平均家賃（イングランド・ウェールズ）",
-  "layer.statsGbPrivateRentChange": "民間家賃の前年比（イングランド・ウェールズ）"
+  "layer.statsGbPrivateRentChange": "民間家賃の前年比（イングランド・ウェールズ）",
+  "layer.gbMaritimeLimits": "海域境界線",
+  "layer.gbBuiltUpAreas": "市街地",
+  "layer.gbGreenspace": "公園・緑地",
+  "layer.gbSportsFacilities": "運動施設",
+  "layer.gbCemeteries": "墓地・宗教施設の敷地"
 }

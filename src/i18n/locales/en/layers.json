@@ -1340,5 +1340,10 @@
   "layer.statsGbHousePrice": "Average House Price (UK HPI)",
   "layer.statsGbHousePriceChange": "House Price Annual Change (UK HPI)",
   "layer.statsGbPrivateRent": "Average Private Rent (England & Wales)",
-  "layer.statsGbPrivateRentChange": "Private Rent Annual Change (England & Wales)"
+  "layer.statsGbPrivateRentChange": "Private Rent Annual Change (England & Wales)",
+  "layer.gbMaritimeLimits": "Maritime Limits and Boundaries",
+  "layer.gbBuiltUpAreas": "Built-up Areas",
+  "layer.gbGreenspace": "Parks and Green Space",
+  "layer.gbSportsFacilities": "Sports Facilities",
+  "layer.gbCemeteries": "Cemeteries and Religious Grounds"
 }

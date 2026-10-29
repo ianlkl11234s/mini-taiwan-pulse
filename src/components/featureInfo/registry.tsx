@@ -64,7 +64,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpEvacuationSitesPanel, JpPublicOfficesPanel, JpBusStopsPanel, JpLandslideWarningAreasPanel, JpInlandFloodAreasPanel, JpZoningUseDistrictsPanel, JpNationalForestsPanel, JpWelfareDisabilityPanel, JpWelfareChildPanel, JpMajorRoadsPanel, JpExpresswaysPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { GbAdminBoundariesPanel, GbSmallAreaBoundariesPanel } from "./ukPanels";
+import { GbAdminBoundariesPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbGreenspacePanel, GbMaritimeLimitsPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
@@ -425,6 +425,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAdminBoundaries: JpAdminBoundariesPanel,
   gbAdminBoundaries: GbAdminBoundariesPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
+  gbMaritimeLimits: GbMaritimeLimitsPanel,
+  gbBuiltUpAreas: GbBuiltUpAreasPanel,
+  gbGreenspace: GbGreenspacePanel,
+  gbSportsFacilities: GbSportsFacilitiesPanel,
+  gbCemeteries: GbCemeteriesPanel,
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
@@ -971,6 +976,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpAdminBoundaries: "市區町村界 市区町村境",
   gbAdminBoundaries: "地方政府區 LAD",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
+  gbMaritimeLimits: "海域界線 Maritime Limits",
+  gbBuiltUpAreas: "建成區 Built Up Areas",
+  gbGreenspace: "公園綠地 Greenspace",
+  gbSportsFacilities: "運動場地 Sports Facilities",
+  gbCemeteries: "墓園與宗教場地 Cemeteries",
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",

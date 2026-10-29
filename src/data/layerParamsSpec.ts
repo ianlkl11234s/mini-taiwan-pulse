@@ -1914,6 +1914,12 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
+  gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
+  gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
+  gbGreenspace: [opacitySlider("gbGreenspaceOpacity", 0.7)],
+  gbSportsFacilities: [opacitySlider("gbSportsFacilitiesOpacity", 0.7)],
+  gbCemeteries: [opacitySlider("gbCemeteriesOpacity", 0.7)],
   gbSmallAreaBoundaries: [
     opacitySlider("gbSmallAreaBoundariesOpacity", 0.85),
     {
