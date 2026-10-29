@@ -2099,7 +2099,7 @@
       },
       "format": {
         "locale": "zh-TW",
-        "maximumFractionDigits": 0
+        "maximumFractionDigits": 1
       },
       "derived": false,
       "location_semantics": "農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）",

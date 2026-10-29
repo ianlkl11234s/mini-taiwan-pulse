@@ -143,7 +143,7 @@ LAYERS = [
          label="其他耕作物面積占比（英格蘭）", visual="agriculture", digits=1, loc=LOC_CROP,
          notes=["其他耕作物＝不含穀物的耕作物（如油菜、甜菜、馬鈴薯、豆類），面積 ÷ 農戶總面積。", CROP_SURVEY, CROP_LOCATION, CROP_SUPPRESSED, CROP_NO_HOLDINGS, CROP_ZERO, CROP_SHARE]),
     dict(key="statsGbCropFruitVegArea", group="gbCrops", group_label="作物面積（英格蘭）", option="蔬果面積", sub="作物面積",
-         label="蔬果面積（英格蘭）", visual="agriculture", digits=0, loc=LOC_CROP,
+         label="蔬果面積（英格蘭）", visual="agriculture", digits=1, loc=LOC_CROP,
          notes=["蔬菜與水果面積（公頃）。", CROP_SURVEY, CROP_LOCATION, CROP_SUPPRESSED,
                 "沒有商業農戶的地方行政區，蔬果面積是官方值 0（不是缺值）。",
                 "分級：多數地方行政區很小、少數集中產區很大，門檻 50／250／1,000 公頃大致每級放大 4–5 倍（對數間距）。"],

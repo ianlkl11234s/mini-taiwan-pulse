@@ -1387,7 +1387,7 @@
   "layer.statsGbCropArableShare": "その他耕作物面積の割合（イングランド）",
   "layer.statsGbCropFruitVegArea": "野菜・果樹面積（イングランド）",
   "layer.statsGbCropGrasslandShare": "草地面積の割合（イングランド）",
-  "layer.gbTerrainHillshade": "陰影起伏（OS Terrain 50）",
-  "layer.gbTerrainRelief": "色別標高（OS Terrain 50）",
+  "layer.gbTerrainHillshade": "陰影起伏",
+  "layer.gbTerrainRelief": "色別標高",
   "layer.gbSurplusLand": "公有地の売却"
 }

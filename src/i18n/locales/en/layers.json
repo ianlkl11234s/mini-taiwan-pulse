@@ -1387,7 +1387,7 @@
   "layer.statsGbCropArableShare": "Other Arable Crops Share of Farmed Area (England)",
   "layer.statsGbCropFruitVegArea": "Fruit & Vegetables Area (England)",
   "layer.statsGbCropGrasslandShare": "Grassland Share of Farmed Area (England)",
-  "layer.gbTerrainHillshade": "Hillshade (OS Terrain 50)",
-  "layer.gbTerrainRelief": "Elevation Tint (OS Terrain 50)",
+  "layer.gbTerrainHillshade": "Hillshade",
+  "layer.gbTerrainRelief": "Elevation Tint",
   "layer.gbSurplusLand": "Surplus Public Land"
 }
