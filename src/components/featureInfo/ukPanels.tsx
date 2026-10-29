@@ -959,7 +959,7 @@ function GbCarePanel({ props, fallbackColor }: { props: Record<string, unknown>;
     <Title color={k?.color ?? fallbackColor}>{gbCivicText(props.name) || t("popup.publicLife.gbCareTitle")}</Title>
     <Row label={t("popup.publicLife.gbCareKind")} value={k ? t(GB_CARE_KIND_KEYS[k.value]) : gbCivicText(props.care_kind)} />
     <Row label={t("popup.publicLife.gbCareBeds")} value={beds != null && beds > 0 ? beds.toLocaleString() : ""} mono />
-    <Row label={t("popup.publicLife.gbCareUsers")} value={gbCivicText(props.user_bands).split(",").map((v) => v.trim()).filter(Boolean).join("、")} />
+    <Row label={t("popup.publicLife.gbCareUsers")} value={gbCivicText(props.user_bands).split(",").map((v) => v.trim()).filter(Boolean).join(", ")} />
     <Row label={ci ? t("popup.publicLife.gbCareRatingCi") : t("popup.publicLife.gbCareRatingCqc")} value={ciGrade ? t("popup.publicLife.gbCareCiGrade", { n: ciGrade[1]! }) : rating} />
     <Row label={t("popup.publicLife.gbCareProvider")} value={gbCivicText(props.provider)} />
     <Row label={t("popup.publicLife.gbCareProviderSector")} value={gbCivicText(props.provider_sector)} />
@@ -1014,7 +1014,7 @@ export function GbCourtsPanel({ props }: { props: Record<string, unknown> }) {
     <Title color={k?.color ?? GB_COURTS_COLOR}>{gbCivicText(props.name) || t("popup.publicLife.gbCourtTitle")}</Title>
     <Row label={t("popup.publicLife.gbCourtKind")} value={k ? t(GB_COURT_KIND_KEYS[k.value]) : gbCivicText(props.court_kind)} />
     <Row label={t("popup.publicLife.gbCourtTypes")} value={gbCivicText(props.types)} />
-    <Row label={t("popup.publicLife.gbCourtAreasOfLaw")} value={gbCivicText(props.areas_of_law).split("|").map((v) => v.trim()).filter(Boolean).join("、")} />
+    <Row label={t("popup.publicLife.gbCourtAreasOfLaw")} value={gbCivicText(props.areas_of_law).split("|").map((v) => v.trim()).filter(Boolean).join(", ")} />
     <LinkRow label={t("popup.publicLife.gbCourtFact")} url={gbCivicText(props.url)} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     <PostcodeRow props={props} />

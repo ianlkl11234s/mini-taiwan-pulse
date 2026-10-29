@@ -4,7 +4,7 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, useLegendTheme } from ".
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_CARE_CI_ATTRIBUTION, GB_CARE_CQC_ATTRIBUTION, GB_CARE_KINDS, GB_COURT_KINDS, GB_COURTS_ATTRIBUTION, GB_FIRE_COLOR, GB_FIRE_COUNTS,
-  GB_FIRE_MHCLG_ATTRIBUTION, GB_FIRE_OSM_FILL_FACTOR, GB_FIRE_OSM_STROKE_WIDTH, GB_HEALTH_KINDS, GB_HEALTH_ODS_ATTRIBUTION,
+  GB_FIRE_MHCLG_ATTRIBUTION, GB_FIRE_OSM_STROKE_WIDTH, GB_HEALTH_KINDS, GB_HEALTH_ODS_ATTRIBUTION,
   GB_HEALTH_PHS_ATTRIBUTION, GB_ONSPD_ATTRIBUTION, GB_OSM_ATTRIBUTION, GB_SCHOOL_CATEGORIES, GB_SCHOOLS_ATTRIBUTION, gbHealthColor,
   type GbCareKind, type GbCourtKind, type GbHealthKind, type GbSchoolCategory,
 } from "../../data/gbCivicTypes";
@@ -99,7 +99,7 @@ export function GbFireStationsLegend() {
   return <div>
     <LegendTitle zh={layerTitle("gbFireStations", i18n)} en="Fire Stations" />
     <LegendRow swatch={<SwatchDot color={GB_FIRE_COLOR} />}>{i18n.t("legend.civic.gbFireOfficial", { n: i18n.formatNumber(GB_FIRE_COUNTS.official) })}</LegendRow>
-    <LegendRow swatch={<SwatchDot color={GB_FIRE_COLOR} opacity={GB_FIRE_OSM_FILL_FACTOR + 0.7} stroke={GB_FIRE_COLOR} strokeWidth={GB_FIRE_OSM_STROKE_WIDTH} />}>{i18n.t("legend.civic.gbFireOsm", { n: i18n.formatNumber(GB_FIRE_COUNTS.osm) })}</LegendRow>
+    <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={GB_FIRE_COLOR} strokeWidth={GB_FIRE_OSM_STROKE_WIDTH} />}>{i18n.t("legend.civic.gbFireOsm", { n: i18n.formatNumber(GB_FIRE_COUNTS.osm) })}</LegendRow>
     <LegendNote>{i18n.t("legend.civic.gbFireNote")}</LegendNote>
     <LegendNote>{GB_FIRE_MHCLG_ATTRIBUTION}</LegendNote>
     <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
