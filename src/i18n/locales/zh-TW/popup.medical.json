@@ -19,5 +19,9 @@
   "popup.medical.informFlag": "通報旗標 (inform)",
   "popup.medical.trend": "24h 等一般病床趨勢",
   "popup.medical.bedGap": "床位缺口",
-  "popup.medical.severe": "嚴重"
+  "popup.medical.severe": "嚴重",
+  "popup.medical.emergencyHospital": "急救責任醫院",
+  "popup.medical.emergencyLevel": "分級",
+  "popup.medical.emergencyUnratedNote": "來源未標分級，不代表非急救責任醫院。",
+  "popup.medical.emergencyDataNote": "資料快照 {asOf}；分級依縣市開放資料與衛福部名冊，之後可能已變動。"
 }

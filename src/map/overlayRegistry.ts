@@ -307,6 +307,7 @@ import {
   type JpAccommodationDensityScale,
 } from "../data/jpTourismTypes";
 import { medicalPoiColor } from "../data/medicalPOITypes";
+import { emergencyHospitalColorExpression } from "../data/emergencyHospitalTypes";
 
 function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): OverlayConfig {
   return {
@@ -3379,6 +3380,32 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 0, 10, 0.3, 14, 0.5,
             ],
             "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 急救責任醫院分級（252 家，靜態 geojson；顏色由 properties.level_group 決定）──
+  // 三級為序列色（暗／淡底圖方向相反，F-3）；未標分級灰色，不是「一般級」。色值 SSOT = emergencyHospitalTypes.ts。
+  {
+    id: "emergencyHospitals",
+    sourceUrl: "./geo/emergency_hospitals.geojson",
+    sourceId: "emergency-hospitals",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.emergencyHospitalsScale ?? 1;
+          const opacity = params?.emergencyHospitalsOpacity ?? 0.9;
+          return {
+            "circle-radius": 4.5 * scale,
+            "circle-color": emergencyHospitalColorExpression(isDark),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#0a0a14" : "#ffffff",
+            "circle-stroke-width": 1,
           };
         },
       },
