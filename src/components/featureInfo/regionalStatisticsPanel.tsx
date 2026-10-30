@@ -5,7 +5,7 @@ import { placeName, placeNameList } from '../../i18n/placeText';
 import { statisticsLicense, statisticsPublisher } from '../../i18n/agencyText';
 import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import type { LocaleSnapshot } from "../../state/localeStore";
-import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsLocationBasis, statisticsPeriodLabel } from '../../data/statisticsLabels';
+import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel } from '../../data/statisticsLabels';
 import { demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
 
 const INPUT_LABELS: Record<string, string> = {
@@ -82,7 +82,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {props.missing_reason != null && <Row label={t('popup.regionalStatistics.missingReason')} value={String(props.missing_reason)} />}
     <Row label={t('popup.regionalStatistics.period')} value={periodText(props, i18n)} />
     {props.location_semantics != null && <Row label={t('popup.regionalStatistics.locationBasis')} value={statisticsLocationBasis(String(props.location_semantics), i18n)} />}
-    {props.disclosure != null && <Row field="dataLimits" value={humanizeStatisticsText(String(props.disclosure))} />}
+    {props.disclosure != null && <Row field="dataLimits" value={statisticsDisclosure(String(props.disclosure), i18n)} />}
     {props.comparison_formula != null && <Row label={t('popup.regionalStatistics.formula')} value={complement ? t('popup.regionalStatistics.complementFormula') : String(props.comparison_formula)} />}
     {inputs != null && typeof inputs === 'object' && Object.entries(inputs).filter(([key]) => key in INPUT_LABELS).map(([key, value]) => <Row key={key} label={inputLabel(key)} value={inputValue(value, i18n)} />)}
     {props.interpretation != null && <Row label={t('popup.regionalStatistics.interpretation')} value={complement ? t('popup.regionalStatistics.complementInterpretation') : String(props.interpretation)} />}

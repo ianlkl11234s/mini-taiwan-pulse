@@ -486,7 +486,7 @@ export function GbLondonRailLinesPanel({ props }: { props: Record<string, unknow
   return <>
     <Title color={mode?.color ?? GB_LONDON_RAIL_FALLBACK_COLOR}>{text(props.line_name) || t("popup.transport.gbRailMode")}</Title>
     <Row label={t("popup.transport.gbRailMode")} value={mode ? t(GB_RAIL_MODE_KEYS[mode.value]) : text(props.mode)} />
-    <Row label="" value={t("popup.transport.gbRailColorNote")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.transport.gbRailColorNote")} />
     <TflFooter url={GB_TFL_LINES_URL} />
   </>;
 }
@@ -1417,7 +1417,8 @@ export function GbEarthquakesPanel({ props }: { props: Record<string, unknown> }
 /** 數值欄 null／非數值 → null（不寫 0）。 */
 const envNumber = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 /** 日期欄只取 YYYY-MM-DD。 */
-const envDate = (value: unknown) => text(value).slice(0, 10);
+/** 上游 pandas 缺值字串（NaT／NaN／None）當成未載明，不顯示原字。 */
+const envDate = (value: unknown) => (/^(NaT|NaN|None)$/i.test(text(value)) ? "" : text(value).slice(0, 10));
 
 /** 規劃限制區：名稱、類別、指定機關、指定日（null「未載明」）、綠帶核心區、編號。 */
 export function GbPlanningConstraintsPanel({ props }: { props: Record<string, unknown> }) {
