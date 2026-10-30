@@ -203,6 +203,14 @@ export function statisticsLocationBasis(zh: string, i18n: I18nContext): string {
   return enumLabel('statLocationBasis', zh, humanizeStatisticsText(zh), i18n);
 }
 
+/**
+ * 統計「資料限制」（配方的 disclosure）：同位置口徑，中文原句是 key，查 `enum.statDisclosure.<原句>`；
+ * 查不到退回中文原文（參考界代碼換成可讀名稱）。
+ */
+export function statisticsDisclosure(zh: string, i18n: I18nContext): string {
+  return enumLabel('statDisclosure', zh, humanizeStatisticsText(zh), i18n);
+}
+
 /** 說明文字裡夾帶的邊界代碼換成中文描述（其餘文字不動）。 */
 export function humanizeStatisticsText(text: string, i18n?: I18nContext): string;
 export function humanizeStatisticsText(text: string | undefined, i18n?: I18nContext): string | undefined;
