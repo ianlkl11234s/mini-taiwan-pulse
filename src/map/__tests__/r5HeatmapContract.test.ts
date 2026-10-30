@@ -168,7 +168,12 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbBrownfield", "useGbEnvPlanningLayers.ts", 30_303],
   ["gbRecyclingCentres", "useGbEnvPlanningLayers.ts", 12_959], // 熱區只算回收桶 11,412 點，回收中心維持畫點
   ["gbLandslide", "useGbHazardLayers.ts", 18_699],
+  // 綠地三層：細節是面（z9／z10 起），熱區用 representative_point 檔補在面出現前；運動場地熱區不含高爾夫球場（另畫點）
+  ["gbGreenspace", "useGbOpenSpaceLayers.ts", 80_918],
+  ["gbSportsFacilities", "useGbOpenSpaceLayers.ts", 54_852],
+  ["gbCemeteries", "useGbOpenSpaceLayers.ts", 30_208],
 ];
+const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */
 const HOOK_MULTIPLIER_OPACITY = new Set(["fireEvents", "fireLatest"]);
 
@@ -177,7 +182,8 @@ describe("R5 hook 密集點全面套用", () => {
     const src = fs.readFileSync(path.resolve(__dirname, "../../hooks", file), "utf8");
     expect(src).toMatch(/type: "heatmap"|heatmapLayer\(|gbHeatmapBuild\(/);
     expect(src).toContain("heatmapMaxzoom(");
-    expect(src).toContain("densePointsFromZoom(");
+    // 綠地三層的細節層是面（出現縮放＝面的 minzoom，z9／z10），熱區 maxzoom 直接接面，不經 densePointsFromZoom
+    if (!HOOK_DETAIL_IS_POLYGON.has(id)) expect(src).toContain("densePointsFromZoom(");
     const def = Number(paramDefault(id, `${id}Opacity`));
     expect(def).toBe(HOOK_MULTIPLIER_OPACITY.has(id) ? 1 : densePointOpacity(count));
   });

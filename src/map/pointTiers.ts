@@ -311,6 +311,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbManufacturing: "B", // 半徑＝district 製造業家數 5 級 · src/hooks/useGbBusinessAgriLayers.ts
   gbFuneral: "M", // 火葬場 M（葬儀社 S，依 kind） · src/hooks/useGbBusinessAgriLayers.ts
   gbAquaculture: "M", // 蘇格蘭＋北愛養殖場（3,129 點；狀態以外框區分 P-9） · src/hooks/useGbBusinessAgriLayers.ts
+  gbSportsFacilities: "S", // 英國運動場地：面為主，高爾夫球場全英視角（z<10）另畫代表點 · src/hooks/useGbOpenSpaceLayers.ts
   gbBrownfield: "S", // 英格蘭棕地（30,303 點，z<10 熱區、z10 起畫點；許可進度以填色強度區分） · src/hooks/useGbEnvPlanningLayers.ts
   gbRecyclingCentres: "M", // 回收中心 M z5 起（回收桶 S，z<10 熱區、z10 起畫點） · src/hooks/useGbEnvPlanningLayers.ts
   gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/hooks/useGbEnvPlanningLayers.ts

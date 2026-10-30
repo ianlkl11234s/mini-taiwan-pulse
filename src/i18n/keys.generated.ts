@@ -1831,6 +1831,7 @@ export type GeneratedStaticKey =
   | "legend.urban.gbFnPlayingField"
   | "legend.urban.gbFnReligious"
   | "legend.urban.gbFnTennis"
+  | "legend.urban.gbGolfPoints"
   | "legend.urban.gbGreenspaceTitle"
   | "legend.urban.gbGreenspaceZoom"
   | "legend.urban.gbHillshadeNote"

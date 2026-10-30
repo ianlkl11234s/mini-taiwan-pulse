@@ -144,6 +144,7 @@
   "legend.urban.gbFnCemetery": "Cemetery",
   "legend.urban.gbFnReligious": "Religious grounds (churchyards)",
   "legend.urban.gbReligiousNote": "Religious grounds are the grounds of churches and other places of worship; they often include burial grounds but are not cemeteries",
+  "legend.urban.gbGolfPoints": "Golf courses (drawn as points when zoomed out to the whole UK)",
   "legend.urban.gbGreenspaceZoom": "Shown from zoom {zoom}",
   "legend.urban.gbHillshadeNote": "Grey-scale terrain shading (light from the north-west, 45° altitude); shows relief only, no values; sea is transparent",
   "legend.urban.gbTerrainCoverage": "Coverage 3/4: England, Scotland, Wales; Northern Ireland not covered (OS Terrain 50 is Great Britain only)",
