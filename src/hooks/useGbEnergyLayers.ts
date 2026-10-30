@@ -87,12 +87,16 @@ const IS_CONSTRUCTION: Expr = ["==", ["get", "status_group"], "construction"];
 export function gbRenewablesFilter(statusIdx: number): Expr {
   return ["in", ["get", "status_group"], ["literal", [...gbStatusView(statusIdx).groups]]];
 }
-/** 施工中＝台灣規劃中設施的施工中描邊（P-9 資料編碼描邊）；其餘用底圖色細縫。 */
+/**
+ * 施工中＝台灣規劃中設施的施工中描邊（P-9 資料編碼描邊）；其餘用底圖色細縫。
+ * 半徑＝裝置容量 4 級（同電廠 B 階）。P-4 例外（2026-10-30 使用者決定）：1.46 萬點不畫熱區、z5 起直接畫點，
+ * 因為容量從 150 kW 到 GW 級差距大，熱區只反映案件數會誤導；大案場靠點大小在全英視角浮出來。
+ */
 function renewablesPaint(isDark: boolean, opacity: number, scale: number) {
   const op = clamp01(opacity);
   const seam = pointStrokePaint(isDark, op / opacityDefault("gbRenewables", 0.75));
   return {
-    "circle-radius": pointRadius("M", scale / scaleDefault("gbRenewables")),
+    "circle-radius": gbCapacityRadiusExpr(scale / scaleDefault("gbRenewables")),
     "circle-color": techColor(),
     "circle-opacity": op,
     "circle-stroke-color": ["case", IS_CONSTRUCTION, GB_CONSTRUCTION_STROKE, seam["circle-stroke-color"]],
@@ -106,7 +110,7 @@ export function useGbRenewablesLayer(mapRef: MapRef, visible: boolean, opacity: 
   useGbPmtilesLayers(mapRef, RENEWABLES_SOURCE, visible, () => [{
     id: GB_RENEWABLES_CIRCLE_ID,
     layer: () => ({
-      id: GB_RENEWABLES_CIRCLE_ID, type: "circle", source: RENEWABLES_SOURCE.id, "source-layer": "gb_renewables", minzoom: 6,
+      id: GB_RENEWABLES_CIRCLE_ID, type: "circle", source: RENEWABLES_SOURCE.id, "source-layer": "gb_renewables", minzoom: 5,
       filter, layout: { visibility: "none", "circle-sort-key": ["coalesce", ["get", "capacity_mw"], 0] }, paint: renewablesPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => {
@@ -177,7 +181,7 @@ export function useGbSubstationsLayer(mapRef: MapRef, visible: boolean, opacity:
   useGbPmtilesLayers(mapRef, GRID_SOURCE, visible, () => [{
     id: GB_SUBSTATIONS_CIRCLE_ID,
     layer: () => ({
-      id: GB_SUBSTATIONS_CIRCLE_ID, type: "circle", source: GRID_SOURCE.id, "source-layer": "gb_power_substations", minzoom: 8,
+      id: GB_SUBSTATIONS_CIRCLE_ID, type: "circle", source: GRID_SOURCE.id, "source-layer": "gb_power_substations", minzoom: 5,
       layout: { visibility: "none", "circle-sort-key": ["coalesce", ["get", "voltage_max_kv"], 0] }, paint: substationPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_SUBSTATIONS_CIRCLE_ID, substationPaint(isDark, opacity, scale)),
@@ -203,7 +207,7 @@ export function useGbFuelStationsLayer(mapRef: MapRef, visible: boolean, opacity
   useGbPmtilesLayers(mapRef, FUEL_SOURCE, visible, () => [{
     id: GB_FUEL_STATIONS_CIRCLE_ID,
     layer: () => ({
-      id: GB_FUEL_STATIONS_CIRCLE_ID, type: "circle", source: FUEL_SOURCE.id, "source-layer": "gb_fuel_stations", minzoom: 8,
+      id: GB_FUEL_STATIONS_CIRCLE_ID, type: "circle", source: FUEL_SOURCE.id, "source-layer": "gb_fuel_stations", minzoom: 5,
       layout: { visibility: "none" }, paint: fuelPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_FUEL_STATIONS_CIRCLE_ID, fuelPaint(isDark, opacity, scale)),

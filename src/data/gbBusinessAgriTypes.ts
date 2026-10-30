@@ -31,7 +31,7 @@ export const GB_COMPANIES_LICENSE = "Companies House public register (no re-use 
 export const GB_COMPANIES_URL = "https://download.companieshouse.gov.uk/en_output.html";
 export const GB_COMPANIES_SNAPSHOT = "2026-10-01";
 export const GB_COMPANIES_TILE_ZOOM = { minzoom: 5, maxzoom: 12 } as const;
-export const GB_COMPANIES_MINZOOM = 6;
+export const GB_COMPANIES_MINZOOM = 5;
 export const GB_COMPANIES_COLOR = "#2563eb";
 export const GB_MANUFACTURING_COLOR = "#f97316";
 /** 2026-10-29 成品：2,835 個郵遞區號 district、5,493,067 家；製造業（SIC section C）229,621 家（137 區為 0，不畫）。 */
@@ -80,10 +80,10 @@ export const GB_FUNERAL_URL = "https://www.openstreetmap.org/copyright";
 export const GB_FUNERAL_OSM_TIME = "2026-10-29T06:58Z";
 export const GB_FUNERAL_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
 export type GbFuneralKind = "crematorium" | "funeral_directors";
-/** 宣告順序＝圖例順序；火葬場 z6 起、葬儀社 z10 起。counts＝2026-10-29 成品筆數。 */
+/** 宣告順序＝圖例順序；火葬場、葬儀社都 z5 起（2026-10-30 由 z6／z10 降，全英視角可見）。counts＝2026-10-29 成品筆數。 */
 export const GB_FUNERAL_KINDS: readonly { value: GbFuneralKind; color: string; minzoom: number; count: number }[] = [
-  { value: "crematorium", color: FUNERAL_FACILITY_TYPES.find((t) => t.value === "crematorium")!.color, minzoom: 6, count: 314 },
-  { value: "funeral_directors", color: FUNERAL_LAYER_COLORS.funeralOperators, minzoom: 10, count: 3_033 },
+  { value: "crematorium", color: FUNERAL_FACILITY_TYPES.find((t) => t.value === "crematorium")!.color, minzoom: 5, count: 314 },
+  { value: "funeral_directors", color: FUNERAL_LAYER_COLORS.funeralOperators, minzoom: 5, count: 3_033 },
 ];
 export const GB_FUNERAL_COLOR = GB_FUNERAL_KINDS[0]!.color;
 export const GB_FUNERAL_COUNT = 3_347;
@@ -100,7 +100,7 @@ export const GB_AQUACULTURE_SOURCES = {
   ni_daera: { org: "DAERA — Aquaculture Licences Open Data", url: "https://services-eu1.arcgis.com/kswen6BYexuc1SUk/arcgis/rest/services/AquacultureLicenceOpenData/FeatureServer/0" },
 } as const;
 export const GB_AQUACULTURE_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
-export const GB_AQUACULTURE_MINZOOM = 6;
+export const GB_AQUACULTURE_MINZOOM = 5;
 export type GbAquacultureKind = "finfish" | "shellfish" | "fishery_site" | "shellfish_licence";
 /** 宣告順序＝圖例順序。counts＝2026-10-29 成品筆數（全部狀態）。 */
 export const GB_AQUACULTURE_KINDS: readonly { value: GbAquacultureKind; color: string; count: number }[] = [
@@ -141,7 +141,7 @@ export function gbSplitList(value: unknown): string[] {
 export const GB_SOIL_ATTRIBUTION = "Contains British Geological Survey materials © UKRI 2026 (OGL v3.0)";
 export const GB_SOIL_URL = "https://www.bgs.ac.uk/datasets/soil-parent-material-model/";
 export const GB_SOIL_TILE_ZOOM = { minzoom: 5, maxzoom: 12 } as const;
-export const GB_SOIL_MINZOOM = 6;
+export const GB_SOIL_MINZOOM = 5;
 export const GB_SOIL_COUNT = 35_466;
 export type GbSoilDepth = "SHALLOW" | "INTERMEDIATE-SHALLOW" | "INTERMEDIATE" | "DEEP-INTERMEDIATE" | "DEEP";
 /** 土層深度 5 級（淺 → 深＝色階低 → 高）；NA 379 面另畫缺值斜線。counts＝2026-10-29 成品面數。 */

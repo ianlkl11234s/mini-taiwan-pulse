@@ -93,7 +93,7 @@
   "legend.water.gbHydroUntagged": "観測項目の記載なし",
   "legend.water.gbHydroGridPrecision": "中空：位置は1km方眼の中心まで",
   "legend.water.gbHydroCoverage": "対象 2/4：イングランド、スコットランド。ウェールズ、北アイルランド：対象外",
-  "legend.water.gbHydroNoReadings": "観測所の位置のみで観測値は含みません。z7 から表示",
+  "legend.water.gbHydroNoReadings": "観測所の位置のみで観測値は含みません。z5 から表示",
   "legend.water.gbFloodEmbankment": "堤防",
   "legend.water.gbFloodWall": "防水壁（壁、岸壁、遊歩道、防潮堤）",
   "legend.water.gbFloodGate": "水門・着脱式",

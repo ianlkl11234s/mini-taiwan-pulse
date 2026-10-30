@@ -93,7 +93,7 @@
   "legend.water.gbHydroUntagged": "Parameters not listed",
   "legend.water.gbHydroGridPrecision": "Hollow: location only to a 1 km grid square",
   "legend.water.gbHydroCoverage": "Coverage 2/4: England, Scotland; Wales and Northern Ireland: not covered",
-  "legend.water.gbHydroNoReadings": "Station locations only, no live readings; shown from z7",
+  "legend.water.gbHydroNoReadings": "Station locations only, no live readings; shown from z5",
   "legend.water.gbFloodEmbankment": "Embankment",
   "legend.water.gbFloodWall": "Flood wall (wall, quay, promenade, seawall)",
   "legend.water.gbFloodGate": "Gates and demountable",

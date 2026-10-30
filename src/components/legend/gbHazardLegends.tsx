@@ -1,5 +1,6 @@
 // 英國第 9 波災害地質 5 層圖例（2026-10-29）。色票與署名 SSOT 在 data/gbHazardTypes.ts。
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSquare, useLegendTheme } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_GAMMA_ATTRIBUTION, GB_GAMMA_CLASSES, GB_GAMMA_COUNT, GB_GAMMA_MISSING_STROKE, GB_GAMMA_UNIT, GB_GEO_HAZARDS, GB_GEOSURE_ATTRIBUTION,
@@ -47,6 +48,7 @@ export function GbLandslideLegend() {
     <LegendTitle zh={layerTitle("gbLandslide", i18n)} en="Landslide Records (NLD)" />
     <LegendRow swatch={<SwatchDot color={GB_LANDSLIDE_COLOR} />}>{i18n.t("legend.hazard.gbLandslideChecked", { n: i18n.formatNumber(GB_LANDSLIDE_CHECKED.checked) })}</LegendRow>
     <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_LANDSLIDE_COLOR} strokeWidth={GB_LANDSLIDE_HOLLOW_STROKE} />}>{i18n.t("legend.hazard.gbLandslideUnchecked", { n: i18n.formatNumber(GB_LANDSLIDE_CHECKED.unchecked) })}</LegendRow>
+    <DenseHeatmapLegendRow layers={["gbLandslide"]} />
     <LegendNote>{i18n.t("legend.hazard.gbLandslideNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbLandslideCoverage")}</LegendNote>
     <LegendNote>{i18n.t("legend.hazard.gbLandslideLicense")}</LegendNote>

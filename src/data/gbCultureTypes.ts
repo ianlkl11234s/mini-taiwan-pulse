@@ -24,8 +24,8 @@ export const GB_CULTURE_ODBL = "ODbL 1.0";
 export const GB_CULTURE_OGL_V3 = "Open Government Licence v3.0";
 /** 點資料檔 z5–13；hook 用 layer minzoom 控制顯示。 */
 export const GB_CULTURE_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
-/** 景點 5,436 點在低縮放很密：縮放 9 級起才顯示；其他類別 7 級起。 */
-export const GB_CULTURE_MINZOOM = { default: 7, attraction: 9 } as const;
+/** 2026-10-30：全部 z5 起（原景點 z9、其他 z7；總數 <1 萬點、z5 起切片完整，全英視角可見）。 */
+export const GB_CULTURE_MINZOOM = { default: 5, attraction: 5 } as const;
 
 const facilityColor = (name: string) => CULTURAL_FACILITY_TYPES.find((c) => c.name === name)!.color;
 const museumTypeColor = (name: string) => CULTURAL_MUSEUM_TYPES.find((c) => c.name === name)!.color;

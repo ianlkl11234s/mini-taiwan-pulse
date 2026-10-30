@@ -1985,10 +1985,10 @@ export const LAYER_PARAMS_SPEC = {
   gbFuelStations: [opacitySlider("gbFuelStationsOpacity", densePointOpacity(8_535)), scaleSlider("gbFuelStationsScale", 1)],
   gbOilGasFields: [opacitySlider("gbOilGasFieldsOpacity", 0.6)],
   // 英國第 7 波：公共服務（點層透明度＋大小）
-  gbSchools: [opacitySlider("gbSchoolsOpacity", densePointOpacity(30_658)), scaleSlider("gbSchoolsScale", 1)],
-  gbHealthFacilities: [opacitySlider("gbHealthFacilitiesOpacity", densePointOpacity(21_297)), scaleSlider("gbHealthFacilitiesScale", 1)],
-  gbCareHomes: [opacitySlider("gbCareHomesOpacity", densePointOpacity(15_758)), scaleSlider("gbCareHomesScale", 1)],
-  gbCareServices: [opacitySlider("gbCareServicesOpacity", densePointOpacity(17_237)), scaleSlider("gbCareServicesScale", 1)],
+  gbSchools: [heatmapPalette("gbSchools"), opacitySlider("gbSchoolsOpacity", densePointOpacity(30_658)), scaleSlider("gbSchoolsScale", 1)],
+  gbHealthFacilities: [heatmapPalette("gbHealthFacilities"), opacitySlider("gbHealthFacilitiesOpacity", densePointOpacity(21_297)), scaleSlider("gbHealthFacilitiesScale", 1)],
+  gbCareHomes: [heatmapPalette("gbCareHomes"), opacitySlider("gbCareHomesOpacity", densePointOpacity(15_758)), scaleSlider("gbCareHomesScale", 1)],
+  gbCareServices: [heatmapPalette("gbCareServices"), opacitySlider("gbCareServicesOpacity", densePointOpacity(17_237)), scaleSlider("gbCareServicesScale", 1)],
   gbFireStations: [opacitySlider("gbFireStationsOpacity", densePointOpacity(1_987)), scaleSlider("gbFireStationsScale", 1)],
   gbCourts: [opacitySlider("gbCourtsOpacity", densePointOpacity(450)), scaleSlider("gbCourtsScale", 1)],
   // 英國第 8 波：文化與觀光（點層透明度＋大小）
@@ -2011,7 +2011,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "gbGroundStabilityHazardIdx", encode: ["landslides", "shrink_swell", "compressible_ground", "collapsible_deposits", "running_sand", "soluble_rocks"],
     },
   ],
-  gbLandslide: [opacitySlider("gbLandslideOpacity", densePointOpacity(18_699)), scaleSlider("gbLandslideScale", 1)],
+  gbLandslide: [heatmapPalette("gbLandslide"), opacitySlider("gbLandslideOpacity", densePointOpacity(18_699)), scaleSlider("gbLandslideScale", 1)],
   gbRadon: [opacitySlider("gbRadonOpacity", 0.7)],
   gbRadiation: [opacitySlider("gbRadiationOpacity", 0.9), scaleSlider("gbRadiationScale", 1)],
   gbEarthquakes: [opacitySlider("gbEarthquakesOpacity", 0.8), scaleSlider("gbEarthquakesScale", 1)],
@@ -2029,6 +2029,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   gbBrownfield: [
+    heatmapPalette("gbBrownfield"),
     opacitySlider("gbBrownfieldOpacity", densePointOpacity(30_303)),
     scaleSlider("gbBrownfieldScale", 1),
     {
@@ -2040,7 +2041,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "gbBrownfieldStatusIdx", encode: ["all", "permissioned", "pending", "not_permissioned", "completed", "other"],
     },
   ],
-  gbRecyclingCentres: [opacitySlider("gbRecyclingCentresOpacity", densePointOpacity(12_959)), scaleSlider("gbRecyclingCentresScale", 1)],
+  gbRecyclingCentres: [heatmapPalette("gbRecyclingCentres"), opacitySlider("gbRecyclingCentresOpacity", densePointOpacity(12_959)), scaleSlider("gbRecyclingCentresScale", 1)],
   gbWastePermits: [
     opacitySlider("gbWastePermitsOpacity", densePointOpacity(8_711)),
     scaleSlider("gbWastePermitsScale", 1),

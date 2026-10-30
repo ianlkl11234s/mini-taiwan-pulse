@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 import { applyLayerOpacity } from "../overlayManager";
 import { densePointOpacity, densePointsFromZoom, HEATMAP, heatmapMaxzoom, heatmapPaint, POINT_OPACITY } from "../mapStyleScale";
-import { paramDefault } from "../../data/layerParamsSpec";
+import { LAYER_PARAMS_SPEC, paramDefault } from "../../data/layerParamsSpec";
 import { paletteRamp } from "../palettes";
 
 const MAGMA_DARK = paletteRamp("magma", true)!;
@@ -160,6 +160,14 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["jpWelfareChild", "useJpWelfareFacilitiesLayer.ts", 78_627],
   ["fireEvents", "useFireEventsLayer.ts", 15_398],
   ["fireLatest", "useFireLatestLayer.ts", 15_398],
+  // 英國（2026-10-30，全英 z5.5–6 目視校正）；熱區由 useGbWaterLayers 的 gbHeatmapBuild 建
+  ["gbSchools", "useGbCivicLayers.ts", 30_658],
+  ["gbHealthFacilities", "useGbCivicLayers.ts", 21_297], // 熱區只算 GP＋藥局 19,882 點，醫院維持畫點
+  ["gbCareHomes", "useGbCivicLayers.ts", 15_758],
+  ["gbCareServices", "useGbCivicLayers.ts", 17_237],
+  ["gbBrownfield", "useGbEnvPlanningLayers.ts", 30_303],
+  ["gbRecyclingCentres", "useGbEnvPlanningLayers.ts", 12_959], // 熱區只算回收桶 11,412 點，回收中心維持畫點
+  ["gbLandslide", "useGbHazardLayers.ts", 18_699],
 ];
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */
 const HOOK_MULTIPLIER_OPACITY = new Set(["fireEvents", "fireLatest"]);
@@ -167,13 +175,30 @@ const HOOK_MULTIPLIER_OPACITY = new Set(["fireEvents", "fireLatest"]);
 describe("R5 hook 密集點全面套用", () => {
   it.each(HOOK_DENSE)("%s：hook 有熱區（%s）且透明度預設依點數", (id, file, count) => {
     const src = fs.readFileSync(path.resolve(__dirname, "../../hooks", file), "utf8");
-    expect(src).toMatch(/type: "heatmap"|heatmapLayer\(/);
+    expect(src).toMatch(/type: "heatmap"|heatmapLayer\(|gbHeatmapBuild\(/);
     expect(src).toContain("heatmapMaxzoom(");
     expect(src).toContain("densePointsFromZoom(");
     const def = Number(paramDefault(id, `${id}Opacity`));
     expect(def).toBe(HOOK_MULTIPLIER_OPACITY.has(id) ? 1 : densePointOpacity(count));
   });
 });
+
+// P-4 豁免（hook）：≥1 萬點但刻意不畫熱區，附理由。
+describe("R5 hook 熱區豁免", () => {
+  it("gbRenewables 不套熱區：容量 150 kW–GW 級差距大，熱區只反映案件數會誤導；改 z5 起直接畫點、半徑依裝置容量（2026-10-30 使用者決定）", () => {
+    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useGbEnergyLayers.ts"), "utf8");
+    const block = src.slice(src.indexOf("function renewablesPaint"), src.indexOf("// ─────────────────────────── 電網"));
+    expect(block).not.toMatch(/heatmap/i);
+    expect(block).toContain("gbCapacityRadiusExpr(");
+    expect(block).toMatch(/"source-layer": "gb_renewables", minzoom: 5,/);
+    expect(paramsSpecHasHeatmap("gbRenewables")).toBe(false);
+  });
+});
+
+function paramsSpecHasHeatmap(key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(LAYER_PARAMS_SPEC, key)
+    && (LAYER_PARAMS_SPEC as Record<string, { kind: string; role?: string }[]>)[key]!.some((s) => s.kind === "palette" && s.role === "heatmap");
+}
 
 // P-3：1k–10k 點的透明度滑桿預設 0.8（2026-10-02 量測清單）。
 const OVER_1K_OPACITY: readonly (readonly [string, string])[] = [

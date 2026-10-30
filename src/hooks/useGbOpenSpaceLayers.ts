@@ -34,7 +34,7 @@ const GREENSPACE_SOURCE: SourceConfig = {
 interface FillConfig { key: GbOpenSpaceKey; layerId: string; source: SourceConfig; minzoom: number; color: unknown; filter?: unknown[] }
 
 const FILLS: Readonly<Record<GbOpenSpaceKey, FillConfig>> = {
-  gbBuiltUpAreas: { key: "gbBuiltUpAreas", layerId: GB_BUILT_UP_FILL_LAYER_ID, source: BUILT_UP_SOURCE, minzoom: 6, color: GB_BUILT_UP_COLOR },
+  gbBuiltUpAreas: { key: "gbBuiltUpAreas", layerId: GB_BUILT_UP_FILL_LAYER_ID, source: BUILT_UP_SOURCE, minzoom: 5, color: GB_BUILT_UP_COLOR },
   ...Object.fromEntries((Object.keys(GB_GREENSPACE_CATEGORIES) as GbGreenspaceKey[]).map((key) => [key, {
     key,
     layerId: GB_GREENSPACE_FILL_LAYER_IDS[key],

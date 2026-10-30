@@ -4562,7 +4562,7 @@ export const LAYER_MANIFEST = {
     legend: "gbHealthFacilities",
     popup: "gbHealthFacilities",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "英國醫院、GP 診所、藥局（英格蘭、蘇格蘭、威爾斯；縮放 9 級以下只顯示醫院）",
+    description: "英國醫院、GP 診所、藥局（英格蘭、蘇格蘭、威爾斯；GP 診所與藥局拉遠時以熱區顯示、縮放 10 級起畫點）",
     topics: ["英國", "醫院", "診所", "藥局", "NHS", "醫療"],
   },
 
@@ -4745,7 +4745,7 @@ export const LAYER_MANIFEST = {
     legend: "gbVisitorExperience",
     popup: "gbVisitorExperience",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "英國景點、遊客中心、動物園、主題樂園、水族館（OSM；景點縮放 9 級起顯示）",
+    description: "英國景點、遊客中心、動物園、主題樂園、水族館（OSM）",
     topics: ["英國", "景點", "遊客中心", "動物園", "主題樂園", "水族館", "觀光", "OSM"],
   },
 
@@ -4945,7 +4945,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbHazardLayers 自建 mapbox-pmtiles source；source-layer=gb_earthquakes，兩個 circle：規模 <2 儀器記錄 z7 起、其他 z4 起；2.5MB git-track",
+      note: "useGbHazardLayers 自建 mapbox-pmtiles source；source-layer=gb_earthquakes，兩個 circle：規模 <2 儀器記錄 z5 起、其他 z4 起；2.5MB git-track",
       staticAssets: ["./world/gb_earthquakes.pmtiles"],
     },
     legend: "gbEarthquakes",
@@ -5024,7 +5024,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGbEnvPlanningLayers 自建 mapbox-pmtiles source；source-layer=gb_recycling_points，兩個 circle：回收中心 z7 起、回收桶 z9 起；4.6MB git-track",
+      note: "useGbEnvPlanningLayers 自建 mapbox-pmtiles source；source-layer=gb_recycling_points，回收中心 circle z5 起；回收桶 z<10 熱區、z≥10 circle；4.6MB git-track",
       staticAssets: ["./world/gb_recycling_points.pmtiles"],
     },
     legend: "gbRecyclingCentres",

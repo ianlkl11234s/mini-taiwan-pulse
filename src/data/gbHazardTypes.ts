@@ -129,8 +129,8 @@ export function gbGammaColor(value: unknown): string | undefined {
 export const GB_QUAKE_ATTRIBUTION = "Contains British Geological Survey materials copyright NERC 2026 (Open Government Licence); BGS UK earthquake catalogue (historical & instrumentally recorded)";
 export const GB_QUAKE_URL = "https://map.bgs.ac.uk/arcgis/rest/services/GeoIndex_Onshore/hazards/MapServer";
 export const GB_QUAKE_TILE_ZOOM = { minzoom: 4, maxzoom: 11 } as const;
-/** 規模 <2 的儀器記錄（多數）z7 起才畫；其他（含規模未知、歷史地震）z4 起。 */
-export const GB_QUAKE_MINOR_MINZOOM = 7;
+/** 規模 <2 的儀器記錄（多數）z5 起才畫（2026-10-30 由 z7 降，全英視角可見）；其他（含規模未知、歷史地震）z4 起。 */
+export const GB_QUAKE_MINOR_MINZOOM = 5;
 export const GB_QUAKE_MINOR_BELOW = 2;
 /** spec §3.15 earthquake 語意色（＝台灣 earthquakes）。 */
 export const GB_QUAKE_COLOR = "#ff3b30";

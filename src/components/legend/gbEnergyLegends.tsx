@@ -54,6 +54,8 @@ export function GbRenewablesLegend() {
     <LegendTitle zh={layerTitle("gbRenewables", i18n)} en="Renewable Energy Projects" />
     {GB_TECH_GROUPS.map((g) => <LegendRow key={g.value} swatch={<SwatchDot color={g.color} />}>{i18n.t(GB_TECH_GROUP_KEYS[g.value])}</LegendRow>)}
     <LegendRow swatch={<SwatchDot color={GB_ENERGY_FALLBACK_COLOR} stroke={GB_CONSTRUCTION_STROKE} strokeWidth={1.5} opacity={1} />}>{i18n.t("legend.energy.gbRenewConstructionRing")}</LegendRow>
+    <LegendSizeRow fill={GB_ENERGY_FALLBACK_COLOR} title={i18n.t("legend.energy.gbCapacityTitle")} items={GB_CAPACITY_BANDS.map((b) => ({ r: b.radius, label: b.label }))} />
+    <LegendNote>{i18n.t("legend.energy.gbRenewSizeNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.gbRenewStatusNote", {
       operational: i18n.formatNumber(GB_STATUS_COUNTS.operational), construction: i18n.formatNumber(GB_STATUS_COUNTS.construction),
     })}</LegendNote>

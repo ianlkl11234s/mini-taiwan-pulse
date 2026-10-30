@@ -10,7 +10,7 @@ import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 8 波文化與觀光 3 層：文化設施（官方實心、OSM 補缺同色空心）、藝文場館、
- * 觀光體驗（景點 z9 起、其他 z7 起，同 source 兩個 circle）。靜態資料、不訂閱時間。
+ * 觀光體驗（景點、其他類別兩個 circle，同 source，皆 z5 起）。靜態資料、不訂閱時間。
  */
 export const GB_CULTURAL_FACILITIES_CIRCLE_ID = "gb-cultural-facilities-circle";
 export const GB_ARTS_VENUES_CIRCLE_ID = "gb-arts-venues-circle";
@@ -98,7 +98,7 @@ export function useGbVisitorExperienceLayer(mapRef: MapRef, visible: boolean, op
   const paint = () => pointPaint("gbVisitorExperience", kindColor(GB_VISITOR_KINDS), isDark, opacity, scale);
   useGbPmtilesLayers(mapRef, VISITOR_SOURCE, visible, () => [
     {
-      // 景點 5,436 點：縮放 9 級起，畫在其他類別下面
+      // 景點 5,436 點：畫在其他類別下面
       id: GB_VISITOR_ATTRACTION_CIRCLE_ID,
       layer: () => ({
         id: GB_VISITOR_ATTRACTION_CIRCLE_ID, type: "circle", source: VISITOR_SOURCE.id, "source-layer": "gb_visitor_experience",

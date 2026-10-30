@@ -93,7 +93,7 @@
   "legend.water.gbHydroUntagged": "未標參數",
   "legend.water.gbHydroGridPrecision": "空心：位置只到 1 公里方格中心",
   "legend.water.gbHydroCoverage": "涵蓋 2/4：英格蘭、蘇格蘭；威爾斯、北愛爾蘭：未涵蓋",
-  "legend.water.gbHydroNoReadings": "只有站點位置，不含即時讀數；z7 起顯示",
+  "legend.water.gbHydroNoReadings": "只有站點位置，不含即時讀數；z5 起顯示",
   "legend.water.gbFloodEmbankment": "堤防",
   "legend.water.gbFloodWall": "防洪牆（牆、碼頭、海濱步道、海堤）",
   "legend.water.gbFloodGate": "閘門與可拆式",

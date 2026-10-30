@@ -1,5 +1,6 @@
 // 英國第 11 波環境與規劃 6 層圖例（2026-10-29）。色票與署名 SSOT 在 data/gbEnvPlanningTypes.ts。
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_ENV_FALLBACK_COLOR,
@@ -68,6 +69,7 @@ export function GbBrownfieldLegend() {
         </LegendRow>
       );
     })}
+    <DenseHeatmapLegendRow layers={["gbBrownfield"]} />
     <LegendNote>{i18n.t("legend.environment.gbBfNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbBfCoverage")}</LegendNote>
     <LegendNote>{GB_BROWNFIELD_ATTRIBUTION}</LegendNote>
@@ -86,6 +88,8 @@ export function GbRecyclingCentresLegend() {
         {i18n.t("legend.environment.gbRecRow", { label: i18n.t(GB_RECYCLING_KIND_KEYS[k.value]), n: n(k.count), zoom: zoom[k.value] })}
       </LegendRow>
     ))}
+    <DenseHeatmapLegendRow layers={["gbRecyclingCentres"]} />
+    <LegendNote>{i18n.t("legend.environment.gbRecHeatNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbRecOsm")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbRecCoverage", { e: n(GB_RECYCLING_BY_NATION.England), s: n(GB_RECYCLING_BY_NATION.Scotland), w: n(GB_RECYCLING_BY_NATION.Wales), ni: n(GB_RECYCLING_BY_NATION["Northern Ireland"]) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbRecTime", { time: GB_RECYCLING_OSM_TIME })}</LegendNote>

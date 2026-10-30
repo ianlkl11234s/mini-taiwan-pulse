@@ -108,9 +108,9 @@ export const GB_BROWNFIELD_OWNERSHIP: readonly GbBrownfieldOwnership[] = ["publi
 export const GB_RECYCLING_ATTRIBUTION = "© OpenStreetMap contributors (ODbL)";
 export const GB_RECYCLING_URL = "https://www.openstreetmap.org/copyright";
 export const GB_RECYCLING_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
-/** 回收中心（量少）z7 起、回收桶 z9 起。 */
-export const GB_RECYCLING_CENTRE_MINZOOM = 7;
-export const GB_RECYCLING_CONTAINER_MINZOOM = 9;
+/** 回收中心（量少）z5 起；回收桶 z<10 熱區、z≥10 畫點（R5，hook `densePointsFromZoom` 由原 z9 升到 10）。 */
+export const GB_RECYCLING_CENTRE_MINZOOM = 5;
+export const GB_RECYCLING_CONTAINER_MINZOOM = 10;
 export const GB_RECYCLING_OSM_TIME = "2026-10-29T06:20Z";
 export type GbRecyclingKind = "centre" | "container";
 export const GB_RECYCLING_KINDS: readonly { value: GbRecyclingKind; color: string; count: number }[] = [
@@ -126,7 +126,7 @@ export function gbRecyclingKind(value: unknown) {
 // ─────────────────────────── C087 廢棄物處理許可 gbWastePermits ───────────────────────────
 
 export const GB_WASTE_PERMITS_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
-export const GB_WASTE_PERMITS_MINZOOM = 8;
+export const GB_WASTE_PERMITS_MINZOOM = 5;
 export const GB_WASTE_PERMITS_COLOR = WASTE_FACILITY_COLORS.transfer_station!;
 export type GbWasteAuthority = "Environment Agency" | "SEPA" | "NIEA";
 export const GB_WASTE_AUTHORITIES: readonly {
@@ -170,7 +170,7 @@ export const GB_POLLUTION_ATTRIBUTION = "© Scottish Environment Protection Agen
 export const GB_POLLUTION_URL = "http://map.sepa.org.uk/atom/SEPA_SPRI_Air_Releases.atom";
 export const GB_POLLUTION_LICENSE = "Open Government Licence";
 export const GB_POLLUTION_TILE_ZOOM = { minzoom: 5, maxzoom: 13 } as const;
-export const GB_POLLUTION_MINZOOM = 7;
+export const GB_POLLUTION_MINZOOM = 5;
 export const GB_POLLUTION_COLOR = "#f97316";
 export const GB_POLLUTION_YEAR = 2017;
 /** SEPA SPRI 1,450 場址：任一途徑（空氣／水體）申報有排放 905、已申報途徑皆無排放 545。 */

@@ -1,16 +1,17 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint } from "../map/lineFillSpec";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { JMA_QUAKE_RADIUS_STOPS } from "../data/jmaTypes";
 import {
   GB_GAMMA_ATTRIBUTION, GB_GAMMA_CLASSES, GB_GAMMA_MINZOOM, GB_GAMMA_MISSING_STROKE, GB_GAMMA_TILE_ZOOM,
-  GB_GEOSURE_ATTRIBUTION, GB_GEOSURE_MINZOOM, GB_GEOSURE_TILE_ZOOM, GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_COLOR,
+  GB_GEOSURE_ATTRIBUTION, GB_GEOSURE_MINZOOM, GB_GEOSURE_TILE_ZOOM, GB_LANDSLIDE_ATTRIBUTION, GB_LANDSLIDE_COLOR, GB_LANDSLIDE_COUNT,
   GB_LANDSLIDE_HOLLOW_STROKE, GB_LANDSLIDE_MINZOOM, GB_LANDSLIDE_TILE_ZOOM, GB_QUAKE_ATTRIBUTION, GB_QUAKE_COLOR,
   GB_QUAKE_HOLLOW_STROKE, GB_QUAKE_MINOR_BELOW, GB_QUAKE_MINOR_MINZOOM, GB_QUAKE_TILE_ZOOM, GB_RADON_ATTRIBUTION,
   GB_RADON_CLASSES, GB_RADON_MINZOOM, GB_RADON_TILE_ZOOM, GB_SUSCEPTIBILITY, gbGeoHazardFromIdx, gbRadonColors,
 } from "../data/gbHazardTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 9 波災害地質 5 層：GeoSure 易發性（5 km 六角格面，一次一種災害）、山崩紀錄（點）、
@@ -22,6 +23,7 @@ export const GB_RADON_FILL_ID = "gb-radon-fill";
 export const GB_GAMMA_CIRCLE_ID = "gb-gamma-dose-circle";
 export const GB_QUAKE_MAJOR_CIRCLE_ID = "gb-earthquakes-major-circle";
 export const GB_QUAKE_MINOR_CIRCLE_ID = "gb-earthquakes-minor-circle";
+export const GB_LANDSLIDE_HEATMAP_ID = "gb-landslides-heatmap";
 
 type MapRef = React.RefObject<MapboxMap | null>;
 type Expr = unknown[];
@@ -83,15 +85,24 @@ function landslidePaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
+/** R5（P-4／G-2，2026-10-30）：18,699 點 z<10 熱區、z≥10 畫點（原 z7 起）。 */
+const LANDSLIDE_POINTS_FROM = densePointsFromZoom(GB_LANDSLIDE_COUNT, GB_LANDSLIDE_MINZOOM);
+const LANDSLIDE_HEAT_INTENSITY = 2;
+
 export function useGbLandslideLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbPmtilesLayers(mapRef, LANDSLIDE_SOURCE, visible, () => [{
+  const heatStyle = useHeatmapStyleSignature(["gbLandslide"]);
+  useGbPmtilesLayers(mapRef, LANDSLIDE_SOURCE, visible, () => [gbHeatmapBuild({
+    id: GB_LANDSLIDE_HEATMAP_ID, key: "gbLandslide", sourceId: LANDSLIDE_SOURCE.id, sourceLayer: "gb_landslides",
+    maxzoom: heatmapMaxzoom(LANDSLIDE_POINTS_FROM), isDark,
+    opacityScale: clamp01(opacity) / opacityDefault("gbLandslide", 0.75), intensity: LANDSLIDE_HEAT_INTENSITY,
+  }), {
     id: GB_LANDSLIDE_CIRCLE_ID,
     layer: () => ({
-      id: GB_LANDSLIDE_CIRCLE_ID, type: "circle", source: LANDSLIDE_SOURCE.id, "source-layer": "gb_landslides", minzoom: GB_LANDSLIDE_MINZOOM,
+      id: GB_LANDSLIDE_CIRCLE_ID, type: "circle", source: LANDSLIDE_SOURCE.id, "source-layer": "gb_landslides", minzoom: LANDSLIDE_POINTS_FROM,
       layout: { visibility: "none" }, paint: landslidePaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_LANDSLIDE_CIRCLE_ID, landslidePaint(isDark, opacity, scale)),
-  }], [opacity, scale, isDark]);
+  }], [opacity, scale, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 氡氣指示圖 ───────────────────────────
