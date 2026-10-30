@@ -361,6 +361,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-flood-defences-line"], type: "gbFloodDefenceAssets" },
   { layers: ["gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
   { layers: ["gb-rivers-line"], type: "gbRivers" },
+  { layers: ["gb-greenspace-golf-circle"], type: "gbSportsFacilities" }, // 全英視角的高爾夫球場代表點（z<10），點先於面
   { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
   { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
   { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },

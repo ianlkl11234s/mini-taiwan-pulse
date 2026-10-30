@@ -780,6 +780,8 @@ export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) 
     {cfg.functions.map((f) => (
       <LegendRow key={f.value} swatch={<SwatchSquare color={f.color} />}>{i18n.t(GB_GREENSPACE_LEGEND_FN_KEYS[f.id])}</LegendRow>
     ))}
+    {layerKey === "gbSportsFacilities" ? <LegendRow swatch={<SwatchDot color={cfg.functions.find((f) => f.id === "Golf")!.color} />}>{i18n.t("legend.urban.gbGolfPoints")}</LegendRow> : null}
+    <DenseHeatmapLegendRow layers={[layerKey]} />
     {layerKey === "gbCemeteries" ? <LegendNote>{i18n.t("legend.urban.gbReligiousNote")}</LegendNote> : null}
     <LegendNote>{i18n.t("legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>

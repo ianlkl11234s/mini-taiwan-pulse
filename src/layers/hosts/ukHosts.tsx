@@ -51,10 +51,10 @@ export const GbOpenSpaceHost: LayerHostComponent = ({ deps }) => {
   const burial = useKeyOverlayParams("gbCemeteries");
   useGbOpenSpaceLayers(deps.mapRef, {
     gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7 },
-    gbGreenspace: { visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.7 },
-    gbSportsFacilities: { visible: deps.layerVisibility.gbSportsFacilities, opacity: sports.gbSportsFacilitiesOpacity ?? 0.7 },
-    gbCemeteries: { visible: deps.layerVisibility.gbCemeteries, opacity: burial.gbCemeteriesOpacity ?? 0.7 },
-  });
+    gbGreenspace: { visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.75 },
+    gbSportsFacilities: { visible: deps.layerVisibility.gbSportsFacilities, opacity: sports.gbSportsFacilitiesOpacity ?? 0.75 },
+    gbCemeteries: { visible: deps.layerVisibility.gbCemeteries, opacity: burial.gbCemeteriesOpacity ?? 0.75 },
+  }, deps.isDarkTheme);
   return null;
 };
 

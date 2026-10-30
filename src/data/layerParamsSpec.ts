@@ -1919,9 +1919,9 @@ export const LAYER_PARAMS_SPEC = {
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
-  gbGreenspace: [opacitySlider("gbGreenspaceOpacity", 0.7)],
-  gbSportsFacilities: [opacitySlider("gbSportsFacilitiesOpacity", 0.7)],
-  gbCemeteries: [opacitySlider("gbCemeteriesOpacity", 0.7)],
+  gbGreenspace: [heatmapPalette("gbGreenspace"), opacitySlider("gbGreenspaceOpacity", densePointOpacity(80_918))],
+  gbSportsFacilities: [heatmapPalette("gbSportsFacilities"), opacitySlider("gbSportsFacilitiesOpacity", densePointOpacity(54_852))],
+  gbCemeteries: [heatmapPalette("gbCemeteries"), opacitySlider("gbCemeteriesOpacity", densePointOpacity(30_208))],
   // 英國第 3 波：河川／防洪設施（線透明度）、測站與浴場（點透明度＋大小）、海岸侵蝕（面透明度＋期別）
   gbRivers: [opacitySlider("gbRiversOpacity", 0.85)],
   gbHydroStations: [opacitySlider("gbHydroStationsOpacity", densePointOpacity(6_261)), scaleSlider("gbHydroStationsScale", 1)],

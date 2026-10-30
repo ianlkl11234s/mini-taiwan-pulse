@@ -144,6 +144,7 @@
   "legend.urban.gbFnCemetery": "墓地",
   "legend.urban.gbFnReligious": "宗教施設の敷地（教会墓地など）",
   "legend.urban.gbReligiousNote": "宗教施設の敷地は教会などの境内で、墓地を含むことが多いものの墓地そのものではありません",
+  "legend.urban.gbGolfPoints": "ゴルフ場（英国全体表示では点で描画）",
   "legend.urban.gbGreenspaceZoom": "ズーム {zoom} 以上で表示",
   "legend.urban.gbHillshadeNote": "グレースケールの陰影（北西光源・高度角 45°）。起伏のみを表し数値は含みません。海面は透明",
   "legend.urban.gbTerrainCoverage": "対象 3/4：イングランド、スコットランド、ウェールズ。北アイルランドは対象外（OS Terrain 50 はグレートブリテンのみ）",

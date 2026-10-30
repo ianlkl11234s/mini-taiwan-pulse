@@ -144,6 +144,7 @@
   "legend.urban.gbFnCemetery": "墓園",
   "legend.urban.gbFnReligious": "宗教場地（教堂院地）",
   "legend.urban.gbReligiousNote": "宗教場地是教堂等宗教建物的院地，常含墓地但不等於墓園",
+  "legend.urban.gbGolfPoints": "高爾夫球場（全英視角畫點）",
   "legend.urban.gbGreenspaceZoom": "放大到 z{zoom} 以上才顯示",
   "legend.urban.gbHillshadeNote": "灰階地形陰影（光源西北、高度角 45°），只表示起伏，不含數值；海面透明",
   "legend.urban.gbTerrainCoverage": "涵蓋 3/4：英格蘭、蘇格蘭、威爾斯；北愛爾蘭未涵蓋（OS Terrain 50 只有大不列顛）",
