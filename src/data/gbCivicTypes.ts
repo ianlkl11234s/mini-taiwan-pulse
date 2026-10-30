@@ -81,8 +81,8 @@ export const GB_HEALTH_KINDS: readonly { value: GbHealthKind; paint: keyof typeo
 ];
 export const GB_HEALTH_COUNT = 21_297;
 export const GB_HEALTH_COLOR = MEDICAL_POI_PAINT_COLORS.hospital.dark;
-/** GP 診所與藥局 2 萬點：縮放 9 級起才顯示；醫院 7 級起。 */
-export const GB_HEALTH_MINZOOM = { hospital: 7, other: 9 } as const;
+/** 醫院 <1 萬點 z5 起畫點；GP 診所與藥局 2 萬點原 z9 起，R5 後 z<10 熱區、z≥10 畫點（hook `densePointsFromZoom`）。 */
+export const GB_HEALTH_MINZOOM = { hospital: 5, other: 9 } as const;
 export function gbHealthKind(value: unknown) {
   return GB_HEALTH_KINDS.find((k) => k.value === value);
 }

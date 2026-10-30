@@ -40,7 +40,7 @@ export function GbCulturalFacilitiesLegend() {
     <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={color} strokeWidth={GB_CULTURAL_OSM_STROKE_WIDTH} />}>{i18n.t("legend.culture.gbSourceOsm", { n: i18n.formatNumber(GB_CULTURAL_SOURCE_COUNTS.osm) })}</LegendRow>
     <LegendNote>{i18n.t("legend.culture.gbCulturalNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbGalleryNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.culture.gbZoom7")}</LegendNote>
+    <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
     <LegendNote>{GB_LIBRARIES_NI_ATTRIBUTION}</LegendNote>
     <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
@@ -54,12 +54,12 @@ export function GbArtsVenuesLegend() {
     {GB_ARTS_KINDS.map((k) => <LegendRow key={k.value} swatch={<SwatchDot color={k.color} />}>{i18n.t(GB_ARTS_KIND_KEYS[k.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.culture.gbArtsNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbOsmOnly")}</LegendNote>
-    <LegendNote>{i18n.t("legend.culture.gbZoom7")}</LegendNote>
+    <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
     <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }
 
-/** 英國觀光體驗：五類（動物園、水族館同色），全為 OSM；景點縮放 9 級起。 */
+/** 英國觀光體驗：五類（動物園、水族館同色），全為 OSM。 */
 export function GbVisitorExperienceLegend() {
   const i18n = useLocale();
   return <div>
@@ -67,7 +67,7 @@ export function GbVisitorExperienceLegend() {
     {GB_VISITOR_KINDS.map((k) => <LegendRow key={k.value} swatch={<SwatchDot color={k.color} />}>{i18n.t(GB_VISITOR_KIND_KEYS[k.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.culture.gbVisitorNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.culture.gbOsmOnly")}</LegendNote>
-    <LegendNote>{i18n.t("legend.culture.gbAttractionZoom")}</LegendNote>
+    <LegendNote>{i18n.t("legend.culture.gbZoom5")}</LegendNote>
     <LegendNote>{GB_OSM_ATTRIBUTION}</LegendNote>
   </div>;
 }

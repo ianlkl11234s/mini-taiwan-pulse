@@ -1,21 +1,25 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
-import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import {
-  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_MINZOOM, GB_BROWNFIELD_STATUSES, GB_BROWNFIELD_TILE_ZOOM,
+  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_COUNT, GB_BROWNFIELD_MINZOOM, GB_BROWNFIELD_STATUSES, GB_BROWNFIELD_TILE_ZOOM,
   GB_ENV_FALLBACK_COLOR, GB_ENV_HOLLOW_STROKE, GB_NOISE_ATTRIBUTION, GB_NOISE_BANDS, GB_NOISE_MINZOOM, GB_NOISE_TILE_ZOOM,
   GB_PLANNING_ATTRIBUTION, GB_PLANNING_CONSTRAINTS, GB_PLANNING_MINZOOM, GB_PLANNING_TILE_ZOOM, GB_POLLUTION_ATTRIBUTION,
   GB_POLLUTION_COLOR, GB_POLLUTION_MINZOOM, GB_POLLUTION_TILE_ZOOM, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_CENTRE_MINZOOM,
   GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_TILE_ZOOM, GB_WASTE_PERMITS_ATTRIBUTION, GB_WASTE_PERMITS_COLOR,
-  GB_WASTE_PERMITS_MINZOOM, GB_WASTE_PERMITS_TILE_ZOOM, gbBrownfieldView, gbNoiseSourceView, gbPlanningView, gbWasteAuthorityView,
+  GB_WASTE_PERMITS_MINZOOM, GB_WASTE_PERMITS_TILE_ZOOM, type GbRecyclingKind, gbBrownfieldView, gbNoiseSourceView, gbPlanningView, gbWasteAuthorityView,
 } from "../data/gbEnvPlanningTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 11 波環境與規劃 6 層：規劃限制區（面，類別選單）、棕地登記冊（點，許可狀態選單）、回收點（點，中心／回收桶）、
  * 廢棄物處理許可（點，主管機關選單）、污染排放申報（點，只有蘇格蘭 SEPA；檔案本身不含英格蘭）、策略噪音（面，道路／鐵路選單）。
  * 靜態資料、不訂閱時間。
+ *
+ * R5（P-4／G-2，2026-10-30）：棕地（3 萬點）、回收桶（1.1 萬點）z<10 熱區、z≥10 畫點；
+ * 回收中心、廢棄物處理許可、污染排放申報 <1 萬點直接 z5 起畫。
  */
 export const GB_PLANNING_FILL_ID = "gb-planning-constraints-fill";
 export const GB_PLANNING_LINE_ID = "gb-planning-constraints-line";
@@ -25,6 +29,8 @@ export const GB_RECYCLING_CONTAINER_CIRCLE_ID = "gb-recycling-container-circle";
 export const GB_WASTE_PERMITS_CIRCLE_ID = "gb-waste-permits-circle";
 export const GB_POLLUTION_CIRCLE_ID = "gb-pollution-inventory-circle";
 export const GB_NOISE_FILL_ID = "gb-noise-fill";
+export const GB_BROWNFIELD_HEATMAP_ID = "gb-brownfield-heatmap";
+export const GB_RECYCLING_CONTAINER_HEATMAP_ID = "gb-recycling-container-heatmap";
 
 type MapRef = React.RefObject<MapboxMap | null>;
 type Expr = unknown[];
@@ -131,12 +137,21 @@ function brownfieldPaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
+const BROWNFIELD_POINTS_FROM = densePointsFromZoom(GB_BROWNFIELD_COUNT, GB_BROWNFIELD_MINZOOM);
+// 只有英格蘭、都市集中：倫敦／曼徹斯特在 2 已飽和（2026-10-30 全英 z5.5 目視）
+const BROWNFIELD_HEAT_INTENSITY = 1.5;
+
 export function useGbBrownfieldLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, viewIdx: number, isDark: boolean) {
   const filter = gbBrownfieldFilter(viewIdx);
-  useGbPmtilesLayers(mapRef, BROWNFIELD_SOURCE, visible, () => [{
+  const heatStyle = useHeatmapStyleSignature(["gbBrownfield"]);
+  useGbPmtilesLayers(mapRef, BROWNFIELD_SOURCE, visible, () => [gbHeatmapBuild({
+    id: GB_BROWNFIELD_HEATMAP_ID, key: "gbBrownfield", sourceId: BROWNFIELD_SOURCE.id, sourceLayer: "gb_brownfield",
+    maxzoom: heatmapMaxzoom(BROWNFIELD_POINTS_FROM), filter,
+    isDark, opacityScale: clamp01(opacity) / opacityDefault("gbBrownfield", 0.75), intensity: BROWNFIELD_HEAT_INTENSITY,
+  }), {
     id: GB_BROWNFIELD_CIRCLE_ID,
     layer: () => ({
-      id: GB_BROWNFIELD_CIRCLE_ID, type: "circle", source: BROWNFIELD_SOURCE.id, "source-layer": "gb_brownfield", minzoom: GB_BROWNFIELD_MINZOOM,
+      id: GB_BROWNFIELD_CIRCLE_ID, type: "circle", source: BROWNFIELD_SOURCE.id, "source-layer": "gb_brownfield", minzoom: BROWNFIELD_POINTS_FROM,
       ...(filter ? { filter } : {}),
       // 已許可畫在上面
       layout: { visibility: "none", "circle-sort-key": statusMatch((s) => s.fill) },
@@ -146,7 +161,7 @@ export function useGbBrownfieldLayer(mapRef: MapRef, visible: boolean, opacity: 
       map.setFilter(GB_BROWNFIELD_CIRCLE_ID, (filter ?? null) as any);
       setPaint(map, GB_BROWNFIELD_CIRCLE_ID, brownfieldPaint(isDark, opacity, scale));
     },
-  }], [opacity, scale, viewIdx, isDark]);
+  }], [opacity, scale, viewIdx, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 回收點 ───────────────────────────
@@ -164,22 +179,34 @@ function recyclingPaint(kind: (typeof GB_RECYCLING_KINDS)[number], isDark: boole
   };
 }
 
+/** 回收桶 11,412 點（≥1 萬）→ R5 熱區；回收中心 1,547 點直接畫。 */
+const RECYCLING_CONTAINER_POINTS_FROM = densePointsFromZoom(GB_RECYCLING_KINDS[1]!.count, GB_RECYCLING_CONTAINER_MINZOOM);
+// 回收中心點蓋在上面 → 強度調高（2026-10-30 全英 z5.5 目視）
+const RECYCLING_HEAT_INTENSITY = 3;
+const recyclingKindFilter = (kind: GbRecyclingKind): Expr => ["==", ["get", "kind"], kind];
+
 export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+  const heatStyle = useHeatmapStyleSignature(["gbRecyclingCentres"]);
   const build = (id: string, kind: (typeof GB_RECYCLING_KINDS)[number]) => ({
     id,
     layer: () => ({
       id, type: "circle", source: RECYCLING_SOURCE.id, "source-layer": "gb_recycling_points",
-      minzoom: kind.value === "centre" ? GB_RECYCLING_CENTRE_MINZOOM : GB_RECYCLING_CONTAINER_MINZOOM,
-      filter: ["==", ["get", "kind"], kind.value],
+      minzoom: kind.value === "centre" ? GB_RECYCLING_CENTRE_MINZOOM : RECYCLING_CONTAINER_POINTS_FROM,
+      filter: recyclingKindFilter(kind.value),
       layout: { visibility: "none" }, paint: recyclingPaint(kind, isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map: MapboxMap) => setPaint(map, id, recyclingPaint(kind, isDark, opacity, scale)),
   });
   // 回收中心（量少、範圍大）畫在回收桶上面
   useGbPmtilesLayers(mapRef, RECYCLING_SOURCE, visible, () => [
+    gbHeatmapBuild({
+      id: GB_RECYCLING_CONTAINER_HEATMAP_ID, key: "gbRecyclingCentres", sourceId: RECYCLING_SOURCE.id, sourceLayer: "gb_recycling_points",
+      maxzoom: heatmapMaxzoom(RECYCLING_CONTAINER_POINTS_FROM), filter: recyclingKindFilter("container"),
+      isDark, opacityScale: clamp01(opacity) / opacityDefault("gbRecyclingCentres", 0.75), intensity: RECYCLING_HEAT_INTENSITY,
+    }),
     build(GB_RECYCLING_CONTAINER_CIRCLE_ID, GB_RECYCLING_KINDS[1]!),
     build(GB_RECYCLING_CENTRE_CIRCLE_ID, GB_RECYCLING_KINDS[0]!),
-  ], [opacity, scale, isDark]);
+  ], [opacity, scale, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 廢棄物處理許可 ───────────────────────────

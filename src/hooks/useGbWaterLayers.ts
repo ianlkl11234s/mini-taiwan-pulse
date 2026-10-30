@@ -6,6 +6,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { applyHeatmapStyle, heatmapLayerPaint } from "../state/layerPalette";
 import {
   GB_BATHING_CLASSES, GB_BATHING_NO_CLASS_STROKE,
   GB_EROSION_FALLBACK_COLOR, GB_EROSION_LONG_YEARS, GB_EROSION_PERIODS, GB_EROSION_RISKS, GB_EROSION_SHORT_YEARS, GB_EROSION_ZONES,
@@ -45,6 +46,29 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
 export interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
 /** `before`（選填）：addLayer 的 beforeId（地形 raster 插在底圖第一個 symbol 下）；不給＝疊在最上面。 */
 export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void; before?: (map: MapboxMap) => string | undefined }
+
+/**
+ * R5（P-4／G-2）英國密集點熱區：畫在出點縮放以下、不可點擊；filter 與對應 circle 相同（null＝不篩）。
+ * 呼叫端把它排在 circle 之前（先加的在下面），maxzoom 傳 `heatmapMaxzoom(出點縮放)`，並把
+ * `useHeatmapStyleSignature([key])` 放進 deps（換色盤、多層疊放倍率才會重套）。
+ */
+export function gbHeatmapBuild(o: {
+  id: string; key: string; sourceId: string; sourceLayer: string; maxzoom: number; filter?: unknown[] | null;
+  isDark: boolean; opacityScale: number; intensity: number;
+}): LayerBuild {
+  return {
+    id: o.id,
+    layer: () => ({
+      id: o.id, type: "heatmap", source: o.sourceId, "source-layer": o.sourceLayer, maxzoom: o.maxzoom,
+      ...(o.filter ? { filter: o.filter } : {}),
+      layout: { visibility: "none" }, paint: heatmapLayerPaint(o.key, o.isDark, o.opacityScale, o.intensity),
+    } as unknown as AnyLayer),
+    update: (map) => {
+      map.setFilter(o.id, (o.filter ?? null) as any);
+      applyHeatmapStyle(map, o.id, o.key, o.isDark, o.opacityScale);
+    },
+  };
+}
 
 /** 共用掛載流程：加 source → 逐一加 layer（初始隱藏）→ 顯示並更新 paint／filter；換底圖（style.load）重掛。
  *  第 4 波交通層也用（同一 source 可被多個 key 各自呼叫；隱藏只關自己的 layer，不移除 source）。 */
@@ -162,7 +186,7 @@ export function useGbHydroStationsLayer(mapRef: React.RefObject<MapboxMap | null
   useGbPmtilesLayers(mapRef, HYDRO_SOURCE, visible, () => [{
     id: GB_HYDRO_CIRCLE_ID,
     layer: () => ({
-      id: GB_HYDRO_CIRCLE_ID, type: "circle", source: HYDRO_SOURCE.id, "source-layer": "gb_hydro_stations", minzoom: 7,
+      id: GB_HYDRO_CIRCLE_ID, type: "circle", source: HYDRO_SOURCE.id, "source-layer": "gb_hydro_stations", minzoom: 5,
       layout: { visibility: "none" }, paint: hydroPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => {
@@ -296,7 +320,7 @@ export function useGbBathingWatersLayer(mapRef: React.RefObject<MapboxMap | null
   useGbPmtilesLayers(mapRef, BATHING_SOURCE, visible, () => [{
     id: GB_BATHING_CIRCLE_ID,
     layer: () => ({
-      id: GB_BATHING_CIRCLE_ID, type: "circle", source: BATHING_SOURCE.id, "source-layer": "gb_bathing_waters", minzoom: 6,
+      id: GB_BATHING_CIRCLE_ID, type: "circle", source: BATHING_SOURCE.id, "source-layer": "gb_bathing_waters", minzoom: 5,
       // 預設只顯示現行指定浴場（已除名 25 處不畫）
       filter: ["==", ["get", "designated"], true],
       layout: { visibility: "none" }, paint: bathingPaint(isDark, opacity, scale),

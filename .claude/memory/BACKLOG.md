@@ -251,6 +251,13 @@
 | TWL-6 | P2 | blocked | 第三批：需要新 collector 的即時層（水利署集水區即時降雨 178988–178990、消防署災情與收容開設）。 | Blocked: Zeabur 搬遷完成（collector 新家確定）。 | collector 上線、前端即時圖層接上。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md)／[G30](../../../.gis-agent-system/roadmap/candidates/G30-disaster-shelter-civil-defense.md) |
 | TWL-7 | P3 | ready | 縣市×降雨情境的淹水高潛勢面積比例做成統計圖層。 | 資料已在 Supabase（G29 深挖時算出），尚未發布 R2 snapshot。First action: 依 statistics-layer-guidelines 走 pulse-layer-release。 | 統計面板可選情境、資料來源總覽同步。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md) |
 
+## 英國圖層全英視角可見（2026-10-30，feat/uk-lowzoom-visibility）
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| UKLZ-1 | P3 | blocked | 規劃限制區 `gbPlanningConstraints` 縮到全英（z5.5）也看得到。 | Blocked on owner decision（使用者 2026-10-30 決定先不做）。現況：保育區 11,002＋Article 4 7,544 共約 1.8 萬面多為小面，layer z8 起，全英視角看不到。做法候選：analytics pipeline 另出 `representative_point` source-layer（pipeline 已算 representative_point，目前只用來對 LAD）、重產 PMTiles，前端低縮放畫代表點或熱區；屬新模式，要先在 `docs/design-system/map-layers.md` 登記設計例外。First action: 使用者拍板要不要做；要做就先在 analytics 的 planning constraints pipeline 加 representative point 輸出並重產 `gb_planning_constraints.pmtiles`。 | 使用者已決定；若做，全英 z5.5 截圖看得到兩類分布、z8 起仍畫原面，設計例外已登記、golden／inventory 通過。 |
+| UKLZ-2 | P3 | ready | 森林遊憩設施 `gbForestRecreation`（2.4 萬點）與樹木保護 TPO `gbTreeProtection` 單株（26 萬點）低縮放改熱區。 | 現況：`gb_forest_recreation.pmtiles` source z8 起、`gb_tree_protection.pmtiles` z7 起，低縮放沒有圖磚，前端無法加熱區。First action: 在 analytics 用 `-Z5` 重產兩支 PMTiles（TPO 檔 127MB，重產前先看低縮放體積；若過大考慮另出點層）、上傳 S3 deploy-assets，再照 R5 加熱區（`gbHeatmapBuild`，同步 `heatmapPalette`、`layerPalette.test.ts` 層數、`r5HeatmapContract` HOOK_DENSE）。 | 全英 z5.5 看得到兩層熱區、出點縮放切換正常；console 無錯誤；check 全綠。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.

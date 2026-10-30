@@ -262,7 +262,7 @@ export function useGbOpenAccessLandLayer(mapRef: React.RefObject<MapboxMap | nul
   useGbPmtilesLayers(mapRef, OPEN_ACCESS_SOURCE, visible, () => [{
     id: GB_OPEN_ACCESS_FILL_ID,
     layer: () => ({
-      id: GB_OPEN_ACCESS_FILL_ID, type: "fill", source: OPEN_ACCESS_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: 8,
+      id: GB_OPEN_ACCESS_FILL_ID, type: "fill", source: OPEN_ACCESS_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: 6,
       layout: { visibility: "none" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_OPEN_ACCESS_FILL_ID, "fill-opacity", paint(opacity)["fill-opacity"] as any),

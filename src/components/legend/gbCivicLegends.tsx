@@ -1,6 +1,7 @@
 // 英國第 7 波公共服務圖例（2026-10-29）：學校、醫療、照護之家、長照服務、消防站、法院。
 // 色票與署名 SSOT 在 data/gbCivicTypes.ts；每層標涵蓋範圍（未涵蓋地區）、郵遞區號定位與來源署名。
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, useLegendTheme } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_CARE_CI_ATTRIBUTION, GB_CARE_CQC_ATTRIBUTION, GB_CARE_KINDS, GB_COURT_KINDS, GB_COURTS_ATTRIBUTION, GB_FIRE_COLOR, GB_FIRE_COUNTS,
@@ -37,7 +38,8 @@ export function GbSchoolsLegend() {
     <LegendNote>{i18n.t("legend.civic.gbSchoolsScotland")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbSchoolsNi")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbPostcodeNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.gbZoom9")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbSchools"]} />
+    <LegendNote>{i18n.t("legend.civic.gbPointsZoom10")}</LegendNote>
     <LegendNote>{GB_SCHOOLS_ATTRIBUTION}</LegendNote>
     <OnspdNote />
   </div>;
@@ -56,6 +58,7 @@ export function GbHealthFacilitiesLegend() {
     {GB_HEALTH_KINDS.map((k) => <LegendRow key={k.value} swatch={<SwatchDot color={gbHealthColor(k.value, isDark)} />}>{i18n.t(GB_HEALTH_KIND_KEYS[k.value])}</LegendRow>)}
     <LegendNote>{i18n.t("legend.civic.gbHealthNiUncovered")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbHealthNameMatch")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbHealthFacilities"]} />
     <LegendNote>{i18n.t("legend.civic.gbHealthZoom")}</LegendNote>
     <LegendNote>{i18n.t("legend.civic.gbPostcodeNote")}</LegendNote>
     <LegendNote>{GB_HEALTH_ODS_ATTRIBUTION}</LegendNote>
@@ -78,7 +81,8 @@ function GbCareLegend({ layerKey, en, home }: { layerKey: "gbCareHomes" | "gbCar
     <LegendNote>{i18n.t("legend.civic.gbCareUncovered")}</LegendNote>
     {home ? null : <LegendNote>{i18n.t("legend.civic.gbCareChildNote")}</LegendNote>}
     <LegendNote>{i18n.t("legend.civic.gbCarePostcodeNote")}</LegendNote>
-    <LegendNote>{i18n.t("legend.civic.gbZoom9")}</LegendNote>
+    <DenseHeatmapLegendRow layers={[layerKey]} />
+    <LegendNote>{i18n.t("legend.civic.gbPointsZoom10")}</LegendNote>
     <LegendNote>{GB_CARE_CQC_ATTRIBUTION}</LegendNote>
     <LegendNote>{GB_CARE_CI_ATTRIBUTION}</LegendNote>
     <OnspdNote />
