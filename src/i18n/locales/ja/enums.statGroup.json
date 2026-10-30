@@ -32,5 +32,15 @@
   "enum.statGroup.金融及保險業場所單位（縣市）": "金融・保険業の事業所（県市）",
   "enum.statGroup.金融卡類交易縣市分佈": "金融カード類取引の県市分布",
   "enum.statGroup.壽險業分支機構（縣市）": "生命保険会社の拠点（県市）",
-  "enum.statGroup.金融卡特約商店（鄉鎮）": "デビット加盟店（郷鎮）"
+  "enum.statGroup.金融卡特約商店（鄉鎮）": "デビット加盟店（郷鎮）",
+  "enum.statGroup.年中人口推估": "年央人口推計",
+  "enum.statGroup.城鄉（英格蘭、威爾斯）": "都市と農村（イングランド・ウェールズ）",
+  "enum.statGroup.鄉村人口比例（蘇格蘭）": "農村人口の割合（スコットランド）",
+  "enum.statGroup.英格蘭剝奪指數（IoD2025）": "イングランド剥奪指数（IoD2025）",
+  "enum.statGroup.威爾斯剝奪指數（WIMD 2025）": "ウェールズ剥奪指数（WIMD 2025）",
+  "enum.statGroup.蘇格蘭剝奪指數（SIMD 2020v2）": "スコットランド剥奪指数（SIMD 2020v2）",
+  "enum.statGroup.北愛剝奪指數（NIMDM 2017）": "北アイルランド剥奪指数（NIMDM 2017）",
+  "enum.statGroup.房價（UK HPI）": "住宅価格（UK HPI）",
+  "enum.statGroup.私人租金（PIPR）": "民間家賃（PIPR）",
+  "enum.statGroup.作物面積（英格蘭）": "作物面積（イングランド）"
 }

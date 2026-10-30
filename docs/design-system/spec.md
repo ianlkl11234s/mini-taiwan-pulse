@@ -381,8 +381,8 @@
 
 **主題列（LT1，第二輪拍板）**
 
-- **資料**（2026-10-03 B 段）：`theme.title` 是識別字串（manifest `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**。顯示名稱查 `layerCatalog.ts` 的 `themeName(title)` → `{ zh, sub? }`（`THEME_NAMES` 表；新增主題要補一列，`layerConsistency` 測試擋漏列）。舊的 `splitThemeTitle()` 已移除。
-- **副標**：台灣、統計、世界用英文；**日本主題用日文**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「社福長照 社会福祉・介護」），不去重；法國主題用法文（例「通訊 Télécommunications」）。沒有 `sub` 時只顯示中文。他國主題 title 用中文短名（與台灣主題是不同字串，title 全站唯一）。
+- **資料**（2026-10-03 B 段）：`theme.title` 是識別字串（manifest `section.theme`、大分類、各入口清單都拿它當 key），**不拆字**。主題身分是 **(country, title)**（`ThemeDef.country`；2026-10-29 起 title 只需在同一國家內唯一，不同國家可同名）。顯示名稱查 `layerCatalog.ts` 的 `themeName(theme)` → `{ zh, sub? }`（`THEME_NAMES` 依國家分組；新增主題要在所屬國家補一列，`layerConsistency` 測試擋漏列）。舊的 `splitThemeTitle()` 已移除。
+- **副標**：台灣、統計、世界用英文；**日本主題用日文**（P3 B），與中文同字也照樣顯示（例「宗教 宗教」「社福長照 社会福祉・介護」），不去重；法國主題用法文（例「通訊 Télécommunications」）。沒有 `sub` 時只顯示中文。他國主題 title 用中文短名（例日本「交通」；與台灣「交通 Move」是不同字串，不同國家之間可同名）。
 - **結構**：chevron（`ChevronRight`／`ChevronDown` 14px，`--text-dim`）→ 中文 → 副標小字 → 右側計數 `開啟數/總數` → 總開關（迷你開關，§5.10）。
 - **字**：中文 13px（`FONT_SIZE.lg`）semibold `--text-strong`、`FONT_CJK`；英文 10px（`FONT_SIZE.sm`）`--text-dim`、`FONT_CJK`、letterSpacing 0.3、**不轉大寫**；中英 baseline 對齊、gap 6。
 - **空間不足**（2026-10-03 收尾修正）：中文主名與計數 `white-space: nowrap`、不縮；**只省略副標**（`text-overflow: ellipsis`），同圖層列 `LayerNameLine`。中文字可在任意字間斷行，不設 nowrap 會先被擠成兩行（例「人口與教 / 育」）。

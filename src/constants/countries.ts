@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR";
+export type CountryCode = "TW" | "JP" | "FR" | "GB";
 
 export interface CountryCamera {
   center: [number, number];
@@ -41,6 +41,9 @@ export const JAPAN_CAMERA: CountryCamera = { center: [137.5, 37.5], zoom: 4.7, p
 
 /** 法國本土＋科西嘉（海外領地先不列）。 */
 export const FRANCE_CAMERA: CountryCamera = { center: [2.6, 46.4], zoom: 4.9, pitch: 0, bearing: 0 };
+
+/** 英國（大不列顛＋北愛；含 Shetland、Scilly，2026-10-29 英國第 0b 波）。 */
+export const UK_CAMERA: CountryCamera = { center: [-2.5, 54.5], zoom: 4.8, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -102,6 +105,35 @@ export const COUNTRIES: readonly CountryDef[] = [
       [1.5, 50.78, 2.6, 51.1],      // 敦克爾克（避開伊珀爾）
       [3.15, 50.1, 4.2, 50.3],      // 瓦朗謝訥、莫伯日（北緣避開蒙斯）
       [8.5, 41.3, 9.6, 43.1],       // 科西嘉
+    ],
+  },
+  {
+    code: "GB",
+    chip: "GB",
+    labelKey: "country.GB",
+    camera: UK_CAMERA,
+    // 邊界依 ONS LAD May 2026（361 區）四地外框切矩形（2026-10-29）。刻意排除：愛爾蘭共和國、
+    // 曼島（Crown dependency，不在 LAD 內）、海峽群島（緯度 < 49.85）、法國北岸（加萊、布洛涅）。
+    // 北愛與共和國邊界不規則：Strabane／Lifford、Derry／Bridgend 隔河相鄰，矩形只保證測試釘住的城市。
+    bboxes: [
+      [-6.45, 49.85, -6.2, 50.0],     // Isles of Scilly
+      [-5.8, 49.95, 1.2, 51.0],       // 英格蘭南岸（東緣 1.2 避開布洛涅、勒特雷波爾）
+      [-5.8, 51.0, 1.5, 51.3],        // 肯特（東緣 1.5 避開加萊）
+      [-5.7, 51.3, 1.8, 53.9],        // 英格蘭中部、威爾斯（北緣 53.9 避開曼島，西緣避開愛爾蘭東岸）
+      [-3.7, 53.9, 0.2, 54.6],        // 英格蘭北部（西緣 -3.7 避開曼島）
+      [-5.3, 54.6, 0.2, 55.45],       // 蘇格蘭南部、諾森伯蘭（西緣 -5.3 避開北愛 Ards）
+      [-5.85, 55.27, -5.3, 55.45],    // Kintyre 南端
+      [-8.7, 55.45, -0.7, 60.9],      // 蘇格蘭本土、外赫布里底、St Kilda、Orkney、Shetland（南緣 55.45 避開 Malin Head）
+      [-6.65, 54.12, -5.4, 55.32],    // 北愛東部（貝爾法斯特、Newry；西緣避開 Monaghan）
+      [-6.1, 54.02, -5.4, 54.12],     // 北愛 Mourne 海岸（西緣避開 Cooley 半島）
+      [-6.95, 54.7, -6.65, 55.2],     // 北愛 Coleraine、Limavady（西緣避開 Inishowen 東岸）
+      [-7.25, 54.4, -6.65, 55.05],    // 北愛中部 Tyrone、Mid Ulster
+      [-6.8, 54.3, -6.65, 54.4],      // Armagh 市（西緣避開 Glaslough）
+      [-7.6, 54.2, -7.25, 54.3],      // Lisnaskea、Newtownbutler（東緣避開 Clones）
+      [-7.42, 54.95, -7.25, 55.05],   // Derry／Londonderry（北緣避開 Muff、Buncrana）
+      [-7.47, 54.75, -7.25, 54.95],   // Strabane（西緣 -7.47 避開 Lifford）
+      [-7.6, 54.6, -7.25, 54.75],     // Castlederg
+      [-8.1, 54.3, -7.25, 54.6],      // Fermanagh、Omagh（西緣避開 Ballyshannon，南緣避開 Clones、Belturbet）
     ],
   },
 ];

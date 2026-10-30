@@ -200,9 +200,23 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-26: +2 日本第二波面圖層（土砂災害警戒區域 jpLandslideWarningAreas、內水浸水想定區域 jpInlandFloodAreas）。
     // 2026-10-26: +2 日本第三波面圖層（用途地域 jpZoningUseDistricts、国有林 jpNationalForests）。
     // 2026-10-27: +6 日本第四波（福祉 jpWelfareDisability／jpWelfareChild、主要道路 jpMajorRoads、高速道路 jpExpressways、地理院地形 jpGsiHillshade／jpGsiRelief）。
+    // 2026-10-29: +2 英國第 0b 波（地方政府區 gbAdminBoundaries、統計小區 gbSmallAreaBoundaries）。
+    // 2026-10-29: +18 英國統計（gb 家族 18 個 LAD 統計層 statsGb*）。
     // 2026-10-29: +1 急救責任醫院分級（emergencyHospitals）。
     // 2026-10-29: +2 海洋保育補接 G33（海域野生動物保護區與棲息環境 marineWildlifeAreas、全海域生態系調查點位 marineEcologicalMonitoringSites）。
-    expect(keys.length).toBe(1333);
+    // 2026-10-29: +5 英國第 1 波（海域界線 gbMaritimeLimits、建成區 gbBuiltUpAreas、綠地三層 gbGreenspace／gbSportsFacilities／gbCemeteries）。
+    // 2026-10-29: +5 英國第 3 波（河川 gbRivers、水文測站 gbHydroStations、防洪設施 gbFloodDefenceAssets、海岸侵蝕 gbCoastalErosionRisk、浴場 gbBathingWaters）。
+    // 2026-10-29: +7 英國第 4 波（交通樞紐 gbTransportHubs、車站年進出人次 gbStationUsage、倫敦軌道路線 gbLondonRailLines／車站 gbLondonStations、單車站 gbLondonBikePoints、道路攝影機 gbLondonJamCams、收費區 gbLondonChargingZones）。
+    // 2026-10-29: +7 英國第 5 波（保護區 gbProtectedAreas、海洋保護區 gbMarineProtectedAreas、林地 gbWoodland、森林遊憩 gbForestRecreation、步道 gbTrails、開放進入地 gbOpenAccessLand、樹木保護 gbTreeProtection）。
+    // 2026-10-29: +6 英國第 6 波（電廠 gbPowerPlants、再生能源 gbRenewables、電網線 gbPowerLines、變電所 gbSubstations、加油站 gbFuelStations、離岸油氣田 gbOilGasFields）。
+    // 2026-10-29: +6 英國第 7 波（學校 gbSchools、醫療 gbHealthFacilities、照護之家 gbCareHomes、長照服務 gbCareServices、消防站 gbFireStations、法院 gbCourts）。
+    // 2026-10-29: +3 英國第 8 波（文化設施 gbCulturalFacilities、藝文場館 gbArtsVenues、觀光體驗 gbVisitorExperience）。
+    // 2026-10-29: +7 英國地形／公有地／作物（山體陰影 gbTerrainHillshade、色別標高 gbTerrainRelief、公有地標售 gbSurplusLand、作物統計 statsGbCrop* 4 層）。
+    // 2026-10-29: +5 英國第 9 波災害地質（GeoSure gbGroundStability、山崩 gbLandslide、氡氣 gbRadon、環境輻射 gbRadiation、地震目錄 gbEarthquakes）。
+    // 2026-10-29: +2 英國第 10 波道路（主要路網 gbMajorRoads、AADF 交通計數點 gbTrafficCountsAadf）。
+    // 2026-10-29: +6 英國第 11 波環境與規劃（規劃限制區 gbPlanningConstraints、棕地 gbBrownfield、回收點 gbRecyclingCentres、廢棄物許可 gbWastePermits、污染排放 gbPollutionInventory、噪音 gbNoise）。
+    // 2026-10-29: +5 英國第 12 波（公司登記 gbCompanies、製造業 gbManufacturing、殯葬 gbFuneral、養殖 gbAquaculture、土壤母質 gbSoilParentMaterial）。
+    expect(keys.length).toBe(1417);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

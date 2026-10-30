@@ -16,7 +16,7 @@ function ui(i18n: I18nContext | undefined, key: MessageKey, zh: string, vars: Re
   return template.replace(/\{(\w+)\}/g, (whole, name: string) => vars[name] ?? whole);
 }
 
-export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區',prosecutor_district:'地檢署轄區'};
+export const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區',prosecutor_district:'地檢署轄區',gb_lad:'地方行政區'};
 
 /** 地理層級的人讀名稱；不傳 i18n＝中文 */
 export function statisticsLevelLabel(level: StatisticsLevel, i18n?: I18nContext): string {
@@ -181,9 +181,11 @@ const BOUNDARY_VERSION_LABELS: Record<string, string> = {
   township_reference_20260626_v1: '鄉鎮市區參考界（2026-06-26 第 1 版）',
   township_boundary_20260626_identity_only: '鄉鎮市區代碼對照（2026-06-26，只核對代碼）',
   county_identity_only: '縣市代碼對照（只核對代碼）',
+  ONS_LAD_202405: '英國國家統計局地方行政區界（2024 年 5 月版）',
+  ONS_LAD_202605: '英國國家統計局地方行政區界（2026 年 5 月版）',
   PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1: '地檢署轄區界（以內政部 114 年 3 月 18 日版鄉鎮市區界依 115 年司法轄區合併；非縣市）',
 };
-const BOUNDARY_CODE = /\b(?:COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only|PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1)\b/g;
+const BOUNDARY_CODE = /\b(?:ONS_LAD_202405|ONS_LAD_202605|COUNTY_MOI_1140318|TOWN_MOI_1140318|VILLAGE_NLSC_1150119|VILLAGE_NLSC_1150817|VILLAGE_SEGIS_112|TOWNSHIP_REFERENCE_MOI_11501|township_reference_20260626_v1|township_boundary_20260626_identity_only|county_identity_only|PROSECUTOR_DISTRICT_TOWN_MOI_1140318_v1)\b/g;
 
 /** 單一邊界版本代碼的中文描述；查無對照時不印代碼。 */
 export function boundaryVersionLabel(code: unknown, i18n?: I18nContext): string {
@@ -199,6 +201,14 @@ export function boundaryVersionLabel(code: unknown, i18n?: I18nContext): string 
  */
 export function statisticsLocationBasis(zh: string, i18n: I18nContext): string {
   return enumLabel('statLocationBasis', zh, humanizeStatisticsText(zh), i18n);
+}
+
+/**
+ * 統計「資料限制」（配方的 disclosure）：同位置口徑，中文原句是 key，查 `enum.statDisclosure.<原句>`；
+ * 查不到退回中文原文（參考界代碼換成可讀名稱）。
+ */
+export function statisticsDisclosure(zh: string, i18n: I18nContext): string {
+  return enumLabel('statDisclosure', zh, humanizeStatisticsText(zh), i18n);
 }
 
 /** 說明文字裡夾帶的邊界代碼換成中文描述（其餘文字不動）。 */

@@ -235,5 +235,21 @@
   "enum.statVariant.每萬人商店數（排除集中登記）": "人口1万人あたり加盟店数（集中登録除く）",
   "enum.statVariant.商店數（排除集中登記）": "加盟店数（集中登録除く）",
   "enum.statVariant.商店數（含集中登記）": "加盟店数（集中登録含む）",
-  "enum.statVariant.店址數": "所在地数"
+  "enum.statVariant.店址數": "所在地数",
+  "enum.statVariant.總人口": "総人口",
+  "enum.statVariant.人口密度": "人口密度",
+  "enum.statVariant.年齡中位數": "年齢中央値",
+  "enum.statVariant.鄉村人口比例": "農村人口の割合",
+  "enum.statVariant.遠離主要城鎮人口比例": "主要都市から遠い人口の割合",
+  "enum.statVariant.IMD 平均分數": "IMD 平均スコア",
+  "enum.statVariant.最剝奪 10% 小區占比": "最剥奪 10% の小地域の割合",
+  "enum.statVariant.最剝奪 20% 小區占比": "最剥奪 20% の小地域の割合",
+  "enum.statVariant.平均房價": "平均住宅価格",
+  "enum.statVariant.房價年增率": "前年比",
+  "enum.statVariant.平均私人租金": "平均家賃",
+  "enum.statVariant.私人租金年變動率": "前年比",
+  "enum.statVariant.穀物面積占比": "穀物面積の割合",
+  "enum.statVariant.其他耕作物面積占比": "その他耕作物面積の割合",
+  "enum.statVariant.蔬果面積": "野菜・果樹面積",
+  "enum.statVariant.草地面積占比": "草地面積の割合"
 }

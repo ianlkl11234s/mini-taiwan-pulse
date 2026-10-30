@@ -557,6 +557,20 @@ for f in \
   public/world/jp_national_forests.pmtiles \
   public/world/jp_welfare_facilities.pmtiles \
   public/world/jp_major_roads.pmtiles \
+  public/world/gb_admin_small_areas.pmtiles \
+  public/world/gb_built_up_areas.pmtiles \
+  public/world/gb_greenspace.pmtiles \
+  public/world/gb_rivers.pmtiles \
+  public/world/gb_flood_defences.pmtiles \
+  public/world/gb_protected_areas.pmtiles \
+  public/world/gb_woodland_nfi.pmtiles \
+  public/world/gb_open_access_land.pmtiles \
+  public/world/gb_tree_protection.pmtiles \
+  public/world/gb_power_grid.pmtiles \
+  public/world/gb_terrain_hillshade.pmtiles \
+  public/world/gb_terrain_relief.pmtiles \
+  public/world/gb_planning_constraints.pmtiles \
+  public/world/gb_noise.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

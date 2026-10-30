@@ -133,6 +133,27 @@ public/world/jp_national_forests.pmtiles
 # 日本第四波（福祉施設 57MB、主要道路 142MB，走 S3 deploy-assets/world/；jp_expressways 5.8MB git-track）
 public/world/jp_welfare_facilities.pmtiles
 public/world/jp_major_roads.pmtiles
+# 英國第 0b 波（統計小區 56.8MB 走 S3 deploy-assets/world/；gb_admin_lad 6.2MB git-track）
+public/world/gb_admin_small_areas.pmtiles
+# 英國第 1 波（建成區 41.6MB、綠地 67.8MB 走 S3 deploy-assets/world/；gb_maritime_limits 0.5MB git-track）
+public/world/gb_built_up_areas.pmtiles
+public/world/gb_greenspace.pmtiles
+# 英國第 3 波（河川 34.9MB、防洪設施 28.5MB 走 S3 deploy-assets/world/；測站 3.1MB、海岸侵蝕 17.8MB、浴場 0.8MB git-track）
+public/world/gb_rivers.pmtiles
+public/world/gb_flood_defences.pmtiles
+# 英國第 5 波（保護區 50.1MB、林地 128.9MB、開放進入地 22.9MB、樹木保護 126.5MB 走 S3 deploy-assets/world/；海洋保護區 3.5MB、森林遊憩 4.6MB、步道 9.0MB git-track）
+public/world/gb_protected_areas.pmtiles
+public/world/gb_woodland_nfi.pmtiles
+public/world/gb_open_access_land.pmtiles
+public/world/gb_tree_protection.pmtiles
+# 英國第 6 波（電網 22.1MB 走 S3 deploy-assets/world/；電廠 1.6MB、再生能源 17.6MB、加油站 4.7MB、離岸油氣田 1.5MB git-track）
+public/world/gb_power_grid.pmtiles
+# 英國 C003 地形（PNG raster 重匯出：山體陰影 107.5MB、色別標高 116.1MB，走 S3 deploy-assets/world/）
+public/world/gb_terrain_hillshade.pmtiles
+public/world/gb_terrain_relief.pmtiles
+# 英國第 11 波（規劃限制區 25.5MB、策略噪音 26.5MB 走 S3 deploy-assets/world/；棕地 18.9MB、回收點 4.6MB、廢棄物許可 7.5MB、污染排放（只含蘇格蘭）1.7MB git-track）
+public/world/gb_planning_constraints.pmtiles
+public/world/gb_noise.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

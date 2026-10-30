@@ -2196,3 +2196,38 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `STATUS.md`：加 10-28 段（第四波正式站驗收）。
 - `BACKLOG.md`：新增 JPRD-2、JPW4-1；BC-4b 補 gsi／jma 網域。JPRD-1 已在 #720。
 
+## 2026-10-28 國家主體化（議題 1）→ v2.16.0／v2.16.1
+
+### What worked
+
+- 先用 artifact 示意頁讓使用者選 A–E，再拆 PR 1–4 實作，使用者看測試站後只追加兩個小調整（一行版、台灣飛全台）。
+- 發版後自己開正式站驗收，抓到切國家時飛行途中閃出舊提示，當天修成 v2.16.1，並用每 0.5 秒取樣的方式前後對照（修正前前 4 秒都出現、修正後 0/19）。
+
+### Friction / limits
+
+- #723、#724 從 #722 較早的 commit 分出，合完 #722 後要各自先合 develop、重跑 CI；#724 另有 CHANGELOG 衝突。疊層 PR 合併前先用 `merge-base --is-ancestor` 檢查每個兄弟分支。
+- 單元測試只測停穩後的判斷，沒涵蓋「國家改了但視野還是舊的」這個時間窗；時序類 UI 要在瀏覽器取樣驗證。
+- agent-browser 第一次 open 停在 about:blank，`eval` 拿到空字串；要重新 open 並確認 `location.href` 再判斷。
+
+### Memory output
+
+- `STATUS.md`：改寫為 v2.16.0／v2.16.1 checkpoint。
+- `BACKLOG.md`：新增 MC-1～MC-4。
+
+## 2026-10-29 台灣新圖層第一批（G29–G34）→ #734–#737 合 develop
+
+### What worked
+
+- 盤點加入北科大課程的六層現象法（軌 4），跨現象重複的缺口（急救醫院分級、管制區語意錯誤）直接變成第一批題目。
+- 淹水多情境先回答「會不會太重」：查出當初只上一種是 GeoJSON 時代的排序決定，改一情境一支 PMTiles 後使用者載入量不變，實測 10 支共約 80 MiB。
+
+### Friction / limits
+
+- 四個 PR 開完到合併之間，其他 session 合了英國 #738／#739，每個 PR 都和 develop 在 CHANGELOG、LegendPanel import、i18n、golden 測試筆數上衝突。依序「合一個→下一個先合 develop→重產 golden／inventory→等 CI」才不會累積錯。
+- 主 checkout 被他人未追蹤檔擋住拉取；`&&` 串接讓後續複製步驟一起被跳過，要分開重跑。
+- worktree 刪除前要先把 gitignored 發版資產搬回主 checkout，否則發版當天找不到檔。
+
+### Memory output
+
+- `BACKLOG.md`：TWL-1～7（#745）。
+- `STATUS.md`：加 10-29 段。

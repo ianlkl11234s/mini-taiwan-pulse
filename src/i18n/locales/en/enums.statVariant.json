@@ -235,5 +235,21 @@
   "enum.statVariant.每萬人商店數（排除集中登記）": "Merchants per 10,000 people (bulk excluded)",
   "enum.statVariant.商店數（排除集中登記）": "Merchants (bulk excluded)",
   "enum.statVariant.商店數（含集中登記）": "Merchants (incl. bulk addresses)",
-  "enum.statVariant.店址數": "Addresses"
+  "enum.statVariant.店址數": "Addresses",
+  "enum.statVariant.總人口": "Total population",
+  "enum.statVariant.人口密度": "Population density",
+  "enum.statVariant.年齡中位數": "Median age",
+  "enum.statVariant.鄉村人口比例": "Rural population share",
+  "enum.statVariant.遠離主要城鎮人口比例": "Share far from a major town",
+  "enum.statVariant.IMD 平均分數": "IMD average score",
+  "enum.statVariant.最剝奪 10% 小區占比": "Share in most deprived 10%",
+  "enum.statVariant.最剝奪 20% 小區占比": "Share in most deprived 20%",
+  "enum.statVariant.平均房價": "Average house price",
+  "enum.statVariant.房價年增率": "Annual change",
+  "enum.statVariant.平均私人租金": "Average private rent",
+  "enum.statVariant.私人租金年變動率": "Annual change",
+  "enum.statVariant.穀物面積占比": "Cereals share",
+  "enum.statVariant.其他耕作物面積占比": "Other arable crops share",
+  "enum.statVariant.蔬果面積": "Fruit & vegetables area",
+  "enum.statVariant.草地面積占比": "Grassland share"
 }

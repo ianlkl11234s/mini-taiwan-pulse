@@ -90,5 +90,12 @@
   "legend.maritime.allenTitleCoral": "サンゴ／藻類の生息地",
   "legend.maritime.allenTitleBenthic": "浅海の底質・生息地分類",
   "legend.maritime.allenTitleGeo": "サンゴ礁の地形区分",
-  "legend.maritime.allenAcquired": "取得日：{date}（観測日ではありません）。元データの要素面積は切り出しておらず、調査範囲の総面積としては使えません。"
+  "legend.maritime.allenAcquired": "取得日：{date}（観測日ではありません）。元データの要素面積は切り出しておらず、調査範囲の総面積としては使えません。",
+  "legend.maritime.gbMpaMcz": "海洋保全区（MCZ）",
+  "legend.maritime.gbMpaNcmpa": "自然保全 MPA（スコットランド）",
+  "legend.maritime.gbMpaDrmpa": "実証・研究 MPA（フェア島）",
+  "legend.maritime.gbMpaWales": "ウェールズ：対象外（Skomer MCZ のオープンデータなし）",
+  "legend.maritime.gbMpaHpma": "イングランドの高度保護海域（HPMA）：ライセンス未確認のため未収録",
+  "legend.maritime.gbMpaSacSpa": "海域を含む SAC／SPA は「保護地域」レイヤーを参照",
+  "legend.maritime.gbMpaNav": "航海には使用できません"
 }

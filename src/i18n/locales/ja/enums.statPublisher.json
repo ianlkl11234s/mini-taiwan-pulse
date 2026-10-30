@@ -14,5 +14,7 @@
   "enum.statPublisher.金融監督管理委員會銀行局": "金融監督管理委員会銀行局",
   "enum.statPublisher.中央銀行金融業務檢查處": "中央銀行金融業務検査処",
   "enum.statPublisher.行政院主計總處": "行政院主計総処",
-  "enum.statPublisher.財團法人保險事業發展中心": "保険事業発展センター"
+  "enum.statPublisher.財團法人保險事業發展中心": "保険事業発展センター",
+  "enum.statPublisher.Office for National Statistics (ONS)；蘇格蘭數字來自 National Records of Scotland，北愛來自 NISRA": "英国国家統計局（ONS）。スコットランドの数値は National Records of Scotland、北アイルランドは NISRA による",
+  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "英国環境・食糧・農村地域省（Defra）農業統計"
 }

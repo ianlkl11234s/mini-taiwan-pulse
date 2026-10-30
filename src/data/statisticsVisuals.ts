@@ -288,6 +288,18 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsTaipeiSewerRate/, 'utilities', Waves],
   [/^statsTaipeiFactoryCount/, 'labor', Factory],
   [/^statsTaipeiUsagePermit/, 'housing', HousePlus],
+  // 英國統計（2026-10-29，LAD）：不新增色票。人口、年齡、城鄉＝人口 RdPu；房價、租金＝住宅 Oranges（年變動率走 recipe 宣告的雙向 PuOr）；
+  // 四地剝奪指數比照台灣社會脆弱度＝環境 BuPu（設計規範沒有「剝奪」語意，沿用最接近的既有先例，待拍板）。
+  [/^statsGbPopulation(?:Density)?$/, 'population', Users],
+  [/^statsGbMedianAge$/, 'population', Hourglass],
+  [/^statsGb(?:RuralShare|FarFromTownShare)/, 'population', Sprout],
+  [/^statsGb(?:Imd|Wimd|Simd|Nimdm)/, 'environment', ShieldAlert],
+  [/^statsGbHousePrice$/, 'housing', House],
+  [/^statsGbPrivateRent$/, 'housing', Receipt],
+  [/^statsGb(?:HousePrice|PrivateRent)Change$/, 'housing', TrendingUpDown],
+  // 第 12 波作物面積：農業 YlGn（麥穗；草地用幼苗）
+  [/^statsGbCrop(?:CerealsShare|ArableShare|FruitVegArea)$/, 'agriculture', Wheat],
+  [/^statsGbCropGrasslandShare$/, 'agriculture', Sprout],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {
@@ -397,7 +409,9 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
  * `direction`（只有 recipe 明確宣告方向時才傳，例如社會脆弱度 Z 分數）：不論正負都用主題序列色；
  * `descending` 反轉（值越低越深＝能力構面越弱越深）。圖例必須同時寫出反轉，不可只靠顏色。
  */
-export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending'): string[] {
+export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending' | 'diverging'): string[] {
+  // diverging（英國房價／租金年變動率）：明確宣告的雙向 PuOr，breaks 以 0 為中間門檻（棕負紫正）。
+  if (direction === 'diverging') return resample(PU_OR_6, breaks.length + 1);
   if (direction) {
     const sequential = resample(getStatisticsVisual(key, label).colors, breaks.length + 1);
     return direction === 'descending' ? sequential.reverse() : sequential;

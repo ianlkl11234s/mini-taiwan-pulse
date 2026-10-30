@@ -37,5 +37,11 @@
   "popup.marine.historyError": "過去の観測の読み込みに失敗しました。しばらくしてからもう一度お試しください。",
   "popup.marine.datumConflict": "過去データに複数の鉛直基準面（{datums}）が含まれるため、誤った比較を避けるためこのグラフでは統合して描画しません。",
   "popup.marine.noWindowData": "この期間に有効な値はありません。欠測・無効値は 0 で補完しません。",
-  "popup.marine.excluded": "欠測・無効・基準面不一致のデータ {n} 件は曲線に含めず、0 にも変換していません。"
+  "popup.marine.excluded": "欠測・無効・基準面不一致のデータ {n} 件は曲線に含めず、0 にも変換していません。",
+  "popup.marine.gbMpaTitle": "海洋保護区",
+  "popup.marine.gbMpaType": "種類",
+  "popup.marine.gbMpaLead": "所管機関",
+  "popup.marine.gbMpaArea": "面積",
+  "popup.marine.gbMpaStatus": "状態",
+  "popup.marine.gbMpaNav": "航海には使用できません"
 }

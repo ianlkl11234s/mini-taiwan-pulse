@@ -281,6 +281,42 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   jpMedicalMaternity: "M", // 助產所 助産所 · src/hooks/useJpMedicalLayers.ts
   jpMedicalPharmacies: "M", // 藥局 薬局 · src/hooks/useJpMedicalLayers.ts
   jpPoliceFacilities: "M", // 警察設施 警察施設 · src/hooks/useJpPoliceFacilitiesLayer.ts
+  gbHydroStations: "M", // 英國水文測站 Hydrometric Stations · src/hooks/useGbWaterLayers.ts
+  gbBathingWaters: "M", // 英國浴場 Bathing Waters · src/hooks/useGbWaterLayers.ts
+  gbTransportHubs: "M", // 英國交通樞紐 Transport Hubs（渡輪棧橋 S） · src/hooks/useGbTransportLayers.ts
+  gbStationUsage: "B", // 半徑＝年進出站人次 5 級 · src/hooks/useGbTransportLayers.ts
+  gbLondonStations: "M", // 倫敦軌道車站 London Rail Stations · src/hooks/useGbTransportLayers.ts
+  gbLondonBikePoints: "S", // 倫敦公共自行車（比照 bikeStations S） · src/hooks/useGbTransportLayers.ts
+  gbForestRecreation: "M", // 英國森林遊憩設施（指標 z12 起另用 S） · src/hooks/useGbNatureLayers.ts
+  gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
+  gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
+  gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts
+  gbSubstations: "B", // 英國變電所：半徑＝電壓 5 級（59k 點，z5 起、z4–9 只有 ≥132kV） · src/hooks/useGbEnergyLayers.ts
+  gbSchools: "M", // 英國學校（30k 點，z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
+  gbHealthFacilities: "M", // 英國醫院（z5 起）、GP／藥局（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
+  gbCareHomes: "M", // 英國照護之家（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
+  gbCareServices: "M", // 英國長照服務（z<10 熱區、z10 起畫點） · src/hooks/useGbCivicLayers.ts
+  gbFireStations: "M", // 英國消防站（OSM 補缺空心） · src/hooks/useGbCivicLayers.ts
+  gbCourts: "M", // 英國法院與審裁處 · src/hooks/useGbCivicLayers.ts
+  gbCulturalFacilities: "M", // 英國文化設施（OSM 補缺空心） · src/hooks/useGbCultureLayers.ts
+  gbArtsVenues: "M", // 英國藝文場館 · src/hooks/useGbCultureLayers.ts
+  gbVisitorExperience: "M", // 英國觀光體驗（z5 起） · src/hooks/useGbCultureLayers.ts
+  gbSurplusLand: "M", // 英國公有地標售（進度以填色強度區分） · src/hooks/useGbLandLayers.ts
+  gbLandslide: "S", // 英國山崩紀錄（18,699 點，z<10 熱區、z10 起畫點；已複核實心／未複核空心） · src/hooks/useGbHazardLayers.ts
+  gbRadiation: "M", // 英國加馬劑量率固定站（比照台灣環境輻射） · src/hooks/useGbHazardLayers.ts
+  gbEarthquakes: "B", // 半徑＝規模（沿用 jmaQuakes） · 英國地震目錄 · src/hooks/useGbHazardLayers.ts
+  gbTreeProtection: "S", // 英國 TPO 單株（26 萬點，z12 起） · src/hooks/useGbNatureLayers.ts
+  gbLondonJamCams: "S", // 倫敦道路攝影機（比照 cctv S） · src/hooks/useGbTransportLayers.ts
+  gbCompanies: "B", // 半徑＝district 公司家數 5 級（比照 gbStationUsage） · src/hooks/useGbBusinessAgriLayers.ts
+  gbManufacturing: "B", // 半徑＝district 製造業家數 5 級 · src/hooks/useGbBusinessAgriLayers.ts
+  gbFuneral: "M", // 火葬場 M（葬儀社 S，依 kind） · src/hooks/useGbBusinessAgriLayers.ts
+  gbAquaculture: "M", // 蘇格蘭＋北愛養殖場（3,129 點；狀態以外框區分 P-9） · src/hooks/useGbBusinessAgriLayers.ts
+  gbSportsFacilities: "S", // 英國運動場地：面為主，高爾夫球場全英視角（z<10）另畫代表點 · src/hooks/useGbOpenSpaceLayers.ts
+  gbBrownfield: "S", // 英格蘭棕地（30,303 點，z<10 熱區、z10 起畫點；許可進度以填色強度區分） · src/hooks/useGbEnvPlanningLayers.ts
+  gbRecyclingCentres: "M", // 回收中心 M z5 起（回收桶 S，z<10 熱區、z10 起畫點） · src/hooks/useGbEnvPlanningLayers.ts
+  gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/hooks/useGbEnvPlanningLayers.ts
+  gbPollutionInventory: "M", // 蘇格蘭污染排放申報（比照台灣 pollutionFacility） · src/hooks/useGbEnvPlanningLayers.ts
+  gbTrafficCountsAadf: "B", // 半徑＝年平均日交通量 5 級 · src/hooks/useGbTransportLayers.ts
   jpEvacuationSites: "S", // 避難場所 指定緊急避難場所・指定避難所（199k 點，>100k 比照 busStationsCity） · src/hooks/useJpEvacuationSitesLayer.ts
   jpPublicOffices: "M", // 役所與公民館 市町村役場・公民館 · src/hooks/useJpPublicOfficesLayer.ts
   jpWelfareDisability: "M", // 障礙福祉設施 障害者福祉施設（76k 點） · src/hooks/useJpWelfareFacilitiesLayer.ts

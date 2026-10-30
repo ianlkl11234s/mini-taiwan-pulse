@@ -1,10 +1,10 @@
 import { COMPARISON_STATISTICS_KEYS } from '../../../data/comparisonStatisticsKeys';
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
-import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
+import { GB_STATISTICS_TAB_THEMES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, WORLD_THEMES } from "../layerPanels";
+import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -13,6 +13,9 @@ import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS } from "../../../data/demographics
 import { ADDICTION_ENABLED_STATISTICS_KEYS } from "../../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../../data/landslideStatisticsRecipes";
 import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../../data/atlasStatisticsRecipes";
+import { GB_ENABLED_STATISTICS_KEYS } from "../../../data/gbStatisticsRecipes";
+
+const GB_KEYS: ReadonlySet<string> = new Set(GB_ENABLED_STATISTICS_KEYS);
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
@@ -62,7 +65,8 @@ const EXPECTED_LAYER_KEYS = [
   "statsWasteCounty", "statsRecyclingCounty", "statsWasteRecyclingRate",
   ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
   ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
-  ...ATLAS_ENABLED_STATISTICS_KEYS,
+  // 英國統計（gb 家族）在英國的統計分頁，不在台灣的。
+  ...ATLAS_ENABLED_STATISTICS_KEYS.filter((key) => !GB_KEYS.has(key)),
   "countyBoundary", "townshipBoundary",
 ];
 
@@ -149,12 +153,38 @@ describe("STATISTICS_TAB_THEMES", () => {
 describe("Layers 與 Statistics 分頁", () => {
   it("mobile 與桌機同一份四入口（圖層／統計／世界／模擬）；各國圖層主題樹＋世界＋模擬合起來涵蓋全部非統計主題，統計頁仍使用專屬索引", () => {
     const statisticsDataTitles = new Set(STATISTICS_DATA_THEMES.map(theme => theme.title));
+    // 英國統計的完整目錄主題（人口統計／社經統計／住宅統計）只有統計面，從英國圖層頁濾掉。
+    const gbStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "GB" && theme.groups.every(group => group.layers.every(layer => GB_KEYS.has(layer.key)))).map(theme => theme.title));
     expect(MOBILE_LAYER_PANELS).toBe(LAYER_PANELS);
     expect(LAYER_PANELS.map(panel => panel.shortTitle)).toEqual(["圖層", "統計", "世界", "模擬"]);
     expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
-    const nonStatisticsTitles = THEMES.filter(theme => !statisticsDataTitles.has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
-    expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES)]));
+    const nonStatisticsTitles = THEMES.filter(theme => !(theme.country === "TW" ? statisticsDataTitles : gbStatisticsDataTitles).has(theme.title)).map(theme => theme.title).sort();
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES)]));
+  });
+
+  it("統計入口依國家：台灣與 develop 相同、英國人口／社經／住宅／農業、日本法國未涵蓋", () => {
+    const tw = resolveLayerPanel("statistics", "TW");
+    expect(tw.covered).toBe(true);
+    expect(tw.themes).toBe(STATISTICS_TAB_THEMES);
+    expect(tw.macroGroups).toBe(STATISTICS_MACRO_GROUPS);
+    const gb = resolveLayerPanel("statistics", "GB");
+    expect(gb.covered).toBe(true);
+    expect(gb.macroGroups).toBe(GB_STATISTICS_MACRO_GROUPS);
+    expect(gb.themes.map((theme) => ({ country: theme.country, title: theme.title, groups: theme.groups.map((group) => group.title) }))).toEqual([
+      { country: "GB", title: "人口", groups: ["年中人口推估", "城鄉"] },
+      { country: "GB", title: "社經", groups: ["英格蘭（IoD2025）", "威爾斯（WIMD 2025）", "蘇格蘭（SIMD 2020v2）", "北愛爾蘭（NIMDM 2017）"] },
+      { country: "GB", title: "住宅", groups: ["房價（UK HPI）", "租金（PIPR）"] },
+      { country: "GB", title: "農業", groups: ["作物面積"] },
+    ]);
+    expect(getThemeLayerKeys(gb.themes).sort()).toEqual([...GB_ENABLED_STATISTICS_KEYS].sort());
+    for (const country of ["JP", "FR"] as const) {
+      const panel = resolveLayerPanel("statistics", country);
+      expect(panel.covered).toBe(false);
+      expect(panel.themes).toEqual([]);
+    }
+    // 英國統計面不出現在英國圖層頁
+    for (const key of GB_ENABLED_STATISTICS_KEYS) expect(getThemeLayerKeys(UK_THEMES)).not.toContain(key);
   });
 
   it("中文統計主題只出現在 Statistics，原有一般圖層仍保留", () => {
@@ -176,12 +206,12 @@ describe("Layers 與 Statistics 分頁", () => {
   });
 
   it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
-    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set(EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary")));
+    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set([...EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary"), ...GB_ENABLED_STATISTICS_KEYS]));
     const filtered = withoutStatisticsLayers([
-      { title: "混合主題", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
+      { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
     ]);
     expect(filtered).toEqual([
-      { title: "混合主題", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
+      { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
     ]);
   });
 });

@@ -93,6 +93,13 @@ import {
   JpPopulationMeshHost,
   JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
+import { GbArtsVenuesHost, GbCulturalFacilitiesHost, GbMajorRoadsHost, GbTrafficCountsAadfHost, GbVisitorExperienceHost } from "./hosts/ukHosts";
+import { GbSurplusLandHost, GbTerrainHost } from "./hosts/ukHosts";
+import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost, GbSoilParentMaterialHost } from "./hosts/ukHosts";
+import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
+import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
+import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
+import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -283,6 +290,74 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpExpresswaysLayer", keys: ["jpExpressways"], Host: JpExpresswaysHost },
   { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
+  // 英國（2026-10-29 第 0b 波）
+  { id: "useGbAdminLayers", keys: ["gbAdminBoundaries", "gbSmallAreaBoundaries"], Host: GbAdminHost },
+  // 英國第 1 波（海域界線、建成區、綠地三層）
+  { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
+  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries"], Host: GbOpenSpaceHost },
+  // 英國第 3 波（河川、水文測站、防洪設施、海岸侵蝕、浴場）
+  { id: "useGbRiversLayer", keys: ["gbRivers"], Host: GbRiversHost },
+  { id: "useGbHydroStationsLayer", keys: ["gbHydroStations"], Host: GbHydroStationsHost },
+  { id: "useGbFloodDefencesLayer", keys: ["gbFloodDefenceAssets"], Host: GbFloodDefencesHost },
+  { id: "useGbCoastalErosionLayer", keys: ["gbCoastalErosionRisk"], Host: GbCoastalErosionHost },
+  { id: "useGbBathingWatersLayer", keys: ["gbBathingWaters"], Host: GbBathingWatersHost },
+  // 英國第 4 波（交通樞紐＋站客流、倫敦軌道線＋車站、單車站、攝影機、收費區）
+  { id: "useGbTransportHubsLayer", keys: ["gbTransportHubs", "gbStationUsage"], Host: GbTransportHubsHost },
+  { id: "useGbLondonRailLayers", keys: ["gbLondonRailLines", "gbLondonStations"], Host: GbLondonRailHost },
+  { id: "useGbLondonBikePointsLayer", keys: ["gbLondonBikePoints"], Host: GbLondonBikePointsHost },
+  { id: "useGbLondonJamCamsLayer", keys: ["gbLondonJamCams"], Host: GbLondonJamCamsHost },
+  { id: "useGbLondonChargingZonesLayer", keys: ["gbLondonChargingZones"], Host: GbLondonChargingZonesHost },
+  // 英國第 12 波（公司登記、製造業、殯葬、養殖、土壤母質）
+  { id: "useGbCompaniesLayer", keys: ["gbCompanies"], Host: GbCompaniesHost },
+  { id: "useGbManufacturingLayer", keys: ["gbManufacturing"], Host: GbManufacturingHost },
+  { id: "useGbFuneralLayer", keys: ["gbFuneral"], Host: GbFuneralHost },
+  { id: "useGbAquacultureLayer", keys: ["gbAquaculture"], Host: GbAquacultureHost },
+  { id: "useGbSoilParentMaterialLayer", keys: ["gbSoilParentMaterial"], Host: GbSoilParentMaterialHost },
+  // 英國第 11 波（規劃限制區、棕地、回收點、廢棄物許可、污染排放、噪音）
+  { id: "useGbPlanningConstraintsLayer", keys: ["gbPlanningConstraints"], Host: GbPlanningConstraintsHost },
+  { id: "useGbBrownfieldLayer", keys: ["gbBrownfield"], Host: GbBrownfieldHost },
+  { id: "useGbRecyclingCentresLayer", keys: ["gbRecyclingCentres"], Host: GbRecyclingCentresHost },
+  { id: "useGbWastePermitsLayer", keys: ["gbWastePermits"], Host: GbWastePermitsHost },
+  { id: "useGbPollutionInventoryLayer", keys: ["gbPollutionInventory"], Host: GbPollutionInventoryHost },
+  { id: "useGbNoiseLayer", keys: ["gbNoise"], Host: GbNoiseHost },
+  // 英國第 10 波（主要路網、AADF 交通計數點）
+  { id: "useGbMajorRoadsLayer", keys: ["gbMajorRoads"], Host: GbMajorRoadsHost },
+  { id: "useGbTrafficCountsAadfLayer", keys: ["gbTrafficCountsAadf"], Host: GbTrafficCountsAadfHost },
+  // 英國第 5 波（保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護）
+  { id: "useGbProtectedAreasLayer", keys: ["gbProtectedAreas"], Host: GbProtectedAreasHost },
+  { id: "useGbMarineProtectedAreasLayer", keys: ["gbMarineProtectedAreas"], Host: GbMarineProtectedAreasHost },
+  { id: "useGbWoodlandLayer", keys: ["gbWoodland"], Host: GbWoodlandHost },
+  { id: "useGbForestRecreationLayer", keys: ["gbForestRecreation"], Host: GbForestRecreationHost },
+  { id: "useGbTrailsLayer", keys: ["gbTrails"], Host: GbTrailsHost },
+  { id: "useGbOpenAccessLandLayer", keys: ["gbOpenAccessLand"], Host: GbOpenAccessLandHost },
+  { id: "useGbTreeProtectionLayer", keys: ["gbTreeProtection"], Host: GbTreeProtectionHost },
+  // 英國第 6 波（電廠、再生能源、電網線、變電所、加油站、離岸油氣田）
+  { id: "useGbPowerPlantsLayer", keys: ["gbPowerPlants"], Host: GbPowerPlantsHost },
+  { id: "useGbRenewablesLayer", keys: ["gbRenewables"], Host: GbRenewablesHost },
+  { id: "useGbPowerLinesLayer", keys: ["gbPowerLines"], Host: GbPowerLinesHost },
+  { id: "useGbSubstationsLayer", keys: ["gbSubstations"], Host: GbSubstationsHost },
+  { id: "useGbFuelStationsLayer", keys: ["gbFuelStations"], Host: GbFuelStationsHost },
+  { id: "useGbOilGasFieldsLayer", keys: ["gbOilGasFields"], Host: GbOilGasFieldsHost },
+  // 英國第 7 波（學校、醫療、照護之家、長照服務、消防站、法院）
+  { id: "useGbSchoolsLayer", keys: ["gbSchools"], Host: GbSchoolsHost },
+  { id: "useGbHealthFacilitiesLayer", keys: ["gbHealthFacilities"], Host: GbHealthFacilitiesHost },
+  { id: "useGbCareHomesLayer", keys: ["gbCareHomes"], Host: GbCareHomesHost },
+  { id: "useGbCareServicesLayer", keys: ["gbCareServices"], Host: GbCareServicesHost },
+  { id: "useGbFireStationsLayer", keys: ["gbFireStations"], Host: GbFireStationsHost },
+  { id: "useGbCourtsLayer", keys: ["gbCourts"], Host: GbCourtsHost },
+  // 英國第 8 波（文化設施、藝文場館、觀光體驗）
+  { id: "useGbCulturalFacilitiesLayer", keys: ["gbCulturalFacilities"], Host: GbCulturalFacilitiesHost },
+  { id: "useGbArtsVenuesLayer", keys: ["gbArtsVenues"], Host: GbArtsVenuesHost },
+  { id: "useGbVisitorExperienceLayer", keys: ["gbVisitorExperience"], Host: GbVisitorExperienceHost },
+  // 英國 C003 地形（raster 兩層）、C028 公有地標售
+  { id: "useGbTerrainLayers", keys: ["gbTerrainHillshade", "gbTerrainRelief"], Host: GbTerrainHost },
+  { id: "useGbSurplusLandLayer", keys: ["gbSurplusLand"], Host: GbSurplusLandHost },
+  // 英國第 9 波災害地質
+  { id: "useGbGroundStabilityLayer", keys: ["gbGroundStability"], Host: GbGroundStabilityHost },
+  { id: "useGbLandslideLayer", keys: ["gbLandslide"], Host: GbLandslideHost },
+  { id: "useGbRadonLayer", keys: ["gbRadon"], Host: GbRadonHost },
+  { id: "useGbRadiationLayer", keys: ["gbRadiation"], Host: GbRadiationHost },
+  { id: "useGbEarthquakesLayer", keys: ["gbEarthquakes"], Host: GbEarthquakesHost },
   // 日本氣象廳即時 4 層（gis-platform migration 435）：當下快照
   { id: "useJmaLiveLayer:jmaAmedas", keys: ["jmaAmedas"], Host: JmaAmedasHost },
   { id: "useJmaWarningsLayer", keys: ["jmaWarnings"], Host: JmaWarningsHost },

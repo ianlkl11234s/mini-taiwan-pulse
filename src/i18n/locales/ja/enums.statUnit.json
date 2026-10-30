@@ -112,5 +112,9 @@
   "enum.statUnit.家／萬人": "機関／人口1万人",
   "enum.statUnit.點": "地点",
   "enum.statUnit.點／萬人": "地点／人口1万人",
-  "enum.statUnit.萬筆": "万件"
+  "enum.statUnit.萬筆": "万件",
+  "enum.statUnit.人/平方公里": "人/km²",
+  "enum.statUnit.分": "点",
+  "enum.statUnit.英鎊": "ポンド",
+  "enum.statUnit.英鎊/月": "ポンド/月"
 }

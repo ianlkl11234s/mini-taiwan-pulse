@@ -26,7 +26,7 @@ import { describe, it, expect } from "vitest";
 import {
   LAYER_MANIFEST, MANIFEST_KEYS, composeLayerLabel, type LayerManifestEntry, type LayerSource,
 } from "../layerManifest";
-import { LAYER_COLORS, THEMES, LAYER_LABELS, themeScope } from "../../components/sidebar/layerCatalog";
+import { LAYER_COLORS, THEMES, LAYER_LABELS, findTheme } from "../../components/sidebar/layerCatalog";
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
@@ -64,10 +64,10 @@ const gisTypes = new Set([
   ...extractCustomHandlerFeatureTypes(),
 ]);
 
-function themeLocation(key: string): { theme: string; group: string } | null {
+function themeLocation(key: string): { country: string; theme: string; group: string } | null {
   for (const t of THEMES) {
     for (const g of t.groups) {
-      if (g.layers.some((l) => l.key === key)) return { theme: t.title, group: g.title };
+      if (g.layers.some((l) => l.key === key)) return { country: t.country, theme: t.title, group: g.title };
     }
   }
   return null;
@@ -132,25 +132,23 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
           .toBeNull();
         continue;
       }
-      expect(themeLocation(k), `${k} 的 section 宣告與 THEMES 實際位置不符`)
-        .toEqual({ theme: m.section.theme, group: m.section.group });
+      // 主題身分是 (country, title)：同名主題可在不同國家，所以 country 一起比
+      expect(themeLocation(k), `${k} 的 section／country 宣告與 THEMES 實際位置不符`)
+        .toEqual({ country: m.country, theme: m.section.theme, group: m.section.group });
     }
   });
 
-  it("country 宣告 = 所在主題的 THEME_SCOPE（orphan 沒有 country）", () => {
-    // 國家主體化 PR 4：現在主題 title 全站唯一，country 可由 section.theme 派生，這裡釘住兩者一致。
-    // 之後主題 title 跨國重名（日本、法國都叫「通訊」）時 title 查不出國家，改以 country 為正本，
-    // 屆時本測試改成「同一 (country, theme) 的 THEMES 主題存在」。
-    const mismatched: string[] = [];
+  it("(country, section.theme) 對得到同國家的 THEMES 主題（orphan 沒有 country）", () => {
+    // 2026-10-29 主題身分改為 (country, title)：title 可跨國同名，country 是圖層國家歸屬的正本。
+    const missing: string[] = [];
     for (const [k, m] of entries) {
       if (m.section === null) {
         expect((m as { country?: unknown }).country, `${k} 是 orphan，不該宣告 country`).toBeUndefined();
         continue;
       }
-      const expected = themeScope(m.section.theme);
-      if (m.country !== expected) mismatched.push(`${k}: country=${m.country}, THEME_SCOPE[${m.section.theme}]=${expected}`);
+      if (!findTheme(m.country, m.section.theme)) missing.push(`${k}: (${m.country}, ${m.section.theme}) 找不到主題`);
     }
-    expect(mismatched).toEqual([]);
+    expect(missing).toEqual([]);
   });
 
   it("source + dataClass 宣告 = OVERLAY_REGISTRY 的實際形狀（含同 key 多 config）", () => {

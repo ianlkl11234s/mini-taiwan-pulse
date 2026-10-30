@@ -91,7 +91,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-10-15：+3 上游直連（GIBS 雪覆蓋 raster、洪水キキクル line、黃砂圖片面板）。
     // 2026-10-27：+2 地理院タイル陰影起伏図／色別標高図（外部 XYZ raster，同 jpWaterFloodHazard 無 feature 可點）。
     // 2026-10-29：-1 waterFloodExtreme 隨 10 降雨情境改版補上 popup（G29 方向 A）。
-    expect(missing).toHaveLength(49); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-10-29：+2 英國 OS Terrain 50 山體陰影／色別標高（已上色 raster PMTiles，無 feature，同地理院地形）。
+    expect(missing).toHaveLength(51); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

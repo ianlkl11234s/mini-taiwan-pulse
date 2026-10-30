@@ -57,6 +57,8 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| MC-1 | P2 | conditional | 主題識別名與顯示名拆開，讓不同國家可以有同名主題（2026-10-28 國家主體化遺留）。 | Trigger: 第二個國家要加與既有主題同名的主題（例：日本「通訊」）。Owner: mini。現況：主題 title 全站唯一，`layerCatalog.ts` `THEME_SCOPE` 以 title 當鍵，台灣用「通訊 Telecom」、法國用「通訊」暫時避開。First action: 主題加獨立 id，`THEME_SCOPE` 改 (country, id) 鍵，顯示名另存。 | 兩國同名主題各自顯示、`layerManifest.test` 與 layerConsistency 綠。[多國化計畫](../../../.gis-agent-system/projects/2026-10-multi-country/PLAN-topic1-website.md) |
+| MC-3 | P3 | ready | 國家選單與視野提示補目視（v2.16.0／v2.16.1 只驗了桌機暗色選單、切法國、切回全台、飛行中不閃提示）。 | 正式站逐項開：淡色底圖的提示卡、Monitor split、真實 Agent session 中提示被抑制、統計面板切日本後「切回台灣」、手拖到東京跳提示並按「保持」。 | 每項有截圖或照實標 not run；發現問題另開修正 PR。 |
 | AG-5 | P1 | verifying | 正式站端到端量測。 | 自動量測 2026-10-04 已完成（bind 0.93 s、set_camera 1.8 s、set_layers 0.87 s、map_context 0.45 s、show_nearby p50 5.8 s）。剩下兩項要使用者手動做：重整還原、在面板撤銷 token。 | 使用者手動重整一次、在面板撤銷一次，確認結果還原與 15 s 內斷線。 |
 | AG-10 | P2 | blocked | 網站部署後已開著的分頁仍跑舊程式（淹水上圖修好後要重新整理才生效）。 | owner decision：要不要做「面板偵測新版本並提示重新整理」（目前 src 沒有任何版本偵測，2026-10-05 查）。 | 部署後舊分頁會看到「有新版本」提示。 |
 | AG-11 | P3 | ready | 公車總表（`bus`）標題寫「即時位置」，實為靜態站點與路線（2026-10-05 倉庫 20261005T051814Z 仍是「公車即時位置與站點（全台 22 縣市）」）。 | 改 analytics `docs/data-registry.yaml` transportation.bus title（或在 bus `_manifest.json` 補 title），或加 MCP datasetLabelOverrides。 | find_data 顯示的標題不再含「即時」。 |
@@ -86,6 +88,10 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
+| MC-4 | P2 | blocked | 多國化議題 3（主站遷移、43GB 同步）定方向；議題 2 已於 2026-10-29 P0–P5 全部上線（MC-2 一併結案：server.ts 與 pulse-conductor `references/multi-country.md` 已說明 `map_context.country`）。 | Blocked: 等使用者討論。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 唯讀量 S3 deploy-assets 依資料夾的組成。 | 議題 3 有拍板紀錄（寫進專案 README 或 ADR）。 |
+| MC-6 | P3 | ready | 跨國行政區表補英文名（`boundaries_admin.name_en` 台灣、日本目前全空）。 | Owner: mini-pulse-gis-mcp `warehouse/admin_tables.py`。First action: 台灣接內政部羅馬拼音 CSV（analytics `place_name_romanization_moi`），日本接國土數值情報或 geoBoundaries 英文名。 | 兩國 name_en 非空率 >99%，重組倉庫後台灣既有工具輸出不變。 |
+| MC-7 | P3 | conditional | 拆開混有多國資料的兩張表（airspace、allen_coral_atlas 暫標 TW）。 | Trigger: 要對日本或全球做空域、珊瑚礁分析時。First action: 依 country 欄拆成 TW 與 WORLD 兩份 registry，照 Ookla 拆表做法（pulse-data #48）。 | check_registry 0 ERROR，台灣表 geom_3826 不變，nearby 回歸一致。 |
+| MC-8 | P3 | verifying | 觀察多國 eval 兩個不穩點：N10 有一次沒畫日本 1,898 區分級圖；N08 有 2 次沒載入 pulse-conductor、沒移鏡頭。 | 下次跑 agent-regression 時各加跑 3 次記錄；連續出現再定位是 show_result 負載還是 skill 觸發。 | 各 3 次中上圖與載入 skill 都 ≥2 次，或開修正 PR。紀錄在 mini-pulse-gis-mcp `eval/agent-regression/README.md`。 |
 | BR-5 | P2 | blocked | Add science-park analysis only from authoritative geometry. | Acquire provenance-backed polygons; do not infer geometry from membership. | Explicit flags, source, tests and handoff. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
 | BR-6 | P2 | ready | Improve Business Registry geocoding without substituting company coordinates. | TGOS is the chosen source: p01/p02 backfill (analytics `690be1bd`) cut 202609 misses 2,600→2,421 with denominator 656,713 stable, ambiguous kept unresolved; LOCAL_ONLY. Next: decide whether to run further TGOS packs and publish a dated 202609 asset (ties to BR-C-202609) without overwriting 202608. | Misses decrease with denominator stable; unresolved reasons retained; published asset has new dated filename and checksum. [Company backlog](../../docs/features/business-registry-company-layers/backlog.md) |
 | MO-6 | P3 | ready | Add a central-bank exchange-rate signal; TWSE work is no longer part of this item. | Define source, freshness and card/timeline use. | Rate data and provenance appear in Monitor. Merges legacy MO-6/MO-16. `docs/archive/2026-10-04/proposal/monitor-mode.md` |
@@ -98,6 +104,7 @@
 | TD-3 | P2 | ready | Replace the provisional `traDelay` grid coordinates with a sandbox export. | Coordinates were hand-picked and later hand-shifted (now wide `x0,y75,w5,h5`, split `x0,y122,w12,h8`; 2026-10-05), never sandbox-exported. `monitorPacking` asserts the "three columns + bottom two columns" top level. Re-drag both wide and split layouts. | `MONITOR_LAYOUT` and `MONITOR_LAYOUT_SPLIT` regenerated from the sandbox rather than hand-edited. `docs/features/monitor-grid-static/sandbox.html` |
 | JPRD-2 | P3 | blocked | 決定日本主要道路的收費道路要不要在地圖上另外標示。 | Blocked on 使用者決定（2026-10-28 提出）。現況：`jpMajorRoads` 的收費只出現在 popup 與「只看有料道路」篩選；設計規範 L-2 虛線沒有「收費」語意，所以沒有加樣式。First action: 使用者選「維持現狀」或「新增樣式語意」；選後者要先在 `docs/design-system/spec.md` 登記新語意再改 hook。 | 使用者已決定；若加樣式，圖例與規範同步、golden／inventory 通過。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
 | JPW4-1 | P3 | blocked | 補日本身障服務的放課後等デイサービス、共同生活援助等類別（WAM NET 來源）。 | Blocked on 使用者本人先填 WAM NET 的利用表單通知（Claude 不能代填）。現況：`jpWelfareDisability` 只用国土数値情報 P14，沒有這些類別。First action: 使用者填完表單後，在 analytics 新增 WAM NET pipeline，前端併入或另開一層。 | 新類別上線並標示來源與授權。analytics `docs/handoff/jp-wave4-welfare-roads.md` §4 |
+| TWL-2 | P3 | blocked | 決定 `public/fishery` 舊檔去留。 | Blocked: 使用者決定。#735 新增 `public/marine/marine_wildlife_areas.geojson` 後，`public/fishery/white_dolphin_habitat.geojson` 內容重複；另有 6 個沒有圖層引用的點檔。First action: 列出 6 檔名稱與筆數請使用者選接、刪或留。 | 每個檔都有結論（接成圖層／刪除／註明保留原因）。[G33](../../../.gis-agent-system/roadmap/candidates/G33-marine-conservation-backfill.md) |
 
 ## Scheduled/conditional
 
@@ -117,6 +124,8 @@
 | G027 | P3 | ready | Clear the remaining workspace residue left untouched on 2026-08-22. | 2026-10-05 (`REPO_HYGIENE.md` §1/§3; re-run `scripts/gen_repo_hygiene.py` to refresh): worktree `satellite-art/perf/webgpu-sgp4` still exists (clean, branch unpushed); `terrain-art/feat/typhoon-vortex` still exists and has 1 untracked file (not only `node_modules`). Repos with uncommitted changes (tracked+untracked): `mini-taipei` 4+11, `uk-trip` 5+2, `train_map` 3+1, `open-air-gis` 2+2, `mini-taipei-v2` 4+0, `youbike_analytics_system` 1+2 (no remote), `taiwan-md` 3+0. `.opendata-memory` resolved: it now has an origin and main equals origin/main. | Each item either resolved or explicitly closed as won't-do. |
 | BLOG-V | P3 | verifying | v2.13.0（2026-10-24）上線後仍未目視的項目。 | 正式站開「臺北市局處統計」任一層與污水接管普及率新舊口徑切換（#679）；手機實機確認嵌入地圖單指捲頁、雙指移動地圖；Search Console 確認 sitemap 已重讀（使用者操作）。 | 三項各留截圖或 Search Console 讀取時間；部落格本體已於 2026-10-24 正式站瀏覽器驗收。 |
 | V215-V | P3 | verifying | v2.15.0（2026-10-27）上線後未目視的項目。 | 站主登入後點發電機組（powerGenerationUnit）大圓外圈確認 popup；找一個內容較長的 popup 在手機寬度確認可捲動；日本土砂災害警戒區 popup 標題只顯示「—」（資料無名稱欄），決定改顯示區域種別或維持；向日葵紅外雲圖在晴天是否只剩淡方塊屬正常。 | 各項留截圖或決定。 |
+| TWL-3 | P3 | ready | 測速照相 popup 標題依類型顯示。 | 闖紅燈、平交道共 16 點的 popup 標題顯示成泛稱「測速照相」（#736 前就存在的舊 bug）。First action: 查 speedCamera popup 的標題欄位對應。 | 這 16 點標題顯示正確類型；其他點不變。 |
+| TWL-4 | P3 | ready | MCP 圖層標籤跟上「管制區」改名。 | #737 已把 `waterProtectionZones` 改名「自來水保護區與地下水管制（水利署）」，mini-pulse-gis-mcp 的 `datasetLabels.json` 仍是舊名「管制區」。First action: 在 MCP repo 重產標籤檔。 | MCP 搜尋「自來水」「地下水」找得到這層。 |
 
 ## Storage audit follow-ups (2026-09-01)
 
@@ -233,6 +242,21 @@
 | WA-10 | P2 | waiting_external | Produce the first trustworthy weekly slow-query ranking. | `pg_stat_statements` was reset again on 2026-10-01 18:14 UTC (dealloc 248 as of 2026-10-05); weekly reports exist only for W34/W38 and `collect_supabase.sh` still stores a raw snapshot only. Next: two consecutive weekly runs after 10-01 without a reset, then diff the snapshots. | A ranking derived from snapshot deltas, each entry annotated with its caller (frontend / cron / upstream repo). |
 | WA-11 | P2 | ready | Remove the 31 duplicated objects sitting in both `deploy-assets/` root and their category sub-prefix. | The "no AWS credentials" premise is outdated: S3 `migu-gis-data-collector` was fully enumerated 2026-10-06 with the `S3_*` keys in data-collectors/.env (the local aws profiles are iCHEF company accounts — do not use). Re-run `collect_storage` with those keys to refresh the duplicate list (~365.6 MB, e.g. `ftw_fields_2025.pmtiles` in root and `agriculture/`), then confirm each is unreferenced by deploy scripts / nginx. | Every duplicate is confirmed unreferenced by any deploy script or nginx location before deletion; `collect_storage` reports 0 duplicate groups. |
 | WA-12 | P3 | ready | Give `climate/frames/` a retention policy. | The "no AWS credentials" premise is outdated (use the `S3_*` keys in data-collectors/.env, 2026-10-16); `climate_bake.py` (data-collectors) writes `deploy-assets/climate/frames` with no prune logic. Original audit: 322 frames, 220.9 MB, 2026-07-06 to 08-25 incl. future forecast timestamps. Next: check S3 lifecycle config + object count with credentials. | Either an S3 lifecycle rule or an upstream collector retention window is in place and documented. |
+
+## 台灣新圖層盤點（2026-10-28 第二輪，roadmap G29–G34）
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| TWL-5 | P2 | ready | 第二批：三個 worktree／三個 PR（使用者 2026-10-29 同意分組，「晚點再來處理」）。 | (1) 災害暴露：G32 涼適點（177893，約 7,100 點是超商，要能篩公有）＋熱傷害縣市日統計（157637，需瀏覽器 UA、cp950）；G30 鄉鎮「戶籍人口 ÷ 避難容量」衍生層（分母不可用 `ds_demographics_population`，容量總數與內政部的差異要說明）。(2) 科技執法：G34 各縣市科技執法點位（約 18 縣市有官方清單，臺東 178734 經緯度顛倒）。(3) 水：G31 河段申報排放負荷（EMS_S_03，依河川×申報期聚合，證據類型 Reported）＋G29 雨水下水道管線（`storm_drainage_pipes`，只有臺北、桃園、嘉義市，其他縣市標未涵蓋）。同時最多 3 個 worker，共用登記檔由主 agent 接線。 | 三個 PR 合進 develop、CI 綠、本機 dev 目視。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md)／[G30](../../../.gis-agent-system/roadmap/candidates/G30-disaster-shelter-civil-defense.md)／[G31](../../../.gis-agent-system/roadmap/candidates/G31-drinking-water-source-pollution.md)／[G32](../../../.gis-agent-system/roadmap/candidates/G32-urban-heat-exposure.md)／[G34](../../../.gis-agent-system/roadmap/candidates/G34-police-traffic-enforcement.md) |
+| TWL-6 | P2 | blocked | 第三批：需要新 collector 的即時層（水利署集水區即時降雨 178988–178990、消防署災情與收容開設）。 | Blocked: Zeabur 搬遷完成（collector 新家確定）。 | collector 上線、前端即時圖層接上。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md)／[G30](../../../.gis-agent-system/roadmap/candidates/G30-disaster-shelter-civil-defense.md) |
+| TWL-7 | P3 | ready | 縣市×降雨情境的淹水高潛勢面積比例做成統計圖層。 | 資料已在 Supabase（G29 深挖時算出），尚未發布 R2 snapshot。First action: 依 statistics-layer-guidelines 走 pulse-layer-release。 | 統計面板可選情境、資料來源總覽同步。[G29](../../../.gis-agent-system/roadmap/candidates/G29-flood-realtime-scenarios.md) |
+
+## 英國圖層全英視角可見（2026-10-30，feat/uk-lowzoom-visibility）
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| UKLZ-1 | P3 | blocked | 規劃限制區 `gbPlanningConstraints` 縮到全英（z5.5）也看得到。 | Blocked on owner decision（使用者 2026-10-30 決定先不做）。現況：保育區 11,002＋Article 4 7,544 共約 1.8 萬面多為小面，layer z8 起，全英視角看不到。做法候選：analytics pipeline 另出 `representative_point` source-layer（pipeline 已算 representative_point，目前只用來對 LAD）、重產 PMTiles，前端低縮放畫代表點或熱區；屬新模式，要先在 `docs/design-system/map-layers.md` 登記設計例外。First action: 使用者拍板要不要做；要做就先在 analytics 的 planning constraints pipeline 加 representative point 輸出並重產 `gb_planning_constraints.pmtiles`。 | 使用者已決定；若做，全英 z5.5 截圖看得到兩類分布、z8 起仍畫原面，設計例外已登記、golden／inventory 通過。 |
+| UKLZ-2 | P3 | ready | 森林遊憩設施 `gbForestRecreation`（2.4 萬點）與樹木保護 TPO `gbTreeProtection` 單株（26 萬點）低縮放改熱區。 | 現況：`gb_forest_recreation.pmtiles` source z8 起、`gb_tree_protection.pmtiles` z7 起，低縮放沒有圖磚，前端無法加熱區。First action: 在 analytics 用 `-Z5` 重產兩支 PMTiles（TPO 檔 127MB，重產前先看低縮放體積；若過大考慮另出點層）、上傳 S3 deploy-assets，再照 R5 加熱區（`gbHeatmapBuild`，同步 `heatmapPalette`、`layerPalette.test.ts` 層數、`r5HeatmapContract` HOOK_DENSE）。 | 全英 z5.5 看得到兩層熱區、出點縮放切換正常；console 無錯誤；check 全綠。 |
 
 ## Feature backlog index
 

@@ -22,5 +22,11 @@
   "enum.statLocationBasis.金融及保險業場所單位所在縣市": "County of the finance & insurance establishment",
   "enum.statLocationBasis.交易發生地（交易系統記錄之縣市；跨行通匯疑為機構入帳地）": "Where the transaction occurred (county recorded by the system; interbank remittances likely by receiving institution)",
   "enum.statLocationBasis.壽險公司分公司、通訊處所在縣市": "County of the life insurer branch or sales office",
-  "enum.statLocationBasis.特約商店登記地址所在鄉鎮市區": "Township of the merchant's registered address"
+  "enum.statLocationBasis.特約商店登記地址所在鄉鎮市區": "Township of the merchant's registered address",
+  "enum.statLocationBasis.常住地所在地方行政區（LAD 2024 年界）": "Local authority district of usual residence (2024 LAD boundaries)",
+  "enum.statLocationBasis.居住地所在地方行政區（由普查小區分類彙整）": "Local authority district of residence (aggregated from census output-area classes)",
+  "enum.statLocationBasis.小區所在地方行政區（由小區排名彙整）": "Local authority district containing each small area (aggregated from small-area ranks)",
+  "enum.statLocationBasis.房屋所在地方行政區（LAD 2026 年界）": "Local authority district where the property is (2026 LAD boundaries)",
+  "enum.statLocationBasis.租賃住宅所在地方行政區（LAD 2026 年界）": "Local authority district where the rented home is (2026 LAD boundaries)",
+  "enum.statLocationBasis.農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）": "Local authority district of the holding (allocated by holding, not where the land actually lies; 2026 LAD boundaries)"
 }
