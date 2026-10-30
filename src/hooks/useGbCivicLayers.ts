@@ -96,7 +96,8 @@ const IS_HOSPITAL: Expr = ["==", ["get", "kind"], "hospital"];
 /** GP 診所＋藥局點數（醫院 <1 萬點維持畫點、不進熱區）。 */
 const HEALTH_PRIMARY_COUNT = GB_HEALTH_KINDS.filter((k) => k.value !== "hospital").reduce((n, k) => n + k.count, 0);
 const HEALTH_PRIMARY_POINTS_FROM = densePointsFromZoom(HEALTH_PRIMARY_COUNT, GB_HEALTH_MINZOOM.other);
-const HEALTH_HEAT_INTENSITY = 2;
+// 醫院點蓋在上面，GP＋藥局比學校少 → 強度調高（2026-10-30 全英 z5.5 目視）
+const HEALTH_HEAT_INTENSITY = 3;
 const IS_PRIMARY: Expr = ["!", IS_HOSPITAL];
 
 export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
@@ -137,7 +138,8 @@ const careColor = (): Expr => matchColor("care_kind", GB_CARE_KINDS.map((k) => [
 
 const CARE_HOMES_POINTS_FROM = densePointsFromZoom(GB_CARE_HOMES_COUNT, 9);
 const CARE_SERVICES_POINTS_FROM = densePointsFromZoom(GB_CARE_SERVICES_COUNT, 9);
-const CARE_HEAT_INTENSITY = 2;
+/** 照護之家分布較散 3、長照服務（登記地址集中都市）2（2026-10-30 全英 z5.5 目視）。 */
+const CARE_HEAT_INTENSITY = { gbCareHomes: 3, gbCareServices: 2 } as const;
 
 function useGbCareLayer(mapRef: MapRef, key: "gbCareHomes" | "gbCareServices", id: string, heatId: string, home: boolean, pointsFrom: number,
   visible: boolean, opacity: number, scale: number, isDark: boolean) {
@@ -147,7 +149,7 @@ function useGbCareLayer(mapRef: MapRef, key: "gbCareHomes" | "gbCareServices", i
   useGbPmtilesLayers(mapRef, CARE_SOURCE, visible, () => [
     gbHeatmapBuild({
       id: heatId, key, sourceId: CARE_SOURCE.id, sourceLayer: "gb_care_services", maxzoom: heatmapMaxzoom(pointsFrom), filter,
-      isDark, opacityScale: clamp01(opacity) / opacityDefault(key, 0.75), intensity: CARE_HEAT_INTENSITY,
+      isDark, opacityScale: clamp01(opacity) / opacityDefault(key, 0.75), intensity: CARE_HEAT_INTENSITY[key],
     }),
     {
       id,

@@ -138,7 +138,8 @@ function brownfieldPaint(isDark: boolean, opacity: number, scale: number) {
 }
 
 const BROWNFIELD_POINTS_FROM = densePointsFromZoom(GB_BROWNFIELD_COUNT, GB_BROWNFIELD_MINZOOM);
-const BROWNFIELD_HEAT_INTENSITY = 2;
+// 只有英格蘭、都市集中：倫敦／曼徹斯特在 2 已飽和（2026-10-30 全英 z5.5 目視）
+const BROWNFIELD_HEAT_INTENSITY = 1.5;
 
 export function useGbBrownfieldLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, viewIdx: number, isDark: boolean) {
   const filter = gbBrownfieldFilter(viewIdx);
@@ -180,7 +181,8 @@ function recyclingPaint(kind: (typeof GB_RECYCLING_KINDS)[number], isDark: boole
 
 /** 回收桶 11,412 點（≥1 萬）→ R5 熱區；回收中心 1,547 點直接畫。 */
 const RECYCLING_CONTAINER_POINTS_FROM = densePointsFromZoom(GB_RECYCLING_KINDS[1]!.count, GB_RECYCLING_CONTAINER_MINZOOM);
-const RECYCLING_HEAT_INTENSITY = 2;
+// 回收中心點蓋在上面 → 強度調高（2026-10-30 全英 z5.5 目視）
+const RECYCLING_HEAT_INTENSITY = 3;
 const recyclingKindFilter = (kind: GbRecyclingKind): Expr => ["==", ["get", "kind"], kind];
 
 export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
