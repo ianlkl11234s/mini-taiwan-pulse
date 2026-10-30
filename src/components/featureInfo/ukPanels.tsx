@@ -1,6 +1,7 @@
 // 英國圖層 popup（2026-10-29 第 0b 波起）。來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   GB_ADMIN_FETCHED_AT, GB_ADMIN_LAD_COLOR, GB_LAD_ATTRIBUTION, GB_LAD_SOURCE_URL, GB_LAD_VERSION, GB_LICENSE,
   GB_SMALL_AREA_COLOR, gbSmallAreaType,
@@ -925,8 +926,13 @@ export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> })
 }
 
 /** 英國變電所（OSM）：名稱、電壓、類型（transmission／distribution…原值）、營運者、地區。 */
+/** OSM substation=* 常見值的中文；外文走 enum.gbSubstationType，少見或拼錯的值原樣顯示。 */
+const GB_SUBSTATION_TYPE_ZH: Record<string, string> = { minor_distribution: "小型配電", distribution: "配電", transmission: "輸電", traction: "鐵路牽引供電", transition: "架空與地下纜線轉接", generation: "發電廠併網", industrial: "工業專用", converter: "換流站", compensation: "無效功率補償", switching: "開閉所", measurement: "計量", transformer: "變壓器" };
+
 export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const subType = gbEnergyText(props.substation);
   const place = usePlaceLabel();
   const kv = useKv();
   const v = gbVoltageClass(props.voltage_class);
@@ -934,7 +940,7 @@ export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }
     <Title color={v?.color ?? GB_SUBSTATIONS_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbSubstationUnnamed")}</Title>
     <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
     {/* OSM substation=yes 只表示「是變電所」，沒有類型資訊，不顯示 */}
-    <Row label={t("popup.energy.gbSubstationType")} value={/^yes$/i.test(gbEnergyText(props.substation)) ? "" : gbEnergyText(props.substation).replace(/_/g, " ")} />
+    <Row label={t("popup.energy.gbSubstationType")} value={/^yes$/i.test(subType) ? "" : enumLabel("gbSubstationType", subType, GB_SUBSTATION_TYPE_ZH[subType] ?? subType.replace(/_/g, " "), i18n)} />
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}

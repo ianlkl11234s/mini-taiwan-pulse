@@ -1,0 +1,14 @@
+{
+  "enum.gbSubstationType.minor_distribution": "小規模配電",
+  "enum.gbSubstationType.distribution": "配電",
+  "enum.gbSubstationType.transmission": "送電",
+  "enum.gbSubstationType.traction": "鉄道き電",
+  "enum.gbSubstationType.transition": "架空・地中ケーブル接続",
+  "enum.gbSubstationType.generation": "発電所連系",
+  "enum.gbSubstationType.industrial": "産業用",
+  "enum.gbSubstationType.converter": "変換所",
+  "enum.gbSubstationType.compensation": "無効電力補償",
+  "enum.gbSubstationType.switching": "開閉所",
+  "enum.gbSubstationType.measurement": "計量",
+  "enum.gbSubstationType.transformer": "変圧器"
+}
