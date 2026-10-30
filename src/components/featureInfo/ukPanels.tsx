@@ -876,7 +876,8 @@ export function GbRenewablesPanel({ props }: { props: Record<string, unknown> })
     <Row label={t("popup.energy.gbTechnology")} value={[g ? t(GB_TECH_GROUP_KEYS[g.value]) : "", gbEnergyText(props.technology)].filter(Boolean).join(" · ")} />
     <Row label={t("popup.energy.gbStorageType")} value={gbEnergyText(props.storage_type)} />
     <Row label={t("popup.energy.gbCapacity")} value={mw(props.capacity_mw)} />
-    <Row label={t("popup.energy.gbStatus")} value={[...new Set([status ? t(GB_STATUS_GROUP_KEYS[status]) : "", rawStatus].filter(Boolean))].join(" · ")} />
+    {/* 分組標籤與原字只差大小寫（英文介面）時只顯示一次 */}
+    <Row label={t("popup.energy.gbStatus")} value={(() => { const label = status ? t(GB_STATUS_GROUP_KEYS[status]) : ""; return label.toLowerCase() === rawStatus.toLowerCase() ? label : [label, rawStatus].filter(Boolean).join(" · "); })()} />
     {operational
       ? <Row label={t("popup.energy.gbDateOperational")} value={operational.slice(0, 10)} mono />
       : <Row label={t("popup.energy.gbDateGranted")} value={granted.slice(0, 10)} mono />}
@@ -932,7 +933,8 @@ export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }
   return <>
     <Title color={v?.color ?? GB_SUBSTATIONS_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbSubstationUnnamed")}</Title>
     <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
-    <Row label={t("popup.energy.gbSubstationType")} value={gbEnergyText(props.substation).replace(/_/g, " ")} />
+    {/* OSM substation=yes 只表示「是變電所」，沒有類型資訊，不顯示 */}
+    <Row label={t("popup.energy.gbSubstationType")} value={/^yes$/i.test(gbEnergyText(props.substation)) ? "" : gbEnergyText(props.substation).replace(/_/g, " ")} />
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}
