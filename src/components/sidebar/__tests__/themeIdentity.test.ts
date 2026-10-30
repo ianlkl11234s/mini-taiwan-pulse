@@ -89,6 +89,12 @@ describe("主題身分 (country, title)：不同國家同名主題各自解析",
     expect(localizeThemeTitle(gbTransport, i18nOf("zh-TW"))).toEqual({ primary: "交通", sub: "Transport" });
     expect(localizeThemeTitle(gbPeople, i18nOf("zh-TW"))).toEqual({ primary: "人口社經", sub: undefined });
   });
+
+  it("日文：譯名與中文同字（交通）時用譯名，不退回英文副標", () => {
+    const ja = { active: "ja", lookup: (key: string) => (key === "theme.交通" ? "交通" : undefined) } as unknown as I18nContext;
+    expect(localizeThemeTitle(gbTransport, ja)).toEqual({ primary: "交通", sub: undefined });
+    expect(localizeThemeTitle({ ...gbTransport, title: "觀光" }, ja).primary).toBe("Tourism");
+  });
 });
 
 describe("既有國家主題照舊解析（重構不改畫面）", () => {

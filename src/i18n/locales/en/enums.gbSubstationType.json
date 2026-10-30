@@ -1,0 +1,14 @@
+{
+  "enum.gbSubstationType.minor_distribution": "Minor distribution",
+  "enum.gbSubstationType.distribution": "Distribution",
+  "enum.gbSubstationType.transmission": "Transmission",
+  "enum.gbSubstationType.traction": "Railway traction",
+  "enum.gbSubstationType.transition": "Overhead–underground transition",
+  "enum.gbSubstationType.generation": "Generation connection",
+  "enum.gbSubstationType.industrial": "Industrial",
+  "enum.gbSubstationType.converter": "Converter",
+  "enum.gbSubstationType.compensation": "Reactive power compensation",
+  "enum.gbSubstationType.switching": "Switching",
+  "enum.gbSubstationType.measurement": "Metering",
+  "enum.gbSubstationType.transformer": "Transformer"
+}
