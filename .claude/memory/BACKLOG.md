@@ -271,6 +271,16 @@
 | UKOSM-1 | P3 | blocked | OSM 五層：C014 橋隧、C018 道路設施、B 級路、C033 公共設施、C049 宗教。 | Blocked：本機 IP 疑被 Overpass 封鎖。First action: 換網路（或 Overpass 鏡像）在 analytics 重跑各 `07_export.py`，資料到手後一層一 PR 接前端。 | 五層資料產出、前端上 develop、瀏覽器截圖驗收。 |
 | UKREL-1 | P3 | ready | #766 日文英國主題名（交通、教育、文化）與變電所類型三語翻譯，已合 develop `76cf045a`，未發版。 | 使用者偏好小修不單獨發版。First action: 隨下一次整批發版。 | 正式站 `?lang=ja` 英國面板顯示交通／教育／文化、變電所類型顯示日文。 |
 
+## 南韓圖層（2026-10-31，第 0–5 波＋統計已合 develop）
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| KRREL-1 | P2 | blocked | 南韓 #769／#773／#774／#775 發版到正式站。 | Blocked on owner decision（develop→master 須使用者拍板）。First action: 發版當天、合 master 前用 `scripts/deploy/upload-deploy-assets.sh` 上傳 `public/world/kr_bridges.pmtiles`（25.9MB）、`kr_speed_cameras.pmtiles`（33.9MB）、`kr_street_trees.pmtiles`（34.9MB）到 S3 `deploy-assets/world/`；發版前列出 develop 上範圍外 PR 給使用者確認。 | 正式站 `main-*.js` 含新版號；3 支大檔 Range 回 206；正式站 `?c=kr` 開橋梁、測速相機、行道樹與統計各一張截圖，console 無新錯誤。 |
+| KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
+| KRUX-1 | P3 | ready | 南韓公車站（22.7 萬站）在全國視角很淡、不易辨認。 | First action: 截全國 z6–z8 畫面，提出規範內的熱區強度／色階調整選項給使用者選（不改設計系統）。 | 全國視角看得出熱區分布；golden／check 全綠。 |
+| KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
+| KRW-6 | P3 | ready | 南韓第 6–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
