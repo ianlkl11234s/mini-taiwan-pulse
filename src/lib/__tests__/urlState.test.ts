@@ -477,7 +477,9 @@ describe("country（c=，國家主體）", () => {
     expect(parseUrlState("?v=1&c=uk").country).toBeUndefined();
     expect(parseUrlState("?v=1&c=tw").country).toBe("TW");
     expect(parseUrlState("?v=1&c=JP").country).toBeUndefined();
-    expect(parseUrlState("?v=1&c=kr").country).toBeUndefined();
+    expect(parseUrlState("?v=1&c=kr").country).toBe("KR");
+    expect(parseUrlState("?v=1&c=KR").country).toBeUndefined();
+    expect(parseUrlState("?v=1&c=kp").country).toBeUndefined();
     expect(parseUrlState("?v=1&c=").country).toBeUndefined();
   });
 

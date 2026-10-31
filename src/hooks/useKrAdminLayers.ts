@@ -18,13 +18,12 @@ const SOURCE_ID = "kr-admin-boundaries";
 const FILE = "kr_admin_boundaries.pmtiles";
 const LINE_WIDTH = 1;
 
-export const KR_ADMIN_FILL_LAYER_IDS = KR_ADMIN_LEVELS.map((level) => `kr-admin-${level.value}-fill`);
-const subLayers = KR_ADMIN_LEVELS.map((level) => ({
-  sourceLayer: level.value,
-  minzoom: level.minzoom,
-  fillId: `kr-admin-${level.value}-fill`,
-  lineId: `kr-admin-${level.value}-line`,
-}));
+// layer id 寫成字面值：gisClickRegistry／lineFillTiers 的契約測試以字面值比對。順序＝KR_ADMIN_LEVELS（sido、sgg、emd）。
+const subLayers = [
+  { sourceLayer: "sido", minzoom: KR_ADMIN_LEVELS[0].minzoom, fillId: "kr-admin-sido-fill", lineId: "kr-admin-sido-line" },
+  { sourceLayer: "sgg", minzoom: KR_ADMIN_LEVELS[1].minzoom, fillId: "kr-admin-sgg-fill", lineId: "kr-admin-sgg-line" },
+  { sourceLayer: "emd", minzoom: KR_ADMIN_LEVELS[2].minzoom, fillId: "kr-admin-emd-fill", lineId: "kr-admin-emd-line" },
+] as const;
 
 const opacityDefault = () => Number(paramDefault(KEY, `${KEY}Opacity`) ?? 0.85);
 
