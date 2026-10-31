@@ -343,6 +343,53 @@ export const CULTURE_COIN_PRECISION_LABELS: Readonly<Record<string, string>> = {
 /** G23 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
 export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
 
+// ── 文化、觀光、原民補強 G35（2026-10-31）──────────────────────────────
+
+/** 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。 */
+export const DIALECT_GROUP_OPTIONS: readonly AtlasOption[] = [
+  ...TRIBE_ETHNIC_OPTIONS,
+  { value: "邵族", label: "邵族", color: "#be185d" },
+  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#0d9488" },
+  { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
+  { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
+  { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
+  { value: "multiple", label: "兩族以上", color: "#475569" },
+];
+/** 客家文化重點發展區依客語腔調分色（來源字串，複合腔調照原值）。 */
+export const HAKKA_ACCENT_OPTIONS: readonly AtlasOption[] = [
+  { value: "四縣腔", label: "四縣腔", color: "#0f766e" },
+  { value: "海陸腔", label: "海陸腔", color: "#2563eb" },
+  { value: "四縣腔海陸腔", label: "四縣腔＋海陸腔", color: "#7c3aed" },
+  { value: "大埔腔", label: "大埔腔", color: "#ca8a04" },
+  { value: "四縣腔大埔腔", label: "四縣腔＋大埔腔", color: "#c2410c" },
+  { value: "詔安腔", label: "詔安腔", color: "#be185d" },
+];
+/** 旅遊服務站點類別（TourismServiceSiteClasses 1–5；官方代碼表未取得，名稱依站名歸納）。 */
+export const TOUR_SERVICE_SITE_OPTIONS: readonly AtlasOption[] = [
+  { value: "1", label: "機場旅客服務中心", color: "#be123c" },
+  { value: "2", label: "交通場站旅遊服務中心", color: "#4f46e5" },
+  { value: "3", label: "國家風景區遊客中心", color: "#0f766e" },
+  { value: "4", label: "地方遊客中心", color: "#0891b2" },
+  { value: "5", label: "借問站", color: "#ca8a04" },
+];
+/** 遊客人數據點：最新年（2024）全年人次分 5 級（固定門檻）；全年不足 12 個月＝灰。 */
+export const VISITOR_STEPS: readonly { min: number; label: string; color: string }[] = [
+  { min: 0, label: "未滿 10 萬", color: "#fed7aa" },
+  { min: 100_000, label: "10 萬–50 萬", color: "#fdba74" },
+  { min: 500_000, label: "50 萬–100 萬", color: "#fb923c" },
+  { min: 1_000_000, label: "100 萬–500 萬", color: "#ea580c" },
+  { min: 5_000_000, label: "500 萬以上", color: "#9a3412" },
+];
+export function visitorColorExpr(): unknown[] {
+  return ["case", ["==", ["typeof", ["get", "latest_annual"]], "number"],
+    ["step", ["get", "latest_annual"], ...VISITOR_STEPS.flatMap((s, i) => (i === 0 ? [s.color] : [s.min, s.color]))], ATLAS_OTHER_COLOR];
+}
+export function visitorColor(value: unknown): string {
+  if (typeof value !== "number") return ATLAS_OTHER_COLOR;
+  return [...VISITOR_STEPS].reverse().find((s) => value >= s.min)?.color ?? VISITOR_STEPS[0]!.color;
+}
+export const G35_ORGS = { tourism: "交通部觀光署", hakka: "客家委員會" } as const;
+
 // ── 原民會文化健康站 G20（2026-10-24）───────────────────────────────────
 
 /** 點的兩種精度：site＝離線 geocode 落在來源鄉鎮內（一站一點）；township_group＝只到鄉鎮，同鄉鎮各站併成鄉鎮中心一點（空心圈）。 */
@@ -456,6 +503,9 @@ export const ATLAS_NOTES = {
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
   indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
   agriRuralCommunityVillages: "農村社區分類以村里為單位（農業部農村發展及水土保持署）；放大到 7 級以上顯示。",
+  indigenousRegions: "原民會公告的 55 個原住民族地區（鄉鎮市區）。範圍套內政部鄉鎮界（TOWN_MOI_1140318，簡化約 40 公尺），不是地籍或法定邊界判定；來源沒有山地／平地別。",
+  indigenousLanguageDialects: "原民會族語方言分布參考表（2023-07）：16 族 42 方言、59 個鄉鎮。來源到村里，這裡併成鄉鎮面，村里名單在彈窗；同一鄉鎮有兩族以上方言時塗灰色。是語言推廣用的參考表，不是使用人口調查。",
+  hakkaCulturalZones: "客委會公告的 70 個客家文化重點發展區（客家人口比率達三分之一以上的鄉鎮市區），依客語腔調分色；客家人口比率在彈窗。範圍套內政部鄉鎮界。",
   provincialRoadSigns: "交通部公路局省道標誌清查；放大到 11 級以上顯示點位，較低縮放以熱區顯示。調查日期逐筆不同，非即時現況。",
   provincialRoadMileposts: "放大到 11 級以上顯示。調查日期逐筆不同。",
   freewayTrafficSigns: "交通部高速公路局交通標誌；放大到 10 級以上顯示。約 1／4 標誌來源未給代碼名稱（灰點）。",
@@ -509,5 +559,7 @@ export const ATLAS_NOTES = {
   securitiesFuturesInstitutions: "證券商分公司 817、期貨商總公司 39 與分公司 90、投信 36、投顧 89，共 1,071 處（名冊 2026-10-24 下載；33 處名冊未列營業地址〔自營部門、免設營業廳等〕未上圖）。是名冊上的營業據點，不是營業員或開戶數；證券商兼營期貨的據點在證券與期貨名冊各列一次，同址點會重疊；不含證券商總公司。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；8 處只到約略位置。",
   insuranceInstitutions: "保險公司總分公司 392 處（人壽 233、產物 156、再保 3）與保險代理人公司 263 家（含銀行兼營 31），共 655 處（名冊 2026-10-24 下載）。不含保險通訊處（約 3,358 個，無地址開放資料）與業務員；保代地址為公司登記或聯絡地址，銀行兼營保代為銀行總行地址。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；5 處只到約略位置。",
   postOfficeFxCounters: "中華郵政可買賣外幣現鈔及旅行支票的郵局 290 局（網頁名冊 2026-10-25 下載）。這不是外幣收兌處：央行委託臺灣銀行核准的外幣收兌處（飯店、商店等）名單未公開，本層只有郵局；銀行、信合社、農漁會的外幣現鈔據點也沒有公開逐點名冊，不在本層。央行統計（115/09/30）郵局 288 家，與本層差 2，兩邊日期不同，原因未查證。座標取自中華郵政全國營業據點（同電腦局號）。",
+  tourServiceSites: "觀光署旅遊服務站點 797 處（借問站、旅遊服務中心、遊客中心），2026-10-31 下載。類別名稱依站名歸納（官方代碼表未取得），「國家風景區遊客中心」類另含 5 間店家借問站。與 OSM「遊客中心」層並列、不取代。",
+  tourVisitorStats: "觀光署主要觀光遊憩據點遊客人數（2012–2024 月別）：2024 年 368 個據點中，名稱配得到景點點位的 270 個上圖，98 個配不到未上圖。顏色是 2024 全年人次；名稱比對方式非完全相同者可能配錯，彈窗會標示。人次是各據點自行統計，計算方式不一，不宜跨據點直接比較。",
   culturalHealthStations: "原住民族文化健康站 525 站（通訊錄 2025-07-22）。實心點 191 站依地址定位；空心圈是只定位到鄉鎮的 334 站，同鄉鎮併成鄉鎮中心一圈、圈內數字＝站數，不是實際站址，不可用來量距離。不含電話。",
 } as const satisfies Record<AtlasLayerKey, string>;

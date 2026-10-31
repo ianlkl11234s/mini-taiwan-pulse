@@ -516,6 +516,10 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "in_current_approved_list", type: "boolean" },
   ],
   "indigenous_rural/indigenous_isolation_risk_areas.geojson": [{ field: "cause_combo", type: "string" }],
+  // 文化、觀光、原民補強 G35（2026-10-31）：面著色依 ethnic_group／hakka_accent；popup 依 county／town／dialects／hakka_ratio。
+  "indigenous_rural/indigenous_regions_55.geojson": [{ field: "county", type: "string" }, { field: "town", type: "string" }, { field: "office_website", type: "string", nullable: true }],
+  "indigenous_rural/indigenous_language_dialects.geojson": [{ field: "ethnic_group", type: "string" }, { field: "ethnic_groups", type: "string" }, { field: "dialects", type: "string" }, { field: "county", type: "string" }, { field: "town", type: "string" }],
+  "indigenous_rural/hakka_cultural_zones.geojson": [{ field: "hakka_accent", type: "string" }, { field: "hakka_ratio", type: "number" }, { field: "county", type: "string" }, { field: "town", type: "string" }],
   "marine/cetacean_strandings.geojson": [
     { field: "event_year", type: "number" },
     { field: "animal_status", type: "string" },
@@ -565,6 +569,8 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   // 💱 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）：單色點；popup 依 geocode_precision／spatial_check 顯示定位，zip6 顯示郵遞區號。
   "finance/post_office_fx_cash_counters.geojson": [{ field: "name", type: "string" }, { field: "zip6", type: "string" }, { field: "geocode_precision", type: "string" }, { field: "coord_source", type: "string" }, { field: "spatial_check", type: "string", nullable: true }, { field: "source_date_kind", type: "string" }],
   "welfare/cultural_health_stations.geojson": [{ field: "kind", type: "string" }, { field: "precision", type: "string" }, { field: "station_count", type: "number", nullable: true }, { field: "station_names", type: "string", nullable: true }],
+  "tourism/tourism_service_sites.geojson": [{ field: "name", type: "string" }, { field: "site_class", type: "string" }, { field: "address", type: "string" }, { field: "source_updated", type: "string" }],
+  "tourism/visitor_spot_stats.geojson": [{ field: "name", type: "string" }, { field: "latest_annual", type: "number", nullable: true }, { field: "annual_visitors", type: "string" }, { field: "match_method", type: "string" }, { field: "coord_basis", type: "string" }],
   "culture/culture_coin_venues.geojson": [{ field: "category", type: "string" }, { field: "sub_category", type: "string" }, { field: "coord_status", type: "string" }, { field: "county_check", type: "string" }],
 };
 

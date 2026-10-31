@@ -89,7 +89,7 @@ export function ScenicAreasPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
-// ── 5. 文化資產：category 三值分色（色表 SSOT = data/tourTypes.ts） ──
+// ── 5. 文化資產：category 七類分色（色表 SSOT = data/tourTypes.ts） ──
 export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t: tr } = i18n;
