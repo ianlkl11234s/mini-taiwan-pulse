@@ -11,7 +11,7 @@ import {
   GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_TILE_ZOOM, GB_WASTE_PERMITS_ATTRIBUTION, GB_WASTE_PERMITS_COLOR,
   GB_WASTE_PERMITS_MINZOOM, GB_WASTE_PERMITS_TILE_ZOOM, type GbRecyclingKind, gbBrownfieldView, gbNoiseSourceView, gbPlanningView, gbWasteAuthorityView,
 } from "../data/gbEnvPlanningTypes";
-import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 11 波環境與規劃 6 層：規劃限制區（面，類別選單）、棕地登記冊（點，許可狀態選單）、回收點（點，中心／回收桶）、
@@ -23,6 +23,9 @@ import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWate
  */
 export const GB_PLANNING_FILL_ID = "gb-planning-constraints-fill";
 export const GB_PLANNING_LINE_ID = "gb-planning-constraints-line";
+/** §3.8 V-1／V-5：代表點檔（analytics 另出，z4–10）的熱區與點模式 circle */
+export const GB_PLANNING_HEATMAP_ID = "gb-planning-constraints-points-heatmap";
+export const GB_PLANNING_POINT_CIRCLE_ID = "gb-planning-constraints-points-circle";
 export const GB_BROWNFIELD_CIRCLE_ID = "gb-brownfield-circle";
 export const GB_RECYCLING_CENTRE_CIRCLE_ID = "gb-recycling-centre-circle";
 export const GB_RECYCLING_CONTAINER_CIRCLE_ID = "gb-recycling-container-circle";
@@ -66,16 +69,31 @@ export function gbPlanningFilter(viewIdx: number): Expr | null {
   return view === "all" ? null : ["==", ["get", "constraint"], view];
 }
 
-export function useGbPlanningConstraintsLayer(mapRef: MapRef, visible: boolean, opacity: number, viewIdx: number, isDark: boolean) {
+const PLANNING_POINTS_SOURCE: SourceSpec = {
+  id: "gb-planning-constraints-points", file: "gb_planning_constraints_points.pmtiles", minzoom: 4, maxzoom: 10,
+  attribution: GB_PLANNING_ATTRIBUTION, loading: "英國規劃限制區代表點載入中",
+};
+
+/**
+ * 規劃限制區：預設「點」（小而零散的面，§3.8 V-5）——熱區到 z10、之後畫代表點；「面」模式熱區到 z8、之後畫面。
+ * 類別選單（保育區／Article 4／綠帶／全部）同時篩熱區、代表點與面。
+ */
+export function useGbPlanningConstraintsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, mode: GbDisplayMode, viewIdx: number, isDark: boolean) {
   const def = opacityDefault("gbPlanningConstraints", 0.35);
   const filter = gbPlanningFilter(viewIdx);
+  const heatStyle = useHeatmapStyleSignature(["gbPlanningConstraints"]);
+  useGbRepPointLayers(mapRef, {
+    key: "gbPlanningConstraints", source: PLANNING_POINTS_SOURCE, sourceLayer: "gb_planning_constraints_points",
+    heatId: GB_PLANNING_HEATMAP_ID, circleId: GB_PLANNING_POINT_CIRCLE_ID, count: 18_727,
+    polygonMinzoom: GB_PLANNING_MINZOOM, heatIntensity: 2, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbPlanningConstraints"), isDark, color: planningColor(), filter }, heatStyle);
   const fillPaint = (op: number) => hookFillPaint("gbPlanningConstraints", GB_PLANNING_FILL_ID,
     { "fill-color": planningColor(), "fill-opacity": planningFillOpacity(op) },
     { "fill-color": planningColor(), "fill-opacity": planningFillOpacity(def) }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbPlanningConstraints", GB_PLANNING_LINE_ID,
     { "line-color": planningColor(), "line-width": 1, "line-opacity": clamp01(op / def) * 0.8 },
     { "line-color": planningColor(), "line-width": 1, "line-opacity": 0.8 }, isDark);
-  useGbPmtilesLayers(mapRef, PLANNING_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, PLANNING_SOURCE, visible && mode === "polygon", () => [
     {
       id: GB_PLANNING_FILL_ID,
       layer: () => ({
@@ -185,8 +203,10 @@ const RECYCLING_CONTAINER_POINTS_FROM = densePointsFromZoom(GB_RECYCLING_KINDS[1
 const RECYCLING_HEAT_INTENSITY = 3;
 const recyclingKindFilter = (kind: GbRecyclingKind): Expr => ["==", ["get", "kind"], kind];
 
-export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const heatStyle = useHeatmapStyleSignature(["gbRecyclingCentres"]);
+  // §3.8 V-4：回收中心／回收桶多選
+  const kindFilter = gbMaskFilter("kind", kindMask, GB_RECYCLING_KINDS.map((k) => k.value));
   const build = (id: string, kind: (typeof GB_RECYCLING_KINDS)[number]) => ({
     id,
     layer: () => ({
@@ -198,7 +218,7 @@ export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opa
     update: (map: MapboxMap) => setPaint(map, id, recyclingPaint(kind, isDark, opacity, scale)),
   });
   // 回收中心（量少、範圍大）畫在回收桶上面
-  useGbPmtilesLayers(mapRef, RECYCLING_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, RECYCLING_SOURCE, visible, () => gbWithFilter([
     gbHeatmapBuild({
       id: GB_RECYCLING_CONTAINER_HEATMAP_ID, key: "gbRecyclingCentres", sourceId: RECYCLING_SOURCE.id, sourceLayer: "gb_recycling_points",
       maxzoom: heatmapMaxzoom(RECYCLING_CONTAINER_POINTS_FROM), filter: recyclingKindFilter("container"),
@@ -206,7 +226,7 @@ export function useGbRecyclingCentresLayer(mapRef: MapRef, visible: boolean, opa
     }),
     build(GB_RECYCLING_CONTAINER_CIRCLE_ID, GB_RECYCLING_KINDS[1]!),
     build(GB_RECYCLING_CENTRE_CIRCLE_ID, GB_RECYCLING_KINDS[0]!),
-  ], [opacity, scale, isDark, heatStyle]);
+  ], kindFilter), [opacity, scale, kindMask, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 廢棄物處理許可 ───────────────────────────

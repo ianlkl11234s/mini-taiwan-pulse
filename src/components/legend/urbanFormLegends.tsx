@@ -769,10 +769,11 @@ const GB_GREENSPACE_LEGEND_FN_KEYS: Record<GbGreenspaceFunctionId, MessageKey> =
 const GB_GREENSPACE_TITLE_KEYS: Record<GbGreenspaceKey, MessageKey> = {
   gbGreenspace: "legend.urban.gbGreenspaceTitle",
   gbSportsFacilities: "legend.urban.gbSportsTitle",
+  gbGolfCourses: "legend.urban.gbGolfTitle",
   gbCemeteries: "legend.urban.gbCemeteriesTitle",
 };
 
-/** 英國綠地三層（OS Open Greenspace，同一檔依 category 拆層）：每層列自己的 function 類別。 */
+/** 英國綠地四層（OS Open Greenspace，同一檔依 category／function 拆層）：每層列自己的 function 類別。 */
 export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) {
   const i18n = useLocale();
   const cfg = GB_GREENSPACE_CATEGORIES[layerKey];
@@ -781,8 +782,8 @@ export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) 
     {cfg.functions.map((f) => (
       <LegendRow key={f.value} swatch={<SwatchSquare color={f.color} />}>{i18n.t(GB_GREENSPACE_LEGEND_FN_KEYS[f.id])}</LegendRow>
     ))}
-    {layerKey === "gbSportsFacilities" ? <LegendRow swatch={<SwatchDot color={cfg.functions.find((f) => f.id === "Golf")!.color} />}>{i18n.t("legend.urban.gbGolfPoints")}</LegendRow> : null}
-    <DenseHeatmapLegendRow layers={[layerKey]} />
+    {layerKey === "gbGolfCourses" ? null : <DenseHeatmapLegendRow layers={[layerKey]} />}
+    {layerKey === "gbSportsFacilities" ? <LegendNote>{i18n.t("legend.urban.gbSportsGolfMoved")}</LegendNote> : null}
     {layerKey === "gbCemeteries" ? <LegendNote>{i18n.t("legend.urban.gbReligiousNote")}</LegendNote> : null}
     <LegendNote>{i18n.t("legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>

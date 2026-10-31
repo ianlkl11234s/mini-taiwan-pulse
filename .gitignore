@@ -137,6 +137,8 @@ public/world/jp_major_roads.pmtiles
 public/world/gb_admin_small_areas.pmtiles
 # 英國第 1 波（建成區 41.6MB、綠地 67.8MB 走 S3 deploy-assets/world/；gb_maritime_limits 0.5MB git-track）
 public/world/gb_built_up_areas.pmtiles
+# §3.8（2026-10-31）建成區重切 z3 起 42MB 走 S3；其餘 _v2／代表點／小區 z5–7 都 < 20MB git-track
+public/world/gb_built_up_areas_v2.pmtiles
 public/world/gb_greenspace.pmtiles
 # 南韓第 4–5 波（橋梁 25.9MB、取締攝影機 33.9MB、行道樹 34.9MB 走 S3 deploy-assets/world/；其餘 15 檔皆 <14MB git-track）
 public/world/kr_bridges.pmtiles

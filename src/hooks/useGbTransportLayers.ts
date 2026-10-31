@@ -1,6 +1,7 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
-import { LINE_WIDTH, TRANSFER_STATION, pointRadius, pointStrokePaint, transferRingColor } from "../map/mapStyleScale";
+import { LINE_WIDTH, TRANSFER_STATION, heatmapMaxzoom, pointRadius, pointStrokePaint, transferRingColor } from "../map/mapStyleScale";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import {
   GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_FALLBACK_COLOR, GB_HUB_TYPES, GB_HUBS_ATTRIBUTION, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR,
@@ -9,7 +10,7 @@ import {
   GB_AADF_ALL_MINZOOM, GB_AADF_BUCKETS, GB_AADF_MAJOR_CLASSES, GB_AADF_MAJOR_MINZOOM, GB_AADF_METHOD_FILTERS,
   GB_DFT_ROAD_TRAFFIC_ATTRIBUTION, GB_ROAD_CLASSES, GB_ROAD_FALLBACK_COLOR, GB_ROADS_MAP_ATTRIBUTION,
 } from "../data/gbTransportTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 4 波交通 7 層：樞紐（點）＋站客流（點，同檔）、倫敦軌道線＋車站（同檔）、BikePoint、JamCams、收費區（面）。
@@ -40,7 +41,8 @@ const setPaint = (map: MapboxMap, id: string, paint: Record<string, unknown>) =>
 // ─────────────────────────── 樞紐＋站客流（gb_transport_hubs.pmtiles） ───────────────────────────
 
 const HUBS_SOURCE: SourceSpec = {
-  id: "gb-transport-hubs", file: "gb_transport_hubs.pmtiles", minzoom: 4, maxzoom: 13, attribution: GB_HUBS_ATTRIBUTION, loading: "英國交通樞紐載入中",
+  // §3.8 V-1：重切 z0 起的新檔（`_v2`；舊檔 z4 起已在 S3、不覆寫），任何縮放都看得到
+  id: "gb-transport-hubs", file: "gb_transport_hubs_v2.pmtiles", minzoom: 0, maxzoom: 13, attribution: GB_HUBS_ATTRIBUTION, loading: "英國交通樞紐載入中",
 };
 
 function hubColor(): Expr {
@@ -62,16 +64,18 @@ function hubsPaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
-export function useGbTransportHubsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbPmtilesLayers(mapRef, HUBS_SOURCE, visible, () => [{
+export function useGbTransportHubsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, typeMask: number | undefined, isDark: boolean) {
+  // §3.8 V-4：依樞紐類型多選
+  const filter = gbMaskFilter("hub_type", typeMask, GB_HUB_TYPES.map((t) => t.value));
+  useGbPmtilesLayers(mapRef, HUBS_SOURCE, visible, () => gbWithFilter([{
     id: GB_HUBS_CIRCLE_ID,
     layer: () => ({
-      id: GB_HUBS_CIRCLE_ID, type: "circle", source: HUBS_SOURCE.id, "source-layer": "gb_transport_hubs", minzoom: 5,
+      id: GB_HUBS_CIRCLE_ID, type: "circle", source: HUBS_SOURCE.id, "source-layer": "gb_transport_hubs", minzoom: HUBS_SOURCE.minzoom,
       layout: { visibility: "none", "circle-sort-key": ["case", ["==", ["get", "ferry_class"], "landing"], 0, 1] },
       paint: hubsPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_HUBS_CIRCLE_ID, hubsPaint(isDark, opacity, scale)),
-  }], [opacity, scale, isDark]);
+  }], filter), [opacity, scale, typeMask, isDark]);
 }
 
 const HAS_USAGE: Expr = ["!=", ["get", "entries_exits"], null];
@@ -103,7 +107,7 @@ export function useGbStationUsageLayer(mapRef: MapRef, visible: boolean, opacity
   useGbPmtilesLayers(mapRef, HUBS_SOURCE, visible, () => [{
     id: GB_STATION_USAGE_CIRCLE_ID,
     layer: () => ({
-      id: GB_STATION_USAGE_CIRCLE_ID, type: "circle", source: HUBS_SOURCE.id, "source-layer": "gb_transport_hubs", minzoom: 5,
+      id: GB_STATION_USAGE_CIRCLE_ID, type: "circle", source: HUBS_SOURCE.id, "source-layer": "gb_transport_hubs", minzoom: HUBS_SOURCE.minzoom,
       filter: GB_STATION_USAGE_FILTER,
       // 大站畫在上面
       layout: { visibility: "none", "circle-sort-key": ["coalesce", ["get", "entries_exits"], -1] },
@@ -127,19 +131,21 @@ function railModeColor(): Expr {
 }
 const railWidth = (): Expr => ["interpolate", ["linear"], ["zoom"], 10, LINE_WIDTH.standard[0], 14, LINE_WIDTH.standard[1]];
 
-export function useGbLondonRailLinesLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
+export function useGbLondonRailLinesLayer(mapRef: MapRef, visible: boolean, opacity: number, modeMask: number | undefined, isDark: boolean) {
+  // §3.8 V-4：依路網類型多選
+  const filter = gbMaskFilter("mode", modeMask, GB_LONDON_RAIL_MODES.map((m) => m.value));
   const def = opacityDefault("gbLondonRailLines", 0.85);
   const paint = (op: number) => hookLinePaint("gbLondonRailLines", GB_LONDON_RAIL_LINE_ID,
     { "line-color": railModeColor(), "line-width": railWidth(), "line-opacity": clamp01(op) },
     { "line-color": railModeColor(), "line-width": railWidth(), "line-opacity": def }, isDark);
-  useGbPmtilesLayers(mapRef, RAIL_SOURCE, visible, () => [{
+  useGbPmtilesLayers(mapRef, RAIL_SOURCE, visible, () => gbWithFilter([{
     id: GB_LONDON_RAIL_LINE_ID,
     layer: () => ({
       id: GB_LONDON_RAIL_LINE_ID, type: "line", source: RAIL_SOURCE.id, "source-layer": "gb_london_rail_lines", minzoom: 8,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_LONDON_RAIL_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
-  }], [opacity, isDark]);
+  }], filter), [opacity, modeMask, isDark]);
 }
 
 const IS_INTERCHANGE: Expr = ["any", [">=", ["coalesce", ["get", "line_count"], 0], 2], ["==", ["get", "stop_type"], "TransportInterchange"]];
@@ -163,7 +169,7 @@ export function useGbLondonStationsLayer(mapRef: MapRef, visible: boolean, opaci
   useGbPmtilesLayers(mapRef, RAIL_SOURCE, visible, () => [{
     id: GB_LONDON_STATIONS_CIRCLE_ID,
     layer: () => ({
-      id: GB_LONDON_STATIONS_CIRCLE_ID, type: "circle", source: RAIL_SOURCE.id, "source-layer": "gb_london_rail_stations", minzoom: 10,
+      id: GB_LONDON_STATIONS_CIRCLE_ID, type: "circle", source: RAIL_SOURCE.id, "source-layer": "gb_london_rail_stations", minzoom: RAIL_SOURCE.minzoom,
       layout: { visibility: "none" }, paint: stationsPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_LONDON_STATIONS_CIRCLE_ID, stationsPaint(isDark, opacity, scale)),
@@ -190,7 +196,7 @@ export function useGbLondonBikePointsLayer(mapRef: MapRef, visible: boolean, opa
   useGbPmtilesLayers(mapRef, BIKE_SOURCE, visible, () => [{
     id: GB_BIKEPOINTS_CIRCLE_ID,
     layer: () => ({
-      id: GB_BIKEPOINTS_CIRCLE_ID, type: "circle", source: BIKE_SOURCE.id, "source-layer": "gb_london_bikepoints", minzoom: 11,
+      id: GB_BIKEPOINTS_CIRCLE_ID, type: "circle", source: BIKE_SOURCE.id, "source-layer": "gb_london_bikepoints", minzoom: BIKE_SOURCE.minzoom,
       layout: { visibility: "none" }, paint: bikePaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_BIKEPOINTS_CIRCLE_ID, bikePaint(isDark, opacity, scale)),
@@ -200,7 +206,8 @@ export function useGbLondonBikePointsLayer(mapRef: MapRef, visible: boolean, opa
 // ─────────────────────────── JamCams ───────────────────────────
 
 const JAMCAM_SOURCE: SourceSpec = {
-  id: "gb-london-jamcams", file: "gb_london_jamcams.pmtiles", minzoom: 9, maxzoom: 15, attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦道路攝影機載入中",
+  // §3.8 V-1：重切 z5 起的新檔（`_v2`；舊檔 z9 起已在 S3、不覆寫）
+  id: "gb-london-jamcams", file: "gb_london_jamcams_v2.pmtiles", minzoom: 5, maxzoom: 15, attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦道路攝影機載入中",
 };
 const IS_OFFLINE_AT_FETCH: Expr = ["==", ["get", "available_at_fetch"], false];
 
@@ -222,7 +229,7 @@ export function useGbLondonJamCamsLayer(mapRef: MapRef, visible: boolean, opacit
   useGbPmtilesLayers(mapRef, JAMCAM_SOURCE, visible, () => [{
     id: GB_JAMCAMS_CIRCLE_ID,
     layer: () => ({
-      id: GB_JAMCAMS_CIRCLE_ID, type: "circle", source: JAMCAM_SOURCE.id, "source-layer": "gb_london_jamcams", minzoom: 11,
+      id: GB_JAMCAMS_CIRCLE_ID, type: "circle", source: JAMCAM_SOURCE.id, "source-layer": "gb_london_jamcams", minzoom: JAMCAM_SOURCE.minzoom,
       layout: { visibility: "none" }, paint: jamcamPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_JAMCAMS_CIRCLE_ID, jamcamPaint(isDark, opacity, scale)),
@@ -255,7 +262,7 @@ export function useGbLondonChargingZonesLayer(mapRef: MapRef, visible: boolean, 
     {
       id: GB_CHARGING_FILL_ID,
       layer: () => ({
-        id: GB_CHARGING_FILL_ID, type: "fill", source: CHARGING_SOURCE.id, "source-layer": "gb_london_charging_zones", minzoom: 8,
+        id: GB_CHARGING_FILL_ID, type: "fill", source: CHARGING_SOURCE.id, "source-layer": "gb_london_charging_zones", minzoom: CHARGING_SOURCE.minzoom,
         layout: { visibility: "none", "fill-sort-key": ZONE_SORT }, paint: fillPaint(opacity),
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_CHARGING_FILL_ID, "fill-opacity", fillPaint(opacity)["fill-opacity"] as any),
@@ -263,7 +270,7 @@ export function useGbLondonChargingZonesLayer(mapRef: MapRef, visible: boolean, 
     {
       id: GB_CHARGING_LINE_ID,
       layer: () => ({
-        id: GB_CHARGING_LINE_ID, type: "line", source: CHARGING_SOURCE.id, "source-layer": "gb_london_charging_zones", minzoom: 8,
+        id: GB_CHARGING_LINE_ID, type: "line", source: CHARGING_SOURCE.id, "source-layer": "gb_london_charging_zones", minzoom: CHARGING_SOURCE.minzoom,
         layout: { visibility: "none", "line-cap": "round", "line-join": "round", "line-sort-key": ZONE_SORT }, paint: linePaint(opacity),
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_CHARGING_LINE_ID, "line-opacity", linePaint(opacity)["line-opacity"] as any),
@@ -340,7 +347,15 @@ function aadfPaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
+/** §3.8 V-1／P-4：2.2 萬計數點 → 全英視角畫熱區（同「資料方式」篩選），z8 起畫全部點；幹線點 z6 起照舊疊在熱區上。 */
+export const GB_AADF_HEATMAP_ID = "gb-traffic-counts-aadf-heatmap";
+const AADF_HEAT_INTENSITY = 1.5;
+
 export function useGbTrafficCountsAadfLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, methodIdx: number, isDark: boolean) {
+  const heatStyle = useHeatmapStyleSignature(["gbTrafficCountsAadf"]);
+  const method = GB_AADF_METHOD_FILTERS[methodIdx] ?? "all";
+  const heatFilter: Expr = method === "counted" ? ["==", ["get", "estimation_method"], "Counted"]
+    : method === "estimated" ? ["==", ["get", "estimation_method"], "Estimated"] : ["has", "all_motor_vehicles"];
   const build = (id: string, major: boolean) => ({
     id,
     layer: () => ({
@@ -357,7 +372,12 @@ export function useGbTrafficCountsAadfLayer(mapRef: MapRef, visible: boolean, op
     },
   });
   useGbPmtilesLayers(mapRef, AADF_SOURCE, visible, () => [
+    gbHeatmapBuild({
+      id: GB_AADF_HEATMAP_ID, key: "gbTrafficCountsAadf", sourceId: AADF_SOURCE.id, sourceLayer: "gb_traffic_counts_aadf",
+      maxzoom: heatmapMaxzoom(GB_AADF_ALL_MINZOOM), filter: heatFilter,
+      isDark, opacityScale: clamp01(opacity) / opacityDefault("gbTrafficCountsAadf", 0.75), intensity: AADF_HEAT_INTENSITY,
+    }),
     build(GB_AADF_MINOR_CIRCLE_ID, false),
     build(GB_AADF_MAJOR_CIRCLE_ID, true),
-  ], [opacity, scale, methodIdx, isDark]);
+  ], [opacity, scale, methodIdx, isDark, heatStyle]);
 }

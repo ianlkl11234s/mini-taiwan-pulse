@@ -749,6 +749,28 @@ function heatmapPalette(key: string): PaletteParamSpec {
 }
 
 /**
+ * map-layers.md §3.8 V-5 面圖層「點／面」切換（照 `jpAirports`）：encode 0＝點、1＝面，
+ * 英國 hook 以 `gbDisplayModeFromIdx` 解讀。小而零散的面（墓園、規劃限制區）預設點。
+ */
+function displayModeSelect(key: string, def: "point" | "polygon"): SelectParamSpec {
+  return {
+    kind: "select", name: `${key}DisplayMode`, label: "樣式", default: def,
+    options: [{ label: "點位", value: "point" }, { label: "面", value: "polygon" }],
+    out: `${key}DisplayModeIdx`, encode: ["point", "polygon"],
+  };
+}
+
+/**
+ * map-layers.md §3.8 V-4 分類圖例＝可篩選：類別多選（spec §5.12），預設全選。
+ * out＝`${key}CategoryMask`（bitmask，順序＝options）；options 的 value 順序必須和 hook 用的類別陣列一致
+ * （`gbCategoryFilters.test.ts` 守）。
+ */
+function categoryMultiSelect(key: string, options: ParamSelectOption[]): MultiSelectParamSpec {
+  assertMultiSelectBitmaskCapacity(options);
+  return { kind: "multiSelect", name: `${key}Category`, label: "類別", default: MULTI_SELECT_ALL, options, out: `${key}CategoryMask` };
+}
+
+/**
  * R7 網格顏色（色盤選單）：預設沿用該網格現行色系在色盤庫裡的那一組（viridis／magma／cividis；
  * YlOrRd、inferno 不在庫內 → YlOrBr，2026-10-03 使用者同意）。
  * 共用一張聚合格的多個 key（日本醫療 5 層、照護 6 層）用同一個 `name` ＋ `sharedGroup`。
@@ -1955,9 +1977,11 @@ export const LAYER_PARAMS_SPEC = {
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
-  gbGreenspace: [heatmapPalette("gbGreenspace"), opacitySlider("gbGreenspaceOpacity", densePointOpacity(80_918))],
-  gbSportsFacilities: [heatmapPalette("gbSportsFacilities"), opacitySlider("gbSportsFacilitiesOpacity", densePointOpacity(54_852))],
-  gbCemeteries: [heatmapPalette("gbCemeteries"), opacitySlider("gbCemeteriesOpacity", densePointOpacity(30_208))],
+  // §3.8：點／面切換（墓園與宗教場地預設點）、依 function 類別多選；高爾夫 2,980 處 <1 萬點不畫熱區（P-4），拆成獨立圖層
+  gbGreenspace: [displayModeSelect("gbGreenspace", "polygon"), heatmapPalette("gbGreenspace"), opacitySlider("gbGreenspaceOpacity", densePointOpacity(80_918)), scaleSlider("gbGreenspaceScale", 1), categoryMultiSelect("gbGreenspace", [{ label: "公園／花園", value: "Public Park Or Garden" }, { label: "遊戲場", value: "Play Space" }, { label: "市民農園", value: "Allotments Or Community Growing Spaces" }])],
+  gbSportsFacilities: [displayModeSelect("gbSportsFacilities", "polygon"), heatmapPalette("gbSportsFacilities"), opacitySlider("gbSportsFacilitiesOpacity", densePointOpacity(51_872)), scaleSlider("gbSportsFacilitiesScale", 1), categoryMultiSelect("gbSportsFacilities", [{ label: "運動場地", value: "Playing Field" }, { label: "其他運動設施", value: "Other Sports Facility" }, { label: "網球場", value: "Tennis Court" }, { label: "草地滾球場", value: "Bowling Green" }])],
+  gbGolfCourses: [displayModeSelect("gbGolfCourses", "polygon"), opacitySlider("gbGolfCoursesOpacity", densePointOpacity(2_980)), scaleSlider("gbGolfCoursesScale", 1)],
+  gbCemeteries: [displayModeSelect("gbCemeteries", "point"), heatmapPalette("gbCemeteries"), opacitySlider("gbCemeteriesOpacity", densePointOpacity(30_208)), scaleSlider("gbCemeteriesScale", 1), categoryMultiSelect("gbCemeteries", [{ label: "墓園", value: "Cemetery" }, { label: "宗教場地", value: "Religious Grounds" }])],
   // 英國第 3 波：河川／防洪設施（線透明度）、測站與浴場（點透明度＋大小）、海岸侵蝕（面透明度＋期別）
   gbRivers: [opacitySlider("gbRiversOpacity", 0.85)],
   gbHydroStations: [opacitySlider("gbHydroStationsOpacity", densePointOpacity(6_261)), scaleSlider("gbHydroStationsScale", 1)],
@@ -1972,9 +1996,9 @@ export const LAYER_PARAMS_SPEC = {
   ],
   gbBathingWaters: [opacitySlider("gbBathingWatersOpacity", 0.85), scaleSlider("gbBathingWatersScale", 1)],
   // 英國第 4 波：交通（樞紐、站客流、倫敦軌道線／站、單車站、攝影機為點／線透明度＋點大小；收費區面透明度）
-  gbTransportHubs: [opacitySlider("gbTransportHubsOpacity", densePointOpacity(3_281)), scaleSlider("gbTransportHubsScale", 1)],
+  gbTransportHubs: [opacitySlider("gbTransportHubsOpacity", densePointOpacity(3_281)), scaleSlider("gbTransportHubsScale", 1), categoryMultiSelect("gbTransportHubs", [{ label: "鐵路車站", value: "rail" }, { label: "機場", value: "airport" }, { label: "渡輪碼頭", value: "ferry" }, { label: "巴士轉運站", value: "bus_station" }, { label: "公車鐵路整合站", value: "interchange" }])],
   gbStationUsage: [opacitySlider("gbStationUsageOpacity", densePointOpacity(2_638)), scaleSlider("gbStationUsageScale", 1)],
-  gbLondonRailLines: [opacitySlider("gbLondonRailLinesOpacity", 0.85)],
+  gbLondonRailLines: [opacitySlider("gbLondonRailLinesOpacity", 0.85), categoryMultiSelect("gbLondonRailLines", [{ label: "地鐵", value: "tube" }, { label: "Overground 地上鐵", value: "overground" }, { label: "Elizabeth line", value: "elizabeth-line" }, { label: "DLR 輕軌", value: "dlr" }, { label: "電車", value: "tram" }])],
   gbLondonStations: [opacitySlider("gbLondonStationsOpacity", 0.85), scaleSlider("gbLondonStationsScale", 1)],
   gbLondonBikePoints: [opacitySlider("gbLondonBikePointsOpacity", 0.85), scaleSlider("gbLondonBikePointsScale", 1)],
   gbLondonJamCams: [opacitySlider("gbLondonJamCamsOpacity", 0.85), scaleSlider("gbLondonJamCamsScale", 1)],
@@ -1982,6 +2006,7 @@ export const LAYER_PARAMS_SPEC = {
   // 英國第 10 波：主要路網（線透明度）、AADF 計數點（點透明度＋大小＋「資料方式」選單）
   gbMajorRoads: [opacitySlider("gbMajorRoadsOpacity", 0.85)],
   gbTrafficCountsAadf: [
+    heatmapPalette("gbTrafficCountsAadf"),
     opacitySlider("gbTrafficCountsAadfOpacity", densePointOpacity(22_334)),
     scaleSlider("gbTrafficCountsAadfScale", 1),
     {
@@ -1999,14 +2024,14 @@ export const LAYER_PARAMS_SPEC = {
       out: "gbProtectedAreasGroupIdx", encode: ["all", "landscape", "domestic", "international"],
     },
   ],
-  gbMarineProtectedAreas: [opacitySlider("gbMarineProtectedAreasOpacity", 0.5)],
-  gbWoodland: [opacitySlider("gbWoodlandOpacity", 0.7)],
-  gbForestRecreation: [opacitySlider("gbForestRecreationOpacity", densePointOpacity(24_487)), scaleSlider("gbForestRecreationScale", 1)],
+  gbMarineProtectedAreas: [opacitySlider("gbMarineProtectedAreasOpacity", 0.5), categoryMultiSelect("gbMarineProtectedAreas", [{ label: "海洋保育區", value: "mcz" }, { label: "自然保育 MPA", value: "ncmpa" }, { label: "示範研究 MPA", value: "drmpa" }])],
+  gbWoodland: [displayModeSelect("gbWoodland", "polygon"), heatmapPalette("gbWoodland"), opacitySlider("gbWoodlandOpacity", 0.7), scaleSlider("gbWoodlandScale", 1)],
+  gbForestRecreation: [heatmapPalette("gbForestRecreation"), opacitySlider("gbForestRecreationOpacity", densePointOpacity(24_487)), scaleSlider("gbForestRecreationScale", 1), categoryMultiSelect("gbForestRecreation", [{ label: "座椅、野餐桌等", value: "furniture" }, { label: "建物設施", value: "built" }, { label: "遊戲設施", value: "play" }, { label: "藝術品", value: "art" }, { label: "其他", value: "misc" }, { label: "指標與步道標", value: "signage" }])],
   gbTrails: [opacitySlider("gbTrailsOpacity", 0.85)],
-  gbOpenAccessLand: [opacitySlider("gbOpenAccessLandOpacity", 0.6)],
-  gbTreeProtection: [opacitySlider("gbTreeProtectionOpacity", 0.7), scaleSlider("gbTreeProtectionScale", 1)],
+  gbOpenAccessLand: [displayModeSelect("gbOpenAccessLand", "polygon"), heatmapPalette("gbOpenAccessLand"), opacitySlider("gbOpenAccessLandOpacity", 0.6), scaleSlider("gbOpenAccessLandScale", 1), categoryMultiSelect("gbOpenAccessLand", [{ label: "開放鄉野", value: "open_country" }, { label: "登記共有地", value: "common_land" }, { label: "自願提供地", value: "dedicated" }])],
+  gbTreeProtection: [displayModeSelect("gbTreeProtection", "polygon"), heatmapPalette("gbTreeProtection"), opacitySlider("gbTreeProtectionOpacity", 0.7), scaleSlider("gbTreeProtectionScale", 1), categoryMultiSelect("gbTreeProtection", [{ label: "樹木保護範圍", value: "tpo_zone" }, { label: "受保護樹木", value: "tpo_tree" }, { label: "古老林地", value: "ancient_woodland" }])],
   // 英國第 6 波：能源（再生能源含「審查階段」互斥檢視；點層透明度＋大小；線／面透明度）
-  gbPowerPlants: [opacitySlider("gbPowerPlantsOpacity", densePointOpacity(1_364)), scaleSlider("gbPowerPlantsScale", 1)],
+  gbPowerPlants: [opacitySlider("gbPowerPlantsOpacity", densePointOpacity(1_364)), scaleSlider("gbPowerPlantsScale", 1), categoryMultiSelect("gbPowerPlants", [{ label: "燃氣", value: "gas" }, { label: "核能", value: "nuclear" }, { label: "燃油", value: "oil" }, { label: "生質能／廢棄物", value: "bioenergy" }, { label: "水力", value: "hydro" }, { label: "抽蓄水力", value: "pumped_hydro" }, { label: "陸域風電", value: "wind_onshore" }, { label: "離岸風電", value: "wind_offshore" }, { label: "太陽光電", value: "solar" }])],
   gbRenewables: [
     opacitySlider("gbRenewablesOpacity", densePointOpacity(14_613)),
     scaleSlider("gbRenewablesScale", 1),
@@ -2019,18 +2044,18 @@ export const LAYER_PARAMS_SPEC = {
   gbPowerLines: [opacitySlider("gbPowerLinesOpacity", 0.85)],
   gbSubstations: [opacitySlider("gbSubstationsOpacity", densePointOpacity(59_195)), scaleSlider("gbSubstationsScale", 1)],
   gbFuelStations: [opacitySlider("gbFuelStationsOpacity", densePointOpacity(8_535)), scaleSlider("gbFuelStationsScale", 1)],
-  gbOilGasFields: [opacitySlider("gbOilGasFieldsOpacity", 0.6)],
+  gbOilGasFields: [opacitySlider("gbOilGasFieldsOpacity", 0.6), categoryMultiSelect("gbOilGasFields", [{ label: "油田", value: "OIL" }, { label: "氣田", value: "GAS" }, { label: "凝結油田", value: "COND" }])],
   // 英國第 7 波：公共服務（點層透明度＋大小）
-  gbSchools: [heatmapPalette("gbSchools"), opacitySlider("gbSchoolsOpacity", densePointOpacity(30_658)), scaleSlider("gbSchoolsScale", 1)],
-  gbHealthFacilities: [heatmapPalette("gbHealthFacilities"), opacitySlider("gbHealthFacilitiesOpacity", densePointOpacity(21_297)), scaleSlider("gbHealthFacilitiesScale", 1)],
-  gbCareHomes: [heatmapPalette("gbCareHomes"), opacitySlider("gbCareHomesOpacity", densePointOpacity(15_758)), scaleSlider("gbCareHomesScale", 1)],
-  gbCareServices: [heatmapPalette("gbCareServices"), opacitySlider("gbCareServicesOpacity", densePointOpacity(17_237)), scaleSlider("gbCareServicesScale", 1)],
+  gbSchools: [heatmapPalette("gbSchools"), opacitySlider("gbSchoolsOpacity", densePointOpacity(30_658)), scaleSlider("gbSchoolsScale", 1), categoryMultiSelect("gbSchools", [{ label: "幼兒學校", value: "nursery" }, { label: "小學", value: "primary" }, { label: "中學", value: "secondary" }, { label: "一貫制", value: "all_through" }, { label: "繼續教育學院", value: "further_education" }, { label: "大學", value: "higher_education" }, { label: "特殊學校", value: "special" }, { label: "學生轉介單位", value: "pru" }, { label: "其他", value: "other" }])],
+  gbHealthFacilities: [heatmapPalette("gbHealthFacilities"), opacitySlider("gbHealthFacilitiesOpacity", densePointOpacity(21_297)), scaleSlider("gbHealthFacilitiesScale", 1), categoryMultiSelect("gbHealthFacilities", [{ label: "醫院", value: "hospital" }, { label: "GP 診所", value: "gp_practice" }, { label: "藥局", value: "pharmacy" }])],
+  gbCareHomes: [heatmapPalette("gbCareHomes"), opacitySlider("gbCareHomesOpacity", densePointOpacity(15_758)), scaleSlider("gbCareHomesScale", 1), categoryMultiSelect("gbCareHomes", [{ label: "護理照護之家", value: "care_home_nursing" }, { label: "照護之家", value: "care_home" }])],
+  gbCareServices: [heatmapPalette("gbCareServices"), opacitySlider("gbCareServicesOpacity", densePointOpacity(17_237)), scaleSlider("gbCareServicesScale", 1), categoryMultiSelect("gbCareServices", [{ label: "居家照顧", value: "home_care" }, { label: "支持性住宅", value: "supported_living" }, { label: "Shared Lives 寄養式照顧", value: "shared_lives" }, { label: "其他社區服務", value: "other_community" }])],
   gbFireStations: [opacitySlider("gbFireStationsOpacity", densePointOpacity(1_987)), scaleSlider("gbFireStationsScale", 1)],
-  gbCourts: [opacitySlider("gbCourtsOpacity", densePointOpacity(450)), scaleSlider("gbCourtsScale", 1)],
+  gbCourts: [opacitySlider("gbCourtsOpacity", densePointOpacity(450)), scaleSlider("gbCourtsScale", 1), categoryMultiSelect("gbCourts", [{ label: "刑事法院", value: "crown" }, { label: "郡法院／家事法院", value: "county_family" }, { label: "治安法院", value: "magistrates" }, { label: "審裁處", value: "tribunal" }, { label: "其他司法服務據點", value: "other" }])],
   // 英國第 8 波：文化與觀光（點層透明度＋大小）
-  gbCulturalFacilities: [opacitySlider("gbCulturalFacilitiesOpacity", densePointOpacity(8_312)), scaleSlider("gbCulturalFacilitiesScale", 1)],
-  gbArtsVenues: [opacitySlider("gbArtsVenuesOpacity", densePointOpacity(3_210)), scaleSlider("gbArtsVenuesScale", 1)],
-  gbVisitorExperience: [opacitySlider("gbVisitorExperienceOpacity", densePointOpacity(7_050)), scaleSlider("gbVisitorExperienceScale", 1)],
+  gbCulturalFacilities: [opacitySlider("gbCulturalFacilitiesOpacity", densePointOpacity(8_312)), scaleSlider("gbCulturalFacilitiesScale", 1), categoryMultiSelect("gbCulturalFacilities", [{ label: "博物館", value: "museum" }, { label: "美術館／畫廊", value: "gallery" }, { label: "圖書館", value: "library" }])],
+  gbArtsVenues: [opacitySlider("gbArtsVenuesOpacity", densePointOpacity(3_210)), scaleSlider("gbArtsVenuesScale", 1), categoryMultiSelect("gbArtsVenues", [{ label: "劇院", value: "theatre" }, { label: "電影院", value: "cinema" }, { label: "藝術中心", value: "arts_centre" }, { label: "音樂廳", value: "concert_hall" }])],
+  gbVisitorExperience: [opacitySlider("gbVisitorExperienceOpacity", densePointOpacity(7_050)), scaleSlider("gbVisitorExperienceScale", 1), categoryMultiSelect("gbVisitorExperience", [{ label: "景點", value: "attraction" }, { label: "遊客中心", value: "visitor_centre" }, { label: "主題樂園", value: "theme_park" }, { label: "動物園", value: "zoo" }, { label: "水族館", value: "aquarium" }])],
   // 英國 C003 地形 raster（只有透明度；山體陰影預設 0.5 疊在底圖上，layer-plan 建議）、C028 公有地標售（點）
   gbTerrainHillshade: [{ kind: "slider", name: "gbTerrainHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   gbTerrainRelief: [{ kind: "slider", name: "gbTerrainReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
@@ -2054,7 +2079,10 @@ export const LAYER_PARAMS_SPEC = {
   // 英國第 11 波環境與規劃：規劃限制（覆蓋面＋類別選單，預設保育區）、棕地（點＋許可狀態選單）、回收點、
   // 廢棄物許可（點＋主管機關選單）、污染排放（點，只有蘇格蘭）、噪音（分級面＋道路／鐵路選單）
   gbPlanningConstraints: [
+    displayModeSelect("gbPlanningConstraints", "point"),
+    heatmapPalette("gbPlanningConstraints"),
     opacitySlider("gbPlanningConstraintsOpacity", 0.35),
+    scaleSlider("gbPlanningConstraintsScale", 1),
     {
       kind: "select", category: "data", name: "gbPlanningConstraintsView", label: "類別", default: "conservation_area",
       options: [
@@ -2077,7 +2105,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "gbBrownfieldStatusIdx", encode: ["all", "permissioned", "pending", "not_permissioned", "completed", "other"],
     },
   ],
-  gbRecyclingCentres: [heatmapPalette("gbRecyclingCentres"), opacitySlider("gbRecyclingCentresOpacity", densePointOpacity(12_959)), scaleSlider("gbRecyclingCentresScale", 1)],
+  gbRecyclingCentres: [heatmapPalette("gbRecyclingCentres"), opacitySlider("gbRecyclingCentresOpacity", densePointOpacity(12_959)), scaleSlider("gbRecyclingCentresScale", 1), categoryMultiSelect("gbRecyclingCentres", [{ label: "回收中心", value: "centre" }, { label: "回收桶・回收點", value: "container" }])],
   gbWastePermits: [
     opacitySlider("gbWastePermitsOpacity", densePointOpacity(8_711)),
     scaleSlider("gbWastePermitsScale", 1),
@@ -2094,7 +2122,7 @@ export const LAYER_PARAMS_SPEC = {
   // 英國第 12 波：公司登記／製造業（district 聚合點，大小滑桿）、殯葬（點）、養殖（點＋狀態選單，預設現役）、土壤母質（分級面）
   gbCompanies: [opacitySlider("gbCompaniesOpacity", densePointOpacity(2_835)), scaleSlider("gbCompaniesScale", 1)],
   gbManufacturing: [opacitySlider("gbManufacturingOpacity", densePointOpacity(2_698)), scaleSlider("gbManufacturingScale", 1)],
-  gbFuneral: [opacitySlider("gbFuneralOpacity", densePointOpacity(3_347)), scaleSlider("gbFuneralScale", 1)],
+  gbFuneral: [opacitySlider("gbFuneralOpacity", densePointOpacity(3_347)), scaleSlider("gbFuneralScale", 1), categoryMultiSelect("gbFuneral", [{ label: "火葬場", value: "crematorium" }, { label: "葬儀社", value: "funeral_directors" }])],
   gbAquaculture: [
     opacitySlider("gbAquacultureOpacity", densePointOpacity(3_129)),
     scaleSlider("gbAquacultureScale", 1),
@@ -2106,6 +2134,7 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: "gbAquacultureStatusIdx", encode: ["current", "inactive", "deregistered", "all"],
     },
+    categoryMultiSelect("gbAquaculture", [{ label: "魚類養殖", value: "finfish" }, { label: "貝類養殖", value: "shellfish" }, { label: "放養釣魚場", value: "fishery_site" }, { label: "北愛貝類許可水域", value: "shellfish_licence" }]),
   ],
   gbSoilParentMaterial: [opacitySlider("gbSoilParentMaterialOpacity", 0.55)],
   gbNoise: [

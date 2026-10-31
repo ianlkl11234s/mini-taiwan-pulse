@@ -10,13 +10,28 @@ import {
   GB_TREE_CATEGORIES, GB_WOODLAND_FALLBACK_COLOR, GB_WOODLAND_GROUPS, GB_WOODLAND_NI_COLOR, GB_WOODLAND_MINZOOM, GB_WOODLAND_NI_KIND,
   type GbDesignationFilter,
 } from "../data/gbNatureTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { heatmapMaxzoom } from "../map/mapStyleScale";
+import {
+  gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
+} from "./useGbWaterLayers";
 
 /**
  * 英國第 5 波自然與林業 7 層：保護區、海洋保護區（面）、林地（面）、森林遊憩（點）、步道（線）、開放進入地（面）、
  * 樹木保護（古老林地面＋TPO 面／點）。每層一個 PMTiles source，各自開關；靜態資料、不訂閱時間。
  * 大檔（林地 129MB、樹木保護 127MB）靠 layer minzoom 擋低 zoom 請求：未達 minzoom 時 mapbox 不抓該 source 的 tile。
+ *
+ * §3.8（2026-10-31）：林地、開放進入地、樹木保護改用 analytics 另出的代表點檔（`*_points.pmtiles`，z4–10）——
+ * 全英視角畫熱區（V-1／P-4），並提供「點／面」切換（V-5，`useGbRepPointLayers`）；面模式時面 source 只在面出現的縮放才抓。
+ * 森林遊憩換 z5 起重切檔（`_v2`）加熱區；海洋保護區、森林遊憩、開放進入地、樹木保護依類別多選（V-4）。
  */
+export const GB_WOODLAND_HEATMAP_ID = "gb-woodland-points-heatmap";
+export const GB_WOODLAND_POINT_CIRCLE_ID = "gb-woodland-points-circle";
+export const GB_OPEN_ACCESS_HEATMAP_ID = "gb-open-access-points-heatmap";
+export const GB_OPEN_ACCESS_POINT_CIRCLE_ID = "gb-open-access-points-circle";
+export const GB_TREE_HEATMAP_ID = "gb-tree-protection-points-heatmap";
+export const GB_TREE_POINT_CIRCLE_ID = "gb-tree-protection-points-circle";
+export const GB_RECREATION_HEATMAP_ID = "gb-forest-recreation-heatmap";
 export const GB_PROTECTED_FILL_ID = "gb-protected-areas-fill";
 export const GB_PROTECTED_LINE_ID = "gb-protected-areas-line";
 export const GB_MPA_FILL_ID = "gb-marine-protected-areas-fill";
@@ -119,14 +134,15 @@ const MPA_SOURCE: SourceSpec = {
 };
 const mpaColor = (): Expr => matchColor("mpa_type", GB_MPA_TYPES.map((m) => [m.value, m.color] as const), GB_DESIGNATION_FALLBACK_COLOR);
 
-export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean) {
+export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, typeMask: number | undefined, isDark: boolean) {
+  const filter = gbMaskFilter("mpa_type", typeMask, GB_MPA_TYPES.map((m) => m.value));
   const def = opacityDefault("gbMarineProtectedAreas", 0.5);
   const fillPaint = (op: number) => hookFillPaint("gbMarineProtectedAreas", GB_MPA_FILL_ID,
     { "fill-color": mpaColor(), "fill-opacity": clamp01(op) }, { "fill-color": mpaColor(), "fill-opacity": def }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbMarineProtectedAreas", GB_MPA_LINE_ID,
     { "line-color": mpaColor(), "line-width": 1, "line-opacity": clamp01(op / def) * 0.9 },
     { "line-color": mpaColor(), "line-width": 1, "line-opacity": 0.9 }, isDark);
-  useGbPmtilesLayers(mapRef, MPA_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, MPA_SOURCE, visible, () => gbWithFilter([
     {
       id: GB_MPA_FILL_ID,
       layer: () => ({
@@ -143,7 +159,7 @@ export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_MPA_LINE_ID, "line-opacity", linePaint(opacity)["line-opacity"] as any),
     },
-  ], [opacity, isDark]);
+  ], filter), [opacity, typeMask, isDark]);
 }
 
 // ─────────────────────────── 林地 ───────────────────────────
@@ -156,11 +172,22 @@ function woodlandColor(): Expr {
   return ["case", ["==", ["get", "kind"], GB_WOODLAND_NI_KIND], GB_WOODLAND_NI_COLOR, matchColor("forest_type", pairs, GB_WOODLAND_FALLBACK_COLOR)];
 }
 
-export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean) {
+const WOODLAND_POINTS_SOURCE: SourceSpec = {
+  id: "gb-woodland-points", file: "gb_woodland_nfi_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.woodland, loading: "英國林地代表點載入中",
+};
+
+export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, mode: GbDisplayMode, isDark: boolean) {
   const def = opacityDefault("gbWoodland", 0.7);
+  const heatStyle = useHeatmapStyleSignature(["gbWoodland"]);
   const paint = (op: number) => hookFillPaint("gbWoodland", GB_WOODLAND_FILL_ID,
     { "fill-color": woodlandColor(), "fill-opacity": clamp01(op) }, { "fill-color": woodlandColor(), "fill-opacity": def }, isDark);
-  useGbPmtilesLayers(mapRef, WOODLAND_SOURCE, visible, () => [{
+  // 代表點 62 萬點：z<10 抽稀（只適合熱區），z10 起全量 → 點模式 z12 起出點（densePointsFromZoom >10 萬）
+  useGbRepPointLayers(mapRef, {
+    key: "gbWoodland", source: WOODLAND_POINTS_SOURCE, sourceLayer: "gb_woodland_nfi_points",
+    heatId: GB_WOODLAND_HEATMAP_ID, circleId: GB_WOODLAND_POINT_CIRCLE_ID, count: 620_027,
+    polygonMinzoom: GB_WOODLAND_MINZOOM, heatIntensity: 0.6, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbWoodland"), isDark, color: woodlandColor(), filter: null }, heatStyle);
+  useGbPmtilesLayers(mapRef, WOODLAND_SOURCE, visible && mode === "polygon", () => [{
     id: GB_WOODLAND_FILL_ID,
     layer: () => ({
       id: GB_WOODLAND_FILL_ID, type: "fill", source: WOODLAND_SOURCE.id, "source-layer": "gb_woodland_nfi", minzoom: GB_WOODLAND_MINZOOM,
@@ -173,7 +200,8 @@ export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, vi
 // ─────────────────────────── 森林遊憩 ───────────────────────────
 
 const RECREATION_SOURCE: SourceSpec = {
-  id: "gb-forest-recreation", file: "gb_forest_recreation.pmtiles", minzoom: 8, maxzoom: 14, attribution: GB_NATURE_MAP_ATTRIBUTION.recreation, loading: "英國森林遊憩設施載入中",
+  // §3.8 V-1：重切 z5 起的新檔（`_v2`；舊檔 z8 起、不覆寫）
+  id: "gb-forest-recreation", file: "gb_forest_recreation_v2.pmtiles", minzoom: 5, maxzoom: 14, attribution: GB_NATURE_MAP_ATTRIBUTION.recreation, loading: "英國森林遊憩設施載入中",
 };
 const IS_SIGNAGE: Expr = ["==", ["get", "category"], "signage"];
 const recreationColor = (): Expr => matchColor("category", GB_RECREATION_CATEGORIES.map((c) => [c.value, c.color] as const), GB_RECREATION_UNCLASSIFIED_COLOR);
@@ -188,8 +216,18 @@ function recreationPaint(isDark: boolean, opacity: number, scale: number, tier: 
   };
 }
 
-export function useGbForestRecreationLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbPmtilesLayers(mapRef, RECREATION_SOURCE, visible, () => [
+/** 2.4 萬點 ≥ 1 萬（P-4）：z<10 熱區（含指標），z10 起畫點。強度在全英 z5.5 目視校正。 */
+const RECREATION_HEAT_INTENSITY = 2;
+
+export function useGbForestRecreationLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, categoryMask: number | undefined, isDark: boolean) {
+  const heatStyle = useHeatmapStyleSignature(["gbForestRecreation"]);
+  const filter = gbMaskFilter("category", categoryMask, GB_RECREATION_CATEGORIES.map((c) => c.value));
+  useGbPmtilesLayers(mapRef, RECREATION_SOURCE, visible, () => gbWithFilter([
+    gbHeatmapBuild({
+      id: GB_RECREATION_HEATMAP_ID, key: "gbForestRecreation", sourceId: RECREATION_SOURCE.id, sourceLayer: "gb_forest_recreation",
+      maxzoom: heatmapMaxzoom(GB_RECREATION_MINZOOM), isDark,
+      opacityScale: clamp01(opacity) / opacityDefault("gbForestRecreation", 0.75), intensity: RECREATION_HEAT_INTENSITY,
+    }),
     {
       // 指標與步道標 12,637 點：z12 起、小點，畫在下層
       id: GB_RECREATION_SIGNAGE_CIRCLE_ID,
@@ -207,7 +245,7 @@ export function useGbForestRecreationLayer(mapRef: React.RefObject<MapboxMap | n
       } as unknown as AnyLayer),
       update: (map) => setPaint(map, GB_RECREATION_CIRCLE_ID, recreationPaint(isDark, opacity, scale, "M")),
     },
-  ], [opacity, scale, isDark]);
+  ], filter), [opacity, scale, categoryMask, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 步道 ───────────────────────────
@@ -255,18 +293,29 @@ const OPEN_ACCESS_SOURCE: SourceSpec = {
 };
 const openAccessColor = (): Expr => matchColor("access_type", GB_ACCESS_TYPES.map((a) => [a.value, a.color] as const), GB_DESIGNATION_FALLBACK_COLOR);
 
-export function useGbOpenAccessLandLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean) {
+const OPEN_ACCESS_POINTS_SOURCE: SourceSpec = {
+  id: "gb-open-access-land-points", file: "gb_open_access_land_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.openAccess, loading: "英國開放進入地代表點載入中",
+};
+
+export function useGbOpenAccessLandLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, mode: GbDisplayMode, typeMask: number | undefined, isDark: boolean) {
   const def = opacityDefault("gbOpenAccessLand", 0.6);
+  const heatStyle = useHeatmapStyleSignature(["gbOpenAccessLand"]);
+  const filter = gbMaskFilter("access_type", typeMask, GB_ACCESS_TYPES.map((a) => a.value));
   const paint = (op: number) => hookFillPaint("gbOpenAccessLand", GB_OPEN_ACCESS_FILL_ID,
     { "fill-color": openAccessColor(), "fill-opacity": clamp01(op) }, { "fill-color": openAccessColor(), "fill-opacity": def }, isDark);
-  useGbPmtilesLayers(mapRef, OPEN_ACCESS_SOURCE, visible, () => [{
+  useGbRepPointLayers(mapRef, {
+    key: "gbOpenAccessLand", source: OPEN_ACCESS_POINTS_SOURCE, sourceLayer: "gb_open_access_land_points",
+    heatId: GB_OPEN_ACCESS_HEATMAP_ID, circleId: GB_OPEN_ACCESS_POINT_CIRCLE_ID, count: 48_034,
+    polygonMinzoom: OPEN_ACCESS_SOURCE.minzoom, heatIntensity: 1.5, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbOpenAccessLand"), isDark, color: openAccessColor(), filter }, heatStyle);
+  useGbPmtilesLayers(mapRef, OPEN_ACCESS_SOURCE, visible && mode === "polygon", () => gbWithFilter([{
     id: GB_OPEN_ACCESS_FILL_ID,
     layer: () => ({
       id: GB_OPEN_ACCESS_FILL_ID, type: "fill", source: OPEN_ACCESS_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: 6,
       layout: { visibility: "none" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_OPEN_ACCESS_FILL_ID, "fill-opacity", paint(opacity)["fill-opacity"] as any),
-  }], [opacity, isDark]);
+  }], filter), [opacity, typeMask, isDark]);
 }
 
 // ─────────────────────────── 樹木保護 ───────────────────────────
@@ -287,13 +336,25 @@ function tpoCirclePaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
-export function useGbTreeProtectionLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+const TREE_POINTS_SOURCE: SourceSpec = {
+  id: "gb-tree-protection-points", file: "gb_tree_protection_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.tree, loading: "英國樹木保護代表點載入中",
+};
+
+export function useGbTreeProtectionLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, scale: number, mode: GbDisplayMode, categoryMask: number | undefined, isDark: boolean) {
   const def = opacityDefault("gbTreeProtection", 0.7);
+  const heatStyle = useHeatmapStyleSignature(["gbTreeProtection"]);
+  const filter = gbMaskFilter("category", categoryMask, GB_TREE_CATEGORIES.map((c) => c.value));
+  // 代表點 50 萬點（古老林地面＋TPO 面的代表點＋TPO 單株原點）：z<10 抽稀只適合熱區，點模式 z12 起出點
+  useGbRepPointLayers(mapRef, {
+    key: "gbTreeProtection", source: TREE_POINTS_SOURCE, sourceLayer: "gb_tree_protection_points",
+    heatId: GB_TREE_HEATMAP_ID, circleId: GB_TREE_POINT_CIRCLE_ID, count: 502_408,
+    polygonMinzoom: GB_ANCIENT_WOODLAND_MINZOOM, heatIntensity: 0.8, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbTreeProtection"), isDark, color: treeColor(), filter }, heatStyle);
   const awPaint = (op: number) => hookFillPaint("gbTreeProtection", GB_ANCIENT_WOODLAND_FILL_ID,
     { "fill-color": treeColor(), "fill-opacity": clamp01(op) }, { "fill-color": treeColor(), "fill-opacity": def }, isDark);
   const tpoPaint = (op: number) => hookFillPaint("gbTreeProtection", GB_TPO_FILL_ID,
     { "fill-color": treeColor(), "fill-opacity": clamp01(op) }, { "fill-color": treeColor(), "fill-opacity": def }, isDark);
-  useGbPmtilesLayers(mapRef, TREE_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, TREE_SOURCE, visible && mode === "polygon", () => gbWithFilter([
     {
       id: GB_ANCIENT_WOODLAND_FILL_ID,
       layer: () => ({
@@ -320,5 +381,5 @@ export function useGbTreeProtectionLayer(mapRef: React.RefObject<MapboxMap | nul
       } as unknown as AnyLayer),
       update: (map) => setPaint(map, GB_TPO_CIRCLE_ID, tpoCirclePaint(isDark, opacity, scale)),
     },
-  ], [opacity, scale, isDark]);
+  ], filter), [opacity, scale, categoryMask, isDark]);
 }

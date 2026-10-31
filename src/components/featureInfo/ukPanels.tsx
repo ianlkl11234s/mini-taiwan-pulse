@@ -213,7 +213,7 @@ export function GbBuiltUpAreasPanel({ props }: { props: Record<string, unknown> 
   </>;
 }
 
-/** 英國綠地三層共用（OS Open Greenspace）：名稱（無名顯示類型）、類型、地區、LAD 代碼。 */
+/** 英國綠地四層共用（OS Open Greenspace）：名稱（無名顯示類型）、類型、地區、LAD 代碼。 */
 function GbGreenspacePanelBase({ props, layerKey }: { props: Record<string, unknown>; layerKey: GbGreenspaceKey }) {
   const { t } = useLocale();
   const nation = useNationLabel();
@@ -233,6 +233,7 @@ function GbGreenspacePanelBase({ props, layerKey }: { props: Record<string, unkn
 
 export const GbGreenspacePanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbGreenspace" />;
 export const GbSportsFacilitiesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbSportsFacilities" />;
+export const GbGolfCoursesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbGolfCourses" />;
 export const GbCemeteriesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbCemeteries" />;
 
 // ─────────────────────────── 英國第 3 波：水資源／海岸 ───────────────────────────

@@ -69,6 +69,10 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   gbCareHomes: "PuBuGn",
   gbCareServices: "PuBuGn",
   gbBrownfield: "bilbao",
+  // 英國 §3.8 新增熱區（C 軌 2026-10-31）：底圖主題錯開點名的四色；林業三層錯開
+  gbPlanningConstraints: "Burg",
+  gbForestRecreation: "tokyo",
+  gbOpenAccessLand: "YlGnBu",
   // 台灣 醫療
   medAED: "rocket",
   medLTC: "PuBuGn",

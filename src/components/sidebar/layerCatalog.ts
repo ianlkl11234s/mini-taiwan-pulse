@@ -2749,7 +2749,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "建成環境", layers: [fromManifest("gbBuiltUpAreas")] },
       // 第 1 波：OS Open Greenspace 同一檔三層。台灣同類分在「運動休閒」（parksTaipei、sports*）與「殯葬」（cemeteryOsm），
       // 英國目前沒有那兩個主題，先放底圖；之後開主題時整群搬過去即可
-      { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbCemeteries")] },
+      { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbGolfCourses"), fromManifest("gbCemeteries")] },
       // C003：OS Terrain 50 山體陰影／色別標高，比照台灣 hillshade 與日本地理院地形的「底圖 › 地形」
       { title: "地形", layers: [fromManifest("gbTerrainHillshade"), fromManifest("gbTerrainRelief")] },
       // 第 11 波 C005／C031：比照台灣 urbanZoning*／nonUrbanZoning 的「底圖 › 土地使用分區 Zoning」。

@@ -330,7 +330,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrOilGasLayer", keys: ["krOilGas"], Host: KrOilGasHost },
   // 英國第 1 波（海域界線、建成區、綠地三層）
   { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
-  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries"], Host: GbOpenSpaceHost },
+  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries"], Host: GbOpenSpaceHost },
   // 英國第 3 波（河川、水文測站、防洪設施、海岸侵蝕、浴場）
   { id: "useGbRiversLayer", keys: ["gbRivers"], Host: GbRiversHost },
   { id: "useGbHydroStationsLayer", keys: ["gbHydroStations"], Host: GbHydroStationsHost },

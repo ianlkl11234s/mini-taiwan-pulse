@@ -188,6 +188,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/hooks/useKrEnergyLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
   "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
@@ -301,6 +303,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
+  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts

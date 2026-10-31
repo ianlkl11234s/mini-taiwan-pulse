@@ -365,8 +365,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-flood-defences-line"], type: "gbFloodDefenceAssets" },
   { layers: ["gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
   { layers: ["gb-rivers-line"], type: "gbRivers" },
-  { layers: ["gb-greenspace-golf-circle"], type: "gbSportsFacilities" }, // 全英視角的高爾夫球場代表點（z<10），點先於面
+  // §3.8 V-5 綠地四層的代表點（「點」模式；高爾夫球場「面」模式 z<10 也用），點先於面
+  { layers: ["gb-greenspace-park-point-circle"], type: "gbGreenspace" },
+  { layers: ["gb-greenspace-sports-point-circle"], type: "gbSportsFacilities" },
+  { layers: ["gb-greenspace-golf-circle"], type: "gbGolfCourses" },
+  { layers: ["gb-greenspace-burial-point-circle"], type: "gbCemeteries" },
   { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
+  { layers: ["gb-greenspace-golf-fill"], type: "gbGolfCourses" },
   { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
   { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },
   { layers: ["gb-tpo-fill", "gb-ancient-woodland-fill"], type: "gbTreeProtection" },
@@ -377,7 +382,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
   { layers: ["gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
-  { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },
+  { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill", "gb-small-areas-low-fill", "gb-ni-sdz-low-fill"], type: "gbSmallAreaBoundaries" },
   { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },
   // 南韓第 3–5 波：點 → 線 → 面，都排在行政界（大面積背景）前面
   { layers: ["kr-street-trees-circle"], type: "krStreetTrees" },
