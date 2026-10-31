@@ -1248,7 +1248,9 @@
     {
       "layers": [
         "osm-bridge-footprints-fill",
-        "osm-bridge-footprints-outline"
+        "osm-bridge-footprints-outline",
+        "osm-bridge-footprints-points-circle-point",
+        "osm-bridge-footprints-points-circle-polygon"
       ],
       "type": "osmBridgeFootprints"
     },
@@ -1660,7 +1662,7 @@
     {
       "layers": [
         "gb-flood-defences-line",
-        "gb-flood-defences-z5-line"
+        "gb-flood-defences-z5-6-line"
       ],
       "type": "gbFloodDefenceAssets"
     },
@@ -2202,7 +2204,9 @@
     {
       "layers": [
         "aquaculture-ponds-fill",
-        "aquaculture-ponds-line"
+        "aquaculture-ponds-line",
+        "aquaculture-ponds-points-circle-point",
+        "aquaculture-ponds-points-circle-polygon"
       ],
       "type": "aquaculturePonds"
     },
@@ -3539,7 +3543,9 @@
     },
     {
       "layers": [
-        "water-river-polygons-fill"
+        "water-river-polygons-fill",
+        "water-river-polygons-points-circle-point",
+        "water-river-polygons-points-circle-polygon"
       ],
       "type": "waterRivers"
     },
@@ -4632,7 +4638,9 @@
     {
       "layers": [
         "landslide-annual-fill",
-        "landslide-annual-outline"
+        "landslide-annual-outline",
+        "landslide-annual-points-circle-point",
+        "landslide-annual-points-circle-polygon"
       ],
       "type": "landslideAnnual"
     },
@@ -14855,7 +14863,14 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -14876,7 +14891,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -14893,7 +14915,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -14919,6 +14948,186 @@
       "rebuildOnParamChange": null,
       "sourceId": "water-river-polygons",
       "sourceUrl": "./geo/water_river_polygons.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "waterRivers",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(4,96,150,0.00)",
+                0.05,
+                "rgba(4,96,150,0.11)",
+                0.15,
+                "rgba(18,120,180,0.33)",
+                0.3,
+                "rgba(60,147,194,0.66)",
+                0.45,
+                "rgba(115,168,207,0.99)",
+                0.6,
+                "rgba(165,189,219,1.00)",
+                0.8,
+                "rgba(209,210,231,1.00)",
+                1,
+                "rgba(242,236,245,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(121,171,208,0.00)",
+                0.05,
+                "rgba(121,171,208,0.11)",
+                0.15,
+                "rgba(78,154,198,0.33)",
+                0.3,
+                "rgba(38,133,187,0.66)",
+                0.45,
+                "rgba(5,111,175,0.99)",
+                0.6,
+                "rgba(4,92,144,1.00)",
+                0.8,
+                "rgba(3,74,116,1.00)",
+                1,
+                "rgba(2,56,88,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0284c7",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "river_polygons_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "water-river-polygons-points",
+      "sourceUrl": "./geo/water_river_polygons_points.pmtiles"
     },
     {
       "dynamicData": null,
@@ -31839,7 +32048,14 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": 6,
           "paint": {
             "dark": {
@@ -31856,7 +32072,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": 6,
           "paint": {
             "dark": {
@@ -31884,6 +32107,319 @@
       ],
       "sourceId": "aquaculture-ponds",
       "sourceUrl": "./fishery/aquaculture_ponds_osm.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aquaculturePonds",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 6.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(89,84,129,0.00)",
+                0.05,
+                "rgba(89,84,129,0.11)",
+                0.15,
+                "rgba(132,99,142,0.33)",
+                0.3,
+                "rgba(189,105,146,0.66)",
+                0.45,
+                "rgba(212,132,169,0.99)",
+                0.6,
+                "rgba(222,166,198,1.00)",
+                0.8,
+                "rgba(231,200,224,1.00)",
+                1,
+                "rgba(240,234,250,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(214,137,173,0.00)",
+                0.05,
+                "rgba(214,137,173,0.11)",
+                0.15,
+                "rgba(199,110,150,0.33)",
+                0.3,
+                "rgba(156,101,143,0.66)",
+                0.45,
+                "rgba(103,95,138,0.99)",
+                0.6,
+                "rgba(82,75,120,1.00)",
+                0.8,
+                "rgba(67,54,101,1.00)",
+                1,
+                "rgba(53,33,82,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": "#26c6da",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#26c6da",
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "aquaculture_ponds_osm_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "aquaculture-ponds-points",
+      "sourceUrl": "./fishery/aquaculture_ponds_osm_points.pmtiles"
     },
     {
       "dynamicData": null,
@@ -70940,7 +71476,14 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -70957,7 +71500,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -70983,6 +71533,86 @@
       "rebuildOnParamChange": null,
       "sourceId": "osm-bridge-footprints",
       "sourceUrl": "./network_structures/osm_bridge_footprints_20260906_v2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmBridgeFootprints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 7,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.8,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "osm_bridge_footprints_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "osm-bridge-footprints-points",
+      "sourceUrl": "./network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles"
     },
     {
       "dynamicData": null,
@@ -78565,7 +79195,14 @@
             ],
             2024
           ],
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": 7,
           "paint": {
             "dark": {
@@ -78589,7 +79226,14 @@
             ],
             2024
           ],
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": 7,
           "paint": {
             "dark": {
@@ -78642,6 +79286,396 @@
       ],
       "sourceId": "landslide-annual",
       "sourceUrl": "./hazards/landslide_annual_swcb_20261006.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "landslideAnnual",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 7.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(160,26,91,0.00)",
+                0.05,
+                "rgba(160,26,91,0.11)",
+                0.15,
+                "rgba(205,28,78,0.33)",
+                0.3,
+                "rgba(234,69,62,0.66)",
+                0.45,
+                "rgba(243,120,82,0.99)",
+                0.6,
+                "rgba(246,163,123,1.00)",
+                0.8,
+                "rgba(247,201,171,1.00)",
+                1,
+                "rgba(250,235,221,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(244,126,87,0.00)",
+                0.05,
+                "rgba(244,126,87,0.11)",
+                0.15,
+                "rgba(238,83,63,0.33)",
+                0.3,
+                "rgba(218,41,71,0.66)",
+                0.45,
+                "rgba(183,22,87,0.99)",
+                0.6,
+                "rgba(142,29,91,1.00)",
+                0.8,
+                "rgba(102,31,84,1.00)",
+                1,
+                "rgba(66,27,70,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00078125,
+                12,
+                0.2
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                64,
+                10,
+                1
+              ]
+            }
+          },
+          "suffix": "heat-polygon",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "year"
+            ],
+            2024
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": "#92400e",
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#92400e",
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "landslide_annual_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
+      "sourceId": "landslide-annual-points",
+      "sourceUrl": "./hazards/landslide_annual_swcb_20261006_points.pmtiles"
     },
     {
       "dynamicData": null,
@@ -97193,6 +98227,83 @@
     ],
     "aquaculturePonds": [
       {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
         "label": "填色透明度 0.50",
         "max": 0.85,
         "min": 0,
@@ -97200,6 +98311,30 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "aquacultureWaterSatellite": [
@@ -118792,6 +119927,83 @@
         "value": "2024"
       },
       {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -118799,6 +120011,30 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "landslideDodAreas": [
@@ -121517,6 +122753,30 @@
         "step": 0.05,
         "value": 0.65,
         "valueText": "0.65"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "osmCommunicationSites": [
@@ -164685,6 +165945,83 @@
     ],
     "waterRivers": [
       {
+        "defaultValue": "PuBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBu"
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -164701,6 +166038,30 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.00"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "wdBattery": [

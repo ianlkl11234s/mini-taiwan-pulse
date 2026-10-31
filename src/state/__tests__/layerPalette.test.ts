@@ -88,7 +88,8 @@ describe("R7 顏色解析器", () => {
     // 2026-10-31 +14 台灣＋日本面層代表點熱區（§3.8 V-5，repPointLayers）
     // 2026-10-31 +6 英國 §3.8：林地、開放進入地、樹木保護、規劃限制區（代表點熱區）、森林遊憩、AADF 交通計數點
     // 2026-10-31 +6 H1 軌：英國海岸侵蝕（代表點熱區）＋台灣 v2 重切檔 5 層（防空避難、補習班、省道里程牌、國道標誌、地名）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(93);
+    // 2026-10-31 +3 I 軌：年度崩塌地、逐口魚塭、河川面（代表點熱區）
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(96);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

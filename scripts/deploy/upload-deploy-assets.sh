@@ -71,6 +71,8 @@ NETWORK_STRUCTURE_FILES=(
   "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
   # §3.8 V-1：z7 起重切檔（舊檔不刪）
   "public/network_structures/osm_bridge_footprints_20260906_v2.pmtiles"
+  # §3.8 V-5：橋梁輪廓代表點檔
+  "public/network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles"
   "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
   "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
   "public/network_structures/tainan_bridge_inspections_20260924.pmtiles"
