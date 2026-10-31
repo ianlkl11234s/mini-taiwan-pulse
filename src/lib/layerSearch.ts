@@ -9,6 +9,12 @@ import type { UpstreamStatus } from "../data/upstreamRegistry";
  */
 export const LAYER_SEARCH_ALIASES: Partial<Record<ManifestKey, readonly string[]>> = {
   medHospital: ["醫療", "急診", "hospital", "emergency", "台灣"],
+  trafficAccidents2025: ["交通事故", "車禍", "A1", "A2", "死傷", "肇因", "traffic accident", "crash", "台灣"],
+  fireHydrants: ["消防栓", "台水", "自來水", "hydrant", "消防"],
+  disasterResourceSites: ["救災資源", "救災物資", "機具", "發電機", "救護車", "整備", "disaster resource"],
+  tsunamiSirens: ["海嘯", "警報臺", "警報台", "警報器", "tsunami", "siren", "民防"],
+  nuclearEpzEvacuation: ["核電", "核電廠", "核子事故", "集結點", "收容", "疏散", "緊急應變計畫區", "EPZ", "nuclear"],
+  firingNoticeAreas: ["射擊", "實彈", "射擊公告", "海軍", "海巡", "演訓", "live fire", "firing"],
   emergencyHospitals: ["急救責任醫院", "急診", "分級", "重度級", "中度級", "一般級", "emergency hospital", "trauma", "醫療", "台灣"],
   typhoonTracks: ["颱風", "typhoon", "風圈", "暴風圈", "氣象署"],
   typhoonAgencyForecasts: ["颱風", "typhoon", "預報路徑", "多國預報", "NCDR"],

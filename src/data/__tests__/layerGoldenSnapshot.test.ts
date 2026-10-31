@@ -216,7 +216,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +2 英國第 10 波道路（主要路網 gbMajorRoads、AADF 交通計數點 gbTrafficCountsAadf）。
     // 2026-10-29: +6 英國第 11 波環境與規劃（規劃限制區 gbPlanningConstraints、棕地 gbBrownfield、回收點 gbRecyclingCentres、廢棄物許可 gbWastePermits、污染排放 gbPollutionInventory、噪音 gbNoise）。
     // 2026-10-29: +5 英國第 12 波（公司登記 gbCompanies、製造業 gbManufacturing、殯葬 gbFuneral、養殖 gbAquaculture、土壤母質 gbSoilParentMaterial）。
-    expect(keys.length).toBe(1417);
+    // 2026-10-31: +5 G36 消防民防與交通事故（2025 A1／A2 事故 trafficAccidents2025、救災資源據點 disasterResourceSites、海嘯警報臺 tsunamiSirens、核電廠集結點與收容處所 nuclearEpzEvacuation、射擊公告區 firingNoticeAreas）。
+    expect(keys.length).toBe(1422);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -1407,5 +1407,10 @@
   "layer.gbManufacturing": "Manufacturing Companies",
   "layer.gbFuneral": "Crematoria and Funeral Directors",
   "layer.gbAquaculture": "Aquaculture Sites",
-  "layer.gbSoilParentMaterial": "Soil Parent Material"
+  "layer.gbSoilParentMaterial": "Soil Parent Material",
+  "layer.trafficAccidents2025": "A1/A2 Traffic Accidents",
+  "layer.disasterResourceSites": "Disaster Resource Sites",
+  "layer.tsunamiSirens": "Tsunami Sirens",
+  "layer.nuclearEpzEvacuation": "Nuclear Plant Assembly Points & Shelters",
+  "layer.firingNoticeAreas": "Live-fire Notice Areas"
 }

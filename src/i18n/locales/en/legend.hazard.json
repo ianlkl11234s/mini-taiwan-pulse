@@ -25,7 +25,7 @@
   "legend.hazard.flood3": "≥15 cm severe",
   "legend.hazard.flood4": "≥30 cm very severe",
   "legend.hazard.fireEventNote": "Casualties = larger red dot with a bold outline (other dots have only a faint outline)",
-  "legend.hazard.hydrantCoverage": "Public data only for Taipei and Kaohsiung",
+  "legend.hazard.hydrantCoverage": "Taipei, Kaohsiung and New Taipei (Taipei Water area) from city sources; the other 17 counties and New Taipei's TWC area from Taiwan Water Corporation (2026-05). TWC Kaohsiung points overlap the city source and are not included. Kinmen and Lienchiang: not covered",
   "legend.hazard.isochroneNote": "Conservative estimate on the driving network; fire-engine siren priority is not counted (actual reach is slightly larger)",
   "legend.hazard.bssPoint1": "Existing ordinary-road candidate class",
   "legend.hazard.bssPoint2": "Existing elevated/expressway candidate class",
@@ -154,5 +154,6 @@
   "legend.hazard.gbQuakeUnknown": "{n} events with unknown magnitude are drawn at the smallest size",
   "legend.hazard.gbQuakeMinor": "Instrumental events below magnitude 2 are shown from zoom {zoom}",
   "legend.hazard.gbQuakeOffshore": "Includes {n} offshore events (not assigned to any nation)",
-  "legend.hazard.gbQuakeDataEnd": "Data up to {date} (BGS GeoIndex)"
+  "legend.hazard.gbQuakeDataEnd": "Data up to {date} (BGS GeoIndex)",
+  "legend.hazard.disasterResourceNote": "5,379 of 5,568 sites in the NFA disaster resource database have coordinates; holder type is a rough keyword classification of the site name. Most items are recorded with quantity 0, so popups list only items above 0"
 }

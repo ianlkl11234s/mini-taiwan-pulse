@@ -8,6 +8,7 @@ import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
+import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR } from "./safetyG36Types";
 import { JP_LANDSLIDE_LAYER_COLOR } from "./jpLandslideWarningTypes";
 import { JP_INLAND_FLOOD_LAYER_COLOR } from "./jpInlandFloodTypes";
 import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
@@ -128,7 +129,7 @@ import {
   // 💉 減害服務（Pill / Stethoscope / HeartHandshake 已在上方 import 復用）
   Syringe, TestTube, ShieldPlus,
   // 💉 減害服務第二批（HeartPulse / ShieldCheck 已在上方 import 復用）
-  Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront,
+  Wine, MonitorSmartphone, Handshake, CigaretteOff, Package, House, CarFront, Siren,
   Construction, Leaf, Milestone, Shovel, Signpost, TrafficCone, Turtle, TrendingDown, BrickWall,
   // 🎟️ 文化幣藝文消費點 G23
   Ticket,
@@ -1515,12 +1516,15 @@ export const LAYER_MANIFEST = {
       // 舊檔已刪 → 此處跟著改名。下方 pmtiles 檔名／source-layer **刻意保留舊名**
       // （二進位烙印，上游重產才會變），同 c016f15 的處置。
       datasets: [{ datasetId: "hydrants", confidence: "MED" }],
+      // G36（2026-10-31）：併入台水 data.gov.tw 44642（17 縣市＋新北台水供水區），新檔名避免覆蓋舊資產；
+      // source-layer 沿用 fire_hydrants。台水高雄與高雄市消防局資料重疊 → 不收；台水新北剔除 15 m 內已有既有點者。
+      processing: "既有 analytics hydrants.csv 69,839 點（臺北自來水事業處 128639＋高雄市消防局 5 份）＋台水 44642 收 141,691 點（台水 165,798 列去掉完全重複 7 列、與高雄市消防局重疊的台水高雄 24,092、與既有點 15 m 內 8 點），合計 211,530；mini scripts/preprocess/build-g36-safety-public.py",
     },
     dataClass: "B",
     source: {
       kind: "pmtiles",
       sourceId: "fire-hydrants",
-      url: "./geo/fire_hydrants.pmtiles",
+      url: "./geo/fire_hydrants_national.pmtiles",
       sourceLayer: "fire_hydrants",
       minzoom: 0,
       maxzoom: 12,
@@ -1528,8 +1532,31 @@ export const LAYER_MANIFEST = {
     legend: "fireHydrants",
     popup: "fireHydrant",
     params: { count: 4, kinds: ["slider", "palette", "slider", "slider"] },
-    description: "全台消防栓點位（量體大走 PMTiles 按需載入）",
+    description: "全台消防栓點位：臺北、高雄與新北部分區為縣市來源，其餘 17 縣市與新北台水供水區為台灣自來水公司資料；金門、連江未涵蓋（量體大走 PMTiles 按需載入）",
     topics: ["消防", "基礎設施"],
+  },
+
+  // G36（2026-10-31）：消防署救災資源資料庫，一個保管場所一點；品項數量多為 0，popup 只列數量 > 0 的品項
+  disasterResourceSites: {
+    key: "disasterResourceSites",
+    country: "TW", section: { theme: "消防 Fire & Rescue", group: "點位" },
+    ...layerName({ zh: "救災資源據點", alt: "Disaster Resource Sites" }),
+    expandable: true,
+    color: DISASTER_RESOURCE_HOLDER_OPTIONS[0].color,
+    icon: Warehouse,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data.gov.tw 77862（內政部消防署，下載 2026-10-31）→ mini scripts/preprocess/build-g36-safety-public.py；5,568 保管場所中 5,379 處有效座標（189 處座標為 0 或落在境外未畫）",
+      note: "analytics 尚無 catalog；保管單位分類依名稱關鍵字粗分",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "disaster-resource-sites", url: "./geo/disaster_resource_sites.geojson" },
+    legend: "disasterResourceSites",
+    popup: "disasterResourceSites",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "消防署救災資源資料庫登錄的機具與物資保管場所（消防分隊、公所、派出所、清潔隊、學校等），popup 列出有登錄數量的品項",
+    topics: ["消防", "救災", "物資", "整備"],
   },
 
   // ⬇ 以下 3 層皆無 OVERLAY_REGISTRY entry → dataClass D（派生機制不適用），
@@ -1665,6 +1692,51 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "全台防空避難處所（量體大且僅高倍率可見，z10 起載入）",
     topics: ["民防", "避難", "防災"],
+  },
+
+  // G36（2026-10-31）：民防避難 › 警報與疏散
+  tsunamiSirens: {
+    key: "tsunamiSirens",
+    country: "TW", section: { theme: "民防避難 Civil Defense", group: "警報與疏散" },
+    ...layerName({ zh: "海嘯警報臺", alt: "Tsunami Sirens" }),
+    expandable: true,
+    color: TSUNAMI_SIREN_COLOR,
+    icon: Siren,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data.gov.tw 34102（內政部警政署，下載 2026-10-31）TWD97 → WGS84；377 座中 1 座（新北淡水興仁派出所）缺 Y 座標未畫",
+      note: "analytics docs/api-platforms/npa 有端點登記、尚無 catalog",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tsunami-sirens", url: "./hazards/tsunami_sirens.geojson" },
+    legend: "tsunamiSirens",
+    popup: "tsunamiSirens",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "警政署全國海嘯警報臺 376 座（沿海與離島派出所、港務警察），含語音廣播與遙控／人工操作",
+    topics: ["民防", "海嘯", "警報", "地震"],
+  },
+
+  nuclearEpzEvacuation: {
+    key: "nuclearEpzEvacuation",
+    country: "TW", section: { theme: "民防避難 Civil Defense", group: "警報與疏散" },
+    ...layerName({ zh: "核電廠集結點與收容處所", alt: "Nuclear EPZ Evacuation" }),
+    expandable: true,
+    color: NUCLEAR_EPZ_KIND_OPTIONS[0].color,
+    icon: Radiation,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data.gov.tw 102114 集結點 182 處＋102434 避難收容處所（69 個村里對應，合併成 18 處收容所；恆春 15 個里對應「各旅宿」泛稱、無座標未畫），核安會，下載 2026-10-31",
+      note: "analytics docs/systems/nuclear_radiation_tic.md 有待辦，尚無 catalog",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "nuclear-epz-evacuation", url: "./hazards/nuclear_epz_evacuation.geojson" },
+    legend: "nuclearEpzEvacuation",
+    popup: "nuclearEpzEvacuation",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "核一、二、三廠緊急應變計畫區內地方政府規劃的集結點，以及各村里預計安置的收容處所（popup 列出對應村里）",
+    topics: ["民防", "核安", "疏散", "避難"],
   },
 
   worldTrashDebris: {
@@ -3505,6 +3577,29 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）",
     topics: ["情勢", "軍事", "海域", "船舶"],
+  },
+
+  // G36（2026-10-31）：射擊公告是有期間的臨時範圍，不是即時狀態
+  firingNoticeAreas: {
+    key: "firingNoticeAreas",
+    country: "TW", section: { theme: "情勢 Situation", group: "軍事" },
+    ...layerName({ zh: "射擊公告區", alt: "Live-fire Notice Areas" }),
+    expandable: true,
+    color: FIRING_AGENCY_OPTIONS[0].color,
+    icon: Crosshair,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "data.gov.tw 136419 海軍實彈射擊公告（2025-07-31～08-31，94 則）＋143315 海巡署射擊通報（2024-03～2026-03，93 則），下載 2026-10-31；不收聯絡電話",
+      note: "analytics pipelines/sentinel/registry/regulations.yaml 有登記 136419，尚無 catalog；公告範圍與期間，非即時狀態",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "firing-notice-areas", url: "./marine/firing_notice_areas.geojson" },
+    legend: "firingNoticeAreas",
+    popup: "firingNoticeAreas",
+    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    description: "海軍實彈射擊公告與海巡署射擊通報的公告範圍（各有起訖期間；資料皆為過去公告，非即時狀態）",
+    topics: ["情勢", "軍事", "射擊", "海域"],
   },
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 2 —— 基礎建設 Infrastructure 11 層
@@ -7860,7 +7955,7 @@ export const LAYER_MANIFEST = {
 
   trafficAccidentYearly: {
     key: "trafficAccidentYearly",
-    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" },
     ...layerName({ zh: "A1 死亡事故", alt: "Fatal Accident" }),
     expandable: true,
     color: "#fb7185", // A1 死亡 — 玫紅
@@ -7880,7 +7975,7 @@ export const LAYER_MANIFEST = {
 
   accidentTaipei: {
     key: "accidentTaipei",
-    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" },
     ...layerName({ zh: "北市事故點", alt: "Taipei Dots" }),
     expandable: true,
     color: "#fda4af", // 北市事故 — 淡玫
@@ -7900,7 +7995,7 @@ export const LAYER_MANIFEST = {
 
   a1AccidentRealtime: {
     key: "a1AccidentRealtime",
-    country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" },
     ...layerName({ zh: "A1 即時事故", alt: "A1 Realtime" }),
     expandable: true,
     color: "#ef4444", // A1 realtime — 鮮紅
@@ -7920,6 +8015,29 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "A1 死亡交通事故即時通報",
     topics: ["治安", "交通事故", "即時"],
+  },
+
+  // G36（2026-10-31）：警政署 A1／A2 逐案清冊彙整的全國事故點位；與 trafficAccidentYearly（177136 年度檔 A1）口徑不同，見 docs/features/g36-safety-accidents/README.md
+  trafficAccidents2025: {
+    key: "trafficAccidents2025",
+    country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" },
+    ...layerName({ zh: "A1／A2 交通事故", alt: "A1/A2 Crashes", qualifier: "2025" }),
+    expandable: true,
+    color: TRAFFIC_ACCIDENT_CLASS_OPTIONS[1].color,
+    icon: CarFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "traffic_accident", confidence: "HIGH" }],
+      processing: "analytics traffic_accident_by_incident.geojson（警政署每月 A1／A2 清冊，以事故去重）321,536 點，剔除 2 點座標在台灣外；mini scripts/preprocess/build-g36-safety-public.py 瘦身切 PMTiles（z12 起全點，以下抽稀只供熱區）",
+      note: "資料期間 2025-01-01～2025-11-17；A3（僅財損）無座標未納入",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "traffic-accidents-2025", url: "./geo/traffic_accidents_2025.pmtiles", sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 },
+    legend: "trafficAccidents2025",
+    popup: "trafficAccidents2025",
+    params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "2025 年 1 月 1 日～11 月 17 日全國 A1（24 小時內死亡）與 A2（受傷）交通事故 32 萬件，可依嚴重度與主要肇因篩選；A3 僅財損未納入",
+    topics: ["治安", "交通事故", "傷亡", "道路安全"],
   },
 
   investigationBureau: {
@@ -15267,7 +15385,7 @@ export const LAYER_MANIFEST = {
   harmReductionAntiDrugPharmacies: { key: "harmReductionAntiDrugPharmacies", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "社區藥局反毒站", alt: "Community Anti-drug Pharmacies" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAntiDrugPharmacies, icon: ShieldCheck, upstream: { status: "verified", datasets: [{ datasetId: "anti_drug_pharmacies", confidence: "HIGH" }], note: "新北 data.gov.tw 125302（2026-08-07）＋高雄 107877 的 113 年清冊；436 點，僅 2 縣市。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-anti-drug-pharmacies", url: "./harm_reduction/anti_drug_pharmacies.geojson" }, legend: "harmReductionAntiDrugPharmacies", popup: "harmReductionAntiDrugPharmacies", params: { count: 2, kinds: ["slider", "slider"] }, description: "提供藥物濫用與戒癮資源諮詢的社區藥局；僅新北、高雄有開放名冊。", topics: ["醫療", "減害", "毒品防制"] },
   harmReductionTherapeuticCommunities: { key: "harmReductionTherapeuticCommunities", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "治療性社區與中途之家", alt: "Therapeutic Communities & Halfway Houses" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionTherapeuticCommunities, icon: House, upstream: { status: "verified", datasets: [{ datasetId: "therapeutic_communities", confidence: "HIGH" }], note: "衛福部藥癮治療性社區／社區復健方案承辦機構（2025-07-29）；17 點可定位（2 點查無位置未畫），座標為機構辦公處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-therapeutic-communities", url: "./harm_reduction/therapeutic_communities.geojson" }, legend: "harmReductionTherapeuticCommunities", popup: "harmReductionTherapeuticCommunities", params: { count: 2, kinds: ["slider", "slider"] }, description: "衛福部藥癮治療性社區與社區復健方案（中途之家、自立方案）承辦機構；座標為辦公處而非安置地點。", topics: ["醫療", "減害", "藥癮治療"] },
   harmReductionAftercare: { key: "harmReductionAftercare", country: "TW", section: { theme: "醫療 Medical", group: "減害服務 Harm Reduction" }, ...layerName({ zh: "更生保護會", alt: "Offender Aftercare Offices" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionAftercare, icon: Handshake, upstream: { status: "verified", datasets: [{ datasetId: "offender_aftercare_offices", confidence: "HIGH" }], note: "法務部 data.gov.tw 10060（2023-06-05，3 年未更新）；22 處。" }, dataClass: "A", source: { kind: "geojson", sourceId: "harm-reduction-aftercare", url: "./harm_reduction/offender_aftercare_offices.geojson" }, legend: "harmReductionAftercare", popup: "harmReductionAftercare", params: { count: 2, kinds: ["slider", "slider"] }, description: "臺灣更生保護會總會、各地分會與福建更生保護會（資料為 2023-06 版）。", topics: ["醫療", "減害", "社會復歸"] },
-  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "治安態勢" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
+  harmReductionDuiCrashes: { key: "harmReductionDuiCrashes", country: "TW", section: { theme: "執法治安 Law & Order", group: "交通事故" }, ...layerName({ zh: "酒駕肇事事故", alt: "Drunk-driving Crashes" }), expandable: true, color: HARM_REDUCTION_COLORS.harmReductionDuiCrashes, icon: CarFront, upstream: { status: "verified", datasets: [{ datasetId: "dui_crash_points", confidence: "HIGH" }], note: "警政署 A1／A2 道路交通事故 107–114 年，任一當事者肇因為酒醉駕駛即收；36,814 點（3 點無座標未畫）；PMTiles z5–12。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "harm-reduction-dui-crashes", url: "./harm_reduction/dui_crash_points.pmtiles", sourceLayer: "dui_crash_points", minzoom: 5, maxzoom: 12 }, legend: "harmReductionDuiCrashes", popup: "harmReductionDuiCrashes", params: { count: 5, kinds: ["multiSelect", "multiSelect", "multiSelect", "slider", "slider"] }, description: "107–114 年 A1／A2 酒駕肇事事故點位，可依類別、年份與酒駕判定口徑篩選；可與減害服務的酒癮治療／酒駕酒癮評估機構對照。", topics: ["交通事故", "酒駕", "減害"] },
 
   medICUBeds: {
     key: "medICUBeds",

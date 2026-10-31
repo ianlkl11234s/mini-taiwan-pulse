@@ -143,6 +143,7 @@ export type ExpandableLayerKey =
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
+  | "firingNoticeAreas"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -245,6 +246,7 @@ export type ExpandableLayerKey =
   | "fireLatest"
   | "fireStations"
   | "fireHydrants"
+  | "disasterResourceSites"
   | "fireIsochrone"
   | "medDesert"
   | "medHospital"
@@ -387,8 +389,11 @@ export type ExpandableLayerKey =
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
   | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
   | "a1AccidentRealtime"
+  | "trafficAccidents2025"
   | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
   | "civilDefenseShelter"
+  | "tsunamiSirens"
+  | "nuclearEpzEvacuation"
   // 航空器空域（eAIP AIRAC，9 種 layer 拆兩 toggle）
   | "aviationControl"        // FIR + TMA（情報 / 終端管制，FIR 只邊框）
   | "aviationRestricted"     // CTR/CONTROL/SURFACE + RCR + DANGER + ULZ + CIRCUIT
@@ -921,6 +926,7 @@ export interface FeatureInfo {
     | "a1AccidentRealtime"
     | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
     | "civilDefenseShelter"
+    | "tsunamiSirens" | "nuclearEpzEvacuation" | "trafficAccidents2025" | "disasterResourceSites" | "firingNoticeAreas"
     // 環境污染（PMTiles：設施 × 介質 × 嚴重度 / 裁處事件時間軸 / 污染場址）
     | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
     // 噪音／聲響（觀測、公民科學、法定區、裁處、設備清單六種獨立語意）
@@ -1250,6 +1256,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
    * ⚠️ 與 `ships`（全量 AIS，Three.js ShipScene）是**兩層**，本層為純 Mapbox circle/line。
    */
   vesselWatch: boolean;
+  firingNoticeAreas: boolean;  // G36 射擊公告區 187 則
   /** AISStream 最近回報船位（migration 371 RPC；獨立於全量 ships 與 GFW） */
   aisstreamVessels: boolean;
   /** Global Fishing Watch 每日/延遲 vessel presence（獨立於 AISStream） */
@@ -1420,7 +1427,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   fireEvents: boolean;
   fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
-  fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
+  fireHydrants: boolean;   // 消防栓（G36 起含台水 17 縣市，211,530 點）
+  disasterResourceSites: boolean;    // G36 救災資源據點 5,379 處
   fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
   // 🐷 畜牧 Livestock（靜態 CDN geojson 點層；飼養場 7 層共用 livestock_farms source + 主畜種 filter）
   livestockFarmPig: boolean;      // 畜禽飼養場·豬（4,584）
@@ -1702,11 +1710,14 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   trafficAccidentYearly: boolean;     // 1,600 A1 死亡事故年度累積（114 年靜態）
   accidentTaipei: boolean;            // 22,918 北市事故點（A1+A2 多年累積）
   a1AccidentRealtime: boolean;        // realtime.traffic_accidents_a1 每 12h（rpc_a1_by_bbox）
+  trafficAccidents2025: boolean;     // G36 2025 A1／A2 事故 321,534 點（PMTiles）
   investigationBureau: boolean;       // 29 調查局所屬
   antiCorruptionOffice: boolean;      // 66 廉政署（central/local）
   immigrationOffice: boolean;         // 25 移民署服務站
   coastGuardStation: boolean;         // 269 海巡（巡防隊+漁港）
   civilDefenseShelter: boolean;       // 62,695 防空避難（PMTiles，z≥10 才顯示）
+  tsunamiSirens: boolean;            // G36 海嘯警報臺 376 座
+  nuclearEpzEvacuation: boolean;     // G36 核電廠集結點 182＋收容處所 18
   aviationControl: boolean;           // ✈️ 飛航情報/終端管制（FIR 3 + TMA 6，FIR 只邊框）
   aviationRestricted: boolean;        // ⛔ 禁/限航 + 危險 + 機場管制（CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT 72）
   droneNoFlyZone: boolean;            // 🚫 2026-06-30 歷史紅+未分類參考面 5,635（共用 drone_restricted_zones.pmtiles）
