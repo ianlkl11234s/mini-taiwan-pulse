@@ -1,3 +1,4 @@
+import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
@@ -4875,14 +4876,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["aquaculturePondsOpacity"],
     layers: [
       {
-        suffix: "fill", type: "fill", minzoom: 9,
+        suffix: "fill", type: "fill", minzoom: 6,
         paint: (_isDark, p) => ({
           "fill-color": "#26c6da",
           "fill-opacity": p?.aquaculturePondsOpacity ?? 0.5,
         }),
       },
       {
-        suffix: "line", type: "line", minzoom: 9,
+        suffix: "line", type: "line", minzoom: 6,
         paint: () => ({ "line-color": "#26c6da", "line-width": 0.5, "line-opacity": 0.6 }),
       },
     ],
@@ -5813,7 +5814,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "line",
-        minzoom: 8,
+        minzoom: 7,
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (isDark, params) => {
           const w = params?.farmRoadsWidth ?? 1;
@@ -5828,7 +5829,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        minzoom: 8,
+        minzoom: 7,
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (isDark, params) => {
           const w = params?.farmRoadsWidth ?? 1;
@@ -5837,7 +5838,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "line-color": isDark ? "#a4b494" : "#7a8670",
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
-              8, 0.4 * w, 11, 1 * w, 13, 1.6 * w, 16, 2.6 * w,
+              7, 0.3 * w, 11, 1 * w, 13, 1.6 * w, 16, 2.6 * w,
             ],
             "line-opacity": opacity,
           };
@@ -9737,12 +9738,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "sound-camera-locations",
     rebuildOnParamChange: ["circle"],
     layers: [{
-      suffix: "circle", type: "circle", minzoom: 9, maxzoom: 19,
+      suffix: "circle", type: "circle", minzoom: 5, maxzoom: 19,
       filter: (p) => soundCameraFilter(p?.soundCameraLocationsPrecisionIdx ?? 0),
       paint: (isDark, p) => {
         const op = p?.soundCameraLocationsOpacity ?? 0.9;
         return {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 3, 13, 5, 18, 8] as unknown as number,
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.2, 9, 3, 13, 5, 18, 8] as unknown as number,
           "circle-color": [
             "match", ["get", "spatial_precision"],
             "geocoded_address", SOUND_CAMERA_PRECISION_META.geocoded_address.color,
@@ -11994,4 +11995,28 @@ OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
-OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec).map(withLineFillSpec));
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec).map(withLineFillSpec).map(withCategoryFilter));
+
+/**
+ * V-4 類別篩選（`data/categoryFilters.ts` 規格表）：把類別多選併進該圖層每個子圖層的 filter
+ * （原有的 layer／config filter 以 all 併存），並讓這些子圖層在篩選變動時重建（filter 沒有 diff API）。
+ */
+function withCategoryFilter(config: OverlayConfig): OverlayConfig {
+  const entry = CATEGORY_FILTERS[config.id];
+  if (!entry) return config;
+  const defs = categoryDefs(entry);
+  const layers = config.layers.map((layer): OverlayConfig["layers"][number] => {
+    if (layer.type === "raster") return layer;
+    return {
+      ...layer,
+      filter: (params?: Record<string, number>) => {
+        const base = typeof layer.filter === "function" ? layer.filter(params) : (layer.filter ?? config.filter);
+        const extra = defs.map((def) => categoryFilterExpr(def, params?.[categoryMaskKey(config.id, def)])).filter((f): f is unknown[] => f !== null);
+        const parts = [...(base ? [base] : []), ...extra];
+        return (parts.length === 1 ? parts[0] : ["all", ...parts]) as unknown[];
+      },
+    };
+  });
+  const rebuild = new Set([...(config.rebuildOnParamChange ?? []), ...layers.filter((l) => l.type !== "raster").map((l) => l.suffix)]);
+  return { ...config, layers, rebuildOnParamChange: [...rebuild] };
+}

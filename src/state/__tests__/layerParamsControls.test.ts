@@ -93,7 +93,7 @@ describe("buildParamControls", () => {
     const opacity = (buildParamControls("religionTemples") ?? [])[3] as SliderConfig;
     expect(opacity).toMatchObject({ name: "透明度", valueText: "0.75" });
 
-    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    const z = (buildParamControls("cctv") ?? [])[3] as SliderConfig;
     expect(z).toMatchObject({ name: "漂浮高度", valueText: "0 px" });
 
     const shuttle = buildParamControls("touristShuttleLive") ?? [];
@@ -191,10 +191,10 @@ describe("buildParamControls", () => {
     // overlayParams 拿到的是原值（不是字串、也沒有被 toFixed 影響）
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["lightningMinutes"]).toBe(45);
 
-    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    const z = (buildParamControls("cctv") ?? [])[3] as SliderConfig;
     expect(z.label).toBe("漂浮高度 0px");
     z.onChange(24);
-    expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "漂浮高度 24px", valueText: "24 px" });
+    expect((buildParamControls("cctv") ?? [])[3]).toMatchObject({ label: "漂浮高度 24px", valueText: "24 px" });
   });
 
   // ── P3-2C 補：encodeNumeric 在**非預設值**下才與索引編碼分岔 ──────
@@ -308,12 +308,12 @@ describe("buildParamControls", () => {
 
   // ── P3-2B 補：共用 slot 的端對端行為（面板 A 拖動，面板 B 跟著動）──
   it("共用 slot：一個 key 的 onChange 會同步到同群其他 key 的控件與 overlayParams", () => {
-    const a = (buildParamControls("eduKindergarten") ?? [])[0] as SliderConfig;
+    const a = (buildParamControls("eduKindergarten") ?? [])[1] as SliderConfig;
     expect(a.label).toBe("透明度 0.85");
     a.onChange(0.4);
 
     for (const key of ["eduKindergarten", "eduAfterschoolCare", "eduMutualCare"]) {
-      const ctl = (buildParamControls(key) ?? [])[0] as SliderConfig;
+      const ctl = (buildParamControls(key) ?? [])[key === "eduKindergarten" ? 1 : 0] as SliderConfig; // kindergarten 前面多一個類別多選
       expect(ctl.value, `${key} 的面板沒跟著動`).toBe(0.4);
       expect(ctl.label).toBe("透明度 0.40");
     }
