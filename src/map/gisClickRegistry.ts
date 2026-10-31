@@ -379,6 +379,20 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
   { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },
   { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },
+  // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
+  { layers: ["kr-airports-circle"], type: "krAirports" },
+  { layers: ["kr-power-plants-circle"], type: "krPowerPlants" },
+  { layers: ["kr-renewables-circle"], type: "krRenewables" },
+  { layers: ["kr-substations-circle"], type: "krSubstations" },
+  { layers: ["kr-fuel-stations-circle"], type: "krFuelStations" },
+  { layers: ["kr-rail-stations-circle"], type: "krRailStations" },
+  { layers: ["kr-oil-gas-point", "kr-oil-gas-pipelines-line", "kr-oil-gas-line", "kr-oil-gas-fill"], type: "krOilGas" },
+  { layers: ["kr-bus-stops-circle"], type: "krBusStops" },
+  { layers: ["kr-power-towers-circle"], type: "krPowerTowers" },
+  { layers: ["kr-power-lines-line", "kr-power-cables-line"], type: "krPowerLines" },
+  { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
+  { layers: ["kr-rail-lines-line"], type: "krRailLines" },
+  { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
   // 南韓：三層級一次只開一層
   { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },

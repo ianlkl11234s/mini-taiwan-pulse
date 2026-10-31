@@ -179,6 +179,13 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
+  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
+  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
+  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
+  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
+  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/hooks/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/hooks/useKrEnergyLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
   "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
@@ -289,6 +296,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
+  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
+  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
