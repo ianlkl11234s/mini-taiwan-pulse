@@ -276,6 +276,8 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
+  WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
@@ -11871,6 +11873,11 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("marineMicroplastics", "./marine/marine_microplastics_stations.geojson", "marine-microplastics", microplasticColorExpr(), undefined, `海洋委員會 海洋微塑膠調查（2021–2023）· ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
   publicLifePointOverlay("marinePollutionIncidents", "./marine/marine_pollution_incidents.geojson", "marine-pollution-incidents", matchColorExpr("case_level", POLLUTION_LEVEL_OPTIONS), undefined, `海洋委員會海洋保育署 海洋污染事件 · ${OGDL_ATTR}`),
   publicLifePointOverlay("namrEdnaSurveySites", "./marine/namr_edna_survey_sites.geojson", "namr-edna-survey-sites", ATLAS_LAYER_COLORS.namrEdnaSurveySites, undefined, `國家海洋研究院 環境 DNA 調查站位 · ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
+  // ── 環境、能源、海洋與職安 G37（2026-10-31）點層 ──
+  publicLifePointOverlay("toxicChemicalFacilities", "./hazards/toxic_chemical_facilities.pmtiles", "toxic-chemical-facilities", ATLAS_LAYER_COLORS.toxicChemicalFacilities, { sourceLayer: "toxic_chemical_facilities", minzoom: 5, maxzoom: 12 }, `環境部 毒性及關注化學物質運作場所（data.gov.tw 161616）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("majorOccupationalAccidents", "./hazards/major_occupational_accidents.geojson", "major-occupational-accidents", matchColorExpr("accident_type", OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS), undefined, `勞動部職業安全衛生署 重大職業災害公開網（data.gov.tw 126835）· ${OGDL_ATTR}`, [3, 6]),
+  publicLifePointOverlay("renewablePermitsNational", "./energy/renewable_permits_national.pmtiles", "renewable-permits-national", matchColorExpr("symbiotic_class", RENEWABLE_PERMIT_CLASS_OPTIONS), { sourceLayer: "renewable_permits_national", minzoom: 5, maxzoom: 12 }, `經濟部能源署 太陽光電案場土地地號（data.gov.tw 176025）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("batterySwapStations", "./energy/battery_swap_stations.geojson", "battery-swap-stations", matchColorExpr("operator", BATTERY_SWAP_OPERATOR_OPTIONS), undefined, `台灣中油 換電服務加油站（data.gov.tw 106247）、台灣電力公司 換電站租賃據點（165894）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
   publicLifePointOverlay("marineEcologicalMonitoringSites", "./marine/marine_ecological_monitoring_sites.geojson", "marine-ecological-monitoring-sites", ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, undefined, `國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
   // ── 地名 ──
   publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
@@ -11894,6 +11901,21 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "wildlifeProtectedAreas", sourceUrl: "./marine/wildlife_protected_areas.geojson", sourceId: "wildlife-protected-areas",
     attribution: `農業部林業及自然保育署 野生動物保護區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("wildlifeProtectedAreas", ATLAS_LAYER_COLORS.wildlifeProtectedAreas, 0.3),
+  },
+  {
+    id: "exclusiveFisheryRightAreas", sourceUrl: "./marine/exclusive_fishery_right_areas.geojson", sourceId: "exclusive-fishery-right-areas",
+    attribution: `農業部漁業署 專用漁業權水域（analytics 2026-02-28 轉檔）`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("exclusiveFisheryRightAreas", matchColorExpr("status", EXCLUSIVE_FISHERY_STATUS_OPTIONS), 0.3),
+  },
+  {
+    id: "importantWetlands", sourceUrl: "./environment/important_wetlands.geojson", sourceId: "important-wetlands",
+    attribution: `內政部國家公園署 國家重要濕地範圍圖（data.gov.tw 25659）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("importantWetlands", matchColorExpr("level", WETLAND_LEVEL_OPTIONS), 0.35),
+  },
+  {
+    id: "waterRecreationRestrictedAreas", sourceUrl: "./tourism/water_recreation_restricted_areas.geojson", sourceId: "water-recreation-restricted-areas",
+    attribution: `交通部觀光署 禁止或限制水域遊憩活動區域（data.gov.tw 38872）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("waterRecreationRestrictedAreas", matchColorExpr("kind", WATER_RECREATION_KIND_OPTIONS), 0.35),
   },
   {
     id: "marineWildlifeAreas", sourceUrl: "./marine/marine_wildlife_areas.geojson", sourceId: "marine-wildlife-areas",

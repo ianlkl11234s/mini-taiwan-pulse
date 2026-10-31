@@ -982,6 +982,24 @@ export const LAYER_MANIFEST = {
     description: "環境部列管污染潛勢設施 152k 點（介質 × 嚴重度分色，列管≠污染）",
     topics: ["環境", "污染", "列管"],
   },
+  toxicChemicalFacilities: {
+    key: "toxicChemicalFacilities", country: "TW", section: { theme: "環境氣候 Environment", group: "環境污染" }, ...layerName({ zh: "毒化物運作場所", alt: "Toxic Chemical Operating Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.toxicChemicalFacilities, icon: Biohazard,
+    upstream: { status: "verified", datasets: [{ datasetId: "toxic_chemical_facilities", confidence: "HIGH" }], processing: "analytics hazards/toxic_chemical_facilities 20260712：EMS_S_05 唯一地址 7,232 中 7,045 有座標（地址定位為主）；6,744 個管制編號", note: "與 regulatedFacilities（EMS 全介質列管設施）、pollutionFacility（列管×裁處）不同：本層只含有毒化物運作許可的場所；化學物質明細由 popup 依 ems_no 查 toxic_permits lookup。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "toxic-chemical-facilities", url: "./hazards/toxic_chemical_facilities.pmtiles", sourceLayer: "toxic_chemical_facilities", minzoom: 5, maxzoom: 12 },
+    legend: "toxicChemicalFacilities", popup: "toxicChemicalFacilities", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部毒性及關注化學物質運作場所 7,045 個地址點（6,744 個管制編號）；列管只代表有運作許可，不代表外洩或風險等級。",
+    topics: ["環境", "毒化物", "化學物質", "列管", "環境部"],
+  },
+  importantWetlands: {
+    key: "importantWetlands", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.importantWetlands, icon: Leaf,
+    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 → TGOS 重要濕地範圍圖 SHP（2026-01-09 版，89 面，TWD97 TM2 轉經緯度）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；保育利用計畫功能分區（578 面）未上圖。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "important-wetlands", url: "./environment/important_wetlands.geojson" },
+    legend: "importantWetlands", popup: "importantWetlands", params: { count: 1, kinds: ["slider"] },
+    description: "內政部國家公園署公告的國家重要濕地範圍 89 處（國際級、國家級、地方級、暫定地方級）。",
+    topics: ["環境", "濕地", "保育", "國家公園署"],
+  },
   jpAccommodationCanonical: {
     key: "jpAccommodationCanonical", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
     ...layerName({ zh: "旅宿去重總覽", alt: "宿泊施設の統合一覧" }), expandable: true,
@@ -5875,6 +5893,15 @@ export const LAYER_MANIFEST = {
     description: "臺北市公園點位 2,917 處（公園／兒童遊戲場／綠地／鄰里公園等 7 類分色）",
     topics: ["運動", "公園", "都市綠地"],
   },
+  waterRecreationRestrictedAreas: {
+    key: "waterRecreationRestrictedAreas", country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "水域遊憩 Water Recreation" }, ...layerName({ zh: "水域遊憩禁止／限制區", alt: "Water Recreation Restricted Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.waterRecreationRestrictedAreas, icon: Ban,
+    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 38872（觀光署 CSV 頂點座標文字）→ 依數值量級判斷 TM2 121°／119°／經緯度後連線；mini scripts/fetch/fetch-g37-opendata.py", note: "範圍是依公告頂點的示意；嵵裡沙灘 1 則座標對不上地名未上圖；只含國家風景區。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "water-recreation-restricted-areas", url: "./tourism/water_recreation_restricted_areas.geojson" },
+    legend: "waterRecreationRestrictedAreas", popup: "waterRecreationRestrictedAreas", params: { count: 1, kinds: ["slider"] },
+    description: "交通部觀光署各國家風景區公告的禁止或限制水域遊憩活動區域（21 則公告、33 區）；範圍為依公告頂點的示意，以公告附圖為準。",
+    topics: ["運動休閒", "水域遊憩", "海域", "觀光", "禁止"],
+  },
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 2 —— 觀光 Tourism 11 層
   //  與基礎建設／運動休閒相反的形狀：**11/11 都有 labelMobile**（桌機標籤是
@@ -8148,6 +8175,15 @@ export const LAYER_MANIFEST = {
     description: "海洋委員會海巡署各級單位點位",
     topics: ["治安", "海巡", "POI"],
   },
+  majorOccupationalAccidents: {
+    key: "majorOccupationalAccidents", country: "TW", section: { theme: "執法治安 Law & Order", group: "勞動檢查 Labor Inspection" }, ...layerName({ zh: "重大職業災害", alt: "Major Occupational Accidents" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.majorOccupationalAccidents, icon: Construction,
+    upstream: { status: "verified", datasets: [{ datasetId: "major_occupational_accidents", confidence: "HIGH" }], processing: "analytics hazards/major_occupational_accidents_20260712（不用 20260710 北市舊版）：事件 2,480 起，1,238 起地址定位（49.9%）", note: "定位率約一半，點數不可當事件總數；上游 severity 為粗推估不採用；自然人雇主姓名與地址不輸出。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "major-occupational-accidents", url: "./hazards/major_occupational_accidents.geojson" },
+    legend: "majorOccupationalAccidents", popup: "majorOccupationalAccidents", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "勞動部職安署公開的重大職業災害 2018–2026：2,480 起中 1,238 起（49.9%）能定位上圖，依災害類型分色。",
+    topics: ["勞動", "職災", "職業安全", "勞動檢查"],
+  },
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 4 —— 人口社經 People 6 層（**全部 dataClass D**）
   //  六層都走 H3 factory（demographicsLayerFactory / h3LayerFactory /
@@ -9739,6 +9775,15 @@ export const LAYER_MANIFEST = {
     description: "定置漁業權區範圍（114-08-05 版）；不代表現行許可、可否進入或航行安全。",
     topics: ["海洋", "漁業", "定置網", "漁業權"],
   },
+  exclusiveFisheryRightAreas: {
+    key: "exclusiveFisheryRightAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "專用漁業權範圍", alt: "Exclusive Fishery Right Areas" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.exclusiveFisheryRightAreas, icon: Fish,
+    upstream: { status: "catalog_missing", datasets: [], processing: "analytics environment/fishery_rights（19 面，漁業署 SHP 轉檔 2026-02-28）；catalog 文件 environment/fishery_rights.md 缺 frontmatter dataset_id", note: "現存／屆期為來源標記，日期不明；與定置漁業權（setNetFishingAreas）是不同法律類別。public/fishery/exclusive_fishery_rights.geojson 是 17 個縣市代表點的舊孤兒檔，不是本層。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "exclusive-fishery-right-areas", url: "./marine/exclusive_fishery_right_areas.geojson" },
+    legend: "exclusiveFisheryRightAreas", popup: "exclusiveFisheryRightAreas", params: { count: 1, kinds: ["slider"] },
+    description: "各區漁會專用漁業權水域 19 面（來源標現存 11、屆期 8）；與定置漁業權區是不同類別，不代表現行權利或可否進入。",
+    topics: ["海洋", "漁業", "漁業權", "專用漁業權", "漁會"],
+  },
   // ── 地層下陷＋海堤 G19（2026-10-17）：analytics data/processed/water_resources → build-land-subsidence-public.py → public/hazards/ ──
   landSubsidenceStations: {
     key: "landSubsidenceStations", country: "TW", section: { theme: "水資源 Water", group: "地層下陷與海堤 Land Subsidence & Seawalls" }, ...layerName({ zh: "地層下陷監測站", alt: "Land Subsidence Monitoring Stations" }), expandable: true,
@@ -10457,7 +10502,7 @@ export const LAYER_MANIFEST = {
   // ⚠️ raster PMTiles → 無 sourceLayer（同批 3 的 canopyHeight）。
   urbanHeat: {
     key: "urbanHeat",
-    country: "TW", section: { theme: "環境氣候 Environment", group: "氣象" },
+    country: "TW", section: { theme: "都市分析 Urban Analysis", group: "都市熱島 Urban Heat" },
     ...layerName({ zh: "都市熱島", alt: "Urban Heat" }),
     expandable: true,
     color: "#b2182b",
@@ -15008,6 +15053,15 @@ export const LAYER_MANIFEST = {
     description: "臺北市再生能源設備設置許可點位",
     topics: ["能源", "再生能源", "臺北"],
   },
+  renewablePermitsNational: {
+    key: "renewablePermitsNational", country: "TW", section: { theme: "能源 Energy", group: "再生能源" }, ...layerName({ zh: "全國太陽光電施工許可", alt: "Solar Permits (Nationwide)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.renewablePermitsNational, icon: Sun,
+    upstream: { status: "verified", datasets: [{ datasetId: "renewable", confidence: "HIGH" }, { datasetId: "renewable_permits_nlsc_geocoded", confidence: "MED" }], processing: "gis-platform public.renewable_permits（176025，8,195 列）唯讀匯出 8,038 列有地號代表點（twland＋NLSC 回填）；scripts/export/export-renewable-permits-national.sh → build-atlas-public.py PMTiles", note: "analytics renewable_permits_20260615.geojson 全部是 (0,0) 佔位，不可直接用。與 renewablePermitsTaipei（北市 438 筆設置，含屋頂型）母體不同，兩層並存。" },
+    dataClass: "B", source: { kind: "pmtiles", sourceId: "renewable-permits-national", url: "./energy/renewable_permits_national.pmtiles", sourceLayer: "renewable_permits_national", minzoom: 5, maxzoom: 12 },
+    legend: "renewablePermitsNational", popup: "renewablePermitsNational", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "經濟部能源署太陽光電施工許可的案場土地地號 8,038 點（419 座案場，民國 108–113 年）；點是地號代表點，容量不可逐點加總。",
+    topics: ["能源", "再生能源", "太陽光電", "許可", "漁電共生"],
+  },
 
   evChargingStations: {
     key: "evChargingStations",
@@ -15033,6 +15087,15 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "全台電動車充電站點位",
     topics: ["能源", "再生能源", "電動車"],
+  },
+  batterySwapStations: {
+    key: "batterySwapStations", country: "TW", section: { theme: "能源 Energy", group: "再生能源" }, ...layerName({ zh: "電動機車換電站", alt: "E-scooter Battery Swap Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.batterySwapStations, icon: Battery,
+    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 106247（中油換電加油站 400）＋165894（台電換電站租賃據點 12）；mini scripts/fetch/fetch-g37-opendata.py", note: "業者自建換電站不是政府資料，不在本層；台電是出租土地，用途為換電站或充電站。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "battery-swap-stations", url: "./energy/battery_swap_stations.geojson" },
+    legend: "batterySwapStations", popup: "batterySwapStations", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "中油提供電動機車換電的加油站 400 站，加上台電出租作換電站用的土地 12 筆；不含業者自建換電站。",
+    topics: ["能源", "交通", "電動機車", "換電", "中油", "台電"],
   },
 
   // ── 覆蓋分析 ───────────────────────────────────────────────────────

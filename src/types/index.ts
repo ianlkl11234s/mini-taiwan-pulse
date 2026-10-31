@@ -128,6 +128,8 @@ export type ExpandableLayerKey =
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
   // 海洋保育補接 G33（2026-10-29）
   | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+  // 環境、能源、海洋與職安 G37（2026-10-31）
+  | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -882,6 +884,7 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "culturalHealthStations"
@@ -1335,6 +1338,15 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   /** 海洋保育補接 G33（2026-10-29）：海保署 6 個海域野生動物範圍、國研院全海域生態系調查點位 54 */
   marineWildlifeAreas: boolean;
   marineEcologicalMonitoringSites: boolean;
+  /** 環境、能源、海洋與職安 G37（2026-10-31）：專用漁業權 19 面、毒化物運作場所 7,045 點、重大職災 1,238 點、
+   *  全國太陽光電許可地號 8,038 點、國家重要濕地 89 面、水域遊憩禁限區 33 區、換電站 412 點 */
+  exclusiveFisheryRightAreas: boolean;
+  toxicChemicalFacilities: boolean;
+  majorOccupationalAccidents: boolean;
+  renewablePermitsNational: boolean;
+  importantWetlands: boolean;
+  waterRecreationRestrictedAreas: boolean;
+  batterySwapStations: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
   landSubsidenceStations: boolean;
   landSubsidenceCumulative: boolean;

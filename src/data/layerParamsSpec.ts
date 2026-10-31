@@ -2683,7 +2683,9 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("renewablePermitsTaipeiSize", 1),
     opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
   ],
+  renewablePermitsNational: [opacitySlider("renewablePermitsNationalOpacity", densePointOpacity(8_038)), scaleSlider("renewablePermitsNationalScale", 1)],
   evChargingStations: [opacitySlider("evChargingOpacity", densePointOpacity(3_060)), scaleSlider("evChargingScale", 1)],
+  batterySwapStations: [opacitySlider("batterySwapStationsOpacity", densePointOpacity(412)), scaleSlider("batterySwapStationsScale", 1)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 
   // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
@@ -2806,6 +2808,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("coastGuardStationScale", 1),
     opacitySlider("coastGuardStationOpacity", 0.85),
   ],
+  majorOccupationalAccidents: [opacitySlider("majorOccupationalAccidentsOpacity", densePointOpacity(1_238)), scaleSlider("majorOccupationalAccidentsScale", 1)],
   civilDefenseShelter: [
     scaleSlider("civilDefenseShelterScale", 1),
     opacitySlider("civilDefenseShelterOpacity", densePointOpacity(62_695)),
@@ -3333,6 +3336,9 @@ export const LAYER_PARAMS_SPEC = {
   setNetFishingAreas: [
     opacitySlider("setNetFishingAreasOpacity", 0.4),
   ],
+  exclusiveFisheryRightAreas: [
+    opacitySlider("exclusiveFisheryRightAreasOpacity", 0.3),
+  ],
   // ══════════ 地層下陷＋海堤 G19（2026-10-17）══════════
   landSubsidenceStations: [
     {
@@ -3529,6 +3535,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(10_917), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "riversideTreesTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
+  waterRecreationRestrictedAreas: [opacitySlider("waterRecreationRestrictedAreasOpacity", 0.35)],
   parksTaipei: [
     {
       kind: "multiSelect", name: "parksTaipeiCategory", label: "分類", default: MULTI_SELECT_ALL,
@@ -4673,6 +4680,8 @@ export const LAYER_PARAMS_SPEC = {
   ],
 
   // ── 環境污染：opacity / scale 走 paint，filter 狀態走 hook return ──
+  toxicChemicalFacilities: [opacitySlider("toxicChemicalFacilitiesOpacity", densePointOpacity(7_045)), scaleSlider("toxicChemicalFacilitiesScale", 1)],
+  importantWetlands: [opacitySlider("importantWetlandsOpacity", 0.35)],
   pollutionFacility: [
     heatmapPalette("pollutionFacility"),
     opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),
