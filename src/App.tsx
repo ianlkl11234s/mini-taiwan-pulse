@@ -124,6 +124,7 @@ const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ Legend
 import { LoadingStatus } from "./components/LoadingStatus";
 import { CountryViewportHint } from "./components/CountryViewportHint";
 import { useViewportCountry } from "./hooks/useViewportCountry";
+import { useLayerVisibilityHint } from "./hooks/useLayerVisibilityHint";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -1961,6 +1962,14 @@ export default function App() {
     isPrivateView: () => privateViewRef.current,
     lockedKeys,
   });
+  // 同一張卡的第二段（§5.42.1）：開著的圖層要放大或前往資料範圍才看得到；停用條件同上
+  const layerHint = useLayerVisibilityHint({
+    map: mapPrepared ? mapRef.current : null,
+    enabled: !isMobile && !captureMode && !chatOpen && !agentActivityVisible,
+    isPrivateView: () => privateViewRef.current,
+    layerVisibility,
+    lockedKeys,
+  });
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
@@ -3165,13 +3174,14 @@ export default function App() {
           playing={timeline.playing || eqReplayPlaying || historicalPlaying}
           rightOffset={topRightOffset}
         />
-      {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體，不自動切換；手機第一版不做 ── */}
-      {viewportHint.target && (
+      {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體（不自動切換）＋開著卻看不到的圖層（§5.42.1）；手機不做 ── */}
+      {(viewportHint.target || layerHint.rows.length > 0) && (
         <CountryViewportHint
           target={viewportHint.target}
           current={country}
           onSwitch={viewportHint.switchTo}
           onKeep={viewportHint.keep}
+          layers={{ rows: layerHint.rows, more: layerHint.more, total: layerHint.total, onZoomIn: layerHint.zoomIn, onGoTo: layerHint.goTo, onDismiss: layerHint.dismiss }}
           isDarkTheme={isDarkTheme}
           rightOffset={topRightOffset}
         />

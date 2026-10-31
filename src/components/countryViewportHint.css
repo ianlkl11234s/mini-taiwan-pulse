@@ -1,9 +1,11 @@
-/* 右上視野提示卡（design-system §5.42）。位置由元件 inline 的 top／right 決定（Monitor split 讓到 dock 左邊）。 */
+/* 右上視野提示卡（design-system §5.42；§5.42.1 圖層看不到段）。位置由元件 inline 的 top／right 決定（Monitor split 讓到 dock 左邊）。 */
 .country-hint {
   --ch-surface: var(--surface-strong);
   --ch-border: var(--border-panel);
   --ch-strong: var(--text-strong);
   --ch-muted: var(--text-muted);
+  --ch-dim: var(--text-dim);
+  --ch-soft: var(--border-soft);
   --ch-elevation: var(--elevation-lg);
   --ch-control-bg: var(--control-bg);
   --ch-control-bg-hover: var(--control-bg-hover);
@@ -14,7 +16,7 @@
   z-index: var(--z-toolbar);
   box-sizing: border-box;
   width: max-content;
-  max-width: min(280px, calc(100vw - 32px));
+  max-width: min(300px, calc(100vw - 32px));
   padding: var(--space-md) var(--space-lg);
   border: 1px solid var(--ch-border);
   border-radius: var(--radius-xl);
@@ -31,6 +33,8 @@
   --ch-border: var(--light-border);
   --ch-strong: var(--light-text-strong);
   --ch-muted: var(--light-text-muted);
+  --ch-dim: var(--light-text-dim);
+  --ch-soft: var(--light-border-soft);
   --ch-elevation: var(--light-elevation-lg);
   --ch-control-bg: var(--light-control-bg);
   --ch-control-bg-hover: var(--light-control-bg-hover);
@@ -59,5 +63,17 @@
 .country-hint__btn:focus-visible { outline: 2px solid var(--ch-accent); outline-offset: 2px; }
 .country-hint__btn--primary { border-color: var(--ch-accent); background: var(--ch-accent-faint); color: var(--ch-accent); font-weight: var(--font-weight-semibold); }
 .country-hint__btn--primary:hover { background: var(--ch-accent-faint); }
+/* 兩段同卡：上下排列，第二段上緣一條淡分隔線 */
+.country-hint__section + .country-hint__section { margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--ch-border); }
+.country-hint__icon { flex: none; color: var(--ch-muted); }
+.country-hint__rows { margin: 6px 0 0; padding: 0; list-style: none; }
+.country-hint__row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-top: 1px solid var(--ch-soft); }
+.country-hint__row-text { flex: 1; min-width: 0; }
+.country-hint__name { display: block; font-size: var(--font-base); color: var(--ch-strong); }
+.country-hint__why { display: block; font-size: var(--font-sm); color: var(--ch-muted); }
+.country-hint__z { font-family: var(--font-data); }
+.country-hint__more { margin: 0; padding-top: 4px; font-size: var(--font-sm); color: var(--ch-dim); }
+/* C2 小尺寸（同 .lpc-btn：22px／10px） */
+.country-hint__btn--sm { flex: none; gap: 4px; height: 22px; padding: 0 8px; font-size: var(--font-sm); }
 @keyframes country-hint-enter { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .country-hint { animation: none; } }
