@@ -1,21 +1,22 @@
 # Status
 
-**最後更新**：2026-10-31 圖層可見性整修（四國）＋南韓第 0–5 波合 develop（未發版）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
+**最後更新**：2026-11-01 v2.19.0 上線（南韓第 0–5 波＋四國圖層可見性整修＋台灣 G35–G37）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
 
-## 2026-10-31：圖層可見性整修（四國共用原則）→ develop（未發版）
+## 2026-10-31：圖層可見性整修（四國共用原則）→ v2.19.0 上線（2026-11-01）
 
 | repo / system | 現況 |
 |---|---|
 | **mini-taiwan-pulse** | #779 原則 map-layers §3.8 V-1～V-7＋熱區預設色依主題＋V-2／V-4 契約（`visibilityAudit.ts`）；#780 南韓 32 層；#783 右上視野提示卡擴充（spec §5.42.1，`layerCoverage.ts` 49 層局部範圍）；#784 英國（點面切換、拆高爾夫、22 層類別篩選、globe raster 修正、JamCams 內嵌影像）；#782／#785 台日類別篩選；#786 第二輪重切接線；#787 台日點面切換 67 層；#788 最後一輪。develop `b285be8f`。 |
 | **taipei-gis-analytics** | #270／#271／#272 重切與代表點腳本（`pipelines/world/kr/retile_visibility.py`、`pipelines/base_map/gb/retile_visibility{,2}.py`、`pipelines/shared/vis_retile_tw_jp.py`、`vis_reppoint_tw_jp.py`）。 |
 
-- 下一步：**KRREL-1** 整批發版（S3 上傳清單在 CHANGELOG Unreleased）；**VIS-1～6**。
+- 2026-11-01 發 **v2.19.0**（#790 版號、#792 develop→master merge `3110ba9c`，tag＋GitHub Release 已建；S3 deploy-assets 256 檔已上傳）。正式站驗收：`main-*.js` 含 2.19.0；8 支大檔 Range 206；四國全國視角截圖都有畫面；右上提示卡（英國 JamCams「前往倫敦」、台灣 `buildingsGba`「放大到 z8」）、點面切換（`gbCemeteries`）、類別篩選（`gbSchools`、`speedCamera`）、消防栓 `fireHydrants` 彈窗都實測通過；console 無新錯誤。
+- 下一步：**VIS-1～6**（待使用者決定或補驗）。
 - 盤點表與原則草稿：本 session scratchpad（已併入規範，不需保留）。
 
-## 2026-10-31：南韓第 0–5 波＋統計 → develop（未發版）
+## 2026-10-31：南韓第 0–5 波＋統計 → v2.19.0 上線（2026-11-01）
 
 | repo / system | 現況 |
 |---|---|
@@ -25,9 +26,9 @@
 
 | 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| 南韓 #769、#773、#774、#775 | done：各 PR CI 綠 | done：golden、inventory | done：develop `1d5f6bb8` | not run：3 支大檔發版當天上傳（KRREL-1） | not run | not run | not run：等使用者拍板發版 | not run | done：本機 dev 逐層（繁中），en／ja 抽查 |
+| 南韓 #769、#773、#774、#775 | done：各 PR CI 綠 | done：golden、inventory | done：develop `1d5f6bb8` | done：3 支大檔 2026-11-01 上傳 S3 | done：Range 206 | done | done：v2.19.0 `3110ba9c` | done | done：正式站南韓 z6 截圖（電廠、橋梁、行道樹） |
 
-- 下一步：**KRREL-1** 發版；HOLD **KRH-1**（淨水場、生態自然圖）；**KRUX-1** 公車站全國視角太淡；**KRI18N-1** 英日文逐層驗；**KRW-6** 第 6–10 波；MCP 加 KR 另案。
+- 下一步：HOLD **KRH-1**（淨水場、生態自然圖）；**KRUX-1** 公車站全國視角太淡；**KRI18N-1** 英日文逐層驗；**KRW-6** 第 6–10 波；MCP 加 KR 另案。
 - 接手：從 origin/develop 開分支；先讀 analytics `south_korea_opendata/waves/PLAN.md` §3 與 `AGENT_BRIEF.md`。
 
 ## 2026-10-30：英國圖層上線 → v2.18.0
