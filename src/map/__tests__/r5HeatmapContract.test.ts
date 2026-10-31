@@ -172,6 +172,16 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbGreenspace", "useGbOpenSpaceLayers.ts", 80_918],
   ["gbSportsFacilities", "useGbOpenSpaceLayers.ts", 54_852],
   ["gbCemeteries", "useGbOpenSpaceLayers.ts", 30_208],
+  // 南韓（2026-10-31 V-1 全國視角可見性）：橋梁／停車場 z10 起畫點（使用者拍板）；其餘為使用者點名 <1 萬或既有 minzoom 較高者
+  ["krBusStops", "useKrTransportLayers.ts", 227_059],
+  ["krFuelStations", "useKrEnergyLayers.ts", 7_106],
+  ["krPublicBicycleStations", "useKrDataLayers.ts", 4_236],
+  ["krCoastalErosionFacilities", "useKrDataLayers.ts", 1_982],
+  ["krBridges", "useKrDataLayers.ts", 35_575],
+  ["krParkingLots", "useKrDataLayers.ts", 17_699],
+  ["krSpeedCameras", "useKrDataLayers.ts", 43_743],
+  ["krChildProtectionZones", "useKrDataLayers.ts", 14_639],
+  ["krStreetTrees", "useKrDataLayers.ts", 1_043_931], // 低縮放熱區用 kr_street_trees_density 格網（weight＝count），z13 起單棵
 ];
 const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */
@@ -198,6 +208,19 @@ describe("R5 hook 熱區豁免", () => {
     expect(block).toContain("gbCapacityRadiusExpr(");
     expect(block).toMatch(/"source-layer": "gb_renewables", minzoom: 5,/);
     expect(paramsSpecHasHeatmap("gbRenewables")).toBe(false);
+  });
+});
+
+describe("R5 南韓熱區出點縮放", () => {
+  it("橋梁、停車場：熱區在 z<10、z10 起畫點（使用者 2026-10-31 拍板）", () => {
+    expect(densePointsFromZoom(35_575, 0)).toBe(10);
+    expect(densePointsFromZoom(17_699, 0)).toBe(10);
+  });
+  it("krRenewables 不套熱區：太陽能陣列 90% 但容量差距大，熱區只反映案件數；改 z4 起畫大型點、z8 起補太陽能", () => {
+    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useKrEnergyLayers.ts"), "utf8");
+    const block = src.slice(src.indexOf("export function useKrRenewablesLayer"), src.indexOf("// ─────────────────────────── 電網"));
+    expect(block).not.toMatch(/heatmap/i);
+    expect(paramsSpecHasHeatmap("krRenewables")).toBe(false);
   });
 });
 

@@ -54,14 +54,14 @@ export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: M
  */
 export function gbHeatmapBuild(o: {
   id: string; key: string; sourceId: string; sourceLayer: string; maxzoom: number; filter?: unknown[] | null;
-  isDark: boolean; opacityScale: number; intensity: number;
+  isDark: boolean; opacityScale: number; intensity: number; weight?: unknown;
 }): LayerBuild {
   return {
     id: o.id,
     layer: () => ({
       id: o.id, type: "heatmap", source: o.sourceId, "source-layer": o.sourceLayer, maxzoom: o.maxzoom,
       ...(o.filter ? { filter: o.filter } : {}),
-      layout: { visibility: "none" }, paint: heatmapLayerPaint(o.key, o.isDark, o.opacityScale, o.intensity),
+      layout: { visibility: "none" }, paint: heatmapLayerPaint(o.key, o.isDark, o.opacityScale, o.intensity, o.weight ?? 1),
     } as unknown as AnyLayer),
     update: (map) => {
       map.setFilter(o.id, (o.filter ?? null) as any);

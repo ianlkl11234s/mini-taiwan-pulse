@@ -96,7 +96,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
-import { KR_DATA_SPECS } from "./krDataLayers";
+import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
@@ -739,6 +739,29 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
  * R7 熱區顏色（色盤選單）：可換色熱區一律預設 magma（Q4 A），選項是整個色盤庫。
  * 只換熱區色，拉近後的點顏色不變（點仍是該層識別色／類別色）。
  */
+// ── 南韓類別多選（V-4）。選項 id 與順序必須同 `data/krDataLayers.ts`／`hooks/useKrEnergyLayers.ts` 的 filter 群組（krVisibility 測試守）──
+type KrOpt = readonly (readonly [string, string])[];
+const KR_OPT_RAIL_NETWORK: KrOpt = [["korail_only", "KORAIL 幹線車站"], ["urban_only", "都市鐵道車站"], ["both", "KORAIL 與都市鐵道共站"]];
+const KR_OPT_RAIL_CLASS: KrOpt = [["main", "幹線"], ["branch", "支線"], ["subway", "地鐵"], ["light_rail", "輕軌"], ["yard_service", "側線／車庫線"], ["other", "其他（工業、軍用、觀光、測試）"]];
+const KR_OPT_FUEL_TYPE: KrOpt = [["ev_kepco", "電動車充電站（KEPCO 營運）"], ["lpg", "LPG 充電站"], ["hydrogen", "氫能充電站"], ["cng_lng", "CNG／LNG 充電站"]];
+const KR_OPT_PLANT_FUEL: KrOpt = [
+  ["solar", "太陽光電"], ["wind", "風力"], ["hydro", "水力"], ["pumped_hydro", "抽蓄水力"], ["biomass", "生質能／廢棄物"], ["marine", "海洋能"],
+  ["nuclear", "核能"], ["coal", "燃煤"], ["gas", "燃氣"], ["oil", "燃油"], ["other", "其他／未標"],
+];
+const KR_OPT_VOLTAGE: KrOpt = [["ehv_765", "765 kV"], ["hv_345", "345 kV"], ["hv_154", "154 kV"], ["mv_lt100", "<100 kV（配電、鐵路牽引）"], ["unknown", "OSM 未標電壓"]];
+const KR_OPT_OIL_GAS: KrOpt = [["refinery", "煉油廠"], ["oil_depot", "油庫／油品儲存區"], ["gas", "天然氣設施"], ["lng_terminal", "LNG 接收基地"], ["storage_tank", "油氣儲槽"]];
+const KR_OPT_PIPELINE: KrOpt = [["gas", "天然氣管線"], ["oil", "輸油管線"], ["hydrocarbons", "碳氫化合物管線"]];
+function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSpec {
+  return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
+}
+/** 規格驅動的南韓層（第 3–5 波）：cats＋「其他」→ 多選；zh 標籤取規格 `label.zh`。 */
+function krCatFilterSpecs(spec: KrLayerSpec): MultiSelectParamSpec[] {
+  if (!spec.cats) return [];
+  const labels: Record<string, string> = Object.fromEntries(spec.cats.map((c) => [c.id, c.label.zh]));
+  if (spec.otherLabel) labels.other = spec.otherLabel.zh;
+  return [krMulti(`${spec.key}CatMask`, "類別", krCatOptionIds(spec).map((id) => [id, labels[id]!] as const))];
+}
+
 function heatmapPalette(key: string): PaletteParamSpec {
   return {
     kind: "palette", name: `${key}Palette`, label: "熱區顏色",
@@ -1925,9 +1948,14 @@ export const LAYER_PARAMS_SPEC = {
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
   // 南韓第 3–5 波（2026-10-31）：點層＝透明度＋大小，線／面層＝透明度。預設不透明度點層依筆數（P-3）。
-  ...Object.fromEntries(KR_DATA_SPECS.map((spec) => [spec.key, spec.geom === "point"
-    ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-    : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]])),
+  // V-4：圖例有名目分類者加類別多選（`${key}CatMask`）；V-1：拉遠改熱區者加熱區顏色（P-4）。
+  ...Object.fromEntries(KR_DATA_SPECS.map((spec) => [spec.key, [
+    ...krCatFilterSpecs(spec),
+    ...(spec.heat ? [heatmapPalette(spec.key)] : []),
+    ...(spec.geom === "point"
+      ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
+      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]),
+  ]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {
@@ -1938,18 +1966,18 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 南韓第 1 波（國土基礎）：公車站（P-4 熱區）、點層（透明度＋大小）、線／面（透明度）
   krBusStops: [heatmapPalette("krBusStops"), opacitySlider("krBusStopsOpacity", densePointOpacity(227_059)), scaleSlider("krBusStopsScale", 1)],
-  krRailStations: [opacitySlider("krRailStationsOpacity", densePointOpacity(955)), scaleSlider("krRailStationsScale", 1)],
+  krRailStations: [krMulti("krRailStationsCatMask", "營運網", KR_OPT_RAIL_NETWORK), opacitySlider("krRailStationsOpacity", densePointOpacity(955)), scaleSlider("krRailStationsScale", 1)],
   krAirports: [opacitySlider("krAirportsOpacity", 0.85), scaleSlider("krAirportsScale", 1)],
   krPorts: [opacitySlider("krPortsOpacity", 0.45)],
   krNationalRoads: [opacitySlider("krNationalRoadsOpacity", 0.85)],
-  krRailLines: [opacitySlider("krRailLinesOpacity", 0.85)],
-  krFuelStations: [opacitySlider("krFuelStationsOpacity", densePointOpacity(7_106)), scaleSlider("krFuelStationsScale", 1)],
-  krPowerPlants: [opacitySlider("krPowerPlantsOpacity", densePointOpacity(4_308)), scaleSlider("krPowerPlantsScale", 1)],
-  krRenewables: [opacitySlider("krRenewablesOpacity", densePointOpacity(8_578)), scaleSlider("krRenewablesScale", 1)],
-  krPowerLines: [opacitySlider("krPowerLinesOpacity", 0.85)],
-  krSubstations: [opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
+  krRailLines: [krMulti("krRailLinesCatMask", "線別", KR_OPT_RAIL_CLASS), opacitySlider("krRailLinesOpacity", 0.85)],
+  krFuelStations: [krMulti("krFuelStationsCatMask", "燃料別", KR_OPT_FUEL_TYPE), heatmapPalette("krFuelStations"), opacitySlider("krFuelStationsOpacity", densePointOpacity(7_106)), scaleSlider("krFuelStationsScale", 1)],
+  krPowerPlants: [krMulti("krPowerPlantsCatMask", "燃料別", KR_OPT_PLANT_FUEL), opacitySlider("krPowerPlantsOpacity", densePointOpacity(4_308)), scaleSlider("krPowerPlantsScale", 1)],
+  krRenewables: [krMulti("krRenewablesCatMask", "燃料別", KR_OPT_PLANT_FUEL.filter(([v]) => ["solar", "wind", "hydro", "biomass"].includes(v))), opacitySlider("krRenewablesOpacity", densePointOpacity(8_578)), scaleSlider("krRenewablesScale", 1)],
+  krPowerLines: [krMulti("krPowerLinesCatMask", "電壓等級", KR_OPT_VOLTAGE), opacitySlider("krPowerLinesOpacity", 0.85)],
+  krSubstations: [krMulti("krSubstationsCatMask", "電壓等級", KR_OPT_VOLTAGE), opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
   krPowerTowers: [opacitySlider("krPowerTowersOpacity", densePointOpacity(42_252)), scaleSlider("krPowerTowersScale", 1)],
-  krOilGas: [opacitySlider("krOilGasOpacity", 0.6)],
+  krOilGas: [krMulti("krOilGasCatMask", "設施類別", KR_OPT_OIL_GAS), krMulti("krOilGasPipeMask", "管線物質", KR_OPT_PIPELINE), opacitySlider("krOilGasOpacity", 0.6)],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],

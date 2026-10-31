@@ -291,8 +291,11 @@ export function KrPowerTowersPanel({ props }: { props: Record<string, unknown> }
 }
 
 /** 南韓油氣設施與管線（OSM 補缺，覆蓋稀疏）：設施類型／儲存內容；管線輸送物質。 */
-export function KrOilGasPanel({ props }: { props: Record<string, unknown> }) {
+export function KrOilGasPanel({ props: raw }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
+  // 低縮放代表點圖層 kr_oil_gas_pts：kind＝facility／pipeline，label＝設施類型或管線物質 → 還原成原圖層的欄位名
+  const props = raw.kind === "facility" ? { ...raw, facility_type: raw.facility_type ?? raw.label }
+    : raw.kind === "pipeline" ? { ...raw, substance: raw.substance ?? raw.label } : raw;
   const isPipe = krText(props.substance) !== "";
   const type = krOilGasType(props.facility_type);
   const area = krNum(props.area_m2);
