@@ -322,6 +322,12 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
   KR: [
     // 南韓（2026-10-31 南韓第 0 波；title 沿用台灣主題中文短名，比照英國、日本）
     "底圖",
+    // 第 3–5 波：災害（海岸型態）、海洋、水資源、交通、環境氣候（行道樹）、林業
+    "災害",
+    "海洋",
+    "水資源",
+    "環境氣候",
+    "林業",
     // 第 1 波（國土基礎）：交通、能源
     "交通",
     "能源",
@@ -2645,14 +2651,40 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
     ],
   },
+  // 南韓第 3–5 波：主題與群組比照台灣同類（水資源 › 點位／面 / 線、海洋 › 海域環境、交通 › 場站／路網、林業 › 分區／點位／線；
+  // 海岸型態台灣無同類，比照英國歸「災害 › 海岸侵蝕」）
   {
-    // 第 1 波：群組比照台灣「交通 Move」——場站、路網、樞紐節點（機場、港口）
+    title: "災害",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] }],
+  },
+  {
+    title: "海洋",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境", layers: [fromManifest("krMarinePollutionIncidents"), fromManifest("krMarineEnvSites")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("krMarineProtectedAreas")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("krWaterLevelStations"), fromManifest("krWaterQualityStations"), fromManifest("krSluiceGates")] },
+      { title: "面 / 線", layers: [fromManifest("krRiversOsm")] },
+    ],
+  },
+  {
+    // 第 1 波：群組比照台灣「交通 Move」——場站、路網、樞紐節點（機場、港口）；第 3–5 波加入自行車站、停車場、橋梁、取締攝影機等
     title: "交通",
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations")] },
-      { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines")] },
+      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations"), fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots")] },
+      { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines"), fromManifest("krBridges"), fromManifest("krSpeedCameras"), fromManifest("krChildProtectionZones")] },
       { title: "樞紐節點", layers: [fromManifest("krAirports"), fromManifest("krPorts")] },
     ],
   },
@@ -2667,6 +2699,22 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "再生能源", layers: [fromManifest("krRenewables")] },
       { title: "石化 · 加油站", layers: [fromManifest("krFuelStations")] },
       { title: "石化 · 油氣", layers: [fromManifest("krOilGas")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
+  },
+  {
+    title: "林業",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "分區", layers: [fromManifest("krNationalParks")] },
+      { title: "點位", layers: [fromManifest("krNpLocationSigns")] },
+      { title: "線", layers: [fromManifest("krNpTrails")] },
     ],
   },
 
@@ -2997,7 +3045,12 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   KR: {
     // 南韓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照英國、日本）。
     "底圖": "baseline",
+    "災害": "safety",
+    "海洋": "environment",
+    "水資源": "environment",
     "交通": "city",
+    "環境氣候": "environment",
+    "林業": "environment",
     "能源": "environment",
   },
   GB: {
@@ -3164,7 +3217,12 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   KR: {
     // 南韓主題副標用韓文（比照日本用日文、法國用法文）
     "底圖": { zh: "底圖", sub: "기본도" },
+    "災害": { zh: "災害", sub: "재해" },
+    "海洋": { zh: "海洋", sub: "해양" },
+    "水資源": { zh: "水資源", sub: "수자원" },
     "交通": { zh: "交通", sub: "교통" },
+    "環境氣候": { zh: "環境氣候", sub: "환경·기후" },
+    "林業": { zh: "林業", sub: "임업" },
     "能源": { zh: "能源", sub: "에너지" },
   },
   GB: {

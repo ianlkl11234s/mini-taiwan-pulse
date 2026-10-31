@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1448,
+    "keyCount": 1466,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1743,6 +1743,114 @@
         "gb-admin-lad-fill"
       ],
       "type": "gbAdminBoundaries"
+    },
+    {
+      "layers": [
+        "kr-street-trees-circle"
+      ],
+      "type": "krStreetTrees"
+    },
+    {
+      "layers": [
+        "kr-water-level-stations-circle"
+      ],
+      "type": "krWaterLevelStations"
+    },
+    {
+      "layers": [
+        "kr-sluice-gates-circle"
+      ],
+      "type": "krSluiceGates"
+    },
+    {
+      "layers": [
+        "kr-water-quality-stations-circle"
+      ],
+      "type": "krWaterQualityStations"
+    },
+    {
+      "layers": [
+        "kr-coastal-erosion-facilities-circle"
+      ],
+      "type": "krCoastalErosionFacilities"
+    },
+    {
+      "layers": [
+        "kr-marine-pollution-incidents-circle"
+      ],
+      "type": "krMarinePollutionIncidents"
+    },
+    {
+      "layers": [
+        "kr-marine-env-sites-circle"
+      ],
+      "type": "krMarineEnvSites"
+    },
+    {
+      "layers": [
+        "kr-public-bicycle-stations-circle"
+      ],
+      "type": "krPublicBicycleStations"
+    },
+    {
+      "layers": [
+        "kr-seoul-subway-congestion-circle"
+      ],
+      "type": "krSeoulSubwayCongestion"
+    },
+    {
+      "layers": [
+        "kr-parking-lots-circle"
+      ],
+      "type": "krParkingLots"
+    },
+    {
+      "layers": [
+        "kr-bridges-circle"
+      ],
+      "type": "krBridges"
+    },
+    {
+      "layers": [
+        "kr-speed-cameras-circle"
+      ],
+      "type": "krSpeedCameras"
+    },
+    {
+      "layers": [
+        "kr-child-protection-zones-circle"
+      ],
+      "type": "krChildProtectionZones"
+    },
+    {
+      "layers": [
+        "kr-np-location-signs-circle"
+      ],
+      "type": "krNpLocationSigns"
+    },
+    {
+      "layers": [
+        "kr-np-trails-line"
+      ],
+      "type": "krNpTrails"
+    },
+    {
+      "layers": [
+        "kr-rivers-osm-line"
+      ],
+      "type": "krRiversOsm"
+    },
+    {
+      "layers": [
+        "kr-marine-protected-areas-fill"
+      ],
+      "type": "krMarineProtectedAreas"
+    },
+    {
+      "layers": [
+        "kr-national-parks-fill"
+      ],
+      "type": "krNationalParks"
     },
     {
       "layers": [
@@ -102369,6 +102477,26 @@
         "valueText": "1.0"
       }
     ],
+    "krBridges": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krBusStops": [
       {
         "defaultValue": "magma",
@@ -102466,6 +102594,46 @@
         "valueText": "1.0"
       }
     ],
+    "krChildProtectionZones": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krCoastalErosionFacilities": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krFuelStations": [
       {
         "label": "透明度 0.80",
@@ -102486,7 +102654,100 @@
         "valueText": "1.0"
       }
     ],
+    "krMarineEnvSites": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krMarinePollutionIncidents": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krMarineProtectedAreas": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "krNationalParks": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
     "krNationalRoads": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krNpLocationSigns": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krNpTrails": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -102506,6 +102767,26 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      }
+    ],
+    "krParkingLots": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "krPorts": [
@@ -102570,6 +102851,26 @@
         "valueText": "1.0"
       }
     ],
+    "krPublicBicycleStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krRailLines": [
       {
         "label": "透明度 0.85",
@@ -102621,7 +102922,138 @@
         "valueText": "1.0"
       }
     ],
+    "krRiversOsm": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krSeoulSubwayCongestion": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krSluiceGates": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krSpeedCameras": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krStreetTrees": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krSubstations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krWaterLevelStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krWaterQualityStations": [
       {
         "label": "透明度 0.80",
         "max": 1,

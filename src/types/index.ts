@@ -1,4 +1,5 @@
 import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
+import type { KrDataKey } from '../data/krDataKeys';
 import type { LaborStatisticsLayerKey } from '../data/laborStatisticsRecipes';
 import type { EnvironmentStatisticsLayerKey } from '../data/environmentStatisticsRecipes';
 import type { AddictionStatisticsLayerKey } from '../data/addictionStatisticsRecipes';
@@ -434,7 +435,7 @@ export type ExpandableLayerKey =
   | "jpZoningUseDistricts" | "jpNationalForests"
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
-  | "krAdminBoundaries"
+  | "krAdminBoundaries" | KrDataKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
@@ -982,7 +983,7 @@ export interface FeatureInfo {
     // 英國第 0b 波：行政邊界（LAD、統計小區）
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
-    | "krAdminBoundaries"
+    | "krAdminBoundaries" | KrDataKey
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
@@ -1032,7 +1033,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
+export interface LayerVisibility extends Record<KrDataKey | ComparisonStatisticsLayerKey | LaborStatisticsLayerKey | EnvironmentStatisticsLayerKey | DemographicsStatisticsLayerKey | AddictionStatisticsLayerKey | LandslideStatisticsLayerKey | AtlasStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
