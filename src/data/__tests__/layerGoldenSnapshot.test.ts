@@ -224,7 +224,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-31: +18 南韓第 3–5 波（水系統與海洋 8、公共運輸與道路設施 6、自然保護與林業 4；C101、C117 HOLD 未接）。
     // 2026-10-31: +33 南韓統計（kr 家族 statsKr*，道級 16／市郡區 256）。
     // 2026-10-31: +1 英國高爾夫球場 gbGolfCourses（§3.8 從運動場地拆出）。
-    expect(keys.length).toBe(1500);
+    // 2026-10-31: +1 重要濕地功能分區 importantWetlandZones（TWL-16）。
+    expect(keys.length).toBe(1501);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

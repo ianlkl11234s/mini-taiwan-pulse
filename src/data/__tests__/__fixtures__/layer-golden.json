@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1500,
+    "keyCount": 1501,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4743,6 +4743,15 @@
     },
     {
       "layers": [
+        "important-wetland-zones-fill",
+        "important-wetland-zones-outline",
+        "important-wetland-zones-points-circle-point",
+        "important-wetland-zones-points-circle-polygon"
+      ],
+      "type": "importantWetlandZones"
+    },
+    {
+      "layers": [
         "important-wetlands-fill",
         "important-wetlands-outline",
         "important-wetlands-points-circle-point",
@@ -9067,8 +9076,6 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
-                "台水",
-                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0,
@@ -9105,8 +9112,6 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
-                "台水",
-                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0,
@@ -9153,8 +9158,6 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
-                "台水",
-                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0.6,
@@ -9179,8 +9182,6 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
-                "台水",
-                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0.6,
@@ -81062,9 +81063,9 @@
                 "雅美族(達悟族)",
                 "#1d4ed8",
                 "邵族",
-                "#be185d",
+                "#16a34a",
                 "噶瑪蘭族",
-                "#0d9488",
+                "#78350f",
                 "撒奇萊雅族",
                 "#ca8a04",
                 "拉阿魯哇族",
@@ -81107,9 +81108,9 @@
                 "雅美族(達悟族)",
                 "#1d4ed8",
                 "邵族",
-                "#be185d",
+                "#16a34a",
                 "噶瑪蘭族",
-                "#0d9488",
+                "#78350f",
                 "撒奇萊雅族",
                 "#ca8a04",
                 "拉阿魯哇族",
@@ -81187,9 +81188,9 @@
                 "雅美族(達悟族)",
                 "#1d4ed8",
                 "邵族",
-                "#be185d",
+                "#16a34a",
                 "噶瑪蘭族",
-                "#0d9488",
+                "#78350f",
                 "撒奇萊雅族",
                 "#ca8a04",
                 "拉阿魯哇族",
@@ -81277,9 +81278,9 @@
                 "雅美族(達悟族)",
                 "#1d4ed8",
                 "邵族",
-                "#be185d",
+                "#16a34a",
                 "噶瑪蘭族",
-                "#0d9488",
+                "#78350f",
                 "撒奇萊雅族",
                 "#ca8a04",
                 "拉阿魯哇族",
@@ -81326,9 +81327,9 @@
                 "雅美族(達悟族)",
                 "#1d4ed8",
                 "邵族",
-                "#be185d",
+                "#16a34a",
                 "噶瑪蘭族",
-                "#0d9488",
+                "#78350f",
                 "撒奇萊雅族",
                 "#ca8a04",
                 "拉阿魯哇族",
@@ -89943,6 +89944,230 @@
       "rebuildOnParamChange": null,
       "sourceId": "important-wetlands-points",
       "sourceUrl": "./environment/important_wetlands.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlandZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "important-wetland-zones",
+      "sourceUrl": "./environment/important_wetland_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlandZones",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "zone"
+                ],
+                "核心保育區",
+                "#15803d",
+                "生態復育區",
+                "#65a30d",
+                "環境教育區",
+                "#0891b2",
+                "管理服務區",
+                "#ca8a04",
+                "其他分區",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "important-wetland-zones-points",
+      "sourceUrl": "./environment/important_wetland_zones.geojson"
     },
     {
       "dynamicData": null,
@@ -104415,10 +104640,6 @@
             "value": "地下式"
           },
           {
-            "label": "台水（型式代碼未公開）",
-            "value": "台水"
-          },
-          {
             "label": "其他",
             "value": "__other__"
           }
@@ -104427,7 +104648,6 @@
         "value": [
           "地上式",
           "地下式",
-          "台水",
           "__other__"
         ]
       },
@@ -110970,6 +111190,74 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "importantWetlandZones": [
+      {
+        "label": "功能分區",
+        "options": [
+          {
+            "label": "核心保育區",
+            "value": "核心保育區"
+          },
+          {
+            "label": "生態復育區",
+            "value": "生態復育區"
+          },
+          {
+            "label": "環境教育區",
+            "value": "環境教育區"
+          },
+          {
+            "label": "管理服務區",
+            "value": "管理服務區"
+          },
+          {
+            "label": "其他分區",
+            "value": "其他分區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "核心保育區",
+          "生態復育區",
+          "環境教育區",
+          "管理服務區",
+          "其他分區"
+        ]
+      },
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "importantWetlands": [
