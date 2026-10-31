@@ -326,9 +326,11 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "災害",
     "海洋",
     "水資源",
-    "交通",
     "環境氣候",
     "林業",
+    // 第 1 波（國土基礎）：交通、能源
+    "交通",
+    "能源",
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -1047,6 +1049,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("urbanFormGrid"),
         ],
       },
+      {
+        title: "都市熱島 Urban Heat",
+        layers: [
+          fromManifest("urbanHeat"),
+        ],
+      },
     ],
   },
 
@@ -1230,7 +1238,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("windPlan"),
           fromManifest("geothermalWells"),
           fromManifest("renewablePermitsTaipei"),
+          fromManifest("renewablePermitsNational"),
           fromManifest("evChargingStations"),
+          fromManifest("batterySwapStations"),
         ],
       },
       {
@@ -1401,6 +1411,12 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("parksTaipei"),
           fromManifest("playgrounds"),
+        ],
+      },
+      {
+        title: "水域遊憩 Water Recreation",
+        layers: [
+          fromManifest("waterRecreationRestrictedAreas"),
         ],
       },
     ],
@@ -1839,6 +1855,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("coastGuardStation"),
         ],
       },
+      {
+        title: "勞動檢查 Labor Inspection",
+        layers: [
+          fromManifest("majorOccupationalAccidents"),
+        ],
+      },
     ],
   },
 
@@ -1858,7 +1880,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("cwaRadarImagery"),
           fromManifest("temperatureWave"),
           fromManifest("temperatureGrid"),
-          fromManifest("urbanHeat"),
           fromManifest("cwaUvDaily"),
         ],
       },
@@ -1899,6 +1920,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
+          fromManifest("toxicChemicalFacilities"),
           fromManifest("pollutionPenaltyCritical"),
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
@@ -1906,6 +1928,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
+        ],
+      },
+      {
+        title: "濕地 Wetlands",
+        layers: [
+          fromManifest("importantWetlands"),
         ],
       },
       {
@@ -1963,6 +1991,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),
+          fromManifest("exclusiveFisheryRightAreas"),
         ],
       },
     ],
@@ -2639,12 +2668,27 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    // 第 1 波：群組比照台灣「交通 Move」——場站、路網、樞紐節點（機場、港口）；第 3–5 波加入自行車站、停車場、橋梁、取締攝影機等
     title: "交通",
     country: "KR",
     defaultCollapsed: true,
     groups: [
-      { title: "場站", layers: [fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots")] },
-      { title: "路網", layers: [fromManifest("krBridges"), fromManifest("krSpeedCameras"), fromManifest("krChildProtectionZones")] },
+      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations"), fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots")] },
+      { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines"), fromManifest("krBridges"), fromManifest("krSpeedCameras"), fromManifest("krChildProtectionZones")] },
+      { title: "樞紐節點", layers: [fromManifest("krAirports"), fromManifest("krPorts")] },
+    ],
+  },
+  {
+    // 第 1 波：群組比照台灣「能源 Energy」——電力 · 廠、電力 · 電網、再生能源、石化 · 加油站、石化 · 油氣
+    title: "能源",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("krPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("krPowerLines"), fromManifest("krSubstations"), fromManifest("krPowerTowers")] },
+      { title: "再生能源", layers: [fromManifest("krRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("krFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("krOilGas")] },
     ],
   },
   {
@@ -2997,6 +3041,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "交通": "city",
     "環境氣候": "environment",
     "林業": "environment",
+    "能源": "environment",
   },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
@@ -3168,6 +3213,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "交通": { zh: "交通", sub: "교통" },
     "環境氣候": { zh: "環境氣候", sub: "환경·기후" },
     "林業": { zh: "林業", sub: "임업" },
+    "能源": { zh: "能源", sub: "에너지" },
   },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）

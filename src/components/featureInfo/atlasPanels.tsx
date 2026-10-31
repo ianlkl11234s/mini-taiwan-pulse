@@ -13,8 +13,11 @@ import {
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
+  WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
+import { ToxicPermitsBlock } from "./pollutionPanels";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import { LAND_SUBSIDENCE_PANELS } from "./landSubsidencePanels";
 
@@ -879,6 +882,138 @@ function InsuranceInstitutionPanel({ props }: Props) {
   </>;
 }
 
+// ── 環境、能源、海洋與職安 G37（2026-10-31）──────────────────────────────
+const optionLabel = (options: readonly { value: string; label: string }[], value: unknown) => options.find((o) => o.value === str(value))?.label ?? str(value);
+
+function ExclusiveFisheryPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(EXCLUSIVE_FISHERY_STATUS_OPTIONS, props.status);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    <Row label={t("popup.atlas.efrStatus")} value={enumOf("atlasEfrStatus", props.status, optionLabel(EXCLUSIVE_FISHERY_STATUS_OPTIONS, props.status), i18n)} color={color} />
+    <Row label={t("popup.atlas.licenseNo")} value={str(props.code)} mono />
+    <Row field="area" value={fmt(props.area_km2, 2, "km²", i18n)} />
+    <DataDate props={props} />
+    <MarineDisclaimer note={t("popup.atlas.efrCaution")} />
+  </>;
+}
+
+function ToxicChemicalPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return <>
+    <Title color={ATLAS_LAYER_COLORS.toxicChemicalFacilities}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.toxicEmsNo")} value={str(props.ems_no)} mono />
+    <Row field="address" value={str(props.address)} />
+    <Row field="county" value={placeName(str(props.city), i18n)} />
+    <Precision props={props} flagged={props.qa_flag === "large_shift"} />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.toxicCaution")} />
+    <ToxicPermitsBlock emsno={props.ems_no} />
+  </>;
+}
+
+function OccupationalAccidentPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const known = OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS.some((o) => o.value === str(props.accident_type));
+  const color = known ? optionColor(OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, props.accident_type) : ATLAS_LAYER_COLORS.majorOccupationalAccidents;
+  const casualties = num(props.casualties);
+  const employer = props.employer_natural === 1
+    ? [str(props.employer), t("popup.atlas.occNaturalPerson")].filter(Boolean).join(t("popup.atlas.comma"))
+    : str(props.employer);
+  return <>
+    <Title color={color}>{enumOf("atlasOccAccident", props.accident_type, props.accident_type, i18n) || t("popup.atlas.occTitle")}</Title>
+    <Row field="date" value={str(props.date)} mono />
+    <Row label={t("popup.atlas.occCasualties")} value={casualties == null ? "" : t("popup.atlas.occCasualtiesValue", { n: formatNumber(casualties) })} />
+    <Row field="industry" value={str(props.industry)} />
+    <Row label={t("popup.atlas.occEmployer")} value={employer} />
+    <Row field="county" value={placeName(str(props.city), i18n)} />
+    <Row field="place" value={str(props.place)} />
+    <Row field="address" value={str(props.address)} />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.occCaution")} />
+  </>;
+}
+
+function RenewablePermitNationalPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const color = optionColor(RENEWABLE_PERMIT_CLASS_OPTIONS, props.symbiotic_class);
+  const kw = num(props.capacity_kw);
+  const sites = num(props.site_count);
+  const year = num(props.apply_year);
+  return <>
+    <Title color={color}>{str(props.plant_name)}</Title>
+    <Row field="operator" value={str(props.operator_name)} />
+    <Row field="district" value={placeTown(str(props.county), str(props.township), i18n)} />
+    <Row label={t("popup.atlas.rpParcel")} value={[str(props.land_section), str(props.land_number)].filter(Boolean).join(" ")} />
+    <Row label={t("popup.atlas.rpCapacity")} value={kw == null ? "" : t("popup.atlas.rpCapacityValue", { kw: formatNumber(kw, { maximumFractionDigits: 1 }), n: formatNumber(sites ?? 1) })} />
+    <Row label={t("popup.atlas.rpType")} value={enumOf("atlasRenewableClass", props.symbiotic_class, optionLabel(RENEWABLE_PERMIT_CLASS_OPTIONS, props.symbiotic_class), i18n)} color={color} />
+    <Row label={t("popup.atlas.rpApplyYear")} value={year == null ? "" : t("popup.atlas.rocYears", { years: displayRocYear(String(year), i18n) })} />
+    <Row label={t("popup.atlas.rpConstruction")} value={str(props.construction_date)} mono />
+    <Row field="caution" value={t("popup.atlas.rpCaution")} />
+  </>;
+}
+
+function ImportantWetlandPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(WETLAND_LEVEL_OPTIONS, props.level);
+  return <>
+    <Title color={color}>{[str(props.name), str(props.sub_title)].filter(Boolean).join(t("popup.atlas.dot"))}</Title>
+    <Row field="level" value={enumOf("atlasWetlandLevel", props.level, props.level, i18n)} color={color} />
+    <Row field="county" value={placeNameList(str(props.counties), i18n)} />
+    <Row field="area" value={fmt(props.area_ha, 1, t("popup.atlas.unitHectares"), i18n)} />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.wlCaution")} />
+  </>;
+}
+
+function WaterRecreationPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(WATER_RECREATION_KIND_OPTIONS, props.kind);
+  const shape = str(props.shape_basis);
+  const shapeText = shape === "convex_hull" ? t("popup.atlas.wrShapeHull") : shape === "line" ? t("popup.atlas.wrShapeLine") : t("popup.atlas.wrShapeVertex");
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.wrKind")} value={enumOf("atlasWaterRec", props.kind, optionLabel(WATER_RECREATION_KIND_OPTIONS, props.kind), i18n)} color={color} />
+    {str(props.zone) ? <Row label={t("popup.atlas.subarea")} value={str(props.zone)} mono /> : null}
+    <Row field="managingAgency" value={str(props.org)} />
+    <Row label={t("popup.atlas.wrActivity")} value={str(props.activity)} />
+    <Row label={t("popup.atlas.wrPenalty")} value={str(props.penalty)} />
+    <Row field="legalBasis" value={str(props.legal_basis)} />
+    <Row label={t("popup.atlas.wrShape")} value={shapeText} />
+    <LinkRow label={t("popup.atlas.wrNotice")} url={str(props.notice_url)} />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.wrCaution")} />
+  </>;
+}
+
+function BatterySwapPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(BATTERY_SWAP_OPERATOR_OPTIONS, props.operator);
+  const taipower = props.operator === "taipower";
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="type" value={enumOf("atlasSwapOperator", props.operator, optionLabel(BATTERY_SWAP_OPERATOR_OPTIONS, props.operator), i18n)} color={color} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="phone" value={str(props.phone)} />
+    <Row field="serviceHours" value={str(props.hours)} />
+    <Row field="managingAgency" value={str(props.branch)} />
+    <Row label={t("popup.atlas.swLessee")} value={str(props.lessee)} />
+    <Row label={t("popup.atlas.swContract")} value={str(props.contract_period)} />
+    <Row label={t("popup.atlas.swUse")} value={str(props.use)} />
+    <Row field="remarks" value={str(props.note)} />
+    <DataDate props={props} />
+    {taipower ? <Row field="caution" value={t("popup.atlas.swTaipowerCaution")} /> : null}
+  </>;
+}
+
 export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   indigenousTribes: IndigenousTribePanel,
   indigenousIsolationRisk: IndigenousIsolationPanel,
@@ -912,6 +1047,13 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   coastalAreaExtents: CoastalAreaPanel,
   marineWildlifeAreas: MarineWildlifeAreaPanel,
   marineEcologicalMonitoringSites: MarineEcologySitePanel,
+  exclusiveFisheryRightAreas: ExclusiveFisheryPanel,
+  toxicChemicalFacilities: ToxicChemicalPanel,
+  majorOccupationalAccidents: OccupationalAccidentPanel,
+  renewablePermitsNational: RenewablePermitNationalPanel,
+  importantWetlands: ImportantWetlandPanel,
+  waterRecreationRestrictedAreas: WaterRecreationPanel,
+  batterySwapStations: BatterySwapPanel,
   artificialReefCenters: ArtificialReefPanel,
   protectedReefCenters: ProtectedReefPanel,
   setNetFishingAreas: SetNetPanel,
@@ -968,6 +1110,13 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   coastalAreaExtents: manifestZh("coastalAreaExtents"),
   marineWildlifeAreas: manifestZh("marineWildlifeAreas"),
   marineEcologicalMonitoringSites: manifestZh("marineEcologicalMonitoringSites"),
+  exclusiveFisheryRightAreas: manifestZh("exclusiveFisheryRightAreas"),
+  toxicChemicalFacilities: manifestZh("toxicChemicalFacilities"),
+  majorOccupationalAccidents: manifestZh("majorOccupationalAccidents"),
+  renewablePermitsNational: manifestZh("renewablePermitsNational"),
+  importantWetlands: manifestZh("importantWetlands"),
+  waterRecreationRestrictedAreas: manifestZh("waterRecreationRestrictedAreas"),
+  batterySwapStations: manifestZh("batterySwapStations"),
   artificialReefCenters: manifestZh("artificialReefCenters"),
   protectedReefCenters: manifestZh("protectedReefCenters"),
   setNetFishingAreas: manifestZh("setNetFishingAreas"),

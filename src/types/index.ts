@@ -129,6 +129,8 @@ export type ExpandableLayerKey =
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
   // 海洋保育補接 G33（2026-10-29）
   | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+  // 環境、能源、海洋與職安 G37（2026-10-31）
+  | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -432,6 +434,7 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
+  | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
@@ -883,6 +886,7 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "culturalHealthStations"
@@ -977,6 +981,8 @@ export interface FeatureInfo {
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries" | KrDataKey
+    // 南韓第 1 波：交通 6 層、能源 7 個 key
+    | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
     | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
     // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
@@ -1336,6 +1342,15 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   /** 海洋保育補接 G33（2026-10-29）：海保署 6 個海域野生動物範圍、國研院全海域生態系調查點位 54 */
   marineWildlifeAreas: boolean;
   marineEcologicalMonitoringSites: boolean;
+  /** 環境、能源、海洋與職安 G37（2026-10-31）：專用漁業權 19 面、毒化物運作場所 7,045 點、重大職災 1,238 點、
+   *  全國太陽光電許可地號 8,038 點、國家重要濕地 89 面、水域遊憩禁限區 33 區、換電站 412 點 */
+  exclusiveFisheryRightAreas: boolean;
+  toxicChemicalFacilities: boolean;
+  majorOccupationalAccidents: boolean;
+  renewablePermitsNational: boolean;
+  importantWetlands: boolean;
+  waterRecreationRestrictedAreas: boolean;
+  batterySwapStations: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
   landSubsidenceStations: boolean;
   landSubsidenceCumulative: boolean;
@@ -1801,6 +1816,19 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
+  krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
+  krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
+  krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）
+  krPorts: boolean;           // 南韓港灣區（PMTiles polygon，68）
+  krNationalRoads: boolean;   // 南韓一般國道（PMTiles line，1,693 段；不含高速道路）
+  krRailLines: boolean;       // 南韓鐵道線（OSM，24,486）
+  krFuelStations: boolean;    // 南韓 LPG／CNG·LNG／수소／EV 充電站（7,106）
+  krPowerPlants: boolean;     // 南韓電廠（OSM，4,308；官方無座標）
+  krRenewables: boolean;      // 南韓再生能源點（OSM，8,578）
+  krPowerLines: boolean;      // 南韓輸配電線（OSM，4,523；kr_power_grid.pmtiles）
+  krSubstations: boolean;     // 南韓變電所（OSM，1,199；與電網線同檔）
+  krPowerTowers: boolean;     // 南韓高壓鐵塔（OSM，42,252；z11 起）
+  krOilGas: boolean;          // 南韓油氣設施與管線（OSM，146 面＋33 線；覆蓋稀疏）
   gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
   gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
   gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）

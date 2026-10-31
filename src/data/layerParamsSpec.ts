@@ -1930,6 +1930,20 @@ export const LAYER_PARAMS_SPEC = {
       out: "krAdminBoundariesLevelIdx", encode: ["sido", "sgg", "emd"],
     },
   ],
+  // 南韓第 1 波（國土基礎）：公車站（P-4 熱區）、點層（透明度＋大小）、線／面（透明度）
+  krBusStops: [heatmapPalette("krBusStops"), opacitySlider("krBusStopsOpacity", densePointOpacity(227_059)), scaleSlider("krBusStopsScale", 1)],
+  krRailStations: [opacitySlider("krRailStationsOpacity", densePointOpacity(955)), scaleSlider("krRailStationsScale", 1)],
+  krAirports: [opacitySlider("krAirportsOpacity", 0.85), scaleSlider("krAirportsScale", 1)],
+  krPorts: [opacitySlider("krPortsOpacity", 0.45)],
+  krNationalRoads: [opacitySlider("krNationalRoadsOpacity", 0.85)],
+  krRailLines: [opacitySlider("krRailLinesOpacity", 0.85)],
+  krFuelStations: [opacitySlider("krFuelStationsOpacity", densePointOpacity(7_106)), scaleSlider("krFuelStationsScale", 1)],
+  krPowerPlants: [opacitySlider("krPowerPlantsOpacity", densePointOpacity(4_308)), scaleSlider("krPowerPlantsScale", 1)],
+  krRenewables: [opacitySlider("krRenewablesOpacity", densePointOpacity(8_578)), scaleSlider("krRenewablesScale", 1)],
+  krPowerLines: [opacitySlider("krPowerLinesOpacity", 0.85)],
+  krSubstations: [opacitySlider("krSubstationsOpacity", densePointOpacity(1_199)), scaleSlider("krSubstationsScale", 1)],
+  krPowerTowers: [opacitySlider("krPowerTowersOpacity", densePointOpacity(42_252)), scaleSlider("krPowerTowersScale", 1)],
+  krOilGas: [opacitySlider("krOilGasOpacity", 0.6)],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
@@ -2688,7 +2702,9 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("renewablePermitsTaipeiSize", 1),
     opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
   ],
+  renewablePermitsNational: [opacitySlider("renewablePermitsNationalOpacity", densePointOpacity(8_038)), scaleSlider("renewablePermitsNationalScale", 1)],
   evChargingStations: [opacitySlider("evChargingOpacity", densePointOpacity(3_060)), scaleSlider("evChargingScale", 1)],
+  batterySwapStations: [opacitySlider("batterySwapStationsOpacity", densePointOpacity(412)), scaleSlider("batterySwapStationsScale", 1)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 
   // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
@@ -2811,6 +2827,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("coastGuardStationScale", 1),
     opacitySlider("coastGuardStationOpacity", 0.85),
   ],
+  majorOccupationalAccidents: [opacitySlider("majorOccupationalAccidentsOpacity", densePointOpacity(1_238)), scaleSlider("majorOccupationalAccidentsScale", 1)],
   civilDefenseShelter: [
     scaleSlider("civilDefenseShelterScale", 1),
     opacitySlider("civilDefenseShelterOpacity", densePointOpacity(62_695)),
@@ -3338,6 +3355,9 @@ export const LAYER_PARAMS_SPEC = {
   setNetFishingAreas: [
     opacitySlider("setNetFishingAreasOpacity", 0.4),
   ],
+  exclusiveFisheryRightAreas: [
+    opacitySlider("exclusiveFisheryRightAreasOpacity", 0.3),
+  ],
   // ══════════ 地層下陷＋海堤 G19（2026-10-17）══════════
   landSubsidenceStations: [
     {
@@ -3534,6 +3554,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: densePointOpacity(10_917), min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "riversideTreesTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
+  waterRecreationRestrictedAreas: [opacitySlider("waterRecreationRestrictedAreasOpacity", 0.35)],
   parksTaipei: [
     {
       kind: "multiSelect", name: "parksTaipeiCategory", label: "分類", default: MULTI_SELECT_ALL,
@@ -4678,6 +4699,8 @@ export const LAYER_PARAMS_SPEC = {
   ],
 
   // ── 環境污染：opacity / scale 走 paint，filter 狀態走 hook return ──
+  toxicChemicalFacilities: [opacitySlider("toxicChemicalFacilitiesOpacity", densePointOpacity(7_045)), scaleSlider("toxicChemicalFacilitiesScale", 1)],
+  importantWetlands: [opacitySlider("importantWetlandsOpacity", 0.35)],
   pollutionFacility: [
     heatmapPalette("pollutionFacility"),
     opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),

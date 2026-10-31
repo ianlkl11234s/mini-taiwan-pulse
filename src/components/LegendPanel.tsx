@@ -1,6 +1,5 @@
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { KR_DATA_KEYS } from "../data/krDataKeys";
-import { KrDataLegend } from "./legend/krDataLegends";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { Fragment, memo, useEffect, useState } from "react";
@@ -52,6 +51,7 @@ import { GbForestRecreationLegend, GbMarineProtectedAreasLegend, GbOpenAccessLan
 import { GbLondonBikePointsLegend, GbLondonChargingZonesLegend, GbLondonJamCamsLegend, GbLondonRailLinesLegend, GbLondonStationsLegend, GbMajorRoadsLegend, GbStationUsageLegend, GbTrafficCountsAadfLegend, GbTransportHubsLegend } from "./legend/gbTransportLegends";
 import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserveLegend, EnergySpecialtyLegend, FacOffshoreLegend, FacilityFuelLegend, FossilFuelLegend, InternetExchangePointsLegend, LandingStationLegend, NetworkStructuresLegend, OoklaPerformanceGridLegend, OsmCommunicationSitesLegend, PowerGridLegend, PowerPolesLegend, RenewablePoiLegend, RipeAtlasProbesLegend, SubmarineCableLegend, SubstationEhvLegend, SubstationLocalLegend } from "./legend/energyTelecomLegends";
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
+import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
@@ -286,6 +286,19 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "krAdminBoundaries", render: () => <KrAdminBoundariesLegend /> },
   // 南韓第 3–5 波 18 層：共用規格驅動圖例
   ...KR_DATA_KEYS.map((key) => ({ id: key, render: () => <KrDataLegend layerKey={key} /> })),
+  { id: "krAirports", render: () => <KrAirportsLegend /> },
+  { id: "krBusStops", render: () => <KrBusStopsLegend /> },
+  { id: "krFuelStations", render: () => <KrFuelStationsLegend /> },
+  { id: "krNationalRoads", render: () => <KrNationalRoadsLegend /> },
+  { id: "krOilGas", render: () => <KrOilGasLegend /> },
+  { id: "krPorts", render: () => <KrPortsLegend /> },
+  { id: "krPowerLines", render: () => <KrPowerLinesLegend /> },
+  { id: "krPowerPlants", render: () => <KrPowerPlantsLegend /> },
+  { id: "krPowerTowers", render: () => <KrPowerTowersLegend /> },
+  { id: "krRailLines", render: () => <KrRailLinesLegend /> },
+  { id: "krRailStations", render: () => <KrRailStationsLegend /> },
+  { id: "krRenewables", render: () => <KrRenewablesLegend /> },
+  { id: "krSubstations", render: () => <KrSubstationsLegend /> },
   { id: "gbSmallAreaBoundaries", render: () => <GbSmallAreaBoundariesLegend /> },
   { id: "gbMaritimeLimits", render: () => <GbMaritimeLimitsLegend /> },
   { id: "gbBuiltUpAreas", render: () => <GbBuiltUpAreasLegend /> },

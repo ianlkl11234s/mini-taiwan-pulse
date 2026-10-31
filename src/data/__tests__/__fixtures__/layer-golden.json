@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1441,
+    "keyCount": 1461,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1851,6 +1851,89 @@
         "kr-national-parks-fill"
       ],
       "type": "krNationalParks"
+    },
+    {
+      "layers": [
+        "kr-airports-circle"
+      ],
+      "type": "krAirports"
+    },
+    {
+      "layers": [
+        "kr-power-plants-circle"
+      ],
+      "type": "krPowerPlants"
+    },
+    {
+      "layers": [
+        "kr-renewables-circle"
+      ],
+      "type": "krRenewables"
+    },
+    {
+      "layers": [
+        "kr-substations-circle"
+      ],
+      "type": "krSubstations"
+    },
+    {
+      "layers": [
+        "kr-fuel-stations-circle"
+      ],
+      "type": "krFuelStations"
+    },
+    {
+      "layers": [
+        "kr-rail-stations-circle"
+      ],
+      "type": "krRailStations"
+    },
+    {
+      "layers": [
+        "kr-oil-gas-point",
+        "kr-oil-gas-pipelines-line",
+        "kr-oil-gas-line",
+        "kr-oil-gas-fill"
+      ],
+      "type": "krOilGas"
+    },
+    {
+      "layers": [
+        "kr-bus-stops-circle"
+      ],
+      "type": "krBusStops"
+    },
+    {
+      "layers": [
+        "kr-power-towers-circle"
+      ],
+      "type": "krPowerTowers"
+    },
+    {
+      "layers": [
+        "kr-power-lines-line",
+        "kr-power-cables-line"
+      ],
+      "type": "krPowerLines"
+    },
+    {
+      "layers": [
+        "kr-national-roads-line"
+      ],
+      "type": "krNationalRoads"
+    },
+    {
+      "layers": [
+        "kr-rail-lines-line"
+      ],
+      "type": "krRailLines"
+    },
+    {
+      "layers": [
+        "kr-ports-line",
+        "kr-ports-fill"
+      ],
+      "type": "krPorts"
     },
     {
       "layers": [
@@ -4439,6 +4522,55 @@
         "marine-wildlife-areas-outline"
       ],
       "type": "marineWildlifeAreas"
+    },
+    {
+      "layers": [
+        "exclusive-fishery-right-areas-fill",
+        "exclusive-fishery-right-areas-outline"
+      ],
+      "type": "exclusiveFisheryRightAreas"
+    },
+    {
+      "layers": [
+        "important-wetlands-fill",
+        "important-wetlands-outline"
+      ],
+      "type": "importantWetlands"
+    },
+    {
+      "layers": [
+        "water-recreation-restricted-areas-fill",
+        "water-recreation-restricted-areas-outline"
+      ],
+      "type": "waterRecreationRestrictedAreas"
+    },
+    {
+      "layers": [
+        "toxic-chemical-facilities-circle",
+        "toxic-chemical-facilities-glow"
+      ],
+      "type": "toxicChemicalFacilities"
+    },
+    {
+      "layers": [
+        "major-occupational-accidents-circle",
+        "major-occupational-accidents-glow"
+      ],
+      "type": "majorOccupationalAccidents"
+    },
+    {
+      "layers": [
+        "renewable-permits-national-circle",
+        "renewable-permits-national-glow"
+      ],
+      "type": "renewablePermitsNational"
+    },
+    {
+      "layers": [
+        "battery-swap-stations-circle",
+        "battery-swap-stations-glow"
+      ],
+      "type": "batterySwapStations"
     },
     {
       "layers": [
@@ -77428,6 +77560,946 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "toxicChemicalFacilities",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#c026d3",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#c026d3",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#c026d3",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#c026d3",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "toxic_chemical_facilities"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "toxic-chemical-facilities",
+      "sourceUrl": "./hazards/toxic_chemical_facilities.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "majorOccupationalAccidents",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accident_type"
+                ],
+                "墜落、滾落",
+                "#dc2626",
+                "物體倒塌、崩塌",
+                "#ea580c",
+                "物體飛落",
+                "#a16207",
+                "感電",
+                "#ca8a04",
+                "被夾、被捲",
+                "#7c3aed",
+                "被撞",
+                "#2563eb",
+                "公路交通事故",
+                "#0891b2",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "major-occupational-accidents",
+      "sourceUrl": "./hazards/major_occupational_accidents.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "renewablePermitsNational",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "symbiotic_class"
+                ],
+                "漁電共生",
+                "#0284c7",
+                "水域光電",
+                "#06b6d4",
+                "畜電共生",
+                "#a16207",
+                "屋頂型",
+                "#9333ea",
+                "pure_ground",
+                "#f59e0b",
+                "mixed",
+                "#84cc16",
+                "suspect_symbiotic",
+                "#14b8a6",
+                "unknown",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "symbiotic_class"
+                ],
+                "漁電共生",
+                "#0284c7",
+                "水域光電",
+                "#06b6d4",
+                "畜電共生",
+                "#a16207",
+                "屋頂型",
+                "#9333ea",
+                "pure_ground",
+                "#f59e0b",
+                "mixed",
+                "#84cc16",
+                "suspect_symbiotic",
+                "#14b8a6",
+                "unknown",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "symbiotic_class"
+                ],
+                "漁電共生",
+                "#0284c7",
+                "水域光電",
+                "#06b6d4",
+                "畜電共生",
+                "#a16207",
+                "屋頂型",
+                "#9333ea",
+                "pure_ground",
+                "#f59e0b",
+                "mixed",
+                "#84cc16",
+                "suspect_symbiotic",
+                "#14b8a6",
+                "unknown",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "symbiotic_class"
+                ],
+                "漁電共生",
+                "#0284c7",
+                "水域光電",
+                "#06b6d4",
+                "畜電共生",
+                "#a16207",
+                "屋頂型",
+                "#9333ea",
+                "pure_ground",
+                "#f59e0b",
+                "mixed",
+                "#84cc16",
+                "suspect_symbiotic",
+                "#14b8a6",
+                "unknown",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "renewable_permits_national"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "renewable-permits-national",
+      "sourceUrl": "./energy/renewable_permits_national.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "batterySwapStations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "operator"
+                ],
+                "cpc",
+                "#0d9488",
+                "taipower",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "operator"
+                ],
+                "cpc",
+                "#0d9488",
+                "taipower",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "operator"
+                ],
+                "cpc",
+                "#0d9488",
+                "taipower",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "operator"
+                ],
+                "cpc",
+                "#0d9488",
+                "taipower",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "battery-swap-stations",
+      "sourceUrl": "./energy/battery_swap_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "marineEcologicalMonitoringSites",
       "layers": [
         {
@@ -79430,6 +80502,345 @@
       ],
       "sourceId": "wildlife-protected-areas",
       "sourceUrl": "./marine/wildlife_protected_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "exclusiveFisheryRightAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.3
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "active",
+                "#0e7490",
+                "expired",
+                "#a8a29e",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "exclusive-fishery-right-areas",
+      "sourceUrl": "./marine/exclusive_fishery_right_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "importantWetlands",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "level"
+                ],
+                "國際級",
+                "#34d399",
+                "國家級",
+                "#059669",
+                "地方級",
+                "#65a30d",
+                "暫定地方級",
+                "#a3a3a3",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "important-wetlands",
+      "sourceUrl": "./environment/important_wetlands.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "waterRecreationRestrictedAreas",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "prohibited",
+                "#be123c",
+                "mixed",
+                "#c2410c",
+                "restricted",
+                "#d97706",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "water-recreation-restricted-areas",
+      "sourceUrl": "./tourism/water_recreation_restricted_areas.geojson"
     },
     {
       "dynamicData": null,
@@ -86204,6 +87615,26 @@
         "valueText": "0.85"
       }
     ],
+    "batterySwapStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "beachWaterQuality": [
       {
         "label": "透明度 0.85",
@@ -90081,6 +91512,17 @@
         "step": 0.1,
         "value": 0.5,
         "valueText": "0.50"
+      }
+    ],
+    "exclusiveFisheryRightAreas": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.3,
+        "valueText": "0.30"
       }
     ],
     "facHistorical": [
@@ -95069,6 +96511,17 @@
         "valueText": "1.0"
       }
     ],
+    "importantWetlands": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      }
+    ],
     "incineratorEmissions": [
       {
         "label": "透明度 0.90",
@@ -99873,6 +101326,26 @@
         "valueText": "0.85"
       }
     ],
+    "krAirports": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krBridges": [
       {
         "label": "透明度 0.75",
@@ -99882,6 +101355,103 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krBusStops": [
+      {
+        "defaultValue": "magma",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "magma"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -99914,6 +101484,26 @@
       }
     ],
     "krCoastalErosionFacilities": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krFuelStations": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -99995,6 +101585,17 @@
         "valueText": "0.50"
       }
     ],
+    "krNationalRoads": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "krNpLocationSigns": [
       {
         "label": "透明度 0.80",
@@ -100026,6 +101627,17 @@
         "valueText": "0.85"
       }
     ],
+    "krOilGas": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "krParkingLots": [
       {
         "label": "透明度 0.75",
@@ -100046,7 +101658,120 @@
         "valueText": "1.0"
       }
     ],
+    "krPorts": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
+    "krPowerLines": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krPowerPlants": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krPowerTowers": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krPublicBicycleStations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krRailLines": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krRailStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krRenewables": [
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -100146,6 +101871,26 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krSubstations": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -101328,6 +103073,26 @@
         "step": 0.1,
         "value": 1.1,
         "valueText": "1.1"
+      }
+    ],
+    "majorOccupationalAccidents": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "manufacturingCompanyDensityGrid": [
@@ -106279,6 +108044,26 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "renewablePermitsNational": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
       },
       {
         "label": "大小 1.0",
@@ -140915,6 +142700,26 @@
         "valueText": "1.0"
       }
     ],
+    "toxicChemicalFacilities": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "trafficAccidentYearly": [
       {
         "label": "透明度 0.80",
@@ -142228,6 +144033,17 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "waterRecreationRestrictedAreas": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
       }
     ],
     "waterReservoirs": [
