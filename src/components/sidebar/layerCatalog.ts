@@ -1613,7 +1613,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("harmReductionHivSelftest"),
           fromManifest("harmReductionHivTesting"),
           fromManifest("harmReductionPreventionCenters"),
-          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 治安態勢」）
+          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 交通事故」）
           fromManifest("harmReductionAlcohol"),
           fromManifest("harmReductionSmokingCessation"),
           fromManifest("harmReductionInternetAddiction"),
@@ -1653,6 +1653,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
+          fromManifest("disasterResourceSites"),
         ],
       },
       {
@@ -1762,6 +1763,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("civilDefenseShelter"),
         ],
       },
+      {
+        title: "警報與疏散",
+        layers: [
+          fromManifest("tsunamiSirens"),
+          fromManifest("nuclearEpzEvacuation"),
+        ],
+      },
     ],
   },
 
@@ -1803,6 +1811,12 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "治安態勢",
         layers: [
           fromManifest("theftTaoyuan"),
+        ],
+      },
+      {
+        title: "交通事故",
+        layers: [
+          fromManifest("trafficAccidents2025"),
           fromManifest("trafficAccidentYearly"),
           fromManifest("accidentTaipei"),
           fromManifest("a1AccidentRealtime"),
@@ -2308,6 +2322,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("plaActivity"),
           fromManifest("vesselWatch"),
+          fromManifest("firingNoticeAreas"),
         ],
       },
     ],

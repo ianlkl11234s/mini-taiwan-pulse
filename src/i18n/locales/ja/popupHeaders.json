@@ -96,5 +96,10 @@
   "popupHeader.analysisResult": "分析結果",
   "popupHeader.typhoonAgencyForecast": "各国の台風予報",
   "popupHeader.busCrowdingSim": "バス区間の定員超過便割合（推計）",
-  "popupHeader.busCrowdingSimVehicle": "シミュレーションのバス（推計）"
+  "popupHeader.busCrowdingSimVehicle": "シミュレーションのバス（推計）",
+  "popupHeader.trafficAccidents2025": "交通事故",
+  "popupHeader.disasterResourceSites": "救災資源拠点",
+  "popupHeader.tsunamiSirens": "津波警報台",
+  "popupHeader.nuclearEpzEvacuation": "原発集結地点・収容施設",
+  "popupHeader.firingNoticeAreas": "射撃公告区域"
 }

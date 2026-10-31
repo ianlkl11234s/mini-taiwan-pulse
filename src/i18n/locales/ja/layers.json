@@ -1408,5 +1408,10 @@
   "layer.gbManufacturing": "製造業の会社",
   "layer.gbFuneral": "火葬場・葬儀社",
   "layer.gbAquaculture": "養殖場",
-  "layer.gbSoilParentMaterial": "土壌母材"
+  "layer.gbSoilParentMaterial": "土壌母材",
+  "layer.trafficAccidents2025": "A1／A2 交通事故",
+  "layer.disasterResourceSites": "救災資源拠点",
+  "layer.tsunamiSirens": "津波警報台",
+  "layer.nuclearEpzEvacuation": "原発の集結地点と収容施設",
+  "layer.firingNoticeAreas": "射撃公告区域"
 }

@@ -154,6 +154,7 @@ import {
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
+import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
   BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
@@ -2778,6 +2779,17 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("a1AccidentRealtimeScale", 1),
     opacitySlider("a1AccidentRealtimeOpacity", 0.95),
   ],
+  trafficAccidents2025: [
+    {
+      kind: "multiSelect", name: "trafficAccidents2025Class", label: "事故類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TRAFFIC_ACCIDENT_CLASS_OPTIONS), out: "trafficAccidents2025ClassMask",
+    },
+    {
+      kind: "multiSelect", name: "trafficAccidents2025Cause", label: "主要肇因", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TRAFFIC_ACCIDENT_CAUSE_OPTIONS), out: "trafficAccidents2025CauseMask",
+    },
+    opacitySlider("trafficAccidents2025Opacity", densePointOpacity(TRAFFIC_ACCIDENT_TOTAL)), scaleSlider("trafficAccidents2025Scale", 1),
+  ],
   investigationBureau: [
     scaleSlider("investigationBureauScale", 1),
     opacitySlider("investigationBureauOpacity", 0.9),
@@ -2797,6 +2809,14 @@ export const LAYER_PARAMS_SPEC = {
   civilDefenseShelter: [
     scaleSlider("civilDefenseShelterScale", 1),
     opacitySlider("civilDefenseShelterOpacity", densePointOpacity(62_695)),
+  ],
+  tsunamiSirens: [opacitySlider("tsunamiSirensOpacity", 0.9), scaleSlider("tsunamiSirensScale", 1)],
+  nuclearEpzEvacuation: [
+    {
+      kind: "multiSelect", name: "nuclearEpzEvacuationKind", label: "類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(NUCLEAR_EPZ_KIND_OPTIONS), out: "nuclearEpzEvacuationKindMask",
+    },
+    opacitySlider("nuclearEpzEvacuationOpacity", 0.9), scaleSlider("nuclearEpzEvacuationScale", 1),
   ],
   aquaculturePonds: [
     { kind: "slider", name: "aquaculturePondsOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
@@ -3664,8 +3684,15 @@ export const LAYER_PARAMS_SPEC = {
   fireHydrants: [
     scaleSlider("fireHydrantsScale", 1),
     heatmapPalette("fireHydrants"),
-    opacitySlider("fireHydrantsOpacity", densePointOpacity(69_839)),
+    opacitySlider("fireHydrantsOpacity", densePointOpacity(211_530)),
     zFloatSlider("fireHydrantsZ"),
+  ],
+  disasterResourceSites: [
+    {
+      kind: "multiSelect", name: "disasterResourceSitesHolder", label: "保管單位", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DISASTER_RESOURCE_HOLDER_OPTIONS), out: "disasterResourceSitesHolderMask",
+    },
+    opacitySlider("disasterResourceSitesOpacity", densePointOpacity(5_379)), scaleSlider("disasterResourceSitesScale", 1),
   ],
   etcGantry: [
     scaleSlider("etcGantryScale", 1),
@@ -4050,6 +4077,13 @@ export const LAYER_PARAMS_SPEC = {
       kind: "toggle", name: "vesselWatchShowPresumed", label: "含疑似（未查證）",
       default: true, out: null,
     },
+  ],
+  firingNoticeAreas: [
+    {
+      kind: "multiSelect", name: "firingNoticeAreasAgency", label: "發布機關", default: MULTI_SELECT_ALL,
+      options: toParamOptions(FIRING_AGENCY_OPTIONS), out: "firingNoticeAreasAgencyMask",
+    },
+    opacitySlider("firingNoticeAreasOpacity", 0.6),
   ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
