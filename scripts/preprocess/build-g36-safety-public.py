@@ -386,12 +386,20 @@ def build_firing(_analytics: Path, raw: Path) -> None:
         ring = [[float(lng), float(lat)] for lat, lng in NUM_PAIR.findall(r["Area"])]
         if len(ring) < 3:
             raise SystemExit(f"海巡射擊範圍角點不足 {r['Announce']}")
+        # 來源打字錯誤：同一圈其餘角點經度都在 11x～12x，單一角點多了正好 10 度（例 131.33、130.76）→ 減 10 度並標記
+        lng_fixed = False
+        others = sorted(c[0] for c in ring)
+        for c in ring:
+            rest = [x for x in others if x != c[0]]
+            if rest and c[0] - max(rest) > 9 and any(abs(c[0] - 10 - x) < 0.5 for x in rest):
+                c[0] = round(c[0] - 10, 6)
+                lng_fixed = True
         ring.append(ring[0])
         clean = lambda s: re.sub(r"\s+", " ", s or "").strip()
         feats.append({"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [ring]}, "properties": {
             "agency": "coast_guard", "title": clean(r["Announce"]), "unit": clean(r["Unit"]),
             "start": clean(r["Date"]), "end": None, "daily_window": f"{clean(r['Start'])}–{clean(r['End'])}",
-            "height": clean(r["Height"]) or None,
+            "height": clean(r["Height"]) or None, "lng_typo_fixed": lng_fixed or None,
             "source_org": "海洋委員會海巡署", "source_url": "https://data.gov.tw/dataset/143315", "license": OGDL, "fetched_at": "2026-10-31",
         }})
     print(f"[firing] 海軍 {n_navy}（合併重複列後）、海巡署 {len(feats) - n_navy}")
