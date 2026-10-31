@@ -32,6 +32,10 @@ export const GB_OPEN_ACCESS_POINT_CIRCLE_ID = "gb-open-access-points-circle";
 export const GB_TREE_HEATMAP_ID = "gb-tree-protection-points-heatmap";
 export const GB_TREE_POINT_CIRCLE_ID = "gb-tree-protection-points-circle";
 export const GB_RECREATION_HEATMAP_ID = "gb-forest-recreation-heatmap";
+export const GB_PROTECTED_HEATMAP_ID = "gb-protected-areas-points-heatmap"; // < 1 萬點，實際不建熱區（useGbRepPointLayers 依點數判斷）
+export const GB_PROTECTED_POINT_CIRCLE_ID = "gb-protected-areas-points-circle";
+export const GB_MPA_HEATMAP_ID = "gb-marine-protected-areas-points-heatmap";
+export const GB_MPA_POINT_CIRCLE_ID = "gb-marine-protected-areas-points-circle";
 export const GB_PROTECTED_FILL_ID = "gb-protected-areas-fill";
 export const GB_PROTECTED_LINE_ID = "gb-protected-areas-line";
 export const GB_MPA_FILL_ID = "gb-marine-protected-areas-fill";
@@ -42,6 +46,7 @@ export const GB_RECREATION_SIGNAGE_CIRCLE_ID = "gb-forest-recreation-signage-cir
 export const GB_NATIONAL_TRAIL_LINE_ID = "gb-trails-national-line";
 export const GB_FOREST_ROUTE_LINE_ID = "gb-trails-forest-line";
 export const GB_OPEN_ACCESS_FILL_ID = "gb-open-access-land-fill";
+export const GB_OPEN_ACCESS_Z5_FILL_ID = "gb-open-access-land-z5-fill";
 export const GB_ANCIENT_WOODLAND_FILL_ID = "gb-ancient-woodland-fill";
 export const GB_TPO_FILL_ID = "gb-tpo-fill";
 export const GB_TPO_CIRCLE_ID = "gb-tpo-circle";
@@ -88,16 +93,30 @@ function designationColor(): Expr {
 /** 景觀類淡填色（資料編碼透明度：大面積不蓋住其他保護區）。 */
 const protectedFillOpacity = (op: number): Expr => ["case", IS_LANDSCAPE, clamp01(op) * GB_LANDSCAPE_FILL_FACTOR, clamp01(op)];
 
-export function useGbProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, filterIdx: number, isDark: boolean) {
+// §3.8 V-5：代表點（每區一點，z4–10；8,642 區 < 1 萬點，不建熱區）
+const PROTECTED_POINTS_SOURCE: SourceSpec = {
+  id: "gb-protected-areas-points", file: "gb_protected_areas_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.protected, loading: "英國保護區代表點載入中",
+};
+
+export function useGbProtectedAreasLayer(
+  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, filterIdx: number, isDark: boolean,
+  scale = 1, mode: GbDisplayMode = "point",
+) {
   const def = opacityDefault("gbProtectedAreas", 0.45);
   const filter = gbDesignationFilterExpr(gbDesignationFilterFromIdx(filterIdx));
+  const heatStyle = useHeatmapStyleSignature(["gbProtectedAreas"]);
+  useGbRepPointLayers(mapRef, {
+    key: "gbProtectedAreas", source: PROTECTED_POINTS_SOURCE, sourceLayer: "gb_protected_areas_points",
+    heatId: GB_PROTECTED_HEATMAP_ID, circleId: GB_PROTECTED_POINT_CIRCLE_ID, count: 8_642,
+    polygonMinzoom: 5, heatIntensity: 1, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbProtectedAreas"), isDark, color: designationColor(), filter }, heatStyle);
   const fillPaint = (op: number) => hookFillPaint("gbProtectedAreas", GB_PROTECTED_FILL_ID,
     { "fill-color": designationColor(), "fill-opacity": protectedFillOpacity(op) },
     { "fill-color": designationColor(), "fill-opacity": protectedFillOpacity(def) }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbProtectedAreas", GB_PROTECTED_LINE_ID,
     { "line-color": designationColor(), "line-width": 1, "line-opacity": clamp01(op / def) * 0.9 },
     { "line-color": designationColor(), "line-width": 1, "line-opacity": 0.9 }, isDark);
-  useGbPmtilesLayers(mapRef, PROTECTED_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, PROTECTED_SOURCE, visible && mode === "polygon", () => [
     {
       id: GB_PROTECTED_FILL_ID,
       layer: () => ({
@@ -134,15 +153,29 @@ const MPA_SOURCE: SourceSpec = {
 };
 const mpaColor = (): Expr => matchColor("mpa_type", GB_MPA_TYPES.map((m) => [m.value, m.color] as const), GB_DESIGNATION_FALLBACK_COLOR);
 
-export function useGbMarineProtectedAreasLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, typeMask: number | undefined, isDark: boolean) {
+// §3.8 V-5：代表點（149 面，< 1 萬點，不建熱區）
+const MPA_POINTS_SOURCE: SourceSpec = {
+  id: "gb-marine-protected-areas-points", file: "gb_marine_protected_areas_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.mpa, loading: "英國海洋保護區代表點載入中",
+};
+
+export function useGbMarineProtectedAreasLayer(
+  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, typeMask: number | undefined, isDark: boolean,
+  scale = 1, mode: GbDisplayMode = "point",
+) {
   const filter = gbMaskFilter("mpa_type", typeMask, GB_MPA_TYPES.map((m) => m.value));
   const def = opacityDefault("gbMarineProtectedAreas", 0.5);
+  const heatStyle = useHeatmapStyleSignature(["gbMarineProtectedAreas"]);
+  useGbRepPointLayers(mapRef, {
+    key: "gbMarineProtectedAreas", source: MPA_POINTS_SOURCE, sourceLayer: "gb_marine_protected_areas_points",
+    heatId: GB_MPA_HEATMAP_ID, circleId: GB_MPA_POINT_CIRCLE_ID, count: 149,
+    polygonMinzoom: MPA_SOURCE.minzoom, heatIntensity: 1, opacityDefault: def,
+  }, { visible, mode, opacity, scale: scale / scaleDefault("gbMarineProtectedAreas"), isDark, color: mpaColor(), filter }, heatStyle);
   const fillPaint = (op: number) => hookFillPaint("gbMarineProtectedAreas", GB_MPA_FILL_ID,
     { "fill-color": mpaColor(), "fill-opacity": clamp01(op) }, { "fill-color": mpaColor(), "fill-opacity": def }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbMarineProtectedAreas", GB_MPA_LINE_ID,
     { "line-color": mpaColor(), "line-width": 1, "line-opacity": clamp01(op / def) * 0.9 },
     { "line-color": mpaColor(), "line-width": 1, "line-opacity": 0.9 }, isDark);
-  useGbPmtilesLayers(mapRef, MPA_SOURCE, visible, () => gbWithFilter([
+  useGbPmtilesLayers(mapRef, MPA_SOURCE, visible && mode === "polygon", () => gbWithFilter([
     {
       id: GB_MPA_FILL_ID,
       layer: () => ({
@@ -251,7 +284,8 @@ export function useGbForestRecreationLayer(mapRef: React.RefObject<MapboxMap | n
 // ─────────────────────────── 步道 ───────────────────────────
 
 const TRAILS_SOURCE: SourceSpec = {
-  id: "gb-trails", file: "gb_trails.pmtiles", minzoom: 6, maxzoom: 14, attribution: GB_NATURE_MAP_ATTRIBUTION.trails, loading: "英國步道載入中",
+  id: "gb-trails", file: "gb_trails_v2.pmtiles", minzoom: 4, maxzoom: 14, // §3.8 V-1：z4 起重切檔（舊檔 z6 起不覆寫）
+   attribution: GB_NATURE_MAP_ATTRIBUTION.trails, loading: "英國步道載入中",
 };
 const forestRouteColor = (): Expr => matchColor("category", GB_TRAIL_CATEGORIES.flatMap((c) => c.raw.map((r) => [r, c.color] as const)), GB_TRAIL_UNCLASSIFIED_COLOR);
 const zoomWidth = (tier: keyof typeof LINE_WIDTH): Expr => ["interpolate", ["linear"], ["zoom"], 10, LINE_WIDTH[tier][0], 14, LINE_WIDTH[tier][1]];
@@ -293,6 +327,10 @@ const OPEN_ACCESS_SOURCE: SourceSpec = {
 };
 const openAccessColor = (): Expr => matchColor("access_type", GB_ACCESS_TYPES.map((a) => [a.value, a.color] as const), GB_DESIGNATION_FALLBACK_COLOR);
 
+// §3.8 V-1／V-2：z5 另有小檔（只含 z5 一級），兩個 source 接續：z5 小檔畫到 z5.5 前，原檔 z5.5 起（圖磚縮放四捨五入，z5.5 起抓 z6 圖磚）
+const OPEN_ACCESS_Z5_SOURCE: SourceSpec = {
+  id: "gb-open-access-land-z5", file: "gb_open_access_land_z5.pmtiles", minzoom: 5, maxzoom: 5, attribution: GB_NATURE_MAP_ATTRIBUTION.openAccess, loading: "英國開放進入地載入中",
+};
 const OPEN_ACCESS_POINTS_SOURCE: SourceSpec = {
   id: "gb-open-access-land-points", file: "gb_open_access_land_points.pmtiles", minzoom: 4, maxzoom: 10, attribution: GB_NATURE_MAP_ATTRIBUTION.openAccess, loading: "英國開放進入地代表點載入中",
 };
@@ -306,12 +344,20 @@ export function useGbOpenAccessLandLayer(mapRef: React.RefObject<MapboxMap | nul
   useGbRepPointLayers(mapRef, {
     key: "gbOpenAccessLand", source: OPEN_ACCESS_POINTS_SOURCE, sourceLayer: "gb_open_access_land_points",
     heatId: GB_OPEN_ACCESS_HEATMAP_ID, circleId: GB_OPEN_ACCESS_POINT_CIRCLE_ID, count: 48_034,
-    polygonMinzoom: OPEN_ACCESS_SOURCE.minzoom, heatIntensity: 1.5, opacityDefault: def,
+    polygonMinzoom: OPEN_ACCESS_Z5_SOURCE.minzoom, heatIntensity: 1.5, opacityDefault: def,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbOpenAccessLand"), isDark, color: openAccessColor(), filter }, heatStyle);
+  useGbPmtilesLayers(mapRef, OPEN_ACCESS_Z5_SOURCE, visible && mode === "polygon", () => gbWithFilter([{
+    id: GB_OPEN_ACCESS_Z5_FILL_ID,
+    layer: () => ({
+      id: GB_OPEN_ACCESS_Z5_FILL_ID, type: "fill", source: OPEN_ACCESS_Z5_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: 5, maxzoom: OPEN_ACCESS_SOURCE.minzoom - 0.5,
+      layout: { visibility: "none" }, paint: paint(opacity),
+    } as unknown as AnyLayer),
+    update: (map) => map.setPaintProperty(GB_OPEN_ACCESS_Z5_FILL_ID, "fill-opacity", paint(opacity)["fill-opacity"] as any),
+  }], filter), [opacity, typeMask, isDark]);
   useGbPmtilesLayers(mapRef, OPEN_ACCESS_SOURCE, visible && mode === "polygon", () => gbWithFilter([{
     id: GB_OPEN_ACCESS_FILL_ID,
     layer: () => ({
-      id: GB_OPEN_ACCESS_FILL_ID, type: "fill", source: OPEN_ACCESS_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: 6,
+      id: GB_OPEN_ACCESS_FILL_ID, type: "fill", source: OPEN_ACCESS_SOURCE.id, "source-layer": "gb_open_access_land", minzoom: OPEN_ACCESS_SOURCE.minzoom - 0.5,
       layout: { visibility: "none" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_OPEN_ACCESS_FILL_ID, "fill-opacity", paint(opacity)["fill-opacity"] as any),

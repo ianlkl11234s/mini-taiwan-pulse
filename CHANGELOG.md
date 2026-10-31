@@ -70,6 +70,14 @@
 
 ### 新增
 - 台灣與日本面層「點／面」切換（V-5）：墓區、湖泊埤塘、養殖水體（4）、保安林、校地、農村社區、產業園區（2）、樹穴、休閒農業區、農村再生、日本自然保育地域與鳥獸保護區等小而零散的面預設畫點；國家公園、林班、分區（北市／新北／非都市）、淹水 10 情境、土壤、作物適栽、農田範圍、日本自然公園、國有林、用途地域、內水浸水、土砂警戒等大範圍面預設畫面。設定面板新增「樣式（點位／面）」「大小」，≥1 萬點的層另有「熱區顏色」；點樣式在拉遠時畫熱區（台灣 z7、日本 z5 看得到）、拉近畫代表點，可點彈窗（沿用面層欄位）。代表點檔 42 份（analytics #271，淹水 10 情境各一份）；GeoJSON 面層（國家重要濕地、自然保留區、野生動物保護區、漁業權區、海堤、崩塌潛勢區、溫泉露頭區、森林遊樂區、國家風景區、原住民族地區、客家文化區、水源保護區、日本湖沼等 28 層）改由前端算保證落在面內的代表點，日本自然公園、自然保育地域、鳥獸保護區三組為非商用研究層，代表點檔只在本機、不進 git／S3
+- 拉遠可見性第二輪（§3.8 V-1／V-2，接上 analytics #270／#271 的重切檔，舊檔不刪、只換 manifest 指向）：
+  - 英國：防洪設施（z5 小檔接 z6 原檔）、海岸侵蝕（z5 起）、開放進入地（z5 小檔接 z6 原檔）、步道（z4 起，公有林步道也 z4 起畫）、倫敦鐵道路線與車站、單車站、收費區（皆 z4 起）拉遠不再消失
+  - 英國新增「點／面」切換：建成區、保護區（預設點）、海洋保護區（預設點）、離岸油氣田、海岸侵蝕（8.9 萬點，低縮放熱區，可換熱區顏色）
+  - 台灣：防空避難、OSM 橋梁輪廓、校地面與校地面積、補習班、省道標誌／里程牌、國道標誌、省道監控路段、地名、台北樹穴改用 z7 起的 v2 重切檔；土壤肥力（z7 小檔接 z8 原檔）；≥ 1 萬點的防空避難、補習班、省道里程牌、國道標誌、地名在 z10 以下畫熱區（可換顏色）
+  - 日本：主要道路 z5 小檔（只含高速與一般國道）接 z6 原檔，全日本視角看得到
+  - 測速照相（4 類）與桃園竊盜（4 類）補類別圖例，設定面板新增「類別」多選（三語）
+  - 不做：`buildingsGba`、`contour25k`、`villageBoundary`（國家全覽縮放太密，刻意設計）
+  - 發版注意：新檔清單。**S3 deploy-assets（gitignored，發版當天要上傳，`scripts/deploy/upload-deploy-assets.sh` 已登記；未上傳這幾層在正式站會 404／空白）**：`agriculture/soil_fertility_grid_250m_z7.pmtiles`、`police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles`、`network_structures/osm_bridge_footprints_20260906_v2.pmtiles`、`education/campus_polygon_v2.pmtiles`、`education/cram_schools_v2.pmtiles`、`urban/tree_pits_taipei_v2.pmtiles`。**git-track（18 個，<20MB，隨 PR 部署）**：`world/` 的 `gb_flood_defences_z5`、`gb_open_access_land_z5`、`gb_coastal_erosion_v2`、`gb_trails_v2`、`gb_london_rail_v2`、`gb_london_bikepoints_v2`、`gb_london_charging_zones_v2`、`gb_built_up_areas_points`、`gb_protected_areas_points`、`gb_marine_protected_areas_points`、`gb_oil_gas_points`、`gb_coastal_erosion_points`、`jp_major_roads_z5`，`geo/` 的 `provincial_road_signs_v2`、`provincial_road_mileposts_v2`、`freeway_traffic_signs_v2`、`provincial_road_monitored_sections_v2`、`place_names_moi_v2`
 - 日本與台灣自建圖層分類篩選（V-4）：日本旅宿（2）、宗教（3）、車站、鐵道、避難所、公車站、學校、上下水道、國有林、雷擊，以及台灣火災、船舶監看、道路事件、警報群（民生／水文／氣象／交通／安全）、空域、電桿、電廠與機組、風機、行道樹、河濱樹木、漁產品、停車場、噪音管制區、老人安養、精神照護、搜救、鯨豚與海龜擱淺等約 50 層，設定面板新增「類別」多選（選項照圖例，英日文同步）；序位等級與已有等效篩選的 13 層不加
 - 台灣圖層分類篩選（V-4）：圖例是名目類別的 60 個圖層，設定面板新增「類別」多選（學校、醫療、消防、警政司法、水利設施、運動場地、觀光、原民族別、港口、電力與再生能源許可…），選項照圖例、英日文同步；序位等級（UV、水質、震度、警戒等級、距離分帶）不算類別，不加
 - 拉遠可見性（台灣）：農路改 z7 起畫、年度崩塌地 z7 起、水產養殖池 z6 起、海堤 z6 起、噪音偵測相機 z5 起（原本要放大到 z8–z10 才出現）

@@ -69,6 +69,8 @@ done
 NETWORK_STRUCTURE_FILES=(
   "public/network_structures/osm_bridge_carriers_20260906.pmtiles"
   "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
+  # §3.8 V-1：z7 起重切檔（舊檔不刪）
+  "public/network_structures/osm_bridge_footprints_20260906_v2.pmtiles"
   "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
   "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
   "public/network_structures/tainan_bridge_inspections_20260924.pmtiles"
@@ -191,6 +193,8 @@ AGRI_FILES=(
   "public/agriculture/crop_suitability_132.pmtiles"
   "public/agriculture/soil_map_national.pmtiles"
   "public/agriculture/soil_fertility_grid_250m.pmtiles"
+  # §3.8 V-1：z7 小檔（原檔 z8 起）
+  "public/agriculture/soil_fertility_grid_250m_z7.pmtiles"
   "public/agriculture/leisure_farm_zones_2025.pmtiles"
   "public/agriculture/rural_regen_communities_2025.pmtiles"
   # §3.8 V-5 代表點檔（點／面切換；nginx /agriculture/ 是純 volume，不上傳就 404）
@@ -362,6 +366,14 @@ for f in public/education/*.geojson public/education/*.pmtiles; do
   name=$(basename "$f")
   echo "Uploading education/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/education/$name" --region ap-southeast-2
+done
+
+# 防空避難 §3.8 V-1：z7 起重切檔 civil_defense_shelters_v2（舊檔不刪；pull 端 police_justice/ 整夾 sync）
+for f in public/police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading police_justice/civil_defense_shelters/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/police_justice/civil_defense_shelters/$name" --region ap-southeast-2
 done
 
 # 林業圖層：上傳到 deploy-assets/forestry/ 子前綴（鏡像結構，pull 端整夾 sync）

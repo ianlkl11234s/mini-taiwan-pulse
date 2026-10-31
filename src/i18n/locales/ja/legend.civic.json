@@ -235,5 +235,15 @@
   "legend.civic.tsunamiSirensRow": "津波警報台 · {count}",
   "legend.civic.tsunamiSirensNote": "警政署 2025-12 時点；淡水の興仁派出所 1 基は座標欠落のため非表示",
   "legend.civic.nuclearEpzNote": "集結地点は地方政府の計画（新北・基隆・屏東）；収容施設は村里の割当を統合。恒春の 15 里は「各宿泊施設」という総称で座標がなく非表示",
-  "legend.civic.firingNoticeNote": "公告された範囲と期間で、リアルタイムの状況ではありません。海軍 2025-07～08、海巡署 2024-03～2026-03 の過去の公告；同じ範囲が繰り返し公告されることがあります"
+  "legend.civic.firingNoticeNote": "公告された範囲と期間で、リアルタイムの状況ではありません。海軍 2025-07～08、海巡署 2024-03～2026-03 の過去の公告；同じ範囲が繰り返し公告されることがあります",
+  "legend.civic.pjSpeedCat": "種類",
+  "legend.civic.pjSpeedGeneral": "一般の速度取締",
+  "legend.civic.pjSpeedFreeway": "高速道路の速度取締",
+  "legend.civic.pjSpeedRedLight": "赤信号取締カメラ",
+  "legend.civic.pjSpeedRailway": "踏切取締カメラ",
+  "legend.civic.pjTheftCat": "事件種別",
+  "legend.civic.pjTheftHouse": "住宅侵入窃盗",
+  "legend.civic.pjTheftCar": "自動車盗",
+  "legend.civic.pjTheftMoto": "バイク盗",
+  "legend.civic.pjTheftBike": "自転車盗"
 }

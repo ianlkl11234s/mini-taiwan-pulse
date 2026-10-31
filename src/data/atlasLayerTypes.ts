@@ -111,11 +111,11 @@ export const ROAD_SIGN_SERIES_OPTIONS: readonly AtlasOption[] = [
   { value: "children_warning", label: "當心兒童標誌", color: "#e11d48" },
   { value: "expressway_interchange_name", label: "快速公路交流道名稱標誌", color: "#16a34a" },
 ];
-/** 切片 z9 起；點層 z11 起（低於 z11 以熱區顯示密度）。 */
-export const ROAD_SIGNS_TILE_MIN_ZOOM = 9;
+/** §3.8 V-1：v2 重切檔 z7 起；點層 z11 起（低於 z11 以熱區顯示密度）。 */
+export const ROAD_SIGNS_TILE_MIN_ZOOM = 7;
 export const ROAD_SIGNS_POINT_MIN_ZOOM = 11;
-export const MILEPOSTS_MIN_ZOOM = 11;
-export const FREEWAY_SIGNS_MIN_ZOOM = 10;
+export const MILEPOSTS_MIN_ZOOM = 7;
+export const FREEWAY_SIGNS_MIN_ZOOM = 7;
 
 export const FREEWAY_SIGN_GROUP_OPTIONS: readonly AtlasOption[] = [
   { value: "milepost", label: "里程牌／匝道里程", color: "#16a34a" },
@@ -148,7 +148,7 @@ export const MONITOR_SERIES_OPTIONS: readonly AtlasOption[] = [
   { value: "flood_debris_prone", label: "易淹水／土石流路段", color: "#0284c7" },
 ];
 /** 線段 z5–7 會退化（極短路段）→ 切片與圖層都從 z8 起。 */
-export const MONITORED_MIN_ZOOM = 8;
+export const MONITORED_MIN_ZOOM = 7;
 
 export const EMERGENCY_BAY_OPTIONS: readonly AtlasOption[] = [
   { value: "true", label: "在最新年度清單", color: "#7c3aed" },
@@ -223,7 +223,7 @@ export const PLACE_CATEGORY_OPTIONS: readonly AtlasOption[] = [
   { value: "settlement", label: "聚落（z12 起）", color: "#b45309" },
   { value: "landmark", label: "具有地標意義公共設施（z14 起）", color: "#0369a1" },
 ];
-export const PLACE_NAMES_MIN_ZOOM = 9;
+export const PLACE_NAMES_MIN_ZOOM = 7;
 
 export const TRIANGULATION_GRADE_OPTIONS: readonly AtlasOption[] = [
   { value: "1", label: "一等三角點", color: "#7f1d1d" },

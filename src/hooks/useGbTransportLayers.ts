@@ -120,7 +120,8 @@ export function useGbStationUsageLayer(mapRef: MapRef, visible: boolean, opacity
 // ─────────────────────────── 倫敦軌道線＋車站（gb_london_rail.pmtiles） ───────────────────────────
 
 const RAIL_SOURCE: SourceSpec = {
-  id: "gb-london-rail", file: "gb_london_rail.pmtiles", minzoom: 8, maxzoom: 15, attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦軌道載入中",
+  id: "gb-london-rail", file: "gb_london_rail_v2.pmtiles", minzoom: 4, maxzoom: 15, // §3.8 V-1：z4 起重切檔（舊檔 z8 起不覆寫）
+   attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦軌道載入中",
 };
 
 function railModeColor(): Expr {
@@ -141,7 +142,7 @@ export function useGbLondonRailLinesLayer(mapRef: MapRef, visible: boolean, opac
   useGbPmtilesLayers(mapRef, RAIL_SOURCE, visible, () => gbWithFilter([{
     id: GB_LONDON_RAIL_LINE_ID,
     layer: () => ({
-      id: GB_LONDON_RAIL_LINE_ID, type: "line", source: RAIL_SOURCE.id, "source-layer": "gb_london_rail_lines", minzoom: 8,
+      id: GB_LONDON_RAIL_LINE_ID, type: "line", source: RAIL_SOURCE.id, "source-layer": "gb_london_rail_lines", minzoom: RAIL_SOURCE.minzoom,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_LONDON_RAIL_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
@@ -179,7 +180,8 @@ export function useGbLondonStationsLayer(mapRef: MapRef, visible: boolean, opaci
 // ─────────────────────────── Santander Cycles BikePoint ───────────────────────────
 
 const BIKE_SOURCE: SourceSpec = {
-  id: "gb-london-bikepoints", file: "gb_london_bikepoints.pmtiles", minzoom: 9, maxzoom: 15, attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦單車站載入中",
+  id: "gb-london-bikepoints", file: "gb_london_bikepoints_v2.pmtiles", minzoom: 4, maxzoom: 15, // §3.8 V-1：z4 起重切檔
+   attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦單車站載入中",
 };
 
 function bikePaint(isDark: boolean, opacity: number, scale: number) {
@@ -239,7 +241,8 @@ export function useGbLondonJamCamsLayer(mapRef: MapRef, visible: boolean, opacit
 // ─────────────────────────── 收費區 ───────────────────────────
 
 const CHARGING_SOURCE: SourceSpec = {
-  id: "gb-london-charging-zones", file: "gb_london_charging_zones.pmtiles", minzoom: 6, maxzoom: 14, attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦收費區載入中",
+  id: "gb-london-charging-zones", file: "gb_london_charging_zones_v2.pmtiles", minzoom: 4, maxzoom: 14, // §3.8 V-1：z4 起重切檔
+   attribution: GB_TFL_MAP_ATTRIBUTION, loading: "倫敦收費區載入中",
 };
 
 function zoneColor(): Expr {

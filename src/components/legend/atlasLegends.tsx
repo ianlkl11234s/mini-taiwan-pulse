@@ -1,6 +1,7 @@
 // atlas 批次 2026-10 的 26 層圖例（legendKit；色票與地圖 paint 同源，皆 import atlasLayerTypes）。
 import type { ReactNode } from "react";
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import {
   ANIMAL_STATUS_OPTIONS, ATLAS_FLAG_COLOR, ATLAS_LAYER_COLORS, ATLAS_NOTES, ATLAS_OTHER_COLOR, BEACH_LEVEL_OPTIONS, DREDGING_STATUS_OPTIONS,
   ECOLOGY_SPECIES_STEPS, ECO_SENSITIVE_LEVEL_OPTIONS, EMERGENCY_BAY_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS,
@@ -49,10 +50,12 @@ type Source = { org: keyof typeof ORGS; ids?: readonly string[]; etc?: boolean }
 const src = (org: Source["org"], ids?: readonly string[], etc = false): Source => ({ org, ids, etc });
 
 /** 一張 atlas 圖例：標題＋色塊列＋說明（ATLAS_NOTES）＋來源。標題預設借圖層名，標題與圖層名不同的才傳 `title`。 */
-function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, license }: {
+function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, license, dense = false }: {
   layer: AtlasLayerKey; en: string; rows: readonly Row[]; kind?: Swatch; source: Source; domain?: string; title?: StaticMessageKey;
   /** 非 OGDL 的授權說明（例：定置漁業權區＝漁業署網站著作權聲明）；未給時沿用 OGDL 模板。 */
   license?: StaticMessageKey;
+  /** ≥ 1 萬點：低縮放畫密度熱區（P-4），圖例補色階列 */
+  dense?: boolean;
 }) {
   const i18n = useLocale();
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layer]?.name;
@@ -66,6 +69,7 @@ function AtlasLegend({ layer, en, rows, kind = "dot", source, domain, title, lic
   return <div>
     <LegendTitle zh={heading} en={en} />
     {rows.map((row, index) => <LegendRow key={`${index}-${row.value ?? row.label ?? row.labelKey}`} swatch={row.ring ? <SwatchDot color={row.color} opacity={0.15} stroke={row.color} strokeWidth={2} /> : swatchOf(kind, row.color)}>{labelOf(row)}</LegendRow>)}
+    {dense && <DenseHeatmapLegendRow layers={[layer]} />}
     <LegendNote>{license
       ? i18n.t("legend.atlas.noteSourceLicense", { note, source: sourceText, license: i18n.t(license) })
       : i18n.t("legend.atlas.noteSource", { note, source: sourceText })}</LegendNote>
@@ -85,9 +89,9 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   indigenousLanguageDialects: () => <AtlasLegend layer="indigenousLanguageDialects" en="Indigenous Language Dialects" kind="square" source={src("cip", ["164237"])} domain="atlasEthnic" rows={DIALECT_GROUP_OPTIONS} />,
   hakkaCulturalZones: () => <AtlasLegend layer="hakkaCulturalZones" en="Hakka Cultural Development Zones" kind="square" source={src("hakka", ["162466"])} domain="atlasHakkaAccent" rows={HAKKA_ACCENT_OPTIONS} />,
   agriRuralCommunityVillages: () => <AtlasLegend layer="agriRuralCommunityVillages" title="legend.atlas.titleRuralCommunity" en="Rural Community Villages" kind="square" source={src("swcb")} domain="atlasRural" rows={RURAL_COMMUNITY_OPTIONS} />,
-  provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" en="Provincial Road Signs" source={src("thb", ["146233"], true)} domain="atlasSignSeries" rows={ROAD_SIGN_SERIES_OPTIONS} />,
-  provincialRoadMileposts: () => <AtlasLegend layer="provincialRoadMileposts" en="Provincial Road Mileposts" source={src("thb", ["7040"])} rows={single("provincialRoadMileposts", "legend.atlas.milepost")} />,
-  freewayTrafficSigns: () => <AtlasLegend layer="freewayTrafficSigns" en="Freeway Traffic Signs" source={src("freeway", ["98447"])} domain="atlasFreewaySign" rows={FREEWAY_SIGN_GROUP_OPTIONS} />,
+  provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" en="Provincial Road Signs" source={src("thb", ["146233"], true)} domain="atlasSignSeries" rows={ROAD_SIGN_SERIES_OPTIONS} dense />,
+  provincialRoadMileposts: () => <AtlasLegend layer="provincialRoadMileposts" en="Provincial Road Mileposts" source={src("thb", ["7040"])} rows={single("provincialRoadMileposts", "legend.atlas.milepost")} dense />,
+  freewayTrafficSigns: () => <AtlasLegend layer="freewayTrafficSigns" en="Freeway Traffic Signs" source={src("freeway", ["98447"])} domain="atlasFreewaySign" rows={FREEWAY_SIGN_GROUP_OPTIONS} dense />,
   freewayInterchanges: () => <AtlasLegend layer="freewayInterchanges" en="Freeway Interchanges" source={src("freeway", ["166496"])} domain="atlasInterchange" rows={INTERCHANGE_TYPE_OPTIONS} />,
   freewayEcoSensitive: () => <AtlasLegend layer="freewayEcoSensitive" en="Freeway Eco-sensitive Sections" kind="square" source={src("freeway", ["31290"])} domain="atlasEcoLevel" rows={ECO_SENSITIVE_LEVEL_OPTIONS} />,
   provincialRoadMonitored: () => <AtlasLegend layer="provincialRoadMonitored" en="Monitored Road Sections" kind="line" source={src("thb", ["16193"], true)} domain="atlasMonitor" rows={MONITOR_SERIES_OPTIONS} />,
@@ -103,7 +107,7 @@ export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   marineMicroplastics: () => <AtlasLegend layer="marineMicroplastics" title="legend.atlas.titleMicroplastics" en="Marine Microplastics" source={src("oac")} rows={stepRows(MICROPLASTIC_STEPS)} />,
   marinePollutionIncidents: () => <AtlasLegend layer="marinePollutionIncidents" en="Marine Pollution Incidents" source={src("oca")} domain="atlasPollution" rows={POLLUTION_LEVEL_OPTIONS} />,
   namrEdnaSurveySites: () => <AtlasLegend layer="namrEdnaSurveySites" en="eDNA Survey Sites" source={src("namr")} rows={single("namrEdnaSurveySites", "legend.atlas.surveySite")} />,
-  placeNames: () => <AtlasLegend layer="placeNames" en="Taiwan Place Names" source={src("landAdmin", ["40281"], true)} domain="atlasPlaceLegend" rows={PLACE_CATEGORY_OPTIONS} />,
+  placeNames: () => <AtlasLegend layer="placeNames" en="Taiwan Place Names" source={src("landAdmin", ["40281"], true)} domain="atlasPlaceLegend" rows={PLACE_CATEGORY_OPTIONS} dense />,
   triangulationPoints: () => <AtlasLegend layer="triangulationPoints" en="Triangulation Points" source={src("nlsc", ["26485"])} domain="atlasTriangulation" rows={TRIANGULATION_GRADE_OPTIONS} />,
   wraFloodgatesCentral: () => <AtlasLegend layer="wraFloodgatesCentral" en="Central Floodgates" source={src("wra", ["32722"])} domain="atlasGate" rows={GATE_KIND_OPTIONS} />,
   wraCentralDrainage: () => <AtlasLegend layer="wraCentralDrainage" en="Central Regional Drainage" kind="square" source={src("wra")} rows={single("wraCentralDrainage", "legend.atlas.drainageExtent")} />,

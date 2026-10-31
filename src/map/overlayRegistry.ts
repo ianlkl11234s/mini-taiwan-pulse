@@ -46,6 +46,12 @@ const DENSE_FROM = {
   osmPowerTowers: densePointsFromZoom(26_589, 8),
   medClinic: densePointsFromZoom(23_704),
   accidentTaipei: densePointsFromZoom(22_918, 10),
+  // §3.8 V-1（2026-10-31）：台灣 v2 重切檔 z7 起，≥ 1 萬點的低縮放畫熱區
+  civilDefenseShelter: densePointsFromZoom(62_695, 7),
+  eduCramSchool: densePointsFromZoom(17_137, 7),
+  provincialRoadMileposts: densePointsFromZoom(30_098, 7),
+  freewayTrafficSigns: densePointsFromZoom(51_405, 7),
+  placeNames: densePointsFromZoom(36_431, 7),
   agriProduceWholesale: densePointsFromZoom(22_843, 8),
   accessibleParkFacilities: densePointsFromZoom(20_870),
   religionTemples: densePointsFromZoom(19_201),
@@ -5349,9 +5355,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 類型篩選走 opacity 歸零（fill 與 line 共用 opExpr，篩掉的類型輪廓一併隱藏）。
   {
     id: "treePitsTaipei",
-    sourceUrl: "./urban/tree_pits_taipei.pmtiles",
+    sourceUrl: "./urban/tree_pits_taipei_v2.pmtiles",
     sourceId: "tree-pits-taipei",
-    pmtiles: { sourceLayer: "tree_pits_taipei", minzoom: 11, maxzoom: 16 },
+    pmtiles: { sourceLayer: "tree_pits_taipei", minzoom: 7, maxzoom: 16 },
     rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeMask"],
     layers: [
       {
@@ -9494,12 +9500,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 民防避難（PMTiles，z≥7 才顯示避免擠爆）──
   {
     id: "civilDefenseShelter",
-    sourceUrl: "./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles",
+    sourceUrl: "./police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles",
     sourceId: "civil-defense-shelter",
-    pmtiles: { sourceLayer: "civil_defense_shelters", minzoom: 10, maxzoom: 14 },
+    pmtiles: { sourceLayer: "civil_defense_shelters", minzoom: 7, maxzoom: 14 },
     rebuildOnParamChange: ["civilDefenseShelterOpacity", "civilDefenseShelterScale"],
-    layers: [{
-      suffix: "circle", type: "circle", minzoom: 7,
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.civilDefenseShelter, intensity: 1, opacity: { layer: "civilDefenseShelter", param: "civilDefenseShelterOpacity" } }), {
+      suffix: "circle", type: "circle", minzoom: DENSE_FROM.civilDefenseShelter,
       paint: (_isDark, p) => {
         const s = p?.civilDefenseShelterScale ?? 1;
         const op = p?.civilDefenseShelterOpacity ?? 0.75;
@@ -11073,7 +11080,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 🔴 切片 minzoom=8，zoom 8 以下完全不顯示；澎湖/金門 0 筆（來源 119 分帶死鏈）。兩者圖例已註明。
   {
     id: "eduCampusPolygon",
-    sourceUrl: "./education/campus_polygon.pmtiles",
+    sourceUrl: "./education/campus_polygon_v2.pmtiles",
     sourceId: "edu-campus",
     pmtiles: {
       sourceLayer: "campus_polygon",
@@ -11106,7 +11113,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 面量圖不畫描邊（UX baseline：熱區/密度圖 outline 0），避免干擾色階閱讀。
   {
     id: "eduCampusArea",
-    sourceUrl: "./education/campus_polygon.pmtiles",
+    sourceUrl: "./education/campus_polygon_v2.pmtiles",
     sourceId: "edu-campus",
     pmtiles: {
       sourceLayer: "campus_polygon",
@@ -11337,18 +11344,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     // 🔴 每日更新的資料源；切片 minzoom=8。17,137 點屬 UX baseline 的 10k~100k 級距，
     // 半徑比其他點層小一階，避免低倍率糊成一團。
     id: "eduCramSchool",
-    sourceUrl: "./education/cram_schools.pmtiles",
+    sourceUrl: "./education/cram_schools_v2.pmtiles",
     sourceId: "edu-cram",
     pmtiles: {
       sourceLayer: "cram_schools",
       minzoom: CRAM_PMTILES_MINZOOM,
       maxzoom: CRAM_PMTILES_MAXZOOM,
     },
-    // R5 不套熱區：切片 minzoom 8 且建置時大量抽稀（全台 z8 僅 35 點、z12 1,372 點／17,137），
-    // 熱區密度趨近 0 看不見，維持原本 z8 起畫點（2026-10-02 量測）。
+    // §3.8 V-1（2026-10-31）：v2 重切檔 z7 起、低縮放不抽稀（PT_KEEP）→ 17,137 點 < z10 畫熱區，z10 起畫點。
+    // （舊檔 z8 起且大量抽稀，熱區看不見，曾不套熱區。）
     rebuildOnParamChange: ["circle"],
-    layers: [{
-      suffix: "circle", type: "circle",
+    layers: [
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.eduCramSchool, intensity: 1, opacity: { layer: "eduCramSchool", param: "eduCramSchoolOpacity" } }), {
+      suffix: "circle", type: "circle", minzoom: DENSE_FROM.eduCramSchool,
       paint: (isDark, p) => {
         const scale = p?.eduCramSchoolScale ?? 1;
         return {
@@ -11658,9 +11666,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "osmBridgeFootprints",
-    sourceUrl: "./network_structures/osm_bridge_footprints_20260906.pmtiles",
+    sourceUrl: "./network_structures/osm_bridge_footprints_20260906_v2.pmtiles",
     sourceId: "osm-bridge-footprints",
-    pmtiles: { sourceLayer: "osm_bridge_footprints", minzoom: 8, maxzoom: 15 },
+    pmtiles: { sourceLayer: "osm_bridge_footprints", minzoom: 7, maxzoom: 15 },
     attribution: "© OpenStreetMap contributors (ODbL)",
     layers: [{ suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": NETWORK_STRUCTURES_COLORS.footprint, "fill-opacity": (p?.osmBridgeFootprintsOpacity ?? 0.65) * 0.22 }) }, { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": NETWORK_STRUCTURES_COLORS.footprint, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 14, 1.8], "line-opacity": p?.osmBridgeFootprintsOpacity ?? 0.65 }) }],
   },
@@ -11846,9 +11854,9 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     layers: polygonLayers("agriRuralCommunityVillages", matchColorExpr("community_type", RURAL_COMMUNITY_OPTIONS), 0.45, RURAL_MIN_ZOOM, (p) => atlasMultiSelectFilter("community_type", RURAL_COMMUNITY_OPTIONS, p?.agriRuralCommunityVillagesTypeMask)),
   },
   // ── 道路設施 ──
-  publicLifePointOverlay("provincialRoadSigns", "./geo/provincial_road_signs.pmtiles", "provincial-road-signs", matchColorExpr("sign_series", ROAD_SIGN_SERIES_OPTIONS), { sourceLayer: "provincial_road_signs", minzoom: ROAD_SIGNS_TILE_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道標誌清查（data.gov.tw 146233 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("sign_series", ROAD_SIGN_SERIES_OPTIONS, p?.provincialRoadSignsSeriesMask), dense: { pointsFromZoom: ROAD_SIGNS_POINT_MIN_ZOOM, intensity: 1 } }),
-  publicLifePointOverlay("provincialRoadMileposts", "./geo/provincial_road_mileposts.pmtiles", "provincial-road-mileposts", ATLAS_LAYER_COLORS.provincialRoadMileposts, { sourceLayer: "provincial_road_mileposts", minzoom: MILEPOSTS_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道里程牌（data.gov.tw 7040）· ${OGDL_ATTR}`, [2, 5]),
-  publicLifePointOverlay("freewayTrafficSigns", "./geo/freeway_traffic_signs.pmtiles", "freeway-traffic-signs", matchColorExpr("sign_group", FREEWAY_SIGN_GROUP_OPTIONS), { sourceLayer: "freeway_traffic_signs", minzoom: FREEWAY_SIGNS_MIN_ZOOM, maxzoom: 14 }, `交通部高速公路局 交通標誌（data.gov.tw 98447）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("sign_group", FREEWAY_SIGN_GROUP_OPTIONS, p?.freewayTrafficSignsGroupMask) }),
+  publicLifePointOverlay("provincialRoadSigns", "./geo/provincial_road_signs_v2.pmtiles", "provincial-road-signs", matchColorExpr("sign_series", ROAD_SIGN_SERIES_OPTIONS), { sourceLayer: "provincial_road_signs", minzoom: ROAD_SIGNS_TILE_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道標誌清查（data.gov.tw 146233 等）· ${OGDL_ATTR}`, undefined, { filter: (p) => atlasMultiSelectFilter("sign_series", ROAD_SIGN_SERIES_OPTIONS, p?.provincialRoadSignsSeriesMask), dense: { pointsFromZoom: ROAD_SIGNS_POINT_MIN_ZOOM, intensity: 1 } }),
+  publicLifePointOverlay("provincialRoadMileposts", "./geo/provincial_road_mileposts_v2.pmtiles", "provincial-road-mileposts", ATLAS_LAYER_COLORS.provincialRoadMileposts, { sourceLayer: "provincial_road_mileposts", minzoom: MILEPOSTS_MIN_ZOOM, maxzoom: 14 }, `交通部公路局 省道里程牌（data.gov.tw 7040）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.provincialRoadMileposts, intensity: 1 } }),
+  publicLifePointOverlay("freewayTrafficSigns", "./geo/freeway_traffic_signs_v2.pmtiles", "freeway-traffic-signs", matchColorExpr("sign_group", FREEWAY_SIGN_GROUP_OPTIONS), { sourceLayer: "freeway_traffic_signs", minzoom: FREEWAY_SIGNS_MIN_ZOOM, maxzoom: 14 }, `交通部高速公路局 交通標誌（data.gov.tw 98447）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.freewayTrafficSigns, intensity: 1 }, filter: (p) => atlasMultiSelectFilter("sign_group", FREEWAY_SIGN_GROUP_OPTIONS, p?.freewayTrafficSignsGroupMask) }),
   publicLifePointOverlay("freewayInterchanges", "./geo/freeway_interchanges.geojson", "freeway-interchanges", matchColorExpr("facility_type", INTERCHANGE_TYPE_OPTIONS), undefined, `交通部高速公路局 國道交流道（data.gov.tw 166496）· ${OGDL_ATTR}`, [4, 7], { labelMinzoom: 10 }),
   {
     id: "freewayEcoSensitive", sourceUrl: "./geo/freeway_eco_sensitive_sections.geojson", sourceId: "freeway-eco-sensitive",
@@ -11856,7 +11864,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     layers: polygonLayers("freewayEcoSensitive", ecoLevelColorExpr(), 0.5),
   },
   {
-    id: "provincialRoadMonitored", sourceUrl: "./geo/provincial_road_monitored_sections.pmtiles", sourceId: "provincial-road-monitored",
+    id: "provincialRoadMonitored", sourceUrl: "./geo/provincial_road_monitored_sections_v2.pmtiles", sourceId: "provincial-road-monitored",
     pmtiles: { sourceLayer: "provincial_road_monitored_sections", minzoom: MONITORED_MIN_ZOOM, maxzoom: 12 },
     attribution: `交通部公路局 省道防救災監控路段（data.gov.tw 16193 等）· ${OGDL_ATTR}`, rebuildOnParamChange: ["line", "point"],
     layers: [
@@ -11905,7 +11913,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("batterySwapStations", "./energy/battery_swap_stations.geojson", "battery-swap-stations", matchColorExpr("operator", BATTERY_SWAP_OPERATOR_OPTIONS), undefined, `台灣中油 換電服務加油站（data.gov.tw 106247）、台灣電力公司 換電站租賃據點（165894）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
   publicLifePointOverlay("marineEcologicalMonitoringSites", "./marine/marine_ecological_monitoring_sites.geojson", "marine-ecological-monitoring-sites", ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, undefined, `國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
   // ── 地名 ──
-  publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
+  publicLifePointOverlay("placeNames", "./geo/place_names_moi_v2.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { dense: { pointsFromZoom: DENSE_FROM.placeNames, intensity: 1 }, filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
   publicLifePointOverlay("triangulationPoints", "./geo/triangulation_points_moi.geojson", "triangulation-points-moi", triangulationColorExpr(), undefined, `內政部國土測繪中心 三角點（data.gov.tw 26485）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
   // ── 水利設施 ──
   publicLifePointOverlay("wraFloodgatesCentral", "./geo/wra_floodgates_central.geojson", "wra-floodgates-central", matchColorExpr("gate_kind", GATE_KIND_OPTIONS), undefined, `經濟部水利署 水門位置（data.gov.tw 32722）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("gate_kind", GATE_KIND_OPTIONS, p?.wraFloodgatesCentralKindMask) }),

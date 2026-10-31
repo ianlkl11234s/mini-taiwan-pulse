@@ -454,6 +454,7 @@ export function EducationLegend({ isDark = true, visibility, schoolLevelColor = 
               </div>
             ))}
           </div>
+          <DenseHeatmapLegendRow layers={["eduCramSchool"]} />
           <LegendNote style={{ marginTop: 3, lineHeight: 1.4 }}>
             {i18n.t("legend.civic.eduCramNote")}
           </LegendNote>
@@ -664,6 +665,9 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
         ))}
       </div>
 
+      {/* 防空避難熱區（§3.8 V-1：z<10 畫密度熱區） */}
+      {visibility.civilDefenseShelter && <DenseHeatmapLegendRow layers={["civilDefenseShelter"]} />}
+
       {/* 警察階層細分 — 開啟 policeStation 時顯示 */}
       {visibility.policeStation && (
         <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
@@ -695,6 +699,42 @@ export function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibilit
           ].map((r) => (
             <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
               <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: "#dc2626", border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(r.l)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 測速類型 — 顏色同 overlayRegistry speedCamera 的 facility_subtype（§3.8 V-4，可在設定面板篩選） */}
+      {visibility.speedCamera && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 3 }}>{i18n.t("legend.civic.pjSpeedCat")}</div>
+          {[
+            { c: "#dc2626", l: "legend.civic.pjSpeedGeneral" as const },
+            { c: "#7f1d1d", l: "legend.civic.pjSpeedFreeway" as const },
+            { c: "#fb7185", l: "legend.civic.pjSpeedRedLight" as const },
+            { c: "#facc15", l: "legend.civic.pjSpeedRailway" as const },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <SwatchDot color={r.c} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(r.l)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 桃園竊盜案件類型 — 顏色同 overlayRegistry theftTaoyuan 的 case_type（§3.8 V-4，可篩選） */}
+      {visibility.theftTaoyuan && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: `1px solid ${t.border}` }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 3 }}>{i18n.t("legend.civic.pjTheftCat")}</div>
+          {[
+            { c: "#f59e0b", l: "legend.civic.pjTheftHouse" as const },
+            { c: "#fb923c", l: "legend.civic.pjTheftCar" as const },
+            { c: "#fbbf24", l: "legend.civic.pjTheftMoto" as const },
+            { c: "#fde047", l: "legend.civic.pjTheftBike" as const },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <SwatchDot color={r.c} />
               <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i18n.t(r.l)}</span>
             </div>
           ))}

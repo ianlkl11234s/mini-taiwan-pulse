@@ -670,6 +670,7 @@ export function GbCoastalErosionRiskLegend() {
     </div>)}
     <LegendNote>{i18n.t(GB_NATION_LEGEND_KEYS["Northern Ireland"], { version: GB_EROSION_SOURCES["Northern Ireland"].version })}</LegendNote>
     {GB_EROSION_RISKS.map((r) => <LegendRow key={r.value} swatch={<SwatchLine color={r.color} width={LINE_WIDTH.emphasis[1]} />}>{i18n.t(GB_RISK_LEGEND_KEYS[r.value]!, { nation: i18n.t(GB_NATION_SHORT_KEYS["Northern Ireland"]) })}</LegendRow>)}
+    <DenseHeatmapLegendRow layers={["gbCoastalErosionRisk"]} />
     <LegendNote>{i18n.t("legend.water.gbErosionNotComparable")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbErosionPeriodNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.water.gbDynamicCoastNote")}</LegendNote>

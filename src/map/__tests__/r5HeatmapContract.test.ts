@@ -72,6 +72,12 @@ const REGISTRY_DENSE: readonly (readonly [string, number, number, string | null]
   ["bicycleSupport", 11_989, 0, "bicycleSupportOpacity"],
   ["commonRegistrationAddresses", 11_121, 6, "commonRegistrationAddressesOpacity"],
   ["riversideTreesTaipei", 10_917, 0, "riversideTreesTaipeiOpacity"],
+  // §3.8 V-1（2026-10-31）：台灣 v2 重切檔 z7 起，≥ 1 萬點的低縮放畫熱區
+  ["civilDefenseShelter", 62_695, 7, "civilDefenseShelterOpacity"],
+  ["eduCramSchool", 17_137, 7, "eduCramSchoolOpacity"],
+  ["provincialRoadMileposts", 30_098, 7, "provincialRoadMilepostsOpacity"],
+  ["freewayTrafficSigns", 51_405, 7, "freewayTrafficSignsOpacity"],
+  ["placeNames", 36_431, 7, "placeNamesOpacity"],
 ];
 
 /** 共用滑桿：一般／移動／重大裁處同一支 pollutionPenaltyOpacity，取多數層（> 100k）的 0.6。 */
@@ -125,20 +131,6 @@ describe("R5 registry 密集點全面套用", () => {
     expect(weight("streetTreesTaipei3epoch", { streetTreesTaipei3epochTrajFilterIdx: 1 })).toContain("traj");
     expect(weight("streetTreesNational", { streetTreesNationalCityMask: 1 })).toContain("city");
     expect(weight("riversideTreesTaipei", { riversideTreesTaipeiParkMask: 1 })).toContain("park_name");
-  });
-
-  it("civilDefenseShelter 不套熱區：PMTiles minzoom 10，z<10 沒有 tile 可畫", () => {
-    const config = OVERLAY_REGISTRY.find((c) => c.id === "civilDefenseShelter")!;
-    expect(config.pmtiles?.minzoom).toBe(10);
-    expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
-  });
-
-  it("eduCramSchool 不套熱區：切片 minzoom 8 且低縮放大量抽稀，點維持 z8 起畫", () => {
-    const config = OVERLAY_REGISTRY.find((c) => c.id === "eduCramSchool")!;
-    expect(config.pmtiles?.minzoom).toBe(8);
-    expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
-    for (const l of config.layers.filter((l) => l.type === "circle")) expect(l.minzoom).toBeUndefined();
-    expect(Number(paramDefault("eduCramSchool", "eduCramSchoolOpacity"))).toBe(densePointOpacity(17_137));
   });
 });
 
