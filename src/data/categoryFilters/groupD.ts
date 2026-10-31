@@ -22,7 +22,7 @@ export const CATEGORY_FILTERS_D: Record<string, CategoryFilterDef | readonly Cat
     property: "facility_category",
     options: [
       { value: "hotel", zh: "飯店" },
-      { value: "ryokan", zh: "旅館" },
+      { value: "ryokan", zh: "日式旅館 Ryokan" },
       { value: "simple_lodging", zh: "簡易宿所" },
       ...ACCOMMODATION_COMMON.slice(1),
     ],
