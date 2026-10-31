@@ -16,5 +16,8 @@
   "enum.statPublisher.行政院主計總處": "Directorate-General of Budget, Accounting and Statistics (DGBAS)",
   "enum.statPublisher.財團法人保險事業發展中心": "Taiwan Insurance Institute",
   "enum.statPublisher.Office for National Statistics (ONS)；蘇格蘭數字來自 National Records of Scotland，北愛來自 NISRA": "Office for National Statistics (ONS); Scottish figures from National Records of Scotland, Northern Ireland figures from NISRA",
-  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics"
+  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "Department for Environment, Food & Rural Affairs (Defra), Farming Statistics",
+  "enum.statPublisher.행정안전부（Ministry of the Interior and Safety）": "Ministry of the Interior and Safety (MOIS)",
+  "enum.statPublisher.국가데이터처（舊 통계청）SGIS": "National Data Office (formerly Statistics Korea) SGIS",
+  "enum.statPublisher.서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）": "Seoul Metropolitan Government (Seoul Open Data Plaza; estimate based on KT telecom data)"
 }

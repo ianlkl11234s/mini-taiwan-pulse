@@ -96,7 +96,9 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { KR_DATA_SPECS } from "./krDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
+import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
@@ -735,13 +737,14 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
 }
 
 /**
- * R7 熱區顏色（色盤選單）：可換色熱區一律預設 magma（Q4 A），選項是整個色盤庫。
+ * R7 熱區顏色（色盤選單）：預設依圖層主題（`map/heatmapPaletteDefaults.ts`，map-layers.md §3.4 G-2；
+ * 2026-10-31 取代「一律 magma」），選項是整個色盤庫。
  * 只換熱區色，拉近後的點顏色不變（點仍是該層識別色／類別色）。
  */
 function heatmapPalette(key: string): PaletteParamSpec {
   return {
     kind: "palette", name: `${key}Palette`, label: "熱區顏色",
-    default: "magma", options: PALETTE_IDS, role: "heatmap", out: null,
+    default: defaultHeatmapPalette(key), options: PALETTE_IDS, role: "heatmap", out: null,
   };
 }
 
@@ -1923,6 +1926,10 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  // 南韓第 3–5 波（2026-10-31）：點層＝透明度＋大小，線／面層＝透明度。預設不透明度點層依筆數（P-3）。
+  ...Object.fromEntries(KR_DATA_SPECS.map((spec) => [spec.key, spec.geom === "point"
+    ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
+    : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {

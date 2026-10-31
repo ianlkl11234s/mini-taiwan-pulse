@@ -16,7 +16,7 @@ import { atlasDefaultReleaseOption, atlasLazyFamily, atlasRecipeCountry, atlasRe
 import { statisticsPeriodLabel } from './statisticsLabels';
 import { getDemographicsRecipe, demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsPeriodParts, demographicsReleaseOptions, resolveDemographicsRelease } from './demographicsStatisticsRecipes';
 
-export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2' | 'prosecutor_district' | 'gb_lad';
+export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2' | 'prosecutor_district' | 'gb_lad' | 'kr_sido' | 'kr_sigungu';
 export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; layerKey?: string; sourceLayerKey?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; valueTransform?: 'complement_100'; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
 export interface StatisticsCatalogItem { dataset_id: string; indicator_id: string; name: string; unit: string; levels: StatisticsLevel[] }
 export interface StatisticsRelease { release_id: string; dataset_id: string; indicator_id: string; boundary_version: string; period_start: string; period_end: string; levels?: StatisticsLevel[] }

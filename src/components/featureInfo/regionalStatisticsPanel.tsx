@@ -75,6 +75,9 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {prosecutorDistrict && <Row label={t('popup.regionalStatistics.coveredCounties')} value={`${props.counties == null ? '—' : placeNameList(String(props.counties), i18n)}${typeof props.township_count === 'number' ? t('popup.regionalStatistics.townshipCount', { count: props.township_count }) : ''}`} />}
     {prosecutorDistrict && <Row field="caution" value={t('popup.regionalStatistics.prosecutorCaution')} />}
     {gbNation && <Row label={t('popup.baseMap.gbNation')} value={t(GB_NATION_KEYS[gbNation])} />}
+    {/* 南韓統計（geometry 帶 sido_name）：市郡區名常重複（如「중구」），補所屬道級；道級帶英文名。 */}
+    {typeof props.sido_name === 'string' && props.sido_code !== props.area_code && <Row label={t('popup.baseMap.krSido')} value={props.sido_name} />}
+    {typeof props.area_name_en === 'string' && typeof props.sido_name === 'string' && <Row label={t('popup.baseMap.krNameEnglish')} value={props.area_name_en} />}
     <Row label={t('popup.regionalStatistics.indicator')} value={props.indicator_name == null ? '—' : typeof (props.title_layer_key ?? props.layer_key) === 'string' ? statisticsTitle(String(props.title_layer_key ?? props.layer_key), String(props.indicator_name), i18n) : String(props.indicator_name)} />
     <Row label={t('popup.regionalStatistics.value')} value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit == null ? '' : statisticsUnit(String(props.unit), i18n)}` : t('popup.regionalStatistics.notZero', { label: missingLabel })} />
     {props.source_status != null && <Row label={t('popup.regionalStatistics.sourceStatus')} value={String(props.source_status)} />}

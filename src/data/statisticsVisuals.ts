@@ -300,6 +300,18 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   // 第 12 波作物面積：農業 YlGn（麥穗；草地用幼苗）
   [/^statsGbCrop(?:CerealsShare|ArableShare|FruitVegArea)$/, 'agriculture', Wheat],
   [/^statsGbCropGrasslandShare$/, 'agriculture', Sprout],
+  // 南韓統計（2026-10-31，道級／市郡區）：不新增色票。人口、性別、年齡、首爾生活人口＝人口 RdPu；
+  // 家戶與住宅＝住宅 Oranges；事業體與從業人員＝工作與所得。
+  [/^statsKrPopulation(?:Male|Female|Density)?(?:Sido|Sgg)$/, 'population', Users],
+  [/^statsKrSexRatio/, 'population', Scale],
+  [/^statsKrAgeYoungShare/, 'population', Baby],
+  [/^statsKrAgeWorkingShare/, 'population', PersonStanding],
+  [/^statsKr(?:AgeOldShare|MeanAge|AgingIndex)/, 'population', Hourglass],
+  [/^statsKrSeoul/, 'population', Smartphone],
+  [/^statsKrHousehold/, 'housing', UsersRound],
+  [/^statsKrDwellings/, 'housing', House],
+  [/^statsKrEstablishments/, 'labor', Building2],
+  [/^statsKrEmployees/, 'labor', Briefcase],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {

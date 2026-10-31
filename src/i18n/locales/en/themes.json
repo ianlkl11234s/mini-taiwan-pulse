@@ -279,5 +279,10 @@
   "theme.用水與供水": "Water Use & Supply",
   "theme.空氣品質": "Air Quality",
   "theme.污染與公害": "Pollution & Nuisance",
-  "theme.環境治理": "Environmental Governance"
+  "theme.環境治理": "Environmental Governance",
+  "theme.住民登錄人口（2026-09）": "Resident registration population (2026-09)",
+  "theme.人口密度與高齡化（2024）": "Density & ageing (2024)",
+  "theme.首爾生活人口（2026-07）": "Seoul de facto population (2026-07)",
+  "theme.家戶與住宅（2024）": "Households & dwellings (2024)",
+  "theme.事業體（2024）": "Establishments (2024)"
 }
