@@ -48,7 +48,9 @@ export function GbPlanningConstraintsLegend() {
         {i18n.t("legend.environment.gbPlanRow", { label: i18n.t(GB_PLANNING_CONSTRAINT_KEYS[c.value]), n: n(c.count) })}
       </LegendRow>
     ))}
+    <DenseHeatmapLegendRow layers={["gbPlanningConstraints"]} />
     <LegendNote>{i18n.t("legend.environment.gbPlanViewNote")}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.gbPlanPointNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPlanConservationNations", { e: n(GB_CONSERVATION_BY_NATION.England), s: n(GB_CONSERVATION_BY_NATION.Scotland), w: n(GB_CONSERVATION_BY_NATION.Wales) })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPlanEnglandOnly")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPlanCoverage")}</LegendNote>

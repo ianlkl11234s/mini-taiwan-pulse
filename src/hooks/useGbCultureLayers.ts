@@ -6,11 +6,12 @@ import {
   GB_CULTURE_MINZOOM, GB_CULTURE_TILE_ZOOM, GB_LIBRARIES_NI_ATTRIBUTION, GB_VISITOR_KINDS,
 } from "../data/gbCultureTypes";
 import { GB_OSM_ATTRIBUTION } from "../data/gbCivicTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbAllOf, gbMaskFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 8 波文化與觀光 3 層：文化設施（官方實心、OSM 補缺同色空心）、藝文場館、
  * 觀光體驗（景點、其他類別兩個 circle，同 source，皆 z5 起）。靜態資料、不訂閱時間。
+ * §3.8 V-4：三層都依 `kind` 多選篩選（`kindMask`＝layerParamsSpec multiSelect 的 bitmask，順序同 *_KINDS）。
  */
 export const GB_CULTURAL_FACILITIES_CIRCLE_ID = "gb-cultural-facilities-circle";
 export const GB_ARTS_VENUES_CIRCLE_ID = "gb-arts-venues-circle";
@@ -62,31 +63,39 @@ function culturalPaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
-export function useGbCulturalFacilitiesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbCulturalFacilitiesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
+  const filter = gbMaskFilter("kind", kindMask, GB_CULTURAL_KINDS.map((k) => k.value));
   useGbPmtilesLayers(mapRef, CULTURAL_SOURCE, visible, () => [{
     id: GB_CULTURAL_FACILITIES_CIRCLE_ID,
     layer: () => ({
       id: GB_CULTURAL_FACILITIES_CIRCLE_ID, type: "circle", source: CULTURAL_SOURCE.id, "source-layer": "gb_cultural_facilities",
-      minzoom: GB_CULTURE_MINZOOM.default, layout: { visibility: "none" }, paint: culturalPaint(isDark, opacity, scale),
+      minzoom: GB_CULTURE_MINZOOM.default, ...(filter ? { filter } : {}), layout: { visibility: "none" }, paint: culturalPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
-    update: (map) => setPaint(map, GB_CULTURAL_FACILITIES_CIRCLE_ID, culturalPaint(isDark, opacity, scale)),
-  }], [opacity, scale, isDark]);
+    update: (map) => {
+      map.setFilter(GB_CULTURAL_FACILITIES_CIRCLE_ID, filter as any);
+      setPaint(map, GB_CULTURAL_FACILITIES_CIRCLE_ID, culturalPaint(isDark, opacity, scale));
+    },
+  }], [opacity, scale, kindMask, isDark]);
 }
 
 // ─────────────────────────── 藝文場館 ───────────────────────────
 
 const ARTS_SOURCE = source("gb-arts-venues", "gb_arts_venues.pmtiles", GB_OSM_ATTRIBUTION, "英國藝文場館載入中");
 
-export function useGbArtsVenuesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbArtsVenuesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint("gbArtsVenues", kindColor(GB_ARTS_KINDS), isDark, opacity, scale);
+  const filter = gbMaskFilter("kind", kindMask, GB_ARTS_KINDS.map((k) => k.value));
   useGbPmtilesLayers(mapRef, ARTS_SOURCE, visible, () => [{
     id: GB_ARTS_VENUES_CIRCLE_ID,
     layer: () => ({
       id: GB_ARTS_VENUES_CIRCLE_ID, type: "circle", source: ARTS_SOURCE.id, "source-layer": "gb_arts_venues",
-      minzoom: GB_CULTURE_MINZOOM.default, layout: { visibility: "none" }, paint: paint(),
+      minzoom: GB_CULTURE_MINZOOM.default, ...(filter ? { filter } : {}), layout: { visibility: "none" }, paint: paint(),
     } as unknown as AnyLayer),
-    update: (map) => setPaint(map, GB_ARTS_VENUES_CIRCLE_ID, paint()),
-  }], [opacity, scale, isDark]);
+    update: (map) => {
+      map.setFilter(GB_ARTS_VENUES_CIRCLE_ID, filter as any);
+      setPaint(map, GB_ARTS_VENUES_CIRCLE_ID, paint());
+    },
+  }], [opacity, scale, kindMask, isDark]);
 }
 
 // ─────────────────────────── 觀光體驗 ───────────────────────────
@@ -94,25 +103,34 @@ export function useGbArtsVenuesLayer(mapRef: MapRef, visible: boolean, opacity: 
 const VISITOR_SOURCE = source("gb-visitor-experience", "gb_visitor_experience.pmtiles", GB_OSM_ATTRIBUTION, "英國觀光體驗載入中");
 const IS_ATTRACTION: Expr = ["==", ["get", "kind"], "attraction"];
 
-export function useGbVisitorExperienceLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbVisitorExperienceLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint("gbVisitorExperience", kindColor(GB_VISITOR_KINDS), isDark, opacity, scale);
+  const kindFilter = gbMaskFilter("kind", kindMask, GB_VISITOR_KINDS.map((k) => k.value));
+  const attractionFilter = gbAllOf(IS_ATTRACTION, kindFilter)!;
+  const otherFilter = gbAllOf(["!", IS_ATTRACTION], kindFilter)!;
   useGbPmtilesLayers(mapRef, VISITOR_SOURCE, visible, () => [
     {
       // 景點 5,436 點：畫在其他類別下面
       id: GB_VISITOR_ATTRACTION_CIRCLE_ID,
       layer: () => ({
         id: GB_VISITOR_ATTRACTION_CIRCLE_ID, type: "circle", source: VISITOR_SOURCE.id, "source-layer": "gb_visitor_experience",
-        minzoom: GB_CULTURE_MINZOOM.attraction, filter: IS_ATTRACTION, layout: { visibility: "none" }, paint: paint(),
+        minzoom: GB_CULTURE_MINZOOM.attraction, filter: attractionFilter, layout: { visibility: "none" }, paint: paint(),
       } as unknown as AnyLayer),
-      update: (map) => setPaint(map, GB_VISITOR_ATTRACTION_CIRCLE_ID, paint()),
+      update: (map) => {
+        map.setFilter(GB_VISITOR_ATTRACTION_CIRCLE_ID, attractionFilter as any);
+        setPaint(map, GB_VISITOR_ATTRACTION_CIRCLE_ID, paint());
+      },
     },
     {
       id: GB_VISITOR_OTHER_CIRCLE_ID,
       layer: () => ({
         id: GB_VISITOR_OTHER_CIRCLE_ID, type: "circle", source: VISITOR_SOURCE.id, "source-layer": "gb_visitor_experience",
-        minzoom: GB_CULTURE_MINZOOM.default, filter: ["!", IS_ATTRACTION], layout: { visibility: "none" }, paint: paint(),
+        minzoom: GB_CULTURE_MINZOOM.default, filter: otherFilter, layout: { visibility: "none" }, paint: paint(),
       } as unknown as AnyLayer),
-      update: (map) => setPaint(map, GB_VISITOR_OTHER_CIRCLE_ID, paint()),
+      update: (map) => {
+        map.setFilter(GB_VISITOR_OTHER_CIRCLE_ID, otherFilter as any);
+        setPaint(map, GB_VISITOR_OTHER_CIRCLE_ID, paint());
+      },
     },
-  ], [opacity, scale, isDark]);
+  ], [opacity, scale, kindMask, isDark]);
 }

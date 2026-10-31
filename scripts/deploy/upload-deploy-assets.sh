@@ -559,6 +559,7 @@ for f in \
   public/world/jp_major_roads.pmtiles \
   public/world/gb_admin_small_areas.pmtiles \
   public/world/gb_built_up_areas.pmtiles \
+  public/world/gb_built_up_areas_v2.pmtiles \
   public/world/gb_greenspace.pmtiles \
   public/world/kr_bridges.pmtiles \
   public/world/kr_speed_cameras.pmtiles \

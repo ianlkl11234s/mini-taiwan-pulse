@@ -1,6 +1,7 @@
 // 英國第 4 波交通圖例（2026-10-29）：樞紐、站客流、倫敦軌道線／站、單車站、JamCams、收費區；第 10 波：主要路網、AADF 計數點。
 // 色票與署名 SSOT 在 data/gbTransportTypes.ts；TfL 四層＋車站一律附三句署名與「倫敦限定」。
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_BIKEPOINT_COLOR, GB_CHARGING_ZONES, GB_HUB_TYPES, GB_HUBS_ATTRIBUTION, GB_JAMCAM_COLOR, GB_JAMCAM_OFFLINE_COLOR, GB_LONDON_RAIL_MODES,
@@ -166,6 +167,7 @@ export function GbTrafficCountsAadfLegend() {
     <LegendTitle zh={layerTitle("gbTrafficCountsAadf", i18n)} en="Traffic Counts (AADF)" />
     <LegendNote>{i18n.t("legend.transport.gbAadfTitleNote")}</LegendNote>
     {GB_AADF_BUCKETS.map((b, i) => <LegendRow key={b.min} swatch={<SwatchDot color={b.color} />}>{i18n.t(AADF_KEYS[i]!)}</LegendRow>)}
+    <DenseHeatmapLegendRow layers={["gbTrafficCountsAadf"]} />
     <LegendNote>{i18n.t("legend.transport.gbAadfZoomNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfEstimatedNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.transport.gbAadfMinorNote")}</LegendNote>

@@ -149,7 +149,7 @@
   "legend.transport.gbAadf20k": "20,000～50,000",
   "legend.transport.gbAadf50k": "50,000～100,000",
   "legend.transport.gbAadf100k": "100,000 以上",
-  "legend.transport.gbAadfZoomNote": "ズーム 6～7 は高速道路と幹線 A 級のみ、ズーム 8 以上ですべての計測地点を表示",
+  "legend.transport.gbAadfZoomNote": "ズーム 8 未満は全計測地点を密度ヒートマップで表示し、ズーム 6〜7 は高速道路と幹線 A 道路の点も描画。ズーム 8 以上で全計測地点を描画",
   "legend.transport.gbAadfEstimatedNote": "計測地点の約 64% は DfT の推計値（当年の実測ではない）。設定で「当年の実測のみ」に切り替え可能",
   "legend.transport.gbAadfMinorNote": "B 級・C 級／未分類道路は抽出された計測地点のみで、すべての小道路ではない",
   "legend.transport.gbAadfNi": "北アイルランド：対象外（DfI が別途計測）",

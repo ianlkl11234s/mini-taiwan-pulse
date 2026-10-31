@@ -19,9 +19,10 @@ export const GB_GREENSPACE_VERSION = "OS Open Greenspace 2026-04";
 
 export const GB_BUILT_UP_COLOR = "#78909c";
 
-/** `category` 欄位值＝三個圖層 key 各自的 filter。 */
+/** `category` 欄位值＝各圖層 key 的 filter（運動場地與高爾夫球場同為 sports，再以 `function` 區分）。 */
 export type GbGreenspaceCategory = "park" | "sports" | "burial";
-export type GbGreenspaceKey = "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries";
+/** 2026-10-31（§3.8 V-4）高爾夫球場從運動場地拆成獨立圖層 `gbGolfCourses`（同檔 category=sports、function=Golf Course）。 */
+export type GbGreenspaceKey = "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries";
 
 export type GbGreenspaceFunctionId =
   | "Park" | "Play" | "Allotment" | "PlayingField" | "OtherSports" | "Tennis" | "Bowling" | "Golf" | "Cemetery" | "Religious";
@@ -54,6 +55,11 @@ export const GB_GREENSPACE_CATEGORIES: Readonly<Record<GbGreenspaceKey, {
       { value: "Other Sports Facility", id: "OtherSports", color: "#26a69a", count: 16_303 },
       { value: "Tennis Court", id: "Tennis", color: "#5c6bc0", count: 7_173 },
       { value: "Bowling Green", id: "Bowling", color: "#ef6c00", count: 6_541 },
+    ],
+  },
+  gbGolfCourses: {
+    category: "sports", layerColor: "#ec407a", minzoom: 10,
+    functions: [
       { value: "Golf Course", id: "Golf", color: "#ec407a", count: 2_980 },
     ],
   },

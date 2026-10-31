@@ -80,6 +80,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbBuiltUpAreas",
   "gbGreenspace",
   "gbSportsFacilities",
+  "gbGolfCourses",
   "gbCemeteries",
   "gbRivers",
   "gbHydroStations",
