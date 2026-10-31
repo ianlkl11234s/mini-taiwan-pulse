@@ -1324,6 +1324,7 @@
   "layer.jpGsiRelief": "Color Elevation Map (GSI)",
   "layer.gbAdminBoundaries": "Local Authority Districts (LAD)",
   "layer.gbSmallAreaBoundaries": "Statistical Small Areas",
+  "layer.krAdminBoundaries": "Administrative Boundaries (South Korea)",
   "layer.statsGbPopulation": "Mid-year Population",
   "layer.statsGbPopulationDensity": "Population Density",
   "layer.statsGbMedianAge": "Median Age",
@@ -1414,5 +1415,10 @@
   "layer.renewablePermitsNational": "Solar Permits (Nationwide)",
   "layer.importantWetlands": "Wetlands of Importance",
   "layer.waterRecreationRestrictedAreas": "Water Recreation Restricted Areas",
-  "layer.batterySwapStations": "E-scooter Battery Swap Sites"
+  "layer.batterySwapStations": "E-scooter Battery Swap Sites",
+  "layer.trafficAccidents2025": "A1/A2 Traffic Accidents",
+  "layer.disasterResourceSites": "Disaster Resource Sites",
+  "layer.tsunamiSirens": "Tsunami Sirens",
+  "layer.nuclearEpzEvacuation": "Nuclear Plant Assembly Points & Shelters",
+  "layer.firingNoticeAreas": "Live-fire Notice Areas"
 }

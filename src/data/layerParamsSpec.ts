@@ -154,6 +154,7 @@ import {
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
+import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
   BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
@@ -1916,6 +1917,14 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  krAdminBoundaries: [
+    opacitySlider("krAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "krAdminBoundariesLevel", label: "行政層級", default: "sido",
+      options: [{ label: "道級（시·도）", value: "sido" }, { label: "市郡區（시군구）", value: "sgg" }, { label: "行政洞（행정동）", value: "emd" }],
+      out: "krAdminBoundariesLevelIdx", encode: ["sido", "sgg", "emd"],
+    },
+  ],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
@@ -2772,6 +2781,17 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("a1AccidentRealtimeScale", 1),
     opacitySlider("a1AccidentRealtimeOpacity", 0.95),
   ],
+  trafficAccidents2025: [
+    {
+      kind: "multiSelect", name: "trafficAccidents2025Class", label: "事故類別", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TRAFFIC_ACCIDENT_CLASS_OPTIONS), out: "trafficAccidents2025ClassMask",
+    },
+    {
+      kind: "multiSelect", name: "trafficAccidents2025Cause", label: "主要肇因", default: MULTI_SELECT_ALL,
+      options: toParamOptions(TRAFFIC_ACCIDENT_CAUSE_OPTIONS), out: "trafficAccidents2025CauseMask",
+    },
+    opacitySlider("trafficAccidents2025Opacity", densePointOpacity(TRAFFIC_ACCIDENT_TOTAL)), scaleSlider("trafficAccidents2025Scale", 1),
+  ],
   investigationBureau: [
     scaleSlider("investigationBureauScale", 1),
     opacitySlider("investigationBureauOpacity", 0.9),
@@ -2792,6 +2812,14 @@ export const LAYER_PARAMS_SPEC = {
   civilDefenseShelter: [
     scaleSlider("civilDefenseShelterScale", 1),
     opacitySlider("civilDefenseShelterOpacity", densePointOpacity(62_695)),
+  ],
+  tsunamiSirens: [opacitySlider("tsunamiSirensOpacity", 0.9), scaleSlider("tsunamiSirensScale", 1)],
+  nuclearEpzEvacuation: [
+    {
+      kind: "multiSelect", name: "nuclearEpzEvacuationKind", label: "類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(NUCLEAR_EPZ_KIND_OPTIONS), out: "nuclearEpzEvacuationKindMask",
+    },
+    opacitySlider("nuclearEpzEvacuationOpacity", 0.9), scaleSlider("nuclearEpzEvacuationScale", 1),
   ],
   aquaculturePonds: [
     { kind: "slider", name: "aquaculturePondsOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
@@ -3663,8 +3691,15 @@ export const LAYER_PARAMS_SPEC = {
   fireHydrants: [
     scaleSlider("fireHydrantsScale", 1),
     heatmapPalette("fireHydrants"),
-    opacitySlider("fireHydrantsOpacity", densePointOpacity(69_839)),
+    opacitySlider("fireHydrantsOpacity", densePointOpacity(211_530)),
     zFloatSlider("fireHydrantsZ"),
+  ],
+  disasterResourceSites: [
+    {
+      kind: "multiSelect", name: "disasterResourceSitesHolder", label: "保管單位", default: MULTI_SELECT_ALL,
+      options: toParamOptions(DISASTER_RESOURCE_HOLDER_OPTIONS), out: "disasterResourceSitesHolderMask",
+    },
+    opacitySlider("disasterResourceSitesOpacity", densePointOpacity(5_379)), scaleSlider("disasterResourceSitesScale", 1),
   ],
   etcGantry: [
     scaleSlider("etcGantryScale", 1),
@@ -4049,6 +4084,13 @@ export const LAYER_PARAMS_SPEC = {
       kind: "toggle", name: "vesselWatchShowPresumed", label: "含疑似（未查證）",
       default: true, out: null,
     },
+  ],
+  firingNoticeAreas: [
+    {
+      kind: "multiSelect", name: "firingNoticeAreasAgency", label: "發布機關", default: MULTI_SELECT_ALL,
+      options: toParamOptions(FIRING_AGENCY_OPTIONS), out: "firingNoticeAreasAgencyMask",
+    },
+    opacitySlider("firingNoticeAreasOpacity", 0.6),
   ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──

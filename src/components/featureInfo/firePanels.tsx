@@ -1,6 +1,7 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../../data/fireTypes";
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
+import { FIRE_HYDRANT_SOURCES } from "../../data/safetyG36Types";
 import { useFeatureTheme } from "./featureTheme";
 import { useLocale } from "../../state/localeStore";
 import { placeName, placeTown } from "../../i18n/placeText";
@@ -78,9 +79,18 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
       <Row label={tr("popup.fire.hydrantType")} value={enumLabel("fireHydrantType", String(props.type ?? cat), String(props.type ?? cat), i18n)} color={accentColor} />
       <Row field="county" value={placeName(String(props.county ?? ""), i18n)} />
       <Row field="district" value={placeTown(String(props.county ?? ""), String(props.district ?? ""), i18n)} />
-      <Row field="number" value={String(props.id ?? "")} />
+      <Row field="number" value={String(props.twc_id ?? (props.src === "twc" ? "" : props.id ?? ""))} />
+      {props.type_code != null && <Row label={tr("popup.fire.hydrantTypeCode")} value={String(props.type_code)} mono />}
+      {/* G36：tile 不帶來源欄，依 src 補三家來源（FOOTER_SELF_MANAGED_LAYER_TYPES 已登記 fireHydrant） */}
+      <HydrantSource src={props.src} />
     </>
   );
+}
+
+function HydrantSource({ src }: { src: unknown }) {
+  const source = FIRE_HYDRANT_SOURCES[src as keyof typeof FIRE_HYDRANT_SOURCES];
+  if (!source) return null;
+  return <SourceFooter props={{ source_org: source.org, source_url: source.url, license: source.license, fetched_at: source.fetched }} />;
 }
 
 export function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {

@@ -30,6 +30,9 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
+  // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
+  "fireHydrant",
+  "trafficAccidents2025",
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   // 區域統計：feature 只帶 R2 來源紀錄的 publisher／license／source_url（不是中央版讀的 source_org），
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
@@ -54,6 +57,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpExpressways",
   // 英國第 0b 波：panel 自掛四地各自的署名與授權
   "gbAdminBoundaries",
+  // 南韓第 0 波：panel 自掛 SGIS／admdongkor 署名
+  "krAdminBoundaries",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
   "gbBuiltUpAreas",

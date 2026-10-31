@@ -319,6 +319,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 法國（2026-10-28）
     FRANCE_TELECOM_THEME_TITLE,
   ],
+  KR: [
+    // 南韓（2026-10-31 南韓第 0 波；title 沿用台灣主題中文短名，比照英國、日本）
+    "底圖",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -1623,7 +1627,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("harmReductionHivSelftest"),
           fromManifest("harmReductionHivTesting"),
           fromManifest("harmReductionPreventionCenters"),
-          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 治安態勢」）
+          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 交通事故」）
           fromManifest("harmReductionAlcohol"),
           fromManifest("harmReductionSmokingCessation"),
           fromManifest("harmReductionInternetAddiction"),
@@ -1663,6 +1667,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
+          fromManifest("disasterResourceSites"),
         ],
       },
       {
@@ -1772,6 +1777,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("civilDefenseShelter"),
         ],
       },
+      {
+        title: "警報與疏散",
+        layers: [
+          fromManifest("tsunamiSirens"),
+          fromManifest("nuclearEpzEvacuation"),
+        ],
+      },
     ],
   },
 
@@ -1813,6 +1825,12 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "治安態勢",
         layers: [
           fromManifest("theftTaoyuan"),
+        ],
+      },
+      {
+        title: "交通事故",
+        layers: [
+          fromManifest("trafficAccidents2025"),
           fromManifest("trafficAccidentYearly"),
           fromManifest("accidentTaipei"),
           fromManifest("a1AccidentRealtime"),
@@ -2331,6 +2349,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("plaActivity"),
           fromManifest("vesselWatch"),
+          fromManifest("firingNoticeAreas"),
         ],
       },
     ],
@@ -2599,6 +2618,18 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "官方無線站點 Official Wireless Sites",
         layers: [fromManifest("anfrWirelessSites")],
       },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇰🇷 南韓（2026-10-31 南韓第 0 波：行政邊界；之後各波照台灣主題名登記）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
     ],
   },
 
@@ -2926,6 +2957,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   FR: {
     [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
   },
+  KR: {
+    // 南韓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照英國、日本）。
+    "底圖": "baseline",
+  },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
     "底圖": "baseline",
@@ -3086,6 +3121,10 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   FR: {
     // 法國主題副標用法文（比照日本主題用日文）
     [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
+  },
+  KR: {
+    // 南韓主題副標用韓文（比照日本用日文、法國用法文）
+    "底圖": { zh: "底圖", sub: "기본도" },
   },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）

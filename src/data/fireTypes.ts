@@ -22,8 +22,13 @@ export const FIRE_STATION_CATS: FireCatStyle[] = [
 export const FIRE_HYDRANT_CATS: FireCatStyle[] = [
   { cat: "地上式", color: "#2196f3", label: "地上式" },
   { cat: "地下式", color: "#00acc1", label: "地下式" },
+  // G36：台水 44642 只給「種類編碼」0–5、未附代碼表 → 不硬對地上／地下式，單獨一類
+  { cat: "台水", color: "#7986cb", label: "台水（型式代碼未公開）" },
   { cat: "其他", color: "#90a4ae", label: "其他" },
 ];
+
+/** overlay 的 match 表達式用（色號同 FIRE_HYDRANT_CATS）。 */
+export const FIRE_HYDRANT_CAT_COLOR = Object.fromEntries(FIRE_HYDRANT_CATS.map((c) => [c.cat, c.color])) as Record<"地上式" | "地下式" | "台水" | "其他", string>;
 
 /** 火災事件傷亡分級（對應 useFireEventsLayer 的 casualty 著色）。 */
 export const FIRE_EVENT_CATS: FireCatStyle[] = [
@@ -32,7 +37,7 @@ export const FIRE_EVENT_CATS: FireCatStyle[] = [
 ];
 
 /** 消防栓資料覆蓋限制（圖例 / sidebar 標註用）。 */
-export const FIRE_HYDRANT_COVERAGE_NOTE = "僅臺北市、高雄市有公開資料";
+export const FIRE_HYDRANT_COVERAGE_NOTE = "臺北、高雄、新北（臺北水處供水區）為縣市來源，其餘 17 縣市與新北台水供水區為台灣自來水公司資料；金門、連江未涵蓋";
 
 /**
  * 救援等時圈分級（黃金救援框架）。minutes 對應 fetch-fire-isochrones.py 的 CONTOURS。

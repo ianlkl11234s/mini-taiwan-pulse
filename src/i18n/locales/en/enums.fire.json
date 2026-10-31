@@ -8,5 +8,11 @@
   "enum.fireStationType.其他": "Other",
   "enum.fireHydrantType.地上式": "Above-ground",
   "enum.fireHydrantType.地下式": "Underground",
-  "enum.fireHydrantType.其他": "Other"
+  "enum.fireHydrantType.台水": "TWC (type code not published)",
+  "enum.fireHydrantType.其他": "Other",
+  "enum.disasterResourceHolder.fire": "Fire units",
+  "enum.disasterResourceHolder.township": "Township offices",
+  "enum.disasterResourceHolder.police": "Police units",
+  "enum.disasterResourceHolder.health": "Health & medical",
+  "enum.disasterResourceHolder.other": "Other (sanitation, schools, companies, etc.)"
 }

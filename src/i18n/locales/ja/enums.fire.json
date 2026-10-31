@@ -8,5 +8,11 @@
   "enum.fireStationType.其他": "その他",
   "enum.fireHydrantType.地上式": "地上式",
   "enum.fireHydrantType.地下式": "地下式",
-  "enum.fireHydrantType.其他": "その他"
+  "enum.fireHydrantType.台水": "台湾自来水公司（形式コード非公開）",
+  "enum.fireHydrantType.其他": "その他",
+  "enum.disasterResourceHolder.fire": "消防機関",
+  "enum.disasterResourceHolder.township": "郷鎮市区役所",
+  "enum.disasterResourceHolder.police": "警察機関",
+  "enum.disasterResourceHolder.health": "衛生・医療",
+  "enum.disasterResourceHolder.other": "その他（清掃隊・学校・企業など）"
 }
