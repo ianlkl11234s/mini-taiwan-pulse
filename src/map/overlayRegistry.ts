@@ -120,6 +120,10 @@ function denseHeatmapLayer(o: {
   };
 }
 
+/** 診所層「機構類型」篩選（0=全部、1=只看衛生所）；欄位 category 來自健保特約名冊。 */
+const medClinicKindFilter = (p?: Record<string, number>): unknown[] =>
+  (p?.medClinicKindIdx ?? 0) === 1 ? ["==", ["get", "category"], "health_center"] : ["all"];
+
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
 import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
@@ -3418,12 +3422,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/medical_clinics.pmtiles",
     sourceId: "medical-clinics",
     pmtiles: { sourceLayer: "medical_clinics", minzoom: 0, maxzoom: 12 },
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" }, filter: medClinicKindFilter }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.medClinic,
+        filter: medClinicKindFilter,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           return {
@@ -3440,6 +3445,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle", minzoom: DENSE_FROM.medClinic,
+        filter: medClinicKindFilter,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           const opacity = params?.medClinicOpacity ?? 0.75;

@@ -7410,8 +7410,8 @@ export const LAYER_MANIFEST = {
     },
     legend: "medHospital",
     popup: "medicalPOI",
-    params: { count: 3, kinds: ["palette", "slider", "slider"] },
-    description: "全台診所與其他醫療機構點位",
+    params: { count: 4, kinds: ["select", "palette", "slider", "slider"] },
+    description: "全台診所與其他醫療機構點位（可篩選只看衛生所 407 處）",
     topics: ["醫療", "診所", "POI"],
   },
 

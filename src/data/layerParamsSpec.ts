@@ -1603,7 +1603,13 @@ export const LAYER_PARAMS_SPEC = {
   ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
   emergencyHospitals: [opacitySlider("emergencyHospitalsOpacity", 0.9), scaleSlider("emergencyHospitalsScale", 1.0)],
-  medClinic: [heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
+  medClinic: [
+    {
+      kind: "select", name: "medClinicKind", label: "機構類型", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "只看衛生所", value: "health_center" }],
+      out: "medClinicKindIdx", encode: ["all", "health_center"],
+    },
+    heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
   medPharmacy: [opacitySlider("medPharmacyOpacity", densePointOpacity(7_680)), scaleSlider("medPharmacyScale", 1.0)],
   medAED: [heatmapPalette("medAED"), opacitySlider("medAEDOpacity", densePointOpacity(15_490)), scaleSlider("medAEDScale", 1.0)],
   medLTC: [heatmapPalette("medLTC"), opacitySlider("medLTCOpacity", densePointOpacity(31_330)), scaleSlider("medLTCScale", 1.0)],
