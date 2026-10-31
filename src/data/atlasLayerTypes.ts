@@ -345,11 +345,16 @@ export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
 
 // ── 文化、觀光、原民補強 G35（2026-10-31）──────────────────────────────
 
-/** 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。 */
+/**
+ * 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。
+ * 2026-10-31 TWL-16：邵族原 #be185d 與賽夏族粉紅、噶瑪蘭族原 #0d9488 與太魯閣族青綠在圖例難分 →
+ * 改用 atlas 已在用的 #16a34a（綠）、#78350f（深褐）；兩色對其餘 15 色的 CIE76 ΔE 最小 27.4／26.0（原本 10.7／12.4）。
+ * 邵族（魚池、水里）是地圖上實際塗色的鄉鎮，給綠色避開鄰近泰雅族褐色；噶瑪蘭族目前沒有單族鄉鎮（都併在「兩族以上」），色只出現在圖例。
+ */
 export const DIALECT_GROUP_OPTIONS: readonly AtlasOption[] = [
   ...TRIBE_ETHNIC_OPTIONS,
-  { value: "邵族", label: "邵族", color: "#be185d" },
-  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#0d9488" },
+  { value: "邵族", label: "邵族", color: "#16a34a" },
+  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#78350f" },
   { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
   { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
   { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
