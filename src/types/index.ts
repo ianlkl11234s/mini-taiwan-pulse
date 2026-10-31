@@ -751,8 +751,9 @@ export interface OverlayConfig {
   /**
    * 靜態 GeoJSON 載入後的輕量幾何轉換。`centroid` 只把 Polygon /
    * MultiPolygon 轉成代表點並保留原 properties，供同一場站的範圍／點位模式共用。
+   * `interior`：保證落在面內的代表點（§3.8 V-5，點／面切換的 GeoJSON 面層；`map/interiorPoint.ts`）。
    */
-  geojsonTransform?: "centroid";
+  geojsonTransform?: "centroid" | "interior";
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
   /**

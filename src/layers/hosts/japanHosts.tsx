@@ -22,7 +22,8 @@ import { useJpMajorRoadsLayer } from "../../hooks/useJpMajorRoadsLayer";
 import { useJpExpresswaysLayer } from "../../hooks/useJpExpresswaysLayer";
 import { useJpGsiTerrainLayer } from "../../hooks/useJpGsiTerrainLayers";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
-import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
+import { jpTourismModeFor, useJpTourismLayers, useJpTourismRepPoints, type JpTourismRepKey } from "../../hooks/useJpTourismLayers";
+import { repPointLayer, repPointModeFromIdx } from "../../data/repPointLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
 import { JP_WATER_LAYER_KEYS } from "../../data/jpWaterTypes";
@@ -164,7 +165,7 @@ export const JpLandslideWarningAreasHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpLandslideWarningAreas");
   useJpLandslideWarningAreasLayer(deps.mapRef, deps.layerVisibility.jpLandslideWarningAreas,
     p.jpLandslideWarningAreasOpacity ?? 0.7,
-    p.jpLandslideWarningAreasZoneIdx ?? 0, p.jpLandslideWarningAreasPhenomenonIdx ?? 0);
+    p.jpLandslideWarningAreasZoneIdx ?? 0, p.jpLandslideWarningAreasPhenomenonIdx ?? 0, deps.isDarkTheme);
   return null;
 };
 
@@ -172,7 +173,8 @@ export const JpInlandFloodAreasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpInlandFloodAreasLayer");
   const p = useKeyOverlayParams("jpInlandFloodAreas");
   useJpInlandFloodAreasLayer(deps.mapRef, deps.layerVisibility.jpInlandFloodAreas,
-    p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme);
+    p.jpInlandFloodAreasOpacity ?? 0.7, deps.isDarkTheme,
+    repPointModeFromIdx(p.jpInlandFloodAreasDisplayModeIdx, repPointLayer("jpInlandFloodAreas")!.def), p.jpInlandFloodAreasScale ?? 1);
   return null;
 };
 
@@ -180,14 +182,18 @@ export const JpZoningUseDistrictsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpZoningUseDistrictsLayer");
   const p = useKeyOverlayParams("jpZoningUseDistricts");
   useJpZoningUseDistrictsLayer(deps.mapRef, deps.layerVisibility.jpZoningUseDistricts,
-    p.jpZoningUseDistrictsOpacity ?? 0.7, p.jpZoningUseDistrictsClassIdx ?? 0);
+    p.jpZoningUseDistrictsOpacity ?? 0.7, p.jpZoningUseDistrictsClassIdx ?? 0,
+    repPointModeFromIdx(p.jpZoningUseDistrictsDisplayModeIdx, repPointLayer("jpZoningUseDistricts")!.def),
+    p.jpZoningUseDistrictsScale ?? 1, deps.isDarkTheme);
   return null;
 };
 
 export const JpNationalForestsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpNationalForestsLayer");
   const p = useKeyOverlayParams("jpNationalForests");
-  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7, p.jpNationalForestsCatMask);
+  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7, p.jpNationalForestsCatMask,
+    repPointModeFromIdx(p.jpNationalForestsDisplayModeIdx, repPointLayer("jpNationalForests")!.def),
+    p.jpNationalForestsScale ?? 1, deps.isDarkTheme);
   return null;
 };
 
@@ -274,7 +280,7 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
   }, deps.isDarkTheme, {
     jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesCatMask,
     jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesCatMask,
-  });
+  }, { mode: repPointModeFromIdx(lakes.jpWaterLakesDisplayModeIdx, repPointLayer("jpWaterLakes")!.def), scale: lakes.jpWaterLakesScale ?? 1 });
   // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
   const anyJpWaterVisible = JP_WATER_LAYER_KEYS.some((key) => key !== "jpWaterLocalPipes" && deps.layerVisibility[key]);
   return anyJpWaterVisible ? <JpWaterAlert /> : null;
@@ -333,13 +339,31 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalScale ?? 1,
     jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalScale ?? 1,
     jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
-  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar]);
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalScale ?? 1,
+  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar, a28]);
   const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
   const catMasks = useMemo(() => ({
     jpAccommodationCanonical: canonical.jpAccommodationCanonicalCatMask,
     jpAccommodationOsm: osm.jpAccommodationOsmCatMask,
   }), [canonical, osm]);
-  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme, catMasks);
+  const repParams: Record<JpTourismRepKey, Record<string, number | undefined>> = {
+    jpNaturalParksNational: parksNational, jpNaturalParksQuasiNational: parksQuasi, jpNaturalParksPrefectural: parksPrefectural,
+    jpNatureConservationArea: conservation, jpNatureConservationSpecialDistrict: specialConservation,
+    jpPrimitiveNatureEnvironmentArea: primitive, jpWildlifeProtectionNational: wildlife,
+    jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated, jpWildlifeSpecialProtectionDistrict: wildlifeSpecial,
+    jpMarineEbsaCoastal: ebsa, jpWorldNaturalHeritageHistorical: a28,
+  };
+  const repKeys = Object.keys(repParams) as JpTourismRepKey[];
+  const repState = Object.fromEntries(repKeys.map((k) => [k, {
+    visible: Boolean(deps.layerVisibility[k]),
+    mode: jpTourismModeFor(k, repParams[k][`${k}DisplayModeIdx`]),
+    opacity: opacity[k],
+    scale: repParams[k][`${k}Scale`] ?? 1,
+  }])) as Record<JpTourismRepKey, { visible: boolean; mode: "point" | "polygon"; opacity: number; scale: number }>;
+  const modeKey = repKeys.map((k) => repState[k].mode).join(",");
+  const modes = useMemo(() => Object.fromEntries(repKeys.map((k) => [k, repState[k].mode])), [modeKey]);
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme, catMasks, modes);
+  useJpTourismRepPoints(deps.mapRef, repState, deps.isDarkTheme);
   return null;
 };
 

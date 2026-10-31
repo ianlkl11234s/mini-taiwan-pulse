@@ -11,6 +11,10 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { paramDefault } from "../data/layerParamsSpec";
+import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { repPointHeatIntensity, repPointLayer, repPointThinnedWeight } from "../data/repPointLayers";
+import { heatmapMaxzoom } from "../map/mapStyleScale";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-landslide-warning-areas";
@@ -21,6 +25,15 @@ const FILE = "jp_landslide_warning_areas.pmtiles?v=b85c1008459b";
 const MINZOOM = 8;
 const MAXZOOM = 12;
 const OPACITY_DEFAULT = Number(paramDefault("jpLandslideWarningAreas", "jpLandslideWarningAreasOpacity"));
+
+// §3.8 V-5 特例：代表點檔（179 萬點）只有 z4–7，z8 起由面接手。所以「點／面」兩種樣式畫的東西相同——
+// z4–8 熱區（maxzoom = heatmapMaxzoom(8)，與面的 minzoom 8 接棒）、z8 起面照畫；面不隨樣式關閉，否則 z8 起會空白。
+const REP = repPointLayer("jpLandslideWarningAreas")!;
+const POINTS_SOURCE: SourceSpec = {
+  id: "jp-landslide-warning-areas-points", file: REP.file, minzoom: 4, maxzoom: REP.maxzoom ?? 7,
+  attribution: JP_LANDSLIDE_ATTRIBUTION, loading: "土砂災害警戒區域 代表點載入中",
+};
+const HEAT_ID = "jp-landslide-warning-areas-heatmap";
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -59,8 +72,18 @@ export function useJpLandslideWarningAreasLayer(
   opacity: number,
   zoneIdx: number,
   phenomenonIdx: number,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const heatStyle = useHeatmapStyleSignature(["jpLandslideWarningAreas"]);
+  const heatFilterJson = JSON.stringify(jpLandslideFilter(zoneIdx, phenomenonIdx));
+  useGbPmtilesLayers(mapRef, POINTS_SOURCE, visible, () => [
+    gbHeatmapBuild({
+      id: HEAT_ID, key: "jpLandslideWarningAreas", sourceId: POINTS_SOURCE.id, sourceLayer: REP.sourceLayer,
+      maxzoom: heatmapMaxzoom(MINZOOM), filter: JSON.parse(heatFilterJson) as unknown[] | null, isDark: isDarkTheme,
+      opacityScale: clampOpacity(opacity) / OPACITY_DEFAULT, intensity: repPointHeatIntensity(REP), weight: repPointThinnedWeight(2.5),
+    }),
+  ], [opacity, isDarkTheme, heatFilterJson, heatStyle]);
 
   useEffect(() => {
     const map = mapRef.current;

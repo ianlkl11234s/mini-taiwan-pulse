@@ -152,6 +152,7 @@ import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioLabel } from "./floodScenarios";
+import { REP_POINT_LAYERS, repPointDense } from "./repPointLayers";
 import {
   ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
@@ -4905,6 +4906,20 @@ for (const [key, entry] of Object.entries(CATEGORY_FILTERS)) {
     options: categoryParamOptions(def), out: categoryMaskKey(key, def),
   }));
   (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...multis, ...specs];
+}
+
+// V-5（map-layers.md §3.8）：`repPointLayers.ts` 登記的面圖層，控件最前面補「樣式（點位／面）」，
+// ≥ 1 萬點補「熱區顏色」，最後補「大小」。控件值怎麼生效：registry 圖層看 `map/repPointOverlays`，
+// 其餘家族看各自的 hook／factory。
+for (const l of REP_POINT_LAYERS) {
+  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[l.key];
+  if (!specs) throw new Error(`repPointLayers: ${l.key} 沒有 layerParamsSpec 規格`);
+  const has = (name: string) => specs.some((s) => s.name === name);
+  (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[l.key] = [
+    ...(l.modeless || has(`${l.key}DisplayMode`) ? [] : [displayModeSelect(l.key, l.def)]), ...specs,
+    ...(repPointDense(l) && !has(`${l.key}Palette`) ? [heatmapPalette(l.key)] : []),
+    ...(l.modeless || has(`${l.key}Scale`) ? [] : [scaleSlider(`${l.key}Scale`, 1)]),
+  ];
 }
 
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;

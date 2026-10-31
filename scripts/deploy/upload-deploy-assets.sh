@@ -197,6 +197,13 @@ AGRI_FILES=(
   "public/agriculture/soil_fertility_grid_250m_z7.pmtiles"
   "public/agriculture/leisure_farm_zones_2025.pmtiles"
   "public/agriculture/rural_regen_communities_2025.pmtiles"
+  # §3.8 V-5 代表點檔（點／面切換；nginx /agriculture/ 是純 volume，不上傳就 404）
+  "public/agriculture/ftw_fields_2025_points.pmtiles"
+  "public/agriculture/crop_suitability_132_points.pmtiles"
+  "public/agriculture/soil_map_national_points.pmtiles"
+  "public/agriculture/leisure_farm_zones_2025_points.pmtiles"
+  "public/agriculture/rural_regen_communities_2025_points.pmtiles"
+  "public/agriculture/eco_network_zones_points.pmtiles"
   "public/agriculture/agriculture_pois.geojson"
   "public/agriculture/agri_wholesale_market_companies.geojson"
   # 2026-09-30 停止部署 agriculture/agri_retail_companies.geojson（前端走 .pmtiles，src 零引用）
