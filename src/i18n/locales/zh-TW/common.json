@@ -36,6 +36,7 @@
   "country.JP": "日本",
   "country.FR": "法國",
   "country.GB": "英國",
+  "country.KR": "南韓",
   "country.menuAria": "切換國家（目前：{country}）",
   "statistics.uncovered": "{country}目前沒有統計資料",
   "statistics.backToTaiwan": "切回台灣",

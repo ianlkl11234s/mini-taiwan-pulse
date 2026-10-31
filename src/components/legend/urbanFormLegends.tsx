@@ -1,5 +1,6 @@
 // Legend sub-components (urbanFormLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
 import { BOUNDARY_GRAY, LINE_DASH, LINE_WIDTH, mapSeamColor } from "../../map/mapStyleScale";
+import { KR_ADMIN_ATTRIBUTION_SHORT, KR_ADMIN_VERSION } from "../../data/krAdminTypes";
 import { GB_LAD_ATTRIBUTION, GB_LAD_VERSION, GB_SMALL_AREA_TYPES } from "../../data/gbAdminTypes";
 import { GB_MARITIME_ATTRIBUTION, GB_MARITIME_LIMIT_TYPES, GB_MARITIME_SOURCE_DATE, gbMaritimeLimitColor, type GbMaritimeLimitKind } from "../../data/gbMaritimeLimitTypes";
 import { GB_BUILT_UP_COLOR, GB_BUILT_UP_VERSION, GB_GREENSPACE_CATEGORIES, GB_GREENSPACE_VERSION, GB_OS_ATTRIBUTION, type GbGreenspaceFunctionId, type GbGreenspaceKey } from "../../data/gbOpenSpaceTypes";
@@ -787,5 +788,19 @@ export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) 
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_GREENSPACE_VERSION })}</LegendNote>
     <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 南韓行政區界（admdongkor ver20261001）：單一中性灰界線，三層級共用；圖例講範圍、版本與署名。 */
+export function KrAdminBoundariesLegend() {
+  const i18n = useLocale();
+  const t = useLegendTheme();
+  return <div>
+    <LegendTitle zh={i18n.t("legend.urban.krAdminTitle")} />
+    <LegendRow swatch={<SwatchLine color={BOUNDARY_GRAY[t.isDark ? "dark" : "light"]} />}>{i18n.t("legend.urban.krAdminRow")}</LegendRow>
+    <LegendNote>{i18n.t("legend.urban.krCoverage")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.krEmdZoom")}</LegendNote>
+    <LegendNote>{i18n.t("legend.urban.krDataVersion", { version: KR_ADMIN_VERSION })}</LegendNote>
+    <LegendNote>{KR_ADMIN_ATTRIBUTION_SHORT}</LegendNote>
   </div>;
 }

@@ -493,6 +493,7 @@ describe("country（c=，國家主體）", () => {
       ["JP", ["jpStations", "jpGsiRelief"], "/?v=1&layers=jpStations%2CjpGsiRelief&c=jp"],
       ["FR", ["anfrWirelessSites"], "/?v=1&layers=anfrWirelessSites&c=fr"],
       ["GB", ["gbAdminBoundaries", "gbSmallAreaBoundaries"], "/?v=1&layers=gbAdminBoundaries%2CgbSmallAreaBoundaries&c=gb"],
+      ["KR", ["krAdminBoundaries"], "/?v=1&layers=krAdminBoundaries&c=kr"],
       ["TW", ["ooklaMobileTaiwan"], "/?v=1&layers=ooklaMobileTaiwan"],
     ] as const) {
       const url = buildUrl({ country, layers: [...layers] }, "/");
@@ -508,6 +509,7 @@ describe("country（c=，國家主體）", () => {
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=jpStations").layers ?? [])).toBe("JP");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=anfrWirelessSites").layers ?? [])).toBe("FR");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=gbAdminBoundaries").layers ?? [])).toBe("GB");
+    expect(countryForLayerKeys(parseUrlState("?v=1&layers=krAdminBoundaries").layers ?? [])).toBe("KR");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=ooklaMobileTaiwan").layers ?? [])).toBe("TW");
   });
 });

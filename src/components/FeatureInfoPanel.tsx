@@ -54,6 +54,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpExpressways",
   // 英國第 0b 波：panel 自掛四地各自的署名與授權
   "gbAdminBoundaries",
+  // 南韓第 0 波：panel 自掛 SGIS／admdongkor 署名
+  "krAdminBoundaries",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
   "gbBuiltUpAreas",
