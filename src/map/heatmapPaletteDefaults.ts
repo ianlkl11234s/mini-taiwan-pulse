@@ -125,6 +125,7 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   aquacultureWaterSatellite: "YlGnBu",
   aquacultureWaterSatelliteMoa: "PuBu",
   treePitsTaipei: "oslo",
+  urbanZoningTaipei: "BuPu",
   urbanZoningNewTaipei: "cividis",
   nonUrbanZoning: "YlOrBr",
   jpLandslideWarningAreas: "bilbao",
