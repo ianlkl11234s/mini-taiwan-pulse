@@ -16,6 +16,8 @@ import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "
 import { paramDefault } from "../data/layerParamsSpec";
 import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { repPointLayer, repPointModeFromIdx, type RepPointDisplayMode } from "../data/repPointLayers";
+import { repPointSpecFor, useGbRepPointLayers } from "./useGbWaterLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type GeometryKind = "point" | "polygon";
@@ -119,6 +121,61 @@ function layerFilter(config: LayerConfig, ramsarMode: RamsarGeometryMode, catMas
 }
 
 const EMPTY_CAT_MASKS: Partial<Record<JpTourismLayerKey, number>> = {};
+const EMPTY_MODES: Partial<Record<JpTourismLayerKey, RepPointDisplayMode>> = {};
+
+/** §3.8 V-5：目前有「點／面」切換的觀光面層（代表點檔以 filter_layer_id 分層；registry family jpTourism）。 */
+export type JpTourismRepKey =
+  | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
+  | "jpNatureConservationArea" | "jpNatureConservationSpecialDistrict" | "jpPrimitiveNatureEnvironmentArea"
+  | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDesignatedArea" | "jpWildlifeSpecialProtectionDistrict"
+  | "jpMarineEbsaCoastal";
+
+export interface JpTourismRepState { visible: boolean; mode: RepPointDisplayMode; opacity: number; scale: number }
+
+/** 面層樣式：host 用 `p.<key>DisplayModeIdx` 換算，預設讀登記表。 */
+export const jpTourismModeFor = (key: JpTourismRepKey, idx: number | undefined): RepPointDisplayMode =>
+  repPointModeFromIdx(idx, repPointLayer(key)!.def);
+
+const REP_SOURCE_IDS: Record<string, string> = {
+  "natural-parks": "jp-tourism-natural-parks-points",
+  "nature-conservation": "jp-tourism-nature-conservation-points",
+  "wildlife-protection": "jp-tourism-wildlife-protection-points",
+  "marine-ebsa": "jp-tourism-marine-ebsa-points",
+};
+const REP_CONFIGS = CONFIGS.filter((c) => repPointLayer(c.key));
+
+/** 單一 key 的代表點（熱區＋圓點）。這 3 組檔 production:false（EBSA 除外）：不可用的 dataset 一律 visible=false，不請求。 */
+function useJpTourismRepPoint(mapRef: React.RefObject<MapboxMap | null>, key: JpTourismRepKey, s: JpTourismRepState, isDark: boolean) {
+  const config = REP_CONFIGS.find((c) => c.key === key)!;
+  const heatStyle = useHeatmapStyleSignature([key]);
+  const filterLayerId = JP_TOURISM_FILTER_LAYER_IDS[key];
+  const base = key.replace(/([A-Z])/g, "-$1").toLowerCase();
+  useGbRepPointLayers(mapRef, repPointSpecFor(key, {
+    sourceId: REP_SOURCE_IDS[config.dataset]!, heatId: `${base}-heatmap`, circleId: `${base}-point-circle`,
+    attribution: "", loading: `${JP_TOURISM_DATASETS[config.dataset].label} 代表點載入中`,
+    polygonMinzoom: 4, opacityDefault: Number(paramDefault(key, `${key}Opacity`) ?? 1), tier: "M",
+  }), {
+    visible: s.visible && isJpTourismDatasetAvailable(config.dataset), mode: s.mode, opacity: s.opacity, scale: s.scale, isDark,
+    color: JP_TOURISM_COLORS[key],
+    filter: filterLayerId ? ["==", ["get", "filter_layer_id"], filterLayerId] : null,
+  }, heatStyle);
+}
+
+/** 10 個觀光面層的代表點（hook 數固定，逐一明列以符合 rules-of-hooks）。 */
+export function useJpTourismRepPoints(
+  mapRef: React.RefObject<MapboxMap | null>, state: Record<JpTourismRepKey, JpTourismRepState>, isDark: boolean,
+) {
+  useJpTourismRepPoint(mapRef, "jpNaturalParksNational", state.jpNaturalParksNational, isDark);
+  useJpTourismRepPoint(mapRef, "jpNaturalParksQuasiNational", state.jpNaturalParksQuasiNational, isDark);
+  useJpTourismRepPoint(mapRef, "jpNaturalParksPrefectural", state.jpNaturalParksPrefectural, isDark);
+  useJpTourismRepPoint(mapRef, "jpNatureConservationArea", state.jpNatureConservationArea, isDark);
+  useJpTourismRepPoint(mapRef, "jpNatureConservationSpecialDistrict", state.jpNatureConservationSpecialDistrict, isDark);
+  useJpTourismRepPoint(mapRef, "jpPrimitiveNatureEnvironmentArea", state.jpPrimitiveNatureEnvironmentArea, isDark);
+  useJpTourismRepPoint(mapRef, "jpWildlifeProtectionNational", state.jpWildlifeProtectionNational, isDark);
+  useJpTourismRepPoint(mapRef, "jpWildlifeSpecialProtectionDesignatedArea", state.jpWildlifeSpecialProtectionDesignatedArea, isDark);
+  useJpTourismRepPoint(mapRef, "jpWildlifeSpecialProtectionDistrict", state.jpWildlifeSpecialProtectionDistrict, isDark);
+  useJpTourismRepPoint(mapRef, "jpMarineEbsaCoastal", state.jpMarineEbsaCoastal, isDark);
+}
 
 export function useJpTourismLayers(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -129,6 +186,8 @@ export function useJpTourismLayers(
   isDarkTheme = true,
   /** V-4 類別篩選 bitmask（目前只有旅宿 canonical／osm 用） */
   catMasks: Partial<Record<JpTourismLayerKey, number>> = EMPTY_CAT_MASKS,
+  /** V-5 點／面：只有登記表內的面層有值；「點」樣式時面（fill＋line）不畫。省略＝依登記表預設 */
+  modes: Partial<Record<JpTourismLayerKey, RepPointDisplayMode>> = EMPTY_MODES,
 ) {
   const catCanonical = catMasks.jpAccommodationCanonical;
   const catOsm = catMasks.jpAccommodationOsm;
@@ -168,7 +227,9 @@ export function useJpTourismLayers(
       const isDark = isDarkTheme;
       for (const config of CONFIGS) {
         const datasetConfig = JP_TOURISM_DATASETS[config.dataset];
-        const visible = visibility[config.key] && isJpTourismDatasetAvailable(config.dataset);
+        const rep = repPointLayer(config.key);
+        const polygonHidden = rep != null && (modes[config.key] ?? rep.def) !== "polygon";
+        const visible = visibility[config.key] && isJpTourismDatasetAvailable(config.dataset) && !polygonHidden;
         const sid = sourceId(config.dataset);
         const data = dataRef.current[config.dataset];
         const filter = layerFilter(config, ramsarMode, catMasks[config.key]);
@@ -273,5 +334,5 @@ export function useJpTourismLayers(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick, heatStyle, catCanonical, catOsm]);
+  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick, heatStyle, catCanonical, catOsm, modes]);
 }

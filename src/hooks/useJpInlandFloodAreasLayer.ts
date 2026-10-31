@@ -9,7 +9,8 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
-import { gridRampFor, useGridPaletteSignature } from "../state/layerPalette";
+import { gridRampFor, useGridPaletteSignature, useHeatmapStyleSignature } from "../state/layerPalette";
+import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./useGbWaterLayers";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -62,14 +63,23 @@ export function useJpInlandFloodAreasLayer(
   visible: boolean,
   opacity: number,
   isDarkTheme = true,
+  /** §3.8 V-5 點／面：代表點（z4–10 熱區＋圓點）或面（z8 起） */
+  mode: GbDisplayMode = "polygon",
+  scale = 1,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const palette = useGridPaletteSignature("jpInlandFloodAreas");
+  const fillVisible = visible && mode === "polygon";
+  const heatStyle = useHeatmapStyleSignature(["jpInlandFloodAreas"]);
+  useGbRepPointLayers(mapRef, repPointSpecFor("jpInlandFloodAreas", {
+    sourceId: "jp-inland-flood-areas-points", heatId: "jp-inland-flood-areas-heatmap", circleId: "jp-inland-flood-areas-point-circle",
+    attribution: JP_INLAND_FLOOD_ATTRIBUTION, loading: "內水浸水想定 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+  }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: jpInlandFloodColor(isDarkTheme), filter: null }, heatStyle);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!visible) {
+    if (!fillVisible) {
       if (map.getLayer(LAYER_ID)) map.setLayoutProperty(LAYER_ID, "visibility", "none");
       return;
     }
@@ -101,5 +111,5 @@ export function useJpInlandFloodAreasLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, isDarkTheme, mapTick, palette]);
+  }, [mapRef, fillVisible, opacity, isDarkTheme, mapTick, palette]);
 }

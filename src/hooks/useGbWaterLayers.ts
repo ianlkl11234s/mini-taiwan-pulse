@@ -8,6 +8,7 @@ import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { paramDefault } from "../data/layerParamsSpec";
+import { repPointHeatIntensity, repPointLayer, repPointThinnedWeight } from "../data/repPointLayers";
 import { applyHeatmapStyle, heatmapLayerPaint } from "../state/layerPalette";
 import {
   GB_BATHING_CLASSES, GB_BATHING_NO_CLASS_STROKE,
@@ -165,6 +166,28 @@ export function gbWithFilter(builds: readonly LayerBuild[], extra: Expr | null):
 export type GbDisplayMode = "point" | "polygon";
 export const gbDisplayModeFromIdx = (idx: number | undefined, fallback: GbDisplayMode): GbDisplayMode =>
   idx === 0 ? "point" : idx === 1 ? "polygon" : fallback;
+
+/**
+ * 日本（與其他非英國）面層代表點的 `GbRepPointsSpec`：檔名／tile layer／點數／maxzoom 全讀 `repPointLayer(key)` 登記表。
+ * heatWeight 預設用 `repPointThinnedWeight(2.5)`（低縮放抽稀補償）。
+ */
+export function repPointSpecFor(key: string, o: {
+  sourceId: string; heatId: string; circleId: string; attribution: string; loading: string;
+  polygonMinzoom: number; opacityDefault: number; tier?: "S" | "M"; thinned?: number;
+}): GbRepPointsSpec {
+  const layer = repPointLayer(key);
+  if (!layer) throw new Error(`repPointLayers 沒有登記 ${key}`);
+  return {
+    key,
+    source: {
+      id: o.sourceId, file: layer.file.replace(/^\.?\//, ""), minzoom: 4, maxzoom: layer.maxzoom ?? 10,
+      attribution: o.attribution, loading: o.loading,
+    },
+    sourceLayer: layer.sourceLayer, heatId: o.heatId, circleId: o.circleId, count: layer.count,
+    polygonMinzoom: o.polygonMinzoom, heatIntensity: repPointHeatIntensity(layer), opacityDefault: o.opacityDefault,
+    ...(o.tier ? { tier: o.tier } : {}), heatWeight: repPointThinnedWeight(o.thinned ?? 2.5),
+  };
+}
 
 /**
  * 面圖層的代表點（analytics 另出的 `*_points.pmtiles`，每面一點、落在面內）：

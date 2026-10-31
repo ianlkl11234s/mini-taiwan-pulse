@@ -15,6 +15,7 @@ import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenari
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
+import { withRepPoints } from "./repPointOverlays";
 import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
@@ -11995,7 +11996,7 @@ OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
-OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec).map(withLineFillSpec).map(withCategoryFilter));
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...withRepPoints(OVERLAY_REGISTRY).map(withPointSpec).map(withLineFillSpec).map(withCategoryFilter));
 
 /**
  * V-4 類別篩選（`data/categoryFilters.ts` 規格表）：把類別多選併進該圖層每個子圖層的 filter

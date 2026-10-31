@@ -16,7 +16,9 @@ import {
 // PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
-import { pointRadius, pointStrokePaint } from "./mapStyleScale";
+import { densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, pointRadius, pointStrokePaint } from "./mapStyleScale";
+import { repPointDense, repPointHeatIntensity, repPointLayer, repPointModeFromIdx, repPointThinnedWeight, type RepPointDisplayMode } from "../data/repPointLayers";
+import { heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
 import { loadingRegistry } from "../lib/loadingRegistry";
 
@@ -36,6 +38,111 @@ function addPmtilesSourceIfMissing(
     minzoom,
     maxzoom,
   } as any);
+}
+
+
+// =============================================================================
+// V-5 點／面切換：代表點 source（`<polySource>-points`）＋熱區（≥1 萬點）＋ circle（`<polySource>-points-circle`）
+// =============================================================================
+
+/** update 函式的樣式脈絡：全部 params（讀 `<key>DisplayModeIdx`／`<key>Scale`／`<key>Opacity`）與底圖明暗 */
+export interface AgriRepCtx {
+  params: Record<string, number>;
+  isDark: boolean;
+}
+export const AGRI_REP_CTX_DEFAULT: AgriRepCtx = { params: {}, isDark: true };
+
+interface AgriRepSpec {
+  key: string;
+  /** 面層 source id（代表點 source 為 `${polySourceId}-points`） */
+  polySourceId: string;
+  /** 面層 minzoom（點樣式的熱區／circle 畫到這裡，之後交給面） */
+  polyMinzoom: number;
+  color: unknown;
+  filter?: unknown;
+}
+
+const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+const repSourceId = (sp: AgriRepSpec) => `${sp.polySourceId}-points`;
+const repHeatId = (sp: AgriRepSpec) => `${repSourceId(sp)}-heat`;
+const repCircleId = (sp: AgriRepSpec) => `${repSourceId(sp)}-circle`;
+
+export const agriRepMode = (key: string, params: Record<string, number>): RepPointDisplayMode =>
+  repPointModeFromIdx(params[`${key}DisplayModeIdx`], repPointLayer(key)?.def ?? "polygon");
+
+function repCirclePaint(sp: AgriRepSpec, ctx: AgriRepCtx): Record<string, unknown> {
+  const def = repPointLayer(sp.key)!;
+  const opKey = `${sp.key}Opacity`;
+  const opDef = Number(paramDefault(sp.key, opKey) ?? 1) || 1;
+  const rel = clamp01(ctx.params[opKey] ?? opDef) / opDef;
+  const scaleDef = Number(paramDefault(sp.key, `${sp.key}Scale`) ?? 1) || 1;
+  return {
+    "circle-radius": pointRadius(repPointDense(def) ? "S" : "M", (ctx.params[`${sp.key}Scale`] ?? scaleDef) / scaleDef),
+    "circle-color": sp.color,
+    "circle-opacity": clamp01(densePointOpacity(def.count) * rel),
+    ...pointStrokePaint(ctx.isDark, rel),
+  };
+}
+
+function repHeatPaint(sp: AgriRepSpec, ctx: AgriRepCtx): Record<string, unknown> {
+  const def = repPointLayer(sp.key)!;
+  const opKey = `${sp.key}Opacity`;
+  const opDef = Number(paramDefault(sp.key, opKey) ?? 1) || 1;
+  const rel = clamp01(ctx.params[opKey] ?? opDef) / opDef;
+  return heatmapPaint(rel, repPointHeatIntensity(def), repPointThinnedWeight(2.5), heatmapRampFor(sp.key, ctx.isDark), heatmapStackFactor());
+}
+
+function ensureRepPoints(map: MapboxMap, sp: AgriRepSpec): void {
+  const def = repPointLayer(sp.key);
+  if (!def) return;
+  addPmtilesSourceIfMissing(map, repSourceId(sp), def.file.replace(/^agriculture\//, ""), 4, def.maxzoom ?? 10);
+  const filterProp = sp.filter ? { filter: sp.filter } : {};
+  if (repPointDense(def) && !map.getLayer(repHeatId(sp))) {
+    map.addLayer({
+      id: repHeatId(sp), type: "heatmap", source: repSourceId(sp), "source-layer": def.sourceLayer,
+      maxzoom: heatmapMaxzoom(densePointsFromZoom(def.count, 0)), layout: { visibility: "none" }, ...filterProp,
+      paint: repHeatPaint(sp, AGRI_REP_CTX_DEFAULT),
+    } as any);
+  }
+  if (!map.getLayer(repCircleId(sp))) {
+    map.addLayer({
+      id: repCircleId(sp), type: "circle", source: repSourceId(sp), "source-layer": def.sourceLayer,
+      layout: { visibility: "none" }, ...filterProp, paint: repCirclePaint(sp, AGRI_REP_CTX_DEFAULT),
+    } as any);
+  }
+}
+
+/** 依樣式切換代表點熱區／circle；隱藏時不改 paint（A0：隱藏 layer 的 paint transition 清不掉）。 */
+function updateRepPoints(map: MapboxMap, sp: AgriRepSpec, visible: boolean, ctx: AgriRepCtx): void {
+  const def = repPointLayer(sp.key);
+  if (!def) return;
+  const heatId = repHeatId(sp);
+  const circleId = repCircleId(sp);
+  const dense = repPointDense(def);
+  const hasHeat = dense && !!map.getLayer(heatId);
+  if (!visible) {
+    if (hasHeat) map.setLayoutProperty(heatId, "visibility", "none");
+    if (map.getLayer(circleId)) map.setLayoutProperty(circleId, "visibility", "none");
+    return;
+  }
+  const mode = agriRepMode(sp.key, ctx.params);
+  const pointsFrom = densePointsFromZoom(def.count, 0);
+  const filter = (sp.filter ?? null) as any;
+  if (hasHeat) {
+    map.setLayerZoomRange(heatId, 0, heatmapMaxzoom(mode === "point" ? pointsFrom : sp.polyMinzoom));
+    map.setFilter(heatId, filter);
+    for (const [k, v] of Object.entries(repHeatPaint(sp, ctx))) map.setPaintProperty(heatId, k as any, v as any);
+    map.setLayoutProperty(heatId, "visibility", "visible");
+  }
+  if (map.getLayer(circleId)) {
+    // 熱區層：只有「點」樣式在出點縮放後畫 circle；非熱區層：點樣式全程、面樣式到面出現前
+    const circleOn = dense ? mode === "point" : true;
+    if (dense) map.setLayerZoomRange(circleId, pointsFrom, 24);
+    else map.setLayerZoomRange(circleId, 0, mode === "point" ? 24 : sp.polyMinzoom);
+    map.setFilter(circleId, filter);
+    for (const [k, v] of Object.entries(repCirclePaint(sp, ctx))) map.setPaintProperty(circleId, k as any, v as any);
+    map.setLayoutProperty(circleId, "visibility", circleOn ? "visible" : "none");
+  }
 }
 
 // =============================================================================
@@ -64,6 +171,8 @@ export const AGRICULTURE_PARAMS_DEFAULT: AgricultureParams = {
   showOutline: true,
   z: 0,
 };
+
+const FTW_REP: AgriRepSpec = { key: "agriculture", polySourceId: FTW_SOURCE_ID, polyMinzoom: 5, color: "#2e7d32" };
 
 export function ensureAgricultureLayers(map: MapboxMap): void {
   registerPmtilesSourceTypeOnce();
@@ -104,20 +213,25 @@ export function ensureAgricultureLayers(map: MapboxMap): void {
       },
     });
   }
+  ensureRepPoints(map, FTW_REP);
 }
 
 export function updateAgricultureLayer(
   map: MapboxMap,
   visible: boolean,
   params: AgricultureParams = AGRICULTURE_PARAMS_DEFAULT,
+  ctx: AgriRepCtx = AGRI_REP_CTX_DEFAULT,
 ): void {
+  updateRepPoints(map, FTW_REP, visible, ctx);
+  // 「點」樣式時面與外框都不畫
+  const polyOn = visible && agriRepMode("agriculture", ctx.params) === "polygon";
   if (map.getLayer(FTW_FILL_ID)) {
-    map.setLayoutProperty(FTW_FILL_ID, "visibility", visible ? "visible" : "none");
+    map.setLayoutProperty(FTW_FILL_ID, "visibility", polyOn ? "visible" : "none");
   }
   // 隱藏時不改 paint：隱藏 layer 不會 recalculate，改 paint 留下的 transition prior
   // 永遠清不掉 → style.hasTransitions() 恆 true → 地圖無限重畫（A0）。
   // 開啟時 MapView 會再以 visible=true 呼叫本函式補上 paint。
-  if (!visible) {
+  if (!polyOn) {
     if (map.getLayer(FTW_OUTLINE_ID)) map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", "none");
     return;
   }
@@ -135,7 +249,7 @@ export function updateAgricultureLayer(
     map.setPaintProperty(FTW_FILL_ID, "fill-translate-anchor", "viewport");
   }
   if (map.getLayer(FTW_OUTLINE_ID)) {
-    const showOutline = visible && params.showOutline;
+    const showOutline = polyOn && params.showOutline;
     map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", showOutline ? "visible" : "none");
     // 同上：outline 隱藏時不改 paint（打開 showOutline 時會再呼叫本函式補上）
     if (showOutline) {
@@ -245,6 +359,8 @@ const SOIL_SOURCE_ID = "agri-soil";
 const SOIL_FILL_ID = "agri-soil-fill";
 const SOIL_BASE_OPACITY = 0.35;
 
+const SOIL_REP: AgriRepSpec = { key: "agriSoil", polySourceId: SOIL_SOURCE_ID, polyMinzoom: 6, color: "#8d6e63" };
+
 export function ensureAgriSoilLayers(map: MapboxMap): void {
   ensureSimplePolyLayer(map, {
     sourceId: SOIL_SOURCE_ID,
@@ -256,14 +372,17 @@ export function ensureAgriSoilLayers(map: MapboxMap): void {
     fillColor: "#8d6e63",
     defaultOpacity: SOIL_BASE_OPACITY,
   });
+  ensureRepPoints(map, SOIL_REP);
 }
 
 export function updateAgriSoilLayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPolyParams = AGRI_POLY_PARAMS_DEFAULT,
+  ctx: AgriRepCtx = AGRI_REP_CTX_DEFAULT,
 ): void {
-  updateSimplePolyLayer(map, SOIL_FILL_ID, visible, SOIL_BASE_OPACITY, params);
+  updateRepPoints(map, SOIL_REP, visible, ctx);
+  updateSimplePolyLayer(map, SOIL_FILL_ID, visible && agriRepMode("agriSoil", ctx.params) === "polygon", SOIL_BASE_OPACITY, params);
 }
 
 // =============================================================================
@@ -326,6 +445,8 @@ const LEISURE_SOURCE_ID = "agri-leisure-farm-zones";
 const LEISURE_FILL_ID = "agri-leisure-farm-zones-fill";
 const LEISURE_BASE_OPACITY = 0.3;
 
+const LEISURE_REP: AgriRepSpec = { key: "agriLeisureFarmZones", polySourceId: LEISURE_SOURCE_ID, polyMinzoom: 6, color: "#66bb6a" };
+
 export function ensureAgriLeisureFarmZonesLayers(map: MapboxMap): void {
   ensureSimplePolyLayer(map, {
     sourceId: LEISURE_SOURCE_ID,
@@ -337,14 +458,17 @@ export function ensureAgriLeisureFarmZonesLayers(map: MapboxMap): void {
     fillColor: "#66bb6a",
     defaultOpacity: LEISURE_BASE_OPACITY,
   });
+  ensureRepPoints(map, LEISURE_REP);
 }
 
 export function updateAgriLeisureFarmZonesLayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPolyParams = AGRI_POLY_PARAMS_DEFAULT,
+  ctx: AgriRepCtx = AGRI_REP_CTX_DEFAULT,
 ): void {
-  updateSimplePolyLayer(map, LEISURE_FILL_ID, visible, LEISURE_BASE_OPACITY, params);
+  updateRepPoints(map, LEISURE_REP, visible, ctx);
+  updateSimplePolyLayer(map, LEISURE_FILL_ID, visible && agriRepMode("agriLeisureFarmZones", ctx.params) === "polygon", LEISURE_BASE_OPACITY, params);
 }
 
 // =============================================================================
@@ -354,6 +478,8 @@ export function updateAgriLeisureFarmZonesLayer(
 const RURAL_SOURCE_ID = "agri-rural-regen";
 const RURAL_FILL_ID = "agri-rural-regen-fill";
 const RURAL_BASE_OPACITY = 0.3;
+
+const RURAL_REP: AgriRepSpec = { key: "agriRuralRegen", polySourceId: RURAL_SOURCE_ID, polyMinzoom: 7, color: "#ffb74d" };
 
 export function ensureAgriRuralRegenLayers(map: MapboxMap): void {
   ensureSimplePolyLayer(map, {
@@ -366,14 +492,17 @@ export function ensureAgriRuralRegenLayers(map: MapboxMap): void {
     fillColor: "#ffb74d",
     defaultOpacity: RURAL_BASE_OPACITY,
   });
+  ensureRepPoints(map, RURAL_REP);
 }
 
 export function updateAgriRuralRegenLayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPolyParams = AGRI_POLY_PARAMS_DEFAULT,
+  ctx: AgriRepCtx = AGRI_REP_CTX_DEFAULT,
 ): void {
-  updateSimplePolyLayer(map, RURAL_FILL_ID, visible, RURAL_BASE_OPACITY, params);
+  updateRepPoints(map, RURAL_REP, visible, ctx);
+  updateSimplePolyLayer(map, RURAL_FILL_ID, visible && agriRepMode("agriRuralRegen", ctx.params) === "polygon", RURAL_BASE_OPACITY, params);
 }
 
 // =============================================================================
@@ -407,6 +536,11 @@ export const AGRI_CROP_SUITABILITY_PARAMS_DEFAULT: AgriCropSuitabilityParams = {
   cropLayerId: 0,
 };
 
+const cropRep = (cropLayerId: number): AgriRepSpec => ({
+  key: "agriCropSuitability", polySourceId: CROP_SOURCE_ID, polyMinzoom: 6, color: CROP_KIND_COLOR_EXPR,
+  filter: ["==", ["get", "crop_layer_id"], cropLayerId],
+});
+
 export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
   registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, CROP_SOURCE_ID, "crop_suitability_132.pmtiles", 6, 13);
@@ -427,15 +561,19 @@ export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
       },
     });
   }
+  ensureRepPoints(map, cropRep(0));
 }
 
 export function updateAgriCropSuitabilityLayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriCropSuitabilityParams = AGRI_CROP_SUITABILITY_PARAMS_DEFAULT,
+  ctx: AgriRepCtx = AGRI_REP_CTX_DEFAULT,
 ): void {
   if (!map.getLayer(CROP_FILL_ID)) return;
-  map.setLayoutProperty(CROP_FILL_ID, "visibility", visible ? "visible" : "none");
+  // 點與熱區吃同一個 crop_layer_id filter
+  updateRepPoints(map, cropRep(params.cropLayerId), visible, ctx);
+  map.setLayoutProperty(CROP_FILL_ID, "visibility", visible && agriRepMode("agriCropSuitability", ctx.params) === "polygon" ? "visible" : "none");
   map.setPaintProperty(CROP_FILL_ID, "fill-opacity", hookFillOpacity("agriCropSuitability", CROP_FILL_ID, CROP_BASE_OPACITY * params.opacity, CROP_BASE_OPACITY));
   map.setFilter(CROP_FILL_ID, ["==", ["get", "crop_layer_id"], params.cropLayerId]);
 }

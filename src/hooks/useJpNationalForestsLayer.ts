@@ -7,6 +7,8 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { paramDefault } from "../data/layerParamsSpec";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./useGbWaterLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-national-forests";
@@ -53,13 +55,24 @@ export function useJpNationalForestsLayer(
   visible: boolean,
   opacity: number,
   catMask?: number,
+  /** §3.8 V-5 點／面 */
+  mode: GbDisplayMode = "polygon",
+  scale = 1,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const fillVisible = visible && mode === "polygon";
+  const heatStyle = useHeatmapStyleSignature(["jpNationalForests"]);
+  const filterJson = JSON.stringify(hookCategoryFilter("jpNationalForests", { jpNationalForestsCatMask: catMask as number }) ?? null);
+  useGbRepPointLayers(mapRef, repPointSpecFor("jpNationalForests", {
+    sourceId: "jp-national-forests-points", heatId: "jp-national-forests-heatmap", circleId: "jp-national-forests-point-circle",
+    attribution: JP_FOREST_ATTRIBUTION, loading: "国有林 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+  }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: JP_FOREST_COLOR_EXPRESSION, filter: JSON.parse(filterJson) as unknown[] | null }, heatStyle);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!visible) {
+    if (!fillVisible) {
       if (map.getLayer(LAYER_ID)) map.setLayoutProperty(LAYER_ID, "visibility", "none");
       return;
     }
@@ -91,5 +104,5 @@ export function useJpNationalForestsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, mapTick, catMask]);
+  }, [mapRef, fillVisible, opacity, mapTick, catMask]);
 }

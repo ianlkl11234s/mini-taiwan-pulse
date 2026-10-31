@@ -1,4 +1,5 @@
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
+import { repPointClickLayerIds } from './repPointOverlays';
 /**
  * GIS 點擊接線註冊表（AR-22 Phase 4b）
  * ══════════════════════════════════════════════════════════════════
@@ -895,3 +896,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
 ];
+
+// V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
+for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
+  for (const entry of GIS_LAYERS) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+}

@@ -10,6 +10,8 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
 import { paramDefault } from "../data/layerParamsSpec";
+import { useHeatmapStyleSignature } from "../state/layerPalette";
+import { repPointSpecFor, useGbRepPointLayers, type GbDisplayMode } from "./useGbWaterLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-zoning-use-districts";
@@ -57,13 +59,24 @@ export function useJpZoningUseDistrictsLayer(
   visible: boolean,
   opacity: number,
   classIdx: number,
+  /** §3.8 V-5 點／面 */
+  mode: GbDisplayMode = "polygon",
+  scale = 1,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
+  const fillVisible = visible && mode === "polygon";
+  const heatStyle = useHeatmapStyleSignature(["jpZoningUseDistricts"]);
+  const filterJson = JSON.stringify(jpZoningFilter(classIdx));
+  useGbRepPointLayers(mapRef, repPointSpecFor("jpZoningUseDistricts", {
+    sourceId: "jp-zoning-use-districts-points", heatId: "jp-zoning-use-districts-heatmap", circleId: "jp-zoning-use-districts-point-circle",
+    attribution: JP_ZONING_ATTRIBUTION, loading: "用途地域 代表點載入中", polygonMinzoom: MINZOOM, opacityDefault: OPACITY_DEFAULT,
+  }), { visible, mode, opacity, scale, isDark: isDarkTheme, color: JP_ZONING_COLOR_EXPRESSION, filter: JSON.parse(filterJson) as unknown[] | null }, heatStyle);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!visible) {
+    if (!fillVisible) {
       if (map.getLayer(LAYER_ID)) map.setLayoutProperty(LAYER_ID, "visibility", "none");
       return;
     }
@@ -95,5 +108,5 @@ export function useJpZoningUseDistrictsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, classIdx, mapTick]);
+  }, [mapRef, fillVisible, opacity, classIdx, mapTick]);
 }

@@ -112,6 +112,17 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   jpReligionWikidata: "turku",
   jpAccommodationOsm: "acton",
   jpWelfareChild: "acton",
+  // §3.8 V-5 台日面層代表點熱區（H2 軌 2026-10-31）：同主題錯開
+  agriSoil: "YlOrBr",
+  agriculture: "viridis",
+  agriCropSuitability: "Burg",
+  aquacultureIntegrated: "oslo",
+  aquacultureWaterSatellite: "YlGnBu",
+  aquacultureWaterSatelliteMoa: "PuBu",
+  treePitsTaipei: "oslo",
+  urbanZoningNewTaipei: "cividis",
+  nonUrbanZoning: "YlOrBr",
+  jpLandslideWarningAreas: "bilbao",
 };
 
 /**

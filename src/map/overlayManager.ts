@@ -477,11 +477,13 @@ export function updateOverlayTheme(
         } as mapboxgl.AnyLayer);
         cache.set(id, nextSnapshots.get(id) ?? snapshotPaint(paint));
       }
-      // 還原 visibility 狀態
+      // 還原 visibility 狀態。layout 是函式的子圖層（點／面切換、模式切換）自己算可見性，
+      // 重建出來的就是新樣式該有的值；「重建前是隱藏」不能沿用，否則切樣式後新樣式的圖層會被關掉。
       if (wasHidden) {
         for (const suffix of config.rebuildOnParamChange) {
           const id = layerId(config, suffix);
-          if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
+          const layoutIsFn = typeof config.layers.find((l) => l.suffix === suffix)?.layout === "function";
+          if (!layoutIsFn && map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
         }
       }
     }

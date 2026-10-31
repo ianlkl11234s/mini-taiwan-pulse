@@ -82,7 +82,7 @@ describe("buildParamControls", () => {
   });
 
   it("slider 不帶 type 欄位 —— 多一個 type:'slider' 黃金快照就紅", () => {
-    const list = buildParamControls("cemeteryOsm") ?? [];
+    const list = buildParamControls("jpMedicalAreasPrimary") ?? [];
     expect(list).toHaveLength(1);
     expect(Object.keys(list[0] as object).sort())
       .toEqual(["label", "max", "min", "name", "onChange", "step", "value", "valueText"]);

@@ -172,7 +172,9 @@ describe("Layer UX policy baseline", () => {
       ["fill", "fill"],
       ["outline", "line"],
     ]);
-    expect(hasPointSizeControl(LAYER_PARAMS_SPEC.nationalParks)).toBe(false);
+    // §3.8 V-5（2026-10-31，使用者指名國家公園）：大小滑桿只管「點位」樣式的代表點（每園一點，落在計畫範圍內），
+    // 不是邊界點位；面樣式仍只畫官方計畫範圍。
+    expect(hasPointSizeControl(LAYER_PARAMS_SPEC.nationalParks)).toBe(true);
   });
 
   it("海事邊界以單一寬度控制同步縮放線與 basepoint", () => {

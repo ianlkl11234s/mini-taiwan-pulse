@@ -959,7 +959,8 @@ export const LAYER_MANIFEST = {
       note: "臺北市都市計畫土地使用分區 15,518 面（data.taipei SHP，docs/data-catalog/urban_composite/urban_zoning_taipei.md）",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "urban-zoning-taipei",
       url: "./urban/urban_zoning_taipei.pmtiles",
@@ -967,9 +968,11 @@ export const LAYER_MANIFEST = {
       minzoom: 6,
       maxzoom: 15,
     },
+      { kind: "pmtiles", sourceId: "urban-zoning-taipei-points", url: "./urban/urban_zoning_taipei_points.pmtiles", sourceLayer: "urban_zoning_taipei_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "urbanZoning",
     popup: "urbanZoningTaipei",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "臺北市都市計畫土地使用分區（zone_category 9 類分色）",
     topics: ["土地使用", "都市計畫", "底圖"],
   },
@@ -1125,45 +1128,45 @@ export const LAYER_MANIFEST = {
     key: "jpNaturalParksNational", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
-    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksQuasiNational: {
     key: "jpNaturalParksQuasiNational", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "國定公園", alt: "国定公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
-    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksPrefectural: {
     key: "jpNaturalParksPrefectural", country: "JP", section: { theme: "觀光", group: "玩・自然 Nature" }, ...layerName({ zh: "都道府縣立自然公園", alt: "都道府県立自然公園", qualifier: "2010" }), expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
     upstream: { status: "catalog_missing", datasets: [], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
-    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
 
   jpNatureConservationArea: {
     key: "jpNatureConservationArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育地域", alt: "自然保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
-    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpPrimitiveNatureEnvironmentArea: {
     key: "jpPrimitiveNatureEnvironmentArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "原生自然環境地域", alt: "原生自然環境保全地域", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
-    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpNatureConservationSpecialDistrict: {
     key: "jpNatureConservationSpecialDistrict", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保育特別地區", alt: "自然保全特別地区", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
-    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
 
   jpWildlifeProtectionNational: {
     key: "jpWildlifeProtectionNational", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "國家指定鳥獸保護區", alt: "国指定鳥獣保護区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
-    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDistrict: {
     key: "jpWildlifeSpecialProtectionDistrict", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護地區", alt: "鳥獣保護区特別保護地区" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
-    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDesignatedArea: {
     key: "jpWildlifeSpecialProtectionDesignatedArea", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "鳥獸特別保護指定區域", alt: "特別保護指定区域" }), expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
-    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
 
   jpWorldHeritageCultural: {
@@ -1184,7 +1187,7 @@ export const LAYER_MANIFEST = {
   },
   jpMarineEbsaCoastal: {
     key: "jpMarineEbsaCoastal", country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "沿岸生態重要海域", alt: "沿岸EBSA", qualifier: "2015" }), expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
-    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 1, kinds: ["slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
+    upstream: { status: "catalog_missing", datasets: [], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
   },
 
   // ══════════════════════════════════════════════════════════════
@@ -1387,7 +1390,8 @@ export const LAYER_MANIFEST = {
       note: "B 源 OSM 墓區 3,229 面（ODbL，僅 34.5% 有 name）",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "cemetery-osm",
       url: "./funeral/cemetery_osm.pmtiles",
@@ -1395,9 +1399,11 @@ export const LAYER_MANIFEST = {
       minzoom: 6,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "cemetery-osm-points", url: "./funeral/cemetery_osm_points.pmtiles", sourceLayer: "cemetery_osm_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "funeralFacilities",
     popup: "cemeteryOsm",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "OSM 實地測繪墓區範圍 3,229 面（ODbL；僅 34.5% 有名稱）",
     topics: ["殯葬", "OSM", "土地使用"],
   },
@@ -2690,7 +2696,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "jpLandslideWarningAreas",
     popup: "jpLandslideWarningAreas",
-    params: { count: 3, kinds: ["slider", "select", "select"] },
+    params: { count: 4, kinds: ["slider", "select", "select", "palette"] },
     description: "日本土砂災害警戒區域（黃）與特別警戒區域（紅；在黃區之內），可依區域種別、現象篩選；概略位置、非法定圖書",
     topics: ["世界", "日本", "土砂災害", "崩塌", "土石流", "地滑", "防災"],
   },
@@ -2715,7 +2721,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "jpInlandFloodAreas",
     popup: "jpInlandFloodAreas",
-    params: { count: 2, kinds: ["palette", "slider"] },
+    params: { count: 4, kinds: ["select", "palette", "slider", "slider"] },
     description: "日本內水（雨水出水）浸水想定區域，浸水深 8 級；只涵蓋 28 個市町村、想定最大規模降雨；無資料不代表無風險",
     topics: ["世界", "日本", "內水", "淹水", "浸水想定", "防災"],
   },
@@ -2740,7 +2746,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "jpZoningUseDistricts",
     popup: "jpZoningUseDistricts",
-    params: { count: 2, kinds: ["slider", "select"] },
+    params: { count: 5, kinds: ["select", "slider", "select", "palette", "slider"] },
     description: "日本都市計畫用途地域 13 類（住居系、商業系、工業系），含容積率與建蔽率；概略位置、僅供參考，無用途地域與未涵蓋的市町村見圖例",
     topics: ["世界", "日本", "用途地域", "土地使用分區", "都市計畫", "容積率"],
   },
@@ -2765,7 +2771,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "jpNationalForests",
     popup: "jpNationalForests",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "日本国有林（依機能類型分 6 類）；僅國有林、民有林不在內；合併分類面、非小班",
     topics: ["世界", "日本", "国有林", "森林", "林業", "保安林"],
   },
@@ -6811,7 +6817,8 @@ export const LAYER_MANIFEST = {
       note: "第 38 主題 education；校地面 4,336 → 前端濾掉 non_school 12 筆後渲染 4,324（PMTiles z8-15）",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "edu-campus",
       url: "./education/campus_polygon.pmtiles",
@@ -6819,9 +6826,11 @@ export const LAYER_MANIFEST = {
       minzoom: 8,
       maxzoom: 15,
     },
+      { kind: "pmtiles", sourceId: "edu-campus-points", url: "./education/campus_polygon_points.pmtiles", sourceLayer: "campus_polygon_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "schools",
     popup: "eduCampus",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
     description: "校地範圍面 4,324（依學制分色；與 eduCampusArea 同一份切片的兩種讀法）",
     topics: ["教育", "校地", "土地使用"],
   },
@@ -7274,7 +7283,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "national_forest_compartments", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "forest-compartments",
       url: "./forestry/national_forest_compartments.pmtiles",
@@ -7282,9 +7292,11 @@ export const LAYER_MANIFEST = {
       minzoom: 0,
       maxzoom: 13,
     },
+      { kind: "pmtiles", sourceId: "forest-compartments-points", url: "./forestry/national_forest_compartments_points.pmtiles", sourceLayer: "national_forest_compartments_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "forestCompartments",
     popup: "forestryPolygon",
-    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    params: { count: 5, kinds: ["select", "slider", "slider", "toggle", "slider"] },
     description: "國有林事業區林班界（面層切片）",
     topics: ["林業", "林班", "土地使用"],
   },
@@ -7301,7 +7313,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "forest_reserve", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "forest-reserve",
       url: FOREST_RESERVE_PMTILES_URL,
@@ -7309,9 +7322,11 @@ export const LAYER_MANIFEST = {
       minzoom: 0,
       maxzoom: 13,
     },
+      { kind: "pmtiles", sourceId: "forest-reserve-points", url: "./forestry/forest_reserve_points.pmtiles", sourceLayer: "forest_reserve_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "forestCompartments",
     popup: "forestryPolygon",
-    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "toggle"] },
+    params: { count: 6, kinds: ["select", "multiSelect", "slider", "slider", "toggle", "slider"] },
     description: "保安林編號區（依保安林種類分色，見 forestReserveTypes.ts）",
     topics: ["林業", "保安林", "土地使用"],
   },
@@ -8969,14 +8984,17 @@ export const LAYER_MANIFEST = {
     icon: LandPlot,
     upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_boundaries", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles", sourceId: "industrial-zone-park-boundaries",
       url: "./industrial_zone/industrial_park_boundaries_20260818.pmtiles",
       sourceLayer: "industrial_park_boundaries", minzoom: 5, maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "industrial-zone-park-boundaries-points", url: "./industrial_zone/industrial_park_boundaries_20260818_points.pmtiles", sourceLayer: "industrial_park_boundaries_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "industrialParkBoundaries",
     popup: "industrialParkBoundaries",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "20260818 產業園區 polygon；v1 不含科學園區，不以 A3 membership 虛構邊界",
     topics: ["工商登記", "產業園區", "工業區", "邊界"],
   },
@@ -8990,14 +9008,17 @@ export const LAYER_MANIFEST = {
     icon: BarChart3,
     upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_comparison", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles", sourceId: "business-registry-industrial-park-comparison",
       url: "./business_registry/industrial_park_comparison_20260818.pmtiles",
       sourceLayer: "industrial_park_comparison", minzoom: 5, maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "business-registry-industrial-park-comparison-points", url: "./business_registry/industrial_park_comparison_20260818_points.pmtiles", sourceLayer: "industrial_park_comparison_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "industrialParkComparison",
     popup: "industrialParkComparison",
-    params: { count: 2, kinds: ["select", "slider"] },
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
     description: "215 產業園區內已定位工廠／製造業公司觀測指標；受 geocode coverage 影響，不含科學園區 membership",
     topics: ["工商登記", "產業園區", "工廠", "公司", "資本額"],
   },
@@ -9547,7 +9568,8 @@ export const LAYER_MANIFEST = {
       note: "新北市都市計畫土地使用分區 34,190 面（urban.planning.ntpc.gov.tw opendata，docs/data-catalog/urban_composite/urban_zoning_newtaipei.md）",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "urban-zoning-newtaipei",
       url: "./urban/urban_zoning_newtaipei.pmtiles",
@@ -9555,9 +9577,11 @@ export const LAYER_MANIFEST = {
       minzoom: 6,
       maxzoom: 15,
     },
+      { kind: "pmtiles", sourceId: "urban-zoning-newtaipei-points", url: "./urban/urban_zoning_newtaipei_points.pmtiles", sourceLayer: "urban_zoning_newtaipei_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "urbanZoning",
     popup: "urbanZoningNewTaipei",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "新北市都市計畫土地使用分區（與北市同一組 zone_category 分色）",
     topics: ["土地使用", "都市計畫", "底圖"],
   },
@@ -9575,7 +9599,8 @@ export const LAYER_MANIFEST = {
       processing: "內政部區域計畫法非都市土地使用分區 68,220 面 / 18 縣市（北市・嘉義市全境都市計畫故無），z5-14 PMTiles",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "non-urban-zoning",
       url: "./urban/non_urban_zoning.pmtiles",
@@ -9583,9 +9608,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "non-urban-zoning-points", url: "./urban/non_urban_zoning_points.pmtiles", sourceLayer: "non_urban_zoning_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "nonUrbanZoning",
     popup: "nonUrbanZoning",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "非都市土地使用分區（與北市/新北兩層互補，合起來是全國拼圖）",
     topics: ["土地使用", "區域計畫", "底圖"],
   },
@@ -10016,8 +10043,11 @@ export const LAYER_MANIFEST = {
     key: "agriRuralCommunityVillages", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" }, ...layerName({ zh: "農村社區分類（村里）", alt: "Rural Community Villages" }), expandable: true,
     color: ATLAS_LAYER_COLORS.agriRuralCommunityVillages, icon: Sprout,
     upstream: { status: "verified", datasets: [{ datasetId: "rural_community_villages", confidence: "HIGH" }], note: "農業部農村發展及水土保持署 農村社區分類（平地／丘陵／高山，4,271 村里面）；PMTiles z7–12 逐 zoom 4,271 面完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "agri-rural-community-villages", url: "./indigenous_rural/rural_community_villages.pmtiles", sourceLayer: "rural_community_villages", minzoom: 7, maxzoom: 12 },
-    legend: "agriRuralCommunityVillages", popup: "agriRuralCommunityVillages", params: { count: 2, kinds: ["multiSelect", "slider"] },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "agri-rural-community-villages", url: "./indigenous_rural/rural_community_villages.pmtiles", sourceLayer: "rural_community_villages", minzoom: 7, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "agri-rural-community-villages-points", url: "./indigenous_rural/rural_community_villages_points.pmtiles", sourceLayer: "rural_community_villages_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "agriRuralCommunityVillages", popup: "agriRuralCommunityVillages", params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
     description: "依村里分平地、丘陵、高山三類農村社區（放大到 7 級以上顯示）。",
     topics: ["農村", "農村社區", "村里"],
   },
@@ -10216,8 +10246,11 @@ export const LAYER_MANIFEST = {
     key: "coastalAreaExtents", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海岸地區範圍（111 年版）", alt: "Coastal Area Extents (2022)" }), expandable: true,
     color: ATLAS_LAYER_COLORS.coastalAreaExtents, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "coastal_area_extents", confidence: "HIGH" }], note: "內政部國家公園署 111 年海岸地區範圍（data.gov.tw 20821，343 面；7 面面積 < 1 m² 的退化面未上圖）。PMTiles z5–12，小島礁依面積延後出現，z12 起 336 面完整。" },
-    dataClass: "B", source: { kind: "pmtiles", sourceId: "coastal-area-extents", url: "./marine/coastal_area_extents.pmtiles", sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
-    legend: "coastalAreaExtents", popup: "coastalAreaExtents", params: { count: 2, kinds: ["multiSelect", "slider"] },
+    dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "coastal-area-extents", url: "./marine/coastal_area_extents.pmtiles", sourceLayer: "coastal_area_extents", minzoom: 5, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "coastal-area-extents-points", url: "./marine/coastal_area_extents_points.pmtiles", sourceLayer: "coastal_area_extents_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "coastalAreaExtents", popup: "coastalAreaExtents", params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
     description: "111 年版海岸地區範圍，分濱海陸地與近岸海域；不是現行海岸線或管制。",
     topics: ["海洋", "海岸", "海岸地區", "近岸海域"],
   },
@@ -11778,7 +11811,8 @@ export const LAYER_MANIFEST = {
       note: "台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles）。",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "tree-pits-taipei",
       url: "./urban/tree_pits_taipei.pmtiles",
@@ -11786,9 +11820,11 @@ export const LAYER_MANIFEST = {
       minzoom: 11,
       maxzoom: 16,
     },
+      { kind: "pmtiles", sourceId: "tree-pits-taipei-points", url: "./urban/tree_pits_taipei_points.pmtiles", sourceLayer: "tree_pits_taipei_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "treePitsTaipei",
     popup: "treePitsTaipei",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "台北人行道樹穴 56,720 面（面狀，含空穴 / 已植）",
     topics: ["環境", "都市樹木", "台北"],
   },
@@ -12391,7 +12427,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "lakes_ponds_osm", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "lakes-ponds-osm",
       url: "./water_resources/lakes_ponds_osm.pmtiles",
@@ -12399,9 +12436,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "lakes-ponds-osm-points", url: "./water_resources/lakes_ponds_osm_points.pmtiles", sourceLayer: "lakes_ponds_osm_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "lakesPondsOsm",
     popup: "lakesPondsOsm",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "全台湖泊與埤塘水體面（OSM，含桃園埤塘群）",
     topics: ["水資源", "湖泊", "埤塘"],
   },
@@ -12418,7 +12457,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "flood_hazard_wra", confidence: "MED" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "water-flood-extreme",
       url: "./geo/water_flood_650mm_24hr.pmtiles",
@@ -12426,9 +12466,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 13,
     },
+      { kind: "pmtiles", sourceId: "water-flood-extreme-points", url: "./geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "waterFloodExtreme",
     popup: "waterFloodExtreme",
-    params: { count: 3, kinds: ["slider", "select", "select"] },
+    params: { count: 5, kinds: ["select", "slider", "select", "select", "slider"] },
     description: "水利署淹水潛勢圖，10 種降雨情境（6／12／24 小時）可切換，依淹水深度分級；模式模擬，僅供防災整備",
     topics: ["水資源", "淹水", "災害潛勢"],
   },
@@ -13420,7 +13462,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "aquaculture_water_satellite", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "aquaculture-water-satellite",
       url: "./fishery/aquaculture_water_satellite.pmtiles",
@@ -13428,9 +13471,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "aquaculture-water-satellite-points", url: "./fishery/aquaculture_water_satellite_points.pmtiles", sourceLayer: "aquaculture_water_satellite_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "aquaculturePonds",
     popup: "aquacultureWaterSatellite",
-    params: { count: 2, kinds: ["select", "slider"] },
+    params: { count: 5, kinds: ["select", "select", "slider", "palette", "slider"] },
     description: "衛星影像偵測出的養殖水體（補官方圖資之不足）",
     topics: ["農業", "漁業", "遙測"],
   },
@@ -13447,7 +13492,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "aquaculture_water_satellite_moa", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "aquaculture-water-satellite-moa",
       url: "./fishery/aquaculture_water_satellite_moa.pmtiles",
@@ -13455,9 +13501,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "aquaculture-water-satellite-moa-points", url: "./fishery/aquaculture_water_satellite_moa_points.pmtiles", sourceLayer: "aquaculture_water_satellite_moa_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "aquacultureWaterSatelliteMoa",
     popup: "aquacultureWaterSatelliteMoa",
-    params: { count: 4, kinds: ["slider", "toggle", "toggle", "toggle"] },
+    params: { count: 7, kinds: ["select", "slider", "toggle", "toggle", "toggle", "palette", "slider"] },
     description: "農業部標籤版魚塭圖資（2026-07 版）",
     topics: ["農業", "漁業", "官方圖資"],
   },
@@ -13484,7 +13532,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "aquaculture_water_sat_union", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "aquaculture-water-satellite-union",
       url: "./fishery/aquaculture_water_sat_union.pmtiles",
@@ -13492,9 +13541,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "aquaculture-water-satellite-union-points", url: "./fishery/aquaculture_water_sat_union_points.pmtiles", sourceLayer: "aquaculture_water_satellite_union_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "aquacultureWaterUnion",
     popup: "aquacultureWaterUnion",
-    params: { count: 4, kinds: ["slider", "toggle", "toggle", "toggle"] },
+    params: { count: 6, kinds: ["select", "slider", "toggle", "toggle", "toggle", "slider"] },
     description: "官方標籤 ∪ 衛星偵測的魚塭整合圖層",
     topics: ["農業", "漁業", "整合"],
   },
@@ -13515,7 +13566,8 @@ export const LAYER_MANIFEST = {
       note: "派生分析：三來源養殖面聚合",
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "aquaculture-integrated",
       url: "./fishery/aquaculture_integrated.pmtiles",
@@ -13523,9 +13575,11 @@ export const LAYER_MANIFEST = {
       minzoom: 5,
       maxzoom: 14,
     },
+      { kind: "pmtiles", sourceId: "aquaculture-integrated-points", url: "./fishery/aquaculture_integrated_points.pmtiles", sourceLayer: "aquaculture_integrated_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "aquacultureIntegrated",
     popup: "aquacultureIntegrated",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "三來源養殖面聚合（逐口魚塭 + 衛星偵測 + 生產區，20,212 面依來源三色）",
     topics: ["農業", "漁業", "派生分析"],
   },
@@ -13557,7 +13611,7 @@ export const LAYER_MANIFEST = {
     // source_tile）。confidence_mean 實測值域僅 [0.500, 0.581]（上游 catalog 明載
     // 上限 0.6）→ panel 不畫成 0~100% 進度條，並揭露「AI 推論非法定分區、會高估」。
     popup: "agricultureField",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
+    params: { count: 7, kinds: ["select", "slider", "slider", "toggle", "slider", "palette", "slider"] },
     description: "全台農田範圍（FTW Fields 2025，38.6 萬田區）",
     topics: ["農業", "農地", "面"],
   },
@@ -13581,7 +13635,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "agriLeisureFarmZones",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "官方劃設的休閒農業區範圍（2025 版）",
     topics: ["農業", "觀光", "分區"],
   },
@@ -13605,7 +13659,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "agriRuralRegen",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "農村再生計畫社區範圍（2025 版）",
     topics: ["農業", "農村", "分區"],
   },
@@ -13622,7 +13676,8 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "eco_network_zones", confidence: "HIGH" }],
     },
     dataClass: "B",
-    source: {
+    source: [
+      {
       kind: "pmtiles",
       sourceId: "eco-network-zones",
       url: "./agriculture/eco_network_zones.pmtiles",
@@ -13630,9 +13685,11 @@ export const LAYER_MANIFEST = {
       minzoom: 0,
       maxzoom: 13,
     },
+      { kind: "pmtiles", sourceId: "eco-network-zones-points", url: "./agriculture/eco_network_zones_points.pmtiles", sourceLayer: "eco_network_zones_points", minzoom: 4, maxzoom: 10 },
+    ],
     legend: "ecoNetworkZones",
     popup: "ecoNetworkZones",
-    params: { count: 2, kinds: ["multiSelect", "slider"] },
+    params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
     description: "國土生態綠網保育軸帶分區",
     topics: ["農業", "生態", "分區"],
   },
@@ -13657,7 +13714,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "agriSoil",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 4, kinds: ["select", "slider", "palette", "slider"] },
     description: "全台土壤分類圖（土綱／土類）",
     topics: ["農業", "土壤", "面"],
   },
@@ -13705,7 +13762,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "agriCropSuitability",
     popup: "agriCropSuitability",
-    params: { count: 2, kinds: ["slider", "select"] },
+    params: { count: 5, kinds: ["select", "slider", "select", "palette", "slider"] },
     description: "132 種作物的適栽分級圖（依 select 切換作物）",
     topics: ["農業", "土壤", "作物"],
   },
@@ -15931,7 +15988,10 @@ export const LAYER_MANIFEST = {
   playgrounds: { key: "playgrounds", country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" }, ...layerName({ zh: "遊戲場", alt: "Playgrounds" }), expandable: true, color: PUBLIC_LIFE_COLORS.playgrounds, icon: PartyPopper, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "playgrounds", url: "./public_life/playgrounds.geojson" }, legend: "playgrounds", popup: "playgrounds", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊戲場 snapshot exploration，非完整官方清冊。", topics: ["公共生活", "公園", "OSM"] },
   accessibleParkFacilities: { key: "accessibleParkFacilities", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "無障礙 Accessibility" }, ...layerName({ zh: "無障礙設施探索", alt: "Accessibility" }), expandable: true, color: PUBLIC_LIFE_COLORS.accessibleParkFacilities, icon: Accessibility, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "wheelchair=yes/limited/no/unknown 依 OSM 標記；unknown 不等於 false。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "accessible-park-facilities", url: "./public_life/accessible_park_facilities.pmtiles", sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, legend: "accessibleParkFacilities", popup: "accessibleParkFacilities", params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] }, description: "OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。", topics: ["公共生活", "無障礙", "OSM"] },
   bicycleSupport: { key: "bicycleSupport", country: "TW", section: { theme: "交通 Move", group: "共享運具" }, ...layerName({ zh: "自行車支援", alt: "Bicycle Support" }), expandable: true, color: PUBLIC_LIFE_COLORS.bicycleSupport, icon: Bike, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "bicycle-support", url: "./public_life/bicycle_support.pmtiles", sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, legend: "bicycleSupport", popup: "bicycleSupport", params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] }, description: "OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。", topics: ["公共生活", "自行車", "OSM"] },
-  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, legend: "nationalParks", popup: "nationalParks", params: { count: 1, kinds: ["slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
+  nationalParks: { key: "nationalParks", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "國家（自然）公園", alt: "National Parks" }), expandable: true, color: "#15803d", icon: TreePine, upstream: { status: "verified", datasets: [{ datasetId: "tourism.national_park_boundaries", confidence: "HIGH" }], note: "官方計畫邊界；各園版次不同，不代表即時開放或管制狀態。" }, dataClass: "B", source: [
+      { kind: "pmtiles", sourceId: "national-parks", url: "./public_life/national_parks.pmtiles", sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "national-parks-points", url: "./public_life/national_parks_points.pmtiles", sourceLayer: "national_parks_points", minzoom: 4, maxzoom: 10 },
+    ], legend: "nationalParks", popup: "nationalParks", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "9 座國家公園 + 1 座國家自然公園的官方計畫邊界。", topics: ["環境", "保護區", "政府開放資料"] },
   visitorCentres: { key: "visitorCentres", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "遊客中心", alt: "Visitor Centres" }), expandable: true, color: PUBLIC_LIFE_COLORS.visitorCentres, icon: MapPinned, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OpenStreetMap snapshot exploration；非完整官方清冊。" }, dataClass: "A", source: { kind: "geojson", sourceId: "visitor-centres", url: "./public_life/visitor_centres.geojson" }, legend: "visitorCentres", popup: "visitorCentres", params: { count: 2, kinds: ["slider", "slider"] }, description: "OSM 遊客中心 snapshot exploration，非完整官方清冊。", topics: ["觀光", "公共生活", "OSM"] },
   publicLifeOsmCoverage: { key: "publicLifeOsmCoverage", country: "TW", section: { theme: "基礎建設 Infrastructure", group: "公共設施" }, ...layerName({ zh: "公共生活 OSM 映射密度" }), expandable: true, color: "#2563eb", icon: Grid3x3, upstream: { status: "verified", datasets: [{ datasetId: "poi.public_life_osm", confidence: "MED" }], note: "OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" }, dataClass: "B", source: { kind: "pmtiles", sourceId: "public-life-osm-coverage", url: "./public_life/public_life_osm_coverage.pmtiles", sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, legend: "publicLifeOsmCoverage", popup: "publicLifeOsmCoverage", params: { count: 1, kinds: ["slider"] }, description: "OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。", topics: ["公共生活", "OSM", "映射密度"] },
 
