@@ -193,6 +193,7 @@ export function KrFuelStationsLegend() {
     <LegendNote>{i18n.t("legend.energy.krFuelScope")}</LegendNote>
     <LegendNote>{i18n.t("legend.energy.krFuelDates")}</LegendNote>
     <LegendNote>{KR_FUEL_STATIONS_ATTRIBUTION}</LegendNote>
+    <DenseHeatmapLegendRow layers={["krFuelStations"]} />
   </div>;
 }
 
@@ -228,5 +229,6 @@ export function KrDataLegend({ layerKey }: { layerKey: KrDataKey }) {
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>
+    {spec.heat ? <DenseHeatmapLegendRow layers={[layerKey]} /> : null}
   </div>;
 }

@@ -97,6 +97,12 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   accessibleParkFacilities: "YlGnBu",
   // 台灣 農業
   agriProduceWholesale: "speed",
+  // 南韓 交通：公車站拿主題色 BuPu，其餘 5 層錯開（橋梁暖紅褐、停車場青灰、攝影機紅、兒童保護區紫、自行車綠）
+  krPublicBicycleStations: "speed",
+  krBridges: "bilbao",
+  krParkingLots: "cividis",
+  krSpeedCameras: "rocket",
+  krChildProtectionZones: "acton",
   // 日本 宗教（三個來源）、觀光、社福
   jpReligionOsm: "acton",
   jpReligionWikidata: "turku",

@@ -31,7 +31,7 @@ function makeKrDataHost(key: KrDataKey, fallbackOpacity: number): LayerHostCompo
   const KrDataHost: LayerHostComponent = ({ deps }) => {
     bumpHostRender(hookId);
     const p = useKeyOverlayParams(key);
-    useKrDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme);
+    useKrDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`]);
     return null;
   };
   return KrDataHost;
@@ -66,7 +66,7 @@ export const KrBusStopsHost: LayerHostComponent = ({ deps }) => {
 export const KrRailStationsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrRailStationsLayer");
   const p = useKeyOverlayParams("krRailStations");
-  useKrRailStationsLayer(deps.mapRef, deps.layerVisibility.krRailStations, p.krRailStationsOpacity ?? 0.8, p.krRailStationsScale ?? 1, deps.isDarkTheme);
+  useKrRailStationsLayer(deps.mapRef, deps.layerVisibility.krRailStations, p.krRailStationsOpacity ?? 0.8, p.krRailStationsScale ?? 1, deps.isDarkTheme, p.krRailStationsCatMask);
   return null;
 };
 
@@ -94,42 +94,42 @@ export const KrNationalRoadsHost: LayerHostComponent = ({ deps }) => {
 export const KrRailLinesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrRailLinesLayer");
   const p = useKeyOverlayParams("krRailLines");
-  useKrRailLinesLayer(deps.mapRef, deps.layerVisibility.krRailLines, p.krRailLinesOpacity ?? 0.85, deps.isDarkTheme);
+  useKrRailLinesLayer(deps.mapRef, deps.layerVisibility.krRailLines, p.krRailLinesOpacity ?? 0.85, deps.isDarkTheme, p.krRailLinesCatMask);
   return null;
 };
 
 export const KrFuelStationsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrFuelStationsLayer");
   const p = useKeyOverlayParams("krFuelStations");
-  useKrFuelStationsLayer(deps.mapRef, deps.layerVisibility.krFuelStations, p.krFuelStationsOpacity ?? 0.75, p.krFuelStationsScale ?? 1, deps.isDarkTheme);
+  useKrFuelStationsLayer(deps.mapRef, deps.layerVisibility.krFuelStations, p.krFuelStationsOpacity ?? 0.75, p.krFuelStationsScale ?? 1, deps.isDarkTheme, p.krFuelStationsCatMask);
   return null;
 };
 
 export const KrPowerPlantsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrPowerPlantsLayer");
   const p = useKeyOverlayParams("krPowerPlants");
-  useKrPowerPlantsLayer(deps.mapRef, deps.layerVisibility.krPowerPlants, p.krPowerPlantsOpacity ?? 0.8, p.krPowerPlantsScale ?? 1, deps.isDarkTheme);
+  useKrPowerPlantsLayer(deps.mapRef, deps.layerVisibility.krPowerPlants, p.krPowerPlantsOpacity ?? 0.8, p.krPowerPlantsScale ?? 1, deps.isDarkTheme, p.krPowerPlantsCatMask);
   return null;
 };
 
 export const KrRenewablesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrRenewablesLayer");
   const p = useKeyOverlayParams("krRenewables");
-  useKrRenewablesLayer(deps.mapRef, deps.layerVisibility.krRenewables, p.krRenewablesOpacity ?? 0.75, p.krRenewablesScale ?? 1, deps.isDarkTheme);
+  useKrRenewablesLayer(deps.mapRef, deps.layerVisibility.krRenewables, p.krRenewablesOpacity ?? 0.75, p.krRenewablesScale ?? 1, deps.isDarkTheme, p.krRenewablesCatMask);
   return null;
 };
 
 export const KrPowerLinesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrPowerLinesLayer");
   const p = useKeyOverlayParams("krPowerLines");
-  useKrPowerLinesLayer(deps.mapRef, deps.layerVisibility.krPowerLines, p.krPowerLinesOpacity ?? 0.85, deps.isDarkTheme);
+  useKrPowerLinesLayer(deps.mapRef, deps.layerVisibility.krPowerLines, p.krPowerLinesOpacity ?? 0.85, deps.isDarkTheme, p.krPowerLinesCatMask);
   return null;
 };
 
 export const KrSubstationsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrSubstationsLayer");
   const p = useKeyOverlayParams("krSubstations");
-  useKrSubstationsLayer(deps.mapRef, deps.layerVisibility.krSubstations, p.krSubstationsOpacity ?? 0.75, p.krSubstationsScale ?? 1, deps.isDarkTheme);
+  useKrSubstationsLayer(deps.mapRef, deps.layerVisibility.krSubstations, p.krSubstationsOpacity ?? 0.75, p.krSubstationsScale ?? 1, deps.isDarkTheme, p.krSubstationsCatMask);
   return null;
 };
 
@@ -143,6 +143,6 @@ export const KrPowerTowersHost: LayerHostComponent = ({ deps }) => {
 export const KrOilGasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useKrOilGasLayer");
   const p = useKeyOverlayParams("krOilGas");
-  useKrOilGasLayer(deps.mapRef, deps.layerVisibility.krOilGas, p.krOilGasOpacity ?? 0.6, deps.isDarkTheme);
+  useKrOilGasLayer(deps.mapRef, deps.layerVisibility.krOilGas, p.krOilGasOpacity ?? 0.6, deps.isDarkTheme, p.krOilGasCatMask, p.krOilGasPipeMask);
   return null;
 };

@@ -85,7 +85,7 @@ describe("R7 顏色解析器", () => {
   });
 
   it("熱區色盤清單：每層預設＝主題表結果（覆寫 > 主題 > magma）", () => {
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(59);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(67);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);
