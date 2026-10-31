@@ -96,6 +96,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { KR_DATA_SPECS } from "./krDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
@@ -1923,6 +1924,10 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  // 南韓第 3–5 波（2026-10-31）：點層＝透明度＋大小，線／面層＝透明度。預設不透明度點層依筆數（P-3）。
+  ...Object.fromEntries(KR_DATA_SPECS.map((spec) => [spec.key, spec.geom === "point"
+    ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
+    : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
     {
