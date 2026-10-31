@@ -138,6 +138,8 @@ import {
   CreditCard,
   // 📈 證券期貨／保險據點 G10 延伸（2026-10-24）
   TrendingUp, Umbrella,
+  // 🗣️ 族語方言分布 G35（2026-10-31）
+  Languages,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -5858,6 +5860,26 @@ export const LAYER_MANIFEST = {
     topics: ["觀光", "風景區", "土地使用"],
   },
 
+  // ── 文化、觀光、原民補強 G35（2026-10-31）：analytics → build-g35-culture-public.py → public/tourism/ ──
+  tourServiceSites: {
+    key: "tourServiceSites", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "旅遊服務站點（官方）", alt: "Tourist Service Sites" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.tourServiceSites, icon: Signpost,
+    upstream: { status: "verified", datasets: [{ datasetId: "service_sites", confidence: "HIGH" }], note: "交通部觀光署 旅遊服務站點（data.gov.tw 44055）797 處：借問站 627、遊客中心與旅遊服務中心 170；類別名稱依站名歸納（官方代碼表未取得）。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "tour-service-sites", url: "./tourism/tourism_service_sites.geojson" },
+    legend: "tourServiceSites", popup: "tourServiceSites", params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "觀光署公布的遊客中心、旅遊服務中心與借問站 797 處；與 OSM「遊客中心」層並列。",
+    topics: ["觀光", "遊客中心", "借問站", "旅遊服務"],
+  },
+  tourVisitorStats: {
+    key: "tourVisitorStats", country: "TW", section: { theme: "觀光 Tourism", group: "玩・自然 Nature" }, ...layerName({ zh: "主要觀光據點遊客人數", alt: "Visitors at Major Tourist Spots" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.tourVisitorStats, icon: TrendingUp,
+    upstream: { status: "verified", datasets: [{ datasetId: "visitor_stats", confidence: "MED" }], note: "交通部觀光署 主要觀光遊憩據點遊客人數月別統計（data.gov.tw 8116，2012–2024）；2024 年 368 據點中名稱配得到景點點位的 270 個上圖（完全相同 163、包含 72、字尾 35），98 個配不到。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "tour-visitor-stats", url: "./tourism/visitor_spot_stats.geojson" },
+    legend: "tourVisitorStats", popup: "tourVisitorStats", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "主要觀光遊憩據點 2024 年全年遊客人次（依人次分級上色，彈窗有歷年趨勢）；270 個據點，另 98 個配不到點位未上圖。",
+    topics: ["觀光", "遊客人數", "景點", "統計"],
+  },
+
   tourHeritage: {
     key: "tourHeritage",
     country: "TW", section: { theme: "觀光 Tourism", group: "玩・人文 Heritage" },
@@ -9355,6 +9377,34 @@ export const LAYER_MANIFEST = {
     legend: "indigenousIsolationRisk", popup: "indigenousIsolationRisk", params: { count: 2, kinds: ["slider", "slider"] },
     description: "颱風豪雨時可能因土石流、淹水或道路中斷而成孤島的原鄉地區（點為代表中心點，依成因上色）。",
     topics: ["原住民族", "孤島", "防災", "土石流"],
+  },
+  // ── 文化、觀光、原民補強 G35（2026-10-31）：analytics → build-g35-culture-public.py → public/indigenous_rural/ ──
+  indigenousRegions: {
+    key: "indigenousRegions", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "原住民族地區（55 鄉鎮）", alt: "Indigenous Regions (55 Townships)" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.indigenousRegions, icon: LandPlot,
+    upstream: { status: "verified", datasets: [{ datasetId: "indigenous_townships_55", confidence: "HIGH" }], note: "原民會原住民族地區 55 個鄉（鎮、市、區）（data.gov.tw 163124，政府資料開放授權條款第 1 版）；範圍套內政部鄉鎮界 TOWN_MOI_1140318。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-regions", url: "./indigenous_rural/indigenous_regions_55.geojson" },
+    legend: "indigenousRegions", popup: "indigenousRegions", params: { count: 1, kinds: ["slider"] },
+    description: "原民會公告的 55 個原住民族地區（鄉鎮市區）範圍；範圍是鄉鎮界，不是法定邊界判定。",
+    topics: ["原住民族", "原住民族地區", "鄉鎮"],
+  },
+  indigenousLanguageDialects: {
+    key: "indigenousLanguageDialects", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "原住民族 Indigenous Peoples" }, ...layerName({ zh: "族語方言分布", alt: "Indigenous Language Dialects" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.indigenousLanguageDialects, icon: Languages,
+    upstream: { status: "verified", datasets: [{ datasetId: "indigenous_language_dialects", confidence: "HIGH" }], note: "原民會原住民族語言方言別分布參考表（data.gov.tw 164237，2023-07）：16 族 42 方言、133 列（方言×鄉鎮），併成 59 個鄉鎮面；舊代碼桃園縣復興鄉 10003130 對到現行 68000130。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "indigenous-language-dialects", url: "./indigenous_rural/indigenous_language_dialects.geojson" },
+    legend: "indigenousLanguageDialects", popup: "indigenousLanguageDialects", params: { count: 1, kinds: ["slider"] },
+    description: "16 族 42 種族語方言分布在哪些鄉鎮（依族別上色，兩族以上塗灰；村里名單在彈窗）；語言推廣參考表，不是使用人口調查。",
+    topics: ["原住民族", "族語", "方言", "語言"],
+  },
+  hakkaCulturalZones: {
+    key: "hakkaCulturalZones", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "客家 Hakka" }, ...layerName({ zh: "客家文化重點發展區", alt: "Hakka Cultural Development Zones" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.hakkaCulturalZones, icon: Landmark,
+    upstream: { status: "verified", datasets: [{ datasetId: "hakka_cultural_zones", confidence: "HIGH" }], note: "客委會客家文化重點發展區（data.gov.tw 162466）70 個鄉鎮市區；範圍套內政部鄉鎮界 TOWN_MOI_1140318。" },
+    dataClass: "A", source: { kind: "geojson", sourceId: "hakka-cultural-zones", url: "./indigenous_rural/hakka_cultural_zones.geojson" },
+    legend: "hakkaCulturalZones", popup: "hakkaCulturalZones", params: { count: 1, kinds: ["slider"] },
+    description: "客委會公告的 70 個客家文化重點發展區（客家人口比率三分之一以上的鄉鎮市區），依客語腔調上色。",
+    topics: ["客家", "客語", "文化", "鄉鎮"],
   },
   agriRuralCommunityVillages: {
     key: "agriRuralCommunityVillages", country: "TW", section: { theme: "原民與農村 Indigenous & Rural", group: "農村 Rural" }, ...layerName({ zh: "農村社區分類（村里）", alt: "Rural Community Villages" }), expandable: true,

@@ -985,6 +985,14 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("indigenousTribes"),
           fromManifest("indigenousIsolationRisk"),
+          fromManifest("indigenousRegions"),
+          fromManifest("indigenousLanguageDialects"),
+        ],
+      },
+      {
+        title: "客家 Hakka",
+        layers: [
+          fromManifest("hakkaCulturalZones"),
         ],
       },
       {
@@ -1511,6 +1519,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourScenicAreas"),
           fromManifest("nationalParks"),
           fromManifest("visitorCentres"),
+          fromManifest("tourServiceSites"),
+          fromManifest("tourVisitorStats"),
         ],
       },
       {

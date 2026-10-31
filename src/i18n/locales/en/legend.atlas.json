@@ -1,6 +1,9 @@
 {
   "legend.atlas.flag": "Coordinates differ from reported county (suspect)",
   "legend.atlas.otherMultiEthnic": "Other / multiple groups",
+  "legend.atlas.indigenousRegion": "Indigenous region (township)",
+  "legend.atlas.titleVisitorStats": "Visitors in 2024 (full year)",
+  "legend.atlas.visitorIncomplete": "Fewer than 12 months of 2024 data",
   "legend.atlas.notApprovedList": "Not on current approved list",
   "legend.atlas.otherSource": "Other sources",
   "legend.atlas.unidentified": "Unidentified",

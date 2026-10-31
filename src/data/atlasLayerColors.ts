@@ -6,6 +6,10 @@ export const ATLAS_LAYER_COLORS = {
   indigenousTribes: "#b45309",
   indigenousIsolationRisk: "#be123c",
   agriRuralCommunityVillages: "#65a30d",
+  // 文化、觀光、原民補強 G35（2026-10-31）：原民與農村三層
+  indigenousRegions: "#b45309",
+  indigenousLanguageDialects: "#7c3aed",
+  hakkaCulturalZones: "#0f766e",
   provincialRoadSigns: "#2563eb",
   provincialRoadMileposts: "#0f766e",
   freewayTrafficSigns: "#16a34a",
@@ -47,6 +51,9 @@ export const ATLAS_LAYER_COLORS = {
   seawallZones: "#0f766e",
   // 文化幣藝文消費點 G23（2026-10-24）
   cultureCoinVenues: "#e11d48",
+  // 文化、觀光、原民補強 G35（2026-10-31）：觀光兩層
+  tourServiceSites: "#4f46e5",
+  tourVisitorStats: "#ea580c",
   // 原民會文化健康站 G20（2026-10-24）
   culturalHealthStations: "#c2410c",
   // 國營事業與國有資產 G16（2026-10-24）

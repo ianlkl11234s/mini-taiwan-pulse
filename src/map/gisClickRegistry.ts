@@ -474,6 +474,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["tour-attractions-circle", "tour-attractions-glow"], type: "tourAttractions" },
   { layers: ["tour-hot-springs-circle", "tour-hot-springs-glow"], type: "tourHotSprings" },
   { layers: ["tour-heritage-circle", "tour-heritage-glow"], type: "tourHeritage" },
+  { layers: ["tour-service-sites-circle", "tour-service-sites-glow"], type: "tourServiceSites" },
+  { layers: ["tour-visitor-stats-circle", "tour-visitor-stats-glow"], type: "tourVisitorStats" },
   { layers: ["tour-events-circle"], type: "tourEvents" },
   { layers: ["tour-factories-circle", "tour-factories-glow"], type: "tourFactories" },
   { layers: ["tour-amusement-parks-circle", "tour-amusement-parks-glow"], type: "tourAmusementParks" },
@@ -578,6 +580,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // atlas 批次 2026-10：點位（小目標）排在面層前；線／混合幾何的點也在這裡
   { layers: ["indigenous-tribes-circle", "indigenous-tribes-glow"], type: "indigenousTribes" },
   { layers: ["indigenous-isolation-risk-circle", "indigenous-isolation-risk-glow"], type: "indigenousIsolationRisk" },
+  { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
+  { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
+  { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
   { layers: ["provincial-road-signs-circle", "provincial-road-signs-glow"], type: "provincialRoadSigns" },
   { layers: ["provincial-road-mileposts-circle", "provincial-road-mileposts-glow"], type: "provincialRoadMileposts" },
   { layers: ["freeway-traffic-signs-circle", "freeway-traffic-signs-glow"], type: "freewayTrafficSigns" },

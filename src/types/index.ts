@@ -132,6 +132,8 @@ export type ExpandableLayerKey =
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
   | "cultureCoinVenues"
+  // 文化、觀光、原民補強 G35（2026-10-31）
+  | "indigenousRegions" | "indigenousLanguageDialects" | "hakkaCulturalZones" | "tourServiceSites" | "tourVisitorStats"
   // 原民會文化健康站 G20（2026-10-24）
   | "culturalHealthStations"
   // 國營事業與國有資產 G16（2026-10-24）
@@ -878,6 +880,7 @@ export interface FeatureInfo {
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
+    | "indigenousRegions" | "indigenousLanguageDialects" | "hakkaCulturalZones" | "tourServiceSites" | "tourVisitorStats"
     | "culturalHealthStations"
     | "twcServiceOffices" | "twcWaterFacilities" | "taisugarSugarMills" | "statePropertyTenderListings"
     | "atmSitesFisc" | "financialBranchesFisc"
@@ -1290,6 +1293,10 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   /** atlas 批次 2026-10：原民與農村、道路設施、淹水與災害照片、海洋、地名、水利設施 26 層 */
   indigenousTribes: boolean;
   indigenousIsolationRisk: boolean;
+  /** 文化、觀光、原民補強 G35（2026-10-31）：原住民族地區 55 鄉鎮、族語方言分布 59 鄉鎮、客家文化重點發展區 70 鄉鎮 */
+  indigenousRegions: boolean;
+  indigenousLanguageDialects: boolean;
+  hakkaCulturalZones: boolean;
   agriRuralCommunityVillages: boolean;
   provincialRoadSigns: boolean;
   provincialRoadMileposts: boolean;
@@ -1475,7 +1482,9 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   tourHotSprings: boolean;        // 溫泉露頭全國（150 點，單色）
   tourHotSpringZones: boolean;    // 溫泉露頭區（16 面，Polygon，全國僅北市有公告範圍圖）
   tourScenicAreas: boolean;       // 國家風景區（12 面，Polygon）
-  tourHeritage: boolean;          // 文化資產全國（2,894 點，category 三類 古蹟/歷史建築/文化景觀 同色系分色）
+  tourHeritage: boolean;          // 文化資產全國（3,013 點，category 七類 古蹟/歷史建築/文化景觀/考古遺址/聚落建築群/紀念建築/史蹟 同色系分色）
+  tourServiceSites: boolean;      // 觀光署旅遊服務站點（797 點，G35 2026-10-31）
+  tourVisitorStats: boolean;      // 主要觀光據點遊客人數（270 點，G35 2026-10-31）
   // 🛕 宗教 Religion（第 36 主題；2026-08-02 上游 religion 批次）
   religionTemples: boolean;        // 寺廟 19,201（PMTiles；deity_family 9 族分色 + 雙態 filter）
   religionChurches: boolean;       // 教會 2,116（雙態 filter）

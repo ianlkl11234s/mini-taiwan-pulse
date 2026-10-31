@@ -28,7 +28,7 @@ const county = (value: unknown, i18n: LocaleSnapshot): string =>
 
 interface Point { t: number; v: number }
 
-function TrendChart({ points, color, unit }: { points: Point[]; color: string; unit: string }) {
+export function TrendChart({ points, color, unit }: { points: Point[]; color: string; unit: string }) {
   const theme = useFeatureTheme();
   const { formatNumber } = useLocale();
   const W = 280, H = 130, L = 40, R = 14, T = 8, B = 20;
