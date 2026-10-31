@@ -164,7 +164,7 @@ export const GB_TRAIL_CATEGORIES: readonly GbTrailCategoryDef[] = [
 ];
 export const GB_TRAIL_UNCLASSIFIED_COLOR = "#facc15";
 export const GB_NATIONAL_TRAIL_MINZOOM = 6;
-export const GB_FOREST_ROUTE_MINZOOM = 10;
+export const GB_FOREST_ROUTE_MINZOOM = 6; // §3.8 V-2：圖磚 z6 起（原 z10）
 /** `status` 這幾種要在 popup 標出（非官方或暫時）。 */
 export const GB_TRAIL_FLAG_STATUSES: readonly string[] = ["Permanent - Unofficial", "Seasonal - Unofficial", "Temporary"];
 

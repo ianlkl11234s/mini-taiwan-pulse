@@ -9,7 +9,7 @@ import {
   GB_SOIL_ATTRIBUTION, GB_SOIL_DEPTHS, GB_SOIL_MINZOOM, GB_SOIL_TILE_ZOOM, GB_W12_FALLBACK_COLOR, GB_W12_HOLLOW_STROKE,
   gbAquacultureView, gbSoilDepthColors, type GbCountBucket,
 } from "../data/gbBusinessAgriTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 12 波 5 層：公司登記與製造業（同一檔，郵遞區號 district 聚合點，依家數分級半徑）、殯葬設施（OSM 火葬場／葬儀社）、
@@ -96,7 +96,9 @@ function funeralPaint(kind: (typeof GB_FUNERAL_KINDS)[number], isDark: boolean, 
   };
 }
 
-export function useGbFuneralLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbFuneralLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
+  // §3.8 V-4：火葬場／葬儀社多選
+  const kindFilter = gbMaskFilter("kind", kindMask, GB_FUNERAL_KINDS.map((k) => k.value));
   const build = (id: string, kind: (typeof GB_FUNERAL_KINDS)[number]) => ({
     id,
     layer: () => ({
@@ -107,10 +109,10 @@ export function useGbFuneralLayer(mapRef: MapRef, visible: boolean, opacity: num
     update: (map: MapboxMap) => setPaint(map, id, funeralPaint(kind, isDark, opacity, scale)),
   });
   // 火葬場（量少）畫在葬儀社上面
-  useGbPmtilesLayers(mapRef, FUNERAL_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, FUNERAL_SOURCE, visible, () => gbWithFilter([
     build(GB_FUNERAL_DIRECTORS_CIRCLE_ID, GB_FUNERAL_KINDS[1]!),
     build(GB_CREMATORIUM_CIRCLE_ID, GB_FUNERAL_KINDS[0]!),
-  ], [opacity, scale, isDark]);
+  ], kindFilter), [opacity, scale, kindMask, isDark]);
 }
 
 // ─────────────────────────── 養殖場（gb_aquaculture.pmtiles） ───────────────────────────
@@ -151,9 +153,11 @@ function aquaculturePaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
-export function useGbAquacultureLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, viewIdx: number, isDark: boolean) {
+export function useGbAquacultureLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, viewIdx: number, kindMask: number | undefined, isDark: boolean) {
   const filter = gbAquacultureFilter(viewIdx);
-  useGbPmtilesLayers(mapRef, AQUACULTURE_SOURCE, visible, () => [{
+  // §3.8 V-4：養殖類型多選（與狀態選單疊加）
+  const kindFilter = gbMaskFilter("kind", kindMask, GB_AQUACULTURE_KINDS.map((k) => k.value));
+  useGbPmtilesLayers(mapRef, AQUACULTURE_SOURCE, visible, () => gbWithFilter([{
     id: GB_AQUACULTURE_CIRCLE_ID,
     layer: () => ({
       id: GB_AQUACULTURE_CIRCLE_ID, type: "circle", source: AQUACULTURE_SOURCE.id, "source-layer": "gb_aquaculture", minzoom: GB_AQUACULTURE_MINZOOM,
@@ -166,7 +170,7 @@ export function useGbAquacultureLayer(mapRef: MapRef, visible: boolean, opacity:
       map.setFilter(GB_AQUACULTURE_CIRCLE_ID, (filter ?? null) as any);
       setPaint(map, GB_AQUACULTURE_CIRCLE_ID, aquaculturePaint(isDark, opacity, scale));
     },
-  }], [opacity, scale, viewIdx, isDark]);
+  }], kindFilter), [opacity, scale, viewIdx, kindMask, isDark]);
 }
 
 // ─────────────────────────── 土壤母質（gb_soil_parent_material.pmtiles） ───────────────────────────

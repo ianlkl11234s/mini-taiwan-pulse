@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1499,
+    "keyCount": 1500,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1662,15 +1662,39 @@
     },
     {
       "layers": [
-        "gb-greenspace-golf-circle"
+        "gb-greenspace-park-point-circle"
+      ],
+      "type": "gbGreenspace"
+    },
+    {
+      "layers": [
+        "gb-greenspace-sports-point-circle"
       ],
       "type": "gbSportsFacilities"
+    },
+    {
+      "layers": [
+        "gb-greenspace-golf-circle"
+      ],
+      "type": "gbGolfCourses"
+    },
+    {
+      "layers": [
+        "gb-greenspace-burial-point-circle"
+      ],
+      "type": "gbCemeteries"
     },
     {
       "layers": [
         "gb-greenspace-sports-fill"
       ],
       "type": "gbSportsFacilities"
+    },
+    {
+      "layers": [
+        "gb-greenspace-golf-fill"
+      ],
+      "type": "gbGolfCourses"
     },
     {
       "layers": [
@@ -1734,7 +1758,9 @@
     {
       "layers": [
         "gb-small-areas-fill",
-        "gb-ni-sdz-fill"
+        "gb-ni-sdz-fill",
+        "gb-small-areas-low-fill",
+        "gb-ni-sdz-low-fill"
       ],
       "type": "gbSmallAreaBoundaries"
     },
@@ -95984,6 +96010,34 @@
         "value": "current"
       },
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "魚類養殖",
+            "value": "finfish"
+          },
+          {
+            "label": "貝類養殖",
+            "value": "shellfish"
+          },
+          {
+            "label": "放養釣魚場",
+            "value": "fishery_site"
+          },
+          {
+            "label": "北愛貝類許可水域",
+            "value": "shellfish_licence"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "finfish",
+          "shellfish",
+          "fishery_site",
+          "shellfish_licence"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -96003,6 +96057,34 @@
       }
     ],
     "gbArtsVenues": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "劇院",
+            "value": "theatre"
+          },
+          {
+            "label": "電影院",
+            "value": "cinema"
+          },
+          {
+            "label": "藝術中心",
+            "value": "arts_centre"
+          },
+          {
+            "label": "音樂廳",
+            "value": "concert_hall"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "theatre",
+          "cinema",
+          "arts_centre",
+          "concert_hall"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -96183,6 +96265,24 @@
     ],
     "gbCareHomes": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "護理照護之家",
+            "value": "care_home_nursing"
+          },
+          {
+            "label": "照護之家",
+            "value": "care_home"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "care_home_nursing",
+          "care_home"
+        ]
+      },
+      {
         "defaultValue": "PuBuGn",
         "label": "熱區顏色",
         "options": [
@@ -96279,6 +96379,34 @@
       }
     ],
     "gbCareServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "居家照顧",
+            "value": "home_care"
+          },
+          {
+            "label": "支持性住宅",
+            "value": "supported_living"
+          },
+          {
+            "label": "Shared Lives 寄養式照顧",
+            "value": "shared_lives"
+          },
+          {
+            "label": "其他社區服務",
+            "value": "other_community"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "home_care",
+          "supported_living",
+          "shared_lives",
+          "other_community"
+        ]
+      },
       {
         "defaultValue": "PuBuGn",
         "label": "熱區顏色",
@@ -96377,6 +96505,24 @@
     ],
     "gbCemeteries": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "墓園",
+            "value": "Cemetery"
+          },
+          {
+            "label": "宗教場地",
+            "value": "Religious Grounds"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Cemetery",
+          "Religious Grounds"
+        ]
+      },
+      {
         "defaultValue": "batlow",
         "label": "熱區顏色",
         "options": [
@@ -96461,6 +96607,30 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "gbCoastalErosionRisk": [
@@ -96515,6 +96685,39 @@
     ],
     "gbCourts": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "刑事法院",
+            "value": "crown"
+          },
+          {
+            "label": "郡法院／家事法院",
+            "value": "county_family"
+          },
+          {
+            "label": "治安法院",
+            "value": "magistrates"
+          },
+          {
+            "label": "審裁處",
+            "value": "tribunal"
+          },
+          {
+            "label": "其他司法服務據點",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "crown",
+          "county_family",
+          "magistrates",
+          "tribunal",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -96534,6 +96737,29 @@
       }
     ],
     "gbCulturalFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "博物館",
+            "value": "museum"
+          },
+          {
+            "label": "美術館／畫廊",
+            "value": "gallery"
+          },
+          {
+            "label": "圖書館",
+            "value": "library"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "museum",
+          "gallery",
+          "library"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -96606,6 +96832,121 @@
     ],
     "gbForestRecreation": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "座椅、野餐桌等",
+            "value": "furniture"
+          },
+          {
+            "label": "建物設施",
+            "value": "built"
+          },
+          {
+            "label": "遊戲設施",
+            "value": "play"
+          },
+          {
+            "label": "藝術品",
+            "value": "art"
+          },
+          {
+            "label": "其他",
+            "value": "misc"
+          },
+          {
+            "label": "指標與步道標",
+            "value": "signage"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "furniture",
+          "built",
+          "play",
+          "art",
+          "misc",
+          "signage"
+        ]
+      },
+      {
+        "defaultValue": "tokyo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "tokyo"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -96646,6 +96987,24 @@
     ],
     "gbFuneral": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "火葬場",
+            "value": "crematorium"
+          },
+          {
+            "label": "葬儀社",
+            "value": "funeral_directors"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "crematorium",
+          "funeral_directors"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -96664,7 +97023,65 @@
         "valueText": "1.0"
       }
     ],
+    "gbGolfCourses": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
     "gbGreenspace": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公園／花園",
+            "value": "Public Park Or Garden"
+          },
+          {
+            "label": "遊戲場",
+            "value": "Play Space"
+          },
+          {
+            "label": "市民農園",
+            "value": "Allotments Or Community Growing Spaces"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Public Park Or Garden",
+          "Play Space",
+          "Allotments Or Community Growing Spaces"
+        ]
+      },
       {
         "defaultValue": "viridis",
         "label": "熱區顏色",
@@ -96750,6 +97167,30 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbGroundStability": [
@@ -96795,6 +97236,29 @@
       }
     ],
     "gbHealthFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "GP 診所",
+            "value": "gp_practice"
+          },
+          {
+            "label": "藥局",
+            "value": "pharmacy"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hospital",
+          "gp_practice",
+          "pharmacy"
+        ]
+      },
       {
         "defaultValue": "PuBu",
         "label": "熱區顏色",
@@ -97061,6 +97525,39 @@
     ],
     "gbLondonRailLines": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "地鐵",
+            "value": "tube"
+          },
+          {
+            "label": "Overground 地上鐵",
+            "value": "overground"
+          },
+          {
+            "label": "Elizabeth line",
+            "value": "elizabeth-line"
+          },
+          {
+            "label": "DLR 輕軌",
+            "value": "dlr"
+          },
+          {
+            "label": "電車",
+            "value": "tram"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "tube",
+          "overground",
+          "elizabeth-line",
+          "dlr",
+          "tram"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -97123,6 +97620,29 @@
     ],
     "gbMarineProtectedAreas": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海洋保育區",
+            "value": "mcz"
+          },
+          {
+            "label": "自然保育 MPA",
+            "value": "ncmpa"
+          },
+          {
+            "label": "示範研究 MPA",
+            "value": "drmpa"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mcz",
+          "ncmpa",
+          "drmpa"
+        ]
+      },
+      {
         "label": "透明度 0.50",
         "max": 1,
         "min": 0.1,
@@ -97171,6 +97691,29 @@
     ],
     "gbOilGasFields": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "油田",
+            "value": "OIL"
+          },
+          {
+            "label": "氣田",
+            "value": "GAS"
+          },
+          {
+            "label": "凝結油田",
+            "value": "COND"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "OIL",
+          "GAS",
+          "COND"
+        ]
+      },
+      {
         "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
@@ -97182,6 +97725,106 @@
     ],
     "gbOpenAccessLand": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "開放鄉野",
+            "value": "open_country"
+          },
+          {
+            "label": "登記共有地",
+            "value": "common_land"
+          },
+          {
+            "label": "自願提供地",
+            "value": "dedicated"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "open_country",
+          "common_land",
+          "dedicated"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
         "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
@@ -97189,6 +97832,30 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbPlanningConstraints": [
@@ -97216,6 +97883,83 @@
         "value": "conservation_area"
       },
       {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
         "label": "透明度 0.35",
         "max": 1,
         "min": 0.1,
@@ -97223,6 +97967,30 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "gbPollutionInventory": [
@@ -97257,6 +98025,59 @@
       }
     ],
     "gbPowerPlants": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "生質能／廢棄物",
+            "value": "bioenergy"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "抽蓄水力",
+            "value": "pumped_hydro"
+          },
+          {
+            "label": "陸域風電",
+            "value": "wind_onshore"
+          },
+          {
+            "label": "離岸風電",
+            "value": "wind_offshore"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gas",
+          "nuclear",
+          "oil",
+          "bioenergy",
+          "hydro",
+          "pumped_hydro",
+          "wind_onshore",
+          "wind_offshore",
+          "solar"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -97342,6 +98163,24 @@
       }
     ],
     "gbRecyclingCentres": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "回收中心",
+            "value": "centre"
+          },
+          {
+            "label": "回收桶・回收點",
+            "value": "container"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "centre",
+          "container"
+        ]
+      },
       {
         "defaultValue": "turku",
         "label": "熱區顏色",
@@ -97498,6 +98337,59 @@
     ],
     "gbSchools": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "幼兒學校",
+            "value": "nursery"
+          },
+          {
+            "label": "小學",
+            "value": "primary"
+          },
+          {
+            "label": "中學",
+            "value": "secondary"
+          },
+          {
+            "label": "一貫制",
+            "value": "all_through"
+          },
+          {
+            "label": "繼續教育學院",
+            "value": "further_education"
+          },
+          {
+            "label": "大學",
+            "value": "higher_education"
+          },
+          {
+            "label": "特殊學校",
+            "value": "special"
+          },
+          {
+            "label": "學生轉介單位",
+            "value": "pru"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "nursery",
+          "primary",
+          "secondary",
+          "all_through",
+          "further_education",
+          "higher_education",
+          "special",
+          "pru",
+          "other"
+        ]
+      },
+      {
         "defaultValue": "cividis",
         "label": "熱區顏色",
         "options": [
@@ -97632,6 +98524,34 @@
     ],
     "gbSportsFacilities": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "運動場地",
+            "value": "Playing Field"
+          },
+          {
+            "label": "其他運動設施",
+            "value": "Other Sports Facility"
+          },
+          {
+            "label": "網球場",
+            "value": "Tennis Court"
+          },
+          {
+            "label": "草地滾球場",
+            "value": "Bowling Green"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Playing Field",
+          "Other Sports Facility",
+          "Tennis Court",
+          "Bowling Green"
+        ]
+      },
+      {
         "defaultValue": "PuBuGn",
         "label": "熱區顏色",
         "options": [
@@ -97716,6 +98636,30 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbStationUsage": [
@@ -97821,6 +98765,83 @@
         "value": "all"
       },
       {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -97852,6 +98873,39 @@
     ],
     "gbTransportHubs": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "鐵路車站",
+            "value": "rail"
+          },
+          {
+            "label": "機場",
+            "value": "airport"
+          },
+          {
+            "label": "渡輪碼頭",
+            "value": "ferry"
+          },
+          {
+            "label": "巴士轉運站",
+            "value": "bus_station"
+          },
+          {
+            "label": "公車鐵路整合站",
+            "value": "interchange"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rail",
+          "airport",
+          "ferry",
+          "bus_station",
+          "interchange"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -97872,6 +98926,106 @@
     ],
     "gbTreeProtection": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "樹木保護範圍",
+            "value": "tpo_zone"
+          },
+          {
+            "label": "受保護樹木",
+            "value": "tpo_tree"
+          },
+          {
+            "label": "古老林地",
+            "value": "ancient_woodland"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "tpo_zone",
+          "tpo_tree",
+          "ancient_woodland"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -97888,9 +99042,57 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbVisitorExperience": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "景點",
+            "value": "attraction"
+          },
+          {
+            "label": "遊客中心",
+            "value": "visitor_centre"
+          },
+          {
+            "label": "主題樂園",
+            "value": "theme_park"
+          },
+          {
+            "label": "動物園",
+            "value": "zoo"
+          },
+          {
+            "label": "水族館",
+            "value": "aquarium"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "attraction",
+          "visitor_centre",
+          "theme_park",
+          "zoo",
+          "aquarium"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -97955,6 +99157,83 @@
     ],
     "gbWoodland": [
       {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -97962,6 +99241,30 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "geothermalWells": [

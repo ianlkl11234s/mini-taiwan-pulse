@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { useLocale } from "../state/localeStore";
+import type { MessageKey } from "../i18n/keys";
 
 interface Props {
   /** VideoStreamURL — MJPEG 串流（freeway/highway/部分 city）或 HTML 播放頁（北市/桃園/台中等 city） */
@@ -21,8 +23,8 @@ const PRIVATE_IP_RE = /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/;
 type Stage = "img" | "iframe" | "text";
 
 interface Decision {
-  /** 是否一開始就確定無法內嵌（直接文字） */
-  blockedReason: string | null;
+  /** 是否一開始就確定無法內嵌（直接文字）：i18n key */
+  blockedReason: MessageKey | null;
   /** img 來源（imageUrl 優先，否則 streamUrl） */
   imgSrc: string;
   /** iframe host 是否在黑名單 */
@@ -39,13 +41,13 @@ function decide(streamUrl: string, imageUrl: string | undefined): Decision {
     host = "";
   }
 
-  let blockedReason: string | null = null;
+  let blockedReason: MessageKey | null = null;
   if (streamUrl.startsWith("wss://")) {
-    blockedReason = "此攝影機為 WebSocket 串流，無法內嵌";
+    blockedReason = "popup.infra.cctvBlockedWebsocket";
   } else if (isHttps && streamUrl.startsWith("http://")) {
-    blockedReason = "無法顯示（來源為非加密 http，瀏覽器封鎖）";
+    blockedReason = "popup.infra.cctvBlockedHttp";
   } else if (PRIVATE_IP_RE.test(host)) {
-    blockedReason = "此攝影機為內網位址，外部無法存取";
+    blockedReason = "popup.infra.cctvBlockedPrivate";
   }
 
   return {
@@ -85,6 +87,7 @@ const BOX_STYLE: React.CSSProperties = {
 };
 
 export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Props) {
+  const { t } = useLocale();
   const decision = useMemo(() => decide(streamUrl, imageUrl), [streamUrl, imageUrl]);
   const imageOnly = !!imageUrl && streamUrl === imageUrl;
 
@@ -136,7 +139,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
         wordBreak: "break-all",
       }}
     >
-      在新分頁開啟原始{imageOnly ? "影像" : "串流"} ↗
+      {t(imageOnly ? "popup.infra.cctvOpenImage" : "popup.infra.cctvOpenStream")} ↗
     </a>
   );
 
@@ -157,11 +160,10 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
   );
 
   if (stage === "text") {
-    const msg =
+    const msg = t(
       decision.blockedReason ??
-      (decision.iframeBlocked
-        ? "此攝影機播放頁禁止內嵌，請於新分頁開啟"
-        : "無法載入即時畫面，請於新分頁開啟");
+      (decision.iframeBlocked ? "popup.infra.cctvIframeBlocked" : "popup.infra.cctvLoadFailed"),
+    );
     return (
       <div style={{ marginTop: 8 }}>
         {textFallback(msg)}
@@ -175,7 +177,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
     if (decision.iframeBlocked) {
       return (
         <div style={{ marginTop: 8 }}>
-          {textFallback("此攝影機播放頁禁止內嵌，請於新分頁開啟")}
+          {textFallback(t("popup.infra.cctvIframeBlocked"))}
           {openLink}
         </div>
       );
@@ -185,7 +187,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
         <div style={BOX_STYLE} data-cctv-source={source}>
           <iframe
             src={streamUrl}
-            title="CCTV 即時畫面"
+            title={t("popup.infra.cctvLiveAlt")}
             loading="lazy"
             sandbox="allow-scripts allow-same-origin"
             style={{ width: "100%", height: "100%", border: 0 }}
@@ -208,13 +210,13 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
               color: COLORS.textDim,
             }}
           >
-            載入中…
+            {t("popup.infra.cctvLoading")}
           </span>
         )}
         <img
           ref={imgRef}
           src={decision.imgSrc}
-          alt="CCTV 即時畫面"
+          alt={t("popup.infra.cctvLiveAlt")}
           onLoad={() => setImgLoaded(true)}
           onError={() => {
             setImgLoaded(false);

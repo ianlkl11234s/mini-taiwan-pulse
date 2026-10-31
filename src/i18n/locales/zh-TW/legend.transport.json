@@ -149,7 +149,7 @@
   "legend.transport.gbAadf20k": "20,000–50,000",
   "legend.transport.gbAadf50k": "50,000–100,000",
   "legend.transport.gbAadf100k": "100,000 以上",
-  "legend.transport.gbAadfZoomNote": "縮放 6–7 只顯示高速公路與國家幹線 A 級；縮放 8 起顯示全部計數點",
+  "legend.transport.gbAadfZoomNote": "縮放 8 級以下以密度熱區顯示全部計數點，縮放 6–7 另畫高速公路與國家幹線 A 級的點；縮放 8 起畫全部計數點",
   "legend.transport.gbAadfEstimatedNote": "約 64% 的計數點是 DfT 估算值（非當年實測），可在設定切換「只看當年實測」",
   "legend.transport.gbAadfMinorNote": "B 級與 C 級／未分級道路只有抽樣計數點，不代表全部小路",
   "legend.transport.gbAadfNi": "北愛爾蘭：未涵蓋（DfI 另行計數）",

@@ -168,10 +168,11 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbBrownfield", "useGbEnvPlanningLayers.ts", 30_303],
   ["gbRecyclingCentres", "useGbEnvPlanningLayers.ts", 12_959], // 熱區只算回收桶 11,412 點，回收中心維持畫點
   ["gbLandslide", "useGbHazardLayers.ts", 18_699],
-  // 綠地三層：細節是面（z9／z10 起），熱區用 representative_point 檔補在面出現前；運動場地熱區不含高爾夫球場（另畫點）
-  ["gbGreenspace", "useGbOpenSpaceLayers.ts", 80_918],
-  ["gbSportsFacilities", "useGbOpenSpaceLayers.ts", 54_852],
-  ["gbCemeteries", "useGbOpenSpaceLayers.ts", 30_208],
+  // 綠地三層：細節是面（z9／z10 起）或代表點（§3.8 V-5 點／面切換），熱區用 representative_point 檔；
+  // 熱區由 useGbWaterLayers 的共用 useGbRepPointLayers 建（2026-10-31）；運動場地不含高爾夫球場（獨立圖層 gbGolfCourses，< 1 萬點不畫熱區）
+  ["gbGreenspace", "useGbWaterLayers.ts", 80_918],
+  ["gbSportsFacilities", "useGbWaterLayers.ts", 51_872],
+  ["gbCemeteries", "useGbWaterLayers.ts", 30_208],
   // 南韓（2026-10-31 V-1 全國視角可見性）：橋梁／停車場 z10 起畫點（使用者拍板）；其餘為使用者點名 <1 萬或既有 minzoom 較高者
   ["krBusStops", "useKrTransportLayers.ts", 227_059],
   ["krFuelStations", "useKrEnergyLayers.ts", 7_106],
