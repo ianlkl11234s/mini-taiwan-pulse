@@ -40,6 +40,14 @@ export const ATLAS_LAYER_COLORS = {
   // 海洋保育補接 G33（2026-10-29）
   marineWildlifeAreas: "#0d9488",
   marineEcologicalMonitoringSites: "#4f46e5",
+  // 環境、能源、海洋與職安 G37（2026-10-31）
+  exclusiveFisheryRightAreas: "#0e7490",
+  toxicChemicalFacilities: "#c026d3",
+  majorOccupationalAccidents: "#dc2626",
+  renewablePermitsNational: "#eab308",
+  importantWetlands: "#059669",
+  waterRecreationRestrictedAreas: "#be123c",
+  batterySwapStations: "#0d9488",
   // 地層下陷＋海堤 G19（2026-10-17）
   landSubsidenceStations: "#0ea5e9",
   landSubsidenceCumulative: "#dc2626",
