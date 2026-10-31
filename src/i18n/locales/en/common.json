@@ -36,6 +36,7 @@
   "country.JP": "Japan",
   "country.FR": "France",
   "country.GB": "United Kingdom",
+  "country.KR": "South Korea",
   "country.menuAria": "Switch country (current: {country})",
   "statistics.uncovered": "No statistics for {country} yet",
   "statistics.backToTaiwan": "Back to Taiwan",

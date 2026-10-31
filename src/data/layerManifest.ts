@@ -3761,6 +3761,35 @@ export const LAYER_MANIFEST = {
     topics: ["英國", "行政區", "統計區"],
   },
 
+  // ══════════════════════════════════════════════════════════════
+  // 🇰🇷 南韓 South Korea（2026-10-31 第 0 波：C001 行政邊界）
+  // ══════════════════════════════════════════════════════════════
+  krAdminBoundaries: {
+    key: "krAdminBoundaries",
+    country: "KR", section: { theme: "底圖", group: "行政邊界" },
+    ...layerName({ zh: "行政區界", alt: "Administrative Boundaries" }),
+    expandable: true,
+    color: "#9ca3af",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "kr_admin_boundaries", confidence: "HIGH" }],
+      processing: "vuski/admdongkor ver20261001（SGIS 행정동 경계加工）：시·도 16、시군구 256（含一般區）、행정동 3,559；EPSG:5179→4326；PMTiles tile layer sido z2–12／sgg z4–12／emd z7–12",
+      note: "CC BY 4.0＋上游 SGIS KOGL 제1유형（出處標示承繼）；16/16 시·도；已含 2026-07 전남광주통합특별시；代碼帶行政安全部 10 碼與統計廳 8 碼兩套",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useKrAdminLayers 自建 mapbox-pmtiles source；source-layer=sido／sgg／emd（select 擇一），minzoom=2 maxzoom=12；6.6MB git-track",
+      staticAssets: ["./world/kr_admin_boundaries.pmtiles"],
+    },
+    legend: "krAdminBoundaries",
+    popup: "krAdminBoundaries",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "南韓行政區界（시·도 16、시군구 256、행정동 3,559；admdongkor ver20261001，上游統計廳 SGIS）",
+    topics: ["南韓", "行政區", "邊界"],
+  },
+
   // 🇬🇧 英國第 1 波（2026-10-29：C002 海域界線、C023 建成區、C044／C043／C052 綠地三層）
   // C003 地形兩層（gb_terrain_hillshade／gb_terrain_relief）已由 analytics #246 重匯出成 PNG，見下方 gbTerrainHillshade／gbTerrainRelief。
   gbMaritimeLimits: {

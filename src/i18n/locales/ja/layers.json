@@ -1324,6 +1324,7 @@
   "layer.jpGsiRelief": "色別標高図",
   "layer.gbAdminBoundaries": "地方自治体区域（LAD）",
   "layer.gbSmallAreaBoundaries": "統計小地域",
+  "layer.krAdminBoundaries": "行政区域界（韓国）",
   "layer.statsGbPopulation": "年央人口",
   "layer.statsGbPopulationDensity": "人口密度",
   "layer.statsGbMedianAge": "年齢中央値",

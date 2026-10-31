@@ -1324,6 +1324,7 @@
   "layer.jpGsiRelief": "Color Elevation Map (GSI)",
   "layer.gbAdminBoundaries": "Local Authority Districts (LAD)",
   "layer.gbSmallAreaBoundaries": "Statistical Small Areas",
+  "layer.krAdminBoundaries": "Administrative Boundaries (South Korea)",
   "layer.statsGbPopulation": "Mid-year Population",
   "layer.statsGbPopulationDensity": "Population Density",
   "layer.statsGbMedianAge": "Median Age",

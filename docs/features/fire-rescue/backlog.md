@@ -13,7 +13,7 @@
 
 ## Completed / historical（已完成／歷史）
 
-- [x] **FR-hydrants-expand**（2026-10-31，G36）：補台水 44642，`fireHydrants` 改用 `public/geo/fire_hydrants_national.pmtiles` 共 211,530 點；口徑見 `docs/features/g36-safety-accidents/README.md`。合併後可關閉。
+- [x] **FR-hydrants-expand**（2026-10-31，G36）：補台水 44642，`fireHydrants` 改用 `public/geo/fire_hydrants_national.pmtiles` 共 211,530 點；口徑見 `docs/features/g36-safety-accidents/README.md`。已完成，可關閉（develop 側 BACKLOG TWL-9 指標沿用）。
 
 - [x] **FR-fireEvents-popup**：既有 Supabase RPC 補 click popup + 火焰特效（後火焰特效移除，見已放棄段）— 2026-05-24
 - [x] **FR-fireLatest**：113 最新年度火點圖層（`useFireLatestLayer`），任何模式可見，共用 FireEventPanel — 2026-05-24

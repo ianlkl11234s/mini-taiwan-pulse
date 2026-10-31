@@ -1917,6 +1917,14 @@ export const LAYER_PARAMS_SPEC = {
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   // 英國行政邊界（第 0b 波）：線透明度＝滑桿（面透明度 0 只當點擊熱區）
   gbAdminBoundaries: [opacitySlider("gbAdminBoundariesOpacity", 0.85)],
+  krAdminBoundaries: [
+    opacitySlider("krAdminBoundariesOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "krAdminBoundariesLevel", label: "行政層級", default: "sido",
+      options: [{ label: "道級（시·도）", value: "sido" }, { label: "市郡區（시군구）", value: "sgg" }, { label: "行政洞（행정동）", value: "emd" }],
+      out: "krAdminBoundariesLevelIdx", encode: ["sido", "sgg", "emd"],
+    },
+  ],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   gbBuiltUpAreas: [opacitySlider("gbBuiltUpAreasOpacity", 0.7)],
