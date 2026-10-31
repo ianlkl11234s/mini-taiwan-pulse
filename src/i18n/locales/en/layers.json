@@ -1408,5 +1408,18 @@
   "layer.gbManufacturing": "Manufacturing Companies",
   "layer.gbFuneral": "Crematoria and Funeral Directors",
   "layer.gbAquaculture": "Aquaculture Sites",
-  "layer.gbSoilParentMaterial": "Soil Parent Material"
+  "layer.gbSoilParentMaterial": "Soil Parent Material",
+  "layer.krBusStops": "Bus Stops (South Korea)",
+  "layer.krRailStations": "Rail Stations (South Korea)",
+  "layer.krAirports": "Airports (South Korea)",
+  "layer.krPorts": "Port Areas (South Korea)",
+  "layer.krNationalRoads": "National Highways (South Korea)",
+  "layer.krRailLines": "Rail Lines (South Korea)",
+  "layer.krFuelStations": "Fuel & Charging Stations (South Korea)",
+  "layer.krPowerPlants": "Power Stations (South Korea)",
+  "layer.krRenewables": "Renewable Energy Sites (South Korea)",
+  "layer.krPowerLines": "Power Lines (South Korea)",
+  "layer.krSubstations": "Substations (South Korea)",
+  "layer.krPowerTowers": "Power Towers (South Korea)",
+  "layer.krOilGas": "Oil & Gas Facilities (South Korea)"
 }

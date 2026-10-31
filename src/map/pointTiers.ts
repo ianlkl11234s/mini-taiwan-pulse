@@ -288,6 +288,14 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbLondonStations: "M", // 倫敦軌道車站 London Rail Stations · src/hooks/useGbTransportLayers.ts
   gbLondonBikePoints: "S", // 倫敦公共自行車（比照 bikeStations S） · src/hooks/useGbTransportLayers.ts
   gbForestRecreation: "M", // 英國森林遊憩設施（指標 z12 起另用 S） · src/hooks/useGbNatureLayers.ts
+  krBusStops: "S", // 南韓公車站（22.7 萬點，z12 起單點、之下熱區） · src/hooks/useKrTransportLayers.ts
+  krRailStations: "M", // 南韓鐵道車站（依 network 3 色） · src/hooks/useKrTransportLayers.ts
+  krAirports: "L", // 南韓機場 · src/hooks/useKrTransportLayers.ts
+  krFuelStations: "M", // 南韓燃料／充電站（依 fuel_type 4 色） · src/hooks/useKrEnergyLayers.ts
+  krPowerPlants: "B", // 南韓電廠：半徑＝裝置容量 4 級 · src/hooks/useKrEnergyLayers.ts
+  krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/hooks/useKrEnergyLayers.ts
+  krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/hooks/useKrEnergyLayers.ts
+  krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/hooks/useKrEnergyLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts

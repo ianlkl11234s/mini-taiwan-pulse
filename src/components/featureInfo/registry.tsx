@@ -69,7 +69,7 @@ import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPa
 import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
-import { KrAdminBoundariesPanel } from "./krPanels";
+import { KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -433,6 +433,19 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAdminBoundaries: JpAdminBoundariesPanel,
   gbAdminBoundaries: GbAdminBoundariesPanel,
   krAdminBoundaries: KrAdminBoundariesPanel,
+  krBusStops: KrBusStopsPanel,
+  krRailStations: KrRailStationsPanel,
+  krAirports: KrAirportsPanel,
+  krPorts: KrPortsPanel,
+  krNationalRoads: KrNationalRoadsPanel,
+  krRailLines: KrRailLinesPanel,
+  krFuelStations: KrFuelStationsPanel,
+  krPowerPlants: KrPowerPlantsPanel,
+  krRenewables: KrRenewablesPanel,
+  krPowerLines: KrPowerLinesPanel,
+  krSubstations: KrSubstationsPanel,
+  krPowerTowers: KrPowerTowersPanel,
+  krOilGas: KrOilGasPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
   gbBuiltUpAreas: GbBuiltUpAreasPanel,
@@ -1040,6 +1053,19 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpAdminBoundaries: "市區町村界 市区町村境",
   gbAdminBoundaries: "地方政府區 LAD",
   krAdminBoundaries: "南韓行政區界",
+  krBusStops: "公車站 버스정류장",
+  krRailStations: "鐵道車站 철도역",
+  krAirports: "機場 공항",
+  krPorts: "港灣區 항만구역",
+  krNationalRoads: "一般國道 일반국도",
+  krRailLines: "鐵道線 철도 노선",
+  krFuelStations: "燃料與充電站 연료·충전소",
+  krPowerPlants: "電廠 발전소",
+  krRenewables: "再生能源點 신재생에너지 설비",
+  krPowerLines: "輸配電線 송전선",
+  krSubstations: "變電所 변전소",
+  krPowerTowers: "高壓鐵塔 송전철탑",
+  krOilGas: "油氣設施 석유·가스 시설",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
   gbBuiltUpAreas: "建成區 Built Up Areas",

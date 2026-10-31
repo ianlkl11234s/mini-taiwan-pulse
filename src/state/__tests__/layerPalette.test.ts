@@ -80,7 +80,7 @@ describe("R7 顏色解析器", () => {
   });
 
   it("熱區色盤清單：48 層，每層都有 registry 或 hook 熱區", () => {
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(58);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(59);
     for (const key of HEATMAP_PALETTE_KEYS) {
       expect(getParamsSpec(key)!.some((s) => s.kind === "palette" && s.default === "magma")).toBe(true);
     }

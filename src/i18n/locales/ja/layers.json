@@ -1408,5 +1408,18 @@
   "layer.gbManufacturing": "製造業の会社",
   "layer.gbFuneral": "火葬場・葬儀社",
   "layer.gbAquaculture": "養殖場",
-  "layer.gbSoilParentMaterial": "土壌母材"
+  "layer.gbSoilParentMaterial": "土壌母材",
+  "layer.krBusStops": "バス停（韓国）",
+  "layer.krRailStations": "鉄道駅（韓国）",
+  "layer.krAirports": "空港（韓国）",
+  "layer.krPorts": "港湾区域（韓国）",
+  "layer.krNationalRoads": "一般国道（韓国）",
+  "layer.krRailLines": "鉄道線（韓国）",
+  "layer.krFuelStations": "燃料・充電所（韓国）",
+  "layer.krPowerPlants": "発電所（韓国）",
+  "layer.krRenewables": "再エネ設備（韓国）",
+  "layer.krPowerLines": "送配電線（韓国）",
+  "layer.krSubstations": "変電所（韓国）",
+  "layer.krPowerTowers": "送電鉄塔（韓国）",
+  "layer.krOilGas": "石油・ガス施設（韓国）"
 }
