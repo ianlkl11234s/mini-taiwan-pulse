@@ -275,6 +275,50 @@ export const MARINE_WILDLIFE_AREA_OPTIONS: readonly AtlasOption[] = [
   { value: "habitat", label: "野生動物重要棲息環境", color: "#2563eb" },
   { value: "protected", label: "野生動物保護區", color: "#0d9488" },
 ];
+/** G37 專用漁業權範圍：「現存／屆期」是來源 SHP 的標記（標記日期不明），不是今天的權利狀態。 */
+export const EXCLUSIVE_FISHERY_STATUS_OPTIONS: readonly AtlasOption[] = [
+  { value: "active", label: "來源標「現存」", color: "#0e7490" },
+  { value: "expired", label: "來源標「屆期」", color: "#a8a29e" },
+];
+/** G37 全國再生能源施工許可：analytics 依電廠名稱關鍵字與容量密度推估的類型（非官方分類）。 */
+export const RENEWABLE_PERMIT_CLASS_OPTIONS: readonly AtlasOption[] = [
+  { value: "漁電共生", label: "漁電共生（名稱關鍵字）", color: "#0284c7" },
+  { value: "水域光電", label: "水域光電（名稱關鍵字）", color: "#06b6d4" },
+  { value: "畜電共生", label: "畜電共生（名稱關鍵字）", color: "#a16207" },
+  { value: "屋頂型", label: "屋頂型（名稱關鍵字）", color: "#9333ea" },
+  { value: "pure_ground", label: "地面型（容量密度推估）", color: "#f59e0b" },
+  { value: "mixed", label: "混合（容量密度推估）", color: "#84cc16" },
+  { value: "suspect_symbiotic", label: "疑似共生（容量密度推估）", color: "#14b8a6" },
+  { value: "unknown", label: "無法分類", color: "#94a3b8" },
+];
+/** G37 重大職災：依災害類型分色（上游 severity 是粗推估、會低估死亡，不用來分色）。 */
+export const OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "墜落、滾落", label: "墜落、滾落", color: "#dc2626" },
+  { value: "物體倒塌、崩塌", label: "物體倒塌、崩塌", color: "#ea580c" },
+  { value: "物體飛落", label: "物體飛落", color: "#a16207" },
+  { value: "感電", label: "感電", color: "#ca8a04" },
+  { value: "被夾、被捲", label: "被夾、被捲", color: "#7c3aed" },
+  { value: "被撞", label: "被撞", color: "#2563eb" },
+  { value: "公路交通事故", label: "公路交通事故", color: "#0891b2" },
+];
+/** G37 國家重要濕地等級（國家公園署範圍圖 LEVEL_1）。 */
+export const WETLAND_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "國際級", label: "國際級", color: "#065f46" },
+  { value: "國家級", label: "國家級", color: "#059669" },
+  { value: "地方級", label: "地方級", color: "#65a30d" },
+  { value: "暫定地方級", label: "暫定地方級", color: "#a3a3a3" },
+];
+/** G37 水域遊憩禁止／限制區：依公告名稱分「禁止」「限制」「禁止＋限制」。 */
+export const WATER_RECREATION_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "prohibited", label: "禁止水域遊憩活動", color: "#be123c" },
+  { value: "mixed", label: "禁止＋限制（同一公告）", color: "#c2410c" },
+  { value: "restricted", label: "限制或活動分區", color: "#d97706" },
+];
+/** G37 電動機車換電站：中油是營運中的換電加油站；台電是出租作換電站／充電站使用的土地。 */
+export const BATTERY_SWAP_OPERATOR_OPTIONS: readonly AtlasOption[] = [
+  { value: "cpc", label: "中油加油站（提供換電）", color: "#0d9488" },
+  { value: "taipower", label: "台電出租土地（換電站或充電站用）", color: "#7c3aed" },
+];
 /** G08 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*），併入 atlasLegends 的 ORGS。 */
 export const MARINE_PROTECTION_ORGS = {
   forestry: "農業部林業及自然保育署", fa: "農業部漁業署", nps: "內政部國家公園署",
@@ -331,6 +375,10 @@ export const STATE_TENDER_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "building", label: "房地（建物）", color: "#db2777" },
 ];
 /** G16 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
+/** G37 圖例來源機關（英日文 enum.atlasOrg.*）。 */
+export const G37_ORGS = {
+  osha: "勞動部職業安全衛生署", moeaea: "經濟部能源署", tourismAdmin: "交通部觀光署", cpcTaipower: "台灣中油、台灣電力公司",
+} as const;
 export const STATE_ASSET_ORGS = { twc: "台灣自來水公司", taisugar: "台灣糖業股份有限公司", fnp: "財政部國有財產署" } as const;
 /** G10 ATM 裝設點的機構類別（上游 institution_category；英日文 enum.atlasAtmInstitution.*）。 */
 export const ATM_INSTITUTION_OPTIONS: readonly AtlasOption[] = [
@@ -436,6 +484,13 @@ export const ATLAS_NOTES = {
   openFishingLocations: "海洋保育署公布的開放捕魚點位；點位不是範圍，不代表可進入或安全。僅供參考，不構成法規適用判斷。",
   coastalAreaExtents: "111 年版（2022-09-13）海岸地區範圍，非現行海岸線或管制；7 筆來源面積不到 1 m² 的退化面（金門）未上圖，小島礁放大後才出現。僅供參考，不構成法規適用判斷。",
   marineWildlifeAreas: "海保署公布的 6 個海域野生動物範圍：中華白海豚重要棲息環境與貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區；兩者是不同法定類別，分色顯示。這 5 個保護區不在「野生動物保護區」圖層（只含林保署 16 區）。僅供參考，不構成法規適用判斷。",
+  exclusiveFisheryRightAreas: "各區漁會的專用漁業權水域 19 面（來源標現存 11、屆期 8）；與「定置漁業權區」（定置網許可，65 面）是不同的漁業權類別，分開成層。「現存／屆期」是來源圖資的標記，標記日期不明（analytics 2026-02-28 轉檔），不代表今天的權利狀態。僅供參考，不構成法規適用判斷。",
+  toxicChemicalFacilities: "環境部毒性及關注化學物質運作場所 7,045 個地址點（6,744 個管制編號；同一編號有多個地址時各畫一點；資料整理 2026-07-12）。97% 由地址定位，點開看精度；179 個地址無法定位未上圖。點開可查運作的化學物質與許可（依管制編號查環境部 EMS_S_05）。列管只代表有運作許可，不代表外洩、污染或風險等級。",
+  majorOccupationalAccidents: "勞動部職安署重大職業災害公開網 2018-01～2026-04：事件 2,480 起，只有 1,238 起（49.9%）能由地址定位上圖，地圖上的點約只有一半，不可當成全部事件或拿來比各地多寡。自然人雇主的姓名與地址不顯示。",
+  renewablePermitsNational: "經濟部能源署太陽光電電業施工許可（申請年度民國 108–113）：一點是案場的一筆土地地號（8,038／8,195 筆有地號代表點，共 419 座案場）。點位是地號查詢的代表點，不是案場範圍；容量是整座案場的值，同案場每個點重複，不可逐點加總。類型是依電廠名稱關鍵字與容量密度推估，非官方分類。臺北市的屋頂型設置見「北市再生能源許可」。",
+  importantWetlands: "內政部國家公園署公告的重要濕地範圍 89 處（範圍圖 2026-01-09 版，含國際級 2、國家級 68、地方級 17、暫定地方級 2）。範圍不等於保育利用計畫的功能分區；開發限制以公告計畫為準。僅供參考，不構成法規適用判斷。",
+  waterRecreationRestrictedAreas: "交通部觀光署各國家風景區管理處公告的禁止或限制水域遊憩活動區域（21 則公告、33 區）。範圍是依公告頂點座標連線的示意：部分頂點順序無法成面時改畫外框，兩點的公告畫成界線；以公告附圖為準。1 則（澎湖嵵裡沙灘）座標無法對到地名，未上圖。只含國家風景區，縣市政府公告的區域不在內。",
+  batterySwapStations: "台灣中油提供電動機車換電服務的加油站 400 站（2025-08-21 版）＋台電出租作電動機車電池交換站使用的土地 12 筆（2024-07-22 版，用途寫「換電站或充電站」，不保證是營運中的換電站）。業者自建的換電站（多數換電站）不是政府開放資料，不在本層。",
   marineEcologicalMonitoringSites: "國家海洋研究院「全海域生態系調查點位」54 個站位清單（來源資源日 2025-07-21）；是站位清單，不是監測結果，也不是即時監測或目前生態狀況；沒有點不代表沒有資料。",
   artificialReefCenters: "中心位置，非範圍：依公告座標文字解析的人工魚礁禁漁區中心點，範圍規則見彈窗文字；部分點是所列頂點平均（非官方中心）。僅供參考，不構成法規適用判斷。",
   protectedReefCenters: "中心位置，非範圍：依公告座標文字解析的保護礁禁漁區中心點（多為 A、B 兩點連線中點）；1 筆來源僅有地名描述，未上圖。僅供參考，不構成法規適用判斷。",

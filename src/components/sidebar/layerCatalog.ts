@@ -1036,6 +1036,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("urbanFormGrid"),
         ],
       },
+      {
+        title: "都市熱島 Urban Heat",
+        layers: [
+          fromManifest("urbanHeat"),
+        ],
+      },
     ],
   },
 
@@ -1219,7 +1225,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("windPlan"),
           fromManifest("geothermalWells"),
           fromManifest("renewablePermitsTaipei"),
+          fromManifest("renewablePermitsNational"),
           fromManifest("evChargingStations"),
+          fromManifest("batterySwapStations"),
         ],
       },
       {
@@ -1390,6 +1398,12 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("parksTaipei"),
           fromManifest("playgrounds"),
+        ],
+      },
+      {
+        title: "水域遊憩 Water Recreation",
+        layers: [
+          fromManifest("waterRecreationRestrictedAreas"),
         ],
       },
     ],
@@ -1814,6 +1828,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("coastGuardStation"),
         ],
       },
+      {
+        title: "勞動檢查 Labor Inspection",
+        layers: [
+          fromManifest("majorOccupationalAccidents"),
+        ],
+      },
     ],
   },
 
@@ -1833,7 +1853,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("cwaRadarImagery"),
           fromManifest("temperatureWave"),
           fromManifest("temperatureGrid"),
-          fromManifest("urbanHeat"),
           fromManifest("cwaUvDaily"),
         ],
       },
@@ -1874,6 +1893,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
+          fromManifest("toxicChemicalFacilities"),
           fromManifest("pollutionPenaltyCritical"),
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
@@ -1881,6 +1901,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
+        ],
+      },
+      {
+        title: "濕地 Wetlands",
+        layers: [
+          fromManifest("importantWetlands"),
         ],
       },
       {
@@ -1938,6 +1964,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),
+          fromManifest("exclusiveFisheryRightAreas"),
         ],
       },
     ],

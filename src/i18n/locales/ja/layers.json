@@ -1407,5 +1407,12 @@
   "layer.gbManufacturing": "製造業の会社",
   "layer.gbFuneral": "火葬場・葬儀社",
   "layer.gbAquaculture": "養殖場",
-  "layer.gbSoilParentMaterial": "土壌母材"
+  "layer.gbSoilParentMaterial": "土壌母材",
+  "layer.exclusiveFisheryRightAreas": "専用漁業権の区域",
+  "layer.toxicChemicalFacilities": "毒性化学物質の取扱事業場",
+  "layer.majorOccupationalAccidents": "重大労働災害",
+  "layer.renewablePermitsNational": "全国の太陽光発電着工許可",
+  "layer.importantWetlands": "国家重要湿地",
+  "layer.waterRecreationRestrictedAreas": "水域レジャー禁止・制限区域",
+  "layer.batterySwapStations": "電動スクーター電池交換所"
 }

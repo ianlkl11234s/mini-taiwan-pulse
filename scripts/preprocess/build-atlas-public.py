@@ -1210,6 +1210,7 @@ def build_toxic(m, feats):
             "id": p["id"], "ems_no": s(p.get("ems_no")), "name": s(p.get("fac_name")), "address": s(p.get("address")),
             "city": s(p.get("city")), "precision": prec,
             "precision_note": TOXIC_PRECISION_NOTE.get(str(prec), prec) + ("；複核時位移 >200 m" if p.get("qa_flag") == "large_shift" else ""),
+            "qa_flag": s(p.get("qa_flag")) if p.get("qa_flag") == "large_shift" else None,
             **source_props(m), "vintage": str(m.get("last_updated")),
         }))
     AUDIT["toxicChemicalFacilities"]["distinct_ems_no"] = len({f["properties"]["ems_no"] for f in out})
