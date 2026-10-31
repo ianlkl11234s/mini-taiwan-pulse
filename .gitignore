@@ -269,3 +269,7 @@ public/hazards/landslide_annual_swcb_*.pmtiles
 # /blog 產生器中繼檔（src/blog/generator.ts 由 content/blog/*.md 產生）
 /blog/
 /public/blog/feed.xml
+
+# G36（2026-10-31）：大 PMTiles 走 S3 deploy-assets geo/ 鏡像（upload-deploy-assets.sh 的 public/geo/*.pmtiles glob 已涵蓋）
+public/geo/traffic_accidents_2025.pmtiles
+public/geo/fire_hydrants_national.pmtiles

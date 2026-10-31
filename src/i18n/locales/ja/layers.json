@@ -1426,5 +1426,10 @@
   "layer.krNationalParks": "国立公園",
   "layer.krNpLocationSigns": "国立公園の位置標識板",
   "layer.krNpTrails": "国立公園の探訪路",
-  "layer.krStreetTrees": "街路樹"
+  "layer.krStreetTrees": "街路樹",
+"layer.trafficAccidents2025": "A1／A2 交通事故",
+  "layer.disasterResourceSites": "救災資源拠点",
+  "layer.tsunamiSirens": "津波警報台",
+  "layer.nuclearEpzEvacuation": "原発の集結地点と収容施設",
+  "layer.firingNoticeAreas": "射撃公告区域"
 }

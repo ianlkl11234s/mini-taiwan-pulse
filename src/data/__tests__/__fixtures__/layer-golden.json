@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1436,
+    "keyCount": 1441,
     "sections": [
       "gisLayers",
       "overlays",
@@ -105,6 +105,34 @@
         "harm-reduction-dui-crashes-glow"
       ],
       "type": "harmReductionDuiCrashes"
+    },
+    {
+      "layers": [
+        "traffic-accidents-2025-circle",
+        "traffic-accidents-2025-glow"
+      ],
+      "type": "trafficAccidents2025"
+    },
+    {
+      "layers": [
+        "disaster-resource-sites-circle",
+        "disaster-resource-sites-glow"
+      ],
+      "type": "disasterResourceSites"
+    },
+    {
+      "layers": [
+        "tsunami-sirens-circle",
+        "tsunami-sirens-glow"
+      ],
+      "type": "tsunamiSirens"
+    },
+    {
+      "layers": [
+        "nuclear-epz-evacuation-circle",
+        "nuclear-epz-evacuation-glow"
+      ],
+      "type": "nuclearEpzEvacuation"
     },
     {
       "layers": [
@@ -2513,6 +2541,12 @@
         "vessel-watch-trail-line"
       ],
       "type": "vesselWatch"
+    },
+    {
+      "layers": [
+        "firing-notice-areas-fill"
+      ],
+      "type": "firingNoticeAreas"
     },
     {
       "layers": [
@@ -8635,6 +8669,8 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
+                "台水",
+                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0,
@@ -8671,6 +8707,8 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
+                "台水",
+                "#7986cb",
                 "#90a4ae"
               ],
               "circle-opacity": 0,
@@ -8715,9 +8753,11 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
+                "台水",
+                "#7986cb",
                 "#90a4ae"
               ],
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -8739,9 +8779,11 @@
                 "#2196f3",
                 "地下式",
                 "#00acc1",
+                "台水",
+                "#7986cb",
                 "#90a4ae"
               ],
-              "circle-opacity": 0.75,
+              "circle-opacity": 0.6,
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
@@ -8764,7 +8806,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "fire-hydrants",
-      "sourceUrl": "./geo/fire_hydrants.pmtiles"
+      "sourceUrl": "./geo/fire_hydrants_national.pmtiles"
     },
     {
       "dynamicData": null,
@@ -70663,6 +70705,1053 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "trafficAccidents2025",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "cat"
+            ],
+            [
+              "has",
+              "cause"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "cat"
+                ],
+                "A1",
+                "#dc2626",
+                "A2",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "traffic_accidents_2025"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "traffic-accidents-2025",
+      "sourceUrl": "./geo/traffic_accidents_2025.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "disasterResourceSites",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "holder"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "holder"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "holder"
+                ],
+                "fire",
+                "#e53935",
+                "township",
+                "#f59e0b",
+                "police",
+                "#2563eb",
+                "health",
+                "#10b981",
+                "other",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "holder"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.8
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "disaster-resource-sites",
+      "sourceUrl": "./geo/disaster_resource_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tsunamiSirens",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#0891b2",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0891b2",
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tsunami-sirens",
+      "sourceUrl": "./hazards/tsunami_sirens.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "nuclearEpzEvacuation",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.75,
+                5,
+                6.3,
+                12,
+                12.6
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "kind"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "assembly",
+                "#eab308",
+                "shelter",
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "kind"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.9
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "nuclear-epz-evacuation",
+      "sourceUrl": "./hazards/nuclear_epz_evacuation.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "firingNoticeAreas",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "agency"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.108
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.108
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "has",
+            "agency"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                10,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "agency"
+                ],
+                "navy",
+                "#dc2626",
+                "coast_guard",
+                "#f59e0b",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.6,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                10,
+                1.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "firing-notice-areas",
+      "sourceUrl": "./marine/firing_notice_areas.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "landslideDodImpact",
       "layers": [
         {
@@ -88339,6 +89428,59 @@
         "valueText": "1.0"
       }
     ],
+    "disasterResourceSites": [
+      {
+        "label": "保管單位",
+        "options": [
+          {
+            "label": "消防單位",
+            "value": "fire"
+          },
+          {
+            "label": "鄉鎮市區公所",
+            "value": "township"
+          },
+          {
+            "label": "警察單位",
+            "value": "police"
+          },
+          {
+            "label": "衛生醫療",
+            "value": "health"
+          },
+          {
+            "label": "其他（清潔隊、學校、企業等）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fire",
+          "township",
+          "police",
+          "health",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "disasterShelters": [
       {
         "label": "適用災害",
@@ -89520,13 +90662,13 @@
         "value": "magma"
       },
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.75,
-        "valueText": "0.75"
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -89787,6 +90929,35 @@
         "step": 2,
         "value": 0,
         "valueText": "0 px"
+      }
+    ],
+    "firingNoticeAreas": [
+      {
+        "label": "發布機關",
+        "options": [
+          {
+            "label": "海軍實彈射擊公告",
+            "value": "navy"
+          },
+          {
+            "label": "海巡署射擊通報",
+            "value": "coast_guard"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "navy",
+          "coast_guard"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       }
     ],
     "flights": [
@@ -101246,6 +102417,44 @@
         "step": 0.05,
         "value": 0.35,
         "valueText": "0.35"
+      }
+    ],
+    "nuclearEpzEvacuation": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "集結點",
+            "value": "assembly"
+          },
+          {
+            "label": "避難收容處所",
+            "value": "shelter"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "assembly",
+          "shelter"
+        ]
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "nuclearRadiation": [
@@ -139726,6 +140935,102 @@
         "valueText": "1.0"
       }
     ],
+    "trafficAccidents2025": [
+      {
+        "label": "事故類別",
+        "options": [
+          {
+            "label": "A1 類（24 小時內死亡）",
+            "value": "A1"
+          },
+          {
+            "label": "A2 類（受傷或 24 小時後死亡）",
+            "value": "A2"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A1",
+          "A2"
+        ]
+      },
+      {
+        "label": "主要肇因",
+        "options": [
+          {
+            "label": "駕駛者",
+            "value": "駕駛者"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          },
+          {
+            "label": "無（車輛駕駛者因素）",
+            "value": "無(車輛駕駛者因素)"
+          },
+          {
+            "label": "非駕駛者",
+            "value": "非駕駛者"
+          },
+          {
+            "label": "機件",
+            "value": "機件"
+          },
+          {
+            "label": "燈光",
+            "value": "燈光"
+          },
+          {
+            "label": "裝載",
+            "value": "裝載"
+          },
+          {
+            "label": "無（非車輛駕駛人因素）",
+            "value": "無(非車輛駕駛人因素)"
+          },
+          {
+            "label": "無（物或動物）",
+            "value": "無(物或動物)"
+          },
+          {
+            "label": "交通管制（設施）",
+            "value": "交通管制(設施)"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "駕駛者",
+          "其他",
+          "無(車輛駕駛者因素)",
+          "非駕駛者",
+          "機件",
+          "燈光",
+          "裝載",
+          "無(非車輛駕駛人因素)",
+          "無(物或動物)",
+          "交通管制(設施)"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "transitAlerts": [
       {
         "label": "透明度 1.00",
@@ -139775,6 +141080,26 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tsunamiSirens": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

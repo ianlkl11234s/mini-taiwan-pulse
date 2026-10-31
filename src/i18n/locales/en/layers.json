@@ -1426,5 +1426,10 @@
   "layer.krNationalParks": "National Parks",
   "layer.krNpLocationSigns": "National Park Location Signs",
   "layer.krNpTrails": "National Park Trails",
-  "layer.krStreetTrees": "Street Trees"
+  "layer.krStreetTrees": "Street Trees",
+"layer.trafficAccidents2025": "A1/A2 Traffic Accidents",
+  "layer.disasterResourceSites": "Disaster Resource Sites",
+  "layer.tsunamiSirens": "Tsunami Sirens",
+  "layer.nuclearEpzEvacuation": "Nuclear Plant Assembly Points & Shelters",
+  "layer.firingNoticeAreas": "Live-fire Notice Areas"
 }

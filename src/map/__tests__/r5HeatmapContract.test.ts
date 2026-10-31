@@ -33,7 +33,7 @@ describe("R5 密集點熱區（P-3／P-4／G-2）", () => {
     expect(heat.maxzoom).toBeCloseTo(12.01);
     for (const l of config.layers.filter((l) => l.type === "circle")) expect(l.minzoom).toBe(12);
     const def = Number(paramDefault("fireHydrants", "fireHydrantsOpacity"));
-    expect(def).toBe(densePointOpacity(69_839));
+    expect(def).toBe(densePointOpacity(211_530)); // G36：併入台水後 211,530 點
     expect(heat.paint(true, { fireHydrantsOpacity: def })["heatmap-opacity"]).toBeCloseTo(HEATMAP.opacity);
     expect(heat.paint(true, { fireHydrantsOpacity: def / 2 })["heatmap-opacity"]).toBeCloseTo(HEATMAP.opacity / 2);
   });

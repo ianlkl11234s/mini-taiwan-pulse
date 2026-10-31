@@ -229,5 +229,11 @@
   "legend.civic.gbCourtMagistrates": "治安法院",
   "legend.civic.gbCourtTribunal": "審裁處",
   "legend.civic.gbCourtOther": "其他司法服務據點（高等法院分庭、遺囑登記處、執行中心等）",
-  "legend.civic.gbCourtsUncovered": "只涵蓋英格蘭與威爾斯；蘇格蘭、北愛爾蘭法院未涵蓋（另有司法體系；蘇格蘭僅有 UK 層級審裁處聽證中心）"
+  "legend.civic.gbCourtsUncovered": "只涵蓋英格蘭與威爾斯；蘇格蘭、北愛爾蘭法院未涵蓋（另有司法體系；蘇格蘭僅有 UK 層級審裁處聽證中心）",
+  "legend.civic.trafficAccidents2025Period": "資料期間 {period}（警政署每月 A1／A2 清冊，以事故去重）",
+  "legend.civic.trafficAccidents2025Note": "A3（僅財損）沒有座標，未納入。與「A1 死亡事故」層（114 年全年檔 1,600 點）來源檔與期間不同，件數不可直接比較。",
+  "legend.civic.tsunamiSirensRow": "海嘯警報臺 · {count}",
+  "legend.civic.tsunamiSirensNote": "警政署 2025-12 資料；淡水興仁派出所 1 座缺座標未畫",
+  "legend.civic.nuclearEpzNote": "集結點為地方政府規劃（新北、基隆、屏東）；收容處所依村里對應合併，恆春 15 個里對應「各旅宿」泛稱、沒有座標未畫",
+  "legend.civic.firingNoticeNote": "公告範圍與期間，非即時狀態。海軍 2025-07～08、海巡署 2024-03～2026-03 的過去公告；同一範圍可能重複公告"
 }

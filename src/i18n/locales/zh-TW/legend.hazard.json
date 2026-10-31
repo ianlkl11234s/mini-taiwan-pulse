@@ -25,7 +25,7 @@
   "legend.hazard.flood3": "≥15 cm 嚴重",
   "legend.hazard.flood4": "≥30 cm 極嚴重",
   "legend.hazard.fireEventNote": "有死傷＝較大的紅點＋醒目外框（其餘點只有淡色描邊）",
-  "legend.hazard.hydrantCoverage": "僅臺北市、高雄市有公開資料",
+  "legend.hazard.hydrantCoverage": "臺北、高雄與新北（臺北水處供水區）為縣市來源，其餘 17 縣市與新北台水供水區為台灣自來水公司 2026-05 資料；台水高雄與高雄市資料重疊不收；金門、連江未涵蓋",
   "legend.hazard.isochroneNote": "driving 路網保守估計，未計消防車鳴笛優先路權（實際略大）",
   "legend.hazard.bssPoint1": "既有一般道路候選分類",
   "legend.hazard.bssPoint2": "既有高架／快速道路候選分類",
@@ -154,5 +154,6 @@
   "legend.hazard.gbQuakeUnknown": "規模未知 {n} 筆，以最小點表示",
   "legend.hazard.gbQuakeMinor": "規模 <2 的儀器記錄放大到 z{zoom} 以上才顯示",
   "legend.hazard.gbQuakeOffshore": "含海上事件 {n} 筆（不屬任一地區）",
-  "legend.hazard.gbQuakeDataEnd": "資料截至 {date}（BGS GeoIndex）"
+  "legend.hazard.gbQuakeDataEnd": "資料截至 {date}（BGS GeoIndex）",
+  "legend.hazard.disasterResourceNote": "消防署救災資源資料庫 5,568 處中有座標的 5,379 處；保管單位類型依名稱關鍵字粗分。多數品項數量登錄為 0，popup 只列數量大於 0 的品項"
 }

@@ -8,11 +8,12 @@
 
 ## Data / tech-debt backlog
 
-- [ ] **FR-hydrants-expand** · `data-health` · P2 · `in_progress`：`fireHydrants` 目前僅臺北市＋高雄市 69,839 點；2026-10-31 找到台水消防栓 data.gov.tw 44642（19 縣市、165,798 點，已下載驗證），由 BACKLOG TWL-9 處理；Acceptance：coverage、checksum、browser。
 - [ ] **FR-adr-blaze-removal** · `governance` · P3 · `ready`：補 ADR 記錄火焰特效移除、回歸 2D circle 的取捨與用戶決定；Acceptance：ADR 連結與決策日期。
 - [ ] **FR-station-csv-schema** · `tech-debt` · P2 · `waiting_external`：兩份 station CSV 欄位順序不同；Next action：上游統一 schema 或提供明確 mapper；Acceptance：schema contract/test。
 
 ## Completed / historical（已完成／歷史）
+
+- [x] **FR-hydrants-expand**（2026-10-31，G36）：補台水 44642，`fireHydrants` 改用 `public/geo/fire_hydrants_national.pmtiles` 共 211,530 點；口徑見 `docs/features/g36-safety-accidents/README.md`。已完成，可關閉（develop 側 BACKLOG TWL-9 指標沿用）。
 
 - [x] **FR-fireEvents-popup**：既有 Supabase RPC 補 click popup + 火焰特效（後火焰特效移除，見已放棄段）— 2026-05-24
 - [x] **FR-fireLatest**：113 最新年度火點圖層（`useFireLatestLayer`），任何模式可見，共用 FireEventPanel — 2026-05-24
