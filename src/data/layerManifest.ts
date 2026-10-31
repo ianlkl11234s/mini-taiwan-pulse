@@ -1066,7 +1066,7 @@ export const LAYER_MANIFEST = {
   importantWetlands: {
     key: "importantWetlands", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "國家重要濕地", alt: "Wetlands of Importance" }), expandable: true,
     color: ATLAS_LAYER_COLORS.importantWetlands, icon: Leaf,
-    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 → TGOS 重要濕地範圍圖 SHP（2026-01-09 版，89 面，TWD97 TM2 轉經緯度）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；保育利用計畫功能分區（578 面）未上圖。" },
+    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 → TGOS 重要濕地範圍圖 SHP（2026-01-09 版，89 面，TWD97 TM2 轉經緯度）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；保育利用計畫功能分區（578 面）另見 importantWetlandZones。" },
     dataClass: "A", source: [
       { kind: "geojson", sourceId: "important-wetlands", url: "./environment/important_wetlands.geojson" },
       { kind: "geojson", sourceId: "important-wetlands-points", url: "./environment/important_wetlands.geojson" },
@@ -1074,6 +1074,18 @@ export const LAYER_MANIFEST = {
     legend: "importantWetlands", popup: "importantWetlands", params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "內政部國家公園署公告的國家重要濕地範圍 89 處（國際級、國家級、地方級、暫定地方級）。",
     topics: ["環境", "濕地", "保育", "國家公園署"],
+  },
+  importantWetlandZones: {
+    key: "importantWetlandZones", country: "TW", section: { theme: "環境氣候 Environment", group: "濕地 Wetlands" }, ...layerName({ zh: "重要濕地功能分區", alt: "Wetland Conservation Zoning" }), expandable: true,
+    color: ATLAS_LAYER_COLORS.importantWetlandZones, icon: Leaf,
+    upstream: { status: "catalog_missing", datasets: [], processing: "data.gov.tw 25659 資源清單第三列 → TGOS 重要濕地保育利用計畫功能分區圖 SHP（2026-02-12 版，578 面／48 處，TWD97 TM2 轉經緯度；資源清單寫 577 筆）；mini scripts/fetch/fetch-g37-opendata.py", note: "analytics 尚無 pipeline／catalog；面積由 TWD97 幾何計算；來源 DBF 把「(木宜)梧」存成問號，依範圍圖寫法還原。" },
+    dataClass: "A", source: [
+      { kind: "geojson", sourceId: "important-wetland-zones", url: "./environment/important_wetland_zones.geojson" },
+      { kind: "geojson", sourceId: "important-wetland-zones-points", url: "./environment/important_wetland_zones.geojson" },
+    ],
+    legend: "importantWetlandZones", popup: "importantWetlandZones", params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
+    description: "內政部國家公園署重要濕地保育利用計畫功能分區 578 面（核心保育區、生態復育區、環境教育區、管理服務區、其他分區）；只有已公告保育利用計畫的 48 處濕地有分區。",
+    topics: ["環境", "濕地", "保育", "功能分區", "國家公園署"],
   },
   jpAccommodationCanonical: {
     key: "jpAccommodationCanonical", country: "JP", section: { theme: "觀光", group: "住・食 Stay & Eat" },
@@ -1617,7 +1629,7 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "hydrants", confidence: "MED" }],
       // G36（2026-10-31）：併入台水 data.gov.tw 44642（17 縣市＋新北台水供水區），新檔名避免覆蓋舊資產；
       // source-layer 沿用 fire_hydrants。台水高雄與高雄市消防局資料重疊 → 不收；台水新北剔除 15 m 內已有既有點者。
-      processing: "既有 analytics hydrants.csv 69,839 點（臺北自來水事業處 128639＋高雄市消防局 5 份）＋台水 44642 收 141,691 點（台水 165,798 列去掉完全重複 7 列、與高雄市消防局重疊的台水高雄 24,092、與既有點 15 m 內 8 點），合計 211,530；mini scripts/preprocess/build-g36-safety-public.py",
+      processing: "既有 analytics hydrants.csv 69,839 點（臺北自來水事業處 128639＋高雄市消防局 5 份）＋台水 44642 收 141,691 點（台水 165,798 列去掉完全重複 7 列、與高雄市消防局重疊的台水高雄 24,092、與既有點 15 m 內 8 點），合計 211,530；台水種類編碼 0–5 依 44642 資料資源說明轉中文型式（0–3 地上式、4–5 地下式、空碼 58 點歸其他）；mini scripts/preprocess/build-g36-safety-public.py",
     },
     dataClass: "B",
     source: {

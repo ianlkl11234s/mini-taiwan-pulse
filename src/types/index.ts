@@ -130,7 +130,7 @@ export type ExpandableLayerKey =
   // 海洋保育補接 G33（2026-10-29）
   | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
   // 環境、能源、海洋與職安 G37（2026-10-31）
-  | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
+  | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "importantWetlandZones" | "waterRecreationRestrictedAreas" | "batterySwapStations"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -889,7 +889,7 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
-    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
+    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "importantWetlandZones" | "waterRecreationRestrictedAreas" | "batterySwapStations"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "indigenousRegions" | "indigenousLanguageDialects" | "hakkaCulturalZones" | "tourServiceSites" | "tourVisitorStats"
@@ -1357,6 +1357,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   majorOccupationalAccidents: boolean;
   renewablePermitsNational: boolean;
   importantWetlands: boolean;
+  importantWetlandZones: boolean;
   waterRecreationRestrictedAreas: boolean;
   batterySwapStations: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */

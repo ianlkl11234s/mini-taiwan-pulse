@@ -50,6 +50,7 @@ export const ATLAS_LAYER_COLORS = {
   majorOccupationalAccidents: "#dc2626",
   renewablePermitsNational: "#eab308",
   importantWetlands: "#059669",
+  importantWetlandZones: "#15803d",
   waterRecreationRestrictedAreas: "#be123c",
   batterySwapStations: "#0d9488",
   // 地層下陷＋海堤 G19（2026-10-17）

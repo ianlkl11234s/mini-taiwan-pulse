@@ -16,6 +16,5 @@
   "popup.fire.resourceCounts": "品項",
   "popup.fire.resourceCountsValue": "{positive}／{total} 項有登錄數量",
   "popup.fire.resourceItems": "登錄品項（數量 > 0）",
-  "popup.fire.resourceNone": "沒有數量大於 0 的品項",
-  "popup.fire.hydrantTypeCode": "台水種類編碼"
+  "popup.fire.resourceNone": "沒有數量大於 0 的品項"
 }

@@ -18,17 +18,15 @@ export const FIRE_STATION_CATS: FireCatStyle[] = [
   { cat: "其他", color: "#bdbdbd", label: "其他" },
 ];
 
-/** 消防栓型式。 */
+/** 消防栓型式。台水 44642 的種類編碼 0–3 歸地上式、4–5 歸地下式（細項存 `type`，對照見 build-g36-safety-public.py）。 */
 export const FIRE_HYDRANT_CATS: FireCatStyle[] = [
   { cat: "地上式", color: "#2196f3", label: "地上式" },
   { cat: "地下式", color: "#00acc1", label: "地下式" },
-  // G36：台水 44642 只給「種類編碼」0–5、未附代碼表 → 不硬對地上／地下式，單獨一類
-  { cat: "台水", color: "#7986cb", label: "台水（型式代碼未公開）" },
   { cat: "其他", color: "#90a4ae", label: "其他" },
 ];
 
 /** overlay 的 match 表達式用（色號同 FIRE_HYDRANT_CATS）。 */
-export const FIRE_HYDRANT_CAT_COLOR = Object.fromEntries(FIRE_HYDRANT_CATS.map((c) => [c.cat, c.color])) as Record<"地上式" | "地下式" | "台水" | "其他", string>;
+export const FIRE_HYDRANT_CAT_COLOR = Object.fromEntries(FIRE_HYDRANT_CATS.map((c) => [c.cat, c.color])) as Record<"地上式" | "地下式" | "其他", string>;
 
 /** 火災事件傷亡分級（對應 useFireEventsLayer 的 casualty 著色）。 */
 export const FIRE_EVENT_CATS: FireCatStyle[] = [

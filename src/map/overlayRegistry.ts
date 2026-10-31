@@ -288,7 +288,7 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS,
-  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColorExpr,
@@ -2298,7 +2298,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點 cat="台水"）──
+  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點依種類編碼歸地上式／地下式）──
   // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
   // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
@@ -2333,7 +2333,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "match", ["get", "cat"],
               "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
               "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
-              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
               FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
@@ -2359,7 +2358,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "match", ["get", "cat"],
               "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
               "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
-              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
               FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
@@ -11944,6 +11942,11 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "importantWetlands", sourceUrl: "./environment/important_wetlands.geojson", sourceId: "important-wetlands",
     attribution: `內政部國家公園署 國家重要濕地範圍圖（data.gov.tw 25659）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("importantWetlands", matchColorExpr("level", WETLAND_LEVEL_OPTIONS), 0.35),
+  },
+  {
+    id: "importantWetlandZones", sourceUrl: "./environment/important_wetland_zones.geojson", sourceId: "important-wetland-zones",
+    attribution: `內政部國家公園署 重要濕地保育利用計畫功能分區圖（data.gov.tw 25659）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("importantWetlandZones", matchColorExpr("zone", WETLAND_ZONE_OPTIONS), 0.45),
   },
   {
     id: "waterRecreationRestrictedAreas", sourceUrl: "./tourism/water_recreation_restricted_areas.geojson", sourceId: "water-recreation-restricted-areas",

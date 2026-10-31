@@ -456,6 +456,11 @@
   "enum.atlasWetlandLevel.國家級": "National",
   "enum.atlasWetlandLevel.地方級": "Local",
   "enum.atlasWetlandLevel.暫定地方級": "Provisional local",
+  "enum.atlasWetlandZone.核心保育區": "Core conservation zone",
+  "enum.atlasWetlandZone.生態復育區": "Ecological restoration zone",
+  "enum.atlasWetlandZone.環境教育區": "Environmental education zone",
+  "enum.atlasWetlandZone.管理服務區": "Management and service zone",
+  "enum.atlasWetlandZone.其他分區": "Other zones",
   "enum.atlasWaterRec.prohibited": "Water recreation prohibited",
   "enum.atlasWaterRec.mixed": "Prohibited and restricted (same notice)",
   "enum.atlasWaterRec.restricted": "Restricted or activity zoning",
@@ -466,6 +471,7 @@
   "enum.atlasNote.majorOccupationalAccidents": "Major occupational accidents published by the Occupational Safety and Health Administration, Jan 2018–Apr 2026: of 2,480 accidents, only 1,238 (49.9%) could be located from their address, so the map shows about half of them and cannot be used as a total or to compare places. Names and addresses of individual employers are not shown.",
   "enum.atlasNote.renewablePermitsNational": "Solar power construction permits from the Energy Administration (application years ROC 108–113): each dot is one land parcel of a plant (8,038 of 8,195 parcels have a representative point; 419 plants). Dots are parcel lookup points, not plant outlines. Capacity is the whole plant's value repeated on each of its dots; do not add it up. The type is estimated from name keywords and capacity density, not an official classification. Taipei City's rooftop installations are in the \"Taipei Renewable Energy Permits\" layer.",
   "enum.atlasNote.importantWetlands": "89 wetlands of importance announced by the National Park Service (extent map of 2026-01-09: 2 international, 68 national, 17 local, 2 provisional local). The extent is not the functional zoning of the conservation plan; development limits follow the announced plan. For reference only; not a legal determination.",
+  "enum.atlasNote.importantWetlandZones": "578 functional zones of the conservation and use plans for wetlands of importance (National Park Service zoning map, 2026-02-12 edition). Only the 48 wetlands whose conservation and use plan has been announced have zones; other wetland extents have no zoning map. Plans were announced 2017–2026 and differ by wetland. Detailed zone names (e.g. Other zone (water conservation)) are in the popup. Areas are computed from the geometry. Development limits follow the announced plan; for reference only, not a legal determination.",
   "enum.atlasNote.waterRecreationRestrictedAreas": "Areas where water recreation is prohibited or restricted, announced by the national scenic area administrations of the Tourism Administration (21 notices, 33 areas). Areas are sketches joining the notice's vertex coordinates: where the vertex order does not form an area the outer hull is drawn, and two-point notices are drawn as lines; the official map prevails. One notice (Shili Beach, Penghu) has coordinates that do not match its place and is not shown. Only national scenic areas are included; areas announced by county governments are not.",
   "enum.atlasNote.batterySwapStations": "400 CPC gas stations offering e-scooter battery swaps (2025-08-21 edition) plus 12 plots of Taipower land leased for battery swap stations (2024-07-22 edition; listed use is \"swap or charging station\", not confirmed to be operating). Swap stations built by operators themselves (most of them) are not government open data and are not in this layer."
 }

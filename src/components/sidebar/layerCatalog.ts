@@ -1957,6 +1957,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "濕地 Wetlands",
         layers: [
           fromManifest("importantWetlands"),
+          fromManifest("importantWetlandZones"),
         ],
       },
       {
