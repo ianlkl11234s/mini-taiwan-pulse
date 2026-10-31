@@ -8,7 +8,7 @@
 
 ## Data / tech-debt backlog
 
-- [ ] **FR-hydrants-expand** · `data-health` · P2 · `waiting_external`：`fireHydrants` 目前僅臺北市＋高雄市 69,839 點；Next action：上游提供其他縣市可授權成品；Acceptance：coverage、checksum、browser。
+- [ ] **FR-hydrants-expand** · `data-health` · P2 · `in_progress`：`fireHydrants` 目前僅臺北市＋高雄市 69,839 點；2026-10-31 找到台水消防栓 data.gov.tw 44642（19 縣市、165,798 點，已下載驗證），由 BACKLOG TWL-9 處理；Acceptance：coverage、checksum、browser。
 - [ ] **FR-adr-blaze-removal** · `governance` · P3 · `ready`：補 ADR 記錄火焰特效移除、回歸 2D circle 的取捨與用戶決定；Acceptance：ADR 連結與決策日期。
 - [ ] **FR-station-csv-schema** · `tech-debt` · P2 · `waiting_external`：兩份 station CSV 欄位順序不同；Next action：上游統一 schema 或提供明確 mapper；Acceptance：schema contract/test。
 
