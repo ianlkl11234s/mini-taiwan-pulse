@@ -60,7 +60,8 @@ export function flaggedColorExpr(base: unknown, flagged: readonly string[] = ["s
 /**
  * 部落點位依族別分色（原民會 16 族；多族並列「、」的 4 筆與其他落灰）。
  * 2026-10-31：賽德克族原 #9333ea 與排灣族紫（CIE76 ΔE 7.1）、雅美族原 #1d4ed8 與布農族藍（ΔE 9.2）難分 →
- * 改用網站已在用的 #701a75（深洋紅）、#60a5fa（淺藍）；與族語方言 16 族＋兩族以上灰兩兩 ΔE 最小 20.3（魯凱／拉阿魯哇，未改）。
+ * 改用網站已在用的 #e879f9（亮洋紅）、#14b8a6（淺青綠）→ 各升到 41.3、104.9；挑亮色（L≥42）避免在深色底圖上看不見。
+ * 族語方言 16 族＋兩族以上灰兩兩 CIE76 ΔE 最小 20.3（魯凱／拉阿魯哇，兩者都未改）；部落點位 11 族＋兩種灰最小 18.2（其他／非核定兩灰）。
  */
 export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "泰雅族", label: "泰雅族", color: "#b45309" },
@@ -70,10 +71,10 @@ export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "太魯閣族", label: "太魯閣族", color: "#0f766e" },
   { value: "賽夏族", label: "賽夏族", color: "#db2777" },
   { value: "魯凱族", label: "魯凱族", color: "#65a30d" },
-  { value: "賽德克族", label: "賽德克族", color: "#701a75" },
+  { value: "賽德克族", label: "賽德克族", color: "#e879f9" },
   { value: "卑南族", label: "卑南族", color: "#ea580c" },
   { value: "鄒族", label: "鄒族", color: "#0891b2" },
-  { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#60a5fa" },
+  { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#14b8a6" },
 ];
 /** 不在現行核定名單的點位（13 點）以灰色區分。 */
 export const TRIBE_NOT_APPROVED_COLOR = "#64748b";
