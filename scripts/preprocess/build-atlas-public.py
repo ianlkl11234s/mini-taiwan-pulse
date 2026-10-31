@@ -1163,7 +1163,7 @@ def build_post_office_fx_counters(m, feats):
     return out
 
 # ── G37 環境、能源、海洋與職安（2026-10-31）─────────────────────────────────────
-# --src 分兩批：前三層讀 taipei-gis-analytics data/processed；後四層讀 atlas-src 暫存目錄
+# --src 分兩批：前三層讀 taipei-gis-analytics data/processed；後四層（＋TWL-16 濕地功能分區）讀 atlas-src 暫存目錄
 #   （scripts/export/export-renewable-permits-national.sh 與 scripts/fetch/fetch-g37-opendata.py 的產出）。
 
 # 專用漁業權範圍：analytics 舊格式（無 _manifest.json，catalog 也無 frontmatter），provenance 依 catalog 文件寫死。
@@ -1280,6 +1280,17 @@ def build_wetlands(m, feats):
         "level": s(f["properties"].get("level")), "counties": s(f["properties"].get("counties")),
         "area_ha": to_num(f["properties"].get("area_ha")), **source_props(m),
     }) for i, f in enumerate(drop_unmapped("importantWetlands", feats))]
+
+
+@layer("importantWetlandZones", "environment", "important_wetland_zones", "environment/important_wetland_zones.geojson")
+def build_wetland_zones(m, feats):
+    """TWL-16：保育利用計畫功能分區 578 面（48 處已公告計畫的濕地）；面積由 TWD97 幾何計算。"""
+    return [feature(f["geometry"], {
+        "id": f"wetland-zone-{i + 1}", "name": s(f["properties"].get("name")), "sub_name": s(f["properties"].get("sub_name")),
+        "zone": s(f["properties"].get("zone")), "zone_name": s(f["properties"].get("zone_name")),
+        "sub_zone": s(f["properties"].get("sub_zone")), "plan": s(f["properties"].get("plan")),
+        "plan_date": s(f["properties"].get("plan_date")), "area_ha": to_num(f["properties"].get("area_ha")), **source_props(m),
+    }) for i, f in enumerate(drop_unmapped("importantWetlandZones", feats))]
 
 
 @layer("waterRecreationRestrictedAreas", "tourism", "water_recreation_restricted_areas", "tourism/water_recreation_restricted_areas.geojson")

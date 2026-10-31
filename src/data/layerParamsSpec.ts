@@ -4791,6 +4791,7 @@ export const LAYER_PARAMS_SPEC = {
   // ── 環境污染：opacity / scale 走 paint，filter 狀態走 hook return ──
   toxicChemicalFacilities: [opacitySlider("toxicChemicalFacilitiesOpacity", densePointOpacity(7_045)), scaleSlider("toxicChemicalFacilitiesScale", 1)],
   importantWetlands: [opacitySlider("importantWetlandsOpacity", 0.35)],
+  importantWetlandZones: [opacitySlider("importantWetlandZonesOpacity", 0.45)],
   pollutionFacility: [
     heatmapPalette("pollutionFacility"),
     opacitySlider("pollutionFacilityOpacity", densePointOpacity(152_246)),

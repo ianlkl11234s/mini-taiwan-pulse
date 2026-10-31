@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
-  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
@@ -1073,6 +1073,23 @@ function ImportantWetlandPanel({ props }: Props) {
   </>;
 }
 
+function ImportantWetlandZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(WETLAND_ZONE_OPTIONS, props.zone);
+  const detail = str(props.zone_name);
+  return <>
+    <Title color={color}>{[str(props.name), str(props.sub_name)].filter(Boolean).join(t("popup.atlas.dot"))}</Title>
+    <Row label={t("popup.atlas.wzZone")} value={enumOf("atlasWetlandZone", props.zone, props.zone, i18n)} color={color} />
+    {detail && detail !== str(props.zone) && <Row label={t("popup.atlas.wzZoneDetail")} value={detail} />}
+    <Row field="area" value={fmt(props.area_ha, 2, t("popup.atlas.unitHectares"), i18n)} />
+    <Row label={t("popup.atlas.wzPlan")} value={str(props.plan)} />
+    <Row label={t("popup.atlas.wzPlanDate")} value={str(props.plan_date)} mono />
+    <DataDate props={props} />
+    <Row field="caution" value={t("popup.atlas.wzCaution")} />
+  </>;
+}
+
 function WaterRecreationPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1153,6 +1170,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   majorOccupationalAccidents: OccupationalAccidentPanel,
   renewablePermitsNational: RenewablePermitNationalPanel,
   importantWetlands: ImportantWetlandPanel,
+  importantWetlandZones: ImportantWetlandZonePanel,
   waterRecreationRestrictedAreas: WaterRecreationPanel,
   batterySwapStations: BatterySwapPanel,
   artificialReefCenters: ArtificialReefPanel,
@@ -1221,6 +1239,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   majorOccupationalAccidents: manifestZh("majorOccupationalAccidents"),
   renewablePermitsNational: manifestZh("renewablePermitsNational"),
   importantWetlands: manifestZh("importantWetlands"),
+  importantWetlandZones: manifestZh("importantWetlandZones"),
   waterRecreationRestrictedAreas: manifestZh("waterRecreationRestrictedAreas"),
   batterySwapStations: manifestZh("batterySwapStations"),
   artificialReefCenters: manifestZh("artificialReefCenters"),

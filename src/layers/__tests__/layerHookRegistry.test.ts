@@ -207,7 +207,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
   "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas", "marineWildlifeAreas", "marineEcologicalMonitoringSites",
   // G37（2026-10-31）：atlas overlay，無 hook
-  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "waterRecreationRestrictedAreas", "batterySwapStations",
+  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "importantWetlandZones", "waterRecreationRestrictedAreas", "batterySwapStations",
   // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
   "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   // 文化幣藝文消費點 G23：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。

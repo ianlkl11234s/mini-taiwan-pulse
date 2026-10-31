@@ -87,6 +87,17 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "none", zh: "未勾選成因" },
     ],
   },
+  importantWetlandZones: {
+    property: "zone",
+    label: "功能分區",
+    options: [
+      { value: "核心保育區", zh: "核心保育區" },
+      { value: "生態復育區", zh: "生態復育區" },
+      { value: "環境教育區", zh: "環境教育區" },
+      { value: "管理服務區", zh: "管理服務區" },
+      { value: "其他分區", zh: "其他分區" },
+    ],
+  },
   indigenousLanguageDialects: {
     property: "ethnic_group",
     label: "族別",

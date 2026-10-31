@@ -5,6 +5,8 @@
 之後由 `scripts/preprocess/build-atlas-public.py --src <atlas-src> --only <key>` 瘦身產生 public/ 資產。
 
   1. 國家重要濕地範圍（data.gov.tw 25659 → TGOS「重要濕地範圍圖」SHP，89 面，TWD97 TM2 121°）
+     ＋保育利用計畫功能分區（同一份 25659 資源清單第三列「重要濕地保育利用計畫功能分區圖」SHP，578 面／48 處濕地；
+       資源清單寫 577 筆，檔名 1150212 版實有 578 面）——TWL-16（2026-10-31）補上
   2. 禁止或限制水域遊憩活動區域（data.gov.tw 38872，交通部觀光署 CSV，頂點座標文字）
   3. 電動機車換電站：台灣中油提供換電服務加油站（106247 JSON，400 站）＋台電出租作換電站之租賃據點（165894 CSV，12 筆）
 
@@ -38,6 +40,8 @@ OGDL = "政府資料開放授權條款"
 WETLAND_ZIP = ("https://www.tgos.tw:443/MDE/VirtualDir_TC/Product/c5894f87-68f4-4f88-ab32-12d58cc9fd35/"
                + urllib.parse.quote("重要濕地1150109(更新龍鑾潭).zip"))
 WATERREC_CSV = "https://media.taiwan.net.tw/od/04_TD/" + urllib.parse.quote("水域/禁止或限制水域遊憩活動區域.csv")
+WETLAND_ZONE_ZIP = ("https://www.tgos.tw:443/MDE/VirtualDir_TC/Product/bda59af1-20a3-424b-8ed6-0364fccaf33e/"
+                    + urllib.parse.quote("重要濕地保育利用計畫功能分區圖.zip"))
 CPC_JSON = "https://vipmbr.cpc.com.tw/openData/ElectricMotorcycleBatterySwappingStn"
 TAIPOWER_CSV = "https://service.taipower.com.tw/data/opendata/apply/file/d010004/001.csv"
 
@@ -81,6 +85,37 @@ def build_wetlands(out_root: Path, raw: Path, fetched: str) -> None:
     write(out_root, "environment", "important_wetlands", feats, {
         "source": "內政部國家公園署（國家重要濕地範圍圖，TGOS）", "source_url": "https://data.gov.tw/dataset/25659",
         "license": OGDL, "fetched_at": fetched, "vintage": "2026-01-09（檔名 1150109 更新龍鑾潭）",
+    })
+
+
+def build_wetland_zones(out_root: Path, raw: Path, fetched: str) -> None:
+    """功能分區：zone（5 類：核心保育區、生態復育區、環境教育區、管理服務區、其他分區）上色；
+    zone_name／sub_zone 是計畫書的細分名稱（例：其他分區(水資源涵養區)）。面積由 TWD97 幾何計算（來源無面積欄）。"""
+    z = zipfile.ZipFile(io.BytesIO(fetch(WETLAND_ZONE_ZIP, raw / "wetland_zoning.zip")))
+    shp_dir = raw / "wetland_zoning"
+    z.extractall(shp_dir)
+    shp = next(shp_dir.rglob("*.shp"))
+    g = gpd.read_file(shp)
+    if len(g) != 578:
+        raise SystemExit(f"濕地功能分區筆數 {len(g)} ≠ 578")
+    if g.crs is None or g.crs.to_epsg() != 3826:
+        raise SystemExit(f"濕地功能分區 CRS 非 EPSG:3826：{g.crs}")
+    area_ha = g.geometry.area / 10_000
+    g = g.to_crs(4326)
+    feats = []
+    for i, r in g.iterrows():
+        txt = lambda k: r[k].strip() if isinstance(r[k], str) and r[k].strip() else None
+        # 來源 DBF 把「(木宜)梧」的罕用字存成問號；範圍圖（同一機關）寫作「(木宜)梧」→ 對齊範圍圖寫法
+        fix = lambda v: v.replace("?梧", "(木宜)梧") if v else v
+        feats.append({"type": "Feature", "geometry": mapping(r.geometry), "properties": {
+            "serial": txt("SERIAL_NU"), "name": fix(txt("w_name")), "sub_name": txt("sub_w_nam"),
+            "zone": txt("zone"), "zone_name": txt("zone_name"), "sub_zone": txt("sub_zone"),
+            "plan": fix(txt("plan")), "plan_date": r["plan_date"].strftime("%Y-%m-%d") if r["plan_date"] == r["plan_date"] and r["plan_date"] is not None else None,
+            "area_ha": round(float(area_ha[i]), 4),
+        }})
+    write(out_root, "environment", "important_wetland_zones", feats, {
+        "source": "內政部國家公園署（重要濕地保育利用計畫功能分區圖，TGOS）", "source_url": "https://data.gov.tw/dataset/25659",
+        "license": OGDL, "fetched_at": fetched, "vintage": "2026-02-12（檔名 1150212，48 處，含七家灣溪）",
     })
 
 
@@ -198,5 +233,6 @@ if __name__ == "__main__":
     args = ap.parse_args()
     raw = args.raw or args.out / "_raw"
     build_wetlands(args.out, raw, args.fetched)
+    build_wetland_zones(args.out, raw, args.fetched)
     build_waterrec(args.out, raw, args.fetched)
     build_swap(args.out, raw, args.fetched)
