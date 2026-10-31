@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { Map as MapboxMap, LineLayer, ExpressionSpecification } from "mapbox-gl";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
@@ -56,6 +57,7 @@ export function useJpRailwaysLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -81,6 +83,7 @@ export function useJpRailwaysLayer(
         map.addLayer(railwayLineLayer(opacity));
       }
       if (map.getLayer(LINE_LAYER_ID)) {
+        map.setFilter(LINE_LAYER_ID, (hookCategoryFilter("jpRailways", { jpRailwaysCatMask: catMask as number }) ?? null) as never);
         map.setLayoutProperty(LINE_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LINE_LAYER_ID, "line-opacity", hookLineOpacity("jpRailways", LINE_LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
       }
@@ -89,5 +92,5 @@ export function useJpRailwaysLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, mapTick]);
+  }, [mapRef, visible, opacity, mapTick, catMask]);
 }

@@ -84,7 +84,7 @@ function toxicPeriod(period: string, i18n: LocaleSnapshot): string {
  * 毒化物運作區塊（G19 決定 #7）：依 emsno 查環境部 EMS_S_05 聚合 lookup，命中才顯示；
  * 不以 is_toxic／sev_toxic 推斷（語意不同）。座標仍為污染設施；統編不顯示。出典與設施來源分開列。
  */
-function ToxicPermitsBlock({ emsno }: { emsno: unknown }) {
+export function ToxicPermitsBlock({ emsno }: { emsno: unknown }) {
   const i18n = useLocale();
   const { t, formatNumber } = i18n;
   const theme = useFeatureTheme();

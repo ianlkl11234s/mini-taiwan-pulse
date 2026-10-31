@@ -31,7 +31,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
-import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
+import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STATISTICS_DATA_THEME_TITLES, KR_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -288,7 +288,6 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "污染與公害統計 Pollution & Nuisance Statistics",
     "環境治理統計 Environmental Enforcement Statistics",
     "能源統計 Energy Statistics",
-    "農業統計 Agriculture Statistics",
     "農業統計",
     "畜牧統計",
     "漁業統計",
@@ -318,6 +317,21 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
   FR: [
     // 法國（2026-10-28）
     FRANCE_TELECOM_THEME_TITLE,
+  ],
+  KR: [
+    // 南韓（2026-10-31 南韓第 0 波；title 沿用台灣主題中文短名，比照英國、日本）
+    "底圖",
+    // 第 3–5 波：災害（海岸型態）、海洋、水資源、交通、環境氣候（行道樹）、林業
+    "災害",
+    "海洋",
+    "水資源",
+    "環境氣候",
+    "林業",
+    // 第 1 波（國土基礎）：交通、能源
+    "交通",
+    "能源",
+    // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
+    ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
@@ -496,11 +510,9 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = taiwanThemes(foldAtlasDataThem
   environmentDataTheme("污染與公害統計"),
   environmentDataTheme("環境治理統計"),
   { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
-  // 舊稻作 saved-state/語意入口維持原 section；cross-topic index 另由 recipe metadata 提供。
-  { title: "農業統計 Agriculture Statistics", groups: [{ title: "稻作生產", layers: [fromManifest("statsRiceHarvest")] }] },
   { title: "農業統計", groups: [
     { title: "土地使用結構", layers: [fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"), fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship")] },
-    { title: "作物生產", layers: [fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
+    { title: "作物生產", layers: [fromManifest("statsRiceHarvest"), fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
   ] },
   { title: "畜牧統計", groups: [
     { title: "土地使用結構", layers: [fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship")] },
@@ -722,6 +734,19 @@ export const GB_STATISTICS_TAB_THEMES: ThemeDef[] = GB_STATISTICS_TAB_THEME_TITL
   title, country: "GB", groups: atlasGroups(atlasTabThemeGroups(title, "GB")),
 }));
 
+/**
+ * 南韓統計分頁（2026-10-31 統計面板多國化）：人口／社經，主題與群組由 kr 家族 recipe 派生
+ * （一列一個指標，列內切換道級／市郡區）。
+ */
+export const KR_STATISTICS_TAB_THEMES: ThemeDef[] = KR_STATISTICS_TAB_THEME_TITLES.map((title) => ({
+  title, country: "KR", groups: atlasGroups(atlasTabThemeGroups(title, "KR")),
+}));
+
+/** 南韓完整目錄（THEMES，country KR）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
+const KR_STATISTICS_DATA_THEMES: ThemeDef[] = KR_STATISTICS_DATA_THEME_TITLES.map((title) => ({
+  title, country: "KR", groups: atlasGroups(atlasDataThemeGroups(title, "KR")),
+}));
+
 /** 英國完整目錄（THEMES，country GB）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
 const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.map((title) => ({
   title, country: "GB", groups: atlasGroups(atlasDataThemeGroups(title, "GB")),
@@ -732,7 +757,7 @@ const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.ma
  * 設施、等時圈和行政邊界不在此集合，避免它們因為同畫面出現而被誤分類為統計。
  */
 export const STATISTICS_TAB_CHOROPLETH_LAYER_KEYS = new Set<string>(
-  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES]
+  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES]
     .flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)))
     .filter((key) => !STATISTICS_TAB_REFERENCE_LAYER_KEYS.has(key)),
 );
@@ -771,7 +796,7 @@ for (const recipe of COMPARISON_UI_RECIPES) {
 }
 
 // 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
-for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
+for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
   const group = getMedicalStatisticsGroup(layer.key);
   if (group) layer.variant = { group: group.key, lead: group.options[0]?.key === layer.key };
 }
@@ -783,6 +808,7 @@ for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES].flat
 const THEME_CATALOG: ThemeDef[] = [
   ...STATISTICS_DATA_THEMES,
   ...GB_STATISTICS_DATA_THEMES,
+  ...KR_STATISTICS_DATA_THEMES,
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
@@ -900,11 +926,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("osmExpressway"),
           fromManifest("provincialRoads"),
           fromManifest("cyclingRoutes"),
-          fromManifest("cctv"),
-          fromManifest("etcGantry"),
-          fromManifest("serviceArea"),
-          fromManifest("serviceAreaPolygon"),
-          fromManifest("taxiStand"),
         ],
       },
       {
@@ -967,6 +988,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayEcoSensitive"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
+          fromManifest("cctv"),
+          fromManifest("etcGantry"),
+          fromManifest("serviceArea"),
+          fromManifest("serviceAreaPolygon"),
+          fromManifest("taxiStand"),
         ],
       },
     ],
@@ -985,6 +1011,14 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("indigenousTribes"),
           fromManifest("indigenousIsolationRisk"),
+          fromManifest("indigenousRegions"),
+          fromManifest("indigenousLanguageDialects"),
+        ],
+      },
+      {
+        title: "客家 Hakka",
+        layers: [
+          fromManifest("hakkaCulturalZones"),
         ],
       },
       {
@@ -1034,6 +1068,12 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "都市紋理",
         layers: [
           fromManifest("urbanFormGrid"),
+        ],
+      },
+      {
+        title: "都市熱島 Urban Heat",
+        layers: [
+          fromManifest("urbanHeat"),
         ],
       },
     ],
@@ -1195,22 +1235,22 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("facSecondary"),
           fromManifest("facOsmSupplement"),
           fromManifest("powerGenerationUnit"),
-          fromManifest("powerPlantGlow"),
-          fromManifest("aviationRestrictedGlow"),
         ],
       },
       {
         title: "電力 · 電網",
         layers: [
           fromManifest("osmSubstationsEhv"),
-          fromManifest("substationEhvGlow"),
           fromManifest("osmSubstations"),
           fromManifest("osmPowerLines"),
-          fromManifest("powerLinesGlow"),
           fromManifest("osmPowerTowers"),
           fromManifest("powerPoles"),
         ],
       },
+      // 4 個 Bloom／Rim Glow 視覺實驗層：只在本機 DEV 顯示，正式目錄（面板、搜尋）不列；manifest key 保留（分享網址帶 key）
+      ...localResearchGroup("視覺實驗 Visual Experiments", [
+        "powerPlantGlow", "aviationRestrictedGlow", "substationEhvGlow", "powerLinesGlow",
+      ]),
       {
         title: "再生能源",
         layers: [
@@ -1219,7 +1259,9 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("windPlan"),
           fromManifest("geothermalWells"),
           fromManifest("renewablePermitsTaipei"),
+          fromManifest("renewablePermitsNational"),
           fromManifest("evChargingStations"),
+          fromManifest("batterySwapStations"),
         ],
       },
       {
@@ -1392,6 +1434,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("playgrounds"),
         ],
       },
+      {
+        title: "水域遊憩 Water Recreation",
+        layers: [
+          fromManifest("waterRecreationRestrictedAreas"),
+        ],
+      },
     ],
   },
 
@@ -1511,6 +1559,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourScenicAreas"),
           fromManifest("nationalParks"),
           fromManifest("visitorCentres"),
+          fromManifest("tourServiceSites"),
+          fromManifest("tourVisitorStats"),
         ],
       },
       {
@@ -1609,7 +1659,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("harmReductionHivSelftest"),
           fromManifest("harmReductionHivTesting"),
           fromManifest("harmReductionPreventionCenters"),
-          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 治安態勢」）
+          // 第二批（依系統鏈：治療 → 預防／減害 → 社會復歸；酒駕事故放「執法治安 › 交通事故」）
           fromManifest("harmReductionAlcohol"),
           fromManifest("harmReductionSmokingCessation"),
           fromManifest("harmReductionInternetAddiction"),
@@ -1649,6 +1699,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("fireStations"),
           fromManifest("fireHydrants"),
+          fromManifest("disasterResourceSites"),
         ],
       },
       {
@@ -1758,6 +1809,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("civilDefenseShelter"),
         ],
       },
+      {
+        title: "警報與疏散",
+        layers: [
+          fromManifest("tsunamiSirens"),
+          fromManifest("nuclearEpzEvacuation"),
+        ],
+      },
     ],
   },
 
@@ -1799,6 +1857,12 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "治安態勢",
         layers: [
           fromManifest("theftTaoyuan"),
+        ],
+      },
+      {
+        title: "交通事故",
+        layers: [
+          fromManifest("trafficAccidents2025"),
           fromManifest("trafficAccidentYearly"),
           fromManifest("accidentTaipei"),
           fromManifest("a1AccidentRealtime"),
@@ -1812,6 +1876,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("antiCorruptionOffice"),
           fromManifest("immigrationOffice"),
           fromManifest("coastGuardStation"),
+        ],
+      },
+      {
+        title: "勞動檢查 Labor Inspection",
+        layers: [
+          fromManifest("majorOccupationalAccidents"),
         ],
       },
     ],
@@ -1833,7 +1903,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("cwaRadarImagery"),
           fromManifest("temperatureWave"),
           fromManifest("temperatureGrid"),
-          fromManifest("urbanHeat"),
           fromManifest("cwaUvDaily"),
         ],
       },
@@ -1874,6 +1943,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
+          fromManifest("toxicChemicalFacilities"),
           fromManifest("pollutionPenaltyCritical"),
           fromManifest("pollutionPenaltyGeneral"),
           fromManifest("pollutionPenaltyMobile"),
@@ -1881,6 +1951,13 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("incineratorEmissions"),
           fromManifest("cemsStackLive"),
           fromManifest("nuscGammaRadiation"),
+        ],
+      },
+      {
+        title: "濕地 Wetlands",
+        layers: [
+          fromManifest("importantWetlands"),
+          fromManifest("importantWetlandZones"),
         ],
       },
       {
@@ -1928,16 +2005,23 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        title: "海域保護與漁業 Protected Areas & Fisheries",
+        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」），不是只有海洋；歸屬主題另案（TWL-12）
+        title: "自然保育 Conservation",
         layers: [
           fromManifest("natureReserves"),
           fromManifest("wildlifeProtectedAreas"),
           fromManifest("marineWildlifeAreas"),
+        ],
+      },
+      {
+        title: "海域保護與漁業 Protected Areas & Fisheries",
+        layers: [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
           fromManifest("artificialReefCenters"),
           fromManifest("protectedReefCenters"),
           fromManifest("setNetFishingAreas"),
+          fromManifest("exclusiveFisheryRightAreas"),
         ],
       },
     ],
@@ -1954,12 +2038,10 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          fromManifest("marineObservationCwa"),
-          fromManifest("marineObservationIsohe"),
-          fromManifest("waterFacilities"),
           fromManifest("waterMonitorStations"),
           fromManifest("waterReservoirs"),
           fromManifest("groundwaterWells"),
+          fromManifest("groundwater"),
           fromManifest("rainGauge"),
           fromManifest("riverLevel"),
           fromManifest("floodSensor"),
@@ -1971,6 +2053,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "海象觀測 Marine Observation",
+        layers: [
+          fromManifest("marineObservationCwa"),
+          fromManifest("marineObservationIsohe"),
+        ],
+      },
+      {
         title: "面 / 線",
         layers: [
           fromManifest("waterBasins"),
@@ -1979,7 +2068,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("waterCanals"),
           fromManifest("waterProtectionZones"),
           fromManifest("waterDetentionBasins"),
-          fromManifest("groundwater"),
           fromManifest("lakesPondsOsm"),
         ],
       },
@@ -1994,6 +2082,7 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "水利設施 Water Facilities",
         layers: [
+          fromManifest("waterFacilities"),
           fromManifest("wraFloodgatesCentral"),
           fromManifest("wraCentralDrainage"),
           fromManifest("iowStructureMonitoring"),
@@ -2153,8 +2242,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("agriculture"),
           fromManifest("agriLeisureFarmZones"),
           fromManifest("agriRuralRegen"),
-          fromManifest("ecoNetworkZones"),
         ],
+      },
+      {
+        title: "自然保育 Conservation",
+        layers: [fromManifest("ecoNetworkZones")],
       },
       {
         title: "土壤",
@@ -2211,6 +2303,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("forestReserve"),
           fromManifest("forestRecreation"),
           fromManifest("forestFlatParks"),
+        ],
+      },
+      {
+        title: "樹冠 Canopy",
+        layers: [
           fromManifest("canopyHeight"),
           fromManifest("canopyGiants"),
         ],
@@ -2304,6 +2401,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("plaActivity"),
           fromManifest("vesselWatch"),
+          fromManifest("firingNoticeAreas"),
         ],
       },
     ],
@@ -2576,6 +2674,84 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇰🇷 南韓（2026-10-31 南韓第 0 波：行政邊界；之後各波照台灣主題名登記）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
+    ],
+  },
+  // 南韓第 3–5 波：主題與群組比照台灣同類（水資源 › 點位／面 / 線、海洋 › 海域環境、交通 › 場站／路網、林業 › 分區／點位／線；
+  // 海岸型態台灣無同類，比照英國歸「災害 › 海岸侵蝕」）
+  {
+    title: "災害",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "海岸侵蝕", layers: [fromManifest("krCoastalErosionFacilities")] }],
+  },
+  {
+    title: "海洋",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "海域環境", layers: [fromManifest("krMarinePollutionIncidents"), fromManifest("krMarineEnvSites")] },
+      { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [fromManifest("krMarineProtectedAreas")] },
+    ],
+  },
+  {
+    title: "水資源",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "點位", layers: [fromManifest("krWaterLevelStations"), fromManifest("krWaterQualityStations"), fromManifest("krSluiceGates")] },
+      { title: "面 / 線", layers: [fromManifest("krRiversOsm")] },
+    ],
+  },
+  {
+    // 第 1 波：群組比照台灣「交通 Move」——場站、路網、樞紐節點（機場、港口）；第 3–5 波加入自行車站、停車場、橋梁、取締攝影機等
+    title: "交通",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations"), fromManifest("krPublicBicycleStations"), fromManifest("krSeoulSubwayCongestion"), fromManifest("krParkingLots")] },
+      { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines"), fromManifest("krBridges"), fromManifest("krSpeedCameras"), fromManifest("krChildProtectionZones")] },
+      { title: "樞紐節點", layers: [fromManifest("krAirports"), fromManifest("krPorts")] },
+    ],
+  },
+  {
+    // 第 1 波：群組比照台灣「能源 Energy」——電力 · 廠、電力 · 電網、再生能源、石化 · 加油站、石化 · 油氣
+    title: "能源",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("krPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("krPowerLines"), fromManifest("krSubstations"), fromManifest("krPowerTowers")] },
+      { title: "再生能源", layers: [fromManifest("krRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("krFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("krOilGas")] },
+    ],
+  },
+  {
+    title: "環境氣候",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
+  },
+  {
+    title: "林業",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "分區", layers: [fromManifest("krNationalParks")] },
+      { title: "點位", layers: [fromManifest("krNpLocationSigns")] },
+      { title: "線", layers: [fromManifest("krNpTrails")] },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -2590,7 +2766,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "建成環境", layers: [fromManifest("gbBuiltUpAreas")] },
       // 第 1 波：OS Open Greenspace 同一檔三層。台灣同類分在「運動休閒」（parksTaipei、sports*）與「殯葬」（cemeteryOsm），
       // 英國目前沒有那兩個主題，先放底圖；之後開主題時整群搬過去即可
-      { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbCemeteries")] },
+      { title: "綠地與開放空間", layers: [fromManifest("gbGreenspace"), fromManifest("gbSportsFacilities"), fromManifest("gbGolfCourses"), fromManifest("gbCemeteries")] },
       // C003：OS Terrain 50 山體陰影／色別標高，比照台灣 hillshade 與日本地理院地形的「底圖 › 地形」
       { title: "地形", layers: [fromManifest("gbTerrainHillshade"), fromManifest("gbTerrainRelief")] },
       // 第 11 波 C005／C031：比照台灣 urbanZoning*／nonUrbanZoning 的「底圖 › 土地使用分區 Zoning」。
@@ -2821,7 +2997,6 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "水資源統計 Water Statistics": "environment",
     "廢棄物統計 Waste Statistics": "environment",
     "能源統計 Energy Statistics": "environment",
-    "農業統計 Agriculture Statistics": "environment",
     "人口統計 Population Statistics": "city",
     [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
     [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
@@ -2846,8 +3021,6 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "空氣品質統計 Air Quality Statistics": "environment",
     "污染與公害統計 Pollution & Nuisance Statistics": "environment",
     "環境治理統計 Environmental Enforcement Statistics": "environment",
-    "治安與交通 Safety & Transport": "safety",
-    "行政區參考 Administrative Boundaries": "baseline",
     "底圖 Base Map": "baseline",
     "交通 Move": "city",
     "人口社經 People": "city",
@@ -2898,6 +3071,20 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   },
   FR: {
     [FRANCE_TELECOM_THEME_TITLE]: "publicLife",
+  },
+  KR: {
+    // 南韓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照英國、日本）。
+    "底圖": "baseline",
+    "災害": "safety",
+    "海洋": "environment",
+    "水資源": "environment",
+    "交通": "city",
+    "環境氣候": "environment",
+    "林業": "environment",
+    "能源": "environment",
+    // 南韓統計（完整目錄）：同英國歸移動與城市。
+    "人口統計": "city",
+    "社經統計": "city",
   },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
@@ -2984,7 +3171,6 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
     "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
     "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
-    "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
     "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
     "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
     "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
@@ -3007,8 +3193,6 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
     "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
     "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
-    "治安與交通 Safety & Transport": { zh: "治安與交通", sub: "Safety & Transport" },
-    "行政區參考 Administrative Boundaries": { zh: "行政區參考", sub: "Administrative Boundaries" },
     "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
     "交通 Move": { zh: "交通", sub: "Move" },
     "人口社經 People": { zh: "人口社經", sub: "People" },
@@ -3059,6 +3243,22 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   FR: {
     // 法國主題副標用法文（比照日本主題用日文）
     [FRANCE_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Télécommunications" },
+  },
+  KR: {
+    // 南韓主題副標用韓文（比照日本用日文、法國用法文）
+    "底圖": { zh: "底圖", sub: "기본도" },
+    "災害": { zh: "災害", sub: "재해" },
+    "海洋": { zh: "海洋", sub: "해양" },
+    "水資源": { zh: "水資源", sub: "수자원" },
+    "交通": { zh: "交通", sub: "교통" },
+    "環境氣候": { zh: "環境氣候", sub: "환경·기후" },
+    "林業": { zh: "林業", sub: "임업" },
+    "能源": { zh: "能源", sub: "에너지" },
+    // 南韓統計：完整目錄兩個、統計分頁兩個
+    "人口統計": { zh: "人口統計", sub: "인구 통계" },
+    "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
+    "人口": { zh: "人口", sub: "인구" },
+    "社經": { zh: "社經", sub: "사회경제" },
   },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）

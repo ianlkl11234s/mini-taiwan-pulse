@@ -99,6 +99,7 @@ import { GbAquacultureHost, GbCompaniesHost, GbFuneralHost, GbManufacturingHost,
 import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionInventoryHost, GbRecyclingCentresHost, GbWastePermitsHost } from "./hosts/ukHosts";
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
+import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -292,9 +293,44 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   // 英國（2026-10-29 第 0b 波）
   { id: "useGbAdminLayers", keys: ["gbAdminBoundaries", "gbSmallAreaBoundaries"], Host: GbAdminHost },
+  // 南韓（2026-10-31 第 0 波）
+  { id: "useKrAdminLayers", keys: ["krAdminBoundaries"], Host: KrAdminHost },
+  // 南韓第 3–5 波（18 層，各自一個 PMTiles source）
+  { id: "useKrWaterLevelStationsLayer", keys: ["krWaterLevelStations"], Host: KrWaterLevelStationsHost },
+  { id: "useKrSluiceGatesLayer", keys: ["krSluiceGates"], Host: KrSluiceGatesHost },
+  { id: "useKrWaterQualityStationsLayer", keys: ["krWaterQualityStations"], Host: KrWaterQualityStationsHost },
+  { id: "useKrCoastalErosionFacilitiesLayer", keys: ["krCoastalErosionFacilities"], Host: KrCoastalErosionFacilitiesHost },
+  { id: "useKrRiversOsmLayer", keys: ["krRiversOsm"], Host: KrRiversOsmHost },
+  { id: "useKrMarinePollutionIncidentsLayer", keys: ["krMarinePollutionIncidents"], Host: KrMarinePollutionIncidentsHost },
+  { id: "useKrMarineEnvSitesLayer", keys: ["krMarineEnvSites"], Host: KrMarineEnvSitesHost },
+  { id: "useKrMarineProtectedAreasLayer", keys: ["krMarineProtectedAreas"], Host: KrMarineProtectedAreasHost },
+  { id: "useKrPublicBicycleStationsLayer", keys: ["krPublicBicycleStations"], Host: KrPublicBicycleStationsHost },
+  { id: "useKrSeoulSubwayCongestionLayer", keys: ["krSeoulSubwayCongestion"], Host: KrSeoulSubwayCongestionHost },
+  { id: "useKrBridgesLayer", keys: ["krBridges"], Host: KrBridgesHost },
+  { id: "useKrParkingLotsLayer", keys: ["krParkingLots"], Host: KrParkingLotsHost },
+  { id: "useKrSpeedCamerasLayer", keys: ["krSpeedCameras"], Host: KrSpeedCamerasHost },
+  { id: "useKrChildProtectionZonesLayer", keys: ["krChildProtectionZones"], Host: KrChildProtectionZonesHost },
+  { id: "useKrNationalParksLayer", keys: ["krNationalParks"], Host: KrNationalParksHost },
+  { id: "useKrNpLocationSignsLayer", keys: ["krNpLocationSigns"], Host: KrNpLocationSignsHost },
+  { id: "useKrNpTrailsLayer", keys: ["krNpTrails"], Host: KrNpTrailsHost },
+  { id: "useKrStreetTreesLayer", keys: ["krStreetTrees"], Host: KrStreetTreesHost },
+  // 南韓第 1 波（國土基礎：交通＋能源）
+  { id: "useKrBusStopsLayer", keys: ["krBusStops"], Host: KrBusStopsHost },
+  { id: "useKrRailStationsLayer", keys: ["krRailStations"], Host: KrRailStationsHost },
+  { id: "useKrAirportsLayer", keys: ["krAirports"], Host: KrAirportsHost },
+  { id: "useKrPortsLayer", keys: ["krPorts"], Host: KrPortsHost },
+  { id: "useKrNationalRoadsLayer", keys: ["krNationalRoads"], Host: KrNationalRoadsHost },
+  { id: "useKrRailLinesLayer", keys: ["krRailLines"], Host: KrRailLinesHost },
+  { id: "useKrFuelStationsLayer", keys: ["krFuelStations"], Host: KrFuelStationsHost },
+  { id: "useKrPowerPlantsLayer", keys: ["krPowerPlants"], Host: KrPowerPlantsHost },
+  { id: "useKrRenewablesLayer", keys: ["krRenewables"], Host: KrRenewablesHost },
+  { id: "useKrPowerLinesLayer", keys: ["krPowerLines"], Host: KrPowerLinesHost },
+  { id: "useKrSubstationsLayer", keys: ["krSubstations"], Host: KrSubstationsHost },
+  { id: "useKrPowerTowersLayer", keys: ["krPowerTowers"], Host: KrPowerTowersHost },
+  { id: "useKrOilGasLayer", keys: ["krOilGas"], Host: KrOilGasHost },
   // 英國第 1 波（海域界線、建成區、綠地三層）
   { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
-  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries"], Host: GbOpenSpaceHost },
+  { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries"], Host: GbOpenSpaceHost },
   // 英國第 3 波（河川、水文測站、防洪設施、海岸侵蝕、浴場）
   { id: "useGbRiversLayer", keys: ["gbRivers"], Host: GbRiversHost },
   { id: "useGbHydroStationsLayer", keys: ["gbHydroStations"], Host: GbHydroStationsHost },

@@ -177,7 +177,7 @@ export function campusLevelColorExpr(fallback: string): unknown[] {
 }
 
 /** PMTiles 切片實際 zoom 範圍（`pmtiles show` 實測；registry.minzoom 不得小於此值） */
-export const CAMPUS_PMTILES_MINZOOM = 8;
+export const CAMPUS_PMTILES_MINZOOM = 7; // v2 重切檔（campus_polygon_v2）z7 起
 export const CAMPUS_PMTILES_MAXZOOM = 15;
 
 /**
@@ -395,7 +395,7 @@ export function cramCategoryColorExpr(): unknown[] {
 }
 
 /** cram_schools 切片實測 zoom 範圍 */
-export const CRAM_PMTILES_MINZOOM = 8;
+export const CRAM_PMTILES_MINZOOM = 7; // v2 重切檔（cram_schools_v2）z7 起
 export const CRAM_PMTILES_MAXZOOM = 15;
 
 /**

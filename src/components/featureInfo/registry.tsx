@@ -69,7 +69,13 @@ import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPa
 import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
-import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
+import { KR_DATA_SPECS } from "../../data/krDataLayers";
+import type { KrDataKey } from "../../data/krDataKeys";
+
+/** 南韓第 3–5 波 18 層的標題列（中文＋韓文原名，與其他國家圖層一致）。 */
+const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
+import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
+import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
@@ -114,6 +120,7 @@ import {
   HeritagePanel, EventsPanel, FactoriesPanel,
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
+import { DisasterResourceSitesPanel, FiringNoticeAreasPanel, NuclearEpzEvacuationPanel, TrafficAccidents2025Panel, TsunamiSirensPanel } from "./g36SafetyPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
@@ -431,11 +438,27 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpAdminPrefecture: JpAdminPrefecturePanel,
   jpAdminBoundaries: JpAdminBoundariesPanel,
   gbAdminBoundaries: GbAdminBoundariesPanel,
+  krAdminBoundaries: KrAdminBoundariesPanel,
+  ...KR_DATA_PANELS,
+  krBusStops: KrBusStopsPanel,
+  krRailStations: KrRailStationsPanel,
+  krAirports: KrAirportsPanel,
+  krPorts: KrPortsPanel,
+  krNationalRoads: KrNationalRoadsPanel,
+  krRailLines: KrRailLinesPanel,
+  krFuelStations: KrFuelStationsPanel,
+  krPowerPlants: KrPowerPlantsPanel,
+  krRenewables: KrRenewablesPanel,
+  krPowerLines: KrPowerLinesPanel,
+  krSubstations: KrSubstationsPanel,
+  krPowerTowers: KrPowerTowersPanel,
+  krOilGas: KrOilGasPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
   gbBuiltUpAreas: GbBuiltUpAreasPanel,
   gbGreenspace: GbGreenspacePanel,
   gbSportsFacilities: GbSportsFacilitiesPanel,
+  gbGolfCourses: GbGolfCoursesPanel,
   gbCemeteries: GbCemeteriesPanel,
   gbRivers: GbRiversPanel,
   gbHydroStations: GbHydroStationsPanel,
@@ -595,6 +618,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   trafficAccidentYearly: TrafficAccidentYearlyPanel,
   accidentTaipei: AccidentTaipeiPanel,
   a1AccidentRealtime: A1AccidentRealtimePanel,
+  trafficAccidents2025: TrafficAccidents2025Panel,
+  disasterResourceSites: DisasterResourceSitesPanel,
+  tsunamiSirens: TsunamiSirensPanel,
+  nuclearEpzEvacuation: NuclearEpzEvacuationPanel,
+  firingNoticeAreas: FiringNoticeAreasPanel,
   investigationBureau: InvestigationBureauPanel,
   antiCorruptionOffice: AntiCorruptionOfficePanel,
   immigrationOffice: ImmigrationOfficePanel,
@@ -1037,11 +1065,27 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpAdminPrefecture: "都道府縣界 都道府県境",
   jpAdminBoundaries: "市區町村界 市区町村境",
   gbAdminBoundaries: "地方政府區 LAD",
+  krAdminBoundaries: "南韓行政區界",
+  ...KR_HEADER_LABELS,
+  krBusStops: "公車站 버스정류장",
+  krRailStations: "鐵道車站 철도역",
+  krAirports: "機場 공항",
+  krPorts: "港灣區 항만구역",
+  krNationalRoads: "一般國道 일반국도",
+  krRailLines: "鐵道線 철도 노선",
+  krFuelStations: "燃料與充電站 연료·충전소",
+  krPowerPlants: "電廠 발전소",
+  krRenewables: "再生能源點 신재생에너지 설비",
+  krPowerLines: "輸配電線 송전선",
+  krSubstations: "變電所 변전소",
+  krPowerTowers: "高壓鐵塔 송전철탑",
+  krOilGas: "油氣設施 석유·가스 시설",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
   gbBuiltUpAreas: "建成區 Built Up Areas",
   gbGreenspace: "公園綠地 Greenspace",
   gbSportsFacilities: "運動場地 Sports Facilities",
+  gbGolfCourses: "高爾夫球場 Golf Courses",
   gbCemeteries: "墓園與宗教場地 Cemeteries",
   gbRivers: "河川 Rivers",
   gbHydroStations: "水文測站 Hydrometric Stations",
@@ -1184,6 +1228,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   trafficAccidentYearly: "A1 死亡事故（年度）",
   accidentTaipei: "北市事故點",
   a1AccidentRealtime: "A1 即時事故",
+  trafficAccidents2025: "交通事故",
+  disasterResourceSites: "救災資源據點",
+  tsunamiSirens: "海嘯警報臺",
+  nuclearEpzEvacuation: "核電廠集結與收容",
+  firingNoticeAreas: "射擊公告區",
   investigationBureau: "調查局",
   antiCorruptionOffice: "廉政署",
   immigrationOffice: "移民署服務站",

@@ -116,5 +116,7 @@
   "enum.statUnit.人/平方公里": "人/km²",
   "enum.statUnit.分": "点",
   "enum.statUnit.英鎊": "ポンド",
-  "enum.statUnit.英鎊/月": "ポンド/月"
+  "enum.statUnit.英鎊/月": "ポンド/月",
+  "enum.statUnit.男/百女": "女性100人あたり男性",
+  "enum.statUnit.老年/百幼年": "年少人口100人あたり老年人口"
 }

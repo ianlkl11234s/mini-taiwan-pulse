@@ -229,5 +229,21 @@
   "legend.civic.gbCourtMagistrates": "Magistrates' Court",
   "legend.civic.gbCourtTribunal": "Tribunal",
   "legend.civic.gbCourtOther": "Other (High Court, probate registries, enforcement and service centres)",
-  "legend.civic.gbCourtsUncovered": "England and Wales only; Scottish and NI courts not covered (separate legal systems; Scotland has only UK-wide tribunal hearing centres)"
+  "legend.civic.gbCourtsUncovered": "England and Wales only; Scottish and NI courts not covered (separate legal systems; Scotland has only UK-wide tribunal hearing centres)",
+  "legend.civic.trafficAccidents2025Period": "Period {period} (NPA monthly A1/A2 records, deduplicated by incident)",
+  "legend.civic.trafficAccidents2025Note": "A3 (property damage only) has no coordinates and is not included. Source file and period differ from the \"A1 Fatal Accident\" layer (full-year 2025 file, 1,600 points), so counts are not directly comparable.",
+  "legend.civic.tsunamiSirensRow": "Tsunami sirens · {count}",
+  "legend.civic.tsunamiSirensNote": "NPA data as of 2025-12; 1 siren (Xingren Police Station, Tamsui) lacks coordinates and is not shown",
+  "legend.civic.nuclearEpzNote": "Assembly points are planned by local governments (New Taipei, Keelung, Pingtung); shelters are merged from village assignments. 15 Hengchun villages are assigned to generic \"hotels\" with no coordinates and are not shown",
+  "legend.civic.firingNoticeNote": "Published notice areas and periods, not real-time status. Past notices: Navy 2025-07 to 08, Coast Guard 2024-03 to 2026-03; the same area may be announced repeatedly",
+  "legend.civic.pjSpeedCat": "Type",
+  "legend.civic.pjSpeedGeneral": "General speed camera",
+  "legend.civic.pjSpeedFreeway": "Freeway speed camera",
+  "legend.civic.pjSpeedRedLight": "Red-light camera",
+  "legend.civic.pjSpeedRailway": "Rail-crossing camera",
+  "legend.civic.pjTheftCat": "Case type",
+  "legend.civic.pjTheftHouse": "Residential burglary",
+  "legend.civic.pjTheftCar": "Car theft",
+  "legend.civic.pjTheftMoto": "Scooter theft",
+  "legend.civic.pjTheftBike": "Bicycle theft"
 }

@@ -3,7 +3,7 @@
 import { useGbAdminLayers } from "../../hooks/useGbAdminLayers";
 import { useGbMaritimeLimitsLayer } from "../../hooks/useGbMaritimeLimitsLayer";
 import { useGbOpenSpaceLayers } from "../../hooks/useGbOpenSpaceLayers";
-import { useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
+import { gbDisplayModeFromIdx, useGbBathingWatersLayer, useGbCoastalErosionLayer, useGbFloodDefencesLayer, useGbHydroStationsLayer, useGbRiversLayer } from "../../hooks/useGbWaterLayers";
 import { useGbLondonBikePointsLayer, useGbLondonChargingZonesLayer, useGbLondonJamCamsLayer, useGbLondonRailLinesLayer, useGbLondonStationsLayer, useGbMajorRoadsLayer, useGbStationUsageLayer, useGbTrafficCountsAadfLayer, useGbTransportHubsLayer } from "../../hooks/useGbTransportLayers";
 import { useGbArtsVenuesLayer, useGbCulturalFacilitiesLayer, useGbVisitorExperienceLayer } from "../../hooks/useGbCultureLayers";
 import { useGbSurplusLandLayer, useGbTerrainLayer } from "../../hooks/useGbLandLayers";
@@ -42,18 +42,32 @@ export const GbMaritimeLimitsHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 英國建成區＋綠地三層（公園、運動場、墓園；後三者共用 gb_greenspace.pmtiles）。 */
+/** 英國建成區＋綠地四層（公園、運動場、高爾夫球場、墓園；後四者共用 gb_greenspace.pmtiles）。 */
 export const GbOpenSpaceHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbOpenSpaceLayers");
   const builtUp = useKeyOverlayParams("gbBuiltUpAreas");
   const park = useKeyOverlayParams("gbGreenspace");
   const sports = useKeyOverlayParams("gbSportsFacilities");
+  const golf = useKeyOverlayParams("gbGolfCourses");
   const burial = useKeyOverlayParams("gbCemeteries");
   useGbOpenSpaceLayers(deps.mapRef, {
-    gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7 },
-    gbGreenspace: { visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.75 },
-    gbSportsFacilities: { visible: deps.layerVisibility.gbSportsFacilities, opacity: sports.gbSportsFacilitiesOpacity ?? 0.75 },
-    gbCemeteries: { visible: deps.layerVisibility.gbCemeteries, opacity: burial.gbCemeteriesOpacity ?? 0.75 },
+    gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7, scale: builtUp.gbBuiltUpAreasScale ?? 1, mode: gbDisplayModeFromIdx(builtUp.gbBuiltUpAreasDisplayModeIdx, "polygon") },
+    gbGreenspace: {
+      visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.75, scale: park.gbGreenspaceScale ?? 1,
+      mode: gbDisplayModeFromIdx(park.gbGreenspaceDisplayModeIdx, "polygon"), categoryMask: park.gbGreenspaceCategoryMask,
+    },
+    gbSportsFacilities: {
+      visible: deps.layerVisibility.gbSportsFacilities, opacity: sports.gbSportsFacilitiesOpacity ?? 0.75, scale: sports.gbSportsFacilitiesScale ?? 1,
+      mode: gbDisplayModeFromIdx(sports.gbSportsFacilitiesDisplayModeIdx, "polygon"), categoryMask: sports.gbSportsFacilitiesCategoryMask,
+    },
+    gbGolfCourses: {
+      visible: deps.layerVisibility.gbGolfCourses, opacity: golf.gbGolfCoursesOpacity ?? 0.75, scale: golf.gbGolfCoursesScale ?? 1,
+      mode: gbDisplayModeFromIdx(golf.gbGolfCoursesDisplayModeIdx, "polygon"),
+    },
+    gbCemeteries: {
+      visible: deps.layerVisibility.gbCemeteries, opacity: burial.gbCemeteriesOpacity ?? 0.75, scale: burial.gbCemeteriesScale ?? 1,
+      mode: gbDisplayModeFromIdx(burial.gbCemeteriesDisplayModeIdx, "point"), categoryMask: burial.gbCemeteriesCategoryMask,
+    },
   }, deps.isDarkTheme);
   return null;
 };
@@ -83,7 +97,7 @@ export const GbFloodDefencesHost: LayerHostComponent = ({ deps }) => {
 export const GbCoastalErosionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCoastalErosionLayer");
   const p = useKeyOverlayParams("gbCoastalErosionRisk");
-  useGbCoastalErosionLayer(deps.mapRef, deps.layerVisibility.gbCoastalErosionRisk, p.gbCoastalErosionRiskOpacity ?? 0.7, p.gbCoastalErosionRiskPeriodIdx ?? 0, deps.isDarkTheme);
+  useGbCoastalErosionLayer(deps.mapRef, deps.layerVisibility.gbCoastalErosionRisk, p.gbCoastalErosionRiskOpacity ?? 0.7, p.gbCoastalErosionRiskPeriodIdx ?? 0, deps.isDarkTheme, p.gbCoastalErosionRiskScale ?? 1, gbDisplayModeFromIdx(p.gbCoastalErosionRiskDisplayModeIdx, "polygon"));
   return null;
 };
 
@@ -99,7 +113,7 @@ export const GbTransportHubsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbTransportHubsLayer");
   const hubs = useKeyOverlayParams("gbTransportHubs");
   const usage = useKeyOverlayParams("gbStationUsage");
-  useGbTransportHubsLayer(deps.mapRef, deps.layerVisibility.gbTransportHubs, hubs.gbTransportHubsOpacity ?? 0.8, hubs.gbTransportHubsScale ?? 1, deps.isDarkTheme);
+  useGbTransportHubsLayer(deps.mapRef, deps.layerVisibility.gbTransportHubs, hubs.gbTransportHubsOpacity ?? 0.8, hubs.gbTransportHubsScale ?? 1, hubs.gbTransportHubsCategoryMask, deps.isDarkTheme);
   useGbStationUsageLayer(deps.mapRef, deps.layerVisibility.gbStationUsage, usage.gbStationUsageOpacity ?? 0.8, usage.gbStationUsageScale ?? 1, deps.isDarkTheme);
   return null;
 };
@@ -108,7 +122,7 @@ export const GbLondonRailHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbLondonRailLayers");
   const lines = useKeyOverlayParams("gbLondonRailLines");
   const stations = useKeyOverlayParams("gbLondonStations");
-  useGbLondonRailLinesLayer(deps.mapRef, deps.layerVisibility.gbLondonRailLines, lines.gbLondonRailLinesOpacity ?? 0.85, deps.isDarkTheme);
+  useGbLondonRailLinesLayer(deps.mapRef, deps.layerVisibility.gbLondonRailLines, lines.gbLondonRailLinesOpacity ?? 0.85, lines.gbLondonRailLinesCategoryMask, deps.isDarkTheme);
   useGbLondonStationsLayer(deps.mapRef, deps.layerVisibility.gbLondonStations, stations.gbLondonStationsOpacity ?? 0.85, stations.gbLondonStationsScale ?? 1, deps.isDarkTheme);
   return null;
 };
@@ -138,28 +152,28 @@ export const GbLondonChargingZonesHost: LayerHostComponent = ({ deps }) => {
 export const GbProtectedAreasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbProtectedAreasLayer");
   const p = useKeyOverlayParams("gbProtectedAreas");
-  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme);
+  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme, p.gbProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbProtectedAreasDisplayModeIdx, "point"));
   return null;
 };
 
 export const GbMarineProtectedAreasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbMarineProtectedAreasLayer");
   const p = useKeyOverlayParams("gbMarineProtectedAreas");
-  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, deps.isDarkTheme);
+  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, p.gbMarineProtectedAreasCategoryMask, deps.isDarkTheme, p.gbMarineProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbMarineProtectedAreasDisplayModeIdx, "point"));
   return null;
 };
 
 export const GbWoodlandHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbWoodlandLayer");
   const p = useKeyOverlayParams("gbWoodland");
-  useGbWoodlandLayer(deps.mapRef, deps.layerVisibility.gbWoodland, p.gbWoodlandOpacity ?? 0.7, deps.isDarkTheme);
+  useGbWoodlandLayer(deps.mapRef, deps.layerVisibility.gbWoodland, p.gbWoodlandOpacity ?? 0.7, p.gbWoodlandScale ?? 1, gbDisplayModeFromIdx(p.gbWoodlandDisplayModeIdx, "polygon"), deps.isDarkTheme);
   return null;
 };
 
 export const GbForestRecreationHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbForestRecreationLayer");
   const p = useKeyOverlayParams("gbForestRecreation");
-  useGbForestRecreationLayer(deps.mapRef, deps.layerVisibility.gbForestRecreation, p.gbForestRecreationOpacity ?? 0.75, p.gbForestRecreationScale ?? 1, deps.isDarkTheme);
+  useGbForestRecreationLayer(deps.mapRef, deps.layerVisibility.gbForestRecreation, p.gbForestRecreationOpacity ?? 0.75, p.gbForestRecreationScale ?? 1, p.gbForestRecreationCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -173,14 +187,14 @@ export const GbTrailsHost: LayerHostComponent = ({ deps }) => {
 export const GbOpenAccessLandHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbOpenAccessLandLayer");
   const p = useKeyOverlayParams("gbOpenAccessLand");
-  useGbOpenAccessLandLayer(deps.mapRef, deps.layerVisibility.gbOpenAccessLand, p.gbOpenAccessLandOpacity ?? 0.6, deps.isDarkTheme);
+  useGbOpenAccessLandLayer(deps.mapRef, deps.layerVisibility.gbOpenAccessLand, p.gbOpenAccessLandOpacity ?? 0.6, p.gbOpenAccessLandScale ?? 1, gbDisplayModeFromIdx(p.gbOpenAccessLandDisplayModeIdx, "polygon"), p.gbOpenAccessLandCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbTreeProtectionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbTreeProtectionLayer");
   const p = useKeyOverlayParams("gbTreeProtection");
-  useGbTreeProtectionLayer(deps.mapRef, deps.layerVisibility.gbTreeProtection, p.gbTreeProtectionOpacity ?? 0.7, p.gbTreeProtectionScale ?? 1, deps.isDarkTheme);
+  useGbTreeProtectionLayer(deps.mapRef, deps.layerVisibility.gbTreeProtection, p.gbTreeProtectionOpacity ?? 0.7, p.gbTreeProtectionScale ?? 1, gbDisplayModeFromIdx(p.gbTreeProtectionDisplayModeIdx, "polygon"), p.gbTreeProtectionCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -188,7 +202,7 @@ export const GbTreeProtectionHost: LayerHostComponent = ({ deps }) => {
 export const GbPowerPlantsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbPowerPlantsLayer");
   const p = useKeyOverlayParams("gbPowerPlants");
-  useGbPowerPlantsLayer(deps.mapRef, deps.layerVisibility.gbPowerPlants, p.gbPowerPlantsOpacity ?? 0.8, p.gbPowerPlantsScale ?? 1, deps.isDarkTheme);
+  useGbPowerPlantsLayer(deps.mapRef, deps.layerVisibility.gbPowerPlants, p.gbPowerPlantsOpacity ?? 0.8, p.gbPowerPlantsScale ?? 1, p.gbPowerPlantsCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -223,7 +237,7 @@ export const GbFuelStationsHost: LayerHostComponent = ({ deps }) => {
 export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbOilGasFieldsLayer");
   const p = useKeyOverlayParams("gbOilGasFields");
-  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, deps.isDarkTheme);
+  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, p.gbOilGasFieldsCategoryMask, deps.isDarkTheme, p.gbOilGasFieldsScale ?? 1, gbDisplayModeFromIdx(p.gbOilGasFieldsDisplayModeIdx, "polygon"));
   return null;
 };
 
@@ -231,28 +245,28 @@ export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
 export const GbSchoolsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbSchoolsLayer");
   const p = useKeyOverlayParams("gbSchools");
-  useGbSchoolsLayer(deps.mapRef, deps.layerVisibility.gbSchools, p.gbSchoolsOpacity ?? 0.8, p.gbSchoolsScale ?? 1, deps.isDarkTheme);
+  useGbSchoolsLayer(deps.mapRef, deps.layerVisibility.gbSchools, p.gbSchoolsOpacity ?? 0.8, p.gbSchoolsScale ?? 1, p.gbSchoolsCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbHealthFacilitiesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbHealthFacilitiesLayer");
   const p = useKeyOverlayParams("gbHealthFacilities");
-  useGbHealthFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbHealthFacilities, p.gbHealthFacilitiesOpacity ?? 0.8, p.gbHealthFacilitiesScale ?? 1, deps.isDarkTheme);
+  useGbHealthFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbHealthFacilities, p.gbHealthFacilitiesOpacity ?? 0.8, p.gbHealthFacilitiesScale ?? 1, p.gbHealthFacilitiesCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbCareHomesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCareHomesLayer");
   const p = useKeyOverlayParams("gbCareHomes");
-  useGbCareHomesLayer(deps.mapRef, deps.layerVisibility.gbCareHomes, p.gbCareHomesOpacity ?? 0.8, p.gbCareHomesScale ?? 1, deps.isDarkTheme);
+  useGbCareHomesLayer(deps.mapRef, deps.layerVisibility.gbCareHomes, p.gbCareHomesOpacity ?? 0.8, p.gbCareHomesScale ?? 1, p.gbCareHomesCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbCareServicesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCareServicesLayer");
   const p = useKeyOverlayParams("gbCareServices");
-  useGbCareServicesLayer(deps.mapRef, deps.layerVisibility.gbCareServices, p.gbCareServicesOpacity ?? 0.8, p.gbCareServicesScale ?? 1, deps.isDarkTheme);
+  useGbCareServicesLayer(deps.mapRef, deps.layerVisibility.gbCareServices, p.gbCareServicesOpacity ?? 0.8, p.gbCareServicesScale ?? 1, p.gbCareServicesCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -266,7 +280,7 @@ export const GbFireStationsHost: LayerHostComponent = ({ deps }) => {
 export const GbCourtsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCourtsLayer");
   const p = useKeyOverlayParams("gbCourts");
-  useGbCourtsLayer(deps.mapRef, deps.layerVisibility.gbCourts, p.gbCourtsOpacity ?? 0.85, p.gbCourtsScale ?? 1, deps.isDarkTheme);
+  useGbCourtsLayer(deps.mapRef, deps.layerVisibility.gbCourts, p.gbCourtsOpacity ?? 0.85, p.gbCourtsScale ?? 1, p.gbCourtsCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -274,21 +288,21 @@ export const GbCourtsHost: LayerHostComponent = ({ deps }) => {
 export const GbCulturalFacilitiesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCulturalFacilitiesLayer");
   const p = useKeyOverlayParams("gbCulturalFacilities");
-  useGbCulturalFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbCulturalFacilities, p.gbCulturalFacilitiesOpacity ?? 0.8, p.gbCulturalFacilitiesScale ?? 1, deps.isDarkTheme);
+  useGbCulturalFacilitiesLayer(deps.mapRef, deps.layerVisibility.gbCulturalFacilities, p.gbCulturalFacilitiesOpacity ?? 0.8, p.gbCulturalFacilitiesScale ?? 1, p.gbCulturalFacilitiesCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbArtsVenuesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbArtsVenuesLayer");
   const p = useKeyOverlayParams("gbArtsVenues");
-  useGbArtsVenuesLayer(deps.mapRef, deps.layerVisibility.gbArtsVenues, p.gbArtsVenuesOpacity ?? 0.8, p.gbArtsVenuesScale ?? 1, deps.isDarkTheme);
+  useGbArtsVenuesLayer(deps.mapRef, deps.layerVisibility.gbArtsVenues, p.gbArtsVenuesOpacity ?? 0.8, p.gbArtsVenuesScale ?? 1, p.gbArtsVenuesCategoryMask, deps.isDarkTheme);
   return null;
 };
 
 export const GbVisitorExperienceHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbVisitorExperienceLayer");
   const p = useKeyOverlayParams("gbVisitorExperience");
-  useGbVisitorExperienceLayer(deps.mapRef, deps.layerVisibility.gbVisitorExperience, p.gbVisitorExperienceOpacity ?? 0.8, p.gbVisitorExperienceScale ?? 1, deps.isDarkTheme);
+  useGbVisitorExperienceLayer(deps.mapRef, deps.layerVisibility.gbVisitorExperience, p.gbVisitorExperienceOpacity ?? 0.8, p.gbVisitorExperienceScale ?? 1, p.gbVisitorExperienceCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -369,7 +383,7 @@ export const GbTrafficCountsAadfHost: LayerHostComponent = ({ deps }) => {
 export const GbPlanningConstraintsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbPlanningConstraintsLayer");
   const p = useKeyOverlayParams("gbPlanningConstraints");
-  useGbPlanningConstraintsLayer(deps.mapRef, deps.layerVisibility.gbPlanningConstraints, p.gbPlanningConstraintsOpacity ?? 0.35, p.gbPlanningConstraintsViewIdx ?? 0, deps.isDarkTheme);
+  useGbPlanningConstraintsLayer(deps.mapRef, deps.layerVisibility.gbPlanningConstraints, p.gbPlanningConstraintsOpacity ?? 0.35, p.gbPlanningConstraintsScale ?? 1, gbDisplayModeFromIdx(p.gbPlanningConstraintsDisplayModeIdx, "point"), p.gbPlanningConstraintsViewIdx ?? 0, deps.isDarkTheme);
   return null;
 };
 
@@ -385,7 +399,7 @@ export const GbBrownfieldHost: LayerHostComponent = ({ deps }) => {
 export const GbRecyclingCentresHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbRecyclingCentresLayer");
   const p = useKeyOverlayParams("gbRecyclingCentres");
-  useGbRecyclingCentresLayer(deps.mapRef, deps.layerVisibility.gbRecyclingCentres, p.gbRecyclingCentresOpacity ?? 0.75, p.gbRecyclingCentresScale ?? 1, deps.isDarkTheme);
+  useGbRecyclingCentresLayer(deps.mapRef, deps.layerVisibility.gbRecyclingCentres, p.gbRecyclingCentresOpacity ?? 0.75, p.gbRecyclingCentresScale ?? 1, p.gbRecyclingCentresCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -433,7 +447,7 @@ export const GbManufacturingHost: LayerHostComponent = ({ deps }) => {
 export const GbFuneralHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbFuneralLayer");
   const p = useKeyOverlayParams("gbFuneral");
-  useGbFuneralLayer(deps.mapRef, deps.layerVisibility.gbFuneral, p.gbFuneralOpacity ?? 0.8, p.gbFuneralScale ?? 1, deps.isDarkTheme);
+  useGbFuneralLayer(deps.mapRef, deps.layerVisibility.gbFuneral, p.gbFuneralOpacity ?? 0.8, p.gbFuneralScale ?? 1, p.gbFuneralCategoryMask, deps.isDarkTheme);
   return null;
 };
 
@@ -441,7 +455,7 @@ export const GbFuneralHost: LayerHostComponent = ({ deps }) => {
 export const GbAquacultureHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbAquacultureLayer");
   const p = useKeyOverlayParams("gbAquaculture");
-  useGbAquacultureLayer(deps.mapRef, deps.layerVisibility.gbAquaculture, p.gbAquacultureOpacity ?? 0.8, p.gbAquacultureScale ?? 1, p.gbAquacultureStatusIdx ?? 0, deps.isDarkTheme);
+  useGbAquacultureLayer(deps.mapRef, deps.layerVisibility.gbAquaculture, p.gbAquacultureOpacity ?? 0.8, p.gbAquacultureScale ?? 1, p.gbAquacultureStatusIdx ?? 0, p.gbAquacultureCategoryMask, deps.isDarkTheme);
   return null;
 };
 

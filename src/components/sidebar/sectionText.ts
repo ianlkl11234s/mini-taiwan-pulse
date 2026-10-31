@@ -18,6 +18,7 @@ export function localizeThemeTitle(theme: ThemeRef, i18n: I18nContext): { primar
   const { zh, sub } = themeName(theme);
   if (active === "zh-TW") return { primary: zh, sub };
   let primary = localizeSectionTitle(title, i18n);
-  if (primary === title) primary = active === "ja" && sub && /^[A-Za-z]/.test(sub) ? sub : zh;
+  // 用「有沒有翻譯」判斷缺漏，不用「譯名＝原名」：日文「交通」「教育」「文化」本來就與中文同字
+  if (primary === title && !i18n.lookup(`theme.${title}`)) primary = active === "ja" && sub && /^[A-Za-z]/.test(sub) ? sub : zh;
   return { primary, sub: primary === zh ? undefined : zh };
 }

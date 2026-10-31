@@ -1,4 +1,4 @@
-最後更新：2026-09-29（對齊 master 至 #400）
+最後更新：2026-10-31（新增 §3.8 全國視角可見性；G-2 熱區預設色改依主題）
 
 # Mini Taiwan Pulse — 地圖圖層視覺規格
 
@@ -15,6 +15,7 @@
 1. [怎麼用這份文件](#1-怎麼用這份文件)
 2. [現況總覽](#2-現況總覽)
 3. [規格（拍板版）](#3-規格2026-09-28-拍板)
+   - [3.8 全國視角可見性（V-1～V-7）](#38-全國視角可見性2026-10-31)
 4. [圖例規格](#4-圖例legend規格)
 5. [組合範例](#5-組合範例)
 6. [調整工作流](#6-調整工作流)
@@ -333,7 +334,21 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
   - **2026-10-05 修訂（R6 段 1，使用者拍板）**：預設改為「**移動物件立體、其他平面**」；每個非移動物件圖層一個「立體效果」toggle（預設關、可在圖層設定開啟，參數名沿用既有）。電廠／變電所 Bloom 測試層（`powerPlantGlow`、`substationEhvGlow`）維持原樣、不加 toggle（使用者決定）。詳見 [`R6-PROPOSAL.md`](../features/map-layer-restyle/R6-PROPOSAL.md)。
   - **R6 段 3（2026-10-06）**：移動物件台鐵／高鐵／捷運列車（`rail.railTrain3D`）、垃圾車 GPS（`wasteTruck.wasteTruck3D`）加「立體效果」toggle，**預設開**。關閉時用 Mapbox 畫：圓點 L 6.5px（垃圾車停車／離線 M 4.5px）、對比描邊（P-2 例外，見 §3.1）、色同立體版；z ≥ 12 有行進方向的物件換 SDF 方向箭頭（16px、`icon-rotate`＝方位角、描邊＝對比色 halo 1.5px），停著的維持圓點；不畫拖尾，只畫點選物件的近段軌跡（L-1 標準線）。每幀位置由純函式插值、約 25fps setData（`src/map/flatMovingController.ts`）。圖例箭頭列為 LG-6（`SwatchArrow`）。**2026-10-10 使用者回饋修正**：①原 M 4.5／S 3、底圖色描邊、箭頭 13px 在暗底看不清 → 改為上述大小與對比描邊；②換底圖後 2D 軌道消失（`RailTracksHost` 沒有換底圖重建），平面列車看起來浮在街區 → 改為 `styleReady`＋`style.load` 重建；列車與 2D 軌道本來就用同一份幾何（實測距離 ≤ 0.4px）。
-- **G-2 熱區**：色階由**色盤庫**給（`src/map/palettes.ts`，17 組序列色階：magma、viridis、YlOrBr、PuBuGn、Burg、speed、batlow、BuPu、bilbao、YlGnBu、acton、tokyo、rocket、PuBu、turku、cividis、oslo；清單順序把太像的分開放）。每組**暗／淡兩版各 7 階**：暗底越密越亮、淡底越密越深（淡版方向反轉，兩版都讓低密度融進底圖）；色值沿用 `docs/features/layer-color-picker/ramp-validation.md` §5，dataviz 驗證器在四種陸地色通過（多色相組「單一色相」N/A），`palettes.test.ts` 鎖階數與方向。**預設全部熱區用新版 magma**（R7 Q4 A；舊版截取 magma 四種底圖都沒過驗證器，淡底最密處淡黃對白底 1.04:1）。熱區色＝密度 0 完全透明，0.05／0.15／0.3／0.45／0.6／0.8／1 七個密度節點對到 7 階，alpha 低密度淡入 min(1, d×2.2)（`heatmapColorExpr`）。使用者可在圖層設定「熱區顏色」換成色盤庫任一組（spec §5.36），只換熱區、**拉近後的點顏色不變**；顏色由 `state/layerPalette.ts` 解析器依圖層選色＋底圖給，registry 熱區（`denseHeatmapLayer`）與 9 個 hook 熱區都讀它，圖例 LG-8 同源。**多層熱區疊放（R7 Q6 B）**：同時開 ≥2 層可換色熱區時，每層熱區透明度再乘 `HEATMAP.stackedOpacity` 0.7，只剩一層時恢復；以圖層開關判定（不看當下縮放），自有色熱區（雨量、電桿）不計入也不降。其餘不變：`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8（× 滑桿 ÷ 預設 × 疊放倍率）；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。熱區 maxzoom 為出點縮放 +0.01（`heatmapMaxzoom`）；強度 `intensity` 為 z12 值、每拉遠一級減半，**每層目視校正**（0.01–5）；熱區與點共用 filter、不可點擊。可換色熱區 55 層（2026-10-30 加英國 7 層；名單＝規格有 `heatmapPalette` 的 key，`layerPalette.test.ts` 鎖數量）；不開放：即時雨量（語意分級，K-3）、電桿（藍→紅經典熱區，另議）。
+- **G-2 熱區**：色階由**色盤庫**給（`src/map/palettes.ts`，17 組序列色階：magma、viridis、YlOrBr、PuBuGn、Burg、speed、batlow、BuPu、bilbao、YlGnBu、acton、tokyo、rocket、PuBu、turku、cividis、oslo；清單順序把太像的分開放）。每組**暗／淡兩版各 7 階**：暗底越密越亮、淡底越密越深（淡版方向反轉，兩版都讓低密度融進底圖）；色值沿用 `docs/features/layer-color-picker/ramp-validation.md` §5，dataviz 驗證器在四種陸地色通過（多色相組「單一色相」N/A），`palettes.test.ts` 鎖階數與方向。**預設色依主題**（2026-10-31 取代 R7 Q4 A「預設全部 magma」，見 §3.8 V-6）：`src/map/heatmapPaletteDefaults.ts` 依 manifest `section.theme` 第一段（「醫療 Medical」→「醫療」）查主題表，同國同主題的其他熱區層在逐層覆寫表錯開，查不到主題（統計主題、舊 key）才用 magma；新圖層不寫就自動套主題色，`layerPalette.test.ts` 鎖「預設＝主題表結果」並擋同國同主題撞色（使用者點名同色的組合列在 `HEATMAP_SAME_PALETTE_ALLOWED`）。只改預設，使用者選過的色與場景存檔照舊。主題表見下表。熱區色＝密度 0 完全透明，0.05／0.15／0.3／0.45／0.6／0.8／1 七個密度節點對到 7 階，alpha 低密度淡入 min(1, d×2.2)（`heatmapColorExpr`）。使用者可在圖層設定「熱區顏色」換成色盤庫任一組（spec §5.36），只換熱區、**拉近後的點顏色不變**；顏色由 `state/layerPalette.ts` 解析器依圖層選色＋底圖給，registry 熱區（`denseHeatmapLayer`）與 9 個 hook 熱區都讀它，圖例 LG-8 同源。**多層熱區疊放（R7 Q6 B）**：同時開 ≥2 層可換色熱區時，每層熱區透明度再乘 `HEATMAP.stackedOpacity` 0.7，只剩一層時恢復；以圖層開關判定（不看當下縮放），自有色熱區（雨量、電桿）不計入也不降。其餘不變：`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8（× 滑桿 ÷ 預設 × 疊放倍率）；z ≥ 10 切回點（10k–100k 點）；> 100k 點為 z ≥ 12（見 P-4）。常數 `HEATMAP.pointsFromZoomOver10k`／`pointsFromZoomOver100k`（10／12），helper `densePointsFromZoom`／`heatmapPaint`。熱區 maxzoom 為出點縮放 +0.01（`heatmapMaxzoom`）；強度 `intensity` 為 z12 值、每拉遠一級減半，**每層目視校正**（0.01–5）；熱區與點共用 filter、不可點擊。可換色熱區 55 層（2026-10-30 加英國 7 層；名單＝規格有 `heatmapPalette` 的 key，`layerPalette.test.ts` 鎖數量）；不開放：即時雨量（語意分級，K-3）、電桿（藍→紅經典熱區，另議）。
+
+  | 主題 | 預設色盤 | 主題 | 預設色盤 |
+  |---|---|---|---|
+  | 交通、執法治安、通訊、全球通訊 | BuPu | 醫療 | PuBu |
+  | 社福長照、運動休閒 | PuBuGn | 宗教 | batlow |
+  | 文化、動物福利 | acton | 殯葬、廢棄物、全球環境 | turku |
+  | 觀光、工商登記、住宅存量與使用、工作與所得 | Burg | 教育、基礎建設、都市分析 | cividis |
+  | 水資源、民防避難 | YlGnBu | 海洋、全球海事、太空 | oslo |
+  | 能源、房地產、人口社經、全球氣候 | YlOrBr | 環境氣候、底圖（英國綠地） | viridis |
+  | 林業 | speed | 農業、原民與農村 | tokyo |
+  | 災害、情勢、全球情勢 | rocket | 消防 | magma |
+
+  逐層覆寫（同主題錯開＋使用者點名）：英國公園綠地 viridis、運動場地 PuBuGn、墓園與宗教場地 batlow、照護之家與長照服務 PuBuGn（使用者點名同色）、棕地登記冊 bilbao；台灣 AED rocket、長照機構 PuBuGn；行道樹三時點 speed、行道樹變化 tokyo、河濱喬木 YlGnBu、污染潛勢設施 bilbao、一般裁處 Burg、重大裁處 rocket、移動污染 magma、噪音裁處 BuPu；火災最新年度 rocket、消防栓 oslo；製造業公司 YlOrBr、工廠 bilbao、列管設施 rocket；公路客運站 PuBu、自行車支援 speed、橋梁清冊 turku；公廁 PuBu、無障礙設施 YlGnBu；蔬果批發 speed；日本宗教 OSM acton、Wikidata turku，旅宿 OSM acton，兒童福祉 acton。完整清單以 `HEATMAP_PALETTE_OVERRIDES` 為準。
+
 - **G-3 網格**：建議面 0.7、格縫同 F-2；R3b 使用者確認 14 層全部維持現況。只有來源明確計數 0 才可視為空格，缺值／未涵蓋／遮蔽不可改成 0 或刪除；H3 解析度與方格尺寸照 viz-library M6。
   - **網格換色（R7）**：網格色改讀解析器（`gridRampFor`，色盤 7 階依該層級數重新取樣），設定多一列「網格顏色」。**預設沿用現行色系**在色盤庫裡的那一組：viridis（公司登記密度格、登記產業合計密度模式、生產中工廠／製造業公司／列管設施密度、不動產人均市值、日本醫療 5 層與照護 6 層低縮放格）、magma（公司資本額網格）、cividis（公司年齡結構）；YlOrRd／inferno／Oranges 不在庫內 → **YlOrBr**（不動產總市值 9 級〔原為 inferno 9〕、預售熱力圖 3 點、日本人口網格人口指標、日本旅宿密度 7 級〔原 Oranges〕）；租賃熱力圖（原青→橘 6 點）→ **batlow**（庫內唯一暗底「冷→暖」序列，淡底依庫規則反轉為橘→深藍），**只換網格、租賃 3D 點色表 `RE_PALETTES.rental` 不動**，圖例網格與 3D 點同時開時分兩條色帶。日本人口網格的高齡比指標在選單停在預設時用庫內 BuPu（兩種指標預設維持可區分），換色後兩種指標都用所選色盤。日本醫療 5 層、照護 6 層各共用一張聚合格，選單以 `sharedGroup` 共用一份值。淡色底圖用各色盤淡版（越高越深）。缺值／遮罩色（公司網格 `#64748b`、人均低人口 `#555`、人口網格遮罩灰）不換。可換色 23 個 key；不開放：買賣熱力圖（發散）、溫度、NoiseCapture（語意分級）、都市紋理網格（6 種模式各自色階、含 2 種發散，`showWhen` 只能比對單值，等 C 段連動選單）、人流模擬 H3（顏色烘進每格資料、無圖例，換色要走資料重建）。
 - **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。（R3b 已接線：`RASTER`；量測類含雷達、AQI、沙塵、降雨、淹水深度。）
@@ -357,6 +372,19 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（R4 前 13 層不一致，R4 已把 manifest 的 `color` 改成地圖暗色版主色）。拍板 B：**以地圖現在的顏色為準**：`LAYER_COLORS` 改成地圖的暗色版主色；若地圖暗淡不同色，圖例色票跟著暗淡切換（醫療 5 層：暗 `#e53935`／淡 `#c62828`）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
 - **K-2 類別色與序列色分工**：拍板**不採用**「一般圖層 ≤ 7 類＋其他」的限制：一般圖層的類別數與配色維持各層自訂（例：非都市分區 12 類照舊）。**不做自動縮減**：程式不得自動把少數類別併成「其他」或自動減色；某層要縮減類別，由該層在自己的色票與圖例中明確定義（2026-09-28 使用者確認）。viz-library C2 只約束分析結果；統計圖層仍照 `statistics-layer-guidelines.md` §4。
 - **K-3 語意色不可挪用**：`spec.md` §3.5 STATUS（即時綠、警告橘、錯誤紅）與 §3.15 災害語意色只給狀態與警報；資料類別不得用這幾個色號表達一般分類。紅色保留給警報，一律搭配圖示或文字。拍板 B：**只寫成規則**，不加自動 guard，靠 review 把關。
+
+### 3.8 全國視角可見性（2026-10-31）
+
+使用者要求「拉遠後要知道東西在哪裡」。四國共用；盤點與分批計畫見 PR 描述（南韓 32、英國 62、台灣＋日本 257 列）。
+
+- **V-1 全國視角一定看得到**：開著的圖層在「國家全覽縮放」（台灣 z7、日本 z5、英國 z5.5、南韓 z6）必須畫出東西。< 1 萬點直接畫點；≥ 1 萬點畫熱區（P-4）；交通、能源等骨幹點線優先直接畫，太多時低縮放只畫主要類別（例：電廠低縮放只畫大型、太陽光電從 z8 起）。做不到的登記例外並附提示（V-3）。
+- **V-2 縮放連續**：同一層各子圖層的顯示區間要接續，layer 最早出現縮放不得比圖磚 minzoom 晚超過 1 級（低縮放熱區＋高縮放點算接續）；有理由（例：行政界、z4 起的密度網格）要登記。契約測試 `src/map/__tests__/visibilityContract.test.ts`（ratchet：既有違規列基準、只准減少）。
+- **V-3 看不到時要說明**：圖層開著、但目前縮放不畫或視野內沒資料時，擴充既有視野提示卡（spec §5.42，不另做元件）顯示「放大到 zN 顯示」；資料只在局部（例：倫敦）時給「前往有資料處」。規格見 [spec §5.42.1](./spec.md)（2026-10-31 使用者選示意「甲」）；局部資料層登記在 `src/data/layerCoverage.ts`，名稱含城市卻沒登記會被 `layerCoverage.test.ts` 擋下。
+- **V-4 分類圖例＝可篩選**：圖例有 ≥ 2 個名目類別，就要有類別篩選（多選，spec §5.12）；序位分級不算。類別差異大、各自量大時（例：運動場地 vs 高爾夫、學校各級）拆成子圖層。契約測試同 V-2（判斷：registry paint 以字串 `match` 分 ≥ 2 色、或南韓 `cats` ≥ 2，且規格沒有「資料篩選」類控件）。
+- **V-5 面可切成點**：面圖層提供「點／面」切換；行政界、網格、警報區、統計 choropleth 這類區劃面不適用。小而零散的面（墓園、宗教場所、保育區、規劃限制區）預設點。GeoJSON 面前端算代表點；PMTiles 面由 analytics 另出代表點檔。
+  - 台灣＋日本 PMTiles 面層（2026-10-31）：登記表 `src/data/repPointLayers.ts`（檔、點數、預設樣式），控件由 `layerParamsSpec` 依表補（樣式、≥1 萬點補熱區顏色、大小）；registry 圖層由 `map/repPointOverlays.ts` 自動產生同 id 的第二個 config（`<sourceId>-points`，顏色、篩選沿用面層），自建 hook／factory 讀同一張表。「面」樣式在面出現前補熱區或代表點；土砂警戒的代表點檔只到 z7，不提供切換、只補熱區。
+- **V-6 熱區顏色多樣**：取代 G-2 原「預設一律 magma」，改依主題給預設色盤（表見 §3.4 G-2），同國同主題的熱區層不同色；使用者仍可換。
+- **V-7 驗收**：每層在國家全覽縮放截圖一張，確認有東西（點或熱區）或有提示；契約測試只涵蓋 registry overlay 與南韓資料層，其他 hook 圖層靠截圖。
 
 ---
 
@@ -462,7 +490,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | 背景參考面 | 0.15、0.5px 灰 | 不需 | `nonUrbanZoning`（線 0.21） |
 | 網格＋序列色 | 0.7、空格不畫、0.5px 縫 | LG-3 漸層或方塊 | `realEstateRentalGrid`（0.7、格線 0.3 暗白淡黑） |
 | 3D 擠出 | 0.85、高度＝顏色指標 | LG-3＋高度說明 | `buildingsGba`（面 0.75，extrusion 預設關） |
-| 熱區 | 新版 magma（可換色盤，G-2）、0.8（多層 ×0.7）、radius 12／20 | LG-8 漸層 | `medClinic`；自有色例外 `powerPoles`（hook 設定，非字面） |
+| 熱區 | 依主題預設色盤（可換色盤，G-2／V-6）、0.8（多層 ×0.7）、radius 12／20 | LG-8 漸層 | `medClinic`；自有色例外 `powerPoles`（hook 設定，非字面） |
 | 影像 | 0.7、nearest | LG-8 漸層 | `urbanHeat`（0.75、9 色 diverging） |
 | 文字標籤 | 10／12、halo 1.25 底圖色 | 不需 | `playgrounds` label（10／11.5、1.25） |
 
@@ -526,6 +554,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 | **P-7** | 車站光柱與捷運顯示模式 | 高鐵／台鐵／捷運光柱預設關；捷運「Mapbox 點位」／「實際範圍（光暈示意）」兩種模式（2026-09-28 使用者） | #393；見 §3.1 P-7 |
 | **P-8** | hook 依資料半徑的點改泡泡 | 11 層改 B，保留依資料半徑、只統一描邊（2026-09-29 使用者） | #396；名單見 §3.1 |
 | **P-9** | 資料編碼描邊 | 描邊依資料屬性變化時保留，圖例要寫出外框的意思 | #396、#398；例外表見 §3.1 P-2 |
+| **V-1–V-7** | 全國視角可見性（§3.8） | 同意（2026-10-31）：熱區預設依主題（取代 G-2 一律 magma）、所有面圖層做點／面切換（區劃面除外）、V-3 提示卡選示意「甲」（spec §5.42.1） | 點名色盤：英國公園綠地 viridis、運動場地 PuBuGn、宗教場所 batlow、長照服務與照護之家 PuBuGn、棕地登記冊 bilbao |
 
 ---
 

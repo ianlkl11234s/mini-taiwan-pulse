@@ -3,6 +3,7 @@
 // 各 layer 的 panel 元件在 src/components/featureInfo/*Panels.tsx（按 domain 分檔），
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
+import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
 import { COLORS, SURFACE, LIGHT, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -27,9 +28,14 @@ import "./featureInfo/featureInfo.css";
 //   source_name/source_date/retrieved_at，不是中央版讀的 source_org/license/fetched_at），
 //   兩種 schema 對不上，中央版一樣會誤判成「無來源」。
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
+  // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
+  ...KR_DATA_KEYS,
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
+  // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
+  "fireHydrant",
+  "trafficAccidents2025",
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   // 區域統計：feature 只帶 R2 來源紀錄的 publisher／license／source_url（不是中央版讀的 source_org），
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
@@ -54,11 +60,27 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "jpExpressways",
   // 英國第 0b 波：panel 自掛四地各自的署名與授權
   "gbAdminBoundaries",
+  // 南韓第 0 波：panel 自掛 SGIS／admdongkor 署名
+  "krAdminBoundaries",
+  "krBusStops",
+  "krRailStations",
+  "krAirports",
+  "krPorts",
+  "krNationalRoads",
+  "krRailLines",
+  "krFuelStations",
+  "krPowerPlants",
+  "krRenewables",
+  "krPowerLines",
+  "krSubstations",
+  "krPowerTowers",
+  "krOilGas",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
   "gbBuiltUpAreas",
   "gbGreenspace",
   "gbSportsFacilities",
+  "gbGolfCourses",
   "gbCemeteries",
   "gbRivers",
   "gbHydroStations",

@@ -176,13 +176,27 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpAdminBoundaries/jp-admin-municipality-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "jpAdminPrefecture/jp-admin-prefecture-line": {"width": "standard", "opacity": "reference"}, // src/hooks/useJpAdminLayers.ts
   "gbAdminBoundaries/gb-admin-lad-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：LAD 比照縣市 · src/hooks/useGbAdminLayers.ts
+  "krAdminBoundaries/kr-admin-sido-line": {"width": "emphasis", "opacity": "standard"}, // L-5 行政界：시·도比照縣市 · src/hooks/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
+  "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
+  "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
+  "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
+  "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
+  "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
+  "krPowerLines/kr-power-cables-line": {"width": "keep", "opacity": "keep"}, // 地下／海底電纜虛線，依電壓 · src/hooks/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 油氣設施外框（依類型色）· src/hooks/useKrEnergyLayers.ts
+  "krOilGas/kr-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // 油氣管線（依 substance）· src/hooks/useKrEnergyLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
+  "gbSmallAreaBoundaries/gb-ni-sdz-low-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
   "gbMaritimeLimits/gb-maritime-limits-line": {"width": "keep", "opacity": "standard"}, // L-5 海域界：寬依界線類型（L-1 三階 match）· src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-dashed": {"width": "keep", "opacity": "standard"}, // L-2 [4,3]：大陸棚、四地分區 · src/hooks/useGbMaritimeLimitsLayer.ts
   "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
   "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/hooks/useGbWaterLayers.ts
   "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/hooks/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/hooks/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/hooks/useGbWaterLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/hooks/useGbWaterLayers.ts
   "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/hooks/useGbTransportLayers.ts
   "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
@@ -220,6 +234,7 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "jpRailways/jp-railways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpRailwaysLayer.ts
   "jpExpressways/jp-expressways-line": {"width": "emphasis", "opacity": "standard"}, // src/hooks/useJpExpresswaysLayer.ts
   "jpMajorRoads/jp-major-roads-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
+  "jpMajorRoads/jp-major-roads-z5-line": {"width": "standard", "opacity": "standard"}, // 線寬依 road_class_code 資料編碼（L-5 三階）· src/hooks/useJpMajorRoadsLayer.ts
   "jpWaterLakes/jp-water-jpWaterLakes-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterSupplyAreas/jp-water-jpWaterSupplyAreas-outline": {"width": "keep", "opacity": "keep", "outline": "background"}, // src/hooks/useJpWaterLayers.ts
   "jpWaterRivers/jp-water-jpWaterRivers": {"width": "standard", "opacity": "standard"}, // src/hooks/useJpWaterLayers.ts
@@ -251,6 +266,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "agriRuralRegen/agri-rural-regen-fill": "coverage", // src/map/agricultureLayerFactory.ts
   "agriSoil/agri-soil-fill": "coverage", // src/map/agricultureLayerFactory.ts
   "agriSoilFertility/agri-soil-fertility-fill": "graded", // src/map/agricultureLayerFactory.ts
+  "agriSoilFertility/agri-soil-fertility-z7-fill": "graded", // z7 小檔 · src/map/agricultureLayerFactory.ts
   "agriculture/agri-ftw-fields-fill": "keep", // src/map/agricultureLayerFactory.ts
   "allenCoralAtlas/allen-coral-atlas-benthic-fill": "coverage", // src/hooks/useAllenCoralAtlasLayer.ts
   "allenCoralAtlas/allen-coral-atlas-geomorphic-fill": "coverage", // src/hooks/useAllenCoralAtlasLayer.ts
@@ -286,9 +302,12 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCarePlanning/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
+  "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
+  "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
+  "gbGolfCourses/gb-greenspace-golf-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCemeteries/gb-greenspace-burial-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-fill": "coverage", // src/hooks/useGbWaterLayers.ts
   "gbPlanningConstraints/gb-planning-constraints-fill": "keep", // 透明度：綠帶淡化（資料編碼）· src/hooks/useGbEnvPlanningLayers.ts
@@ -301,6 +320,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
   "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/hooks/useGbNatureLayers.ts
   "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/hooks/useGbEnergyLayers.ts
   "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts

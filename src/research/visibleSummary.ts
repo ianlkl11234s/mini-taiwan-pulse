@@ -82,7 +82,7 @@ function manifestSources(layerKey: string): LayerSource[] | null {
  * (`${sourceId}-${suffix}`, each with its own config.filter). Resolve a key's own style-layer ids from
  * the overlay registry so one sibling's summary never absorbs another's features.
  */
-function registryStyleLayerIds(layerKey: string): ReadonlySet<string> | null {
+export function registryStyleLayerIds(layerKey: string): ReadonlySet<string> | null {
   const ids = new Set<string>();
   for (const config of OVERLAY_REGISTRY) {
     if (config.id !== layerKey) continue;

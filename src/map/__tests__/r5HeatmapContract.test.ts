@@ -33,7 +33,7 @@ describe("R5 密集點熱區（P-3／P-4／G-2）", () => {
     expect(heat.maxzoom).toBeCloseTo(12.01);
     for (const l of config.layers.filter((l) => l.type === "circle")) expect(l.minzoom).toBe(12);
     const def = Number(paramDefault("fireHydrants", "fireHydrantsOpacity"));
-    expect(def).toBe(densePointOpacity(69_839));
+    expect(def).toBe(densePointOpacity(211_530)); // G36：併入台水後 211,530 點
     expect(heat.paint(true, { fireHydrantsOpacity: def })["heatmap-opacity"]).toBeCloseTo(HEATMAP.opacity);
     expect(heat.paint(true, { fireHydrantsOpacity: def / 2 })["heatmap-opacity"]).toBeCloseTo(HEATMAP.opacity / 2);
   });
@@ -72,6 +72,12 @@ const REGISTRY_DENSE: readonly (readonly [string, number, number, string | null]
   ["bicycleSupport", 11_989, 0, "bicycleSupportOpacity"],
   ["commonRegistrationAddresses", 11_121, 6, "commonRegistrationAddressesOpacity"],
   ["riversideTreesTaipei", 10_917, 0, "riversideTreesTaipeiOpacity"],
+  // §3.8 V-1（2026-10-31）：台灣 v2 重切檔 z7 起，≥ 1 萬點的低縮放畫熱區
+  ["civilDefenseShelter", 62_695, 7, "civilDefenseShelterOpacity"],
+  ["eduCramSchool", 17_137, 7, "eduCramSchoolOpacity"],
+  ["provincialRoadMileposts", 30_098, 7, "provincialRoadMilepostsOpacity"],
+  ["freewayTrafficSigns", 51_405, 7, "freewayTrafficSignsOpacity"],
+  ["placeNames", 36_431, 7, "placeNamesOpacity"],
 ];
 
 /** 共用滑桿：一般／移動／重大裁處同一支 pollutionPenaltyOpacity，取多數層（> 100k）的 0.6。 */
@@ -126,20 +132,6 @@ describe("R5 registry 密集點全面套用", () => {
     expect(weight("streetTreesNational", { streetTreesNationalCityMask: 1 })).toContain("city");
     expect(weight("riversideTreesTaipei", { riversideTreesTaipeiParkMask: 1 })).toContain("park_name");
   });
-
-  it("civilDefenseShelter 不套熱區：PMTiles minzoom 10，z<10 沒有 tile 可畫", () => {
-    const config = OVERLAY_REGISTRY.find((c) => c.id === "civilDefenseShelter")!;
-    expect(config.pmtiles?.minzoom).toBe(10);
-    expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
-  });
-
-  it("eduCramSchool 不套熱區：切片 minzoom 8 且低縮放大量抽稀，點維持 z8 起畫", () => {
-    const config = OVERLAY_REGISTRY.find((c) => c.id === "eduCramSchool")!;
-    expect(config.pmtiles?.minzoom).toBe(8);
-    expect(config.layers.some((l) => l.type === "heatmap")).toBe(false);
-    for (const l of config.layers.filter((l) => l.type === "circle")) expect(l.minzoom).toBeUndefined();
-    expect(Number(paramDefault("eduCramSchool", "eduCramSchoolOpacity"))).toBe(densePointOpacity(17_137));
-  });
 });
 
 // hook 自畫的密集點：各 hook 自己的單元測試驗 layer 細節；這裡用原始碼掃描守住接線不被拿掉。
@@ -168,10 +160,21 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["gbBrownfield", "useGbEnvPlanningLayers.ts", 30_303],
   ["gbRecyclingCentres", "useGbEnvPlanningLayers.ts", 12_959], // 熱區只算回收桶 11,412 點，回收中心維持畫點
   ["gbLandslide", "useGbHazardLayers.ts", 18_699],
-  // 綠地三層：細節是面（z9／z10 起），熱區用 representative_point 檔補在面出現前；運動場地熱區不含高爾夫球場（另畫點）
-  ["gbGreenspace", "useGbOpenSpaceLayers.ts", 80_918],
-  ["gbSportsFacilities", "useGbOpenSpaceLayers.ts", 54_852],
-  ["gbCemeteries", "useGbOpenSpaceLayers.ts", 30_208],
+  // 綠地三層：細節是面（z9／z10 起）或代表點（§3.8 V-5 點／面切換），熱區用 representative_point 檔；
+  // 熱區由 useGbWaterLayers 的共用 useGbRepPointLayers 建（2026-10-31）；運動場地不含高爾夫球場（獨立圖層 gbGolfCourses，< 1 萬點不畫熱區）
+  ["gbGreenspace", "useGbWaterLayers.ts", 80_918],
+  ["gbSportsFacilities", "useGbWaterLayers.ts", 51_872],
+  ["gbCemeteries", "useGbWaterLayers.ts", 30_208],
+  // 南韓（2026-10-31 V-1 全國視角可見性）：橋梁／停車場 z10 起畫點（使用者拍板）；其餘為使用者點名 <1 萬或既有 minzoom 較高者
+  ["krBusStops", "useKrTransportLayers.ts", 227_059],
+  ["krFuelStations", "useKrEnergyLayers.ts", 7_106],
+  ["krPublicBicycleStations", "useKrDataLayers.ts", 4_236],
+  ["krCoastalErosionFacilities", "useKrDataLayers.ts", 1_982],
+  ["krBridges", "useKrDataLayers.ts", 35_575],
+  ["krParkingLots", "useKrDataLayers.ts", 17_699],
+  ["krSpeedCameras", "useKrDataLayers.ts", 43_743],
+  ["krChildProtectionZones", "useKrDataLayers.ts", 14_639],
+  ["krStreetTrees", "useKrDataLayers.ts", 1_043_931], // 低縮放熱區用 kr_street_trees_density 格網（weight＝count），z13 起單棵
 ];
 const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */
@@ -198,6 +201,19 @@ describe("R5 hook 熱區豁免", () => {
     expect(block).toContain("gbCapacityRadiusExpr(");
     expect(block).toMatch(/"source-layer": "gb_renewables", minzoom: 5,/);
     expect(paramsSpecHasHeatmap("gbRenewables")).toBe(false);
+  });
+});
+
+describe("R5 南韓熱區出點縮放", () => {
+  it("橋梁、停車場：熱區在 z<10、z10 起畫點（使用者 2026-10-31 拍板）", () => {
+    expect(densePointsFromZoom(35_575, 0)).toBe(10);
+    expect(densePointsFromZoom(17_699, 0)).toBe(10);
+  });
+  it("krRenewables 不套熱區：太陽能陣列 90% 但容量差距大，熱區只反映案件數；改 z4 起畫大型點、z8 起補太陽能", () => {
+    const src = fs.readFileSync(path.resolve(__dirname, "../../hooks/useKrEnergyLayers.ts"), "utf8");
+    const block = src.slice(src.indexOf("export function useKrRenewablesLayer"), src.indexOf("// ─────────────────────────── 電網"));
+    expect(block).not.toMatch(/heatmap/i);
+    expect(paramsSpecHasHeatmap("krRenewables")).toBe(false);
   });
 });
 

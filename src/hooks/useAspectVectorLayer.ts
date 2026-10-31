@@ -4,6 +4,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { hookFillOpacity, hookFillPaint } from "../map/lineFillSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 
 /**
  * 坡向分級（8 方位 + 平地）靜態向量圖層 — aspect_vector.pmtiles polygon。
@@ -50,16 +51,26 @@ function applyOpacity(map: MapboxMap, opacity: number) {
   }
 }
 
+/** V-4 類別篩選（aspect_class）：全選＝不加 filter */
+function applyCategoryFilter(map: MapboxMap, catMask?: number) {
+  if (!map.getLayer(FILL_LAYER)) return;
+  const f = hookCategoryFilter("aspectVector", catMask === undefined ? undefined : { aspectVectorCatMask: catMask });
+  map.setFilter(FILL_LAYER, (f ?? null) as mapboxgl.FilterSpecification | null);
+}
+
 export function useAspectVectorLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
   styleId: string,
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  const catMaskRef = useRef(catMask);
+  catMaskRef.current = catMask;
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +111,7 @@ export function useAspectVectorLayer(
         });
       }
       applyOpacity(map, opacityRef.current);
+      applyCategoryFilter(map, catMaskRef.current);
       setVis(map, FILL_LAYER, true);
       return true;
     };
@@ -149,4 +161,10 @@ export function useAspectVectorLayer(
     if (!map || !visible || !safeIsStyleLoaded(map)) return;
     applyOpacity(map, opacity);
   }, [mapRef, visible, opacity, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !safeIsStyleLoaded(map)) return;
+    applyCategoryFilter(map, catMask);
+  }, [mapRef, visible, catMask, mapTick]);
 }

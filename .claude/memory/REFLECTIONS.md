@@ -2231,3 +2231,25 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `BACKLOG.md`：TWL-1～7（#745）。
 - `STATUS.md`：加 10-29 段。
+
+## 2026-10-30 英國驗收小修、全英低縮放可見 → v2.18.0
+
+### What worked
+
+- 先開本機測試站讓三個 agent 掃完 62 層，再一次修 3 個瑕疵，使用者看完才進下一步；popup 驗收另派 agent 抓到 2 個舊瑕疵（狀態大小寫重複、OSM `yes`）。
+- 面資料要在全英看得到，改出「代表點 PMTiles＋熱區、放大由面接手」（#763），比另開點層或登記設計例外簡單，也符合 R5；UKLZ-1 可直接沿用。
+- 發版前查 develop 對 master 的差異，確認 v2.17.0 用 cherry-pick 發布後，剩下只有英國範圍，才放心整包發。
+
+### Friction / limits
+
+- 上傳腳本整支跑會重傳台灣舊檔，改成只對 14 支英國檔跑同一套 SHA 守門。
+- 正式站部署後大檔 404 約 6 分鐘才轉 206（S3 同步），不要誤判缺檔。
+- 日文主題名用「譯名＝原名」判斷缺翻譯，遇到中日同字（交通、教育）會誤退回英文；改用有無翻譯 key 判斷（#766）。
+- zsh 迴圈 `set -- $xy` 不拆字，座標點擊要包進 `bash -c`。
+- tag 註解一度寫錯圖層數（約 70，實為 62），發現後當下改正並重推 tag。
+
+### Memory output
+
+- `STATUS.md`：加 10-30 v2.18.0 段。
+- `BACKLOG.md`：更新 UKLZ-1／UKLZ-2，新增 UKLZ-3、UKD-1、UKOSM-1、UKREL-1。
+

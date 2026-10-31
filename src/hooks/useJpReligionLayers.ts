@@ -7,6 +7,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -121,6 +122,7 @@ function usePmtilesLayer(
   scale: number,
   isDarkTheme: boolean,
   config: PmtilesLayerConfig,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const heatStyle = useHeatmapStyleSignature(config.heatmap ? [config.heatmap.paletteKey] : NO_KEYS);
@@ -172,6 +174,10 @@ function usePmtilesLayer(
           heatmap?.pointsFromZoom,
         ));
       }
+      // V-4 類別篩選（religion）：全選回 null＝清除 filter
+      const catFilter = hookCategoryFilter(heatmap?.paletteKey ?? "", { [`${heatmap?.paletteKey}CatMask`]: catMask as number });
+      if (heatmap && map.getLayer(heatmap.layerId)) map.setFilter(heatmap.layerId, (catFilter ?? null) as never);
+      if (map.getLayer(layerId)) map.setFilter(layerId, (catFilter ?? null) as never);
       if (map.getLayer(layerId)) {
         map.setLayoutProperty(layerId, "visibility", "visible");
         map.setPaintProperty(layerId, "circle-opacity", clampOpacity(opacity));
@@ -188,7 +194,7 @@ function usePmtilesLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, heatmap, heatStyle]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, sourceId, sourceLayer, layerId, file, opacityDefault, heatmap, heatStyle, catMask]);
 }
 
 const GSI_CONFIG: PmtilesLayerConfig = {
@@ -228,6 +234,7 @@ function useGeoJsonLayer(
   scale: number,
   config: GeoJsonLayerConfig,
   isDarkTheme: boolean,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const heatStyle = useHeatmapStyleSignature(config.heatmap ? [config.heatmap.paletteKey] : NO_KEYS);
@@ -290,6 +297,10 @@ function useGeoJsonLayer(
           heatmap?.pointsFromZoom,
         ));
       }
+      const catKey = config.heatmap?.paletteKey ?? "";
+      const catFilter = hookCategoryFilter(catKey, { [`${catKey}CatMask`]: catMask as number });
+      if (heatmap && map.getLayer(heatmap.layerId)) map.setFilter(heatmap.layerId, (catFilter ?? null) as never);
+      if (map.getLayer(config.layerId)) map.setFilter(config.layerId, (catFilter ?? null) as never);
       if (map.getLayer(config.layerId)) {
         map.setLayoutProperty(config.layerId, "visibility", "visible");
         map.setPaintProperty(config.layerId, "circle-opacity", clampOpacity(opacity));
@@ -319,6 +330,7 @@ function useGeoJsonLayer(
     config.heatmap,
     heatStyle,
     isDarkTheme,
+    catMask,
   ]);
 }
 
@@ -356,9 +368,11 @@ export function useJpReligionLayers(
   opacity: JpReligionLayerOpacity,
   scale: JpReligionLayerScale,
   isDarkTheme = true,
+  /** V-4 類別篩選 bitmask（religion） */
+  catMask: Partial<JpReligionLayerScale> = {},
 ) {
-  usePmtilesLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme, GSI_CONFIG);
-  usePmtilesLayer(mapRef, visibility.jpReligionOsm, opacity.jpReligionOsm, scale.jpReligionOsm, isDarkTheme, OSM_CONFIG);
+  usePmtilesLayer(mapRef, visibility.jpReligionGsi, opacity.jpReligionGsi, scale.jpReligionGsi, isDarkTheme, GSI_CONFIG, catMask.jpReligionGsi);
+  usePmtilesLayer(mapRef, visibility.jpReligionOsm, opacity.jpReligionOsm, scale.jpReligionOsm, isDarkTheme, OSM_CONFIG, catMask.jpReligionOsm);
   useGeoJsonLayer(
     mapRef,
     visibility.jpReligionWikidata,
@@ -366,5 +380,6 @@ export function useJpReligionLayers(
     scale.jpReligionWikidata,
     WIKIDATA_CONFIG,
     isDarkTheme,
+    catMask.jpReligionWikidata,
   );
 }

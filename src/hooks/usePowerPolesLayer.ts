@@ -5,6 +5,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { HOOK_POINT_TIERS } from "../map/pointTiers";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -74,6 +75,7 @@ export function usePowerPolesLayer(
   size: number,
   heatStrength: number,
   z5Reveal: number,
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -167,6 +169,8 @@ export function usePowerPolesLayer(
       }
 
       // Circle layer — z11+ 看個體，z11 開始淡入
+      // V-4 桿型類別篩選（只套在 z11+ 個別電桿；低 zoom 的熱度圖是 cluster 密度，無 pole_type）
+      const catFilter = hookCategoryFilter("powerPoles", { powerPolesCatMask: catMask as number }) as mapboxgl.FilterSpecification | null;
       const pointPaint = powerPolePointPaint(isDark, opacity, size);
       if (!map.getLayer(CIRCLE_ID)) {
         map.addLayer({
@@ -175,6 +179,7 @@ export function usePowerPolesLayer(
           source: SOURCE_ID,
           "source-layer": SOURCE_LAYER,
           minzoom: 11,
+          ...(catFilter ? { filter: catFilter } : {}),
           paint: {
             "circle-color": POLE_TYPE_COLOR_EXPR,
             "circle-radius": pointPaint["circle-radius"],
@@ -191,6 +196,7 @@ export function usePowerPolesLayer(
           },
         });
       } else {
+        map.setFilter(CIRCLE_ID, catFilter);
         map.setPaintProperty(CIRCLE_ID, "circle-opacity", [
           "interpolate", ["linear"], ["zoom"],
           11, 0, 12, opacity * 0.5, 13, opacity,
@@ -216,5 +222,5 @@ export function usePowerPolesLayer(
         if (map.getLayer(CIRCLE_ID)) map.setLayoutProperty(CIRCLE_ID, "visibility", "none");
       } catch { /* map 可能已銷毀 */ }
     };
-  }, [mapRef, visible, isDark, opacity, size, heatStrength, z5Reveal, mapTick]);
+  }, [mapRef, visible, isDark, opacity, size, heatStrength, z5Reveal, catMask, mapTick]);
 }

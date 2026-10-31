@@ -22,9 +22,17 @@ export const GB_SMALL_AREA_FILL_LAYER_ID = "gb-small-areas-fill";
 export const GB_SMALL_AREA_LINE_LAYER_ID = "gb-small-areas-line";
 export const GB_NI_SDZ_FILL_LAYER_ID = "gb-ni-sdz-fill";
 export const GB_NI_SDZ_LINE_LAYER_ID = "gb-ni-sdz-line";
+/** 統計小區低縮放段（z5–7，另一支 PMTiles；§3.8 V-1 全英視角看得到，z8 起交給原檔） */
+export const GB_SMALL_AREA_LOW_FILL_LAYER_ID = "gb-small-areas-low-fill";
+export const GB_SMALL_AREA_LOW_LINE_LAYER_ID = "gb-small-areas-low-line";
+export const GB_NI_SDZ_LOW_FILL_LAYER_ID = "gb-ni-sdz-low-fill";
+export const GB_NI_SDZ_LOW_LINE_LAYER_ID = "gb-ni-sdz-low-line";
 
 const LAD_SOURCE_ID = "gb-admin-lad";
 const SMALL_AREA_SOURCE_ID = "gb-admin-small-areas";
+const SMALL_AREA_LOW_SOURCE_ID = "gb-admin-small-areas-z5-7";
+/** 原檔（z8–13）接手的縮放；低縮放段子圖層 maxzoom 設這裡，避免 z7 圖磚 overzoom 到 z8 以上與原檔疊畫 */
+const SMALL_AREA_FULL_MINZOOM = 8;
 
 const LINE_WIDTH = 1;
 
@@ -33,6 +41,8 @@ interface SubLayer {
   lineId: string;
   sourceLayer: string;
   minzoom: number;
+  /** 子圖層 maxzoom（低縮放段用；未設＝不限） */
+  maxzoom?: number;
   /** 依北愛層級（0＝DZ、1＝SDZ）決定是否顯示、要套的 filter */
   visibleFor: (niLevel: number) => boolean;
   filter: (niLevel: number) => FilterSpecification | null;
@@ -56,7 +66,8 @@ const LAD_CONFIG: GbAdminConfig = {
   maxzoom: 12,
   color: GB_ADMIN_LAD_COLOR,
   subLayers: [{
-    fillId: GB_LAD_FILL_LAYER_ID, lineId: GB_LAD_LINE_LAYER_ID, sourceLayer: "gb_admin_lad", minzoom: 4,
+    // §3.8 V-2：圖磚 z2 起，圖層跟著 z2 起畫（原 z4）
+    fillId: GB_LAD_FILL_LAYER_ID, lineId: GB_LAD_LINE_LAYER_ID, sourceLayer: "gb_admin_lad", minzoom: 2,
     visibleFor: () => true, filter: () => null,
   }],
 };
@@ -80,6 +91,26 @@ const SMALL_AREA_CONFIG: GbAdminConfig = {
       visibleFor: (niLevel) => niLevel === 1, filter: () => null,
     },
   ],
+};
+
+/**
+ * 統計小區 z5–7 低縮放段（`gb_admin_small_areas_z5_7.pmtiles`，analytics retile_visibility.py 另切、coalesce 過）：
+ * 同樣兩個 tile layer、同樣的北愛層級規則，子圖層 maxzoom 8 交棒給原檔。
+ */
+const SMALL_AREA_LOW_CONFIG: GbAdminConfig = {
+  key: "gbSmallAreaBoundaries",
+  sourceId: SMALL_AREA_LOW_SOURCE_ID,
+  file: "gb_admin_small_areas_z5_7.pmtiles",
+  minzoom: 5,
+  maxzoom: 7,
+  color: GB_SMALL_AREA_COLOR,
+  subLayers: SMALL_AREA_CONFIG.subLayers.map((sub) => ({
+    ...sub,
+    fillId: sub.fillId === GB_SMALL_AREA_FILL_LAYER_ID ? GB_SMALL_AREA_LOW_FILL_LAYER_ID : GB_NI_SDZ_LOW_FILL_LAYER_ID,
+    lineId: sub.lineId === GB_SMALL_AREA_LINE_LAYER_ID ? GB_SMALL_AREA_LOW_LINE_LAYER_ID : GB_NI_SDZ_LOW_LINE_LAYER_ID,
+    minzoom: 5,
+    maxzoom: SMALL_AREA_FULL_MINZOOM,
+  })),
 };
 
 const opacityDefault = (key: GbAdminKey) => Number(paramDefault(key, `${key}Opacity`) ?? 0.85);
@@ -141,6 +172,7 @@ function useGbAdminLayer(
         if (!map.getLayer(sub.fillId)) {
           map.addLayer({
             id: sub.fillId, type: "fill", source: config.sourceId, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
+            ...(sub.maxzoom !== undefined ? { maxzoom: sub.maxzoom } : {}),
             layout: { visibility: "none" },
             // 面透明度 0：只當點擊熱區（map-layers §2.4 行政界）
             paint: { "fill-color": config.color, "fill-opacity": 0 },
@@ -149,6 +181,7 @@ function useGbAdminLayer(
         if (!map.getLayer(sub.lineId)) {
           map.addLayer({
             id: sub.lineId, type: "line", source: config.sourceId, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
+            ...(sub.maxzoom !== undefined ? { maxzoom: sub.maxzoom } : {}),
             layout: { visibility: "none", ...hookLineLayout(config.key, sub.lineId) },
             paint: linePaint(config.key, sub.lineId, isDarkTheme, opacity),
           } as LineLayer);
@@ -183,5 +216,6 @@ export function useGbAdminLayers(
   isDarkTheme = true,
 ) {
   useGbAdminLayer(mapRef, lad.visible, lad.opacity, 0, LAD_CONFIG, isDarkTheme);
+  useGbAdminLayer(mapRef, smallAreas.visible, smallAreas.opacity, smallAreas.niLevel, SMALL_AREA_LOW_CONFIG, isDarkTheme);
   useGbAdminLayer(mapRef, smallAreas.visible, smallAreas.opacity, smallAreas.niLevel, SMALL_AREA_CONFIG, isDarkTheme);
 }

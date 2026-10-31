@@ -49,10 +49,15 @@ describe("圖層來源收集（不漏顯名）", () => {
   it("每個有 attribution 的 OverlayConfig 開啟時都被收集到，且解析後每個片段都在清單內", () => {
     const missing: string[] = [];
     for (const config of WITH_ATTRIBUTION) {
-      const map = stubMap();
-      addOverlay(map, config, true, {});
-      setOverlayVisible(map, config, true, true, {});
-      const collected = collectLayerAttributions(readMapSourceViews(map));
+      // §3.8 V-5：點／面切換的圖層，只有目前樣式的那個 config 會顯示 → 兩種樣式各試一次
+      const collectedFor = (params: Record<string, number>) => {
+        const m = stubMap();
+        addOverlay(m, config, true, params);
+        setOverlayVisible(m, config, true, true, params);
+        return collectLayerAttributions(readMapSourceViews(m));
+      };
+      const collected = [{}, { [`${config.id}DisplayModeIdx`]: 0 }, { [`${config.id}DisplayModeIdx`]: 1 }]
+        .map(collectedFor).find((c) => c.includes(config.attribution!.trim())) ?? [];
       if (!collected.includes(config.attribution!.trim())) {
         missing.push(`${config.id}: not collected`);
         continue;

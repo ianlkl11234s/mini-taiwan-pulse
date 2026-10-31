@@ -1,6 +1,9 @@
 {
   "legend.atlas.flag": "座標が通報の県市と不一致（誤りの疑い）",
   "legend.atlas.otherMultiEthnic": "その他・複数民族",
+  "legend.atlas.indigenousRegion": "原住民族地域（郷鎮市区）",
+  "legend.atlas.titleVisitorStats": "2024 年通年の観光客数",
+  "legend.atlas.visitorIncomplete": "2024 年のデータが 12 か月未満",
   "legend.atlas.notApprovedList": "現行の認定リスト外",
   "legend.atlas.otherSource": "その他の情報源",
   "legend.atlas.unidentified": "識別不能",
@@ -24,5 +27,7 @@
   "legend.atlas.setNetArea": "定置漁業権の範囲",
   "legend.atlas.seawallZone": "一般海岸堤防区域",
   "legend.atlas.sugarMill": "製糖工場の拠点",
-  "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）"
+  "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）",
+  "legend.atlas.toxicSite": "毒性化学物質の取扱事業場（住所の点）",
+  "legend.atlas.otherAccidentType": "その他の種類"
 }

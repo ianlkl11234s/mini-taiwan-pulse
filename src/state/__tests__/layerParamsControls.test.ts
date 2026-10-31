@@ -46,7 +46,7 @@ describe("buildParamControls", () => {
   });
 
   it("可並存分類預設全開，並以穩定 bitmask 傳給 renderer", () => {
-    const river = (buildParamControls("riversideTreesTaipei") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
+    const river = (buildParamControls("riversideTreesTaipei") ?? [])[1] as import("../layerParamsControls").MultiSelectConfig;
     expect(river).toMatchObject({ type: "multiSelect", label: "河濱公園" });
     expect(river.value).toHaveLength(30);
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["riversideTreesTaipeiParkMask"])
@@ -82,7 +82,7 @@ describe("buildParamControls", () => {
   });
 
   it("slider 不帶 type 欄位 —— 多一個 type:'slider' 黃金快照就紅", () => {
-    const list = buildParamControls("cemeteryOsm") ?? [];
+    const list = buildParamControls("jpMedicalAreasPrimary") ?? [];
     expect(list).toHaveLength(1);
     expect(Object.keys(list[0] as object).sort())
       .toEqual(["label", "max", "min", "name", "onChange", "step", "value", "valueText"]);
@@ -93,7 +93,7 @@ describe("buildParamControls", () => {
     const opacity = (buildParamControls("religionTemples") ?? [])[3] as SliderConfig;
     expect(opacity).toMatchObject({ name: "透明度", valueText: "0.75" });
 
-    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    const z = (buildParamControls("cctv") ?? [])[3] as SliderConfig;
     expect(z).toMatchObject({ name: "漂浮高度", valueText: "0 px" });
 
     const shuttle = buildParamControls("touristShuttleLive") ?? [];
@@ -173,7 +173,7 @@ describe("buildParamControls", () => {
   // ── P3-2B 補：prepend 型 select 在**非預設值**下的 idx ─────────────
   // 預設值下 idx 恆為 0，黃金快照驗不到「["all", ...] 整體位移 1」抄錯的情形。
   it("prepend 型 select 換到非預設值時 idx 有位移", () => {
-    const sel = (buildParamControls("mountainRescueIncidents") ?? [])[0] as SelectConfig;
+    const sel = (buildParamControls("mountainRescueIncidents") ?? [])[1] as SelectConfig;
     expect(sel.value).toBe("all");
     sel.onChange("2021");
     // encode = ["all", 2019, 2020, 2021, …] → "2021" 是第 3 位
@@ -184,17 +184,17 @@ describe("buildParamControls", () => {
   // 快照凍結的是預設值那一格（`保留 10 min` / `Z 漂浮 0px`），驗不到
   // 「`digits: 0` 是不是真的等於原文的 `${x}`（無 toFixed）」。
   it("labelSuffix 與整數內插：拖到非預設值時字串仍逐字相同", () => {
-    const min = (buildParamControls("lightning") ?? [])[0] as SliderConfig;
+    const min = (buildParamControls("lightning") ?? [])[1] as SliderConfig;
     expect(min.label).toBe("保留 10 min");
     min.onChange(45);
-    expect((buildParamControls("lightning") ?? [])[0]).toMatchObject({ label: "保留 45 min" });
+    expect((buildParamControls("lightning") ?? [])[1]).toMatchObject({ label: "保留 45 min" });
     // overlayParams 拿到的是原值（不是字串、也沒有被 toFixed 影響）
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["lightningMinutes"]).toBe(45);
 
-    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    const z = (buildParamControls("cctv") ?? [])[3] as SliderConfig;
     expect(z.label).toBe("漂浮高度 0px");
     z.onChange(24);
-    expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "漂浮高度 24px", valueText: "24 px" });
+    expect((buildParamControls("cctv") ?? [])[3]).toMatchObject({ label: "漂浮高度 24px", valueText: "24 px" });
   });
 
   // ── P3-2C 補：encodeNumeric 在**非預設值**下才與索引編碼分岔 ──────
@@ -308,12 +308,12 @@ describe("buildParamControls", () => {
 
   // ── P3-2B 補：共用 slot 的端對端行為（面板 A 拖動，面板 B 跟著動）──
   it("共用 slot：一個 key 的 onChange 會同步到同群其他 key 的控件與 overlayParams", () => {
-    const a = (buildParamControls("eduKindergarten") ?? [])[0] as SliderConfig;
+    const a = (buildParamControls("eduKindergarten") ?? [])[1] as SliderConfig;
     expect(a.label).toBe("透明度 0.85");
     a.onChange(0.4);
 
     for (const key of ["eduKindergarten", "eduAfterschoolCare", "eduMutualCare"]) {
-      const ctl = (buildParamControls(key) ?? [])[0] as SliderConfig;
+      const ctl = (buildParamControls(key) ?? [])[key === "eduKindergarten" ? 1 : 0] as SliderConfig; // kindergarten 前面多一個類別多選
       expect(ctl.value, `${key} 的面板沒跟著動`).toBe(0.4);
       expect(ctl.label).toBe("透明度 0.40");
     }

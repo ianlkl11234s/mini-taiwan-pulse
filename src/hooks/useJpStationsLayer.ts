@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "mapbox-gl";
 import { fetchJpStations } from "../data/jpStationsLoader";
 import { JP_STATION_TYPE_COLOR_EXPRESSION, JP_STATION_PAX_COLOR_EXPRESSION } from "../data/jpStationTypes";
@@ -42,6 +43,7 @@ export function useJpStationsLayer(
   scale: number,
   colorMode: "type" | "ridership",
   isDarkTheme = true,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -79,6 +81,7 @@ export function useJpStationsLayer(
         map.addLayer(circleLayer(pointRadius("M", scale), opacity, colorMode, isDark));
       }
       if (map.getLayer(LAYER_ID)) {
+        map.setFilter(LAYER_ID, (hookCategoryFilter("jpStations", { jpStationsCatMask: catMask as number }) ?? null) as never);
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
@@ -91,5 +94,5 @@ export function useJpStationsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, colorMode, isDarkTheme, mapTick, dataTick]);
+  }, [mapRef, visible, opacity, scale, colorMode, isDarkTheme, mapTick, dataTick, catMask]);
 }

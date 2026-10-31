@@ -163,8 +163,8 @@ export const GB_TRAIL_CATEGORIES: readonly GbTrailCategoryDef[] = [
   { value: "other", color: "#94a3b8", raw: ["Wild Trails", "Miscellaneous Routes", "Forest Drives"] },
 ];
 export const GB_TRAIL_UNCLASSIFIED_COLOR = "#facc15";
-export const GB_NATIONAL_TRAIL_MINZOOM = 6;
-export const GB_FOREST_ROUTE_MINZOOM = 10;
+export const GB_NATIONAL_TRAIL_MINZOOM = 4; // §3.8 V-2：gb_trails_v2 圖磚 z4 起
+export const GB_FOREST_ROUTE_MINZOOM = 4; // §3.8 V-2：gb_trails_v2 圖磚 z4 起（原 z6／z10）
 /** `status` 這幾種要在 popup 標出（非官方或暫時）。 */
 export const GB_TRAIL_FLAG_STATUSES: readonly string[] = ["Permanent - Unofficial", "Seasonal - Unofficial", "Temporary"];
 

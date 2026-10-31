@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -209,9 +210,12 @@ def layer(key: str, theme: str, dataset: str, out: str, **opts):
     return deco
 
 
-def load(src: Path, theme: str, dataset: str, name: str | None = None) -> tuple[dict, list[dict]]:
+def load(src: Path, theme: str, dataset: str, name: str | None = None, manifest: dict | None = None) -> tuple[dict, list[dict]]:
+    """manifest：上游 _manifest.json 沒有 provenance 的舊格式 dataset（例：environment/fishery_rights）由圖層定義補上。"""
     d = src / theme / dataset
     m = json.loads((d / "_manifest.json").read_text(encoding="utf-8"))
+    if manifest and "provenance" not in m:
+        m = {**m, **manifest}
     files = [name] if name else sorted(p.name for p in d.glob("*.geojson"))
     if len(files) != 1:
         raise SystemExit(f"{theme}/{dataset}: 找不到唯一 GeoJSON（{files}）")
@@ -1158,13 +1162,159 @@ def build_post_office_fx_counters(m, feats):
     AUDIT["postOfficeFxCounters"]["town_mismatch_rows"] = sum(1 for f in out if f["properties"]["spatial_check"] == "town_mismatch")
     return out
 
+# ── G37 環境、能源、海洋與職安（2026-10-31）─────────────────────────────────────
+# --src 分兩批：前三層讀 taipei-gis-analytics data/processed；後四層（＋TWL-16 濕地功能分區）讀 atlas-src 暫存目錄
+#   （scripts/export/export-renewable-permits-national.sh 與 scripts/fetch/fetch-g37-opendata.py 的產出）。
+
+# 專用漁業權範圍：analytics 舊格式（無 _manifest.json，catalog 也無 frontmatter），provenance 依 catalog 文件寫死。
+# 「現存／屆期」是來源 SHP 的標記，標記日期不明（analytics 2026-02-28 轉檔），不代表今天的權利狀態。
+EXCLUSIVE_FISHERY_MANIFEST = {"provenance": {
+    "source": "農業部漁業署（專用漁業權 Shapefile）", "source_url": "https://www.fa.gov.tw/",
+    "license": "政府資料開放授權條款（依 analytics catalog；向量圖由行政聯繫取得，無公開下載端點）",
+    "fetched_at": "2026-02-28", "vintage": "來源標記日期不明（analytics 2026-02-28 轉檔）"}}
+
+
+@layer("exclusiveFisheryRightAreas", "environment", "fishery_rights", "marine/exclusive_fishery_right_areas.geojson",
+       manifest=EXCLUSIVE_FISHERY_MANIFEST)
+def build_exclusive_fishery(m, feats):
+    out = []
+    for i, f in enumerate(drop_unmapped("exclusiveFisheryRightAreas", feats)):
+        p = f["properties"]
+        status = s(p.get("status"))
+        if status not in ("現存", "屆期"):
+            raise SystemExit(f"exclusiveFisheryRightAreas: 未知 status {status}")
+        out.append(feature(f["geometry"], {
+            "id": f"efr-{i + 1}", "name": s(p.get("name")), "county": (s(p.get("county")) or "").replace("台", "臺") or None,
+            "code": s(p.get("code")), "status": "active" if status == "現存" else "expired",
+            "area_km2": round(float(p["area_km2"]), 2) if p.get("area_km2") is not None else None,
+            **source_props(m),
+        }))
+    return out
+
+
+TOXIC_PRECISION_NOTE = {
+    "exact": "來源座標", "tgos": "地址定位（TGOS）", "cached": "地址定位（快取）", "interpolated": "地址內插（門牌未精確命中）",
+}
+
+
+@layer("toxicChemicalFacilities", "hazards", "toxic_chemical_facilities", "hazards/toxic_chemical_facilities.pmtiles",
+       pmtiles={"layer": "toxic_chemical_facilities", "zmin": 5, "zmax": 12, "kind": "point"})
+def build_toxic(m, feats):
+    """一點＝一個列管地址：同一管制編號（ems_no）有多個地址時各畫一點（284 個編號共 7,045 點、6,744 個編號），
+    不擅自挑其中一個地址。毒化物名稱與許可量不在成品（popup 依 ems_no 查既有 toxic_permits lookup）。"""
+    out = []
+    for f in drop_unmapped("toxicChemicalFacilities", feats):
+        p = f["properties"]
+        prec = s(p.get("precision"))
+        out.append(feature(f["geometry"], {
+            "id": p["id"], "ems_no": s(p.get("ems_no")), "name": s(p.get("fac_name")), "address": s(p.get("address")),
+            "city": s(p.get("city")), "precision": prec,
+            "precision_note": TOXIC_PRECISION_NOTE.get(str(prec), prec) + ("；複核時位移 >200 m" if p.get("qa_flag") == "large_shift" else ""),
+            "qa_flag": s(p.get("qa_flag")) if p.get("qa_flag") == "large_shift" else None,
+            **source_props(m), "vintage": str(m.get("last_updated")),
+        }))
+    AUDIT["toxicChemicalFacilities"]["distinct_ems_no"] = len({f["properties"]["ems_no"] for f in out})
+    return out
+
+
+# 自然人雇主（遮蔽名、標註自然人、或「某某(即商號)」）一律改成類別字樣；「(即商號)」保留商號。
+_NATURAL_MASK = re.compile(r"[O○Ｏ〇]")
+
+
+def employer_label(raw: str | None) -> tuple[str | None, bool]:
+    name = (raw or "").strip()
+    if not name or name in ("-", "－"):
+        return None, False
+    shop = re.search(r"[（(]即([^)）]+)[)）]", name)
+    natural = bool(_NATURAL_MASK.search(name)) or "自然人" in name or "合夥人" in name or bool(shop)
+    if not natural:
+        return name, False
+    return (shop.group(1).strip() if shop and not _NATURAL_MASK.search(shop.group(1)) else None), True
+
+
+@layer("majorOccupationalAccidents", "hazards", "major_occupational_accidents", "hazards/major_occupational_accidents.geojson",
+       file="major_occupational_accidents_20260712.geojson")
+def build_occupational(m, feats):
+    """勞動部職安署重大職災公開網（126835）：事件 2,480 起中 1,238 起有座標（49.9%）；其餘地址空白或無法定位，不上圖。
+    上游 severity 是粗推估（死亡關鍵字→S1、罹災人數>0→S2），會把多數死亡事件歸在 S2，所以不輸出、不分色；改以災害類型分色。
+    個資：自然人雇主姓名（含部分遮蔽）不輸出，改標 employer_natural=1；自然人雇主的事故地址也不輸出（只留縣市與地點描述）。"""
+    out, natural_n = [], 0
+    for f in drop_unmapped("majorOccupationalAccidents", feats):
+        p = f["properties"]
+        employer, natural = employer_label(p.get("company"))
+        natural_n += natural
+        d = str(p.get("occur_date") or "")
+        out.append(feature(f["geometry"], {
+            "id": p["id"], "date": f"{d[:4]}-{d[4:6]}-{d[6:8]}" if len(d) == 8 else None, "year": to_int(d[:4]),
+            "employer": employer, "employer_natural": 1 if natural else 0,
+            "industry": s(p.get("industry")), "accident_type": s(p.get("accident_type")), "casualties": to_int(p.get("casualties")),
+            "place": s(p.get("place")), "address": None if natural else s(p.get("address")), "city": s(p.get("city")),
+            "precision": s(p.get("precision")), **source_props(m), "vintage": str(m.get("last_updated")),
+        }))
+    AUDIT["majorOccupationalAccidents"]["natural_person_employers"] = natural_n
+    return out
+
+
+@layer("renewablePermitsNational", "energy", "renewable_permits_national", "energy/renewable_permits_national.pmtiles",
+       pmtiles={"layer": "renewable_permits_national", "zmin": 5, "zmax": 12, "kind": "point"})
+def build_renewable_national(m, feats):
+    """一點＝案場的一筆土地地號（8,038／8,195 列有地號代表點，419 座案場）；容量是整座案場的值，同案場每點重複。"""
+    out = []
+    for f in drop_unmapped("renewablePermitsNational", feats):
+        p = f["properties"]
+        out.append(feature(f["geometry"], {
+            "id": p["id"], "plant_name": s(p.get("plant_name")), "operator_name": s(p.get("operator_name")),
+            "apply_year": to_int(p.get("apply_year")), "construction_date": s(p.get("construction_date")),
+            "capacity_kw": to_num(p.get("capacity_kw")), "site_count": to_int(p.get("site_count")),
+            "county": s(p.get("county")), "township": s(p.get("township")),
+            "land_section": s(p.get("land_section")), "land_number": s(p.get("land_number")),
+            "symbiotic_class": s(p.get("symbiotic_class")) or "unknown", **source_props(m),
+        }))
+    return out
+
+
+@layer("importantWetlands", "environment", "important_wetlands", "environment/important_wetlands.geojson")
+def build_wetlands(m, feats):
+    return [feature(f["geometry"], {
+        "id": f"wetland-{i + 1}", "name": s(f["properties"].get("name")), "sub_title": s(f["properties"].get("sub_title")),
+        "level": s(f["properties"].get("level")), "counties": s(f["properties"].get("counties")),
+        "area_ha": to_num(f["properties"].get("area_ha")), **source_props(m),
+    }) for i, f in enumerate(drop_unmapped("importantWetlands", feats))]
+
+
+@layer("importantWetlandZones", "environment", "important_wetland_zones", "environment/important_wetland_zones.geojson")
+def build_wetland_zones(m, feats):
+    """TWL-16：保育利用計畫功能分區 578 面（48 處已公告計畫的濕地）；面積由 TWD97 幾何計算。"""
+    return [feature(f["geometry"], {
+        "id": f"wetland-zone-{i + 1}", "name": s(f["properties"].get("name")), "sub_name": s(f["properties"].get("sub_name")),
+        "zone": s(f["properties"].get("zone")), "zone_name": s(f["properties"].get("zone_name")),
+        "sub_zone": s(f["properties"].get("sub_zone")), "plan": s(f["properties"].get("plan")),
+        "plan_date": s(f["properties"].get("plan_date")), "area_ha": to_num(f["properties"].get("area_ha")), **source_props(m),
+    }) for i, f in enumerate(drop_unmapped("importantWetlandZones", feats))]
+
+
+@layer("waterRecreationRestrictedAreas", "tourism", "water_recreation_restricted_areas", "tourism/water_recreation_restricted_areas.geojson")
+def build_water_recreation(m, feats):
+    AUDIT.setdefault("waterRecreationRestrictedAreas", {})["excluded"] = m.get("excluded", [])
+    return [feature(f["geometry"], {k: f["properties"].get(k) for k in (
+        "id", "name", "zone", "org", "kind", "activity", "penalty", "legal_basis", "notice_url", "shape_basis",
+    )} | source_props(m)) for f in drop_unmapped("waterRecreationRestrictedAreas", feats)]
+
+
+@layer("batterySwapStations", "energy", "battery_swap_stations", "energy/battery_swap_stations.geojson")
+def build_battery_swap(m, feats):
+    """中油站的電話是加油站市話（法人），保留；台電是出租的土地（用途：換電站或充電站），不是確認營運中的換電站。"""
+    keep = ("id", "operator", "name", "address", "phone", "hours", "branch", "use", "lessee", "contract_period", "note")
+    return [feature(f["geometry"], {k: f["properties"].get(k) for k in keep if f["properties"].get(k) is not None} | source_props(m))
+            for f in drop_unmapped("batterySwapStations", feats)]
+
 
 # ── main ─────────────────────────────────────────────────────────────────
 
 
 def build(src: Path, key: str) -> None:
     spec = LAYERS[key]
-    m, feats = load(src, spec["theme"], spec["dataset"], spec.get("file"))
+    m, feats = load(src, spec["theme"], spec["dataset"], spec.get("file"), spec.get("manifest"))
     out_feats = spec["build"](m, feats)
     ids = Counter(f["properties"]["id"] for f in out_feats)
     dup = [i for i, c in ids.items() if c > 1]

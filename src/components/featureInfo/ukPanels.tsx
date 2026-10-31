@@ -1,6 +1,8 @@
 // 英國圖層 popup（2026-10-29 第 0b 波起）。來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
+import { CctvStreamView } from "../CctvStreamView";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
+import { enumLabel } from "../../i18n/dataText";
 import {
   GB_ADMIN_FETCHED_AT, GB_ADMIN_LAD_COLOR, GB_LAD_ATTRIBUTION, GB_LAD_SOURCE_URL, GB_LAD_VERSION, GB_LICENSE,
   GB_SMALL_AREA_COLOR, gbSmallAreaType,
@@ -212,7 +214,7 @@ export function GbBuiltUpAreasPanel({ props }: { props: Record<string, unknown> 
   </>;
 }
 
-/** 英國綠地三層共用（OS Open Greenspace）：名稱（無名顯示類型）、類型、地區、LAD 代碼。 */
+/** 英國綠地四層共用（OS Open Greenspace）：名稱（無名顯示類型）、類型、地區、LAD 代碼。 */
 function GbGreenspacePanelBase({ props, layerKey }: { props: Record<string, unknown>; layerKey: GbGreenspaceKey }) {
   const { t } = useLocale();
   const nation = useNationLabel();
@@ -232,6 +234,7 @@ function GbGreenspacePanelBase({ props, layerKey }: { props: Record<string, unkn
 
 export const GbGreenspacePanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbGreenspace" />;
 export const GbSportsFacilitiesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbSportsFacilities" />;
+export const GbGolfCoursesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbGolfCourses" />;
 export const GbCemeteriesPanel = ({ props }: { props: Record<string, unknown> }) => <GbGreenspacePanelBase props={props} layerKey="gbCemeteries" />;
 
 // ─────────────────────────── 英國第 3 波：水資源／海岸 ───────────────────────────
@@ -518,15 +521,22 @@ export function GbLondonBikePointsPanel({ props }: { props: Record<string, unkno
   </>;
 }
 
-/** 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態（非即時）、外連影像（不嵌入、不代理）。 */
+/**
+ * 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態、即時快照。
+ * §3.8（2026-10-31）比照台灣 CCTV popup 嵌入 TfL 公開快照 JPEG（`image_url`，TfL 約每 5 分鐘更新）：
+ * 只在 popup 開啟時由瀏覽器直接載入一張圖，不輪詢、不代理（TfL Unified API 限 500 次／分，此處不經 API）；
+ * 影片（mp4）維持外連。換點時 CctvStreamView 以 key 重置。
+ */
 export function GbLondonJamCamsPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   const offline = props.available_at_fetch === false;
+  const imageUrl = text(props.image_url);
+  const color = offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR;
   return <>
-    <Title color={offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
+    <Title color={color}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
     <Row label={t("popup.transport.gbCameraView")} value={text(props.view)} />
     <Row label={t("popup.transport.gbCameraStatus")} value={t(offline ? "popup.transport.gbCameraOfflineAtFetch" : "popup.transport.gbCameraOnlineAtFetch", { date: GB_TRANSPORT_FETCHED_AT })} />
-    <LinkRow label={t("popup.transport.gbCameraImage")} url={text(props.image_url)} />
+    {imageUrl ? <CctvStreamView key={imageUrl} streamUrl={imageUrl} imageUrl={imageUrl} source="tfl" accentColor={color} /> : null}
     <LinkRow label={t("popup.transport.gbCameraVideo")} url={text(props.video_url)} />
     <TflFooter url={GB_TFL_JAMCAM_URL} />
   </>;
@@ -925,8 +935,13 @@ export function GbPowerLinesPanel({ props }: { props: Record<string, unknown> })
 }
 
 /** 英國變電所（OSM）：名稱、電壓、類型（transmission／distribution…原值）、營運者、地區。 */
+/** OSM substation=* 常見值的中文；外文走 enum.gbSubstationType，少見或拼錯的值原樣顯示。 */
+const GB_SUBSTATION_TYPE_ZH: Record<string, string> = { minor_distribution: "小型配電", distribution: "配電", transmission: "輸電", traction: "鐵路牽引供電", transition: "架空與地下纜線轉接", generation: "發電廠併網", industrial: "工業專用", converter: "換流站", compensation: "無效功率補償", switching: "開閉所", measurement: "計量", transformer: "變壓器" };
+
 export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }) {
-  const { t } = useLocale();
+  const i18n = useLocale();
+  const { t } = i18n;
+  const subType = gbEnergyText(props.substation);
   const place = usePlaceLabel();
   const kv = useKv();
   const v = gbVoltageClass(props.voltage_class);
@@ -934,7 +949,7 @@ export function GbSubstationsPanel({ props }: { props: Record<string, unknown> }
     <Title color={v?.color ?? GB_SUBSTATIONS_COLOR}>{gbEnergyText(props.name) || gbEnergyText(props.ref) || t("popup.energy.gbSubstationUnnamed")}</Title>
     <Row label={t("popup.energy.gbVoltage")} value={kv(props)} />
     {/* OSM substation=yes 只表示「是變電所」，沒有類型資訊，不顯示 */}
-    <Row label={t("popup.energy.gbSubstationType")} value={/^yes$/i.test(gbEnergyText(props.substation)) ? "" : gbEnergyText(props.substation).replace(/_/g, " ")} />
+    <Row label={t("popup.energy.gbSubstationType")} value={/^yes$/i.test(subType) ? "" : enumLabel("gbSubstationType", subType, GB_SUBSTATION_TYPE_ZH[subType] ?? subType.replace(/_/g, " "), i18n)} />
     <Row label={t("popup.energy.gbOperator")} value={gbEnergyText(props.operator)} />
     <Row label={t("popup.baseMap.gbNation")} value={place(props)} />
     {energyFooter(GB_OSM_ATTRIBUTION, GB_OSM_URL, GB_ENERGY_ODBL)}

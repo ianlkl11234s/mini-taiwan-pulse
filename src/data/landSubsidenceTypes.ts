@@ -166,4 +166,4 @@ export function contourColorExpr(type: ContourType): unknown[] {
 
 // ── 海堤 ──────────────────────────────────────────────────────────────
 
-export const SEAWALL_MIN_ZOOM = 8;
+export const SEAWALL_MIN_ZOOM = 6;

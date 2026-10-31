@@ -111,11 +111,11 @@ export const ROAD_SIGN_SERIES_OPTIONS: readonly AtlasOption[] = [
   { value: "children_warning", label: "當心兒童標誌", color: "#e11d48" },
   { value: "expressway_interchange_name", label: "快速公路交流道名稱標誌", color: "#16a34a" },
 ];
-/** 切片 z9 起；點層 z11 起（低於 z11 以熱區顯示密度）。 */
-export const ROAD_SIGNS_TILE_MIN_ZOOM = 9;
+/** §3.8 V-1：v2 重切檔 z7 起；點層 z11 起（低於 z11 以熱區顯示密度）。 */
+export const ROAD_SIGNS_TILE_MIN_ZOOM = 7;
 export const ROAD_SIGNS_POINT_MIN_ZOOM = 11;
-export const MILEPOSTS_MIN_ZOOM = 11;
-export const FREEWAY_SIGNS_MIN_ZOOM = 10;
+export const MILEPOSTS_MIN_ZOOM = 7;
+export const FREEWAY_SIGNS_MIN_ZOOM = 7;
 
 export const FREEWAY_SIGN_GROUP_OPTIONS: readonly AtlasOption[] = [
   { value: "milepost", label: "里程牌／匝道里程", color: "#16a34a" },
@@ -148,7 +148,7 @@ export const MONITOR_SERIES_OPTIONS: readonly AtlasOption[] = [
   { value: "flood_debris_prone", label: "易淹水／土石流路段", color: "#0284c7" },
 ];
 /** 線段 z5–7 會退化（極短路段）→ 切片與圖層都從 z8 起。 */
-export const MONITORED_MIN_ZOOM = 8;
+export const MONITORED_MIN_ZOOM = 7;
 
 export const EMERGENCY_BAY_OPTIONS: readonly AtlasOption[] = [
   { value: "true", label: "在最新年度清單", color: "#7c3aed" },
@@ -223,7 +223,7 @@ export const PLACE_CATEGORY_OPTIONS: readonly AtlasOption[] = [
   { value: "settlement", label: "聚落（z12 起）", color: "#b45309" },
   { value: "landmark", label: "具有地標意義公共設施（z14 起）", color: "#0369a1" },
 ];
-export const PLACE_NAMES_MIN_ZOOM = 9;
+export const PLACE_NAMES_MIN_ZOOM = 7;
 
 export const TRIANGULATION_GRADE_OPTIONS: readonly AtlasOption[] = [
   { value: "1", label: "一等三角點", color: "#7f1d1d" },
@@ -275,6 +275,58 @@ export const MARINE_WILDLIFE_AREA_OPTIONS: readonly AtlasOption[] = [
   { value: "habitat", label: "野生動物重要棲息環境", color: "#2563eb" },
   { value: "protected", label: "野生動物保護區", color: "#0d9488" },
 ];
+/** G37 專用漁業權範圍：「現存／屆期」是來源 SHP 的標記（標記日期不明），不是今天的權利狀態。 */
+export const EXCLUSIVE_FISHERY_STATUS_OPTIONS: readonly AtlasOption[] = [
+  { value: "active", label: "來源標「現存」", color: "#0e7490" },
+  { value: "expired", label: "來源標「屆期」", color: "#a8a29e" },
+];
+/** G37 全國再生能源施工許可：analytics 依電廠名稱關鍵字與容量密度推估的類型（非官方分類）。 */
+export const RENEWABLE_PERMIT_CLASS_OPTIONS: readonly AtlasOption[] = [
+  { value: "漁電共生", label: "漁電共生（名稱關鍵字）", color: "#0284c7" },
+  { value: "水域光電", label: "水域光電（名稱關鍵字）", color: "#06b6d4" },
+  { value: "畜電共生", label: "畜電共生（名稱關鍵字）", color: "#a16207" },
+  { value: "屋頂型", label: "屋頂型（名稱關鍵字）", color: "#9333ea" },
+  { value: "pure_ground", label: "地面型（容量密度推估）", color: "#f59e0b" },
+  { value: "mixed", label: "混合（容量密度推估）", color: "#84cc16" },
+  { value: "suspect_symbiotic", label: "疑似共生（容量密度推估）", color: "#14b8a6" },
+  { value: "unknown", label: "無法分類", color: "#94a3b8" },
+];
+/** G37 重大職災：依災害類型分色（上游 severity 是粗推估、會低估死亡，不用來分色）。 */
+export const OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS: readonly AtlasOption[] = [
+  { value: "墜落、滾落", label: "墜落、滾落", color: "#dc2626" },
+  { value: "物體倒塌、崩塌", label: "物體倒塌、崩塌", color: "#ea580c" },
+  { value: "物體飛落", label: "物體飛落", color: "#a16207" },
+  { value: "感電", label: "感電", color: "#ca8a04" },
+  { value: "被夾、被捲", label: "被夾、被捲", color: "#7c3aed" },
+  { value: "被撞", label: "被撞", color: "#2563eb" },
+  { value: "公路交通事故", label: "公路交通事故", color: "#0891b2" },
+];
+/** G37 國家重要濕地等級（國家公園署範圍圖 LEVEL_1）。 */
+export const WETLAND_LEVEL_OPTIONS: readonly AtlasOption[] = [
+  { value: "國際級", label: "國際級", color: "#34d399" },
+  { value: "國家級", label: "國家級", color: "#059669" },
+  { value: "地方級", label: "地方級", color: "#65a30d" },
+  { value: "暫定地方級", label: "暫定地方級", color: "#a3a3a3" },
+];
+/** TWL-16 重要濕地保育利用計畫功能分區：依計畫書 zone 欄 5 類上色（細分名稱如「其他分區(水資源涵養區)」在 popup）。 */
+export const WETLAND_ZONE_OPTIONS: readonly AtlasOption[] = [
+  { value: "核心保育區", label: "核心保育區", color: "#15803d" },
+  { value: "生態復育區", label: "生態復育區", color: "#65a30d" },
+  { value: "環境教育區", label: "環境教育區", color: "#0891b2" },
+  { value: "管理服務區", label: "管理服務區", color: "#ca8a04" },
+  { value: "其他分區", label: "其他分區", color: ATLAS_OTHER_COLOR },
+];
+/** G37 水域遊憩禁止／限制區：依公告名稱分「禁止」「限制」「禁止＋限制」。 */
+export const WATER_RECREATION_KIND_OPTIONS: readonly AtlasOption[] = [
+  { value: "prohibited", label: "禁止水域遊憩活動", color: "#be123c" },
+  { value: "mixed", label: "禁止＋限制（同一公告）", color: "#c2410c" },
+  { value: "restricted", label: "限制或活動分區", color: "#d97706" },
+];
+/** G37 電動機車換電站：中油是營運中的換電加油站；台電是出租作換電站／充電站使用的土地。 */
+export const BATTERY_SWAP_OPERATOR_OPTIONS: readonly AtlasOption[] = [
+  { value: "cpc", label: "中油加油站（提供換電）", color: "#0d9488" },
+  { value: "taipower", label: "台電出租土地（換電站或充電站用）", color: "#7c3aed" },
+];
 /** G08 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*），併入 atlasLegends 的 ORGS。 */
 export const MARINE_PROTECTION_ORGS = {
   forestry: "農業部林業及自然保育署", fa: "農業部漁業署", nps: "內政部國家公園署",
@@ -298,6 +350,58 @@ export const CULTURE_COIN_PRECISION_LABELS: Readonly<Record<string, string>> = {
 };
 /** G23 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
 export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
+
+// ── 文化、觀光、原民補強 G35（2026-10-31）──────────────────────────────
+
+/**
+ * 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。
+ * 2026-10-31 TWL-16：邵族原 #be185d 與賽夏族粉紅、噶瑪蘭族原 #0d9488 與太魯閣族青綠在圖例難分 →
+ * 改用 atlas 已在用的 #16a34a（綠）、#78350f（深褐）；兩色對其餘 15 色的 CIE76 ΔE 最小 27.4／26.0（原本 10.7／12.4）。
+ * 邵族（魚池、水里）是地圖上實際塗色的鄉鎮，給綠色避開鄰近泰雅族褐色；噶瑪蘭族目前沒有單族鄉鎮（都併在「兩族以上」），色只出現在圖例。
+ */
+export const DIALECT_GROUP_OPTIONS: readonly AtlasOption[] = [
+  ...TRIBE_ETHNIC_OPTIONS,
+  { value: "邵族", label: "邵族", color: "#16a34a" },
+  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#78350f" },
+  { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
+  { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
+  { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
+  { value: "multiple", label: "兩族以上", color: "#475569" },
+];
+/** 客家文化重點發展區依客語腔調分色（來源字串，複合腔調照原值）。 */
+export const HAKKA_ACCENT_OPTIONS: readonly AtlasOption[] = [
+  { value: "四縣腔", label: "四縣腔", color: "#0f766e" },
+  { value: "海陸腔", label: "海陸腔", color: "#2563eb" },
+  { value: "四縣腔海陸腔", label: "四縣腔＋海陸腔", color: "#7c3aed" },
+  { value: "大埔腔", label: "大埔腔", color: "#ca8a04" },
+  { value: "四縣腔大埔腔", label: "四縣腔＋大埔腔", color: "#c2410c" },
+  { value: "詔安腔", label: "詔安腔", color: "#be185d" },
+];
+/** 旅遊服務站點類別（TourismServiceSiteClasses 1–5；官方代碼表未取得，名稱依站名歸納）。 */
+export const TOUR_SERVICE_SITE_OPTIONS: readonly AtlasOption[] = [
+  { value: "1", label: "機場旅客服務中心", color: "#be123c" },
+  { value: "2", label: "交通場站旅遊服務中心", color: "#4f46e5" },
+  { value: "3", label: "國家風景區遊客中心", color: "#0f766e" },
+  { value: "4", label: "地方遊客中心", color: "#0891b2" },
+  { value: "5", label: "借問站", color: "#ca8a04" },
+];
+/** 遊客人數據點：最新年（2024）全年人次分 5 級（固定門檻）；全年不足 12 個月＝灰。 */
+export const VISITOR_STEPS: readonly { min: number; label: string; color: string }[] = [
+  { min: 0, label: "未滿 10 萬", color: "#fed7aa" },
+  { min: 100_000, label: "10 萬–50 萬", color: "#fdba74" },
+  { min: 500_000, label: "50 萬–100 萬", color: "#fb923c" },
+  { min: 1_000_000, label: "100 萬–500 萬", color: "#ea580c" },
+  { min: 5_000_000, label: "500 萬以上", color: "#9a3412" },
+];
+export function visitorColorExpr(): unknown[] {
+  return ["case", ["==", ["typeof", ["get", "latest_annual"]], "number"],
+    ["step", ["get", "latest_annual"], ...VISITOR_STEPS.flatMap((s, i) => (i === 0 ? [s.color] : [s.min, s.color]))], ATLAS_OTHER_COLOR];
+}
+export function visitorColor(value: unknown): string {
+  if (typeof value !== "number") return ATLAS_OTHER_COLOR;
+  return [...VISITOR_STEPS].reverse().find((s) => value >= s.min)?.color ?? VISITOR_STEPS[0]!.color;
+}
+export const G35_ORGS = { tourism: "交通部觀光署", hakka: "客家委員會" } as const;
 
 // ── 原民會文化健康站 G20（2026-10-24）───────────────────────────────────
 
@@ -331,6 +435,10 @@ export const STATE_TENDER_KIND_OPTIONS: readonly AtlasOption[] = [
   { value: "building", label: "房地（建物）", color: "#db2777" },
 ];
 /** G16 圖例來源機關（中文正本；英日文在 enums.atlas.json 的 enum.atlasOrg.*）。 */
+/** G37 圖例來源機關（英日文 enum.atlasOrg.*）。 */
+export const G37_ORGS = {
+  osha: "勞動部職業安全衛生署", moeaea: "經濟部能源署", tourismAdmin: "交通部觀光署", cpcTaipower: "台灣中油、台灣電力公司",
+} as const;
 export const STATE_ASSET_ORGS = { twc: "台灣自來水公司", taisugar: "台灣糖業股份有限公司", fnp: "財政部國有財產署" } as const;
 /** G10 ATM 裝設點的機構類別（上游 institution_category；英日文 enum.atlasAtmInstitution.*）。 */
 export const ATM_INSTITUTION_OPTIONS: readonly AtlasOption[] = [
@@ -408,6 +516,9 @@ export const ATLAS_NOTES = {
   indigenousTribes: "原民會部落位置點表（2022-07）× 現行核定部落（2026-09）；灰點＝不在現行核定名單。另有 13 個現行核定部落沒有點位，未上圖。",
   indigenousIsolationRisk: "點是地區代表中心點，不是範圍；3 筆來源無座標，以村里代表點代替。",
   agriRuralCommunityVillages: "農村社區分類以村里為單位（農業部農村發展及水土保持署）；放大到 7 級以上顯示。",
+  indigenousRegions: "原民會公告的 55 個原住民族地區（鄉鎮市區）。範圍套內政部鄉鎮界（TOWN_MOI_1140318，簡化約 40 公尺），不是地籍或法定邊界判定；來源沒有山地／平地別。",
+  indigenousLanguageDialects: "原民會族語方言分布參考表（2023-07）：16 族 42 方言、59 個鄉鎮。來源到村里，這裡併成鄉鎮面，村里名單在彈窗；同一鄉鎮有兩族以上方言時塗灰色。是語言推廣用的參考表，不是使用人口調查。",
+  hakkaCulturalZones: "客委會公告的 70 個客家文化重點發展區（客家人口比率達三分之一以上的鄉鎮市區），依客語腔調分色；客家人口比率在彈窗。範圍套內政部鄉鎮界。",
   provincialRoadSigns: "交通部公路局省道標誌清查；放大到 11 級以上顯示點位，較低縮放以熱區顯示。調查日期逐筆不同，非即時現況。",
   provincialRoadMileposts: "放大到 11 級以上顯示。調查日期逐筆不同。",
   freewayTrafficSigns: "交通部高速公路局交通標誌；放大到 10 級以上顯示。約 1／4 標誌來源未給代碼名稱（灰點）。",
@@ -436,6 +547,14 @@ export const ATLAS_NOTES = {
   openFishingLocations: "海洋保育署公布的開放捕魚點位；點位不是範圍，不代表可進入或安全。僅供參考，不構成法規適用判斷。",
   coastalAreaExtents: "111 年版（2022-09-13）海岸地區範圍，非現行海岸線或管制；7 筆來源面積不到 1 m² 的退化面（金門）未上圖，小島礁放大後才出現。僅供參考，不構成法規適用判斷。",
   marineWildlifeAreas: "海保署公布的 6 個海域野生動物範圍：中華白海豚重要棲息環境與貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區；兩者是不同法定類別，分色顯示。這 5 個保護區不在「野生動物保護區」圖層（只含林保署 16 區）。僅供參考，不構成法規適用判斷。",
+  exclusiveFisheryRightAreas: "各區漁會的專用漁業權水域 19 面（來源標現存 11、屆期 8）；與「定置漁業權區」（定置網許可，65 面）是不同的漁業權類別，分開成層。「現存／屆期」是來源圖資的標記，標記日期不明（analytics 2026-02-28 轉檔），不代表今天的權利狀態。僅供參考，不構成法規適用判斷。",
+  toxicChemicalFacilities: "環境部毒性及關注化學物質運作場所 7,045 個地址點（6,744 個管制編號；同一編號有多個地址時各畫一點；資料整理 2026-07-12）。97% 由地址定位，點開看精度；179 個地址無法定位未上圖。點開可查運作的化學物質與許可（依管制編號查環境部 EMS_S_05）。列管只代表有運作許可，不代表外洩、污染或風險等級。",
+  majorOccupationalAccidents: "勞動部職安署重大職業災害公開網 2018-01～2026-04：事件 2,480 起，只有 1,238 起（49.9%）能由地址定位上圖，地圖上的點約只有一半，不可當成全部事件或拿來比各地多寡。自然人雇主的姓名與地址不顯示。",
+  renewablePermitsNational: "經濟部能源署太陽光電電業施工許可（申請年度民國 108–113）：一點是案場的一筆土地地號（8,038／8,195 筆有地號代表點，共 419 座案場）。點位是地號查詢的代表點，不是案場範圍；容量是整座案場的值，同案場每個點重複，不可逐點加總。類型是依電廠名稱關鍵字與容量密度推估，非官方分類。臺北市的屋頂型設置見「北市再生能源許可」。",
+  importantWetlandZones: "內政部國家公園署重要濕地保育利用計畫功能分區 578 面（功能分區圖 2026-02-12 版）。只有已公告保育利用計畫的 48 處重要濕地有功能分區，其餘重要濕地範圍沒有分區圖；計畫公告日 2017–2026，各濕地不同。分區細項名稱（例：其他分區(水資源涵養區)）在彈窗。面積由圖形計算。開發限制以公告計畫為準，僅供參考，不構成法規適用判斷。",
+  importantWetlands: "內政部國家公園署公告的重要濕地範圍 89 處（範圍圖 2026-01-09 版，含國際級 2、國家級 68、地方級 17、暫定地方級 2）。範圍不等於保育利用計畫的功能分區；開發限制以公告計畫為準。僅供參考，不構成法規適用判斷。",
+  waterRecreationRestrictedAreas: "交通部觀光署各國家風景區管理處公告的禁止或限制水域遊憩活動區域（21 則公告、33 區）。範圍是依公告頂點座標連線的示意：部分頂點順序無法成面時改畫外框，兩點的公告畫成界線；以公告附圖為準。1 則（澎湖嵵裡沙灘）座標無法對到地名，未上圖。只含國家風景區，縣市政府公告的區域不在內。",
+  batterySwapStations: "台灣中油提供電動機車換電服務的加油站 400 站（2025-08-21 版）＋台電出租作電動機車電池交換站使用的土地 12 筆（2024-07-22 版，用途寫「換電站或充電站」，不保證是營運中的換電站）。業者自建的換電站（多數換電站）不是政府開放資料，不在本層。",
   marineEcologicalMonitoringSites: "國家海洋研究院「全海域生態系調查點位」54 個站位清單（來源資源日 2025-07-21）；是站位清單，不是監測結果，也不是即時監測或目前生態狀況；沒有點不代表沒有資料。",
   artificialReefCenters: "中心位置，非範圍：依公告座標文字解析的人工魚礁禁漁區中心點，範圍規則見彈窗文字；部分點是所列頂點平均（非官方中心）。僅供參考，不構成法規適用判斷。",
   protectedReefCenters: "中心位置，非範圍：依公告座標文字解析的保護礁禁漁區中心點（多為 A、B 兩點連線中點）；1 筆來源僅有地名描述，未上圖。僅供參考，不構成法規適用判斷。",
@@ -454,5 +573,7 @@ export const ATLAS_NOTES = {
   securitiesFuturesInstitutions: "證券商分公司 817、期貨商總公司 39 與分公司 90、投信 36、投顧 89，共 1,071 處（名冊 2026-10-24 下載；33 處名冊未列營業地址〔自營部門、免設營業廳等〕未上圖）。是名冊上的營業據點，不是營業員或開戶數；證券商兼營期貨的據點在證券與期貨名冊各列一次，同址點會重疊；不含證券商總公司。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；8 處只到約略位置。",
   insuranceInstitutions: "保險公司總分公司 392 處（人壽 233、產物 156、再保 3）與保險代理人公司 263 家（含銀行兼營 31），共 655 處（名冊 2026-10-24 下載）。不含保險通訊處（約 3,358 個，無地址開放資料）與業務員；保代地址為公司登記或聯絡地址，銀行兼營保代為銀行總行地址。座標部分沿用同址 ATM／金融機構分支（G10），部分為地址定位，點開看定位精度；5 處只到約略位置。",
   postOfficeFxCounters: "中華郵政可買賣外幣現鈔及旅行支票的郵局 290 局（網頁名冊 2026-10-25 下載）。這不是外幣收兌處：央行委託臺灣銀行核准的外幣收兌處（飯店、商店等）名單未公開，本層只有郵局；銀行、信合社、農漁會的外幣現鈔據點也沒有公開逐點名冊，不在本層。央行統計（115/09/30）郵局 288 家，與本層差 2，兩邊日期不同，原因未查證。座標取自中華郵政全國營業據點（同電腦局號）。",
+  tourServiceSites: "觀光署旅遊服務站點 797 處（借問站、旅遊服務中心、遊客中心），2026-10-31 下載。類別名稱依站名歸納（官方代碼表未取得），「國家風景區遊客中心」類另含 5 間店家借問站。與 OSM「遊客中心」層並列、不取代。",
+  tourVisitorStats: "觀光署主要觀光遊憩據點遊客人數（2012–2024 月別）：2024 年 368 個據點中，名稱配得到景點點位的 270 個上圖，98 個配不到未上圖。顏色是 2024 全年人次；名稱比對方式非完全相同者可能配錯，彈窗會標示。人次是各據點自行統計，計算方式不一，不宜跨據點直接比較。",
   culturalHealthStations: "原住民族文化健康站 525 站（通訊錄 2025-07-22）。實心點 191 站依地址定位；空心圈是只定位到鄉鎮的 334 站，同鄉鎮併成鄉鎮中心一圈、圈內數字＝站數，不是實際站址，不可用來量距離。不含電話。",
 } as const satisfies Record<AtlasLayerKey, string>;

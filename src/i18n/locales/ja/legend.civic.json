@@ -229,5 +229,21 @@
   "legend.civic.gbCourtMagistrates": "治安判事裁判所",
   "legend.civic.gbCourtTribunal": "審判所",
   "legend.civic.gbCourtOther": "その他の司法拠点（高等法院、遺言検認登記所、執行・サービスセンターなど）",
-  "legend.civic.gbCourtsUncovered": "イングランドとウェールズのみ。スコットランドと北アイルランドの裁判所は未収録（別の司法制度。スコットランドは英国全体の審判所のみ）"
+  "legend.civic.gbCourtsUncovered": "イングランドとウェールズのみ。スコットランドと北アイルランドの裁判所は未収録（別の司法制度。スコットランドは英国全体の審判所のみ）",
+  "legend.civic.trafficAccidents2025Period": "データ期間 {period}（警政署の月次 A1／A2 名簿、事故単位で重複除去）",
+  "legend.civic.trafficAccidents2025Note": "A3（物損のみ）は座標がなく対象外。「A1 死亡事故」レイヤー（2025 年通年ファイル 1,600 点）とは元ファイルと期間が異なるため、件数は直接比較できません。",
+  "legend.civic.tsunamiSirensRow": "津波警報台 · {count}",
+  "legend.civic.tsunamiSirensNote": "警政署 2025-12 時点；淡水の興仁派出所 1 基は座標欠落のため非表示",
+  "legend.civic.nuclearEpzNote": "集結地点は地方政府の計画（新北・基隆・屏東）；収容施設は村里の割当を統合。恒春の 15 里は「各宿泊施設」という総称で座標がなく非表示",
+  "legend.civic.firingNoticeNote": "公告された範囲と期間で、リアルタイムの状況ではありません。海軍 2025-07～08、海巡署 2024-03～2026-03 の過去の公告；同じ範囲が繰り返し公告されることがあります",
+  "legend.civic.pjSpeedCat": "種類",
+  "legend.civic.pjSpeedGeneral": "一般の速度取締",
+  "legend.civic.pjSpeedFreeway": "高速道路の速度取締",
+  "legend.civic.pjSpeedRedLight": "赤信号取締カメラ",
+  "legend.civic.pjSpeedRailway": "踏切取締カメラ",
+  "legend.civic.pjTheftCat": "事件種別",
+  "legend.civic.pjTheftHouse": "住宅侵入窃盗",
+  "legend.civic.pjTheftCar": "自動車盗",
+  "legend.civic.pjTheftMoto": "バイク盗",
+  "legend.civic.pjTheftBike": "自転車盗"
 }

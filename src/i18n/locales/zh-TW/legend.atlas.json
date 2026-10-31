@@ -1,6 +1,9 @@
 {
   "legend.atlas.flag": "座標與通報縣市不一致（疑誤）",
   "legend.atlas.otherMultiEthnic": "其他／多族並列",
+  "legend.atlas.indigenousRegion": "原住民族地區（鄉鎮市區）",
+  "legend.atlas.titleVisitorStats": "2024 全年遊客人次",
+  "legend.atlas.visitorIncomplete": "2024 全年資料不足 12 個月",
   "legend.atlas.notApprovedList": "不在現行核定名單",
   "legend.atlas.otherSource": "其他來源",
   "legend.atlas.unidentified": "無法辨認",
@@ -24,5 +27,7 @@
   "legend.atlas.setNetArea": "定置漁業權區範圍",
   "legend.atlas.seawallZone": "一般性海堤區域",
   "legend.atlas.sugarMill": "糖廠據點",
-  "legend.atlas.postFxCounter": "郵局外幣現鈔經辦局（非外幣收兌處）"
+  "legend.atlas.postFxCounter": "郵局外幣現鈔經辦局（非外幣收兌處）",
+  "legend.atlas.toxicSite": "毒化物運作場所（地址點）",
+  "legend.atlas.otherAccidentType": "其他類型"
 }

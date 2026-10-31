@@ -137,7 +137,13 @@ public/world/jp_major_roads.pmtiles
 public/world/gb_admin_small_areas.pmtiles
 # 英國第 1 波（建成區 41.6MB、綠地 67.8MB 走 S3 deploy-assets/world/；gb_maritime_limits 0.5MB git-track）
 public/world/gb_built_up_areas.pmtiles
+# §3.8（2026-10-31）建成區重切 z3 起 42MB 走 S3；其餘 _v2／代表點／小區 z5–7 都 < 20MB git-track
+public/world/gb_built_up_areas_v2.pmtiles
 public/world/gb_greenspace.pmtiles
+# 南韓第 4–5 波（橋梁 25.9MB、取締攝影機 33.9MB、行道樹 34.9MB 走 S3 deploy-assets/world/；其餘 15 檔皆 <14MB git-track）
+public/world/kr_bridges.pmtiles
+public/world/kr_speed_cameras.pmtiles
+public/world/kr_street_trees.pmtiles
 # 英國第 3 波（河川 34.9MB、防洪設施 28.5MB 走 S3 deploy-assets/world/；測站 3.1MB、海岸侵蝕 17.8MB、浴場 0.8MB git-track）
 public/world/gb_rivers.pmtiles
 public/world/gb_flood_defences.pmtiles
@@ -235,8 +241,8 @@ public/embed-snapshots/
 # embed 回放用鐵路瘦身 bundle（build-rail-slim-bundle.py 產生物，可重產）
 public/embed-rail/
 
-# 教育 Education（第 38 主題；全走 S3 deploy-assets/education/）
-public/education/
+# 教育 Education（第 38 主題；全走 S3 deploy-assets/education/；§3.8 代表點檔例外見檔尾）
+public/education/*
 
 # Versioned Network Structures PMTiles are published to S3, not Git.
 public/network_structures/
@@ -265,3 +271,22 @@ public/hazards/landslide_annual_swcb_*.pmtiles
 # /blog 產生器中繼檔（src/blog/generator.ts 由 content/blog/*.md 產生）
 /blog/
 /public/blog/feed.xml
+
+# G36（2026-10-31）：大 PMTiles 走 S3 deploy-assets geo/ 鏡像（upload-deploy-assets.sh 的 public/geo/*.pmtiles glob 已涵蓋）
+public/geo/traffic_accidents_2025.pmtiles
+public/geo/fire_hydrants_national.pmtiles
+
+# §3.8 V-5（2026-10-31）台灣＋日本面層代表點檔（`<原檔名>_points.pmtiles`，皆 < 20MB）git-track；
+# 放檔尾，才蓋得過上面各資料夾的 *.pmtiles ignore。
+!public/agriculture/*_points.pmtiles
+!public/business_registry/*_points.pmtiles
+!public/industrial_zone/*_points.pmtiles
+!public/public_life/*_points.pmtiles
+!public/geo/water_flood_*_points.pmtiles
+!public/urban/*_points.pmtiles
+!public/water_resources/*_points.pmtiles
+!public/education/*_points.pmtiles
+# 非商用（production:false）的日本觀光研究層代表點檔：只在本機，不進 git／S3（同原檔 jp_natural_parks_ksj_2010 等）
+public/world/jp_natural_parks_ksj_2010_points.pmtiles
+public/world/jp_nature_conservation_ksj_2015_points.pmtiles
+public/world/jp_wildlife_protection_moe_202504_points.pmtiles

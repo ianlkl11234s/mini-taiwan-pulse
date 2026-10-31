@@ -67,6 +67,7 @@ function agriPOIParamsFrom(params: Record<string, number>) {
   return {
     opacity: params.agriPOIOpacity ?? 1,
     scale: params.agriPOIScale ?? 1,
+    catMask: params.agriPOICatMask,
   };
 }
 
@@ -86,12 +87,12 @@ function updateAllAgricultureLayers(
   params: Record<string, number>,
   isDarkTheme: boolean,
 ): void {
-  updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params));
-  updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"));
+  updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params), { params, isDark: isDarkTheme });
+  updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"), { params, isDark: isDarkTheme });
   updateAgriSoilFertilityLayer(map, vis.agriSoilFertility, agriSoilFertilityParamsFrom(params));
-  updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"));
-  updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"));
-  updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params));
+  updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"), { params, isDark: isDarkTheme });
+  updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"), { params, isDark: isDarkTheme });
+  updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params), { params, isDark: isDarkTheme });
   updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params), isDarkTheme);
 }
 

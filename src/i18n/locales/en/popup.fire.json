@@ -10,5 +10,11 @@
   "popup.fire.withinMinutes": "Within {minutes} min",
   "popup.fire.cumulativeArea": "Cumulative reachable area",
   "popup.fire.ringArea": "Area of this band",
-  "popup.fire.isochroneNote": "⚠️ Conservative estimate on the driving network; fire-engine right of way is not counted"
+  "popup.fire.isochroneNote": "⚠️ Conservative estimate on the driving network; fire-engine right of way is not counted",
+  "popup.fire.resourceTitle": "Disaster Resource Site",
+  "popup.fire.resourceHolder": "Holder type",
+  "popup.fire.resourceCounts": "Items",
+  "popup.fire.resourceCountsValue": "{positive} of {total} items have a recorded quantity",
+  "popup.fire.resourceItems": "Recorded items (qty > 0)",
+  "popup.fire.resourceNone": "No item with quantity above 0"
 }

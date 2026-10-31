@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { slaughterKind } from "./livestockTypes";
 
 /**
  * 畜牧 owner-only 動態載入器（見 docs/features/owner-gated-layers）。
@@ -33,5 +34,10 @@ export async function fetchLivestockSlaughterhouses(): Promise<GeoJSON.FeatureCo
     supabase.rpc("get_livestock_slaughterhouses"),
   );
   if (error) throw new Error(`get_livestock_slaughterhouses: ${error.message}`);
-  return (data ?? EMPTY_FC()) as unknown as GeoJSON.FeatureCollection;
+  const fc = (data ?? EMPTY_FC()) as unknown as GeoJSON.FeatureCollection;
+  // V-4 類別篩選用：由「種類」首字衍生家畜／家禽（與圖例、paint 判定同一份 slaughterKind）
+  for (const f of fc.features) {
+    if (f.properties) f.properties.kind = slaughterKind(f.properties["種類"]);
+  }
+  return fc;
 }

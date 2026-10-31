@@ -10,5 +10,11 @@
   "popup.fire.withinMinutes": "{minutes} 分鐘內",
   "popup.fire.cumulativeArea": "累積可達面積",
   "popup.fire.ringArea": "本級環帶面積",
-  "popup.fire.isochroneNote": "⚠️ driving 路網保守估計，未計消防車優先路權"
+  "popup.fire.isochroneNote": "⚠️ driving 路網保守估計，未計消防車優先路權",
+  "popup.fire.resourceTitle": "救災資源據點",
+  "popup.fire.resourceHolder": "保管單位類型",
+  "popup.fire.resourceCounts": "品項",
+  "popup.fire.resourceCountsValue": "{positive}／{total} 項有登錄數量",
+  "popup.fire.resourceItems": "登錄品項（數量 > 0）",
+  "popup.fire.resourceNone": "沒有數量大於 0 的品項"
 }

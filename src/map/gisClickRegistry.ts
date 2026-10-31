@@ -1,4 +1,5 @@
 import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
+import { repPointClickLayerIds } from './repPointOverlays';
 /**
  * GIS 點擊接線註冊表（AR-22 Phase 4b）
  * ══════════════════════════════════════════════════════════════════
@@ -60,6 +61,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
   // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
   { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
+  { layers: ["traffic-accidents-2025-circle", "traffic-accidents-2025-glow"], type: "trafficAccidents2025" },
+  { layers: ["disaster-resource-sites-circle", "disaster-resource-sites-glow"], type: "disasterResourceSites" },
+  { layers: ["tsunami-sirens-circle", "tsunami-sirens-glow"], type: "tsunamiSirens" },
+  { layers: ["nuclear-epz-evacuation-circle", "nuclear-epz-evacuation-glow"], type: "nuclearEpzEvacuation" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
@@ -236,7 +241,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-welfare-disability-circle"], type: "jpWelfareDisability" },
   { layers: ["jp-welfare-child-circle"], type: "jpWelfareChild" },
   { layers: ["jp-expressway-junctions-circle", "jp-expressways-line"], type: "jpExpressways" },
-  { layers: ["jp-major-roads-line"], type: "jpMajorRoads" },
+  { layers: ["jp-major-roads-line", "jp-major-roads-z5-line"], type: "jpMajorRoads" },
   { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
   { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
   { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
@@ -358,23 +363,63 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
-  { layers: ["gb-flood-defences-line"], type: "gbFloodDefenceAssets" },
-  { layers: ["gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
+  { layers: ["gb-flood-defences-line", "gb-flood-defences-z5-6-line"], type: "gbFloodDefenceAssets" },
+  { layers: ["gb-coastal-erosion-points-circle", "gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
   { layers: ["gb-rivers-line"], type: "gbRivers" },
-  { layers: ["gb-greenspace-golf-circle"], type: "gbSportsFacilities" }, // 全英視角的高爾夫球場代表點（z<10），點先於面
+  // §3.8 V-5 綠地四層的代表點（「點」模式；高爾夫球場「面」模式 z<10 也用），點先於面
+  { layers: ["gb-greenspace-park-point-circle"], type: "gbGreenspace" },
+  { layers: ["gb-greenspace-sports-point-circle"], type: "gbSportsFacilities" },
+  { layers: ["gb-greenspace-golf-circle"], type: "gbGolfCourses" },
+  { layers: ["gb-greenspace-burial-point-circle"], type: "gbCemeteries" },
   { layers: ["gb-greenspace-sports-fill"], type: "gbSportsFacilities" },
+  { layers: ["gb-greenspace-golf-fill"], type: "gbGolfCourses" },
   { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
   { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },
   { layers: ["gb-tpo-fill", "gb-ancient-woodland-fill"], type: "gbTreeProtection" },
-  { layers: ["gb-open-access-land-fill"], type: "gbOpenAccessLand" },
+  { layers: ["gb-open-access-land-fill", "gb-open-access-land-z5-fill"], type: "gbOpenAccessLand" },
   { layers: ["gb-woodland-fill"], type: "gbWoodland" },
-  { layers: ["gb-marine-protected-areas-line", "gb-marine-protected-areas-fill"], type: "gbMarineProtectedAreas" },
-  { layers: ["gb-protected-areas-line", "gb-protected-areas-fill"], type: "gbProtectedAreas" },
-  { layers: ["gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
-  { layers: ["gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
+  { layers: ["gb-marine-protected-areas-points-circle", "gb-marine-protected-areas-line", "gb-marine-protected-areas-fill"], type: "gbMarineProtectedAreas" },
+  { layers: ["gb-protected-areas-points-circle", "gb-protected-areas-line", "gb-protected-areas-fill"], type: "gbProtectedAreas" },
+  { layers: ["gb-oil-gas-points-circle", "gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
+  { layers: ["gb-built-up-areas-points-circle", "gb-built-up-areas-fill"], type: "gbBuiltUpAreas" },
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
-  { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },
+  { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill", "gb-small-areas-low-fill", "gb-ni-sdz-low-fill"], type: "gbSmallAreaBoundaries" },
   { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },
+  // 南韓第 3–5 波：點 → 線 → 面，都排在行政界（大面積背景）前面
+  { layers: ["kr-street-trees-circle"], type: "krStreetTrees" },
+  { layers: ["kr-water-level-stations-circle"], type: "krWaterLevelStations" },
+  { layers: ["kr-sluice-gates-circle"], type: "krSluiceGates" },
+  { layers: ["kr-water-quality-stations-circle"], type: "krWaterQualityStations" },
+  { layers: ["kr-coastal-erosion-facilities-circle"], type: "krCoastalErosionFacilities" },
+  { layers: ["kr-marine-pollution-incidents-circle"], type: "krMarinePollutionIncidents" },
+  { layers: ["kr-marine-env-sites-circle"], type: "krMarineEnvSites" },
+  { layers: ["kr-public-bicycle-stations-circle"], type: "krPublicBicycleStations" },
+  { layers: ["kr-seoul-subway-congestion-circle"], type: "krSeoulSubwayCongestion" },
+  { layers: ["kr-parking-lots-circle"], type: "krParkingLots" },
+  { layers: ["kr-bridges-circle"], type: "krBridges" },
+  { layers: ["kr-speed-cameras-circle"], type: "krSpeedCameras" },
+  { layers: ["kr-child-protection-zones-circle"], type: "krChildProtectionZones" },
+  { layers: ["kr-np-location-signs-circle"], type: "krNpLocationSigns" },
+  { layers: ["kr-np-trails-line"], type: "krNpTrails" },
+  { layers: ["kr-rivers-osm-line", "kr-rivers-osm-major-line"], type: "krRiversOsm" },
+  { layers: ["kr-marine-protected-areas-fill"], type: "krMarineProtectedAreas" },
+  { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
+  // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
+  { layers: ["kr-airports-circle"], type: "krAirports" },
+  { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
+  { layers: ["kr-renewables-circle", "kr-renewables-minor-circle"], type: "krRenewables" },
+  { layers: ["kr-substations-circle"], type: "krSubstations" },
+  { layers: ["kr-fuel-stations-circle"], type: "krFuelStations" },
+  { layers: ["kr-rail-stations-circle"], type: "krRailStations" },
+  { layers: ["kr-oil-gas-pts-facility-circle", "kr-oil-gas-pts-pipeline-circle", "kr-oil-gas-point", "kr-oil-gas-pipelines-line", "kr-oil-gas-line", "kr-oil-gas-fill"], type: "krOilGas" },
+  { layers: ["kr-bus-stops-circle"], type: "krBusStops" },
+  { layers: ["kr-power-towers-circle"], type: "krPowerTowers" },
+  { layers: ["kr-power-lines-line", "kr-power-cables-line"], type: "krPowerLines" },
+  { layers: ["kr-national-roads-line"], type: "krNationalRoads" },
+  { layers: ["kr-rail-lines-line"], type: "krRailLines" },
+  { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
+  // 南韓：三層級一次只開一層
+  { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
@@ -474,6 +519,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["tour-attractions-circle", "tour-attractions-glow"], type: "tourAttractions" },
   { layers: ["tour-hot-springs-circle", "tour-hot-springs-glow"], type: "tourHotSprings" },
   { layers: ["tour-heritage-circle", "tour-heritage-glow"], type: "tourHeritage" },
+  { layers: ["tour-service-sites-circle", "tour-service-sites-glow"], type: "tourServiceSites" },
+  { layers: ["tour-visitor-stats-circle", "tour-visitor-stats-glow"], type: "tourVisitorStats" },
   { layers: ["tour-events-circle"], type: "tourEvents" },
   { layers: ["tour-factories-circle", "tour-factories-glow"], type: "tourFactories" },
   { layers: ["tour-amusement-parks-circle", "tour-amusement-parks-glow"], type: "tourAmusementParks" },
@@ -498,6 +545,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
   //    海峽的大面積 polygon，first-hit-wins 之下船點若排在它後面就永遠點不到。
   { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
+  { layers: ["firing-notice-areas-fill"], type: "firingNoticeAreas" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
@@ -578,6 +626,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // atlas 批次 2026-10：點位（小目標）排在面層前；線／混合幾何的點也在這裡
   { layers: ["indigenous-tribes-circle", "indigenous-tribes-glow"], type: "indigenousTribes" },
   { layers: ["indigenous-isolation-risk-circle", "indigenous-isolation-risk-glow"], type: "indigenousIsolationRisk" },
+  { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
+  { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
+  { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
   { layers: ["provincial-road-signs-circle", "provincial-road-signs-glow"], type: "provincialRoadSigns" },
   { layers: ["provincial-road-mileposts-circle", "provincial-road-mileposts-glow"], type: "provincialRoadMileposts" },
   { layers: ["freeway-traffic-signs-circle", "freeway-traffic-signs-glow"], type: "freewayTrafficSigns" },
@@ -639,7 +690,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // PMTiles polygon fill — 排序：細節豐富的小範圍優先（避免被 soil 大面積覆蓋）
   { layers: ["agri-leisure-farm-zones-fill"], type: "agriLeisureFarmZones" },
   { layers: ["agri-crop-suitability-fill"], type: "agriCropSuitability" },
-  { layers: ["agri-soil-fertility-fill"], type: "agriSoilFertility" },
+  { layers: ["agri-soil-fertility-fill", "agri-soil-fertility-z7-fill"], type: "agriSoilFertility" },
   { layers: ["agri-soil-fill"], type: "agriSoil" },
   // 救援等時圈覆蓋面 — 放最末端，避免大面積擋住上方點層的點選
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
@@ -762,6 +813,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["wildlife-protected-areas-fill", "wildlife-protected-areas-outline"], type: "wildlifeProtectedAreas" },
   { layers: ["marine-ecological-monitoring-sites-circle", "marine-ecological-monitoring-sites-glow"], type: "marineEcologicalMonitoringSites" },
   { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
+  { layers: ["exclusive-fishery-right-areas-fill", "exclusive-fishery-right-areas-outline"], type: "exclusiveFisheryRightAreas" },
+  // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
+  { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
+  { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
+  { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
+  { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
+  { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },
+  { layers: ["renewable-permits-national-circle", "renewable-permits-national-glow"], type: "renewablePermitsNational" },
+  { layers: ["battery-swap-stations-circle", "battery-swap-stations-glow"], type: "batterySwapStations" },
   { layers: ["nature-reserves-fill", "nature-reserves-outline"], type: "natureReserves" },
   { layers: ["agri-rural-community-villages-fill", "agri-rural-community-villages-outline"], type: "agriRuralCommunityVillages" },
   { layers: ["coastal-area-extents-fill", "coastal-area-extents-outline"], type: "coastalAreaExtents" },
@@ -838,3 +898,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // so a coverage polygon never intercepts any detailed point, line, or other fill.
   { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
 ];
+
+// V-5：面層的代表點 circle 沿用同一個 FeatureInfo 類型（點樣式下面層隱藏，點擊落在代表點上）
+for (const { polygonLayerId, circleIds } of repPointClickLayerIds()) {
+  for (const entry of GIS_LAYERS) if (entry.layers.includes(polygonLayerId)) entry.layers.push(...circleIds);
+}

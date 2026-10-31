@@ -17,8 +17,13 @@ import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-major-roads";
 const SOURCE_LAYER = "jp_major_roads";
-const LAYER_ID = "jp-major-roads-line";
+const DETAIL_LAYER_ID = "jp-major-roads-line";
 const FILE = "jp_major_roads.pmtiles?v=c5921aa49cee";
+// §3.8 V-1／V-2：z5（全國視角）另有小檔（只含高速道路與一般國道），兩個 source 接續：z5 小檔畫到 z5.5 前，原檔 z5.5 起
+// （pmtiles source 的圖磚縮放四捨五入，z5.5 起抓 z6 圖磚，z5 小檔此時畫不出來）
+const Z5_SOURCE_ID = "jp-major-roads-z5";
+const Z5_LAYER_ID = "jp-major-roads-z5-line";
+const Z5_FILE = "jp_major_roads_z5.pmtiles";
 // 契約：PMTiles z6–13；z6–8 只有國道與高速，都道府縣道 z9 起；z14 以上由前端 overzoom（source maxzoom=13）。
 const MINZOOM = 6;
 const MAXZOOM = 13;
@@ -43,15 +48,17 @@ function absoluteUrl(relativeFile: string): string {
   return new URL(relative, window.location.href).href;
 }
 
-function lineLayer(opacity: number, classIdx: number): LineLayer {
+function lineLayer(opacity: number, classIdx: number, z5 = false): LineLayer {
   const filter = jpRoadFilter(classIdx);
   const width = jpRoadWidthExpression();
+  const LAYER_ID = z5 ? Z5_LAYER_ID : DETAIL_LAYER_ID;
   return {
     id: LAYER_ID,
     type: "line",
-    source: SOURCE_ID,
+    source: z5 ? Z5_SOURCE_ID : SOURCE_ID,
     "source-layer": SOURCE_LAYER,
-    minzoom: MINZOOM,
+    minzoom: z5 ? 5 : MINZOOM - 0.5,
+    ...(z5 ? { maxzoom: MINZOOM - 0.5 } : {}),
     ...(filter === null ? {} : { filter }),
     layout: { visibility: "none", ...hookLineLayout("jpMajorRoads", LAYER_ID), "line-sort-key": JP_ROAD_SORT_KEY },
     paint: hookLinePaint(
@@ -78,7 +85,7 @@ export function useJpMajorRoadsLayer(
     const map = mapRef.current;
     if (!map) return;
     if (!visible) {
-      if (map.getLayer(LAYER_ID)) map.setLayoutProperty(LAYER_ID, "visibility", "none");
+      for (const id of [DETAIL_LAYER_ID, Z5_LAYER_ID]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
       return;
     }
 
@@ -95,11 +102,22 @@ export function useJpMajorRoadsLayer(
           maxzoom: MAXZOOM,
         } as any);
       }
-      if (!map.getLayer(LAYER_ID)) map.addLayer(lineLayer(opacity, classIdx));
-      if (map.getLayer(LAYER_ID)) {
-        map.setLayoutProperty(LAYER_ID, "visibility", "visible");
-        map.setPaintProperty(LAYER_ID, "line-opacity", hookLineOpacity("jpMajorRoads", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
-        map.setFilter(LAYER_ID, jpRoadFilter(classIdx));
+      if (!map.getSource(Z5_SOURCE_ID)) {
+        map.addSource(Z5_SOURCE_ID, {
+          type: PMTILES_SOURCE_TYPE,
+          url: absoluteUrl(Z5_FILE),
+          attribution: JP_ROAD_ATTRIBUTION,
+          minzoom: 5,
+          maxzoom: 5,
+        } as any);
+      }
+      if (!map.getLayer(Z5_LAYER_ID)) map.addLayer(lineLayer(opacity, classIdx, true));
+      if (!map.getLayer(DETAIL_LAYER_ID)) map.addLayer(lineLayer(opacity, classIdx));
+      for (const id of [Z5_LAYER_ID, DETAIL_LAYER_ID]) {
+        if (!map.getLayer(id)) continue;
+        map.setLayoutProperty(id, "visibility", "visible");
+        map.setPaintProperty(id, "line-opacity", hookLineOpacity("jpMajorRoads", id, clampOpacity(opacity), OPACITY_DEFAULT));
+        map.setFilter(id, jpRoadFilter(classIdx));
       }
       if (sourceAdded) {
         keepLoadingUntilMapIdle(map, "jp-major-roads:render", "主要道路 主要道路載入中", SOURCE_ID);

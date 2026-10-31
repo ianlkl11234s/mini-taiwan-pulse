@@ -69,6 +69,10 @@ done
 NETWORK_STRUCTURE_FILES=(
   "public/network_structures/osm_bridge_carriers_20260906.pmtiles"
   "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
+  # §3.8 V-1：z7 起重切檔（舊檔不刪）
+  "public/network_structures/osm_bridge_footprints_20260906_v2.pmtiles"
+  # §3.8 V-5：橋梁輪廓代表點檔
+  "public/network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles"
   "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
   "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
   "public/network_structures/tainan_bridge_inspections_20260924.pmtiles"
@@ -191,8 +195,17 @@ AGRI_FILES=(
   "public/agriculture/crop_suitability_132.pmtiles"
   "public/agriculture/soil_map_national.pmtiles"
   "public/agriculture/soil_fertility_grid_250m.pmtiles"
+  # §3.8 V-1：z7 小檔（原檔 z8 起）
+  "public/agriculture/soil_fertility_grid_250m_z7.pmtiles"
   "public/agriculture/leisure_farm_zones_2025.pmtiles"
   "public/agriculture/rural_regen_communities_2025.pmtiles"
+  # §3.8 V-5 代表點檔（點／面切換；nginx /agriculture/ 是純 volume，不上傳就 404）
+  "public/agriculture/ftw_fields_2025_points.pmtiles"
+  "public/agriculture/crop_suitability_132_points.pmtiles"
+  "public/agriculture/soil_map_national_points.pmtiles"
+  "public/agriculture/leisure_farm_zones_2025_points.pmtiles"
+  "public/agriculture/rural_regen_communities_2025_points.pmtiles"
+  "public/agriculture/eco_network_zones_points.pmtiles"
   "public/agriculture/agriculture_pois.geojson"
   "public/agriculture/agri_wholesale_market_companies.geojson"
   # 2026-09-30 停止部署 agriculture/agri_retail_companies.geojson（前端走 .pmtiles，src 零引用）
@@ -355,6 +368,14 @@ for f in public/education/*.geojson public/education/*.pmtiles; do
   name=$(basename "$f")
   echo "Uploading education/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/education/$name" --region ap-southeast-2
+done
+
+# 防空避難 §3.8 V-1：z7 起重切檔 civil_defense_shelters_v2（舊檔不刪；pull 端 police_justice/ 整夾 sync）
+for f in public/police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading police_justice/civil_defense_shelters/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/police_justice/civil_defense_shelters/$name" --region ap-southeast-2
 done
 
 # 林業圖層：上傳到 deploy-assets/forestry/ 子前綴（鏡像結構，pull 端整夾 sync）
@@ -559,7 +580,11 @@ for f in \
   public/world/jp_major_roads.pmtiles \
   public/world/gb_admin_small_areas.pmtiles \
   public/world/gb_built_up_areas.pmtiles \
+  public/world/gb_built_up_areas_v2.pmtiles \
   public/world/gb_greenspace.pmtiles \
+  public/world/kr_bridges.pmtiles \
+  public/world/kr_speed_cameras.pmtiles \
+  public/world/kr_street_trees.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \

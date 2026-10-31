@@ -216,7 +216,16 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-29: +2 英國第 10 波道路（主要路網 gbMajorRoads、AADF 交通計數點 gbTrafficCountsAadf）。
     // 2026-10-29: +6 英國第 11 波環境與規劃（規劃限制區 gbPlanningConstraints、棕地 gbBrownfield、回收點 gbRecyclingCentres、廢棄物許可 gbWastePermits、污染排放 gbPollutionInventory、噪音 gbNoise）。
     // 2026-10-29: +5 英國第 12 波（公司登記 gbCompanies、製造業 gbManufacturing、殯葬 gbFuneral、養殖 gbAquaculture、土壤母質 gbSoilParentMaterial）。
-    expect(keys.length).toBe(1417);
+    // 2026-10-31: +1 南韓第 0 波（行政區界 krAdminBoundaries）。
+    // 2026-10-31: +5 G36 消防民防與交通事故（2025 A1／A2 事故 trafficAccidents2025、救災資源據點 disasterResourceSites、海嘯警報臺 tsunamiSirens、核電廠集結點與收容處所 nuclearEpzEvacuation、射擊公告區 firingNoticeAreas）。
+    // 2026-10-31: +7 台灣 G37（專用漁業權 exclusiveFisheryRightAreas、毒化物運作場所 toxicChemicalFacilities、重大職災 majorOccupationalAccidents、全國太陽光電施工許可 renewablePermitsNational、國家重要濕地 importantWetlands、水域遊憩禁止／限制區 waterRecreationRestrictedAreas、換電站 batterySwapStations）。
+    // 2026-10-31: +13 南韓第 1 波（交通 6：krBusStops／krRailStations／krAirports／krPorts／krNationalRoads／krRailLines；能源 7：krFuelStations／krPowerPlants／krRenewables／krPowerLines／krSubstations／krPowerTowers／krOilGas）。
+    // 2026-10-31: +5 文化、觀光、原民補強 G35（indigenousRegions、indigenousLanguageDialects、hakkaCulturalZones、tourServiceSites、tourVisitorStats）。
+    // 2026-10-31: +18 南韓第 3–5 波（水系統與海洋 8、公共運輸與道路設施 6、自然保護與林業 4；C101、C117 HOLD 未接）。
+    // 2026-10-31: +33 南韓統計（kr 家族 statsKr*，道級 16／市郡區 256）。
+    // 2026-10-31: +1 英國高爾夫球場 gbGolfCourses（§3.8 從運動場地拆出）。
+    // 2026-10-31: +1 重要濕地功能分區 importantWetlandZones（TWL-16）。
+    expect(keys.length).toBe(1501);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
