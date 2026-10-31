@@ -25,7 +25,7 @@
   "legend.hazard.flood3": "≥15 cm 深刻",
   "legend.hazard.flood4": "≥30 cm 極めて深刻",
   "legend.hazard.fireEventNote": "死傷あり＝大きな赤い点＋目立つ縁取り（その他の点は淡い縁のみ）",
-  "legend.hazard.hydrantCoverage": "公開データがあるのは台北市と高雄市のみ",
+  "legend.hazard.hydrantCoverage": "台北・高雄・新北（台北水道処給水区）は市の公開データ、その他17県市と新北の台湾自来水公司給水区は同社データ（2026-05）。台水の高雄分は市データと重複するため不採用。金門・連江は対象外",
   "legend.hazard.isochroneNote": "自動車道路網による保守的な推計。緊急走行の優先通行は考慮していません（実際はやや広くなります）",
   "legend.hazard.bssPoint1": "既存の一般道路候補区分",
   "legend.hazard.bssPoint2": "既存の高架・高速道路候補区分",
@@ -154,5 +154,6 @@
   "legend.hazard.gbQuakeUnknown": "マグニチュード不明の {n} 件は最小の点で表示",
   "legend.hazard.gbQuakeMinor": "M2 未満の計器観測はズーム {zoom} 以上で表示",
   "legend.hazard.gbQuakeOffshore": "海域の地震 {n} 件を含む（いずれの地域にも属さない）",
-  "legend.hazard.gbQuakeDataEnd": "{date} までのデータ（BGS GeoIndex）"
+  "legend.hazard.gbQuakeDataEnd": "{date} までのデータ（BGS GeoIndex）",
+  "legend.hazard.disasterResourceNote": "消防署救災資源データベース 5,568 か所のうち座標のある 5,379 か所；保管機関の種類は名称のキーワードによる大まかな分類。多くの品目は数量 0 で登録されているため、ポップアップには数量 0 超の品目のみ表示"
 }

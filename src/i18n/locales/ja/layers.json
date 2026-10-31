@@ -1421,5 +1421,10 @@
   "layer.krPowerLines": "送配電線（韓国）",
   "layer.krSubstations": "変電所（韓国）",
   "layer.krPowerTowers": "送電鉄塔（韓国）",
-  "layer.krOilGas": "石油・ガス施設（韓国）"
+  "layer.krOilGas": "石油・ガス施設（韓国）",
+  "layer.trafficAccidents2025": "A1／A2 交通事故",
+  "layer.disasterResourceSites": "救災資源拠点",
+  "layer.tsunamiSirens": "津波警報台",
+  "layer.nuclearEpzEvacuation": "原発の集結地点と収容施設",
+  "layer.firingNoticeAreas": "射撃公告区域"
 }

@@ -60,6 +60,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
   // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
   { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
+  { layers: ["traffic-accidents-2025-circle", "traffic-accidents-2025-glow"], type: "trafficAccidents2025" },
+  { layers: ["disaster-resource-sites-circle", "disaster-resource-sites-glow"], type: "disasterResourceSites" },
+  { layers: ["tsunami-sirens-circle", "tsunami-sirens-glow"], type: "tsunamiSirens" },
+  { layers: ["nuclear-epz-evacuation-circle", "nuclear-epz-evacuation-glow"], type: "nuclearEpzEvacuation" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
@@ -514,6 +518,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
   //    海峽的大面積 polygon，first-hit-wins 之下船點若排在它後面就永遠點不到。
   { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
+  { layers: ["firing-notice-areas-fill"], type: "firingNoticeAreas" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },

@@ -1421,5 +1421,10 @@
   "layer.krPowerLines": "Power Lines (South Korea)",
   "layer.krSubstations": "Substations (South Korea)",
   "layer.krPowerTowers": "Power Towers (South Korea)",
-  "layer.krOilGas": "Oil & Gas Facilities (South Korea)"
+  "layer.krOilGas": "Oil & Gas Facilities (South Korea)",
+  "layer.trafficAccidents2025": "A1/A2 Traffic Accidents",
+  "layer.disasterResourceSites": "Disaster Resource Sites",
+  "layer.tsunamiSirens": "Tsunami Sirens",
+  "layer.nuclearEpzEvacuation": "Nuclear Plant Assembly Points & Shelters",
+  "layer.firingNoticeAreas": "Live-fire Notice Areas"
 }

@@ -9,21 +9,23 @@ import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
 import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
-import { fireStationColorMatch } from "../data/fireTypes";
+import { FIRE_HYDRANT_CAT_COLOR, fireStationColorMatch } from "../data/fireTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
-/** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
-const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
+/** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
+const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
+const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
 
 /**
  * R5（P-4）密集點的出點縮放：第一參數＝全資料集點數（2026-10-02 量測），第二參數＝原本點的 minzoom
  * （較高者保留，不讓點比原本更早出現）。熱區畫在這個縮放以下。
  */
 const DENSE_FROM = {
+  trafficAccidents2025: densePointsFromZoom(321_534, 5),
   pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
   streetTreesNational: densePointsFromZoom(210_436),
   manufacturingCompanyPoints: densePointsFromZoom(184_944),
@@ -261,6 +263,10 @@ import {
   internetServiceTypeFilter, needleServiceFilter, prepFundingFilter, selftestChannelFilter, smokingFacilityFilter,
   treatmentCategoryFilter,
 } from "../data/harmReductionTypes";
+import {
+  DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR,
+  disasterResourceHolderFilter, firingAgencyFilter, g36ColorExpression, nuclearEpzKindFilter, trafficAccidentFilter,
+} from "../data/safetyG36Types";
 import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
@@ -521,9 +527,12 @@ function publicLifePointOverlay(
     labelMinzoom?: number;
     /** R5 密集點：出點縮放以下畫熱區（點數 ≥ 10k 才給）。 */
     dense?: { pointsFromZoom: number; intensity: number };
+    /** circle-sort-key（值大者畫在上層），例如讓少數嚴重事件不被大量輕微事件蓋住。 */
+    sortKey?: unknown;
   },
 ): OverlayConfig {
   const paramFilter = options?.filter;
+  const sortLayout = options?.sortKey === undefined ? {} : { layout: { "circle-sort-key": options.sortKey } };
   const filterProps = paramFilter ? { filter: paramFilter } : {};
   const dense = options?.dense;
   const pointMinzoom = dense ? { minzoom: dense.pointsFromZoom } : {};
@@ -561,12 +570,12 @@ function publicLifePointOverlay(
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     { suffix: "circle", type: "circle", ...pointMinzoom, paint: (dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     ...labelLayers,
   ] };
 }
@@ -590,6 +599,25 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
 ];
 
 /** 減害服務：官方名冊 GeoJSON＋酒駕事故 PMTiles（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
+/** G36（2026-10-31）消防、民防、情勢與交通事故：點層共用公共生活點層 helper（attribution 明傳），射擊公告區為面。 */
+const G36_SAFETY_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 }, sortKey: ["match", ["get", "cat"], "A1", 1, 0] }),
+  publicLifePointOverlay("disasterResourceSites", "./geo/disaster_resource_sites.geojson", "disaster-resource-sites", g36ColorExpression("holder", DISASTER_RESOURCE_HOLDER_OPTIONS), undefined, "內政部消防署 救災資源資料庫（data.gov.tw 77862）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterResourceHolderFilter(p?.disasterResourceSitesHolderMask) }),
+  publicLifePointOverlay("tsunamiSirens", "./hazards/tsunami_sirens.geojson", "tsunami-sirens", TSUNAMI_SIREN_COLOR, undefined, "內政部警政署 全國海嘯警報臺（data.gov.tw 34102）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12 }),
+  publicLifePointOverlay("nuclearEpzEvacuation", "./hazards/nuclear_epz_evacuation.geojson", "nuclear-epz-evacuation", g36ColorExpression("kind", NUCLEAR_EPZ_KIND_OPTIONS), undefined, "核能安全委員會 核電廠緊急應變計畫區集結點與避難收容處所（data.gov.tw 102114／102434）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12, filter: (p) => nuclearEpzKindFilter(p?.nuclearEpzEvacuationKindMask) }),
+  {
+    id: "firingNoticeAreas",
+    sourceUrl: "./marine/firing_notice_areas.geojson",
+    sourceId: "firing-notice-areas",
+    attribution: "國防部海軍司令部（data.gov.tw 136419）、海洋委員會海巡署（143315）· 政府資料開放授權條款第1版 · 公告範圍，非即時狀態",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => firingAgencyFilter(p?.firingNoticeAreasAgencyMask), paint: (_dark, p) => ({ "fill-color": g36ColorExpression("agency", FIRING_AGENCY_OPTIONS), "fill-opacity": (p?.firingNoticeAreasOpacity ?? 0.6) * 0.18 }) },
+      { suffix: "outline", type: "line", filter: (p) => firingAgencyFilter(p?.firingNoticeAreasAgencyMask), paint: (_dark, p) => ({ "line-color": g36ColorExpression("agency", FIRING_AGENCY_OPTIONS), "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.8, 10, 1.8], "line-dasharray": [4, 3], "line-opacity": p?.firingNoticeAreasOpacity ?? 0.6 }) },
+    ],
+  },
+];
+
 const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("harmReductionNeedle", "./harm_reduction/needle_points.geojson", "harm-reduction-needle", HARM_REDUCTION_COLORS.harmReductionNeedle, undefined, "衛生福利部疾病管制署 清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單", undefined, { labelMinzoom: 14, filter: (p) => needleServiceFilter(p?.harmReductionNeedleServiceMask, p?.harmReductionNeedleOnly24h) }),
   publicLifePointOverlay("harmReductionTreatment", "./harm_reduction/drug_treatment_facilities.geojson", "harm-reduction-treatment", categoryColorExpression("category", TREATMENT_CATEGORY_OPTIONS), undefined, "衛生福利部 指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353", undefined, { labelMinzoom: 13, filter: (p) => treatmentCategoryFilter(p?.harmReductionTreatmentCategoryMask) }),
@@ -2255,12 +2283,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
+  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點 cat="台水"）──
   // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
   // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
-    sourceUrl: "./geo/fire_hydrants.pmtiles",
+    sourceUrl: "./geo/fire_hydrants_national.pmtiles",
     sourceId: "fire-hydrants",
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
@@ -2270,7 +2298,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "heatmap",
         maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
         // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
-        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
+        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT) / FIRE_HYDRANTS_OPACITY_DEFAULT, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
       },
       {
         suffix: "glow",
@@ -2278,7 +2306,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.75;
+          const opacity = p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2288,9 +2316,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-blur": 1,
             "circle-color": [
               "match", ["get", "cat"],
-              "地上式", "#2196f3",
-              "地下式", "#00acc1",
-              "#90a4ae",
+              "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
+              "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
+              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
+              FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
             "circle-translate": [0, -z],
@@ -2304,7 +2333,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.75;
+          const opacity = p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2313,9 +2342,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": [
               "match", ["get", "cat"],
-              "地上式", "#2196f3",
-              "地下式", "#00acc1",
-              "#90a4ae",
+              "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
+              "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
+              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
+              FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
             "circle-stroke-width": [
@@ -11692,6 +11722,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
 OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
+OVERLAY_REGISTRY.push(...G36_SAFETY_OVERLAYS);
 OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
 
 /**

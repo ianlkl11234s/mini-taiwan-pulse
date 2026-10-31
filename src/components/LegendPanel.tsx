@@ -27,6 +27,7 @@ import { INFERNO, VIRIDIS, MAGMA } from "../map/demographicsLayerFactory";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
+import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
@@ -151,6 +152,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "harmReductionCondomOutlets", render: () => <HarmReductionCondomOutletsLegend /> },
   { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
   { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
+  { id: "trafficAccidents2025", render: () => <TrafficAccidents2025Legend /> },
   { id: "drinkingWaterPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.drinkingWater")} color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.wasteBaskets")} color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.recyclingPoints")} color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra={i18n.t("legend.registry.recyclingExtra")} /> },
@@ -449,6 +451,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "realEstateRentalGrid", render: ({ visibility, overlayParams, isDark }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} isDark={isDark} /> },
   { id: "fireStations", render: () => <FireStationLegend /> },
   { id: "fireHydrants", render: () => <FireHydrantLegend /> },
+  { id: "disasterResourceSites", render: () => <DisasterResourceSitesLegend /> },
+  { id: "tsunamiSirens", render: () => <TsunamiSirensLegend /> },
+  { id: "nuclearEpzEvacuation", render: () => <NuclearEpzEvacuationLegend /> },
+  { id: "firingNoticeAreas", render: () => <FiringNoticeAreasLegend /> },
   // R5：單色密集點拉遠改熱區，補圖例說明熱區色階（點色與 overlayRegistry 同）
   { id: "busStationsCity", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="busStationsCity" label={i18n.t("legend.registry.busStationsCity")} color={isDark ? "#66bb6a" : "#388e3c"} /> },
   { id: "busStationsIntercity", render: ({ isDark, i18n }) => <DenseSingleColorLegend layer="busStationsIntercity" label={i18n.t("legend.registry.busStationsIntercity")} color={isDark ? "#ab47bc" : "#7b1fa2"} /> },

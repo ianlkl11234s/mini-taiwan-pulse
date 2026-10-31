@@ -10,5 +10,12 @@
   "popup.fire.withinMinutes": "{minutes} 分以内",
   "popup.fire.cumulativeArea": "累積到達可能面積",
   "popup.fire.ringArea": "この区分の帯の面積",
-  "popup.fire.isochroneNote": "⚠️ 自動車道路網による保守的な推定で、消防車の優先通行は考慮していません"
+  "popup.fire.isochroneNote": "⚠️ 自動車道路網による保守的な推定で、消防車の優先通行は考慮していません",
+  "popup.fire.resourceTitle": "救災資源拠点",
+  "popup.fire.resourceHolder": "保管機関の種類",
+  "popup.fire.resourceCounts": "品目",
+  "popup.fire.resourceCountsValue": "{total} 品目中 {positive} 品目に数量登録あり",
+  "popup.fire.resourceItems": "登録品目（数量 > 0）",
+  "popup.fire.resourceNone": "数量が 0 を超える品目なし",
+  "popup.fire.hydrantTypeCode": "台水の種類コード"
 }

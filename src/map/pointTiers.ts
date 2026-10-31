@@ -156,6 +156,10 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   lpgSubpackaging: "M", // LPG 分裝 / 儲存場 Subpackaging
   materialRecyclingPoints: "M", // 資源回收點 Recycling
   emergencyHospitals: "M", // 急救責任醫院分級 Emergency Hospitals
+  tsunamiSirens: "M", // 海嘯警報臺 Tsunami Sirens
+  nuclearEpzEvacuation: "M", // 核電廠集結點與收容處所
+  disasterResourceSites: "S", // 救災資源據點
+  trafficAccidents2025: "S", // 2025 A1／A2 交通事故
   mountainHuts: "M", // 山屋・高山營地 Mountain Huts
   nuclearRadiation: "M", // 核安輻射 Radiation
   officialBridgesHsinchu: "M", // 新竹市橋梁清冊
