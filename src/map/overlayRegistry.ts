@@ -10402,7 +10402,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 5. 文化資產 Heritage（2,894 點，category 三類同色系分色，1k~10k 半徑 3→6）
   {
     id: "tourHeritage",
-    sourceUrl: "./tourism/heritage_national.geojson",
+    sourceUrl: "./tourism/heritage_national_v2.geojson",
     sourceId: "tour-heritage",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [

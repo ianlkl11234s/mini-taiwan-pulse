@@ -5868,14 +5868,14 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "heritage", confidence: "HIGH" }],
-      note: "文化資產全國 2,894 點（docs/data-catalog/tourism/heritage.md）",
+      note: "文化資產全國 3,013 點、七類（docs/data-catalog/tourism/heritage.md）",
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "tour-heritage", url: "./tourism/heritage_national.geojson" },
+    source: { kind: "geojson", sourceId: "tour-heritage", url: "./tourism/heritage_national_v2.geojson" },
     legend: "tourHeritage",
     popup: "tourHeritage",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "文化資產全國 2,894 點（category 三類同色系分色，基底 #6d4c41）",
+    description: "文化資產全國 3,013 點（古蹟、歷史建築、文化景觀、考古遺址、聚落建築群、紀念建築、史蹟七類同色系分色，基底 #6d4c41）",
     topics: ["觀光", "文資", "人文"],
   },
 

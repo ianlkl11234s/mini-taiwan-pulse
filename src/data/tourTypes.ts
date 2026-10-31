@@ -68,12 +68,16 @@ export const TOUR_HOTEL_CLASS_INFO: Record<string, { label: string; color: strin
   "4": { label: "民宿", color: "#43a047" },
 };
 
-// tourHeritage category 三類同色系分色（fallback 基底 #6d4c41）
+// tourHeritage category 七類同色系分色（fallback 基底 #6d4c41）
 export const TOUR_HERITAGE_CATEGORY_COLOR: unknown[] = [
   "match", ["get", "category"],
   "古蹟", "#5d4037",
   "歷史建築", "#8d6e63",
   "文化景觀", "#a1887f",
+  "考古遺址", "#b7791f",
+  "聚落建築群", "#9c6644",
+  "紀念建築", "#c9a227",
+  "史蹟", "#bf6f4a",
   "#6d4c41",
 ];
 
@@ -82,6 +86,10 @@ export const TOUR_HERITAGE_CATS: { color: string; label: string }[] = [
   { color: "#5d4037", label: "古蹟 Monument" },
   { color: "#8d6e63", label: "歷史建築 Historic Building" },
   { color: "#a1887f", label: "文化景觀 Cultural Landscape" },
+  { color: "#b7791f", label: "考古遺址 Archaeological Site" },
+  { color: "#9c6644", label: "聚落建築群 Historic Settlement" },
+  { color: "#c9a227", label: "紀念建築 Commemorative Building" },
+  { color: "#bf6f4a", label: "史蹟 Historic Site" },
 ];
 
 /**
@@ -92,4 +100,8 @@ export const TOUR_HERITAGE_CATEGORY_COLOR_MAP: Record<string, string> = {
   古蹟: "#5d4037",
   歷史建築: "#8d6e63",
   文化景觀: "#a1887f",
+  考古遺址: "#b7791f",
+  聚落建築群: "#9c6644",
+  紀念建築: "#c9a227",
+  史蹟: "#bf6f4a",
 };
