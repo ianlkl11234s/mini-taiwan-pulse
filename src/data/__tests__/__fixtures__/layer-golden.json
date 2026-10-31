@@ -1034,7 +1034,8 @@
     },
     {
       "layers": [
-        "jp-major-roads-line"
+        "jp-major-roads-line",
+        "jp-major-roads-z5-line"
       ],
       "type": "jpMajorRoads"
     },
@@ -1643,12 +1644,14 @@
     },
     {
       "layers": [
-        "gb-flood-defences-line"
+        "gb-flood-defences-line",
+        "gb-flood-defences-z5-line"
       ],
       "type": "gbFloodDefenceAssets"
     },
     {
       "layers": [
+        "gb-coastal-erosion-points-circle",
         "gb-coastal-erosion-ni-line",
         "gb-coastal-erosion-fill"
       ],
@@ -1718,7 +1721,8 @@
     },
     {
       "layers": [
-        "gb-open-access-land-fill"
+        "gb-open-access-land-fill",
+        "gb-open-access-land-z5-fill"
       ],
       "type": "gbOpenAccessLand"
     },
@@ -1730,6 +1734,7 @@
     },
     {
       "layers": [
+        "gb-marine-protected-areas-points-circle",
         "gb-marine-protected-areas-line",
         "gb-marine-protected-areas-fill"
       ],
@@ -1737,6 +1742,7 @@
     },
     {
       "layers": [
+        "gb-protected-areas-points-circle",
         "gb-protected-areas-line",
         "gb-protected-areas-fill"
       ],
@@ -1744,6 +1750,7 @@
     },
     {
       "layers": [
+        "gb-oil-gas-points-circle",
         "gb-oil-gas-fields-line",
         "gb-oil-gas-fields-fill"
       ],
@@ -1751,6 +1758,7 @@
     },
     {
       "layers": [
+        "gb-built-up-areas-points-circle",
         "gb-built-up-areas-fill"
       ],
       "type": "gbBuiltUpAreas"
@@ -3387,7 +3395,8 @@
     },
     {
       "layers": [
-        "agri-soil-fertility-fill"
+        "agri-soil-fertility-fill",
+        "agri-soil-fertility-z7-fill"
       ],
       "type": "agriSoilFertility"
     },
@@ -33150,7 +33159,7 @@
       ],
       "pmtiles": {
         "maxzoom": 16,
-        "minzoom": 11,
+        "minzoom": 7,
         "sourceLayer": "tree_pits_taipei"
       },
       "rebuildOnParamChange": [
@@ -33158,7 +33167,7 @@
         "treePitsTaipeiTypeMask"
       ],
       "sourceId": "tree-pits-taipei",
-      "sourceUrl": "./urban/tree_pits_taipei.pmtiles"
+      "sourceUrl": "./urban/tree_pits_taipei_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -47995,7 +48004,9 @@
       "id": "speedCamera",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -48293,7 +48304,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "speedCameraOpacity",
-        "speedCameraScale"
+        "speedCameraScale",
+        "circle"
       ],
       "sourceId": "speed-camera",
       "sourceUrl": "./police_justice/speed_cameras/speed_cameras_20260824.geojson"
@@ -49229,7 +49241,9 @@
       "id": "theftTaoyuan",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -49287,7 +49301,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "theftTaoyuanOpacity",
-        "theftTaoyuanScale"
+        "theftTaoyuanScale",
+        "circle"
       ],
       "sourceId": "theft-taoyuan",
       "sourceUrl": "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson"
@@ -51699,7 +51714,133 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 7,
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -51750,7 +51891,7 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 10,
+        "minzoom": 7,
         "sourceLayer": "civil_defense_shelters"
       },
       "rebuildOnParamChange": [
@@ -51758,7 +51899,7 @@
         "civilDefenseShelterScale"
       ],
       "sourceId": "civil-defense-shelter",
-      "sourceUrl": "./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles"
+      "sourceUrl": "./police_justice/civil_defense_shelters/civil_defense_shelters_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -63236,7 +63377,7 @@
       ],
       "pmtiles": {
         "maxzoom": 15,
-        "minzoom": 8,
+        "minzoom": 7,
         "sourceLayer": "campus_polygon"
       },
       "rebuildOnParamChange": [
@@ -63244,7 +63385,7 @@
         "line"
       ],
       "sourceId": "edu-campus",
-      "sourceUrl": "./education/campus_polygon.pmtiles"
+      "sourceUrl": "./education/campus_polygon_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -63324,12 +63465,12 @@
       ],
       "pmtiles": {
         "maxzoom": 15,
-        "minzoom": 8,
+        "minzoom": 7,
         "sourceLayer": "campus_polygon"
       },
       "rebuildOnParamChange": null,
       "sourceId": "edu-campus",
-      "sourceUrl": "./education/campus_polygon.pmtiles"
+      "sourceUrl": "./education/campus_polygon_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -64218,7 +64359,135 @@
             "all"
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(84,90,109,0.00)",
+                0.05,
+                "rgba(84,90,109,0.11)",
+                0.15,
+                "rgba(111,112,115,0.33)",
+                0.3,
+                "rgba(138,134,120,0.66)",
+                0.45,
+                "rgba(168,157,115,0.99)",
+                0.6,
+                "rgba(197,181,104,1.00)",
+                0.8,
+                "rgba(227,206,83,1.00)",
+                1,
+                "rgba(254,232,56,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(177,165,112,0.00)",
+                0.05,
+                "rgba(177,165,112,0.11)",
+                0.15,
+                "rgba(150,143,119,0.33)",
+                0.3,
+                "rgba(123,122,120,0.66)",
+                0.45,
+                "rgba(98,102,111,0.99)",
+                0.6,
+                "rgba(72,82,108,1.00)",
+                0.8,
+                "rgba(39,62,110,1.00)",
+                1,
+                "rgba(0,43,98,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -64339,14 +64608,15 @@
       ],
       "pmtiles": {
         "maxzoom": 15,
-        "minzoom": 8,
+        "minzoom": 7,
         "sourceLayer": "cram_schools"
       },
       "rebuildOnParamChange": [
-        "circle"
+        "circle",
+        "heatmap"
       ],
       "sourceId": "edu-cram",
-      "sourceUrl": "./education/cram_schools.pmtiles"
+      "sourceUrl": "./education/cram_schools_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -65395,12 +65665,12 @@
       ],
       "pmtiles": {
         "maxzoom": 15,
-        "minzoom": 8,
+        "minzoom": 7,
         "sourceLayer": "osm_bridge_footprints"
       },
       "rebuildOnParamChange": null,
       "sourceId": "osm-bridge-footprints",
-      "sourceUrl": "./network_structures/osm_bridge_footprints_20260906.pmtiles"
+      "sourceUrl": "./network_structures/osm_bridge_footprints_20260906_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -74843,7 +75113,7 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 9,
+        "minzoom": 7,
         "sourceLayer": "provincial_road_signs"
       },
       "rebuildOnParamChange": [
@@ -74852,7 +75122,7 @@
         "circle"
       ],
       "sourceId": "provincial-road-signs",
-      "sourceUrl": "./geo/provincial_road_signs.pmtiles"
+      "sourceUrl": "./geo/provincial_road_signs_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -74862,7 +75132,133 @@
         {
           "filter": null,
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(111,83,81,0.00)",
+                0.05,
+                "rgba(111,83,81,0.11)",
+                0.15,
+                "rgba(116,116,84,0.33)",
+                0.3,
+                "rgba(122,147,88,0.66)",
+                0.45,
+                "rgba(132,177,99,0.99)",
+                0.6,
+                "rgba(150,205,121,1.00)",
+                0.8,
+                "rgba(179,229,156,1.00)",
+                1,
+                "rgba(222,249,203,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(134,181,101,0.00)",
+                0.05,
+                "rgba(134,181,101,0.11)",
+                0.15,
+                "rgba(124,155,90,0.33)",
+                0.3,
+                "rgba(119,128,85,0.66)",
+                0.45,
+                "rgba(114,99,82,0.99)",
+                0.6,
+                "rgba(107,70,79,1.00)",
+                0.8,
+                "rgba(91,46,74,1.00)",
+                1,
+                "rgba(67,28,65,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.8,
@@ -74911,7 +75307,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": "#0f766e",
@@ -74992,7 +75388,7 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 11,
+        "minzoom": 7,
         "sourceLayer": "provincial_road_mileposts"
       },
       "rebuildOnParamChange": [
@@ -75000,7 +75396,7 @@
         "circle"
       ],
       "sourceId": "provincial-road-mileposts",
-      "sourceUrl": "./geo/provincial_road_mileposts.pmtiles"
+      "sourceUrl": "./geo/provincial_road_mileposts_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -75013,7 +75409,136 @@
             "sign_group"
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(145,52,92,0.00)",
+                0.05,
+                "rgba(145,52,92,0.11)",
+                0.15,
+                "rgba(171,69,107,0.33)",
+                0.3,
+                "rgba(196,89,121,0.66)",
+                0.45,
+                "rgba(216,114,136,0.99)",
+                0.6,
+                "rgba(233,140,153,1.00)",
+                0.8,
+                "rgba(246,169,172,1.00)",
+                1,
+                "rgba(255,198,196,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(230,136,149,0.00)",
+                0.05,
+                "rgba(230,136,149,0.11)",
+                0.15,
+                "rgba(215,112,135,0.33)",
+                0.3,
+                "rgba(197,90,121,0.66)",
+                0.45,
+                "rgba(175,72,109,0.99)",
+                0.6,
+                "rgba(152,56,96,1.00)",
+                0.8,
+                "rgba(128,43,82,1.00)",
+                1,
+                "rgba(103,32,68,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "sign_group"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.8,
@@ -75091,7 +75616,7 @@
             "sign_group"
           ],
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -75198,15 +75723,16 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 10,
+        "minzoom": 7,
         "sourceLayer": "freeway_traffic_signs"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
       "sourceId": "freeway-traffic-signs",
-      "sourceUrl": "./geo/freeway_traffic_signs.pmtiles"
+      "sourceUrl": "./geo/freeway_traffic_signs_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -75635,7 +76161,7 @@
             ]
           ],
           "layout": null,
-          "minzoom": 8,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "line-color": [
@@ -75721,7 +76247,7 @@
             ]
           ],
           "layout": null,
-          "minzoom": 8,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "circle-color": [
@@ -75774,7 +76300,7 @@
       ],
       "pmtiles": {
         "maxzoom": 12,
-        "minzoom": 8,
+        "minzoom": 7,
         "sourceLayer": "provincial_road_monitored_sections"
       },
       "rebuildOnParamChange": [
@@ -75782,7 +76308,7 @@
         "point"
       ],
       "sourceId": "provincial-road-monitored",
-      "sourceUrl": "./geo/provincial_road_monitored_sections.pmtiles"
+      "sourceUrl": "./geo/provincial_road_monitored_sections_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -79651,7 +80177,136 @@
             "category"
           ],
           "layout": null,
+          "maxzoom": 10.01,
           "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(54,92,141,0.00)",
+                0.05,
+                "rgba(54,92,141,0.11)",
+                0.15,
+                "rgba(40,124,142,0.33)",
+                0.3,
+                "rgba(31,154,138,0.66)",
+                0.45,
+                "rgba(52,183,121,0.99)",
+                0.6,
+                "rgba(111,207,88,1.00)",
+                0.8,
+                "rgba(184,222,41,1.00)",
+                1,
+                "rgba(253,231,37,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(70,192,111,0.00)",
+                0.05,
+                "rgba(70,192,111,0.11)",
+                0.15,
+                "rgba(33,166,133,0.33)",
+                0.3,
+                "rgba(35,138,141,0.66)",
+                0.45,
+                "rgba(46,110,142,0.99)",
+                0.6,
+                "rgba(60,78,138,1.00)",
+                0.8,
+                "rgba(71,43,122,1.00)",
+                1,
+                "rgba(70,8,92,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "has",
+            "category"
+          ],
+          "layout": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-blur": 0.8,
@@ -79733,7 +80388,7 @@
             "category"
           ],
           "layout": null,
-          "minzoom": null,
+          "minzoom": 10,
           "paint": {
             "dark": {
               "circle-color": [
@@ -79844,15 +80499,16 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 9,
+        "minzoom": 7,
         "sourceLayer": "place_names_moi"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
       "sourceId": "place-names-moi",
-      "sourceUrl": "./geo/place_names_moi.pmtiles"
+      "sourceUrl": "./geo/place_names_moi_v2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -90634,6 +91290,83 @@
     ],
     "civilDefenseShelter": [
       {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -93289,6 +94022,83 @@
         ]
       },
       {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -95633,6 +96443,83 @@
         ]
       },
       {
+        "defaultValue": "Burg",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "Burg"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -96261,6 +97148,30 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbCareHomes": [
@@ -96654,6 +97565,83 @@
         "value": "long"
       },
       {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -96661,6 +97649,30 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbCompanies": [
@@ -97650,6 +98662,30 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "gbMaritimeLimits": [
@@ -97721,6 +98757,30 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "gbOpenAccessLand": [
@@ -98129,6 +99189,30 @@
         "step": 0.05,
         "value": 0.45,
         "valueText": "0.45"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "gbRadiation": [
@@ -112055,6 +113139,83 @@
         ]
       },
       {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -113979,6 +115140,83 @@
       }
     ],
     "provincialRoadMileposts": [
+      {
+        "defaultValue": "tokyo",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "tokyo"
+      },
       {
         "label": "透明度 0.75",
         "max": 1,
@@ -116596,6 +117834,34 @@
       }
     ],
     "speedCamera": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "一般測速",
+            "value": "speed_camera_general"
+          },
+          {
+            "label": "國道測速",
+            "value": "speed_camera_freeway"
+          },
+          {
+            "label": "闖紅燈照相",
+            "value": "red_light_camera"
+          },
+          {
+            "label": "平交道照相",
+            "value": "railway_crossing_camera"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "speed_camera_general",
+          "speed_camera_freeway",
+          "red_light_camera",
+          "railway_crossing_camera"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -151550,6 +152816,34 @@
       }
     ],
     "theftTaoyuan": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "住宅竊盜",
+            "value": "住宅竊盜"
+          },
+          {
+            "label": "汽車竊盜",
+            "value": "汽車竊盜"
+          },
+          {
+            "label": "機車竊盜",
+            "value": "機車竊盜"
+          },
+          {
+            "label": "自行車竊盜",
+            "value": "自行車竊盜"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "住宅竊盜",
+          "汽車竊盜",
+          "機車竊盜",
+          "自行車竊盜"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,

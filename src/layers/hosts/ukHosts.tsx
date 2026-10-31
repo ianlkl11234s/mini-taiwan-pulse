@@ -51,7 +51,7 @@ export const GbOpenSpaceHost: LayerHostComponent = ({ deps }) => {
   const golf = useKeyOverlayParams("gbGolfCourses");
   const burial = useKeyOverlayParams("gbCemeteries");
   useGbOpenSpaceLayers(deps.mapRef, {
-    gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7 },
+    gbBuiltUpAreas: { visible: deps.layerVisibility.gbBuiltUpAreas, opacity: builtUp.gbBuiltUpAreasOpacity ?? 0.7, scale: builtUp.gbBuiltUpAreasScale ?? 1, mode: gbDisplayModeFromIdx(builtUp.gbBuiltUpAreasDisplayModeIdx, "polygon") },
     gbGreenspace: {
       visible: deps.layerVisibility.gbGreenspace, opacity: park.gbGreenspaceOpacity ?? 0.75, scale: park.gbGreenspaceScale ?? 1,
       mode: gbDisplayModeFromIdx(park.gbGreenspaceDisplayModeIdx, "polygon"), categoryMask: park.gbGreenspaceCategoryMask,
@@ -97,7 +97,7 @@ export const GbFloodDefencesHost: LayerHostComponent = ({ deps }) => {
 export const GbCoastalErosionHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbCoastalErosionLayer");
   const p = useKeyOverlayParams("gbCoastalErosionRisk");
-  useGbCoastalErosionLayer(deps.mapRef, deps.layerVisibility.gbCoastalErosionRisk, p.gbCoastalErosionRiskOpacity ?? 0.7, p.gbCoastalErosionRiskPeriodIdx ?? 0, deps.isDarkTheme);
+  useGbCoastalErosionLayer(deps.mapRef, deps.layerVisibility.gbCoastalErosionRisk, p.gbCoastalErosionRiskOpacity ?? 0.7, p.gbCoastalErosionRiskPeriodIdx ?? 0, deps.isDarkTheme, p.gbCoastalErosionRiskScale ?? 1, gbDisplayModeFromIdx(p.gbCoastalErosionRiskDisplayModeIdx, "polygon"));
   return null;
 };
 
@@ -152,14 +152,14 @@ export const GbLondonChargingZonesHost: LayerHostComponent = ({ deps }) => {
 export const GbProtectedAreasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbProtectedAreasLayer");
   const p = useKeyOverlayParams("gbProtectedAreas");
-  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme);
+  useGbProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbProtectedAreas, p.gbProtectedAreasOpacity ?? 0.45, p.gbProtectedAreasGroupIdx ?? 0, deps.isDarkTheme, p.gbProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbProtectedAreasDisplayModeIdx, "point"));
   return null;
 };
 
 export const GbMarineProtectedAreasHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbMarineProtectedAreasLayer");
   const p = useKeyOverlayParams("gbMarineProtectedAreas");
-  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, p.gbMarineProtectedAreasCategoryMask, deps.isDarkTheme);
+  useGbMarineProtectedAreasLayer(deps.mapRef, deps.layerVisibility.gbMarineProtectedAreas, p.gbMarineProtectedAreasOpacity ?? 0.5, p.gbMarineProtectedAreasCategoryMask, deps.isDarkTheme, p.gbMarineProtectedAreasScale ?? 1, gbDisplayModeFromIdx(p.gbMarineProtectedAreasDisplayModeIdx, "point"));
   return null;
 };
 
@@ -237,7 +237,7 @@ export const GbFuelStationsHost: LayerHostComponent = ({ deps }) => {
 export const GbOilGasFieldsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbOilGasFieldsLayer");
   const p = useKeyOverlayParams("gbOilGasFields");
-  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, p.gbOilGasFieldsCategoryMask, deps.isDarkTheme);
+  useGbOilGasFieldsLayer(deps.mapRef, deps.layerVisibility.gbOilGasFields, p.gbOilGasFieldsOpacity ?? 0.6, p.gbOilGasFieldsCategoryMask, deps.isDarkTheme, p.gbOilGasFieldsScale ?? 1, gbDisplayModeFromIdx(p.gbOilGasFieldsDisplayModeIdx, "polygon"));
   return null;
 };
 
