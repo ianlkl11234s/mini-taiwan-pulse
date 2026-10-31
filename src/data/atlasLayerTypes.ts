@@ -58,10 +58,10 @@ export function flaggedColorExpr(base: unknown, flagged: readonly string[] = ["s
 // ── 原民與農村 ──────────────────────────────────────────────────────────
 
 /**
- * 部落點位依族別分色（原民會 16 族；多族並列「、」的 4 筆與其他落灰）。
+ * 部落點位與族語方言共用的原民會 16 族色（2026-11-01 起部落點位也用全部 16 族；多族並列「、」的 8 點與其他落灰）。
  * 2026-10-31：賽德克族原 #9333ea 與排灣族紫（CIE76 ΔE 7.1）、雅美族原 #1d4ed8 與布農族藍（ΔE 9.2）難分 →
  * 改用網站已在用的 #e879f9（亮洋紅）、#14b8a6（淺青綠）→ 各升到 41.3、104.9；挑亮色（L≥42）避免在深色底圖上看不見。
- * 族語方言 16 族＋兩族以上灰兩兩 CIE76 ΔE 最小 20.3（魯凱／拉阿魯哇，兩者都未改）；部落點位 11 族＋兩種灰最小 18.2（其他／非核定兩灰）。
+ * 族語方言 16 族＋兩族以上灰兩兩 CIE76 ΔE 最小 20.3（魯凱／拉阿魯哇，兩者都未改）；部落點位改用同一份 16 族後，另加兩種灰最小 18.2（其他／非核定兩灰）。
  */
 export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "泰雅族", label: "泰雅族", color: "#b45309" },
@@ -75,7 +75,21 @@ export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "卑南族", label: "卑南族", color: "#ea580c" },
   { value: "鄒族", label: "鄒族", color: "#0891b2" },
   { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#14b8a6" },
+  { value: "邵族", label: "邵族", color: "#16a34a" },
+  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#7f1d1d" },
+  { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
+  { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
+  { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
 ];
+/**
+ * 部落點位圖例只列有點的族（2026-11-01：卡那卡那富族沒有單族部落點，1 點與布農族並列歸「其他／多族」）；
+ * 依 public/indigenous_rural/indigenous_tribes.geojson 寫死，資料改版時由 dialectLegend 測試擋下不一致。
+ */
+export const TRIBE_MAPPED_GROUPS: readonly string[] = [
+  "泰雅族", "阿美族", "排灣族", "布農族", "太魯閣族", "賽夏族", "魯凱族", "賽德克族", "卑南族", "鄒族", "雅美族(達悟族)",
+  "邵族", "噶瑪蘭族", "撒奇萊雅族", "拉阿魯哇族",
+];
+export const TRIBE_LEGEND_OPTIONS: readonly AtlasOption[] = TRIBE_ETHNIC_OPTIONS.filter((o) => TRIBE_MAPPED_GROUPS.includes(o.value));
 /** 不在現行核定名單的點位（13 點）以灰色區分。 */
 export const TRIBE_NOT_APPROVED_COLOR = "#64748b";
 
@@ -359,18 +373,13 @@ export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
 // ── 文化、觀光、原民補強 G35（2026-10-31）──────────────────────────────
 
 /**
- * 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。
+ * 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位的 16 族色；一鄉鎮有兩族以上＝multiple。
  * 2026-10-31 TWL-16：邵族原 #be185d 與賽夏族粉紅、噶瑪蘭族原 #0d9488 與太魯閣族青綠在圖例難分 →
  * 改用 atlas 已在用的 #16a34a（綠）；噶瑪蘭族原 #0d9488 先改 #78350f，又因與泰雅族褐色 CIEDE2000 只差 15.2，再改 #7f1d1d（深紅褐，差 22.5）。
  * 邵族（魚池、水里）是地圖上實際塗色的鄉鎮，給綠色避開鄰近泰雅族褐色；噶瑪蘭族目前沒有單族鄉鎮（都併在「兩族以上」）。
  */
 export const DIALECT_GROUP_OPTIONS: readonly AtlasOption[] = [
   ...TRIBE_ETHNIC_OPTIONS,
-  { value: "邵族", label: "邵族", color: "#16a34a" },
-  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#7f1d1d" },
-  { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
-  { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
-  { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
   { value: "multiple", label: "兩族以上", color: "#475569" },
 ];
 /**
