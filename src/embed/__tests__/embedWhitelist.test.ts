@@ -186,7 +186,8 @@ describe("buildEmbedVisibility", () => {
 describe("configsFor", () => {
   it("只回傳被要求且在白名單內的 config", () => {
     const configs = configsFor(["aquaculturePonds"]);
-    expect(configs.map((c) => c.id)).toEqual(["aquaculturePonds"]);
+    // 面層＋代表點 companion（同 id，V-5）
+    expect(new Set(configs.map((c) => c.id))).toEqual(new Set(["aquaculturePonds"]));
   });
 
   it("空輸入回空陣列（不會註冊任何 source）", () => {

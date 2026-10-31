@@ -129,6 +129,9 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   urbanZoningNewTaipei: "cividis",
   nonUrbanZoning: "YlOrBr",
   jpLandslideWarningAreas: "bilbao",
+  // 第三輪（I 軌）：河川同「水資源」主題錯開湖泊埤塘、魚塭同「農業」主題錯開零售
+  waterRivers: "PuBu",
+  aquaculturePonds: "acton",
 };
 
 /**

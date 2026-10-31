@@ -195,7 +195,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "gbMaritimeLimits/gb-maritime-limits-closing": {"width": "keep", "opacity": "standard"}, // 海灣封口線 z8 起 · src/hooks/useGbMaritimeLimitsLayer.ts
   "gbRivers/gb-rivers-line": {"width": "keep", "opacity": "keep"}, // 寬依 form／北愛 Strahler（L-1 三階）、湖中連接段淡化 · src/hooks/useGbWaterLayers.ts
   "gbFloodDefenceAssets/gb-flood-defences-line": {"width": "standard", "opacity": "keep"}, // 透明度：天然高地淡化（資料編碼）· src/hooks/useGbWaterLayers.ts
-  "gbFloodDefenceAssets/gb-flood-defences-z5-line": {"width": "standard", "opacity": "keep"}, // z5 小檔 · src/hooks/useGbWaterLayers.ts
+  "gbFloodDefenceAssets/gb-flood-defences-z5-6-line": {"width": "standard", "opacity": "keep"}, // z5–6 小檔 · src/hooks/useGbWaterLayers.ts
+  "gbCoastalErosionRisk/gb-coastal-erosion-outline": {"width": "keep", "opacity": "keep"}, // 侵蝕帶外框（低縮放加寬，寬度逐縮放）· src/hooks/useGbWaterLayers.ts
   "gbCoastalErosionRisk/gb-coastal-erosion-ni-line": {"width": "emphasis", "opacity": "standard"}, // 北愛 2019 風險等級線 · src/hooks/useGbWaterLayers.ts
   "gbLondonRailLines/gb-london-rail-lines-line": {"width": "standard", "opacity": "standard"}, // 依 mode 5 色 · src/hooks/useGbTransportLayers.ts
   "gbProtectedAreas/gb-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 保護區外框（依類別色）· src/hooks/useGbNatureLayers.ts
@@ -319,7 +320,7 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "gbMarineProtectedAreas/gb-marine-protected-areas-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbWoodland/gb-woodland-fill": "graded", // 林型分類面（類別色，非覆蓋範圍）· src/hooks/useGbNatureLayers.ts
   "gbOpenAccessLand/gb-open-access-land-fill": "coverage", // src/hooks/useGbNatureLayers.ts
-  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5 小檔 · src/hooks/useGbNatureLayers.ts
+  "gbOpenAccessLand/gb-open-access-land-z5-fill": "coverage", // z5–6 小檔 · src/hooks/useGbNatureLayers.ts
   "gbTreeProtection/gb-ancient-woodland-fill": "coverage", // src/hooks/useGbNatureLayers.ts
   "gbOilGasFields/gb-oil-gas-fields-fill": "keep", // 透明度：生產中深、其他淡化（資料編碼）· src/hooks/useGbEnergyLayers.ts
   "gbTreeProtection/gb-tpo-fill": "coverage", // src/hooks/useGbNatureLayers.ts

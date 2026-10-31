@@ -29,6 +29,7 @@ export const GB_HYDRO_CIRCLE_ID = "gb-hydro-stations-circle";
 export const GB_FLOOD_DEFENCE_LINE_ID = "gb-flood-defences-line";
 export const GB_EROSION_FILL_ID = "gb-coastal-erosion-fill";
 export const GB_EROSION_NI_LINE_ID = "gb-coastal-erosion-ni-line";
+export const GB_EROSION_OUTLINE_ID = "gb-coastal-erosion-outline";
 export const GB_EROSION_HEATMAP_ID = "gb-coastal-erosion-points-heatmap";
 export const GB_EROSION_POINT_CIRCLE_ID = "gb-coastal-erosion-points-circle";
 export const GB_BATHING_CIRCLE_ID = "gb-bathing-waters-circle";
@@ -352,14 +353,15 @@ export function useGbHydroStationsLayer(mapRef: React.RefObject<MapboxMap | null
 // ─────────────────────────── 防洪設施 ───────────────────────────
 
 const FLOOD_SOURCE: SourceSpec = {
-  id: "gb-flood-defences", file: "gb_flood_defences.pmtiles", minzoom: 6, maxzoom: 13, attribution: GB_WATER_MAP_ATTRIBUTION.flood, loading: "英國防洪設施載入中",
+  id: "gb-flood-defences", file: "gb_flood_defences.pmtiles", minzoom: 7, maxzoom: 13, attribution: GB_WATER_MAP_ATTRIBUTION.flood, loading: "英國防洪設施載入中",
 };
-// §3.8 V-1／V-2：z5 另有小檔（只含非天然設施的低縮放段），兩個 source 接續：z5 小檔畫到 z5.5 前，原檔 z5.5 起。
-// 接點是 5.5 不是 6：pmtiles source 的圖磚縮放是四捨五入（z5.5 起抓 z6 圖磚）。⚠️ 原檔 z6 圖磚本身很稀（人工設施 z7 起），z5.5–6 仍近乎空白，需 analytics 補 z5–6 小檔
+// §3.8 V-1／V-2：z5–6 另有小檔（只含非天然設施的低縮放段，analytics `gb_flood_defences_z5_6`），兩個 source 接續：
+// 小檔畫到 z6.5 前，原檔 z6.5 起。接點是 6.5 不是 7：pmtiles source 的圖磚縮放是四捨五入（z6.5 起抓 z7 圖磚）；
+// 原檔 z6 圖磚本身很稀（人工設施 z7 起），所以 z5–6.5 全交給小檔（舊 z5 小檔在 z5.5–6 近乎空白）。
 const FLOOD_Z5_SOURCE: SourceSpec = {
-  id: "gb-flood-defences-z5", file: "gb_flood_defences_z5.pmtiles", minzoom: 5, maxzoom: 5, attribution: GB_WATER_MAP_ATTRIBUTION.flood, loading: "英國防洪設施載入中",
+  id: "gb-flood-defences-z5-6", file: "gb_flood_defences_z5_6.pmtiles", minzoom: 5, maxzoom: 6, attribution: GB_WATER_MAP_ATTRIBUTION.flood, loading: "英國防洪設施載入中",
 };
-export const GB_FLOOD_DEFENCE_Z5_LINE_ID = "gb-flood-defences-z5-line";
+export const GB_FLOOD_DEFENCE_Z5_LINE_ID = "gb-flood-defences-z5-6-line";
 const IS_NATURAL_DEFENCE: Expr = ["==", ["get", "group"], "natural"];
 
 function floodColor(): Expr {
@@ -381,7 +383,7 @@ export function useGbFloodDefencesLayer(mapRef: React.RefObject<MapboxMap | null
   useGbPmtilesLayers(mapRef, FLOOD_Z5_SOURCE, visible, () => [{
     id: GB_FLOOD_DEFENCE_Z5_LINE_ID,
     layer: () => ({
-      id: GB_FLOOD_DEFENCE_Z5_LINE_ID, type: "line", source: FLOOD_Z5_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 5, maxzoom: 5.5,
+      id: GB_FLOOD_DEFENCE_Z5_LINE_ID, type: "line", source: FLOOD_Z5_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 5, maxzoom: 6.5,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: z5Paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_FLOOD_DEFENCE_Z5_LINE_ID, "line-opacity", z5Paint(opacity)["line-opacity"] as any),
@@ -389,7 +391,7 @@ export function useGbFloodDefencesLayer(mapRef: React.RefObject<MapboxMap | null
   useGbPmtilesLayers(mapRef, FLOOD_SOURCE, visible, () => [{
     id: GB_FLOOD_DEFENCE_LINE_ID,
     layer: () => ({
-      id: GB_FLOOD_DEFENCE_LINE_ID, type: "line", source: FLOOD_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 5.5,
+      id: GB_FLOOD_DEFENCE_LINE_ID, type: "line", source: FLOOD_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 6.5,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_FLOOD_DEFENCE_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
@@ -451,6 +453,10 @@ export function useGbCoastalErosionLayer(
   }, heatStyle);
   const fillPaint = (op: number) => hookFillPaint("gbCoastalErosionRisk", GB_EROSION_FILL_ID,
     { "fill-color": erosionZoneColor(), "fill-opacity": clamp01(op) }, { "fill-color": erosionZoneColor(), "fill-opacity": def }, isDark);
+  // 海岸侵蝕帶是沿岸細條，拉遠時 fill 只剩髮絲：加同色外框（F-2 覆蓋面外框 1px、同色），低縮放加寬到 2.2px 讓全英視角讀得到（寬度逐縮放，故 tier＝keep）
+  const outlinePaint = (op: number) => hookLinePaint("gbCoastalErosionRisk", GB_EROSION_OUTLINE_ID,
+    { "line-color": erosionZoneColor(), "line-width": ["interpolate", ["linear"], ["zoom"], 5, 2.2, 8, 1.5, 10, 1], "line-opacity": clamp01(op) },
+    { "line-color": erosionZoneColor(), "line-width": 1, "line-opacity": def }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbCoastalErosionRisk", GB_EROSION_NI_LINE_ID,
     { "line-color": erosionRiskColor(), "line-width": 3.5, "line-opacity": clamp01(op) },
     { "line-color": erosionRiskColor(), "line-width": 3.5, "line-opacity": def }, isDark);
@@ -467,6 +473,19 @@ export function useGbCoastalErosionLayer(
       update: (map) => {
         map.setFilter(GB_EROSION_FILL_ID, gbErosionZoneFilter(period) as any);
         map.setPaintProperty(GB_EROSION_FILL_ID, "fill-opacity", fillPaint(opacity)["fill-opacity"] as any);
+      },
+    },
+    {
+      id: GB_EROSION_OUTLINE_ID,
+      layer: () => ({
+        id: GB_EROSION_OUTLINE_ID, type: "line", source: EROSION_SOURCE.id, "source-layer": "gb_coastal_erosion", minzoom: EROSION_SOURCE.minzoom,
+        filter: gbErosionZoneFilter(period),
+        layout: { visibility: "none", "line-cap": "round", "line-join": "round", "line-sort-key": ["-", 0, ["coalesce", ["get", "horizon_year"], 0]] },
+        paint: outlinePaint(opacity),
+      } as unknown as AnyLayer),
+      update: (map) => {
+        map.setFilter(GB_EROSION_OUTLINE_ID, gbErosionZoneFilter(period) as any);
+        map.setPaintProperty(GB_EROSION_OUTLINE_ID, "line-opacity", outlinePaint(opacity)["line-opacity"] as any);
       },
     },
     {

@@ -75,6 +75,11 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "coastalAreaExtents", sourceId: "coastal-area-extents", file: "marine/coastal_area_extents_points.pmtiles", sourceLayer: "coastal_area_extents_points", count: 343, def: "polygon" }),
   R({ key: "industrialParkBoundaries", sourceId: "industrial-zone-park-boundaries", file: "industrial_zone/industrial_park_boundaries_20260818_points.pmtiles", sourceLayer: "industrial_park_boundaries_points", count: 215, def: "point" }),
   R({ key: "industrialParkComparison", sourceId: "business-registry-industrial-park-comparison", file: "business_registry/industrial_park_comparison_20260818_points.pmtiles", sourceLayer: "industrial_park_comparison_points", count: 215, def: "point" }),
+  // 第三輪（I 軌）：崩塌地、魚塭小而零散預設點；河川面、橋梁輪廓預設面（拉遠時代表點／熱區補位）
+  R({ key: "landslideAnnual", sourceId: "landslide-annual", file: "hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", count: 143_511, def: "point", thinned: 2, heatIntensity: 0.2 }),
+  R({ key: "aquaculturePonds", sourceId: "aquaculture-ponds", file: "fishery/aquaculture_ponds_osm_points.pmtiles", sourceLayer: "aquaculture_ponds_osm_points", count: 15_241, def: "point", heatIntensity: 0.3 }),
+  R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),
   // 淹水：10 情境一個情境一支（切情境換 source，同 `sourceUrlByParam`），tile layer 統一 flood_scenario_points
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──

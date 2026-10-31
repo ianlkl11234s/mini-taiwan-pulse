@@ -363,7 +363,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-major-roads-line"], type: "gbMajorRoads" },
   { layers: ["gb-hydro-stations-circle"], type: "gbHydroStations" },
   { layers: ["gb-bathing-waters-circle"], type: "gbBathingWaters" },
-  { layers: ["gb-flood-defences-line", "gb-flood-defences-z5-line"], type: "gbFloodDefenceAssets" },
+  { layers: ["gb-flood-defences-line", "gb-flood-defences-z5-6-line"], type: "gbFloodDefenceAssets" },
   { layers: ["gb-coastal-erosion-points-circle", "gb-coastal-erosion-ni-line", "gb-coastal-erosion-fill"], type: "gbCoastalErosionRisk" },
   { layers: ["gb-rivers-line"], type: "gbRivers" },
   // §3.8 V-5 綠地四層的代表點（「點」模式；高爾夫球場「面」模式 z<10 也用），點先於面

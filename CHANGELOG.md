@@ -106,6 +106,10 @@
 
 - 英國圖層全英視角可見（設計規格 §3.8）：統計小區 z5 起（z5–7 用簡化界線）、建成區 z3 起、交通樞紐各縮放可見、倫敦道路攝影機與森林遊憩 z5 起，其餘多層把出現縮放降到圖磚實際起點（河川 z5、防洪與海岸侵蝕 z6、噪音 z5、倫敦車站 z8、單車站 z9、收費區 z6、公有林步道 z6）；林地、開放進入地、樹木保護、規劃限制區、綠地四層新增「點位／面」切換（規劃限制區、墓園預設點位，縮小時為密度熱區）；AADF 交通計數點、森林遊憩加密度熱區；學校、醫療、照護、法院、文化、藝文、觀光、交通樞紐、倫敦軌道、電廠、油氣田、回收、殯葬、養殖、海洋保護區、森林遊憩、開放進入地、樹木保護、綠地加「類別」多選篩選；高爾夫球場從「運動場地」拆成獨立圖層（舊分享網址的運動場地不再含高爾夫）；倫敦道路攝影機彈窗嵌入 TfL 即時快照（只在開啟彈窗時載入一張，不輪詢）
   - 發版注意事項：`public/world/gb_built_up_areas_v2.pmtiles`（42MB）於發版當天上傳 S3 `deploy-assets/world/`（已加進 `scripts/deploy/upload-deploy-assets.sh`）；未上傳就發版，建成區在正式站會是空的。其餘 8 個新檔（統計小區 z5–7、交通樞紐／攝影機／森林遊憩 `_v2`、林地／開放進入地／樹木保護／規劃限制區代表點，皆 <20MB）已 git-track
+- 拉遠可見性最後一輪（§3.8 V-5，接上 analytics 第三輪重切檔）：年度全島崩塌地（14.4 萬點，預設點、低縮放熱區）、逐口魚塭（1.5 萬點，預設點、低縮放熱區）、河川面（1.3 萬點，預設面、拉遠補熱區）、OSM 橋梁輪廓（1,505 點，預設面、拉遠補代表點）新增「樣式（點位／面）」切換，崩塌地、魚塭、河川另有「熱區顏色」（河川藍紫、魚塭紫、崩塌地紅）
+- 英國防洪設施 z5–6 補一支小檔 `gb_flood_defences_z5_6`（取代只含 z5 的舊小檔），原檔改從 z6.5 起，修掉全英視角 z5.5–6 空白
+- 英國海岸侵蝕（面樣式）加同色外框：z5 起 2.2px、z10 縮到 1px，拉遠時北愛、蘇格蘭、英格蘭、威爾斯海岸都看得到
+- 發版注意：新檔清單。**S3 deploy-assets（gitignored，發版當天要上傳；未上傳這幾層在正式站會 404／空白）**：`hazards/landslide_annual_swcb_20261006_points.pmtiles`（5.0MB，既有 `landslide_annual_swcb_*` glob 會帶上）、`geo/water_river_polygons_points.pmtiles`（0.8MB，既有 `water_*.pmtiles` glob）、`network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles`（0.3MB，已加進 `upload-deploy-assets.sh` 的 NETWORK_STRUCTURE_FILES）；`world/gb_flood_defences_z5_6.pmtiles`（0.9MB）、`fishery/aquaculture_ponds_osm_points.pmtiles`（1.3MB）走 git。全部 < 20MB，沒有大檔
 
 ### 修正
 - 英國山體陰影、色別標高在全英視角（地球投影 z5–5.9）畫成單色大方塊：點陣圖磚改走 Mapbox 原生 custom source
