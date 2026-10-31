@@ -20,6 +20,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 
 /**
  * 特殊船舶（Vessel Watch）圖層 —— 海警／海巡／科研船／軍艦，隨時間軸移動
@@ -166,6 +167,8 @@ export function useVesselWatchLayer(
   /** 是否顯示「疑似」（分類僅規則推測、未經查證）的船。預設 true。 */
   showPresumed: boolean = true,
   isDarkTheme: boolean = true,
+  /** V-4 類別篩選 bitmask（vessel_class） */
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -343,11 +346,14 @@ export function useVesselWatchLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !layersReadyRef.current) return;
-    const f = showPresumed ? null : (["!=", ["get", "presumed"], 1] as unknown as never);
+    // 「含疑似」＋類別篩選（V-4）併成同一個 filter
+    const cat = hookCategoryFilter("vesselWatch", catMask === undefined ? undefined : { vesselWatchCatMask: catMask });
+    const parts = [...(showPresumed ? [] : [["!=", ["get", "presumed"], 1]]), ...(cat ? [cat] : [])];
+    const f = (parts.length === 0 ? null : parts.length === 1 ? parts[0] : ["all", ...parts]) as unknown as never;
     for (const id of [CIRCLE_ID, TRAIL_LINE_ID]) {
       if (map.getLayer(id)) map.setFilter(id, f);
     }
-  }, [showPresumed, visible, mapRef, mapTick]);
+  }, [showPresumed, catMask, visible, mapRef, mapTick]);
 
   // ── 透明度 ──
   useEffect(() => {

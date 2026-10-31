@@ -59,6 +59,7 @@ function createMap() {
     getLayer: (id: string) => layers.get(id),
     addLayer: (layer: CircleLayer) => { layers.set(layer.id, layer); },
     setLayoutProperty: vi.fn(),
+    setFilter: vi.fn(),
     setPaintProperty,
     on: vi.fn(),
     off: vi.fn(),

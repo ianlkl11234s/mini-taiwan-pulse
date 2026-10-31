@@ -111,6 +111,7 @@ export const PowerPolesHost: LayerHostComponent = ({ deps }) => {
     p.powerPolesSize ?? 1,
     p.powerPolesHeat ?? 1,
     p.powerPolesZ5Reveal ?? 0,
+    p.powerPolesCatMask,
   );
   return null;
 };
@@ -126,6 +127,8 @@ export const AviationAirspaceHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.aviationRestricted,
     control.aviationControlOpacity ?? 0.7,
     restricted.aviationRestrictedOpacity ?? 0.7,
+    control.aviationControlCatMask,
+    restricted.aviationRestrictedCatMask,
   );
   return null;
 };

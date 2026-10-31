@@ -4,6 +4,7 @@ import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../dat
 import { densePointsFromZoom, heatmapMaxzoom, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -98,8 +99,17 @@ function setVisible(map: MapboxMap, visible: boolean) {
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
-function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: number) {
+/** V-4 類別篩選（有死傷／無死傷）：熱區與圓點共用 */
+function applyCategoryFilter(map: MapboxMap, catMask?: number) {
+  const f = hookCategoryFilter("fireLatest", catMask === undefined ? undefined : { fireLatestCatMask: catMask });
+  for (const id of [HEATMAP_LAYER_ID, LAYER_ID]) {
+    if (map.getLayer(id)) map.setFilter(id, (f ?? null) as mapboxgl.FilterSpecification | null);
+  }
+}
+
+function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: number, catMask?: number) {
   applyHeatmapStyle(map, HEATMAP_LAYER_ID, "fireLatest", isDark, opacity / OPACITY_DEFAULT);
+  applyCategoryFilter(map, catMask);
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-radius", ["case", ["get", "casualty"], 6 * scale, 3 * scale]);
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);
@@ -116,6 +126,7 @@ export function useFireLatestLayer(
   isDarkTheme: boolean,
   opacity = 1,
   scale = 1,
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -125,8 +136,8 @@ export function useFireLatestLayer(
   // 最近一次成功載入的事件：換底圖（style.load）後用它重畫，不重抓
   const eventsRef = useRef<FireEvent[] | null>(null);
   // 樣式值只走 ref + 下方樣式 effect，不進抓資料 effect 的 deps
-  const styleRef = useRef({ isDarkTheme, opacity, scale });
-  styleRef.current = { isDarkTheme, opacity, scale };
+  const styleRef = useRef({ isDarkTheme, opacity, scale, catMask });
+  styleRef.current = { isDarkTheme, opacity, scale, catMask };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -137,7 +148,7 @@ export function useFireLatestLayer(
       try {
         const st = styleRef.current;
         ensureLayer(map, st.isDarkTheme);
-        updatePaint(map, st.isDarkTheme, st.opacity, st.scale);
+        updatePaint(map, st.isDarkTheme, st.opacity, st.scale, st.catMask);
       } catch {
         return;
       }
@@ -167,7 +178,7 @@ export function useFireLatestLayer(
       try {
         const st = styleRef.current;
         ensureLayer(map, st.isDarkTheme);
-        updatePaint(map, st.isDarkTheme, st.opacity, st.scale);
+        updatePaint(map, st.isDarkTheme, st.opacity, st.scale, st.catMask);
         if (eventsRef.current) setData(map, eventsRef.current);
         setVisible(map, visible); // 重建後預設可見；圖層關閉時要維持隱藏
       } catch { /* style 尚未就緒 */ }
@@ -184,6 +195,6 @@ export function useFireLatestLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
-    try { updatePaint(map, isDarkTheme, opacity, scale); } catch { /* style 尚未就緒 */ }
-  }, [mapRef, visible, isDarkTheme, opacity, scale, mapTick, heatStyle]);
+    try { updatePaint(map, isDarkTheme, opacity, scale, catMask); } catch { /* style 尚未就緒 */ }
+  }, [mapRef, visible, isDarkTheme, opacity, scale, catMask, mapTick, heatStyle]);
 }

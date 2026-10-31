@@ -7,6 +7,7 @@ import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } fro
 import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { JP_WATER_ACCESS_DENIED_EVENT, jpWaterPrivateAccessToken, useJpWaterPrivateAccess } from "./useJpWaterPrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -93,8 +94,13 @@ function localLayer(key: typeof LOCAL_KEYS[number], opacity: number, isDark: boo
   const minzoom = LOCAL_HEATMAP[key]?.pointsFromZoom;
   return { id, type: "circle", source, "source-layer": item.sourceLayer, ...(minzoom !== undefined ? { minzoom } : {}), layout: { visibility: "none" }, paint: { "circle-color": circleColor, "circle-opacity": clamp(opacity), "circle-radius": pointRadius("M"), ...pointStroke(key, opacity, isDark) } } as CircleLayer;
 }
+/** V-4 類別篩選 bitmask（供水／下水道設施）。 */
+export type JpWaterCatMasks = Partial<Record<"jpWaterSupplyFacilities" | "jpWaterSewerFacilities", number>>;
+const EMPTY_CAT_MASKS: JpWaterCatMasks = {};
 /** Four public GeoJSON layers plus eight owner-only PMTiles layers. */
-export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibilityProp: JpWaterVisibility, opacityProp: JpWaterOpacity, isDarkTheme = true) {
+export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibilityProp: JpWaterVisibility, opacityProp: JpWaterOpacity, isDarkTheme = true, catMasks: JpWaterCatMasks = EMPTY_CAT_MASKS) {
+  const supplyCat = catMasks.jpWaterSupplyFacilities;
+  const sewerCat = catMasks.jpWaterSewerFacilities;
   // 呼叫端每次 render 都傳新物件；直接當 effect deps 會讓下方 mount effect 每次 host
   // re-render 都重跑（圖層全關時也一樣，每次 setLayoutProperty／setPaintProperty
   // 都會 triggerRepaint → 播放中每秒數次無謂重畫）。以內容 key 穩定 identity。
@@ -163,7 +169,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
             map.setLayoutProperty(heat.id, "visibility", visibility[key] ? "visible" : "none");
             applyHeatmapStyle(map, heat.id, key, isDark, heatScale(key, opacity[key]));
           }
-          if (!map.getLayer(layerId(key))) map.addLayer(localLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", visibility[key] ? "visible" : "none"); const paint = LOCAL[key].kind === "line" ? "line-opacity" : LOCAL[key].kind === "fill" ? "fill-opacity" : "circle-opacity"; const def = Number(paramDefault(key, `${key}Opacity`) ?? 1); const value = LOCAL[key].kind === "line" ? hookLineOpacity(key, layerId(key), clamp(opacity[key]), def, isDark) : LOCAL[key].kind === "fill" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), def) : clamp(opacity[key]); map.setPaintProperty(layerId(key), paint, value); if (key === "jpWaterSupplyAreas") syncOutline(map, key, visibility[key], opacity[key], isDark); if (LOCAL[key].kind === "circle") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
+          if (!map.getLayer(layerId(key))) map.addLayer(localLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", visibility[key] ? "visible" : "none"); const paint = LOCAL[key].kind === "line" ? "line-opacity" : LOCAL[key].kind === "fill" ? "fill-opacity" : "circle-opacity"; const def = Number(paramDefault(key, `${key}Opacity`) ?? 1); const value = LOCAL[key].kind === "line" ? hookLineOpacity(key, layerId(key), clamp(opacity[key]), def, isDark) : LOCAL[key].kind === "fill" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), def) : clamp(opacity[key]); map.setPaintProperty(layerId(key), paint, value); if (key === "jpWaterSupplyFacilities" || key === "jpWaterSewerFacilities") map.setFilter(layerId(key), (hookCategoryFilter(key, { [`${key}CatMask`]: (key === "jpWaterSupplyFacilities" ? supplyCat : sewerCat) as number }) ?? null) as never); if (key === "jpWaterSupplyAreas") syncOutline(map, key, visibility[key], opacity[key], isDark); if (LOCAL[key].kind === "circle") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
       });
       const floodSource = "jp-water-flood-hazard-source"; const floodLayer = layerId("jpWaterFloodHazard");
       const floodWasVisible = map.getLayer(floodLayer) && map.getLayoutProperty(floodLayer, "visibility") === "visible";
@@ -180,7 +186,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     const onError = (event: { sourceId?: string; error?: Error }) => { if (event.sourceId?.startsWith("jp-water-")) reportJpWaterError(event.error ?? new Error("日本水資源地圖 source 載入失敗")); };
     mount(); map.on("style.load", mount); map.on("sourcedata", onData); map.on("error", onError);
     return () => { map.off("style.load", mount); map.off("sourcedata", onData); map.off("error", onError); };
-  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility, heatStyle]);
+  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility, heatStyle, supplyCat, sewerCat]);
 }
 
 export const JP_WATER_RUNTIME_LAYER_IDS = [

@@ -5,6 +5,7 @@ import type { HistoricalGranularity } from "../components/HistoricalTimeline";
 import { densePointsFromZoom, heatmapMaxzoom, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "fire-events-src";
@@ -112,8 +113,17 @@ function setVisible(map: MapboxMap, visible: boolean, sparse = false) {
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
-function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number) {
+/** V-4 類別篩選（有死傷／無死傷）：熱區與圓點共用 */
+function applyCategoryFilter(map: MapboxMap, catMask?: number) {
+  const f = hookCategoryFilter("fireEvents", catMask === undefined ? undefined : { fireEventsCatMask: catMask });
+  for (const id of [HEATMAP_LAYER_ID, LAYER_ID]) {
+    if (map.getLayer(id)) map.setFilter(id, (f ?? null) as mapboxgl.FilterSpecification | null);
+  }
+}
+
+function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number, catMask?: number) {
   applyHeatmapStyle(map, HEATMAP_LAYER_ID, "fireEvents", isDark, opacity / OPACITY_DEFAULT);
+  applyCategoryFilter(map, catMask);
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
   const stroke = fireEventsPointStroke(isDark, opacity);
@@ -159,6 +169,7 @@ export function useFireEventsLayer(
   granularity: HistoricalGranularity,
   isDarkTheme: boolean,
   opacity = 1,
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -167,8 +178,8 @@ export function useFireEventsLayer(
   const lastYearRef = useRef<number | null>(null);
   const yearEventsRef = useRef<FireEvent[]>([]);
   // 主題／透明度只走 ref + 下方樣式 effect，不進資料 effect 的 deps（避免 setData 重送）
-  const styleRef = useRef({ isDarkTheme, opacity });
-  styleRef.current = { isDarkTheme, opacity };
+  const styleRef = useRef({ isDarkTheme, opacity, catMask });
+  styleRef.current = { isDarkTheme, opacity, catMask };
 
   useEffect(() => {
     const map = mapRef.current;
@@ -178,7 +189,7 @@ export function useFireEventsLayer(
     const run = async () => {
       try {
         ensureLayer(map, styleRef.current.isDarkTheme);
-        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity);
+        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity, styleRef.current.catMask);
       } catch {
         return;
       }
@@ -205,7 +216,7 @@ export function useFireEventsLayer(
       try {
         // 不論請求是否完成都先重建空圖層，等請求回來 setData／setVisible 才有 source 可寫
         ensureLayer(map, styleRef.current.isDarkTheme);
-        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity);
+        updateOpacity(map, styleRef.current.isDarkTheme, styleRef.current.opacity, styleRef.current.catMask);
         if (lastYearRef.current !== year) return;
         setData(map, filterByGranularity(yearEventsRef.current, granularity, month, day));
         setVisible(map, true, fireEventsSparse(granularity));
@@ -222,6 +233,6 @@ export function useFireEventsLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
-    updateOpacity(map, isDarkTheme, opacity);
-  }, [mapRef, visible, isDarkTheme, opacity, mapTick, heatStyle]);
+    updateOpacity(map, isDarkTheme, opacity, catMask);
+  }, [mapRef, visible, isDarkTheme, opacity, catMask, mapTick, heatStyle]);
 }

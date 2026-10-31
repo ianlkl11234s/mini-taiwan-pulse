@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { CircleLayer, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_EVACUATION_ATTRIBUTION,
@@ -36,8 +37,16 @@ function absoluteUrl(relativeFile: string): string {
   return new URL(relative, window.location.href).href;
 }
 
-function circleLayer(opacity: number, scale: number, filterIdx: number, isDark: boolean): CircleLayer {
-  const filter = jpEvacuationFilter(filterIdx);
+/** 災害種別 select ＋ V-4 場所類別多選（site_type）合併成單一 filter。 */
+function combinedFilter(filterIdx: number, catMask?: number) {
+  const hazard = jpEvacuationFilter(filterIdx);
+  const cat = hookCategoryFilter("jpEvacuationSites", { jpEvacuationSitesCatMask: catMask as number });
+  if (hazard && cat) return ["all", hazard, cat] as never;
+  return (hazard ?? cat ?? null) as never;
+}
+
+function circleLayer(opacity: number, scale: number, filterIdx: number, isDark: boolean, catMask?: number): CircleLayer {
+  const filter = combinedFilter(filterIdx, catMask);
   return {
     id: LAYER_ID,
     type: "circle",
@@ -56,8 +65,8 @@ function circleLayer(opacity: number, scale: number, filterIdx: number, isDark: 
 }
 
 /** G-2 熱區：與點同一個 filter，畫在出點縮放以下，不可點擊。 */
-function heatmapLayer(opacity: number, filterIdx: number, isDark: boolean): HeatmapLayer {
-  const filter = jpEvacuationFilter(filterIdx);
+function heatmapLayer(opacity: number, filterIdx: number, isDark: boolean, catMask?: number): HeatmapLayer {
+  const filter = combinedFilter(filterIdx, catMask);
   return {
     id: HEATMAP_LAYER_ID,
     type: "heatmap",
@@ -78,6 +87,7 @@ export function useJpEvacuationSitesLayer(
   scale: number,
   filterIdx: number,
   isDarkTheme = true,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
@@ -106,14 +116,14 @@ export function useJpEvacuationSitesLayer(
         } as any);
       }
       if (!map.getLayer(HEATMAP_LAYER_ID)) {
-        map.addLayer(heatmapLayer(opacity, filterIdx, isDark), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
+        map.addLayer(heatmapLayer(opacity, filterIdx, isDark, catMask), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
       }
       if (map.getLayer(HEATMAP_LAYER_ID)) {
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
         applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpEvacuationSites", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
-        map.setFilter(HEATMAP_LAYER_ID, jpEvacuationFilter(filterIdx));
+        map.setFilter(HEATMAP_LAYER_ID, combinedFilter(filterIdx, catMask));
       }
-      if (!map.getLayer(LAYER_ID)) map.addLayer(circleLayer(opacity, scale, filterIdx, isDark));
+      if (!map.getLayer(LAYER_ID)) map.addLayer(circleLayer(opacity, scale, filterIdx, isDark, catMask));
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
@@ -121,7 +131,7 @@ export function useJpEvacuationSitesLayer(
         for (const [k, v] of Object.entries(pointStrokePaint(isDark, clampOpacity(opacity) / OPACITY_DEFAULT))) {
           map.setPaintProperty(LAYER_ID, k as "circle-stroke-color", v as never);
         }
-        map.setFilter(LAYER_ID, jpEvacuationFilter(filterIdx));
+        map.setFilter(LAYER_ID, combinedFilter(filterIdx, catMask));
       }
       if (sourceAdded) {
         keepLoadingUntilMapIdle(map, "jp-evacuation-sites:render", "避難場所 避難場所載入中", SOURCE_ID);
@@ -131,5 +141,5 @@ export function useJpEvacuationSitesLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, filterIdx, isDarkTheme, mapTick, heatStyle]);
+  }, [mapRef, visible, opacity, scale, filterIdx, isDarkTheme, mapTick, heatStyle, catMask]);
 }

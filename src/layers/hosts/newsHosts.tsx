@@ -9,7 +9,7 @@ import { useNewsEventsLayer } from "../../hooks/useNewsEventsLayer";
 import { useNewsTimeline } from "../../hooks/useNewsTimeline";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { paramBool, useLayerParams } from "../layerParamsAccess";
+import { paramBool, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
 /**
  * News events 按日載入（Supabase；餵 overlayRegistry 的 news-events source）。
@@ -26,11 +26,13 @@ export const NewsEventsHost: LayerHostComponent = ({ deps }) => {
 export const NewsTimelineHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useNewsTimeline");
   const values = useLayerParams("newsEvents");
+  const p = useKeyOverlayParams("newsEvents");
   useNewsTimeline(
     deps.mapRef,
     deps.layerVisibility.newsEvents,
     paramBool(values, "newsEvents", "newsTimeBased"),
     paramBool(values, "newsEvents", "newsRipple"),
+    p.newsEventsCatMask,
   );
   return null;
 };

@@ -62,6 +62,7 @@ export const JpStationsHost: LayerHostComponent = ({ deps }) => {
     p.jpStationsScale ?? 1,
     colorMode,
     deps.isDarkTheme,
+    p.jpStationsCatMask,
   );
   return null;
 };
@@ -89,6 +90,7 @@ export const JpRailwaysHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.jpRailways,
     p.jpRailwaysOpacity ?? 0.9,
+    p.jpRailwaysCatMask,
   );
   return null;
 };
@@ -103,6 +105,7 @@ export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
     p.jpSchoolsOpacity ?? 0.75,
     p.jpSchoolsScale ?? 1,
     deps.isDarkTheme,
+    p.jpSchoolsCatMask,
   );
   return null;
 };
@@ -135,7 +138,7 @@ export const JpEvacuationSitesHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpEvacuationSites");
   useJpEvacuationSitesLayer(deps.mapRef, deps.layerVisibility.jpEvacuationSites,
     p.jpEvacuationSitesOpacity ?? 0.6, p.jpEvacuationSitesScale ?? 1,
-    p.jpEvacuationSitesFilterIdx ?? 0, deps.isDarkTheme);
+    p.jpEvacuationSitesFilterIdx ?? 0, deps.isDarkTheme, p.jpEvacuationSitesCatMask);
   return null;
 };
 
@@ -152,7 +155,7 @@ export const JpBusStopsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpBusStopsLayer");
   const p = useKeyOverlayParams("jpBusStops");
   useJpBusStopsLayer(deps.mapRef, deps.layerVisibility.jpBusStops,
-    p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme);
+    p.jpBusStopsOpacity ?? 0.6, p.jpBusStopsScale ?? 1, deps.isDarkTheme, p.jpBusStopsCatMask);
   return null;
 };
 
@@ -184,7 +187,7 @@ export const JpZoningUseDistrictsHost: LayerHostComponent = ({ deps }) => {
 export const JpNationalForestsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpNationalForestsLayer");
   const p = useKeyOverlayParams("jpNationalForests");
-  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7);
+  useJpNationalForestsLayer(deps.mapRef, deps.layerVisibility.jpNationalForests, p.jpNationalForestsOpacity ?? 0.7, p.jpNationalForestsCatMask);
   return null;
 };
 
@@ -268,7 +271,10 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
     jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
     jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.8,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
-  }, deps.isDarkTheme);
+  }, deps.isDarkTheme, {
+    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesCatMask,
+    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesCatMask,
+  });
   // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
   const anyJpWaterVisible = JP_WATER_LAYER_KEYS.some((key) => key !== "jpWaterLocalPipes" && deps.layerVisibility[key]);
   return anyJpWaterVisible ? <JpWaterAlert /> : null;
@@ -329,7 +335,11 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
   }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar]);
   const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
-  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme);
+  const catMasks = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalCatMask,
+    jpAccommodationOsm: osm.jpAccommodationOsmCatMask,
+  }), [canonical, osm]);
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode, deps.isDarkTheme, catMasks);
   return null;
 };
 

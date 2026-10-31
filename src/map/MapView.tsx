@@ -67,6 +67,7 @@ function agriPOIParamsFrom(params: Record<string, number>) {
   return {
     opacity: params.agriPOIOpacity ?? 1,
     scale: params.agriPOIScale ?? 1,
+    catMask: params.agriPOICatMask,
   };
 }
 

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { CircleLayer, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_BUS_STOP_ATTRIBUTION,
@@ -73,6 +74,7 @@ export function useJpBusStopsLayer(
   opacity: number,
   scale: number,
   isDarkTheme = true,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
@@ -103,12 +105,15 @@ export function useJpBusStopsLayer(
       if (!map.getLayer(HEATMAP_LAYER_ID)) {
         map.addLayer(heatmapLayer(opacity, isDark), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
       }
+      const catFilter = (hookCategoryFilter("jpBusStops", { jpBusStopsCatMask: catMask as number }) ?? null) as never;
       if (map.getLayer(HEATMAP_LAYER_ID)) {
+        map.setFilter(HEATMAP_LAYER_ID, catFilter);
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
         applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpBusStops", isDark, clampOpacity(opacity) / OPACITY_DEFAULT);
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(circleLayer(opacity, scale, isDark));
       if (map.getLayer(LAYER_ID)) {
+        map.setFilter(LAYER_ID, catFilter);
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("S", scale));
@@ -124,5 +129,5 @@ export function useJpBusStopsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, heatStyle]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, heatStyle, catMask]);
 }

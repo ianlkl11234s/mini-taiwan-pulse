@@ -9,7 +9,7 @@ import { useAqiImageryLayer } from "../../hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "../../hooks/useAqiStationsLayer";
 import { useMicroSensorsLayer } from "../../hooks/useMicroSensorsLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
-import { paramNum, useLayerParams } from "../layerParamsAccess";
+import { paramNum, useKeyOverlayParams, useLayerParams } from "../layerParamsAccess";
 
 // 全臺 raster bbox（WGS84，繼承自 dtm_20m 上游 EPSG:3826 → 3857）
 const TERRAIN_BBOX = {
@@ -52,11 +52,13 @@ export const SlopeVectorHost: LayerHostComponent = ({ deps }) => {
 export const AspectVectorHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useAspectVectorLayer");
   const values = useLayerParams("aspectVector");
+  const p = useKeyOverlayParams("aspectVector");
   useAspectVectorLayer(
     deps.mapRef,
     deps.layerVisibility.aspectVector,
     paramNum(values, "aspectVector", "aspectVectorOpacity"),
     deps.mapStyleId,
+    p.aspectVectorCatMask,
   );
   return null;
 };

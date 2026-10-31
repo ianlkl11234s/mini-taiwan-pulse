@@ -18,6 +18,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
@@ -52,20 +53,29 @@ function activeSetKey(events: RoadEvent[], currentTime: number): string {
 
 const OPACITY_DEFAULT = Number(paramDefault("roadEvents", "reOpacity"));
 
-function buildLayers(map: MapboxMap, isDark: boolean): boolean {
+/** V-4 類別篩選（event_type）：併進三個子圖層的 filter；全選＝不加 */
+function roadEventsFilters(catMask?: number) {
+  const cat = hookCategoryFilter("roadEvents", catMask === undefined ? undefined : { roadEventsCatMask: catMask });
+  const active = (["==", ["get", "active"], 1] as unknown[]);
+  const base = cat ? ["all", active, cat] : active;
+  return {
+    fill: ["all", base, ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]] as unknown as FilterSpecification,
+    line: ["all", base, ["match", ["geometry-type"], ["LineString", "MultiLineString", "Polygon", "MultiPolygon"], true, false]] as unknown as FilterSpecification,
+    point: ["all", base, ["==", ["geometry-type"], "Point"]] as unknown as FilterSpecification,
+  };
+}
+
+function buildLayers(map: MapboxMap, isDark: boolean, catMask?: number): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
-  const activeFilter = ["==", ["get", "active"], 1] as unknown as FilterSpecification;
+  const filters = roadEventsFilters(catMask);
 
   if (!map.getLayer(LAYER_FILL)) {
     map.addLayer({
       id: LAYER_FILL,
       type: "fill",
       source: SOURCE_ID,
-      filter: ["all",
-        activeFilter,
-        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false],
-      ] as unknown as FilterSpecification,
+      filter: filters.fill,
       paint: hookFillPaint("roadEvents", LAYER_FILL, {
         "fill-color": ["get", "color"] as unknown as ExpressionSpecification,
         "fill-opacity": 0.22,
@@ -78,10 +88,7 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
       id: LAYER_LINE,
       type: "line",
       source: SOURCE_ID,
-      filter: ["all",
-        activeFilter,
-        ["match", ["geometry-type"], ["LineString", "MultiLineString", "Polygon", "MultiPolygon"], true, false],
-      ] as unknown as FilterSpecification,
+      filter: filters.line,
       layout: hookLineLayout("roadEvents", LAYER_LINE),
       paint: hookLinePaint("roadEvents", LAYER_LINE, {
         "line-color": ["get", "color"] as unknown as ExpressionSpecification,
@@ -96,10 +103,7 @@ function buildLayers(map: MapboxMap, isDark: boolean): boolean {
       id: LAYER_POINT,
       type: "circle",
       source: SOURCE_ID,
-      filter: ["all",
-        activeFilter,
-        ["==", ["geometry-type"], "Point"],
-      ] as unknown as FilterSpecification,
+      filter: filters.point,
       paint: {
         "circle-radius": [
           "case",
@@ -124,6 +128,7 @@ export function useRoadEventsLayer(
   visible: boolean,
   opacity: number = 1,
   isDark: boolean = true,
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -135,6 +140,9 @@ export function useRoadEventsLayer(
   // 主題走 ref：ensureLayers 保持穩定，切主題不會重建 timeStore 訂閱（paint 由 opacity effect 更新）
   const isDarkRef = useRef(isDark);
   isDarkRef.current = isDark;
+  const catMaskRef = useRef(catMask);
+  catMaskRef.current = catMask;
+  const catAppliedRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
   const visibleRef = useRef(visible);
@@ -164,7 +172,7 @@ export function useRoadEventsLayer(
       });
     }
     if (!layersReadyRef.current || !map.getLayer(LAYER_FILL)) {
-      layersReadyRef.current = buildLayers(map, isDarkRef.current);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current, catMaskRef.current);
     }
     return layersReadyRef.current;
   }, []);
@@ -266,6 +274,19 @@ export function useRoadEventsLayer(
     tick(timeStore.getTime());
     return timeStore.subscribeThrottled(500, tick);
   }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
+
+  // ── 類別篩選（V-4）：mask 變動時重設三個子圖層的 filter ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !layersReadyRef.current) return;
+    // 建圖層時已帶入當下 mask；全選（undefined）且從未篩過就不必重送
+    if (catMask === undefined && !catAppliedRef.current) return;
+    catAppliedRef.current = catMask !== undefined;
+    const f = roadEventsFilters(catMask);
+    if (map.getLayer(LAYER_FILL)) map.setFilter(LAYER_FILL, f.fill);
+    if (map.getLayer(LAYER_LINE)) map.setFilter(LAYER_LINE, f.line);
+    if (map.getLayer(LAYER_POINT)) map.setFilter(LAYER_POINT, f.point);
+  }, [catMask, visible, mapRef, mapTick]);
 
   // ── 套用 opacity ──
   useEffect(() => {

@@ -55,11 +55,13 @@ export const SatellitesHost: LayerHostComponent = ({ deps }) => {
 export const RoadEventsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useRoadEventsLayer");
   const values = useLayerParams("roadEvents");
+  const p = useKeyOverlayParams("roadEvents");
   useRoadEventsLayer(
     deps.mapRef,
     deps.layerVisibility.roadEvents,
     paramNum(values, "roadEvents", "reOpacity"),
     deps.isDarkTheme,
+    p.roadEventsCatMask,
   );
   return null;
 };
@@ -77,6 +79,7 @@ export const FireEventsHost: LayerHostComponent = ({ deps }) => {
     deps.historicalGranularity,
     deps.isDarkTheme,
     p.fireEventsOpacity ?? 1,
+    p.fireEventsCatMask,
   );
   return null;
 };
@@ -91,6 +94,7 @@ export const FireLatestHost: LayerHostComponent = ({ deps }) => {
     deps.isDarkTheme,
     p.fireLatestOpacity ?? 1,
     p.fireLatestScale ?? 1,
+    p.fireLatestCatMask,
   );
   return null;
 };
