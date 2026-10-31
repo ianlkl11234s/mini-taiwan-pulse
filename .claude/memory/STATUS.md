@@ -1,9 +1,19 @@
 # Status
 
-**最後更新**：2026-10-31 南韓第 0–5 波＋統計合 develop（未發版）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
+**最後更新**：2026-10-31 圖層可見性整修（四國）＋南韓第 0–5 波合 develop（未發版）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-31：圖層可見性整修（四國共用原則）→ develop（未發版）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #779 原則 map-layers §3.8 V-1～V-7＋熱區預設色依主題＋V-2／V-4 契約（`visibilityAudit.ts`）；#780 南韓 32 層；#783 右上視野提示卡擴充（spec §5.42.1，`layerCoverage.ts` 49 層局部範圍）；#784 英國（點面切換、拆高爾夫、22 層類別篩選、globe raster 修正、JamCams 內嵌影像）；#782／#785 台日類別篩選；#786 第二輪重切接線；#787 台日點面切換 67 層；#788 最後一輪。develop `b285be8f`。 |
+| **taipei-gis-analytics** | #270／#271／#272 重切與代表點腳本（`pipelines/world/kr/retile_visibility.py`、`pipelines/base_map/gb/retile_visibility{,2}.py`、`pipelines/shared/vis_retile_tw_jp.py`、`vis_reppoint_tw_jp.py`）。 |
+
+- 下一步：**KRREL-1** 整批發版（S3 上傳清單在 CHANGELOG Unreleased）；**VIS-1～6**。
+- 盤點表與原則草稿：本 session scratchpad（已併入規範，不需保留）。
 
 ## 2026-10-31：南韓第 0–5 波＋統計 → develop（未發版）
 
