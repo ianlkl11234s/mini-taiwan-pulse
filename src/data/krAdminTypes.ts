@@ -12,7 +12,7 @@ export const KR_ADMIN_ATTRIBUTION =
 /** 圖例用短版署名。 */
 export const KR_ADMIN_ATTRIBUTION_SHORT = "© 통계청 SGIS（KOGL 제1유형）／vuski/admdongkor（CC BY 4.0）";
 export const KR_ADMIN_SOURCE_URL = "https://github.com/vuski/admdongkor";
-export const KR_ADMIN_LICENSE = "CC BY 4.0（上游 SGIS 공공누리 제1유형）";
+export const KR_ADMIN_LICENSE = "CC BY 4.0 (upstream SGIS KOGL Type 1 / 공공누리 제1유형)";
 export const KR_ADMIN_VERSION = "admdongkor ver20261001";
 export const KR_ADMIN_FETCHED_AT = "2026-10-31";
 

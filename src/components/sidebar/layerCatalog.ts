@@ -322,6 +322,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
   KR: [
     // 南韓（2026-10-31 南韓第 0 波；title 沿用台灣主題中文短名，比照英國、日本）
     "底圖",
+    // 第 1 波（國土基礎）：交通、能源
+    "交通",
+    "能源",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2648,6 +2651,30 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
     ],
   },
+  {
+    // 第 1 波：群組比照台灣「交通 Move」——場站、路網、樞紐節點（機場、港口）
+    title: "交通",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("krBusStops"), fromManifest("krRailStations")] },
+      { title: "路網", layers: [fromManifest("krNationalRoads"), fromManifest("krRailLines")] },
+      { title: "樞紐節點", layers: [fromManifest("krAirports"), fromManifest("krPorts")] },
+    ],
+  },
+  {
+    // 第 1 波：群組比照台灣「能源 Energy」——電力 · 廠、電力 · 電網、再生能源、石化 · 加油站、石化 · 油氣
+    title: "能源",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("krPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("krPowerLines"), fromManifest("krSubstations"), fromManifest("krPowerTowers")] },
+      { title: "再生能源", layers: [fromManifest("krRenewables")] },
+      { title: "石化 · 加油站", layers: [fromManifest("krFuelStations")] },
+      { title: "石化 · 油氣", layers: [fromManifest("krOilGas")] },
+    ],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
@@ -2976,6 +3003,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
   KR: {
     // 南韓主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照英國、日本）。
     "底圖": "baseline",
+    "交通": "city",
+    "能源": "environment",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3144,6 +3173,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
   KR: {
     // 南韓主題副標用韓文（比照日本用日文、法國用法文）
     "底圖": { zh: "底圖", sub: "기본도" },
+    "交通": { zh: "交通", sub: "교통" },
+    "能源": { zh: "能源", sub: "에너지" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },

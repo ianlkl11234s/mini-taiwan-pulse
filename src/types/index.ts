@@ -433,6 +433,7 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries"
+  | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
@@ -979,6 +980,8 @@ export interface FeatureInfo {
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries"
+    // 南韓第 1 波：交通 6 層、能源 7 個 key
+    | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
     | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
     // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
@@ -1812,6 +1815,19 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
+  krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
+  krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
+  krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）
+  krPorts: boolean;           // 南韓港灣區（PMTiles polygon，68）
+  krNationalRoads: boolean;   // 南韓一般國道（PMTiles line，1,693 段；不含高速道路）
+  krRailLines: boolean;       // 南韓鐵道線（OSM，24,486）
+  krFuelStations: boolean;    // 南韓 LPG／CNG·LNG／수소／EV 充電站（7,106）
+  krPowerPlants: boolean;     // 南韓電廠（OSM，4,308；官方無座標）
+  krRenewables: boolean;      // 南韓再生能源點（OSM，8,578）
+  krPowerLines: boolean;      // 南韓輸配電線（OSM，4,523；kr_power_grid.pmtiles）
+  krSubstations: boolean;     // 南韓變電所（OSM，1,199；與電網線同檔）
+  krPowerTowers: boolean;     // 南韓高壓鐵塔（OSM，42,252；z11 起）
+  krOilGas: boolean;          // 南韓油氣設施與管線（OSM，146 面＋33 線；覆蓋稀疏）
   gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
   gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
   gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）
