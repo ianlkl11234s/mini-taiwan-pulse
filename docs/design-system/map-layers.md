@@ -323,6 +323,9 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 統計分級面已實作（R1，#391）：`gradedSeamPaint(isDark, hasValue)`（`GRADED_SEAM`：寬 1、暗 0.6／淡 0.8、無數值 0.5），外框透明度**不綁**透明度滑桿。其他面類型已由 R3a 接線（常數 `FILL_OUTLINE`）：覆蓋面 1px 同色 0.8、背景面 0.5px 中性灰 0.6、分級面與網格底圖色細縫（網格 0.5px），外框顏色依資料變化時（例：港口依等級、離岸風場依狀態）保留，屬資料編碼。registry 已無 `fill-outline-color`（`lineFillSpec.test.ts` 守門）；`jpBuildingHeight` 走網格「無外框」，`parkingOnstreet` 新增 `outline` 子圖層。
 
+其他外框例外：
+- 英國海岸侵蝕 `gbCoastalErosionRisk`（2026-11-01 使用者拍板，VIS-2）：面模式（預設）的同色外框低縮放加寬，z5 2.2px → z8 1.5px → z10 起 1px（覆蓋面 F-2 為 1px）。理由：線狀細長的海岸侵蝕面在全國視角 1px 看不到。寬度逐縮放，`lineFillTiers.ts` 標 `keep`（`useGbWaterLayers.ts` `useGbCoastalErosionLayer`）。
+
 **F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值（拍板 A）：統計圖層改成 viz-library N1「透明底＋45° 細斜線」，取代舊的灰色 `#64748b`＋遮蔽斜線，全站缺值只有一種畫法。已實作（R1）：**缺值＝透明底＋45° 單向細斜線；遮蔽（suppressed）＝交叉斜線**，與缺值區分（2026-09-28 使用者確認）。8px 圖磚、暗白／淡黑 alpha 0.35（`MISSING_HATCH`、`hatchImageData()`）；圖例 `SwatchHatch` 同一組顏色。
 
 **F-3a 差異面（模擬）**：情境減基準的差異圖照 spec §5.40 S-4：單向差異用序列色、雙向用 PuOr（門檻對稱於 0）、無變化畫成背景參考面、缺值仍是斜線。
