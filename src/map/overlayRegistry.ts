@@ -122,6 +122,10 @@ function denseHeatmapLayer(o: {
   };
 }
 
+/** 診所層「機構類型」篩選（0=全部、1=只看衛生所）；欄位 category 來自健保特約名冊。 */
+const medClinicKindFilter = (p?: Record<string, number>): unknown[] =>
+  (p?.medClinicKindIdx ?? 0) === 1 ? ["==", ["get", "category"], "health_center"] : ["all"];
+
 /** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
 const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
 import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
@@ -279,6 +283,7 @@ import {
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
+  DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColorExpr,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, atmSiteFilter,
   SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, securitiesFuturesFilter,
@@ -3450,12 +3455,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/medical_clinics.pmtiles",
     sourceId: "medical-clinics",
     pmtiles: { sourceLayer: "medical_clinics", minzoom: 0, maxzoom: 12 },
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["heatmap", "glow", "circle"],
     layers: [
-      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" } }),
+      denseHeatmapLayer({ pointsFromZoom: DENSE_FROM.medClinic, intensity: 1, opacity: { layer: "medClinic", param: "medClinicOpacity" }, filter: medClinicKindFilter }),
       {
         suffix: "glow",
         type: "circle", minzoom: DENSE_FROM.medClinic,
+        filter: medClinicKindFilter,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           return {
@@ -3472,6 +3478,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle", minzoom: DENSE_FROM.medClinic,
+        filter: medClinicKindFilter,
         paint: (isDark, params) => {
           const scale = params?.medClinicScale ?? 1;
           const opacity = params?.medClinicOpacity ?? 0.75;
@@ -10428,7 +10435,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 5. 文化資產 Heritage（2,894 點，category 三類同色系分色，1k~10k 半徑 3→6）
   {
     id: "tourHeritage",
-    sourceUrl: "./tourism/heritage_national.geojson",
+    sourceUrl: "./tourism/heritage_national_v2.geojson",
     sourceId: "tour-heritage",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -11814,6 +11821,22 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   // ── 原民與農村 ──
   publicLifePointOverlay("indigenousTribes", "./indigenous_rural/indigenous_tribes.geojson", "indigenous-tribes", tribeColorExpr(), undefined, `原住民族委員會 部落位置 GIS 點位表（data.gov.tw 156632）＋核定部落（7093）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 12 }),
   publicLifePointOverlay("indigenousIsolationRisk", "./indigenous_rural/indigenous_isolation_risk_areas.geojson", "indigenous-isolation-risk", matchColorExpr("cause_combo", ISOLATION_CAUSE_OPTIONS), undefined, `原住民族委員會 原住民族地區易成孤島地區（data.gov.tw 170259，114 年度）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),
+  // 文化、觀光、原民補強 G35（2026-10-31）：鄉鎮面（內政部鄉鎮界 TOWN_MOI_1140318 簡化）
+  {
+    id: "indigenousRegions", sourceUrl: "./indigenous_rural/indigenous_regions_55.geojson", sourceId: "indigenous-regions",
+    attribution: `原住民族委員會 原住民族地區（data.gov.tw 163124）；鄉鎮界 內政部 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("indigenousRegions", ATLAS_LAYER_COLORS.indigenousRegions, 0.35),
+  },
+  {
+    id: "indigenousLanguageDialects", sourceUrl: "./indigenous_rural/indigenous_language_dialects.geojson", sourceId: "indigenous-language-dialects",
+    attribution: `原住民族委員會 原住民族語言方言別分布參考表（data.gov.tw 164237）；鄉鎮界 內政部 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("indigenousLanguageDialects", matchColorExpr("ethnic_group", DIALECT_GROUP_OPTIONS), 0.45),
+  },
+  {
+    id: "hakkaCulturalZones", sourceUrl: "./indigenous_rural/hakka_cultural_zones.geojson", sourceId: "hakka-cultural-zones",
+    attribution: `客家委員會 客家文化重點發展區（data.gov.tw 162466）；鄉鎮界 內政部 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("hakkaCulturalZones", matchColorExpr("hakka_accent", HAKKA_ACCENT_OPTIONS), 0.45),
+  },
   {
     id: "agriRuralCommunityVillages", sourceUrl: "./indigenous_rural/rural_community_villages.pmtiles", sourceId: "agri-rural-community-villages",
     pmtiles: { sourceLayer: "rural_community_villages", minzoom: RURAL_MIN_ZOOM, maxzoom: 12 },
@@ -11947,6 +11970,9 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   },
   // ── 文化幣藝文消費點 G23（2026-10-24）：依 category 著色＋類別多選（電影院可單獨篩）──
   publicLifePointOverlay("cultureCoinVenues", "./culture/culture_coin_venues.geojson", "culture-coin-venues", matchColorExpr("category", CULTURE_COIN_CATEGORY_OPTIONS), undefined, `文化部 文化幣藝文消費點（data.gov.tw 177601）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 15, filter: (p) => atlasMultiSelectFilter("category", CULTURE_COIN_CATEGORY_OPTIONS, p?.cultureCoinVenuesCategoryMask) }),
+  // 文化、觀光、原民補強 G35（2026-10-31）
+  publicLifePointOverlay("tourServiceSites", "./tourism/tourism_service_sites.geojson", "tour-service-sites", matchColorExpr("site_class", TOUR_SERVICE_SITE_OPTIONS), undefined, `交通部觀光署 旅遊服務站點（data.gov.tw 44055）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13, filter: (p) => atlasMultiSelectFilter("site_class", TOUR_SERVICE_SITE_OPTIONS, p?.tourServiceSitesClassMask) }),
+  publicLifePointOverlay("tourVisitorStats", "./tourism/visitor_spot_stats.geojson", "tour-visitor-stats", visitorColorExpr(), undefined, `交通部觀光署 主要觀光遊憩據點遊客人數（data.gov.tw 8116）· ${OGDL_ATTR}`, [4, 8], { labelMinzoom: 11 }),
   // ── 原民會文化健康站 G20（2026-10-24）：站址實心點；只到鄉鎮者同鄉鎮併成鄉鎮中心空心圈（半徑隨站數、圈內數字＝站數）──
   culturalHealthStationsOverlay(),
   // ── 國營事業與國有資產 G16（2026-10-24）：台水廠所／淨水設施依類型著色；台糖糖廠單色；國產署待標售依土地／房地兩色 ──

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1476,
+    "keyCount": 1481,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2364,6 +2364,20 @@
     },
     {
       "layers": [
+        "tour-service-sites-circle",
+        "tour-service-sites-glow"
+      ],
+      "type": "tourServiceSites"
+    },
+    {
+      "layers": [
+        "tour-visitor-stats-circle",
+        "tour-visitor-stats-glow"
+      ],
+      "type": "tourVisitorStats"
+    },
+    {
+      "layers": [
         "tour-events-circle"
       ],
       "type": "tourEvents"
@@ -2863,6 +2877,27 @@
         "indigenous-isolation-risk-glow"
       ],
       "type": "indigenousIsolationRisk"
+    },
+    {
+      "layers": [
+        "indigenous-regions-fill",
+        "indigenous-regions-outline"
+      ],
+      "type": "indigenousRegions"
+    },
+    {
+      "layers": [
+        "indigenous-language-dialects-fill",
+        "indigenous-language-dialects-outline"
+      ],
+      "type": "indigenousLanguageDialects"
+    },
+    {
+      "layers": [
+        "hakka-cultural-zones-fill",
+        "hakka-cultural-zones-outline"
+      ],
+      "type": "hakkaCulturalZones"
     },
     {
       "layers": [
@@ -12816,7 +12851,9 @@
       "id": "medClinic",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 10.01,
           "minzoom": null,
@@ -12942,7 +12979,9 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 10,
           "paint": {
@@ -12995,7 +13034,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 10,
           "paint": {
@@ -13026,6 +13067,7 @@
         "sourceLayer": "medical_clinics"
       },
       "rebuildOnParamChange": [
+        "heatmap",
         "glow",
         "circle"
       ],
@@ -59269,6 +59311,14 @@
                 "#8d6e63",
                 "文化景觀",
                 "#a1887f",
+                "考古遺址",
+                "#b7791f",
+                "聚落建築群",
+                "#9c6644",
+                "紀念建築",
+                "#c9a227",
+                "史蹟",
+                "#bf6f4a",
                 "#6d4c41"
               ],
               "circle-opacity": 0,
@@ -59300,6 +59350,14 @@
                 "#8d6e63",
                 "文化景觀",
                 "#a1887f",
+                "考古遺址",
+                "#b7791f",
+                "聚落建築群",
+                "#9c6644",
+                "紀念建築",
+                "#c9a227",
+                "史蹟",
+                "#bf6f4a",
                 "#6d4c41"
               ],
               "circle-opacity": 0,
@@ -59339,6 +59397,14 @@
                 "#8d6e63",
                 "文化景觀",
                 "#a1887f",
+                "考古遺址",
+                "#b7791f",
+                "聚落建築群",
+                "#9c6644",
+                "紀念建築",
+                "#c9a227",
+                "史蹟",
+                "#bf6f4a",
                 "#6d4c41"
               ],
               "circle-opacity": 0.8,
@@ -59360,6 +59426,14 @@
                 "#8d6e63",
                 "文化景觀",
                 "#a1887f",
+                "考古遺址",
+                "#b7791f",
+                "聚落建築群",
+                "#9c6644",
+                "紀念建築",
+                "#c9a227",
+                "史蹟",
+                "#bf6f4a",
                 "#6d4c41"
               ],
               "circle-opacity": 0.8,
@@ -59379,7 +59453,7 @@
         "circle"
       ],
       "sourceId": "tour-heritage",
-      "sourceUrl": "./tourism/heritage_national.geojson"
+      "sourceUrl": "./tourism/heritage_national_v2.geojson"
     },
     {
       "dynamicData": null,
@@ -73360,6 +73434,408 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "indigenousRegions",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#b45309",
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": "#b45309",
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": "#b45309",
+              "line-opacity": 0.6499999999999999,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "indigenous-regions",
+      "sourceUrl": "./indigenous_rural/indigenous_regions_55.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "indigenousLanguageDialects",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#9333ea",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#1d4ed8",
+                "邵族",
+                "#be185d",
+                "噶瑪蘭族",
+                "#0d9488",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#9333ea",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#1d4ed8",
+                "邵族",
+                "#be185d",
+                "噶瑪蘭族",
+                "#0d9488",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "ethnic_group"
+                ],
+                "泰雅族",
+                "#b45309",
+                "阿美族",
+                "#dc2626",
+                "排灣族",
+                "#7c3aed",
+                "布農族",
+                "#2563eb",
+                "太魯閣族",
+                "#0f766e",
+                "賽夏族",
+                "#db2777",
+                "魯凱族",
+                "#65a30d",
+                "賽德克族",
+                "#9333ea",
+                "卑南族",
+                "#ea580c",
+                "鄒族",
+                "#0891b2",
+                "雅美族(達悟族)",
+                "#1d4ed8",
+                "邵族",
+                "#be185d",
+                "噶瑪蘭族",
+                "#0d9488",
+                "撒奇萊雅族",
+                "#ca8a04",
+                "拉阿魯哇族",
+                "#4d7c0f",
+                "卡那卡那富族",
+                "#0369a1",
+                "multiple",
+                "#475569",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "indigenous-language-dialects",
+      "sourceUrl": "./indigenous_rural/indigenous_language_dialects.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "hakkaCulturalZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.45
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "hakka_accent"
+                ],
+                "四縣腔",
+                "#0f766e",
+                "海陸腔",
+                "#2563eb",
+                "四縣腔海陸腔",
+                "#7c3aed",
+                "大埔腔",
+                "#ca8a04",
+                "四縣腔大埔腔",
+                "#c2410c",
+                "詔安腔",
+                "#be185d",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.75,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "hakka-cultural-zones",
+      "sourceUrl": "./indigenous_rural/hakka_cultural_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "agriRuralCommunityVillages",
       "layers": [
         {
@@ -82632,6 +83108,628 @@
       ],
       "sourceId": "culture-coin-venues",
       "sourceUrl": "./culture/culture_coin_venues.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourServiceSites",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "site_class"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "site_class"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_class"
+                ],
+                "1",
+                "#be123c",
+                "2",
+                "#4f46e5",
+                "3",
+                "#0f766e",
+                "4",
+                "#0891b2",
+                "5",
+                "#ca8a04",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "site_class"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tour-service-sites",
+      "sourceUrl": "./tourism/tourism_service_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tourVisitorStats",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                2,
+                5,
+                7.2,
+                12,
+                14.4
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "typeof",
+                    [
+                      "get",
+                      "latest_annual"
+                    ]
+                  ],
+                  "number"
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "latest_annual"
+                  ],
+                  "#fed7aa",
+                  100000,
+                  "#fdba74",
+                  500000,
+                  "#fb923c",
+                  1000000,
+                  "#ea580c",
+                  5000000,
+                  "#9a3412"
+                ],
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.4,
+                5,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "tour-visitor-stats",
+      "sourceUrl": "./tourism/visitor_spot_stats.geojson"
     },
     {
       "dynamicData": null,
@@ -95553,6 +96651,17 @@
         "valueText": "1.00"
       }
     ],
+    "hakkaCulturalZones": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
     "harmReductionAftercare": [
       {
         "label": "透明度 0.90",
@@ -96557,6 +97666,28 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "indigenousLanguageDialects": [
+      {
+        "label": "透明度 0.45",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.45,
+        "valueText": "0.45"
+      }
+    ],
+    "indigenousRegions": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
       }
     ],
     "indigenousTribes": [
@@ -103155,6 +104286,21 @@
       }
     ],
     "medClinic": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看衛生所",
+            "value": "health_center"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -143306,6 +144452,79 @@
         "step": 0.05,
         "value": 0.5,
         "valueText": "0.50"
+      }
+    ],
+    "tourServiceSites": [
+      {
+        "label": "站點類別",
+        "options": [
+          {
+            "label": "機場旅客服務中心",
+            "value": "1"
+          },
+          {
+            "label": "交通場站旅遊服務中心",
+            "value": "2"
+          },
+          {
+            "label": "國家風景區遊客中心",
+            "value": "3"
+          },
+          {
+            "label": "地方遊客中心",
+            "value": "4"
+          },
+          {
+            "label": "借問站",
+            "value": "5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "tourVisitorStats": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "touristShuttleLive": [

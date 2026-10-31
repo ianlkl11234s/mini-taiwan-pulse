@@ -212,6 +212,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   // 文化幣藝文消費點 G23：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
   "cultureCoinVenues",
+  // 文化、觀光、原民補強 G35：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
+  "indigenousRegions", "indigenousLanguageDialects", "hakkaCulturalZones", "tourServiceSites", "tourVisitorStats",
   // 原民會文化健康站 G20：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。
   "culturalHealthStations",
   // 國營事業與國有資產 G16：純 OVERLAY_REGISTRY 靜態 GeoJSON。

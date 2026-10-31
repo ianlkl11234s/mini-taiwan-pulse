@@ -1,6 +1,9 @@
 {
   "legend.atlas.flag": "座標が通報の県市と不一致（誤りの疑い）",
   "legend.atlas.otherMultiEthnic": "その他・複数民族",
+  "legend.atlas.indigenousRegion": "原住民族地域（郷鎮市区）",
+  "legend.atlas.titleVisitorStats": "2024 年通年の観光客数",
+  "legend.atlas.visitorIncomplete": "2024 年のデータが 12 か月未満",
   "legend.atlas.notApprovedList": "現行の認定リスト外",
   "legend.atlas.otherSource": "その他の情報源",
   "legend.atlas.unidentified": "識別不能",
