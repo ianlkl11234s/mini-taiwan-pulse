@@ -10,7 +10,7 @@ const CJK = /[㐀-鿿]/u;
 export interface ParamTextInventory {
   /** 中文原文 → 用到它的「layerKey.參數名」 */
   texts: Map<string, string[]>;
-  /** 所有「layerKey.參數名」（覆寫 key 的合法範圍） */
+  /** 所有「layerKey.參數名」與「layerKey.該層用到的中文」（覆寫 key 的合法範圍） */
   targets: Set<string>;
 }
 
@@ -22,6 +22,8 @@ export function collectParamTexts(): ParamTextInventory {
     const list = texts.get(zh) ?? [];
     list.push(where);
     texts.set(zh, list);
+    // 單一圖層的文字覆寫 `param.<layerKey>.<中文>`（layerParamsControls 的 tx 先查它）
+    targets.add(`${where.slice(0, where.indexOf("."))}.${zh}`);
   };
   for (const [layerKey, specs] of Object.entries(LAYER_PARAMS_SPEC as Record<string, readonly LayerParamSpec[]>)) {
     for (const s of specs) {

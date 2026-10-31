@@ -1557,5 +1557,9 @@
   "param.網球場": "Tennis court",
   "param.草地滾球場": "Bowling green",
   "param.墓園": "Cemetery",
-  "param.宗教場地": "Religious grounds"
+  "param.宗教場地": "Religious grounds",
+  "param.gbSchools.小學": "Primary",
+  "param.gbLondonRailLines.地鐵": "Underground",
+  "param.gbPowerPlants.太陽光電": "Solar PV",
+  "param.gbPowerPlants.生質能／廢棄物": "Bioenergy / waste"
 }

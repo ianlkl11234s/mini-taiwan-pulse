@@ -162,7 +162,9 @@ export function buildParamControls(
 ): ParamControl[] | null {
   const spec = getParamsSpec(key);
   if (!spec) return null;
-  const tx = (zh: string) => paramText(zh, i18n);
+  // 選項文字也先查單一圖層覆寫 `param.<layerKey>.<中文>`：同一個中文在不同國家要不同譯法時用
+  // （例：英國 gbSchools「小學」= Primary、南韓沿用通用 key 的 Elementary school）
+  const tx = (zh: string) => paramText(zh, i18n, { layerKey: key, name: zh });
   const visible = visibleControlSpecs(key, values);
   // 每個 provider 第一個可見的連動選單負責顯示載入／錯誤狀態
   const statusCarriers = new Set<string>();
