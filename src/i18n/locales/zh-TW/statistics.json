@@ -91,5 +91,7 @@
   "statistics.details.loadForSource": "載入資料後顯示來源紀錄。",
   "statistics.details.crossTopicIndex": "跨主題統計索引",
   "statistics.details.relatedLayers": "相關 GIS 圖層",
-  "statistics.details.indexEntry": "{group}／{subgroup}：{name}"
+  "statistics.details.indexEntry": "{group}／{subgroup}：{name}",
+  "statistics.level.kr_sido": "道級（시·도）",
+  "statistics.level.kr_sigungu": "市郡區（시군구）"
 }

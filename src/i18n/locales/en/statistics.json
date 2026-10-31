@@ -91,5 +91,7 @@
   "statistics.details.loadForSource": "Source records appear after the data loads.",
   "statistics.details.crossTopicIndex": "Cross-theme statistics index",
   "statistics.details.relatedLayers": "Related GIS layers",
-  "statistics.details.indexEntry": "{group} / {subgroup}: {name}"
+  "statistics.details.indexEntry": "{group} / {subgroup}: {name}",
+  "statistics.level.kr_sido": "Province level (si/do)",
+  "statistics.level.kr_sigungu": "Municipal level (si/gun/gu)"
 }

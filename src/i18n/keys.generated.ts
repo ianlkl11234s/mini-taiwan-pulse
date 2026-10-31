@@ -7178,6 +7178,8 @@ export type GeneratedStaticKey =
   | "statistics.legend.sequential"
   | "statistics.level.county"
   | "statistics.level.gb_lad"
+  | "statistics.level.kr_sido"
+  | "statistics.level.kr_sigungu"
   | "statistics.level.prosecutor_district"
   | "statistics.level.statistical_l1"
   | "statistics.level.statistical_l2"

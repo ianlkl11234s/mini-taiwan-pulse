@@ -116,5 +116,7 @@
   "enum.statUnit.人/平方公里": "people/km²",
   "enum.statUnit.分": "points",
   "enum.statUnit.英鎊": "GBP",
-  "enum.statUnit.英鎊/月": "GBP/month"
+  "enum.statUnit.英鎊/月": "GBP/month",
+  "enum.statUnit.男/百女": "males per 100 females",
+  "enum.statUnit.老年/百幼年": "aged 65+ per 100 aged 0–14"
 }

@@ -322,7 +322,7 @@ export function isDataSourceBrowserVisible(key: string): boolean {
 }
 
 export function statisticsSourceLevelLabel(level: string, i18n?: I18nContext): string {
-  const zh = ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區", gb_lad: "地方行政區" } as Record<string, string>)[level] ?? level;
+  const zh = ({ county: "縣市", township: "鄉鎮市區", village: "村里", statistical_min: "最小統計區", statistical_l1: "一級統計區", statistical_l2: "二級統計區", prosecutor_district: "地檢署轄區", gb_lad: "地方行政區", kr_sido: "道級", kr_sigungu: "市郡區" } as Record<string, string>)[level] ?? level;
   return i18n ? enumLabel("dataSourceLevel", level, zh, i18n) : zh;
 }
 

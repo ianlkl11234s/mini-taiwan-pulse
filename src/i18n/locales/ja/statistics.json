@@ -91,5 +91,7 @@
   "statistics.details.loadForSource": "データの読み込み後に出典の記録を表示。",
   "statistics.details.crossTopicIndex": "テーマ横断の統計索引",
   "statistics.details.relatedLayers": "関連 GIS レイヤー",
-  "statistics.details.indexEntry": "{group}／{subgroup}：{name}"
+  "statistics.details.indexEntry": "{group}／{subgroup}：{name}",
+  "statistics.level.kr_sido": "広域自治体（市・道）",
+  "statistics.level.kr_sigungu": "基礎自治体（市・郡・区）"
 }

@@ -222,7 +222,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-31: +13 南韓第 1 波（交通 6：krBusStops／krRailStations／krAirports／krPorts／krNationalRoads／krRailLines；能源 7：krFuelStations／krPowerPlants／krRenewables／krPowerLines／krSubstations／krPowerTowers／krOilGas）。
     // 2026-10-31: +5 文化、觀光、原民補強 G35（indigenousRegions、indigenousLanguageDialects、hakkaCulturalZones、tourServiceSites、tourVisitorStats）。
     // 2026-10-31: +18 南韓第 3–5 波（水系統與海洋 8、公共運輸與道路設施 6、自然保護與林業 4；C101、C117 HOLD 未接）。
-    expect(keys.length).toBe(1466);
+    // 2026-10-31: +33 南韓統計（kr 家族 statsKr*，道級 16／市郡區 256）。
+    expect(keys.length).toBe(1499);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
