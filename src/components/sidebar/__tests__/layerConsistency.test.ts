@@ -605,6 +605,8 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(countryLayerKeys("FR")).toEqual(["anfrWirelessSites"]);
     expect(countryLayerKeys("GB")).toEqual(["gbAdminBoundaries", "gbSmallAreaBoundaries", "gbMaritimeLimits", "gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbCemeteries", "gbTerrainHillshade", "gbTerrainRelief", "gbPlanningConstraints", "gbBrownfield", "gbLondonStations", "gbStationUsage", "gbLondonBikePoints", "gbMajorRoads", "gbTrafficCountsAadf", "gbLondonRailLines", "gbLondonJamCams", "gbTransportHubs", "gbLondonChargingZones", "gbSurplusLand", "gbCompanies", "gbManufacturing", "gbSchools", "gbCareHomes", "gbCareServices", "gbCulturalFacilities", "gbArtsVenues", "gbVisitorExperience", "gbFuneral", "gbEarthquakes", "gbGroundStability", "gbRadon", "gbLandslide", "gbCoastalErosionRisk", "gbHealthFacilities", "gbFireStations", "gbCourts", "gbBathingWaters", "gbMarineProtectedAreas", "gbHydroStations", "gbRivers", "gbFloodDefenceAssets", "gbProtectedAreas", "gbTreeProtection", "gbRadiation", "gbPollutionInventory", "gbNoise", "gbWoodland", "gbOpenAccessLand", "gbForestRecreation", "gbTrails", "gbPowerPlants", "gbPowerLines", "gbSubstations", "gbRenewables", "gbFuelStations", "gbOilGasFields", "gbRecyclingCentres", "gbWastePermits", "gbAquaculture", "gbSoilParentMaterial"]);
     expect(tw.has("gbAdminBoundaries")).toBe(false);
+    expect(countryLayerKeys("KR")).toEqual(["krAdminBoundaries"]);
+    expect(tw.has("krAdminBoundaries")).toBe(false);
   });
 
   it("日本大分類沿用台灣共用的 5 類（2026-10-26 使用者決定），且與 THEME_MACRO_GROUPS 一致", () => {

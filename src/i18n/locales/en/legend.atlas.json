@@ -27,5 +27,7 @@
   "legend.atlas.setNetArea": "Set-net fishery right extent",
   "legend.atlas.seawallZone": "Seawall zone",
   "legend.atlas.sugarMill": "Sugar mill site",
-  "legend.atlas.postFxCounter": "Post office exchanging foreign cash (not a licensed currency exchange shop)"
+  "legend.atlas.postFxCounter": "Post office exchanging foreign cash (not a licensed currency exchange shop)",
+  "legend.atlas.toxicSite": "Toxic chemical operating site (address point)",
+  "legend.atlas.otherAccidentType": "Other types"
 }

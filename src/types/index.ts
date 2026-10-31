@@ -128,6 +128,8 @@ export type ExpandableLayerKey =
   | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
   // 海洋保育補接 G33（2026-10-29）
   | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+  // 環境、能源、海洋與職安 G37（2026-10-31）
+  | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
   // 地層下陷＋海堤 G19（2026-10-17，4 層）
   | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
   // 文化幣藝文消費點 G23（2026-10-24）
@@ -145,6 +147,7 @@ export type ExpandableLayerKey =
   // 郵局外幣現鈔經辦局 G10 外幣（2026-10-25）
   | "postOfficeFxCounters"
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
+  | "firingNoticeAreas"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -247,6 +250,7 @@ export type ExpandableLayerKey =
   | "fireLatest"
   | "fireStations"
   | "fireHydrants"
+  | "disasterResourceSites"
   | "fireIsochrone"
   | "medDesert"
   | "medHospital"
@@ -389,8 +393,11 @@ export type ExpandableLayerKey =
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
   | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
   | "a1AccidentRealtime"
+  | "trafficAccidents2025"
   | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
   | "civilDefenseShelter"
+  | "tsunamiSirens"
+  | "nuclearEpzEvacuation"
   // 航空器空域（eAIP AIRAC，9 種 layer 拆兩 toggle）
   | "aviationControl"        // FIR + TMA（情報 / 終端管制，FIR 只邊框）
   | "aviationRestricted"     // CTR/CONTROL/SURFACE + RCR + DANGER + ULZ + CIRCUIT
@@ -427,6 +434,7 @@ export type ExpandableLayerKey =
   | "jpZoningUseDistricts" | "jpNationalForests"
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
+  | "krAdminBoundaries"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
@@ -878,6 +886,7 @@ export interface FeatureInfo {
     | "indigenousTribes" | "indigenousIsolationRisk" | "agriRuralCommunityVillages" | "provincialRoadSigns" | "provincialRoadMileposts" | "freewayTrafficSigns" | "freewayInterchanges" | "freewayEcoSensitive" | "provincialRoadMonitored" | "provincialRoadEmergencyBays" | "floodDisasterPointsNcdr" | "taipeiWaterloggingHistory" | "swcbDisasterPhotoPoints" | "cetaceanStrandings" | "seaTurtleStrandings" | "beachWaterQuality" | "marineMicroplastics" | "marinePollutionIncidents" | "namrEdnaSurveySites" | "placeNames" | "triangulationPoints" | "wraFloodgatesCentral" | "wraCentralDrainage" | "iowStructureMonitoring" | "wraDredgingPoints" | "wraEcologySurveySites"
     | "natureReserves" | "wildlifeProtectedAreas" | "openFishingLocations" | "coastalAreaExtents" | "artificialReefCenters" | "protectedReefCenters" | "setNetFishingAreas"
     | "marineWildlifeAreas" | "marineEcologicalMonitoringSites"
+    | "exclusiveFisheryRightAreas" | "toxicChemicalFacilities" | "majorOccupationalAccidents" | "renewablePermitsNational" | "importantWetlands" | "waterRecreationRestrictedAreas" | "batterySwapStations"
     | "landSubsidenceStations" | "landSubsidenceCumulative" | "landSubsidenceRate" | "seawallZones"
     | "cultureCoinVenues"
     | "indigenousRegions" | "indigenousLanguageDialects" | "hakkaCulturalZones" | "tourServiceSites" | "tourVisitorStats"
@@ -924,6 +933,7 @@ export interface FeatureInfo {
     | "a1AccidentRealtime"
     | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
     | "civilDefenseShelter"
+    | "tsunamiSirens" | "nuclearEpzEvacuation" | "trafficAccidents2025" | "disasterResourceSites" | "firingNoticeAreas"
     // 環境污染（PMTiles：設施 × 介質 × 嚴重度 / 裁處事件時間軸 / 污染場址）
     | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
     // 噪音／聲響（觀測、公民科學、法定區、裁處、設備清單六種獨立語意）
@@ -970,6 +980,8 @@ export interface FeatureInfo {
     | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways"
     // 英國第 0b 波：行政邊界（LAD、統計小區）
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
+    // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
+    | "krAdminBoundaries"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
     | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
     // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
@@ -1253,6 +1265,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
    * ⚠️ 與 `ships`（全量 AIS，Three.js ShipScene）是**兩層**，本層為純 Mapbox circle/line。
    */
   vesselWatch: boolean;
+  firingNoticeAreas: boolean;  // G36 射擊公告區 187 則
   /** AISStream 最近回報船位（migration 371 RPC；獨立於全量 ships 與 GFW） */
   aisstreamVessels: boolean;
   /** Global Fishing Watch 每日/延遲 vessel presence（獨立於 AISStream） */
@@ -1332,6 +1345,15 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   /** 海洋保育補接 G33（2026-10-29）：海保署 6 個海域野生動物範圍、國研院全海域生態系調查點位 54 */
   marineWildlifeAreas: boolean;
   marineEcologicalMonitoringSites: boolean;
+  /** 環境、能源、海洋與職安 G37（2026-10-31）：專用漁業權 19 面、毒化物運作場所 7,045 點、重大職災 1,238 點、
+   *  全國太陽光電許可地號 8,038 點、國家重要濕地 89 面、水域遊憩禁限區 33 區、換電站 412 點 */
+  exclusiveFisheryRightAreas: boolean;
+  toxicChemicalFacilities: boolean;
+  majorOccupationalAccidents: boolean;
+  renewablePermitsNational: boolean;
+  importantWetlands: boolean;
+  waterRecreationRestrictedAreas: boolean;
+  batterySwapStations: boolean;
   /** 地層下陷＋海堤 G19（2026-10-17）：監測站（popup 趨勢走 RPC）、累積／速率等值線（同一 PMTiles）、一般性海堤區域 */
   landSubsidenceStations: boolean;
   landSubsidenceCumulative: boolean;
@@ -1427,7 +1449,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   fireEvents: boolean;
   fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
-  fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
+  fireHydrants: boolean;   // 消防栓（G36 起含台水 17 縣市，211,530 點）
+  disasterResourceSites: boolean;    // G36 救災資源據點 5,379 處
   fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
   // 🐷 畜牧 Livestock（靜態 CDN geojson 點層；飼養場 7 層共用 livestock_farms source + 主畜種 filter）
   livestockFarmPig: boolean;      // 畜禽飼養場·豬（4,584）
@@ -1711,11 +1734,14 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   trafficAccidentYearly: boolean;     // 1,600 A1 死亡事故年度累積（114 年靜態）
   accidentTaipei: boolean;            // 22,918 北市事故點（A1+A2 多年累積）
   a1AccidentRealtime: boolean;        // realtime.traffic_accidents_a1 每 12h（rpc_a1_by_bbox）
+  trafficAccidents2025: boolean;     // G36 2025 A1／A2 事故 321,534 點（PMTiles）
   investigationBureau: boolean;       // 29 調查局所屬
   antiCorruptionOffice: boolean;      // 66 廉政署（central/local）
   immigrationOffice: boolean;         // 25 移民署服務站
   coastGuardStation: boolean;         // 269 海巡（巡防隊+漁港）
   civilDefenseShelter: boolean;       // 62,695 防空避難（PMTiles，z≥10 才顯示）
+  tsunamiSirens: boolean;            // G36 海嘯警報臺 376 座
+  nuclearEpzEvacuation: boolean;     // G36 核電廠集結點 182＋收容處所 18
   aviationControl: boolean;           // ✈️ 飛航情報/終端管制（FIR 3 + TMA 6，FIR 只邊框）
   aviationRestricted: boolean;        // ⛔ 禁/限航 + 危險 + 機場管制（CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT 72）
   droneNoFlyZone: boolean;            // 🚫 2026-06-30 歷史紅+未分類參考面 5,635（共用 drone_restricted_zones.pmtiles）
@@ -1794,6 +1820,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey | L
   jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
+  krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   gbSmallAreaBoundaries: boolean; // 英國統計小區（PMTiles polygon，LSOA21／DZ22／DZ21 46,844＋北愛 SDZ21 850）
   gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
   gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）

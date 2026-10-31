@@ -17,7 +17,7 @@
 | `fireEvents` | point (Supabase RPC) | 111~113 約 4.8 萬火災點 | ✅ **僅歷史模式**；補 click popup |
 | `fireLatest` | point | 113 最新年度火點 | ✅ **任何模式可見**、不需時間軸；共用 FireEventPanel |
 | `fireStations` | point + 3D | 靜態 **716** 點（全台 **22** 縣市；2026-05-26 屏東 39 隊 Mapbox geocode 補齊） | ✅ 分隊階級視覺化（3D 光柱+漣漪） |
-| `fireHydrants` | point | 靜態 69,839 點 | ⚠️ **僅臺北市 + 高雄市**；minzoom 12 |
+| `fireHydrants` | point (PMTiles) | 靜態 211,530 點（2026-10-31 G36 補台水 44642，`public/geo/fire_hydrants_national.pmtiles`） | ✅ 全國；高雄用市消防局、臺北用北水處，其餘台水；口徑見 `docs/features/g36-safety-accidents/README.md` |
 | `fireIsochrone` | polygon (PMTiles) | 救援 driving 5/10/15 分鐘黃金分級 | ✅ 全國聚合 + 各縣市兩套，`<select>` setFilter 切換 |
 
 ## 關鍵檔案

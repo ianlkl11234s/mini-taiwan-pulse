@@ -60,6 +60,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["harm-reduction-therapeutic-communities-circle", "harm-reduction-therapeutic-communities-glow"], type: "harmReductionTherapeuticCommunities" },
   // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
   { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
+  { layers: ["traffic-accidents-2025-circle", "traffic-accidents-2025-glow"], type: "trafficAccidents2025" },
+  { layers: ["disaster-resource-sites-circle", "disaster-resource-sites-glow"], type: "disasterResourceSites" },
+  { layers: ["tsunami-sirens-circle", "tsunami-sirens-glow"], type: "tsunamiSirens" },
+  { layers: ["nuclear-epz-evacuation-circle", "nuclear-epz-evacuation-glow"], type: "nuclearEpzEvacuation" },
   { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
   { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
   { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
@@ -375,6 +379,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 英國：小區（細）排在 LAD（大面積背景）前面；北愛 DZ／SDZ 只會有一個可見
   { layers: ["gb-small-areas-fill", "gb-ni-sdz-fill"], type: "gbSmallAreaBoundaries" },
   { layers: ["gb-admin-lad-fill"], type: "gbAdminBoundaries" },
+  // 南韓：三層級一次只開一層
+  { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
@@ -500,6 +506,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
   //    海峽的大面積 polygon，first-hit-wins 之下船點若排在它後面就永遠點不到。
   { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
+  { layers: ["firing-notice-areas-fill"], type: "firingNoticeAreas" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
@@ -767,6 +774,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["wildlife-protected-areas-fill", "wildlife-protected-areas-outline"], type: "wildlifeProtectedAreas" },
   { layers: ["marine-ecological-monitoring-sites-circle", "marine-ecological-monitoring-sites-glow"], type: "marineEcologicalMonitoringSites" },
   { layers: ["marine-wildlife-areas-fill", "marine-wildlife-areas-outline"], type: "marineWildlifeAreas" },
+  { layers: ["exclusive-fishery-right-areas-fill", "exclusive-fishery-right-areas-outline"], type: "exclusiveFisheryRightAreas" },
+  { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
+  { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
+  { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
+  { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },
+  { layers: ["renewable-permits-national-circle", "renewable-permits-national-glow"], type: "renewablePermitsNational" },
+  { layers: ["battery-swap-stations-circle", "battery-swap-stations-glow"], type: "batterySwapStations" },
   { layers: ["nature-reserves-fill", "nature-reserves-outline"], type: "natureReserves" },
   { layers: ["agri-rural-community-villages-fill", "agri-rural-community-villages-outline"], type: "agriRuralCommunityVillages" },
   { layers: ["coastal-area-extents-fill", "coastal-area-extents-outline"], type: "coastalAreaExtents" },

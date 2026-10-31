@@ -71,6 +71,9 @@ export const FRANCE_THEMES = scopeThemes("FR");
 /** 英國：2026-10-29 第 0b 波起（底圖／行政邊界），之後各波照台灣主題名加入。統計面（LAD 統計）在統計入口，比照台灣從圖層頁濾掉。 */
 export const UK_THEMES = withoutStatisticsLayers(scopeThemes("GB"));
 
+/** 南韓：2026-10-31 第 0 波起（底圖／行政邊界），之後各波照台灣主題名加入。 */
+export const KOREA_THEMES = withoutStatisticsLayers(scopeThemes("KR"));
+
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
 
@@ -103,6 +106,9 @@ export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THE
 /** 法國：沿用全站大分類。 */
 export const FRANCE_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(FRANCE_THEMES);
 
+/** 南韓：沿用全站大分類。 */
+export const KOREA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(KOREA_THEMES);
+
 /** 英國：沿用全站大分類。 */
 export const UK_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(UK_THEMES);
 
@@ -115,6 +121,7 @@ const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroup
   JP: { themes: JAPAN_THEMES, macroGroups: JAPAN_MACRO_GROUPS },
   FR: { themes: FRANCE_THEMES, macroGroups: FRANCE_MACRO_GROUPS },
   GB: { themes: UK_THEMES, macroGroups: UK_MACRO_GROUPS },
+  KR: { themes: KOREA_THEMES, macroGroups: KOREA_MACRO_GROUPS },
 };
 
 /** 某國在「圖層」入口的主題樹。 */

@@ -27,5 +27,7 @@
   "legend.atlas.setNetArea": "定置漁業権の範囲",
   "legend.atlas.seawallZone": "一般海岸堤防区域",
   "legend.atlas.sugarMill": "製糖工場の拠点",
-  "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）"
+  "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）",
+  "legend.atlas.toxicSite": "毒性化学物質の取扱事業場（住所の点）",
+  "legend.atlas.otherAccidentType": "その他の種類"
 }

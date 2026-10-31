@@ -9,21 +9,23 @@ import type { OverlayConfig, OverlayLayerSpec } from "../types";
 import { JMA_ATTRIBUTION, JMA_INTENSITY_CLASSES, JMA_MISSING_COLOR, JMA_QUAKE_RADIUS_STOPS, JMA_VOLCANO_LEVELS, jmaAmedasColorExpr, jmaAmedasFilter, jmaAmedasMode, jmaIsNullExpr } from "../data/jmaTypes";
 import { ENV_WBGT_ATTRIBUTION, JMA_POINT_HOLLOW_COLOR, JMA_POINT_LAYER_COLORS, JMA_SNOWCAP_OBSERVED_COLOR, JMA_SNOWCAP_OBSERVED_STROKE, envWbgtColorExpr, jmaDiffColorExpr, jmaPhenologyCode, type JmaPhenologyLayerKey } from "../data/jmaPointTypes";
 import { paramDefault } from "../data/layerParamsSpec";
-import { fireStationColorMatch } from "../data/fireTypes";
+import { FIRE_HYDRANT_CAT_COLOR, fireStationColorMatch } from "../data/fireTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
-/** 消防栓 69,839 點：P-4 依點數為 10，但保留原本點 minzoom 12。 */
-const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(69_839, 12);
+/** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
+const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
+const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
 
 /**
  * R5（P-4）密集點的出點縮放：第一參數＝全資料集點數（2026-10-02 量測），第二參數＝原本點的 minzoom
  * （較高者保留，不讓點比原本更早出現）。熱區畫在這個縮放以下。
  */
 const DENSE_FROM = {
+  trafficAccidents2025: densePointsFromZoom(321_534, 5),
   pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
   streetTreesNational: densePointsFromZoom(210_436),
   manufacturingCompanyPoints: densePointsFromZoom(184_944),
@@ -266,6 +268,10 @@ import {
   treatmentCategoryFilter,
 } from "../data/harmReductionTypes";
 import {
+  DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR,
+  disasterResourceHolderFilter, firingAgencyFilter, g36ColorExpression, nuclearEpzKindFilter, trafficAccidentFilter,
+} from "../data/safetyG36Types";
+import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
 import {
@@ -274,6 +280,8 @@ import {
   MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS, PLACE_NAMES_MIN_ZOOM, POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS,
   ROAD_SIGNS_POINT_MIN_ZOOM, ROAD_SIGNS_TILE_MIN_ZOOM, RURAL_COMMUNITY_OPTIONS, RURAL_MIN_ZOOM, STRANDING_YEARS,
   STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, TURTLE_SPECIES_OPTIONS, DREDGING_STATUS_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
+  WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS,
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColorExpr,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
@@ -526,9 +534,12 @@ function publicLifePointOverlay(
     labelMinzoom?: number;
     /** R5 密集點：出點縮放以下畫熱區（點數 ≥ 10k 才給）。 */
     dense?: { pointsFromZoom: number; intensity: number };
+    /** circle-sort-key（值大者畫在上層），例如讓少數嚴重事件不被大量輕微事件蓋住。 */
+    sortKey?: unknown;
   },
 ): OverlayConfig {
   const paramFilter = options?.filter;
+  const sortLayout = options?.sortKey === undefined ? {} : { layout: { "circle-sort-key": options.sortKey } };
   const filterProps = paramFilter ? { filter: paramFilter } : {};
   const dense = options?.dense;
   const pointMinzoom = dense ? { minzoom: dense.pointsFromZoom } : {};
@@ -566,12 +577,12 @@ function publicLifePointOverlay(
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     { suffix: "circle", type: "circle", ...pointMinzoom, paint: (dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     ...labelLayers,
   ] };
 }
@@ -595,6 +606,25 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
 ];
 
 /** 減害服務：官方名冊 GeoJSON＋酒駕事故 PMTiles（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
+/** G36（2026-10-31）消防、民防、情勢與交通事故：點層共用公共生活點層 helper（attribution 明傳），射擊公告區為面。 */
+const G36_SAFETY_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 }, sortKey: ["match", ["get", "cat"], "A1", 1, 0] }),
+  publicLifePointOverlay("disasterResourceSites", "./geo/disaster_resource_sites.geojson", "disaster-resource-sites", g36ColorExpression("holder", DISASTER_RESOURCE_HOLDER_OPTIONS), undefined, "內政部消防署 救災資源資料庫（data.gov.tw 77862）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterResourceHolderFilter(p?.disasterResourceSitesHolderMask) }),
+  publicLifePointOverlay("tsunamiSirens", "./hazards/tsunami_sirens.geojson", "tsunami-sirens", TSUNAMI_SIREN_COLOR, undefined, "內政部警政署 全國海嘯警報臺（data.gov.tw 34102）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12 }),
+  publicLifePointOverlay("nuclearEpzEvacuation", "./hazards/nuclear_epz_evacuation.geojson", "nuclear-epz-evacuation", g36ColorExpression("kind", NUCLEAR_EPZ_KIND_OPTIONS), undefined, "核能安全委員會 核電廠緊急應變計畫區集結點與避難收容處所（data.gov.tw 102114／102434）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12, filter: (p) => nuclearEpzKindFilter(p?.nuclearEpzEvacuationKindMask) }),
+  {
+    id: "firingNoticeAreas",
+    sourceUrl: "./marine/firing_notice_areas.geojson",
+    sourceId: "firing-notice-areas",
+    attribution: "國防部海軍司令部（data.gov.tw 136419）、海洋委員會海巡署（143315）· 政府資料開放授權條款第1版 · 公告範圍，非即時狀態",
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", filter: (p) => firingAgencyFilter(p?.firingNoticeAreasAgencyMask), paint: (_dark, p) => ({ "fill-color": g36ColorExpression("agency", FIRING_AGENCY_OPTIONS), "fill-opacity": (p?.firingNoticeAreasOpacity ?? 0.6) * 0.18 }) },
+      { suffix: "outline", type: "line", filter: (p) => firingAgencyFilter(p?.firingNoticeAreasAgencyMask), paint: (_dark, p) => ({ "line-color": g36ColorExpression("agency", FIRING_AGENCY_OPTIONS), "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.8, 10, 1.8], "line-dasharray": [4, 3], "line-opacity": p?.firingNoticeAreasOpacity ?? 0.6 }) },
+    ],
+  },
+];
+
 const HARM_REDUCTION_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("harmReductionNeedle", "./harm_reduction/needle_points.geojson", "harm-reduction-needle", HARM_REDUCTION_COLORS.harmReductionNeedle, undefined, "衛生福利部疾病管制署 清潔針具執行點名冊（2026-07-14）＋縣市衛生局名單", undefined, { labelMinzoom: 14, filter: (p) => needleServiceFilter(p?.harmReductionNeedleServiceMask, p?.harmReductionNeedleOnly24h) }),
   publicLifePointOverlay("harmReductionTreatment", "./harm_reduction/drug_treatment_facilities.geojson", "harm-reduction-treatment", categoryColorExpression("category", TREATMENT_CATEGORY_OPTIONS), undefined, "衛生福利部 指定藥癮戒治及替代治療機構名單（2026-08-31）＋data.gov.tw 133353", undefined, { labelMinzoom: 13, filter: (p) => treatmentCategoryFilter(p?.harmReductionTreatmentCategoryMask) }),
@@ -2260,12 +2290,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
+  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點 cat="台水"）──
   // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
   // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
-    sourceUrl: "./geo/fire_hydrants.pmtiles",
+    sourceUrl: "./geo/fire_hydrants_national.pmtiles",
     sourceId: "fire-hydrants",
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
@@ -2275,7 +2305,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "heatmap",
         maxzoom: heatmapMaxzoom(FIRE_HYDRANTS_POINTS_FROM_ZOOM),
         // intensity 0.1：臺北／高雄市區點極密（約為日本宗教設施的 10 倍），目視校正。
-        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? 0.75) / 0.75, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
+        paint: (isDark, p) => heatmapPaint((p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT) / FIRE_HYDRANTS_OPACITY_DEFAULT, 0.1, 1, heatmapRampFor("fireHydrants", isDark), heatmapStackFactor()),
       },
       {
         suffix: "glow",
@@ -2283,7 +2313,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.75;
+          const opacity = p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2293,9 +2323,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-blur": 1,
             "circle-color": [
               "match", ["get", "cat"],
-              "地上式", "#2196f3",
-              "地下式", "#00acc1",
-              "#90a4ae",
+              "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
+              "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
+              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
+              FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
             "circle-translate": [0, -z],
@@ -2309,7 +2340,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: FIRE_HYDRANTS_POINTS_FROM_ZOOM,
         paint: (isDark, p) => {
           const scale = p?.fireHydrantsScale ?? 1;
-          const opacity = p?.fireHydrantsOpacity ?? 0.75;
+          const opacity = p?.fireHydrantsOpacity ?? FIRE_HYDRANTS_OPACITY_DEFAULT;
           const z = p?.fireHydrantsZ ?? 0;
           return {
             "circle-radius": [
@@ -2318,9 +2349,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": [
               "match", ["get", "cat"],
-              "地上式", "#2196f3",
-              "地下式", "#00acc1",
-              "#90a4ae",
+              "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
+              "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
+              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
+              FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
             "circle-stroke-width": [
@@ -11699,6 +11731,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
 OVERLAY_REGISTRY.push(...HARM_REDUCTION_OVERLAYS);
+OVERLAY_REGISTRY.push(...G36_SAFETY_OVERLAYS);
 OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
 
 /**
@@ -11863,6 +11896,11 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("marineMicroplastics", "./marine/marine_microplastics_stations.geojson", "marine-microplastics", microplasticColorExpr(), undefined, `海洋委員會 海洋微塑膠調查（2021–2023）· ${OGDL_ATTR}`, [5, 9], { labelMinzoom: 9 }),
   publicLifePointOverlay("marinePollutionIncidents", "./marine/marine_pollution_incidents.geojson", "marine-pollution-incidents", matchColorExpr("case_level", POLLUTION_LEVEL_OPTIONS), undefined, `海洋委員會海洋保育署 海洋污染事件 · ${OGDL_ATTR}`),
   publicLifePointOverlay("namrEdnaSurveySites", "./marine/namr_edna_survey_sites.geojson", "namr-edna-survey-sites", ATLAS_LAYER_COLORS.namrEdnaSurveySites, undefined, `國家海洋研究院 環境 DNA 調查站位 · ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
+  // ── 環境、能源、海洋與職安 G37（2026-10-31）點層 ──
+  publicLifePointOverlay("toxicChemicalFacilities", "./hazards/toxic_chemical_facilities.pmtiles", "toxic-chemical-facilities", ATLAS_LAYER_COLORS.toxicChemicalFacilities, { sourceLayer: "toxic_chemical_facilities", minzoom: 5, maxzoom: 12 }, `環境部 毒性及關注化學物質運作場所（data.gov.tw 161616）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("majorOccupationalAccidents", "./hazards/major_occupational_accidents.geojson", "major-occupational-accidents", matchColorExpr("accident_type", OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS), undefined, `勞動部職業安全衛生署 重大職業災害公開網（data.gov.tw 126835）· ${OGDL_ATTR}`, [3, 6]),
+  publicLifePointOverlay("renewablePermitsNational", "./energy/renewable_permits_national.pmtiles", "renewable-permits-national", matchColorExpr("symbiotic_class", RENEWABLE_PERMIT_CLASS_OPTIONS), { sourceLayer: "renewable_permits_national", minzoom: 5, maxzoom: 12 }, `經濟部能源署 太陽光電案場土地地號（data.gov.tw 176025）· ${OGDL_ATTR}`, [2, 5]),
+  publicLifePointOverlay("batterySwapStations", "./energy/battery_swap_stations.geojson", "battery-swap-stations", matchColorExpr("operator", BATTERY_SWAP_OPERATOR_OPTIONS), undefined, `台灣中油 換電服務加油站（data.gov.tw 106247）、台灣電力公司 換電站租賃據點（165894）· ${OGDL_ATTR}`, [3, 6], { labelMinzoom: 13 }),
   publicLifePointOverlay("marineEcologicalMonitoringSites", "./marine/marine_ecological_monitoring_sites.geojson", "marine-ecological-monitoring-sites", ATLAS_LAYER_COLORS.marineEcologicalMonitoringSites, undefined, `國家海洋研究院 全海域生態系調查點位（data.gov.tw 171350）· ${OGDL_ATTR}`, undefined, { labelMinzoom: 11 }),
   // ── 地名 ──
   publicLifePointOverlay("placeNames", "./geo/place_names_moi.pmtiles", "place-names-moi", matchColorExpr("category", PLACE_CATEGORY_OPTIONS), { sourceLayer: "place_names_moi", minzoom: PLACE_NAMES_MIN_ZOOM, maxzoom: 14 }, `內政部地政司 臺灣地區地名資料（data.gov.tw 40281 等）· ${OGDL_ATTR}`, [2, 5], { filter: (p) => atlasMultiSelectFilter("category", PLACE_CATEGORY_OPTIONS, p?.placeNamesCategoryMask) }),
@@ -11886,6 +11924,21 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
     id: "wildlifeProtectedAreas", sourceUrl: "./marine/wildlife_protected_areas.geojson", sourceId: "wildlife-protected-areas",
     attribution: `農業部林業及自然保育署 野生動物保護區 · ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
     layers: polygonLayers("wildlifeProtectedAreas", ATLAS_LAYER_COLORS.wildlifeProtectedAreas, 0.3),
+  },
+  {
+    id: "exclusiveFisheryRightAreas", sourceUrl: "./marine/exclusive_fishery_right_areas.geojson", sourceId: "exclusive-fishery-right-areas",
+    attribution: `農業部漁業署 專用漁業權水域（analytics 2026-02-28 轉檔）`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("exclusiveFisheryRightAreas", matchColorExpr("status", EXCLUSIVE_FISHERY_STATUS_OPTIONS), 0.3),
+  },
+  {
+    id: "importantWetlands", sourceUrl: "./environment/important_wetlands.geojson", sourceId: "important-wetlands",
+    attribution: `內政部國家公園署 國家重要濕地範圍圖（data.gov.tw 25659）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("importantWetlands", matchColorExpr("level", WETLAND_LEVEL_OPTIONS), 0.35),
+  },
+  {
+    id: "waterRecreationRestrictedAreas", sourceUrl: "./tourism/water_recreation_restricted_areas.geojson", sourceId: "water-recreation-restricted-areas",
+    attribution: `交通部觀光署 禁止或限制水域遊憩活動區域（data.gov.tw 38872）· ${OGDL_ATTR}`, rebuildOnParamChange: ["fill", "outline"],
+    layers: polygonLayers("waterRecreationRestrictedAreas", matchColorExpr("kind", WATER_RECREATION_KIND_OPTIONS), 0.35),
   },
   {
     id: "marineWildlifeAreas", sourceUrl: "./marine/marine_wildlife_areas.geojson", sourceId: "marine-wildlife-areas",
