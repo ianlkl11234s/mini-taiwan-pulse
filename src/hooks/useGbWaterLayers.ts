@@ -217,10 +217,26 @@ export interface GbRepPointsSpec {
 }
 
 /**
- * analytics 代表點檔 z4–9 抽稀、z10 起全量（林地、樹木保護 2026-10-31 實測每級約 ×2.5）。熱區強度以 2^zoom 縮放
- * （假設各級圖磚都是全量），抽稀會讓全英視角幾乎看不到熱區 → 權重補回 2.5^(10−z)。
+ * analytics 代表點檔 z4–9 抽稀、z10 起全量（林地、樹木保護 2026-10-31 實測每級約 ×2.5），用 heatmap-weight 補回低縮放密度。
+ * ⚠️ Mapbox 的 `["exponential", b]` interpolate 不是幾何衰減：t＝(b^(z−z0)−1)/(b^(z1−z0)−1)，值＝A(1−t)+Bt。
+ * 這條（4→244、10→1、底數 2.5）實際是 w(z)＝245.14−2.5^(z−4)：z8≈206、z9≈147、z9.5≈91、z10＝1，
+ * 也就是在 z9–10 之間從約 147 掉到 1（不是每級 ÷2.5）。出點縮放＝z10 的層（海岸侵蝕）z10 就換成點，看不出來；
+ * 出點縮放晚於 z10 的層要改用 GB_THINNED_POINTS_WEIGHT_TO_Z12。
  */
 export const GB_THINNED_POINTS_WEIGHT: Expr = ["interpolate", ["exponential", 2.5], ["zoom"], 4, 2.5 ** 6, 10, 1];
+
+/**
+ * 出點縮放＝z12 的抽稀代表點層（> 10 萬點：林地 gbWoodland、樹木保護 gbTreeProtection）用。
+ * 根因（2026-11-01 VIS 追加）：沿用 GB_THINNED_POINTS_WEIGHT 時 weight×intensity 在 z9≈0.92、z10≈0.0125（約 74 倍斷崖），
+ * 低於熱區色階第一個可見節點（density 0.05），點模式 z10–11.99 熱區看不到、z12 才出點 → 畫面全空。
+ * z4–9 的整數縮放值與舊曲線相同（線性插值逐級寫出；全國視角與「面」模式熱區不變），z10–12 依瀏覽器目視校正，
+ * 讓熱區一路接到 z12 出點。
+ */
+export const GB_THINNED_POINTS_WEIGHT_TO_Z12: Expr = [
+  "interpolate", ["linear"], ["zoom"],
+  // z9.5 起改載 z10 全量圖磚，權重同步降到 z10 的量級，避免 z9.5–10 過飽和
+  4, 244.141, 5, 242.641, 6, 238.891, 7, 229.516, 8, 206.078, 9, 147.484, 9.5, 68, 10, 48, 11, 64, 12, 128,
+];
 
 export function useGbRepPointLayers(
   mapRef: React.RefObject<MapboxMap | null>, spec: GbRepPointsSpec,

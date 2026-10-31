@@ -522,22 +522,27 @@ export function GbLondonBikePointsPanel({ props }: { props: Record<string, unkno
 }
 
 /**
- * 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態、即時快照。
- * §3.8（2026-10-31）比照台灣 CCTV popup 嵌入 TfL 公開快照 JPEG（`image_url`，TfL 約每 5 分鐘更新）：
- * 只在 popup 開啟時由瀏覽器直接載入一張圖，不輪詢、不代理（TfL Unified API 限 500 次／分，此處不經 API）；
- * 影片（mp4）維持外連。換點時 CctvStreamView 以 key 重置。
+ * 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態、即時短片。
+ * §3.8（2026-11-01 改）比照台灣 CCTV popup，直接嵌入 TfL 公開短片 mp4（`video_url`，靜音自動循環、無控制列）；
+ * 影片失敗或沒有 `video_url` 時退回快照 JPEG（`image_url`，TfL 約每 5 分鐘更新），兩者都失敗才顯示「無法載入」。
+ * 只在 popup 開啟時由瀏覽器直接載入，不輪詢、不代理（TfL Unified API 限 500 次／分，此處不經 API）。
+ * 外連與台灣 CCTV 一致：只保留影像框下方一條「在新分頁開啟」（有影片時指向 mp4），原「影片片段」列移除。
+ * 換點時 CctvStreamView 以 key 重置。
  */
 export function GbLondonJamCamsPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   const offline = props.available_at_fetch === false;
   const imageUrl = text(props.image_url);
+  const videoUrl = text(props.video_url);
   const color = offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR;
   return <>
     <Title color={color}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
     <Row label={t("popup.transport.gbCameraView")} value={text(props.view)} />
     <Row label={t("popup.transport.gbCameraStatus")} value={t(offline ? "popup.transport.gbCameraOfflineAtFetch" : "popup.transport.gbCameraOnlineAtFetch", { date: GB_TRANSPORT_FETCHED_AT })} />
-    {imageUrl ? <CctvStreamView key={imageUrl} streamUrl={imageUrl} imageUrl={imageUrl} source="tfl" accentColor={color} /> : null}
-    <LinkRow label={t("popup.transport.gbCameraVideo")} url={text(props.video_url)} />
+    {imageUrl || videoUrl ? (
+      <CctvStreamView key={`${videoUrl}|${imageUrl}`} streamUrl={imageUrl || videoUrl} imageUrl={imageUrl || undefined}
+        videoUrl={videoUrl || undefined} source="tfl" accentColor={color} />
+    ) : null}
     <TflFooter url={GB_TFL_JAMCAM_URL} />
   </>;
 }

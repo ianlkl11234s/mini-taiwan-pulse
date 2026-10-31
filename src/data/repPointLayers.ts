@@ -161,7 +161,7 @@ export function repPointHeatIntensity(l: RepPointLayer): number {
   return Math.max(0.02, Math.min(5, 12_000 / l.count));
 }
 
-/** 低縮放抽稀補償：2.5 ** (10 - z) 的 interpolate（與英國 `GB_THINNED_POINTS_WEIGHT` 同形）。 */
+/** 低縮放抽稀補償（與英國 `GB_THINNED_POINTS_WEIGHT` 同形）。注意 exponential interpolate 實際是 (n^6+1)−n^(z−4)，z9–10 之間才驟降到 1，不是每級 ÷n。 */
 export function repPointThinnedWeight(n: number): unknown[] {
   return ["interpolate", ["exponential", n], ["zoom"], 4, n ** 6, 10, 1];
 }
