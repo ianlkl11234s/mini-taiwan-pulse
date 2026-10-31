@@ -10158,7 +10158,7 @@ export const LAYER_MANIFEST = {
   exclusiveFisheryRightAreas: {
     key: "exclusiveFisheryRightAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "專用漁業權範圍", alt: "Exclusive Fishery Right Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.exclusiveFisheryRightAreas, icon: Fish,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics environment/fishery_rights（19 面，漁業署 SHP 轉檔 2026-02-28）；catalog 文件 environment/fishery_rights.md 缺 frontmatter dataset_id", note: "現存／屆期為來源標記，日期不明；與定置漁業權（setNetFishingAreas）是不同法律類別。public/fishery/exclusive_fishery_rights.geojson 是 17 個縣市代表點的舊孤兒檔，不是本層。" },
+    upstream: { status: "catalog_missing", datasets: [], processing: "analytics environment/fishery_rights（19 面，漁業署 SHP 轉檔 2026-02-28）；catalog 文件 environment/fishery_rights.md 缺 frontmatter dataset_id", note: "現存／屆期為來源標記，日期不明；與定置漁業權（setNetFishingAreas）是不同法律類別。舊的 17 個縣市代表點孤兒檔（fishery/exclusive_fishery_rights.geojson）已移除，不是本層。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "exclusive-fishery-right-areas", url: "./marine/exclusive_fishery_right_areas.geojson" },
     legend: "exclusiveFisheryRightAreas", popup: "exclusiveFisheryRightAreas", params: { count: 1, kinds: ["slider"] },
     description: "各區漁會專用漁業權水域 19 面（來源標現存 11、屆期 8）；與定置漁業權區是不同類別，不代表現行權利或可否進入。",
