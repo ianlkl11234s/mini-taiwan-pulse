@@ -185,7 +185,7 @@ export const GB_NOISE_SOURCES = {
   datamapwales_mrd_lden_2017: { org: "Welsh Government — DataMapWales mrd_lden_2017", url: "https://datamap.gov.wales/layers/inspire-wg:mrd_lden_2017" },
 } as const;
 export const GB_NOISE_TILE_ZOOM = { minzoom: 5, maxzoom: 12 } as const;
-export const GB_NOISE_MINZOOM = 9;
+export const GB_NOISE_MINZOOM = 5; // §3.8 V-2：跟圖磚 z5 起（原 z9；2026-10-31 全英 z5.5 實測效能）
 export type GbNoiseSource = "road" | "rail";
 export const GB_NOISE_SOURCE_VIEWS: readonly GbNoiseSource[] = ["road", "rail"];
 export const GB_NOISE_SOURCE_COUNTS: Readonly<Record<GbNoiseSource, number>> = { road: 119_914, rail: 21_652 };

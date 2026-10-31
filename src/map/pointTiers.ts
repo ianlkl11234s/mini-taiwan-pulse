@@ -323,7 +323,13 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   gbManufacturing: "B", // 半徑＝district 製造業家數 5 級 · src/hooks/useGbBusinessAgriLayers.ts
   gbFuneral: "M", // 火葬場 M（葬儀社 S，依 kind） · src/hooks/useGbBusinessAgriLayers.ts
   gbAquaculture: "M", // 蘇格蘭＋北愛養殖場（3,129 點；狀態以外框區分 P-9） · src/hooks/useGbBusinessAgriLayers.ts
-  gbSportsFacilities: "S", // 英國運動場地：面為主，高爾夫球場全英視角（z<10）另畫代表點 · src/hooks/useGbOpenSpaceLayers.ts
+  gbSportsFacilities: "S", // 英國運動場地：點／面切換（V-5），「點」畫代表點（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
+  gbGreenspace: "S", // 英國公園綠地：「點」畫代表點（80,918，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
+  gbGolfCourses: "S", // 英國高爾夫球場：代表點（2,980，「面」模式 z<10 也畫點）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
+  gbCemeteries: "S", // 英國墓園與宗教場地：預設「點」（30,208，z<10 熱區）（代表點由共用 useGbRepPointLayers 畫） · src/hooks/useGbWaterLayers.ts
+  gbWoodland: "S", // 英國林地：「點」畫代表點（62 萬，z<12 熱區） · src/hooks/useGbNatureLayers.ts
+  gbOpenAccessLand: "S", // 英國開放進入地：「點」畫代表點（48,034） · src/hooks/useGbNatureLayers.ts
+  gbPlanningConstraints: "S", // 英國規劃限制區：預設「點」畫代表點（18,727） · src/hooks/useGbEnvPlanningLayers.ts
   gbBrownfield: "S", // 英格蘭棕地（30,303 點，z<10 熱區、z10 起畫點；許可進度以填色強度區分） · src/hooks/useGbEnvPlanningLayers.ts
   gbRecyclingCentres: "M", // 回收中心 M z5 起（回收桶 S，z<10 熱區、z10 起畫點） · src/hooks/useGbEnvPlanningLayers.ts
   gbWastePermits: "S", // 英國廢棄物處理許可（8,711 點，z5 起） · src/hooks/useGbEnvPlanningLayers.ts

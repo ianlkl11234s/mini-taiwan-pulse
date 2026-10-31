@@ -6,7 +6,7 @@ import {
   GB_CAPACITY_BANDS, GB_CONSTRUCTION_STROKE, GB_ENERGY_FALLBACK_COLOR, GB_FIELD_INACTIVE_FACTOR, GB_FIELD_PRODUCING, GB_FIELD_TYPES,
   GB_FUEL_GROUPS, GB_FUEL_STATION_COLOR, GB_NSTA_ATTRIBUTION, GB_OSM_ATTRIBUTION, GB_TECH_GROUPS, GB_VOLTAGE_CLASSES, gbStatusView,
 } from "../data/gbEnergyTypes";
-import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 6 波能源 6 層：電廠（點）、再生能源（點）、電網線＋變電所（同一個 PMTiles，兩個 key 各自呼叫
@@ -64,8 +64,10 @@ function plantsPaint(isDark: boolean, opacity: number, scale: number) {
   };
 }
 
-export function useGbPowerPlantsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbPmtilesLayers(mapRef, PLANTS_SOURCE, visible, () => [{
+export function useGbPowerPlantsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, fuelMask: number | undefined, isDark: boolean) {
+  // §3.8 V-4：燃料類別多選
+  const filter = gbMaskFilter("fuel_group", fuelMask, GB_FUEL_GROUPS.map((g) => g.value));
+  useGbPmtilesLayers(mapRef, PLANTS_SOURCE, visible, () => gbWithFilter([{
     id: GB_POWER_PLANTS_CIRCLE_ID,
     layer: () => ({
       id: GB_POWER_PLANTS_CIRCLE_ID, type: "circle", source: PLANTS_SOURCE.id, "source-layer": "gb_power_plants", minzoom: 5,
@@ -74,7 +76,7 @@ export function useGbPowerPlantsLayer(mapRef: MapRef, visible: boolean, opacity:
       paint: plantsPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_POWER_PLANTS_CIRCLE_ID, plantsPaint(isDark, opacity, scale)),
-  }], [opacity, scale, isDark]);
+  }], filter), [opacity, scale, fuelMask, isDark]);
 }
 
 // ─────────────────────────── 再生能源 ───────────────────────────
@@ -224,14 +226,16 @@ const IS_PRODUCING: Expr = ["==", ["get", "status"], GB_FIELD_PRODUCING];
 /** 透明度：生產中較深、其他狀態淡化（資料編碼）。 */
 const fieldOpacity = (op: number): Expr => ["case", IS_PRODUCING, clamp01(op), clamp01(op) * GB_FIELD_INACTIVE_FACTOR];
 
-export function useGbOilGasFieldsLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
+export function useGbOilGasFieldsLayer(mapRef: MapRef, visible: boolean, opacity: number, typeMask: number | undefined, isDark: boolean) {
+  // §3.8 V-4：油田／氣田／凝結油田多選
+  const filter = gbMaskFilter("field_type", typeMask, GB_FIELD_TYPES.map((f) => f.value));
   const def = opacityDefault("gbOilGasFields", 0.6);
   const fillPaint = (op: number) => hookFillPaint("gbOilGasFields", GB_OIL_GAS_FILL_ID,
     { "fill-color": fieldColor(), "fill-opacity": fieldOpacity(op) }, { "fill-color": fieldColor(), "fill-opacity": fieldOpacity(def) }, isDark);
   const linePaint = (op: number) => hookLinePaint("gbOilGasFields", GB_OIL_GAS_LINE_ID,
     { "line-color": fieldColor(), "line-width": 1, "line-opacity": clamp01(op / def) * 0.9 },
     { "line-color": fieldColor(), "line-width": 1, "line-opacity": 0.9 }, isDark);
-  useGbPmtilesLayers(mapRef, OIL_GAS_SOURCE, visible, () => [
+  useGbPmtilesLayers(mapRef, OIL_GAS_SOURCE, visible, () => gbWithFilter([
     {
       id: GB_OIL_GAS_FILL_ID,
       layer: () => ({
@@ -248,5 +252,5 @@ export function useGbOilGasFieldsLayer(mapRef: MapRef, visible: boolean, opacity
       } as unknown as AnyLayer),
       update: (map) => map.setPaintProperty(GB_OIL_GAS_LINE_ID, "line-opacity", linePaint(opacity)["line-opacity"] as any),
     },
-  ], [opacity, isDark]);
+  ], filter), [opacity, typeMask, isDark]);
 }

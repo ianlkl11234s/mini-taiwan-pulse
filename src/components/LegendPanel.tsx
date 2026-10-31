@@ -304,6 +304,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbBuiltUpAreas", render: () => <GbBuiltUpAreasLegend /> },
   { id: "gbGreenspace", render: () => <GbGreenspaceLegend layerKey="gbGreenspace" /> },
   { id: "gbSportsFacilities", render: () => <GbGreenspaceLegend layerKey="gbSportsFacilities" /> },
+  { id: "gbGolfCourses", render: () => <GbGreenspaceLegend layerKey="gbGolfCourses" /> },
   { id: "gbCemeteries", render: () => <GbGreenspaceLegend layerKey="gbCemeteries" /> },
   { id: "gbRivers", render: () => <GbRiversLegend /> },
   { id: "gbHydroStations", render: () => <GbHydroStationsLegend /> },

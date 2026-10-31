@@ -437,7 +437,7 @@ export type ExpandableLayerKey =
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
-  | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
+  | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
@@ -987,7 +987,7 @@ export interface FeatureInfo {
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
-    | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbCemeteries"
+    | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
     // 英國第 3 波：河川、水文測站、防洪設施、海岸侵蝕、浴場
     | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
     // 英國第 4 波：交通樞紐、站客流、倫敦軌道線／站、單車站、道路攝影機、收費區
@@ -1842,7 +1842,8 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   gbMaritimeLimits: boolean;    // 英國海域界線（UKHO，PMTiles line 355 條）
   gbBuiltUpAreas: boolean;      // 英國建成區（OS Open Built Up Areas，PMTiles polygon 8,716）
   gbGreenspace: boolean;        // 英國公園綠地（OS Open Greenspace category=park，80,918）
-  gbSportsFacilities: boolean;  // 英國運動場地（同檔 category=sports，54,852）
+  gbSportsFacilities: boolean;  // 英國運動場地（同檔 category=sports，不含高爾夫球場 51,872）
+  gbGolfCourses: boolean;       // 英國高爾夫球場（同檔 function=Golf Course，2,980；2026-10-31 從運動場地拆出）
   gbCemeteries: boolean;        // 英國墓園與宗教場地（同檔 category=burial，30,208）
   gbRivers: boolean;            // 英國河川（OS Open Rivers＋DAERA Strahler，PMTiles line 211,092 段）
   gbHydroStations: boolean;     // 英國水文測站（EA＋SEPA，PMTiles point 6,261）

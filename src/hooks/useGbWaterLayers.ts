@@ -3,8 +3,10 @@ import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { pmtilesRasterCustomSource } from "../map/pmtilesRasterCustomSource";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
-import { LINE_WIDTH, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
 import { paramDefault } from "../data/layerParamsSpec";
 import { applyHeatmapStyle, heatmapLayerPaint } from "../state/layerPalette";
 import {
@@ -43,7 +45,11 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
-export interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
+export interface SourceSpec {
+  id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string;
+  /** 點陣 PMTiles 改走 Mapbox 原生 custom source（globe 投影正確；見 map/pmtilesRasterCustomSource.ts） */
+  raster?: { tileSize: number };
+}
 /** `before`（選填）：addLayer 的 beforeId（地形 raster 插在底圖第一個 symbol 下）；不給＝疊在最上面。 */
 export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void; before?: (map: MapboxMap) => string | undefined }
 
@@ -94,10 +100,15 @@ export function useGbPmtilesLayers(
       let sourceAdded = false;
       if (!map.getSource(source.id)) {
         sourceAdded = true;
-        map.addSource(source.id, {
-          type: PMTILES_SOURCE_TYPE, url: absoluteUrl(source.file), attribution: source.attribution,
-          minzoom: source.minzoom, maxzoom: source.maxzoom,
-        } as any);
+        map.addSource(source.id, (source.raster
+          ? pmtilesRasterCustomSource({
+            id: source.id, url: absoluteUrl(source.file), attribution: source.attribution,
+            minzoom: source.minzoom, maxzoom: source.maxzoom, tileSize: source.raster.tileSize,
+          })
+          : {
+            type: PMTILES_SOURCE_TYPE, url: absoluteUrl(source.file), attribution: source.attribution,
+            minzoom: source.minzoom, maxzoom: source.maxzoom,
+          }) as any);
       }
       for (const l of layers) {
         if (!map.getLayer(l.id)) map.addLayer(l.layer(), l.before?.(map));
@@ -111,6 +122,124 @@ export function useGbPmtilesLayers(
     return () => { map.off("style.load", mount); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapRef, visible, mapTick, ...deps]);
+}
+
+// ─────────────────── §3.8 共用：類別多選篩選（V-4）、點／面切換代表點（V-5） ───────────────────
+
+/** 多選 mask → filter（`undefined` 或全選＝null 不篩，全關＝不可能命中）；mask 由 layerParamsSpec multiSelect 的 `out` 編出。 */
+export function gbMaskFilter(field: string, mask: number | undefined, values: readonly string[]): Expr | null {
+  if (mask === undefined) return null;
+  const selected = selectedMultiSelectValues(mask, values);
+  if (selected.length === values.length) return null;
+  if (selected.length === 0) return ["==", ["get", field], "__multi_select_none__"];
+  return ["in", ["coalesce", ["get", field], ""], ["literal", selected]];
+}
+
+/** 合併多個 filter（略過 null）；全空回 null。 */
+export function gbAllOf(...parts: readonly (Expr | null | undefined)[]): Expr | null {
+  const kept = parts.filter((p): p is Expr => Array.isArray(p));
+  if (kept.length === 0) return null;
+  return kept.length === 1 ? kept[0]! : ["all", ...kept];
+}
+
+/**
+ * 把類別篩選疊到一組 LayerBuild 上：每個子圖層的 filter＝原 filter AND `extra`，update 時重設（extra 變 null 會還原原 filter）。
+ * 讓既有 hook 只多包一層就能接 multiSelect，不用逐個子圖層改 filter／update。
+ */
+export function gbWithFilter(builds: readonly LayerBuild[], extra: Expr | null): LayerBuild[] {
+  return builds.map((b) => {
+    const base = ((b.layer() as { filter?: Expr }).filter) ?? null;
+    const combined = gbAllOf(base, extra);
+    return {
+      ...b,
+      layer: () => {
+        const { filter: _drop, ...rest } = b.layer() as { filter?: Expr } & Record<string, unknown>;
+        return { ...rest, ...(combined ? { filter: combined } : {}) } as unknown as AnyLayer;
+      },
+      update: (map) => { b.update(map); map.setFilter(b.id, (combined ?? null) as any); },
+    };
+  });
+}
+
+/** 點／面切換（layerParamsSpec `displayModeSelect`）：0＝點、1＝面，與 encode 順序一致。 */
+export type GbDisplayMode = "point" | "polygon";
+export const gbDisplayModeFromIdx = (idx: number | undefined, fallback: GbDisplayMode): GbDisplayMode =>
+  idx === 0 ? "point" : idx === 1 ? "polygon" : fallback;
+
+/**
+ * 面圖層的代表點（analytics 另出的 `*_points.pmtiles`，每面一點、落在面內）：
+ * - ≥ 1 萬點：兩種模式都有熱區（P-4），讓全英視角看得到；
+ * - 「點」模式：熱區到出點縮放（`densePointsFromZoom`），之後畫代表點 circle；面不畫；
+ * - 「面」模式：熱區到面出現的縮放，之後交給面（呼叫端把面 hook 的 visible 設成 `mode === "polygon"`）；
+ *   < 1 萬點的層沒有熱區，改在面出現前畫代表點。
+ * 代表點透明度＝點預設（依點數，P-3）× 滑桿相對預設的倍率，避免面的低透明度把點變得看不見。
+ */
+export interface GbRepPointsSpec {
+  key: string;
+  source: SourceSpec;
+  sourceLayer: string;
+  heatId: string;
+  circleId: string;
+  count: number;
+  /** 面模式下面出現的縮放（熱區畫到這裡） */
+  polygonMinzoom: number;
+  heatIntensity: number;
+  opacityDefault: number;
+  tier?: "S" | "M";
+  /** 代表點檔低縮放有抽稀（每降一級約剩 1/2.5）時，用隨縮放放大的 heatmap-weight 補回密度（見 GB_THINNED_POINTS_WEIGHT） */
+  heatWeight?: unknown;
+}
+
+/**
+ * analytics 代表點檔 z4–9 抽稀、z10 起全量（林地、樹木保護 2026-10-31 實測每級約 ×2.5）。熱區強度以 2^zoom 縮放
+ * （假設各級圖磚都是全量），抽稀會讓全英視角幾乎看不到熱區 → 權重補回 2.5^(10−z)。
+ */
+export const GB_THINNED_POINTS_WEIGHT: Expr = ["interpolate", ["exponential", 2.5], ["zoom"], 4, 2.5 ** 6, 10, 1];
+
+export function useGbRepPointLayers(
+  mapRef: React.RefObject<MapboxMap | null>, spec: GbRepPointsSpec,
+  o: { visible: boolean; mode: GbDisplayMode; opacity: number; scale: number; isDark: boolean; color: unknown; filter: Expr | null },
+  heatStyle: string,
+) {
+  const dense = spec.count >= 10_000;
+  const pointsFrom = densePointsFromZoom(spec.count, spec.source.minzoom);
+  const heatMax = heatmapMaxzoom(o.mode === "point" ? pointsFrom : spec.polygonMinzoom);
+  const rel = clamp01(o.opacity) / spec.opacityDefault;
+  const pointPaint = () => {
+    const op = clamp01(densePointOpacity(spec.count) * rel);
+    return {
+      "circle-radius": pointRadius(spec.tier ?? "S", o.scale),
+      "circle-color": o.color,
+      "circle-opacity": op,
+      ...pointStrokePaint(o.isDark, rel),
+    };
+  };
+  const heat = gbHeatmapBuild({
+    id: spec.heatId, key: spec.key, sourceId: spec.source.id, sourceLayer: spec.sourceLayer, maxzoom: heatMax,
+    filter: o.filter, isDark: o.isDark, opacityScale: rel, intensity: spec.heatIntensity, weight: spec.heatWeight,
+  });
+  // < 1 萬點的層沒有熱區：「面」模式在面出現前改畫代表點（V-2 全英視角看得到），面出現後交給面
+  const circleVisible = o.mode === "point" || !dense;
+  const circleMax = o.mode === "point" ? 24 : spec.polygonMinzoom;
+  useGbPmtilesLayers(mapRef, spec.source, o.visible, () => [
+    ...(dense ? [{
+      ...heat,
+      update: (map: MapboxMap) => { map.setLayerZoomRange(spec.heatId, 0, heatMax); heat.update(map); },
+    }] : []),
+    {
+      id: spec.circleId,
+      layer: () => ({
+        id: spec.circleId, type: "circle", source: spec.source.id, "source-layer": spec.sourceLayer, minzoom: pointsFrom,
+        ...(o.filter ? { filter: o.filter } : {}), layout: { visibility: "none" }, paint: pointPaint(),
+      } as unknown as AnyLayer),
+      update: (map: MapboxMap) => {
+        map.setFilter(spec.circleId, (o.filter ?? null) as any);
+        for (const [k, v] of Object.entries(pointPaint())) map.setPaintProperty(spec.circleId, k as any, v as any);
+        map.setLayerZoomRange(spec.circleId, pointsFrom, circleMax);
+        map.setLayoutProperty(spec.circleId, "visibility", circleVisible ? "visible" : "none");
+      },
+    },
+  ], [o.mode, o.opacity, o.scale, o.isDark, JSON.stringify(o.color), JSON.stringify(o.filter), heatStyle]);
 }
 
 // ─────────────────────────── 河川 ───────────────────────────
@@ -143,7 +272,7 @@ export function useGbRiversLayer(mapRef: React.RefObject<MapboxMap | null>, visi
   useGbPmtilesLayers(mapRef, RIVERS_SOURCE, visible, () => [{
     id: GB_RIVERS_LINE_ID,
     layer: () => ({
-      id: GB_RIVERS_LINE_ID, type: "line", source: RIVERS_SOURCE.id, "source-layer": "gb_rivers", minzoom: 6,
+      id: GB_RIVERS_LINE_ID, type: "line", source: RIVERS_SOURCE.id, "source-layer": "gb_rivers", minzoom: 5,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => {
@@ -218,7 +347,7 @@ export function useGbFloodDefencesLayer(mapRef: React.RefObject<MapboxMap | null
   useGbPmtilesLayers(mapRef, FLOOD_SOURCE, visible, () => [{
     id: GB_FLOOD_DEFENCE_LINE_ID,
     layer: () => ({
-      id: GB_FLOOD_DEFENCE_LINE_ID, type: "line", source: FLOOD_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 7,
+      id: GB_FLOOD_DEFENCE_LINE_ID, type: "line", source: FLOOD_SOURCE.id, "source-layer": "gb_flood_defences", minzoom: 6,
       layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
     update: (map) => map.setPaintProperty(GB_FLOOD_DEFENCE_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
@@ -265,7 +394,7 @@ export function useGbCoastalErosionLayer(mapRef: React.RefObject<MapboxMap | nul
     {
       id: GB_EROSION_FILL_ID,
       layer: () => ({
-        id: GB_EROSION_FILL_ID, type: "fill", source: EROSION_SOURCE.id, "source-layer": "gb_coastal_erosion", minzoom: 8,
+        id: GB_EROSION_FILL_ID, type: "fill", source: EROSION_SOURCE.id, "source-layer": "gb_coastal_erosion", minzoom: 6,
         filter: gbErosionZoneFilter(period),
         // 短期面包含在長期面內：sort-key 讓年份小（短期）的畫在上面
         layout: { visibility: "none", "fill-sort-key": ["-", 0, ["coalesce", ["get", "horizon_year"], 0]] },
@@ -279,7 +408,7 @@ export function useGbCoastalErosionLayer(mapRef: React.RefObject<MapboxMap | nul
     {
       id: GB_EROSION_NI_LINE_ID,
       layer: () => ({
-        id: GB_EROSION_NI_LINE_ID, type: "line", source: EROSION_SOURCE.id, "source-layer": "gb_coastal_erosion", minzoom: 8,
+        id: GB_EROSION_NI_LINE_ID, type: "line", source: EROSION_SOURCE.id, "source-layer": "gb_coastal_erosion", minzoom: 6,
         filter: ["==", ["get", "kind"], "risk_appraisal"],
         layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: linePaint(opacity),
       } as unknown as AnyLayer),

@@ -1,6 +1,7 @@
 // 英國第 5 波自然與林業圖例（2026-10-29）：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護。
 // 色票與署名 SSOT 在 data/gbNatureTypes.ts；每層標「未涵蓋」或「制度不適用」地區與來源署名。
 import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare } from "./legendKit";
+import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
   GB_ACCESS_TYPES, GB_DESIGNATIONS, GB_LANDSCAPE_FILL_FACTOR, GB_MPA_SOURCES, GB_MPA_TYPES, GB_NATIONAL_TRAIL_COLOR,
@@ -87,6 +88,7 @@ export function GbWoodlandLegend() {
     {GB_WOODLAND_GROUPS.map((g) => <LegendRow key={g.value} swatch={<SwatchSquare color={g.color} stroke={g.color} />}>{i18n.t(GB_WOODLAND_GROUP_KEYS[g.value])}</LegendRow>)}
     <LegendRow swatch={<SwatchSquare color={GB_WOODLAND_NI_COLOR} stroke={GB_WOODLAND_NI_COLOR} />}>{i18n.t("legend.environment.gbWoodNi")}</LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbWoodNiNote")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbWoodland"]} />
     <LegendNote>{i18n.t("legend.environment.gbWoodZoom")}</LegendNote>
     <Attributions items={[GB_WOODLAND_FC_ATTRIBUTION, GB_WOODLAND_NI_ATTRIBUTION]} />
   </div>;
@@ -105,6 +107,7 @@ export function GbForestRecreationLegend() {
     {GB_RECREATION_CATEGORIES.map((c) => <LegendRow key={c.value} swatch={<SwatchDot color={c.color} />}>{i18n.t(GB_RECREATION_KEYS[c.value])}</LegendRow>)}
     <LegendRow swatch={<SwatchDot color={GB_RECREATION_UNCLASSIFIED_COLOR} />}>{i18n.t("legend.environment.gbRecUnclassified")}</LegendRow>
     <LegendNote>{i18n.t("legend.environment.gbRecNotCovered")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbForestRecreation"]} />
     <LegendNote>{i18n.t("legend.environment.gbRecZoom")}</LegendNote>
     <Attributions items={Object.values(GB_RECREATION_SOURCES).map((s) => s.attribution)} />
   </div>;
@@ -143,6 +146,7 @@ export function GbOpenAccessLandLegend() {
     <LegendNote>{i18n.t("legend.environment.gbOaNote")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbOaScotland")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbOaNi")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbOpenAccessLand"]} />
     <LegendNote>{i18n.t("legend.environment.gbOaZoom")}</LegendNote>
     <Attributions items={Object.values(GB_OPEN_ACCESS_SOURCES).map((s) => s.attribution)} />
   </div>;
@@ -164,6 +168,7 @@ export function GbTreeProtectionLegend() {
     ))}
     <LegendNote>{i18n.t("legend.environment.gbTreeTpoCoverage", { zones: GB_TPO_ZONE_ORGS, trees: GB_TPO_TREE_ORGS })}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbTreeAncientCoverage")}</LegendNote>
+    <DenseHeatmapLegendRow layers={["gbTreeProtection"]} />
     <LegendNote>{i18n.t("legend.environment.gbTreeZoom")}</LegendNote>
     <Attributions items={Object.values(GB_TREE_SOURCES).map((s) => s.attribution)} />
   </div>;

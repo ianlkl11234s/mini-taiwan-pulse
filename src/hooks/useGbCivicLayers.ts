@@ -8,7 +8,7 @@ import {
   GB_HEALTH_ODS_ATTRIBUTION, GB_SCHOOL_CATEGORIES, GB_SCHOOLS_ATTRIBUTION, GB_SCHOOLS_COUNT, GB_CARE_HOMES_COUNT,
   GB_CARE_SERVICES_COUNT, gbHealthColor,
 } from "../data/gbCivicTypes";
-import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 
 /**
  * 英國第 7 波公共服務 6 層：學校、醫療（醫院 z5 起、GP／藥局 z10 起，同 source 兩個 circle）、
@@ -17,6 +17,7 @@ import { gbHeatmapBuild, useGbPmtilesLayers, type SourceSpec } from "./useGbWate
  *
  * R5（P-4／G-2，2026-10-30）：學校、GP＋藥局、照護兩層都 ≥1 萬點 → z<10 熱區、z≥10 畫點（原 z9 起）；
  * 醫院、消防站、法院 <1 萬點直接 z5 起畫。熱區強度在全英 z5.5–6 目視校正。
+ * §3.8 V-4：學校（學段）、醫療（類型）、照護兩層（服務類型）、法院（類型）依類別多選篩選，熱區跟著篩。
  */
 export const GB_SCHOOLS_CIRCLE_ID = "gb-schools-circle";
 export const GB_HEALTH_HOSPITAL_CIRCLE_ID = "gb-health-hospital-circle";
@@ -65,10 +66,11 @@ const schoolColor = (): Expr => matchColor("category", GB_SCHOOL_CATEGORIES.map(
 const SCHOOLS_POINTS_FROM = densePointsFromZoom(GB_SCHOOLS_COUNT, 9);
 const SCHOOLS_HEAT_INTENSITY = 2;
 
-export function useGbSchoolsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbSchoolsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, categoryMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint("gbSchools", 0.8, schoolColor(), isDark, opacity, scale);
   const heatStyle = useHeatmapStyleSignature(["gbSchools"]);
-  useGbPmtilesLayers(mapRef, SCHOOLS_SOURCE, visible, () => [
+  const filter = gbMaskFilter("category", categoryMask, GB_SCHOOL_CATEGORIES.map((c) => c.value));
+  useGbPmtilesLayers(mapRef, SCHOOLS_SOURCE, visible, () => gbWithFilter([
     gbHeatmapBuild({
       id: GB_SCHOOLS_HEATMAP_ID, key: "gbSchools", sourceId: SCHOOLS_SOURCE.id, sourceLayer: "gb_schools",
       maxzoom: heatmapMaxzoom(SCHOOLS_POINTS_FROM), isDark, opacityScale: clamp01(opacity) / opacityDefault("gbSchools", 0.75), intensity: SCHOOLS_HEAT_INTENSITY,
@@ -81,7 +83,7 @@ export function useGbSchoolsLayer(mapRef: MapRef, visible: boolean, opacity: num
       } as unknown as AnyLayer),
       update: (map) => setPaint(map, GB_SCHOOLS_CIRCLE_ID, paint()),
     },
-  ], [opacity, scale, isDark, heatStyle]);
+  ], filter), [opacity, scale, categoryMask, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 醫療 ───────────────────────────
@@ -100,10 +102,11 @@ const HEALTH_PRIMARY_POINTS_FROM = densePointsFromZoom(HEALTH_PRIMARY_COUNT, GB_
 const HEALTH_HEAT_INTENSITY = 3;
 const IS_PRIMARY: Expr = ["!", IS_HOSPITAL];
 
-export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint("gbHealthFacilities", 0.8, healthColor(isDark), isDark, opacity, scale);
   const heatStyle = useHeatmapStyleSignature(["gbHealthFacilities"]);
-  useGbPmtilesLayers(mapRef, HEALTH_SOURCE, visible, () => [
+  const filter = gbMaskFilter("kind", kindMask, GB_HEALTH_KINDS.map((k) => k.value));
+  useGbPmtilesLayers(mapRef, HEALTH_SOURCE, visible, () => gbWithFilter([
     gbHeatmapBuild({
       id: GB_HEALTH_PRIMARY_HEATMAP_ID, key: "gbHealthFacilities", sourceId: HEALTH_SOURCE.id, sourceLayer: "gb_health_facilities",
       maxzoom: heatmapMaxzoom(HEALTH_PRIMARY_POINTS_FROM), filter: IS_PRIMARY,
@@ -126,7 +129,7 @@ export function useGbHealthFacilitiesLayer(mapRef: MapRef, visible: boolean, opa
       } as unknown as AnyLayer),
       update: (map) => setPaint(map, GB_HEALTH_HOSPITAL_CIRCLE_ID, paint()),
     },
-  ], [opacity, scale, isDark, heatStyle]);
+  ], filter), [opacity, scale, kindMask, isDark, heatStyle]);
 }
 
 // ─────────────────────────── 照護（同檔兩層） ───────────────────────────
@@ -142,11 +145,12 @@ const CARE_SERVICES_POINTS_FROM = densePointsFromZoom(GB_CARE_SERVICES_COUNT, 9)
 const CARE_HEAT_INTENSITY = { gbCareHomes: 3, gbCareServices: 2 } as const;
 
 function useGbCareLayer(mapRef: MapRef, key: "gbCareHomes" | "gbCareServices", id: string, heatId: string, home: boolean, pointsFrom: number,
-  visible: boolean, opacity: number, scale: number, isDark: boolean) {
+  visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint(key, 0.8, careColor(), isDark, opacity, scale);
   const heatStyle = useHeatmapStyleSignature([key]);
   const filter: Expr = ["==", ["get", "care_home"], home];
-  useGbPmtilesLayers(mapRef, CARE_SOURCE, visible, () => [
+  const kindFilter = gbMaskFilter("care_kind", kindMask, GB_CARE_KINDS.filter((k) => k.home === home).map((k) => k.value));
+  useGbPmtilesLayers(mapRef, CARE_SOURCE, visible, () => gbWithFilter([
     gbHeatmapBuild({
       id: heatId, key, sourceId: CARE_SOURCE.id, sourceLayer: "gb_care_services", maxzoom: heatmapMaxzoom(pointsFrom), filter,
       isDark, opacityScale: clamp01(opacity) / opacityDefault(key, 0.75), intensity: CARE_HEAT_INTENSITY[key],
@@ -159,13 +163,13 @@ function useGbCareLayer(mapRef: MapRef, key: "gbCareHomes" | "gbCareServices", i
       } as unknown as AnyLayer),
       update: (map) => setPaint(map, id, paint()),
     },
-  ], [opacity, scale, isDark, heatStyle]);
+  ], kindFilter), [opacity, scale, kindMask, isDark, heatStyle]);
 }
-export function useGbCareHomesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbCareLayer(mapRef, "gbCareHomes", GB_CARE_HOMES_CIRCLE_ID, GB_CARE_HOMES_HEATMAP_ID, true, CARE_HOMES_POINTS_FROM, visible, opacity, scale, isDark);
+export function useGbCareHomesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
+  useGbCareLayer(mapRef, "gbCareHomes", GB_CARE_HOMES_CIRCLE_ID, GB_CARE_HOMES_HEATMAP_ID, true, CARE_HOMES_POINTS_FROM, visible, opacity, scale, kindMask, isDark);
 }
-export function useGbCareServicesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
-  useGbCareLayer(mapRef, "gbCareServices", GB_CARE_SERVICES_CIRCLE_ID, GB_CARE_SERVICES_HEATMAP_ID, false, CARE_SERVICES_POINTS_FROM, visible, opacity, scale, isDark);
+export function useGbCareServicesLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
+  useGbCareLayer(mapRef, "gbCareServices", GB_CARE_SERVICES_CIRCLE_ID, GB_CARE_SERVICES_HEATMAP_ID, false, CARE_SERVICES_POINTS_FROM, visible, opacity, scale, kindMask, isDark);
 }
 
 // ─────────────────────────── 消防站 ───────────────────────────
@@ -206,14 +210,15 @@ const COURTS_SOURCE: SourceSpec = {
 };
 const courtColor = (): Expr => matchColor("court_kind", GB_COURT_KINDS.map((k) => [k.value, k.color] as const), GB_CIVIC_FALLBACK_COLOR);
 
-export function useGbCourtsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+export function useGbCourtsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, kindMask: number | undefined, isDark: boolean) {
   const paint = () => pointPaint("gbCourts", 0.85, courtColor(), isDark, opacity, scale);
-  useGbPmtilesLayers(mapRef, COURTS_SOURCE, visible, () => [{
+  const filter = gbMaskFilter("court_kind", kindMask, GB_COURT_KINDS.map((k) => k.value));
+  useGbPmtilesLayers(mapRef, COURTS_SOURCE, visible, () => gbWithFilter([{
     id: GB_COURTS_CIRCLE_ID,
     layer: () => ({
       id: GB_COURTS_CIRCLE_ID, type: "circle", source: COURTS_SOURCE.id, "source-layer": "gb_courts", minzoom: 5,
       layout: { visibility: "none" }, paint: paint(),
     } as unknown as AnyLayer),
     update: (map) => setPaint(map, GB_COURTS_CIRCLE_ID, paint()),
-  }], [opacity, scale, isDark]);
+  }], filter), [opacity, scale, kindMask, isDark]);
 }
