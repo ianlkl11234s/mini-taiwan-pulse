@@ -61,6 +61,14 @@ const GREENSPACE_POINTS_SOURCE: SourceSpec = {
 };
 const GREENSPACE_POINTS_LAYER = "gb_greenspace_points";
 
+// §3.8 V-5：建成區代表點（8,716 面，z4–10；< 1 萬點不建熱區）
+export const GB_BUILT_UP_HEATMAP_ID = "gb-built-up-areas-points-heatmap";
+export const GB_BUILT_UP_POINT_CIRCLE_ID = "gb-built-up-areas-points-circle";
+const BUILT_UP_POINTS_SOURCE: SourceSpec = {
+  id: "gb-built-up-areas-points", file: "gb_built_up_areas_points.pmtiles", minzoom: 4, maxzoom: 10,
+  attribution: GB_OS_ATTRIBUTION, loading: "英國建成區代表點載入中",
+};
+
 interface FillConfig { key: GbOpenSpaceKey; layerId: string; source: SourceConfig; minzoom: number; color: unknown; filter?: unknown[] | null }
 
 /** 熱區強度（全英 z5.5 目視校正）：點數愈多愈容易飽和，故愈密的層強度愈低。 */
@@ -132,6 +140,7 @@ function useGbOpenSpaceFill(
 }
 
 export interface GbOpenSpaceLayerState { visible: boolean; opacity: number }
+export interface GbBuiltUpLayerState extends GbOpenSpaceLayerState { mode: GbDisplayMode; scale: number }
 export interface GbGreenspaceLayerState extends GbOpenSpaceLayerState {
   mode: GbDisplayMode;
   scale: number;
@@ -163,10 +172,17 @@ function useGbGreenspaceLayer(
 /** 英國建成區＋綠地四層（公園、運動場、高爾夫球場、墓園）。 */
 export function useGbOpenSpaceLayers(
   mapRef: React.RefObject<MapboxMap | null>,
-  state: Readonly<{ gbBuiltUpAreas: GbOpenSpaceLayerState } & Record<GbGreenspaceKey, GbGreenspaceLayerState>>,
+  state: Readonly<{ gbBuiltUpAreas: GbBuiltUpLayerState } & Record<GbGreenspaceKey, GbGreenspaceLayerState>>,
   isDark: boolean,
 ) {
-  useGbOpenSpaceFill(mapRef, BUILT_UP_FILL, state.gbBuiltUpAreas.visible, state.gbBuiltUpAreas.opacity);
+  const builtUp = state.gbBuiltUpAreas;
+  const builtUpHeatStyle = useHeatmapStyleSignature(["gbBuiltUpAreas"]);
+  useGbRepPointLayers(mapRef, {
+    key: "gbBuiltUpAreas", source: BUILT_UP_POINTS_SOURCE, sourceLayer: "gb_built_up_areas_points",
+    heatId: GB_BUILT_UP_HEATMAP_ID, circleId: GB_BUILT_UP_POINT_CIRCLE_ID, count: 8_716,
+    polygonMinzoom: BUILT_UP_SOURCE.minzoom, heatIntensity: 1, opacityDefault: opacityDefault("gbBuiltUpAreas"),
+  }, { visible: builtUp.visible, mode: builtUp.mode, opacity: builtUp.opacity, scale: builtUp.scale / Number(paramDefault("gbBuiltUpAreas", "gbBuiltUpAreasScale") ?? 1), isDark, color: GB_BUILT_UP_COLOR, filter: null }, builtUpHeatStyle);
+  useGbOpenSpaceFill(mapRef, BUILT_UP_FILL, builtUp.visible && builtUp.mode === "polygon", builtUp.opacity);
   useGbGreenspaceLayer(mapRef, "gbGreenspace", state.gbGreenspace, isDark);
   useGbGreenspaceLayer(mapRef, "gbSportsFacilities", state.gbSportsFacilities, isDark);
   useGbGreenspaceLayer(mapRef, "gbGolfCourses", state.gbGolfCourses, isDark);

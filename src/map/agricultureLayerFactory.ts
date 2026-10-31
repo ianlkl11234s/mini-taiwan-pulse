@@ -274,6 +274,10 @@ export function updateAgriSoilLayer(
 
 const SOIL_FERT_SOURCE_ID = "agri-soil-fertility";
 const SOIL_FERT_FILL_ID = "agri-soil-fertility-fill";
+// §3.8 V-1／V-2：原檔 z8 起；z7 另有小檔（只含 z7 一級，抽稀），兩個 source 接續：z7 小檔畫到 z7.5 前，原檔 z7.5 起
+// （圖磚縮放四捨五入，z7.5 起抓 z8 圖磚）
+const SOIL_FERT_Z7_SOURCE_ID = "agri-soil-fertility-z7";
+const SOIL_FERT_Z7_FILL_ID = "agri-soil-fertility-z7-fill";
 const SOIL_FERT_BASE_OPACITY = 0.7;  // 高些以利分辨色塊
 
 export interface AgriSoilFertilityParams {
@@ -289,14 +293,30 @@ export const AGRI_SOIL_FERTILITY_PARAMS_DEFAULT: AgriSoilFertilityParams = {
 export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
   registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, SOIL_FERT_SOURCE_ID, "soil_fertility_grid_250m.pmtiles", 8, 14);
+  addPmtilesSourceIfMissing(map, SOIL_FERT_Z7_SOURCE_ID, "soil_fertility_grid_250m_z7.pmtiles", 7, 7);
 
+  if (!map.getLayer(SOIL_FERT_Z7_FILL_ID)) {
+    map.addLayer({
+      id: SOIL_FERT_Z7_FILL_ID,
+      type: "fill",
+      source: SOIL_FERT_Z7_SOURCE_ID,
+      "source-layer": "soil_fertility",
+      minzoom: 7,
+      maxzoom: 7.5,
+      layout: { visibility: "none" },
+      paint: {
+        "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
+        "fill-opacity": hookFillOpacity("agriSoilFertility", SOIL_FERT_Z7_FILL_ID, SOIL_FERT_BASE_OPACITY, SOIL_FERT_BASE_OPACITY),
+      },
+    });
+  }
   if (!map.getLayer(SOIL_FERT_FILL_ID)) {
     map.addLayer({
       id: SOIL_FERT_FILL_ID,
       type: "fill",
       source: SOIL_FERT_SOURCE_ID,
       "source-layer": "soil_fertility",
-      minzoom: 8,
+      minzoom: 7.5,
       layout: { visibility: "none" },
       paint: {
         "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
@@ -312,10 +332,13 @@ export function updateAgriSoilFertilityLayer(
   params: AgriSoilFertilityParams = AGRI_SOIL_FERTILITY_PARAMS_DEFAULT,
 ): void {
   if (!map.getLayer(SOIL_FERT_FILL_ID)) return;
-  map.setLayoutProperty(SOIL_FERT_FILL_ID, "visibility", visible ? "visible" : "none");
-  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", hookFillOpacity("agriSoilFertility", SOIL_FERT_FILL_ID, SOIL_FERT_BASE_OPACITY * params.opacity, SOIL_FERT_BASE_OPACITY));
   const meta = SOIL_FERTILITY_METRICS[params.metric] ?? SOIL_FERTILITY_METRICS.health;
-  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-color", meta.paintExpr as any);
+  for (const id of [SOIL_FERT_FILL_ID, SOIL_FERT_Z7_FILL_ID]) {
+    if (!map.getLayer(id)) continue;
+    map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+    map.setPaintProperty(id, "fill-opacity", hookFillOpacity("agriSoilFertility", id, SOIL_FERT_BASE_OPACITY * params.opacity, SOIL_FERT_BASE_OPACITY));
+    map.setPaintProperty(id, "fill-color", meta.paintExpr as any);
+  }
 }
 
 // =============================================================================

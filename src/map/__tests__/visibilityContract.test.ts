@@ -57,8 +57,6 @@ const V4_EXEMPT: Readonly<Record<string, string>> = {
   nuclearRadiation: "level normal/watch/warning/alarm/stale 為警戒狀態嚴重度",
   riverRpiSegments: "河川污染指數 RPI 四級（未稍受污染→嚴重污染）為序位嚴重度分級",
   seaWaterQualityStations: "海域水質甲乙丙為序位等級",
-  speedCamera: "圖例分的是限速（以圓點大小），facility_subtype 顏色不在圖例，沒有類別圖例",
-  theftTaoyuan: "圖例只有單色一列，case_type 四色不在圖例，沒有類別圖例",
   triangulationPoints: "三角點一至三等為序位等級",
   waterEffluentLive: "放流水 exceed/abnormal/normal 為狀態嚴重度",
   waterReservoirs: "水庫 alert 為警戒嚴重度（critical/warning/normal/high）",

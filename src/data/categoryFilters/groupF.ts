@@ -126,4 +126,23 @@ export const CATEGORY_FILTERS_F: Record<string, CategoryFilterDef | readonly Cat
       { value: "freeway_service_area", zh: "國道服務區" },
     ],
   },
+  // §3.8 V-4（2026-10-31 使用者拍板補圖例）：paint 本來就依 facility_subtype／case_type 分色，圖例補類別並可篩選
+  speedCamera: {
+    property: "facility_subtype",
+    options: [
+      { value: "speed_camera_general", zh: "一般測速" },
+      { value: "speed_camera_freeway", zh: "國道測速" },
+      { value: "red_light_camera", zh: "闖紅燈照相" },
+      { value: "railway_crossing_camera", zh: "平交道照相" },
+    ],
+  },
+  theftTaoyuan: {
+    property: "case_type",
+    options: [
+      { value: "住宅竊盜", zh: "住宅竊盜" },
+      { value: "汽車竊盜", zh: "汽車竊盜" },
+      { value: "機車竊盜", zh: "機車竊盜" },
+      { value: "自行車竊盜", zh: "自行車竊盜" },
+    ],
+  },
 };

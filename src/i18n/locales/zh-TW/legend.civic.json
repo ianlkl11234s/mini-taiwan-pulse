@@ -235,5 +235,15 @@
   "legend.civic.tsunamiSirensRow": "海嘯警報臺 · {count}",
   "legend.civic.tsunamiSirensNote": "警政署 2025-12 資料；淡水興仁派出所 1 座缺座標未畫",
   "legend.civic.nuclearEpzNote": "集結點為地方政府規劃（新北、基隆、屏東）；收容處所依村里對應合併，恆春 15 個里對應「各旅宿」泛稱、沒有座標未畫",
-  "legend.civic.firingNoticeNote": "公告範圍與期間，非即時狀態。海軍 2025-07～08、海巡署 2024-03～2026-03 的過去公告；同一範圍可能重複公告"
+  "legend.civic.firingNoticeNote": "公告範圍與期間，非即時狀態。海軍 2025-07～08、海巡署 2024-03～2026-03 的過去公告；同一範圍可能重複公告",
+  "legend.civic.pjSpeedCat": "類型",
+  "legend.civic.pjSpeedGeneral": "一般測速",
+  "legend.civic.pjSpeedFreeway": "國道測速",
+  "legend.civic.pjSpeedRedLight": "闖紅燈照相",
+  "legend.civic.pjSpeedRailway": "平交道照相",
+  "legend.civic.pjTheftCat": "案件類型",
+  "legend.civic.pjTheftHouse": "住宅竊盜",
+  "legend.civic.pjTheftCar": "汽車竊盜",
+  "legend.civic.pjTheftMoto": "機車竊盜",
+  "legend.civic.pjTheftBike": "自行車竊盜"
 }

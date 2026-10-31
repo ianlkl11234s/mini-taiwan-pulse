@@ -2038,5 +2038,13 @@
   "param.縣市路外": "City off-street",
   "param.觀光景點": "Tourist sites",
   "param.國道服務區": "Freeway service areas",
-  "param.日式旅館 Ryokan": "Ryokan (Japanese inn)"
+  "param.日式旅館 Ryokan": "Ryokan (Japanese inn)",
+  "param.一般測速": "General speed camera",
+  "param.國道測速": "Freeway speed camera",
+  "param.闖紅燈照相": "Red-light camera",
+  "param.平交道照相": "Rail-crossing camera",
+  "param.住宅竊盜": "Residential burglary",
+  "param.汽車竊盜": "Car theft",
+  "param.機車竊盜": "Scooter theft",
+  "param.自行車竊盜": "Bicycle theft"
 }
