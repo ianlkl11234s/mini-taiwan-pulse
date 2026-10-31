@@ -861,7 +861,7 @@
 
 ### 5.36 色盤選單（R7 熱區／網格配色）
 
-- **用途**：熱區與網格圖層換色（只有這兩類；點、面、類別、語意分級圖層不提供）。規格 `layerParamsSpec.ts` 的 `kind: "palette"`（`heatmapPalette(key)`／`gridPalette(name, 預設)`），值是色盤 id 字串、不進 overlayParams；地圖、圖例、popup 一律讀 `state/layerPalette.ts` 解析器。色盤庫 `src/map/palettes.ts`（17 組，暗／淡各 7 階，數值見 map-layers §3.4 G-2）。
+- **用途**：熱區與網格圖層換色（只有這兩類；點、面、類別、語意分級圖層不提供）。規格 `layerParamsSpec.ts` 的 `kind: "palette"`（`heatmapPalette(key)`／`gridPalette(name, 預設)`），值是色盤 id 字串、不進 overlayParams；地圖、圖例、popup 一律讀 `state/layerPalette.ts` 解析器。色盤庫 `src/map/palettes.ts`（17 組，暗／淡各 7 階，數值見 map-layers §3.4 G-2）。熱區的預設色依圖層主題（`src/map/heatmapPaletteDefaults.ts`，map-layers §3.4 G-2／§3.8 V-6），網格預設沿用各層現行色系。
 - **位置**：圖層控制區裡「資料篩選之後、透明度之前」（AUDIT P5）；標籤「熱區顏色」（點圖層的熱區，拉近後的點顏色不變）或「網格顏色」。
 - **收合**：一列按鈕，高 20、`RADIUS.md`、框 `--control-border`、底 `--control-bg`（hover `--control-bg-hover`），左側 72×10 色條（依主題畫暗版或淡版）＋中文色盤名 10px `FONT_CJK`＋右側 lucide `ChevronDown` 12px（展開時轉 180°）。`aria-haspopup="listbox"`、`aria-expanded`、`aria-label`＝「標籤：色盤名」。
 - **清單**：portal 浮在 body 上（`--z-popover`；按鈕在比彈出層高的容器裡，例如手機底部抽屜，改用 `--z-modal`，靠 DOM 順序蓋在上面），**不在面板內展開**（面板有高度上限會裁切）。寬＝按鈕寬（至少 220）、最高 360，下方空間不足就往上開；底 `--surface-solid`／`--light-surface-solid`、框 `--control-border`、`RADIUS.lg`、陰影 `--elevation-md`／`--light-elevation-lg`。長清單每列一條色帶＋中文名（11px `FONT_CJK`；預設那組加 10px「預設」小字），列高 26、hover `--control-bg-hover`、選中 `--accent-faint` 底＋右側 lucide `Check` 12px（`--accent`）。底部「還原預設」用控制區小按鈕 `.lpc-btn`（§5.7，含 lucide `RotateCcw`），已是預設時停用。

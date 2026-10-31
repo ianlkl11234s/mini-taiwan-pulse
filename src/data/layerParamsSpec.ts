@@ -98,6 +98,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
 import { KR_DATA_SPECS } from "./krDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
+import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
@@ -736,13 +737,14 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
 }
 
 /**
- * R7 熱區顏色（色盤選單）：可換色熱區一律預設 magma（Q4 A），選項是整個色盤庫。
+ * R7 熱區顏色（色盤選單）：預設依圖層主題（`map/heatmapPaletteDefaults.ts`，map-layers.md §3.4 G-2；
+ * 2026-10-31 取代「一律 magma」），選項是整個色盤庫。
  * 只換熱區色，拉近後的點顏色不變（點仍是該層識別色／類別色）。
  */
 function heatmapPalette(key: string): PaletteParamSpec {
   return {
     kind: "palette", name: `${key}Palette`, label: "熱區顏色",
-    default: "magma", options: PALETTE_IDS, role: "heatmap", out: null,
+    default: defaultHeatmapPalette(key), options: PALETTE_IDS, role: "heatmap", out: null,
   };
 }
 
