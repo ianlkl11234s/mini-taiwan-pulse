@@ -1,9 +1,24 @@
 # Status
 
-**最後更新**：2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
+**最後更新**：2026-10-31 南韓第 0–5 波＋統計合 develop（未發版）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-10-31：南韓第 0–5 波＋統計 → develop（未發版）
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #769 國家選單 KR＋行政區界三層（第 0 波）、#773 國土基礎交通 6＋能源 7 層（第 1 波）、#774 第 3–5 波 18 層（水系統與海洋、公共運輸與道路設施、自然保護與林業）、#775 統計面板支援南韓（道級／市郡區 33 層）；都已合 develop（最後 `1d5f6bb8`，CI 綠）。 |
+| **taipei-gis-analytics** | #258 盤點、#259 波次計畫、#260–#268 各波資料；進度表 `docs/topic-research/south_korea_opendata/waves/PLAN.md` §3（#269）。 |
+| **gis-platform** | #193 mig 492（`kr_sido`／`kr_sigungu` level）已套用正式庫；統計 33 release／5,088 值；R2 PUBLIC_VERIFIED。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| 南韓 #769、#773、#774、#775 | done：各 PR CI 綠 | done：golden、inventory | done：develop `1d5f6bb8` | not run：3 支大檔發版當天上傳（KRREL-1） | not run | not run | not run：等使用者拍板發版 | not run | done：本機 dev 逐層（繁中），en／ja 抽查 |
+
+- 下一步：**KRREL-1** 發版；HOLD **KRH-1**（淨水場、生態自然圖）；**KRUX-1** 公車站全國視角太淡；**KRI18N-1** 英日文逐層驗；**KRW-6** 第 6–10 波；MCP 加 KR 另案。
+- 接手：從 origin/develop 開分支；先讀 analytics `south_korea_opendata/waves/PLAN.md` §3 與 `AGENT_BRIEF.md`。
 
 ## 2026-10-30：英國圖層上線 → v2.18.0
 
