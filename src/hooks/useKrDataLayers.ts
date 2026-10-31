@@ -83,7 +83,7 @@ export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: 
   }, [spec.key, opacity, isDark, heatStyle]);
   useGbPmtilesLayers(mapRef, source, visible, () => {
     const pointsFrom = spec.heat ? densePointsFromZoom(spec.count, spec.minzoom) : spec.minzoom;
-    const base = { source: source.id, "source-layer": spec.sourceLayer, minzoom: spec.heat ? pointsFrom : spec.minzoom };
+    const base = { source: source.id, "source-layer": spec.sourceLayer, minzoom: spec.heat ? pointsFrom : spec.key === "krRiversOsm" ? RIVERS_ALL_FROM : spec.minzoom };
     if (spec.geom === "point") {
       const heat: LayerBuild[] = spec.heat && !spec.heat.density ? [gbHeatmapBuild({
         id: krHeatmapId(spec), key: spec.key, sourceId: source.id, sourceLayer: spec.sourceLayer, maxzoom: heatmapMaxzoom(pointsFrom), filter,

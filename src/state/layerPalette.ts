@@ -19,7 +19,7 @@ import { layerVisibilityStore } from "./layerVisibilityStore";
 import { useLocale } from "./localeStore";
 import { paletteName } from "../i18n/paramText";
 
-/** 熱區預設色盤（Q4 A：全部熱區用驗證過的新版 magma） */
+/** 沒有色盤選單的熱區（漏登記）兜底色；有選單的層預設依主題（map/heatmapPaletteDefaults.ts） */
 export const DEFAULT_HEATMAP_PALETTE = "magma";
 
 type PaletteRole = PaletteParamSpec["role"];
@@ -39,7 +39,7 @@ export function layerPaletteId(key: string, name?: string): string | undefined {
 }
 
 /**
- * 熱區 7 階（低 → 高，依底圖）。沒有色盤選單的層回 magma —— 熱區永遠有色，
+ * 熱區 7 階（低 → 高，依底圖）。有選單的層預設是主題色；沒有色盤選單的層回 magma —— 熱區永遠有色，
  * 不讓某層因為漏登記就畫不出來。
  */
 export function heatmapRampFor(key: string, isDark: boolean): readonly string[] {

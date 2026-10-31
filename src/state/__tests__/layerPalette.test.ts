@@ -5,7 +5,12 @@ import {
   HEATMAP_PALETTE_KEYS, gridRampFor, heatmapRampFor, heatmapStackFactor, layerPaletteId,
 } from "../layerPalette";
 import { HEATMAP } from "../../map/mapStyleScale";
-import { paletteRamp, resampleRamp } from "../../map/palettes";
+import { PALETTE_IDS, paletteRamp, resampleRamp } from "../../map/palettes";
+import {
+  FALLBACK_HEATMAP_PALETTE, HEATMAP_PALETTE_OVERRIDES, HEATMAP_SAME_PALETTE_ALLOWED, THEME_HEATMAP_PALETTE,
+  defaultHeatmapPalette, layerHeatmapTheme,
+} from "../../map/heatmapPaletteDefaults";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { OVERLAY_REGISTRY, RE_PALETTES } from "../../map/overlayRegistry";
 import { getParamsSpec } from "../../data/layerParamsSpec";
 import type { LayerVisibility } from "../../types";
@@ -16,8 +21,8 @@ import type { MemberSceneSnapshot } from "../../lib/memberSchema";
 afterEach(() => layerParamsStore.reset());
 
 describe("R7 顏色解析器", () => {
-  it("熱區預設新版 magma；換色盤後 paint 跟著換，暗淡各用自己那版", () => {
-    expect(heatmapRampFor("medClinic", true)).toEqual(paletteRamp("magma", true));
+  it("熱區預設依主題（診所＝醫療 PuBu）；換色盤後 paint 跟著換，暗淡各用自己那版", () => {
+    expect(heatmapRampFor("medClinic", true)).toEqual(paletteRamp("PuBu", true));
     layerParamsStore.setParam("medClinic", "medClinicPalette", "viridis");
     expect(heatmapRampFor("medClinic", true)).toEqual(paletteRamp("viridis", true));
     expect(heatmapRampFor("medClinic", false)).toEqual(paletteRamp("viridis", false));
@@ -79,11 +84,49 @@ describe("R7 顏色解析器", () => {
     expect(heatmapStackFactor(vis(["medClinic", "rainGauge"]))).toBe(1);
   });
 
-  it("熱區色盤清單：48 層，每層都有 registry 或 hook 熱區", () => {
+  it("熱區色盤清單：每層預設＝主題表結果（覆寫 > 主題 > magma）", () => {
     expect(HEATMAP_PALETTE_KEYS).toHaveLength(67);
     for (const key of HEATMAP_PALETTE_KEYS) {
-      expect(getParamsSpec(key)!.some((s) => s.kind === "palette" && s.default === "magma")).toBe(true);
+      const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
+      const theme = layerHeatmapTheme(key);
+      const expected = HEATMAP_PALETTE_OVERRIDES[key] ?? (theme ? THEME_HEATMAP_PALETTE[theme] : undefined) ?? FALLBACK_HEATMAP_PALETTE;
+      expect(spec.default, key).toBe(expected);
+      expect(defaultHeatmapPalette(key)).toBe(expected);
     }
+  });
+
+  it("熱區預設色盤只用色盤庫 17 組；每層都查得到主題（不靠兜底 magma）", () => {
+    for (const id of [...Object.values(THEME_HEATMAP_PALETTE), ...Object.values(HEATMAP_PALETTE_OVERRIDES)]) {
+      expect(PALETTE_IDS).toContain(id);
+    }
+    for (const key of Object.keys(HEATMAP_PALETTE_OVERRIDES)) expect(HEATMAP_PALETTE_KEYS, key).toContain(key);
+    for (const key of HEATMAP_PALETTE_KEYS) {
+      const theme = layerHeatmapTheme(key);
+      expect(theme && (THEME_HEATMAP_PALETTE[theme] || HEATMAP_PALETTE_OVERRIDES[key]), `${key} 的主題 ${theme} 不在主題表`).toBeTruthy();
+    }
+  });
+
+  it("使用者點名的英國圖層（2026-10-31）", () => {
+    expect(layerPaletteId("gbGreenspace")).toBe("viridis");
+    expect(layerPaletteId("gbSportsFacilities")).toBe("PuBuGn");
+    expect(layerPaletteId("gbCemeteries")).toBe("batlow");
+    expect(layerPaletteId("gbCareHomes")).toBe("PuBuGn");
+    expect(layerPaletteId("gbCareServices")).toBe("PuBuGn");
+    expect(layerPaletteId("gbBrownfield")).toBe("bilbao");
+  });
+
+  it("同國同主題的熱區預設不撞色（新圖層撞色 → 在覆寫表錯開）", () => {
+    const allowed = new Set(HEATMAP_SAME_PALETTE_ALLOWED.map(([a, b]) => [a, b].sort().join("|")));
+    const manifest = LAYER_MANIFEST as Record<string, { country?: string }>;
+    const seen = new Map<string, string>();
+    const clashes: string[] = [];
+    for (const key of HEATMAP_PALETTE_KEYS) {
+      const slot = `${manifest[key]?.country}|${layerHeatmapTheme(key)}|${defaultHeatmapPalette(key)}`;
+      const other = seen.get(slot);
+      if (other && !allowed.has([other, key].sort().join("|"))) clashes.push(`${other} × ${key}（${slot}）`);
+      else seen.set(slot, key);
+    }
+    expect(clashes).toEqual([]);
   });
 
   it("場景存檔存回選色；不在色盤庫的值還原成預設", () => {
@@ -94,7 +137,7 @@ describe("R7 顏色解析器", () => {
     const ok = resolveSceneRestore(scene(params), new Set(["medClinic"]), new Set(), ["dark"]);
     expect(ok.params.medClinic?.medClinicPalette).toBe("speed");
     const bad = resolveSceneRestore(scene({ medClinic: { medClinicPalette: "jet" } }), new Set(["medClinic"]), new Set(), ["dark"]);
-    expect(bad.params.medClinic?.medClinicPalette).toBe("magma");
+    expect(bad.params.medClinic?.medClinicPalette).toBe(defaultHeatmapPalette("medClinic"));
     expect(bad.skipped.some((s) => s.includes("medClinicPalette"))).toBe(true);
   });
 
@@ -102,7 +145,7 @@ describe("R7 顏色解析器", () => {
     const c = describeLayerControls("medClinic", new Set()).controls.find((x) => x.kind === "palette")!;
     expect(c.controlId).toBe("medClinicPalette");
     expect(c.options).toHaveLength(17);
-    expect(applyLayerControl({ layerKey: "medClinic", controlId: c.controlId, expectedValue: "magma", value: "batlow" }, new Set())).toBe("batlow");
+    expect(applyLayerControl({ layerKey: "medClinic", controlId: c.controlId, expectedValue: "PuBu", value: "batlow" }, new Set())).toBe("batlow");
     expect(() => applyLayerControl({ layerKey: "medClinic", controlId: c.controlId, expectedValue: "batlow", value: "jet" }, new Set())).toThrow("LAYER_CONTROL_VALUE_INVALID");
   });
 });

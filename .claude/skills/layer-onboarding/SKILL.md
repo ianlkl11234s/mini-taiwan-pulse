@@ -152,6 +152,8 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 
 `layerConsistency` test 會擋 #2，但 #1/#3/#4 靠自檢。
 
+**全國視角可見性（map-layers §3.8）**：新圖層照 V-1～V-7 檢查——國家全覽縮放（台 z7／日 z5／英 z5.5／韓 z6）看得到點或熱區、layer minzoom 不比圖磚晚超過 1 級、分類圖例 ≥2 類要有類別篩選、面圖層有點／面切換（區劃面除外）；熱區色不用寫，預設依主題（同主題撞色時在 `heatmapPaletteDefaults.ts` 覆寫表錯開）。`visibilityContract.test.ts`（V-2／V-4 ratchet）與 `layerPalette.test.ts` 會擋。
+
 ## Step 5 — 跨 repo 對齊
 
 **必動的四份檔**：

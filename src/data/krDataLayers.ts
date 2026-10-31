@@ -65,7 +65,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 3 波：水系統與海洋 ─────────────
   {
     key: "krWaterLevelStations", file: "kr_water_level_stations.pmtiles", sourceLayer: "kr_water_level_stations", geom: "point", layerId: "kr-water-level-stations-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 4, color: "#22d3ee", tier: "M", count: 1379,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#22d3ee", tier: "M", count: 1379,
     catProp: "agency", otherColor: "#94a3b8", otherLabel: l3("其他機關", "Other agencies", "その他の機関"),
     cats: [
       { id: "moe", values: ["기후에너지환경부", "환경부"], color: "#22d3ee", label: l3("環境部／洪水統制所", "Ministry of Environment / flood control offices", "環境部・洪水統制所") },
@@ -87,7 +87,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krSluiceGates", file: "kr_sluice_gates.pmtiles", sourceLayer: "kr_sluice_gates", geom: "point", layerId: "kr-sluice-gates-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", tier: "M", count: 2342,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", tier: "M", count: 2342,
     title: { props: ["name"], fallback: l3("農業水門", "Agricultural sluice gate", "農業用水門") },
     fields: [{ prop: "hq", label: l3("農漁公社本部", "KRC regional HQ", "農漁村公社本部") }, { prop: "branch", label: l3("支社", "Branch", "支社") }, { prop: "sido", label: l3("시·도", "Province", "市・道") }],
     legendNotes: [l3("僅涵蓋農漁村公社 8 個農業本部（慶北、全北、忠南、全南、京畿、忠北、慶南、江原）", "Covers only the 8 agricultural regional HQs of Korea Rural Community Corp. (Gyeongbuk, Jeonbuk, Chungnam, Jeonnam, Gyeonggi, Chungbuk, Gyeongnam, Gangwon)", "農漁村公社の農業8本部のみ（慶北・全北・忠南・全南・京畿・忠北・慶南・江原）"),
@@ -98,7 +98,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krWaterQualityStations", file: "kr_water_quality_stations.pmtiles", sourceLayer: "kr_water_quality_stations", geom: "point", layerId: "kr-water-quality-stations-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 1181,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 1181,
     catProp: "water_type", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "river", values: ["하천"], color: "#38bdf8", label: l3("河川", "River", "河川") },
@@ -141,7 +141,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krRiversOsm", file: "kr_rivers_osm.pmtiles", sourceLayer: "kr_rivers_osm", geom: "line", layerId: "kr-rivers-osm-line",
-    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 8, color: "#38bdf8", count: 33341,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#38bdf8", count: 33341,
     catProp: "waterway", otherColor: "#7dd3fc", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "river", values: ["river"], color: "#38bdf8", label: l3("河（river）", "River", "河川（river）") },
@@ -159,7 +159,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarinePollutionIncidents", file: "kr_marine_pollution_incidents.pmtiles", sourceLayer: "kr_marine_pollution_incidents", geom: "point", layerId: "kr-marine-pollution-incidents-circle",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 4, color: "#ef4444", tier: "M", count: 2420,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#ef4444", tier: "M", count: 2420,
     catProp: "source_type", otherColor: "#94a3b8", otherLabel: l3("不明", "Unknown", "不明"),
     cats: [
       { id: "ship", values: ["선박"], color: "#ef4444", label: l3("船舶", "Vessel", "船舶") },
@@ -179,7 +179,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarineEnvSites", file: "kr_marine_env_sites.pmtiles", sourceLayer: "kr_marine_env_sites", geom: "point", layerId: "kr-marine-env-sites-circle",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 4, color: "#14b8a6", tier: "M", count: 426,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#14b8a6", tier: "M", count: 426,
     catProp: "network", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "estuary", values: ["하천영향 및 반폐쇄성해역환경측정망"], color: "#14b8a6", label: l3("河口與半封閉海域網", "Estuary / semi-enclosed sea network", "河川影響・半閉鎖海域網") },
@@ -196,7 +196,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarineProtectedAreas", file: "kr_marine_protected_areas.pmtiles", sourceLayer: "kr_marine_protected_areas", geom: "polygon", layerId: "kr-marine-protected-areas-fill", outlineId: "kr-marine-protected-areas-line",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 5, color: "#22c55e", count: 38,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#22c55e", count: 38,
     catProp: "category", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "wetland", values: ["습지보호구역"], color: "#22c55e", label: l3("濕地保護區", "Wetland protected area", "湿地保護区域") },
@@ -329,7 +329,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 5 波：自然保護與林業 ─────────────
   {
     key: "krNationalParks", file: "kr_national_parks.pmtiles", sourceLayer: "kr_national_parks", geom: "polygon", layerId: "kr-national-parks-fill", outlineId: "kr-national-parks-line",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 5, color: "#16a34a", count: 23,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#16a34a", count: 23,
     title: { props: ["name"], fallback: l3("國立公園", "National park", "国立公園") },
     fields: [{ prop: "created", label: l3("建檔日", "Created", "作成日") }, { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 }, { prop: "sido_all", label: l3("所在 시·도", "Provinces", "所在の市・道") }, { prop: "park_code", label: l3("公園碼", "Park code", "公園コード"), kind: "code" }],
     legendNotes: [l3("邊界為由連續地籍加工的緩衝面，非法定界線，面積不可當法定面積", "Boundaries are buffered polygons derived from cadastral data, not legal boundaries; areas are not legal areas", "境界は連続地籍から加工した緩衝面で法定界ではない。面積は法定面積として使えない")],
