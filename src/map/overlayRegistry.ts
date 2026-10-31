@@ -527,9 +527,12 @@ function publicLifePointOverlay(
     labelMinzoom?: number;
     /** R5 密集點：出點縮放以下畫熱區（點數 ≥ 10k 才給）。 */
     dense?: { pointsFromZoom: number; intensity: number };
+    /** circle-sort-key（值大者畫在上層），例如讓少數嚴重事件不被大量輕微事件蓋住。 */
+    sortKey?: unknown;
   },
 ): OverlayConfig {
   const paramFilter = options?.filter;
+  const sortLayout = options?.sortKey === undefined ? {} : { layout: { "circle-sort-key": options.sortKey } };
   const filterProps = paramFilter ? { filter: paramFilter } : {};
   const dense = options?.dense;
   const pointMinzoom = dense ? { minzoom: dense.pointsFromZoom } : {};
@@ -567,12 +570,12 @@ function publicLifePointOverlay(
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     { suffix: "circle", type: "circle", ...pointMinzoom, paint: (dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? opacityDefault;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
-    }, ...filterProps },
+    }, ...sortLayout, ...filterProps },
     ...labelLayers,
   ] };
 }
@@ -598,7 +601,7 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
 /** 減害服務：官方名冊 GeoJSON＋酒駕事故 PMTiles（git 管理），共用公共生活點層 helper；attribution 必須明傳（helper 預設是 OSM）。 */
 /** G36（2026-10-31）消防、民防、情勢與交通事故：點層共用公共生活點層 helper（attribution 明傳），射擊公告區為面。 */
 const G36_SAFETY_OVERLAYS: OverlayConfig[] = [
-  publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 } }),
+  publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 }, sortKey: ["match", ["get", "cat"], "A1", 1, 0] }),
   publicLifePointOverlay("disasterResourceSites", "./geo/disaster_resource_sites.geojson", "disaster-resource-sites", g36ColorExpression("holder", DISASTER_RESOURCE_HOLDER_OPTIONS), undefined, "內政部消防署 救災資源資料庫（data.gov.tw 77862）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterResourceHolderFilter(p?.disasterResourceSitesHolderMask) }),
   publicLifePointOverlay("tsunamiSirens", "./hazards/tsunami_sirens.geojson", "tsunami-sirens", TSUNAMI_SIREN_COLOR, undefined, "內政部警政署 全國海嘯警報臺（data.gov.tw 34102）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12 }),
   publicLifePointOverlay("nuclearEpzEvacuation", "./hazards/nuclear_epz_evacuation.geojson", "nuclear-epz-evacuation", g36ColorExpression("kind", NUCLEAR_EPZ_KIND_OPTIONS), undefined, "核能安全委員會 核電廠緊急應變計畫區集結點與避難收容處所（data.gov.tw 102114／102434）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12, filter: (p) => nuclearEpzKindFilter(p?.nuclearEpzEvacuationKindMask) }),

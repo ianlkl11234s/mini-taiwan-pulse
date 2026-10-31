@@ -70739,7 +70739,18 @@
               "cause"
             ]
           ],
-          "layout": null,
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
           "minzoom": 12,
           "paint": {
             "dark": {
@@ -70820,7 +70831,18 @@
               "cause"
             ]
           ],
-          "layout": null,
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "cat"
+              ],
+              "A1",
+              1,
+              0
+            ]
+          },
           "minzoom": 12,
           "paint": {
             "dark": {
