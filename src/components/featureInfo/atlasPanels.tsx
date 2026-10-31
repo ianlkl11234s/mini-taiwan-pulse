@@ -13,13 +13,14 @@ import {
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_PRECISION_LABELS, CULTURAL_HEALTH_PRECISION_LABELS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
+  DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { ToxicPermitsBlock } from "./pollutionPanels";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
-import { LAND_SUBSIDENCE_PANELS } from "./landSubsidencePanels";
+import { LAND_SUBSIDENCE_PANELS, TrendChart } from "./landSubsidencePanels";
 
 /**
  * atlas 批次 2026-10 的 26 層 popup。來源 footer 由 FeatureInfoPanel 統一掛（每筆都帶
@@ -669,6 +670,106 @@ function CultureCoinPanel({ props }: Props) {
   </>;
 }
 
+// ── 文化、觀光、原民補強 G35（2026-10-31）──────────────────────────────────
+// 三個鄉鎮面套內政部鄉鎮界（簡化），範圍只示意；旅遊服務站點類別名稱是依站名歸納；
+// 遊客人數：配對方式非 exact 要警示，風景區代表點不是據點位置。出典與授權由 SourceFooter 掛。
+
+const parseJson = <T,>(v: unknown, fallback: T): T => {
+  if (typeof v !== "string" || !v) return fallback;
+  try { return JSON.parse(v) as T; } catch { return fallback; }
+};
+
+function IndigenousRegionPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = ATLAS_LAYER_COLORS.indigenousRegions;
+  return <>
+    <Title color={color}>{placeTown(str(props.county), str(props.town), i18n)}</Title>
+    <Row field="category" value={t("popup.atlas.indigenousRegionKind")} color={color} />
+    <LinkRow label={t("popup.field.website")} url={str(props.office_website)} />
+    <Row label={t("popup.atlas.announcedDate")} value={str(props.source_vintage)} mono />
+    <Row field="caution" value={t("popup.atlas.townBoundaryCaution")} />
+  </>;
+}
+
+function IndigenousDialectPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(DIALECT_GROUP_OPTIONS, props.ethnic_group);
+  const dialects = parseJson<{ dialect: string; group: string; villages: string }[]>(props.dialects, []);
+  return <>
+    <Title color={color}>{placeTown(str(props.county), str(props.town), i18n)}</Title>
+    <Row label={t("popup.atlas.ethnicGroup")} value={enumList("atlasEthnic", props.ethnic_groups, i18n)} color={color} />
+    <Row label={t("popup.atlas.dialectCount")} value={str(props.dialect_count)} mono />
+    {dialects.map((d) => <Row key={`${d.group}-${d.dialect}`} label={d.dialect} value={d.villages || t("popup.atlas.dialectWholeTown")} />)}
+    <Row label={t("popup.atlas.announcedDate")} value={str(props.source_vintage)} mono />
+    <Row field="caution" value={t("popup.atlas.dialectCaution")} />
+  </>;
+}
+
+function HakkaZonePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(HAKKA_ACCENT_OPTIONS, props.hakka_accent);
+  const ratio = num(props.hakka_ratio);
+  const accent = HAKKA_ACCENT_OPTIONS.find((o) => o.value === str(props.hakka_accent))?.label ?? str(props.hakka_accent);
+  return <>
+    <Title color={color}>{placeTown(str(props.county), str(props.town), i18n)}</Title>
+    <Row label={t("popup.atlas.hakkaAccent")} value={enumOf("atlasHakkaAccent", props.hakka_accent, accent, i18n)} color={color} />
+    <Row label={t("popup.atlas.hakkaRatio")} value={ratio == null ? "" : i18n.formatNumber(ratio, { style: "percent", maximumFractionDigits: 1 })} mono />
+    <Row label={t("popup.atlas.majorFestivals")} value={str(props.major_festivals)} />
+    <LinkRow label={t("popup.field.website")} url={str(props.office_website)} />
+    <Row field="caution" value={t("popup.atlas.townBoundaryCaution")} />
+  </>;
+}
+
+function TourServiceSitePanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(TOUR_SERVICE_SITE_OPTIONS, props.site_class);
+  const zh = TOUR_SERVICE_SITE_OPTIONS.find((o) => o.value === str(props.site_class))?.label ?? "";
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row field="category" value={enumOf("atlasServiceSiteClass", props.site_class, zh, i18n)} color={color} />
+    <Row field="address" value={str(props.address)} />
+    <Row field="district" value={placeTown(str(props.county), str(props.town), i18n)} />
+    <Row field="authority" value={str(props.authority)} />
+    <Row label={t("popup.atlas.sourceUpdated")} value={str(props.source_updated)} mono />
+    <Row field="caution" value={t("popup.atlas.siteClassInferred")} />
+  </>;
+}
+
+function TourVisitorStatsPanel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const theme = useFeatureTheme();
+  const color = visitorColor(props.latest_annual);
+  const unit = t("popup.atlas.unitVisits");
+  const year = str(props.latest_year);
+  const first = num(props.first_year) ?? 0;
+  const annual = parseJson<(number | null)[]>(props.annual_visitors, []);
+  const points = annual.flatMap((v, i) => (v == null ? [] : [{ t: Date.UTC(first + i, 6, 1), v }]));
+  const yoy = num(props.yoy_pct);
+  const method = str(props.match_method);
+  return <>
+    <Title color={color}>{str(props.name)}</Title>
+    <Row label={t("popup.atlas.spotType")} value={enumOf("atlasSpotType", props.spot_type, props.spot_type, i18n)} />
+    <Row field="county" value={placeName(str(props.county), i18n)} />
+    {num(props.latest_annual) == null
+      ? <Row label={t("popup.atlas.visitorLatestAnnual", { year })} value={t("popup.atlas.visitorIncomplete", { year })} color={theme.warn} />
+      : <Row label={t("popup.atlas.visitorLatestAnnual", { year })} value={fmt(props.latest_annual, 0, unit, i18n)} color={color} mono />}
+    <Row label={t("popup.atlas.visitorYoy")} value={yoy == null ? "" : `${yoy > 0 ? "+" : ""}${i18n.formatNumber(yoy, { maximumFractionDigits: 1 })}%`} mono />
+    {points.length >= 2 && <>
+      <Row label={t("popup.atlas.visitorTrend")} value={t("popup.atlas.visitorYearsWithData", { n: String(points.length) })} />
+      <TrendChart points={points} color={ATLAS_LAYER_COLORS.tourVisitorStats} unit={unit} />
+    </>}
+    <Row label={t("popup.atlas.visitorMatched")} value={str(props.matched_name)} />
+    {method !== "exact" && <Row field="caution" value={t("popup.atlas.visitorMatchFuzzy", { method: t(method === "suffix" ? "popup.atlas.matchSuffix" : "popup.atlas.matchSubstring") })} color={theme.warn} />}
+    {props.coord_basis === "scenic_area_representative_point" && <Row field="caution" value={t("popup.atlas.visitorScenicPoint")} color={theme.warn} />}
+    <Row field="caution" value={t("popup.atlas.visitorCaution")} />
+  </>;
+}
+
 // ── 原民會文化健康站 G20（2026-10-24）────────────────────────────────────
 // kind=site：依地址定位的站址；kind=township_group：同鄉鎮只到鄉鎮的各站併成鄉鎮中心一點，列站名並警示非實際位置。
 // 不顯示電話（成品不帶）。資料日期＝通訊錄 DateListed；出典與授權由 SourceFooter 掛。
@@ -1059,6 +1160,11 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   setNetFishingAreas: SetNetPanel,
   ...LAND_SUBSIDENCE_PANELS,
   cultureCoinVenues: CultureCoinPanel,
+  indigenousRegions: IndigenousRegionPanel,
+  indigenousLanguageDialects: IndigenousDialectPanel,
+  hakkaCulturalZones: HakkaZonePanel,
+  tourServiceSites: TourServiceSitePanel,
+  tourVisitorStats: TourVisitorStatsPanel,
   culturalHealthStations: CulturalHealthPanel,
   twcServiceOffices: TwcOfficePanel,
   twcWaterFacilities: TwcFacilityPanel,
@@ -1125,6 +1231,11 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   landSubsidenceRate: manifestZh("landSubsidenceRate"),
   seawallZones: manifestZh("seawallZones"),
   cultureCoinVenues: manifestZh("cultureCoinVenues"),
+  indigenousRegions: manifestZh("indigenousRegions"),
+  indigenousLanguageDialects: manifestZh("indigenousLanguageDialects"),
+  hakkaCulturalZones: manifestZh("hakkaCulturalZones"),
+  tourServiceSites: manifestZh("tourServiceSites"),
+  tourVisitorStats: manifestZh("tourVisitorStats"),
   culturalHealthStations: manifestZh("culturalHealthStations"),
   twcServiceOffices: manifestZh("twcServiceOffices"),
   twcWaterFacilities: manifestZh("twcWaterFacilities"),

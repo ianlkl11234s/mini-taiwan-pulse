@@ -110,7 +110,7 @@ import {
   RURAL_COMMUNITY_OPTIONS, STRANDING_YEAR_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, type AtlasOption,
 } from "./atlasLayerTypes";
 import { CUMULATIVE_PERIOD_OPTIONS, RATE_PERIOD_OPTIONS, CONTOUR_LATEST, STATION_TYPE_OPTIONS } from "./landSubsidenceTypes";
-import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS } from "./atlasLayerTypes";
+import { CULTURE_COIN_CATEGORY_OPTIONS, CULTURAL_HEALTH_KIND_OPTIONS, TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, TOUR_SERVICE_SITE_OPTIONS } from "./atlasLayerTypes";
 import {
   PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
   STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
@@ -1604,7 +1604,13 @@ export const LAYER_PARAMS_SPEC = {
   ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
   emergencyHospitals: [opacitySlider("emergencyHospitalsOpacity", 0.9), scaleSlider("emergencyHospitalsScale", 1.0)],
-  medClinic: [heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
+  medClinic: [
+    {
+      kind: "select", name: "medClinicKind", label: "設施類型", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "只看衛生所", value: "health_center" }],
+      out: "medClinicKindIdx", encode: ["all", "health_center"],
+    },
+    heatmapPalette("medClinic"), opacitySlider("medClinicOpacity", densePointOpacity(23_704)), scaleSlider("medClinicScale", 1.0)],
   medPharmacy: [opacitySlider("medPharmacyOpacity", densePointOpacity(7_680)), scaleSlider("medPharmacyScale", 1.0)],
   medAED: [heatmapPalette("medAED"), opacitySlider("medAEDOpacity", densePointOpacity(15_490)), scaleSlider("medAEDScale", 1.0)],
   medLTC: [heatmapPalette("medLTC"), opacitySlider("medLTCOpacity", densePointOpacity(31_330)), scaleSlider("medLTCScale", 1.0)],
@@ -2857,7 +2863,16 @@ export const LAYER_PARAMS_SPEC = {
   ],
   tourHotSpringZones: [opacitySlider("tourHotSpringZonesOpacity", 0.5)],
   tourScenicAreas: [opacitySlider("tourScenicAreasOpacity", 0.5)],
-  tourHeritage: [opacitySlider("tourHeritageOpacity", densePointOpacity(2_894)), scaleSlider("tourHeritageScale", 1)],
+  // 文化、觀光、原民補強 G35（2026-10-31）
+  tourServiceSites: [
+    {
+      kind: "multiSelect", name: "tourServiceSitesClass", label: "站點類別", default: MULTI_SELECT_ALL,
+      options: atlasParamOptions(TOUR_SERVICE_SITE_OPTIONS), out: "tourServiceSitesClassMask",
+    },
+    opacitySlider("tourServiceSitesOpacity", densePointOpacity(797)), scaleSlider("tourServiceSitesScale", 1),
+  ],
+  tourVisitorStats: [opacitySlider("tourVisitorStatsOpacity", densePointOpacity(270)), scaleSlider("tourVisitorStatsScale", 1)],
+  tourHeritage: [opacitySlider("tourHeritageOpacity", densePointOpacity(3_013)), scaleSlider("tourHeritageScale", 1)],
   tourFactories: [
     opacitySlider("tourFactoriesOpacity", 0.85),
     scaleSlider("tourFactoriesScale", 1),
@@ -3206,6 +3221,10 @@ export const LAYER_PARAMS_SPEC = {
   indigenousIsolationRisk: [
     opacitySlider("indigenousIsolationRiskOpacity", densePointOpacity(168)), scaleSlider("indigenousIsolationRiskScale", 1),
   ],
+  // 文化、觀光、原民補強 G35（2026-10-31）：鄉鎮面；涵蓋範圍 F-1 0.35，類別面 0.45（同農村社區）
+  indigenousRegions: [opacitySlider("indigenousRegionsOpacity", 0.35)],
+  indigenousLanguageDialects: [opacitySlider("indigenousLanguageDialectsOpacity", 0.45)],
+  hakkaCulturalZones: [opacitySlider("hakkaCulturalZonesOpacity", 0.45)],
   agriRuralCommunityVillages: [
     {
       kind: "multiSelect", name: "agriRuralCommunityVillagesType", label: "社區類型", default: MULTI_SELECT_ALL,
