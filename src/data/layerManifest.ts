@@ -534,7 +534,7 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
 
 /** atlas 統計的層級短名（名稱 qualifier 與 topics）：英國 LAD＝地方行政區。 */
 function atlasLevelQualifier(level: StatisticsLevel): string {
-  return level === "gb_lad" ? "地方行政區" : level === "township" ? "鄉鎮" : "縣市";
+  return level === "gb_lad" ? "地方行政區" : level === "kr_sido" ? "道級" : level === "kr_sigungu" ? "市郡區" : level === "township" ? "鄉鎮" : "縣市";
 }
 
 /** 英國統計只有 LAD 一個層級，名稱本身已帶地區括號，不再加層級 qualifier（避免雙括號）。 */
@@ -553,7 +553,7 @@ const ATLAS_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(ATLAS_ENABLED_STATI
     source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
     legend: recipe.layer_key, popup: "regionalStatistic", params: statisticsManifestParams(recipe.layer_key),
     description: recipe.disclosure,
-    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, atlasLevelQualifier(recipe.level), ...(atlasRecipeCountry(recipe) === "GB" ? ["英國"] : [])],
+    topics: ["統計", recipe.data_theme.split(" ")[0]!.replace(/統計$/, ""), recipe.subgroup, recipe.group_label, atlasLevelQualifier(recipe.level), ...(atlasRecipeCountry(recipe) === "GB" ? ["英國"] : atlasRecipeCountry(recipe) === "KR" ? ["南韓"] : [])],
   }];
 })) as Record<AtlasStatisticsLayerKey, LayerManifestEntry>;
 

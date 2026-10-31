@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1430,
+    "keyCount": 1463,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4066,6 +4066,39 @@
         "statsGbCropArableShare-fill",
         "statsGbCropFruitVegArea-fill",
         "statsGbCropGrasslandShare-fill",
+        "statsKrPopulationSido-fill",
+        "statsKrPopulationSgg-fill",
+        "statsKrPopulationMaleSido-fill",
+        "statsKrPopulationMaleSgg-fill",
+        "statsKrPopulationFemaleSido-fill",
+        "statsKrPopulationFemaleSgg-fill",
+        "statsKrSexRatioSido-fill",
+        "statsKrSexRatioSgg-fill",
+        "statsKrAgeYoungShareSido-fill",
+        "statsKrAgeYoungShareSgg-fill",
+        "statsKrAgeWorkingShareSido-fill",
+        "statsKrAgeWorkingShareSgg-fill",
+        "statsKrAgeOldShareSido-fill",
+        "statsKrAgeOldShareSgg-fill",
+        "statsKrPopulationDensitySido-fill",
+        "statsKrPopulationDensitySgg-fill",
+        "statsKrMeanAgeSido-fill",
+        "statsKrMeanAgeSgg-fill",
+        "statsKrAgingIndexSido-fill",
+        "statsKrAgingIndexSgg-fill",
+        "statsKrSeoulLivingPopSgg-fill",
+        "statsKrSeoulLivingPopDaySgg-fill",
+        "statsKrSeoulLivingPopNightSgg-fill",
+        "statsKrSeoulDayNightRatioSgg-fill",
+        "statsKrHouseholdsSido-fill",
+        "statsKrHouseholdsSgg-fill",
+        "statsKrHouseholdSizeSgg-fill",
+        "statsKrDwellingsSido-fill",
+        "statsKrDwellingsSgg-fill",
+        "statsKrEstablishmentsSido-fill",
+        "statsKrEstablishmentsSgg-fill",
+        "statsKrEmployeesSido-fill",
+        "statsKrEmployeesSgg-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -134671,6 +134704,1081 @@
         "status": "ready",
         "type": "linkedSelect",
         "value": "statsInternetAddictionServicesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeOldShareSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeOldShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeOldShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeOldShareSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeOldShareSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeOldShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeOldShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeOldShareSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeWorkingShareSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeWorkingShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeWorkingShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeWorkingShareSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeWorkingShareSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeWorkingShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeWorkingShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeWorkingShareSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeYoungShareSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeYoungShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeYoungShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeYoungShareSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgeYoungShareSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgeYoungShareSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgeYoungShareSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgeYoungShareSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgingIndexSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgingIndexSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgingIndexSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgingIndexSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrAgingIndexSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrAgingIndexSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrAgingIndexSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrAgingIndexSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrDwellingsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrDwellingsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrDwellingsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrDwellingsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrDwellingsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrDwellingsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrDwellingsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrDwellingsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrEmployeesSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrEmployeesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrEmployeesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrEmployeesSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrEmployeesSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrEmployeesSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrEmployeesSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrEmployeesSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrEstablishmentsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrEstablishmentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrEstablishmentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrEstablishmentsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrEstablishmentsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrEstablishmentsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrEstablishmentsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrEstablishmentsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrHouseholdSizeSgg": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrHouseholdsSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrHouseholdsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrHouseholdsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrHouseholdsSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrHouseholdsSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrHouseholdsSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrHouseholdsSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrHouseholdsSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrMeanAgeSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrMeanAgeSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrMeanAgeSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrMeanAgeSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrMeanAgeSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrMeanAgeSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrMeanAgeSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrMeanAgeSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationDensitySgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationDensitySido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationDensitySgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationDensitySgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationDensitySido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationDensitySido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationDensitySgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationDensitySido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationFemaleSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationFemaleSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationFemaleSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationFemaleSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationFemaleSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationFemaleSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationFemaleSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationFemaleSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationMaleSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationMaleSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationMaleSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationMaleSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationMaleSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationMaleSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationMaleSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationMaleSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrPopulationSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrPopulationSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrPopulationSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrPopulationSido"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSeoulDayNightRatioSgg": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSeoulLivingPopDaySgg": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSeoulLivingPopNightSgg": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSeoulLivingPopSgg": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSexRatioSgg": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrSexRatioSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrSexRatioSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrSexRatioSgg"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsKrSexRatioSido": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "道級",
+            "value": "statsKrSexRatioSido"
+          },
+          {
+            "label": "市郡區",
+            "value": "statsKrSexRatioSgg"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsKrSexRatioSido"
       },
       {
         "label": "資料期別",

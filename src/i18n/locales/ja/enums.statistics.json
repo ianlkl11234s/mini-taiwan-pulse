@@ -475,5 +475,9 @@
   "enum.statDimValue.交易類型.跨行通匯": "他行振込",
   "enum.statLevel.gb_lad": "地方自治体（LAD）",
   "enum.statBoundary.ONS_LAD_202405": "英国国家統計局 地方自治体境界（2024 年 5 月版）",
-  "enum.statBoundary.ONS_LAD_202605": "英国国家統計局 地方自治体境界（2026 年 5 月版）"
+  "enum.statBoundary.ONS_LAD_202605": "英国国家統計局 地方自治体境界（2026 年 5 月版）",
+  "enum.statLevel.kr_sido": "広域自治体（市・道）",
+  "enum.statLevel.kr_sigungu": "基礎自治体（市・郡・区）",
+  "enum.statBoundary.KR_SIDO_ADMDONGKOR_20261001": "韓国 広域行政区域界（2026-10-01版）",
+  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "韓国 市郡区行政区域界（2026-10-01版）"
 }

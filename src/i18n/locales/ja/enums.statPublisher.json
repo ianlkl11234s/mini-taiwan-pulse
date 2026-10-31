@@ -16,5 +16,8 @@
   "enum.statPublisher.行政院主計總處": "行政院主計総処",
   "enum.statPublisher.財團法人保險事業發展中心": "保険事業発展センター",
   "enum.statPublisher.Office for National Statistics (ONS)；蘇格蘭數字來自 National Records of Scotland，北愛來自 NISRA": "英国国家統計局（ONS）。スコットランドの数値は National Records of Scotland、北アイルランドは NISRA による",
-  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "英国環境・食糧・農村地域省（Defra）農業統計"
+  "enum.statPublisher.Department for Environment, Food & Rural Affairs (Defra), Farming Statistics": "英国環境・食糧・農村地域省（Defra）農業統計",
+  "enum.statPublisher.행정안전부（Ministry of the Interior and Safety）": "行政安全部（Ministry of the Interior and Safety）",
+  "enum.statPublisher.국가데이터처（舊 통계청）SGIS": "国家データ処（旧 統計庁）SGIS",
+  "enum.statPublisher.서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）": "ソウル特別市（ソウル開かれたデータ広場、KT通信データに基づく推計）"
 }

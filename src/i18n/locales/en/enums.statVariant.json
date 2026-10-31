@@ -251,5 +251,7 @@
   "enum.statVariant.穀物面積占比": "Cereals share",
   "enum.statVariant.其他耕作物面積占比": "Other arable crops share",
   "enum.statVariant.蔬果面積": "Fruit & vegetables area",
-  "enum.statVariant.草地面積占比": "Grassland share"
+  "enum.statVariant.草地面積占比": "Grassland share",
+  "enum.statVariant.道級": "Province",
+  "enum.statVariant.市郡區": "Municipality"
 }

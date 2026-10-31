@@ -475,5 +475,9 @@
   "enum.statDimValue.交易類型.跨行通匯": "Interbank remittances",
   "enum.statLevel.gb_lad": "Local authority district",
   "enum.statBoundary.ONS_LAD_202405": "ONS local authority district boundaries (May 2024)",
-  "enum.statBoundary.ONS_LAD_202605": "ONS local authority district boundaries (May 2026)"
+  "enum.statBoundary.ONS_LAD_202605": "ONS local authority district boundaries (May 2026)",
+  "enum.statLevel.kr_sido": "Province level (si/do)",
+  "enum.statLevel.kr_sigungu": "Municipal level (si/gun/gu)",
+  "enum.statBoundary.KR_SIDO_ADMDONGKOR_20261001": "South Korea province-level boundaries (1 Oct 2026)",
+  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "South Korea municipal boundaries (1 Oct 2026)"
 }
