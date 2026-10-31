@@ -288,7 +288,6 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "污染與公害統計 Pollution & Nuisance Statistics",
     "環境治理統計 Environmental Enforcement Statistics",
     "能源統計 Energy Statistics",
-    "農業統計 Agriculture Statistics",
     "農業統計",
     "畜牧統計",
     "漁業統計",
@@ -511,11 +510,9 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = taiwanThemes(foldAtlasDataThem
   environmentDataTheme("污染與公害統計"),
   environmentDataTheme("環境治理統計"),
   { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
-  // 舊稻作 saved-state/語意入口維持原 section；cross-topic index 另由 recipe metadata 提供。
-  { title: "農業統計 Agriculture Statistics", groups: [{ title: "稻作生產", layers: [fromManifest("statsRiceHarvest")] }] },
   { title: "農業統計", groups: [
     { title: "土地使用結構", layers: [fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"), fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship")] },
-    { title: "作物生產", layers: [fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
+    { title: "作物生產", layers: [fromManifest("statsRiceHarvest"), fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
   ] },
   { title: "畜牧統計", groups: [
     { title: "土地使用結構", layers: [fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship")] },
@@ -929,11 +926,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("osmExpressway"),
           fromManifest("provincialRoads"),
           fromManifest("cyclingRoutes"),
-          fromManifest("cctv"),
-          fromManifest("etcGantry"),
-          fromManifest("serviceArea"),
-          fromManifest("serviceAreaPolygon"),
-          fromManifest("taxiStand"),
         ],
       },
       {
@@ -996,6 +988,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("freewayEcoSensitive"),
           fromManifest("provincialRoadMonitored"),
           fromManifest("provincialRoadEmergencyBays"),
+          fromManifest("cctv"),
+          fromManifest("etcGantry"),
+          fromManifest("serviceArea"),
+          fromManifest("serviceAreaPolygon"),
+          fromManifest("taxiStand"),
         ],
       },
     ],
@@ -1238,22 +1235,22 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("facSecondary"),
           fromManifest("facOsmSupplement"),
           fromManifest("powerGenerationUnit"),
-          fromManifest("powerPlantGlow"),
-          fromManifest("aviationRestrictedGlow"),
         ],
       },
       {
         title: "電力 · 電網",
         layers: [
           fromManifest("osmSubstationsEhv"),
-          fromManifest("substationEhvGlow"),
           fromManifest("osmSubstations"),
           fromManifest("osmPowerLines"),
-          fromManifest("powerLinesGlow"),
           fromManifest("osmPowerTowers"),
           fromManifest("powerPoles"),
         ],
       },
+      // 4 個 Bloom／Rim Glow 視覺實驗層：只在本機 DEV 顯示，正式目錄（面板、搜尋）不列；manifest key 保留（分享網址帶 key）
+      ...localResearchGroup("視覺實驗 Visual Experiments", [
+        "powerPlantGlow", "aviationRestrictedGlow", "substationEhvGlow", "powerLinesGlow",
+      ]),
       {
         title: "再生能源",
         layers: [
@@ -2007,11 +2004,17 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
-        title: "海域保護與漁業 Protected Areas & Fisheries",
+        // 自然保留區、野生動物保護區含陸域（說明寫「不限海域」），不是只有海洋；歸屬主題另案（TWL-12）
+        title: "自然保育 Conservation",
         layers: [
           fromManifest("natureReserves"),
           fromManifest("wildlifeProtectedAreas"),
           fromManifest("marineWildlifeAreas"),
+        ],
+      },
+      {
+        title: "海域保護與漁業 Protected Areas & Fisheries",
+        layers: [
           fromManifest("coastalAreaExtents"),
           fromManifest("openFishingLocations"),
           fromManifest("artificialReefCenters"),
@@ -2034,12 +2037,10 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          fromManifest("marineObservationCwa"),
-          fromManifest("marineObservationIsohe"),
-          fromManifest("waterFacilities"),
           fromManifest("waterMonitorStations"),
           fromManifest("waterReservoirs"),
           fromManifest("groundwaterWells"),
+          fromManifest("groundwater"),
           fromManifest("rainGauge"),
           fromManifest("riverLevel"),
           fromManifest("floodSensor"),
@@ -2051,6 +2052,13 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "海象觀測 Marine Observation",
+        layers: [
+          fromManifest("marineObservationCwa"),
+          fromManifest("marineObservationIsohe"),
+        ],
+      },
+      {
         title: "面 / 線",
         layers: [
           fromManifest("waterBasins"),
@@ -2059,7 +2067,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("waterCanals"),
           fromManifest("waterProtectionZones"),
           fromManifest("waterDetentionBasins"),
-          fromManifest("groundwater"),
           fromManifest("lakesPondsOsm"),
         ],
       },
@@ -2074,6 +2081,7 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "水利設施 Water Facilities",
         layers: [
+          fromManifest("waterFacilities"),
           fromManifest("wraFloodgatesCentral"),
           fromManifest("wraCentralDrainage"),
           fromManifest("iowStructureMonitoring"),
@@ -2233,8 +2241,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("agriculture"),
           fromManifest("agriLeisureFarmZones"),
           fromManifest("agriRuralRegen"),
-          fromManifest("ecoNetworkZones"),
         ],
+      },
+      {
+        title: "自然保育 Conservation",
+        layers: [fromManifest("ecoNetworkZones")],
       },
       {
         title: "土壤",
@@ -2291,6 +2302,11 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("forestReserve"),
           fromManifest("forestRecreation"),
           fromManifest("forestFlatParks"),
+        ],
+      },
+      {
+        title: "樹冠 Canopy",
+        layers: [
           fromManifest("canopyHeight"),
           fromManifest("canopyGiants"),
         ],
@@ -2980,7 +2996,6 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "水資源統計 Water Statistics": "environment",
     "廢棄物統計 Waste Statistics": "environment",
     "能源統計 Energy Statistics": "environment",
-    "農業統計 Agriculture Statistics": "environment",
     "人口統計 Population Statistics": "city",
     [ADDICTION_STATISTICS_THEME_TITLE]: "publicLife",
     [LANDSLIDE_STATISTICS_THEME_TITLE]: "environment",
@@ -3005,8 +3020,6 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "空氣品質統計 Air Quality Statistics": "environment",
     "污染與公害統計 Pollution & Nuisance Statistics": "environment",
     "環境治理統計 Environmental Enforcement Statistics": "environment",
-    "治安與交通 Safety & Transport": "safety",
-    "行政區參考 Administrative Boundaries": "baseline",
     "底圖 Base Map": "baseline",
     "交通 Move": "city",
     "人口社經 People": "city",
@@ -3157,7 +3170,6 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "水資源統計 Water Statistics": { zh: "水資源統計", sub: "Water Statistics" },
     "廢棄物統計 Waste Statistics": { zh: "廢棄物統計", sub: "Waste Statistics" },
     "能源統計 Energy Statistics": { zh: "能源統計", sub: "Energy Statistics" },
-    "農業統計 Agriculture Statistics": { zh: "農業統計", sub: "Agriculture Statistics" },
     "人口統計 Population Statistics": { zh: "人口統計", sub: "Population Statistics" },
     "成癮與減害統計 Addiction & Harm Reduction Statistics": { zh: "成癮與減害統計", sub: "Addiction & Harm Reduction Statistics" },
     "崩塌與水土保持統計 Landslide & Soil Conservation Statistics": { zh: "崩塌與水土保持統計", sub: "Landslide & Soil Conservation Statistics" },
@@ -3180,8 +3192,6 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "空氣品質統計 Air Quality Statistics": { zh: "空氣品質統計", sub: "Air Quality Statistics" },
     "污染與公害統計 Pollution & Nuisance Statistics": { zh: "污染與公害統計", sub: "Pollution & Nuisance Statistics" },
     "環境治理統計 Environmental Enforcement Statistics": { zh: "環境治理統計", sub: "Environmental Enforcement Statistics" },
-    "治安與交通 Safety & Transport": { zh: "治安與交通", sub: "Safety & Transport" },
-    "行政區參考 Administrative Boundaries": { zh: "行政區參考", sub: "Administrative Boundaries" },
     "底圖 Base Map": { zh: "底圖", sub: "Base Map" },
     "交通 Move": { zh: "交通", sub: "Move" },
     "人口社經 People": { zh: "人口社經", sub: "People" },

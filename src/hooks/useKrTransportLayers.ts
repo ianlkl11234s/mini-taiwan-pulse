@@ -7,6 +7,7 @@ import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { krGroupFilter, krStringProp } from "../data/krDataLayers";
 import {
   KR_AIRPORT_COLOR, KR_AIRPORTS_ATTRIBUTION, KR_BUS_STOPS_ATTRIBUTION, KR_BUS_STOPS_COLOR, KR_BUS_STOPS_COUNT, KR_FALLBACK_COLOR,
   KR_NATIONAL_ROAD_COLOR, KR_NATIONAL_ROADS_ATTRIBUTION, KR_OSM_ATTRIBUTION, KR_PORT_COLOR, KR_PORTS_ATTRIBUTION, KR_RAIL_LINE_CLASSES,
@@ -52,8 +53,11 @@ const BUS_SOURCE_ID = "kr-bus-stops";
 // R5（P-4／G-2）：227,059 點；PMTiles 在出點縮放前為抽稀概覽（z14 才全收），不可當筆數依據。
 const BUS_POINTS_FROM_ZOOM = densePointsFromZoom(KR_BUS_STOPS_COUNT);
 const BUS_HEAT_KEYS = ["krBusStops"] as const;
-// 低縮放為抽稀概覽（z7 全國僅約千點），強度高於日本公車站的 5 才看得出密度
-const BUS_HEATMAP_INTENSITY = 12;
+// 低縮放熱區吃 PMTiles 的 `kr_bus_stops_grid`（0.05° 格 z5–8、0.01° 格 z9–11，屬性 count，總和＝227,059），不再是抽稀概覽；
+// 格網圖層 maxzoom 11，故另開一個 maxzoom 11 的 source 讓 z11–12 overzoom 接到 z12 單點，不留縫。
+const BUS_GRID_SOURCE_ID = "kr-bus-stops-grid";
+const BUS_HEATMAP_INTENSITY = 50;
+const BUS_GRID_WEIGHT = ["interpolate", ["linear"], ["coalesce", ["get", "count"], 1], 1, 0.08, 10, 0.3, 100, 0.65, 1000, 1];
 
 export function useKrBusStopsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDarkTheme = true) {
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -77,11 +81,16 @@ export function useKrBusStopsLayer(mapRef: MapRef, visible: boolean, opacity: nu
           type: PMTILES_SOURCE_TYPE, url: absoluteUrl("kr_bus_stops.pmtiles"), attribution: KR_BUS_STOPS_ATTRIBUTION, minzoom: 5, maxzoom: 14,
         } as any);
       }
+      if (!map.getSource(BUS_GRID_SOURCE_ID)) {
+        map.addSource(BUS_GRID_SOURCE_ID, {
+          type: PMTILES_SOURCE_TYPE, url: absoluteUrl("kr_bus_stops.pmtiles"), attribution: KR_BUS_STOPS_ATTRIBUTION, minzoom: 5, maxzoom: 11,
+        } as any);
+      }
       if (!map.getLayer(KR_BUS_STOPS_HEATMAP_ID)) {
         map.addLayer({
-          id: KR_BUS_STOPS_HEATMAP_ID, type: "heatmap", source: BUS_SOURCE_ID, "source-layer": "kr_bus_stops",
+          id: KR_BUS_STOPS_HEATMAP_ID, type: "heatmap", source: BUS_GRID_SOURCE_ID, "source-layer": "kr_bus_stops_grid",
           maxzoom: heatmapMaxzoom(BUS_POINTS_FROM_ZOOM), layout: { visibility: "none" },
-          paint: heatmapLayerPaint("krBusStops", isDarkTheme, op / def, BUS_HEATMAP_INTENSITY),
+          paint: heatmapLayerPaint("krBusStops", isDarkTheme, op / def, BUS_HEATMAP_INTENSITY, BUS_GRID_WEIGHT),
         } as HeatmapLayer, map.getLayer(KR_BUS_STOPS_CIRCLE_ID) ? KR_BUS_STOPS_CIRCLE_ID : undefined);
       }
       map.setLayoutProperty(KR_BUS_STOPS_HEATMAP_ID, "visibility", "visible");
@@ -97,7 +106,7 @@ export function useKrBusStopsLayer(mapRef: MapRef, visible: boolean, opacity: nu
       map.setPaintProperty(KR_BUS_STOPS_CIRCLE_ID, "circle-opacity", op);
       map.setPaintProperty(KR_BUS_STOPS_CIRCLE_ID, "circle-radius", pointRadius("S", scale));
       for (const [k, v] of Object.entries(pointStrokePaint(isDarkTheme, op / def))) map.setPaintProperty(KR_BUS_STOPS_CIRCLE_ID, k as any, v as never);
-      if (sourceAdded) keepLoadingUntilMapIdle(map, "kr-bus-stops:render", "韓國公車站 버스정류장 載入中", BUS_SOURCE_ID);
+      if (sourceAdded) keepLoadingUntilMapIdle(map, "kr-bus-stops:render", "韓國公車站 버스정류장 載入中", BUS_GRID_SOURCE_ID);
     };
     mount();
     map.on("style.load", mount);
@@ -119,15 +128,20 @@ function railStationsPaint(isDark: boolean, opacity: number, scale: number) {
     ...pointStrokePaint(isDark, op / opacityDefault("krRailStations", 0.8)),
   };
 }
-export function useKrRailStationsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean) {
+/** V-4：營運網多選（`krRailStationsCatMask`；選項順序＝`KR_RAIL_NETWORKS`）。 */
+export const krRailNetworkFilter = (mask: number | undefined) =>
+  krGroupFilter(krStringProp("network"), KR_RAIL_NETWORKS.map((n) => ({ id: n.value, values: [n.value] })), false, mask);
+export function useKrRailStationsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number) {
+  const filter = krRailNetworkFilter(catMask);
   useGbPmtilesLayers(mapRef, RAIL_ST_SOURCE, visible, () => [{
     id: KR_RAIL_STATIONS_CIRCLE_ID,
     layer: () => ({
-      id: KR_RAIL_STATIONS_CIRCLE_ID, type: "circle", source: RAIL_ST_SOURCE.id, "source-layer": "kr_rail_stations", minzoom: 6,
-      layout: { visibility: "none" }, paint: railStationsPaint(isDark, opacity, scale),
+      // V-1：955 站（<1 萬）直接畫到圖磚起點 z4
+      id: KR_RAIL_STATIONS_CIRCLE_ID, type: "circle", source: RAIL_ST_SOURCE.id, "source-layer": "kr_rail_stations", minzoom: 4,
+      ...(filter ? { filter } : {}), layout: { visibility: "none" }, paint: railStationsPaint(isDark, opacity, scale),
     } as unknown as AnyLayer),
-    update: (map) => setPaint(map, KR_RAIL_STATIONS_CIRCLE_ID, railStationsPaint(isDark, opacity, scale)),
-  }], [opacity, scale, isDark]);
+    update: (map) => { map.setFilter(KR_RAIL_STATIONS_CIRCLE_ID, (filter ?? null) as any); setPaint(map, KR_RAIL_STATIONS_CIRCLE_ID, railStationsPaint(isDark, opacity, scale)); },
+  }], [opacity, scale, isDark, JSON.stringify(filter)]);
 }
 
 // ─────────────────────────── 機場 ───────────────────────────
@@ -215,20 +229,29 @@ const RAIL_LINE_SOURCE: SourceSpec = {
 };
 const railClassPairs = (pick: (c: (typeof KR_RAIL_LINE_CLASSES)[number]) => unknown) =>
   KR_RAIL_LINE_CLASSES.flatMap((c) => c.raw.map((r) => [r, pick(c)] as const));
-export function useKrRailLinesLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
+/** V-4：線別多選（`krRailLinesCatMask`；選項順序＝`KR_RAIL_LINE_CLASSES`，「其他」含 industrial／military 等原值）。 */
+export const krRailClassFilter = (mask: number | undefined) =>
+  krGroupFilter(krStringProp("line_class"), KR_RAIL_LINE_CLASSES.map((c) => ({ id: c.value, values: c.raw })), false, mask);
+/** V-1：z<7 不畫側線／車庫線與其他（8,727 段細線會糊成一片），幹線、支線、地鐵、輕軌 z4 起畫。 */
+const RAIL_MINOR_FROM = 7;
+export function useKrRailLinesLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean, catMask?: number) {
   const def = opacityDefault("krRailLines", 0.85);
+  const filter = krRailClassFilter(catMask);
   const color = matchBy("line_class", railClassPairs((c) => c.color), KR_FALLBACK_COLOR);
-  const opMul = (op: number): Expr => ["*", clamp01(op), matchBy("line_class", railClassPairs((c) => c.opacity), 0.7)];
+  const opMul = (op: number): Expr => {
+    const at = (minorToo: boolean): Expr => ["*", clamp01(op), matchBy("line_class", railClassPairs((c) => (!minorToo && (c.value === "yard_service" || c.value === "other") ? 0 : c.opacity)), minorToo ? 0.7 : 0)];
+    return ["step", ["zoom"], at(false), RAIL_MINOR_FROM, at(true)];
+  };
   const w = (f: number): Expr => matchBy("line_class", railClassPairs((c) => (c.width === "emphasis" ? 1.6 : c.width === "standard" ? 1 : 0.5) * f), 0.5);
-  const width: Expr = ["interpolate", ["linear"], ["zoom"], 5, w(0.6), 10, w(1), 14, w(1.8)];
+  const width: Expr = ["interpolate", ["linear"], ["zoom"], 4, w(0.5), 5, w(0.6), 10, w(1), 14, w(1.8)];
   const paint = (op: number) => hookLinePaint("krRailLines", KR_RAIL_LINES_LINE_ID,
     { "line-color": color, "line-width": width, "line-opacity": opMul(op) }, { "line-color": color, "line-width": width, "line-opacity": opMul(def) }, isDark);
   useGbPmtilesLayers(mapRef, RAIL_LINE_SOURCE, visible, () => [{
     id: KR_RAIL_LINES_LINE_ID,
     layer: () => ({
-      id: KR_RAIL_LINES_LINE_ID, type: "line", source: RAIL_LINE_SOURCE.id, "source-layer": "kr_rail_lines", minzoom: 5,
-      layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
+      id: KR_RAIL_LINES_LINE_ID, type: "line", source: RAIL_LINE_SOURCE.id, "source-layer": "kr_rail_lines", minzoom: 4,
+      ...(filter ? { filter } : {}), layout: { visibility: "none", "line-cap": "round", "line-join": "round" }, paint: paint(opacity),
     } as unknown as AnyLayer),
-    update: (map) => map.setPaintProperty(KR_RAIL_LINES_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any),
-  }], [opacity, isDark]);
+    update: (map) => { map.setFilter(KR_RAIL_LINES_LINE_ID, (filter ?? null) as any); map.setPaintProperty(KR_RAIL_LINES_LINE_ID, "line-opacity", paint(opacity)["line-opacity"] as any); },
+  }], [opacity, isDark, JSON.stringify(filter)]);
 }

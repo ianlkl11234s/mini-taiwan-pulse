@@ -14,10 +14,7 @@ import { categoryFilterViolations, zoomLagViolations } from "../visibilityAudit"
  */
 const V2_BASELINE: readonly string[] = [
   "aquaculturePonds", "contourDtm20", "countyBoundary", "factoryDensityGrid", "farmRoads", "forestRoads",
-  "hikingTrails", "krBridges", "krChildProtectionZones", "krCoastalErosionFacilities", "krMarineEnvSites",
-  "krMarinePollutionIncidents", "krMarineProtectedAreas", "krNationalParks", "krNpLocationSigns", "krNpTrails",
-  "krParkingLots", "krPublicBicycleStations", "krRiversOsm", "krSeoulSubwayCongestion", "krSluiceGates",
-  "krSpeedCameras", "krWaterLevelStations", "krWaterQualityStations", "landslideAnnual",
+  "hikingTrails", "krNpLocationSigns", "krSeoulSubwayCongestion", "landslideAnnual",
   "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "townshipBoundary", "villageBoundary",
 ];
 
@@ -35,10 +32,7 @@ const V4_BASELINE: readonly string[] = [
   "gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc", "gasCoverageTaisugar", "govServiceOffices",
   "hakkaCulturalZones", "hikingTrails", "importantWetlands", "indigenousIsolationRisk", "indigenousLanguageDialects",
   "indigenousTribes", "internetExchangePoints", "iowStructureMonitoring", "islandPowerGrid", "jmaQuakes",
-  "jmaVolcanoes", "krBridges", "krChildProtectionZones", "krCoastalErosionFacilities", "krMarineEnvSites",
-  "krMarinePollutionIncidents", "krMarineProtectedAreas", "krNpTrails", "krParkingLots", "krPublicBicycleStations",
-  "krRiversOsm", "krSeoulSubwayCongestion", "krSpeedCameras", "krStreetTrees", "krWaterLevelStations",
-  "krWaterQualityStations", "lakesPondsOsm", "majorOccupationalAccidents", "marinePollutionIncidents",
+  "jmaVolcanoes", "lakesPondsOsm", "majorOccupationalAccidents", "marinePollutionIncidents",
   "marineWildlifeAreas", "maritimeBoundary", "mountainHuts", "noiseEnforcementEvents", "nuclearRadiation",
   "osmCommunicationSites", "osmPowerPlantsStatic", "osmRoadDrive", "osmSubstations", "osmSubstationsEhv",
   "policeStation", "ports", "prosecutorsOffice", "renewablePermitsNational", "renewablePermitsTaipei",

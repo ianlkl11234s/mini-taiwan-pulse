@@ -7,6 +7,7 @@
  * 色票沿用台灣同語意圖層與英國第 3 波（水系藍／青、堤防琥珀、海洋保護區綠…），分類色之間以明度與色相區分。
  */
 import type { KrDataKey } from "./krDataKeys";
+import { selectedMultiSelectValues } from "./multiSelectMapbox";
 
 export interface L3 { zh: string; en: string; ja: string }
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -25,6 +26,12 @@ export interface KrLayerSpec {
   srcMinzoom: number;
   srcMaxzoom: number;
   minzoom: number;
+  /** V-1／P-4：拉遠改熱區（點在 `densePointsFromZoom(count, minzoom)` 起畫、之下為熱區）；intensity 依資料密度目視校正。 */
+  heat?: {
+    intensity: number;
+    /** 低縮放另用「格網計數」檔畫熱區（weight 吃 `count`；source maxzoom 以上自動 overzoom），點檔 `file` 從 `minzoom` 起接手。 */
+    density?: { file: string; sourceLayer: string; srcMinzoom: number; srcMaxzoom: number; attribution: string };
+  };
   color: string;
   tier?: "S" | "M";
   count: number;
@@ -58,7 +65,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 3 波：水系統與海洋 ─────────────
   {
     key: "krWaterLevelStations", file: "kr_water_level_stations.pmtiles", sourceLayer: "kr_water_level_stations", geom: "point", layerId: "kr-water-level-stations-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 7, color: "#22d3ee", tier: "M", count: 1379,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#22d3ee", tier: "M", count: 1379,
     catProp: "agency", otherColor: "#94a3b8", otherLabel: l3("其他機關", "Other agencies", "その他の機関"),
     cats: [
       { id: "moe", values: ["기후에너지환경부", "환경부"], color: "#22d3ee", label: l3("環境部／洪水統制所", "Ministry of Environment / flood control offices", "環境部・洪水統制所") },
@@ -80,7 +87,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krSluiceGates", file: "kr_sluice_gates.pmtiles", sourceLayer: "kr_sluice_gates", geom: "point", layerId: "kr-sluice-gates-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, color: "#f59e0b", tier: "M", count: 2342,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#f59e0b", tier: "M", count: 2342,
     title: { props: ["name"], fallback: l3("農業水門", "Agricultural sluice gate", "農業用水門") },
     fields: [{ prop: "hq", label: l3("農漁公社本部", "KRC regional HQ", "農漁村公社本部") }, { prop: "branch", label: l3("支社", "Branch", "支社") }, { prop: "sido", label: l3("시·도", "Province", "市・道") }],
     legendNotes: [l3("僅涵蓋農漁村公社 8 個農業本部（慶北、全北、忠南、全南、京畿、忠北、慶南、江原）", "Covers only the 8 agricultural regional HQs of Korea Rural Community Corp. (Gyeongbuk, Jeonbuk, Chungnam, Jeonnam, Gyeonggi, Chungbuk, Gyeongnam, Gangwon)", "農漁村公社の農業8本部のみ（慶北・全北・忠南・全南・京畿・忠北・慶南・江原）"),
@@ -91,7 +98,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krWaterQualityStations", file: "kr_water_quality_stations.pmtiles", sourceLayer: "kr_water_quality_stations", geom: "point", layerId: "kr-water-quality-stations-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 8, color: "#38bdf8", tier: "M", count: 1181,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#38bdf8", tier: "M", count: 1181,
     catProp: "water_type", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "river", values: ["하천"], color: "#38bdf8", label: l3("河川", "River", "河川") },
@@ -115,7 +122,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krCoastalErosionFacilities", file: "kr_coastal_erosion_facilities.pmtiles", sourceLayer: "kr_coastal_erosion_facilities", geom: "point", layerId: "kr-coastal-erosion-facilities-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 9, color: "#fb923c", tier: "M", count: 1982,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 9, heat: { intensity: 3 }, color: "#fb923c", tier: "M", count: 1982,
     catProp: "type_name", otherColor: "#94a3b8", otherLabel: l3("其他型態", "Other types", "その他の形態"),
     cats: [
       { id: "natural", values: ["자연해안", "암반지대", "사빈", "사취"], color: "#22c55e", label: l3("自然海岸", "Natural coast", "自然海岸") },
@@ -134,7 +141,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krRiversOsm", file: "kr_rivers_osm.pmtiles", sourceLayer: "kr_rivers_osm", geom: "line", layerId: "kr-rivers-osm-line",
-    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 7, color: "#38bdf8", count: 33341,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#38bdf8", count: 33341,
     catProp: "waterway", otherColor: "#7dd3fc", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "river", values: ["river"], color: "#38bdf8", label: l3("河（river）", "River", "河川（river）") },
@@ -152,7 +159,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarinePollutionIncidents", file: "kr_marine_pollution_incidents.pmtiles", sourceLayer: "kr_marine_pollution_incidents", geom: "point", layerId: "kr-marine-pollution-incidents-circle",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 6, color: "#ef4444", tier: "M", count: 2420,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#ef4444", tier: "M", count: 2420,
     catProp: "source_type", otherColor: "#94a3b8", otherLabel: l3("不明", "Unknown", "不明"),
     cats: [
       { id: "ship", values: ["선박"], color: "#ef4444", label: l3("船舶", "Vessel", "船舶") },
@@ -172,7 +179,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarineEnvSites", file: "kr_marine_env_sites.pmtiles", sourceLayer: "kr_marine_env_sites", geom: "point", layerId: "kr-marine-env-sites-circle",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 7, color: "#14b8a6", tier: "M", count: 426,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#14b8a6", tier: "M", count: 426,
     catProp: "network", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "estuary", values: ["하천영향 및 반폐쇄성해역환경측정망"], color: "#14b8a6", label: l3("河口與半封閉海域網", "Estuary / semi-enclosed sea network", "河川影響・半閉鎖海域網") },
@@ -189,7 +196,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krMarineProtectedAreas", file: "kr_marine_protected_areas.pmtiles", sourceLayer: "kr_marine_protected_areas", geom: "polygon", layerId: "kr-marine-protected-areas-fill", outlineId: "kr-marine-protected-areas-line",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 5, color: "#22c55e", count: 38,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#22c55e", count: 38,
     catProp: "category", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "wetland", values: ["습지보호구역"], color: "#22c55e", label: l3("濕地保護區", "Wetland protected area", "湿地保護区域") },
@@ -208,7 +215,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 4 波：公共運輸與道路設施 ─────────────
   {
     key: "krPublicBicycleStations", file: "kr_public_bicycle_stations.pmtiles", sourceLayer: "kr_public_bicycle_stations", geom: "point", layerId: "kr-public-bicycle-stations-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 9, color: "#22c55e", tier: "M", count: 4236,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 9, heat: { intensity: 3 }, color: "#22c55e", tier: "M", count: 4236,
     catProp: "source", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "std", values: ["std_15017319"], color: "#22c55e", label: l3("全國標準資料", "National standard data", "全国標準データ") },
@@ -246,7 +253,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krBridges", file: "kr_bridges.pmtiles", sourceLayer: "kr_bridges", geom: "point", layerId: "kr-bridges-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 11, color: "#a78bfa", tier: "M", count: 35575,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, heat: { intensity: 2 }, color: "#a78bfa", tier: "M", count: 35575,
     catProp: "road_kind", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "expressway", values: ["고속국도"], color: "#ef4444", label: l3("高速國道", "Expressway", "高速国道") },
@@ -266,7 +273,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krParkingLots", file: "kr_parking_lots.pmtiles", sourceLayer: "kr_parking_lots", geom: "point", layerId: "kr-parking-lots-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 11, color: "#3b82f6", tier: "M", count: 17699,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, heat: { intensity: 2.5 }, color: "#3b82f6", tier: "M", count: 17699,
     catProp: "owner_kind", otherColor: "#94a3b8", otherLabel: l3("其他", "Other", "その他"),
     cats: [
       { id: "public", values: ["공영"], color: "#3b82f6", label: l3("公營", "Public", "公営") },
@@ -284,7 +291,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krSpeedCameras", file: "kr_speed_cameras.pmtiles", sourceLayer: "kr_speed_cameras", geom: "point", layerId: "kr-speed-cameras-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 11, color: "#ef4444", tier: "M", count: 43743,
+    srcMinzoom: 5, srcMaxzoom: 14, minzoom: 11, heat: { intensity: 1.5 }, color: "#ef4444", tier: "M", count: 43743,
     catProp: "enforce_code", otherColor: "#94a3b8", otherLabel: l3("其他代碼", "Other codes", "その他のコード"),
     cats: [
       { id: "c2", values: ["2"], color: "#ef4444", label: l3("取締區分碼 2", "Enforcement code 2", "取締区分コード 2") },
@@ -304,7 +311,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krChildProtectionZones", file: "kr_child_protection_zones.pmtiles", sourceLayer: "kr_child_protection_zones", geom: "point", layerId: "kr-child-protection-zones-circle",
-    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 11, color: "#f59e0b", tier: "M", count: 14639,
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 11, heat: { intensity: 2.5 }, color: "#f59e0b", tier: "M", count: 14639,
     catProp: "facility_kind", otherColor: "#94a3b8", otherLabel: l3("其他設施", "Other facilities", "その他の施設"),
     cats: [
       { id: "elementary", values: ["초등학교"], color: "#f59e0b", label: l3("小學", "Elementary school", "小学校") },
@@ -322,7 +329,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   // ───────────── 第 5 波：自然保護與林業 ─────────────
   {
     key: "krNationalParks", file: "kr_national_parks.pmtiles", sourceLayer: "kr_national_parks", geom: "polygon", layerId: "kr-national-parks-fill", outlineId: "kr-national-parks-line",
-    srcMinzoom: 0, srcMaxzoom: 12, minzoom: 5, color: "#16a34a", count: 23,
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 5, color: "#16a34a", count: 23,
     title: { props: ["name"], fallback: l3("國立公園", "National park", "国立公園") },
     fields: [{ prop: "created", label: l3("建檔日", "Created", "作成日") }, { prop: "area_km2", label: l3("面積", "Area", "面積"), kind: "num", unit: "km²", digits: 1 }, { prop: "sido_all", label: l3("所在 시·도", "Provinces", "所在の市・道") }, { prop: "park_code", label: l3("公園碼", "Park code", "公園コード"), kind: "code" }],
     legendNotes: [l3("邊界為由連續地籍加工的緩衝面，非法定界線，面積不可當法定面積", "Boundaries are buffered polygons derived from cadastral data, not legal boundaries; areas are not legal areas", "境界は連続地籍から加工した緩衝面で法定界ではない。面積は法定面積として使えない")],
@@ -345,7 +352,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krNpTrails", file: "kr_np_trails.pmtiles", sourceLayer: "kr_np_trails", geom: "line", layerId: "kr-np-trails-line",
-    srcMinzoom: 6, srcMaxzoom: 14, minzoom: 10, color: "#ea580c", count: 671,
+    srcMinzoom: 4, srcMaxzoom: 14, minzoom: 4, color: "#ea580c", count: 671,
     catProp: "facility", otherColor: "#94a3b8", otherLabel: l3("其他線形設施", "Other linear facilities", "その他の線形施設"),
     cats: [
       { id: "trail", values: ["탐방로"], color: "#ea580c", label: l3("探訪路（步道）", "Trail", "探訪路") },
@@ -361,7 +368,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
   },
   {
     key: "krStreetTrees", file: "kr_street_trees.pmtiles", sourceLayer: "kr_street_trees", geom: "point", layerId: "kr-street-trees-circle",
-    srcMinzoom: 13, srcMaxzoom: 15, minzoom: 13, color: "#22c55e", tier: "S", count: 1043931,
+    srcMinzoom: 13, srcMaxzoom: 15, minzoom: 13, heat: { intensity: 120, density: { file: "kr_street_trees_density.pmtiles", sourceLayer: "kr_street_trees_density", srcMinzoom: 4, srcMaxzoom: 12, attribution: "산림청 도시숲가로수관리 가로수 현황 (공공데이터포털)" } }, color: "#22c55e", tier: "S", count: 1043931,
     catProp: "species", otherColor: "#94a3b8", otherLabel: l3("其他樹種", "Other species", "その他の樹種"),
     cats: [
       { id: "ginkgo", values: ["은행나무"], color: "#eab308", label: l3("銀杏", "Ginkgo", "イチョウ") },
@@ -375,7 +382,7 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     fields: [{ prop: "species", label: l3("樹種", "Species", "樹種") }, { prop: "dbh_cm", label: l3("胸高直徑", "DBH", "胸高直径"), kind: "num", unit: "cm", digits: 0 }, { prop: "road", label: l3("道路", "Road", "道路") },
              { prop: "median_green", label: l3("道路內綠地", "In-road green", "道路内緑地") }, { prop: "roadside_green", label: l3("路側綠地", "Roadside green", "路側緑地") }, { prop: "sigungu", label: l3("시군구", "Municipality", "市郡区") }, { prop: "tree_no", label: l3("樹木編號", "Tree no.", "樹木番号"), kind: "code" }],
     legendNotes: [l3("首爾、釜山、大田、蔚山幾乎未涵蓋（서울 僅 2 棵、대전 43、울산 23、부산 0）；無資料不代表沒有樹", "Seoul, Busan, Daejeon and Ulsan are almost not covered (Seoul 2 trees, Daejeon 43, Ulsan 23, Busan 0); no data does not mean no trees", "ソウル・釜山・大田・蔚山はほぼ未収録（ソウル2本・大田43本・蔚山23本・釜山0本）。データがないことは樹木がないことを意味しない"),
-                  l3("僅約 85 個 시군구；zoom 13 起顯示", "Only ~85 municipalities; shown from zoom 13", "収録は約85市郡区のみ。ズーム13から表示")],
+                  l3("僅約 85 個 시군구；zoom 13 起顯示單棵，之下為密度熱區（格網計數；類別篩選只作用於單棵點）", "Only ~85 municipalities; individual trees from zoom 13, a density heatmap (grid counts) below it; the species filter applies to individual trees only", "収録は約85市郡区のみ。ズーム13から1本ずつ表示、それ以下は密度ヒートマップ（格子集計。樹種フィルタは1本表示のみ）")],
     popupNotes: [l3("僅部分自治體有資料，無資料處不代表沒有行道樹", "Only some municipalities are covered; absence of data is not absence of trees", "一部の自治体のみ収録。データがない場所に樹木がないとは限らない")],
     sourceOrg: "산림청 도시숲가로수관리 가로수 현황 (공공데이터포털)", sourceUrl: DG("15120900"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_FETCHED_AT,
     loading: l3("南韓行道樹載入中", "Loading South Korea street trees", "韓国の街路樹を読み込み中"),
@@ -390,4 +397,44 @@ export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
 
 export function pickL3(text: L3, locale: string): string {
   return locale === "ja" ? text.ja : locale === "en" ? text.en : text.zh;
+}
+
+// ─────────────────────────── V-4 類別篩選（分類多選）與 V-1 縮放區間共用 ───────────────────────────
+
+
+/** 多選「其他」選項的固定 id（圖例有「其他」列的層才有）。 */
+export const KR_CAT_OTHER_ID = "other";
+export interface KrFilterGroup { id: string; values: readonly string[] }
+
+/** 規格的多選選項 id（宣告順序；有 `otherLabel` 者最後加「其他」）。 */
+export const krCatOptionIds = (spec: Pick<KrLayerSpec, "cats" | "otherLabel">): string[] =>
+  spec.cats ? [...spec.cats.map((c) => c.id), ...(spec.otherLabel ? [KR_CAT_OTHER_ID] : [])] : [];
+
+/**
+ * 分類多選 → Mapbox filter。`getter` 是回傳字串的表達式（屬性值轉字串；subway 用擁擠度分級表達式）。
+ * 全選／未傳 → null（不篩、含缺值 feature）；全關 → 永假 sentinel；選了「其他」→ 補上「不屬於任何已列類別」。
+ */
+export function krGroupFilter(getter: unknown, groups: readonly KrFilterGroup[], withOther: boolean, mask: number | undefined): unknown[] | null {
+  if (mask === undefined || !Number.isFinite(mask)) return null;
+  const ids = [...groups.map((g) => g.id), ...(withOther ? [KR_CAT_OTHER_ID] : [])];
+  const selected = selectedMultiSelectValues(mask, ids);
+  if (selected.length === ids.length) return null;
+  if (selected.length === 0) return ["==", getter, "__multi_select_none__"];
+  const chosen = groups.filter((g) => selected.includes(g.id)).flatMap((g) => [...g.values]);
+  const hit = ["in", getter, ["literal", chosen]];
+  if (!selected.includes(KR_CAT_OTHER_ID)) return hit;
+  const other = ["!", ["in", getter, ["literal", groups.flatMap((g) => [...g.values])]]];
+  return chosen.length ? ["any", hit, other] : other;
+}
+
+/** 屬性值（含數值型）統一轉字串，缺值＝""。 */
+export const krStringProp = (prop: string): unknown[] => ["to-string", ["coalesce", ["get", prop], ""]];
+
+/** 規格的分類篩選 filter（subway 以平日尖峰擁擠度分級當類別）。 */
+export function krSpecCatFilter(spec: KrLayerSpec, mask: number | undefined): unknown[] | null {
+  if (!spec.cats) return null;
+  const getter = spec.key === "krSeoulSubwayCongestion"
+    ? ["case", ["has", "peak_wkd"], ["step", ["to-number", ["get", "peak_wkd"], 0], "<34", KR_CONGESTION_BREAKS[0], "34-80", KR_CONGESTION_BREAKS[1], "80-130", KR_CONGESTION_BREAKS[2], ">=130"], ""]
+    : krStringProp(spec.catProp!);
+  return krGroupFilter(getter, spec.cats, !!spec.otherLabel, mask);
 }

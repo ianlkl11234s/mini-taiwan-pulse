@@ -37,7 +37,7 @@ export function zoomLagViolations(): ZoomLag[] {
     byKey.set(config.id, { key: config.id, sourceMinzoom, firstDrawZoom });
   }
   for (const spec of KR_DATA_SPECS) {
-    byKey.set(spec.key, { key: spec.key, sourceMinzoom: spec.srcMinzoom, firstDrawZoom: spec.minzoom });
+    byKey.set(spec.key, { key: spec.key, sourceMinzoom: spec.srcMinzoom, firstDrawZoom: spec.heat ? spec.srcMinzoom : spec.minzoom });
   }
   return [...byKey.values()]
     .filter((v) => v.firstDrawZoom - v.sourceMinzoom > V2_MAX_ZOOM_LAG)

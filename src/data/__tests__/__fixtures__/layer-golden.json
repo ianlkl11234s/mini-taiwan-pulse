@@ -1862,7 +1862,8 @@
     },
     {
       "layers": [
-        "kr-rivers-osm-line"
+        "kr-rivers-osm-line",
+        "kr-rivers-osm-major-line"
       ],
       "type": "krRiversOsm"
     },
@@ -1886,13 +1887,15 @@
     },
     {
       "layers": [
-        "kr-power-plants-circle"
+        "kr-power-plants-circle",
+        "kr-power-plants-minor-circle"
       ],
       "type": "krPowerPlants"
     },
     {
       "layers": [
-        "kr-renewables-circle"
+        "kr-renewables-circle",
+        "kr-renewables-minor-circle"
       ],
       "type": "krRenewables"
     },
@@ -1916,6 +1919,8 @@
     },
     {
       "layers": [
+        "kr-oil-gas-pts-facility-circle",
+        "kr-oil-gas-pts-pipeline-circle",
         "kr-oil-gas-point",
         "kr-oil-gas-pipelines-line",
         "kr-oil-gas-line",
@@ -103815,6 +103820,116 @@
     ],
     "krBridges": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速國道",
+            "value": "expressway"
+          },
+          {
+            "label": "一般國道",
+            "value": "national"
+          },
+          {
+            "label": "地方道",
+            "value": "local"
+          },
+          {
+            "label": "市／郡／區道",
+            "value": "city"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "expressway",
+          "national",
+          "local",
+          "city",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "bilbao",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "bilbao"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -103932,6 +104047,111 @@
     ],
     "krChildProtectionZones": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "小學",
+            "value": "elementary"
+          },
+          {
+            "label": "幼稚園",
+            "value": "kindergarten"
+          },
+          {
+            "label": "托育所",
+            "value": "daycare"
+          },
+          {
+            "label": "其他設施",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "elementary",
+          "kindergarten",
+          "daycare",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "acton",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "acton"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -103951,6 +104171,121 @@
       }
     ],
     "krCoastalErosionFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "自然海岸",
+            "value": "natural"
+          },
+          {
+            "label": "傾斜／石砌護岸",
+            "value": "revetment"
+          },
+          {
+            "label": "直立護岸",
+            "value": "wall"
+          },
+          {
+            "label": "碼頭／防波堤",
+            "value": "harbour"
+          },
+          {
+            "label": "海岸道路與附屬設施",
+            "value": "road"
+          },
+          {
+            "label": "其他型態",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "natural",
+          "revetment",
+          "wall",
+          "harbour",
+          "road",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -103972,6 +104307,111 @@
     ],
     "krFuelStations": [
       {
+        "label": "燃料別",
+        "options": [
+          {
+            "label": "電動車充電站（KEPCO 營運）",
+            "value": "ev_kepco"
+          },
+          {
+            "label": "LPG 充電站",
+            "value": "lpg"
+          },
+          {
+            "label": "氫能充電站",
+            "value": "hydrogen"
+          },
+          {
+            "label": "CNG／LNG 充電站",
+            "value": "cng_lng"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ev_kepco",
+          "lpg",
+          "hydrogen",
+          "cng_lng"
+        ]
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -103991,6 +104431,34 @@
       }
     ],
     "krMarineEnvSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "河口與半封閉海域網",
+            "value": "estuary"
+          },
+          {
+            "label": "沿岸海域網",
+            "value": "coastal"
+          },
+          {
+            "label": "港灣網",
+            "value": "port"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "estuary",
+          "coastal",
+          "port",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -104012,6 +104480,29 @@
     ],
     "krMarinePollutionIncidents": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "船舶",
+            "value": "ship"
+          },
+          {
+            "label": "陸上來源",
+            "value": "land"
+          },
+          {
+            "label": "不明",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ship",
+          "land",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104031,6 +104522,39 @@
       }
     ],
     "krMarineProtectedAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "濕地保護區",
+            "value": "wetland"
+          },
+          {
+            "label": "海洋生態系保護區",
+            "value": "ecosystem"
+          },
+          {
+            "label": "海洋生物保護區",
+            "value": "biota"
+          },
+          {
+            "label": "海洋景觀保護區",
+            "value": "landscape"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "wetland",
+          "ecosystem",
+          "biota",
+          "landscape",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -104085,6 +104609,34 @@
     ],
     "krNpTrails": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "探訪路（步道）",
+            "value": "trail"
+          },
+          {
+            "label": "進入道路",
+            "value": "access"
+          },
+          {
+            "label": "纜車／軌道",
+            "value": "lift"
+          },
+          {
+            "label": "其他線形設施",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "trail",
+          "access",
+          "lift",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -104096,6 +104648,62 @@
     ],
     "krOilGas": [
       {
+        "label": "設施類別",
+        "options": [
+          {
+            "label": "煉油廠",
+            "value": "refinery"
+          },
+          {
+            "label": "油庫／油品儲存區",
+            "value": "oil_depot"
+          },
+          {
+            "label": "天然氣設施",
+            "value": "gas"
+          },
+          {
+            "label": "LNG 接收基地",
+            "value": "lng_terminal"
+          },
+          {
+            "label": "油氣儲槽",
+            "value": "storage_tank"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "refinery",
+          "oil_depot",
+          "gas",
+          "lng_terminal",
+          "storage_tank"
+        ]
+      },
+      {
+        "label": "管線物質",
+        "options": [
+          {
+            "label": "天然氣管線",
+            "value": "gas"
+          },
+          {
+            "label": "輸油管線",
+            "value": "oil"
+          },
+          {
+            "label": "碳氫化合物管線",
+            "value": "hydrocarbons"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gas",
+          "oil",
+          "hydrocarbons"
+        ]
+      },
+      {
         "label": "透明度 0.60",
         "max": 1,
         "min": 0.1,
@@ -104106,6 +104714,106 @@
       }
     ],
     "krParkingLots": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公營",
+            "value": "public"
+          },
+          {
+            "label": "民營",
+            "value": "private"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "public",
+          "private",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "cividis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "cividis"
+      },
       {
         "label": "透明度 0.75",
         "max": 1,
@@ -104138,6 +104846,39 @@
     ],
     "krPowerLines": [
       {
+        "label": "電壓等級",
+        "options": [
+          {
+            "label": "765 kV",
+            "value": "ehv_765"
+          },
+          {
+            "label": "345 kV",
+            "value": "hv_345"
+          },
+          {
+            "label": "154 kV",
+            "value": "hv_154"
+          },
+          {
+            "label": "<100 kV（配電、鐵路牽引）",
+            "value": "mv_lt100"
+          },
+          {
+            "label": "OSM 未標電壓",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ehv_765",
+          "hv_345",
+          "hv_154",
+          "mv_lt100",
+          "unknown"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -104148,6 +104889,69 @@
       }
     ],
     "krPowerPlants": [
+      {
+        "label": "燃料別",
+        "options": [
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "抽蓄水力",
+            "value": "pumped_hydro"
+          },
+          {
+            "label": "生質能／廢棄物",
+            "value": "biomass"
+          },
+          {
+            "label": "海洋能",
+            "value": "marine"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "其他／未標",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind",
+          "hydro",
+          "pumped_hydro",
+          "biomass",
+          "marine",
+          "nuclear",
+          "coal",
+          "gas",
+          "oil",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -104189,6 +104993,106 @@
     ],
     "krPublicBicycleStations": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "全國標準資料",
+            "value": "std"
+          },
+          {
+            "label": "首爾 따릉이",
+            "value": "seoul"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "std",
+          "seoul",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "speed",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "speed"
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104209,6 +105113,44 @@
     ],
     "krRailLines": [
       {
+        "label": "線別",
+        "options": [
+          {
+            "label": "幹線",
+            "value": "main"
+          },
+          {
+            "label": "支線",
+            "value": "branch"
+          },
+          {
+            "label": "地鐵",
+            "value": "subway"
+          },
+          {
+            "label": "輕軌",
+            "value": "light_rail"
+          },
+          {
+            "label": "側線／車庫線",
+            "value": "yard_service"
+          },
+          {
+            "label": "其他（工業、軍用、觀光、測試）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "main",
+          "branch",
+          "subway",
+          "light_rail",
+          "yard_service",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -104219,6 +105161,29 @@
       }
     ],
     "krRailStations": [
+      {
+        "label": "營運網",
+        "options": [
+          {
+            "label": "KORAIL 幹線車站",
+            "value": "korail_only"
+          },
+          {
+            "label": "都市鐵道車站",
+            "value": "urban_only"
+          },
+          {
+            "label": "KORAIL 與都市鐵道共站",
+            "value": "both"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "korail_only",
+          "urban_only",
+          "both"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -104240,6 +105205,34 @@
     ],
     "krRenewables": [
       {
+        "label": "燃料別",
+        "options": [
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "生質能／廢棄物",
+            "value": "biomass"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind",
+          "hydro",
+          "biomass"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104260,6 +105253,34 @@
     ],
     "krRiversOsm": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "河（river）",
+            "value": "river"
+          },
+          {
+            "label": "溪流（stream）",
+            "value": "stream"
+          },
+          {
+            "label": "運河（canal）",
+            "value": "canal"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "river",
+          "stream",
+          "canal",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -104270,6 +105291,39 @@
       }
     ],
     "krSeoulSubwayCongestion": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "平日尖峰 < 34%（座位未滿）",
+            "value": "low"
+          },
+          {
+            "label": "34–80%",
+            "value": "mid"
+          },
+          {
+            "label": "80–130%（擁擠）",
+            "value": "high"
+          },
+          {
+            "label": "≥ 130%（極擁擠）",
+            "value": "crush"
+          },
+          {
+            "label": "無資料",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "low",
+          "mid",
+          "high",
+          "crush",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -104311,6 +105365,116 @@
     ],
     "krSpeedCameras": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "取締區分碼 2",
+            "value": "c2"
+          },
+          {
+            "label": "取締區分碼 1",
+            "value": "c1"
+          },
+          {
+            "label": "取締區分碼 4",
+            "value": "c4"
+          },
+          {
+            "label": "取締區分碼 1+2",
+            "value": "c12"
+          },
+          {
+            "label": "其他代碼",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "c2",
+          "c1",
+          "c4",
+          "c12",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
@@ -104330,6 +105494,126 @@
       }
     ],
     "krStreetTrees": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "銀杏",
+            "value": "ginkgo"
+          },
+          {
+            "label": "櫻（山櫻／日本櫻花）",
+            "value": "cherry"
+          },
+          {
+            "label": "流蘇樹（이팝나무）",
+            "value": "fringe"
+          },
+          {
+            "label": "欅（느티나무）",
+            "value": "zelkova"
+          },
+          {
+            "label": "懸鈴木",
+            "value": "sycamore"
+          },
+          {
+            "label": "水杉",
+            "value": "metasequoia"
+          },
+          {
+            "label": "其他樹種",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ginkgo",
+          "cherry",
+          "fringe",
+          "zelkova",
+          "sycamore",
+          "metasequoia",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
       {
         "label": "透明度 0.60",
         "max": 1,
@@ -104351,6 +105635,39 @@
     ],
     "krSubstations": [
       {
+        "label": "電壓等級",
+        "options": [
+          {
+            "label": "765 kV",
+            "value": "ehv_765"
+          },
+          {
+            "label": "345 kV",
+            "value": "hv_345"
+          },
+          {
+            "label": "154 kV",
+            "value": "hv_154"
+          },
+          {
+            "label": "<100 kV（配電、鐵路牽引）",
+            "value": "mv_lt100"
+          },
+          {
+            "label": "OSM 未標電壓",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ehv_765",
+          "hv_345",
+          "hv_154",
+          "mv_lt100",
+          "unknown"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104371,6 +105688,39 @@
     ],
     "krWaterLevelStations": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "環境部／洪水統制所",
+            "value": "moe"
+          },
+          {
+            "label": "韓國水資源公社 K-water",
+            "value": "kwater"
+          },
+          {
+            "label": "農漁村公社",
+            "value": "krc"
+          },
+          {
+            "label": "韓國水力原子力",
+            "value": "khnp"
+          },
+          {
+            "label": "其他機關",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "moe",
+          "kwater",
+          "krc",
+          "khnp",
+          "other"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104390,6 +105740,39 @@
       }
     ],
     "krWaterQualityStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "河川",
+            "value": "river"
+          },
+          {
+            "label": "湖沼",
+            "value": "lake"
+          },
+          {
+            "label": "產業園區河川",
+            "value": "industrial"
+          },
+          {
+            "label": "都市河川",
+            "value": "urban"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "river",
+          "lake",
+          "industrial",
+          "urban",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,

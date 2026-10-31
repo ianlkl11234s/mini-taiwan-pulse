@@ -86,7 +86,7 @@ describe("R7 顏色解析器", () => {
 
   it("熱區色盤清單：每層預設＝主題表結果（覆寫 > 主題 > magma）", () => {
     // 2026-10-31 +6 英國 §3.8：林地、開放進入地、樹木保護、規劃限制區（代表點熱區）、森林遊憩、AADF 交通計數點
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(65);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(73);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);
