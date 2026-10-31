@@ -1,4 +1,4 @@
-最後更新：2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
+最後更新：2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -42,6 +42,7 @@
 | 模擬面板（播放、可信度、前後切換、差異圖） | §5.40 |
 | 圖層／統計面板的國家切換 | §5.41 |
 | 地圖視野在他國時的提示 | §5.42 |
+| 開著的圖層在目前畫面看不到（放大／前往資料範圍） | §5.42.1 |
 
 ## 1. 原則
 
@@ -981,7 +982,7 @@
 
 - **用途**：地圖視野停在「目前國家主體以外」的國家時，在右上提示可以切換國家；**只提示，不自動切換**。
 - **位置**：桌機 `top 88px`、`right 16px`（載入狀態條 §5.30 之下）；Monitor split 時沿用載入狀態條的 `right`（讓到 dock 左邊）。層級 `Z_INDEX.toolbar`（`--z-toolbar`）。**手機不顯示**（第一版不做）。
-- **外觀**：寬依內容、最寬 280px；底 `SURFACE.strong`＋1px `BORDER.panel`＋`RADIUS.xl`＋`ELEVATION.lg`＋`blur(12px)`，padding `8px 12px`（淡色用 `--light-*`）。第一行＝國碼 chip（§5.41 `CountryChip`，`chipOutline(textMuted)`）＋標題 12px 600；第二行說明 11px `textMuted`；按鈕列＝C2 主要按鈕「切換到〇〇」＋C2 一般按鈕「保持〇〇」（§5.7）。`role="status"`、`aria-live="polite"`。
+- **外觀**：寬依內容、最寬 300px（2026-10-31 由 280 放寬，容納圖層列）；底 `SURFACE.strong`＋1px `BORDER.panel`＋`RADIUS.xl`＋`ELEVATION.lg`＋`blur(12px)`，padding `8px 12px`（淡色用 `--light-*`）。第一行＝國碼 chip（§5.41 `CountryChip`，`chipOutline(textMuted)`）＋標題 12px 600；第二行說明 11px `textMuted`；按鈕列＝C2 主要按鈕「切換到〇〇」＋C2 一般按鈕「保持〇〇」（§5.7）。`role="status"`、`aria-live="polite"`。
 - **文案**：標題「目前視野在{他國}」；說明「圖層面板仍是{目前國家}的圖層」；按鈕「切換到{他國}」「保持{目前國家}」。
 - **節奏**（`src/hooks/useViewportCountry.ts`）：
 
@@ -997,6 +998,26 @@
 - **切換**：按「切換到〇〇」只改 `countryStore`，**不飛鏡頭**（使用者已經在那裡）。
 - **禁止**：依視野**自動**切換國家主體；在手機顯示；與 AI 對話框或 Agent 活動卡同時出現；另做一個右上提示元件。
 - **實作**：`src/components/CountryViewportHint.tsx`＋`countryViewportHint.css`、`src/hooks/useViewportCountry.ts`；掛在 `App.tsx` 載入狀態條旁。
+
+#### 5.42.1 「圖層看不到」段（2026-10-31，map-layers V-3）
+
+同一張視野提示卡的第二段：**開著的圖層在目前畫面看不到時說明原因並給一鍵處理**。和「視野在他國」同時成立時上下兩段放同一張卡（國家段在上，中間 1px `BORDER.panel` 分隔），**不疊兩張、不另做元件**。
+
+- **範圍**：目前開著、屬於目前國家主體（或全球 WORLD）、沒上鎖的圖層。
+- **兩種原因**（只做這兩條；不用 `queryRenderedFeatures` 判「畫面沒東西」，圖磚載入中會誤報）：
+
+| 原因 | 條件 | 說明文案 | 按鈕 |
+|---|---|---|---|
+| 縮放 | 目前縮放 < 該層可見起點，且沒有任何子圖層在目前縮放畫 | 「放大到 zN 才顯示」 | 「放大」：中心不動、`easeTo` 到 zN |
+| 資料範圍 | 局部資料層（`src/data/layerCoverage.ts`）：視野與資料範圍不相交，或縮放不到 | 「資料只有〇〇」／「資料只有〇〇・放大到 zN」 | 「前往〇〇」：一段 `flyTo` 到資料範圍（`cameraForBounds`），縮放不低於 zN |
+
+- **可見起點**：地圖上該層「開著的」各子圖層 `max(layer.minzoom, source.minzoom)` 取最小值——**有熱區、拉遠看得到的層不算看不到**。子圖層由 runtime 內省找（overlay registry、南韓資料層、manifest `popup` 反查點擊登記簿、manifest `sourceId`、同字首與同 source 熱區）；找不到（還在載入、Three.js 自繪）就不判斷縮放，寧可漏報不誤報。判斷在 `src/map/layerVisibilityHint.ts`。
+- **合併與上限**：同一目的地（同一資料範圍，或同一個 zN）合併一列、一個按鈕，圖層名以頓號（英文逗號）串接；最多列 4 層，其餘「還有 N 個圖層」。
+- **外觀**：標題列＝lucide `EyeOff` 13px `textMuted`＋「N 個圖層在目前畫面看不到」12px 600；每列上緣 1px `BORDER.soft`，左邊圖層名 11px `textStrong`、原因 10px `textMuted`（zN 用 `FONT_DATA`），右邊 C2 小尺寸按鈕（22px、10px，同 `.lpc-btn`）；底部 C2 一般按鈕「知道了」；「還有 N 個圖層」10px `textDim`。淡色底圖用 `--light-*`。`role="status"`、`aria-live="polite"`；文案三語（`layerHint.*`）。
+- **節奏與關閉**：同 §5.42 停穩 600ms；開關圖層、圖層載入完成（styledata／sourcedata 停穩 600ms）也重判。「知道了」收起，直到開關任何圖層，或某層從看得到變看不到。拍攝模式、私人畫面、AI 對話框或 Agent 活動卡開著、手機不顯示；Agent 移動鏡頭的那一段不判斷。
+- **局部資料層登記**：`LAYER_COVERAGE`（圖層 → 區域）＋`COVERAGE_AREAS`（區域名三語、外框、必要時中心點）。不寫進 manifest（多軌共用檔，且區域是合併按鈕的分組鍵）。`src/data/__tests__/layerCoverage.test.ts` 掃名稱含城市的圖層，沒登記也沒列例外就紅。
+- **禁止**：另做一個右上提示元件；自動放大或自動飛過去（只提示）；把全國都有資料的層登記成局部；用「畫面上沒有圖徵」當看不到的依據。
+- **實作**：`src/hooks/useLayerVisibilityHint.ts`、`src/map/layerVisibilityHint.ts`、`src/data/layerCoverage.ts`；元件同 §5.42（`layers` prop）。
 
 ## 6. 文案規則
 
