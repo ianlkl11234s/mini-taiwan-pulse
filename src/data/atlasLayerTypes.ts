@@ -303,7 +303,7 @@ export const OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS: readonly AtlasOption[] = [
 ];
 /** G37 國家重要濕地等級（國家公園署範圍圖 LEVEL_1）。 */
 export const WETLAND_LEVEL_OPTIONS: readonly AtlasOption[] = [
-  { value: "國際級", label: "國際級", color: "#065f46" },
+  { value: "國際級", label: "國際級", color: "#34d399" },
   { value: "國家級", label: "國家級", color: "#059669" },
   { value: "地方級", label: "地方級", color: "#65a30d" },
   { value: "暫定地方級", label: "暫定地方級", color: "#a3a3a3" },
