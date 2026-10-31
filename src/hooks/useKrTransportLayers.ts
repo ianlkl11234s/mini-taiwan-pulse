@@ -52,7 +52,8 @@ const BUS_SOURCE_ID = "kr-bus-stops";
 // R5（P-4／G-2）：227,059 點；PMTiles 在出點縮放前為抽稀概覽（z14 才全收），不可當筆數依據。
 const BUS_POINTS_FROM_ZOOM = densePointsFromZoom(KR_BUS_STOPS_COUNT);
 const BUS_HEAT_KEYS = ["krBusStops"] as const;
-const BUS_HEATMAP_INTENSITY = 5;
+// 低縮放為抽稀概覽（z7 全國僅約千點），強度高於日本公車站的 5 才看得出密度
+const BUS_HEATMAP_INTENSITY = 12;
 
 export function useKrBusStopsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDarkTheme = true) {
   const mapTick = useMapReadyTick(mapRef, visible);
