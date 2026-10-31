@@ -3,6 +3,16 @@
 > 每一輪拍板了什麼、哪個 PR 做的。規格細節以 [`spec.md`](./spec.md)、[`map-layers.md`](./map-layers.md) 為準；數值以程式（見 [`README.md`](./README.md)「程式裡的唯一來源」）與活的元件頁為準。
 > 設計稿都在 `docs/features/ui-consistency-audit-20260927/`（UI）與 `docs/features/map-layer-restyle/`（地圖）。
 
+## 2026-10-31
+
+### 全國視角可見性原則 — map-layers §3.8、G-2 熱區預設色
+
+| 項目 | 內容 |
+|---|---|
+| §3.8 V-1～V-7 | 國家全覽縮放（台 z7／日 z5／英 z5.5／韓 z6）一定看得到；縮放連續；看不到要提示（V-3 規格待定）；分類圖例要能篩選；面可切成點（區劃面除外）；熱區顏色多樣；截圖驗收 |
+| G-2 熱區預設色 | 取代「預設一律 magma」：`src/map/heatmapPaletteDefaults.ts` 主題表＋逐層覆寫，同國同主題錯開；使用者點名英國公園綠地 viridis、運動場地 PuBuGn、墓園與宗教場地 batlow、照護之家／長照服務 PuBuGn、棕地 bilbao。只改預設，使用者選色不變 |
+| 契約測試 | `src/map/__tests__/visibilityContract.test.ts`：V-2 縮放連續（29 層基準）、V-4 分類可篩選（102 層基準），ratchet 只准減少；`layerPalette.test.ts` 鎖預設＝主題表、擋同主題撞色 |
+
 ## 2026-10-24
 
 ### 模擬面板規格先行（Phase 0）— spec §5.40、map-layers F-3a
