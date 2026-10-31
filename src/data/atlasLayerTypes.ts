@@ -57,7 +57,12 @@ export function flaggedColorExpr(base: unknown, flagged: readonly string[] = ["s
 
 // ── 原民與農村 ──────────────────────────────────────────────────────────
 
-/** 部落點位依族別分色（原民會 16 族；多族並列「、」的 4 筆與其他落灰）。 */
+/**
+ * 部落點位依族別分色（原民會 16 族；多族並列「、」的 4 筆與其他落灰）。
+ * 2026-10-31：賽德克族原 #9333ea 與排灣族紫（CIE76 ΔE 7.1）、雅美族原 #1d4ed8 與布農族藍（ΔE 9.2）難分 →
+ * 改用網站已在用的 #e879f9（亮洋紅）、#14b8a6（淺青綠）→ 各升到 41.3、104.9；挑亮色（L≥42）避免在深色底圖上看不見。
+ * 族語方言 16 族＋兩族以上灰兩兩 CIE76 ΔE 最小 20.3（魯凱／拉阿魯哇，兩者都未改）；部落點位 11 族＋兩種灰最小 18.2（其他／非核定兩灰）。
+ */
 export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "泰雅族", label: "泰雅族", color: "#b45309" },
   { value: "阿美族", label: "阿美族", color: "#dc2626" },
@@ -66,10 +71,10 @@ export const TRIBE_ETHNIC_OPTIONS: readonly AtlasOption[] = [
   { value: "太魯閣族", label: "太魯閣族", color: "#0f766e" },
   { value: "賽夏族", label: "賽夏族", color: "#db2777" },
   { value: "魯凱族", label: "魯凱族", color: "#65a30d" },
-  { value: "賽德克族", label: "賽德克族", color: "#9333ea" },
+  { value: "賽德克族", label: "賽德克族", color: "#e879f9" },
   { value: "卑南族", label: "卑南族", color: "#ea580c" },
   { value: "鄒族", label: "鄒族", color: "#0891b2" },
-  { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#1d4ed8" },
+  { value: "雅美族(達悟族)", label: "雅美族（達悟族）", color: "#14b8a6" },
 ];
 /** 不在現行核定名單的點位（13 點）以灰色區分。 */
 export const TRIBE_NOT_APPROVED_COLOR = "#64748b";
@@ -356,18 +361,27 @@ export const CULTURE_COIN_ORGS = { moc: "文化部" } as const;
 /**
  * 族語方言分布（鄉鎮彙整）依族別分色：沿用部落點位 11 族色，另補 5 族；一鄉鎮有兩族以上＝multiple。
  * 2026-10-31 TWL-16：邵族原 #be185d 與賽夏族粉紅、噶瑪蘭族原 #0d9488 與太魯閣族青綠在圖例難分 →
- * 改用 atlas 已在用的 #16a34a（綠）、#78350f（深褐）；兩色對其餘 15 色的 CIE76 ΔE 最小 27.4／26.0（原本 10.7／12.4）。
- * 邵族（魚池、水里）是地圖上實際塗色的鄉鎮，給綠色避開鄰近泰雅族褐色；噶瑪蘭族目前沒有單族鄉鎮（都併在「兩族以上」），色只出現在圖例。
+ * 改用 atlas 已在用的 #16a34a（綠）；噶瑪蘭族原 #0d9488 先改 #78350f，又因與泰雅族褐色 CIEDE2000 只差 15.2，再改 #7f1d1d（深紅褐，差 22.5）。
+ * 邵族（魚池、水里）是地圖上實際塗色的鄉鎮，給綠色避開鄰近泰雅族褐色；噶瑪蘭族目前沒有單族鄉鎮（都併在「兩族以上」）。
  */
 export const DIALECT_GROUP_OPTIONS: readonly AtlasOption[] = [
   ...TRIBE_ETHNIC_OPTIONS,
   { value: "邵族", label: "邵族", color: "#16a34a" },
-  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#78350f" },
+  { value: "噶瑪蘭族", label: "噶瑪蘭族", color: "#7f1d1d" },
   { value: "撒奇萊雅族", label: "撒奇萊雅族", color: "#ca8a04" },
   { value: "拉阿魯哇族", label: "拉阿魯哇族", color: "#4d7c0f" },
   { value: "卡那卡那富族", label: "卡那卡那富族", color: "#0369a1" },
   { value: "multiple", label: "兩族以上", color: "#475569" },
 ];
+/**
+ * 族語方言圖例只列地圖上實際有塗色的值（單族鄉鎮＋兩族以上）；依 public/indigenous_rural/indigenous_language_dialects.geojson
+ * 的 ethnic_group 寫死（2026-10-31：賽德克、卑南、噶瑪蘭、撒奇萊雅、拉阿魯哇、卡那卡那富族沒有單族鄉鎮），資料改版時由
+ * dialectLegend 測試擋下不一致。popup 仍用完整的 DIALECT_GROUP_OPTIONS。
+ */
+export const DIALECT_MAPPED_GROUPS: readonly string[] = [
+  "泰雅族", "阿美族", "排灣族", "布農族", "太魯閣族", "賽夏族", "魯凱族", "鄒族", "雅美族(達悟族)", "邵族", "multiple",
+];
+export const DIALECT_LEGEND_OPTIONS: readonly AtlasOption[] = DIALECT_GROUP_OPTIONS.filter((o) => DIALECT_MAPPED_GROUPS.includes(o.value));
 /** 客家文化重點發展區依客語腔調分色（來源字串，複合腔調照原值）。 */
 export const HAKKA_ACCENT_OPTIONS: readonly AtlasOption[] = [
   { value: "四縣腔", label: "四縣腔", color: "#0f766e" },
