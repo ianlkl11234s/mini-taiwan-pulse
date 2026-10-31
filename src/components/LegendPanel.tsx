@@ -1,4 +1,6 @@
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
+import { KR_DATA_KEYS } from "../data/krDataKeys";
+import { KrDataLegend } from "./legend/krDataLegends";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { Fragment, memo, useEffect, useState } from "react";
@@ -280,6 +282,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpGsiRelief", render: () => <JpGsiReliefLegend /> },
   { id: "gbAdminBoundaries", render: () => <GbAdminBoundariesLegend /> },
   { id: "krAdminBoundaries", render: () => <KrAdminBoundariesLegend /> },
+  // 南韓第 3–5 波 18 層：共用規格驅動圖例
+  ...KR_DATA_KEYS.map((key) => ({ id: key, render: () => <KrDataLegend layerKey={key} /> })),
   { id: "gbSmallAreaBoundaries", render: () => <GbSmallAreaBoundariesLegend /> },
   { id: "gbMaritimeLimits", render: () => <GbMaritimeLimitsLegend /> },
   { id: "gbBuiltUpAreas", render: () => <GbBuiltUpAreasLegend /> },

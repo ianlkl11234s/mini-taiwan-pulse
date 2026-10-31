@@ -560,6 +560,9 @@ for f in \
   public/world/gb_admin_small_areas.pmtiles \
   public/world/gb_built_up_areas.pmtiles \
   public/world/gb_greenspace.pmtiles \
+  public/world/kr_bridges.pmtiles \
+  public/world/kr_speed_cameras.pmtiles \
+  public/world/kr_street_trees.pmtiles \
   public/world/gb_rivers.pmtiles \
   public/world/gb_flood_defences.pmtiles \
   public/world/gb_protected_areas.pmtiles \

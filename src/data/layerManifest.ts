@@ -26,6 +26,8 @@ import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_THEME_TITLE,
 import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
+import { KR_DATA_SPECS } from "./krDataLayers";
+import type { KrDataKey } from "./krDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -644,7 +646,69 @@ function jpMedicalAreaManifest(key: JpAreaManifestKey, index: number): LayerMani
   };
 }
 
+/** 南韓第 3–5 波 18 層（規格 SSOT 在 krDataLayers.ts；位置比照台灣同類主題與群組）。 */
+const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: string; alt: string; icon: LucideIcon; dataset: string; description: string; topics: string[]; processing: string; note: string }> = {
+  krWaterLevelStations: { theme: "水資源", group: "點位", zh: "水位站", alt: "Water Level Stations", icon: Gauge, dataset: "kr_water_level_stations", topics: ["南韓", "水位", "水資源", "測站"],
+    description: "南韓水位觀測站名冊 1,379 站（環境部洪水統制所、K-water、農漁村公社三份名冊去重），非即時水位",
+    processing: "三份名冊以站碼去重（hrfco 276、K-water 100、農漁公社 1,374 列 → 1,379）；hrfco DMS 座標轉十進位；PMTiles z0–14", note: "平台標籤『이용허락범위 제한 없음』；16/16 시·도；名冊無即時讀數（即時水位需 key，第 11 波）" },
+  krSluiceGates: { theme: "水資源", group: "點位", zh: "農業水門", alt: "Agricultural Sluice Gates", icon: Dam, dataset: "kr_sluice_gates", topics: ["南韓", "水門", "農業", "水利"],
+    description: "南韓農漁村公社農業水門 2,342 處（僅 8 個農業本部）", processing: "原檔 2,359 列，剔 9 筆完全重複與 8 筆無效座標；PMTiles z0–14", note: "平台標籤；8/16 시·도（서울、부산、대구、인천、대전、울산、세종、제주 未涵蓋）" },
+  krWaterQualityStations: { theme: "水資源", group: "點位", zh: "水質測站", alt: "Water Quality Stations", icon: Droplets, dataset: "kr_water_quality_stations", topics: ["南韓", "水質", "水資源", "測站"],
+    description: "南韓水質測定網 1,181 站（2025 年各站最新實測月的 DO、BOD、COD、TN、TP 等）", processing: "SHP 逐月檔取 2025 年；pH=0 視為未測、整列值改 null；PMTiles z0–14", note: "平台標籤；16/16 시·도；未測顯示『未測』，不當 0" },
+  krRiversOsm: { theme: "水資源", group: "面 / 線", zh: "河川", alt: "Rivers (OSM)", icon: GitBranch, dataset: "kr_rivers_osm", topics: ["南韓", "河川", "水系", "OSM"],
+    description: "南韓河川 33,341 線段（OSM waterway=river/stream/canal 補缺）", processing: "Geofabrik south-korea-261030 以 GDAL OSM driver 抽取；每筆 source=osm；PMTiles z4–12", note: "ODbL 1.0；OSM 補缺（官方河川網境外不可得）；16/16 시·도" },
+  krCoastalErosionFacilities: { theme: "災害", group: "海岸侵蝕", zh: "海岸型態調查點", alt: "Coastal Condition Survey Points", icon: Waves, dataset: "kr_coastal_erosion_facilities", topics: ["南韓", "海岸", "侵蝕", "護岸"],
+    description: "南韓沿岸型態調查點 1,982 筆（直立護岸、石砌護岸、自然海岸等；해양수산부 연안침식시설물）", processing: "SHP 點、EPSG:5179 → 4326；PMTiles z0–14", note: "平台標籤；11/16 시·도（沿海）；點位為調查點非結構線形" },
+  krMarinePollutionIncidents: { theme: "海洋", group: "海域環境", zh: "海洋污染事故", alt: "Marine Pollution Incidents", icon: AlertTriangle, dataset: "kr_marine_pollution_incidents", topics: ["南韓", "海洋", "污染", "海警"],
+    description: "南韓海警署海洋污染事故 2,420 件（2017–2025）", processing: "度分秒三欄轉十進位；剔 23 列（18 列緯度欄複製經度欄、2 列空白、3 列範圍外）；PMTiles z0–12", note: "平台標籤；全海域、21 個海警署；總流出量單位未載明" },
+  krMarineEnvSites: { theme: "海洋", group: "海域環境", zh: "海洋環境測點", alt: "Marine Environment Survey Sites", icon: Droplet, dataset: "kr_marine_env_sites", topics: ["南韓", "海洋", "調查定點", "測定網"],
+    description: "南韓海洋環境測定網調查定點 426 個（3 測定網、6 生態區）", processing: "度分秒字串轉十進位；476 列中 50 列無座標剔除；PMTiles z0–12", note: "平台標籤；僅定點、無測定值" },
+  krMarineProtectedAreas: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries", zh: "海洋保護區", alt: "Marine Protected Areas", icon: Shield, dataset: "kr_marine_protected_areas", topics: ["南韓", "海洋", "保護區", "濕地"],
+    description: "南韓海洋保護區 38 個多邊形（濕地、海洋生態系、海洋生物、海洋景觀）", processing: "WKT → 面；9 個自交多邊形 make_valid；PMTiles z0–12", note: "平台標籤；10/16 시·도（沿海）；僅 해양환경공단 公布 4 類" },
+  krPublicBicycleStations: { theme: "交通", group: "場站", zh: "公共自行車站", alt: "Public Bicycle Stations", icon: Bike, dataset: "kr_public_bicycle_stations", topics: ["南韓", "自行車", "共享運具", "따릉이"],
+    description: "南韓公共自行車站 4,236 站（全國標準資料 1,447＋首爾 따릉이 2,789）", processing: "兩源合併，首爾以 따릉이 為準（距 <50 m 的標準資料重複 44 筆剔除）；電話欄排除；PMTiles z0–14", note: "標準資料為平台標籤、따릉이 為 KOGL 제1유형；16/16 시·도；標準資料站數偏低" },
+  krSeoulSubwayCongestion: { theme: "交通", group: "場站", zh: "首爾地鐵擁擠度", alt: "Seoul Subway Congestion", icon: TrainFront, dataset: "kr_seoul_subway_congestion", topics: ["南韓", "首爾", "地鐵", "擁擠度"],
+    description: "首爾交通公社 1–8 號線 272 站的平日／週六／週日 30 分鐘擁擠度（2026Q3）", processing: "統計表（1,671 列）以（號線＋站名）join 標準資料 15013205 站座標，96.1% 對上；11 座新站／改名站未合成座標；PMTiles z0–14", note: "平台標籤；1/16 시·도（首爾）；9 號線未涵蓋" },
+  krBridges: { theme: "交通", group: "路網", zh: "橋梁", alt: "Bridges", icon: Route, dataset: "kr_bridges", topics: ["南韓", "橋梁", "路網", "安全檢查"],
+    description: "南韓橋梁 35,575 座（長度、結構形式、最近安全檢查；國土交通部標準資料 2025-12-31）", processing: "橋起訖點中點；剔 18 座座標與地址 시·도 不符；電話、補強內容欄排除；PMTiles z0–14（25.9MB 走 deploy-assets）", note: "공공누리 제1유형；16/16 시·도；隧道未涵蓋" },
+  krParkingLots: { theme: "交通", group: "場站", zh: "停車場", alt: "Parking Lots", icon: SquareParking, dataset: "kr_parking_lots", topics: ["南韓", "停車場", "公營", "民營"],
+    description: "南韓停車場 17,699 處（전국주차장정보표준데이터）", processing: "剔 471 重複、764 無座標、5 座標錯誤；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；涵蓋度偏低" },
+  krSpeedCameras: { theme: "交通", group: "路網", zh: "無人交通取締攝影機", alt: "Automated Enforcement Cameras", icon: Video, dataset: "kr_speed_cameras", topics: ["南韓", "取締", "攝影機", "交通"],
+    description: "南韓固定式無人交通取締攝影機 43,743 台（단속구분碼意義未公開，照原碼顯示）", processing: "剔 21 台座標與地址 시·도 不符；단속구분 正規化前導 0 不自行解釋；電話欄排除；PMTiles z0–14（33.9MB 走 deploy-assets）", note: "平台標籤；16/16 시·도" },
+  krChildProtectionZones: { theme: "交通", group: "路網", zh: "兒童保護區", alt: "Child Protection Zones", icon: AlertTriangle, dataset: "kr_child_protection_zones", topics: ["南韓", "兒童保護區", "學校", "交通安全"],
+    description: "南韓兒童保護區對象設施 14,639 處（學校、幼稚園、托育所）", processing: "點位＝對象設施位置，非保護區多邊形；剔 1 筆座標錯誤；PMTiles z0–14", note: "平台標籤；16/16 시·도" },
+  krNationalParks: { theme: "林業", group: "分區", zh: "國立公園", alt: "National Parks", icon: TreePine, dataset: "kr_national_parks", topics: ["南韓", "國立公園", "保護區", "林業"],
+    description: "南韓 23 座國立公園邊界（緩衝加工面）", processing: "SHP EPSG:5179 → 4326（頁面寫 4326 有誤）；PMTiles z0–12", note: "平台標籤；23/23 座；非法定界線" },
+  krNpLocationSigns: { theme: "林業", group: "點位", zh: "國立公園位置標示板", alt: "National Park Location Signs", icon: MapPin, dataset: "kr_np_location_signs", topics: ["南韓", "國立公園", "國家地點番號", "登山"],
+    description: "南韓國立公園多目的位置標示板 3,215 點（附國家地點番號；C115＋X008 同檔一層）", processing: "WKT POINT；剔 4 列；PMTiles z0–14", note: "平台標籤；21/23 座公園（缺 한라산、팔공산）" },
+  krNpTrails: { theme: "林業", group: "線", zh: "國立公園步道", alt: "National Park Trails", icon: Footprints, dataset: "kr_np_trails", topics: ["南韓", "國立公園", "步道", "探訪路"],
+    description: "南韓國立公園線形設施 671 段（探訪路 608、進入道路 54、纜車與軌道）", processing: "PCS_ITRF2000_TM（≈EPSG:5181）→ 4326；以公園邊界指派所屬公園；PMTiles z6–14", note: "平台標籤；22/23 座公園（缺 팔공산）" },
+  krStreetTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "行道樹", alt: "Street Trees", icon: TreeDeciduous, dataset: "kr_street_trees", topics: ["南韓", "行道樹", "都市樹木", "樹種"],
+    description: "南韓行道樹 1,043,931 棵（逐棵點位；僅約 85 個 시군구，서울、부산、대전、울산 幾乎未涵蓋）", processing: "座標混用 EPSG:5186／5179，依 좌표계코드轉換；剔 6,328 筆；PMTiles z13–15（34.9MB 走 deploy-assets）", note: "平台標籤；15/16 시·도（部分自治體）；無資料不代表沒有樹" },
+};
+const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
+  const m = KR_DATA_ENTRY_META[spec.key];
+  const isPoint = spec.geom === "point";
+  return [spec.key, {
+    key: spec.key,
+    country: "KR", section: { theme: m.theme, group: m.group },
+    ...layerName({ zh: m.zh, alt: m.alt }),
+    expandable: true,
+    color: spec.color,
+    icon: m.icon,
+    upstream: { status: "verified", datasets: [{ datasetId: m.dataset, confidence: "HIGH" }], processing: m.processing, note: m.note },
+    dataClass: "D",
+    source: { kind: "custom", note: `useKrDataLayers 自建 mapbox-pmtiles source；source-layer=${spec.sourceLayer}，source z${spec.srcMinzoom}–${spec.srcMaxzoom}、layer minzoom=${spec.minzoom}`, staticAssets: [`./world/${spec.file}`] },
+    legend: spec.key,
+    popup: spec.key,
+    params: { count: isPoint ? 2 : 1, kinds: isPoint ? ["slider", "slider"] : ["slider"] },
+    description: m.description,
+    topics: m.topics,
+  }];
+})) as Record<KrDataKey, LayerManifestEntry>;
+
 export const LAYER_MANIFEST = {
+  ...KR_DATA_MANIFEST_ENTRIES,
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
