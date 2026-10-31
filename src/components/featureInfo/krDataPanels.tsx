@@ -41,7 +41,7 @@ function formatField(f: KrField, props: Record<string, unknown>, locale: string,
   const s = text(raw);
   if (!s) return "";
   if (f.map?.[s]) return pickL3(f.map[s]!, locale);
-  return s;
+  return s.replace(/\|/g, "、");
 }
 
 function makePanel(spec: KrLayerSpec): FC<{ props: Record<string, unknown> }> {
