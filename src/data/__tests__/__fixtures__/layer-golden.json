@@ -6424,7 +6424,9 @@
       "id": "ports",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -6502,7 +6504,9 @@
           "type": "line"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -6580,7 +6584,9 @@
           "type": "line"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -6654,7 +6660,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -6731,7 +6739,12 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow-2",
+        "glow-1",
+        "fill",
+        "line"
+      ],
       "sourceId": "port-polygons",
       "sourceUrl": "./geo/port_polygons.geojson"
     },
@@ -6741,7 +6754,9 @@
       "id": "ports",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "visible"
@@ -6847,7 +6862,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "visibility": "visible"
@@ -6930,7 +6947,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "point-glow",
+        "point-core"
+      ],
       "sourceId": "port-centroids",
       "sourceUrl": "./geo/port_polygons.geojson"
     },
@@ -8196,7 +8216,9 @@
       "id": "cctv",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -8285,7 +8307,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -8347,7 +8371,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
       "sourceId": "cctv",
       "sourceUrl": "./geo/cctv.geojson"
     },
@@ -8357,7 +8384,9 @@
       "id": "fireStations",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -8550,7 +8579,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -8748,7 +8779,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
       "sourceId": "fire-stations",
       "sourceUrl": "./geo/fire_stations.geojson"
     },
@@ -8758,7 +8792,9 @@
       "id": "fireHydrants",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 12.01,
           "minzoom": null,
@@ -8884,7 +8920,9 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 12,
           "paint": {
@@ -8969,7 +9007,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 12,
           "paint": {
@@ -9035,7 +9075,11 @@
         "minzoom": 0,
         "sourceLayer": "fire_hydrants"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
       "sourceId": "fire-hydrants",
       "sourceUrl": "./geo/fire_hydrants_national.pmtiles"
     },
@@ -9576,7 +9620,9 @@
       "id": "internetExchangePoints",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -9731,7 +9777,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -10068,7 +10116,9 @@
       "id": "osmCommunicationSites",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -10147,7 +10197,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -12094,7 +12146,9 @@
       "id": "govServiceOffices",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -12165,7 +12219,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -14915,7 +14971,9 @@
       "id": "waterCanals",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -14958,7 +15016,9 @@
           "type": "line"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -15031,7 +15091,10 @@
         "minzoom": 5,
         "sourceLayer": "canals"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "core"
+      ],
       "sourceId": "water-canals",
       "sourceUrl": "./geo/water_canals.pmtiles"
     },
@@ -15041,7 +15104,9 @@
       "id": "waterProtectionZones",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15118,7 +15183,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15186,7 +15253,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
       "sourceId": "water-protection-zones",
       "sourceUrl": "./geo/water_protection_zones.geojson"
     },
@@ -15736,7 +15806,9 @@
       "id": "waterFacilities",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15787,7 +15859,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -15843,7 +15917,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "core"
+      ],
       "sourceId": "water-facilities",
       "sourceUrl": "./geo/water_facilities.geojson"
     },
@@ -16017,7 +16094,9 @@
       "id": "waterMonitorStations",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -16064,7 +16143,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -16116,7 +16197,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "core"
+      ],
       "sourceId": "water-monitor-stations",
       "sourceUrl": "./geo/water_monitor_stations.geojson"
     },
@@ -16133,7 +16217,14 @@
       "id": "lakesPondsOsm",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "!=",
+            [
+              "get",
+              "overlaps_aquaculture"
+            ],
+            true
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -16180,7 +16271,14 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "!=",
+            [
+              "get",
+              "overlaps_aquaculture"
+            ],
+            true
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -16235,7 +16333,9 @@
         "sourceLayer": "lakes_ponds_osm"
       },
       "rebuildOnParamChange": [
-        "lakesPondsOsmOpacity"
+        "lakesPondsOsmOpacity",
+        "fill",
+        "line"
       ],
       "sourceId": "lakes-ponds-osm",
       "sourceUrl": "./water_resources/lakes_ponds_osm.pmtiles"
@@ -30535,7 +30635,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 9,
+          "minzoom": 6,
           "paint": {
             "dark": {
               "fill-color": "#26c6da",
@@ -30552,7 +30652,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 9,
+          "minzoom": 6,
           "paint": {
             "dark": {
               "line-color": "#26c6da",
@@ -31105,7 +31205,9 @@
       "id": "aquacultureIntegrated",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -31148,7 +31250,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -31199,7 +31303,9 @@
         "sourceLayer": "aquaculture_integrated"
       },
       "rebuildOnParamChange": [
-        "aquacultureIntegratedOpacity"
+        "aquacultureIntegratedOpacity",
+        "fill",
+        "line"
       ],
       "sourceId": "aquaculture-integrated",
       "sourceUrl": "./fishery/aquaculture_integrated.pmtiles"
@@ -35101,7 +35207,14 @@
       "id": "sportsSchool",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "學校場館"
+          ],
           "layout": null,
           "maxzoom": 10.01,
           "minzoom": null,
@@ -35227,7 +35340,14 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "學校場館"
+          ],
           "layout": null,
           "minzoom": 10,
           "paint": {
@@ -35503,7 +35623,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "school-heatmap",
+        "school"
+      ],
       "sourceId": "sports-venues",
       "sourceUrl": "./sports/all_venues.geojson"
     },
@@ -35520,7 +35643,14 @@
       "id": "sportsPublicOther",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "其他公共場館"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -35796,7 +35926,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "public-other"
+      ],
       "sourceId": "sports-venues",
       "sourceUrl": "./sports/all_venues.geojson"
     },
@@ -35813,7 +35945,14 @@
       "id": "sportsPrivate",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "民營場館"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -36089,7 +36228,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "private"
+      ],
       "sourceId": "sports-venues",
       "sourceUrl": "./sports/all_venues.geojson"
     },
@@ -36106,7 +36247,14 @@
       "id": "sportsPark",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "運動公園/開放空間"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -36382,7 +36530,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "park"
+      ],
       "sourceId": "sports-venues",
       "sourceUrl": "./sports/all_venues.geojson"
     },
@@ -36399,7 +36549,14 @@
       "id": "sportsCenter",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "國民運動中心"
+          ],
           "layout": null,
           "minzoom": 7,
           "paint": {
@@ -36675,7 +36832,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "center"
+      ],
       "sourceId": "sports-venues",
       "sourceUrl": "./sports/all_venues.geojson"
     },
@@ -36996,7 +37155,7 @@
             "line-cap": "round",
             "line-join": "round"
           },
-          "minzoom": 8,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "line-blur": 3,
@@ -37020,7 +37179,7 @@
             "line-cap": "round",
             "line-join": "round"
           },
-          "minzoom": 8,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "line-color": "#a4b494",
@@ -37079,7 +37238,9 @@
       "id": "hikingTrails",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -37141,7 +37302,9 @@
           "type": "line"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -37243,7 +37406,9 @@
       "id": "ecoNetworkZones",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -37322,7 +37487,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -37347,7 +37514,8 @@
         "sourceLayer": "eco_network_zones"
       },
       "rebuildOnParamChange": [
-        "fill"
+        "fill",
+        "outline"
       ],
       "sourceId": "eco-network-zones",
       "sourceUrl": "./agriculture/eco_network_zones.pmtiles"
@@ -37412,7 +37580,9 @@
       "id": "forestReserve",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -37495,7 +37665,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -38364,7 +38536,9 @@
       "id": "mountainHuts",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -38918,7 +39092,9 @@
       "id": "osmSubstationsEhv",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -39055,7 +39231,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "icon-allow-overlap": true,
@@ -39170,7 +39348,9 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "osmSubstationsEhvOpacity",
-        "osmSubstationsEhvSize"
+        "osmSubstationsEhvSize",
+        "halo",
+        "circle"
       ],
       "sourceId": "energy-substations-ehv",
       "sourceUrl": "./geo/_empty.geojson"
@@ -39181,7 +39361,9 @@
       "id": "osmSubstations",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "dark": {
               "icon-allow-overlap": true,
@@ -39302,7 +39484,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "osmSubstationsOpacity",
-        "osmSubstationsSize"
+        "osmSubstationsSize",
+        "circle"
       ],
       "sourceId": "energy-substations",
       "sourceUrl": "./geo/_empty.geojson"
@@ -40134,7 +40317,9 @@
       "id": "osmPowerPlantsStatic",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40208,7 +40393,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "osmPowerPlantsStaticOpacity",
-        "osmPowerPlantsStaticSize"
+        "osmPowerPlantsStaticSize",
+        "core"
       ],
       "sourceId": "energy-osm-power-plants-static",
       "sourceUrl": "./geo/_empty.geojson"
@@ -40268,7 +40454,9 @@
       "id": "islandPowerGrid",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40330,7 +40518,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "islandPowerGridOpacity",
-        "islandPowerGridSize"
+        "islandPowerGridSize",
+        "core"
       ],
       "sourceId": "energy-island-grid",
       "sourceUrl": "./geo/_empty.geojson"
@@ -40341,7 +40530,9 @@
       "id": "fossilFuelInfra",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40395,7 +40586,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "fossilFuelInfraOpacity",
-        "fossilFuelInfraSize"
+        "fossilFuelInfraSize",
+        "core"
       ],
       "sourceId": "energy-fossil-fuel",
       "sourceUrl": "./geo/_empty.geojson"
@@ -40518,7 +40710,9 @@
       "id": "renewablePermitsTaipei",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40584,7 +40778,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "renewablePermitsTaipeiOpacity",
-        "renewablePermitsTaipeiSize"
+        "renewablePermitsTaipeiSize",
+        "core"
       ],
       "sourceId": "energy-taipei-re",
       "sourceUrl": "./geo/_empty.geojson"
@@ -43367,7 +43562,9 @@
       "id": "facOffshore",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -43414,7 +43611,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -43555,7 +43754,9 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "facOffshoreOpacity"
+        "facOffshoreOpacity",
+        "fill",
+        "line"
       ],
       "sourceId": "energy-fac-offshore",
       "sourceUrl": "./geo/_empty.geojson"
@@ -47018,7 +47219,9 @@
       "id": "osmRoadDrive",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "line-cap": "round",
             "line-join": "round"
@@ -47365,7 +47568,9 @@
       "id": "policeStation",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -47663,7 +47868,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "policeStationOpacity",
-        "policeStationScale"
+        "policeStationScale",
+        "circle"
       ],
       "sourceId": "police-station",
       "sourceUrl": "./police_justice/police_stations/police_stations_20260626.geojson"
@@ -48082,7 +48288,9 @@
       "id": "court",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -48360,7 +48568,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "courtOpacity",
-        "courtScale"
+        "courtScale",
+        "circle"
       ],
       "sourceId": "court",
       "sourceUrl": "./police_justice/courts/courts_20260626.geojson"
@@ -48371,7 +48580,9 @@
       "id": "prosecutorsOffice",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -48601,7 +48812,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "prosecutorsOfficeOpacity",
-        "prosecutorsOfficeScale"
+        "prosecutorsOfficeScale",
+        "circle"
       ],
       "sourceId": "prosecutors-office",
       "sourceUrl": "./police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson"
@@ -48612,7 +48824,9 @@
       "id": "correctionalFacility",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -48874,7 +49088,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "correctionalFacilityOpacity",
-        "correctionalFacilityScale"
+        "correctionalFacilityScale",
+        "circle"
       ],
       "sourceId": "correctional-facility",
       "sourceUrl": "./police_justice/correctional_facilities/correctional_facilities_20260626.geojson"
@@ -50169,7 +50384,9 @@
       "id": "antiCorruptionOffice",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -50379,7 +50596,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "antiCorruptionOfficeOpacity",
-        "antiCorruptionOfficeScale"
+        "antiCorruptionOfficeScale",
+        "circle"
       ],
       "sourceId": "anti-corruption-office",
       "sourceUrl": "./police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson"
@@ -50429,7 +50647,9 @@
       "id": "coastGuardStation",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -50639,7 +50859,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "coastGuardStationOpacity",
-        "coastGuardStationScale"
+        "coastGuardStationScale",
+        "circle"
       ],
       "sourceId": "coast-guard-station",
       "sourceUrl": "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson"
@@ -52897,7 +53118,7 @@
           ],
           "layout": null,
           "maxzoom": 19,
-          "minzoom": 9,
+          "minzoom": 5,
           "paint": {
             "dark": {
               "circle-color": [
@@ -53484,7 +53705,9 @@
       "id": "drinkingWaterProtectionZones",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -53628,7 +53851,11 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline",
+        "distance-outline"
+      ],
       "sourceId": "drinking-water-protection-zones",
       "sourceUrl": "./environment/drinking_water_protection_zones.geojson"
     },
@@ -55036,7 +55263,9 @@
       "id": "cemsStackLive",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 22,
           "minzoom": 5,
@@ -55281,7 +55510,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
       "sourceId": "cems-stack-live",
       "sourceUrl": "./geo/_empty.geojson"
     },
@@ -59068,7 +59299,9 @@
       "id": "tourAttractions",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -59143,7 +59376,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -59432,7 +59667,9 @@
       "id": "tourHeritage",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -59519,7 +59756,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -60345,7 +60584,9 @@
       "id": "cemeteryZoning",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -60412,7 +60653,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -62744,7 +62987,14 @@
       "id": "eduCampusPolygon",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -62815,7 +63065,14 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "!=",
+            [
+              "get",
+              "school_level"
+            ],
+            "non_school"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -62893,7 +63150,10 @@
         "minzoom": 8,
         "sourceLayer": "campus_polygon"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
       "sourceId": "edu-campus",
       "sourceUrl": "./education/campus_polygon.pmtiles"
     },
@@ -63087,7 +63347,10 @@
         "minzoom": 6,
         "sourceLayer": "school_district_k12"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "elementary-fill",
+        "elementary-line"
+      ],
       "sourceId": "edu-district-k12",
       "sourceUrl": "./education/school_district_k12.pmtiles"
     },
@@ -63196,7 +63459,10 @@
         "minzoom": 6,
         "sourceLayer": "school_district_k12"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "junior-fill",
+        "junior-line"
+      ],
       "sourceId": "edu-district-k12",
       "sourceUrl": "./education/school_district_k12.pmtiles"
     },
@@ -63773,7 +64039,9 @@
       "id": "eduKindergarten",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -63857,7 +64125,9 @@
       "id": "eduCramSchool",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -72296,7 +72566,7 @@
             2024
           ],
           "layout": null,
-          "minzoom": 10,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "fill-color": "#92400e",
@@ -72320,7 +72590,7 @@
             2024
           ],
           "layout": null,
-          "minzoom": 10,
+          "minzoom": 7,
           "paint": {
             "dark": {
               "line-color": "#fdba74",
@@ -72896,7 +73166,9 @@
       "id": "indigenousTribes",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73027,7 +73299,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73272,7 +73546,9 @@
       "id": "indigenousIsolationRisk",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73367,7 +73643,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73650,7 +73928,9 @@
       "id": "indigenousLanguageDialects",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73749,7 +74029,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73847,7 +74129,9 @@
       "id": "hakkaCulturalZones",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -73902,7 +74186,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -74839,7 +75125,9 @@
       "id": "freewayInterchanges",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -74922,7 +75210,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78251,7 +78541,9 @@
       "id": "majorOccupationalAccidents",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78342,7 +78634,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78547,7 +78841,9 @@
       "id": "renewablePermitsNational",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78642,7 +78938,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78787,7 +79085,9 @@
       "id": "batterySwapStations",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -78858,7 +79158,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -80101,7 +80403,9 @@
       "id": "iowStructureMonitoring",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -80172,7 +80476,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -80357,7 +80663,9 @@
       "id": "wraDredgingPoints",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -80432,7 +80740,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81049,7 +81359,9 @@
       "id": "exclusiveFisheryRightAreas",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81088,7 +81400,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81275,7 +81589,9 @@
       "id": "waterRecreationRestrictedAreas",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81318,7 +81634,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81388,7 +81706,9 @@
       "id": "marineWildlifeAreas",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -81427,7 +81747,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -82876,7 +83198,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 8,
+          "minzoom": 6,
           "paint": {
             "dark": {
               "fill-color": "#0f766e",
@@ -82893,7 +83215,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 8,
+          "minzoom": 6,
           "paint": {
             "dark": {
               "line-color": "#e2e8f0",
@@ -88282,6 +88604,24 @@
     ],
     "antiCorruptionOffice": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中央",
+            "value": "central"
+          },
+          {
+            "label": "地方",
+            "value": "local"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "central",
+          "local"
+        ]
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -88486,6 +88826,29 @@
       }
     ],
     "aquacultureIntegrated": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "逐口魚塭（OSM）",
+            "value": "ponds"
+          },
+          {
+            "label": "衛星偵測補充",
+            "value": "satellite"
+          },
+          {
+            "label": "生產區",
+            "value": "production"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ponds",
+          "satellite",
+          "production"
+        ]
+      },
       {
         "label": "填色透明度 0.60",
         "max": 0.85,
@@ -88778,6 +89141,24 @@
       }
     ],
     "batterySwapStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中油加油站（提供換電）",
+            "value": "cpc"
+          },
+          {
+            "label": "台電出租土地（換電站或充電站用）",
+            "value": "taipower"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cpc",
+          "taipower"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -89768,6 +90149,29 @@
     ],
     "cctv": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "國道",
+            "value": "freeway"
+          },
+          {
+            "label": "省道快速道路",
+            "value": "highway"
+          },
+          {
+            "label": "市區道路",
+            "value": "city"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "freeway",
+          "highway",
+          "city"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -89808,6 +90212,29 @@
     ],
     "cemeteryZoning": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "公墓／墓地用地",
+            "value": "公墓用地"
+          },
+          {
+            "label": "殯葬設施用地",
+            "value": "殯葬設施用地"
+          },
+          {
+            "label": "殯儀館用地",
+            "value": "殯儀館用地"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公墓用地",
+          "殯葬設施用地",
+          "殯儀館用地"
+        ]
+      },
+      {
         "label": "透明度 0.55",
         "max": 1,
         "min": 0.1,
@@ -89818,6 +90245,39 @@
       }
     ],
     "cemsStackLive": [
+      {
+        "label": "運轉狀態",
+        "options": [
+          {
+            "label": "數值逾限",
+            "value": "exceed"
+          },
+          {
+            "label": "正常運轉（N）",
+            "value": "running"
+          },
+          {
+            "label": "起火／停車期間（C／E）",
+            "value": "startStop"
+          },
+          {
+            "label": "歲（檢）修（G）",
+            "value": "maintenance"
+          },
+          {
+            "label": "暫停運轉／停工（F／P）",
+            "value": "halted"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "exceed",
+          "running",
+          "startStop",
+          "maintenance",
+          "halted"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -89961,6 +90421,24 @@
       }
     ],
     "coastGuardStation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "海洋分署",
+            "value": "ocean_pier"
+          },
+          {
+            "label": "巡防隊",
+            "value": "patrol_station"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "ocean_pier",
+          "patrol_station"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -91658,6 +92136,39 @@
     ],
     "correctionalFacility": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "監獄",
+            "value": "prison"
+          },
+          {
+            "label": "看守所",
+            "value": "detention"
+          },
+          {
+            "label": "戒治所",
+            "value": "drug_rehab"
+          },
+          {
+            "label": "矯正學校",
+            "value": "correction_school"
+          },
+          {
+            "label": "少年觀護所",
+            "value": "juvenile_obs"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "prison",
+          "detention",
+          "drug_rehab",
+          "correction_school",
+          "juvenile_obs"
+        ]
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -91697,6 +92208,39 @@
       }
     ],
     "court": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "最高法院",
+            "value": "supreme"
+          },
+          {
+            "label": "高等法院",
+            "value": "high"
+          },
+          {
+            "label": "高等行政",
+            "value": "admin"
+          },
+          {
+            "label": "智財商業／少家事",
+            "value": "ipc"
+          },
+          {
+            "label": "地方法院",
+            "value": "district"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "supreme",
+          "high",
+          "admin",
+          "ipc",
+          "district"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -92159,6 +92703,24 @@
     ],
     "drinkingWaterProtectionZones": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "水源水質保護區",
+            "value": "保護區"
+          },
+          {
+            "label": "取水口一定距離",
+            "value": "一定距離"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "保護區",
+          "一定距離"
+        ]
+      },
+      {
         "label": "透明度 0.65",
         "max": 1,
         "min": 0.1,
@@ -92283,6 +92845,74 @@
     ],
     "ecoNetworkZones": [
       {
+        "label": "分區",
+        "options": [
+          {
+            "label": "北部",
+            "value": "北部"
+          },
+          {
+            "label": "西北部",
+            "value": "西北部"
+          },
+          {
+            "label": "東北部",
+            "value": "東北部"
+          },
+          {
+            "label": "西部",
+            "value": "西部"
+          },
+          {
+            "label": "西南部",
+            "value": "西南部"
+          },
+          {
+            "label": "南部及恆春半島",
+            "value": "南部及恆春半島"
+          },
+          {
+            "label": "東部",
+            "value": "東部"
+          },
+          {
+            "label": "澎湖",
+            "value": "澎湖"
+          },
+          {
+            "label": "金門",
+            "value": "金門"
+          },
+          {
+            "label": "馬祖",
+            "value": "馬祖"
+          },
+          {
+            "label": "綠島",
+            "value": "綠島"
+          },
+          {
+            "label": "蘭嶼",
+            "value": "蘭嶼"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "北部",
+          "西北部",
+          "東北部",
+          "西部",
+          "西南部",
+          "南部及恆春半島",
+          "東部",
+          "澎湖",
+          "金門",
+          "馬祖",
+          "綠島",
+          "蘭嶼"
+        ]
+      },
+      {
         "label": "透明度 0.50",
         "max": 1,
         "min": 0.1,
@@ -92325,6 +92955,44 @@
     ],
     "eduCampusPolygon": [
       {
+        "label": "學制",
+        "options": [
+          {
+            "label": "國小",
+            "value": "elementary"
+          },
+          {
+            "label": "國中",
+            "value": "junior"
+          },
+          {
+            "label": "高中職",
+            "value": "senior"
+          },
+          {
+            "label": "大專",
+            "value": "university"
+          },
+          {
+            "label": "特教",
+            "value": "special"
+          },
+          {
+            "label": "實驗／國際",
+            "value": "international"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "elementary",
+          "junior",
+          "senior",
+          "university",
+          "special",
+          "international"
+        ]
+      },
+      {
         "label": "透明度 0.35",
         "max": 1,
         "min": 0.1,
@@ -92335,6 +93003,39 @@
       }
     ],
     "eduCramSchool": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "文理",
+            "value": "文理類"
+          },
+          {
+            "label": "外語",
+            "value": "外語類"
+          },
+          {
+            "label": "藝術",
+            "value": "音樂、舞蹈類"
+          },
+          {
+            "label": "技職",
+            "value": "商類：珠算、心算、會計"
+          },
+          {
+            "label": "其他",
+            "value": "法政類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "文理類",
+          "外語類",
+          "音樂、舞蹈類",
+          "商類：珠算、心算、會計",
+          "法政類"
+        ]
+      },
       {
         "label": "透明度 0.75",
         "max": 1,
@@ -92356,6 +93057,24 @@
     ],
     "eduDistrictElementary": [
       {
+        "label": "面的精確度",
+        "options": [
+          {
+            "label": "整里皆屬",
+            "value": "village_full"
+          },
+          {
+            "label": "部分鄰屬",
+            "value": "village_partial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "village_full",
+          "village_partial"
+        ]
+      },
+      {
         "label": "透明度 0.30",
         "max": 1,
         "min": 0.1,
@@ -92366,6 +93085,24 @@
       }
     ],
     "eduDistrictJunior": [
+      {
+        "label": "面的精確度",
+        "options": [
+          {
+            "label": "整里皆屬",
+            "value": "village_full"
+          },
+          {
+            "label": "部分鄰屬",
+            "value": "village_partial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "village_full",
+          "village_partial"
+        ]
+      },
       {
         "label": "透明度 0.30",
         "max": 1,
@@ -92388,6 +93125,24 @@
       }
     ],
     "eduKindergarten": [
+      {
+        "label": "公私立",
+        "options": [
+          {
+            "label": "公立",
+            "value": "公立"
+          },
+          {
+            "label": "私立",
+            "value": "私立"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公立",
+          "私立"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -92678,6 +93433,24 @@
     ],
     "exclusiveFisheryRightAreas": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "來源標「現存」",
+            "value": "active"
+          },
+          {
+            "label": "來源標「屆期」",
+            "value": "expired"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "active",
+          "expired"
+        ]
+      },
+      {
         "label": "透明度 0.30",
         "max": 1,
         "min": 0.1,
@@ -92708,6 +93481,34 @@
       }
     ],
     "facOffshore": [
+      {
+        "label": "階段",
+        "options": [
+          {
+            "label": "運轉中",
+            "value": "operating"
+          },
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "pre-construction"
+          },
+          {
+            "label": "公告中",
+            "value": "announced"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operating",
+          "construction",
+          "pre-construction",
+          "announced"
+        ]
+      },
       {
         "label": "透明度 0.45",
         "max": 1,
@@ -93189,6 +93990,34 @@
     ],
     "fireHydrants": [
       {
+        "label": "型式",
+        "options": [
+          {
+            "label": "地上式",
+            "value": "地上式"
+          },
+          {
+            "label": "地下式",
+            "value": "地下式"
+          },
+          {
+            "label": "台水（型式代碼未公開）",
+            "value": "台水"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "地上式",
+          "地下式",
+          "台水",
+          "__other__"
+        ]
+      },
+      {
         "defaultValue": "oslo",
         "label": "熱區顏色",
         "options": [
@@ -93497,6 +94326,34 @@
       }
     ],
     "fireStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "大隊",
+            "value": "大隊"
+          },
+          {
+            "label": "分隊",
+            "value": "分隊"
+          },
+          {
+            "label": "分駐所",
+            "value": "分駐所"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "大隊",
+          "分隊",
+          "分駐所",
+          "__other__"
+        ]
+      },
       {
         "label": "立體效果",
         "type": "toggle",
@@ -93829,6 +94686,79 @@
     ],
     "forestReserve": [
       {
+        "label": "保安林種類",
+        "options": [
+          {
+            "label": "土砂捍止",
+            "value": "土砂捍止保安林"
+          },
+          {
+            "label": "水源涵養",
+            "value": "水源涵養保安林"
+          },
+          {
+            "label": "防風",
+            "value": "防風保安林"
+          },
+          {
+            "label": "飛砂防止",
+            "value": "飛砂防止保安林"
+          },
+          {
+            "label": "潮害防備",
+            "value": "潮害防備保安林"
+          },
+          {
+            "label": "漁業",
+            "value": "漁業保安林"
+          },
+          {
+            "label": "自然保育",
+            "value": "自然保育保安林"
+          },
+          {
+            "label": "風景",
+            "value": "風景保安林"
+          },
+          {
+            "label": "墜石防止",
+            "value": "墜石防止保安林"
+          },
+          {
+            "label": "衛生保建",
+            "value": "衛生保建保安林"
+          },
+          {
+            "label": "土砂+水源",
+            "value": "土砂捍止保安林,水源涵養保安林"
+          },
+          {
+            "label": "土砂+漁業",
+            "value": "土砂捍止保安林,漁業保安林"
+          },
+          {
+            "label": "土砂+風景",
+            "value": "土砂捍止保安林,風景保安林"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "土砂捍止保安林",
+          "水源涵養保安林",
+          "防風保安林",
+          "飛砂防止保安林",
+          "潮害防備保安林",
+          "漁業保安林",
+          "自然保育保安林",
+          "風景保安林",
+          "墜石防止保安林",
+          "衛生保建保安林",
+          "土砂捍止保安林,水源涵養保安林",
+          "土砂捍止保安林,漁業保安林",
+          "土砂捍止保安林,風景保安林"
+        ]
+      },
+      {
         "label": "透明度 0.50",
         "max": 1,
         "min": 0.1,
@@ -93954,6 +94884,29 @@
     ],
     "fossilFuelInfra": [
       {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "LNG 接收站",
+            "value": "lng_terminal"
+          },
+          {
+            "label": "煉油廠",
+            "value": "oil_refinery"
+          },
+          {
+            "label": "燃氣電廠",
+            "value": "gas_power_plant"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lng_terminal",
+          "oil_refinery",
+          "gas_power_plant"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -94004,6 +94957,39 @@
       }
     ],
     "freewayInterchanges": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "系統交流道",
+            "value": "system_interchange"
+          },
+          {
+            "label": "交流道",
+            "value": "interchange"
+          },
+          {
+            "label": "轉接道",
+            "value": "connector"
+          },
+          {
+            "label": "路線端點",
+            "value": "terminus"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "system_interchange",
+          "interchange",
+          "connector",
+          "terminus",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -97960,6 +98946,29 @@
     ],
     "govServiceOffices": [
       {
+        "label": "機關類型",
+        "options": [
+          {
+            "label": "公所",
+            "value": "district_office"
+          },
+          {
+            "label": "戶政事務所",
+            "value": "household_registration"
+          },
+          {
+            "label": "地政事務所",
+            "value": "land_office"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "district_office",
+          "household_registration",
+          "land_office"
+        ]
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -98068,6 +99077,44 @@
       }
     ],
     "hakkaCulturalZones": [
+      {
+        "label": "客語腔調",
+        "options": [
+          {
+            "label": "四縣腔",
+            "value": "四縣腔"
+          },
+          {
+            "label": "海陸腔",
+            "value": "海陸腔"
+          },
+          {
+            "label": "四縣腔＋海陸腔",
+            "value": "四縣腔海陸腔"
+          },
+          {
+            "label": "大埔腔",
+            "value": "大埔腔"
+          },
+          {
+            "label": "四縣腔＋大埔腔",
+            "value": "四縣腔大埔腔"
+          },
+          {
+            "label": "詔安腔",
+            "value": "詔安腔"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "四縣腔",
+          "海陸腔",
+          "四縣腔海陸腔",
+          "大埔腔",
+          "四縣腔大埔腔",
+          "詔安腔"
+        ]
+      },
       {
         "label": "透明度 0.45",
         "max": 1,
@@ -98821,6 +99868,44 @@
     ],
     "hikingTrails": [
       {
+        "label": "步道來源",
+        "options": [
+          {
+            "label": "A 林業署國家步道",
+            "value": "A_forest"
+          },
+          {
+            "label": "B OpenStreetMap",
+            "value": "B_osm"
+          },
+          {
+            "label": "C 雪霸國家公園 SHP",
+            "value": "C_np_sheipa"
+          },
+          {
+            "label": "C 金門國家公園 KML",
+            "value": "C_np_kinmen"
+          },
+          {
+            "label": "D 臺北大縱走",
+            "value": "D_taipei_grand"
+          },
+          {
+            "label": "D 新北市觀光局",
+            "value": "D_newtaipei"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "A_forest",
+          "B_osm",
+          "C_np_sheipa",
+          "C_np_kinmen",
+          "D_taipei_grand",
+          "D_newtaipei"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -99066,6 +100151,54 @@
     ],
     "indigenousIsolationRisk": [
       {
+        "label": "成因",
+        "options": [
+          {
+            "label": "土石流＋淹水＋道路中斷",
+            "value": "debris+flood+road"
+          },
+          {
+            "label": "土石流＋道路中斷",
+            "value": "debris+road"
+          },
+          {
+            "label": "淹水＋道路中斷",
+            "value": "flood+road"
+          },
+          {
+            "label": "土石流＋淹水",
+            "value": "debris+flood"
+          },
+          {
+            "label": "只有道路中斷",
+            "value": "road"
+          },
+          {
+            "label": "只有土石流",
+            "value": "debris"
+          },
+          {
+            "label": "只有淹水",
+            "value": "flood"
+          },
+          {
+            "label": "未勾選成因",
+            "value": "none"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "debris+flood+road",
+          "debris+road",
+          "flood+road",
+          "debris+flood",
+          "road",
+          "debris",
+          "flood",
+          "none"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -99085,6 +100218,99 @@
       }
     ],
     "indigenousLanguageDialects": [
+      {
+        "label": "族別",
+        "options": [
+          {
+            "label": "泰雅族",
+            "value": "泰雅族"
+          },
+          {
+            "label": "阿美族",
+            "value": "阿美族"
+          },
+          {
+            "label": "排灣族",
+            "value": "排灣族"
+          },
+          {
+            "label": "布農族",
+            "value": "布農族"
+          },
+          {
+            "label": "太魯閣族",
+            "value": "太魯閣族"
+          },
+          {
+            "label": "賽夏族",
+            "value": "賽夏族"
+          },
+          {
+            "label": "魯凱族",
+            "value": "魯凱族"
+          },
+          {
+            "label": "賽德克族",
+            "value": "賽德克族"
+          },
+          {
+            "label": "卑南族",
+            "value": "卑南族"
+          },
+          {
+            "label": "鄒族",
+            "value": "鄒族"
+          },
+          {
+            "label": "雅美族（達悟族）",
+            "value": "雅美族(達悟族)"
+          },
+          {
+            "label": "邵族",
+            "value": "邵族"
+          },
+          {
+            "label": "噶瑪蘭族",
+            "value": "噶瑪蘭族"
+          },
+          {
+            "label": "撒奇萊雅族",
+            "value": "撒奇萊雅族"
+          },
+          {
+            "label": "拉阿魯哇族",
+            "value": "拉阿魯哇族"
+          },
+          {
+            "label": "卡那卡那富族",
+            "value": "卡那卡那富族"
+          },
+          {
+            "label": "兩族以上",
+            "value": "multiple"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "泰雅族",
+          "阿美族",
+          "排灣族",
+          "布農族",
+          "太魯閣族",
+          "賽夏族",
+          "魯凱族",
+          "賽德克族",
+          "卑南族",
+          "鄒族",
+          "雅美族(達悟族)",
+          "邵族",
+          "噶瑪蘭族",
+          "撒奇萊雅族",
+          "拉阿魯哇族",
+          "卡那卡那富族",
+          "multiple"
+        ]
+      },
       {
         "label": "透明度 0.45",
         "max": 1,
@@ -99107,6 +100333,74 @@
       }
     ],
     "indigenousTribes": [
+      {
+        "label": "族別",
+        "options": [
+          {
+            "label": "泰雅族",
+            "value": "泰雅族"
+          },
+          {
+            "label": "阿美族",
+            "value": "阿美族"
+          },
+          {
+            "label": "排灣族",
+            "value": "排灣族"
+          },
+          {
+            "label": "布農族",
+            "value": "布農族"
+          },
+          {
+            "label": "太魯閣族",
+            "value": "太魯閣族"
+          },
+          {
+            "label": "賽夏族",
+            "value": "賽夏族"
+          },
+          {
+            "label": "魯凱族",
+            "value": "魯凱族"
+          },
+          {
+            "label": "賽德克族",
+            "value": "賽德克族"
+          },
+          {
+            "label": "卑南族",
+            "value": "卑南族"
+          },
+          {
+            "label": "鄒族",
+            "value": "鄒族"
+          },
+          {
+            "label": "雅美族（達悟族）",
+            "value": "雅美族(達悟族)"
+          },
+          {
+            "label": "其他／多族",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "泰雅族",
+          "阿美族",
+          "排灣族",
+          "布農族",
+          "太魯閣族",
+          "賽夏族",
+          "魯凱族",
+          "賽德克族",
+          "卑南族",
+          "鄒族",
+          "雅美族(達悟族)",
+          "__other__"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -99297,6 +100591,39 @@
     ],
     "internetExchangePoints": [
       {
+        "label": "區域",
+        "options": [
+          {
+            "label": "非洲",
+            "value": "Africa"
+          },
+          {
+            "label": "亞太",
+            "value": "Asia-Pacific"
+          },
+          {
+            "label": "歐洲",
+            "value": "Europe"
+          },
+          {
+            "label": "拉丁美洲",
+            "value": "Latin America"
+          },
+          {
+            "label": "北美",
+            "value": "North America"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Africa",
+          "Asia-Pacific",
+          "Europe",
+          "Latin America",
+          "North America"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -99412,6 +100739,24 @@
     ],
     "iowStructureMonitoring": [
       {
+        "label": "結構類別",
+        "options": [
+          {
+            "label": "堤防結構安全",
+            "value": "levee_safety"
+          },
+          {
+            "label": "閘門",
+            "value": "gate"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "levee_safety",
+          "gate"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -99431,6 +100776,44 @@
       }
     ],
     "islandPowerGrid": [
+      {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "柴油",
+            "value": "diesel"
+          },
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "太陽",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "diesel",
+          "gas",
+          "solar",
+          "wind",
+          "hydro",
+          "__other__"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -105794,6 +107177,34 @@
     ],
     "lakesPondsOsm": [
       {
+        "label": "水體類型",
+        "options": [
+          {
+            "label": "埤塘",
+            "value": "pond"
+          },
+          {
+            "label": "湖泊",
+            "value": "lake"
+          },
+          {
+            "label": "水塘",
+            "value": "reservoir"
+          },
+          {
+            "label": "水池",
+            "value": "basin"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "pond",
+          "lake",
+          "reservoir",
+          "basin"
+        ]
+      },
+      {
         "label": "填色透明度 0.50",
         "max": 0.85,
         "min": 0,
@@ -106927,6 +108338,54 @@
     ],
     "majorOccupationalAccidents": [
       {
+        "label": "災害類型",
+        "options": [
+          {
+            "label": "墜落、滾落",
+            "value": "墜落、滾落"
+          },
+          {
+            "label": "物體倒塌、崩塌",
+            "value": "物體倒塌、崩塌"
+          },
+          {
+            "label": "物體飛落",
+            "value": "物體飛落"
+          },
+          {
+            "label": "感電",
+            "value": "感電"
+          },
+          {
+            "label": "被夾、被捲",
+            "value": "被夾、被捲"
+          },
+          {
+            "label": "被撞",
+            "value": "被撞"
+          },
+          {
+            "label": "公路交通事故",
+            "value": "公路交通事故"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "墜落、滾落",
+          "物體倒塌、崩塌",
+          "物體飛落",
+          "感電",
+          "被夾、被捲",
+          "被撞",
+          "公路交通事故",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -107214,6 +108673,24 @@
     ],
     "marineWildlifeAreas": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "野生動物重要棲息環境",
+            "value": "habitat"
+          },
+          {
+            "label": "野生動物保護區",
+            "value": "protected"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "habitat",
+          "protected"
+        ]
+      },
+      {
         "label": "透明度 0.30",
         "max": 1,
         "min": 0.1,
@@ -107224,6 +108701,34 @@
       }
     ],
     "maritimeBoundary": [
+      {
+        "label": "界線類型",
+        "options": [
+          {
+            "label": "領海基線",
+            "value": "baseline"
+          },
+          {
+            "label": "12 浬領海外界線",
+            "value": "territorial_sea_12nm"
+          },
+          {
+            "label": "24 浬鄰接區外界線",
+            "value": "contiguous_zone_24nm"
+          },
+          {
+            "label": "領海基點",
+            "value": "basepoint"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "baseline",
+          "territorial_sea_12nm",
+          "contiguous_zone_24nm",
+          "basepoint"
+        ]
+      },
       {
         "label": "透明度 0.65",
         "max": 1,
@@ -107676,6 +109181,34 @@
       }
     ],
     "mountainHuts": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "山屋",
+            "value": "hut"
+          },
+          {
+            "label": "山莊",
+            "value": "lodge"
+          },
+          {
+            "label": "營地",
+            "value": "campsite"
+          },
+          {
+            "label": "避難山屋",
+            "value": "shelter"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hut",
+          "lodge",
+          "campsite",
+          "shelter"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -108471,6 +110004,39 @@
     ],
     "osmCommunicationSites": [
       {
+        "label": "通訊類型",
+        "options": [
+          {
+            "label": "行動電話",
+            "value": "mobile_phone"
+          },
+          {
+            "label": "廣播",
+            "value": "radio"
+          },
+          {
+            "label": "電視",
+            "value": "television"
+          },
+          {
+            "label": "微波",
+            "value": "microwave"
+          },
+          {
+            "label": "其他通訊",
+            "value": "general"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "mobile_phone",
+          "radio",
+          "television",
+          "microwave",
+          "general"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -108535,6 +110101,54 @@
       }
     ],
     "osmPowerPlantsStatic": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "太陽",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "煤",
+            "value": "coal"
+          },
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "廢棄物",
+            "value": "waste"
+          },
+          {
+            "label": "其他/未標",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "solar",
+          "wind",
+          "hydro",
+          "coal",
+          "gas",
+          "nuclear",
+          "waste",
+          "__other__"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -108653,6 +110267,44 @@
     ],
     "osmRoadDrive": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "高速公路",
+            "value": "motorway"
+          },
+          {
+            "label": "快速道路",
+            "value": "trunk"
+          },
+          {
+            "label": "主要道路",
+            "value": "primary"
+          },
+          {
+            "label": "次要道路",
+            "value": "secondary"
+          },
+          {
+            "label": "聯絡道路",
+            "value": "tertiary"
+          },
+          {
+            "label": "其餘",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "motorway",
+          "trunk",
+          "primary",
+          "secondary",
+          "tertiary",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -108702,6 +110354,39 @@
     ],
     "osmSubstations": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "一次變電所",
+            "value": "PS"
+          },
+          {
+            "label": "一次配電變電所",
+            "value": "DPS"
+          },
+          {
+            "label": "二次變電所",
+            "value": "SS"
+          },
+          {
+            "label": "鐵路牽引變電所",
+            "value": "TRACTION"
+          },
+          {
+            "label": "未分類",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "PS",
+          "DPS",
+          "SS",
+          "TRACTION",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -108721,6 +110406,24 @@
       }
     ],
     "osmSubstationsEhv": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "超高壓開閉所",
+            "value": "EHV_SWITCH"
+          },
+          {
+            "label": "超高壓變電所",
+            "value": "EHV"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "EHV_SWITCH",
+          "EHV"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -109183,6 +110886,44 @@
       }
     ],
     "policeStation": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "警政署（總部）",
+            "value": "headquarters"
+          },
+          {
+            "label": "縣市警察局",
+            "value": "police_dept"
+          },
+          {
+            "label": "分局",
+            "value": "precinct"
+          },
+          {
+            "label": "派出所",
+            "value": "substation"
+          },
+          {
+            "label": "專業警隊",
+            "value": "specialized"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "headquarters",
+          "police_dept",
+          "precinct",
+          "substation",
+          "specialized",
+          "other"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -110113,6 +111854,64 @@
     ],
     "ports": [
       {
+        "label": "港口類別",
+        "options": [
+          {
+            "label": "國際商港",
+            "value": "國際商港"
+          },
+          {
+            "label": "國內商港",
+            "value": "國內商港"
+          },
+          {
+            "label": "客運港",
+            "value": "客運港"
+          },
+          {
+            "label": "渡輪／觀光碼頭",
+            "value": "渡輪/觀光碼頭"
+          },
+          {
+            "label": "離島渡輪港",
+            "value": "離島渡輪港"
+          },
+          {
+            "label": "第一類漁港",
+            "value": "第一類漁港"
+          },
+          {
+            "label": "第二類漁港",
+            "value": "第二類漁港"
+          },
+          {
+            "label": "廢止漁港",
+            "value": "廢止漁港"
+          },
+          {
+            "label": "對岸港口",
+            "value": "對岸港口"
+          },
+          {
+            "label": "其他／未分類",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "國際商港",
+          "國內商港",
+          "客運港",
+          "渡輪/觀光碼頭",
+          "離島渡輪港",
+          "第一類漁港",
+          "第二類漁港",
+          "廢止漁港",
+          "對岸港口",
+          "__other__"
+        ]
+      },
+      {
         "label": "立體效果",
         "type": "toggle",
         "value": false
@@ -110524,6 +112323,29 @@
       }
     ],
     "prosecutorsOffice": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "最高檢察署",
+            "value": "supreme"
+          },
+          {
+            "label": "高等檢察署",
+            "value": "high"
+          },
+          {
+            "label": "地方檢察署",
+            "value": "district"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "supreme",
+          "high",
+          "district"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -111922,6 +113744,54 @@
     ],
     "renewablePermitsNational": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "漁電共生（名稱關鍵字）",
+            "value": "漁電共生"
+          },
+          {
+            "label": "水域光電（名稱關鍵字）",
+            "value": "水域光電"
+          },
+          {
+            "label": "畜電共生（名稱關鍵字）",
+            "value": "畜電共生"
+          },
+          {
+            "label": "屋頂型（名稱關鍵字）",
+            "value": "屋頂型"
+          },
+          {
+            "label": "地面型（容量密度推估）",
+            "value": "pure_ground"
+          },
+          {
+            "label": "混合（容量密度推估）",
+            "value": "mixed"
+          },
+          {
+            "label": "疑似共生（容量密度推估）",
+            "value": "suspect_symbiotic"
+          },
+          {
+            "label": "無法分類",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "漁電共生",
+          "水域光電",
+          "畜電共生",
+          "屋頂型",
+          "pure_ground",
+          "mixed",
+          "suspect_symbiotic",
+          "unknown"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -111941,6 +113811,44 @@
       }
     ],
     "renewablePermitsTaipei": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "學校",
+            "value": "學校"
+          },
+          {
+            "label": "國有房地",
+            "value": "國有房地"
+          },
+          {
+            "label": "機關",
+            "value": "機關"
+          },
+          {
+            "label": "焚化發電",
+            "value": "焚化發電"
+          },
+          {
+            "label": "沼氣發電",
+            "value": "沼氣發電"
+          },
+          {
+            "label": "水力發電",
+            "value": "水力發電"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "學校",
+          "國有房地",
+          "機關",
+          "焚化發電",
+          "沼氣發電",
+          "水力發電"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -113077,6 +114985,149 @@
     ],
     "sportsCenter": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -113096,6 +115147,149 @@
       }
     ],
     "sportsPark": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -113117,6 +115311,149 @@
     ],
     "sportsPrivate": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -113137,6 +115474,149 @@
     ],
     "sportsPublicOther": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -113156,6 +115636,149 @@
       }
     ],
     "sportsSchool": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "籃球場",
+            "value": "籃球場"
+          },
+          {
+            "label": "田徑場",
+            "value": "田徑場"
+          },
+          {
+            "label": "羽球場",
+            "value": "羽球場"
+          },
+          {
+            "label": "排球場",
+            "value": "排球場"
+          },
+          {
+            "label": "游泳池",
+            "value": "游泳池"
+          },
+          {
+            "label": "健身房",
+            "value": "健身房"
+          },
+          {
+            "label": "足球場",
+            "value": "足球場"
+          },
+          {
+            "label": "躲避球場",
+            "value": "躲避球場"
+          },
+          {
+            "label": "網球場",
+            "value": "網球場"
+          },
+          {
+            "label": "桌球場",
+            "value": "桌球場"
+          },
+          {
+            "label": "綜合體育館",
+            "value": "綜合體育館"
+          },
+          {
+            "label": "舞蹈教室",
+            "value": "舞蹈教室"
+          },
+          {
+            "label": "棒球場",
+            "value": "棒球場"
+          },
+          {
+            "label": "棒壘打擊練習場",
+            "value": "棒壘打擊練習場"
+          },
+          {
+            "label": "直排輪/滑輪場",
+            "value": "直排輪/滑輪場"
+          },
+          {
+            "label": "壘球場",
+            "value": "壘球場"
+          },
+          {
+            "label": "武術/技擊場",
+            "value": "武術/技擊場"
+          },
+          {
+            "label": "高爾夫球場",
+            "value": "高爾夫球場"
+          },
+          {
+            "label": "撞球場",
+            "value": "撞球場"
+          },
+          {
+            "label": "攀岩場",
+            "value": "攀岩場"
+          },
+          {
+            "label": "射箭/射擊場",
+            "value": "射箭/射擊場"
+          },
+          {
+            "label": "體操館",
+            "value": "體操館"
+          },
+          {
+            "label": "慢跑道",
+            "value": "慢跑道"
+          },
+          {
+            "label": "運動公園/廣場",
+            "value": "運動公園/廣場"
+          },
+          {
+            "label": "自由車場",
+            "value": "自由車場"
+          },
+          {
+            "label": "保齡球館",
+            "value": "保齡球館"
+          },
+          {
+            "label": "其他/未分類",
+            "value": "其他/未分類"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "籃球場",
+          "田徑場",
+          "羽球場",
+          "排球場",
+          "游泳池",
+          "健身房",
+          "足球場",
+          "躲避球場",
+          "網球場",
+          "桌球場",
+          "綜合體育館",
+          "舞蹈教室",
+          "棒球場",
+          "棒壘打擊練習場",
+          "直排輪/滑輪場",
+          "壘球場",
+          "武術/技擊場",
+          "高爾夫球場",
+          "撞球場",
+          "攀岩場",
+          "射箭/射擊場",
+          "體操館",
+          "慢跑道",
+          "運動公園/廣場",
+          "自由車場",
+          "保齡球館",
+          "其他/未分類"
+        ]
+      },
       {
         "defaultValue": "PuBuGn",
         "label": "熱區顏色",
@@ -147253,6 +149876,39 @@
     ],
     "tourAttractions": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "自然",
+            "value": "Nature"
+          },
+          {
+            "label": "文化",
+            "value": "Culture"
+          },
+          {
+            "label": "休閒藝術",
+            "value": "Leisure_Arts"
+          },
+          {
+            "label": "都會社區",
+            "value": "Urban_Comm"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "Nature",
+          "Culture",
+          "Leisure_Arts",
+          "Urban_Comm",
+          "__other__"
+        ]
+      },
+      {
         "label": "著色模式",
         "options": [
           {
@@ -147366,6 +150022,49 @@
       }
     ],
     "tourHeritage": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "古蹟",
+            "value": "古蹟"
+          },
+          {
+            "label": "歷史建築",
+            "value": "歷史建築"
+          },
+          {
+            "label": "文化景觀",
+            "value": "文化景觀"
+          },
+          {
+            "label": "考古遺址",
+            "value": "考古遺址"
+          },
+          {
+            "label": "聚落建築群",
+            "value": "聚落建築群"
+          },
+          {
+            "label": "紀念建築",
+            "value": "紀念建築"
+          },
+          {
+            "label": "史蹟",
+            "value": "史蹟"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "古蹟",
+          "歷史建築",
+          "文化景觀",
+          "考古遺址",
+          "聚落建築群",
+          "紀念建築",
+          "史蹟"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -148791,6 +151490,29 @@
     ],
     "waterCanals": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "灌溉專用渠道",
+            "value": "灌溉專用渠道"
+          },
+          {
+            "label": "下游具引灌需求",
+            "value": "下游具引灌需求"
+          },
+          {
+            "label": "不具引灌需求/宜蘭",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "灌溉專用渠道",
+          "下游具引灌需求",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -148850,6 +151572,39 @@
       }
     ],
     "waterFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "抽水站 (OSM)",
+            "value": "pump_station"
+          },
+          {
+            "label": "官方抽水站 (WRA)",
+            "value": "pump_station_official"
+          },
+          {
+            "label": "自來水廠 / 淨水場",
+            "value": "treatment_plant"
+          },
+          {
+            "label": "水塔",
+            "value": "water_tower"
+          },
+          {
+            "label": "其他 / 未分類",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "pump_station",
+          "pump_station_official",
+          "treatment_plant",
+          "water_tower",
+          "__other__"
+        ]
+      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -148976,6 +151731,34 @@
     ],
     "waterMonitorStations": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雨量站",
+            "value": "rain_gauge"
+          },
+          {
+            "label": "河川水位站",
+            "value": "river_level"
+          },
+          {
+            "label": "地下水觀測井",
+            "value": "groundwater_well"
+          },
+          {
+            "label": "其他 / 未分類",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rain_gauge",
+          "river_level",
+          "groundwater_well",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -148995,6 +151778,34 @@
       }
     ],
     "waterProtectionZones": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "自來水水質水量保護區",
+            "value": "protection"
+          },
+          {
+            "label": "地下水禁止超抽",
+            "value": "groundwater_control_2"
+          },
+          {
+            "label": "地下水限制超抽",
+            "value": "groundwater_control_1"
+          },
+          {
+            "label": "地下水分區",
+            "value": "groundwater_region"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "protection",
+          "groundwater_control_2",
+          "groundwater_control_1",
+          "groundwater_region"
+        ]
+      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -149049,6 +151860,29 @@
       }
     ],
     "waterRecreationRestrictedAreas": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "禁止水域遊憩活動",
+            "value": "prohibited"
+          },
+          {
+            "label": "禁止＋限制（同一公告）",
+            "value": "mixed"
+          },
+          {
+            "label": "限制或活動分區",
+            "value": "restricted"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "prohibited",
+          "mixed",
+          "restricted"
+        ]
+      },
       {
         "label": "透明度 0.35",
         "max": 1,
@@ -150222,6 +153056,29 @@
       }
     ],
     "wraDredgingPoints": [
+      {
+        "label": "辦理狀態",
+        "options": [
+          {
+            "label": "執行中",
+            "value": "in_progress"
+          },
+          {
+            "label": "已完工",
+            "value": "completed"
+          },
+          {
+            "label": "準備中",
+            "value": "preparing"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "in_progress",
+          "completed",
+          "preparing"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,

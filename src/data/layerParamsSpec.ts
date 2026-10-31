@@ -96,6 +96,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { RASTER, EXTRUSION, densePointOpacity } from "../map/mapStyleScale";
+import { CATEGORY_FILTERS, categoryDefs, categoryMaskKey, categoryParamName, categoryParamOptions } from "./categoryFilters";
 import { KR_DATA_SPECS, krCatOptionIds, type KrLayerSpec } from "./krDataLayers";
 import { PALETTE_IDS, type PaletteId } from "../map/palettes";
 import { defaultHeatmapPalette } from "../map/heatmapPaletteDefaults";
@@ -4883,6 +4884,17 @@ export const LAYER_PARAMS_SPEC = {
 for (const key of STATISTICS_RENDER_KEYS) {
   const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
   if (specs) (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...statisticsLinkedSelects(key), ...specs];
+}
+
+// V-4（map-layers.md §3.8）：規格表 `categoryFilters.ts` 登記的圖層，在控件最前面補「類別」多選（out＝`${key}${id}Mask`）。
+for (const [key, entry] of Object.entries(CATEGORY_FILTERS)) {
+  const specs = (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key];
+  if (!specs) throw new Error(`categoryFilters: ${key} 沒有 layerParamsSpec 規格`);
+  const multis: MultiSelectParamSpec[] = categoryDefs(entry).map((def) => ({
+    kind: "multiSelect", name: categoryParamName(key, def), label: def.label ?? "類別", default: MULTI_SELECT_ALL,
+    options: categoryParamOptions(def), out: categoryMaskKey(key, def),
+  }));
+  (LAYER_PARAMS_SPEC as Record<string, LayerParamSpec[]>)[key] = [...multis, ...specs];
 }
 
 export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;

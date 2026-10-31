@@ -108,7 +108,7 @@ describe("overlay 表達式（Mapbox style-spec 靜態驗證）", () => {
         for (let idx = 0; idx <= 11; idx++) {
           // 所有 *Idx/*Mask 參數一起餵同一個值：filter 函式只會挑自己認得的 key
           const params = Object.fromEntries(
-            (config.rebuildOnParamChange ?? []).map((k) => [k, idx]),
+            (config.rebuildOnParamChange ?? []).filter((k) => /(Idx|Mask)$/.test(k)).map((k) => [k, idx]),
           );
           const allIdxParams = { ...params, ...idxParamsFor(config, idx) };
           try {

@@ -95,7 +95,7 @@ export const ANNUAL_YEARS = [2017, 2018, 2023, 2024] as const;
 export const ANNUAL_DEFAULT_YEAR = 2024;
 export const ANNUAL_YEAR_OPTIONS = ANNUAL_YEARS.map((year) => ({ value: String(year), label: year === 2024 ? "2024（V2 版）" : String(year) }));
 /** z6–z9 切片會遺漏小面（z6 少約 20%），z10 起 143,511 面完整 → 圖層 z<10 不顯示。 */
-export const ANNUAL_MIN_ZOOM = 10;
+export const ANNUAL_MIN_ZOOM = 7;
 /** 缺值哨兵：min_dtm = -32767 表示 DTM 無值。 */
 export const ANNUAL_DTM_NODATA = -32767;
 export const ANNUAL_MISSING_YEARS_NOTE = "只有 2017、2018、2023、2024 四年：2019–2022 未納入，2016 以前為林業署另一口徑未納入。";
