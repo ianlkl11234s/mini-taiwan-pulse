@@ -101280,6 +101280,21 @@
     ],
     "medClinic": [
       {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "只看衛生所",
+            "value": "health_center"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
         "defaultValue": "magma",
         "label": "熱區顏色",
         "options": [
@@ -101373,21 +101388,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      },
-      {
-        "label": "機構類型",
-        "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
-          {
-            "label": "只看衛生所",
-            "value": "health_center"
-          }
-        ],
-        "type": "select",
-        "value": "all"
       }
     ],
     "medDesert": [

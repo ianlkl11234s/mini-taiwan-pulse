@@ -1605,7 +1605,7 @@ export const LAYER_PARAMS_SPEC = {
   emergencyHospitals: [opacitySlider("emergencyHospitalsOpacity", 0.9), scaleSlider("emergencyHospitalsScale", 1.0)],
   medClinic: [
     {
-      kind: "select", name: "medClinicKind", label: "機構類型", default: "all",
+      kind: "select", name: "medClinicKind", label: "設施類型", default: "all",
       options: [{ label: "全部", value: "all" }, { label: "只看衛生所", value: "health_center" }],
       out: "medClinicKindIdx", encode: ["all", "health_center"],
     },
