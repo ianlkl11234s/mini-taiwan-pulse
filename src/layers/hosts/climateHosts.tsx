@@ -125,6 +125,7 @@ export const JpReligionHost: LayerHostComponent = ({ deps }) => {
       jpReligionWikidata: wikidata.jpReligionWikidataScale ?? 1,
     },
     deps.isDarkTheme,
+    { jpReligionGsi: gsi.jpReligionGsiCatMask, jpReligionOsm: osm.jpReligionOsmCatMask, jpReligionWikidata: wikidata.jpReligionWikidataCatMask },
   );
   return null;
 };
@@ -198,6 +199,11 @@ export const DustForecastHost: LayerHostComponent = ({ deps }) => {
 export const DisasterAlertHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useDisasterAlertLayer");
   const values = useLayerParams("lifelineAlerts");
+  const lifelineP = useKeyOverlayParams("lifelineAlerts");
+  const floodP = useKeyOverlayParams("floodAlerts");
+  const weatherP = useKeyOverlayParams("weatherAlerts");
+  const transitP = useKeyOverlayParams("transitAlerts");
+  const safetyP = useKeyOverlayParams("safetyAlerts");
   const v = deps.layerVisibility;
   useDisasterAlertLayer(
     deps.mapRef,
@@ -210,6 +216,13 @@ export const DisasterAlertHost: LayerHostComponent = ({ deps }) => {
     },
     paramNum(values, "lifelineAlerts", "daOpacity"),
     deps.isDarkTheme,
+    {
+      lifelineAlerts: lifelineP.lifelineAlertsCatMask,
+      floodAlerts: floodP.floodAlertsCatMask,
+      weatherAlerts: weatherP.weatherAlertsCatMask,
+      transitAlerts: transitP.transitAlertsCatMask,
+      safetyAlerts: safetyP.safetyAlertsCatMask,
+    },
   );
   return null;
 };
@@ -224,6 +237,7 @@ export const DisasterAlertHost: LayerHostComponent = ({ deps }) => {
 export const PlaActivityHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("usePlaActivityLayer");
   const values = useLayerParams("plaActivity");
+  const pOverlay = useKeyOverlayParams("plaActivity");
   usePlaActivityLayer(
     deps.mapRef,
     deps.layerVisibility.plaActivity,
@@ -232,6 +246,7 @@ export const PlaActivityHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "plaActivity", "plaTrailDays"),
     deps.appMode === "realtime" && paramBool(values, "plaActivity", "plaReplay"),
     deps.plaHistoricalDate,
+    pOverlay.plaActivityCatMask,
   );
   return null;
 };
@@ -246,6 +261,7 @@ export const PlaActivityHost: LayerHostComponent = ({ deps }) => {
 export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useVesselWatchLayer");
   const values = useLayerParams("vesselWatch");
+  const pOverlay = useKeyOverlayParams("vesselWatch");
   useVesselWatchLayer(
     deps.mapRef,
     deps.layerVisibility.vesselWatch,
@@ -253,6 +269,7 @@ export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "vesselWatch", "vesselWatchTrailDays"),
     paramBool(values, "vesselWatch", "vesselWatchShowPresumed"),
     deps.isDarkTheme,
+    pOverlay.vesselWatchCatMask,
   );
   return null;
 };

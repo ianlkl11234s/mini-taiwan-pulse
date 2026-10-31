@@ -4,6 +4,7 @@ import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
 /**
@@ -112,17 +113,33 @@ function applyOpacity(map: MapboxMap, controlOpacity: number, restrictedOpacity:
   }
 }
 
+/** V-4 類別篩選（layer 屬性）：把類別 filter 併進各子圖層原本的 layer 篩選 */
+function applyCategoryFilters(map: MapboxMap, controlCatMask?: number, restrictedCatMask?: number) {
+  const withCat = (base: FilterSpecification, key: string, mask?: number): FilterSpecification => {
+    const cat = hookCategoryFilter(key, mask === undefined ? undefined : { [`${key}CatMask`]: mask });
+    return (cat ? ["all", base, cat] : base) as unknown as FilterSpecification;
+  };
+  if (map.getLayer(CONTROL_FILL)) map.setFilter(CONTROL_FILL, withCat(TMA_ONLY, "aviationControl", controlCatMask));
+  if (map.getLayer(CONTROL_LINE)) map.setFilter(CONTROL_LINE, withCat(FIR_AND_TMA, "aviationControl", controlCatMask));
+  if (map.getLayer(RESTRICTED_FILL)) map.setFilter(RESTRICTED_FILL, withCat(RESTRICTED_LAYERS, "aviationRestricted", restrictedCatMask));
+  if (map.getLayer(RESTRICTED_LINE)) map.setFilter(RESTRICTED_LINE, withCat(RESTRICTED_LAYERS, "aviationRestricted", restrictedCatMask));
+}
+
 export function useAviationAirspaceLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   controlVisible: boolean,
   restrictedVisible: boolean,
   controlOpacity: number,
   restrictedOpacity: number,
+  controlCatMask?: number,
+  restrictedCatMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
   const opacityRef = useRef({ controlOpacity, restrictedOpacity });
   opacityRef.current = { controlOpacity, restrictedOpacity };
+  const catMaskRef = useRef({ controlCatMask, restrictedCatMask });
+  catMaskRef.current = { controlCatMask, restrictedCatMask };
 
   useEffect(() => {
     const anyVisible = controlVisible || restrictedVisible;
@@ -226,6 +243,7 @@ export function useAviationAirspaceLayer(
       }
 
       applyOpacity(map, controlOpacity, restrictedOpacity);
+      applyCategoryFilters(map, catMaskRef.current.controlCatMask, catMaskRef.current.restrictedCatMask);
       setVis(map, CONTROL_FILL, controlVisible);
       setVis(map, CONTROL_LINE, controlVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
@@ -282,4 +300,10 @@ export function useAviationAirspaceLayer(
     if (!map || !(controlVisible || restrictedVisible) || !safeIsStyleLoaded(map)) return;
     applyOpacity(map, controlOpacity, restrictedOpacity);
   }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity, mapTick]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !(controlVisible || restrictedVisible) || !safeIsStyleLoaded(map)) return;
+    applyCategoryFilters(map, controlCatMask, restrictedCatMask);
+  }, [mapRef, controlVisible, restrictedVisible, controlCatMask, restrictedCatMask, mapTick]);
 }

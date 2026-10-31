@@ -82,6 +82,9 @@ export function categoryFilterExpr(def: CategoryFilterDef, mask?: number): unkno
 }
 
 import { CATEGORY_FILTERS_A } from "./categoryFilters/groupA";
+import { CATEGORY_FILTERS_D } from "./categoryFilters/groupD";
+import { CATEGORY_FILTERS_E } from "./categoryFilters/groupE";
+import { CATEGORY_FILTERS_F } from "./categoryFilters/groupF";
 import { CATEGORY_FILTERS_B } from "./categoryFilters/groupB";
 import { CATEGORY_FILTERS_C } from "./categoryFilters/groupC";
 
@@ -90,4 +93,20 @@ export const CATEGORY_FILTERS: Readonly<Record<string, CategoryFilterDef | reado
   ...CATEGORY_FILTERS_A,
   ...CATEGORY_FILTERS_B,
   ...CATEGORY_FILTERS_C,
+  ...CATEGORY_FILTERS_D,
+  ...CATEGORY_FILTERS_E,
+  ...CATEGORY_FILTERS_F,
 };
+
+/**
+ * hook 自建圖層用：由 overlayParams（`p`）取該 key 第 `index` 組（預設第一組）的類別 bitmask，
+ * 回篩選運算式（全選回 `null`＝不加篩選）。用法：`const f = hookCategoryFilter("jpSchools", p)`，
+ * 再把 `f` 併進該 hook 各子圖層的 filter（`["all", base, f]`），並讓 filter 變動時重設（setFilter 或重建）。
+ */
+export function hookCategoryFilter(key: string, params: Record<string, number> | undefined, index = 0): unknown[] | null {
+  const entry = CATEGORY_FILTERS[key];
+  if (!entry) return null;
+  const def = categoryDefs(entry)[index];
+  if (!def) return null;
+  return categoryFilterExpr(def, params?.[categoryMaskKey(key, def)]);
+}

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { CircleLayer, HeatmapLayer, Map as MapboxMap } from "mapbox-gl";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
@@ -71,6 +72,7 @@ export function useJpSchoolsLayer(
   opacity: number,
   scale: number,
   isDarkTheme = true,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
@@ -98,7 +100,9 @@ export function useJpSchoolsLayer(
       if (!map.getLayer(HEATMAP_LAYER_ID)) {
         map.addLayer(schoolsHeatmapLayer(opacity, isDark), map.getLayer(LAYER_ID) ? LAYER_ID : undefined);
       }
+      const catFilter = (hookCategoryFilter("jpSchools", { jpSchoolsCatMask: catMask as number }) ?? null) as never;
       if (map.getLayer(HEATMAP_LAYER_ID)) {
+        map.setFilter(HEATMAP_LAYER_ID, catFilter);
         map.setLayoutProperty(HEATMAP_LAYER_ID, "visibility", "visible");
         applyHeatmapStyle(map, HEATMAP_LAYER_ID, "jpSchools", isDark, clampOpacity(opacity) / DEFAULT_OPACITY);
       }
@@ -107,6 +111,7 @@ export function useJpSchoolsLayer(
         map.addLayer(schoolsCircleLayer(opacity, scale, isDark));
       }
       if (map.getLayer(LAYER_ID)) {
+        map.setFilter(LAYER_ID, catFilter);
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
@@ -118,5 +123,5 @@ export function useJpSchoolsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, heatStyle]);
+  }, [mapRef, visible, opacity, scale, isDarkTheme, mapTick, heatStyle, catMask]);
 }

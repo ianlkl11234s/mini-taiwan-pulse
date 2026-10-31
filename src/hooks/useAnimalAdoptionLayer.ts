@@ -5,6 +5,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { paramDefault } from "../data/layerParamsSpec";
 import { pointStrokePaint } from "../map/mapStyleScale";
+import { hookCategoryFilter } from "../data/categoryFilters";
 
 const SOURCE_ID = "animal-adoption";
 const GLOW_ID = "animal-adoption-glow";
@@ -34,6 +35,12 @@ function ensureLayers(map: MapboxMap, opacity: number, scale: number, isDark: bo
   });
 }
 
+/** V-4 類別篩選（優勢物種 species_color）：光暈與圓點共用 */
+function applyCategoryFilter(map: MapboxMap, catMask?: number) {
+  const f = hookCategoryFilter("animalAdoption", catMask === undefined ? undefined : { animalAdoptionCatMask: catMask });
+  for (const id of [GLOW_ID, CIRCLE_ID]) if (map.getLayer(id)) map.setFilter(id, (f ?? null) as mapboxgl.FilterSpecification | null);
+}
+
 function setVisible(map: MapboxMap, visible: boolean) {
   for (const id of [GLOW_ID, CIRCLE_ID]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
 }
@@ -59,7 +66,7 @@ function setData(map: MapboxMap, rows: AnimalAdoptionShelterRow[]) {
   })) });
 }
 
-export function useAnimalAdoptionLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = 0.85, scale = 1, isDark = true) {
+export function useAnimalAdoptionLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = 0.85, scale = 1, isDark = true, catMask?: number) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const loaded = useRef(false);
   const isDarkRef = useRef(isDark);
@@ -70,6 +77,7 @@ export function useAnimalAdoptionLayer(mapRef: React.RefObject<MapboxMap | null>
     let cancelled = false;
     const run = async () => {
       ensureLayers(map, opacity, scale, isDarkRef.current);
+      applyCategoryFilter(map, catMask);
       if (!visible) { setVisible(map, false); return; }
       if (!loaded.current) {
         const rows = await fetchAnimalAdoptionSummary();
@@ -88,7 +96,7 @@ export function useAnimalAdoptionLayer(mapRef: React.RefObject<MapboxMap | null>
     };
     run().catch((error) => console.warn("[AnimalAdoption] summary unavailable", error));
     return () => { cancelled = true; };
-  }, [mapRef, visible, opacity, scale, mapTick]);
+  }, [mapRef, visible, opacity, scale, catMask, mapTick]);
 
   // 主題／透明度只改描邊 paint，不進上面抓資料的 effect
   useEffect(() => {

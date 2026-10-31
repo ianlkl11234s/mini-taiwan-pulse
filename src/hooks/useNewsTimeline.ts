@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../state/timeStore";
 import { startThrottledRaf } from "../utils/throttledRaf";
+import { hookCategoryFilter } from "../data/categoryFilters";
 
 /**
  * 新聞事件時間軸動態顯示 + ripple 脈衝動畫
@@ -35,6 +36,8 @@ export function useNewsTimeline(
   visible: boolean,
   timeBased: boolean,
   rippleEnabled: boolean,
+  /** V-4 類別篩選 bitmask（category） */
+  catMask?: number,
 ) {
   const rippleReadyRef = useRef(false);
 
@@ -82,9 +85,13 @@ export function useNewsTimeline(
     const map = mapRef.current;
     if (!map || !visible) return;
 
+    // 這支 hook 會覆寫整層 filter，所以類別篩選也要在這裡併進去（registry 那份會被蓋掉）
+    const cat = hookCategoryFilter("newsEvents", catMask === undefined ? undefined : { newsEventsCatMask: catMask });
+
     const applyFilter = (currentTime: number) => {
       if (timeBased) {
-        const showFilter = ["<=", ["get", "published_ts"], currentTime];
+        const timeFilter = ["<=", ["get", "published_ts"], currentTime];
+        const showFilter = cat ? ["all", timeFilter, cat] : timeFilter;
         for (const layerId of NEWS_LAYER_IDS) {
           if (map.getLayer(layerId)) {
             map.setFilter(layerId, showFilter as unknown as mapboxgl.FilterSpecification);
@@ -93,7 +100,7 @@ export function useNewsTimeline(
       } else {
         for (const layerId of NEWS_LAYER_IDS) {
           if (map.getLayer(layerId)) {
-            map.setFilter(layerId, null);
+            map.setFilter(layerId, (cat ?? null) as unknown as mapboxgl.FilterSpecification | null);
           }
         }
       }
@@ -103,6 +110,7 @@ export function useNewsTimeline(
         const rippleFilter = [
           "all",
           ["<=", ["get", "published_ts"], currentTime],
+          ...(cat ? [cat] : []),
           [
             "any",
             [">", ["get", "published_ts"], currentTime - FRESH_WINDOW],
@@ -129,7 +137,7 @@ export function useNewsTimeline(
 
     applyFilter(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(200, applyFilter);
-  }, [visible, timeBased, rippleEnabled, mapRef]);
+  }, [visible, timeBased, rippleEnabled, catMask, mapRef]);
 
   // ── Ripple 動畫 rAF loop ──
   useEffect(() => {

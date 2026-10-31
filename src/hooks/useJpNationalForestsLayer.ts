@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type { FillLayer, Map as MapboxMap } from "mapbox-gl";
 import { JP_FOREST_ATTRIBUTION, JP_FOREST_COLOR_EXPRESSION } from "../data/jpNationalForestTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
@@ -51,6 +52,7 @@ export function useJpNationalForestsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
+  catMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -77,6 +79,7 @@ export function useJpNationalForestsLayer(
       }
       if (!map.getLayer(LAYER_ID)) map.addLayer(fillLayer(opacity));
       if (map.getLayer(LAYER_ID)) {
+        map.setFilter(LAYER_ID, (hookCategoryFilter("jpNationalForests", { jpNationalForestsCatMask: catMask as number }) ?? null) as never);
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "fill-opacity", hookFillOpacity("jpNationalForests", LAYER_ID, clampOpacity(opacity), OPACITY_DEFAULT));
       }
@@ -88,5 +91,5 @@ export function useJpNationalForestsLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, mapTick]);
+  }, [mapRef, visible, opacity, mapTick, catMask]);
 }

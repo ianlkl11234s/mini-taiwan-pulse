@@ -46,7 +46,7 @@ describe("buildParamControls", () => {
   });
 
   it("可並存分類預設全開，並以穩定 bitmask 傳給 renderer", () => {
-    const river = (buildParamControls("riversideTreesTaipei") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
+    const river = (buildParamControls("riversideTreesTaipei") ?? [])[1] as import("../layerParamsControls").MultiSelectConfig;
     expect(river).toMatchObject({ type: "multiSelect", label: "河濱公園" });
     expect(river.value).toHaveLength(30);
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["riversideTreesTaipeiParkMask"])
@@ -173,7 +173,7 @@ describe("buildParamControls", () => {
   // ── P3-2B 補：prepend 型 select 在**非預設值**下的 idx ─────────────
   // 預設值下 idx 恆為 0，黃金快照驗不到「["all", ...] 整體位移 1」抄錯的情形。
   it("prepend 型 select 換到非預設值時 idx 有位移", () => {
-    const sel = (buildParamControls("mountainRescueIncidents") ?? [])[0] as SelectConfig;
+    const sel = (buildParamControls("mountainRescueIncidents") ?? [])[1] as SelectConfig;
     expect(sel.value).toBe("all");
     sel.onChange("2021");
     // encode = ["all", 2019, 2020, 2021, …] → "2021" 是第 3 位
@@ -184,10 +184,10 @@ describe("buildParamControls", () => {
   // 快照凍結的是預設值那一格（`保留 10 min` / `Z 漂浮 0px`），驗不到
   // 「`digits: 0` 是不是真的等於原文的 `${x}`（無 toFixed）」。
   it("labelSuffix 與整數內插：拖到非預設值時字串仍逐字相同", () => {
-    const min = (buildParamControls("lightning") ?? [])[0] as SliderConfig;
+    const min = (buildParamControls("lightning") ?? [])[1] as SliderConfig;
     expect(min.label).toBe("保留 10 min");
     min.onChange(45);
-    expect((buildParamControls("lightning") ?? [])[0]).toMatchObject({ label: "保留 45 min" });
+    expect((buildParamControls("lightning") ?? [])[1]).toMatchObject({ label: "保留 45 min" });
     // overlayParams 拿到的是原值（不是字串、也沒有被 toFixed 影響）
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["lightningMinutes"]).toBe(45);
 

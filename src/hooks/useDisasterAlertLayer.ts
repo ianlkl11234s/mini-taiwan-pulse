@@ -18,6 +18,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { startThrottledRaf } from "../utils/throttledRaf";
 import { hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 
@@ -57,8 +58,17 @@ function prefersReducedMotion(): boolean {
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** 可見群組 → pulse 層 filter（沒有可見群組時整層關掉） */
-function pulseFilter(visibleGroups: AlertGroupKey[]): FilterSpecification {
+/** V-4 類別篩選（event_term）：各群組各自一個 bitmask；undefined＝全選 */
+export type AlertCatMasks = Partial<Record<AlertGroupKey, number>>;
+
+/** 該群組的類別 filter（全選回 null） */
+function groupCatFilter(group: AlertGroupKey, masks?: AlertCatMasks): unknown[] | null {
+  const m = masks?.[group];
+  return hookCategoryFilter(group, m === undefined ? undefined : { [`${group}CatMask`]: m });
+}
+
+/** 可見群組 → pulse 層 filter（沒有可見群組時整層關掉；各群組帶自己的類別 filter） */
+function pulseFilter(visibleGroups: AlertGroupKey[], masks?: AlertCatMasks): FilterSpecification {
   if (visibleGroups.length === 0) {
     return ["literal", false] as unknown as FilterSpecification;
   }
@@ -66,8 +76,27 @@ function pulseFilter(visibleGroups: AlertGroupKey[]): FilterSpecification {
     "all",
     ["==", ["get", "pulse"], 1],
     [">", ["get", "is_pt"], 0],
-    ["in", ["get", "group"], ["literal", visibleGroups]],
+    ["any", ...visibleGroups.map((g) => {
+      const cat = groupCatFilter(g, masks);
+      const byGroup = ["==", ["get", "group"], g];
+      return cat ? ["all", byGroup, cat] : byGroup;
+    })],
   ] as unknown as FilterSpecification;
+}
+
+/** 群組的 polygon／point 子圖層 filter（active＋群組＋幾何＋類別） */
+function groupFilters(group: AlertGroupKey, masks?: AlertCatMasks) {
+  const cat = groupCatFilter(group, masks);
+  const baseFilter = [
+    "all",
+    ["==", ["get", "active"], 1],
+    ["==", ["get", "group"], group],
+    ...(cat ? [cat] : []),
+  ];
+  return {
+    poly: [...baseFilter, ["==", ["get", "is_pt"], 0]] as unknown as FilterSpecification,
+    pt: [...baseFilter, ["==", ["get", "is_pt"], 1]] as unknown as FilterSpecification,
+  };
 }
 
 const layerIds = (group: AlertGroupKey) => ({
@@ -99,19 +128,13 @@ interface CachedDay {
 
 const OPACITY_DEFAULT = Number(paramDefault("lifelineAlerts", "daOpacity"));
 
-function buildLayers(map: MapboxMap, isDark: boolean): boolean {
+function buildLayers(map: MapboxMap, isDark: boolean, masks?: AlertCatMasks): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
   for (const group of ALERT_GROUP_KEYS) {
     const ids = layerIds(group);
-    // active + 群組 + polygon/point 區分
-    const baseFilter = [
-      "all",
-      ["==", ["get", "active"], 1],
-      ["==", ["get", "group"], group],
-    ];
-    const polyFilter = [...baseFilter, ["==", ["get", "is_pt"], 0]] as unknown as FilterSpecification;
-    const ptFilter = [...baseFilter, ["==", ["get", "is_pt"], 1]] as unknown as FilterSpecification;
+    // active + 群組 + polygon/point 區分 + 類別篩選
+    const { poly: polyFilter, pt: ptFilter } = groupFilters(group, masks);
 
     if (!map.getLayer(ids.fill)) {
       map.addLayer({
@@ -193,6 +216,8 @@ export function useDisasterAlertLayer(
   visibility: Record<AlertGroupKey, boolean>,
   opacity: number = 1,
   isDark: boolean = true,
+  /** V-4 類別篩選：各群組的 event_term bitmask（對應 `${group}CatMask`） */
+  catMasks?: AlertCatMasks,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
@@ -214,6 +239,10 @@ export function useDisasterAlertLayer(
   const anyVisible = ALERT_GROUP_KEYS.some((k) => visibility[k]);
   // effect dep 用的穩定 key（避免物件 identity 每 render 變動）
   const visKey = ALERT_GROUP_KEYS.map((k) => (visibility[k] ? "1" : "0")).join("");
+  const catMasksRef = useRef(catMasks);
+  catMasksRef.current = catMasks;
+  // effect dep 用的穩定 key
+  const catKey = ALERT_GROUP_KEYS.map((k) => String(catMasks?.[k] ?? "-")).join(",");
   const visRef = useRef(visibility);
   visRef.current = visibility;
   const anyVisibleRef = useRef(anyVisible);
@@ -244,7 +273,7 @@ export function useDisasterAlertLayer(
     }
     const probe = layerIds(ALERT_GROUP_KEYS[0]!).fill;
     if (!layersReadyRef.current || !map.getLayer(probe)) {
-      layersReadyRef.current = buildLayers(map, isDarkRef.current);
+      layersReadyRef.current = buildLayers(map, isDarkRef.current, catMasksRef.current);
     }
     return layersReadyRef.current;
   }, []);
@@ -329,7 +358,7 @@ export function useDisasterAlertLayer(
       // pulse 是 5 群組共用層 → 用 filter（而非 visibility）挑可見群組
       const visibleGroups = ALERT_GROUP_KEYS.filter((k) => visRef.current[k]);
       for (const id of PULSE_IDS) {
-        if (map.getLayer(id)) map.setFilter(id, pulseFilter(visibleGroups));
+        if (map.getLayer(id)) map.setFilter(id, pulseFilter(visibleGroups, catMasksRef.current));
       }
     };
 
@@ -364,6 +393,23 @@ export function useDisasterAlertLayer(
     tick(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, tick);
   }, [anyVisible, visKey, ensureLayers, refreshSource, mapRef, mapTick]);
+
+  // ── 類別篩選（V-4）：mask 變動時重設各群組子圖層與 pulse 環的 filter ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !layersReadyRef.current) return;
+    for (const group of ALERT_GROUP_KEYS) {
+      const ids = layerIds(group);
+      const f = groupFilters(group, catMasksRef.current);
+      if (map.getLayer(ids.fill)) map.setFilter(ids.fill, f.poly);
+      if (map.getLayer(ids.line)) map.setFilter(ids.line, f.poly);
+      if (map.getLayer(ids.point)) map.setFilter(ids.point, f.pt);
+    }
+    const visibleGroups = ALERT_GROUP_KEYS.filter((k) => visRef.current[k]);
+    for (const id of PULSE_IDS) {
+      if (map.getLayer(id)) map.setFilter(id, pulseFilter(visibleGroups, catMasksRef.current));
+    }
+  }, [catKey, anyVisible, mapRef, mapTick]);
 
   // ── B2 脈動動畫（只在畫面真有 severe+fresh 警報時才開 rAF）──
   useEffect(() => {

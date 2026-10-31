@@ -13815,7 +13815,9 @@
       "id": "newsEvents",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -13934,7 +13936,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -13983,7 +13987,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -14432,7 +14438,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "text-allow-overlap": true,
             "text-field": [
@@ -14501,7 +14509,9 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "glow",
-        "circle"
+        "circle",
+        "critical-halo",
+        "count"
       ],
       "sourceId": "news-events",
       "sourceUrl": "./geo/news_events.geojson"
@@ -30489,7 +30499,9 @@
       "id": "livestockSlaughter",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 6,
           "paint": {
@@ -30551,7 +30563,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
       "sourceId": "livestock-slaughter",
       "sourceUrl": "./agriculture/slaughterhouses.geojson"
     },
@@ -32076,7 +32090,9 @@
       "id": "riversideTreesTaipei",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 10.01,
           "minzoom": null,
@@ -32202,7 +32218,9 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 10,
           "paint": {
@@ -32285,7 +32303,9 @@
       "rebuildOnParamChange": [
         "riversideTreesTaipeiOpacity",
         "riversideTreesTaipeiRadius",
-        "riversideTreesTaipeiParkMask"
+        "riversideTreesTaipeiParkMask",
+        "heatmap",
+        "circle"
       ],
       "sourceId": "riverside-trees-taipei",
       "sourceUrl": "./urban/riverside_trees_taipei.geojson"
@@ -32775,7 +32795,9 @@
       "id": "streetTreesNational",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 12.01,
           "minzoom": null,
@@ -32901,7 +32923,9 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": 12,
           "paint": {
@@ -33031,7 +33055,9 @@
         "streetTreesNationalOpacity",
         "streetTreesNationalRadius",
         "streetTreesNationalColorModeIdx",
-        "streetTreesNationalCityMask"
+        "streetTreesNationalCityMask",
+        "heatmap",
+        "circle"
       ],
       "sourceId": "street-trees-national",
       "sourceUrl": "./urban/street_trees_national.pmtiles"
@@ -38682,7 +38708,9 @@
       "id": "powerPlants",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -38785,7 +38813,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -38895,7 +38925,9 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "powerPlantsOpacity",
-        "powerPlantsScale"
+        "powerPlantsScale",
+        "halo",
+        "circle"
       ],
       "sourceId": "energy-power-plants",
       "sourceUrl": "./geo/_empty.geojson"
@@ -38906,7 +38938,9 @@
       "id": "powerGenerationUnit",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": {
             "circle-sort-key": [
               "-",
@@ -39006,7 +39040,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -39082,7 +39118,10 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": [],
+      "rebuildOnParamChange": [
+        "circle",
+        "hit"
+      ],
       "sourceId": "energy-power-generation-hit",
       "sourceUrl": "./geo/_empty.geojson"
     },
@@ -40027,7 +40066,9 @@
       "id": "osmWindTurbines",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40124,7 +40165,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40194,7 +40237,9 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "osmWindTurbinesOpacity",
-        "osmWindTurbinesSize"
+        "osmWindTurbinesSize",
+        "halo",
+        "core"
       ],
       "sourceId": "energy-wind-turbines",
       "sourceUrl": "./geo/_empty.geojson"
@@ -40828,7 +40873,9 @@
       "id": "lightning",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40901,7 +40948,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -40994,7 +41043,9 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "lightningOpacity"
+        "lightningOpacity",
+        "halo",
+        "core"
       ],
       "sourceId": "hazard-lightning",
       "sourceUrl": "./geo/_empty.geojson"
@@ -41005,7 +41056,9 @@
       "id": "lightningCwa",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -41078,7 +41131,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -41171,7 +41226,9 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "lightningCwaOpacity"
+        "lightningCwaOpacity",
+        "halo",
+        "core"
       ],
       "sourceId": "hazard-lightning-cwa",
       "sourceUrl": "./geo/_empty.geojson"
@@ -42806,7 +42863,9 @@
       "id": "parkingOffstreet",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -43052,7 +43111,9 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
       "sourceId": "parking-offstreet",
       "sourceUrl": "./geo/_empty.geojson"
     },
@@ -43062,7 +43123,9 @@
       "id": "facPrimary",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -43271,7 +43334,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -43551,7 +43616,9 @@
         "facPrimaryOpacity",
         "facPrimaryScale",
         "facPrimaryRtScale",
-        "facPrimaryNoRtScale"
+        "facPrimaryNoRtScale",
+        "halo",
+        "circle"
       ],
       "sourceId": "energy-fac-primary",
       "sourceUrl": "./geo/_empty.geojson"
@@ -43767,7 +43834,9 @@
       "id": "facPlanned",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -44005,7 +44074,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "facPlannedOpacity",
-        "facPlannedScale"
+        "facPlannedScale",
+        "circle"
       ],
       "sourceId": "energy-fac-planned",
       "sourceUrl": "./geo/_empty.geojson"
@@ -44225,7 +44295,9 @@
       "id": "facSecondary",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -44403,7 +44475,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "facSecondaryOpacity",
-        "facSecondaryScale"
+        "facSecondaryScale",
+        "circle"
       ],
       "sourceId": "energy-fac-secondary",
       "sourceUrl": "./geo/_empty.geojson"
@@ -44414,7 +44487,9 @@
       "id": "facOsmSupplement",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -44456,7 +44531,8 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "facOsmSupplementOpacity",
-        "facOsmSupplementScale"
+        "facOsmSupplementScale",
+        "circle"
       ],
       "sourceId": "energy-fac-osm-supplement",
       "sourceUrl": "./geo/_empty.geojson"
@@ -51690,7 +51766,9 @@
       "id": "noiseControlZones",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 16,
           "minzoom": 6,
@@ -51744,7 +51822,9 @@
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "maxzoom": 16,
           "minzoom": 6,
@@ -51805,7 +51885,10 @@
         "minzoom": 6,
         "sourceLayer": "noise_control_zones"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
       "sourceId": "noise-control-zones",
       "sourceUrl": "./environment/noise_control_zones.pmtiles"
     },
@@ -56314,7 +56397,9 @@
       "id": "jmaLightning",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -56387,7 +56472,9 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "all"
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -56480,7 +56567,9 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "jmaLightningOpacity"
+        "jmaLightningOpacity",
+        "halo",
+        "core"
       ],
       "sourceId": "jma-lightning",
       "sourceUrl": "./geo/_empty.geojson"
@@ -88006,6 +88095,29 @@
     ],
     "agriPOI": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "休閒農場",
+            "value": "leisure_farm"
+          },
+          {
+            "label": "田媽媽",
+            "value": "tian_mama"
+          },
+          {
+            "label": "特色農業旅遊場域",
+            "value": "agritourism_certified"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "leisure_farm",
+          "tian_mama",
+          "agritourism_certified"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0.1,
@@ -88509,6 +88621,24 @@
       }
     ],
     "animalAdoption": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "犬為主",
+            "value": "#f59e0b"
+          },
+          {
+            "label": "貓為主",
+            "value": "#a855f7"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "#f59e0b",
+          "#a855f7"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -89024,6 +89154,59 @@
     ],
     "aspectVector": [
       {
+        "label": "坡向",
+        "options": [
+          {
+            "label": "北",
+            "value": "1"
+          },
+          {
+            "label": "東北",
+            "value": "2"
+          },
+          {
+            "label": "東",
+            "value": "3"
+          },
+          {
+            "label": "東南",
+            "value": "4"
+          },
+          {
+            "label": "南",
+            "value": "5"
+          },
+          {
+            "label": "西南",
+            "value": "6"
+          },
+          {
+            "label": "西",
+            "value": "7"
+          },
+          {
+            "label": "西北",
+            "value": "8"
+          },
+          {
+            "label": "平地（坡度<5°）",
+            "value": "9"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+        ]
+      },
+      {
         "label": "透明度 0.60",
         "max": 1,
         "min": 0.3,
@@ -89098,6 +89281,24 @@
     ],
     "aviationControl": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "FIR 飛航情報區",
+            "value": "FIR"
+          },
+          {
+            "label": "TMA 終端管制區",
+            "value": "TMA"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "FIR",
+          "TMA"
+        ]
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -89119,6 +89320,39 @@
       }
     ],
     "aviationRestricted": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "CTR/CONTROL/SURFACE 機場管制",
+            "value": "CTR"
+          },
+          {
+            "label": "RCR 限航區",
+            "value": "RCR"
+          },
+          {
+            "label": "DANGER 危險區",
+            "value": "DANGER"
+          },
+          {
+            "label": "ULZ 超輕型活動區",
+            "value": "ULZ"
+          },
+          {
+            "label": "CIRCUIT 起降航線",
+            "value": "CIRCUIT"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "CTR",
+          "RCR",
+          "DANGER",
+          "ULZ",
+          "CIRCUIT"
+        ]
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -90298,6 +90532,24 @@
       }
     ],
     "cetaceanStrandings": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "死亡",
+            "value": "死亡"
+          },
+          {
+            "label": "活體",
+            "value": "活體"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "死亡",
+          "活體"
+        ]
+      },
       {
         "label": "擱淺年份",
         "options": [
@@ -93521,6 +93773,59 @@
     ],
     "facOsmSupplement": [
       {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "油氣",
+            "value": "oil_gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "生質",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "焚化",
+            "value": "waste"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "oil_gas",
+          "nuclear",
+          "hydro",
+          "solar",
+          "wind",
+          "bioenergy",
+          "geothermal",
+          "waste"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -93541,6 +93846,82 @@
     ],
     "facPlanned": [
       {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "油氣",
+            "value": "oil_gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "生質",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "焚化",
+            "value": "waste"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "oil_gas",
+          "nuclear",
+          "hydro",
+          "solar",
+          "wind",
+          "bioenergy",
+          "geothermal",
+          "waste"
+        ]
+      },
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "興建中",
+            "value": "construction"
+          },
+          {
+            "label": "規劃中",
+            "value": "pre-construction"
+          },
+          {
+            "label": "公告中",
+            "value": "announced"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "construction",
+          "pre-construction",
+          "announced"
+        ]
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -93560,6 +93941,59 @@
       }
     ],
     "facPrimary": [
+      {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "油氣",
+            "value": "oil_gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "生質",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "焚化",
+            "value": "waste"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "oil_gas",
+          "nuclear",
+          "hydro",
+          "solar",
+          "wind",
+          "bioenergy",
+          "geothermal",
+          "waste"
+        ]
+      },
       {
         "label": "透明度 0.65",
         "max": 1,
@@ -93598,6 +94032,59 @@
       }
     ],
     "facSecondary": [
+      {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "油氣",
+            "value": "oil_gas"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "生質",
+            "value": "bioenergy"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "焚化",
+            "value": "waste"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "coal",
+          "oil_gas",
+          "nuclear",
+          "hydro",
+          "solar",
+          "wind",
+          "bioenergy",
+          "geothermal",
+          "waste"
+        ]
+      },
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -93901,6 +94388,24 @@
       }
     ],
     "fireEvents": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "有死傷",
+            "value": "true"
+          },
+          {
+            "label": "無死傷",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true",
+          "false"
+        ]
+      },
       {
         "defaultValue": "magma",
         "label": "熱區顏色",
@@ -94230,6 +94735,24 @@
     ],
     "fireLatest": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "有死傷",
+            "value": "true"
+          },
+          {
+            "label": "無死傷",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true",
+          "false"
+        ]
+      },
+      {
         "defaultValue": "rocket",
         "label": "熱區顏色",
         "options": [
@@ -94461,6 +94984,49 @@
     ],
     "floodAlerts": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "淹水",
+            "value": "淹水"
+          },
+          {
+            "label": "淹水感測",
+            "value": "淹水感測"
+          },
+          {
+            "label": "水庫放流",
+            "value": "水庫放流"
+          },
+          {
+            "label": "河川高水位",
+            "value": "河川高水位"
+          },
+          {
+            "label": "區排警戒",
+            "value": "區排警戒"
+          },
+          {
+            "label": "土石流及大規模崩塌",
+            "value": "土石流及大規模崩塌"
+          },
+          {
+            "label": "枯旱預警",
+            "value": "枯旱預警"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "淹水",
+          "淹水感測",
+          "水庫放流",
+          "河川高水位",
+          "區排警戒",
+          "土石流及大規模崩塌",
+          "枯旱預警"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -94471,6 +95037,39 @@
       }
     ],
     "floodDisasterPointsNcdr": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "EMIC 災情通報",
+            "value": "emic_report"
+          },
+          {
+            "label": "淹水感測器",
+            "value": "flood_sensor"
+          },
+          {
+            "label": "社群媒體",
+            "value": "social_media"
+          },
+          {
+            "label": "新聞媒體",
+            "value": "news_media"
+          },
+          {
+            "label": "其他來源",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "emic_report",
+          "flood_sensor",
+          "social_media",
+          "news_media",
+          "__other__"
+        ]
+      },
       {
         "label": "事件年",
         "options": [
@@ -101032,6 +101631,24 @@
     "jmaKosa": [],
     "jmaLightning": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "對地雷",
+            "value": "0"
+          },
+          {
+            "label": "雲放電",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
+      {
         "label": "保留 10 min",
         "max": 360,
         "min": 5,
@@ -101444,6 +102061,59 @@
     ],
     "jpAccommodationCanonical": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "飯店",
+            "value": "hotel"
+          },
+          {
+            "label": "日式旅館 Ryokan",
+            "value": "ryokan"
+          },
+          {
+            "label": "簡易宿所",
+            "value": "simple_lodging"
+          },
+          {
+            "label": "民宿／Guest house",
+            "value": "guest_house"
+          },
+          {
+            "label": "青年旅館",
+            "value": "hostel"
+          },
+          {
+            "label": "公寓式住宿",
+            "value": "apartment"
+          },
+          {
+            "label": "汽車旅館",
+            "value": "motel"
+          },
+          {
+            "label": "度假村",
+            "value": "resort"
+          },
+          {
+            "label": "未知／缺值",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hotel",
+          "ryokan",
+          "simple_lodging",
+          "guest_house",
+          "hostel",
+          "apartment",
+          "motel",
+          "resort",
+          "__other__"
+        ]
+      },
+      {
         "defaultValue": "Burg",
         "label": "熱區顏色",
         "options": [
@@ -101684,6 +102354,49 @@
     ],
     "jpAccommodationOsm": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "飯店",
+            "value": "hotel"
+          },
+          {
+            "label": "民宿／Guest house",
+            "value": "guest_house"
+          },
+          {
+            "label": "青年旅館",
+            "value": "hostel"
+          },
+          {
+            "label": "公寓式住宿",
+            "value": "apartment"
+          },
+          {
+            "label": "汽車旅館",
+            "value": "motel"
+          },
+          {
+            "label": "度假村",
+            "value": "resort"
+          },
+          {
+            "label": "未知／缺值",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hotel",
+          "guest_house",
+          "hostel",
+          "apartment",
+          "motel",
+          "resort",
+          "__other__"
+        ]
+      },
+      {
         "defaultValue": "acton",
         "label": "熱區顏色",
         "options": [
@@ -101854,6 +102567,39 @@
       }
     ],
     "jpBusStops": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "民營路線",
+            "value": "route_private"
+          },
+          {
+            "label": "社區巴士",
+            "value": "community"
+          },
+          {
+            "label": "公營路線",
+            "value": "route_public"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          },
+          {
+            "label": "公營＋社區共站",
+            "value": "mixed"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "route_private",
+          "community",
+          "route_public",
+          "other",
+          "mixed"
+        ]
+      },
       {
         "defaultValue": "BuPu",
         "label": "熱區顏色",
@@ -102490,6 +103236,24 @@
       }
     ],
     "jpEvacuationSites": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "指定緊急避難場所",
+            "value": "emergency_site"
+          },
+          {
+            "label": "指定避難所",
+            "value": "shelter"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "emergency_site",
+          "shelter"
+        ]
+      },
       {
         "label": "災害種別",
         "options": [
@@ -103442,6 +104206,49 @@
     ],
     "jpNationalForests": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "水源涵養",
+            "value": "water_conservation"
+          },
+          {
+            "label": "山地災害防止（土砂流出崩壞防備）",
+            "value": "disaster_prevention_sediment"
+          },
+          {
+            "label": "山地災害防止（氣象害防備）",
+            "value": "disaster_prevention_weather"
+          },
+          {
+            "label": "森林空間利用",
+            "value": "forest_recreation"
+          },
+          {
+            "label": "自然維持",
+            "value": "nature_preservation"
+          },
+          {
+            "label": "快適環境形成",
+            "value": "amenity_environment"
+          },
+          {
+            "label": "空白",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "water_conservation",
+          "disaster_prevention_sediment",
+          "disaster_prevention_weather",
+          "forest_recreation",
+          "nature_preservation",
+          "amenity_environment",
+          "__other__"
+        ]
+      },
+      {
         "label": "透明度 0.70",
         "max": 1,
         "min": 0.1,
@@ -103920,6 +104727,39 @@
     ],
     "jpRailways": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "新幹線",
+            "value": "新幹線"
+          },
+          {
+            "label": "JR 在来線",
+            "value": "JR在来線"
+          },
+          {
+            "label": "民営鉄道",
+            "value": "民営鉄道"
+          },
+          {
+            "label": "第三セクター",
+            "value": "第三セクター"
+          },
+          {
+            "label": "公営鉄道",
+            "value": "公営鉄道"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "新幹線",
+          "JR在来線",
+          "民営鉄道",
+          "第三セクター",
+          "公営鉄道"
+        ]
+      },
+      {
         "label": "透明度 0.90",
         "max": 1,
         "min": 0.1,
@@ -103969,6 +104809,29 @@
       }
     ],
     "jpReligionGsi": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "神道 Shinto",
+            "value": "shinto"
+          },
+          {
+            "label": "佛教 Buddhist",
+            "value": "buddhist"
+          },
+          {
+            "label": "基督宗教 Christian",
+            "value": "christian"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "shinto",
+          "buddhist",
+          "christian"
+        ]
+      },
       {
         "defaultValue": "batlow",
         "label": "熱區顏色",
@@ -104067,6 +104930,29 @@
     ],
     "jpReligionOsm": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "神道 Shinto",
+            "value": "shinto"
+          },
+          {
+            "label": "佛教 Buddhist",
+            "value": "buddhist"
+          },
+          {
+            "label": "基督宗教 Christian",
+            "value": "christian"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "shinto",
+          "buddhist",
+          "christian"
+        ]
+      },
+      {
         "defaultValue": "acton",
         "label": "熱區顏色",
         "options": [
@@ -104163,6 +105049,29 @@
       }
     ],
     "jpReligionWikidata": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "神道 Shinto",
+            "value": "shinto"
+          },
+          {
+            "label": "佛教 Buddhist",
+            "value": "buddhist"
+          },
+          {
+            "label": "基督宗教 Christian",
+            "value": "christian"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "shinto",
+          "buddhist",
+          "christian"
+        ]
+      },
       {
         "defaultValue": "turku",
         "label": "熱區顏色",
@@ -104261,6 +105170,79 @@
     ],
     "jpSchools": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "幼稚園",
+            "value": "幼稚園"
+          },
+          {
+            "label": "幼保連携型認定こども園",
+            "value": "幼保連携型認定こども園"
+          },
+          {
+            "label": "小学校",
+            "value": "小学校"
+          },
+          {
+            "label": "義務教育学校",
+            "value": "義務教育学校"
+          },
+          {
+            "label": "中学校",
+            "value": "中学校"
+          },
+          {
+            "label": "高等学校",
+            "value": "高等学校"
+          },
+          {
+            "label": "中等教育学校",
+            "value": "中等教育学校"
+          },
+          {
+            "label": "大学",
+            "value": "大学"
+          },
+          {
+            "label": "短期大学",
+            "value": "短期大学"
+          },
+          {
+            "label": "高等専門学校",
+            "value": "高等専門学校"
+          },
+          {
+            "label": "特別支援学校",
+            "value": "特別支援学校"
+          },
+          {
+            "label": "専修学校",
+            "value": "専修学校"
+          },
+          {
+            "label": "各種学校",
+            "value": "各種学校"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "幼稚園",
+          "幼保連携型認定こども園",
+          "小学校",
+          "義務教育学校",
+          "中学校",
+          "高等学校",
+          "中等教育学校",
+          "大学",
+          "短期大学",
+          "高等専門学校",
+          "特別支援学校",
+          "専修学校",
+          "各種学校"
+        ]
+      },
+      {
         "defaultValue": "cividis",
         "label": "熱區顏色",
         "options": [
@@ -104357,6 +105339,44 @@
       }
     ],
     "jpStations": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "新幹線",
+            "value": "新幹線"
+          },
+          {
+            "label": "JR 在来線",
+            "value": "JR在来線"
+          },
+          {
+            "label": "民営鉄道",
+            "value": "民営鉄道"
+          },
+          {
+            "label": "第三セクター",
+            "value": "第三セクター"
+          },
+          {
+            "label": "公営鉄道",
+            "value": "公営鉄道"
+          },
+          {
+            "label": "その他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "新幹線",
+          "JR在来線",
+          "民営鉄道",
+          "第三セクター",
+          "公営鉄道",
+          "__other__"
+        ]
+      },
       {
         "label": "上色",
         "options": [
@@ -104580,6 +105600,29 @@
     ],
     "jpWaterSewerFacilities": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "下水道泵場",
+            "value": "sewer_pump_station"
+          },
+          {
+            "label": "下水處理場／淨化中心",
+            "value": "sewage_treatment_plant"
+          },
+          {
+            "label": "下水道設施（未分類）",
+            "value": "unclassified_sewer_facility"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "sewer_pump_station",
+          "sewage_treatment_plant",
+          "unclassified_sewer_facility"
+        ]
+      },
+      {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
@@ -104601,6 +105644,49 @@
       }
     ],
     "jpWaterSupplyFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "淨水場",
+            "value": "water_treatment_plant"
+          },
+          {
+            "label": "泵場",
+            "value": "water_pump_station"
+          },
+          {
+            "label": "滅菌／消毒設施",
+            "value": "chlorination_facility"
+          },
+          {
+            "label": "管理設施",
+            "value": "management_facility"
+          },
+          {
+            "label": "配水池／配水場",
+            "value": "distribution_reservoir"
+          },
+          {
+            "label": "取水／水源設施",
+            "value": "intake_or_source_facility"
+          },
+          {
+            "label": "上水道設施（未分類）",
+            "value": "unclassified_supply_facility"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "water_treatment_plant",
+          "water_pump_station",
+          "chlorination_facility",
+          "management_facility",
+          "distribution_reservoir",
+          "intake_or_source_facility",
+          "unclassified_supply_facility"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -107809,6 +108895,34 @@
     ],
     "lifelineAlerts": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "停水",
+            "value": "停水"
+          },
+          {
+            "label": "電力中斷",
+            "value": "電力中斷"
+          },
+          {
+            "label": "行動電話中斷",
+            "value": "行動電話中斷"
+          },
+          {
+            "label": "停班停課",
+            "value": "停班停課"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "停水",
+          "電力中斷",
+          "行動電話中斷",
+          "停班停課"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -107835,6 +108949,24 @@
       }
     ],
     "lightning": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雲對地",
+            "value": "0"
+          },
+          {
+            "label": "雲中",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
       {
         "label": "保留 10 min",
         "max": 360,
@@ -107864,6 +108996,24 @@
       }
     ],
     "lightningCwa": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雲對地",
+            "value": "0"
+          },
+          {
+            "label": "雲中",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
       {
         "label": "保留 10 min",
         "max": 360,
@@ -108257,6 +109407,24 @@
       }
     ],
     "livestockSlaughter": [
+      {
+        "label": "種類",
+        "options": [
+          {
+            "label": "家畜",
+            "value": "家畜"
+          },
+          {
+            "label": "家禽",
+            "value": "家禽"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "家畜",
+          "家禽"
+        ]
+      },
       {
         "label": "透明度 0.90",
         "max": 1,
@@ -109230,6 +110398,59 @@
     ],
     "mountainRescueIncidents": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "迷路",
+            "value": "迷路"
+          },
+          {
+            "label": "創傷",
+            "value": "創傷"
+          },
+          {
+            "label": "墜谷",
+            "value": "墜谷"
+          },
+          {
+            "label": "疾病",
+            "value": "疾病"
+          },
+          {
+            "label": "疲勞",
+            "value": "疲勞"
+          },
+          {
+            "label": "高山症",
+            "value": "高山症"
+          },
+          {
+            "label": "遲歸",
+            "value": "遲歸"
+          },
+          {
+            "label": "天候・落石・動物",
+            "value": "天候惡劣"
+          },
+          {
+            "label": "其他・不明",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "迷路",
+          "創傷",
+          "墜谷",
+          "疾病",
+          "疲勞",
+          "高山症",
+          "遲歸",
+          "天候惡劣",
+          "__other__"
+        ]
+      },
+      {
         "label": "年份",
         "options": [
           {
@@ -109327,6 +110548,49 @@
     ],
     "newsEvents": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "事故",
+            "value": "accident"
+          },
+          {
+            "label": "治安",
+            "value": "crime"
+          },
+          {
+            "label": "災害",
+            "value": "disaster"
+          },
+          {
+            "label": "交通",
+            "value": "traffic"
+          },
+          {
+            "label": "健康",
+            "value": "health"
+          },
+          {
+            "label": "政策",
+            "value": "policy"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "accident",
+          "crime",
+          "disaster",
+          "traffic",
+          "health",
+          "policy",
+          "__other__"
+        ]
+      },
+      {
         "label": "相關度",
         "options": [
           {
@@ -109410,6 +110674,34 @@
       }
     ],
     "noiseControlZones": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "第一類",
+            "value": "1"
+          },
+          {
+            "label": "第二類",
+            "value": "2"
+          },
+          {
+            "label": "第三類",
+            "value": "3"
+          },
+          {
+            "label": "第四類",
+            "value": "4"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
       {
         "label": "透明度 0.65",
         "max": 1,
@@ -110445,6 +111737,24 @@
     ],
     "osmWindTurbines": [
       {
+        "label": "位置",
+        "options": [
+          {
+            "label": "離岸",
+            "value": "true"
+          },
+          {
+            "label": "陸域／未標",
+            "value": "false"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "true",
+          "false"
+        ]
+      },
+      {
         "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
@@ -110464,6 +111774,29 @@
       }
     ],
     "parkingOffstreet": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "縣市路外",
+            "value": "city"
+          },
+          {
+            "label": "觀光景點",
+            "value": "tourism"
+          },
+          {
+            "label": "國道服務區",
+            "value": "freeway_service_area"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "city",
+          "tourism",
+          "freeway_service_area"
+        ]
+      },
       {
         "label": "透明度 0.80",
         "max": 1,
@@ -110627,6 +111960,24 @@
       }
     ],
     "plaActivity": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "活動走廊",
+            "value": "rect"
+          },
+          {
+            "label": "活動區",
+            "value": "poly"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "rect",
+          "poly"
+        ]
+      },
       {
         "label": "疊加",
         "options": [
@@ -112010,6 +113361,59 @@
     ],
     "powerGenerationUnit": [
       {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "天然氣",
+            "value": "natural_gas"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "生質",
+            "value": "biomass"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "nuclear",
+          "coal",
+          "oil",
+          "natural_gas",
+          "hydro",
+          "solar",
+          "wind",
+          "geothermal",
+          "biomass"
+        ]
+      },
+      {
         "label": "立體效果",
         "type": "toggle",
         "value": false
@@ -112075,6 +113479,59 @@
     ],
     "powerPlants": [
       {
+        "label": "燃料",
+        "options": [
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "天然氣",
+            "value": "natural_gas"
+          },
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "地熱",
+            "value": "geothermal"
+          },
+          {
+            "label": "生質",
+            "value": "biomass"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "nuclear",
+          "coal",
+          "oil",
+          "natural_gas",
+          "hydro",
+          "solar",
+          "wind",
+          "geothermal",
+          "biomass"
+        ]
+      },
+      {
         "label": "透明度 0.95",
         "max": 1,
         "min": 0.1,
@@ -112094,6 +113551,39 @@
       }
     ],
     "powerPoles": [
+      {
+        "label": "桿型",
+        "options": [
+          {
+            "label": "水泥桿",
+            "value": "水泥桿"
+          },
+          {
+            "label": "水泥併桿",
+            "value": "水泥併桿"
+          },
+          {
+            "label": "木桿",
+            "value": "木桿"
+          },
+          {
+            "label": "H桿",
+            "value": "H桿"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "水泥桿",
+          "水泥併桿",
+          "木桿",
+          "H桿",
+          "__other__"
+        ]
+      },
       {
         "label": "透明度 0.70",
         "max": 1,
@@ -114003,6 +115493,69 @@
     ],
     "riversideTreesTaipei": [
       {
+        "label": "樹種",
+        "options": [
+          {
+            "label": "榕樹",
+            "value": "榕樹"
+          },
+          {
+            "label": "茄苳",
+            "value": "茄苳"
+          },
+          {
+            "label": "垂榕",
+            "value": "垂榕"
+          },
+          {
+            "label": "構樹",
+            "value": "構樹"
+          },
+          {
+            "label": "桑樹",
+            "value": "桑樹"
+          },
+          {
+            "label": "榔榆",
+            "value": "榔榆"
+          },
+          {
+            "label": "水黃皮",
+            "value": "水黃皮"
+          },
+          {
+            "label": "雀榕",
+            "value": "雀榕"
+          },
+          {
+            "label": "樟樹",
+            "value": "樟樹"
+          },
+          {
+            "label": "水柳",
+            "value": "水柳"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "榕樹",
+          "茄苳",
+          "垂榕",
+          "構樹",
+          "桑樹",
+          "榔榆",
+          "水黃皮",
+          "雀榕",
+          "樟樹",
+          "水柳",
+          "__other__"
+        ]
+      },
+      {
         "label": "河濱公園",
         "options": [
           {
@@ -114278,6 +115831,39 @@
     ],
     "roadEvents": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "事故",
+            "value": "3"
+          },
+          {
+            "label": "壅塞/事故",
+            "value": "1"
+          },
+          {
+            "label": "施工",
+            "value": "2"
+          },
+          {
+            "label": "活動/管制",
+            "value": "7"
+          },
+          {
+            "label": "災害/障礙",
+            "value": "5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "3",
+          "1",
+          "2",
+          "7",
+          "5"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -114288,6 +115874,34 @@
       }
     ],
     "safetyAlerts": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "火災",
+            "value": "火災"
+          },
+          {
+            "label": "海洋污染",
+            "value": "海洋污染"
+          },
+          {
+            "label": "空氣品質",
+            "value": "空氣品質"
+          },
+          {
+            "label": "國家森林遊樂區",
+            "value": "國家森林遊樂區"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "火災",
+          "海洋污染",
+          "空氣品質",
+          "國家森林遊樂區"
+        ]
+      },
       {
         "label": "透明度 1.00",
         "max": 1,
@@ -114500,6 +116114,44 @@
       }
     ],
     "seaTurtleStrandings": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "綠蠵龜",
+            "value": "綠蠵龜"
+          },
+          {
+            "label": "欖蠵龜",
+            "value": "欖蠵龜"
+          },
+          {
+            "label": "玳瑁",
+            "value": "玳瑁"
+          },
+          {
+            "label": "赤蠵龜",
+            "value": "赤蠵龜"
+          },
+          {
+            "label": "革龜",
+            "value": "革龜"
+          },
+          {
+            "label": "無法辨認",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "綠蠵龜",
+          "欖蠵龜",
+          "玳瑁",
+          "赤蠵龜",
+          "革龜",
+          "__other__"
+        ]
+      },
       {
         "label": "擱淺年份",
         "options": [
@@ -149146,6 +150798,69 @@
     ],
     "streetTreesNational": [
       {
+        "label": "樹種",
+        "options": [
+          {
+            "label": "樟樹",
+            "value": "樟樹"
+          },
+          {
+            "label": "榕樹",
+            "value": "榕樹"
+          },
+          {
+            "label": "台灣欒樹",
+            "value": "台灣欒樹"
+          },
+          {
+            "label": "黑板樹",
+            "value": "黑板樹"
+          },
+          {
+            "label": "茄苳",
+            "value": "茄苳"
+          },
+          {
+            "label": "小葉欖仁",
+            "value": "小葉欖仁"
+          },
+          {
+            "label": "楓香",
+            "value": "楓香"
+          },
+          {
+            "label": "印度紫檀",
+            "value": "印度紫檀"
+          },
+          {
+            "label": "大花紫薇",
+            "value": "大花紫薇"
+          },
+          {
+            "label": "水黃皮",
+            "value": "水黃皮"
+          },
+          {
+            "label": "其他",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "樟樹",
+          "榕樹",
+          "台灣欒樹",
+          "黑板樹",
+          "茄苳",
+          "小葉欖仁",
+          "楓香",
+          "印度紫檀",
+          "大花紫薇",
+          "水黃皮",
+          "__other__"
+        ]
+      },
+      {
         "label": "城市",
         "options": [
           {
@@ -150550,6 +152265,34 @@
     ],
     "transitAlerts": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "道路封閉",
+            "value": "道路封閉"
+          },
+          {
+            "label": "鐵路事故",
+            "value": "鐵路事故"
+          },
+          {
+            "label": "捷運營運",
+            "value": "捷運營運"
+          },
+          {
+            "label": "高速公路路況事件",
+            "value": "高速公路路況事件"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "道路封閉",
+          "鐵路事故",
+          "捷運營運",
+          "高速公路路況事件"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -151175,6 +152918,74 @@
       }
     ],
     "vesselWatch": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "中國海警",
+            "value": "中國海警"
+          },
+          {
+            "label": "中國海事局（HAIXUN 海巡）",
+            "value": "中國海事局"
+          },
+          {
+            "label": "中國漁政",
+            "value": "中國漁政"
+          },
+          {
+            "label": "中國海監",
+            "value": "中國海監"
+          },
+          {
+            "label": "中國其他公務船",
+            "value": "中國其他公務船"
+          },
+          {
+            "label": "中國科研船",
+            "value": "中國科研船"
+          },
+          {
+            "label": "中國油氣作業船",
+            "value": "中國油氣作業船"
+          },
+          {
+            "label": "台灣海巡署（CG/PP/CL）",
+            "value": "台灣海巡署"
+          },
+          {
+            "label": "台灣科研船",
+            "value": "台灣科研船"
+          },
+          {
+            "label": "他國執法船",
+            "value": "他國執法船"
+          },
+          {
+            "label": "他國科研船",
+            "value": "他國科研船"
+          },
+          {
+            "label": "軍艦（多為他國過境）",
+            "value": "軍艦"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "中國海警",
+          "中國海事局",
+          "中國漁政",
+          "中國海監",
+          "中國其他公務船",
+          "中國科研船",
+          "中國油氣作業船",
+          "台灣海巡署",
+          "台灣科研船",
+          "他國執法船",
+          "他國科研船",
+          "軍艦"
+        ]
+      },
       {
         "label": "軌跡 3 天",
         "max": 14,
@@ -152122,6 +153933,54 @@
     ],
     "weatherAlerts": [
       {
+        "label": "類別",
+        "options": [
+          {
+            "label": "雷雨",
+            "value": "雷雨"
+          },
+          {
+            "label": "降雨",
+            "value": "降雨"
+          },
+          {
+            "label": "強風",
+            "value": "強風"
+          },
+          {
+            "label": "高溫",
+            "value": "高溫"
+          },
+          {
+            "label": "低溫",
+            "value": "低溫"
+          },
+          {
+            "label": "濃霧",
+            "value": "濃霧"
+          },
+          {
+            "label": "颱風",
+            "value": "颱風"
+          },
+          {
+            "label": "海嘯",
+            "value": "海嘯"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "雷雨",
+          "降雨",
+          "強風",
+          "高溫",
+          "低溫",
+          "濃霧",
+          "颱風",
+          "海嘯"
+        ]
+      },
+      {
         "label": "透明度 1.00",
         "max": 1,
         "min": 0,
@@ -152313,6 +154172,29 @@
     ],
     "welfareElderlyHomes": [
       {
+        "label": "公私別",
+        "options": [
+          {
+            "label": "公立",
+            "value": "公立"
+          },
+          {
+            "label": "公設民營／公辦民營",
+            "value": "公設民營"
+          },
+          {
+            "label": "私立",
+            "value": "私立"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "公立",
+          "公設民營",
+          "私立"
+        ]
+      },
+      {
         "label": "定位精度",
         "options": [
           {
@@ -152456,6 +154338,39 @@
       }
     ],
     "welfareMentalHealth": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "社區心理衛生中心",
+            "value": "T0105"
+          },
+          {
+            "label": "毒品危害防制中心",
+            "value": "T0106"
+          },
+          {
+            "label": "康復之家",
+            "value": "T0503"
+          },
+          {
+            "label": "心理諮商所／治療所",
+            "value": "T0504"
+          },
+          {
+            "label": "社區復健中心",
+            "value": "T0502"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "T0105",
+          "T0106",
+          "T0503",
+          "T0504",
+          "T0502"
+        ]
+      },
       {
         "label": "定位精度",
         "options": [

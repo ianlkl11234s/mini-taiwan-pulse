@@ -14,6 +14,7 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { applyHeatmapStyle, heatmapLayerPaint, useHeatmapStyleSignature } from "../state/layerPalette";
 import { paramDefault } from "../data/layerParamsSpec";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { useMapReadyTick } from "./useMapReadyTick";
 
@@ -100,8 +101,10 @@ function pointColor(key: JpTourismLayerKey): string | ExpressionSpecification {
     : JP_TOURISM_COLORS[key];
 }
 
-function layerFilter(config: LayerConfig, ramsarMode: RamsarGeometryMode): ExpressionSpecification | undefined {
+function layerFilter(config: LayerConfig, ramsarMode: RamsarGeometryMode, catMask?: number): ExpressionSpecification | undefined {
   const clauses: ExpressionSpecification[] = [];
+  const catFilter = hookCategoryFilter(config.key, { [`${config.key}CatMask`]: catMask as number });
+  if (catFilter) clauses.push(catFilter as ExpressionSpecification);
   const filterLayerId = JP_TOURISM_FILTER_LAYER_IDS[config.key];
   if (filterLayerId) clauses.push(["==", ["get", "filter_layer_id"], filterLayerId] as ExpressionSpecification);
   if (config.key === "jpRamsarSites" && ramsarMode !== "all") {
@@ -115,6 +118,8 @@ function layerFilter(config: LayerConfig, ramsarMode: RamsarGeometryMode): Expre
   return ["all", ...clauses] as ExpressionSpecification;
 }
 
+const EMPTY_CAT_MASKS: Partial<Record<JpTourismLayerKey, number>> = {};
+
 export function useJpTourismLayers(
   mapRef: React.RefObject<MapboxMap | null>,
   visibility: JpTourismVisibility,
@@ -122,7 +127,11 @@ export function useJpTourismLayers(
   scale: JpTourismScale,
   ramsarMode: RamsarGeometryMode,
   isDarkTheme = true,
+  /** V-4 類別篩選 bitmask（目前只有旅宿 canonical／osm 用） */
+  catMasks: Partial<Record<JpTourismLayerKey, number>> = EMPTY_CAT_MASKS,
 ) {
+  const catCanonical = catMasks.jpAccommodationCanonical;
+  const catOsm = catMasks.jpAccommodationOsm;
   const anyVisible = JP_TOURISM_LAYER_KEYS.some((key) => visibility[key]);
   const mapTick = useMapReadyTick(mapRef, anyVisible);
   const heatStyle = useHeatmapStyleSignature(HEAT_KEYS);
@@ -162,7 +171,7 @@ export function useJpTourismLayers(
         const visible = visibility[config.key] && isJpTourismDatasetAvailable(config.dataset);
         const sid = sourceId(config.dataset);
         const data = dataRef.current[config.dataset];
-        const filter = layerFilter(config, ramsarMode);
+        const filter = layerFilter(config, ramsarMode, catMasks[config.key]);
         const sourceLayer = datasetConfig.kind === "pmtiles" ? datasetConfig.sourceLayer : undefined;
         const sourceLayerRef = sourceLayer ? { "source-layer": sourceLayer } : {};
         const circleId = config.kind === "point" ? CLICK_LAYER_IDS[config.key] : `${config.layerBase}-circle`;
@@ -237,7 +246,7 @@ export function useJpTourismLayers(
         if (config.heatmap && map.getLayer(heatmapId)) {
           map.setLayoutProperty(heatmapId, "visibility", visible ? "visible" : "none");
           applyHeatmapStyle(map, heatmapId, config.key, isDark, heatScale);
-          if (filter) map.setFilter(heatmapId, filter);
+          map.setFilter(heatmapId, filter ?? null);
         }
 
         const ids = config.kind === "point" ? [circleId] : [fillId, lineId];
@@ -249,7 +258,7 @@ export function useJpTourismLayers(
             map.setPaintProperty(id, "circle-radius", pointRadius("M", scale[config.key] ?? 1));
             const stroke = pointStroke(config.key, opacity[config.key], isDark);
             for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(id, prop, stroke[prop]);
-            if (filter) map.setFilter(id, filter);
+            map.setFilter(id, filter ?? null);
           } else if (id === fillId) {
             const defaultOpacity = Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1);
             map.setPaintProperty(id, "fill-opacity", hookFillOpacity(config.key, fillId, clampOpacity(opacity[config.key]), defaultOpacity));
@@ -264,5 +273,5 @@ export function useJpTourismLayers(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick, heatStyle]);
+  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick, heatStyle, catCanonical, catOsm]);
 }

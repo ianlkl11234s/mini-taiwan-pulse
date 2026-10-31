@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import type {
   Map as MapboxMap,
   FillLayer,
@@ -115,6 +116,14 @@ const lineWidth = (trailDays: number) => (trailDays <= 1 ? 1.6 : 0.9);
 const threshFilter = (thresh: number): FilterSpecification | null =>
   thresh <= 0 ? null : ([">=", ["get", "days_ago"], thresh] as unknown as FilterSpecification);
 
+/** 回放門檻 ＋ V-4 類別篩選（shape_kind）併成同一個 filter */
+const composeFilter = (thresh: number, catMask?: number): FilterSpecification | null => {
+  const t = threshFilter(thresh);
+  const cat = hookCategoryFilter("plaActivity", catMask === undefined ? undefined : { plaActivityCatMask: catMask });
+  if (!cat) return t;
+  return (t ? ["all", t, cat] : cat) as unknown as FilterSpecification;
+};
+
 interface CachedWindow {
   data: PlaTrack[];
   accessedAt: number;
@@ -166,6 +175,8 @@ export function usePlaActivityLayer(
    * 所以不能靠 subscribeDate。傳值時改吃這個並停掉訂閱。
    */
   dateOverride: string | null = null,
+  /** V-4 類別篩選 bitmask（shape_kind） */
+  catMask?: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -179,6 +190,8 @@ export function usePlaActivityLayer(
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const appliedThreshRef = useRef<number>(-1);
+  const catMaskRef = useRef(catMask);
+  catMaskRef.current = catMask;
 
   const writeCache = useCallback((key: string, data: PlaTrack[]) => {
     const cache = cacheRef.current;
@@ -222,7 +235,7 @@ export function usePlaActivityLayer(
     (map: MapboxMap, thresh: number) => {
       if (thresh === appliedThreshRef.current) return;
       appliedThreshRef.current = thresh;
-      const f = threshFilter(thresh);
+      const f = composeFilter(thresh, catMaskRef.current);
       for (const id of [FILL_ID, LINE_ID]) {
         if (map.getLayer(id)) map.setFilter(id, f);
       }
@@ -325,6 +338,15 @@ export function usePlaActivityLayer(
       map.off("style.load", onStyleLoad);
     };
   }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
+
+  // ── 類別篩選（V-4）：mask 變動／圖層（重）建後，重送「回放門檻＋類別」filter ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !layersReadyRef.current) return;
+    const t = Math.max(appliedThreshRef.current, 0);
+    appliedThreshRef.current = -1;
+    applyThresh(map, t);
+  }, [catMask, visible, applyThresh, mapRef, mapTick]);
 
   // ── 累積回放：自己的 clock，只改 filter 不重打 RPC ──
   useEffect(() => {

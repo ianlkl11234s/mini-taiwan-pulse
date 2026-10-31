@@ -8,6 +8,7 @@ import { hookFillOpacity, hookLinePaint, hookLineWidth, hookLineOpacity, hookLin
 
 import type { Map as MapboxMap } from "mapbox-gl";
 import { agriPOIMatchColorExpr } from "../data/agriPOITypes";
+import { hookCategoryFilter } from "../data/categoryFilters";
 import {
   SOIL_FERTILITY_METRICS,
   type SoilFertilityMetric,
@@ -454,6 +455,8 @@ export interface AgriPOIParams {
   opacity: number;
   /** radius 倍率 (0~3)，乘以 zoom-based interpolation */
   scale: number;
+  /** V-4 類別篩選 bitmask（poi_type）；undefined＝全選 */
+  catMask?: number;
 }
 
 const AGRI_POI_OPACITY_DEFAULT = Number(paramDefault("agriPOI", "agriPOIOpacity"));
@@ -512,6 +515,7 @@ export function updateAgriPOILayer(
       .finally(() => loadingRegistry.end(taskId));
   }
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
+  map.setFilter(POI_CIRCLE_ID, (hookCategoryFilter("agriPOI", params.catMask === undefined ? undefined : { agriPOICatMask: params.catMask }) ?? null) as any);
   map.setPaintProperty(POI_CIRCLE_ID, "circle-opacity", 0.9 * params.opacity);
   map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", pointRadius("M", params.scale));
   {
