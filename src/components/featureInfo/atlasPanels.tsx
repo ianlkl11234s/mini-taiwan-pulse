@@ -731,7 +731,7 @@ function TourServiceSitePanel({ props }: Props) {
     <Row field="address" value={str(props.address)} />
     <Row field="district" value={placeTown(str(props.county), str(props.town), i18n)} />
     <Row field="authority" value={str(props.authority)} />
-    <Row field="updated" value={str(props.source_updated)} mono />
+    <Row label={t("popup.atlas.sourceUpdated")} value={str(props.source_updated)} mono />
     <Row field="caution" value={t("popup.atlas.siteClassInferred")} />
   </>;
 }
