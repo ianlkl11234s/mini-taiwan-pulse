@@ -862,7 +862,7 @@ export const LAYER_MANIFEST = {
     description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
   },
   statsRiceHarvest: {
-    key: "statsRiceHarvest", country: "TW", section: { theme: "農業統計 Agriculture Statistics", group: "稻作生產" },
+    key: "statsRiceHarvest", country: "TW", section: { theme: "農業統計", group: "作物生產" },
     ...layerName({ zh: "全年稻作收穫面積（複種計次）" }), expandable: true, color: "#84cc16", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "rice_harvested_area_township", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
@@ -898,7 +898,7 @@ export const LAYER_MANIFEST = {
   // ① 純 registry 靜態 GeoJSON —— 最單純的形狀：legend 獨佔、popup 與 key 同名
   cctv: {
     key: "cctv",
-    country: "TW", section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" },
     ...layerName({ zh: "道路攝影機", alt: "CCTV" }),
     expandable: true,
     color: "#26c6da",
@@ -7338,7 +7338,7 @@ export const LAYER_MANIFEST = {
 
   canopyHeight: {
     key: "canopyHeight",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "樹冠 Canopy" },
     ...layerName({ zh: "樹冠高度", alt: "Canopy Height" }),
     expandable: true,
     color: "#33691e",
@@ -7392,7 +7392,7 @@ export const LAYER_MANIFEST = {
 
   canopyGiants: {
     key: "canopyGiants",
-    country: "TW", section: { theme: "林業 Forestry", group: "分區" },
+    country: "TW", section: { theme: "林業 Forestry", group: "樹冠 Canopy" },
     ...layerName({ zh: "樹冠巨木", alt: "Canopy Giants" }),
     expandable: true,
     color: "#a50026",
@@ -10138,7 +10138,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海域保護與漁業 G08（2026-10-17）：analytics data/processed/marine → build-atlas-public.py → public/marine/ ──
   natureReserves: {
-    key: "natureReserves", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
+    key: "natureReserves", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "自然保留區", alt: "Nature Reserves" }), expandable: true,
     color: ATLAS_LAYER_COLORS.natureReserves, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "nature_reserves", confidence: "HIGH" }], note: "農業部林業及自然保育署 自然保留區（24 面，全國含陸域）；日期為法定公告日。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "nature-reserves", url: "./marine/nature_reserves.geojson" },
@@ -10147,7 +10147,7 @@ export const LAYER_MANIFEST = {
     topics: ["海洋", "保護區", "自然保留區", "保育"],
   },
   wildlifeProtectedAreas: {
-    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
+    key: "wildlifeProtectedAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "野生動物保護區", alt: "Wildlife Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.wildlifeProtectedAreas, icon: Leaf,
     upstream: { status: "verified", datasets: [{ datasetId: "wildlife_protected_areas", confidence: "HIGH" }], note: "農業部林業及自然保育署 野生動物保護區（32 面，同名多面為分區，全國含陸域）。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "wildlife-protected-areas", url: "./marine/wildlife_protected_areas.geojson" },
@@ -10166,7 +10166,7 @@ export const LAYER_MANIFEST = {
   },
   // ── 海洋保育補接 G33（2026-10-29）：analytics → build-atlas-public.py → public/marine/ ──
   marineWildlifeAreas: {
-    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
+    key: "marineWildlifeAreas", country: "TW", section: { theme: "海洋 Marine", group: "自然保育 Conservation" }, ...layerName({ zh: "海域野生動物保護區與棲息環境", alt: "Marine Wildlife Habitat & Protected Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.marineWildlifeAreas, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "white_dolphin_habitat", confidence: "HIGH" }], note: "海洋委員會海洋保育署 iocean（data.gov.tw 157562）6 面：中華白海豚重要棲息環境 1 面（野生動物重要棲息環境）＋貓嶼、望安、棉花嶼花瓶嶼、觀新藻礁、馬祖燕鷗 5 個野生動物保護區。官方 GeoJSON 座標是 TWD97 公尺值卻標 CRS84，本層採由 SHP 轉出的正確經緯度成品。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "marine-wildlife-areas", url: "./marine/marine_wildlife_areas.geojson" },
@@ -10222,7 +10222,7 @@ export const LAYER_MANIFEST = {
   exclusiveFisheryRightAreas: {
     key: "exclusiveFisheryRightAreas", country: "TW", section: { theme: "海洋 Marine", group: "海域保護與漁業 Protected Areas & Fisheries" }, ...layerName({ zh: "專用漁業權範圍", alt: "Exclusive Fishery Right Areas" }), expandable: true,
     color: ATLAS_LAYER_COLORS.exclusiveFisheryRightAreas, icon: Fish,
-    upstream: { status: "catalog_missing", datasets: [], processing: "analytics environment/fishery_rights（19 面，漁業署 SHP 轉檔 2026-02-28）；catalog 文件 environment/fishery_rights.md 缺 frontmatter dataset_id", note: "現存／屆期為來源標記，日期不明；與定置漁業權（setNetFishingAreas）是不同法律類別。public/fishery/exclusive_fishery_rights.geojson 是 17 個縣市代表點的舊孤兒檔，不是本層。" },
+    upstream: { status: "catalog_missing", datasets: [], processing: "analytics environment/fishery_rights（19 面，漁業署 SHP 轉檔 2026-02-28）；catalog 文件 environment/fishery_rights.md 缺 frontmatter dataset_id", note: "現存／屆期為來源標記，日期不明；與定置漁業權（setNetFishingAreas）是不同法律類別。舊的 17 個縣市代表點孤兒檔（fishery/exclusive_fishery_rights.geojson）已移除，不是本層。" },
     dataClass: "A", source: { kind: "geojson", sourceId: "exclusive-fishery-right-areas", url: "./marine/exclusive_fishery_right_areas.geojson" },
     legend: "exclusiveFisheryRightAreas", popup: "exclusiveFisheryRightAreas", params: { count: 1, kinds: ["slider"] },
     description: "各區漁會專用漁業權水域 19 面（來源標現存 11、屆期 8）；與定置漁業權區是不同類別，不代表現行權利或可否進入。",
@@ -11789,7 +11789,7 @@ export const LAYER_MANIFEST = {
 
   waterFacilities: {
     key: "waterFacilities",
-    country: "TW", section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "水利設施 Water Facilities" },
     ...layerName({ zh: "水利設施", alt: "Facility" }),
     expandable: true,
     color: "#fbbf24",
@@ -11880,7 +11880,7 @@ export const LAYER_MANIFEST = {
 
   marineObservationCwa: {
     key: "marineObservationCwa",
-    country: "TW", section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "海象觀測 Marine Observation" },
     ...layerName({ zh: "CWA 海洋觀測站", alt: "CWA Marine" }),
     expandable: true,
     color: "#22d3ee",
@@ -11904,7 +11904,7 @@ export const LAYER_MANIFEST = {
 
   marineObservationIsohe: {
     key: "marineObservationIsohe",
-    country: "TW", section: { theme: "水資源 Water", group: "點位" },
+    country: "TW", section: { theme: "水資源 Water", group: "海象觀測 Marine Observation" },
     ...layerName({ zh: "ISOHE 港區海氣象", alt: "ISOHE Port" }),
     expandable: true,
     color: "#f59e0b",
@@ -12329,7 +12329,7 @@ export const LAYER_MANIFEST = {
   //    彩色動態層，也才是 GIS_LAYERS `groundwater-circle` 的擁有者。
   groundwater: {
     key: "groundwater",
-    country: "TW", section: { theme: "水資源 Water", group: "面 / 線" },
+    country: "TW", section: { theme: "水資源 Water", group: "點位" },
     ...layerName({ zh: "地下水井", alt: "Groundwater" }),
     expandable: true,
     color: "#0ea5e9",
@@ -13583,7 +13583,7 @@ export const LAYER_MANIFEST = {
 
   ecoNetworkZones: {
     key: "ecoNetworkZones",
-    country: "TW", section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    country: "TW", section: { theme: "農業 Agriculture", group: "自然保育 Conservation" },
     ...layerName({ zh: "國土綠網分區", alt: "Eco Network Zones" }),
     expandable: true,
     color: "#4caf50",
@@ -14340,7 +14340,7 @@ export const LAYER_MANIFEST = {
 
   etcGantry: {
     key: "etcGantry",
-    country: "TW", section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" },
     ...layerName({ zh: "ETC 收費門架", alt: "Gantry" }),
     expandable: true,
     color: "#f06292",
@@ -14360,7 +14360,7 @@ export const LAYER_MANIFEST = {
 
   serviceArea: {
     key: "serviceArea",
-    country: "TW", section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" },
     ...layerName({ zh: "國道服務區", alt: "Service Area" }),
     expandable: true,
     color: "#4db6ac",
@@ -14382,7 +14382,7 @@ export const LAYER_MANIFEST = {
 
   serviceAreaPolygon: {
     key: "serviceAreaPolygon",
-    country: "TW", section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" },
     ...layerName({ zh: "國道服務區範圍", alt: "SA Area" }),
     expandable: true,
     color: "#4db6ac",
@@ -14406,7 +14406,7 @@ export const LAYER_MANIFEST = {
 
   taxiStand: {
     key: "taxiStand",
-    country: "TW", section: { theme: "交通 Move", group: "路網" },
+    country: "TW", section: { theme: "交通 Move", group: "道路設施 Road Facilities" },
     ...layerName({ zh: "計程車招呼站", alt: "Taxi Stand" }),
     expandable: true,
     color: "#ffd54f",
@@ -14738,7 +14738,7 @@ export const LAYER_MANIFEST = {
 
   powerPlantGlow: {
     key: "powerPlantGlow",
-    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
     ...layerName({ zh: "發電廠 Bloom 測試" }),
     expandable: true,
     color: "#f0abfc",
@@ -14764,7 +14764,7 @@ export const LAYER_MANIFEST = {
     key: "aviationRestrictedGlow",
     // ⚠️ 名字與資料都是航空，THEMES 位置卻在能源／電力 · 廠（跟其他 Bloom 測試層同組）。
     //    按名字猜主題會猜錯 —— 區塊註解不可信的第九種變形。
-    country: "TW", section: { theme: "能源 Energy", group: "電力 · 廠" },
+    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
     ...layerName({ zh: "機場管制/限航 Rim Glow 測試" }),
     expandable: true,
     color: "#f87171",
@@ -14917,7 +14917,7 @@ export const LAYER_MANIFEST = {
 
   powerLinesGlow: {
     key: "powerLinesGlow",
-    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
     ...layerName({ zh: "高壓輸電線 Bloom 測試" }),
     expandable: true,
     color: "#22d3ee",
@@ -14941,7 +14941,7 @@ export const LAYER_MANIFEST = {
 
   substationEhvGlow: {
     key: "substationEhvGlow",
-    country: "TW", section: { theme: "能源 Energy", group: "電力 · 電網" },
+    country: "TW", section: { theme: "能源 Energy", group: "視覺實驗 Visual Experiments" },
     ...layerName({ zh: "變電所 EHV Bloom 測試" }),
     expandable: true,
     color: "#fb923c",
