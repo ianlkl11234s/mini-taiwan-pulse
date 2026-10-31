@@ -275,11 +275,21 @@
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| KRREL-1 | P2 | blocked | 南韓 #769／#773／#774／#775 發版到正式站。 | Blocked on owner decision（develop→master 須使用者拍板）。First action: 發版當天、合 master 前用 `scripts/deploy/upload-deploy-assets.sh` 上傳 `public/world/kr_bridges.pmtiles`（25.9MB）、`kr_speed_cameras.pmtiles`（33.9MB）、`kr_street_trees.pmtiles`（34.9MB）到 S3 `deploy-assets/world/`；發版前列出 develop 上範圍外 PR 給使用者確認。 | 正式站 `main-*.js` 含新版號；3 支大檔 Range 回 206；正式站 `?c=kr` 開橋梁、測速相機、行道樹與統計各一張截圖，console 無新錯誤。 |
+| KRREL-1 | P2 | blocked | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | Blocked on owner decision（develop→master 須使用者拍板）。First action: 發版當天、合 master 前照 CHANGELOG Unreleased 各「發版注意」清單上傳 S3 deploy-assets（南韓 3 支大檔、`gb_built_up_areas_v2`、台灣 v2／_z7／_points 檔、交通事故與消防栓等；`scripts/deploy/upload-deploy-assets.sh` 已登記）；發版前列出 develop 上範圍外 PR 給使用者確認。 | 正式站 `main-*.js` 含新版號；清單內檔案 Range 回 206；四國全國視角各截一張（南韓 z6、英國 z5.5、台灣 z7、日本 z5），提示卡與點面切換各驗一次，console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
-| KRUX-1 | P3 | ready | 南韓公車站（22.7 萬站）在全國視角很淡、不易辨認。 | First action: 截全國 z6–z8 畫面，提出規範內的熱區強度／色階調整選項給使用者選（不改設計系統）。 | 全國視角看得出熱區分布；golden／check 全綠。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
 | KRW-6 | P3 | ready | 南韓第 6–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+
+## 圖層可見性整修（2026-10-31，map-layers §3.8 V-1～V-7，#779–#788 已合 develop）
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| VIS-1 | P3 | ready | 熱區預設色（依主題表，`src/map/heatmapPaletteDefaults.ts`）請使用者目視確認，含子代理自選的覆寫（省道里程牌 tokyo、國道標誌 Burg、海岸侵蝕 YlOrBr、崩塌地 rocket、魚塭 acton、河川面 PuBu 等）。 | First action: 本機測試站依主題各開 2 層截圖給使用者看。 | 使用者確認或指定調整並已改。 |
+| VIS-2 | P3 | ready | 英國海岸侵蝕面模式低縮放外框 2.2px（略超 F-2 的 1px）；是否改預設點模式。 | 待使用者看畫面決定。First action: 截 z5.5 面／點兩種給使用者選。 | 使用者已選並更新 golden。 |
+| VIS-3 | P3 | ready | 未逐一在 UI 實測的項目：英國 5 層新點面切換、魚塭／河川面／橋梁輪廓切換、英國兩層類別篩選前後、淡色主題；台灣 `court`、日本 `jpAccommodationCanonical` 本機缺資料檔無法目視篩選。 | First action: 發版後正式站逐項點一次（併入 KRREL-1 驗收）。 | 逐項截圖，問題另開條目。 |
+| VIS-4 | P3 | ready | 倫敦 JamCams 彈窗在 dev 模式顯示「無法載入」（production build 正常），疑 React StrictMode cleanup 清掉圖片來源；台灣 CCTV dev 是否同樣未測。 | First action: 讀 `CctvStreamView` effect cleanup，dev 下重現。 | dev 與 production 都顯示影像。 |
+| VIS-5 | P3 | ready | `parksTaipei`（面板名「公園」）manifest 描述寫「臺北市公園 2,917 處」，實際含臺北 1,350、臺中約 1,081、臺南約 486。 | First action: 改 manifest 描述／名稱（三語）或拆層，問使用者偏好。 | 名稱與描述符合資料；layerCoverage 視需要登記。 |
+| VIS-6 | P4 | ready | GeoJSON 面層在點樣式下仍會下載整份面資料；舊 `public/world/gb_flood_defences_z5.pmtiles` 已無引用。 | First action: 量最大幾層 GeoJSON 大小，>2MB 才優化；舊檔確認無引用後移除。 | 點樣式不載面資料或確認不需優化；舊檔已清。 |
 
 ## Feature backlog index
 
