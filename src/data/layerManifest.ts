@@ -1617,7 +1617,7 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "hydrants", confidence: "MED" }],
       // G36（2026-10-31）：併入台水 data.gov.tw 44642（17 縣市＋新北台水供水區），新檔名避免覆蓋舊資產；
       // source-layer 沿用 fire_hydrants。台水高雄與高雄市消防局資料重疊 → 不收；台水新北剔除 15 m 內已有既有點者。
-      processing: "既有 analytics hydrants.csv 69,839 點（臺北自來水事業處 128639＋高雄市消防局 5 份）＋台水 44642 收 141,691 點（台水 165,798 列去掉完全重複 7 列、與高雄市消防局重疊的台水高雄 24,092、與既有點 15 m 內 8 點），合計 211,530；mini scripts/preprocess/build-g36-safety-public.py",
+      processing: "既有 analytics hydrants.csv 69,839 點（臺北自來水事業處 128639＋高雄市消防局 5 份）＋台水 44642 收 141,691 點（台水 165,798 列去掉完全重複 7 列、與高雄市消防局重疊的台水高雄 24,092、與既有點 15 m 內 8 點），合計 211,530；台水種類編碼 0–5 依 44642 資料資源說明轉中文型式（0–3 地上式、4–5 地下式、空碼 58 點歸其他）；mini scripts/preprocess/build-g36-safety-public.py",
     },
     dataClass: "B",
     source: {

@@ -16,6 +16,5 @@
   "popup.fire.resourceCounts": "Items",
   "popup.fire.resourceCountsValue": "{positive} of {total} items have a recorded quantity",
   "popup.fire.resourceItems": "Recorded items (qty > 0)",
-  "popup.fire.resourceNone": "No item with quantity above 0",
-  "popup.fire.hydrantTypeCode": "TWC type code"
+  "popup.fire.resourceNone": "No item with quantity above 0"
 }

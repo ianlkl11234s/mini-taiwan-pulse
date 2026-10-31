@@ -4526,7 +4526,6 @@ export type GeneratedStaticKey =
   | "popup.fire.eventFallback"
   | "popup.fire.hydrant"
   | "popup.fire.hydrantType"
-  | "popup.fire.hydrantTypeCode"
   | "popup.fire.injuries"
   | "popup.fire.isochroneNote"
   | "popup.fire.minutesLabel"

@@ -16,6 +16,5 @@
   "popup.fire.resourceCounts": "品目",
   "popup.fire.resourceCountsValue": "{total} 品目中 {positive} 品目に数量登録あり",
   "popup.fire.resourceItems": "登録品目（数量 > 0）",
-  "popup.fire.resourceNone": "数量が 0 を超える品目なし",
-  "popup.fire.hydrantTypeCode": "台水の種類コード"
+  "popup.fire.resourceNone": "数量が 0 を超える品目なし"
 }

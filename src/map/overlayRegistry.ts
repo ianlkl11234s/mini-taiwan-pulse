@@ -2298,7 +2298,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點 cat="台水"）──
+  // ── 消防栓（G36 起：臺北水處＋高雄市消防局＋台水 17 縣市與新北台水區，211,530 點；台水點依種類編碼歸地上式／地下式）──
   // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → 原本 minzoom 12 控密度。
   // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
@@ -2333,7 +2333,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "match", ["get", "cat"],
               "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
               "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
-              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
               FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
@@ -2359,7 +2358,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "match", ["get", "cat"],
               "地上式", FIRE_HYDRANT_CAT_COLOR.地上式,
               "地下式", FIRE_HYDRANT_CAT_COLOR.地下式,
-              "台水", FIRE_HYDRANT_CAT_COLOR.台水,
               FIRE_HYDRANT_CAT_COLOR.其他,
             ] as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",

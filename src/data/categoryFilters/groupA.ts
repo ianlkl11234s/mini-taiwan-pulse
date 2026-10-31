@@ -174,7 +174,6 @@ export const CATEGORY_FILTERS_A: Record<string, CategoryFilterDef | readonly Cat
     options: [
       { value: "地上式", zh: "地上式" },
       { value: "地下式", zh: "地下式" },
-      { value: "台水", zh: "台水（型式代碼未公開）" },
     ],
     other: "其他",
   },

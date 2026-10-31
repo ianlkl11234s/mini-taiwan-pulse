@@ -5,7 +5,7 @@
   accidents   analytics environment/traffic_accident/traffic_accident_by_incident.geojson
               → public/geo/traffic_accidents_2025.pmtiles（gitignored，走 S3 deploy-assets geo/ 鏡像）
   hydrants    analytics fire/hydrants/hydrants.csv（臺北自來水事業處＋高雄市消防局，既有 69,839 點）
-              ＋台水 data.gov.tw 44642 prot7.zip（19 縣市）→ public/geo/fire_hydrants_national.pmtiles（gitignored）
+              ＋台水 data.gov.tw 44642 prot7.zip（19 縣市；種類編碼 0–5 依資料資源說明轉中文型式）→ public/geo/fire_hydrants_national.pmtiles（gitignored）
   tsunami     data.gov.tw 34102 → public/hazards/tsunami_sirens.geojson
   nuclear     data.gov.tw 102114（集結點）＋102434（避難收容處所）→ public/hazards/nuclear_epz_evacuation.geojson
   resources   data.gov.tw 77862 → public/geo/disaster_resource_sites.geojson
@@ -142,6 +142,14 @@ def build_accidents(analytics: Path, _raw: Path) -> None:
 #   - 台水新北市（台水供水區）與臺北水處供水區互補（只有 7 點 15 m 內有既有點）→ 收，但剔除這種 15 m 內的點。
 #   - 其餘 17 縣市只有台水來源，全收。
 TWC_SKIP_COUNTIES = {"高雄市"}
+# 台水「消防栓形態(種類編碼)」對照：data.gov.tw 44642 資料資源說明（台水填寫，2026-10-31 由
+# https://data.gov.tw/api/v2/rest/dataset/44642 的 distribution[0].resourceDescription 取得）。
+# 0–3 歸「地上式」、4–5 歸「地下式」，與北水處／高市消防局的兩級分類同口徑；空碼歸「其他」。
+TWC_TYPE_CODES = {
+    "0": ("地上式", "地上式單口式"), "1": ("地上式", "地上打倒安全式（單口）"),
+    "2": ("地上式", "地上式雙口式"), "3": ("地上式", "地上打倒安全式（雙口）"),
+    "4": ("地下式", "地下式單口式"), "5": ("地下式", "地下式雙口式"),
+}
 NEAR_M = 15.0
 OLD_CATS = {"地上式", "地下式"}
 
@@ -217,6 +225,7 @@ def build_hydrants(analytics: Path, raw: Path) -> None:
                 by_zone[3825 if cty == "澎湖縣" else 3826].append((key, float(x), float(y)))
     coords = {**twd97_to_wgs84(by_zone[3826], 3826), **twd97_to_wgs84(by_zone[3825], 3825)}
     skipped = collections.Counter()
+    per_code = collections.Counter()
     for key, (cty, hid, code) in meta.items():
         lng, lat = coords[key]
         if not in_taiwan(lng, lat):
@@ -228,9 +237,14 @@ def build_hydrants(analytics: Path, raw: Path) -> None:
             skipped[f"{cty}（{NEAR_M:.0f} m 內已有既有點）"] += 1
             continue
         per[("twc", cty)] += 1
-        features.append(point(lng, lat, {"id": key, "cat": "台水", "type": None, "type_code": code or None,
+        per_code[code or "（空）"] += 1
+        cat, type_label = TWC_TYPE_CODES.get(code, ("其他", None))
+        if code and code not in TWC_TYPE_CODES:
+            raise SystemExit(f"台水 {cty} {hid} 種類編碼 {code!r} 不在對照表")
+        features.append(point(lng, lat, {"id": key, "cat": cat, "type": type_label, "type_code": code or None,
                                          "twc_id": hid or None, "county": cty, "src": "twc"}))
     print(f"[hydrants] 共 {len(features)}；台水完全重複列 {exact_dup}；略過 {dict(skipped)}")
+    print(f"  台水上圖各種類編碼：{dict(sorted(per_code.items()))}")
     for k, v in sorted(per.items()):
         print(f"  {k}: {v}")
     tippecanoe_points(features, ROOT / "public/geo/fire_hydrants_national.pmtiles", "fire_hydrants", 0, 12, 12)
