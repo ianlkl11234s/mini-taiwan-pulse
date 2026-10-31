@@ -280,7 +280,7 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
   }, deps.isDarkTheme, {
     jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesCatMask,
     jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesCatMask,
-  });
+  }, { mode: repPointModeFromIdx(lakes.jpWaterLakesDisplayModeIdx, repPointLayer("jpWaterLakes")!.def), scale: lakes.jpWaterLakesScale ?? 1 });
   // 登入時的權限探測失敗不該對沒開日本水資源圖層的人跳全域錯誤框
   const anyJpWaterVisible = JP_WATER_LAYER_KEYS.some((key) => key !== "jpWaterLocalPipes" && deps.layerVisibility[key]);
   return anyJpWaterVisible ? <JpWaterAlert /> : null;
@@ -339,7 +339,8 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalScale ?? 1,
     jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalScale ?? 1,
     jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
-  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar]);
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalScale ?? 1,
+  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar, a28]);
   const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
   const catMasks = useMemo(() => ({
     jpAccommodationCanonical: canonical.jpAccommodationCanonicalCatMask,
@@ -350,7 +351,7 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
     jpNatureConservationArea: conservation, jpNatureConservationSpecialDistrict: specialConservation,
     jpPrimitiveNatureEnvironmentArea: primitive, jpWildlifeProtectionNational: wildlife,
     jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated, jpWildlifeSpecialProtectionDistrict: wildlifeSpecial,
-    jpMarineEbsaCoastal: ebsa,
+    jpMarineEbsaCoastal: ebsa, jpWorldNaturalHeritageHistorical: a28,
   };
   const repKeys = Object.keys(repParams) as JpTourismRepKey[];
   const repState = Object.fromEntries(repKeys.map((k) => [k, {

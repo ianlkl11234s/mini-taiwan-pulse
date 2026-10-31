@@ -19,6 +19,7 @@ import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLi
 import { repPointLayer, repPointModeFromIdx, type RepPointDisplayMode } from "../data/repPointLayers";
 import { repPointSpecFor, useGbRepPointLayers } from "./useGbWaterLayers";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { syncGeoRepPoint } from "./useJpWaterLayers";
 
 type GeometryKind = "point" | "polygon";
 
@@ -128,7 +129,7 @@ export type JpTourismRepKey =
   | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
   | "jpNatureConservationArea" | "jpNatureConservationSpecialDistrict" | "jpPrimitiveNatureEnvironmentArea"
   | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDesignatedArea" | "jpWildlifeSpecialProtectionDistrict"
-  | "jpMarineEbsaCoastal";
+  | "jpMarineEbsaCoastal" | "jpWorldNaturalHeritageHistorical";
 
 export interface JpTourismRepState { visible: boolean; mode: RepPointDisplayMode; opacity: number; scale: number }
 
@@ -142,7 +143,8 @@ const REP_SOURCE_IDS: Record<string, string> = {
   "wildlife-protection": "jp-tourism-wildlife-protection-points",
   "marine-ebsa": "jp-tourism-marine-ebsa-points",
 };
-const REP_CONFIGS = CONFIGS.filter((c) => repPointLayer(c.key));
+// GeoJSON 面層（jpWorldNaturalHeritageHistorical）的代表點由 useJpTourismLayers 內自算，不走 PMTiles 代表點。
+const REP_CONFIGS = CONFIGS.filter((c) => repPointLayer(c.key) && !repPointLayer(c.key)!.geojson);
 
 /** 單一 key 的代表點（熱區＋圓點）。這 3 組檔 production:false（EBSA 除外）：不可用的 dataset 一律 visible=false，不請求。 */
 function useJpTourismRepPoint(mapRef: React.RefObject<MapboxMap | null>, key: JpTourismRepKey, s: JpTourismRepState, isDark: boolean) {
@@ -302,6 +304,16 @@ export function useJpTourismLayers(
               paint: hookLinePaint(config.key, lineId, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, clampOpacity(opacity[config.key]) + 0.25), "line-width": 0.8 }, { "line-color": JP_TOURISM_COLORS[config.key], "line-opacity": Math.min(1, defaultOpacity + 0.25), "line-width": 0.8 }, isDark),
             });
           }
+        }
+
+        if (config.key === "jpWorldNaturalHeritageHistorical") {
+          syncGeoRepPoint(map, {
+            sourceId: "jp-tourism-jp-world-natural-heritage-historical-points", circleId: `${config.layerBase}-point-circle`,
+            data, show: Boolean(visibility[config.key]) && isJpTourismDatasetAvailable(config.dataset) && polygonHidden,
+            color: JP_TOURISM_COLORS[config.key], opacity: opacity[config.key],
+            opacityDefault: Number(paramDefault(config.key, `${config.key}Opacity`) ?? 1),
+            count: repPointLayer(config.key)!.count, scale: scale[config.key] ?? 1, isDark,
+          });
         }
 
         if (config.heatmap && map.getLayer(heatmapId)) {

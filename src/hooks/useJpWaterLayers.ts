@@ -11,6 +11,9 @@ import { hookCategoryFilter } from "../data/categoryFilters";
 import { hookFillOpacity, hookFillPaint, hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
 import { JP_WATER_ACCESS_DENIED_EVENT, jpWaterPrivateAccessToken, useJpWaterPrivateAccess } from "./useJpWaterPrivateAccess";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { densePointOpacity } from "../map/mapStyleScale";
+import { polygonFeaturesToInteriorPoints } from "../map/interiorPoint";
+import { repPointLayer, type RepPointDisplayMode } from "../data/repPointLayers";
 
 const RELEASED_KEYS = JP_WATER_RELEASED_LAYER_KEYS;
 const LOCAL_KEYS = JP_WATER_LOCAL_PMTILES_LAYER_KEYS;
@@ -95,10 +98,36 @@ function localLayer(key: typeof LOCAL_KEYS[number], opacity: number, isDark: boo
   return { id, type: "circle", source, "source-layer": item.sourceLayer, ...(minzoom !== undefined ? { minzoom } : {}), layout: { visibility: "none" }, paint: { "circle-color": circleColor, "circle-opacity": clamp(opacity), "circle-radius": pointRadius("M"), ...pointStroke(key, opacity, isDark) } } as CircleLayer;
 }
 /** V-4 類別篩選 bitmask（供水／下水道設施）。 */
+/**
+ * §3.8 V-5：GeoJSON 面層的「點」樣式（保證落在面內的代表點，與面共用同一份已載入資料）。
+ * 來源 id＝`sourceId`、圓點 id＝`circleId`；`show=false` 時只隱藏。
+ */
+export function syncGeoRepPoint(map: MapboxMap, o: {
+  sourceId: string; circleId: string; data: GeoJSON.FeatureCollection | undefined; show: boolean;
+  color: string; opacity: number; opacityDefault: number; count: number; scale: number; isDark: boolean;
+}) {
+  if (!o.show || !o.data) { if (map.getLayer(o.circleId)) map.setLayoutProperty(o.circleId, "visibility", "none"); return; }
+  if (!map.getSource(o.sourceId)) map.addSource(o.sourceId, { type: "geojson", data: polygonFeaturesToInteriorPoints(o.data) });
+  const rel = clamp(o.opacity) / o.opacityDefault;
+  const paint = {
+    "circle-color": o.color,
+    "circle-opacity": Math.min(1, densePointOpacity(o.count) * rel),
+    "circle-radius": pointRadius("M", o.scale),
+    ...pointStrokePaint(o.isDark, rel),
+  };
+  if (!map.getLayer(o.circleId)) map.addLayer({ id: o.circleId, type: "circle", source: o.sourceId, layout: { visibility: "none" }, paint } as CircleLayer);
+  map.setLayoutProperty(o.circleId, "visibility", "visible");
+  for (const [prop, value] of Object.entries(paint)) map.setPaintProperty(o.circleId, prop as never, value as never);
+}
+
+export interface JpWaterLakeRep { mode: RepPointDisplayMode; scale: number }
+const LAKE_REP_DEFAULT: JpWaterLakeRep = { mode: repPointLayer("jpWaterLakes")!.def, scale: 1 };
 export type JpWaterCatMasks = Partial<Record<"jpWaterSupplyFacilities" | "jpWaterSewerFacilities", number>>;
 const EMPTY_CAT_MASKS: JpWaterCatMasks = {};
 /** Four public GeoJSON layers plus eight owner-only PMTiles layers. */
-export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibilityProp: JpWaterVisibility, opacityProp: JpWaterOpacity, isDarkTheme = true, catMasks: JpWaterCatMasks = EMPTY_CAT_MASKS) {
+export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visibilityProp: JpWaterVisibility, opacityProp: JpWaterOpacity, isDarkTheme = true, catMasks: JpWaterCatMasks = EMPTY_CAT_MASKS, lakeRep: JpWaterLakeRep = LAKE_REP_DEFAULT) {
+  const lakeMode = lakeRep.mode;
+  const lakeScale = lakeRep.scale;
   const supplyCat = catMasks.jpWaterSupplyFacilities;
   const sewerCat = catMasks.jpWaterSewerFacilities;
   // 呼叫端每次 render 都傳新物件；直接當 effect deps 會讓下方 mount effect 每次 host
@@ -136,7 +165,8 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     };
     const mount = () => {
       const isDark = isDarkTheme;
-      RELEASED_KEYS.forEach((key) => { const data = geoData.current[key]; if (!visibility[key] || !data) { if (map.getLayer(layerId(key))) map.setLayoutProperty(layerId(key), "visibility", "none"); if (key === "jpWaterLakes") syncOutline(map, key, false, opacity[key], isDark); return; } if (!map.getSource(geoSourceId(key))) map.addSource(geoSourceId(key), { type: "geojson", data }); if (!map.getLayer(layerId(key))) map.addLayer(releasedLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", "visible"); map.setPaintProperty(layerId(key), key === "jpWaterLakes" ? "fill-opacity" : "circle-opacity", key === "jpWaterLakes" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), Number(paramDefault(key, `${key}Opacity`) ?? 1)) : clamp(opacity[key])); if (key === "jpWaterLakes") syncOutline(map, key, true, opacity[key], isDark); if (key !== "jpWaterLakes") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
+      RELEASED_KEYS.forEach((key) => { const data = geoData.current[key]; if (!visibility[key] || !data || (key === "jpWaterLakes" && lakeMode !== "polygon")) { if (map.getLayer(layerId(key))) map.setLayoutProperty(layerId(key), "visibility", "none"); if (key === "jpWaterLakes") syncOutline(map, key, false, opacity[key], isDark); return; } if (!map.getSource(geoSourceId(key))) map.addSource(geoSourceId(key), { type: "geojson", data }); if (!map.getLayer(layerId(key))) map.addLayer(releasedLayer(key, opacity[key], isDark)); map.setLayoutProperty(layerId(key), "visibility", "visible"); map.setPaintProperty(layerId(key), key === "jpWaterLakes" ? "fill-opacity" : "circle-opacity", key === "jpWaterLakes" ? hookFillOpacity(key, layerId(key), clamp(opacity[key]), Number(paramDefault(key, `${key}Opacity`) ?? 1)) : clamp(opacity[key])); if (key === "jpWaterLakes") syncOutline(map, key, true, opacity[key], isDark); if (key !== "jpWaterLakes") { map.setPaintProperty(layerId(key), "circle-radius", pointRadius("M")); { const stroke = pointStroke(key, opacity[key], isDark); for (const prop of ["circle-stroke-color", "circle-stroke-width", "circle-stroke-opacity"] as const) map.setPaintProperty(layerId(key), prop, stroke[prop]); } } });
+      syncGeoRepPoint(map, { sourceId: "jp-water-jpWaterLakes-points", circleId: "jp-water-jpWaterLakes-point-circle", data: geoData.current.jpWaterLakes, show: visibility.jpWaterLakes && lakeMode === "point", color: RELEASED_COLORS.jpWaterLakes, opacity: opacity.jpWaterLakes, opacityDefault: Number(paramDefault("jpWaterLakes", "jpWaterLakesOpacity") ?? 1), count: 556, scale: lakeScale, isDark });
       (["water", "extra-water"] as const).forEach((archive) => {
         const archiveKeys = LOCAL_KEYS.filter((key) => LOCAL[key].archive === archive);
         const archiveVisible = archiveKeys.some((key) => visibility[key]);
@@ -186,7 +216,7 @@ export function useJpWaterLayers(mapRef: React.RefObject<MapboxMap | null>, visi
     const onError = (event: { sourceId?: string; error?: Error }) => { if (event.sourceId?.startsWith("jp-water-")) reportJpWaterError(event.error ?? new Error("日本水資源地圖 source 載入失敗")); };
     mount(); map.on("style.load", mount); map.on("sourcedata", onData); map.on("error", onError);
     return () => { map.off("style.load", mount); map.off("sourcedata", onData); map.off("error", onError); };
-  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility, heatStyle, supplyCat, sewerCat]);
+  }, [access.allowed, access.userId, geoRevision, isDarkTheme, mapRef, opacity, runtime.revision, tick, visibility, heatStyle, supplyCat, sewerCat, lakeMode, lakeScale]);
 }
 
 export const JP_WATER_RUNTIME_LAYER_IDS = [

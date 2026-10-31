@@ -14,6 +14,7 @@ import { resolvePropertyValueScale } from "../data/propertyValueTypes";
 import { resolveCompanyGridScale } from "../data/businessRegistryTypes";
 import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
 import { resolveAssetUrl, fetchResolvedGeojson } from "../data/layerAssetIndex";
+import { polygonFeaturesToInteriorPoints } from "./interiorPoint";
 
 /**
  * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
@@ -740,7 +741,9 @@ export async function hydrateOverlayIfNeeded(
     const raw = await fetchResolvedGeojson(resolved);
     const json = config.geojsonTransform === "centroid"
       ? polygonFeaturesToCentroids(raw)
-      : raw;
+      : config.geojsonTransform === "interior"
+        ? polygonFeaturesToInteriorPoints(raw)
+        : raw;
     // 已有較新的 hydrate（例如索引 ready 後改抓 CDN）→ 這份舊結果丟棄
     if (hydrateGeneration.get(config.sourceId) !== generation) return;
     const src = map.getSource(config.sourceId);

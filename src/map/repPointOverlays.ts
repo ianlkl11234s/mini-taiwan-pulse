@@ -36,6 +36,10 @@ export function repPointClickLayerIds(): { polygonLayerId: string; circleIds: st
   return REP_POINT_LAYERS.flatMap((l): { polygonLayerId: string; circleIds: string[] }[] => {
     if (l.family === "registry") return [{ polygonLayerId: `${l.sourceId}-fill`, circleIds: repPointCircleIds(l) }];
     if (l.family === "agri") return [{ polygonLayerId: `${AGRI_PREFIX[l.key]}-fill`, circleIds: [`${AGRI_PREFIX[l.key]}-points-circle`] }];
+    if (l.family === "jpGeojson") {
+      const polygonLayerId = l.key === "jpWaterLakes" ? "jp-water-jpWaterLakes" : `jp-tourism-${kebab(l.key)}-fill`;
+      return [{ polygonLayerId, circleIds: [l.key === "jpWaterLakes" ? "jp-water-jpWaterLakes-point-circle" : `jp-tourism-${kebab(l.key)}-point-circle`] }];
+    }
     if (l.family === "jpTourism") return [{ polygonLayerId: `jp-tourism-${kebab(l.key)}-fill`, circleIds: [`${kebab(l.key)}-point-circle`] }];
     // jpHook：土砂警戒沒有代表點 circle（點檔只到 z7，z8 起由面接手）
     return l.key === "jpLandslideWarningAreas" ? [] : [{ polygonLayerId: `${kebab(l.key)}-fill`, circleIds: [`${kebab(l.key)}-point-circle`] }];
@@ -114,12 +118,15 @@ function companion(config: OverlayConfig, l: RepPointLayer): OverlayConfig {
     ? { sourceUrlByParam: { param: config.sourceUrlByParam.param, urls: FLOOD_SCENARIOS.map((s) => `./geo/water_flood_${s.value}_points.pmtiles`) } }
     : {};
   const filterSuffixes = layers.filter((s) => typeof s.filter === "function").map((s) => s.suffix);
+  // GeoJSON 面（沒有代表點檔）：同一份 GeoJSON，載入後轉成保證落在面內的代表點（map/interiorPoint.ts）
+  const source = l.geojson
+    ? { sourceUrl: config.sourceUrl, geojsonTransform: "interior" as const }
+    : { sourceUrl: repPointUrl(l), pmtiles: { sourceLayer: l.sourceLayer, minzoom: 4, maxzoom: l.maxzoom ?? 10 } };
   return {
     id: config.id,
-    sourceUrl: repPointUrl(l),
+    ...source,
     ...byParam,
     sourceId: repPointSourceId(l),
-    pmtiles: { sourceLayer: l.sourceLayer, minzoom: 4, maxzoom: l.maxzoom ?? 10 },
     ...(config.attribution ? { attribution: config.attribution } : {}),
     ...(config.filter ? { filter: config.filter } : {}),
     ...(filterSuffixes.length ? { rebuildOnParamChange: filterSuffixes } : {}),

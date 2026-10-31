@@ -12,12 +12,17 @@
  * 0＝點、1＝面。預設：小而零散的面（墓區、湖泊埤塘、樹穴、保護區類、產業園區…）點，大範圍面（分區、淹水、土壤、作物…）面。
  */
 export type RepPointDisplayMode = "point" | "polygon";
-export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism";
+export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism" | "jpGeojson";
 
 export interface RepPointLayer {
   /** 圖層 key（LayerVisibility） */
   key: string;
   family: RepPointFamily;
+  /**
+   * GeoJSON 面層（沒有代表點檔）：前端用 `map/interiorPoint.ts` 算保證落在面內的代表點；`file`／`sourceLayer` 留空。
+   * registry 家族自動產生 `geojsonTransform: "interior"` 的第二個 config；日本 GeoJSON hook 自己用同一支工具。
+   */
+  geojson?: boolean;
   /** 代表點檔，相對 `public/`（例 `funeral/cemetery_osm_points.pmtiles`） */
   file: string;
   /** 代表點檔的 tile layer 名（原名 + `_points`；淹水統一 `flood_scenario_points`） */
@@ -46,6 +51,8 @@ export interface RepPointLayer {
 }
 
 const R = (l: Omit<RepPointLayer, "family">): RepPointLayer => ({ family: "registry", ...l });
+const G = (l: { key: string; sourceId: string; count: number; def: RepPointDisplayMode }): RepPointLayer =>
+  ({ family: "registry", geojson: true, file: "", sourceLayer: "", ...l });
 
 export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // ── 台灣：registry 圖層 ──
@@ -70,6 +77,33 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   R({ key: "industrialParkComparison", sourceId: "business-registry-industrial-park-comparison", file: "business_registry/industrial_park_comparison_20260818_points.pmtiles", sourceLayer: "industrial_park_comparison_points", count: 215, def: "point" }),
   // 淹水：10 情境一個情境一支（切情境換 source，同 `sourceUrlByParam`），tile layer 統一 flood_scenario_points
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),
+  // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
+  G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
+  G({ key: "cemeteryZoning", sourceId: "cemetery-zoning", count: 114, def: "point" }),
+  G({ key: "waterRecreationRestrictedAreas", sourceId: "water-recreation-restricted-areas", count: 33, def: "point" }),
+  G({ key: "tourHotSpringZones", sourceId: "tour-hot-spring-zones", count: 16, def: "point" }),
+  G({ key: "forestRecreation", sourceId: "forest-recreation", count: 23, def: "point" }),
+  G({ key: "landslideDodAreas", sourceId: "landslide-dod-areas", count: 322, def: "point" }),
+  G({ key: "landslideDodImpact", sourceId: "landslide-dod-impact", count: 322, def: "point" }),
+  G({ key: "freewayEcoSensitive", sourceId: "freeway-eco-sensitive", count: 200, def: "point" }),
+  G({ key: "taipeiWaterloggingHistory", sourceId: "taipei-waterlogging-history", count: 739, def: "point" }),
+  G({ key: "natureReserves", sourceId: "nature-reserves", count: 24, def: "point" }),
+  G({ key: "wildlifeProtectedAreas", sourceId: "wildlife-protected-areas", count: 32, def: "point" }),
+  G({ key: "marineWildlifeAreas", sourceId: "marine-wildlife-areas", count: 6, def: "point" }),
+  G({ key: "setNetFishingAreas", sourceId: "set-net-fishing-areas", count: 65, def: "point" }),
+  G({ key: "exclusiveFisheryRightAreas", sourceId: "exclusive-fishery-right-areas", count: 19, def: "point" }),
+  G({ key: "seawallZones", sourceId: "seawall-zones", count: 239, def: "point" }),
+  G({ key: "aquacultureCageNet", sourceId: "aquaculture-cage-net", count: 42, def: "point" }),
+  G({ key: "serviceAreaPolygon", sourceId: "service-area-polygon", count: 19, def: "point" }),
+  G({ key: "firingNoticeAreas", sourceId: "firing-notice-areas", count: 187, def: "polygon" }),
+  G({ key: "tourScenicAreas", sourceId: "tour-scenic-areas", count: 12, def: "polygon" }),
+  G({ key: "indigenousRegions", sourceId: "indigenous-regions", count: 55, def: "polygon" }),
+  G({ key: "indigenousLanguageDialects", sourceId: "indigenous-language-dialects", count: 59, def: "polygon" }),
+  G({ key: "hakkaCulturalZones", sourceId: "hakka-cultural-zones", count: 70, def: "polygon" }),
+  G({ key: "wraCentralDrainage", sourceId: "wra-central-drainage", count: 33, def: "polygon" }),
+  G({ key: "drinkingWaterProtectionZones", sourceId: "drinking-water-protection-zones", count: 134, def: "polygon" }),
+  G({ key: "waterProtectionZones", sourceId: "water-protection-zones", count: 128, def: "polygon" }),
+  G({ key: "aquacultureZone", sourceId: "aquaculture-zone", count: 62, def: "polygon" }),
   // ── 台灣：農業（agricultureLayerFactory 自建 source，由 factory 讀本表） ──
   { key: "agriCropSuitability", family: "agri", file: "agriculture/crop_suitability_132_points.pmtiles", sourceLayer: "crop_suitability_points", count: 833_086, def: "polygon", heatIntensity: 0.06 },
   { key: "agriculture", family: "agri", file: "agriculture/ftw_fields_2025_points.pmtiles", sourceLayer: "fields_points", count: 386_829, def: "polygon" },
@@ -82,6 +116,9 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpLandslideWarningAreas", family: "jpHook", file: "jp_landslide_warning_areas_points.pmtiles", sourceLayer: "jp_landslide_warning_areas_points", count: 1_793_171, def: "polygon", maxzoom: 7, modeless: true },
   { key: "jpNationalForests", family: "jpHook", file: "jp_national_forests_points.pmtiles", sourceLayer: "jp_national_forests_points", count: 116_747, def: "polygon", heatIntensity: 0.25 },
   { key: "jpZoningUseDistricts", family: "jpHook", file: "jp_zoning_use_districts_points.pmtiles", sourceLayer: "jp_zoning_use_districts_points", count: 102_244, def: "polygon" },
+  // ── 日本：GeoJSON 面（觀光 loader／水 loader 自建，前端算代表點） ──
+  { key: "jpWaterLakes", family: "jpGeojson", geojson: true, file: "", sourceLayer: "", count: 556, def: "point" },
+  { key: "jpWorldNaturalHeritageHistorical", family: "jpGeojson", geojson: true, file: "", sourceLayer: "", count: 5, def: "polygon" },
   // ── 日本：觀光 loader（三組 × 3 個 key 共用一支檔，以 filter_layer_id 分層；EBSA 單層） ──
   { key: "jpNaturalParksNational", family: "jpTourism", file: "jp_natural_parks_ksj_2010_points.pmtiles", sourceLayer: "jp_natural_parks_ksj_2010_points", count: 1920, def: "polygon" },
   { key: "jpNaturalParksQuasiNational", family: "jpTourism", file: "jp_natural_parks_ksj_2010_points.pmtiles", sourceLayer: "jp_natural_parks_ksj_2010_points", count: 1920, def: "polygon" },
