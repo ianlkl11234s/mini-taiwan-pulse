@@ -785,7 +785,7 @@ export function GbGreenspaceLegend({ layerKey }: { layerKey: GbGreenspaceKey }) 
     {layerKey === "gbGolfCourses" ? null : <DenseHeatmapLegendRow layers={[layerKey]} />}
     {layerKey === "gbSportsFacilities" ? <LegendNote>{i18n.t("legend.urban.gbSportsGolfMoved")}</LegendNote> : null}
     {layerKey === "gbCemeteries" ? <LegendNote>{i18n.t("legend.urban.gbReligiousNote")}</LegendNote> : null}
-    <LegendNote>{i18n.t("legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
+    <LegendNote>{i18n.t(layerKey === "gbGolfCourses" ? "legend.urban.gbGolfZoom" : "legend.urban.gbGreenspaceZoom", { zoom: cfg.minzoom })}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbNiNotCovered")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.gbDataVersion", { version: GB_GREENSPACE_VERSION })}</LegendNote>
     <LegendNote>{GB_OS_ATTRIBUTION}</LegendNote>

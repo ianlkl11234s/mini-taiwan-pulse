@@ -1,4 +1,5 @@
 // 英國圖層 popup（2026-10-29 第 0b 波起）。來源與授權由 panel 自掛 SourceFooter（FOOTER_SELF_MANAGED）。
+import { CctvStreamView } from "../CctvStreamView";
 import { Row, SourceFooter, Title } from "./shared";
 import { useLocale } from "../../state/localeStore";
 import { enumLabel } from "../../i18n/dataText";
@@ -520,15 +521,22 @@ export function GbLondonBikePointsPanel({ props }: { props: Record<string, unkno
   </>;
 }
 
-/** 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態（非即時）、外連影像（不嵌入、不代理）。 */
+/**
+ * 倫敦道路攝影機（TfL JamCams）：路口、朝向、取得時狀態、即時快照。
+ * §3.8（2026-10-31）比照台灣 CCTV popup 嵌入 TfL 公開快照 JPEG（`image_url`，TfL 約每 5 分鐘更新）：
+ * 只在 popup 開啟時由瀏覽器直接載入一張圖，不輪詢、不代理（TfL Unified API 限 500 次／分，此處不經 API）；
+ * 影片（mp4）維持外連。換點時 CctvStreamView 以 key 重置。
+ */
 export function GbLondonJamCamsPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
   const offline = props.available_at_fetch === false;
+  const imageUrl = text(props.image_url);
+  const color = offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR;
   return <>
-    <Title color={offline ? GB_JAMCAM_OFFLINE_COLOR : GB_JAMCAM_COLOR}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
+    <Title color={color}>{text(props.name) || t("legend.transport.gbJamCam")}</Title>
     <Row label={t("popup.transport.gbCameraView")} value={text(props.view)} />
     <Row label={t("popup.transport.gbCameraStatus")} value={t(offline ? "popup.transport.gbCameraOfflineAtFetch" : "popup.transport.gbCameraOnlineAtFetch", { date: GB_TRANSPORT_FETCHED_AT })} />
-    <LinkRow label={t("popup.transport.gbCameraImage")} url={text(props.image_url)} />
+    {imageUrl ? <CctvStreamView key={imageUrl} streamUrl={imageUrl} imageUrl={imageUrl} source="tfl" accentColor={color} /> : null}
     <LinkRow label={t("popup.transport.gbCameraVideo")} url={text(props.video_url)} />
     <TflFooter url={GB_TFL_JAMCAM_URL} />
   </>;

@@ -63,7 +63,6 @@
   "popup.transport.gbCameraStatus": "取得時狀態",
   "popup.transport.gbCameraOnlineAtFetch": "{date} 取得時在線",
   "popup.transport.gbCameraOfflineAtFetch": "{date} 取得時離線",
-  "popup.transport.gbCameraImage": "看即時影像",
   "popup.transport.gbCameraVideo": "影片片段",
   "popup.transport.gbZoneCongestion": "塞車費區（Congestion Charge）",
   "popup.transport.gbZoneUlezLez": "超低排放區／低排放區（ULEZ／LEZ，同一邊界）",

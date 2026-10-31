@@ -13,7 +13,7 @@ import {
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { heatmapMaxzoom } from "../map/mapStyleScale";
 import {
-  gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
+  GB_THINNED_POINTS_WEIGHT, gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
 } from "./useGbWaterLayers";
 
 /**
@@ -185,7 +185,7 @@ export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, vi
   useGbRepPointLayers(mapRef, {
     key: "gbWoodland", source: WOODLAND_POINTS_SOURCE, sourceLayer: "gb_woodland_nfi_points",
     heatId: GB_WOODLAND_HEATMAP_ID, circleId: GB_WOODLAND_POINT_CIRCLE_ID, count: 620_027,
-    polygonMinzoom: GB_WOODLAND_MINZOOM, heatIntensity: 0.6, opacityDefault: def,
+    polygonMinzoom: GB_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbWoodland"), isDark, color: woodlandColor(), filter: null }, heatStyle);
   useGbPmtilesLayers(mapRef, WOODLAND_SOURCE, visible && mode === "polygon", () => [{
     id: GB_WOODLAND_FILL_ID,
@@ -348,7 +348,7 @@ export function useGbTreeProtectionLayer(mapRef: React.RefObject<MapboxMap | nul
   useGbRepPointLayers(mapRef, {
     key: "gbTreeProtection", source: TREE_POINTS_SOURCE, sourceLayer: "gb_tree_protection_points",
     heatId: GB_TREE_HEATMAP_ID, circleId: GB_TREE_POINT_CIRCLE_ID, count: 502_408,
-    polygonMinzoom: GB_ANCIENT_WOODLAND_MINZOOM, heatIntensity: 0.8, opacityDefault: def,
+    polygonMinzoom: GB_ANCIENT_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbTreeProtection"), isDark, color: treeColor(), filter }, heatStyle);
   const awPaint = (op: number) => hookFillPaint("gbTreeProtection", GB_ANCIENT_WOODLAND_FILL_ID,
     { "fill-color": treeColor(), "fill-opacity": clamp01(op) }, { "fill-color": treeColor(), "fill-opacity": def }, isDark);

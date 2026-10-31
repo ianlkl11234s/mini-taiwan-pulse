@@ -3,6 +3,7 @@ import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { pmtilesRasterCustomSource } from "../map/pmtilesRasterCustomSource";
 import { hookFillPaint, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { selectedMultiSelectValues } from "../data/multiSelectMapbox";
@@ -44,7 +45,11 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
-export interface SourceSpec { id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string }
+export interface SourceSpec {
+  id: string; file: string; minzoom: number; maxzoom: number; attribution: string; loading: string;
+  /** 點陣 PMTiles 改走 Mapbox 原生 custom source（globe 投影正確；見 map/pmtilesRasterCustomSource.ts） */
+  raster?: { tileSize: number };
+}
 /** `before`（選填）：addLayer 的 beforeId（地形 raster 插在底圖第一個 symbol 下）；不給＝疊在最上面。 */
 export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: MapboxMap) => void; before?: (map: MapboxMap) => string | undefined }
 
@@ -55,14 +60,14 @@ export interface LayerBuild { id: string; layer: () => AnyLayer; update: (map: M
  */
 export function gbHeatmapBuild(o: {
   id: string; key: string; sourceId: string; sourceLayer: string; maxzoom: number; filter?: unknown[] | null;
-  isDark: boolean; opacityScale: number; intensity: number;
+  isDark: boolean; opacityScale: number; intensity: number; weight?: unknown;
 }): LayerBuild {
   return {
     id: o.id,
     layer: () => ({
       id: o.id, type: "heatmap", source: o.sourceId, "source-layer": o.sourceLayer, maxzoom: o.maxzoom,
       ...(o.filter ? { filter: o.filter } : {}),
-      layout: { visibility: "none" }, paint: heatmapLayerPaint(o.key, o.isDark, o.opacityScale, o.intensity),
+      layout: { visibility: "none" }, paint: heatmapLayerPaint(o.key, o.isDark, o.opacityScale, o.intensity, o.weight ?? 1),
     } as unknown as AnyLayer),
     update: (map) => {
       map.setFilter(o.id, (o.filter ?? null) as any);
@@ -95,10 +100,15 @@ export function useGbPmtilesLayers(
       let sourceAdded = false;
       if (!map.getSource(source.id)) {
         sourceAdded = true;
-        map.addSource(source.id, {
-          type: PMTILES_SOURCE_TYPE, url: absoluteUrl(source.file), attribution: source.attribution,
-          minzoom: source.minzoom, maxzoom: source.maxzoom,
-        } as any);
+        map.addSource(source.id, (source.raster
+          ? pmtilesRasterCustomSource({
+            id: source.id, url: absoluteUrl(source.file), attribution: source.attribution,
+            minzoom: source.minzoom, maxzoom: source.maxzoom, tileSize: source.raster.tileSize,
+          })
+          : {
+            type: PMTILES_SOURCE_TYPE, url: absoluteUrl(source.file), attribution: source.attribution,
+            minzoom: source.minzoom, maxzoom: source.maxzoom,
+          }) as any);
       }
       for (const l of layers) {
         if (!map.getLayer(l.id)) map.addLayer(l.layer(), l.before?.(map));
@@ -176,7 +186,15 @@ export interface GbRepPointsSpec {
   heatIntensity: number;
   opacityDefault: number;
   tier?: "S" | "M";
+  /** 代表點檔低縮放有抽稀（每降一級約剩 1/2.5）時，用隨縮放放大的 heatmap-weight 補回密度（見 GB_THINNED_POINTS_WEIGHT） */
+  heatWeight?: unknown;
 }
+
+/**
+ * analytics 代表點檔 z4–9 抽稀、z10 起全量（林地、樹木保護 2026-10-31 實測每級約 ×2.5）。熱區強度以 2^zoom 縮放
+ * （假設各級圖磚都是全量），抽稀會讓全英視角幾乎看不到熱區 → 權重補回 2.5^(10−z)。
+ */
+export const GB_THINNED_POINTS_WEIGHT: Expr = ["interpolate", ["exponential", 2.5], ["zoom"], 4, 2.5 ** 6, 10, 1];
 
 export function useGbRepPointLayers(
   mapRef: React.RefObject<MapboxMap | null>, spec: GbRepPointsSpec,
@@ -198,7 +216,7 @@ export function useGbRepPointLayers(
   };
   const heat = gbHeatmapBuild({
     id: spec.heatId, key: spec.key, sourceId: spec.source.id, sourceLayer: spec.sourceLayer, maxzoom: heatMax,
-    filter: o.filter, isDark: o.isDark, opacityScale: rel, intensity: spec.heatIntensity,
+    filter: o.filter, isDark: o.isDark, opacityScale: rel, intensity: spec.heatIntensity, weight: spec.heatWeight,
   });
   // < 1 萬點的層沒有熱區：「面」模式在面出現前改畫代表點（V-2 全英視角看得到），面出現後交給面
   const circleVisible = o.mode === "point" || !dense;

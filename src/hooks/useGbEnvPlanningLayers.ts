@@ -85,7 +85,7 @@ export function useGbPlanningConstraintsLayer(mapRef: MapRef, visible: boolean, 
   useGbRepPointLayers(mapRef, {
     key: "gbPlanningConstraints", source: PLANNING_POINTS_SOURCE, sourceLayer: "gb_planning_constraints_points",
     heatId: GB_PLANNING_HEATMAP_ID, circleId: GB_PLANNING_POINT_CIRCLE_ID, count: 18_727,
-    polygonMinzoom: GB_PLANNING_MINZOOM, heatIntensity: 2, opacityDefault: def,
+    polygonMinzoom: GB_PLANNING_MINZOOM, heatIntensity: 6, opacityDefault: def,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbPlanningConstraints"), isDark, color: planningColor(), filter }, heatStyle);
   const fillPaint = (op: number) => hookFillPaint("gbPlanningConstraints", GB_PLANNING_FILL_ID,
     { "fill-color": planningColor(), "fill-opacity": planningFillOpacity(op) },

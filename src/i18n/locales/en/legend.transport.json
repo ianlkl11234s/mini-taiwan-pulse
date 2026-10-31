@@ -149,7 +149,7 @@
   "legend.transport.gbAadf20k": "20,000–50,000",
   "legend.transport.gbAadf50k": "50,000–100,000",
   "legend.transport.gbAadf100k": "100,000 or more",
-  "legend.transport.gbAadfZoomNote": "Zoom 6–7 shows motorways and trunk A roads only; all count points from zoom 8",
+  "legend.transport.gbAadfZoomNote": "Below zoom 8 all count points are shown as a density heatmap, with motorway and trunk A-road points drawn at zoom 6–7; all count points are drawn from zoom 8",
   "legend.transport.gbAadfEstimatedNote": "About 64% of count points are DfT estimates (not counted this year); switch to “Counted this year only” in the settings",
   "legend.transport.gbAadfMinorNote": "B and C/unclassified roads have sample count points only, not every minor road",
   "legend.transport.gbAadfNi": "Northern Ireland: not covered (counted separately by DfI)",

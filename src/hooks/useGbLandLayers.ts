@@ -10,6 +10,7 @@ import { useGbPmtilesLayers, type SourceSpec } from "./useGbWaterLayers";
 /**
  * 英國 C003 地形兩層（OS Terrain 50 raster PNG PMTiles，已上色成品、沒有 feature 可點）與 C028 公有地標售（點）。
  * 地形插在底圖第一個 symbol 下（不蓋地名與向量 overlay），山體陰影疊在色別標高之上。靜態資料、不訂閱時間。
+ * §3.8（2026-10-31）256 px 點陣圖磚改走 Mapbox 原生 custom source（`raster`），修 globe 投影（z < 6）畫成大方塊。
  */
 export type GbTerrainKey = "gbTerrainHillshade" | "gbTerrainRelief";
 export const GB_TERRAIN_RASTER_IDS: Readonly<Record<GbTerrainKey, string>> = {
@@ -26,11 +27,11 @@ const opacityDefault = (key: string, fallback: number) => Number(paramDefault(ke
 const TERRAIN_SOURCES: Readonly<Record<GbTerrainKey, SourceSpec>> = {
   gbTerrainHillshade: {
     id: "gb-terrain-hillshade", file: "gb_terrain_hillshade.pmtiles", ...GB_TERRAIN_TILE_ZOOM,
-    attribution: GB_OS_TERRAIN_ATTRIBUTION, loading: "英國山體陰影載入中",
+    attribution: GB_OS_TERRAIN_ATTRIBUTION, loading: "英國山體陰影載入中", raster: { tileSize: 256 },
   },
   gbTerrainRelief: {
     id: "gb-terrain-relief", file: "gb_terrain_relief.pmtiles", ...GB_TERRAIN_TILE_ZOOM,
-    attribution: GB_OS_TERRAIN_ATTRIBUTION, loading: "英國色別標高載入中",
+    attribution: GB_OS_TERRAIN_ATTRIBUTION, loading: "英國色別標高載入中", raster: { tileSize: 256 },
   },
 };
 
