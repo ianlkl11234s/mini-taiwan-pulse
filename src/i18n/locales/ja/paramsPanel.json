@@ -56,6 +56,7 @@
   "paramsPanel.pause": "一時停止",
   "paramsPanel.playbackSpeed": "再生速度",
   "paramsPanel.playbackSpeedOption": "{n} 分／秒",
+  "paramsPanel.playbackElapsed": "{h} 時間 {m} 分",
   "paramsPanel.playbackRestart": "最初から再生",
   "paramsPanel.hf.status.loading": "フル解像度の航跡を読み込み中…",
   "paramsPanel.hf.status.noneAll_TW": "この日付は台湾のどの空港にも利用可能な航跡がありません。",

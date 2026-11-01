@@ -26,6 +26,8 @@ export interface SimClockConfig {
   /** 倍速選項（模擬秒／牆鐘秒）與預設 */
   speeds: readonly number[];
   defaultSpeed: number;
+  /** 播放列時刻顯示：`clock`＝HH:MM（當日時刻，預設）；`elapsed`＝經過時間「2 小時 0 分」（t 是出發後秒數） */
+  format?: "clock" | "elapsed";
 }
 
 export interface SimPlaybackClock {
@@ -127,4 +129,10 @@ export function getSimPlaybackClock(id: string): SimPlaybackClock | undefined {
 export function formatSimClock(t: number): string {
   const s = Math.max(0, Math.round(t));
   return `${String(Math.floor(s / 3600)).padStart(2, "0")}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}`;
+}
+
+/** 經過時間（秒）→ {h, m}（`format: "elapsed"` 的播放列與 popup 用） */
+export function elapsedParts(seconds: number): { h: number; m: number } {
+  const total = Math.max(0, Math.round(seconds / 60));
+  return { h: Math.floor(total / 60), m: total % 60 };
 }

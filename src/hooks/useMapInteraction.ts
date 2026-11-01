@@ -3,6 +3,8 @@ import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl"
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { requireH3 } from "../map/h3Runtime";
+import { pickTransitReachCell } from "../data/transitReachStore";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
 // C1b：3D 模組按需載入 —— 未載入代表該圖層從沒開過，點擊時直接跳過
 import { historicalFlightTrailsModule, realEstatePointsModule } from "../map/lazyThreeLayers";
@@ -535,6 +537,16 @@ export function useMapInteraction(
         if (!found && bridgeResilienceOrigin.get()) {
           bridgeResilienceOrigin.clear();
           found = true;
+        }
+        // 交通可及性播放層是自訂 WebGL 圖層（不能 queryRenderedFeatures）：沒命中向量 feature 時以 h3 查格讀到達時間。
+        if (!found && vis?.transitReachPlayback) {
+          let picked: Record<string, unknown> | null = null;
+          try { picked = pickTransitReachCell(e.lngLat.lng, e.lngLat.lat, requireH3().latLngToCell); } catch { picked = null; }
+          if (picked) {
+            setFeatureInfo({ layerType: "transitReachPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "transitReachPlayback" });
+            found = true;
+          }
         }
         const sampleClimateFallback = (lng: number, lat: number) => {
           if (!vis?.windField && !vis?.oceanCurrents) { setFeatureInfo(null); return; }

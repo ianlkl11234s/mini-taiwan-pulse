@@ -1,10 +1,10 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { GATED_LAYERS, GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
 import { COUNTRIES, type CountryCode } from "../../constants/countries";
 
 /**
- * 圖層面板四個入口（圖層／統計／世界／模擬；模擬只對站主顯示）—— 桌機 rail 與手機底部面板共用同一份定義
+ * 圖層面板四個入口（圖層／統計／世界／模擬；模擬入口人人可見，站主限定的實驗只列給站主）—— 桌機 rail 與手機底部面板共用同一份定義
  * （layer-panel-unify P7）。每個入口只差主題清單與兩三個開關，面板本體都是 `LayersPanel`。
  * 「圖層」與「統計」依目前國家主體（`countryStore`）換內容：圖層＝該國主題樹（2026-10-28 國家主體化）；
  * 統計＝台灣、英國與南韓（2026-10-29 統計面板多國化，南韓 2026-10-31），其他國家顯示未涵蓋。
@@ -161,7 +161,7 @@ export const LAYER_PANELS: readonly LayerPanelDef[] = [
   { id: "layers", title: "圖層 Layers", shortTitle: "圖層", themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS, countryScoped: true },
   { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true, countryScoped: true, countries: ["TW", "GB", "KR"] },
   { id: "world", title: "世界 World", shortTitle: "世界", themes: WORLD_THEMES, macroGroups: WORLD_MACRO_GROUPS },
-  // 模擬：大分類先不分（macroGroups 不給）。只有站主看得到 → 一律經 `visibleLayerPanels(isOwner)` 取清單。
+  // 模擬：大分類先不分（macroGroups 不給）。入口人人可見；站主限定的實驗（GATED_LAYERS）由 `resolveLayerPanel(…, owner)` 濾掉。
   { id: "simulation", title: "模擬 Simulation", shortTitle: "模擬", themes: SIMULATION_THEMES },
 ];
 
@@ -170,8 +170,21 @@ export interface ResolvedLayerPanel extends LayerPanelDef {
   covered: boolean;
 }
 
-export function resolveLayerPanel(id: LayerPanelId, country: CountryCode): ResolvedLayerPanel {
+/**
+ * 模擬面板給非站主看的主題：拿掉站主限定圖層（GATED_LAYERS，例：橋梁韌性、公車擁擠），空的子群組與主題一併拿掉。
+ * 2026-11-01 使用者改 D-1：入口對所有人開放，公開模擬（交通可及性）人人可用（simulation PLAN 決策紀錄）。
+ */
+export function publicSimulationThemes(themes: readonly ThemeDef[]): ThemeDef[] {
+  return themes
+    .map((theme) => ({ ...theme, groups: theme.groups.map((group) => ({ ...group, layers: group.layers.filter((layer) => !GATED_LAYERS.has(layer.key)) })).filter((group) => group.layers.length > 0) }))
+    .filter((theme) => theme.groups.length > 0);
+}
+const PUBLIC_SIMULATION_THEMES = publicSimulationThemes(SIMULATION_THEMES);
+
+/** `owner`：站主才為 true（只影響模擬面板；未傳＝非站主，站主限定實驗不列）。 */
+export function resolveLayerPanel(id: LayerPanelId, country: CountryCode, owner = false): ResolvedLayerPanel {
   const def = layerPanelDef(id);
+  if (id === "simulation" && !owner) return { ...def, themes: PUBLIC_SIMULATION_THEMES, covered: true };
   if (id === "layers") {
     const { themes, macroGroups } = COUNTRY_LAYER_THEMES[country];
     return { ...def, themes, macroGroups, allOffKeys: countryLayerKeys(country), covered: true };
@@ -185,20 +198,15 @@ export function resolveLayerPanel(id: LayerPanelId, country: CountryCode): Resol
 /** 有資料的國家（國家選單順序）。 */
 export const PANEL_COUNTRIES: readonly CountryCode[] = COUNTRIES.map((country) => country.code);
 
-/** 只有站主看得到「模擬」入口（simulation PLAN D-1）；非站主（含未登入、載入中）回傳不含模擬的清單。 */
-export function visibleLayerPanels(isOwner: boolean): readonly LayerPanelDef[] {
-  return isOwner ? LAYER_PANELS : LAYER_PANELS.filter((panel) => panel.id !== "simulation");
-}
-
 export const layerPanelDef = (id: LayerPanelId): LayerPanelDef => LAYER_PANELS.find((panel) => panel.id === id)!;
 
 const panelKeyCache = new Map<string, Set<string>>();
-/** 某入口在某國的全部圖層 key（搜尋「其他面板還有 N 筆」用）；國家省略＝台灣。 */
-export function panelLayerKeys(id: LayerPanelId, country: CountryCode = "TW"): Set<string> {
-  const cacheKey = `${id}:${country}`;
+/** 某入口在某國的全部圖層 key（搜尋「其他面板還有 N 筆」用）；國家省略＝台灣；`owner` 同 `resolveLayerPanel`。 */
+export function panelLayerKeys(id: LayerPanelId, country: CountryCode = "TW", owner = false): Set<string> {
+  const cacheKey = `${id}:${country}:${owner ? "owner" : "public"}`;
   let keys = panelKeyCache.get(cacheKey);
   if (!keys) {
-    keys = new Set(getThemeLayerKeys(resolveLayerPanel(id, country).themes));
+    keys = new Set(getThemeLayerKeys(resolveLayerPanel(id, country, owner).themes));
     panelKeyCache.set(cacheKey, keys);
   }
   return keys;

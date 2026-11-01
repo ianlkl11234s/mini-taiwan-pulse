@@ -53,6 +53,7 @@ import {
 } from "./hosts/hazardHosts";
 import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
+import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import {
   NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
 } from "./hosts/environmentHosts";
@@ -257,6 +258,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useBssBridgeLayers", keys: ["bssNationalBridgePreview", "bssNationalBridgePointsPreview"], Host: BssBridgeHost },
   { id: "useBridgeResilienceLayers", keys: ["bridgeResilienceTwinCity"], Host: BridgeResilienceHost },
   { id: "useBusCrowdingSimLayer", keys: ["busCrowdingSim"], Host: BusCrowdingSimHost },
+  { id: "useTransitReachGridLayer", keys: ["transitReachGrid"], Host: TransitReachGridHost },
+  { id: "useTransitReachPlaybackLayer", keys: ["transitReachPlayback"], Host: TransitReachPlaybackHost },
 
   // ── 全球氣候 / 世界（L1088-1154）──
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },

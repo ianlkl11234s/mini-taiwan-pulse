@@ -25,7 +25,7 @@ import { panelForExplorationLayers, type ExplorationPanel } from "../research/ex
 // 圖層面板共用外殼（layer-panel-unify A 段）：四個入口與手機底部面板用同一套元件
 import { useLocale } from "../state/localeStore";
 import { LayersPanel, RailPanelHeader } from "./sidebar/LayersPanel";
-import { resolveLayerPanel, visibleLayerPanels, type LayerPanelId } from "./sidebar/layerPanels";
+import { LAYER_PANELS, resolveLayerPanel, type LayerPanelId } from "./sidebar/layerPanels";
 import { countryStore, useCountry } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext, useRailTheme } from "./sidebar/railTheme";
@@ -77,8 +77,8 @@ interface IconRailSidebarProps {
   compactLayers?: boolean;
   /** 使用者在國家選單選了國家（App 用來 flyTo 該國）；網址、Agent 切國家都不呼叫 */
   onCountryFly?: (code: CountryCode) => void;
-  /** 站主才為 true：模擬入口只對站主顯示（simulation PLAN D-1）；未傳＝不顯示（含未登入、載入中）。 */
-  showSimulation?: boolean;
+  /** 站主才為 true：模擬面板多列站主限定實驗（橋梁韌性、公車擁擠）；未傳＝非站主，只列公開模擬（2026-11-01 改 D-1）。 */
+  simulationOwner?: boolean;
   /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -111,7 +111,7 @@ export function IconRailSidebar({
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onCountryFly,
-  showSimulation = false,
+  simulationOwner = false,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
   agentAvailable, agentActive, onAgentToggle,
@@ -131,7 +131,7 @@ export function IconRailSidebar({
     countryStore.set(code);
     onCountryFly?.(code);
   };
-  const panels = visibleLayerPanels(showSimulation);
+  const panels = LAYER_PANELS;
   const panelIds = panels.map((panel) => panel.id);
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
@@ -166,12 +166,8 @@ export function IconRailSidebar({
     };
     window.addEventListener("pulse:explore-layers", onExplore);
     return () => window.removeEventListener("pulse:explore-layers", onExplore);
-  }, [showSimulation, memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
 
-  // 站主身分消失（登出、tier 重新載入）時，收起已開著的模擬面板
-  useEffect(() => {
-    if (!showSimulation) setActivePanel((current) => (current === "simulation" ? null : current));
-  }, [showSimulation]);
 
   const panelOpen = activePanel !== null;
 
@@ -268,15 +264,13 @@ export function IconRailSidebar({
           tooltip={t("panel.world.title")}
         />
 
-        {/* 🧪 模擬 Simulation：只對站主顯示（D-1） */}
-        {showSimulation && (
-          <RailIcon
-            icon={FlaskConical}
-            active={activePanel === "simulation"}
-            onClick={() => togglePanel("simulation")}
-            tooltip={t("panel.simulation.title")}
-          />
-        )}
+        {/* 🧪 模擬 Simulation：人人可見；站主限定實驗只列給站主（2026-11-01 改 D-1） */}
+        <RailIcon
+          icon={FlaskConical}
+          active={activePanel === "simulation"}
+          onClick={() => togglePanel("simulation")}
+          tooltip={t("panel.simulation.title")}
+        />
 
         {/* Locations */}
         <RailIcon
@@ -389,13 +383,14 @@ export function IconRailSidebar({
             }}
           >
             {panels.map((entry) => activePanel === entry.id && (() => {
-              const panel = resolveLayerPanel(entry.id, country);
+              const panel = resolveLayerPanel(entry.id, country, simulationOwner);
               return (
               <LayersPanel
                 // 切國家要 remount：主題收合狀態是 useState initializer，只在掛載時讀 defaultCollapsed
                 key={`${panel.id}:${panel.countryScoped ? country : ""}`}
                 panelId={panel.id}
                 availablePanelIds={panelIds}
+                simulationOwner={simulationOwner}
                 country={country}
                 covered={panel.covered}
                 onCountrySelect={panel.countryScoped ? selectCountry : undefined}

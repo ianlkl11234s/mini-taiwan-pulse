@@ -56,6 +56,7 @@
   "paramsPanel.pause": "Pause",
   "paramsPanel.playbackSpeed": "Speed",
   "paramsPanel.playbackSpeedOption": "{n} min/s",
+  "paramsPanel.playbackElapsed": "{h} h {m} min",
   "paramsPanel.playbackRestart": "Restart from beginning",
   "paramsPanel.hf.status.loading": "Loading full-resolution tracks…",
   "paramsPanel.hf.status.noneAll_TW": "No usable tracks at any Taiwan airport on this date.",

@@ -25,6 +25,7 @@ import {
 } from "./linkedSelect";
 // provider 以 import 副作用註冊（統計＋統計群組）；控件、Agent、場景存檔都經本檔或 linkedSelect 讀取
 import "./statisticsLinkedSelect";
+import "./transitReachOriginSelect";
 
 // ══════════════════════════════════════════════════════════════════
 //  控件型別（AR-22 P3-3）

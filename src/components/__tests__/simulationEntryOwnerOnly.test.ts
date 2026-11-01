@@ -10,7 +10,8 @@ vi.mock("react", async (importOriginal) => {
 
 import { IconRailSidebar, MAIN_THEMES, getThemeLayerKeys } from "../IconRailSidebar";
 import { LayerSidebar } from "../LayerSidebar";
-import { LAYER_PANELS, layerPanelDef, panelLayerKeys, visibleLayerPanels } from "../sidebar/layerPanels";
+import { LAYER_PANELS, layerPanelDef, panelLayerKeys, resolveLayerPanel } from "../sidebar/layerPanels";
+import { GATED_LAYERS } from "../sidebar/layerCatalog";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { panelForExplorationLayers } from "../../research/explorationNavigation";
 import type { LayerVisibility } from "../../types";
@@ -24,23 +25,28 @@ const baseProps = {
 const rail = (extra: object) => renderToStaticMarkup(createElement(IconRailSidebar, { ...baseProps, ...extra } as never));
 const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSidebar, { ...baseProps, isMobile: true, ...extra } as never));
 
-describe("模擬入口只對站主顯示（simulation PLAN D-1）", () => {
-  it("visibleLayerPanels：非站主不含模擬，站主含模擬且排在最後", () => {
-    expect(visibleLayerPanels(false).map((panel) => panel.id)).toEqual(["layers", "statistics", "world"]);
-    expect(visibleLayerPanels(true)).toBe(LAYER_PANELS);
-    expect(visibleLayerPanels(true)[LAYER_PANELS.length - 1]!.id).toBe("simulation");
+describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11-01 改 D-1）", () => {
+  it("resolveLayerPanel：非站主只見交通可及性兩層；站主四層", () => {
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback"]);
+    expect(LAYER_PANELS[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
 
-  it("桌機 rail：站主有「模擬」按鈕，非站主與未傳（載入中）都沒有", () => {
-    expect(rail({ showSimulation: true })).toContain("模擬 Simulation");
-    expect(rail({ showSimulation: false })).not.toContain("模擬 Simulation");
-    expect(rail({})).not.toContain("模擬 Simulation");
+  it("非站主的模擬面板不含任何 GATED_LAYERS", () => {
+    expect([...panelLayerKeys("simulation")].filter((key) => GATED_LAYERS.has(key as keyof LayerVisibility))).toEqual([]);
+    expect(GATED_LAYERS.has("transitReachGrid")).toBe(false);
+    expect(GATED_LAYERS.has("transitReachPlayback")).toBe(false);
   });
 
-  it("手機分頁：站主有「模擬」分頁，非站主沒有", () => {
-    expect(mobile({ showSimulation: true })).toContain(">模擬<");
+  it("桌機 rail：站主、非站主與未傳（載入中）都有「模擬」按鈕", () => {
+    expect(rail({ simulationOwner: true })).toContain("模擬 Simulation");
+    expect(rail({ simulationOwner: false })).toContain("模擬 Simulation");
+    expect(rail({})).toContain("模擬 Simulation");
+  });
+
+  it("手機分頁：非站主也有「模擬」分頁", () => {
     const guest = mobile({});
-    expect(guest).not.toContain(">模擬<");
+    expect(guest).toContain(">模擬<");
     expect(guest).toContain(">世界<");
     expect(guest).not.toContain(">日本<");
   });
@@ -48,7 +54,7 @@ describe("模擬入口只對站主顯示（simulation PLAN D-1）", () => {
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation")]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim"]);
+    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);
@@ -62,6 +68,15 @@ describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
 
   it("Agent 開啟該圖層時導向模擬面板", () => {
     expect(panelForExplorationLayers(["bridgeResilienceTwinCity"]).panel).toBe("simulation");
+  });
+});
+
+describe("交通可及性（公開模擬）", () => {
+  it("manifest section 指向模擬面板第三個主題；Agent 開啟時導向模擬面板", () => {
+    const theme = layerPanelDef("simulation").themes[2]!;
+    expect(LAYER_MANIFEST.transitReachGrid.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(LAYER_MANIFEST.transitReachPlayback.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(panelForExplorationLayers(["transitReachPlayback"]).panel).toBe("simulation");
   });
 });
 

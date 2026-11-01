@@ -12,6 +12,8 @@ interface ImportMetaEnv {
   readonly VITE_STATISTICS_CDN_BASE?: string;
   /** 靜態圖層資產索引 base（預設 https://data.itsmigu.com/layers/v1/），本機演練用 */
   readonly VITE_LAYER_ASSET_BASE?: string;
+  /** 公開模擬資料根目錄（預設 https://data.itsmigu.com/sim/v1/），只在 DEV 生效，本機資料伺服器用 */
+  readonly VITE_SIM_BUNDLE_BASE?: string;
   /** 本機測試身分（僅 DEV 生效）；需搭配 loopback gateway 的 PULSE_RESEARCH_TEST_IDENTITY=1 */
   readonly VITE_RESEARCH_TEST_IDENTITY?: string;
 }

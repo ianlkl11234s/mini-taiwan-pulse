@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1501,
+    "keyCount": 1503,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5054,6 +5054,12 @@
         "h3-youbike-ext"
       ],
       "type": "youbikeFullness"
+    },
+    {
+      "layers": [
+        "transit-reach-grid-fill"
+      ],
+      "type": "transitReachGrid"
     },
     {
       "layers": [
@@ -164487,6 +164493,169 @@
         "step": 0.05,
         "value": 1,
         "valueText": "1.00"
+      }
+    ],
+    "transitReachGrid": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "1 小時內可達人口",
+            "value": "pop1h"
+          },
+          {
+            "label": "2 小時內可達人口",
+            "value": "pop2h"
+          },
+          {
+            "label": "3 小時內可達人口",
+            "value": "pop3h"
+          },
+          {
+            "label": "到最近大都市主站",
+            "value": "thub"
+          },
+          {
+            "label": "人口加權平均旅行時間",
+            "value": "avg"
+          }
+        ],
+        "type": "select",
+        "value": "pop2h"
+      },
+      {
+        "label": "版本",
+        "options": [
+          {
+            "label": "全運具",
+            "value": "abs"
+          },
+          {
+            "label": "純開車",
+            "value": "drv"
+          },
+          {
+            "label": "增益（全運具比純開車）",
+            "value": "gain"
+          }
+        ],
+        "type": "select",
+        "value": "abs"
+      },
+      {
+        "label": "車速",
+        "options": [
+          {
+            "label": "自由車流",
+            "value": "free"
+          },
+          {
+            "label": "尖峰（推估）",
+            "value": "peak"
+          }
+        ],
+        "type": "select",
+        "value": "free"
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      }
+    ],
+    "transitReachPlayback": [
+      {
+        "label": "起點縣市",
+        "options": [],
+        "status": "loading",
+        "statusText": "載入中…",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "運具",
+        "options": [
+          {
+            "label": "全運具（鐵道＋航班＋船班＋開車）",
+            "value": "all"
+          },
+          {
+            "label": "台鐵＋高鐵＋開車",
+            "value": "tra_thsr_drive"
+          },
+          {
+            "label": "台鐵＋開車",
+            "value": "tra_drive"
+          },
+          {
+            "label": "純開車",
+            "value": "drive_only"
+          },
+          {
+            "label": "比較：航班／船班多出",
+            "value": "cmp_air"
+          },
+          {
+            "label": "比較：高鐵多出",
+            "value": "cmp_thsr"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "車速",
+        "options": [
+          {
+            "label": "自由車流",
+            "value": "free"
+          },
+          {
+            "label": "尖峰（推估）",
+            "value": "peak"
+          }
+        ],
+        "type": "select",
+        "value": "free"
+      },
+      {
+        "label": "色階範圍",
+        "options": [
+          {
+            "label": "依起點自動",
+            "value": "auto"
+          },
+          {
+            "label": "固定 0–8 小時",
+            "value": "fixed"
+          }
+        ],
+        "type": "select",
+        "value": "auto"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "label": "整點等時線",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "clock": "transitReachPlayback",
+        "label": "出發後經過",
+        "type": "playback",
+        "value": ""
       }
     ],
     "treePitsTaipei": [
