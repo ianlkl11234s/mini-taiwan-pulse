@@ -1313,6 +1313,8 @@
   "layer.securitiesFuturesInstitutions": "Securities & Futures Offices",
   "layer.insuranceInstitutions": "Insurers & Insurance Agencies",
   "layer.busCrowdingSim": "Bus Segment Overloaded-Trip Share",
+  "layer.transitReachGrid": "Grid Transit Reach",
+  "layer.transitReachPlayback": "Arrival Time from One Station",
   "layer.postOfficeFxCounters": "Post Offices Exchanging Foreign Cash",
   "layer.jpEvacuationSites": "Designated Evacuation Sites & Shelters",
   "layer.jpPublicOffices": "Municipal Offices & Public Halls",

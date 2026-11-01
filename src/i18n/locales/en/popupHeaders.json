@@ -97,6 +97,8 @@
   "popupHeader.typhoonAgencyForecast": "Agency Typhoon Forecasts",
   "popupHeader.busCrowdingSim": "Bus Segment Overloaded-Trip Share (Estimate)",
   "popupHeader.busCrowdingSimVehicle": "Simulated Bus (Estimate)",
+  "popupHeader.transitReachGrid": "Grid Transit Reach (Scenario)",
+  "popupHeader.transitReachPlayback": "Arrival Time from One Station (Scenario)",
   "popupHeader.trafficAccidents2025": "Traffic Accidents",
   "popupHeader.disasterResourceSites": "Disaster Resource Sites",
   "popupHeader.tsunamiSirens": "Tsunami Sirens",

@@ -126,6 +126,11 @@ import {
 } from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
 import {
+  TRANSIT_REACH_CLOCK_ID, TRANSIT_REACH_GRID_METRICS, TRANSIT_REACH_GRID_METRIC_LABELS, TRANSIT_REACH_GRID_VIEWS, TRANSIT_REACH_GRID_VIEW_LABELS,
+  TRANSIT_REACH_MODES, TRANSIT_REACH_MODE_LABELS, TRANSIT_REACH_ORIGIN_PROVIDER, TRANSIT_REACH_RANGES, TRANSIT_REACH_RANGE_LABELS,
+  TRANSIT_REACH_SPEEDS, TRANSIT_REACH_SPEED_LABELS,
+} from "./transitReachTypes";
+import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
 } from "./pollutionTypes";
@@ -2321,6 +2326,38 @@ export const LAYER_PARAMS_SPEC = {
     // spec §5.40 S-1：只在「時間回放」顯示；值在 scoped 時鐘，不進 store／場景
     kind: "playback", name: "busCrowdingSimPlayback", label: "模擬時間", clock: BUS_CROWDING_SIM_CLOCK_ID, default: "", out: null,
     showWhen: { param: "busCrowdingSimView", equals: "replay" },
+  }],
+  // 交通可及性（模擬面板，公開；G28 P5）：指標／版本／車速只改 paint 的 `get` 欄位，資料不重抓。
+  transitReachGrid: [opacitySlider("transitReachGridOpacity", 0.8), {
+    kind: "select", category: "data", name: "transitReachGridMetric", label: "指標", default: "pop2h",
+    options: TRANSIT_REACH_GRID_METRICS.map((value) => ({ value, label: TRANSIT_REACH_GRID_METRIC_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitReachGridView", label: "版本", default: "abs",
+    options: TRANSIT_REACH_GRID_VIEWS.map((value) => ({ value, label: TRANSIT_REACH_GRID_VIEW_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitReachGridSpeed", label: "車速", default: "free",
+    options: TRANSIT_REACH_SPEEDS.map((value) => ({ value, label: TRANSIT_REACH_SPEED_LABELS[value] })), out: null,
+  }],
+  // 交通可及性單一起點播放：起點（縣市→車站，連動選單）→ 模式 → 車速 → 色階範圍；時間在 scoped 時鐘（S-1），不進 store。
+  transitReachPlayback: [opacitySlider("transitReachPlaybackOpacity", 1), {
+    kind: "linkedSelect", name: "transitReachCounty", label: "起點縣市", provider: TRANSIT_REACH_ORIGIN_PROVIDER, field: "county",
+    dependsOn: [], primary: true, persist: false, default: "", out: null,
+  }, {
+    kind: "linkedSelect", name: "transitReachOrigin", label: "起點車站", provider: TRANSIT_REACH_ORIGIN_PROVIDER, field: "origin",
+    dependsOn: ["transitReachCounty"], persist: false, default: "", out: null,
+  }, {
+    kind: "select", category: "data", name: "transitReachMode", label: "運具", default: "all",
+    options: TRANSIT_REACH_MODES.map((value) => ({ value, label: TRANSIT_REACH_MODE_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitReachSpeed", label: "車速", default: "free",
+    options: TRANSIT_REACH_SPEEDS.map((value) => ({ value, label: TRANSIT_REACH_SPEED_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "color", name: "transitReachRange", label: "色階範圍", default: "auto",
+    options: TRANSIT_REACH_RANGES.map((value) => ({ value, label: TRANSIT_REACH_RANGE_LABELS[value] })), out: null,
+  }, {
+    kind: "toggle", category: "look", name: "transitReachIsochrones", label: "整點等時線", default: true,
+  }, {
+    kind: "playback", name: "transitReachPlaybackTime", label: "出發後經過", clock: TRANSIT_REACH_CLOCK_ID, default: "", out: null,
   }],
   jpPoliceFacilities: [
     heatmapPalette("jpPoliceFacilities"),

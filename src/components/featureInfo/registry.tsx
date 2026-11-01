@@ -78,6 +78,7 @@ import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStations
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
+import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -588,6 +589,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bridgeResilienceTwinCity: BridgeResiliencePanel,
   busCrowdingSim: BusCrowdingSimPanel,
   busCrowdingSimVehicle: BusCrowdingSimVehiclePanel,
+  transitReachGrid: TransitReachGridPanel,
+  transitReachPlayback: TransitReachPlaybackPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -1201,6 +1204,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   bridgeResilienceTwinCity: "雙北跨河橋梁韌性（研究中）",
   busCrowdingSim: "公車路段超載班次比例（推估）",
   busCrowdingSimVehicle: "模擬公車（推估）",
+  transitReachGrid: "網格交通可及性（情境推演）",
+  transitReachPlayback: "單一起點到達時間（情境推演）",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
