@@ -284,12 +284,12 @@
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| VIS-1 | P3 | ready | 熱區預設色（依主題表，`src/map/heatmapPaletteDefaults.ts`）請使用者目視確認，含子代理自選的覆寫（省道里程牌 tokyo、國道標誌 Burg、海岸侵蝕 YlOrBr、崩塌地 rocket、魚塭 acton、河川面 PuBu 等）。 | First action: 本機測試站依主題各開 2 層截圖給使用者看。 | 使用者確認或指定調整並已改。 |
-| VIS-2 | P3 | ready | 英國海岸侵蝕面模式低縮放外框 2.2px（略超 F-2 的 1px）；是否改預設點模式。 | 待使用者看畫面決定。First action: 截 z5.5 面／點兩種給使用者選。 | 使用者已選並更新 golden。 |
-| VIS-3 | P3 | ready | 未逐一在 UI 實測的項目：英國其餘 4 層點面切換（`gbCemeteries` 已驗）、魚塭／河川面／橋梁輪廓切換、淡色主題；台灣 `court`、日本 `jpAccommodationCanonical` 篩選。2026-11-01 正式站已驗：提示卡、`gbCemeteries` 點面、`gbSchools`／`speedCamera` 篩選、`fireHydrants` 彈窗。 | First action: 正式站逐項點剩下的層。 | 逐項截圖，問題另開條目。 |
-| VIS-4 | P3 | ready | 倫敦 JamCams 彈窗在 dev 模式顯示「無法載入」（production build 正常），疑 React StrictMode cleanup 清掉圖片來源；台灣 CCTV dev 是否同樣未測。 | First action: 讀 `CctvStreamView` effect cleanup，dev 下重現。 | dev 與 production 都顯示影像。 |
-| VIS-5 | P3 | ready | `parksTaipei`（面板名「公園」）manifest 描述寫「臺北市公園 2,917 處」，實際含臺北 1,350、臺中約 1,081、臺南約 486。 | First action: 改 manifest 描述／名稱（三語）或拆層，問使用者偏好。 | 名稱與描述符合資料；layerCoverage 視需要登記。 |
-| VIS-6 | P4 | ready | GeoJSON 面層在點樣式下仍會下載整份面資料；舊 `public/world/gb_flood_defences_z5.pmtiles` 已無引用。 | First action: 量最大幾層 GeoJSON 大小，>2MB 才優化；舊檔確認無引用後移除。 | 點樣式不載面資料或確認不需優化；舊檔已清。 |
+| VIS-1 | P3 | done | 熱區預設色（依主題表，`src/map/heatmapPaletteDefaults.ts`）使用者 2026-11-01 確認維持現狀。 | — | 已結案。 |
+| VIS-2 | P3 | done | 英國海岸侵蝕面模式低縮放外框 2.2px：使用者選維持面模式，在 map-layers.md 登記為 F-2「其他外框例外」（#795，merge `7aaafe66`）。 | 未發版，隨下一次整批發版。 | 規範已登記。 |
+| VIS-3 | P3 | ready | 2026-11-01 正式站已驗：提示卡、英國墓園／保護區／公園綠地／開放進入地／規劃限制區／建成區點面切換，魚塭兩層、河川面、橋梁輪廓點面切換，`gbSchools`／`speedCamera`／`court`／`jpAccommodationCanonical` 篩選，`fireHydrants` 彈窗；淡色主題可辨識但偏淡。林地／樹木保護 z10–11 空白已在 #795 修。剩：(1) 那輪沒讀 console；(2) 台灣 `landslideAnnual` 點模式權重曲線與林地相同，正式站 z10.5 熱區偏淡但看得到，使用者尚未決定是否比照 `GB_THINNED_POINTS_WEIGHT_TO_Z12` 調亮。 | First action: 問使用者 landslideAnnual 要不要調；下次正式站驗收順便讀 console。 | console 無新錯誤；landslideAnnual 依決定處理。 |
+| VIS-4 | P3 | done | 倫敦 JamCams 彈窗 dev 模式「無法載入」：StrictMode cleanup 清掉影像來源，改為元素離開畫面才清（台灣 CCTV 同修）；JamCams 改播 TfL mp4 短片、失敗退回快照；顯示方式寫進 spec §5.2.1（#795，merge `7aaafe66`）。 | 未發版，隨下一次整批發版。 | 本機 dev 兩者都顯示影像（截圖 `_vis_shots/vis-followup/`）。 |
+| VIS-5 | P3 | done | `parksTaipei` 改名「公園 Parks（臺北、臺中、臺南）」，描述寫三市處數與其他縣市未涵蓋（三語，使用者選甲不拆層；#795）。 | 未發版，隨下一次整批發版。 | 名稱與描述符合資料。 |
+| VIS-6 | P4 | done | 量測後只有 `forestRecreation`（2.41MB）點樣式仍載整份面資料超過 2MB，使用者 2026-11-01 決定先不處理；舊 `gb_flood_defences_z5.pmtiles` 已刪（#795）。 | 若之後要做：forestRecreation 改出代表點檔。 | 已結案。 |
 
 ## Feature backlog index
 
