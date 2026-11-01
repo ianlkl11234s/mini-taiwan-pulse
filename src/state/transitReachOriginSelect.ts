@@ -91,9 +91,12 @@ registerLinkedSelectProvider(TRANSIT_REACH_ORIGIN_PROVIDER, {
     if (spec.field === "county") {
       const current = transitReachSelectedOrigin();
       if (current && countyOf(current) === value) return;
-      const first = base.origins.find((o) => countyOf(o) === value);
-      if (!first) throw new Error(LINKED_SELECT_VALUE_INVALID);
-      selectTransitReachOrigin(first.id);
+      // 換縣市：優先選與縣市同名的台鐵站（臺東縣 → 臺東），沒有才用清單第一站
+      const inCounty = base.origins.filter((o) => countyOf(o) === value);
+      if (!inCounty.length) throw new Error(LINKED_SELECT_VALUE_INVALID);
+      const stem = value.replace(/[縣市]$/, "");
+      const pick = inCounty.find((o) => o.mode === "tra" && o.name === stem) ?? inCounty[0]!;
+      selectTransitReachOrigin(pick.id);
       return;
     }
     selectTransitReachOrigin(value);

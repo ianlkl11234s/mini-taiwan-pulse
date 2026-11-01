@@ -23,7 +23,8 @@ const num = (v: unknown): number | null => (typeof v === "number" && Number.isFi
 /** 分鐘 → 「2 小時 5 分」／「45 分」 */
 export function formatMinutes(minutes: number, tr: Tr): string {
   const m = Math.round(minutes);
-  return m >= 60 ? tr("popup.transitReach.hoursMinutes", { h: Math.floor(m / 60), m: m % 60 }) : tr("popup.transitReach.minutes", { m });
+  if (m < 60) return tr("popup.transitReach.minutes", { m });
+  return m % 60 === 0 ? tr("popup.transitReach.hours", { h: m / 60 }) : tr("popup.transitReach.hoursMinutes", { h: Math.floor(m / 60), m: m % 60 });
 }
 
 /** 人口：中文／日文用「萬人」，英文用 k／M */
@@ -41,6 +42,14 @@ function Badge({ text }: { text: string }) {
   return <div style={{ margin: "2px 0 4px" }}>
     <span className="fi-badge" style={{ ...chipOutline(t.textMuted), display: "inline-block", padding: "2px 5px", borderRadius: 3, fontSize: FONT_SIZE.sm, lineHeight: 1.2 }}>{text}</span>
   </div>;
+}
+
+/** 六個大站的英文名（grid hubs 是中文站名；日文沿用漢字） */
+const HUB_EN: Record<string, string> = { 臺北: "Taipei", 板橋: "Banqiao", 桃園: "Taoyuan", 臺中: "Taichung", 臺南: "Tainan", 高雄: "Kaohsiung" };
+
+function SectionLabel({ children }: { children: string }) {
+  const t = useFeatureTheme();
+  return <div style={{ marginTop: 6, color: t.textDim, fontSize: FONT_SIZE.sm, fontWeight: 600 }}>{children}</div>;
 }
 
 function Note({ children }: { children: string }) {
@@ -66,16 +75,23 @@ export function TransitReachGridPanel({ props }: { props: Record<string, unknown
   const pop = (x: number | null) => (x === null ? tr("popup.transitReach.uncovered") : formatPopulation(x, i18n));
   const time = (x: number | null) => (x === null ? tr("popup.transitReach.uncovered") : formatMinutes(x, tr));
   const hubIdx = grid.v[`all_${speed}`]?.hub?.[i];
-  const hub = typeof hubIdx === "number" && hubIdx >= 0 ? grid.hubs[Math.round(hubIdx)] : undefined;
+  const hubZh = typeof hubIdx === "number" && hubIdx >= 0 ? grid.hubs[Math.round(hubIdx)] : undefined;
+  const hub = hubZh && i18n.active === "en" ? (HUB_EN[hubZh] ?? hubZh) : hubZh;
   return <>
     <Title color={TRANSIT_REACH_COLOR}>{town}</Title>
     <Badge text={tr("popup.transitReach.badge")} />
     <Row label={tr("popup.transitReach.cellPop")} value={formatPopulation(grid.pop[i] ?? 0, i18n)} />
     <Row label={tr("popup.transitReach.speed")} value={paramText(TRANSIT_REACH_SPEED_LABELS[speed], i18n)} />
-    <Row label={tr("popup.transitReach.reachPop")} value={`${pop(v("pop1h", "abs"))} / ${pop(v("pop2h", "abs"))} / ${pop(v("pop3h", "abs"))}`} />
-    <Row label={hub ? tr("popup.transitReach.toHubNamed", { hub: placeName(hub, i18n as I18nContext) }) : tr("popup.transitReach.toHub")} value={time(v("thub", "abs"))} />
+    <SectionLabel>{tr("popup.transitReach.allModes")}</SectionLabel>
+    <Row label={tr("popup.transitReach.reach1h")} value={pop(v("pop1h", "abs"))} />
+    <Row label={tr("popup.transitReach.reach2h")} value={pop(v("pop2h", "abs"))} />
+    <Row label={tr("popup.transitReach.reach3h")} value={pop(v("pop3h", "abs"))} />
+    <Row label={hub ? tr("popup.transitReach.toHubNamed", { hub }) : tr("popup.transitReach.toHub")} value={time(v("thub", "abs"))} />
     <Row label={tr("popup.transitReach.avgTime")} value={time(v("avg", "abs"))} />
-    <Row label={tr("popup.transitReach.driveOnly")} value={tr("popup.transitReach.driveOnlyValue", { pop3h: pop(v("pop3h", "drv")), hub: time(v("thub", "drv")), avg: time(v("avg", "drv")) })} />
+    <SectionLabel>{tr("popup.transitReach.driveOnlyHeader")}</SectionLabel>
+    <Row label={tr("popup.transitReach.reach3h")} value={pop(v("pop3h", "drv"))} />
+    <Row label={tr("popup.transitReach.toHub")} value={time(v("thub", "drv"))} />
+    <Row label={tr("popup.transitReach.avgTime")} value={time(v("avg", "drv"))} />
     <Note>{tr("popup.transitReach.gridNote")}</Note>
     <SourceFooter props={{ source: tr("popup.transitReach.source") }} />
   </>;
@@ -107,7 +123,7 @@ export function TransitReachPlaybackPanel({ props }: { props: Record<string, unk
     <Row label={tr("popup.transitReach.speed")} value={paramText(TRANSIT_REACH_SPEED_LABELS[speed], i18n)} />
     <Row label={tr("popup.transitReach.arrival")} value={arrival} />
     {isCompareMode(mode) && <Row
-      label={tr("popup.transitReach.compareBase")}
+      label={tr(mode === "cmp_air" ? "popup.transitReach.compareBaseAir" : "popup.transitReach.compareBaseThsr")}
       value={base === null ? tr("popup.transitReach.notReached") : t !== null && base - t >= TRANSIT_REACH_GAIN_MIN
         ? tr("popup.transitReach.saved", { time: formatMinutes(base, tr), saved: formatMinutes(base - t, tr) })
         : formatMinutes(base, tr)}
