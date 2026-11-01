@@ -6,7 +6,7 @@ import { SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { isStatisticsRenderLayer } from "../data/regionalStatisticsRecipes";
 // 與桌機 IconRailSidebar 共用同一套面板元件與四個入口定義（layer-panel-unify P7）
 import { LayersPanel } from "./sidebar/LayersPanel";
-import { LAYER_PANELS, resolveLayerPanel, visibleLayerPanels, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
+import { LAYER_PANELS, resolveLayerPanel, STATISTICS_ALL_OFF_KEYS, type LayerPanelId } from "./sidebar/layerPanels";
 import { countryStore, useCountry } from "../state/countryStore";
 import type { CountryCode } from "../constants/countries";
 import { railPalette, RailThemeContext } from "./sidebar/railTheme";
@@ -47,8 +47,8 @@ interface LayerSidebarProps {
   onAllOff?: () => void;
   /** 使用者在國家選單選了國家（App 飛到該國，同桌機） */
   onCountryFly?: (code: CountryCode) => void;
-  /** 站主才為 true：模擬分頁只對站主顯示（simulation PLAN D-1）；未傳＝不顯示。 */
-  showSimulation?: boolean;
+  /** 站主才為 true：模擬分頁多列站主限定實驗；未傳＝非站主，只列公開模擬（2026-11-01 改 D-1）。 */
+  simulationOwner?: boolean;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -74,7 +74,7 @@ export function LayerSidebar({
   onBulkSetVisibility,
   onAllOff,
   onCountryFly,
-  showSimulation,
+  simulationOwner,
   onMemberToggle,
   memberActive,
   favoriteKeys,
@@ -100,7 +100,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} showSimulation={showSimulation}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} simulationOwner={simulationOwner}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -190,7 +190,7 @@ export function LayerSidebar({
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} showSimulation={showSimulation}
+        onBulkSetVisibility={onBulkSetVisibility} onAllOff={onAllOff} onCountryFly={onCountryFly} simulationOwner={simulationOwner}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -207,7 +207,7 @@ export function LayerSidebar({
 function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onCountryFly, showSimulation,
+  onViewModeChange, onDisplayModeChange, onBulkSetVisibility, onAllOff, onCountryFly, simulationOwner,
   onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
@@ -225,7 +225,7 @@ function SidebarContent({
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onAllOff?: () => void;
   onCountryFly?: (code: CountryCode) => void;
-  showSimulation?: boolean;
+  simulationOwner?: boolean;
   onMemberToggle?: () => void;
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
@@ -236,12 +236,11 @@ function SidebarContent({
   const { TEXT_STRONG, DIM, ROW_ACTIVE, ALLOFF_BG } = palette;
   const [tab, setTab] = useState<LayerPanelId>("layers");
   const [panelSearch, setPanelSearch] = useState<Record<LayerPanelId, string>>({ layers: "", statistics: "", world: "", simulation: "" });
-  const panels = visibleLayerPanels(!!showSimulation);
+  const panels = LAYER_PANELS;
   const panelIds = panels.map((entry) => entry.id);
   // 國家主體：與桌機、統計共用（countryStore）
   const country = useCountry();
-  // 站主身分消失時，目前停在模擬分頁就退回圖層
-  const panel = resolveLayerPanel(panelIds.includes(tab) ? tab : "layers", country);
+  const panel = resolveLayerPanel(panelIds.includes(tab) ? tab : "layers", country, !!simulationOwner);
   const selectCountry = (code: CountryCode) => {
     countryStore.set(code);
     onCountryFly?.(code);
@@ -291,6 +290,7 @@ function SidebarContent({
         key={`${panel.id}:${panel.countryScoped ? country : ""}`}
         panelId={panel.id}
         availablePanelIds={panelIds}
+        simulationOwner={!!simulationOwner}
         country={country}
         covered={panel.covered}
         onCountrySelect={panel.countryScoped ? selectCountry : undefined}

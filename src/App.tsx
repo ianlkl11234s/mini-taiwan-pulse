@@ -2467,7 +2467,7 @@ export default function App() {
               }}
               monitorSplitActive={monitorOpen && monitorMode === "split"}
               compactLayers={monitorOpen && monitorMode === "split"}
-              showSimulation={isOwner && !memberAuthLoading}
+              simulationOwner={isOwner && !memberAuthLoading}
               onCountryFly={handleCountryFly}
             />
           </div>
@@ -2761,7 +2761,7 @@ export default function App() {
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
                       onBulkSetVisibility={handleBulkSetVisibility}
                       onAllOff={handleAllOff}
-                      showSimulation={isOwner && !memberAuthLoading}
+                      simulationOwner={isOwner && !memberAuthLoading}
                       onCountryFly={handleCountryFly}
                     />
                   </div>
