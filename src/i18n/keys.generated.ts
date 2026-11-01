@@ -6136,7 +6136,6 @@ export type GeneratedStaticKey =
   | "popup.transport.gbCameraOfflineAtFetch"
   | "popup.transport.gbCameraOnlineAtFetch"
   | "popup.transport.gbCameraStatus"
-  | "popup.transport.gbCameraVideo"
   | "popup.transport.gbCameraView"
   | "popup.transport.gbCountPoint"
   | "popup.transport.gbCountPointId"

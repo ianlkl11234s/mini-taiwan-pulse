@@ -63,7 +63,6 @@
   "popup.transport.gbCameraStatus": "Status at fetch",
   "popup.transport.gbCameraOnlineAtFetch": "Online when fetched on {date}",
   "popup.transport.gbCameraOfflineAtFetch": "Offline when fetched on {date}",
-  "popup.transport.gbCameraVideo": "Video clip",
   "popup.transport.gbZoneCongestion": "Congestion Charge zone",
   "popup.transport.gbZoneUlezLez": "Ultra Low Emission Zone / Low Emission Zone (ULEZ / LEZ, same boundary)",
   "popup.transport.gbZoneArea": "Area",

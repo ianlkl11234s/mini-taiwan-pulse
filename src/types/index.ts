@@ -1481,7 +1481,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   streetTreesTaipeiDiff: boolean; // 台北行道樹 2024/11 vs 現在 三狀態變化（PMTiles，99,527 點；status 分色 persisted/disappeared/appeared）
   protectedTreesNational: boolean; // 受保護樹木全國（GeoJSON 6,544 點，8 城市；樹齡 5 級/城市雙染色模式 + 城市篩選 + dbh_m 胸徑點大小因子）
   riversideTreesTaipei: boolean;  // 台北河濱喬木（GeoJSON 10,917 點，30 座河濱公園；樹種前 10 大染色 + 公園篩選）
-  parksTaipei: boolean;           // 台北公園（GeoJSON 2,917 點；category 7 類染色 + area_sqm log 點大小 + 分類篩選）
+  parksTaipei: boolean;           // 公園（臺北、臺中、臺南三市，GeoJSON 2,917 點；category 7 類染色 + area_sqm log 點大小 + 分類篩選）
   streetTreesTaipei3epoch: boolean; // 台北行道樹三時點 2022/2024/2026 軌跡（PMTiles，105,675 點；traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
