@@ -56,6 +56,7 @@
   "paramsPanel.pause": "暫停",
   "paramsPanel.playbackSpeed": "倍速",
   "paramsPanel.playbackSpeedOption": "{n} 分鐘／秒",
+  "paramsPanel.playbackElapsed": "{h} 小時 {m} 分",
   "paramsPanel.playbackRestart": "從頭播放",
   "paramsPanel.hf.status.loading": "正在載入完整解析度軌跡…",
   "paramsPanel.hf.status.noneAll_TW": "此日期全部台灣機場皆無可用軌跡。",
