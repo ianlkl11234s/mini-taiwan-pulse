@@ -5,7 +5,7 @@
   accidents   analytics environment/traffic_accident/traffic_accident_by_incident.geojson
               → public/geo/traffic_accidents_2025.pmtiles（gitignored，走 S3 deploy-assets geo/ 鏡像）
   hydrants    analytics fire/hydrants/hydrants.csv（臺北自來水事業處＋高雄市消防局，既有 69,839 點）
-              ＋台水 data.gov.tw 44642 prot7.zip（19 縣市；種類編碼 0–5 依資料資源說明轉中文型式）→ public/geo/fire_hydrants_national.pmtiles（gitignored）
+              ＋台水 data.gov.tw 44642 prot7.zip（19 縣市；種類編碼 0–5 依資料資源說明轉中文型式）→ public/geo/fire_hydrants_national_v2.pmtiles（gitignored）
   tsunami     data.gov.tw 34102 → public/hazards/tsunami_sirens.geojson
   nuclear     data.gov.tw 102114（集結點）＋102434（避難收容處所）→ public/hazards/nuclear_epz_evacuation.geojson
   resources   data.gov.tw 77862 → public/geo/disaster_resource_sites.geojson
@@ -247,7 +247,7 @@ def build_hydrants(analytics: Path, raw: Path) -> None:
     print(f"  台水上圖各種類編碼：{dict(sorted(per_code.items()))}")
     for k, v in sorted(per.items()):
         print(f"  {k}: {v}")
-    tippecanoe_points(features, ROOT / "public/geo/fire_hydrants_national.pmtiles", "fire_hydrants", 0, 12, 12)
+    tippecanoe_points(features, ROOT / "public/geo/fire_hydrants_national_v2.pmtiles", "fire_hydrants", 0, 12, 12)
 
 
 # ── 3. 海嘯警報臺 ───────────────────────────────────────────────────────

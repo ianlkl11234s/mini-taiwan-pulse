@@ -2303,7 +2303,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // R5（P-4／G-2）：10k–100k 本應 z ≥ 10 出點，但保留原本較高的 12；z < 12 改畫 magma 熱區。
   {
     id: "fireHydrants",
-    sourceUrl: "./geo/fire_hydrants_national.pmtiles",
+    sourceUrl: "./geo/fire_hydrants_national_v2.pmtiles",
     sourceId: "fire-hydrants",
     pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
