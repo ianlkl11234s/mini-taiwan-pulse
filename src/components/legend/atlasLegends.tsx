@@ -7,13 +7,13 @@ import {
   ECOLOGY_SPECIES_STEPS, ECO_SENSITIVE_LEVEL_OPTIONS, EMERGENCY_BAY_OPTIONS, FLOOD_INFO_SOURCE_OPTIONS, FREEWAY_SIGN_GROUP_OPTIONS,
   GATE_KIND_OPTIONS, INTERCHANGE_TYPE_OPTIONS, ISOLATION_CAUSE_OPTIONS, MICROPLASTIC_STEPS, MONITOR_SERIES_OPTIONS, PLACE_CATEGORY_OPTIONS,
   POLLUTION_LEVEL_OPTIONS, ROAD_SIGN_SERIES_OPTIONS, RURAL_COMMUNITY_OPTIONS, STRUCTURE_CATEGORY_OPTIONS, SWCB_PHOTO_CATEGORY_OPTIONS,
-  TRIANGULATION_GRADE_OPTIONS, TRIBE_ETHNIC_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS, MARINE_PROTECTION_ORGS,
+  TRIANGULATION_GRADE_OPTIONS, TRIBE_LEGEND_OPTIONS, COASTAL_AREA_TYPE_OPTIONS, MARINE_WILDLIFE_AREA_OPTIONS, MARINE_PROTECTION_ORGS,
   EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS, G37_ORGS, TRIBE_NOT_APPROVED_COLOR, TURTLE_SPECIES_OPTIONS,
   CULTURE_COIN_CATEGORY_OPTIONS, CULTURE_COIN_ORGS, CULTURAL_HEALTH_KIND_OPTIONS,
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS, STATE_ASSET_ORGS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, FINANCE_ACCESS_ORGS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS,
-  DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
+  DIALECT_LEGEND_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, VISITOR_STEPS, G35_ORGS,
   type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -82,11 +82,11 @@ const stepRows = (steps: readonly { min: number; label: string; color: string }[
 
 export const ATLAS_LEGENDS: Record<AtlasLayerKey, () => ReactNode> = {
   indigenousTribes: () => <AtlasLegend layer="indigenousTribes" en="Indigenous Tribes" source={src("cip", ["156632", "7093"])} domain="atlasEthnic"
-    rows={[...TRIBE_ETHNIC_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,
+    rows={[...TRIBE_LEGEND_OPTIONS, { labelKey: "legend.atlas.otherMultiEthnic", color: ATLAS_OTHER_COLOR }, { labelKey: "legend.atlas.notApprovedList", color: TRIBE_NOT_APPROVED_COLOR }]} />,
   indigenousIsolationRisk: () => <AtlasLegend layer="indigenousIsolationRisk" en="Isolation-risk Areas" source={src("cip", ["170259"])} domain="atlasIsolation" rows={ISOLATION_CAUSE_OPTIONS} />,
   // 文化、觀光、原民補強 G35（2026-10-31）
   indigenousRegions: () => <AtlasLegend layer="indigenousRegions" en="Indigenous Regions (55 townships)" kind="square" source={src("cip", ["163124"])} rows={single("indigenousRegions", "legend.atlas.indigenousRegion")} />,
-  indigenousLanguageDialects: () => <AtlasLegend layer="indigenousLanguageDialects" en="Indigenous Language Dialects" kind="square" source={src("cip", ["164237"])} domain="atlasEthnic" rows={DIALECT_GROUP_OPTIONS} />,
+  indigenousLanguageDialects: () => <AtlasLegend layer="indigenousLanguageDialects" en="Indigenous Language Dialects" kind="square" source={src("cip", ["164237"])} domain="atlasEthnic" rows={DIALECT_LEGEND_OPTIONS} />,
   hakkaCulturalZones: () => <AtlasLegend layer="hakkaCulturalZones" en="Hakka Cultural Development Zones" kind="square" source={src("hakka", ["162466"])} domain="atlasHakkaAccent" rows={HAKKA_ACCENT_OPTIONS} />,
   agriRuralCommunityVillages: () => <AtlasLegend layer="agriRuralCommunityVillages" title="legend.atlas.titleRuralCommunity" en="Rural Community Villages" kind="square" source={src("swcb")} domain="atlasRural" rows={RURAL_COMMUNITY_OPTIONS} />,
   provincialRoadSigns: () => <AtlasLegend layer="provincialRoadSigns" en="Provincial Road Signs" source={src("thb", ["146233"], true)} domain="atlasSignSeries" rows={ROAD_SIGN_SERIES_OPTIONS} dense />,

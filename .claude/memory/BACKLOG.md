@@ -257,8 +257,8 @@
 | TWL-12 | P3 | blocked | 主題分配待決 6 題。 | Blocked: 使用者決定。兩套統計分類要不要統一、陸域保護區歸屬、視覺測試層去留、原民與農村去留、社福中心與圖書館搬家、正式站是否開統計比較 build 參數。 | 每題有結論。[報告](../../../.gis-agent-system/roadmap/scout/2026-10-31-tw-gap/routeC_theme_allocation.md) |
 | TWL-13 | P3 | blocked | G38 全國都市計畫區邊界。 | Blocked: 授權不明（國土署／國土測繪中心，需使用者發信）。Pulse 只有北市、新北使用分區與非都市土地使用分區；analytics 只有 luz_tcd_poc 試抓。 | 授權確認後開 pipeline。[G38](../../../.gis-agent-system/roadmap/candidates/G38-urban-plan-district-boundaries.md) |
 | TWL-14 | P3 | ready | 2026-10-31 盤點的次優先候選。 | 多縣市拼接：路燈、社區照顧關懷據點（刪負責人電話）、公園綠地擴到北市以外；不動產經紀業 25114（刪負責人姓名）、動物收容成果 41236、環境教育設施、不用品站點 163144、最小統計區人口、台電鄉鎮用電 14135。需新 collector 的潮汐、鄉鎮預報排在 TWL-6 後。 | 逐項排入批次或結案。[報告](../../../.gis-agent-system/roadmap/scout/2026-10-31-tw-gap/README.md) |
-| TWL-15 | P2 | ready | G35–G37 合併後的接續工作（2026-10-31）。 | (1) **發版日**上傳 S3 deploy-assets：`public/geo/traffic_accidents_2025.pmtiles`（18.9MB）、`public/geo/fire_hydrants_national.pmtiles`（16.0MB），`upload-deploy-assets.sh` 的 `public/geo/*.pmtiles` glob 已涵蓋；本機副本在主 checkout `public/geo/`（gitignored），CHANGELOG Unreleased 已註明。(2) pulse-data registry 補條目：G35 6 筆、G36 5 筆＋消防栓全國、G37 7 筆（各 PR 描述有規格），並同步 analytics data-catalog `used_by_pulse_layers`。(3) 村里教育程度統計層：analytics 已有資料與 `docs/handoff/village-education-recipes.draft.json`，走 R2 發布。(4) 跳過的來源：地質敏感區 27744（RAR 需另解）、暴潮線 158145（GeoTIFF 需轉向量）、重要濕地功能分區。(5) 合併後目視 2026-10-31 已完成（側欄群組、衛生所篩選、G36 popup、新層抽查，console 無錯誤）。(6) `statsRiceHarvest`（datasetId `rice_harvested_area_township`）的 section.theme 隨 #777 改了，MCP datasetLabels 要重產。First action: 發版前確認 (1)；(2) 開 pulse-data PR。 | (1) 正式站兩層有畫面；(2) registry 測試綠、MCP 查得到；(3) 統計入口看得到；(4) 每項做或結案。 |
-| TWL-16 | P3 | blocked | G35–G37 留下的使用者決定題（2026-10-31）。 | 2026-10-31 使用者已決定：毒化物獨立成層保留（G19 決策 #7 改為此做法）、換電站留能源 › 再生能源、重大職災留執法治安 › 勞動檢查、射擊公告區保留過去公告（圖例註明）、孤兒點檔已刪（#777）。Blocked: 剩 3 題待使用者決定：① 台水消防栓型式代碼對照表（目前顯示原碼）；② 族語方言色彩相近是否要調；③ 重要濕地功能分區要不要做。 | 剩餘 3 題有結論並落到對應 PR 或結案。 |
+| TWL-15 | P2 | ready | G35–G37 合併後的接續工作（2026-10-31；G35–G37＋#791 已隨 v2.19.0 上線）。 | (1) ~~發版日上傳~~ v2.19.0 已上傳 `traffic_accidents_2025.pmtiles`（正式站 200）；但正式站 `fire_hydrants_national.pmtiles` 是 #771 舊版（sha 15341b1c…，主 checkout 為 #791 新版 6ed4d0b1…），程式已是 #791 → 台水約 14 萬點畫成「其他」灰。使用者 2026-11-02 選「換新檔名、隨下次發版」：`fire_hydrants_national_v2.pmtiles`（fix/tw-hydrant-v2，與本筆同一個 PR），**下次發版日上傳**，本機主 checkout `public/geo/`：`fire_hydrants_national_v2.pmtiles`＝#791 版（6ed4d0b1…，要上傳），`fire_hydrants_national.pmtiles`＝#771 版（與 S3 相同，上傳守門會略過；之後無引用可清）；舊版備份 `GIS/_worktree-backups/fire_hydrants_national.pr771.pmtiles`。(2) pulse-data registry 補條目：G35 6 筆、G36 5 筆＋消防栓全國（含台水 44642 來源與型式對照）、G37 7 筆＋`importantWetlandZones`（#791，25659 功能分區 578 面），並同步 analytics data-catalog `used_by_pulse_layers`。(3) 村里教育程度統計層：analytics 已有資料與 `docs/handoff/village-education-recipes.draft.json`，走 R2 發布。(4) 跳過的來源：地質敏感區 27744（RAR 需另解）、暴潮線 158145（GeoTIFF 需轉向量）。濕地功能分區已做（#791）。(5) 合併後目視 2026-10-31 已完成。(6) `statsRiceHarvest`（datasetId `rice_harvested_area_township`）section.theme 隨 #777 改了，MCP datasetLabels 要重產。First action: (1) 下次發版日上傳 v2 檔；(2) 開 pulse-data PR。 | (1) 正式站 `?layers=fireHydrants` 台水點顯示地上式／地下式；(2) registry 測試綠、MCP 查得到；(3) 統計入口看得到；(4) 每項做或結案。 |
+| TWL-16 | P3 | done | G35–G37 留下的使用者決定題（2026-10-31）。 | 使用者決定：毒化物獨立成層保留（G19 決策 #7 改為此做法）、換電站留能源 › 再生能源、重大職災留執法治安 › 勞動檢查、射擊公告區保留過去公告、孤兒點檔已刪（#777）。剩餘 3 題 2026-11-01 完成：① 台水消防栓型式依 44642「資料資源說明」轉中文（0–3 地上式、4–5 地下式，#791，v2.19.0）；② 族別配色：#791 邵族／噶瑪蘭、#793 賽德克／雅美／噶瑪蘭再調、族語方言圖例只列有塗色的 10 族、#796 部落點位改用共用 16 族色（#793／#796 在 develop 未發版）；③ 濕地功能分區 `importantWetlandZones` 578 面（#791，v2.19.0）。 | 已完成；#793／#796 隨下次整批發版。 |
 
 ## 英國圖層全英視角可見（2026-10-30，feat/uk-lowzoom-visibility）
 
@@ -269,13 +269,13 @@
 | UKLZ-3 | P3 | ready | 運動場地 `gbSportsFacilities` 全英視角的熱區被高爾夫點（2,980 點 S 階）蓋住，熱區幾乎看不出。 | 使用者 2026-10-30 選「高爾夫單獨拆」後的副作用，未要求修。First action: 問使用者要不要把高爾夫點改小或空心；要就改 `useGbOpenSpaceLayers` 高爾夫 circle 半徑／填色並更新 golden。 | 全英 z5.5 截圖熱區與高爾夫點都辨識得出；check 全綠。 |
 | UKD-1 | P2 | blocked | 英國第 0–12 波累積的待拍板項（配色、授權依據、大檔縮檔、主題擺放等）。 | Blocked on owner decision。清單正本在 analytics `docs/topic-research/united_kingdom_opendata/waves/PLAN.md` §3 各波 HOLD 欄與個人記憶 uk-opendata-status-ref。First action: 逐項列給使用者用選擇題拍板（一次只問核心 2 題）。 | 每項有決定並落到對應 PR 或明確「不做」。 |
 | UKOSM-1 | P3 | blocked | OSM 五層：C014 橋隧、C018 道路設施、B 級路、C033 公共設施、C049 宗教。 | Blocked：本機 IP 疑被 Overpass 封鎖。First action: 換網路（或 Overpass 鏡像）在 analytics 重跑各 `07_export.py`，資料到手後一層一 PR 接前端。 | 五層資料產出、前端上 develop、瀏覽器截圖驗收。 |
-| UKREL-1 | P3 | ready | #766 日文英國主題名（交通、教育、文化）與變電所類型三語翻譯，已合 develop `76cf045a`，未發版。 | 使用者偏好小修不單獨發版。First action: 隨下一次整批發版。 | 正式站 `?lang=ja` 英國面板顯示交通／教育／文化、變電所類型顯示日文。 |
+| UKREL-1 | P3 | done | #766 日文英國主題名（交通、教育、文化）與變電所類型三語翻譯，已合 develop `76cf045a`，2026-11-01 隨 v2.19.0 上線。 | 使用者偏好小修不單獨發版。First action: 隨下一次整批發版。 | 正式站 `?lang=ja` 英國面板顯示交通／教育／文化、變電所類型顯示日文。 |
 
 ## 南韓圖層（2026-10-31，第 0–5 波＋統計已合 develop）
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| KRREL-1 | P2 | blocked | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | Blocked on owner decision（develop→master 須使用者拍板）。First action: 發版當天、合 master 前照 CHANGELOG Unreleased 各「發版注意」清單上傳 S3 deploy-assets（南韓 3 支大檔、`gb_built_up_areas_v2`、台灣 v2／_z7／_points 檔、交通事故與消防栓等；`scripts/deploy/upload-deploy-assets.sh` 已登記）；發版前列出 develop 上範圍外 PR 給使用者確認。 | 正式站 `main-*.js` 含新版號；清單內檔案 Range 回 206；四國全國視角各截一張（南韓 z6、英國 z5.5、台灣 z7、日本 z5），提示卡與點面切換各驗一次，console 無新錯誤。 |
+| KRREL-1 | P2 | done | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | 2026-11-01 v2.19.0 上線（#790、#792 merge `3110ba9c`，tag＋Release；範圍外 #766／#770／#771／#772／#777／#791 經使用者同意一起發）。S3 deploy-assets 256 檔已上傳。 | 已驗：`main-*.js` 含 2.19.0；8 支大檔 206；四國全國視角截圖；提示卡、點面切換、類別篩選、消防栓彈窗實測通過；console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
 | KRW-6 | P3 | ready | 南韓第 6–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
@@ -284,12 +284,12 @@
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| VIS-1 | P3 | ready | 熱區預設色（依主題表，`src/map/heatmapPaletteDefaults.ts`）請使用者目視確認，含子代理自選的覆寫（省道里程牌 tokyo、國道標誌 Burg、海岸侵蝕 YlOrBr、崩塌地 rocket、魚塭 acton、河川面 PuBu 等）。 | First action: 本機測試站依主題各開 2 層截圖給使用者看。 | 使用者確認或指定調整並已改。 |
-| VIS-2 | P3 | ready | 英國海岸侵蝕面模式低縮放外框 2.2px（略超 F-2 的 1px）；是否改預設點模式。 | 待使用者看畫面決定。First action: 截 z5.5 面／點兩種給使用者選。 | 使用者已選並更新 golden。 |
-| VIS-3 | P3 | ready | 未逐一在 UI 實測的項目：英國 5 層新點面切換、魚塭／河川面／橋梁輪廓切換、英國兩層類別篩選前後、淡色主題；台灣 `court`、日本 `jpAccommodationCanonical` 本機缺資料檔無法目視篩選。 | First action: 發版後正式站逐項點一次（併入 KRREL-1 驗收）。 | 逐項截圖，問題另開條目。 |
-| VIS-4 | P3 | ready | 倫敦 JamCams 彈窗在 dev 模式顯示「無法載入」（production build 正常），疑 React StrictMode cleanup 清掉圖片來源；台灣 CCTV dev 是否同樣未測。 | First action: 讀 `CctvStreamView` effect cleanup，dev 下重現。 | dev 與 production 都顯示影像。 |
-| VIS-5 | P3 | ready | `parksTaipei`（面板名「公園」）manifest 描述寫「臺北市公園 2,917 處」，實際含臺北 1,350、臺中約 1,081、臺南約 486。 | First action: 改 manifest 描述／名稱（三語）或拆層，問使用者偏好。 | 名稱與描述符合資料；layerCoverage 視需要登記。 |
-| VIS-6 | P4 | ready | GeoJSON 面層在點樣式下仍會下載整份面資料；舊 `public/world/gb_flood_defences_z5.pmtiles` 已無引用。 | First action: 量最大幾層 GeoJSON 大小，>2MB 才優化；舊檔確認無引用後移除。 | 點樣式不載面資料或確認不需優化；舊檔已清。 |
+| VIS-1 | P3 | done | 熱區預設色（依主題表，`src/map/heatmapPaletteDefaults.ts`）使用者 2026-11-01 確認維持現狀。 | — | 已結案。 |
+| VIS-2 | P3 | done | 英國海岸侵蝕面模式低縮放外框 2.2px：使用者選維持面模式，在 map-layers.md 登記為 F-2「其他外框例外」（#795，merge `7aaafe66`）。 | 未發版，隨下一次整批發版。 | 規範已登記。 |
+| VIS-3 | P3 | ready | 2026-11-01 正式站已驗：提示卡、英國墓園／保護區／公園綠地／開放進入地／規劃限制區／建成區點面切換，魚塭兩層、河川面、橋梁輪廓點面切換，`gbSchools`／`speedCamera`／`court`／`jpAccommodationCanonical` 篩選，`fireHydrants` 彈窗；淡色主題可辨識但偏淡。林地／樹木保護 z10–11 空白已在 #795 修。剩：(1) 那輪沒讀 console；(2) 台灣 `landslideAnnual` 點模式權重曲線與林地相同，正式站 z10.5 熱區偏淡但看得到，使用者尚未決定是否比照 `GB_THINNED_POINTS_WEIGHT_TO_Z12` 調亮。 | First action: 問使用者 landslideAnnual 要不要調；下次正式站驗收順便讀 console。 | console 無新錯誤；landslideAnnual 依決定處理。 |
+| VIS-4 | P3 | done | 倫敦 JamCams 彈窗 dev 模式「無法載入」：StrictMode cleanup 清掉影像來源，改為元素離開畫面才清（台灣 CCTV 同修）；JamCams 改播 TfL mp4 短片、失敗退回快照；顯示方式寫進 spec §5.2.1（#795，merge `7aaafe66`）。 | 未發版，隨下一次整批發版。 | 本機 dev 兩者都顯示影像（截圖 `_vis_shots/vis-followup/`）。 |
+| VIS-5 | P3 | done | `parksTaipei` 改名「公園 Parks（臺北、臺中、臺南）」，描述寫三市處數與其他縣市未涵蓋（三語，使用者選甲不拆層；#795）。 | 未發版，隨下一次整批發版。 | 名稱與描述符合資料。 |
+| VIS-6 | P4 | done | 量測後只有 `forestRecreation`（2.41MB）點樣式仍載整份面資料超過 2MB，使用者 2026-11-01 決定先不處理；舊 `gb_flood_defences_z5.pmtiles` 已刪（#795）。 | 若之後要做：forestRecreation 改出代表點檔。 | 已結案。 |
 
 ## Feature backlog index
 

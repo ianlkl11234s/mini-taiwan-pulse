@@ -12,6 +12,8 @@ interface Props {
   source?: string;
   /** popup 主色，沿用各 panel 的 accent */
   accentColor: string;
+  /** 短片（mp4，例：TfL JamCams）：有給就先以 <video> 播放，失敗再退回 imageUrl 快照 */
+  videoUrl?: string;
 }
 
 /** 已確認帶 X-Frame-Options: SAMEORIGIN 的 host，iframe 會被瀏覽器擋掉，直接走文字 fallback */
@@ -20,7 +22,7 @@ const XFO_BLOCKLIST = ["atis.ntpc.gov.tw"];
 /** 私網 IP host（外部無法存取） */
 const PRIVATE_IP_RE = /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/;
 
-type Stage = "img" | "iframe" | "text";
+type Stage = "video" | "img" | "iframe" | "text";
 
 interface Decision {
   /** 是否一開始就確定無法內嵌（直接文字）：i18n key */
@@ -65,10 +67,51 @@ function decide(streamUrl: string, imageUrl: string | undefined): Decision {
  *   但 <iframe> 的子文件導航可正常渲染（實測確認）→ 直接 iframe
  * - 其餘 → 先試 <img>（MJPEG/JPEG 可顯示），失敗再 fallback
  */
-function initialStage(decision: Decision, source?: string): Stage {
+function initialStage(decision: Decision, source?: string, videoUrl?: string): Stage {
+  if (videoUrl && canEmbedVideo(videoUrl)) return "video";
   if (decision.blockedReason) return "text";
   if (source === "freeway") return decision.iframeBlocked ? "text" : "iframe";
   return "img";
+}
+
+/** 短片只走 https（http 在 https 頁面會被混合內容擋下）；其餘直接退回快照 */
+function canEmbedVideo(videoUrl: string): boolean {
+  const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+  return videoUrl.startsWith("https://") || (!isHttps && videoUrl.startsWith("http://"));
+}
+
+/** 影片失敗後的下一步：有快照就試快照，否則直接文字 */
+function stageAfterVideo(decision: Decision, imageUrl: string | undefined): Stage {
+  if (!imageUrl || decision.blockedReason) return "text";
+  return "img";
+}
+
+/** 只需要 cleanup 用到的那幾個 DOM 成員，方便單元測試用假物件 */
+export interface ReleasableMedia {
+  readonly isConnected: boolean;
+  src: string;
+  removeAttribute(name: string): void;
+  pause?: () => void;
+  load?: () => void;
+}
+
+/**
+ * effect cleanup：元素已離開 DOM（真的 unmount、或換階段被換掉）才清 src 切斷 MJPEG／影片下載。
+ * React StrictMode（dev）會「掛載 → cleanup → 再掛載」同一個 DOM 元素，這時元素仍在 DOM，
+ * 若照樣清 src，React 不會再補回（props 沒變），而清空 src 會觸發 onError → 彈窗卡在「無法載入」。
+ * 回傳是否有清除（測試用）。
+ */
+export function releaseMediaIfDetached(el: ReleasableMedia | null): boolean {
+  if (!el || el.isConnected) return false;
+  try {
+    el.pause?.();
+    el.src = "";
+    el.removeAttribute("src");
+    el.load?.();
+  } catch {
+    /* noop */
+  }
+  return true;
 }
 
 const BOX_STYLE: React.CSSProperties = {
@@ -86,48 +129,55 @@ const BOX_STYLE: React.CSSProperties = {
   position: "relative",
 };
 
-export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Props) {
+export function CctvStreamView({ streamUrl, imageUrl, source, accentColor, videoUrl }: Props) {
   const { t } = useLocale();
   const decision = useMemo(() => decide(streamUrl, imageUrl), [streamUrl, imageUrl]);
   const imageOnly = !!imageUrl && streamUrl === imageUrl;
 
-  const [stage, setStage] = useState<Stage>(() => initialStage(decision, source));
+  const [stage, setStage] = useState<Stage>(() => initialStage(decision, source, videoUrl));
   const [imgLoaded, setImgLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // 換選別支 / props 變動時重置狀態機
   useEffect(() => {
-    setStage(initialStage(decision, source));
+    setStage(initialStage(decision, source, videoUrl));
     setImgLoaded(false);
-  }, [streamUrl, imageUrl, source, decision]);
+  }, [streamUrl, imageUrl, videoUrl, source, decision]);
 
-  // img 靜默黑畫面保險：6 秒內沒 onLoad 也沒 onError（HTTP/2 multipart 等）→ 視為失敗，轉 iframe（或 text）
+  // 靜默黑畫面保險：6 秒內沒 onLoad 也沒 onError（HTTP/2 multipart 等）→ 視為失敗
+  // img → iframe（或 text）；video → 快照（或 text）
   useEffect(() => {
-    if (stage !== "img" || imgLoaded) return;
+    if ((stage !== "img" && stage !== "video") || imgLoaded) return;
     const t = window.setTimeout(() => {
-      setStage(imageOnly || decision.iframeBlocked ? "text" : "iframe");
+      if (stage === "video") setStage(stageAfterVideo(decision, imageUrl));
+      else setStage(imageOnly || decision.iframeBlocked ? "text" : "iframe");
     }, 6000);
     return () => window.clearTimeout(t);
-  }, [stage, imgLoaded, imageOnly, decision.iframeBlocked]);
+  }, [stage, imgLoaded, imageOnly, decision, imageUrl]);
 
-  // lifecycle 清理：unmount 時切斷 MJPEG 長連線（清空 src）
+  // React 的 muted 只設 property、不輸出 attribute，部分瀏覽器據此擋自動播放 → 掛載後補一次 play()
   useEffect(() => {
-    const el = imgRef.current;
+    const el = videoRef.current;
+    if (stage !== "video" || !el) return;
+    el.muted = true;
+    el.play?.()?.catch(() => { /* 自動播放被擋：保留第一格，由 onError／逾時處理真正失敗 */ });
+  }, [stage]);
+
+  // lifecycle 清理：元素離開 DOM 時切斷 MJPEG 長連線／影片下載（StrictMode 假 unmount 不清，見 releaseMediaIfDetached）
+  useEffect(() => {
+    const img = imgRef.current;
+    const video = videoRef.current;
     return () => {
-      if (el) {
-        try {
-          el.src = "";
-          el.removeAttribute("src");
-        } catch {
-          /* noop */
-        }
-      }
+      releaseMediaIfDetached(img);
+      releaseMediaIfDetached(video);
     };
   }, [stage]);
 
+  const linkToVideo = !!videoUrl && stage === "video";
   const openLink = (
     <a
-      href={streamUrl}
+      href={linkToVideo ? videoUrl : streamUrl}
       target="_blank"
       rel="noopener noreferrer"
       style={{
@@ -139,7 +189,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
         wordBreak: "break-all",
       }}
     >
-      {t(imageOnly ? "popup.infra.cctvOpenImage" : "popup.infra.cctvOpenStream")} ↗
+      {t(imageOnly && !linkToVideo ? "popup.infra.cctvOpenImage" : "popup.infra.cctvOpenStream")} ↗
     </a>
   );
 
@@ -191,6 +241,49 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
             loading="lazy"
             sandbox="allow-scripts allow-same-origin"
             style={{ width: "100%", height: "100%", border: 0 }}
+          />
+        </div>
+        {openLink}
+      </div>
+    );
+  }
+
+  if (stage === "video") {
+    // 短片：靜音自動循環、不顯示控制列；失敗退回快照
+    return (
+      <div style={{ marginTop: 8 }}>
+        <div style={BOX_STYLE} data-cctv-source={source}>
+          {!imgLoaded && (
+            <span
+              style={{
+                position: "absolute",
+                fontSize: FONT_SIZE.base,
+                color: COLORS.textDim,
+              }}
+            >
+              {t("popup.infra.cctvLoading")}
+            </span>
+          )}
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            muted
+            autoPlay
+            loop
+            playsInline
+            aria-label={t("popup.infra.cctvLiveAlt")}
+            onLoadedData={() => setImgLoaded(true)}
+            onError={() => {
+              setImgLoaded(false);
+              setStage(stageAfterVideo(decision, imageUrl));
+            }}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              opacity: imgLoaded ? 1 : 0,
+              transition: "opacity 0.2s ease",
+            }}
           />
         </div>
         {openLink}

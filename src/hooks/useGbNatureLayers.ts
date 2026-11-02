@@ -13,7 +13,7 @@ import {
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import { heatmapMaxzoom } from "../map/mapStyleScale";
 import {
-  GB_THINNED_POINTS_WEIGHT, gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
+  GB_THINNED_POINTS_WEIGHT_TO_Z12, gbHeatmapBuild, gbMaskFilter, gbWithFilter, useGbPmtilesLayers, useGbRepPointLayers, type GbDisplayMode, type SourceSpec,
 } from "./useGbWaterLayers";
 
 /**
@@ -215,10 +215,11 @@ export function useGbWoodlandLayer(mapRef: React.RefObject<MapboxMap | null>, vi
   const paint = (op: number) => hookFillPaint("gbWoodland", GB_WOODLAND_FILL_ID,
     { "fill-color": woodlandColor(), "fill-opacity": clamp01(op) }, { "fill-color": woodlandColor(), "fill-opacity": def }, isDark);
   // 代表點 62 萬點：z<10 抽稀（只適合熱區），z10 起全量 → 點模式 z12 起出點（densePointsFromZoom >10 萬）
+  // 熱區權重用 GB_THINNED_POINTS_WEIGHT_TO_Z12：舊曲線在 z10 驟降，點模式 z10–11 曾全空（VIS 追加，2026-11-01）
   useGbRepPointLayers(mapRef, {
     key: "gbWoodland", source: WOODLAND_POINTS_SOURCE, sourceLayer: "gb_woodland_nfi_points",
     heatId: GB_WOODLAND_HEATMAP_ID, circleId: GB_WOODLAND_POINT_CIRCLE_ID, count: 620_027,
-    polygonMinzoom: GB_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT,
+    polygonMinzoom: GB_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT_TO_Z12,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbWoodland"), isDark, color: woodlandColor(), filter: null }, heatStyle);
   useGbPmtilesLayers(mapRef, WOODLAND_SOURCE, visible && mode === "polygon", () => [{
     id: GB_WOODLAND_FILL_ID,
@@ -391,10 +392,11 @@ export function useGbTreeProtectionLayer(mapRef: React.RefObject<MapboxMap | nul
   const heatStyle = useHeatmapStyleSignature(["gbTreeProtection"]);
   const filter = gbMaskFilter("category", categoryMask, GB_TREE_CATEGORIES.map((c) => c.value));
   // 代表點 50 萬點（古老林地面＋TPO 面的代表點＋TPO 單株原點）：z<10 抽稀只適合熱區，點模式 z12 起出點
+  // 熱區權重同林地（GB_THINNED_POINTS_WEIGHT_TO_Z12）；面模式熱區只到 z9.01，不受影響
   useGbRepPointLayers(mapRef, {
     key: "gbTreeProtection", source: TREE_POINTS_SOURCE, sourceLayer: "gb_tree_protection_points",
     heatId: GB_TREE_HEATMAP_ID, circleId: GB_TREE_POINT_CIRCLE_ID, count: 502_408,
-    polygonMinzoom: GB_ANCIENT_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT,
+    polygonMinzoom: GB_ANCIENT_WOODLAND_MINZOOM, heatIntensity: 0.05, opacityDefault: def, heatWeight: GB_THINNED_POINTS_WEIGHT_TO_Z12,
   }, { visible, mode, opacity, scale: scale / scaleDefault("gbTreeProtection"), isDark, color: treeColor(), filter }, heatStyle);
   const awPaint = (op: number) => hookFillPaint("gbTreeProtection", GB_ANCIENT_WOODLAND_FILL_ID,
     { "fill-color": treeColor(), "fill-opacity": clamp01(op) }, { "fill-color": treeColor(), "fill-opacity": def }, isDark);

@@ -184,6 +184,7 @@ import { LANDSLIDE_LAYER_COLORS } from "./landslideTypes";
 import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
+import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -1635,7 +1636,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "fire-hydrants",
-      url: "./geo/fire_hydrants_national.pmtiles",
+      url: "./geo/fire_hydrants_national_v2.pmtiles",
       sourceLayer: "fire_hydrants",
       minzoom: 0,
       maxzoom: 12,
@@ -2579,6 +2580,49 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "select", "select", "select"] },
     description: "研究中；站主限定。臺北市 307 走廊周邊 257 條公車路線（新北市區公車未涵蓋）平日 7–9 時各路段「超載班次比例」：離開該站的班次中，負載達容量（假設 65 人）的比例。可切參數版本（7–9 時佔全日 13.7% 較寬鬆／18.0% 較擁擠）與方案（基準＋7 個調度情境）。班次 < 5 的路段不畫。資料日 2026-10-14；模擬推估，非實測，數字只看範圍。來源：TDX 公車路線與班表、taipei-gis-analytics 公車擁擠模型。",
     topics: ["交通", "公車", "擁擠", "模擬", "推估", "研究中"],
+  },
+  transitReachGrid: {
+    key: "transitReachGrid",
+    expandable: true,
+    country: "SIM", section: { theme: "全台交通可及性", group: "交通可及性" },
+    ...layerName({ zh: "網格交通可及性", qualifier: "推估・情境推演" }),
+    color: TRANSIT_REACH_COLOR,
+    icon: Hexagon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics transit_reach（G28 P5）：以 OSM 路網＋TDX 台鐵／高鐵／國內航班時刻表＋船班表建單一多運具圖，從每個 H3 res 7 起點格（格心最近路網節點，5,721 格）跑最短時間；指標＝1／2／3 小時內可達 GHSL 人口、到最近大都市主站（臺北、板橋、桃園、臺中、臺南、高雄）時間、人口加權平均旅行時間；全運具與純開車各算自由車流與尖峰兩版，增益＝兩者之差。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）。理想規則的情境推演，非實測：鐵道與航班取 TDX 定期時刻表每段最快一班、不計等車與班次頻率，換車 +5 分、台鐵↔高鐵 8 分、取車／進站 5 分、機場報到 40 分；開車用 OSM 路網類別車速（自由車流）或【推估】尖峰係數（僅台北市區有 VD 實測）；船班航行時間含第三方公告與 4 條【估算】，不反映停航與班次；離島未計班次頻率，常停航的航線仍算可達。起點格心離路網 >3 km 者未計算；720 分內到不了標未涵蓋（不是 0）。分析專題：taipei-gis-analytics/docs/topic-research/transit_reach/",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "公開模擬資料家族（src/data/simBundle.ts）：https://data.itsmigu.com/sim/v1/transit_reach/current.json → <bundle_version>/bundle.json → grid/res7.json（bundle.json files[] 驗 sha256）；hook 以 h3 cellToBoundary 產面、全部指標寫進 properties，切指標只改 paint 的 get 欄位；斷點讀 bundle.json layers[reach_grid].breaks" },
+    legend: "transitReachGrid",
+    popup: "transitReachGrid",
+    params: { count: 4, kinds: ["slider", "select", "select", "select"] },
+    description: "情境推演；全台 H3 res 7 網格從每格出發的交通可及性：1／2／3 小時內可達人口、到最近大都市主站時間、人口加權平均旅行時間，可切全運具（台鐵＋高鐵＋航班＋船班＋開車）／純開車／增益與自由車流／尖峰（推估）。理想規則的情境推演，非實測：鐵道與航班取 TDX 定期時刻表每段最快一班、不計等車與班次頻率，換車 +5 分、台鐵↔高鐵 8 分、取車／進站 5 分、機場報到 40 分；開車用 OSM 路網類別車速（自由車流）或【推估】尖峰係數（僅台北市區有 VD 實測）；船班航行時間含第三方公告與 4 條【估算】，不反映停航與班次；離島未計班次頻率，常停航的航線仍算可達。來源：OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 運輸資料流通服務（政府資料開放授權）。",
+    topics: ["交通", "可及性", "模擬", "情境推演", "推估", "鐵道", "人口"],
+  },
+  transitReachPlayback: {
+    key: "transitReachPlayback",
+    expandable: true,
+    country: "SIM", section: { theme: "全台交通可及性", group: "交通可及性" },
+    ...layerName({ zh: "單一起點到達時間", qualifier: "推估・情境推演" }),
+    color: TRANSIT_REACH_COLOR,
+    icon: Timer,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics transit_reach（G28 P5）：252 個台鐵／高鐵車站起點 × 運具組合（台鐵＋開車、台鐵＋高鐵＋開車、全運具、純開車）× 車速（自由車流／尖峰）預算每個 H3 res 8 陸地格（56,149 格）的最早到達時間（Uint16，0.1 分），共 1,992 檔；前端只播放，不重算。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）。理想規則的情境推演，非實測：鐵道與航班取 TDX 定期時刻表每段最快一班、不計等車與班次頻率，換車 +5 分、台鐵↔高鐵 8 分、取車／進站 5 分、機場報到 40 分；開車用 OSM 路網類別車速（自由車流）或【推估】尖峰係數（僅台北市區有 VD 實測）；船班航行時間含第三方公告與 4 條【估算】，不反映停航與班次；離島未計班次頻率，常停航的航線仍算可達。高鐵站起點沒有「台鐵＋開車」組合。分析專題：taipei-gis-analytics/docs/topic-research/transit_reach/",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "公開模擬資料家族（src/data/simBundle.ts）：https://data.itsmigu.com/sim/v1/transit_reach/current.json → <bundle_version>/bundle.json → cells.json、origins.json、routes.json、od/{speed}/{mode}/{origin}.u16（files_od.json 清單驗 sha256，切起點才抓一檔 112 KB）；自訂 WebGL 圖層 transitReachCustomLayer 每幀只更新時間 uniform；等時線切起點時前端 d3-contour 算一次" },
+    legend: "transitReachPlayback",
+    popup: "transitReachPlayback",
+    // 預設（起點清單未載入）只顯示 primary 的縣市列；車站列在選項 ≥2 時才出現
+    params: { count: 7, kinds: ["slider", "linkedSelect", "select", "select", "select", "toggle", "playback"] },
+    description: "情境推演；選一個台鐵／高鐵車站出發，播放 0–12 小時內交通可及範圍逐步擴張（H3 res 8 網格，前 2 小時每 15 分一階、之後每 30 分；整點等時線）。可切運具組合、自由車流／尖峰（推估），以及比較模式：航班／船班或高鐵讓哪裡提早 10 分以上。航班、船班畫成虛線。理想規則的情境推演，非實測：鐵道與航班取 TDX 定期時刻表每段最快一班、不計等車與班次頻率，換車 +5 分、台鐵↔高鐵 8 分、取車／進站 5 分、機場報到 40 分；開車用 OSM 路網類別車速（自由車流）或【推估】尖峰係數（僅台北市區有 VD 實測）；船班航行時間含第三方公告與 4 條【估算】，不反映停航與班次；離島未計班次頻率，常停航的航線仍算可達。來源：OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 運輸資料流通服務（政府資料開放授權）。",
+    topics: ["交通", "可及性", "等時圈", "模擬", "情境推演", "推估", "鐵道", "航班", "船班"],
   },
   bridgeRainThresholds: {
     key: "bridgeRainThresholds",
@@ -6331,21 +6375,21 @@ export const LAYER_MANIFEST = {
   parksTaipei: {
     key: "parksTaipei",
     country: "TW", section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" },
-    ...layerName({ zh: "公園", alt: "Parks" }),
+    ...layerName({ zh: "公園", alt: "Parks", qualifier: "臺北、臺中、臺南" }),
     expandable: true,
     color: "#7cb342",
     icon: Trees,
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "parks", confidence: "HIGH" }],
-      note: "台北公園點位（public/urban/parks_taipei.geojson）。",
+      note: "臺北、臺中、臺南三市公園點位（public/urban/parks_taipei.geojson；key 沿用舊名）。",
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "parks-taipei", url: "./urban/parks_taipei.geojson" },
     legend: "parksTaipei",
     popup: "parksTaipei",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "臺北市公園點位 2,917 處（公園／兒童遊戲場／綠地／鄰里公園等 7 類分色）",
+    description: "臺北、臺中、臺南三市公園點位 2,917 處（臺北市 1,350、臺中市 1,081、臺南市 486；其他縣市未涵蓋）；公園／兒童遊戲場／綠地／鄰里公園等 7 類分色",
     topics: ["運動", "公園", "都市綠地"],
   },
   waterRecreationRestrictedAreas: {

@@ -11,7 +11,7 @@
 | Key | 主題 › 群組 | 檔案 | 筆數 | 來源 |
 |---|---|---|---|---|
 | `trafficAccidents2025` | 執法治安 › 交通事故 | `public/geo/traffic_accidents_2025.pmtiles`（18.9MB，gitignored，發版日上傳 S3） | 321,534（A1 1,361、A2 320,173） | 警政署 A1／A2 類道路交通事故（data.gov.tw 12197；analytics `traffic_accident_by_incident.geojson`，2025-12-03 取得） |
-| `fireHydrants`（擴充） | 消防 › 點位 | `public/geo/fire_hydrants_national.pmtiles`（16.0MB，gitignored，發版日上傳 S3） | 211,530 | 北水處 128639＋高市消防局 160481 等＋台水 44642 |
+| `fireHydrants`（擴充） | 消防 › 點位 | `public/geo/fire_hydrants_national_v2.pmtiles`（16.0MB，gitignored，發版日上傳 S3） | 211,530 | 北水處 128639＋高市消防局 160481 等＋台水 44642 |
 | `disasterResourceSites` | 消防 › 點位 | `public/geo/disaster_resource_sites.geojson`（3.1MB，git-track） | 5,379 | 消防署救災資源（data.gov.tw 77862） |
 | `tsunamiSirens` | 民防避難 › 警報與疏散 | `public/hazards/tsunami_sirens.geojson`（149KB） | 376 | data.gov.tw 34102 |
 | `nuclearEpzEvacuation` | 民防避難 › 警報與疏散 | `public/hazards/nuclear_epz_evacuation.geojson` | 集結點 182＋收容處所 18 | data.gov.tw 102114＋102434 |

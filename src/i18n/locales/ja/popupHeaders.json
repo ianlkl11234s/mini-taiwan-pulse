@@ -97,6 +97,8 @@
   "popupHeader.typhoonAgencyForecast": "各国の台風予報",
   "popupHeader.busCrowdingSim": "バス区間の定員超過便割合（推計）",
   "popupHeader.busCrowdingSimVehicle": "シミュレーションのバス（推計）",
+  "popupHeader.transitReachGrid": "メッシュ別交通アクセス（シナリオ）",
+  "popupHeader.transitReachPlayback": "駅からの到達時間（シナリオ）",
   "popupHeader.trafficAccidents2025": "交通事故",
   "popupHeader.disasterResourceSites": "救災資源拠点",
   "popupHeader.tsunamiSirens": "津波警報台",

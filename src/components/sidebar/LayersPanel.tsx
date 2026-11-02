@@ -66,6 +66,8 @@ export interface LayersPanelProps {
   panelId?: LayerPanelId;
   /** 目前使用者看得到的入口（模擬只對站主）；「其他面板還有 N 筆」只算這些。未給＝全部。 */
   availablePanelIds?: readonly LayerPanelId[];
+  /** 站主才為 true：模擬面板的搜尋範圍含站主限定實驗（同 `resolveLayerPanel`）。 */
+  simulationOwner?: boolean;
   /** 切到另一個入口並帶入關鍵字（P9）；`country` 有值時同時切國家主體（不飛鏡頭） */
   onSearchInPanel?: (panelId: LayerPanelId, query: string, country?: CountryCode) => void;
   /** 目前國家主體（國家選單、「其他面板」提示用）；未給＝台灣 */
@@ -89,7 +91,7 @@ export function LayersPanel({
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
-  panelId, availablePanelIds, onSearchInPanel,
+  panelId, availablePanelIds, simulationOwner = false, onSearchInPanel,
   country = DEFAULT_COUNTRY, onCountrySelect, covered = true,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
@@ -135,7 +137,7 @@ export function LayersPanel({
           id: panel.id,
           country: hitCountry === country ? undefined : hitCountry,
           shortTitle: t(`panel.${panel.id}.short`),
-          count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry), lockedKeys }).length,
+          count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry, simulationOwner), lockedKeys }).length,
         };
       }),
       ...PANEL_COUNTRIES.filter((code) => code !== country).map((code) => ({

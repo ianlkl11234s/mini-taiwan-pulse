@@ -355,6 +355,16 @@
 - **禁止**：整個 popup 容器套 `FONT_DATA`；各 domain 檔自己複製 Title；印內部 id（§6.3）；在 popup 內另開圖例色塊（圖例走 `LEGEND_REGISTRY`）。
 - **實作**：`src/components/FeatureInfoPanel.tsx`、`src/components/featureInfo/{shared.tsx,featureTheme.tsx,featureInfo.css}`。
 
+### 5.2.1 攝影機影像框（CCTV／道路攝影機，2026-11-01）
+
+- **用途**：攝影機類圖層（台灣 CCTV、倫敦 TfL JamCams，之後新國家的道路攝影機同樣適用）在 popup 內直接顯示畫面，不要只放外連。
+- **元件**：一律用 `CctvStreamView`，不另做影像框；popup 寬照 §5.2 的 CCTV 460px。
+- **載入順序**：來源有短片（mp4）→ `<video>` 靜音、自動播放、循環、`playsInline`、不顯示控制列；短片失敗或沒有 → 即時快照（JPEG）；都失敗才顯示「無法載入」。台灣 CCTV 串流失敗退 iframe 的既有行為不變。
+- **流量**：只在 popup 開啟時由瀏覽器直接載入，不輪詢、不經後端代理；換點以 `key` 重置。來源有呼叫上限時（例 TfL 500 次／分）在元件註解寫明。
+- **外連**：影像框下方只留一條「開原始串流」外連（有短片時指向短片），不另列「影片」連結列。
+- **授權**：只接授權允許網頁直接引用影像的來源；禁止 hotlink 或需轉存授權的來源（例 Traffic Scotland、TrafficWatchNI）不接，先查條款。
+- **實作**：`src/components/CctvStreamView.tsx`（cleanup 只在元素真的離開畫面才清 src，`releaseMediaIfDetached`，避免 StrictMode 雙掛載清掉影像）、`src/components/featureInfo/ukPanels.tsx` `GbLondonJamCamsPanel`。
+
 ### 5.3 來源 footer（F2）
 
 - **結構**：上緣 `1px borderSoft`、marginTop 10、paddingTop 8、9px `textDim`。

@@ -7,7 +7,7 @@
 import { useSyncExternalStore } from "react";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import type { PlaybackConfig } from "../../state/layerParamsControls";
-import { formatSimClock, getSimPlaybackClock, type SimPlaybackClock } from "../../state/simPlaybackClock";
+import { elapsedParts, formatSimClock, getSimPlaybackClock, type SimPlaybackClock } from "../../state/simPlaybackClock";
 import { useLocale } from "../../state/localeStore";
 import { TimeAxis } from "../timeline/TimeAxis";
 import { ControlRow } from "./LayerParamControls";
@@ -34,7 +34,7 @@ function PlaybackRow({ ctrl, clock }: { ctrl: PlaybackConfig; clock: SimPlayback
   const snap = useSyncExternalStore(clock.subscribe, clock.getSnapshot);
   const { t0, t1, speeds } = clock.config;
   const span = t1 - t0 || 1;
-  const now = formatSimClock(snap.t);
+  const now = clock.config.format === "elapsed" ? tr("paramsPanel.playbackElapsed", elapsedParts(snap.t)) : formatSimClock(snap.t);
   return (
     <ControlRow label={ctrl.label} value={now}>
       <div className="lpc-playback">
