@@ -275,6 +275,7 @@ public/hazards/landslide_annual_swcb_*.pmtiles
 # G36（2026-10-31）：大 PMTiles 走 S3 deploy-assets geo/ 鏡像（upload-deploy-assets.sh 的 public/geo/*.pmtiles glob 已涵蓋）
 public/geo/traffic_accidents_2025.pmtiles
 public/geo/fire_hydrants_national.pmtiles
+public/geo/fire_hydrants_national_v2.pmtiles
 
 # §3.8 V-5（2026-10-31）台灣＋日本面層代表點檔（`<原檔名>_points.pmtiles`，皆 < 20MB）git-track；
 # 放檔尾，才蓋得過上面各資料夾的 *.pmtiles ignore。

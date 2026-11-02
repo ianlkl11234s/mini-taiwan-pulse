@@ -9211,7 +9211,7 @@
         "circle"
       ],
       "sourceId": "fire-hydrants",
-      "sourceUrl": "./geo/fire_hydrants_national.pmtiles"
+      "sourceUrl": "./geo/fire_hydrants_national_v2.pmtiles"
     },
     {
       "dynamicData": null,

@@ -1635,7 +1635,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "fire-hydrants",
-      url: "./geo/fire_hydrants_national.pmtiles",
+      url: "./geo/fire_hydrants_national_v2.pmtiles",
       sourceLayer: "fire_hydrants",
       minzoom: 0,
       maxzoom: 12,
