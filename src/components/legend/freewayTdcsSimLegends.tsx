@@ -44,7 +44,7 @@ export function FreewayTdcsSimLegend() {
     <LegendTitle zh="雙北國道逐車模擬" en="Freeway Vehicles (Estimated)" />
     {status.state === "error" && <LegendRow swatch={<SwatchHatch />}>資料載入失敗（本機 public/freeway_tdcs/ 缺檔？）</LegendRow>}
     {status.state === "loading" && <LegendNote>資料載入中…（約 15 MB）</LegendNote>}
-    <LegendNote>本圖層只有 2026-09-28（教師節補假）16:00–18:00 的資料</LegendNote>
+    <LegendNote>本圖層只有 2026-09-28（教師節連假最後一天）16:00–18:00 的資料</LegendNote>
     {!inWindow && <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginTop: 4 }}>
       <span style={{ fontSize: FONT_SIZE.sm, color: theme.textMuted }}>目前時間不在資料時段，地圖不畫車</span>
       <button
