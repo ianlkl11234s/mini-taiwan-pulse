@@ -226,7 +226,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-10-31: +1 英國高爾夫球場 gbGolfCourses（§3.8 從運動場地拆出）。
     // 2026-10-31: +1 重要濕地功能分區 importantWetlandZones（TWL-16）。
     // 2026-11-01: +2 交通可及性公開模擬 transitReachGrid、transitReachPlayback（G28 P5）。
-    expect(keys.length).toBe(1503);
+    // 2026-11-02: +1 雙北國道逐車模擬 freewayTdcsSim（本機研究層）。
+    expect(keys.length).toBe(1504);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

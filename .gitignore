@@ -291,3 +291,5 @@ public/geo/fire_hydrants_national_v2.pmtiles
 public/world/jp_natural_parks_ksj_2010_points.pmtiles
 public/world/jp_nature_conservation_ksj_2015_points.pmtiles
 public/world/jp_wildlife_protection_moe_202504_points.pmtiles
+# 雙北國道逐車模擬（本機研究層 freewayTdcsSim）：資料自 taipei-gis-analytics output/freeway_tdcs/ 複製，約 15 MB，不進 git
+public/freeway_tdcs/

@@ -86,6 +86,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   officialBridgesNewTaipei: "newTaipei",
   urbanZoningNewTaipei: "newTaipei",
   floodSensorIsochrone: "twinCity",
+  freewayTdcsSim: "twinCity",
   // 其他縣市
   theftTaoyuan: "taoyuan",
   statsTaoyuanAirportArrivals: "taoyuan",

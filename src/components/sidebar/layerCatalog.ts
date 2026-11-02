@@ -971,6 +971,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("roadEvents"),
         ],
       },
+      // 雙北國道逐車模擬（TDCS M06A 推算）：只在本機 DEV 顯示，正式目錄不列
+      ...localResearchGroup("國道逐車模擬（本機）", ["freewayTdcsSim"]),
       {
         title: "停車 Parking",
         layers: [

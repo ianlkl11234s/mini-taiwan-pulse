@@ -185,6 +185,7 @@ import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
+import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -14680,6 +14681,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],
+  },
+
+  freewayTdcsSim: {
+    key: "freewayTdcsSim",
+    // 本機研究層：layerCatalog 以 localResearchGroup 放進「交通 Move」，正式站（PROD）目錄不列；key 保留。
+    country: "TW", section: { theme: "交通 Move", group: "國道逐車模擬（本機）" },
+    ...layerName({ zh: "雙北國道逐車模擬", qualifier: "推算" }),
+    expandable: true,
+    color: FREEWAY_TDCS_SIM_COLOR,
+    icon: Truck,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/freeway_tdcs（sim/network.py、trips.py、lanes.py）：TDCS M06A 2026-09-28 13–17 時檔，取 16:00–18:00 經過雙北範圍內門架的旅次（約 13 萬趟、同時最多約 1.5 萬台）；門架間沿國道線形等速內插，車道以規則分配（換道 2.5 秒橫移）。",
+      note: "DISPLAY_ONLY、本機研究層（尚未入分析倉庫，也不部署）。門架通過時間是真實的；門架之間位置、車道、上下匝道時間皆為推算。分析專題：taipei-gis-analytics/docs/topic-research/freeway_tdcs/",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFreewayTdcsSimLayer ＋ map/freewayTdcsSimCustomLayer（Three.js 自訂圖層，無 OVERLAY_REGISTRY entry）：讀本機 public/freeway_tdcs/ 的 trips_meta.json、network.json、trips.bin（gitignored，自 analytics output/freeway_tdcs/ 複製）；時間跟全站時間軸（timeStore），拖尾每 60 秒一塊、GPU 依時間淡出。",
+    },
+    legend: "freewayTdcsSim",
+    popup: "freewayTdcsSim",
+    params: { count: 5, kinds: ["slider", "select", "multiSelect", "slider", "slider"] },
+    description: "雙北國道 2026-09-28（教師節補假）16:00–18:00 逐車推算位置：車點＋拖尾，可依車速或車種著色、點車看上下交流道並跟隨。資料：交通部高速公路局「交通資料庫」（TDCS M06A）；門架之間位置與車道為推算。",
+    topics: ["交通", "國道", "模擬", "推估", "車流"],
   },
 
   roadCongestion: {

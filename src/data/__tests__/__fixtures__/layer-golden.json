@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1503,
+    "keyCount": 1504,
     "sections": [
       "gisLayers",
       "overlays",
@@ -105892,6 +105892,83 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "freewayTdcsSim": [
+      {
+        "label": "車種",
+        "options": [
+          {
+            "label": "小客車",
+            "value": "car"
+          },
+          {
+            "label": "小貨車",
+            "value": "lightTruck"
+          },
+          {
+            "label": "大客車",
+            "value": "bus"
+          },
+          {
+            "label": "大貨車",
+            "value": "truck"
+          },
+          {
+            "label": "聯結車",
+            "value": "trailer"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "car",
+          "lightTruck",
+          "bus",
+          "truck",
+          "trailer"
+        ]
+      },
+      {
+        "label": "拖尾 60 秒",
+        "max": 300,
+        "min": 0,
+        "name": "拖尾",
+        "step": 5,
+        "value": 60,
+        "valueText": "60 秒"
+      },
+      {
+        "label": "顏色",
+        "options": [
+          {
+            "label": "依車速",
+            "value": "speed"
+          },
+          {
+            "label": "依車種",
+            "value": "type"
+          }
+        ],
+        "type": "select",
+        "value": "speed"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

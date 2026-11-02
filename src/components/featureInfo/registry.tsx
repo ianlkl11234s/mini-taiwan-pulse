@@ -79,6 +79,7 @@ import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPow
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
+import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -591,6 +592,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   busCrowdingSimVehicle: BusCrowdingSimVehiclePanel,
   transitReachGrid: TransitReachGridPanel,
   transitReachPlayback: TransitReachPlaybackPanel,
+  freewayTdcsSim: FreewayTdcsSimPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -1206,6 +1208,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   busCrowdingSimVehicle: "模擬公車（推估）",
   transitReachGrid: "網格交通可及性（情境推演）",
   transitReachPlayback: "單一起點到達時間（情境推演）",
+  freewayTdcsSim: "國道逐車模擬（推算）",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

@@ -2076,5 +2076,14 @@
   "param.比較：航班／船班多出": "Compare: gain from flights / ferries",
   "param.比較：高鐵多出": "Compare: gain from HSR",
   "param.依起點自動": "Auto (by origin)",
-  "param.固定 0–8 小時": "Fixed 0–8 h"
+  "param.固定 0–8 小時": "Fixed 0–8 h",
+  "param.顏色": "Color",
+  "param.車種": "Vehicle Type",
+  "param.依車速": "By Speed",
+  "param.依車種": "By Type",
+  "param.小客車": "Car",
+  "param.小貨車": "Light Truck",
+  "param.大客車": "Bus",
+  "param.大貨車": "Heavy Truck",
+  "param.聯結車": "Trailer Truck"
 }
