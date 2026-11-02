@@ -1,4 +1,4 @@
-最後更新：2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
+最後更新：2026-11-03（新增 §5.43 地圖導航控制 N-1；§5.17 T2 例外）；2026-10-31（§5.42.1 視野提示卡新增「圖層看不到」段）；2026-10-28（新增 §5.41 國家選單、§5.42 視野提示卡；rail 改為四個入口，日本併入圖層入口）
 
 # Mini Taiwan Pulse — Design System
 
@@ -545,6 +545,7 @@
 - **項目**：高 26、圓角 4、icon 13px（§5.7）。
 - **拿掉的東西**：Monitor BETA 按鈕（左側 rail「監測模式」保留）、第二排、計數列「flights · ships · 台灣好行」；操作提示移進「說明」。
 - **禁止**：在工具列加新的一排或浮動按鈕；把新功能塞成第二個主要按鈕。
+- **例外**：§5.43 地圖導航控制（指北針、縮放、定位、比例尺）是工具列外的正式地圖控制項，不受上一條限制（使用者 2026-11-03 拍板）；其他浮動按鈕仍禁止。
 - **實作**：`src/App.tsx`（組成）、`src/components/toolbar/{ToolbarButton.tsx,toolbarTheme.ts,LanguageMenu.tsx}`、`src/components/ModeToggle.tsx`、`src/components/auth/UserAvatar.tsx`。
 
 ### 5.18 品牌字標與座標 HUD
@@ -635,7 +636,7 @@
 
 | 層 | TS／CSS | 值 | 放什麼 |
 |---|---|---|---|
-| 地圖覆蓋 | `mapOverlay`／`--z-map-overlay` | 10 | 地圖上的標記、選取圈；**左下時間軸（桌機卡片與手機時間軸條）** |
+| 地圖覆蓋 | `mapOverlay`／`--z-map-overlay` | 10 | 地圖上的標記、選取圈；**左下時間軸（桌機卡片與手機時間軸條）**；右下導航控制柱與手機比例尺（§5.43） |
 | 浮動面板 | `floatingPanel`／`--z-floating-panel` | 20 | 左側 rail 面板（Layers、資料來源…）、地震回放、Agent 面板與活動卡、右下停靠 popup＋圖例、桌機會員專區 |
 | 工具列 | `toolbar`／`--z-toolbar` | 25 | 右上工具列（T2）、手機標頭（M1）、拍攝模式離開提示、載入狀態條（§5.30） |
 | 彈出層 | `popover`／`--z-popover` | 30 | 下拉選單（底圖、帳號、手機「⋯」）、hover tooltip、日本水資源／醫療載入失敗提示（`JpWaterAlert`／`JpMedicalAlert`，在 `LayerHosts` 最後渲染，蓋過選單但在置中視窗之下） |
@@ -1028,6 +1029,26 @@
 - **局部資料層登記**：`LAYER_COVERAGE`（圖層 → 區域）＋`COVERAGE_AREAS`（區域名三語、外框、必要時中心點）。不寫進 manifest（多軌共用檔，且區域是合併按鈕的分組鍵）。`src/data/__tests__/layerCoverage.test.ts` 掃名稱含城市的圖層，沒登記也沒列例外就紅。
 - **禁止**：另做一個右上提示元件；自動放大或自動飛過去（只提示）；把全國都有資料的層登記成局部；用「畫面上沒有圖徵」當看不到的依據。
 - **實作**：`src/hooks/useLayerVisibilityHint.ts`、`src/map/layerVisibilityHint.ts`、`src/data/layerCoverage.ts`；元件同 §5.42（`layers` prop）。
+
+### 5.43 地圖導航控制（N-1，2026-11-03）
+
+使用者 2026-11-03 拍板設計稿「甲 右下控制柱」：指北針、縮放 +／−、定位、比例尺。§5.17 T2「工具列外不加浮動按鈕」的例外。
+
+- **桌機控制柱**：右下 `right 16`、`bottom LAYOUT.mapBottomInset`（64，與左下時間軸同基線）；由上而下 指北針 → 間距 8 → 縮放組（+／− 兩格一組、中間 1px `BORDER.panel` 分隔）→ 間距 8 → 定位。每格 30×30，底 `SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.sm`、`blur(12px)`；icon lucide 13px（`Plus`／`Minus`／`LocateFixed`）。hover 疊 `--control-bg-hover`、focus-visible 2px accent、停用 `--control-disabled-opacity`（§5.7）。每顆都有 `title`＋`aria-label`。層級 `Z_INDEX.mapOverlay`。Monitor split 時與停靠欄一起讓到 dock 左邊（`right` 同 split 公式）。
+- **右側停靠欄（§5.2 popup／AQI／圖例）**：控制柱顯示時整欄 `right` 再加 42（控制柱 30＋間距 12；一般 58、split 為 split 公式＋42）。拍攝模式、手機不加。
+- **比例尺**：停靠欄最底一列，`alignSelf: stretch`、最小寬 224（欄裡沒別的東西時），寬度跟欄寬；高 30、與上方內容間距 12；欄底與控制柱底同在 bottom 64。外觀 `SURFACE.panel`＋1px `BORDER.soft`＋`RADIUS.md`、`blur(8px)`；左邊 4 段交錯長條（奇數段與外框 `--slider-fill`，淡色 `--light-slider-fill`），上方刻度 0／中點／終點＋單位，右端數字比例「1:46K」（`textDim`）；字 `FONT_DATA` 10px tabular-nums，刻度 `textMuted`。
+  - **計算**（`src/map/scaleBarMath.ts`）：畫面中心緯度 m/px＝40075016.686·cos(lat)/(512·2^z)；長條最長 200px（再受欄寬限制），距離取 1／2／5×10ⁿ，≥1000 m 用 km（三語都是 m／km）；數字比例＝m/px÷0.0002646（96 dpi），2 位有效數字、K／M 縮寫。訂閱 map `move`（與時間軸無關，不走 timeStore）。
+  - **z < 5 不渲染**（地球儀投影下不準），不保留空位。不可點（`pointer-events: none`）。
+- **指北針**：自畫 SVG 指針（北半 accent、南半 `textMuted`，不加 N 字），`rotateX(pitch) rotateZ(-bearing)`（同 Mapbox visualizePitch；不加 transition，避免跨 ±180° 整圈轉）。點擊：bearing≠0 → `easeTo({bearing:0})`（保留傾斜）；已朝北且有傾斜 → `easeTo({pitch:0})`，此時 title 改「回正北並取消傾斜」。永遠顯示。
+- **縮放**：±1 級 `easeTo`；到 `maxZoom`／`minZoom` 時該鍵停用。手機不顯示。
+- **定位**：按下才讀一次 `navigator.geolocation`（不追蹤、不存、不上傳）→ `flyTo` z15，畫 accent 藍點＋精度圈（DOM Marker，切底圖不會消失；精度圈半徑依縮放換算）。定位中 icon 轉 accent 並呼吸（`prefers-reduced-motion` 不動）；拒絕權限、失敗、瀏覽器不支援用 `showTransientNotice` 提示（文案 `camera.locate*`）。
+- **淡色底圖**（light／streets）：`--light-*`；陰影只有 `LIGHT.elevationLg` 一階，控制柱改用它。
+- **拍攝模式**：控制柱與比例尺都隱藏（停靠欄 `right` 回到 16）。
+- **手機**：時間軸列下方 12px、靠右 12：只有指北針＋定位，視覺 30、觸控熱區 44×44（`::after` 外擴 7px，兩顆間距 14 讓熱區不重疊）；不顯示縮放。比例尺在左下、bottom sheet 上方，再讓過版權列與 Mapbox logo（`bottom: var(--mobile-sheet-inset) + 57px`＝logo 上方 8px；設計稿原訂 sheet 上方 8px 會壓到 logo 與版權列），精簡版（長條最長 100px、無數字比例）；sheet 展開時隱藏；不在右側欄裡。
+- **版權列**：右下版權列單行 20px（§5.38 不換行），bottom 64 已讓出空間，不需另外依版權列高度推移。
+- **文案**：`camera.resetNorth`／`resetPitch`／`zoomIn`／`zoomOut`／`locate`／`locating`／`locateDenied`／`locateFailed`／`locateUnsupported`／`scaleBar`／`navigation`（三語）。
+- **禁止**：用 Mapbox 內建 `NavigationControl`／`ScaleControl` 的預設外觀；把比例尺做成可點；在手機加縮放鍵。
+- **實作**：`src/components/MapNavControls.tsx`、`MapScaleBar.tsx`、`mapNavControls.css`、`src/hooks/useMapCamera.ts`、`src/map/scaleBarMath.ts`（測試 `src/map/__tests__/scaleBarMath.test.ts`）；掛在 `App.tsx` 停靠欄旁與手機時間軸列內。
 
 ## 6. 文案規則
 
