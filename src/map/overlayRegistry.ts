@@ -1,4 +1,5 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
+import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
@@ -3652,6 +3653,49 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 🗳 2026 選舉活動（owner-only）──
+  // dynamicData：useElectionEventsLayer 從 owner-only RPC 拉一次，依時間軸時間寫入 `_past`（1＝已過）後 setData。
+  // 色＝陣營、半徑＝規模、已過＝淡且小、取消／延期＝空心圈。色票 SSOT：data/electionEventsTypes.ts。
+  {
+    id: "electionEvents2026",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "election-events-2026",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 5,
+        layout: { "circle-sort-key": ["-", 1, ["coalesce", ["get", "_past"], 0]] as unknown as number },
+        paint: (isDark, p) => {
+          const scale = p?.electionEvents2026Scale ?? 1;
+          const op = p?.electionEvents2026Opacity ?? 0.9;
+          const past = ["==", ["coalesce", ["get", "_past"], 0], 1];
+          const hollow = ["in", ["get", "event_status"], ["literal", [...ELECTION_HOLLOW_STATUSES]]];
+          const base = [
+            "*",
+            ["match", ["get", "scale_tier"], "L", ELECTION_TIER_RADIUS.L, "M", ELECTION_TIER_RADIUS.M, ELECTION_TIER_RADIUS.S],
+            ["case", past, ELECTION_PAST_RADIUS, 1],
+            scale,
+          ];
+          const campColor = [
+            "match", ["get", "camp_key"],
+            ...ELECTION_CAMPS.filter((c) => c.key !== "other").flatMap((c) => [c.key, c.color]),
+            ELECTION_CAMP_COLOR.other,
+          ];
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, ["*", base, 0.75], 12, ["*", base, 1.25]] as unknown as number,
+            "circle-color": campColor as unknown as string,
+            "circle-opacity": ["case", hollow, 0, past, op * ELECTION_PAST_OPACITY, op] as unknown as number,
+            // withPointSpec 會把 case 的 fallback 換成標準描邊 → 空心圈的陣營色寫在條件分支
+            "circle-stroke-color": ["case", hollow, campColor, mapSeamColor(isDark)] as unknown as string,
+            "circle-stroke-width": ["case", hollow, 2, 0.8] as unknown as number,
+            "circle-stroke-opacity": ["case", past, op * ELECTION_PAST_OPACITY, op] as unknown as number,
+          };
+        },
+      },
+    ],
+  },
   // ── News Events (新聞事件) ──
   // dynamicData：資料由 useNewsEventsLayer 按日從 Supabase 餵入；
   // sourceUrl 僅作為 newsEventsLoader 的靜態 fallback（Supabase 未設定時）
