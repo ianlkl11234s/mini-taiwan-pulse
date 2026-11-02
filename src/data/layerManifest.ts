@@ -5,7 +5,7 @@ import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
-import { ELECTION_CAMP_COLOR } from "./electionEventsTypes";
+import { ELECTION_LAYER_COLOR } from "./electionEventsTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
@@ -955,7 +955,7 @@ export const LAYER_MANIFEST = {
     country: "TW", section: { theme: "政治 Politics", group: "選舉" },
     ...layerName({ zh: "2026 選舉活動", alt: "2026 Election Events" }),
     expandable: true,
-    color: ELECTION_CAMP_COLOR.kmt,
+    color: ELECTION_LAYER_COLOR,
     icon: Vote,
     upstream: {
       status: "catalog_missing",

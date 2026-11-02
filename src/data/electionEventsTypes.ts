@@ -35,6 +35,9 @@ export function electionCampKey(camp: unknown): ElectionCampKey {
   return CAMP_ALIASES[String(camp ?? "").trim()] ?? "other";
 }
 
+/** 圖層識別色（側欄 icon 等）：刻意不用任何陣營色，避免整層看起來偏向某一方 */
+export const ELECTION_LAYER_COLOR = "#8b5cf6";
+
 /** 規模分級 → 基準半徑（px，再乘大小滑桿） */
 export const ELECTION_TIER_RADIUS: Record<"L" | "M" | "S", number> = { L: 9, M: 6, S: 4 };
 

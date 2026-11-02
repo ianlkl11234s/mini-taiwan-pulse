@@ -30,14 +30,14 @@ export function ElectionEventsLegend() {
       <FireCatRows cats={ELECTION_CAMPS.map((c) => ({ color: c.color, label: t(CAMP_KEY[c.key]) }))} />
       <LegendSizeRow
         title={t("legend.politics.size")}
-        fill={grey}
+        ring={grey}
         items={[
           { r: ELECTION_TIER_RADIUS.L, label: t("legend.politics.tierL") },
           { r: ELECTION_TIER_RADIUS.M, label: t("legend.politics.tierM") },
           { r: ELECTION_TIER_RADIUS.S, label: t("legend.politics.tierS") },
         ]}
       />
-      <LegendRow swatch={<SwatchDot color={grey} opacity={ELECTION_PAST_OPACITY} />}>{t("legend.politics.past")}</LegendRow>
+      <LegendRow swatch={<SwatchDot color={ELECTION_CAMP_COLOR.dpp} opacity={ELECTION_PAST_OPACITY} />}>{t("legend.politics.past")}</LegendRow>
       <LegendRow swatch={<SwatchDot color="transparent" stroke={grey} strokeWidth={2} />}>{t("legend.politics.hollow")}</LegendRow>
       <LegendNote>{t("legend.politics.bias")}</LegendNote>
       {unmapped !== null && unmapped > 0 && <LegendNote>{t("legend.politics.unmapped", { count: unmapped })}</LegendNote>}
