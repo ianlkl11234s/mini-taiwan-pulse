@@ -1,0 +1,17 @@
+{
+  "legend.politics.camp.dpp": "民主進步黨",
+  "legend.politics.camp.kmt": "中國國民黨",
+  "legend.politics.camp.tpp": "台灣民眾黨",
+  "legend.politics.camp.npp": "時代力量",
+  "legend.politics.camp.other": "其他政黨／無黨籍",
+  "legend.politics.size": "大小＝規模",
+  "legend.politics.tierL": "大型",
+  "legend.politics.tierM": "中型",
+  "legend.politics.tierS": "小型",
+  "legend.politics.past": "已過時間軸時間（淡化）",
+  "legend.politics.hollow": "取消／延期（空心）",
+  "legend.politics.bias": "收錄的是公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。",
+  "legend.politics.unmapped": "另有 {count} 場未定位，未上圖",
+  "legend.politics.updated": "資料更新：{time}",
+  "legend.politics.source": "來源：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等（研究原型）"
+}

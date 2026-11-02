@@ -40,6 +40,7 @@ import {
   IotWraRiverHost, IotWraStructureHost,
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
+import { ElectionEventsHost } from "./hosts/politicsHosts";
 import {
   EnergyPoiHost, FossilFuelHost, LivestockHost, A1AccidentRealtimeHost,
   SubstationDiamondIconHost, OsmPowerLinesGlowHost, PowerPolesHost,
@@ -514,4 +515,6 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useAnimalAdoptionLayer", keys: ["animalAdoption"], Host: AnimalAdoptionHost },
   { id: "useAnimalShelterPressureLayer", keys: ["animalShelterPressure"], Host: AnimalShelterPressureHost },
   { id: "useAnimalWelfarePointsLayer", keys: ["animalWelfarePoints"], Host: AnimalWelfarePointsHost },
+  // 政治：2026 選舉活動（owner-only RPC；時間軸只改資料的 _past，不改 paint）
+  { id: "useElectionEventsLayer", keys: ["electionEvents2026"], Host: ElectionEventsHost },
 ];

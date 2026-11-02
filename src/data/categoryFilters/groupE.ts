@@ -1,5 +1,6 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 import { VESSEL_CLASSES } from "../vesselWatchTypes";
+import { ELECTION_CAMPS } from "../electionEventsTypes";
 
 /**
  * 組別 E（台灣即時／災害／情勢類）。
@@ -8,6 +9,13 @@ import { VESSEL_CLASSES } from "../vesselWatchTypes";
  * 選項順序＝bitmask 位元順序，新增請加在最後。
  */
 export const CATEGORY_FILTERS_E: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // 2026 選舉活動（registry 圖層；camp_key 由 electionEventsLoader 衍生）
+  electionEvents2026: {
+    property: "camp_key",
+    label: "陣營",
+    options: ELECTION_CAMPS.filter((c) => c.key !== "other").map((c) => ({ value: c.key, zh: c.label })),
+    other: "其他政黨／無黨籍",
+  },
   // ── hook 圖層 ──
   fireEvents: {
     property: "casualty",

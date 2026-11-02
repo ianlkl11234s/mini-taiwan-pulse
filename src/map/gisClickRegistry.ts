@@ -540,6 +540,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["library-seats-circle"], type: "librarySeats" },
   { layers: ["parking-onstreet-fill", "parking-onstreet-circle"], type: "parkingOnstreet" },
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
+  { layers: ["election-events-2026-circle"], type: "electionEvents2026" },
   { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
   { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
   // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個

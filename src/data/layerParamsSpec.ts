@@ -4729,6 +4729,20 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
+  electionEvents2026: [
+    opacitySlider("electionEvents2026Opacity", 0.9),
+    scaleSlider("electionEvents2026Scale", 1),
+    {
+      kind: "select", name: "electionEvents2026Range", label: "時間範圍", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        { label: "未來 7 天", value: "next7" },
+        { label: "未來 30 天", value: "next30" },
+        { label: "已舉辦", value: "held" },
+      ],
+      out: null,
+    },
+  ],
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),
     {

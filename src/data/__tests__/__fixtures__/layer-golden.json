@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1503,
+    "keyCount": 1504,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2690,6 +2690,12 @@
         "parking-offstreet-circle"
       ],
       "type": "parkingOffstreet"
+    },
+    {
+      "layers": [
+        "election-events-2026-circle"
+      ],
+      "type": "electionEvents2026"
     },
     {
       "layers": [
@@ -14001,6 +14007,453 @@
       ],
       "sourceId": "medical-ltc",
       "sourceUrl": "./geo/medical_ltc.pmtiles"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "electionEvents2026",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              1,
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_past"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  0.75
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  1.25
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "camp_key"
+                  ],
+                  "dpp",
+                  "#1f9d55",
+                  "kmt",
+                  "#3b6fe0",
+                  "tpp",
+                  "#22b8c7",
+                  "npp",
+                  "#f2c230",
+                  "#0a0a14"
+                ],
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                2,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  0.75
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  1.25
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "camp_key"
+                  ],
+                  "dpp",
+                  "#1f9d55",
+                  "kmt",
+                  "#3b6fe0",
+                  "tpp",
+                  "#22b8c7",
+                  "npp",
+                  "#f2c230",
+                  "#ffffff"
+                ],
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                2,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "election-events-2026",
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -103719,6 +104172,82 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "electionEvents2026": [
+      {
+        "label": "陣營",
+        "options": [
+          {
+            "label": "民主進步黨",
+            "value": "dpp"
+          },
+          {
+            "label": "中國國民黨",
+            "value": "kmt"
+          },
+          {
+            "label": "台灣民眾黨",
+            "value": "tpp"
+          },
+          {
+            "label": "時代力量",
+            "value": "npp"
+          },
+          {
+            "label": "其他政黨／無黨籍",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dpp",
+          "kmt",
+          "tpp",
+          "npp",
+          "__other__"
+        ]
+      },
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "未來 7 天",
+            "value": "next7"
+          },
+          {
+            "label": "未來 30 天",
+            "value": "next30"
+          },
+          {
+            "label": "已舉辦",
+            "value": "held"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",

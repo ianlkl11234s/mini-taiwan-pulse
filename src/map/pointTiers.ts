@@ -77,6 +77,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockFarmSheep: "B", // 畜禽飼養場·羊 Sheep/Goat Farms
   mountainRescueIncidents: "B", // 山域事故 Mountain Rescue
   newsEvents: "B", // 新聞事件 News Events
+  electionEvents2026: "B", // 半徑＝規模分級 · 2026 選舉活動 Election Events
   noiseEnforcementEvents: "B", // 噪音裁處事件 Enforcement
   parkingOffstreet: "B", // 場外停車場 Off-street
   parksTaipei: "B", // 公園 Parks
