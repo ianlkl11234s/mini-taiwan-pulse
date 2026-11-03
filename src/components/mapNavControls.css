@@ -1,0 +1,201 @@
+/* 地圖導航控制＋比例尺（design-system §5.43，N-1）。位置由 App inline style 決定；這裡只管外觀。
+ * --nv-* 別名指到 token，淡色底圖（light／streets）用 --light-*。 */
+.map-nav,
+.map-scale {
+  --nv-surface: var(--surface-strong);
+  --nv-panel: var(--surface-panel);
+  --nv-border: var(--border-panel);
+  --nv-soft: var(--border-soft);
+  --nv-text: var(--text-default);
+  --nv-strong: var(--text-strong);
+  --nv-muted: var(--text-muted);
+  --nv-dim: var(--text-dim);
+  --nv-hover: var(--control-bg-hover);
+  --nv-accent: var(--accent);
+  --nv-elevation: var(--elevation-sm);
+  --nv-fill: var(--slider-fill);
+  font-family: var(--font-cjk);
+}
+.map-nav--light,
+.map-scale--light {
+  --nv-surface: var(--light-surface-strong);
+  --nv-panel: var(--light-surface-panel);
+  --nv-border: var(--light-border);
+  --nv-soft: var(--light-border-soft);
+  --nv-text: var(--light-text-default);
+  --nv-strong: var(--light-text-strong);
+  --nv-muted: var(--light-text-muted);
+  --nv-dim: var(--light-text-dim);
+  --nv-hover: var(--light-control-bg-hover);
+  --nv-accent: var(--light-accent);
+  /* 淡色只有 elevation-lg 一階（LIGHT.elevationLg） */
+  --nv-elevation: var(--light-elevation-lg);
+  --nv-fill: var(--light-slider-fill);
+}
+
+/* ── 控制柱 ── */
+.map-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  pointer-events: auto;
+}
+.map-nav--mobile {
+  /* 觸控熱區 44（30 ＋ 兩側各 7），相鄰熱區不重疊 → 間距 14 */
+  gap: 14px;
+}
+.map-nav__btn {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: var(--nv-surface);
+  color: var(--nv-text);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.map-nav__solo {
+  border: 1px solid var(--nv-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--nv-elevation);
+}
+.map-nav__btn:hover:not(:disabled) {
+  /* §5.7 hover＝control-bg-hover，疊在不透明底上 */
+  background-image: linear-gradient(var(--nv-hover), var(--nv-hover));
+  color: var(--nv-strong);
+}
+.map-nav__btn:focus-visible {
+  outline: 2px solid var(--nv-accent);
+  outline-offset: 2px;
+  z-index: 1;
+}
+.map-nav__btn:disabled {
+  opacity: var(--control-disabled-opacity);
+  cursor: not-allowed;
+}
+.map-nav--mobile .map-nav__btn::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+}
+.map-nav__btn--active {
+  color: var(--nv-accent);
+}
+.map-nav__btn--active svg {
+  animation: map-nav-breathe 1.2s ease-in-out infinite;
+}
+@keyframes map-nav-breathe {
+  50% { opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-nav__btn--active svg { animation: none; }
+}
+
+/* 縮放組：上下兩格一組，中間 1px 分隔 */
+.map-nav__group {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--nv-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--nv-elevation);
+  overflow: hidden;
+}
+.map-nav__group .map-nav__btn {
+  width: 28px;
+  height: 29px;
+}
+.map-nav__group .map-nav__btn + .map-nav__btn {
+  border-top: 1px solid var(--nv-border);
+}
+.map-nav__group .map-nav__btn:focus-visible {
+  outline-offset: -2px;
+}
+
+/* 指北針：北半 accent、南半 textMuted */
+.map-nav__needle { display: block; }
+.map-nav__needle-n { fill: var(--nv-accent); }
+.map-nav__needle-s { fill: var(--nv-muted); }
+
+/* ── 定位點（DOM Marker） ── */
+.map-nav-locate {
+  position: relative;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.map-nav-locate__ring,
+.map-nav-locate__dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-full);
+}
+.map-nav-locate__ring {
+  background: var(--accent-faint);
+  border: 1px solid var(--border-accent);
+}
+.map-nav-locate__dot {
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border: 2px solid var(--text-strong);
+  box-shadow: var(--elevation-sm);
+}
+
+/* ── 比例尺 ── */
+.map-scale {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  height: 30px;
+  padding: 4px 10px 6px;
+  background: var(--nv-panel);
+  border: 1px solid var(--nv-soft);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  font: var(--font-sm)/1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+.map-scale--mobile {
+  display: inline-flex;
+}
+.map-scale__ruler {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.map-scale__labels {
+  position: relative;
+  height: 10px;
+  color: var(--nv-muted);
+  white-space: nowrap;
+}
+.map-scale__labels span { position: absolute; top: 0; }
+.map-scale__l0 { left: 0; }
+.map-scale__l1 { left: 50%; transform: translateX(-50%); }
+.map-scale__l2 { right: 0; }
+.map-scale__bar {
+  display: flex;
+  height: 5px;
+  box-sizing: border-box;
+  border: 1px solid var(--nv-fill);
+  border-top: none;
+}
+.map-scale__bar i { flex: 1; }
+.map-scale__bar i:nth-child(odd) { background: var(--nv-fill); }
+.map-scale__ratio {
+  color: var(--nv-dim);
+  white-space: nowrap;
+}

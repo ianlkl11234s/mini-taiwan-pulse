@@ -128,6 +128,8 @@ import { useLayerVisibilityHint } from "./hooks/useLayerVisibilityHint";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
+import { MapNavControls } from "./components/MapNavControls";
+import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
@@ -502,6 +504,8 @@ export default function App() {
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
+  // 手機 bottom sheet 是否展開（展開時隱藏左下比例尺，§5.43）
+  const [mobileSheetExpanded, setMobileSheetExpanded] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const { t, locale } = useLocale();
@@ -1951,6 +1955,11 @@ export default function App() {
     return () => { map.off("moveend", onMoveEnd); };
   }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
 
+  // 右下導航控制柱（§5.43）：只在桌機一般模式；停靠欄（popup／圖例）的 right 由此再加 42
+  const navColumnVisible = !captureMode && !isMobile;
+  const navColumnRight = splitActive
+    ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+    : "16px";
   // 右上浮動元件共用的 right：Monitor split 時讓到 dock 左邊（LoadingStatus §5.30、視野提示 §5.42）
   const topRightOffset = splitActive
     ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
@@ -2727,6 +2736,13 @@ export default function App() {
                 globalEventsActive={layerVisibility.globalEvents}
               />
             )}
+            {/* 手機導航（§5.43）：時間軸列下方 12px、靠右，只有指北針＋定位；跟著時間軸列實際高度走 */}
+            <MapNavControls
+              map={mapPrepared ? mapRef.current : null}
+              isDarkTheme={isDarkTheme}
+              variant="mobile"
+              style={{ position: "absolute", top: "calc(100% + 12px)", right: 12 }}
+            />
           </div>
 
           {/* Bottom Sheet */}
@@ -2734,7 +2750,7 @@ export default function App() {
             isLandscape={isLandscape}
             isDarkTheme={isDarkTheme}
             forceCollapsed={agentOpen}
-            onExpandedChange={(expanded) => { if (expanded) setAgentOpen(false); }}
+            onExpandedChange={(expanded) => { setMobileSheetExpanded(expanded); if (expanded) setAgentOpen(false); }}
           >
             {(level) => (
               <>
@@ -2818,6 +2834,17 @@ export default function App() {
               </>
             )}
           </MobileBottomSheet>
+          {/* 手機比例尺（§5.43）：左下、sheet 上方；sheet 展開時隱藏。
+              窄螢幕 sheet 上方已有版權列（20）與墊高的 Mapbox logo（約 23＋6），比例尺再往上放到 logo 之上 8px，
+              不可壓到 Mapbox wordmark／版權列（§5.38 法遵） */}
+          {!mobileSheetExpanded && (
+            <MapScaleBar
+              map={mapPrepared ? mapRef.current : null}
+              isDarkTheme={isDarkTheme}
+              variant="mobile"
+              style={{ position: "absolute", left: 10, bottom: "calc(var(--mobile-sheet-inset, 36px) + 57px)", zIndex: Z_INDEX.mapOverlay }}
+            />
+          )}
           {mobileDataSourceOpen && (
             <div
               role="dialog"
@@ -3111,9 +3138,8 @@ export default function App() {
           top: isMobile ? 52 : LAYOUT.leftDockTop,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
           bottom: LAYOUT.mapBottomInset,
-          right: splitActive
-            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
-            : 16,
+          // 桌機有導航控制柱（§5.43）時整欄再往左讓 42（控制柱 30 ＋ 間距 12）
+          right: navColumnVisible ? `calc(${navColumnRight} + 42px)` : navColumnRight,
           zIndex: Z_INDEX.floatingPanel,
           display: "flex",
           flexDirection: "column",
@@ -3164,7 +3190,26 @@ export default function App() {
             </Suspense>
           )}
         </div>
+        {/* 比例尺（§5.43）：停靠欄最底一列，寬度跟欄寬（最小 224）；與上方間距 12（欄 gap 8 ＋ 4）；z<5 不渲染、不留空位 */}
+        {navColumnVisible && (
+          <MapScaleBar
+            map={mapPrepared ? mapRef.current : null}
+            isDarkTheme={isDarkTheme}
+            variant="desktop"
+            style={{ alignSelf: "stretch", minWidth: 224, flexShrink: 0, marginTop: 4 }}
+          />
+        )}
       </div>
+
+      {/* 地圖導航控制柱（§5.43 N-1）：右下、與時間軸同基線；Monitor split 時同停靠欄一起讓到 dock 左邊 */}
+      {navColumnVisible && (
+        <MapNavControls
+          map={mapPrepared ? mapRef.current : null}
+          isDarkTheme={isDarkTheme}
+          variant="desktop"
+          style={{ position: "absolute", right: navColumnRight, bottom: LAYOUT.mapBottomInset, zIndex: Z_INDEX.mapOverlay }}
+        />
+      )}
 
       {/* ── 全域載入狀態條（§5.30）：工具列正下方；拍攝模式只隱藏、不卸載（保留進行中任務） ── */}
         <LoadingStatus
