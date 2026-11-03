@@ -24,6 +24,9 @@ export function niceDistance(maxMeters: number): number {
   return step * pow;
 }
 
+/** 長條短於此 px 時隱藏中點標籤（中點與終點數字各約 20px 寬、置中於刻度，保守留白） */
+export const SCALE_BAR_MID_LABEL_MIN_PX = 80;
+
 /** 距離字串：<1000 用 m，≥1000 用 km（三語單位同為 m／km） */
 export function formatDistance(meters: number): string {
   if (meters >= 1000) return `${trimNumber(meters / 1000)} km`;
@@ -40,15 +43,21 @@ export interface ScaleBarModel {
   meters: number;
   /** 長條長度（px） */
   px: number;
-  /** 刻度標籤：0／中點／終點（終點含單位） */
+  /** 刻度數字：0／中點／終點（純數字，不含單位） */
   labels: [string, string, string];
+  /** 單位（m 或 km），畫在長條右側，不放進終點標籤 */
+  unit: "m" | "km";
+  /** 完整終點距離（例 "200 m"），給 aria-label 用 */
+  fullLabel: string;
+  /** 長條夠長才顯示中點標籤；太短時中點與終點會互撞 */
+  showMid: boolean;
   /** 數字比例（1:46K），96 dpi 換算 */
   ratio: string;
 }
 
 /**
  * 依畫面中心緯度與縮放算比例尺。長條最長 maxPx，距離取 1／2／5×10ⁿ。
- * 中點與終點用同一個單位（終點 ≥1000 m 時中點也用 km 的數字，不帶單位）。
+ * 標籤只放數字，單位另外回傳；中點與終點用同一個單位（終點 ≥1000 m 時中點也用 km 的數字）。
  */
 export function scaleBarModel(lat: number, zoom: number, maxPx = 200): ScaleBarModel | null {
   const mpp = metersPerPixel(lat, zoom);
@@ -61,7 +70,10 @@ export function scaleBarModel(lat: number, zoom: number, maxPx = 200): ScaleBarM
   return {
     meters,
     px,
-    labels: ["0", trimNumber(meters / 2 / unit), formatDistance(meters)],
+    labels: ["0", trimNumber(meters / 2 / unit), trimNumber(meters / unit)],
+    unit: useKm ? "km" : "m",
+    fullLabel: formatDistance(meters),
+    showMid: px >= SCALE_BAR_MID_LABEL_MIN_PX,
     ratio: formatScaleRatio(mpp),
   };
 }
