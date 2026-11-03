@@ -1061,7 +1061,7 @@
 - **開啟**：桌機地圖右鍵；mapbox 的 `contextmenu` 延到 mouseup 才發，按下到放開移動 >4px 視為右鍵拖曳旋轉，不開。手機長按 500 ms（`touchstart` 計時；移動 >8px、多指、放開都取消；長按開了就擋掉放開後補發的 click）。量測繪製中、拍攝模式不開。
 - **藍點**：點的位置放 DOM Marker：accent 10px 圓＋1.5px 白內框＋3px accent 光暈（暗 `--border-accent`、淡 `--light-accent-faint`）；選單關閉即移除。
 - **位置**：點的右下 8px，超出視窗翻到左／上（`position: fixed`）。
-- **外觀**：沿用 §5.41 popover——底不透明（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`）、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`（淡 `LIGHT.elevationLg`）、padding 4、寬 232、`Z_INDEX.popover`。
+- **外觀**：沿用 §5.41 popover——底不透明（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`）、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`（淡 `LIGHT.elevationLg`）、padding 4、寬 264（英文最長項「Copy coordinates (TWD97)＋EPSG:3826」單行放得下；選項不換行）、`Z_INDEX.popover`。
 - **內容**：標題列（「這個位置」10px `textDim`＋座標 11px `FONT_DATA` `textStrong`）→ 分隔線（1px `BORDER.soft`）→「複製座標（WGS84）」→「複製座標（TWD97）」＋右側 `EPSG:3826`（10px `FONT_DATA` `textDim`）→ 分隔線 →「從這裡量測距離」→「從這裡量測面積」→ 分隔線 →「分享這個位置」。每列高 28、`RADIUS.md`、gap 8、12px；icon 13px `textMuted`（`Copy`、自畫線段、`Pentagon`、`Share2`）；hover／focus 底 `--white-a4`（淡 `--light-fill-subtle`，ROW_HOVER 的 CSS 對應值）。
 - **鍵盤**：`role="menu"`／`menuitem`；開啟時焦點在第一項，上下鍵（Home／End）移動、Enter 執行、Esc 關閉。點外部、移動地圖、視窗縮放或失焦都關閉。
 - **複製**：WGS84 複製 `緯度, 經度` 小數 6 位（顯示 4 位）；TWD97 二度分帶（EPSG:3826，GRS80、中央經線 121°、k0 0.9999、假東距 250000）複製 `X, Y` 整數公尺（`src/map/coordinates.ts`，以 pyproj 控制點測試誤差 <1 m）。成功用 `showTransientNotice`「已複製座標」，剪貼簿被拒提示失敗。

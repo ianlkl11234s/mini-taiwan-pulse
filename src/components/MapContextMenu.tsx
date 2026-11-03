@@ -34,7 +34,7 @@ const LONG_PRESS_MS = 500;
 const MOVE_CANCEL_PX = 8;
 const DRAG_PX = 4;
 const MENU_OFFSET = 8;
-const MENU_WIDTH = 232;
+const MENU_WIDTH = 264;
 
 export function MapContextMenu({ map, measure, isDarkTheme, enabled, onShareLocation }: Props) {
   const { t } = useLocale();
