@@ -29,7 +29,7 @@ export const PUOR = ["#b35806", "#e08214", "#fdb863", "#d8daeb", "#b2abd2", "#80
 export const PUOR_NEG = [PUOR[0], PUOR[1], PUOR[2]] as const;
 export const PUOR_POS = [PUOR[4], PUOR[5], PUOR[6]] as const;
 /** 三級分區：序位三階取自 viridis（可行最亮）；規格沒有對應類別色，見 p4_pulse.md 規格缺口 */
-export const TIER_COLORS = { ok: "#fde725", edge: "#21918c", dep: "#440154" } as const;
+export const TIER_COLORS = { ok: "#1f9e89", edge: "#f59e0b", dep: "#ca3e72" } as const;
 export type TransitAccessTier = keyof typeof TIER_COLORS;
 export const TIERS: readonly TransitAccessTier[] = ["ok", "edge", "dep"];
 /** 三級名稱的 i18n key（寫成字面，locale parity 才找得到） */
