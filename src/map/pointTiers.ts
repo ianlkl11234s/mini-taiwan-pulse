@@ -302,6 +302,14 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/hooks/useKrEnergyLayers.ts
   krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/hooks/useKrEnergyLayers.ts
   krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/hooks/useKrEnergyLayers.ts
+  caTransitStops: "S", // 加拿大公共運輸站點（11.9 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
+  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/hooks/useCaTransportLayers.ts
+  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/hooks/useCaTransportLayers.ts
+  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/hooks/useCaEnergyLayers.ts
+  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/hooks/useCaEnergyLayers.ts
+  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/hooks/useCaEnergyLayers.ts
+  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/hooks/useCaEnergyLayers.ts
+  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/hooks/useCaEnergyLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts

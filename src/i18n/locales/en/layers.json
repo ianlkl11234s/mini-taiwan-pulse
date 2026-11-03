@@ -1497,5 +1497,15 @@
   "layer.statsKrEmployeesSido": "Persons employed (province level)",
   "layer.statsKrEmployeesSgg": "Persons employed (municipal level)",
   "layer.transitAccessGrid": "Grid Transit Access",
-  "layer.transitAccessPlayback": "Transit Reach from One Origin"
+  "layer.transitAccessPlayback": "Transit Reach from One Origin",
+  "layer.caAdminBoundaries": "Administrative Boundaries (Canada)",
+  "layer.caTransitStops": "Public Transit Stops (Canada)",
+  "layer.caAirportsPorts": "Airports & Ports (Canada)",
+  "layer.caMajorRoads": "Major Roads (Canada)",
+  "layer.caRailways": "Railways (Canada)",
+  "layer.caPowerPlants": "Power Plants (Canada)",
+  "layer.caWindTurbines": "Wind Turbines (Canada)",
+  "layer.caPowerGrid": "Power Grid (Canada)",
+  "layer.caOilGas": "Oil & Gas Facilities (Canada)",
+  "layer.caPopulationCentres": "Population Centres (Canada)"
 }

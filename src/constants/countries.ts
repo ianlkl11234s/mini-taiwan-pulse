@@ -9,7 +9,7 @@
  */
 import { ALL_PRESETS } from "../map/cameraPresets";
 
-export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR";
+export type CountryCode = "TW" | "JP" | "FR" | "GB" | "KR" | "CA";
 
 export interface CountryCamera {
   center: [number, number];
@@ -47,6 +47,9 @@ export const UK_CAMERA: CountryCamera = { center: [-2.5, 54.5], zoom: 4.8, pitch
 
 /** 南韓（本土＋濟州、鬱陵島、獨島；2026-10-31 南韓第 0 波）。 */
 export const KOREA_CAMERA: CountryCamera = { center: [127.8, 36.3], zoom: 6.3, pitch: 0, bearing: 0 };
+
+/** 加拿大（13 省／地區；國家全覽 z3.5，map-layers §3.8 V-1；2026-11-04 加拿大第 0 波）。 */
+export const CANADA_CAMERA: CountryCamera = { center: [-96, 60], zoom: 3.5, pitch: 0, bearing: 0 };
 
 /** 全台總覽（同 cameraPresets「全台總覽」；開站預設鏡頭 `DEFAULT_CAMERA` 仍是台北，2026-10-28 使用者要求選台灣時看全台）。 */
 const TAIWAN_CAMERA: CountryCamera = (() => {
@@ -167,6 +170,35 @@ export const COUNTRIES: readonly CountryDef[] = [
       [128.3, 38.38, 128.42, 38.46],  // 高城北部
       [128.5, 37.68, 129.6, 38.38],   // 束草、襄陽、江陵（東緣海上）
       [130.7, 37.1, 131.95, 37.6],    // 鬱陵島、獨島
+    ],
+  },
+  {
+    code: "CA",
+    chip: "CA",
+    labelKey: "country.CA",
+    camera: CANADA_CAMERA,
+    // 2026-11-04 加拿大第 0 波：以 49°N 與五大湖—聖羅倫斯河界為主幹切矩形。刻意排除：阿拉斯加（-141° 以西、
+    // panhandle）、美國邊境城市（Seattle、Bellingham、Detroit、Buffalo、Watertown、Plattsburgh、Houlton）、
+    // 格陵蘭（巴芬島東緣 -61°、Ellesmere 東緣 -70°）、法屬聖皮耶與密克隆。矩形近似：溫莎（與底特律隔河）、
+    // Sault Ste. Marie 一帶、新布藍茲維西北角（Edmundston）判不到，Isle Royale 等美國湖中小島可能誤判為加拿大。
+    bboxes: [
+      [-141.0, 60.0, -75.0, 84.0],     // 北部三地區、哈德遜灣、魁北克北部（阿拉斯加以 -141° 切）
+      [-75.0, 60.0, -61.0, 74.0],      // 巴芬島、昂加瓦、拉布拉多北部（東緣避開格陵蘭西岸）
+      [-75.0, 74.0, -70.0, 84.0],      // Ellesmere／Devon 東段（Thule -68.7° 在框外）
+      [-130.0, 49.0, -52.0, 60.0],     // BC 本土到紐芬蘭北部（49°N 以北；西緣 -130° 避開 panhandle）
+      [-133.5, 51.5, -130.0, 54.65],   // Haida Gwaii、Prince Rupert（Ketchikan 55.3°N 在框外）
+      [-128.5, 48.3, -123.25, 49.0],   // 溫哥華島南端、維多利亞（東緣避開聖胡安群島與 Bellingham）
+      [-89.6, 47.6, -64.0, 49.0],      // 雷灣到加斯佩（北緣以下避開密西根上半島與緬因北端）
+      [-84.2, 46.0, -74.5, 47.6],      // 薩德伯里、北灣、魁北克西部
+      [-82.4, 43.0, -79.05, 46.0],     // 多倫多、巴里、喬治亞灣（西緣避開 Port Huron）
+      [-82.95, 42.2, -79.05, 43.0],    // 倫敦、尼加拉（溫莎與底特律同經度，西緣切在兩者東邊）
+      [-79.05, 43.7, -76.3, 46.0],     // 奧沙瓦、京士頓（東緣避開 Watertown）
+      [-76.3, 44.95, -74.5, 46.0],     // 渥太華、康沃爾（南緣避開 Massena、Ogdensburg）
+      [-74.5, 45.01, -71.0, 47.6],     // 蒙特婁、舍布魯克、魁北克市（南緣 45.01 避開 Rouses Point）
+      [-67.2, 45.0, -59.5, 49.0],      // 新布藍茲維、愛德華王子島、布雷頓角（西緣避開 Calais、Houlton）
+      [-66.5, 43.3, -59.5, 45.0],      // 新斯科細亞（哈利法克斯；西緣避開 Eastport）
+      [-59.5, 47.2, -52.0, 49.0],      // 紐芬蘭（南緣避開聖皮耶與密克隆）
+      [-55.9, 46.5, -52.0, 47.2],      // 亞瓦隆半島南部（西緣避開聖皮耶與密克隆）
     ],
   },
 ];

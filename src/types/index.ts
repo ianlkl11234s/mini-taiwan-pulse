@@ -438,6 +438,7 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
+  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres"
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
@@ -989,6 +990,8 @@ export interface FeatureInfo {
     | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries" | KrDataKey
+    // 加拿大第 0＋1 波
+    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres"
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
@@ -1843,6 +1846,16 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
+  caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caTransitStops: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caAirportsPorts: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caMajorRoads: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caRailways: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caPowerPlants: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caWindTurbines: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caPowerGrid: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caOilGas: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
+  caPopulationCentres: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
   krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
   krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）

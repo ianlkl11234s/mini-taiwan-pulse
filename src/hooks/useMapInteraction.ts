@@ -489,6 +489,8 @@ export function useMapInteraction(
             if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
               properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
             }
+            // 加拿大：同一 key 有多個 tile layer（機場／港口、軌道／車站、油氣 6 類…），popup 依命中的 source-layer 選欄位規格。
+            if (f.layer?.id?.startsWith("ca-") && f.sourceLayer) properties = { ...properties, _ca_source_layer: f.sourceLayer };
             const waterIdentity = jpWaterSelectionIdentity(type, properties.source_id);
             if (waterIdentity) {
               properties = {

@@ -1497,5 +1497,15 @@
   "layer.statsKrEmployeesSido": "従業者数（広域）",
   "layer.statsKrEmployeesSgg": "従業者数（基礎自治体）",
   "layer.transitAccessGrid": "グリッド公共交通アクセス",
-  "layer.transitAccessPlayback": "単一出発地の公共交通到達範囲"
+  "layer.transitAccessPlayback": "単一出発地の公共交通到達範囲",
+  "layer.caAdminBoundaries": "行政区域界（カナダ）",
+  "layer.caTransitStops": "公共交通の停留所（カナダ）",
+  "layer.caAirportsPorts": "空港・港湾（カナダ）",
+  "layer.caMajorRoads": "主要道路（カナダ）",
+  "layer.caRailways": "鉄道（カナダ）",
+  "layer.caPowerPlants": "発電所（カナダ）",
+  "layer.caWindTurbines": "風車（カナダ）",
+  "layer.caPowerGrid": "送電網（カナダ）",
+  "layer.caOilGas": "石油・ガス施設（カナダ）",
+  "layer.caPopulationCentres": "人口中心（カナダ）"
 }

@@ -334,6 +334,13 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
+  CA: [
+    // 加拿大（2026-11-04 第 0＋1 波；title 沿用台灣主題中文短名，比照南韓、英國）
+    "底圖",
+    "交通",
+    "能源",
+    "人口社經",
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -2787,6 +2794,43 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🇨🇦 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通、能源、人口中心；群組比照台灣與南韓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "行政邊界", layers: [fromManifest("caAdminBoundaries")] }],
+  },
+  {
+    title: "交通",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("caTransitStops")] },
+      { title: "路網", layers: [fromManifest("caMajorRoads"), fromManifest("caRailways")] },
+      { title: "樞紐節點", layers: [fromManifest("caAirportsPorts")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("caPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("caPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("caWindTurbines")] },
+      { title: "石化 · 油氣", layers: [fromManifest("caOilGas")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("caPopulationCentres")] }],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🇬🇧 英國（2026-10-29 英國第 0b 波：行政邊界；之後各波照台灣主題名登記）
   // ───────────────────────────────────────────────────────────────
   {
@@ -3122,6 +3166,13 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  CA: {
+    // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
+    "底圖": "baseline",
+    "交通": "city",
+    "能源": "environment",
+    "人口社經": "city",
+  },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
     "底圖": "baseline",
@@ -3298,6 +3349,13 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
     "人口": { zh: "人口", sub: "인구" },
     "社經": { zh: "社經", sub: "사회경제" },
+  },
+  CA: {
+    // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "人口社經": { zh: "人口社經", sub: "People" },
   },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）
