@@ -33,6 +33,7 @@
   "popup.politics.polling.precision": "位置の特定方法",
   "popup.politics.polling.precision.poi_name": "名称照合",
   "popup.politics.polling.precision.address_door": "番地",
+  "popup.politics.polling.precision.tgos_door": "番地（TGOS）",
   "popup.politics.polling.precision.road": "道路名のみ（おおよその位置）",
   "popup.politics.polling.electors": "2024年総統選 選挙人数",
   "popup.politics.polling.turnout": "2024年総統選 投票率",

@@ -142,6 +142,7 @@ export function ElectionEventPanel({ props }: { props: Record<string, unknown> }
 const POLLING_PRECISION_KEY = {
   poi_name: "popup.politics.polling.precision.poi_name",
   address_door: "popup.politics.polling.precision.address_door",
+  tgos_door: "popup.politics.polling.precision.tgos_door",
   road: "popup.politics.polling.precision.road",
 } as const;
 const POLLING_PARTY_KEY = {

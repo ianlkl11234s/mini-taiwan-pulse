@@ -33,6 +33,7 @@
   "popup.politics.polling.precision": "Location method",
   "popup.politics.polling.precision.poi_name": "Name match",
   "popup.politics.polling.precision.address_door": "Street address",
+  "popup.politics.polling.precision.tgos_door": "Street address (TGOS)",
   "popup.politics.polling.precision.road": "Street name only – approximate",
   "popup.politics.polling.electors": "2024 presidential electors",
   "popup.politics.polling.turnout": "2024 presidential turnout",

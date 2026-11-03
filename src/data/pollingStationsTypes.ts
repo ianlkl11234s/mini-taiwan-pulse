@@ -35,7 +35,7 @@ export const POLLING_TURNOUT_COLORS: readonly string[] = STATISTICS_SEQUENTIAL_S
 /** precision='road'（僅路名、位置約略）的透明度倍率 */
 export const POLLING_ROAD_OPACITY = 0.45;
 
-export const POLLING_PRECISIONS = ["poi_name", "address_door", "road"] as const;
+export const POLLING_PRECISIONS = ["poi_name", "address_door", "tgos_door", "road"] as const;
 export type PollingPrecision = (typeof POLLING_PRECISIONS)[number];
 
 export const POLLING_SOURCE_URL =

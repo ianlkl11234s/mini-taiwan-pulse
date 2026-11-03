@@ -23,7 +23,7 @@
   "legend.politics.polling.road": "Faded = matched to street name only; approximate location",
   "legend.politics.polling.zoomHint": "Zoom in to street level to show stations",
   "legend.politics.polling.truncated": "{count} stations in view; only {shown} drawn. Zoom in further",
-  "legend.politics.polling.unmapped": "About 2,200 stations not yet located and not shown",
+  "legend.politics.polling.unmapped": "About 230 stations not yet located and not shown",
   "legend.politics.polling.unmappedExact": "About {count} stations not yet located and not shown",
   "legend.politics.polling.year": "These are 2024 polling station locations; for the 28 Nov 2026 election, follow each county's election commission notice",
   "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site"

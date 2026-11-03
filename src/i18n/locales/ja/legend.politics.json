@@ -23,7 +23,7 @@
   "legend.politics.polling.road": "淡色＝道路名のみ一致（位置はおおよそ）",
   "legend.politics.polling.zoomHint": "街区レベルまで拡大すると表示されます",
   "legend.politics.polling.truncated": "この範囲に {count} か所、{shown} か所のみ表示中。さらに拡大してください",
-  "legend.politics.polling.unmapped": "約 2,200 か所は位置未特定のため非表示",
+  "legend.politics.polling.unmapped": "約 230 か所は位置未特定のため非表示",
   "legend.politics.polling.unmappedExact": "約 {count} か所は位置未特定のため非表示",
   "legend.politics.polling.year": "2024年の投開票所の位置です。2026年11月28日の投開票所は各県市選挙委員会の公告に従ってください",
   "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定"
