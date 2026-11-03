@@ -5,6 +5,7 @@ import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
+import { ELECTION_LAYER_COLOR } from "./electionEventsTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
@@ -143,6 +144,8 @@ import {
   TrendingUp, Umbrella,
   // 🗣️ 族語方言分布 G35（2026-10-31）
   Languages,
+  // 🗳 政治 選舉活動（2026-11-02）
+  Vote,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -944,6 +947,33 @@ export const LAYER_MANIFEST = {
     params: { count: 8, kinds: ["multiSelect", "slider", "select", "select", "toggle", "toggle", "toggle", "slider"] },
     description: "新聞事件地理標定（分類著色 + 嚴重度篩選 + 時間漣漪）",
     topics: ["情勢", "新聞", "事件"],
+  },
+
+  // 🗳 政治：2026 選舉活動（owner-only RPC get_election_events_2026；gis-platform mig 494 登記 gated_layers）
+  electionEvents2026: {
+    key: "electionEvents2026",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2026 選舉活動", alt: "2026 Election Events" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/election_events_2026（研究原型）：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等來源，去重後定位（地址／地標／路口），寫入 Supabase intel schema；前端只經 owner-only RPC 讀取。",
+      note: "研究原型；站主限定。收錄公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "election-events-2026",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "electionEvents2026",
+    popup: "electionEvents2026",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
+    description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。",
+    topics: ["政治", "選舉", "活動", "研究中"],
   },
 
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件

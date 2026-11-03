@@ -1,0 +1,17 @@
+{
+  "legend.politics.camp.dpp": "民主進歩党",
+  "legend.politics.camp.kmt": "中国国民党",
+  "legend.politics.camp.tpp": "台湾民衆党",
+  "legend.politics.camp.npp": "時代力量",
+  "legend.politics.camp.other": "その他の政党／無所属",
+  "legend.politics.size": "大きさ＝規模",
+  "legend.politics.tierL": "大",
+  "legend.politics.tierM": "中",
+  "legend.politics.tierS": "小",
+  "legend.politics.past": "タイムラインの時刻より前（淡色）",
+  "legend.politics.hollow": "中止／延期（中抜き）",
+  "legend.politics.bias": "公表・報道された活動のみで、全数ではありません。陣営・県市ごとに情報源の網羅度が異なるため、活動数は比較できません。",
+  "legend.politics.unmapped": "ほかに位置未特定の {count} 件は地図に表示していません",
+  "legend.politics.updated": "データ更新：{time}",
+  "legend.politics.source": "出典：政党の日程、候補者の公開投稿、中央社、警政署の集会申請など（研究プロトタイプ）"
+}

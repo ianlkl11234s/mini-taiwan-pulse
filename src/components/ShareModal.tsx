@@ -16,10 +16,12 @@ interface Props {
   open: boolean;
   onClose: () => void;
   isDarkTheme?: boolean;
+  /** 覆寫要分享的 query（右鍵「分享這個位置」：相機中心換成點的位置）；沒給就用目前網址 */
+  search?: string | null;
 }
 
-function buildLinks() {
-  const search = window.location.search || "?v=1";
+function buildLinks(override?: string | null) {
+  const search = override || window.location.search || "?v=1";
   return {
     site: `${PROD_ORIGIN}/${search}`,
     embed: `${PROD_ORIGIN}/embed${search}`,
@@ -95,13 +97,13 @@ function CopyBox({
   );
 }
 
-export function ShareModal({ open, onClose, isDarkTheme = true }: Props) {
-  const [links, setLinks] = useState(buildLinks);
+export function ShareModal({ open, onClose, isDarkTheme = true, search }: Props) {
+  const [links, setLinks] = useState(() => buildLinks(search));
 
   // 每次開啟都重讀網址（面板關著時使用者可能又移動了地圖）
   useEffect(() => {
-    if (open) setLinks(buildLinks());
-  }, [open]);
+    if (open) setLinks(buildLinks(search));
+  }, [open, search]);
 
   useEffect(() => {
     if (!open) return;
