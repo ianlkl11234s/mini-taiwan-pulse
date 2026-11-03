@@ -74,8 +74,9 @@ const TRANSIT_SOURCE: SourceSpec = { id: "ca-transit-stops", file: "ca_transit_s
 // 格網層 `ca_transit_stops_grid`（count）只在 z3–9 的圖磚：另開 maxzoom 9 的 source，讓 z9–12 overzoom 接到單點，不留縫。
 const TRANSIT_GRID_SOURCE: SourceSpec = { id: "ca-transit-stops-grid", file: "ca_transit_stops.pmtiles", minzoom: 3, maxzoom: 9, attribution: CA_TRANSIT_SOURCE.short, loading: "加拿大公共運輸站點載入中" };
 export const CA_TRANSIT_POINTS_FROM_ZOOM = densePointsFromZoom(CA_TRANSIT_COUNT, 10);
-const TRANSIT_HEAT_INTENSITY = 30;
-const TRANSIT_GRID_WEIGHT = ["interpolate", ["linear"], ["coalesce", ["get", "count"], 1], 1, 0.08, 10, 0.3, 100, 0.65, 1000, 1];
+const TRANSIT_HEAT_INTENSITY = 200;
+// 粗格（z3–7）與細格（z8–9）同一組 intensity：細格權重壓低，避免 z8 起整片飽和（2026-11-04 多倫多 z8 目視校正）。
+const TRANSIT_GRID_WEIGHT = ["*", ["match", ["get", "res"], "fine", 0.12, 1], ["interpolate", ["linear"], ["coalesce", ["get", "count"], 1], 1, 0.08, 10, 0.3, 100, 0.65, 1000, 1]];
 export const caTransitTypeFilter = (mask: number | undefined) => caCatFilter("location_type", CA_TRANSIT_TYPES, mask);
 
 export function useCaTransitStopsLayer(mapRef: MapRef, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number) {

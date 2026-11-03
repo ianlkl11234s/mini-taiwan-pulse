@@ -21,7 +21,7 @@ function useTitle(key: string): { title: string; i18n: I18n; pick: (t: L3) => st
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[key]?.name;
   return { title: name ? localizeLayerName(key, name, i18n).primary : key, i18n, pick: (t: L3) => pickL3(t, i18n.locale) };
 }
-const SUB = (text: string): ReactNode => <div style={{ marginTop: 6, fontSize: 11, fontWeight: 600 }}>{text}</div>;
+const SUB = (text: string): ReactNode => <LegendTitle zh={text} style={{ marginTop: 6, marginBottom: 2 }} />;
 function Cats({ cats, pick, line }: { cats: readonly CaCat[]; pick: (t: L3) => string; line?: number }) {
   return <>{cats.map((c) => <LegendRow key={c.id} swatch={line ? <SwatchLine color={c.color} width={line} /> : <SwatchDot color={c.color} />}>{pick(c.label)}</LegendRow>)}</>;
 }

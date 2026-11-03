@@ -88,7 +88,7 @@ export const CA_TRANSIT_SOURCE: CaSource = {
 export const CA_TRANSIT_NOTES: readonly L3[] = [
   l3("132 個 GTFS feed 的站點；不同機構共站會重複", "Stops from 132 GTFS feeds; stops shared by several agencies are repeated", "132 の GTFS フィードの停留所。複数事業者の共用停留所は重複する"),
   l3("授權依各機構（多數未明示）", "Licence varies by agency (mostly unstated)", "ライセンスは事業者ごと（多くは明示なし）"),
-  l3("Nunavut 未涵蓋", "Nunavut not covered", "ヌナブト準州は対象外"),
+  l3("Nunavut、多倫多 TTC（市區公車與地鐵）未涵蓋", "Nunavut and the Toronto TTC (city buses and subway) not covered", "ヌナブト準州とトロント TTC（市内バス・地下鉄）は対象外"),
   l3("z12 起顯示單站，之下為密度熱區（格網計數；類別篩選只作用於單站）", "Individual stops from zoom 12; density heatmap (grid counts) below; the type filter applies to individual stops only", "ズーム 12 から個別表示、それ以下は密度ヒートマップ（格子集計。種別フィルタは個別表示のみ）"),
 ];
 export const CA_TRANSIT_POPUP: CaPopupSpec = {
