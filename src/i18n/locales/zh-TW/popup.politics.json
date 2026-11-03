@@ -34,6 +34,7 @@
   "popup.politics.polling.precision.poi_name": "名稱比對",
   "popup.politics.polling.precision.address_door": "門牌",
   "popup.politics.polling.precision.tgos_door": "門牌（TGOS）",
+  "popup.politics.polling.precision.google": "Google 地址或地點（人工核對）",
   "popup.politics.polling.precision.road": "僅路名－位置約略",
   "popup.politics.polling.electors": "2024 總統選舉人數",
   "popup.politics.polling.turnout": "2024 總統投票率",

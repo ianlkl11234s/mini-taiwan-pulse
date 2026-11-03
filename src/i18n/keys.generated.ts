@@ -5885,6 +5885,7 @@ export type GeneratedStaticKey =
   | "popup.politics.polling.party.tpp"
   | "popup.politics.polling.precision"
   | "popup.politics.polling.precision.address_door"
+  | "popup.politics.polling.precision.google"
   | "popup.politics.polling.precision.poi_name"
   | "popup.politics.polling.precision.road"
   | "popup.politics.polling.precision.tgos_door"
