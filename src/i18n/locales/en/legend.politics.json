@@ -26,5 +26,9 @@
   "legend.politics.polling.unmapped": "About 200 stations not yet located and not shown",
   "legend.politics.polling.unmappedExact": "About {count} stations not yet located and not shown",
   "legend.politics.polling.year": "These are 2024 polling station locations; for the 28 Nov 2026 election, follow each county's election commission notice",
-  "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site"
+  "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site",
+  "legend.politics.polling.neutral": "Polling station (neutral, no party colour)",
+  "legend.politics.polling.heatElectors": "Zoomed out below street level: heatmap weighted by 2024 presidential electors",
+  "legend.politics.polling.heatParties": "Zoomed out: one heatmap per party weighted by 2024 presidential votes (toggle each in options); showing: {parties}",
+  "legend.politics.polling.heatNone": "none (all three off)"
 }

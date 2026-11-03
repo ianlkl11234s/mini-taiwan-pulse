@@ -4,14 +4,18 @@ const rpc = vi.fn();
 vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...a: unknown[]) => rpc(...a) }, supabaseConfigured: true }));
 
 import {
+  clearPollingHeatCache,
   clearPollingStationsCache,
+  fetchPollingHeat,
   fetchPollingStations,
+  normalizePollingHeat,
   isMissingPollingRpc,
   normalizePollingStations,
   pollingBoundsKey,
   snapPollingBounds,
 } from "../pollingStationsLoader";
-import { POLLING_COLOR_MODES, POLLING_FETCH_LIMIT, pollingLead } from "../pollingStationsTypes";
+import { POLLING_COLOR_MODES, POLLING_FETCH_LIMIT, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_VOTES_UNIT, pollingHeatRamp, pollingLead } from "../pollingStationsTypes";
+import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { formatPartyVotes } from "../../components/featureInfo/politicsPanels";
 import { LAYER_PARAMS_SPEC } from "../layerParamsSpec";
 
@@ -47,6 +51,7 @@ describe("pollingStations loader", () => {
   beforeEach(() => {
     rpc.mockReset();
     clearPollingStationsCache();
+    clearPollingHeatCache();
   });
 
   it("normalize：衍生 lead、缺投票率給 -1、跳過非 Point、meta 轉 camelCase", () => {
@@ -106,5 +111,84 @@ describe("pollingStations loader", () => {
     const spec = LAYER_PARAMS_SPEC.pollingStations2024.find((s) => s.name === "pollingStations2024ColorBy");
     expect(spec && "encode" in spec ? spec.encode : null).toEqual([...POLLING_COLOR_MODES]);
     expect(POLLING_COLOR_MODES[0]).toBe("lead");
+    expect(POLLING_COLOR_MODES[1]).toBe("turnout");
+  });
+
+  it("中性 append 在 idx 2；選單中性排第一且為預設", () => {
+    const spec = LAYER_PARAMS_SPEC.pollingStations2024.find((s) => s.name === "pollingStations2024ColorBy");
+    expect(POLLING_COLOR_MODES.indexOf("neutral")).toBe(2);
+    expect(spec && "encode" in spec ? spec.encode?.indexOf("neutral") : null).toBe(2);
+    expect(spec?.default).toBe("neutral");
+    expect(spec && "options" in spec ? spec.options?.[0]?.value : null).toBe("neutral");
+  });
+
+  it("heat 解析：cols＋rows → Point，權重先除好、null 權重 0、壞列跳過", () => {
+    const d = normalizePollingHeat({
+      meta: { count: 3, loaded_at: "2026-11-03T10:00:00+00:00" },
+      cols: ["lng", "lat", "electors", "dpp", "kmt", "tpp"],
+      rows: [[121.75361, 24.75432, 1057, 313, 264, 170], [120.1, 23.1, 800, null, null, null], [null, 23, 1, 1, 1, 1], "bad"],
+    });
+    expect(d.fc.features).toHaveLength(2);
+    expect(d.fc.features[0]!.geometry.coordinates).toEqual([121.75361, 24.75432]);
+    expect(d.fc.features[0]!.properties).toEqual({
+      w_electors: 1057 / POLLING_HEAT_ELECTORS_UNIT,
+      w_dpp: 313 / POLLING_HEAT_VOTES_UNIT, w_kmt: 264 / POLLING_HEAT_VOTES_UNIT, w_tpp: 170 / POLLING_HEAT_VOTES_UNIT,
+    });
+    expect(d.fc.features[1]!.properties).toMatchObject({ w_dpp: 0, w_kmt: 0, w_tpp: 0 });
+    expect(d.count).toBe(3);
+    // 欄位順序以 cols 為準
+    const r = normalizePollingHeat({ cols: ["lat", "lng", "tpp"], rows: [[25, 121, 50]] });
+    expect(r.fc.features[0]!.geometry.coordinates).toEqual([121, 25]);
+    expect(r.fc.features[0]!.properties).toMatchObject({ w_electors: 0, w_tpp: 50 / POLLING_HEAT_VOTES_UNIT, w_dpp: 0 });
+    expect(normalizePollingHeat(null).fc.features).toHaveLength(0);
+  });
+
+  it("heat fetch：session 內只呼叫一次；失敗不快取", async () => {
+    rpc.mockResolvedValueOnce({ data: null, error: { message: "boom", code: "X" }, status: 500 });
+    await expect(fetchPollingHeat()).rejects.toThrow("boom");
+    rpc.mockResolvedValue({ data: { cols: ["lng", "lat"], rows: [[121, 25]] }, error: null, status: 200 });
+    const a = await fetchPollingHeat();
+    const b = await fetchPollingHeat();
+    expect(a).toBe(b);
+    expect(rpc).toHaveBeenCalledTimes(2);
+    expect(rpc).toHaveBeenLastCalledWith("get_polling_stations_2024_heat");
+  });
+
+  it("熱區：中性模式只亮單色層；領先政黨三層依開關個別歸零；z12.5 淡到 0", () => {
+    const heat = OVERLAY_REGISTRY.find((c) => c.id === "pollingStations2024" && c.sourceId === "polling-stations-2024-heat")!;
+    const op = (suffix: string, p: Record<string, number>) => {
+      const expr = heat.layers.find((l) => l.suffix === suffix)!.paint(true, p)["heatmap-opacity"] as unknown[];
+      return [expr[4], expr[6]] as [number, number];
+    };
+    const neutral = { pollingStations2024ColorByIdx: 2 };
+    expect(op("neutral", neutral)[0]).toBeGreaterThan(0);
+    expect(op("dpp", neutral)[0]).toBe(0);
+    // 預設（idx 缺）＝中性
+    expect(op("neutral", {})[0]).toBeGreaterThan(0);
+    // 投票率模式熱區沿用中性
+    expect(op("neutral", { pollingStations2024ColorByIdx: 1 })[0]).toBeGreaterThan(0);
+    const lead = { pollingStations2024ColorByIdx: 0, pollingStations2024HeatDpp: 1, pollingStations2024HeatKmt: 0, pollingStations2024HeatTpp: 1 };
+    expect(op("neutral", lead)[0]).toBe(0);
+    expect(op("dpp", lead)[0]).toBeGreaterThan(0);
+    expect(op("kmt", lead)[0]).toBe(0);
+    expect(op("tpp", lead)[0]).toBeGreaterThan(0);
+    expect(op("dpp", lead)[1]).toBe(0);
+    for (const l of heat.layers) expect(l.type).toBe("heatmap");
+    expect(heat.layers.find((l) => l.suffix === "kmt")!.paint(true, lead)["heatmap-weight"]).toEqual(["get", "w_kmt"]);
+  });
+
+  it("三黨開關預設全開、只在領先政黨模式顯示", () => {
+    for (const name of ["pollingStations2024HeatDpp", "pollingStations2024HeatKmt", "pollingStations2024HeatTpp"]) {
+      const spec = LAYER_PARAMS_SPEC.pollingStations2024.find((s) => s.name === name);
+      expect(spec?.kind).toBe("toggle");
+      expect(spec?.default).toBe(true);
+      expect(spec?.showWhen).toEqual({ param: "pollingStations2024ColorBy", equals: "lead" });
+    }
+  });
+
+  it("熱區色階：7 階、末階為原色", () => {
+    const ramp = pollingHeatRamp("#1f9d55");
+    expect(ramp).toHaveLength(7);
+    expect(ramp[6]).toBe("#1f9d55");
   });
 });

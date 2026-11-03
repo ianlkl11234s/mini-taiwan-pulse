@@ -26,5 +26,9 @@
   "legend.politics.polling.unmapped": "約 200 か所は位置未特定のため非表示",
   "legend.politics.polling.unmappedExact": "約 {count} か所は位置未特定のため非表示",
   "legend.politics.polling.year": "2024年の投開票所の位置です。2026年11月28日の投開票所は各県市選挙委員会の公告に従ってください",
-  "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定"
+  "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定",
+  "legend.politics.polling.neutral": "投開票所（中立色、政党別なし）",
+  "legend.politics.polling.heatElectors": "街区レベルより縮小時はヒートマップ表示（2024年総統選の選挙人数で重み付け）",
+  "legend.politics.polling.heatParties": "縮小時は政党別ヒートマップ（2024年総統選の各党得票数で重み付け、オプションで個別に切替）；表示中：{parties}",
+  "legend.politics.polling.heatNone": "なし（3層ともオフ）"
 }

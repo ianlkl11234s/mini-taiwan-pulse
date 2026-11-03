@@ -987,19 +987,19 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢。",
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢；低縮放熱區另由公開 RPC get_polling_stations_2024_heat（mig 496）一次取全臺站址點。",
       note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
     },
     dataClass: "C",
-    source: {
-      kind: "supabase",
-      sourceId: "polling-stations-2024",
-      fallbackUrl: "./geo/_empty.geojson",
-    },
+    // [0] 低縮放熱區（全臺一次抓）、[1] z ≥ 12 bbox 點位；順序＝OVERLAY_REGISTRY 疊放順序
+    source: [
+      { kind: "supabase", sourceId: "polling-stations-2024-heat", fallbackUrl: "./geo/_empty.geojson" },
+      { kind: "supabase", sourceId: "polling-stations-2024", fallbackUrl: "./geo/_empty.geojson" },
+    ],
     legend: "pollingStations2024",
     popup: "pollingStations2024",
     params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
-    description: "2024 年總統大選的投開票所位置與該所總統得票。色＝領先政黨（可切換成投票率）；放大到街區層級才顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    description: "2024 年總統大選的投開票所位置與該所總統得票。拉遠看熱區（選舉人數，或民進黨／國民黨／民眾黨三層得票熱區），放大到街區層級才顯示各所；著色可選中性、領先政黨或投票率。2026-11-28 的投開票所以各縣市選委會公告為準。",
     topics: ["政治", "選舉", "投開票所", "投票率"],
   },
 

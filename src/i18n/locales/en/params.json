@@ -2076,5 +2076,11 @@
   "param.比較：航班／船班多出": "Compare: gain from flights / ferries",
   "param.比較：高鐵多出": "Compare: gain from HSR",
   "param.依起點自動": "Auto (by origin)",
-  "param.固定 0–8 小時": "Fixed 0–8 h"
+  "param.固定 0–8 小時": "Fixed 0–8 h",
+  "param.中性": "Neutral",
+  "param.領先政黨": "Leading party",
+  "param.投票率": "Turnout",
+  "param.熱區：民進黨": "Heatmap: DPP",
+  "param.熱區：國民黨": "Heatmap: KMT",
+  "param.熱區：民眾黨": "Heatmap: TPP"
 }

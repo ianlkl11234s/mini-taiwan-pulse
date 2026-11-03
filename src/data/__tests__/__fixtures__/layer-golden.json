@@ -14471,35 +14471,694 @@
             "all"
           ],
           "layout": null,
+          "maxzoom": 12.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(191,165,250,0.00)",
+                0.05,
+                "rgba(191,165,250,0.11)",
+                0.15,
+                "rgba(183,154,249,0.33)",
+                0.3,
+                "rgba(174,141,249,0.66)",
+                0.45,
+                "rgba(165,128,248,0.99)",
+                0.6,
+                "rgba(155,115,247,1.00)",
+                0.8,
+                "rgba(147,103,247,1.00)",
+                1,
+                "rgba(139,92,246,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0.8,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_electors"
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(191,165,250,0.00)",
+                0.05,
+                "rgba(191,165,250,0.11)",
+                0.15,
+                "rgba(183,154,249,0.33)",
+                0.3,
+                "rgba(174,141,249,0.66)",
+                0.45,
+                "rgba(165,128,248,0.99)",
+                0.6,
+                "rgba(155,115,247,1.00)",
+                0.8,
+                "rgba(147,103,247,1.00)",
+                1,
+                "rgba(139,92,246,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0.8,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_electors"
+              ]
+            }
+          },
+          "suffix": "neutral",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(132,201,162,0.00)",
+                0.05,
+                "rgba(132,201,162,0.11)",
+                0.15,
+                "rgba(116,194,150,0.33)",
+                0.3,
+                "rgba(98,186,136,0.66)",
+                0.45,
+                "rgba(80,179,122,0.99)",
+                0.6,
+                "rgba(62,171,109,1.00)",
+                0.8,
+                "rgba(47,164,97,1.00)",
+                1,
+                "rgba(31,157,85,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_dpp"
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(132,201,162,0.00)",
+                0.05,
+                "rgba(132,201,162,0.11)",
+                0.15,
+                "rgba(116,194,150,0.33)",
+                0.3,
+                "rgba(98,186,136,0.66)",
+                0.45,
+                "rgba(80,179,122,0.99)",
+                0.6,
+                "rgba(62,171,109,1.00)",
+                0.8,
+                "rgba(47,164,97,1.00)",
+                1,
+                "rgba(31,157,85,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_dpp"
+              ]
+            }
+          },
+          "suffix": "dpp",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(147,176,238,0.00)",
+                0.05,
+                "rgba(147,176,238,0.11)",
+                0.15,
+                "rgba(133,166,236,0.33)",
+                0.3,
+                "rgba(118,154,233,0.66)",
+                0.45,
+                "rgba(102,143,231,0.99)",
+                0.6,
+                "rgba(86,131,228,1.00)",
+                0.8,
+                "rgba(73,121,226,1.00)",
+                1,
+                "rgba(59,111,224,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_kmt"
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(147,176,238,0.00)",
+                0.05,
+                "rgba(147,176,238,0.11)",
+                0.15,
+                "rgba(133,166,236,0.33)",
+                0.3,
+                "rgba(118,154,233,0.66)",
+                0.45,
+                "rgba(102,143,231,0.99)",
+                0.6,
+                "rgba(86,131,228,1.00)",
+                0.8,
+                "rgba(73,121,226,1.00)",
+                1,
+                "rgba(59,111,224,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_kmt"
+              ]
+            }
+          },
+          "suffix": "kmt",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "maxzoom": 12.5,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(133,216,224,0.00)",
+                0.05,
+                "rgba(133,216,224,0.11)",
+                0.15,
+                "rgba(118,211,220,0.33)",
+                0.3,
+                "rgba(100,205,216,0.66)",
+                0.45,
+                "rgba(83,200,211,0.99)",
+                0.6,
+                "rgba(65,194,207,1.00)",
+                0.8,
+                "rgba(49,189,203,1.00)",
+                1,
+                "rgba(34,184,199,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_tpp"
+              ]
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(133,216,224,0.00)",
+                0.05,
+                "rgba(133,216,224,0.11)",
+                0.15,
+                "rgba(118,211,220,0.33)",
+                0.3,
+                "rgba(100,205,216,0.66)",
+                0.45,
+                "rgba(83,200,211,0.99)",
+                0.6,
+                "rgba(65,194,207,1.00)",
+                0.8,
+                "rgba(49,189,203,1.00)",
+                1,
+                "rgba(34,184,199,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00234375,
+                12,
+                0.6
+              ],
+              "heatmap-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11.5,
+                0,
+                12.5,
+                0
+              ],
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": [
+                "get",
+                "w_tpp"
+              ]
+            }
+          },
+          "suffix": "tpp",
+          "type": "heatmap"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "neutral",
+        "dpp",
+        "kmt",
+        "tpp"
+      ],
+      "sourceId": "polling-stations-2024-heat",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "pollingStations2024",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
           "minzoom": 12,
           "paint": {
             "dark": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "lead"
-                ],
-                "dpp",
-                "#1f9d55",
-                "kmt",
-                "#3b6fe0",
-                "tpp",
-                "#22b8c7",
-                "#9ca3af"
-              ],
+              "circle-color": "#8b5cf6",
               "circle-opacity": [
-                "case",
+                "interpolate",
                 [
-                  "==",
-                  [
-                    "get",
-                    "precision"
-                  ],
-                  "road"
+                  "linear"
                 ],
-                0.405,
-                0.9
+                [
+                  "zoom"
+                ],
+                12,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "precision"
+                    ],
+                    "road"
+                  ],
+                  0.14175000000000001,
+                  0.315
+                ],
+                12.5,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "precision"
+                    ],
+                    "road"
+                  ],
+                  0.405,
+                  0.9
+                ]
               ],
               "circle-radius": 3,
               "circle-stroke-color": "#0a0a14",
@@ -14507,32 +15166,43 @@
               "circle-stroke-width": 1
             },
             "light": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "lead"
-                ],
-                "dpp",
-                "#1f9d55",
-                "kmt",
-                "#3b6fe0",
-                "tpp",
-                "#22b8c7",
-                "#9ca3af"
-              ],
+              "circle-color": "#8b5cf6",
               "circle-opacity": [
-                "case",
+                "interpolate",
                 [
-                  "==",
-                  [
-                    "get",
-                    "precision"
-                  ],
-                  "road"
+                  "linear"
                 ],
-                0.405,
-                0.9
+                [
+                  "zoom"
+                ],
+                12,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "precision"
+                    ],
+                    "road"
+                  ],
+                  0.14175000000000001,
+                  0.315
+                ],
+                12.5,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "precision"
+                    ],
+                    "road"
+                  ],
+                  0.405,
+                  0.9
+                ]
               ],
               "circle-radius": 3,
               "circle-stroke-color": "#ffffff",
@@ -124868,6 +125538,10 @@
         "label": "著色",
         "options": [
           {
+            "label": "中性",
+            "value": "neutral"
+          },
+          {
             "label": "領先政黨",
             "value": "lead"
           },
@@ -124877,7 +125551,7 @@
           }
         ],
         "type": "select",
-        "value": "lead"
+        "value": "neutral"
       },
       {
         "label": "透明度 0.90",

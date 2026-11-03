@@ -6,8 +6,8 @@ import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_PAST_OPACITY, ELECTION_TI
 import { electionEventsMetaStore } from "../../data/electionEventsLoader";
 import { pollingLegendStore } from "../../data/pollingStationsLoader";
 import {
-  POLLING_COLOR_MODES, POLLING_FETCH_LIMIT, POLLING_LEAD_COLOR, POLLING_LEAD_KEYS,
-  POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS,
+  POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_FETCH_LIMIT, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_LEAD_KEYS,
+  POLLING_NEUTRAL_COLOR, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS,
 } from "../../data/pollingStationsTypes";
 import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
@@ -67,10 +67,12 @@ export function PollingStationsLegend() {
   const i18n = useLocale();
   const { t, formatNumber } = i18n;
   const values = useLayerParams("pollingStations2024");
-  const mode = oneOfParam(paramStr(values, "pollingStations2024", "pollingStations2024ColorBy"), POLLING_COLOR_MODES, "lead");
+  const mode = oneOfParam(paramStr(values, "pollingStations2024", "pollingStations2024ColorBy"), POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE);
+  const heatOn = (party: (typeof POLLING_HEAT_PARTIES)[number]) =>
+    values[`pollingStations2024Heat${party[0]!.toUpperCase()}${party.slice(1)}`] !== false;
   const { meta, belowMinZoom } = useSyncExternalStore(pollingLegendStore.subscribe, pollingLegendStore.getSnapshot);
   const unmapped = meta && meta.total !== null && meta.mapped !== null ? Math.max(0, meta.total - meta.mapped) : null;
-  const sample = POLLING_LEAD_COLOR.dpp;
+  const sample = mode === "neutral" ? POLLING_NEUTRAL_COLOR : POLLING_LEAD_COLOR.dpp;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <LegendTitle zh={localizeLayerName("pollingStations2024", LAYER_MANIFEST.pollingStations2024.name, i18n).primary} en="2024 Polling Stations" />
@@ -82,11 +84,22 @@ export function PollingStationsLegend() {
             breaks={["", ...POLLING_TURNOUT_BREAKS.map((b) => `${formatNumber(b)}%`), ""]}
           />
         </>
-      ) : (
+      ) : mode === "lead" ? (
         <>
           <LegendNote>{t("legend.politics.polling.leadTitle")}</LegendNote>
           <FireCatRows cats={POLLING_LEAD_KEYS.map((k) => ({ color: POLLING_LEAD_COLOR[k], label: t(LEAD_KEY[k]) }))} />
         </>
+      ) : (
+        <LegendRow swatch={<SwatchDot color={POLLING_NEUTRAL_COLOR} />}>{t("legend.politics.polling.neutral")}</LegendRow>
+      )}
+      {mode === "lead" ? (
+        <LegendNote>
+          {t("legend.politics.polling.heatParties", {
+            parties: POLLING_HEAT_PARTIES.filter(heatOn).map((k) => t(LEAD_KEY[k])).join("、") || t("legend.politics.polling.heatNone"),
+          })}
+        </LegendNote>
+      ) : (
+        <LegendNote>{t("legend.politics.polling.heatElectors")}</LegendNote>
       )}
       <LegendRow swatch={<SwatchDot color={sample} opacity={0.9 * POLLING_ROAD_OPACITY} />}>{t("legend.politics.polling.road")}</LegendRow>
       {belowMinZoom && <LegendNote>{t("legend.politics.polling.zoomHint")}</LegendNote>}
