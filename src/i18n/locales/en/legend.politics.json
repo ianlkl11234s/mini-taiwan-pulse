@@ -29,7 +29,7 @@
   "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site",
   "legend.politics.polling.neutral": "Polling station (neutral, no party colour)",
   "legend.politics.polling.heatElectors": "Zoomed out below street level: heatmap weighted by 2024 presidential electors",
-  "legend.politics.polling.heatParties": "Zoomed out: one heatmap per party weighted by 2024 presidential votes (toggle each in options); showing: {parties}",
+  "legend.politics.polling.heatParties": "Zoomed out: party heatmaps — each station counts only toward its 2024 presidential leader's layer, weighted by the leader's votes; ties are excluded (toggle each layer in options). Showing: {parties}",
   "legend.politics.polling.heatNone": "none (all three off)",
   "legend.politics.council.area": "Electoral district (outline + light fill)",
   "legend.politics.council.noIndigenous": "Indigenous constituencies (plains / mountain) are not shown: they have no mapped boundary",
@@ -48,6 +48,5 @@
   "legend.politics.village.merged": "Some villages were counted together with neighbours by the CEC; each shows the combined group total",
   "legend.politics.village.councilNote": "2022 councillor results are party totals (all candidates of a party summed); independents are a separate class",
   "legend.politics.village.zoomHint": "Zoom in to county level (z8) to show",
-  "legend.politics.village.source": "Source: CEC election database (OGDL-1.0); village boundaries: MOI, June 2026",
-  "legend.politics.polling.heatBlend": "With all three on, colours blend (green + blue looks teal); to compare one party's spread, keep only one layer on"
+  "legend.politics.village.source": "Source: CEC election database (OGDL-1.0); village boundaries: MOI, June 2026"
 }

@@ -130,9 +130,10 @@ describe("pollingStations loader", () => {
     });
     expect(d.fc.features).toHaveLength(2);
     expect(d.fc.features[0]!.geometry.coordinates).toEqual([121.75361, 24.75432]);
+    // 每所只進領先政黨那一層（313 票的民進黨），其他兩層 0
     expect(d.fc.features[0]!.properties).toEqual({
       w_electors: 1057 / POLLING_HEAT_ELECTORS_UNIT,
-      w_dpp: 313 / POLLING_HEAT_VOTES_UNIT, w_kmt: 264 / POLLING_HEAT_VOTES_UNIT, w_tpp: 170 / POLLING_HEAT_VOTES_UNIT,
+      w_dpp: 313 / POLLING_HEAT_VOTES_UNIT, w_kmt: 0, w_tpp: 0,
     });
     expect(d.fc.features[1]!.properties).toMatchObject({ w_dpp: 0, w_kmt: 0, w_tpp: 0 });
     expect(d.count).toBe(3);
@@ -141,6 +142,9 @@ describe("pollingStations loader", () => {
     expect(r.fc.features[0]!.geometry.coordinates).toEqual([121, 25]);
     expect(r.fc.features[0]!.properties).toMatchObject({ w_electors: 0, w_tpp: 50 / POLLING_HEAT_VOTES_UNIT, w_dpp: 0 });
     expect(normalizePollingHeat(null).fc.features).toHaveLength(0);
+    // 同票：三層都不計
+    const tie = normalizePollingHeat({ cols: ["lng", "lat", "dpp", "kmt", "tpp"], rows: [[121, 25, 300, 300, 100]] });
+    expect(tie.fc.features[0]!.properties).toMatchObject({ w_dpp: 0, w_kmt: 0, w_tpp: 0 });
   });
 
   it("heat fetch：session 內只呼叫一次；失敗不快取", async () => {

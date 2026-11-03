@@ -29,7 +29,7 @@
   "legend.politics.polling.source": "來源：中選會 2024 投開票所名冊＋選舉資料庫（OGDL-1.0）；座標為本站自行定位",
   "legend.politics.polling.neutral": "投開票所（中性，不分政黨）",
   "legend.politics.polling.heatElectors": "拉遠（街區層級以下）改畫熱區：依 2024 總統選舉人數加權",
-  "legend.politics.polling.heatParties": "拉遠改畫三黨熱區（各黨 2024 總統得票數加權，可在選項個別開關）；目前顯示：{parties}",
+  "legend.politics.polling.heatParties": "拉遠改畫三黨熱區：每所只計入該所 2024 總統領先政黨那一層，權重＝領先者得票數；同票不計（可在選項個別開關）。目前顯示：{parties}",
   "legend.politics.polling.heatNone": "無（三層都關閉）",
   "legend.politics.council.area": "區域選舉區（外框＋淡填色）",
   "legend.politics.council.noIndigenous": "不含原住民選區（平地／山地原住民選區沒有對應範圍）",
@@ -48,6 +48,5 @@
   "legend.politics.village.merged": "部分村里由中選會與鄰村合併計票，同組各村里顯示合併組合計",
   "legend.politics.village.councilNote": "2022 議員為政黨合計得票（同黨各候選人加總），無黨籍單獨一類",
   "legend.politics.village.zoomHint": "拉近到縣市層級（z8）才顯示",
-  "legend.politics.village.source": "來源：中選會選舉資料庫（OGDL-1.0）；村里界為內政部 2026-06 版",
-  "legend.politics.polling.heatBlend": "三層同時開時顏色會混合（綠＋藍近似青），要比較單一政黨的分布請只開一層"
+  "legend.politics.village.source": "來源：中選會選舉資料庫（OGDL-1.0）；村里界為內政部 2026-06 版"
 }

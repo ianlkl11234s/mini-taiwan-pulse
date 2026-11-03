@@ -172,6 +172,8 @@ export const pollingLegendStore = {
  * public.get_polling_stations_2024_heat() → jsonb（gis-platform mig 496）
  *   { meta: { count, loaded_at }, cols: ["lng","lat","electors","dpp","kmt","tpp"], rows: [[…], …] }
  * 只含有站址座標者（村里／鄉鎮代表點不進熱區）。票數缺值為 null → 權重 0。
+ * 三黨熱區：每所只計入該所領先政黨那一層（w_<領先黨>＝領先者得票數 ÷ 單位，其他兩層 0），各層空間上大致互斥；
+ * 同票或全缺值三層都 0。
  * 權重在這裡先算好（w_electors／w_dpp…），paint 直接 get，不在 GPU 端除。
  */
 export interface PollingHeatData {
@@ -199,8 +201,12 @@ export function normalizePollingHeat(raw: unknown): PollingHeatData {
       const props: Record<string, number> = {
         w_electors: Math.max(0, (iE >= 0 ? pollingNumber(r[iE]) : null) ?? 0) / POLLING_HEAT_ELECTORS_UNIT,
       };
-      for (const [p, i] of iParty) {
-        props[`w_${p}`] = Math.max(0, (i >= 0 ? pollingNumber(r[i]) : null) ?? 0) / POLLING_HEAT_VOTES_UNIT;
+      // 三黨熱區：每所只進「該所 2024 總統領先政黨」那一層（權重＝領先者得票數）；同票或缺值不進任何一層
+      const votes: Record<string, unknown> = {};
+      for (const [p, i] of iParty) votes[`pres24_${p}_votes`] = i >= 0 ? r[i] : null;
+      const lead = pollingLead(votes);
+      for (const [p] of iParty) {
+        props[`w_${p}`] = p === lead ? Math.max(0, pollingNumber(votes[`pres24_${p}_votes`]) ?? 0) / POLLING_HEAT_VOTES_UNIT : 0;
       }
       features.push({ type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: props });
     }

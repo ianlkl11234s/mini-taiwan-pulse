@@ -1683,7 +1683,6 @@ export type GeneratedStaticKey =
   | "legend.politics.council.source"
   | "legend.politics.hollow"
   | "legend.politics.past"
-  | "legend.politics.polling.heatBlend"
   | "legend.politics.polling.heatElectors"
   | "legend.politics.polling.heatNone"
   | "legend.politics.polling.heatParties"

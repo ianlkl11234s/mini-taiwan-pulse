@@ -29,7 +29,7 @@
   "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定",
   "legend.politics.polling.neutral": "投開票所（中立色、政党別なし）",
   "legend.politics.polling.heatElectors": "街区レベルより縮小時はヒートマップ表示（2024年総統選の選挙人数で重み付け）",
-  "legend.politics.polling.heatParties": "縮小時は政党別ヒートマップ（2024年総統選の各党得票数で重み付け、オプションで個別に切替）；表示中：{parties}",
+  "legend.politics.polling.heatParties": "縮小時は政党別ヒートマップ：各投票所は2024年総統選の首位政党の層にのみ計上（重み＝首位候補の得票数、同数は除外。オプションで層ごとに切替）。表示中：{parties}",
   "legend.politics.polling.heatNone": "なし（3層ともオフ）",
   "legend.politics.council.area": "選挙区（輪郭＋淡い塗り）",
   "legend.politics.council.noIndigenous": "原住民選挙区（平地・山地）は対応する範囲がないため含みません",
@@ -48,6 +48,5 @@
   "legend.politics.village.merged": "一部の村里は中央選挙委員会が隣の村里と合算して集計；同じ組の村里は合算値を表示",
   "legend.politics.village.councilNote": "2022年議員は政党合計得票（同党候補者の合算）、無所属は別区分",
   "legend.politics.village.zoomHint": "県市レベル（z8）まで拡大すると表示されます",
-  "legend.politics.village.source": "出典：中央選挙委員会 選挙データベース（OGDL-1.0）；村里境界は内政部 2026年6月版",
-  "legend.politics.polling.heatBlend": "3層同時表示では色が混ざります（緑＋青は青緑に近い）。1党の分布を見るときは1層だけ表示してください"
+  "legend.politics.village.source": "出典：中央選挙委員会 選挙データベース（OGDL-1.0）；村里境界は内政部 2026年6月版"
 }

@@ -1,5 +1,5 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
-import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp, pollingPartyHeatColor } from "../data/pollingStationsTypes";
+import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { VILLAGE_COLOR_MODES, VILLAGE_ELECTIONS, VILLAGE_RESULTS_MIN_ZOOM, villageFillColor } from "../data/electionResults2022Types";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
@@ -3815,11 +3815,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
           };
         }
-        // 三黨疊在一起：同色、alpha 隨密度線性升（不提早飽和），三層 alpha 疊合後顏色才看得出哪黨票多；
-        // intensity 比中性低，避免城市核心三層都飽和成最上層的顏色。
+        // 三黨：每所只進該所領先政黨那一層（loader 已把非領先黨權重設 0），三層空間上大致互斥，不會整片混色
         return {
-          ...heatmapPaint(1, 0.6, ["get", weight], pollingHeatRamp(color)),
-          "heatmap-color": pollingPartyHeatColor(color),
+          ...heatmapPaint(1, 1.6, ["get", weight], pollingHeatRamp(color)),
           "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
         };
       },

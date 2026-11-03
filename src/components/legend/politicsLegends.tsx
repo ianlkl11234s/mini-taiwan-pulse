@@ -107,7 +107,6 @@ export function PollingStationsLegend() {
       ) : (
         <LegendNote>{t("legend.politics.polling.heatElectors")}</LegendNote>
       )}
-      {mode === "lead" && POLLING_HEAT_PARTIES.filter(heatOn).length > 1 && <LegendNote>{t("legend.politics.polling.heatBlend")}</LegendNote>}
       <LegendRow swatch={<SwatchDot color={sample} opacity={0.9 * POLLING_ROAD_OPACITY} />}>{t("legend.politics.polling.road")}</LegendRow>
       {belowMinZoom && <LegendNote>{t("legend.politics.polling.zoomHint")}</LegendNote>}
       {!belowMinZoom && meta?.truncated && (
