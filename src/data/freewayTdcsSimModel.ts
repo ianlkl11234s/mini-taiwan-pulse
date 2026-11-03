@@ -16,11 +16,14 @@ export interface FreewayTdcsMeta {
   window: [number, number];
   t_base: number;
   n_trips: number;
-  layout: Record<string, { offset: number; length: number; dtype: "uint8" | "uint16" | "uint32" }>;
+  /** 單檔 trips.bin 的欄位位移（資料包版沒有：欄位在 segs.bin／trips.bin／parts/*.bin，位移記在 bundle.json） */
+  layout?: FreewayTdcsLayout;
   names: string[];
   peak_concurrent?: number;
   lane_change_s?: number;
 }
+
+export type FreewayTdcsLayout = Record<string, { offset: number; length: number; dtype: "uint8" | "uint16" | "uint32" }>;
 
 export interface FreewayTdcsNetwork {
   nodes: number[];
@@ -57,6 +60,12 @@ export interface FreewayTdcsData {
   tripSegStart: Uint32Array; tripSegs: Uint32Array;
   /** 投影原點（Web Mercator 0–1 座標），頂點以相對值存，避免 float32 精度不足（車道寬 3.6 m） */
   originX: number; originY: number;
+  /** 關鍵影格涵蓋的時段（資料包版只載入部分時段檔；單檔版為 ±Infinity） */
+  coverStart: number; coverEnd: number;
+  /** 每趟第一次出現／最後離開（秒；資料包版由 trips.bin 提供，跨時段檔也正確） */
+  tripFirst: Float64Array; tripLast: Float64Array;
+  /** 資料版本序號：合併的時段檔改變就換號（拖尾分塊快取與 GPU 幾何用） */
+  gen: number;
 }
 
 
@@ -65,24 +74,21 @@ export function mercY(lat: number): number {
   return (180 - (180 / Math.PI) * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360))) / 360;
 }
 
-export function decodeFreewayTdcs(meta: FreewayTdcsMeta, net: FreewayTdcsNetwork, bin: ArrayBuffer): FreewayTdcsData {
-  const get = <K extends string>(k: K) => {
-    const L = meta.layout[k];
-    if (!L) throw new Error(`trips.bin 缺欄位 ${k}`);
-    if (L.dtype === "uint8") return new Uint8Array(bin, L.offset, L.length);
-    if (L.dtype === "uint16") return new Uint16Array(bin, L.offset, L.length);
-    return new Uint32Array(bin, L.offset, L.length);
-  };
-  const kn = get("kf_node") as Uint16Array, kt = get("kf_time") as Uint16Array, segs = get("segs") as Uint32Array;
-  const hasEv = !!meta.layout.ev_start;
-  const d = `${meta.date.slice(0, 4)}-${meta.date.slice(4, 6)}-${meta.date.slice(6, 8)}`;
-  const dayStartUnix = Date.parse(`${d}T00:00:00+08:00`) / 1000;
-  const nSeg = segs.length / 3;
-  const segStart = new Float64Array(nSeg), segEnd = new Float64Array(nSeg);
-  for (let i = 0; i < nSeg; i++) {
-    segStart[i] = kt[segs[3 * i]!]! + meta.t_base;
-    segEnd[i] = kt[segs[3 * i + 1]! - 1]! + meta.t_base;
-  }
+function viewOf(bin: ArrayBuffer, L: FreewayTdcsLayout, k: string): Uint8Array | Uint16Array | Uint32Array {
+  const f = L[k];
+  if (!f) throw new Error(`資料缺欄位 ${k}`);
+  if (f.dtype === "uint8") return new Uint8Array(bin, f.offset, f.length);
+  if (f.dtype === "uint16") return new Uint16Array(bin, f.offset, f.length);
+  return new Uint32Array(bin, f.offset, f.length);
+}
+
+/** 路網預算（節點座標、累積里程、法向量、高程、隧道、投影原點）：資料包版只算一次，各時段合併共用 */
+interface NetGeo {
+  nodeLng: Float64Array; nodeLat: Float64Array; cum: Float64Array; nx: Float64Array; ny: Float64Array; lineOf: Int32Array;
+  nodeZ: Float32Array; tun: Uint8Array; originX: number; originY: number;
+}
+
+function prepareNetwork(net: FreewayTdcsNetwork): NetGeo {
   const N = net.nodes.length / 2;
   const nodeLng = new Float64Array(N), nodeLat = new Float64Array(N);
   for (let i = 0; i < N; i++) { nodeLng[i] = net.nodes[2 * i]!; nodeLat[i] = net.nodes[2 * i + 1]!; }
@@ -100,16 +106,49 @@ export function decodeFreewayTdcs(meta: FreewayTdcsMeta, net: FreewayTdcsNetwork
   if (net.z && net.z.length === N) nodeZ.set(net.z);
   const tun = new Uint8Array(N);
   for (const i of net.tunnel ?? []) if (i >= 0 && i < N) tun[i] = 1;
-  const nTrips = meta.n_trips;
+  const [x0, y0, x1, y1] = net.range_bbox;
+  return { nodeLng, nodeLat, cum, nx, ny, lineOf, nodeZ, tun, originX: mercX((x0 + x1) / 2), originY: mercY((y0 + y1) / 2) };
+}
+
+function dayStartOf(meta: FreewayTdcsMeta): number {
+  const d = `${meta.date.slice(0, 4)}-${meta.date.slice(4, 6)}-${meta.date.slice(6, 8)}`;
+  return Date.parse(`${d}T00:00:00+08:00`) / 1000;
+}
+
+/** 每趟的段索引：tripSegs[tripSegStart[i] .. tripSegStart[i+1]) */
+function tripIndex(segs: Uint32Array, nSeg: number, nTrips: number): { tripSegStart: Uint32Array; tripSegs: Uint32Array } {
   const tripSegStart = new Uint32Array(nTrips + 1);
   for (let i = 0; i < nSeg; i++) tripSegStart[segs[3 * i + 2]! + 1]!++;
   for (let i = 0; i < nTrips; i++) tripSegStart[i + 1]! += tripSegStart[i]!;
   const fill = tripSegStart.slice(0, nTrips);
   const tripSegs = new Uint32Array(nSeg);
   for (let i = 0; i < nSeg; i++) { const tr = segs[3 * i + 2]!; tripSegs[fill[tr]!++] = i; }
-  const [x0, y0, x1, y1] = net.range_bbox;
+  return { tripSegStart, tripSegs };
+}
+
+/** 單檔版（原型 trips.bin 一次全載；驗證切檔正確性時當基準） */
+export function decodeFreewayTdcs(meta: FreewayTdcsMeta, net: FreewayTdcsNetwork, bin: ArrayBuffer): FreewayTdcsData {
+  const layout = meta.layout;
+  if (!layout) throw new Error("trips_meta.json 缺 layout");
+  const get = (k: string) => viewOf(bin, layout, k);
+  const kn = get("kf_node") as Uint16Array, kt = get("kf_time") as Uint16Array, segs = get("segs") as Uint32Array;
+  const hasEv = !!layout.ev_start;
+  const nSeg = segs.length / 3;
+  const segStart = new Float64Array(nSeg), segEnd = new Float64Array(nSeg);
+  for (let i = 0; i < nSeg; i++) {
+    segStart[i] = kt[segs[3 * i]!]! + meta.t_base;
+    segEnd[i] = kt[segs[3 * i + 1]! - 1]! + meta.t_base;
+  }
+  const nTrips = meta.n_trips;
+  const { tripSegStart, tripSegs } = tripIndex(segs, nSeg, nTrips);
+  const tripFirst = new Float64Array(nTrips).fill(Infinity), tripLast = new Float64Array(nTrips).fill(-Infinity);
+  for (let i = 0; i < nSeg; i++) {
+    const tr = segs[3 * i + 2]!;
+    tripFirst[tr] = Math.min(tripFirst[tr]!, segStart[i]!); tripLast[tr] = Math.max(tripLast[tr]!, segEnd[i]!);
+  }
   return {
-    meta, net, dayStartUnix, winStart: meta.window[0], winEnd: meta.window[1],
+    ...prepareNetwork(net),
+    meta, net, dayStartUnix: dayStartOf(meta), winStart: meta.window[0], winEnd: meta.window[1],
     kn, kt, segs,
     vt: get("vt") as Uint8Array, spd: get("spd") as Uint8Array, flags: get("flags") as Uint8Array,
     on: get("on") as Uint16Array, off: get("off") as Uint16Array,
@@ -117,8 +156,121 @@ export function decodeFreewayTdcs(meta: FreewayTdcsMeta, net: FreewayTdcsNetwork
     evT: hasEv ? (get("ev_time") as Uint16Array) : null,
     evL: hasEv ? (get("ev_lane") as Uint8Array) : null,
     lcT: meta.lane_change_s ?? 2.5,
-    nSeg, segStart, segEnd, nodeLng, nodeLat, cum, nx, ny, lineOf, nodeZ, tun, tripSegStart, tripSegs,
-    originX: mercX((x0 + x1) / 2), originY: mercY((y0 + y1) / 2),
+    nSeg, segStart, segEnd, tripSegStart, tripSegs,
+    coverStart: -Infinity, coverEnd: Infinity, tripFirst, tripLast, gen: 0,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  資料包版（ADR-0025 sim_bundle）：靜態檔＋時段檔，播到哪載到哪
+// ══════════════════════════════════════════════════════════════════
+
+/** 時段檔清單項（bundle.json parts[]） */
+export interface FreewayTdcsPartInfo { file: string; t0: number; t1: number; n_segs: number; layout: FreewayTdcsLayout }
+
+/** 資料包共用部分（meta、路網、每段／每趟靜態欄位；以 global id 索引） */
+export interface FreewayTdcsBase extends NetGeo {
+  meta: FreewayTdcsMeta; net: FreewayTdcsNetwork; dayStartUnix: number;
+  segTrip: Uint32Array; segStartAll: Float64Array; segEndAll: Float64Array;
+  vt: Uint8Array; spd: Uint8Array; flags: Uint8Array; on: Uint16Array; off: Uint16Array;
+  tripFirst: Float64Array; tripLast: Float64Array;
+}
+
+/** 一個時段檔：該時段有出現的段（global seg id）＋裁切後的影格與換道事件 */
+export interface FreewayTdcsPart {
+  t0: number; t1: number;
+  segId: Uint32Array; kfBase: Uint32Array; kfOff: Uint32Array; evBase: Uint32Array; evOff: Uint32Array;
+  kn: Uint16Array; kt: Uint16Array; evT: Uint16Array; evL: Uint8Array;
+}
+
+export function decodeFreewayTdcsBase(
+  meta: FreewayTdcsMeta, net: FreewayTdcsNetwork,
+  segsBin: ArrayBuffer, segsLayout: FreewayTdcsLayout, tripsBin: ArrayBuffer, tripsLayout: FreewayTdcsLayout,
+): FreewayTdcsBase {
+  const sv = (k: string) => viewOf(segsBin, segsLayout, k), tv = (k: string) => viewOf(tripsBin, tripsLayout, k);
+  const start = sv("start") as Uint16Array, end = sv("end") as Uint16Array;
+  const first = tv("first") as Uint16Array, last = tv("last") as Uint16Array;
+  const b = meta.t_base;
+  return {
+    ...prepareNetwork(net), meta, net, dayStartUnix: dayStartOf(meta),
+    segTrip: sv("trip") as Uint32Array,
+    segStartAll: Float64Array.from(start, (v) => v + b), segEndAll: Float64Array.from(end, (v) => v + b),
+    vt: tv("vt") as Uint8Array, spd: tv("spd") as Uint8Array, flags: tv("flags") as Uint8Array,
+    on: tv("on") as Uint16Array, off: tv("off") as Uint16Array,
+    tripFirst: Float64Array.from(first, (v) => v + b), tripLast: Float64Array.from(last, (v) => v + b),
+  };
+}
+
+export function decodeFreewayTdcsPart(info: FreewayTdcsPartInfo, bin: ArrayBuffer): FreewayTdcsPart {
+  const v = (k: string) => viewOf(bin, info.layout, k);
+  return {
+    t0: info.t0, t1: info.t1,
+    segId: v("seg_id") as Uint32Array, kfBase: v("kf_base") as Uint32Array, kfOff: v("kf_off") as Uint32Array,
+    evBase: v("ev_base") as Uint32Array, evOff: v("ev_off") as Uint32Array,
+    kn: v("kf_node") as Uint16Array, kt: v("kf_time") as Uint16Array, evT: v("ev_time") as Uint16Array, evL: v("ev_lane") as Uint8Array,
+  };
+}
+
+/**
+ * 合併連續的時段檔成一份 FreewayTdcsData（segPos／buildChunk／tripPosition 照用）。
+ * 跨時段的段在各檔都有一份裁切版（前後多留括號點），依 kf_base／ev_base（在原段內的序號）去掉重疊再接起來，
+ * 所以合併後該段在涵蓋時段內的影格與單檔版完全相同。parts 必須依時間排序且相鄰（t1 = 下一檔 t0）。
+ */
+export function mergeFreewayTdcsParts(base: FreewayTdcsBase, parts: readonly FreewayTdcsPart[], gen: number): FreewayTdcsData {
+  for (let p = 1; p < parts.length; p++) if (parts[p]!.t0 !== parts[p - 1]!.t1) throw new Error("時段檔不相鄰");
+  // 第一輪：每個 global seg 收集 (檔, 檔內序號, 略過影格數, 略過事件數)
+  const index = new Map<number, number>();
+  const segG: number[] = [], items: number[][] = [], kfLast: number[] = [], evLast: number[] = [], kfN: number[] = [], evN: number[] = [];
+  for (let p = 0; p < parts.length; p++) {
+    const P = parts[p]!;
+    for (let j = 0; j < P.segId.length; j++) {
+      const g = P.segId[j]!;
+      const nk = P.kfOff[j + 1]! - P.kfOff[j]!, ne = P.evOff[j + 1]! - P.evOff[j]!;
+      const kb = P.kfBase[j]!, eb = P.evBase[j]!;
+      let e = index.get(g);
+      if (e === undefined) {
+        e = segG.length; index.set(g, e);
+        segG.push(g); items.push([p, j, 0, 0]); kfLast.push(kb + nk - 1); evLast.push(eb + ne - 1); kfN.push(nk); evN.push(ne);
+        continue;
+      }
+      const sk = Math.min(nk, Math.max(0, kfLast[e]! - kb + 1)), se = Math.min(ne, Math.max(0, evLast[e]! - eb + 1));
+      items[e]!.push(p, j, sk, se);
+      kfN[e]! += nk - sk; evN[e]! += ne - se;
+      kfLast[e] = Math.max(kfLast[e]!, kb + nk - 1); evLast[e] = Math.max(evLast[e]!, eb + ne - 1);
+    }
+  }
+  // 依 global seg id 排序（與單檔版同序，點選與跟隨穩定）
+  const order = Array.from(segG.keys()).sort((a, b) => segG[a]! - segG[b]!);
+  const nSeg = order.length;
+  let K = 0, E = 0;
+  for (const e of order) { K += kfN[e]!; E += evN[e]!; }
+  const kn = new Uint16Array(K), kt = new Uint16Array(K), evT = new Uint16Array(E), evL = new Uint8Array(E);
+  const segs = new Uint32Array(3 * nSeg), evS = new Uint32Array(nSeg + 1);
+  const segStart = new Float64Array(nSeg), segEnd = new Float64Array(nSeg);
+  let k = 0, ev = 0;
+  for (let i = 0; i < nSeg; i++) {
+    const e = order[i]!, g = segG[e]!, it = items[e]!;
+    segs[3 * i] = k; evS[i] = ev;
+    for (let q = 0; q < it.length; q += 4) {
+      const P = parts[it[q]!]!, j = it[q + 1]!, sk = it[q + 2]!, se = it[q + 3]!;
+      const k0 = P.kfOff[j]! + sk, k1 = P.kfOff[j + 1]!;
+      kn.set(P.kn.subarray(k0, k1), k); kt.set(P.kt.subarray(k0, k1), k); k += k1 - k0;
+      const e0 = P.evOff[j]! + se, e1 = P.evOff[j + 1]!;
+      evT.set(P.evT.subarray(e0, e1), ev); evL.set(P.evL.subarray(e0, e1), ev); ev += e1 - e0;
+    }
+    segs[3 * i + 1] = k; segs[3 * i + 2] = base.segTrip[g]!;
+    segStart[i] = base.segStartAll[g]!; segEnd[i] = base.segEndAll[g]!;
+  }
+  evS[nSeg] = ev;
+  const { tripSegStart, tripSegs } = tripIndex(segs, nSeg, base.meta.n_trips);
+  const { meta } = base;
+  return {
+    ...base,
+    winStart: meta.window[0], winEnd: meta.window[1],
+    kn, kt, segs, evS, evT, evL, lcT: meta.lane_change_s ?? 2.5,
+    nSeg, segStart, segEnd, tripSegStart, tripSegs,
+    coverStart: parts.length ? parts[0]!.t0 : 0, coverEnd: parts.length ? parts[parts.length - 1]!.t1 : 0,
+    gen,
   };
 }
 
@@ -195,6 +347,10 @@ export interface FreewayTdcsChunk {
   k: number;
   c0: number;
   key: string;
+  /** 建這塊用的資料（車頭與點選要用同一份的段序號） */
+  D: FreewayTdcsData;
+  /** 資料涵蓋整塊（含拖尾）；否則（前一時段檔還沒載到）載到後要重建 */
+  complete: boolean;
   /** 本塊有畫的段（車頭從這裡找） */
   segIdx: Uint32Array;
   a: Float32Array;
@@ -234,10 +390,25 @@ class GrowU8 {
   ensure(extra: number) { if (this.n + extra > this.f.length) { const g = new Uint8Array(Math.max(this.f.length * 2, this.n + extra)); g.set(this.f); this.f = g; } }
 }
 
+/** 一次建完（目前這塊還沒建好、畫面要用時） */
 export function buildChunk(D: FreewayTdcsData, k: number, o: ChunkOpts): FreewayTdcsChunk {
-  const t0 = performance.now();
+  const it = buildChunkSteps(D, k, o);
+  for (;;) { const r = it.next(); if (r.done) return r.value; }
+}
+
+/** 每處理這麼多段讓出一次（預建下一塊時分段做，避免主執行緒一次卡 100 多 ms） */
+const CHUNK_STEP_SEGS = 512;
+
+/**
+ * 分段建塊：每 CHUNK_STEP_SEGS 段 yield 一次，呼叫端決定每段時間預算。
+ * buildMs 只計實際執行時間（不含讓出的空檔）。
+ */
+export function* buildChunkSteps(D: FreewayTdcsData, k: number, o: ChunkOpts): Generator<void, FreewayTdcsChunk, void> {
+  let busy = 0, t0 = performance.now();
   const c0 = D.winStart + k * FREEWAY_TDCS_CHUNK_S;
-  const w0 = c0 - Math.max(o.trail, 1), w1 = c0 + FREEWAY_TDCS_CHUNK_S, base = D.meta.t_base;
+  const want0 = c0 - Math.max(o.trail, 1), want1 = c0 + FREEWAY_TDCS_CHUNK_S;
+  // 只在已載入的時段內取影格（時段檔外沒有影格，內插會錯）
+  const w0 = Math.max(want0, D.coverStart), w1 = Math.min(want1, D.coverEnd), base = D.meta.t_base;
   const { segs, kn, kt, cum, nodeLng: LG, nodeLat: LT, lineOf, nx, ny, evS, evT, evL, tun } = D;
   const { mx, my } = nodeMerc(D);
   const lines = D.net.lines, W = D.net.lane_w;
@@ -261,6 +432,7 @@ export function buildChunk(D: FreewayTdcsData, k: number, o: ChunkOpts): Freeway
   };
   const pushPos = (t: number) => { push(t, mercX(pos[0]!) - D.originX, mercY(pos[1]!) - D.originY, pos[4]!, pos[5]!, pos[6]!); };
   for (let si = 0; si < D.nSeg; si++) {
+    if (si % CHUNK_STEP_SEGS === CHUNK_STEP_SEGS - 1) { busy += performance.now() - t0; yield; t0 = performance.now(); }
     if (D.segEnd[si]! < w0 || D.segStart[si]! > w1) continue;
     const trip = segs[3 * si + 2]!;
     const vtype = D.vt[trip]!;
@@ -322,9 +494,10 @@ export function buildChunk(D: FreewayTdcsData, k: number, o: ChunkOpts): Freeway
     }
   }
   return {
-    k, c0, key: chunkKeyOf(k, o), segIdx: Uint32Array.from(segIdx),
+    k, c0, key: `${chunkKeyOf(k, o)}|${D.gen}`, D, complete: w0 <= want0 && w1 >= Math.min(want1, D.winEnd),
+    segIdx: Uint32Array.from(segIdx),
     a: A.f.slice(0, A.n), b: B.f.slice(0, B.n), c: C.f.slice(0, C.n),
-    pieceCount: A.n / 4, buildMs: performance.now() - t0,
+    pieceCount: A.n / 4, buildMs: busy + performance.now() - t0,
   };
 }
 
@@ -339,7 +512,5 @@ export function tripPosition(D: FreewayTdcsData, trip: number, t: number, out: F
 
 /** 某趟是否還會出現（目前或之後） */
 export function tripEnded(D: FreewayTdcsData, trip: number, t: number): boolean {
-  let last = -Infinity;
-  for (let i = D.tripSegStart[trip]!; i < D.tripSegStart[trip + 1]!; i++) last = Math.max(last, D.segEnd[D.tripSegs[i]!]!);
-  return t > last;
+  return t > D.tripLast[trip]!;
 }

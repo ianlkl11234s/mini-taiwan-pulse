@@ -1,6 +1,6 @@
 {
   "legend.freewayTdcsSim.loadError": "資料載入失敗（找不到國道逐車模擬資料）",
-  "legend.freewayTdcsSim.loading": "資料載入中…（約 31 MB）",
+  "legend.freewayTdcsSim.loading": "資料載入中…（先載約 3 MB，之後每 5 分鐘一檔）",
   "legend.freewayTdcsSim.dataWindow": "本圖層只有 2026-09-28（教師節連假最後一天）16:00–18:00 的資料",
   "legend.freewayTdcsSim.outsideWindow": "目前時間不在資料時段，地圖不畫車",
   "legend.freewayTdcsSim.jump": "跳到 9/28 16:00",

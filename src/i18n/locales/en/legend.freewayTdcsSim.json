@@ -1,6 +1,6 @@
 {
   "legend.freewayTdcsSim.loadError": "Failed to load data (freeway simulation files not found)",
-  "legend.freewayTdcsSim.loading": "Loading data… (about 31 MB)",
+  "legend.freewayTdcsSim.loading": "Loading data… (about 3 MB first, then one file per 5 minutes)",
   "legend.freewayTdcsSim.dataWindow": "Data covers only 2026-09-28 (last day of the Teachers' Day long weekend), 16:00–18:00",
   "legend.freewayTdcsSim.outsideWindow": "The current time is outside the data window, so no vehicles are drawn",
   "legend.freewayTdcsSim.jump": "Jump to 9/28 16:00",

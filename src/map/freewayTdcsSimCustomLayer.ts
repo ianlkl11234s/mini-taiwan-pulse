@@ -3,7 +3,7 @@ import { FreewayTdcsSimScene } from "../three/FreewayTdcsSimScene";
 import { timeStore } from "../state/timeStore";
 import { subscribeTimeRepaint } from "./customLayer";
 import {
-  FREEWAY_TDCS_CHUNK_S, MERC_PER_M, SEGPOS_LEN, buildChunk, chunkKeyOf, mercX, mercY, segPos, speedIdx,
+  FREEWAY_TDCS_CHUNK_S, MERC_PER_M, SEGPOS_LEN, buildChunk, buildChunkSteps, chunkKeyOf, mercX, mercY, segPos, speedIdx,
   type ChunkOpts, type FreewayTdcsChunk, type FreewayTdcsData,
 } from "../data/freewayTdcsSimModel";
 import {
@@ -21,6 +21,8 @@ const HEAD_BUDGET = 20000;
 const BRIDGE_DEADBAND_M = 4;
 /** 線與車頭離地抬高（m，乘誇張倍率）：Mapbox 地形網格在節點之間會略為隆起，避免路面被地形吃掉 */
 const LIFT_M = 2;
+/** 預建下一塊時每段最多佔用主執行緒的毫秒數 */
+const PREBUILD_SLICE_MS = 6;
 let warnedBudget = false;
 let warnedRender = false;
 
@@ -40,7 +42,7 @@ export interface FreewayTdcsSimLayerOptions {
 interface DebugFlags {
   __freewayTdcsNoDepth?: boolean; __freewayTdcsShowTunnel?: boolean;
   __freewayTdcsHeight?: { ms: number; exag: number; ground: number; bridge: number; tunnel: number };
-  __freewayTdcsPerf?: { fps: number; active: number; zoom: number; near: boolean; pieces: number; chunkMs: number; maxFrameMs: number };
+  __freewayTdcsPerf?: { fps: number; active: number; zoom: number; near: boolean; pieces: number; chunkMs: number; maxFrameMs: number; syncBuilds: number; prebuilt: number };
 }
 const dbg = (): DebugFlags => (typeof window !== "undefined" ? (window as unknown as DebugFlags) : {});
 
@@ -61,33 +63,56 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
   let unsubTime: (() => void) | null = null;
   const cache = new Map<string, FreewayTdcsChunk>();
   let prebuildTimer: ReturnType<typeof setTimeout> | null = null;
+  // 預建中的下一塊（分段做，每段 ≤ PREBUILD_SLICE_MS，讓出主執行緒給畫面）
+  let syncBuilds = 0, prebuilt = 0;   // 除錯：同步建塊（會卡）與分段預建完成的次數
+  let prebuild: { key: string; D: FreewayTdcsData; it: Generator<void, FreewayTdcsChunk, void> } | null = null;
   const pos = new Float64Array(SEGPOS_LEN);
   const hLng = new Float64Array(HEAD_BUDGET), hLat = new Float64Array(HEAD_BUDGET);
   const hTrip = new Uint32Array(HEAD_BUDGET), hSeg = new Uint32Array(HEAD_BUDGET);
   let frames = 0, fpsT = performance.now(), lastFrameT = 0, maxFrameMs = 0;
   // 高度
-  let heightData: FreewayTdcsData | null = null;
+  let heightNodes: Float32Array | null = null;   // 路網（nodeZ）換了才重配高度陣列；時段檔合併不影響
   let H = new Float32Array(0), G = new Float32Array(0);
   let heightExag = -1, heightAt = 0, heightTimer: ReturnType<typeof setTimeout> | null = null;
   // 顏色
   let colorKey = "";
 
+  // 已建好的塊：資料涵蓋整塊就沿用（時段檔合併換版不必重建）；不完整且資料換了才重建
+  const usable = (ch: FreewayTdcsChunk | undefined, D: FreewayTdcsData) => !!ch && (ch.complete || ch.D === D);
   const getChunk = (D: FreewayTdcsData, k: number, o: ChunkOpts): FreewayTdcsChunk => {
     const key = chunkKeyOf(k, o);
     let ch = cache.get(key);
-    if (!ch) { ch = buildChunk(D, k, o); cache.set(key, ch); }
+    if (!usable(ch, D)) {
+      // 預建到一半就要用：同一份資料就接著做完（不浪費已做的部分），否則重建
+      if (prebuild && prebuild.key === key && prebuild.D === D) {
+        let r = prebuild.it.next();
+        while (!r.done) r = prebuild.it.next();
+        ch = r.value;
+      } else ch = buildChunk(D, k, o);
+      syncBuilds++;
+      if (prebuild?.key === key) prebuild = null;
+      cache.set(key, ch);
+    }
     // 只留目前與下一塊
     for (const [ck, c] of cache) if (ck !== key && !(c.k === k + 1 && ck === chunkKeyOf(k + 1, o))) cache.delete(ck);
     const nChunks = Math.ceil((D.winEnd - D.winStart) / FREEWAY_TDCS_CHUNK_S);
     const nextKey = chunkKeyOf(k + 1, o);
-    if (k + 1 < nChunks && !cache.has(nextKey) && !prebuildTimer) {
-      // 下一塊放到 paint pass 之外預建，換塊時不卡
-      prebuildTimer = setTimeout(() => {
+    if (k + 1 < nChunks && !usable(cache.get(nextKey), D) && !prebuildTimer && !(prebuild?.key === nextKey && prebuild.D === D)) {
+      // 下一塊放到 paint pass 之外分段預建：每段最多 PREBUILD_SLICE_MS，換塊時不卡、平常也不會一次卡一大段
+      prebuild = { key: nextKey, D, it: buildChunkSteps(D, k + 1, o) };
+      const step = () => {
         prebuildTimer = null;
-        if (!cache.has(nextKey)) cache.set(nextKey, buildChunk(D, k + 1, o));
-      }, 50);
+        const job = prebuild;
+        if (!job || job.D !== opts.getData()) { if (job === prebuild) prebuild = null; return; }
+        const until = performance.now() + PREBUILD_SLICE_MS;
+        let r = job.it.next();
+        while (!r.done && performance.now() < until) r = job.it.next();
+        if (r.done) { cache.set(job.key, r.value); prebuild = null; prebuilt++; return; }
+        prebuildTimer = setTimeout(step, 0);
+      };
+      prebuildTimer = setTimeout(step, 50);
     }
-    return ch;
+    return ch!;
   };
 
   /**
@@ -103,7 +128,7 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
     if (!map) return;
     const t0 = performance.now();
     const N = D.nodeZ.length;
-    if (heightData !== D) { H = new Float32Array(N); G = new Float32Array(N).fill(NaN); heightData = D; }
+    if (heightNodes !== D.nodeZ) { H = new Float32Array(N); G = new Float32Array(N).fill(NaN); heightNodes = D.nodeZ; }
     const exag = terrainExag(map);
     if (exag === 0) H.fill(0);
     else {
@@ -160,7 +185,8 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
         const D = opts.getData();
         if (!D) return;
         const t = timeStore.getTime() - D.dayStartUnix;
-        if (!(t >= D.winStart && t <= D.winEnd)) {
+        // 不在資料時段，或這個時段的檔還在載（loader 依時間軸自動載入，載到後重畫）
+        if (!(t >= D.winStart && t <= D.winEnd) || t < D.coverStart || t > D.coverEnd) {
           // 不在資料時段：不畫車（圖例顯示提示與「跳到資料時段」）
           setFreewayTdcsHeads({ lng: hLng, lat: hLat, trip: hTrip, seg: hSeg, n: 0 });
           setFreewayTdcsStatus({ active: 0 });
@@ -168,7 +194,7 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
         }
         // 高度：資料或誇張倍率（含開關地形）改變就立即重算
         const exag = terrainExag(map);
-        if (heightData !== D || exag !== heightExag) computeHeights(D);
+        if (heightNodes !== D.nodeZ || exag !== heightExag) computeHeights(D);
         scene.setGeo(MERC_PER_M, LIFT_M * Math.max(exag, 0) * MERC_PER_M, FREEWAY_TDCS_VT_DIM);
         // 顏色
         const mode = opts.getColorMode();
@@ -189,6 +215,7 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
         const k = Math.max(0, Math.min(nChunks - 1, Math.floor((t - D.winStart) / FREEWAY_TDCS_CHUNK_S)));
         const ch = getChunk(D, k, o);
         scene.setTrails(ch.key, ch.a, ch.b, ch.c, ch.pieceCount);
+        const CD = ch.D;   // 車頭用建塊時的資料（段序號屬於它）
 
         const zoom = map.getZoom();
         const near = zoom >= FREEWAY_TDCS_NEAR_ZOOM;
@@ -197,20 +224,20 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
         let n = 0;
         for (let i = 0; i < ch.segIdx.length; i++) {
           const si = ch.segIdx[i]!;
-          if (D.segStart[si]! > t || D.segEnd[si]! < t) continue;
+          if (CD.segStart[si]! > t || CD.segEnd[si]! < t) continue;
           if (n >= HEAD_BUDGET) {
             if (!warnedBudget) { warnedBudget = true; console.warn(`[freewayTdcsSim] 車頭超過預算 ${HEAD_BUDGET}，截斷`); }
             break;
           }
-          segPos(D, si, t, pos);
+          segPos(CD, si, t, pos);
           if (pos[6] === 1 && !showTun) continue; // 平面時隧道內不畫（原型同）
-          const trip = D.segs[3 * si + 2]!;
+          const trip = CD.segs[3 * si + 2]!;
           hLng[n] = pos[0]!; hLat[n] = pos[1]!; hTrip[n] = trip; hSeg[n] = si;
           const r = pos[5]!, j = Math.floor(r), g = r - j;
           const hm = H.length ? H[j]! + ((H[Math.min(j + 1, H.length - 1)]! - H[j]!) * g) : 0;
-          const x = mercX(pos[0]!) - D.originX, y = mercY(pos[1]!) - D.originY, z = (hm + lift) * MERC_PER_M;
+          const x = mercX(pos[0]!) - CD.originX, y = mercY(pos[1]!) - CD.originY, z = (hm + lift) * MERC_PER_M;
           scene.headPos[3 * n] = x; scene.headPos[3 * n + 1] = y; scene.headPos[3 * n + 2] = z;
-          const si8 = speedIdx(pos[4]!), vt = D.vt[trip]!;
+          const si8 = speedIdx(pos[4]!), vt = CD.vt[trip]!;
           scene.headCI[2 * n] = si8; scene.headCI[2 * n + 1] = vt;
           scene.headSel[n] = trip === follow ? 1 : 0;
           if (near) {
@@ -247,7 +274,7 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
           setFreewayTdcsStatus({ active: n, fps });
           dbg().__freewayTdcsPerf = {
             fps, active: n, zoom: Math.round(zoom * 10) / 10, near, pieces: ch.pieceCount,
-            chunkMs: Math.round(ch.buildMs), maxFrameMs: Math.round(maxFrameMs),
+            chunkMs: Math.round(ch.buildMs), maxFrameMs: Math.round(maxFrameMs), syncBuilds, prebuilt,
           };
           frames = 0; fpsT = now; maxFrameMs = 0;
         }
@@ -262,6 +289,7 @@ export function createFreewayTdcsSimLayer(opts: FreewayTdcsSimLayerOptions): Cus
       map?.off("idle", onIdle);
       if (prebuildTimer) clearTimeout(prebuildTimer);
       prebuildTimer = null;
+      prebuild = null;
       if (heightTimer) clearTimeout(heightTimer);
       heightTimer = null;
       cache.clear();

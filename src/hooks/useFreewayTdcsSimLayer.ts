@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { FREEWAY_TDCS_SIM_LAYER_ID, freewayTdcsSimModule, mountLazyCustomLayer } from "../map/lazyThreeLayers";
-import { loadFreewayTdcsSim } from "../data/freewayTdcsSimLoader";
+import { ensureFreewayTdcsWindow, loadFreewayTdcsSim } from "../data/freewayTdcsSimLoader";
 import {
   freewayTdcsData, freewayTdcsFollowTrip, setFreewayTdcsData, setFreewayTdcsFollow, setFreewayTdcsFollowEndMsg,
   setFreewayTdcsStatus, subscribeFreewayTdcsColors, subscribeFreewayTdcsFollow, type FreewayTdcsFollowEndCode,
@@ -30,11 +30,7 @@ export interface FreewayTdcsSimParams {
 
 /** 跟隨結束原因（原型 followStep 同款判斷） */
 function followEndReason(D: FreewayTdcsData, trip: number, t: number): FreewayTdcsFollowEndCode {
-  let first = Infinity, last = -Infinity;
-  for (let i = D.tripSegStart[trip]!; i < D.tripSegStart[trip + 1]!; i++) {
-    const si = D.tripSegs[i]!;
-    first = Math.min(first, D.segStart[si]!); last = Math.max(last, D.segEnd[si]!);
-  }
+  const first = D.tripFirst[trip]!, last = D.tripLast[trip]!;
   if (t < D.winStart || t > D.winEnd) return "window";
   if (t < first) return "before";
   if (t < last) return "service";
@@ -80,27 +76,35 @@ export function useFreewayTdcsSimLayer(
     return () => { map.off("style.load", tryMount); };
   }, [mapRef, visible, mapTick]);
 
-  // 開啟時載入資料（只抓一次）
+  // 開啟時載共用檔（只抓一次），之後依時間軸載入時段檔（timeStore 訂閱，不進 React deps）
+  const ensureRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     if (!visible) return;
-    if (freewayTdcsData()) { mapRef.current?.triggerRepaint(); return; }
-    let cancelled = false;
+    let cancelled = false, unsubTime: (() => void) | null = null;
     setFreewayTdcsStatus({ state: "loading" });
-    loadFreewayTdcsSim().then((d) => {
-      setFreewayTdcsData(d);
+    loadFreewayTdcsSim().then((sim) => {
+      if (cancelled) return;
       setFreewayTdcsStatus({ state: "ready" });
-      if (!cancelled) mapRef.current?.triggerRepaint();
+      (window as unknown as { __freewayTdcsSource?: string }).__freewayTdcsSource = sim.source;
+      const onData = (D: FreewayTdcsData) => { setFreewayTdcsData(D); mapRef.current?.triggerRepaint(); };
+      const run = () => ensureFreewayTdcsWindow(sim, timeStore.getTime() - sim.base.dayStartUnix, paramsRef.current.trail, onData);
+      ensureRef.current = run;
+      unsubTime = timeStore.subscribe(run);
+      run();
+      mapRef.current?.triggerRepaint();
     }, (err) => {
       console.warn("[freewayTdcsSim] 載入失敗", err);
       setFreewayTdcsStatus({ state: "error" });
     });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; unsubTime?.(); ensureRef.current = null; };
   }, [visible, mapRef, mapTick]);
 
   // 參數或主題改變 → 重畫一次（時間變動由 custom layer 的 subscribeTimeRepaint 處理）
   const { opacity, trail, width, size, colorMode, vtMask } = params;
   useEffect(() => {
-    if (visible) mapRef.current?.triggerRepaint();
+    if (!visible) return;
+    ensureRef.current?.();   // 拖尾變長可能要多載前一個時段檔
+    mapRef.current?.triggerRepaint();
   }, [visible, opacity, trail, width, size, colorMode, vtMask, isDark, mapRef, mapTick]);
 
   // 自訂顏色改變 → 重畫
@@ -125,6 +129,8 @@ export function useFreewayTdcsSimLayer(
       if (!map || !D || trip == null) return;
       const t = timeStore.getTime() - D.dayStartUnix;
       if (!tripPosition(D, trip, t, pos)) {
+        // 這個時段的檔還在載：先等，不結束跟隨
+        if (t >= D.winStart && t <= D.winEnd && (t < D.coverStart || t > D.coverEnd)) return;
         setFreewayTdcsFollowEndMsg(followEndReason(D, trip, t));
         setFreewayTdcsFollow(null);
         return;
