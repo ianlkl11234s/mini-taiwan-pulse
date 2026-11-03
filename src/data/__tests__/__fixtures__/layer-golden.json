@@ -2021,8 +2021,7 @@
     },
     {
       "layers": [
-        "ca-place-names-circle",
-        "ca-place-names-label"
+        "ca-place-names-circle"
       ],
       "type": "caPlaceNames"
     },
