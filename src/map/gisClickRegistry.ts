@@ -889,6 +889,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
   // 🚆 交通可及性網格（模擬面板，H3 res 7 鋪滿全台）：與其他 H3 格一起放大面積面層段。
   { layers: ["transit-reach-grid-fill"], type: "transitReachGrid" },
+  // 🚌 雙北大眾運輸可及性網格（模擬面板，H3 res9 鋪滿雙北）
+  { layers: ["transit-access-grid-fill"], type: "transitAccessGrid" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

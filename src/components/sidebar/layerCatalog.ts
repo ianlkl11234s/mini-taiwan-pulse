@@ -381,6 +381,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "雙北跨河橋梁中斷",
     "臺北 307 走廊公車擁擠",
     "全台交通可及性",
+    "雙北大眾運輸可及性",
   ],
 };
 
@@ -2507,6 +2508,13 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "交通可及性", layers: [fromManifest("transitReachGrid"), fromManifest("transitReachPlayback")] }],
   },
+  {
+    // 雙北大眾運輸可及性（transit_access P1＋P2，2026-11-03）：公開模擬資料家族，同全台交通可及性人人可見。
+    title: "雙北大眾運輸可及性",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{ title: "大眾運輸可及性", layers: [fromManifest("transitAccessGrid"), fromManifest("transitAccessPlayback")] }],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
@@ -3155,6 +3163,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "雙北跨河橋梁中斷": "city",
     "臺北 307 走廊公車擁擠": "city",
     "全台交通可及性": "city",
+    "雙北大眾運輸可及性": "city",
   },
 };
 
@@ -3332,6 +3341,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
     "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
+    "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
   },
 };
 

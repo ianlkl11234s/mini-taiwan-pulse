@@ -37,6 +37,7 @@ import { ATLAS_LEGENDS } from "./legend/atlasLegends";
 import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, LightningCwaLegend, LightningLegend, MicroSensorLegend, NoiseCaptureGridLegend, NoiseControlZonesLegend, NoiseEnforcementEventsLegend, OceanCurrentsLegend, OfficialNoiseMonitoringLegend, PollutionPenaltyLegend, PollutionSeverityLegend, SoundCameraLocationsLegend, TemperatureGridLegend, TemperatureWaveLegend, UrbanHeatLegend, WasteFacilityLegend, WasteTruckLegend, WindFieldLegend } from "./legend/environmentWeatherLegends";
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
+import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
 import { ElectionEventsLegend, PollingStationsLegend } from "./legend/politicsLegends";
@@ -271,6 +272,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "busCrowdingSim", render: () => <BusCrowdingSimLegend /> },
   { id: "transitReachGrid", render: () => <TransitReachGridLegend /> },
   { id: "transitReachPlayback", render: () => <TransitReachPlaybackLegend /> },
+  { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
+  { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpEvacuationSites", render: () => <JpEvacuationSitesLegend /> },
