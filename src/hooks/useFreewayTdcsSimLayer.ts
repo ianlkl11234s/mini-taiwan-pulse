@@ -5,7 +5,7 @@ import { FREEWAY_TDCS_SIM_LAYER_ID, freewayTdcsSimModule, mountLazyCustomLayer }
 import { loadFreewayTdcsSim } from "../data/freewayTdcsSimLoader";
 import {
   freewayTdcsData, freewayTdcsFollowTrip, setFreewayTdcsData, setFreewayTdcsFollow, setFreewayTdcsFollowEndMsg,
-  setFreewayTdcsStatus, subscribeFreewayTdcsColors, subscribeFreewayTdcsFollow,
+  setFreewayTdcsStatus, subscribeFreewayTdcsColors, subscribeFreewayTdcsFollow, type FreewayTdcsFollowEndCode,
 } from "../data/freewayTdcsSimStore";
 import { SEGPOS_LEN, tripPosition, type FreewayTdcsData } from "../data/freewayTdcsSimModel";
 import type { FreewayTdcsColorMode } from "../data/freewayTdcsSimTypes";
@@ -29,16 +29,16 @@ export interface FreewayTdcsSimParams {
  */
 
 /** 跟隨結束原因（原型 followStep 同款判斷） */
-function followEndReason(D: FreewayTdcsData, trip: number, t: number): string {
+function followEndReason(D: FreewayTdcsData, trip: number, t: number): FreewayTdcsFollowEndCode {
   let first = Infinity, last = -Infinity;
   for (let i = D.tripSegStart[trip]!; i < D.tripSegStart[trip + 1]!; i++) {
     const si = D.tripSegs[i]!;
     first = Math.min(first, D.segStart[si]!); last = Math.max(last, D.segEnd[si]!);
   }
-  if (t < D.winStart || t > D.winEnd) return "時間離開資料時段，已結束跟隨";
-  if (t < first) return "時間早於這台車上國道，已結束跟隨";
-  if (t < last) return "這台車進入服務區（長停留），已結束跟隨";
-  return "這台車已下國道，已結束跟隨";
+  if (t < D.winStart || t > D.winEnd) return "window";
+  if (t < first) return "before";
+  if (t < last) return "service";
+  return "exited";
 }
 export function useFreewayTdcsSimLayer(
   mapRef: React.RefObject<MapboxMap | null>,

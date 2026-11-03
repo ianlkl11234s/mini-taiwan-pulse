@@ -1,4 +1,4 @@
-import type { TimelineChange } from "./timelineControl";
+import { TIMELINE_SPEEDS, type TimelineChange } from "./timelineControl";
 export const RESEARCH_API_PREFIX = "/api/research/v1";
 export const BRIDGE_TIMEOUT_MS = 8_000;
 export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
@@ -220,5 +220,5 @@ function isFraming(value: unknown): value is ViewportFraming | null {
 }
 function isTimeline(value: unknown): value is TimelineChange | null {
   if (value === null) return true;
-  return isObject(value) && Object.keys(value).every(k => ["mode","time","playing","speed"].includes(k)) && (value.mode === "live" ? value.time === undefined && value.playing !== true : value.mode === "replay" && typeof value.time === "number" && Number.isFinite(value.time) && value.time >= 0 && value.time <= 4102444800) && (value.playing === undefined || typeof value.playing === "boolean") && (value.speed === undefined || typeof value.speed === "number" && [30,60,120,300,600,1800,3600].includes(value.speed));
+  return isObject(value) && Object.keys(value).every(k => ["mode","time","playing","speed"].includes(k)) && (value.mode === "live" ? value.time === undefined && value.playing !== true : value.mode === "replay" && typeof value.time === "number" && Number.isFinite(value.time) && value.time >= 0 && value.time <= 4102444800) && (value.playing === undefined || typeof value.playing === "boolean") && (value.speed === undefined || typeof value.speed === "number" && (TIMELINE_SPEEDS as readonly number[]).includes(value.speed));
 }

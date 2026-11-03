@@ -5,7 +5,7 @@
  * which remain the sole writer of timeStore.
  */
 
-export const TIMELINE_SPEEDS = [1, 5, 30, 60, 120, 300, 600, 1800, 3600] as const;
+export const TIMELINE_SPEEDS = [1, 3, 5, 30, 60, 120, 300, 600, 1800, 3600] as const;
 export type TimelineSpeed = (typeof TIMELINE_SPEEDS)[number];
 export type TimelineControlMode = "live" | "replay";
 
