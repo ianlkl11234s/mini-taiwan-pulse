@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1517,
+    "keyCount": 1524,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2021,6 +2021,37 @@
     },
     {
       "layers": [
+        "ca-place-names-circle",
+        "ca-place-names-label"
+      ],
+      "type": "caPlaceNames"
+    },
+    {
+      "layers": [
+        "ca-indigenous-lands-points-circle"
+      ],
+      "type": "caIndigenousLands"
+    },
+    {
+      "layers": [
+        "ca-rents-points-circle"
+      ],
+      "type": "caRents"
+    },
+    {
+      "layers": [
+        "ca-cimd-points-circle"
+      ],
+      "type": "caDeprivation"
+    },
+    {
+      "layers": [
+        "ca-fed-points-circle"
+      ],
+      "type": "caFederalDistricts"
+    },
+    {
+      "layers": [
         "kr-bus-stops-circle"
       ],
       "type": "krBusStops"
@@ -2067,9 +2098,41 @@
     },
     {
       "layers": [
+        "ca-indigenous-lands-fill"
+      ],
+      "type": "caIndigenousLands"
+    },
+    {
+      "layers": [
         "ca-population-centres-fill"
       ],
       "type": "caPopulationCentres"
+    },
+    {
+      "layers": [
+        "ca-rents-fill",
+        "ca-rents-na-fill"
+      ],
+      "type": "caRents"
+    },
+    {
+      "layers": [
+        "ca-cimd-fill",
+        "ca-cimd-na-fill"
+      ],
+      "type": "caDeprivation"
+    },
+    {
+      "layers": [
+        "ca-fsa-fill"
+      ],
+      "type": "caPostalFsa"
+    },
+    {
+      "layers": [
+        "ca-fed-fill"
+      ],
+      "type": "caFederalDistricts"
     },
     {
       "layers": [
@@ -100949,6 +101012,134 @@
         "valueText": "1.0"
       }
     ],
+    "caDeprivation": [
+      {
+        "label": "剝奪面向",
+        "options": [
+          {
+            "label": "經濟依賴",
+            "value": "econ_dep"
+          },
+          {
+            "label": "居住不穩定",
+            "value": "res_inst"
+          },
+          {
+            "label": "族裔文化組成",
+            "value": "ethno_cult"
+          },
+          {
+            "label": "情境脆弱性",
+            "value": "sit_vuln"
+          }
+        ],
+        "type": "select",
+        "value": "econ_dep"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caFederalDistricts": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "caHillshade": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "caIndigenousLands": [
+      {
+        "label": "土地類型",
+        "options": [
+          {
+            "label": "印第安保留地（Indian Reserve，3,289）",
+            "value": "reserve"
+          },
+          {
+            "label": "因紐特人所有地（27）",
+            "value": "inuit"
+          },
+          {
+            "label": "其他土地索償協定土地（27）",
+            "value": "claim"
+          },
+          {
+            "label": "Sechelt／Indian Land（34）",
+            "value": "sechelt"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "reserve",
+          "inuit",
+          "claim",
+          "sechelt"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
     "caMajorRoads": [
       {
         "label": "道路等級",
@@ -101169,6 +101360,69 @@
         "valueText": "1.0"
       }
     ],
+    "caPlaceNames": [
+      {
+        "label": "地名類別",
+        "options": [
+          {
+            "label": "聚落（29,754）",
+            "value": "settlement"
+          },
+          {
+            "label": "行政區與原住民保留地（10,278）",
+            "value": "admin"
+          },
+          {
+            "label": "公園與保護區（10,301）",
+            "value": "park"
+          },
+          {
+            "label": "水體（224,426）",
+            "value": "water"
+          },
+          {
+            "label": "山岳、地形與冰川（75,865）",
+            "value": "terrain"
+          },
+          {
+            "label": "人工設施（11,281）",
+            "value": "constructed"
+          },
+          {
+            "label": "其他（2,831）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "settlement",
+          "admin",
+          "park",
+          "water",
+          "terrain",
+          "constructed",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "caPopulationCentres": [
       {
         "label": "規模",
@@ -101225,6 +101479,112 @@
         ],
         "type": "select",
         "value": "polygon"
+      }
+    ],
+    "caPostalFsa": [
+      {
+        "label": "都市／農村",
+        "options": [
+          {
+            "label": "都市 FSA（1,462）",
+            "value": "urban"
+          },
+          {
+            "label": "農村 FSA（181）",
+            "value": "rural"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "urban",
+          "rural"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "caPowerGrid": [
@@ -101408,6 +101768,49 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caRents": [
+      {
+        "label": "房型",
+        "options": [
+          {
+            "label": "2 房",
+            "value": "br2"
+          },
+          {
+            "label": "套房（Bachelor）",
+            "value": "bachelor"
+          },
+          {
+            "label": "1 房",
+            "value": "br1"
+          },
+          {
+            "label": "3 房以上",
+            "value": "br3"
+          }
+        ],
+        "type": "select",
+        "value": "br2"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
       },
       {
         "label": "大小 1.0",

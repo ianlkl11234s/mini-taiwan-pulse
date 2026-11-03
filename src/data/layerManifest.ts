@@ -4652,7 +4652,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useCaFederalDistrictsLayer 自建 mapbox-pmtiles source；行政界中性灰外框＋透明面，z<6 疊代表點、z8 起標名；64.9MB 走 S3 deploy-assets（gitignore）",
+      note: "useCaFederalDistrictsLayer 自建 mapbox-pmtiles source；行政界中性灰外框＋透明面，z<6 疊代表點（不畫文字標籤：PMTiles symbol 會崩潰）；64.9MB 走 S3 deploy-assets（gitignore）",
       staticAssets: ["./world/ca_federal_districts.pmtiles"],
     },
     legend: "caFederalDistricts",
@@ -4677,7 +4677,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useCaPostalFsaLayer 自建 mapbox-pmtiles source；z<6 外框＋代表點熱區、z6 起面、z7 起標代碼；75.7MB 走 S3 deploy-assets（gitignore）",
+      note: "useCaPostalFsaLayer 自建 mapbox-pmtiles source；z<6 外框＋代表點熱區、z6 起面（不畫文字標籤）；75.7MB 走 S3 deploy-assets（gitignore）",
       staticAssets: ["./world/ca_postal_fsa.pmtiles"],
     },
     legend: "caPostalFsa",
@@ -4777,7 +4777,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useCaPlaceNamesLayer 自建 mapbox-pmtiles source；點＋文字標籤（symbol-sort-key＝比例尺）；89.4MB 走 S3 deploy-assets（gitignore）",
+      note: "useCaPlaceNamesLayer 自建 mapbox-pmtiles source；依群組上色的點，名稱放 popup（PMTiles 不畫 symbol 文字標籤）；89.4MB 走 S3 deploy-assets（gitignore）",
       staticAssets: ["./world/ca_place_names.pmtiles"],
     },
     legend: "caPlaceNames",

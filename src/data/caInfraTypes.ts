@@ -28,7 +28,7 @@ export const CA_OGL_SENTENCE = "Contains information licensed under the Open Gov
 
 /** 共用：類別（`values` 為來源原值；`id` 是多選 option 值）。 */
 export interface CaCat { id: string; values: readonly string[]; color: string; label: L3 }
-export interface CaField { prop: string; label: L3; kind?: "text" | "num" | "code" | "bool"; unit?: string; digits?: number; map?: Readonly<Record<string, L3>> }
+export interface CaField { prop: string; label: L3; kind?: "text" | "num" | "code" | "bool"; unit?: string; digits?: number; /** 只顯示 >0 的數值（來源以 -1 表示未知） */ positive?: boolean; map?: Readonly<Record<string, L3>> }
 /** 一個 tile layer 的 popup 規格（標題欄位、列、備註）。 */
 export interface CaPopupSpec { title: { props: readonly string[]; fallback: L3 }; typeLabel?: L3; fields: readonly CaField[]; notes?: readonly L3[] }
 /** 一個 layer key 的來源（popup 底部 SourceFooter 與圖例署名共用）。 */
@@ -455,7 +455,6 @@ export const CA_STATCAN_SOURCE_NOTE = "Source: Statistics Canada. Contains infor
 
 export const CA_FED_COUNT = 338;
 export const CA_FED_POLYGON_FROM_ZOOM = 6;
-export const CA_FED_LABEL_FROM_ZOOM = 8;
 export const CA_FED_SOURCE: CaSource = {
   org: "Statistics Canada, 2021 Census Cartographic Boundary Files（Federal electoral districts, 2013 Representation Order）",
   url: "https://open.canada.ca/data/en/dataset/ef70dc3b-1069-4037-9bce-61f47e628a1d",
@@ -464,7 +463,7 @@ export const CA_FED_SOURCE: CaSource = {
 };
 export const CA_FED_NOTES: readonly L3[] = [
   l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
-  l3("涵蓋 13/13 省／地區；z6 以下另畫代表點，z8 起標選區名", "Coverage 13/13; representative points below zoom 6, district names from zoom 8", "13/13 州・準州を収録。ズーム 6 未満は代表点、8 以上で選挙区名を表示"),
+  l3("涵蓋 13/13 省／地區；z6 以下另畫代表點；選區名見點選資訊", "Coverage 13/13; representative points below zoom 6; click for district names", "13/13 州・準州を収録。ズーム 6 未満は代表点。選挙区名はクリックで表示"),
 ];
 export const CA_FED_POPUP: CaPopupSpec = {
   title: { props: ["name"], fallback: l3("聯邦選區", "Federal electoral district", "連邦選挙区") },
@@ -482,7 +481,6 @@ export const CA_FED_POPUP: CaPopupSpec = {
 
 export const CA_FSA_COUNT = 1_643;
 export const CA_FSA_POLYGON_FROM_ZOOM = 6;
-export const CA_FSA_LABEL_FROM_ZOOM = 7;
 /** V-4 兩類（`rural` 布林轉字串）；農村用同色系較淡色（人口中心色）。 */
 export const CA_FSA_CLASSES: readonly CaCat[] = [
   { id: "urban", values: ["false"], color: "#f27d1b", label: l3("都市 FSA（1,462）", "Urban FSA (1,462)", "都市 FSA（1,462）") },
@@ -497,7 +495,7 @@ export const CA_FSA_SOURCE: CaSource = {
 export const CA_FSA_ABOUT = l3("Canada Post 分揀區，非行政區；邊界為 StatCan 推估", "Canada Post sorting area, not an administrative unit; boundaries estimated by Statistics Canada", "カナダ郵便の仕分け区域で行政区域ではない。境界は StatCan の推計");
 export const CA_FSA_NOTES: readonly L3[] = [
   CA_FSA_ABOUT,
-  l3("涵蓋 13/13 省／地區；z6 以下為外框＋代表點熱區，z6 起畫面、z7 起標代碼", "Coverage 13/13; outlines plus a representative-point heatmap below zoom 6, polygons from 6, codes from 7", "13/13 州・準州を収録。ズーム 6 未満は外枠と代表点ヒートマップ、6 以上で面、7 以上でコード表示"),
+  l3("涵蓋 13/13 省／地區；z6 以下為外框＋代表點熱區，z6 起畫面；代碼見點選資訊", "Coverage 13/13; outlines plus a representative-point heatmap below zoom 6, polygons from 6; click for the code", "13/13 州・準州を収録。ズーム 6 未満は外枠と代表点ヒートマップ、6 以上で面。コードはクリックで表示"),
 ];
 export const CA_FSA_POPUP: CaPopupSpec = {
   title: { props: ["fsa"], fallback: l3("郵遞分區（FSA）", "Forward sortation area", "郵便仕分け区域（FSA）") },
@@ -544,7 +542,7 @@ export const CA_INDIGENOUS_POPUP: CaPopupSpec = {
     { prop: "dist_type_en", label: l3("類型（英）", "Type (EN)", "種別（英）") },
     { prop: "dist_type_fr", label: l3("類型（法）", "Type (FR)", "種別（仏）") },
     PROVINCE,
-    { prop: "accuracy_m", label: l3("精度", "Accuracy", "精度"), kind: "num", unit: "m" },
+    { prop: "accuracy_m", label: l3("精度", "Accuracy", "精度"), kind: "num", unit: "m", positive: true },
     { prop: "rev_date", label: l3("修訂日", "Revised", "改訂日"), kind: "code" },
   ],
   notes: [CA_INDIGENOUS_BOUNDARY_NOTE],
@@ -631,7 +629,7 @@ export const CA_PLACE_NAMES_SOURCE: CaSource = {
   short: "Contains information licensed under the Open Government Licence – Canada. Natural Resources Canada, Canadian Geographical Names Database",
 };
 export const CA_PLACE_NAMES_NOTES: readonly L3[] = [
-  l3("依官方建議顯示比例尺逐級出現（z3 約 300 個，z12 全部）", "Names appear progressively by the official relevance scale (about 300 at zoom 3, all by zoom 12)", "公式の推奨表示縮尺に応じて段階表示（ズーム 3 で約 300、12 で全件）"),
+  l3("依官方建議顯示比例尺逐級出現（z3 約 300 個，z12 全部）；名稱見點選資訊", "Names appear progressively by the official relevance scale (about 300 at zoom 3, all by zoom 12); click a point for its name", "公式の推奨表示縮尺に応じて段階表示（ズーム 3 で約 300、12 で全件）。名称はクリックで表示"),
   l3("資料庫含部分冒犯性歷史地名，命名機關仍在修訂", "The database still contains some offensive historical names; naming authorities are revising them", "データベースには一部不快な歴史的地名が残り、命名機関が改訂中"),
   l3("涵蓋 13/13 省／地區；只收官方核定名稱", "Coverage 13/13; official names only", "13/13 州・準州を収録。公式名称のみ"),
 ];

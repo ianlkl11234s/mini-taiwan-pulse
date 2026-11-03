@@ -41,6 +41,7 @@ function SpecPanel({ props, spec, source, color, extra, hideFooter }: P & { spec
       let value = raw;
       if (f.map) value = f.map[raw] ? pick(f.map[raw]!) : raw;
       else if (f.kind === "num") {
+        if (f.positive && !(Number(props[f.prop]) > 0)) return null;
         const n = fmtNum(props[f.prop], f.digits ?? 0);
         if (!n) return null;
         value = f.unit ? `${n} ${f.unit}` : n;

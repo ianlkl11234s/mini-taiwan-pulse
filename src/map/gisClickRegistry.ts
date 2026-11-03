@@ -421,7 +421,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ca-power-substations-circle", "ca-power-lines-line", "ca-power-cables-line"], type: "caPowerGrid" },
   { layers: ["ca-major-roads-line"], type: "caMajorRoads" },
   { layers: ["ca-population-centres-points-circle"], type: "caPopulationCentres" },
-  { layers: ["ca-place-names-circle", "ca-place-names-label"], type: "caPlaceNames" },
+  { layers: ["ca-place-names-circle"], type: "caPlaceNames" },
   { layers: ["ca-indigenous-lands-points-circle"], type: "caIndigenousLands" },
   { layers: ["ca-rents-points-circle"], type: "caRents" },
   { layers: ["ca-cimd-points-circle"], type: "caDeprivation" },

@@ -1,12 +1,12 @@
 import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
-import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, labelHaloPaint, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
+import { BOUNDARY_GRAY, gradedSeamPaint, hatchImageData, hatchImageId, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paletteRamp, resampleRamp } from "../map/palettes";
 import { paramDefault } from "../data/layerParamsSpec";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
 import {
-  CA_ADMIN_COLOR, CA_CIMD_DIMENSIONS, CA_CIMD_PALETTE_ID, CA_CIMD_POLYGON_FROM_ZOOM, CA_CIMD_SOURCE, CA_FED_LABEL_FROM_ZOOM, CA_FED_POLYGON_FROM_ZOOM,
-  CA_FED_SOURCE, CA_FSA_CLASSES, CA_FSA_LABEL_FROM_ZOOM, CA_FSA_POLYGON_FROM_ZOOM, CA_FSA_SOURCE, CA_INDIGENOUS_POLYGON_FROM_ZOOM, CA_INDIGENOUS_SOURCE,
+  CA_ADMIN_COLOR, CA_CIMD_DIMENSIONS, CA_CIMD_PALETTE_ID, CA_CIMD_POLYGON_FROM_ZOOM, CA_CIMD_SOURCE, CA_FED_POLYGON_FROM_ZOOM,
+  CA_FED_SOURCE, CA_FSA_CLASSES, CA_FSA_POLYGON_FROM_ZOOM, CA_FSA_SOURCE, CA_INDIGENOUS_POLYGON_FROM_ZOOM, CA_INDIGENOUS_SOURCE,
   CA_INDIGENOUS_TYPES, CA_RENT_UNITS, CA_RENTS_PALETTE_ID, CA_RENTS_POLYGON_FROM_ZOOM, CA_RENTS_SOURCE, type CaCimdDimension, type CaRentUnit,
 } from "../data/caInfraTypes";
 import { caCatColor, caCatFilter } from "./useCaTransportLayers";
@@ -14,17 +14,16 @@ import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } 
 
 /**
  * 加拿大第 2 波面資料與社經 5 層（C134 聯邦選區、X010 FSA、C019 原住民法定土地、C023 CIMD、C026 CMHC 租金）。靜態 PMTiles、不訂閱時間。
+ * 不畫文字標籤：PMTiles／vector source 的 symbol placement 會讓 Mapbox 整張地圖 render 中止（overlayRegistry 既有規則），名稱放 popup。
  * 每支 PMTiles 都另有代表點層：V-1 國家全覽 z3.5 用點（或熱區），放大再換面。layer id 寫字面值（gisClickRegistry／lineFillTiers 以字面值比對）。
  * 分級面（CIMD、租金）：F-3 合規色階（BuPu／YlOrBr，暗底越高越亮）、缺值＝透明底＋45° 斜線（F-3 A），代表點缺值畫灰點，皆不當 0。
  */
 export const CA_FED_FILL_ID = "ca-fed-fill";
 export const CA_FED_LINE_ID = "ca-fed-line";
 export const CA_FED_POINTS_CIRCLE_ID = "ca-fed-points-circle";
-export const CA_FED_LABEL_ID = "ca-fed-label";
 export const CA_FSA_HEATMAP_ID = "ca-fsa-heatmap";
 export const CA_FSA_FILL_ID = "ca-fsa-fill";
 export const CA_FSA_LINE_ID = "ca-fsa-line";
-export const CA_FSA_LABEL_ID = "ca-fsa-label";
 export const CA_INDIGENOUS_FILL_ID = "ca-indigenous-lands-fill";
 export const CA_INDIGENOUS_OUTLINE_ID = "ca-indigenous-lands-outline";
 export const CA_INDIGENOUS_POINTS_CIRCLE_ID = "ca-indigenous-lands-points-circle";
@@ -50,10 +49,9 @@ const sig = (v: unknown) => JSON.stringify(v);
 const NONE: Expr = ["==", ["literal", "__ca_none__"], "__ca_part__"];
 /** 缺值點（無指數／不公布）：行政界中性灰（不吃色階、不當 0）。 */
 export const CA_NA_POINT_COLOR = CA_ADMIN_COLOR;
-const textColor = (isDark: boolean) => (isDark ? "#e5e7eb" : "#1f2937");
 
 type Spec = { id: string; source: SourceSpec; sourceLayer: string; minzoom: number; maxzoom?: number; filter: Expr | null };
-function build(type: "fill" | "line" | "circle" | "symbol", o: Spec & { paint: () => Record<string, unknown>; layout?: Record<string, unknown>; before?: LayerBuild["before"] }): LayerBuild {
+function build(type: "fill" | "line" | "circle", o: Spec & { paint: () => Record<string, unknown>; layout?: Record<string, unknown>; before?: LayerBuild["before"] }): LayerBuild {
   return {
     id: o.id,
     layer: () => ({
@@ -75,18 +73,13 @@ function ensureHatchImages(map: MapboxMap): undefined {
   }
   return undefined;
 }
-const labelLayout = (field: unknown, size: number) => ({
-  "text-field": field, "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"], "text-size": size, "text-allow-overlap": false,
-  "text-padding": 4, "text-max-width": 8,
-});
-const labelPaint = (isDark: boolean, opacity: number) => () => ({ "text-color": textColor(isDark), "text-opacity": clamp01(opacity), ...labelHaloPaint(isDark) });
 const fadeOpacity = (opacity: number, def: number) => clamp01(opacity) / def;
 
 // ─────────────────────────── 聯邦選區（338，邊界類） ───────────────────────────
 
 const FED_SOURCE: SourceSpec = { id: "ca-federal-districts", file: "ca_federal_districts.pmtiles", minzoom: 2, maxzoom: 12, attribution: CA_FED_SOURCE.short, loading: "加拿大聯邦選區載入中" };
 
-/** 行政界中性灰外框＋透明面（點擊熱區）；z<6 疊代表點小圓點（都市選區太小），z8 起標選區英文名。 */
+/** 行政界中性灰外框＋透明面（點擊熱區）；z<6 疊代表點小圓點（都市選區太小）。 */
 export function useCaFederalDistrictsLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean) {
   const key = "caFederalDistricts";
   const def = opacityDefault(key, 0.85);
@@ -104,10 +97,6 @@ export function useCaFederalDistrictsLayer(mapRef: MapRef, visible: boolean, opa
       id: CA_FED_POINTS_CIRCLE_ID, source: FED_SOURCE, sourceLayer: "ca_fed_points", minzoom: 2, maxzoom: CA_FED_POLYGON_FROM_ZOOM, filter: null,
       paint: () => ({ "circle-radius": pointRadius("S", 1), "circle-color": gray, "circle-opacity": clamp01(opacity), ...pointStrokePaint(isDark, fadeOpacity(opacity, def)) }),
     }),
-    build("symbol", {
-      id: CA_FED_LABEL_ID, source: FED_SOURCE, sourceLayer: "ca_fed_points", minzoom: CA_FED_LABEL_FROM_ZOOM, filter: null,
-      layout: labelLayout(["coalesce", ["get", "name_en"], ["get", "name"]], 11), paint: labelPaint(isDark, opacity),
-    }),
   ], [opacity, isDark]);
 }
 
@@ -115,9 +104,9 @@ export function useCaFederalDistrictsLayer(mapRef: MapRef, visible: boolean, opa
 
 const FSA_SOURCE: SourceSpec = { id: "ca-postal-fsa", file: "ca_postal_fsa.pmtiles", minzoom: 2, maxzoom: 12, attribution: CA_FSA_SOURCE.short, loading: "加拿大郵遞分區載入中" };
 export const caFsaClassFilter = (mask: number | undefined) => caCatFilter("rural", CA_FSA_CLASSES, mask);
-const FSA_HEAT_INTENSITY = 1.5;
+const FSA_HEAT_INTENSITY = 20;
 
-/** z<6：外框細線＋代表點熱區（都市密集處）；z6 起依都市／農村填色（農村較淡），z7 起標 FSA 代碼。 */
+/** z<6：外框細線＋代表點熱區（都市密集處）；z6 起依都市／農村填色（農村較淡）。 */
 export function useCaPostalFsaLayer(mapRef: MapRef, visible: boolean, opacity: number, isDark: boolean, catMask?: number) {
   const key = "caPostalFsa";
   const def = opacityDefault(key, 0.7);
@@ -140,10 +129,6 @@ export function useCaPostalFsaLayer(mapRef: MapRef, visible: boolean, opacity: n
         ...hookLinePaint(key, CA_FSA_LINE_ID, { "line-color": gray, "line-width": 0.6, "line-opacity": clamp01(opacity) }, { "line-color": gray, "line-width": 0.6, "line-opacity": def }, isDark),
         "line-color": gray,
       }),
-    }),
-    build("symbol", {
-      id: CA_FSA_LABEL_ID, source: FSA_SOURCE, sourceLayer: "ca_fsa_points", minzoom: CA_FSA_LABEL_FROM_ZOOM, filter,
-      layout: labelLayout(["get", "fsa"], 11), paint: labelPaint(isDark, opacity),
     }),
   ], [opacity, isDark, heatStyle, sig(filter)]);
 }
@@ -193,6 +178,8 @@ export const caRentColors = (isDark: boolean) => resampleRamp(paletteRamp(CA_REN
 function gradedBuilds(o: {
   key: string; source: SourceSpec; polyLayer: string; pointLayer: string; polyFrom: number; fillId: string; naId: string; seamId: string; pointId: string;
   color: Expr; hasValue: Expr; isDark: boolean; opacity: number; def: number; radius: unknown;
+  /** 數萬個小代表點：描邊會蓋掉分級色，改無描邊（分級面的代用點，不是 POI）。 */
+  noStroke?: boolean;
 }): LayerBuild[] {
   const { key, isDark, opacity, def } = o;
   const op = clamp01(opacity);
@@ -218,6 +205,7 @@ function gradedBuilds(o: {
       paint: () => ({
         "circle-radius": o.radius, "circle-color": pointColor, "circle-opacity": Math.min(1, fadeOpacity(opacity, def) * 0.9),
         ...pointStrokePaint(isDark, fadeOpacity(opacity, def)),
+        ...(o.noStroke ? { "circle-stroke-width": 0 } : {}),
       }),
     }),
   ];
@@ -243,7 +231,7 @@ export function useCaDeprivationLayer(mapRef: MapRef, visible: boolean, opacity:
     key, source: CIMD_SOURCE, polyLayer: "ca_cimd_da", pointLayer: "ca_cimd_points", polyFrom: CA_CIMD_POLYGON_FROM_ZOOM,
     fillId: CA_CIMD_FILL_ID, naId: CA_CIMD_NA_FILL_ID, seamId: CA_CIMD_SEAM_ID, pointId: CA_CIMD_POINTS_CIRCLE_ID,
     color: caCimdColorExpr(dim, isDark), hasValue: caCimdHasValue(dim), isDark, opacity, def,
-    radius: ["*", ["interpolate", ["linear"], ["zoom"], 3, 1.2, 5, 2, 6, 2.6], s],
+    radius: ["interpolate", ["linear"], ["zoom"], 3, 1.6 * s, 5, 2.4 * s, 6, 3 * s], noStroke: true,
   }), [opacity, scale, isDark, dim]);
 }
 
