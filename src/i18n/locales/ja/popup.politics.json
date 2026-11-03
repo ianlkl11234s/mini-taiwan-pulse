@@ -27,5 +27,19 @@
   "popup.politics.claimant.media_estimate": "報道推計 約 {n} 人",
   "popup.politics.claimant.police_estimate": "警察推計 約 {n} 人",
   "popup.politics.claimant.unknown": "約 {n} 人",
-  "popup.politics.sourceLink": "出典 {index}"
+  "popup.politics.sourceLink": "出典 {index}",
+  "popup.politics.polling.fallbackTitle": "投開票所",
+  "popup.politics.polling.stationNo": "投開票所番号",
+  "popup.politics.polling.precision": "位置の特定方法",
+  "popup.politics.polling.precision.poi_name": "名称照合",
+  "popup.politics.polling.precision.address_door": "番地",
+  "popup.politics.polling.precision.tgos_door": "番地（TGOS）",
+  "popup.politics.polling.precision.google": "Google 住所・地点（手動確認）",
+  "popup.politics.polling.precision.road": "道路名のみ（おおよその位置）",
+  "popup.politics.polling.electors": "2024年総統選 選挙人数",
+  "popup.politics.polling.turnout": "2024年総統選 投票率",
+  "popup.politics.polling.party.dpp": "頼清徳（民進党）",
+  "popup.politics.polling.party.kmt": "侯友宜（国民党）",
+  "popup.politics.polling.party.tpp": "柯文哲（民衆党）",
+  "popup.politics.polling.source": "中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定"
 }

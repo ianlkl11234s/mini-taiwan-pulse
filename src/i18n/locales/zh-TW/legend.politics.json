@@ -13,5 +13,18 @@
   "legend.politics.bias": "收錄的是公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。",
   "legend.politics.unmapped": "另有 {count} 場未定位，未上圖",
   "legend.politics.updated": "資料更新：{time}",
-  "legend.politics.source": "來源：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等（研究原型）"
+  "legend.politics.source": "來源：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等（研究原型）",
+  "legend.politics.polling.leadTitle": "顏色＝2024 總統該所領先者",
+  "legend.politics.polling.lead.dpp": "賴清德（民進黨）",
+  "legend.politics.polling.lead.kmt": "侯友宜（國民黨）",
+  "legend.politics.polling.lead.tpp": "柯文哲（民眾黨）",
+  "legend.politics.polling.lead.tie": "同票",
+  "legend.politics.polling.turnoutTitle": "顏色＝2024 總統投票率",
+  "legend.politics.polling.road": "淡色＝只對到路名，位置約略",
+  "legend.politics.polling.zoomHint": "放大到街區層級才顯示",
+  "legend.politics.polling.truncated": "此範圍有 {count} 所，只畫出 {shown} 所；請再放大",
+  "legend.politics.polling.unmapped": "約 200 所尚未定位，未顯示",
+  "legend.politics.polling.unmappedExact": "約 {count} 所尚未定位，未顯示",
+  "legend.politics.polling.year": "這是 2024 年的投開票所位置；2026 年 11/28 的投開票所以各縣市選委會公告為準",
+  "legend.politics.polling.source": "來源：中選會 2024 投開票所名冊＋選舉資料庫（OGDL-1.0）；座標為本站自行定位"
 }
