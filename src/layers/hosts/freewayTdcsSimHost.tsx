@@ -13,6 +13,7 @@ export const FreewayTdcsSimHost: LayerHostComponent = ({ deps }) => {
   useFreewayTdcsSimLayer(deps.mapRef, deps.layerVisibility.freewayTdcsSim, {
     opacity: paramNum(values, K, "freewayTdcsSimOpacity"),
     trail: paramNum(values, K, "freewayTdcsSimTrail"),
+    width: paramNum(values, K, "freewayTdcsSimWidth"),
     size: paramNum(values, K, "freewayTdcsSimSize"),
     colorMode: oneOfParam(paramStr(values, K, "freewayTdcsSimColorMode"), FREEWAY_TDCS_COLOR_MODES, "speed"),
     vtMask: overlay.freewayTdcsSimTypeMask ?? 0b11111,

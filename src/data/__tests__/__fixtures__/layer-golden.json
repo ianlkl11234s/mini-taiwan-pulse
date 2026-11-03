@@ -105971,6 +105971,15 @@
         "valueText": "0.90"
       },
       {
+        "label": "線寬 2.0 px",
+        "max": 6,
+        "min": 0.5,
+        "name": "線寬",
+        "step": 0.5,
+        "value": 2,
+        "valueText": "2.0 px"
+      },
+      {
         "label": "大小 1.0",
         "max": 3,
         "min": 0.3,

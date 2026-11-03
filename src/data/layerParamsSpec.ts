@@ -1536,6 +1536,7 @@ export const LAYER_PARAMS_SPEC = {
       options: FREEWAY_TDCS_VT_VALUES.map((value, i) => ({ value, label: FREEWAY_TDCS_VT_NAMES[i]! })), out: "freewayTdcsSimTypeMask",
     },
     { kind: "slider", name: "freewayTdcsSimTrail", labelPrefix: "拖尾", labelSuffix: " 秒", digits: 0, default: 60, min: 0, max: 300, step: 5 },
+    { kind: "slider", name: "freewayTdcsSimWidth", labelPrefix: "線寬", labelSuffix: " px", digits: 1, default: 2, min: 0.5, max: 6, step: 0.5 },
     scaleSlider("freewayTdcsSimSize", 1),
   ],
   roadCongestion: [

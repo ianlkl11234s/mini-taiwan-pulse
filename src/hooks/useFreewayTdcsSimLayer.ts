@@ -4,16 +4,17 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { FREEWAY_TDCS_SIM_LAYER_ID, freewayTdcsSimModule, mountLazyCustomLayer } from "../map/lazyThreeLayers";
 import { loadFreewayTdcsSim } from "../data/freewayTdcsSimLoader";
 import {
-  freewayTdcsData, freewayTdcsFollowTrip, setFreewayTdcsData, setFreewayTdcsFollow, setFreewayTdcsStatus,
-  subscribeFreewayTdcsFollow,
+  freewayTdcsData, freewayTdcsFollowTrip, setFreewayTdcsData, setFreewayTdcsFollow, setFreewayTdcsFollowEndMsg,
+  setFreewayTdcsStatus, subscribeFreewayTdcsColors, subscribeFreewayTdcsFollow,
 } from "../data/freewayTdcsSimStore";
-import { tripEnded, tripPosition } from "../data/freewayTdcsSimModel";
+import { SEGPOS_LEN, tripPosition, type FreewayTdcsData } from "../data/freewayTdcsSimModel";
 import type { FreewayTdcsColorMode } from "../data/freewayTdcsSimTypes";
 import { timeStore } from "../state/timeStore";
 
 export interface FreewayTdcsSimParams {
   opacity: number;
   trail: number;
+  width: number;
   size: number;
   colorMode: FreewayTdcsColorMode;
   vtMask: number;
@@ -23,8 +24,22 @@ export interface FreewayTdcsSimParams {
  * 雙北國道逐車模擬（本機研究層）。
  * - 時間：跟著全站時間軸；custom layer 在 render 內讀 timeStore.getTime()（不進 React deps，development-rules §8）。
  * - 跟隨：說明框按「跟隨」寫入 store；這裡用 timeStore.subscribe 每次時間變動移鏡頭（不在 paint pass 內動鏡頭）。
- *   Esc、再按一次、關圖層或車駛離資料範圍時結束。
+ *   Esc、再按一次、關圖層或車駛離資料範圍時結束；結束原因寫進 store 由圖例顯示（原型的 toast）。
+ *   跟隨中鏡頭轉向行進方向（平滑），並暫停拖曳平移（縮放、旋轉照常）。
  */
+
+/** 跟隨結束原因（原型 followStep 同款判斷） */
+function followEndReason(D: FreewayTdcsData, trip: number, t: number): string {
+  let first = Infinity, last = -Infinity;
+  for (let i = D.tripSegStart[trip]!; i < D.tripSegStart[trip + 1]!; i++) {
+    const si = D.tripSegs[i]!;
+    first = Math.min(first, D.segStart[si]!); last = Math.max(last, D.segEnd[si]!);
+  }
+  if (t < D.winStart || t > D.winEnd) return "時間離開資料時段，已結束跟隨";
+  if (t < first) return "時間早於這台車上國道，已結束跟隨";
+  if (t < last) return "這台車進入服務區（長停留），已結束跟隨";
+  return "這台車已下國道，已結束跟隨";
+}
 export function useFreewayTdcsSimLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -48,6 +63,7 @@ export function useFreewayTdcsSimLayer(
           getIsVisible: () => visibleRef.current,
           getOpacity: () => paramsRef.current.opacity,
           getTrail: () => paramsRef.current.trail,
+          getWidth: () => paramsRef.current.width,
           getSize: () => paramsRef.current.size,
           getColorMode: () => paramsRef.current.colorMode,
           getVtMask: () => paramsRef.current.vtMask,
@@ -82,10 +98,16 @@ export function useFreewayTdcsSimLayer(
   }, [visible, mapRef, mapTick]);
 
   // 參數或主題改變 → 重畫一次（時間變動由 custom layer 的 subscribeTimeRepaint 處理）
-  const { opacity, trail, size, colorMode, vtMask } = params;
+  const { opacity, trail, width, size, colorMode, vtMask } = params;
   useEffect(() => {
     if (visible) mapRef.current?.triggerRepaint();
-  }, [visible, opacity, trail, size, colorMode, vtMask, isDark, mapRef, mapTick]);
+  }, [visible, opacity, trail, width, size, colorMode, vtMask, isDark, mapRef, mapTick]);
+
+  // 自訂顏色改變 → 重畫
+  useEffect(() => {
+    if (!visible) return;
+    return subscribeFreewayTdcsColors(() => mapRef.current?.triggerRepaint());
+  }, [visible, mapRef, mapTick]);
 
   // 關圖層 → 結束跟隨
   useEffect(() => { if (!visible) setFreewayTdcsFollow(null); }, [visible]);
@@ -93,23 +115,37 @@ export function useFreewayTdcsSimLayer(
   // 跟隨鏡頭
   useEffect(() => {
     if (!visible) return;
-    const pos = new Float64Array(5);
+    const pos = new Float64Array(SEGPOS_LEN);
     let unsubTime: (() => void) | null = null;
+    let bearing = 0, panLocked = false;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setFreewayTdcsFollow(null); };
+    const unlockPan = () => { if (panLocked) { mapRef.current?.dragPan.enable(); panLocked = false; } };
     const step = (first: boolean) => {
       const map = mapRef.current, D = freewayTdcsData(), trip = freewayTdcsFollowTrip();
       if (!map || !D || trip == null) return;
       const t = timeStore.getTime() - D.dayStartUnix;
-      if (tripEnded(D, trip, t) || t < D.winStart || t > D.winEnd) { setFreewayTdcsFollow(null); return; }
-      if (!tripPosition(D, trip, t, pos)) return; // 服務區停留等空檔：鏡頭先停著
-      if (first) map.easeTo({ center: [pos[0]!, pos[1]!], zoom: Math.max(map.getZoom(), 15), duration: 600 });
-      else if (!map.isEasing()) map.jumpTo({ center: [pos[0]!, pos[1]!] });
+      if (!tripPosition(D, trip, t, pos)) {
+        setFreewayTdcsFollowEndMsg(followEndReason(D, trip, t));
+        setFreewayTdcsFollow(null);
+        return;
+      }
+      // 方向平滑；大轉向（拖時間軸）直接對齊（原型同）
+      const hb = 90 - (Math.atan2(pos[3]!, pos[2]!) * 180) / Math.PI;
+      const d = ((((hb - bearing) % 360) + 540) % 360) - 180;
+      bearing += first || Math.abs(d) > 60 ? d : d * 0.12;
+      if (first) {
+        map.easeTo({ center: [pos[0]!, pos[1]!], bearing, zoom: Math.max(map.getZoom(), 15), pitch: Math.max(map.getPitch(), 50), duration: 600 });
+      } else if (!map.isEasing()) map.jumpTo({ center: [pos[0]!, pos[1]!], bearing });
       map.triggerRepaint();
     };
     const sync = () => {
       unsubTime?.(); unsubTime = null;
       window.removeEventListener("keydown", onKey);
-      if (freewayTdcsFollowTrip() == null) { mapRef.current?.triggerRepaint(); return; }
+      if (freewayTdcsFollowTrip() == null) { unlockPan(); mapRef.current?.triggerRepaint(); return; }
+      const map = mapRef.current;
+      if (map && !panLocked) { map.dragPan.disable(); panLocked = true; }
+      if (map) bearing = map.getBearing();
+      setFreewayTdcsFollowEndMsg(null);
       window.addEventListener("keydown", onKey);
       unsubTime = timeStore.subscribe(() => step(false));
       step(true);
@@ -118,6 +154,7 @@ export function useFreewayTdcsSimLayer(
     sync();
     return () => {
       unsubFollow(); unsubTime?.();
+      unlockPan();
       window.removeEventListener("keydown", onKey);
     };
   }, [visible, mapRef, mapTick]);

@@ -34,6 +34,17 @@ export const FREEWAY_TDCS_SPEED_MAX = 100;
 /** 推算不出車速（同時刻兩影格）時的中性灰 */
 export const FREEWAY_TDCS_SPEED_NA = "#9ca3af";
 
+/** 自訂車速三色預設（原型 viewer「自訂」的預設值）：慢 ≤ 20、中 50、快 ≥ 90 km/h */
+export const FREEWAY_TDCS_SPEED_CUSTOM_DEFAULT = ["#dc2626", "#facc15", "#22c55e"] as const;
+export const FREEWAY_TDCS_SPEED_CUSTOM_STOPS = [20, 50, 90] as const;
+
+/** 近景 3D 車尺寸 [長, 寬, 高]（m），順序同車種；取自原型 VT_DIM */
+export const FREEWAY_TDCS_VT_DIM: readonly (readonly [number, number, number])[] = [
+  [4.6, 1.8, 1.5], [5.5, 2.0, 2.3], [12, 2.5, 3.3], [10, 2.5, 3.6], [16, 2.5, 4.0],
+];
+/** 近景門檻：z ≥ 15 畫 3D 車（z14 時一台小客車只約 1 px，看不出形狀） */
+export const FREEWAY_TDCS_NEAR_ZOOM = 15;
+
 export const FREEWAY_TDCS_SOURCE = "交通部高速公路局「交通資料庫」（TDCS M06A，2026-09-28）；門架之間位置與車道為推算";
 
 const hexRgb = (c: string): [number, number, number] => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16)) as [number, number, number];
@@ -51,6 +62,26 @@ export function freewayTdcsSpeedRgb(v: number | null): [number, number, number] 
 }
 
 export const FREEWAY_TDCS_VT_RGB = FREEWAY_TDCS_VT_COLORS.map(hexRgb);
+export { hexRgb as freewayTdcsHexRgb };
+
+/** 車速色表（256 階 RGBA；索引 = km/h，255＝推算不出）：viridis 或使用者自訂三色 */
+export function freewayTdcsSpeedLut(palette: "viridis" | "custom", custom: readonly string[]): Uint8Array {
+  const lut = new Uint8Array(256 * 4);
+  const cs = custom.map(hexRgb), st = FREEWAY_TDCS_SPEED_CUSTOM_STOPS;
+  for (let v = 0; v < 256; v++) {
+    let c: [number, number, number];
+    if (v === 255) c = hexRgb(FREEWAY_TDCS_SPEED_NA);
+    else if (palette === "viridis") c = freewayTdcsSpeedRgb(v);
+    else {
+      const i = v <= st[1] ? 0 : 1;
+      const f = Math.max(0, Math.min(1, (v - st[i]!) / (st[i + 1]! - st[i]!)));
+      const a = cs[i]!, b = cs[i + 1]!;
+      c = [0, 1, 2].map((k) => Math.round(a[k]! + (b[k]! - a[k]!) * f)) as [number, number, number];
+    }
+    lut.set([c[0], c[1], c[2], 255], 4 * v);
+  }
+  return lut;
+}
 
 /** 旗標位元（trips.bin `flags`） */
 export const FREEWAY_TDCS_FLAG_ENTER_BOUNDARY = 1;

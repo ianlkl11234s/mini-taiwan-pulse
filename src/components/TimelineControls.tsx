@@ -43,7 +43,8 @@ interface Props {
   onRangeDaysChange: (n: number) => void;
 }
 
-const SPEEDS = [30, 60, 120, 300, 600, 1800, 3600];
+// 1×／5×：國道逐車模擬測試分支加的（全站改動，發版前再決定）
+const SPEEDS = [1, 5, 30, 60, 120, 300, 600, 1800, 3600];
 const RANGE_DAYS = [1, 2, 3, 4, 5, 6, 7];
 
 export function formatTaiwanDateInputValue(d: Date): string {

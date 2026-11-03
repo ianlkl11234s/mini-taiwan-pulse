@@ -7,7 +7,10 @@
  */
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { FreewayTdcsData } from "./freewayTdcsSimModel";
-import { FREEWAY_TDCS_FLAG_ENTER_BOUNDARY, FREEWAY_TDCS_FLAG_EXIT_BOUNDARY, FREEWAY_TDCS_FLAG_SERVICE_BREAK, FREEWAY_TDCS_VT_NAMES } from "./freewayTdcsSimTypes";
+import {
+  FREEWAY_TDCS_FLAG_ENTER_BOUNDARY, FREEWAY_TDCS_FLAG_EXIT_BOUNDARY, FREEWAY_TDCS_FLAG_SERVICE_BREAK, FREEWAY_TDCS_SPEED_CUSTOM_DEFAULT,
+  FREEWAY_TDCS_VT_COLORS, FREEWAY_TDCS_VT_NAMES,
+} from "./freewayTdcsSimTypes";
 
 type Listener = () => void;
 
@@ -79,4 +82,63 @@ export function setFreewayTdcsStatus(patch: Partial<FreewayTdcsStatus>): void {
 export function subscribeFreewayTdcsStatus(cb: Listener): () => void {
   statusListeners.add(cb);
   return () => { statusListeners.delete(cb); };
+}
+
+// ── 跟隨結束原因（圖例顯示一次） ──
+let followEndMsg: { text: string; at: number } | null = null;
+const followEndListeners = new Set<Listener>();
+export function freewayTdcsFollowEndMsg(): { text: string; at: number } | null { return followEndMsg; }
+export function setFreewayTdcsFollowEndMsg(text: string | null): void {
+  followEndMsg = text ? { text, at: Date.now() } : null;
+  for (const cb of followEndListeners) cb();
+}
+export function subscribeFreewayTdcsFollowEndMsg(cb: Listener): () => void {
+  followEndListeners.add(cb);
+  return () => { followEndListeners.delete(cb); };
+}
+
+// ── 自訂顏色（使用者自選；本機測試分支做法：圖層自己的 store＋localStorage，正式上線要補 param kind） ──
+export type FreewayTdcsSpeedPalette = "viridis" | "custom";
+export interface FreewayTdcsColors {
+  speedPalette: FreewayTdcsSpeedPalette;
+  /** 自訂三色：慢（≤ 20 km/h）、中（50）、快（≥ 90） */
+  speedCustom: [string, string, string];
+  /** 自訂車種五色（順序同 FREEWAY_TDCS_VT_NAMES） */
+  typeColors: [string, string, string, string, string];
+}
+const COLORS_KEY = "pulse.freewayTdcsSim.colors.v1";
+export const FREEWAY_TDCS_DEFAULT_COLORS: FreewayTdcsColors = {
+  speedPalette: "viridis",
+  speedCustom: [...FREEWAY_TDCS_SPEED_CUSTOM_DEFAULT],
+  typeColors: [...FREEWAY_TDCS_VT_COLORS],
+};
+const isHex = (v: unknown): v is string => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
+function loadColors(): FreewayTdcsColors {
+  try {
+    const raw = typeof localStorage !== "undefined" ? localStorage.getItem(COLORS_KEY) : null;
+    if (!raw) return FREEWAY_TDCS_DEFAULT_COLORS;
+    const v = JSON.parse(raw) as Partial<FreewayTdcsColors>;
+    return {
+      speedPalette: v.speedPalette === "custom" ? "custom" : "viridis",
+      speedCustom: Array.isArray(v.speedCustom) && v.speedCustom.length === 3 && v.speedCustom.every(isHex)
+        ? (v.speedCustom as FreewayTdcsColors["speedCustom"]) : FREEWAY_TDCS_DEFAULT_COLORS.speedCustom,
+      typeColors: Array.isArray(v.typeColors) && v.typeColors.length === 5 && v.typeColors.every(isHex)
+        ? (v.typeColors as FreewayTdcsColors["typeColors"]) : FREEWAY_TDCS_DEFAULT_COLORS.typeColors,
+    };
+  } catch { return FREEWAY_TDCS_DEFAULT_COLORS; }
+}
+let colors: FreewayTdcsColors = loadColors();
+let colorsVersion = 0;
+const colorListeners = new Set<Listener>();
+export function freewayTdcsColors(): FreewayTdcsColors { return colors; }
+export function freewayTdcsColorsVersion(): number { return colorsVersion; }
+export function setFreewayTdcsColors(patch: Partial<FreewayTdcsColors> | null): void {
+  colors = patch ? { ...colors, ...patch } : FREEWAY_TDCS_DEFAULT_COLORS;
+  colorsVersion++;
+  try { localStorage.setItem(COLORS_KEY, JSON.stringify(colors)); } catch { /* 無痕或配額滿：只留在記憶體 */ }
+  for (const cb of colorListeners) cb();
+}
+export function subscribeFreewayTdcsColors(cb: Listener): () => void {
+  colorListeners.add(cb);
+  return () => { colorListeners.delete(cb); };
 }

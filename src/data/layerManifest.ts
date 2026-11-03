@@ -14704,7 +14704,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "freewayTdcsSim",
     popup: "freewayTdcsSim",
-    params: { count: 5, kinds: ["slider", "select", "multiSelect", "slider", "slider"] },
+    params: { count: 6, kinds: ["slider", "select", "multiSelect", "slider", "slider", "slider"] },
     description: "雙北國道 2026-09-28（教師節連假最後一天）16:00–18:00 逐車推算位置：車點＋拖尾，可依車速或車種著色、點車看上下交流道並跟隨。資料：交通部高速公路局「交通資料庫」（TDCS M06A）；門架之間位置與車道為推算。",
     topics: ["交通", "國道", "模擬", "推估", "車流"],
   },
