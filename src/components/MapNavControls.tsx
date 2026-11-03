@@ -1,16 +1,17 @@
 /**
- * 地圖導航控制（design-system spec §5.43，N-1）：指北針、縮放 +／−、定位。
- * - 桌機：右下控制柱（位置由 App 給 style），由上而下 指北針 → 縮放組 → 定位。
- * - 手機：時間軸列下方，只有指北針＋定位，視覺 30、觸控熱區 44。
+ * 地圖導航控制（design-system spec §5.43，N-1）：指北針、縮放 +／−、定位、量測尺規（§5.44）。
+ * - 桌機：右下控制柱（位置由 App 給 style），由上而下 指北針 → 縮放組 → 定位 → 尺規。
+ * - 手機：時間軸列下方，只有指北針＋定位＋尺規，視覺 30、觸控熱區 44。
  * 定位只在使用者按下時讀一次 navigator.geolocation，不追蹤、不存、不上傳。
  */
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
-import { LocateFixed, Minus, Plus } from "lucide-react";
+import { LocateFixed, Minus, Plus, Ruler } from "lucide-react";
 import { useLocale } from "../state/localeStore";
 import { useMapCamera } from "../hooks/useMapCamera";
 import { accuracyRadiusPx } from "../map/scaleBarMath";
 import { showTransientNotice } from "./TransientNotice";
+import type { MeasureController } from "../map/measureController";
 import "./mapNavControls.css";
 
 interface Props {
@@ -18,13 +19,15 @@ interface Props {
   isDarkTheme: boolean;
   variant: "desktop" | "mobile";
   style?: CSSProperties;
+  /** 量測尺規鈕（§5.44）；沒給就不顯示 */
+  measure?: MeasureController;
 }
 
 const LOCATE_ZOOM = 15;
 /** 浮點誤差容忍：easeTo 結束後 bearing／zoom 可能停在 1e-10 之類的值 */
 const EPS = 1e-3;
 
-export function MapNavControls({ map, isDarkTheme, variant, style }: Props) {
+export function MapNavControls({ map, isDarkTheme, variant, style, measure }: Props) {
   const { t } = useLocale();
   const camera = useMapCamera(map);
   const locate = useLocate(map);
@@ -106,7 +109,28 @@ export function MapNavControls({ map, isDarkTheme, variant, style }: Props) {
       >
         <LocateFixed size={13} />
       </button>
+
+      {measure && <MeasureButton measure={measure} />}
     </div>
+  );
+}
+
+/** 尺規鈕：沒在量 → 開始距離量測；量測中（含已完成、結果還在）→ 結束並清除 */
+function MeasureButton({ measure }: { measure: MeasureController }) {
+  const { t } = useLocale();
+  const state = useSyncExternalStore(measure.subscribe, measure.getSnapshot, measure.getSnapshot);
+  const label = state.active ? t("measure.stop") : t("measure.start");
+  return (
+    <button
+      type="button"
+      className={`map-nav__btn map-nav__solo${state.active ? " map-nav__btn--on" : ""}`}
+      title={label}
+      aria-label={label}
+      aria-pressed={state.active}
+      onClick={() => measure.toggle()}
+    >
+      <Ruler size={13} />
+    </button>
   );
 }
 

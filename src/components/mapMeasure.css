@@ -1,0 +1,286 @@
+/* 右鍵選單＋量測工具（design-system §5.44）。位置由元件 inline style 決定；這裡只管外觀。
+ * --ms-* 別名指到 token，淡色底圖（light／streets）用 --light-*。 */
+.map-ctx,
+.measure-bar,
+.measure-label,
+.measure-hint,
+.map-ctx-pin {
+  --ms-solid: var(--surface-app);
+  --ms-surface: var(--surface-strong);
+  --ms-border: var(--border-panel);
+  --ms-soft: var(--border-soft);
+  --ms-text: var(--text-default);
+  --ms-strong: var(--text-strong);
+  --ms-muted: var(--text-muted);
+  --ms-dim: var(--text-dim);
+  --ms-row-hover: var(--white-a4);
+  --ms-control-bg: var(--control-bg);
+  --ms-control-hover: var(--control-bg-hover);
+  --ms-control-border: var(--control-border);
+  --ms-accent: var(--accent);
+  --ms-accent-faint: var(--accent-faint);
+  --ms-accent-glow: var(--border-accent);
+  --ms-elevation: var(--elevation-lg);
+  font-family: var(--font-cjk);
+}
+.map-ctx--light,
+.measure-bar--light,
+.measure-label--light,
+.measure-hint--light,
+.map-ctx-pin--light {
+  --ms-solid: var(--light-surface-solid);
+  --ms-surface: var(--light-surface-strong);
+  --ms-border: var(--light-border);
+  --ms-soft: var(--light-border-soft);
+  --ms-text: var(--light-text-default);
+  --ms-strong: var(--light-text-strong);
+  --ms-muted: var(--light-text-muted);
+  --ms-dim: var(--light-text-dim);
+  --ms-row-hover: var(--light-fill-subtle);
+  --ms-control-bg: var(--light-control-bg);
+  --ms-control-hover: var(--light-control-bg-hover);
+  --ms-control-border: var(--light-control-border);
+  --ms-accent: var(--light-accent);
+  --ms-accent-faint: var(--light-accent-faint);
+  --ms-accent-glow: var(--light-accent-faint);
+  --ms-elevation: var(--light-elevation-lg);
+}
+
+/* ── 右鍵選單（§5.41 popover 樣式） ── */
+.map-ctx {
+  position: fixed;
+  z-index: var(--z-popover);
+  box-sizing: border-box;
+  width: 232px;
+  padding: var(--space-xs);
+  background: var(--ms-solid);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ms-elevation);
+  font-size: var(--font-md);
+  color: var(--ms-text);
+}
+.map-ctx__head {
+  padding: 6px 8px;
+}
+.map-ctx__eyebrow {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--font-sm);
+  color: var(--ms-dim);
+}
+.map-ctx__coord {
+  font: var(--font-base) var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-strong);
+}
+.map-ctx__sep {
+  height: 1px;
+  margin: var(--space-xs) 2px;
+  background: var(--ms-soft);
+}
+.map-ctx__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  box-sizing: border-box;
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ms-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.map-ctx__item svg {
+  flex: none;
+  color: var(--ms-muted);
+}
+.map-ctx__item:hover,
+.map-ctx__item:focus-visible {
+  background: var(--ms-row-hover);
+  color: var(--ms-strong);
+  outline: none;
+}
+.map-ctx__item:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ms-accent);
+}
+.map-ctx__code {
+  margin-left: auto;
+  font: var(--font-sm) var(--font-data);
+  color: var(--ms-dim);
+}
+
+/* 點擊位置的暫時藍點（DOM Marker） */
+.map-ctx-pin {
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--ms-accent);
+  box-shadow: inset 0 0 0 1.5px var(--light-surface-solid), 0 0 0 3px var(--ms-accent-glow);
+  pointer-events: none;
+}
+
+/* ── 量測工具列 ── */
+.measure-bar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 36px;
+  padding: 0 6px 0 4px;
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--ms-elevation);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-size: var(--font-base);
+  color: var(--ms-text);
+  pointer-events: auto;
+  white-space: nowrap;
+}
+.measure-bar__icon {
+  display: flex;
+  padding: 0 4px;
+  color: var(--ms-accent);
+}
+.measure-bar__seg {
+  display: flex;
+  padding: 1px;
+  gap: 1px;
+  background: var(--ms-control-bg);
+  border: 1px solid var(--ms-control-border);
+  border-radius: var(--radius-md);
+}
+.measure-bar__seg button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: 22px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ms-muted);
+  font: 500 var(--font-base) var(--font-cjk);
+  cursor: pointer;
+}
+.measure-bar__seg button:hover:not([aria-pressed="true"]) {
+  background: var(--ms-control-hover);
+}
+.measure-bar__seg button[aria-pressed="true"] {
+  background: var(--ms-accent-faint);
+  color: var(--ms-accent);
+  font-weight: 600;
+}
+.measure-bar__vsep {
+  flex: none;
+  width: 1px;
+  height: 20px;
+  background: var(--ms-border);
+}
+.measure-bar__value {
+  min-width: 76px;
+  text-align: right;
+  font: 600 var(--font-md) var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-strong);
+}
+/* §5.7 C2 按鈕（高 26） */
+.measure-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-sizing: border-box;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  border: 1px solid var(--ms-control-border);
+  border-radius: var(--radius-md);
+  background: var(--ms-control-bg);
+  color: var(--ms-strong);
+  font: 500 var(--font-base) var(--font-cjk);
+  cursor: pointer;
+}
+.measure-bar__btn:hover:not(:disabled) {
+  background: var(--ms-control-hover);
+}
+.measure-bar__btn--primary {
+  background: var(--ms-accent-faint);
+  border-color: var(--ms-accent);
+  color: var(--ms-accent);
+  font-weight: 600;
+  padding: 0 10px;
+}
+.measure-bar__btn--primary:hover:not(:disabled) {
+  background: var(--ms-accent-faint);
+}
+.measure-bar__btn:disabled {
+  opacity: var(--control-disabled-opacity);
+  cursor: not-allowed;
+}
+.measure-bar button:focus-visible {
+  outline: 2px solid var(--ms-accent);
+  outline-offset: 2px;
+}
+/* 手機（寬 324 內）：分段只留 icon、間距收到 4 */
+.measure-bar--mobile {
+  gap: var(--space-xs);
+}
+.measure-bar--mobile .measure-bar__seg button span {
+  display: none;
+}
+
+/* ── 地圖上的標籤（DOM Marker） ── */
+.measure-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--radius-md);
+  font: var(--font-sm) var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--ms-text);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.measure-label--total {
+  padding: 2px 8px;
+  border-color: var(--ms-accent);
+}
+.measure-label--total .measure-label__value {
+  font-size: var(--font-base);
+  font-weight: 600;
+  color: var(--ms-strong);
+}
+.measure-label__sub {
+  color: var(--ms-muted);
+}
+.measure-label__sub-name {
+  font-family: var(--font-cjk);
+}
+.measure-hint {
+  padding: 3px 8px;
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  color: var(--ms-muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* 繪製中游標改十字（覆寫 mapbox 的 grab 與圖層 hover 的 pointer） */
+.measure-drawing .mapboxgl-canvas-container.mapboxgl-interactive,
+.measure-drawing .mapboxgl-canvas {
+  cursor: crosshair !important;
+}
