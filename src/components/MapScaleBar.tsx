@@ -22,8 +22,8 @@ interface Props {
 const DESKTOP_MAX_BAR = 200;
 /** 手機長條最長 px */
 const MOBILE_MAX_BAR = 100;
-/** 桌機：左右 padding 20 ＋ 數字比例（約 30px）與間距 8 預留 */
-const DESKTOP_RESERVED = 20 + 38;
+/** 桌機：左右 padding 20 ＋ 數字比例（約 30px）與間距 8 ＋ 長條右側單位（間距 14 ＋ "km" 約 16）預留 */
+const DESKTOP_RESERVED = 20 + 38 + 30;
 
 export function MapScaleBar({ map, isDarkTheme, variant, style }: Props) {
   const { t } = useLocale();
@@ -56,16 +56,19 @@ export function MapScaleBar({ map, isDarkTheme, variant, style }: Props) {
       ref={rootRef}
       className={`map-scale map-scale--${variant}${isDarkTheme ? "" : " map-scale--light"}`}
       role="img"
-      aria-label={`${t("camera.scaleBar")} ${model.labels[2]}${variant === "desktop" ? ` (${model.ratio})` : ""}`}
+      aria-label={`${t("camera.scaleBar")} ${model.fullLabel}${variant === "desktop" ? ` (${model.ratio})` : ""}`}
       style={style}
     >
-      <div className="map-scale__ruler" style={{ width: barWidth }}>
-        <div className="map-scale__labels">
-          <span className="map-scale__l0">{model.labels[0]}</span>
-          <span className="map-scale__l1">{model.labels[1]}</span>
-          <span className="map-scale__l2">{model.labels[2]}</span>
+      <div className="map-scale__row">
+        <div className="map-scale__ruler" style={{ width: barWidth }}>
+          <div className="map-scale__labels">
+            <span className="map-scale__l0">{model.labels[0]}</span>
+            {model.showMid && <span className="map-scale__l1">{model.labels[1]}</span>}
+            <span className="map-scale__l2">{model.labels[2]}</span>
+          </div>
+          <div className="map-scale__bar"><i /><i /><i /><i /></div>
         </div>
-        <div className="map-scale__bar"><i /><i /><i /><i /></div>
+        <span className="map-scale__unit">{model.unit}</span>
       </div>
       {variant === "desktop" && <span className="map-scale__ratio">{model.ratio}</span>}
     </div>

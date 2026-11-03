@@ -2422,6 +2422,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "選舉",
         layers: [
           fromManifest("electionEvents2026"),
+          fromManifest("pollingStations2024"),
         ],
       },
     ],

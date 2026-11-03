@@ -131,6 +131,10 @@ import { TransientNotice, showTransientNotice } from "./components/TransientNoti
 import { MapNavControls } from "./components/MapNavControls";
 import { MapScaleBar } from "./components/MapScaleBar";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
+import { MapContextMenu } from "./components/MapContextMenu";
+import { MeasureToolbar } from "./components/MeasureToolbar";
+import { createMeasureController } from "./map/measureController";
+import { formatMeasureArea, formatMeasureDistance } from "./map/measureMath";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
 import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
@@ -507,8 +511,11 @@ export default function App() {
   // 手機 bottom sheet 是否展開（展開時隱藏左下比例尺，§5.43）
   const [mobileSheetExpanded, setMobileSheetExpanded] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  // 右鍵「分享這個位置」（§5.44）：覆寫分享網址的 query；工具列分享為 null（用目前網址）
+  const [shareSearch, setShareSearch] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
-  const { t, locale } = useLocale();
+  const i18n = useLocale();
+  const { t, locale } = i18n;
   const [chatOpen, setChatOpen] = useState(false);
   /** Agent 活動卡（右上）是否在畫面上：出現時隱藏視野提示（§5.42） */
   const [agentActivityVisible, setAgentActivityVisible] = useState(false);
@@ -1409,14 +1416,18 @@ export default function App() {
 
   const [mapInstanceEvents] = useState(createMapInstanceEvents);
   const [cameraHud] = useState(createCameraHudStore);
+  // 量測工具（§5.44）：獨立 store，加點不重繪 App
+  const [measure] = useState(createMeasureController);
   useEffect(() => () => {
     mapInstanceEvents.dispose();
     cameraHud.dispose();
-  }, [mapInstanceEvents, cameraHud]);
+    measure.dispose();
+  }, [mapInstanceEvents, cameraHud, measure]);
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     cameraHud.bind(map);
+    measure.bind(map);
     addAllLayers(map);
 
     const updateCamera = () => {
@@ -1955,6 +1966,32 @@ export default function App() {
     return () => { map.off("moveend", onMoveEnd); };
   }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode, locale, country]);
 
+  // 量測（§5.44）：主題、觸控（不顯示游標提示）、標籤文案；拍攝模式暫停加點（量測線保留）
+  useEffect(() => {
+    measure.configure({
+      dark: isDarkTheme,
+      touch: isMobile,
+      labels: {
+        hint: i18n.t("measure.hint"),
+        perimeter: i18n.t("measure.perimeter"),
+        formatDistance: (m) => formatMeasureDistance(m, i18n.formatNumber),
+        formatArea: (m2) => formatMeasureArea(m2, i18n.formatNumber, i18n.t("measure.hectare")),
+      },
+    });
+  }, [measure, isDarkTheme, isMobile, i18n]);
+  useEffect(() => { measure.setSuspended(captureMode); }, [measure, captureMode]);
+  const handleShareLocation = useCallback((lng: number, lat: number) => {
+    privateViewRef.current = false;
+    syncUrlRef.current();
+    const q = new URLSearchParams(window.location.search);
+    q.set("v", "1");
+    q.set("lng", String(+lng.toFixed(5)));
+    q.set("lat", String(+lat.toFixed(5)));
+    if (!q.has("z") && mapRef.current) q.set("z", mapRef.current.getZoom().toFixed(2));
+    setShareSearch(`?${q.toString()}`);
+    setShareOpen(true);
+  }, []);
+
   // 右下導航控制柱（§5.43）：只在桌機一般模式；停靠欄（popup／圖例）的 right 由此再加 42
   const navColumnVisible = !captureMode && !isMobile;
   const navColumnRight = splitActive
@@ -2317,17 +2354,31 @@ export default function App() {
                   </span>
                 )}
               </div>
-              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD */}
+              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD。
+                  第二行游標座標（§5.18／§5.44）absolute 疊在下方，不撐高本列（否則右側工具列會跟著上下跳） */}
               <CameraHud
                 store={cameraHud}
                 style={{
+                  position: "relative",
                   color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
                   fontSize: FONT_SIZE.sm,
                   fontFamily: FONT_DATA,
                   fontVariantNumeric: "tabular-nums",
                   letterSpacing: 0.5,
                 }}
+                cursor={{
+                  position: "absolute",
+                  left: 0,
+                  top: "100%",
+                  whiteSpace: "nowrap",
+                  color: isDarkTheme ? COLORS.accent : LIGHT.accent,
+                }}
               />
+            </div>
+
+            {/* 量測工具列（§5.44 C1）：品牌與右上工具列之間置中；沒有量測時不渲染 */}
+            <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", justifyContent: "center" }}>
+              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="desktop" />
             </div>
 
             <div
@@ -2371,7 +2422,7 @@ export default function App() {
                 palette={toolbarPalette}
                 icon
                 title={t("toolbar.share")}
-                onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
+                onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareSearch(null); setShareOpen(true); }}
               >
                 <Share2 size={13} />
               </ToolbarButton>
@@ -2661,7 +2712,7 @@ export default function App() {
                   key: "share",
                   label: t("toolbar.share"),
                   icon: <Share2 size={15} />,
-                  onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); },
+                  onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareSearch(null); setShareOpen(true); },
                 },
                 {
                   key: "render",
@@ -2736,13 +2787,18 @@ export default function App() {
                 globalEventsActive={layerVisibility.globalEvents}
               />
             )}
-            {/* 手機導航（§5.43）：時間軸列下方 12px、靠右，只有指北針＋定位；跟著時間軸列實際高度走 */}
+            {/* 手機導航（§5.43）：時間軸列下方 12px、靠右，指北針＋定位＋尺規（§5.44）；跟著時間軸列實際高度走 */}
             <MapNavControls
               map={mapPrepared ? mapRef.current : null}
               isDarkTheme={isDarkTheme}
               variant="mobile"
+              measure={measure}
               style={{ position: "absolute", top: "calc(100% + 12px)", right: 12 }}
             />
+            {/* 手機量測工具列（§5.44）：時間軸列下方 12px、左 12，右側讓過導航鈕（12＋30＋12） */}
+            <div style={{ position: "absolute", top: "calc(100% + 12px)", left: 12, right: 54, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+              <MeasureToolbar controller={measure} isDarkTheme={isDarkTheme} variant="mobile" />
+            </div>
           </div>
 
           {/* Bottom Sheet */}
@@ -3135,7 +3191,7 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: isMobile ? 52 : LAYOUT.leftDockTop,
+          top: isMobile ? 52 : LAYOUT.rightDockTop,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
           bottom: LAYOUT.mapBottomInset,
           // 桌機有導航控制柱（§5.43）時整欄再往左讓 42（控制柱 30 ＋ 間距 12）
@@ -3207,6 +3263,7 @@ export default function App() {
           map={mapPrepared ? mapRef.current : null}
           isDarkTheme={isDarkTheme}
           variant="desktop"
+          measure={measure}
           style={{ position: "absolute", right: navColumnRight, bottom: LAYOUT.mapBottomInset, zIndex: Z_INDEX.mapOverlay }}
         />
       )}
@@ -3252,8 +3309,16 @@ export default function App() {
       {/* ── 置中視窗（Z_INDEX.modal）──
           ChatPanel、手機 MemberPanel 與置中視窗同為 modal 層，同層前後靠 DOM 順序：
           對話浮層 → 會員面板 → 說明／分享視窗（最後渲染＝最上層）。不要把這幾個往上搬。 */}
+      {/* 地圖右鍵選單（§5.44 B1，Z_INDEX.popover）：拍攝模式不開 */}
+      <MapContextMenu
+        map={mapPrepared ? mapRef.current : null}
+        measure={measure}
+        isDarkTheme={isDarkTheme}
+        enabled={!captureMode}
+        onShareLocation={handleShareLocation}
+      />
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
-      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} search={shareSearch} />
       {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
 
       {/*

@@ -61,13 +61,31 @@ describe("scaleBarModel", () => {
   it("臺北 z12.5 → 2 km 長條，中點 1", () => {
     const m = scaleBarModel(25.04, 12.5)!;
     expect(m.meters).toBe(2000);
-    expect(m.labels).toEqual(["0", "1", "2 km"]);
+    expect(m.labels).toEqual(["0", "1", "2"]);
+    expect(m.unit).toBe("km");
+    expect(m.fullLabel).toBe("2 km");
+    expect(m.showMid).toBe(true);
     expect(m.ratio).toMatch(/^1:\d+(\.\d)?K$/);
   });
-  it("公尺級中點不帶單位", () => {
+  it("標籤只有數字，單位另外回傳", () => {
     const m = scaleBarModel(25.04, 17)!;
-    expect(m.labels[2]).toMatch(/ m$/);
-    expect(m.labels[1]).not.toMatch(/m/);
+    expect(m.unit).toBe("m");
+    expect(m.fullLabel).toMatch(/^\d+(\.\d)? m$/);
+    for (const l of m.labels) expect(l).toMatch(/^\d+(\.\d)?$/);
+  });
+  it("長條短（約 69px，200 m）時隱藏中點標籤", () => {
+    // 2.9 m/px、最長 172px → 200 m 只有約 69px
+    const z = Math.log2((40075016.686 * Math.cos((25 * Math.PI) / 180)) / (512 * 2.9));
+    const m = scaleBarModel(25, z, 172)!;
+    expect(m.meters).toBe(200);
+    expect(m.px).toBeGreaterThan(65);
+    expect(m.px).toBeLessThan(75);
+    expect(m.labels).toEqual(["0", "100", "200"]);
+    expect(m.showMid).toBe(false);
+  });
+  it("長條夠長（>= 80px）才顯示中點標籤", () => {
+    const z = Math.log2((40075016.686 * Math.cos((25 * Math.PI) / 180)) / (512 * 2.9));
+    expect(scaleBarModel(25, z, 200)!.showMid).toBe(true);
   });
 });
 

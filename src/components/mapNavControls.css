@@ -91,6 +91,11 @@
 .map-nav__btn--active svg {
   animation: map-nav-breathe 1.2s ease-in-out infinite;
 }
+/* 尺規鈕量測中（§5.44）：accent 字＋inset 1px accent 框 */
+.map-nav__btn--on {
+  color: var(--nv-accent);
+  box-shadow: inset 0 0 0 1px var(--nv-accent), var(--nv-elevation);
+}
 @keyframes map-nav-breathe {
   50% { opacity: 0.4; }
 }
@@ -171,6 +176,16 @@
 .map-scale--mobile {
   display: inline-flex;
 }
+.map-scale__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.map-scale__unit {
+  color: var(--nv-muted);
+  line-height: 10px;
+  white-space: nowrap;
+}
 .map-scale__ruler {
   display: flex;
   flex-direction: column;
@@ -185,7 +200,7 @@
 .map-scale__labels span { position: absolute; top: 0; }
 .map-scale__l0 { left: 0; }
 .map-scale__l1 { left: 50%; transform: translateX(-50%); }
-.map-scale__l2 { right: 0; }
+.map-scale__l2 { left: 100%; transform: translateX(-50%); }
 .map-scale__bar {
   display: flex;
   height: 5px;

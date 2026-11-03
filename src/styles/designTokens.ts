@@ -303,7 +303,10 @@ export const LAYOUT = {
   mapBottomInset: 64,
   /**
    * 左側停靠面板（rail 面板、即時情報、衛星、地震回放、Agent）的上緣（px）。
-   * 對齊 rail 第一條分隔線（y=60），剛好落在左上座標列（底 58）之下。規格見 §5.1。
+   * 要落在左上座標 HUD（含第二行游標座標，§5.18）之下並留 12px 空白。規格見 §5.1。
+   * CSS 端 research/mainMapConnection.css 的 Agent 面板寫同值，改這裡要一起改。
    */
-  leftDockTop: 60,
+  leftDockTop: 80,
+  /** 右側停靠欄（popup＋圖例）的上緣封頂（px）；只是高度上限，不跟左側面板一起往下 */
+  rightDockTop: 60,
 } as const;
