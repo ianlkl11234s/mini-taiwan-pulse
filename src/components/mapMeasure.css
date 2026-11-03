@@ -51,7 +51,7 @@
   position: fixed;
   z-index: var(--z-popover);
   box-sizing: border-box;
-  width: 232px;
+  width: 264px;
   padding: var(--space-xs);
   background: var(--ms-solid);
   border: 1px solid var(--ms-border);
@@ -93,6 +93,7 @@
   color: var(--ms-text);
   font: inherit;
   text-align: left;
+  white-space: nowrap;
   cursor: pointer;
 }
 .map-ctx__item svg {

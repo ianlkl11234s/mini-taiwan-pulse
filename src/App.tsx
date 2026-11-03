@@ -3191,7 +3191,7 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: isMobile ? 52 : LAYOUT.leftDockTop,
+          top: isMobile ? 52 : LAYOUT.rightDockTop,
           // 與左下時間軸共用底邊偏移（LAYOUT.mapBottomInset），兩者底邊對齊
           bottom: LAYOUT.mapBottomInset,
           // 桌機有導航控制柱（§5.43）時整欄再往左讓 42（控制柱 30 ＋ 間距 12）
