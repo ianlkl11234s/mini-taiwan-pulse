@@ -9,6 +9,8 @@
  * - 離島且未被接上＝斜線（未涵蓋）；無路網格＝淡灰。
  * - 地球投影（本站 zoom < 6）：照 `QuakeRippleScene` 的作法，ECEF 經 globeToMerc 轉換後與 mercator 依過渡係數混合，
  *   背面頂點丟出裁切範圍。ECEF 在 vertex shader 由 mercator 反算經緯度，不另存屬性。
+ * - 雙向比較（`setTimes(main, base, "diverge")`，雙北大眾運輸可及性 GPS−表定用）：以兩檔較早者揭露，差值依 PuOr 分 7 色、
+ *   |差| ≤ 容許值畫中性灰（spec §5.40 S-4）；`id` 選項讓兩個播放層可同時掛在地圖上。
  * - 原型 fragment 用 mediump 且以 1e9 當「未到」哨兵；改 highp＋哨兵 1e4（分鐘最大 720）避免行動 GPU 溢位。
  */
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
@@ -57,6 +59,8 @@ uniform float u_opacity;
 uniform vec3 u_ramp[10];
 uniform vec3 u_base;
 uniform vec3 u_gain;
+uniform vec3 u_div[7];
+uniform float u_tol;
 varying float v_u;
 varying vec2 v_ta;
 void main() {
@@ -67,12 +71,17 @@ void main() {
     gl_FragColor = vec4(vec3(0.29, 0.33, 0.39) * a0, a0); return;
   }
   if (v_u > 0.5 && v_u < 1.5) { float a1 = 0.22 * op; gl_FragColor = vec4(vec3(0.61, 0.64, 0.69) * a1, a1); return; } // 無路網
-  float t = v_ta.x;
+  float t = u_cmp > 1.5 ? min(v_ta.x, v_ta.y) : v_ta.x;
   if (t > u_T) discard;
   float front = (t > u_T - ${TRANSIT_REACH_FRONT_MIN.toFixed(1)}) ? 0.92 : 0.62;
   float a = front * clamp((u_T - t) / 6.0, 0.0, 1.0) * op;
   vec3 c;
-  if (u_cmp > 0.5) {
+  if (u_cmp > 1.5) {
+    float d = v_ta.x - v_ta.y;
+    if (abs(d) <= u_tol) { c = u_div[3]; a *= 0.45; }
+    else if (d < 0.0) c = d <= -20.0 ? u_div[0] : (d <= -10.0 ? u_div[1] : u_div[2]);
+    else c = d >= 20.0 ? u_div[6] : (d >= 10.0 ? u_div[5] : u_div[4]);
+  } else if (u_cmp > 0.5) {
     c = (v_ta.y - t >= ${TRANSIT_REACH_GAIN_MIN.toFixed(1)}) ? u_gain : u_base;
   } else {
     float stp = t < 120.0 ? floor(t / 15.0) : 8.0 + floor((t - 120.0) / 30.0);
@@ -129,12 +138,16 @@ export interface TransitReachLayerOptions {
   getOpacity: () => number;
   /** 每幀 render 的 CPU 時間（效能量測） */
   onRenderMs?: (ms: number) => void;
+  /** 圖層 id（預設 transitReach 播放層） */
+  id?: string;
+  /** 雙向比較 7 色（由「主檔較早很多」到「主檔較晚很多」，中間＝差在容許值內）與容許值（分） */
+  diverge?: { colors: readonly string[]; tolMin: number };
 }
 
 export interface TransitReachCustomLayer extends CustomLayerInterface {
   setGeometry(geo: TransitReachGeometry): void;
   /** 每格到達時間（Uint16，0.1 分；0xFFFF 未到）。main 為 null＝清空 */
-  setTimes(main: Uint16Array | null, base: Uint16Array | null, compare: boolean): void;
+  setTimes(main: Uint16Array | null, base: Uint16Array | null, compare: boolean | "diverge"): void;
   /** 色階範圍（小時） */
   setRangeHours(hours: number): void;
 }
@@ -156,6 +169,8 @@ export function createTransitReachLayer(opts: TransitReachLayerOptions): Transit
   const ramp = new Float32Array(TRANSIT_REACH_VIRIDIS.flatMap(hex2rgb));
   const baseColor = hex2rgb(TRANSIT_REACH_COMPARE_COLORS.base);
   const gainColor = hex2rgb(TRANSIT_REACH_COMPARE_COLORS.gain);
+  const divColors = new Float32Array((opts.diverge?.colors ?? Array(7).fill("#9ca3af")).slice(0, 7).flatMap(hex2rgb));
+  const divTol = opts.diverge?.tolMin ?? 5;
 
   const uploadGeometry = (geo: TransitReachGeometry) => {
     geoData = geo;
@@ -197,7 +212,7 @@ export function createTransitReachLayer(opts: TransitReachLayerOptions): Transit
   };
 
   return {
-    id: TRANSIT_REACH_CUSTOM_LAYER_ID,
+    id: opts.id ?? TRANSIT_REACH_CUSTOM_LAYER_ID,
     type: "custom" as const,
     renderingMode: "2d" as const,
 
@@ -214,7 +229,7 @@ export function createTransitReachLayer(opts: TransitReachLayerOptions): Transit
       context.linkProgram(prog);
       if (!context.getProgramParameter(prog, context.LINK_STATUS)) throw new Error(context.getProgramInfoLog(prog) ?? "program link failed");
       for (const n of ["a_pos", "a_u", "a_ta"]) loc[n] = context.getAttribLocation(prog, n);
-      for (const n of ["u_matrix", "u_globe", "u_globeToMerc", "u_transition", "u_camEcef", "u_T", "u_cmax", "u_cmp", "u_opacity", "u_ramp", "u_base", "u_gain"]) loc[n] = context.getUniformLocation(prog, n);
+      for (const n of ["u_matrix", "u_globe", "u_globeToMerc", "u_transition", "u_camEcef", "u_T", "u_cmax", "u_cmp", "u_opacity", "u_ramp", "u_base", "u_gain", "u_div", "u_tol"]) loc[n] = context.getUniformLocation(prog, n);
       posBuf = context.createBuffer(); idxBuf = context.createBuffer(); taBuf = context.createBuffer();
       if (!(typeof WebGL2RenderingContext !== "undefined" && context instanceof WebGL2RenderingContext)) context.getExtension("OES_element_index_uint");
       cellOfVert = null;
@@ -245,6 +260,8 @@ export function createTransitReachLayer(opts: TransitReachLayerOptions): Transit
       g.uniform3fv(loc.u_ramp as WebGLUniformLocation, ramp);
       g.uniform3fv(loc.u_base as WebGLUniformLocation, baseColor);
       g.uniform3fv(loc.u_gain as WebGLUniformLocation, gainColor);
+      g.uniform3fv(loc.u_div as WebGLUniformLocation, divColors);
+      g.uniform1f(loc.u_tol as WebGLUniformLocation, divTol);
       const aPos = loc.a_pos as number, aU = loc.a_u as number, aTa = loc.a_ta as number;
       g.bindBuffer(g.ARRAY_BUFFER, posBuf);
       g.enableVertexAttribArray(aPos); g.vertexAttribPointer(aPos, 2, g.FLOAT, false, 12, 0);
@@ -265,7 +282,7 @@ export function createTransitReachLayer(opts: TransitReachLayerOptions): Transit
     },
 
     setGeometry(geo) { uploadGeometry(geo); },
-    setTimes(main, base, isCompare) { compare = isCompare ? 1 : 0; uploadTimes(main, base); },
+    setTimes(main, base, isCompare) { compare = isCompare === "diverge" ? 2 : isCompare ? 1 : 0; uploadTimes(main, base); },
     setRangeHours(hours) { nSteps = 8 + Math.ceil((hours * 60 - 120) / 30); map?.triggerRepaint(); },
   };
 }

@@ -103,5 +103,7 @@
   "popupHeader.disasterResourceSites": "Disaster Resource Sites",
   "popupHeader.tsunamiSirens": "Tsunami Sirens",
   "popupHeader.nuclearEpzEvacuation": "Nuclear EPZ Assembly & Shelters",
-  "popupHeader.firingNoticeAreas": "Live-fire Notice Areas"
+  "popupHeader.firingNoticeAreas": "Live-fire Notice Areas",
+  "popupHeader.transitAccessGrid": "Grid Transit Access (Scenario)",
+  "popupHeader.transitAccessPlayback": "Transit Reach from One Origin (Scenario)"
 }

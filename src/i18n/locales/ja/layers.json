@@ -1494,5 +1494,7 @@
   "layer.statsKrEstablishmentsSido": "事業所数（広域）",
   "layer.statsKrEstablishmentsSgg": "事業所数（基礎自治体）",
   "layer.statsKrEmployeesSido": "従業者数（広域）",
-  "layer.statsKrEmployeesSgg": "従業者数（基礎自治体）"
+  "layer.statsKrEmployeesSgg": "従業者数（基礎自治体）",
+  "layer.transitAccessGrid": "グリッド公共交通アクセス",
+  "layer.transitAccessPlayback": "単一出発地の公共交通到達範囲"
 }

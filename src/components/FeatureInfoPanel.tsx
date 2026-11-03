@@ -154,6 +154,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 交通可及性（公開模擬資料家族）：panel 自掛 OSM／GHSL／TDX 來源。
   "transitReachGrid",
   "transitReachPlayback",
+  "transitAccessGrid",
+  "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",

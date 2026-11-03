@@ -1494,5 +1494,7 @@
   "layer.statsKrEstablishmentsSido": "Establishments (province level)",
   "layer.statsKrEstablishmentsSgg": "Establishments (municipal level)",
   "layer.statsKrEmployeesSido": "Persons employed (province level)",
-  "layer.statsKrEmployeesSgg": "Persons employed (municipal level)"
+  "layer.statsKrEmployeesSgg": "Persons employed (municipal level)",
+  "layer.transitAccessGrid": "Grid Transit Access",
+  "layer.transitAccessPlayback": "Transit Reach from One Origin"
 }

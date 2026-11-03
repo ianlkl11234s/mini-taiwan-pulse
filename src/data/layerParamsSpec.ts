@@ -131,6 +131,11 @@ import {
   TRANSIT_REACH_SPEEDS, TRANSIT_REACH_SPEED_LABELS,
 } from "./transitReachTypes";
 import {
+  COUNT_THRESHOLDS, COUNT_THRESHOLD_LABELS, GRID_PERCENTILES, GRID_PERCENTILE_LABELS, SINGLE_PERCENTILES, TRANSIT_ACCESS_CLOCK_ID,
+  TRANSIT_ACCESS_GROUPS, TRANSIT_ACCESS_GROUP_LABELS, TRANSIT_ACCESS_METRICS, TRANSIT_ACCESS_METRIC_LABELS, TRANSIT_ACCESS_NETWORKS,
+  TRANSIT_ACCESS_NETWORK_LABELS, TRANSIT_ACCESS_ORIGINS, TRANSIT_ACCESS_ORIGIN_LABELS, TRANSIT_ACCESS_SLOTS, TRANSIT_ACCESS_SLOT_LABELS,
+} from "./transitAccessTypes";
+import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
 } from "./pollutionTypes";
@@ -2358,6 +2363,62 @@ export const LAYER_PARAMS_SPEC = {
     kind: "toggle", category: "look", name: "transitReachIsochrones", label: "整點等時線", default: true,
   }, {
     kind: "playback", name: "transitReachPlaybackTime", label: "出發後經過", clock: TRANSIT_REACH_CLOCK_ID, default: "", out: null,
+  }],
+  // 雙北大眾運輸可及性（模擬面板，公開；transit_access P2）：類別／時段／版本切換才換資料，
+  // 指標／分位數／門檻滑桿只改 paint expression。門檻 0＝依類別預設（bundle classification.tier）。
+  transitAccessGrid: [opacitySlider("transitAccessGridOpacity", 0.8), {
+    kind: "select", category: "data", name: "transitAccessGroup", label: "目的類別", default: "hospital",
+    options: TRANSIT_ACCESS_GROUPS.map((value) => ({ value, label: TRANSIT_ACCESS_GROUP_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessSlot", label: "時段", default: "wkdy_peak",
+    options: TRANSIT_ACCESS_SLOTS.map((value) => ({ value, label: TRANSIT_ACCESS_SLOT_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessNetwork", label: "公車版本", default: "scheduled",
+    options: TRANSIT_ACCESS_NETWORKS.map((value) => ({ value, label: TRANSIT_ACCESS_NETWORK_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessMetric", label: "指標", default: "tier",
+    options: TRANSIT_ACCESS_METRICS.map((value) => ({ value, label: TRANSIT_ACCESS_METRIC_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessPct", label: "分位數", default: "50",
+    options: GRID_PERCENTILES.map((value) => ({ value, label: GRID_PERCENTILE_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessCountTh", label: "時間門檻", default: "30",
+    options: COUNT_THRESHOLDS.map((value) => ({ value, label: COUNT_THRESHOLD_LABELS[value] })), out: null,
+    showWhen: { param: "transitAccessMetric", equals: "count" },
+  }, {
+    kind: "slider", category: "data", name: "transitAccessTierA", labelPrefix: "可行上限（分）", digits: 0, zeroLabel: "依類別",
+    default: 0, min: 0, max: 90, step: 5, out: null, showWhen: { param: "transitAccessMetric", equals: "tier" },
+  }, {
+    kind: "slider", category: "data", name: "transitAccessTierB", labelPrefix: "依賴下限（分）", digits: 0, zeroLabel: "依類別",
+    default: 0, min: 0, max: 120, step: 5, out: null, showWhen: { param: "transitAccessMetric", equals: "tier" },
+  }, {
+    kind: "slider", category: "data", name: "transitAccessTierR", labelPrefix: "依賴比值上限", digits: 1,
+    default: 3, min: 1, max: 5, step: 0.5, out: null, showWhen: { param: "transitAccessMetric", equals: "tier" },
+  }, {
+    kind: "slider", category: "data", name: "transitAccessCarOverhead", labelPrefix: "開車附加（分）", digits: 0,
+    default: 5, min: 0, max: 15, step: 1, out: null, showWhen: { param: "transitAccessMetric", equals: "tier" },
+  }, {
+    kind: "toggle", category: "data", name: "transitAccessCarPeak", label: "開車用尖峰係數", default: false, out: null,
+    showWhen: { param: "transitAccessMetric", equals: "tier" },
+  }, {
+    kind: "slider", category: "data", name: "transitAccessNightT", labelPrefix: "可達時間 T（分）", digits: 0,
+    default: 30, min: 10, max: 120, step: 5, out: null, showWhen: { param: "transitAccessMetric", equals: "night" },
+  }],
+  // 雙北大眾運輸可及性單一起點（transit_access P1）：時間在 scoped 時鐘（S-1），不進 store。
+  transitAccessPlayback: [opacitySlider("transitAccessPlaybackOpacity", 1), {
+    kind: "select", category: "data", name: "transitAccessOrigin", label: "起點", default: "taipei",
+    options: TRANSIT_ACCESS_ORIGINS.map((value) => ({ value, label: TRANSIT_ACCESS_ORIGIN_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessPlaybackSlot", label: "時段", default: "wkdy_peak",
+    options: TRANSIT_ACCESS_SLOTS.map((value) => ({ value, label: TRANSIT_ACCESS_SLOT_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessPlaybackNetwork", label: "公車版本", default: "scheduled",
+    options: TRANSIT_ACCESS_NETWORKS.map((value) => ({ value, label: TRANSIT_ACCESS_NETWORK_LABELS[value] })), out: null,
+  }, {
+    kind: "select", category: "data", name: "transitAccessPlaybackPct", label: "分位數", default: "50",
+    options: SINGLE_PERCENTILES.map((value) => ({ value, label: GRID_PERCENTILE_LABELS[value] })), out: null,
+  }, {
+    kind: "playback", name: "transitAccessPlaybackTime", label: "出發後經過", clock: TRANSIT_ACCESS_CLOCK_ID, default: "", out: null,
   }],
   jpPoliceFacilities: [
     heatmapPalette("jpPoliceFacilities"),
