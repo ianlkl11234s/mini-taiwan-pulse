@@ -12,7 +12,7 @@ import { loadH3 } from "../map/h3Runtime";
 import { keepLoadingUntilMapIdle, withLoading } from "../lib/loadingRegistry";
 import { reportSimBundleError } from "../data/simBundle";
 import {
-  loadTransitAccessGridBase, loadTransitAccessSlot, setTransitAccessGridNotice, setTransitAccessGridState,
+  loadTransitAccessGridBase, loadTransitAccessSlot, setTransitAccessGridNotice, setTransitAccessGridState, transitAccessGridState,
   type TransitAccessGridBase,
 } from "../data/transitAccessStore";
 import {
@@ -208,14 +208,16 @@ export function useTransitAccessGridLayer(
   useEffect(() => {
     if (!visible || !base || !features) return;
     const needed = network === "cmp" ? ["observed", "scheduled"] : [network];
+    // 清空 properties：舊組合的欄位（例如非比較模式沒有 s*）不能套到新的上色式，否則載入中或失敗時會畫出假差值
+    const clear = () => { for (const f of features) f.properties = { i: f.properties!.i }; setDataRevision((r) => r + 1); };
     const missing = needed.filter((net) => !base.meta.done.has(`${net}/${slot}`));
     if (missing.length) {
       setTransitAccessGridNotice(`${missing.join("、")}/${slot}`);
       setTransitAccessGridState(null);
-      for (const f of features) f.properties = { i: f.properties!.i };
-      setDataRevision((r) => r + 1);
+      clear();
       return;
     }
+    if ((network === "cmp") !== !!transitAccessGridState()?.sched) clear();
     setTransitAccessGridNotice(null);
     let cancelled = false;
     Promise.all(needed.map((net) => loadTransitAccessSlot(base, net, slot))).then(([main, sched]) => {
@@ -226,7 +228,7 @@ export function useTransitAccessGridLayer(
       setTransitAccessGridState({ base, network, slot, main: main!, sched: network === "cmp" ? sched! : null });
       setDataRevision((r) => r + 1);
     }).catch((error: unknown) => {
-      if (!cancelled) { setTransitAccessGridState(null); reportSimBundleError(TRANSIT_ACCESS_SLUG, "grid slot", error); }
+      if (!cancelled) { setTransitAccessGridState(null); clear(); reportSimBundleError(TRANSIT_ACCESS_SLUG, "grid slot", error); }
     });
     return () => { cancelled = true; };
   }, [visible, base, features, group, slot, network]);

@@ -30,5 +30,6 @@
   "legend.transitAccess.playbackTitle": "Reach by transit from origin",
   "legend.transitAccess.steps": "Scale 0–{h} h: 15-min steps for the first 2 h, then 30-min",
   "legend.transitAccess.origin": "Origin",
-  "legend.transitAccess.playbackCaliber": "Scenario model, not measured: travel-time percentiles over departures every minute; cells unreachable within 240 min not drawn; outside Taipei/New Taipei not covered"
+  "legend.transitAccess.playbackCaliber": "Scenario model, not measured: travel-time percentiles over departures every minute; cells unreachable within 240 min not drawn; outside Taipei/New Taipei not covered",
+  "legend.transitAccess.tierRow": "{name} {pop} ({share})"
 }

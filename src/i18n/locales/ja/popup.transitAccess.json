@@ -20,5 +20,8 @@
   "popup.transitAccess.gridNote": "復路の意味：施設からこのセルへ戻る時間（往路との標本平均差 4–5 分）。他の種類は既定の閾値",
   "popup.transitAccess.source": "taipei-gis-analytics transit_access（TDX、OSM、GHSL、病院／学校／金融／郵便局の地点）",
   "popup.transitAccess.origin": "出発地",
-  "popup.transitAccess.playbackNote": "毎分出発の所要時間分位点（P5 運が良い、P95 運が悪い）"
+  "popup.transitAccess.playbackNote": "毎分出発の所要時間分位点（P5 運が良い、P95 運が悪い）",
+  "popup.transitAccess.countItem": "{th}分：{n}",
+  "popup.transitAccess.otherValue": "{time}（{tier}）",
+  "popup.transitAccess.countSep": "、"
 }

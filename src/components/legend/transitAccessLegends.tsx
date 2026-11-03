@@ -13,7 +13,7 @@ import {
   transitAccessPlaybackState, type TransitAccessGridState,
 } from "../../data/transitAccessStore";
 import {
-  COMPARE_METRICS, GRID_PERCENTILE_LABELS, NIGHT_BUCKET_LABELS, NIGHT_COLORS, PUOR, PUOR_NEG, PUOR_POS, TIER_COLORS, TIERS, TRANSIT_ACCESS_GRID_KEY,
+  TIER_LABEL_KEYS, COMPARE_METRICS, GRID_PERCENTILE_LABELS, NIGHT_BUCKET_LABELS, NIGHT_COLORS, PUOR, PUOR_NEG, PUOR_POS, TIER_COLORS, TIERS, TRANSIT_ACCESS_GRID_KEY,
   TRANSIT_ACCESS_GROUP_LABELS, TRANSIT_ACCESS_METRIC_LABELS, TRANSIT_ACCESS_NETWORK_LABELS, TRANSIT_ACCESS_PLAYBACK_KEY,
   TRANSIT_ACCESS_SLOT_LABELS, TRANSIT_ACCESS_SLUG, TRANSIT_ACCESS_UNREACHED_COLOR, countColors, nearColors, spreadColors, tierOf,
   type GridPercentile, type TransitAccessClassification, type TransitAccessTier, type TierSettings,
@@ -83,10 +83,10 @@ export function TransitAccessGridLegend() {
   const s = c.tier;
   const tiers = useMemo(() => (metric === "tier" && state && groupIdx >= 0 && pctIdx >= 0
     ? { main: tierPopulation(state, groupIdx, pctIdx, s, cls, "main"), sched: state.sched ? tierPopulation(state, groupIdx, pctIdx, s, cls, "sched") : null }
-    : null), [metric, state, groupIdx, pctIdx, s.a, s.b, s.r, s.overhead, s.peak, cls]); // eslint-disable-line react-hooks/exhaustive-deps
+    : null), [metric, state, groupIdx, pctIdx, s.a, s.b, s.r, s.overhead, s.peak, cls]);
   const totalPop = state ? state.base.cells.pop.reduce((a, b) => a + b, 0) : 0;
   const share = (x: number) => (totalPop > 0 ? `${((x / totalPop) * 100).toFixed(1)}%` : "—");
-  const tierName = (k: TransitAccessTier) => t(`legend.transitAccess.tier.${k}`);
+  const tierName = (k: TransitAccessTier) => t(TIER_LABEL_KEYS[k]);
   const schedV1 = state?.base.bundle.manifest.caliber && (state.base.bundle.manifest.caliber as Record<string, unknown>).scheduled_version === "v1";
 
   let body: React.ReactNode = null;
@@ -121,7 +121,7 @@ export function TransitAccessGridLegend() {
   } else if (metric === "tier") {
     body = <>
       {TIERS.map((k) => <LegendRow key={k} swatch={<SwatchSquare color={TIER_COLORS[k]} />}>
-        {tiers ? `${tierName(k)}　${formatPopulation(tiers.main[k], i18n)}（${share(tiers.main[k])}）` : tierName(k)}
+        {tiers ? t("legend.transitAccess.tierRow", { name: tierName(k), pop: formatPopulation(tiers.main[k], i18n), share: share(tiers.main[k]) }) : tierName(k)}
       </LegendRow>)}
       <LegendNote>{t("legend.transitAccess.tierRule", { pct: pctLabel, a: s.a, b: s.b, r: s.r })}</LegendNote>
       <LegendNote>{t(s.peak ? "legend.transitAccess.carPeak" : "legend.transitAccess.carFree", { ovh: s.overhead, f: cls.peakFactor })}</LegendNote>

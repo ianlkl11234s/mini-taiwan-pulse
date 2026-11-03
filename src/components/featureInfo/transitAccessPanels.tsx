@@ -6,7 +6,7 @@ import { FONT_SIZE } from "../../styles/designTokens";
 import { chipOutline } from "../intel/intelTokens";
 import { transitAccessGridState } from "../../data/transitAccessStore";
 import {
-  TRANSIT_ACCESS_COLOR, TRANSIT_ACCESS_GRID_KEY, TRANSIT_ACCESS_GROUP_LABELS, TRANSIT_ACCESS_GROUPS, TRANSIT_ACCESS_NA,
+  TIER_LABEL_KEYS, TRANSIT_ACCESS_COLOR, TRANSIT_ACCESS_GRID_KEY, TRANSIT_ACCESS_GROUP_LABELS, TRANSIT_ACCESS_GROUPS, TRANSIT_ACCESS_NA,
   TRANSIT_ACCESS_NETWORK_LABELS, TRANSIT_ACCESS_NETWORKS, TRANSIT_ACCESS_ORIGINS, TRANSIT_ACCESS_ORIGIN_LABELS, TRANSIT_ACCESS_SLOT_LABELS,
   TRANSIT_ACCESS_SLOTS, carMinutes, oneOfOrNull, tierOf, type TransitAccessGroup,
 } from "../../data/transitAccessTypes";
@@ -65,7 +65,7 @@ export function TransitAccessGridPanel({ props }: { props: Record<string, unknow
   const groupLabel = (k: TransitAccessGroup) => paramText(TRANSIT_ACCESS_GROUP_LABELS[k], i18n);
   const tierText = (data: { near: Uint8Array }, gi: number, key: string) => {
     const tier = tierOf(near(data, gi, c.pct) ?? TRANSIT_ACCESS_NA, car[gi * n + i]!, key === c.group ? c.tier : { ...c.tier, ...defaultTier(cls.defaultThresholds[key]) }, cls);
-    return { tier, label: tr(`legend.transitAccess.tier.${tier}`) };
+    return { tier, label: tr(TIER_LABEL_KEYS[tier]) };
   };
   const main = state.main, sched = state.sched;
   const cmp = !!sched;
@@ -85,14 +85,14 @@ export function TransitAccessGridPanel({ props }: { props: Record<string, unknow
       {sched && <Row label={tr("popup.transitAccess.p5p50p95Sched")} value={three(sched)} />}
       <Row label={tr("popup.transitAccess.car")} value={carM === null ? tr("popup.transitAccess.carUnreached") : formatMinutes(carM, tr)} />
       {tierMain && <Row label={tr("popup.transitAccess.tier")} value={tierMain.label} />}
-      <Row label={tr("popup.transitAccess.counts")} value={meta.thresholds.map((th, k) => `${th}${tr("legend.transitAccess.min")}：${main.count[(g * T + k) * n + i]}`).join("　")} />
+      <Row label={tr("popup.transitAccess.counts")} value={meta.thresholds.map((th, k) => tr("popup.transitAccess.countItem", { th, n: main.count[(g * T + k) * n + i]! })).join(tr("popup.transitAccess.countSep"))} />
       {nearestNames.length > 0 && <Row label={tr("popup.transitAccess.nearest")} value={nearestNames.slice(0, 3).join("、") + (nearestNames.length > 3 ? tr("popup.transitAccess.andMore", { n: nearestNames.length - 3 }) : "")} />}
     </>}
     <SectionLabel>{tr("popup.transitAccess.otherGroups")}</SectionLabel>
     {TRANSIT_ACCESS_GROUPS.filter((k) => k !== c.group).map((k) => {
       const gi = meta.groups.indexOf(k);
       if (gi < 0) return null;
-      return <Row key={k} label={groupLabel(k)} value={`${minutesText(near(main, gi, 50), tr, "popup.transitAccess.unreached120")}（${tierText(main, gi, k).label}）`} />;
+      return <Row key={k} label={groupLabel(k)} value={tr("popup.transitAccess.otherValue", { time: minutesText(near(main, gi, 50), tr, "popup.transitAccess.unreached120"), tier: tierText(main, gi, k).label })} />;
     })}
     <Note>{tr("popup.transitAccess.gridNote")}</Note>
     <SourceFooter props={{ source: tr("popup.transitAccess.source") }} />

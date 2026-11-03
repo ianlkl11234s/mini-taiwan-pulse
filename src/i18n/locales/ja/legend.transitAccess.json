@@ -30,5 +30,6 @@
   "legend.transitAccess.playbackTitle": "出発地から公共交通で届く範囲",
   "legend.transitAccess.steps": "色段 0–{h} 時間：最初の 2 時間は 15 分刻み、以降 30 分",
   "legend.transitAccess.origin": "出発地",
-  "legend.transitAccess.playbackCaliber": "シナリオ推計・実測ではない：時間窓内毎分出発の所要時間分位点。240 分以内に届かないセルは描かない。台北・新北以外は対象外"
+  "legend.transitAccess.playbackCaliber": "シナリオ推計・実測ではない：時間窓内毎分出発の所要時間分位点。240 分以内に届かないセルは描かない。台北・新北以外は対象外",
+  "legend.transitAccess.tierRow": "{name}　{pop}（{share}）"
 }

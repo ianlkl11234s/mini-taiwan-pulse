@@ -20,5 +20,8 @@
   "popup.transitAccess.gridNote": "Return-trip framing: time from the facility back to this cell (4–5 min mean difference vs outbound in samples); other categories use their default thresholds",
   "popup.transitAccess.source": "taipei-gis-analytics transit_access (TDX, OSM, GHSL, hospital/school/finance/post office points)",
   "popup.transitAccess.origin": "Origin",
-  "popup.transitAccess.playbackNote": "Travel-time percentiles over departures every minute (P5 lucky, P95 unlucky)"
+  "popup.transitAccess.playbackNote": "Travel-time percentiles over departures every minute (P5 lucky, P95 unlucky)",
+  "popup.transitAccess.countItem": "{th} min: {n}",
+  "popup.transitAccess.otherValue": "{time} ({tier})",
+  "popup.transitAccess.countSep": ", "
 }

@@ -30,5 +30,6 @@
   "legend.transitAccess.playbackTitle": "出發後大眾運輸可到範圍",
   "legend.transitAccess.steps": "色階 0–{h} 小時：前 2 小時每 15 分一階、之後每 30 分",
   "legend.transitAccess.origin": "起點",
-  "legend.transitAccess.playbackCaliber": "情境推演，非實測：時間窗內每分鐘出發的旅行時間分位數；240 分內到不了不畫；雙北以外未涵蓋"
+  "legend.transitAccess.playbackCaliber": "情境推演，非實測：時間窗內每分鐘出發的旅行時間分位數；240 分內到不了不畫；雙北以外未涵蓋",
+  "legend.transitAccess.tierRow": "{name}　{pop}（{share}）"
 }

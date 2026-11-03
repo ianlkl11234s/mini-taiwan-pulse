@@ -32,6 +32,8 @@ export const PUOR_POS = [PUOR[4], PUOR[5], PUOR[6]] as const;
 export const TIER_COLORS = { ok: "#fde725", edge: "#21918c", dep: "#440154" } as const;
 export type TransitAccessTier = keyof typeof TIER_COLORS;
 export const TIERS: readonly TransitAccessTier[] = ["ok", "edge", "dep"];
+/** 三級名稱的 i18n key（寫成字面，locale parity 才找得到） */
+export const TIER_LABEL_KEYS = { ok: "legend.transitAccess.tier.ok", edge: "legend.transitAccess.tier.edge", dep: "legend.transitAccess.tier.dep" } as const;
 
 // ══════════════════════════════════════════════════════════════════
 //  控制項選項

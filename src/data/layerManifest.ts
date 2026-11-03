@@ -2672,7 +2672,8 @@ export const LAYER_MANIFEST = {
     source: { kind: "custom", note: "公開模擬資料家族（src/data/simBundle.ts）：https://data.itsmigu.com/sim/v1/transit_access/current.json → <bundle_version>/bundle.json → grid/cells.json、facilities.json、car.u8、grid/<network>/<slot>/{near.u8,count.u16,arg.u16}（bundle.json files[] 驗 sha256；切時段／版本才抓該組約 1.5 MB）；hook 以 h3 cellToBoundary 產面，目前類別原始值寫進 properties，指標／分位數／門檻只改 paint expression" },
     legend: "transitAccessGrid",
     popup: "transitAccessGrid",
-    params: { count: 13, kinds: ["slider", "select", "select", "select", "select", "select", "select", "slider", "slider", "slider", "slider", "toggle", "slider"] },
+    // 預設指標＝三級分區：據點數門檻（count）與可達時間 T（night）的控件隱藏
+    params: { count: 11, kinds: ["slider", "select", "select", "select", "select", "select", "slider", "slider", "slider", "slider", "toggle"] },
     description: "情境推演；雙北每個有人口的 H3 res9 網格搭大眾運輸＋步行到最近醫院、超市、學校、金融據點要多久：可切時段（平日尖峰／離峰／深夜、週六、週日）、公車表定或 GPS 實際行駛版與兩版比較，指標有最近據點時間、時間內可達據點數、等車不確定（P95−P5）、大眾運輸÷開車、三級分區（門檻可調）、時間內可達比例。情境推演，非實測：以 TDX 時刻表（捷運、臺鐵、高鐵、公路客運、雙北與桃園／基隆市區公車）建 GTFS，用 r5 計算大眾運輸＋步行（每段步行上限 15 分）在時間窗內每分鐘出發的旅行時間分位數（P5 運氣好／P50 一般／P95 運氣差）；公車分表定版與 GPS 實際行駛版（雙北公車 GPS 反推實際班次；桃園、基隆兩版都是表定）。與 TDX、Google 路線規劃抽樣對照，單一格誤差約 10 分、模擬可能偏樂觀 0–6 分，只適合看量級。來源：TDX 運輸資料流通服務（政府資料開放授權）、OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、醫院（衛福部，Pulse 醫院圖層）、學校（EduGis 113 學年，授權未標示）、金融機構分支（data.gov.tw 24323，政府資料開放授權）、郵局（授權未標示）。",
     topics: ["交通", "大眾運輸", "可及性", "公車", "捷運", "醫院", "學校", "超市", "模擬", "情境推演", "推估", "人口"],
   },

@@ -20,5 +20,8 @@
   "popup.transitAccess.gridNote": "回程語意：時間＝從據點出發回到此格（與去程抽樣平均差 4–5 分）；其他類別用各自預設門檻",
   "popup.transitAccess.source": "taipei-gis-analytics transit_access（TDX、OSM、GHSL、醫院／學校／金融／郵局點位）",
   "popup.transitAccess.origin": "起點",
-  "popup.transitAccess.playbackNote": "時間窗內每分鐘出發的旅行時間分位數（P5 運氣好、P95 運氣差）"
+  "popup.transitAccess.playbackNote": "時間窗內每分鐘出發的旅行時間分位數（P5 運氣好、P95 運氣差）",
+  "popup.transitAccess.countItem": "{th}分：{n}",
+  "popup.transitAccess.otherValue": "{time}（{tier}）",
+  "popup.transitAccess.countSep": "、"
 }
