@@ -176,7 +176,7 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   ["krChildProtectionZones", "useKrDataLayers.ts", 14_639],
   ["krStreetTrees", "useKrDataLayers.ts", 1_043_931], // 低縮放熱區用 kr_street_trees_density 格網（weight＝count），z13 起單棵
   // 加拿大（2026-11-04 第 0＋1 波）：公共運輸站點低縮放用 ca_transit_stops_grid 格網（weight＝count），z12 起單點；油氣井與 ODI 設施 z10 起畫點
-  ["caTransitStops", "useCaTransportLayers.ts", 119_586],
+  ["caTransitStops", "useCaTransportLayers.ts", 133_029],
   ["caOilGas", "useCaEnergyLayers.ts", 96_466],
 ];
 const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);

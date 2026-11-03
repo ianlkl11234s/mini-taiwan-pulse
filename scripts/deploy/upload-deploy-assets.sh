@@ -600,6 +600,7 @@ for f in \
   public/world/ca_major_roads.pmtiles \
   public/world/ca_railways.pmtiles \
   public/world/ca_oil_gas.pmtiles \
+  public/world/ca_transit_stops.pmtiles \
   public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
   public/world/jp_accommodation_density_450m_20260910.pmtiles \
   public/world/jp_accommodation_density_1500m_20260910.pmtiles \

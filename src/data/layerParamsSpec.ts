@@ -2044,7 +2044,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "caAdminBoundariesLevelIdx", encode: ["pr", "cd", "csd"],
     },
   ],
-  caTransitStops: [krMulti("caTransitStopsCatMask", "站型", CA_OPT_TRANSIT), heatmapPalette("caTransitStops"), opacitySlider("caTransitStopsOpacity", densePointOpacity(119_586)), scaleSlider("caTransitStopsScale", 1)],
+  caTransitStops: [krMulti("caTransitStopsCatMask", "站型", CA_OPT_TRANSIT), heatmapPalette("caTransitStops"), opacitySlider("caTransitStopsOpacity", densePointOpacity(133_029)), scaleSlider("caTransitStopsScale", 1)],
   caAirportsPorts: [krMulti("caAirportsPortsCatMask", "機場類型", CA_OPT_AIRPORT), krMulti("caAirportsPortsPortMask", "港口類型", CA_OPT_PORT), opacitySlider("caAirportsPortsOpacity", densePointOpacity(3_690)), scaleSlider("caAirportsPortsScale", 1)],
   caMajorRoads: [krMulti("caMajorRoadsCatMask", "道路等級", CA_OPT_ROAD), opacitySlider("caMajorRoadsOpacity", 0.85)],
   caRailways: [krMulti("caRailwaysCatMask", "軌道等級", CA_OPT_RAIL_TRACK), krMulti("caRailwaysStationMask", "車站類型", CA_OPT_RAIL_STATION), opacitySlider("caRailwaysOpacity", 0.85), scaleSlider("caRailwaysScale", 1)],

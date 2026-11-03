@@ -302,7 +302,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/hooks/useKrEnergyLayers.ts
   krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/hooks/useKrEnergyLayers.ts
   krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/hooks/useKrEnergyLayers.ts
-  caTransitStops: "S", // 加拿大公共運輸站點（11.9 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
+  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
   caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/hooks/useCaTransportLayers.ts
   caRailways: "M", // 加拿大鐵道車站（z8 起） · src/hooks/useCaTransportLayers.ts
   caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/hooks/useCaEnergyLayers.ts

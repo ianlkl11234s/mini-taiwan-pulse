@@ -68,7 +68,7 @@ function zoomWidth(at: (idx: 0 | 1) => unknown): Expr {
   return ["interpolate", ["linear"], ["zoom"], 4, ["*", 0.5, at(0) as number], 10, at(0), 14, at(1)];
 }
 
-// ─────────────────────────── 公共運輸站點（11.9 萬點，P-4：z12 起單點、之下格網熱區） ───────────────────────────
+// ─────────────────────────── 公共運輸站點（13.3 萬點，P-4：z12 起單點、之下格網熱區） ───────────────────────────
 
 const TRANSIT_SOURCE: SourceSpec = { id: "ca-transit-stops", file: "ca_transit_stops.pmtiles", minzoom: 10, maxzoom: 14, attribution: CA_TRANSIT_SOURCE.short, loading: "加拿大公共運輸站點載入中" };
 // 格網層 `ca_transit_stops_grid`（count）只在 z3–9 的圖磚：另開 maxzoom 9 的 source，讓 z9–12 overzoom 接到單點，不留縫。

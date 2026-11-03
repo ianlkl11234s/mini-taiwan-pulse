@@ -4420,7 +4420,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "ca_transit_stops", confidence: "HIGH" }],
-      processing: "Mobility Database 132 個 GTFS feed 的 stops.txt（location_type 2–4 剔 455、境外 18）：119,586 站；另產 0.1°／0.02° 格網計數層供低縮放熱區；PMTiles z3–14",
+      processing: "Mobility Database 135 個 GTFS feed 的 stops.txt（location_type 2–4 剔 455、境外 18）：133,029 站；另產 0.1°／0.02° 格網計數層供低縮放熱區；PMTiles z3–14",
       note: "授權依各機構（多數未明示，commercial_ok=null）；12/13 省／地區（Nunavut 未涵蓋）；不同機構共站會重複",
     },
     dataClass: "D",
@@ -4432,7 +4432,7 @@ export const LAYER_MANIFEST = {
     legend: "caTransitStops",
     popup: "caTransitStops",
     params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
-    description: "加拿大公共運輸站點 119,586 站（132 個 GTFS feed，經 Mobility Database）",
+    description: "加拿大公共運輸站點 133,029 站（135 個 GTFS feed，經 Mobility Database）",
     topics: ["加拿大", "公車站", "GTFS", "大眾運輸"],
   },
   caAirportsPorts: {
