@@ -1,9 +1,23 @@
 # Status
 
-**最後更新**：2026-11-01 v2.19.0 上線（南韓第 0–5 波＋四國圖層可見性整修＋台灣 G35–G37）；2026-10-30 英國圖層第 0–12 波隨 v2.18.0 上線；2026-10-29 台灣新圖層第一批隨 v2.17.0 上線；多國化議題 2 P0–P5 上線
+**最後更新**：2026-11-03 v2.21.0 上線（地圖導航控制、量測與右鍵選單、政治主題站主限定）；#808 版面修正已合 develop 未發版；2026-11-01 v2.19.0 上線（南韓第 0–5 波＋四國圖層可見性整修＋台灣 G35–G37）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-11-03：地圖基礎 GIS 元件 → v2.21.0 上線；#808 修正待發版
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | #803 導航控制（右下指北針／縮放／定位，比例尺為右側停靠欄最底列，spec §5.43 N-1，§5.17 T2 例外）；#804 游標座標（HUD 第二行）、右鍵選單（WGS84／TWD97 複製、從這裡量測、分享位置）、距離／面積量測（上方工具列＋尺規鈕，spec §5.44）；#805 版號；#806 develop→master；#808 leftDockTop 60→80＋`rightDockTop` 60、比例尺標籤不疊字、右鍵選單 264px（develop `19ba3754`）。 |
+
+| 上線項目 | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| v2.21.0（#802、#803、#804） | done：#806 CI 綠 | done：golden 未變、i18n parity | done：develop `d7f0c32a` | N/A | N/A | N/A | done：master `83578964`，tag＋GitHub Release | done：`main-CX09PLB2.js` 含 "2.21.0" | done：正式站右鍵選單、距離量測 3 段、HUD 游標行、控制柱，console 無新錯誤；not run：#802 站主登入、手機實機 |
+| #808 修正 | done：CI 綠 | done：scaleBarMath 測試 | done：develop `19ba3754` | N/A | N/A | N/A | not run：使用者選先不發（#807 未驗收） | not run | done：本機 dev（面板空白、5 個縮放比例尺、英文選單單行） |
+
+- 下一步：**GUI-1**（#807 驗收後與 #808 一起發 v2.22.0）、**GUI-2** 未驗項、**GUI-3** 地址搜尋待選地理編碼服務、**GUI-4** 其餘候選元件待排序。
+- 接手：從 origin/develop 開分支；改地圖畫面先做 artifact 設計稿多版給使用者選，驗收附與 develop 並排截圖（popup＋圖例、多層圖例、短視窗、分屏）。
 
 ## 2026-10-31：圖層可見性整修（四國共用原則）→ v2.19.0 上線（2026-11-01）
 
