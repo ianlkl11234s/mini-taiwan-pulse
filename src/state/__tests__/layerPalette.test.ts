@@ -90,7 +90,8 @@ describe("R7 顏色解析器", () => {
     // 2026-10-31 +6 H1 軌：英國海岸侵蝕（代表點熱區）＋台灣 v2 重切檔 5 層（防空避難、補習班、省道里程牌、國道標誌、地名）
     // 2026-10-31 +3 I 軌：年度崩塌地、逐口魚塭、河川面（代表點熱區）
     // 2026-11-04 +2 加拿大第 0＋1 波：公共運輸站點、油氣設施
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(98);
+    // 2026-11-04 +1 加拿大第 2 波：郵遞分區 FSA 代表點熱區
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(99);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

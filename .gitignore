@@ -166,6 +166,12 @@ public/world/ca_major_roads.pmtiles
 public/world/ca_railways.pmtiles
 public/world/ca_oil_gas.pmtiles
 public/world/ca_transit_stops.pmtiles
+public/world/ca_federal_districts.pmtiles
+public/world/ca_postal_fsa.pmtiles
+public/world/ca_indigenous_lands.pmtiles
+public/world/ca_deprivation.pmtiles
+public/world/ca_place_names.pmtiles
+public/world/ca_terrain_hillshade.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

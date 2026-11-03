@@ -244,6 +244,8 @@ const NO_POPUP_LEDGER = new Set([
   "jpGsiHillshade", "jpGsiRelief",
   // 英國 C003：OS Terrain 50 地形 raster（上游烘好的 PNG，無 feature 屬性）
   "gbTerrainHillshade", "gbTerrainRelief",
+  // 加拿大第 2 波：NRCan MRDEM-30 山體陰影 raster（PNG，無 feature 屬性）
+  "caHillshade",
   // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
   //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
   "wasteSchedule", "wasteScheduleNote",
@@ -607,7 +609,7 @@ describe("主題顯示名稱與大分類（面板統一 B 段 P3／P4）", () =>
     expect(tw.has("gbAdminBoundaries")).toBe(false);
     expect([...countryLayerKeys("KR")].sort()).toEqual(["krAdminBoundaries", "krAirports", "krBridges", "krBusStops", "krChildProtectionZones", "krCoastalErosionFacilities", "krFuelStations", "krMarineEnvSites", "krMarinePollutionIncidents", "krMarineProtectedAreas", "krNationalParks", "krNationalRoads", "krNpLocationSigns", "krNpTrails", "krOilGas", "krParkingLots", "krPorts", "krPowerLines", "krPowerPlants", "krPowerTowers", "krPublicBicycleStations", "krRailLines", "krRailStations", "krRenewables", "krRiversOsm", "krSeoulSubwayCongestion", "krSluiceGates", "krSpeedCameras", "krStreetTrees", "krSubstations", "krWaterLevelStations", "krWaterQualityStations"]);
     expect(tw.has("krAdminBoundaries")).toBe(false);
-    expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caMajorRoads", "caOilGas", "caPopulationCentres", "caPowerGrid", "caPowerPlants", "caRailways", "caTransitStops", "caWindTurbines"]);
+    expect([...countryLayerKeys("CA")].sort()).toEqual(["caAdminBoundaries", "caAirportsPorts", "caDeprivation", "caFederalDistricts", "caHillshade", "caIndigenousLands", "caMajorRoads", "caOilGas", "caPlaceNames", "caPopulationCentres", "caPostalFsa", "caPowerGrid", "caPowerPlants", "caRailways", "caRents", "caTransitStops", "caWindTurbines"]);
     expect(tw.has("caAdminBoundaries")).toBe(false);
   });
 

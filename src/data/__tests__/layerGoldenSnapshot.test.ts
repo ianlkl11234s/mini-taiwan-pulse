@@ -230,7 +230,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-03: +1 政治 2024 投開票所 pollingStations2024（公開 bbox RPC）。
     // 2026-11-03: +2 雙北大眾運輸可及性 transitAccessGrid／transitAccessPlayback（模擬面板）。
     // 2026-11-04: +10 加拿大第 0＋1 波 ca*（行政邊界、交通 4、能源 4、人口中心）。
-    expect(keys.length).toBe(1517);
+    // 2026-11-04: +7 加拿大第 2 波（聯邦選區、FSA、原住民土地、CIMD、租金、地名、山體陰影）。
+    expect(keys.length).toBe(1524);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

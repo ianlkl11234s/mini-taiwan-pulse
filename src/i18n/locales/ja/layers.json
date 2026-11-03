@@ -1507,5 +1507,12 @@
   "layer.caWindTurbines": "風車（カナダ）",
   "layer.caPowerGrid": "送電網（カナダ）",
   "layer.caOilGas": "石油・ガス施設（カナダ）",
-  "layer.caPopulationCentres": "人口中心（カナダ）"
+  "layer.caPopulationCentres": "人口中心（カナダ）",
+  "layer.caFederalDistricts": "連邦選挙区（カナダ）",
+  "layer.caPostalFsa": "郵便仕分け区域 FSA（カナダ）",
+  "layer.caIndigenousLands": "先住民族の法定土地（カナダ）",
+  "layer.caDeprivation": "多重剥奪指数 CIMD（カナダ）",
+  "layer.caRents": "平均家賃 CMHC（カナダ）",
+  "layer.caPlaceNames": "地名（カナダ）",
+  "layer.caHillshade": "陰影起伏図 MRDEM-30（カナダ）"
 }

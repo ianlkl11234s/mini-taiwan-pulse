@@ -785,6 +785,12 @@ const CA_OPT_OIL_GAS_PART: KrOpt = [
 const CA_OPT_PIPE_SUBSTANCE: KrOpt = [["gas", "天然氣"], ["oil", "石油／油井流體"], ["other", "多用途／其他／未標"]];
 const CA_OPT_MAJOR_FACILITY: KrOpt = [["refinery", "煉油廠"], ["gas_processing", "天然氣處理廠"], ["lng_terminal", "LNG 終端"], ["gas_storage", "地下儲氣"]];
 const CA_OPT_POP_CLASS: KrOpt = [["large_urban", "大都會人口中心（≥10 萬）"], ["medium", "中型人口中心（3–10 萬）"], ["small", "小型人口中心（1,000–29,999）"]];
+const CA_OPT_FSA: KrOpt = [["urban", "都市 FSA（1,462）"], ["rural", "農村 FSA（181）"]];
+const CA_OPT_INDIGENOUS: KrOpt = [["reserve", "印第安保留地（Indian Reserve，3,289）"], ["inuit", "因紐特人所有地（27）"], ["claim", "其他土地索償協定土地（27）"], ["sechelt", "Sechelt／Indian Land（34）"]];
+const CA_OPT_PLACE_GROUP: KrOpt = [
+  ["settlement", "聚落（29,754）"], ["admin", "行政區與原住民保留地（10,278）"], ["park", "公園與保護區（10,301）"], ["water", "水體（224,426）"],
+  ["terrain", "山岳、地形與冰川（75,865）"], ["constructed", "人工設施（11,281）"], ["other", "其他（2,831）"],
+];
 function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSpec {
   return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
 }
@@ -2056,6 +2062,28 @@ export const LAYER_PARAMS_SPEC = {
     heatmapPalette("caOilGas"), opacitySlider("caOilGasOpacity", densePointOpacity(96_466)), scaleSlider("caOilGasScale", 1),
   ],
   caPopulationCentres: [displayModeSelect("caPopulationCentres", "polygon"), krMulti("caPopulationCentresCatMask", "規模", CA_OPT_POP_CLASS), opacitySlider("caPopulationCentresOpacity", 0.55), scaleSlider("caPopulationCentresScale", 1)],
+  // 加拿大第 2 波（2026-11-04）：面資料與社經、地名與地形
+  caFederalDistricts: [opacitySlider("caFederalDistrictsOpacity", 0.85)],
+  caPostalFsa: [krMulti("caPostalFsaCatMask", "都市／農村", CA_OPT_FSA), heatmapPalette("caPostalFsa"), opacitySlider("caPostalFsaOpacity", 0.7)],
+  caIndigenousLands: [displayModeSelect("caIndigenousLands", "polygon"), krMulti("caIndigenousLandsCatMask", "土地類型", CA_OPT_INDIGENOUS), opacitySlider("caIndigenousLandsOpacity", 0.55), scaleSlider("caIndigenousLandsScale", 1)],
+  caDeprivation: [
+    {
+      kind: "select", category: "data", name: "caDeprivationDimension", label: "剝奪面向", default: "econ_dep",
+      options: [{ label: "經濟依賴", value: "econ_dep" }, { label: "居住不穩定", value: "res_inst" }, { label: "族裔文化組成", value: "ethno_cult" }, { label: "情境脆弱性", value: "sit_vuln" }],
+      out: "caDeprivationDimensionIdx", encode: ["econ_dep", "res_inst", "ethno_cult", "sit_vuln"],
+    },
+    opacitySlider("caDeprivationOpacity", 0.55), scaleSlider("caDeprivationScale", 1),
+  ],
+  caRents: [
+    {
+      kind: "select", category: "data", name: "caRentsUnit", label: "房型", default: "br2",
+      options: [{ label: "2 房", value: "br2" }, { label: "套房（Bachelor）", value: "bachelor" }, { label: "1 房", value: "br1" }, { label: "3 房以上", value: "br3" }],
+      out: "caRentsUnitIdx", encode: ["br2", "bachelor", "br1", "br3"],
+    },
+    opacitySlider("caRentsOpacity", 0.55), scaleSlider("caRentsScale", 1),
+  ],
+  caPlaceNames: [krMulti("caPlaceNamesCatMask", "地名類別", CA_OPT_PLACE_GROUP), opacitySlider("caPlaceNamesOpacity", 0.85), scaleSlider("caPlaceNamesScale", 1)],
+  caHillshade: [{ kind: "slider", name: "caHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   // §3.8 V-5：點／面切換（8,716 面 < 1 萬點，不建熱區；面 z3 起已看得到，預設面）

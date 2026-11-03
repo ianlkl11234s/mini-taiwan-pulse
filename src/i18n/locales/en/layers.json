@@ -1507,5 +1507,12 @@
   "layer.caWindTurbines": "Wind Turbines (Canada)",
   "layer.caPowerGrid": "Power Grid (Canada)",
   "layer.caOilGas": "Oil & Gas Facilities (Canada)",
-  "layer.caPopulationCentres": "Population Centres (Canada)"
+  "layer.caPopulationCentres": "Population Centres (Canada)",
+  "layer.caFederalDistricts": "Federal Electoral Districts (Canada)",
+  "layer.caPostalFsa": "Forward Sortation Areas (Canada)",
+  "layer.caIndigenousLands": "Indigenous Lands (Canada)",
+  "layer.caDeprivation": "Deprivation Index CIMD (Canada)",
+  "layer.caRents": "Average Rents, CMHC (Canada)",
+  "layer.caPlaceNames": "Geographical Names (Canada)",
+  "layer.caHillshade": "Hillshade, MRDEM-30 (Canada)"
 }

@@ -335,9 +335,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
   CA: [
-    // 加拿大（2026-11-04 第 0＋1 波；title 沿用台灣主題中文短名，比照南韓、英國）
+    // 加拿大（2026-11-04 第 0＋1 波；第 2 波加「原民與農村」；title 沿用台灣主題中文短名，比照南韓、英國）
     "底圖",
     "交通",
+    "原民與農村",
     "能源",
     "人口社經",
   ],
@@ -2800,7 +2801,14 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "底圖",
     country: "CA",
     defaultCollapsed: true,
-    groups: [{ title: "行政邊界", layers: [fromManifest("caAdminBoundaries")] }],
+    groups: [
+      // 第 2 波：聯邦選區、郵遞分區（FSA）屬參考界線，與行政界同群
+      { title: "行政邊界", layers: [fromManifest("caAdminBoundaries"), fromManifest("caFederalDistricts"), fromManifest("caPostalFsa")] },
+      // 第 2 波 C003：比照台灣 hillshade、英國 gbTerrainHillshade 的「底圖 › 地形」
+      { title: "地形", layers: [fromManifest("caHillshade")] },
+      // 第 2 波：比照台灣 placeNames 的「底圖 › 地名 Gazetteer」
+      { title: "地名 Gazetteer", layers: [fromManifest("caPlaceNames")] },
+    ],
   },
   {
     title: "交通",
@@ -2827,7 +2835,19 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "人口社經",
     country: "CA",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("caPopulationCentres")] }],
+    groups: [
+      { title: "人口分布", layers: [fromManifest("caPopulationCentres")] },
+      // 第 2 波：CIMD 剝奪指數、CMHC 租金（台灣租賃在「房地產」，加拿大目前只有一層，先放人口社經）
+      { title: "社經", layers: [fromManifest("caDeprivation")] },
+      { title: "租賃", layers: [fromManifest("caRents")] },
+    ],
+  },
+  {
+    title: "原民與農村",
+    country: "CA",
+    defaultCollapsed: true,
+    // 第 2 波 C019：比照台灣「原民與農村 › 原住民族」；法定土地非傳統領域
+    groups: [{ title: "原住民保留地", layers: [fromManifest("caIndigenousLands")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3172,6 +3192,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "交通": "city",
     "能源": "environment",
     "人口社經": "city",
+    "原民與農村": "city",
   },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
@@ -3356,6 +3377,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "交通": { zh: "交通", sub: "Transport" },
     "能源": { zh: "能源", sub: "Energy" },
     "人口社經": { zh: "人口社經", sub: "People" },
+    "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
   },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）

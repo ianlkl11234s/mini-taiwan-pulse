@@ -445,3 +445,222 @@ export const CA_POP_POPUP: CaPopupSpec = {
   ],
 };
 export const CA_POP_PROVINCE_PART = l3("本省部分；整個人口中心 {n} 人", "Part in this province; whole centre {n}", "本州部分。人口中心全体 {n} 人");
+
+// ═══════════════════════════ 第 2 波（面資料與社經、地名與地形；2026-11-04） ═══════════════════════════
+// layer-plan：analytics `docs/topic-research/canada_opendata/waves/w2/layer-plan-{areas,terrain}.md`。C002 海域界線、建物 HOLD。
+
+export const CA_STATCAN_SOURCE_NOTE = "Source: Statistics Canada. Contains information licensed under the Open Government Licence – Canada.";
+
+// ─────────────────────────── 聯邦選區（C134，2013 代表令 338 區） ───────────────────────────
+
+export const CA_FED_COUNT = 338;
+export const CA_FED_POLYGON_FROM_ZOOM = 6;
+export const CA_FED_LABEL_FROM_ZOOM = 8;
+export const CA_FED_SOURCE: CaSource = {
+  org: "Statistics Canada, 2021 Census Cartographic Boundary Files（Federal electoral districts, 2013 Representation Order）",
+  url: "https://open.canada.ca/data/en/dataset/ef70dc3b-1069-4037-9bce-61f47e628a1d",
+  license: CA_OGL_LICENSE,
+  short: CA_STATCAN_SOURCE_NOTE,
+};
+export const CA_FED_NOTES: readonly L3[] = [
+  l3("2025 大選起改用 2023 代表令 343 區（本層未更新）", "From the 2025 election the 2023 Representation Order (343 districts) applies; this layer is not updated", "2025 年総選挙からは 2023 年代表令（343 区）。本レイヤーは未更新"),
+  l3("涵蓋 13/13 省／地區；z6 以下另畫代表點，z8 起標選區名", "Coverage 13/13; representative points below zoom 6, district names from zoom 8", "13/13 州・準州を収録。ズーム 6 未満は代表点、8 以上で選挙区名を表示"),
+];
+export const CA_FED_POPUP: CaPopupSpec = {
+  title: { props: ["name"], fallback: l3("聯邦選區", "Federal electoral district", "連邦選挙区") },
+  fields: [
+    { prop: "name_en", label: l3("英文名", "English name", "英語名") },
+    { prop: "name_fr", label: l3("法文名", "French name", "仏語名") },
+    { prop: "fed_uid", label: l3("選區代碼", "District code", "選挙区コード"), kind: "code" },
+    PROVINCE,
+    { prop: "land_area_km2", label: l3("陸地面積", "Land area", "陸地面積"), kind: "num", unit: "km²", digits: 1 },
+  ],
+  notes: [l3("2013 Representation Order（2015–2021 大選）", "2013 Representation Order (2015–2021 elections)", "2013 年代表令（2015–2021 年総選挙）")],
+};
+
+// ─────────────────────────── 郵遞分區 FSA（X010，1,643 區） ───────────────────────────
+
+export const CA_FSA_COUNT = 1_643;
+export const CA_FSA_POLYGON_FROM_ZOOM = 6;
+export const CA_FSA_LABEL_FROM_ZOOM = 7;
+/** V-4 兩類（`rural` 布林轉字串）；農村用同色系較淡色（人口中心色）。 */
+export const CA_FSA_CLASSES: readonly CaCat[] = [
+  { id: "urban", values: ["false"], color: "#f27d1b", label: l3("都市 FSA（1,462）", "Urban FSA (1,462)", "都市 FSA（1,462）") },
+  { id: "rural", values: ["true"], color: "#fecc61", label: l3("農村 FSA（181）", "Rural FSA (181)", "農村 FSA（181）") },
+];
+export const CA_FSA_SOURCE: CaSource = {
+  org: "Statistics Canada, 2021 Census Cartographic Boundary Files（Forward sortation areas）",
+  url: "https://open.canada.ca/data/en/dataset/ef70dc3b-1069-4037-9bce-61f47e628a1d",
+  license: CA_OGL_LICENSE,
+  short: CA_STATCAN_SOURCE_NOTE,
+};
+export const CA_FSA_ABOUT = l3("Canada Post 分揀區，非行政區；邊界為 StatCan 推估", "Canada Post sorting area, not an administrative unit; boundaries estimated by Statistics Canada", "カナダ郵便の仕分け区域で行政区域ではない。境界は StatCan の推計");
+export const CA_FSA_NOTES: readonly L3[] = [
+  CA_FSA_ABOUT,
+  l3("涵蓋 13/13 省／地區；z6 以下為外框＋代表點熱區，z6 起畫面、z7 起標代碼", "Coverage 13/13; outlines plus a representative-point heatmap below zoom 6, polygons from 6, codes from 7", "13/13 州・準州を収録。ズーム 6 未満は外枠と代表点ヒートマップ、6 以上で面、7 以上でコード表示"),
+];
+export const CA_FSA_POPUP: CaPopupSpec = {
+  title: { props: ["fsa"], fallback: l3("郵遞分區（FSA）", "Forward sortation area", "郵便仕分け区域（FSA）") },
+  fields: [
+    { prop: "rural", label: l3("都市／農村", "Urban / rural", "都市・農村"), map: { false: l3("都市", "Urban", "都市"), true: l3("農村", "Rural", "農村") } },
+    PROVINCE,
+    { prop: "land_area_km2", label: l3("陸地面積", "Land area", "陸地面積"), kind: "num", unit: "km²", digits: 1 },
+  ],
+  notes: [CA_FSA_ABOUT],
+};
+
+// ─────────────────────────── 原住民法定土地（C019 CLSS，3,377 筆） ───────────────────────────
+
+export const CA_INDIGENOUS_COUNT = 3_377;
+export const CA_INDIGENOUS_POLYGON_FROM_ZOOM = 7;
+/** 4 類（`dist_type_en` 合併；layer-plan 建議）。色取自台灣原民 16 族色（兩兩 ΔE ≥ 20、亮色）。 */
+export const CA_INDIGENOUS_TYPES: readonly CaCat[] = [
+  { id: "reserve", values: ["Indian Reserve"], color: "#ea580c", label: l3("印第安保留地（Indian Reserve，3,289）", "Indian Reserve (3,289)", "インディアン保留地（3,289）") },
+  { id: "inuit", values: ["Inuit Owned Land"], color: "#0891b2", label: l3("因紐特人所有地（27）", "Inuit Owned Land (27)", "イヌイット所有地（27）") },
+  {
+    id: "claim",
+    values: ["Yukon First Nations Settlement Land", "Cree and Naskapi 1A and 1A-N Land", "Gwich’in Land", "Tlicho Land", "Inuvialuit Land", "Sahtu Land", "Salt River First Nation Settlement Land"],
+    color: "#e879f9",
+    label: l3("其他土地索償協定土地（27）", "Other land-claim settlement land (27)", "その他の土地請求協定地（27）"),
+  },
+  { id: "sechelt", values: ["Sechelt Land", "Indian Land"], color: "#65a30d", label: l3("Sechelt／Indian Land（34）", "Sechelt / Indian Land (34)", "Sechelt・Indian Land（34）") },
+];
+export const CA_INDIGENOUS_SOURCE: CaSource = {
+  org: "Natural Resources Canada, Canada Lands Survey System（Aboriginal Lands of Canada Legislative Boundaries）",
+  url: "https://open.canada.ca/data/en/dataset/522b07b9-78e2-4819-b736-ad9208eb1067",
+  license: CA_OGL_LICENSE,
+  short: "Source: Natural Resources Canada, Canada Lands Survey System. Contains information licensed under the Open Government Licence – Canada.",
+};
+export const CA_INDIGENOUS_BOUNDARY_NOTE = l3("法定土地邊界僅供參考，官方註明不可用於界定邊界", "Legislative boundaries are for reference only; the publisher states they must not be used to define boundaries", "法定境界は参考用。公式に境界の確定には使用不可とされている");
+export const CA_INDIGENOUS_NOTES: readonly L3[] = [
+  l3("法定原住民土地（保留地、土地索償協定土地），非傳統領域或條約區", "Legislated Indigenous lands (reserves, land-claim settlement lands), not traditional territories or treaty areas", "法定先住民族地（保留地・土地請求協定地）。伝統的領域や条約地域ではない"),
+  CA_INDIGENOUS_BOUNDARY_NOTE,
+  l3("涵蓋 13/13 省／地區；z7 以下顯示點，z7 起畫面（Nunavut、NWT 大面拉遠也看得到）", "Coverage 13/13; points below zoom 7, polygons from 7 (large Nunavut / NWT areas visible when zoomed out)", "13/13 州・準州を収録。ズーム 7 未満は点、7 以上で面（ヌナブト・北西準州の大面積は広域でも表示）"),
+];
+export const CA_INDIGENOUS_POPUP: CaPopupSpec = {
+  title: { props: ["name_en", "name_fr"], fallback: l3("原住民法定土地", "Indigenous land", "先住民族地") },
+  fields: [
+    { prop: "name_fr", label: l3("法文名", "French name", "仏語名") },
+    { prop: "dist_type_en", label: l3("類型（英）", "Type (EN)", "種別（英）") },
+    { prop: "dist_type_fr", label: l3("類型（法）", "Type (FR)", "種別（仏）") },
+    PROVINCE,
+    { prop: "accuracy_m", label: l3("精度", "Accuracy", "精度"), kind: "num", unit: "m" },
+    { prop: "rev_date", label: l3("修訂日", "Revised", "改訂日"), kind: "code" },
+  ],
+  notes: [CA_INDIGENOUS_BOUNDARY_NOTE],
+};
+
+// ─────────────────────────── 剝奪指數 CIMD（C023，55,726 DA） ───────────────────────────
+
+export const CA_CIMD_COUNT = 55_726;
+export const CA_CIMD_POLYGON_FROM_ZOOM = 6;
+/** 5 級共用循序色階（ColorBrewer BuPu；不以紅／綠暗示好壞）。 */
+export const CA_CIMD_PALETTE_ID = "BuPu";
+export const CA_CIMD_DIMENSIONS = [
+  { value: "econ_dep", label: l3("經濟依賴", "Economic dependency", "経済的依存") },
+  { value: "res_inst", label: l3("居住不穩定", "Residential instability", "居住の不安定性") },
+  { value: "ethno_cult", label: l3("族裔文化組成", "Ethno-cultural composition", "民族・文化構成") },
+  { value: "sit_vuln", label: l3("情境脆弱性", "Situational vulnerability", "状況的脆弱性") },
+] as const;
+export type CaCimdDimension = (typeof CA_CIMD_DIMENSIONS)[number]["value"];
+export const CA_CIMD_QUINTILE_LABELS: readonly L3[] = [
+  l3("1 最不剝奪", "1 least deprived", "1 最も剥奪が少ない"),
+  l3("2", "2", "2"),
+  l3("3", "3", "3"),
+  l3("4", "4", "4"),
+  l3("5 最剝奪", "5 most deprived", "5 最も剥奪が多い"),
+];
+export const CA_CIMD_SOURCE: CaSource = {
+  org: "Statistics Canada, Canadian Index of Multiple Deprivation 2021",
+  url: "https://open.canada.ca/data/en/dataset/ec6dc8e7-2fa0-4e49-8969-38541ca0a34d",
+  license: CA_OGL_LICENSE,
+  short: "Source: Statistics Canada, Canadian Index of Multiple Deprivation 2021. Contains information licensed under the Open Government Licence – Canada.",
+};
+export const CA_CIMD_ETHNO_NOTE = l3("族裔文化組成：高＝移民／少數族裔比例高，不代表貧困", "Ethno-cultural composition: high = larger share of immigrants / visible minorities, not poverty", "民族・文化構成：高＝移民・可視的少数者の割合が高い。貧困を意味しない");
+export const CA_CIMD_NOTES: readonly L3[] = [
+  l3("全國 DA（傳播區）五分位：1 最不剝奪…5 最剝奪；一次顯示一個面向", "National dissemination-area quintiles: 1 least … 5 most deprived; one dimension at a time", "全国 DA 五分位：1 最も少ない…5 最も多い。表示は一度に 1 指標"),
+  CA_CIMD_ETHNO_NOTE,
+  l3("YT、NT、NU 未涵蓋；另 2,206 個 DA 無指數（斜線／灰點，不當 0）", "YT, NT and NU not covered; 2,206 more DAs have no index (hatched / grey dots, never 0)", "YT・NT・NU は対象外。ほか 2,206 DA は指数なし（斜線・灰色点、0 扱いしない）"),
+  l3("z6 以下畫 DA 代表點，z6 起畫面", "DA representative points below zoom 6, polygons from 6", "ズーム 6 未満は DA 代表点、6 以上で面"),
+];
+
+// ─────────────────────────── 租金 CMHC（C026，146 區） ───────────────────────────
+
+export const CA_RENTS_COUNT = 146;
+export const CA_RENTS_POLYGON_FROM_ZOOM = 6;
+/** 住宅主題色（statistics-layer-guidelines §4 住宅 Oranges → 色盤庫 YlOrBr）。 */
+export const CA_RENTS_PALETTE_ID = "YlOrBr";
+/** 房型與分級門檻（加元；5 級＝4 個門檻）。2 房照 layer-plan，其他房型依分布取整數門檻（固定，不依當次資料重算）。 */
+export const CA_RENT_UNITS = [
+  { value: "br2", prop: "rent_br2", label: l3("2 房", "2 bedrooms", "2 寝室"), breaks: [1000, 1250, 1500, 1750] },
+  { value: "bachelor", prop: "rent_bachelor", label: l3("套房（Bachelor）", "Bachelor", "ワンルーム（Bachelor）"), breaks: [800, 950, 1100, 1250] },
+  { value: "br1", prop: "rent_br1", label: l3("1 房", "1 bedroom", "1 寝室"), breaks: [900, 1100, 1300, 1500] },
+  { value: "br3", prop: "rent_br3", label: l3("3 房以上", "3+ bedrooms", "3 寝室以上"), breaks: [1200, 1500, 1800, 2100] },
+] as const;
+export type CaRentUnit = (typeof CA_RENT_UNITS)[number]["value"];
+export const CA_RENTS_SOURCE: CaSource = {
+  org: "Source: CMHC Rental Market Survey (Statistics Canada Table 34-10-0133-01)；邊界 Statistics Canada 2021 CMA／CA",
+  url: "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3410013301",
+  license: CA_OGL_LICENSE,
+  short: "Source: CMHC Rental Market Survey (Statistics Canada Table 34-10-0133-01)（OGL–Canada）",
+};
+export const CA_RENTS_NOT_PUBLISHED = l3("不公布", "Not published", "非公表");
+export const CA_RENTS_NOTES: readonly L3[] = [
+  l3("CMHC 租金調查（每年 10 月），私人三戶以上出租住宅平均月租；只含人口 1 萬以上的 CMA／CA；Nunavut 未涵蓋", "CMHC Rental Market Survey (each October): average monthly rent in private rental buildings of 3+ units; CMAs / CAs of 10,000+ only; Nunavut not covered", "CMHC 賃貸市場調査（毎年 10 月）。3 戸以上の民間賃貸住宅の平均月額家賃。人口 1 万以上の CMA／CA のみ。ヌナブト準州は対象外"),
+  l3("Yukon 只有 Whitehorse，租金不公布", "Yukon: Whitehorse only, rent not published", "ユーコン準州は Whitehorse のみで家賃非公表"),
+  l3("不公布／無資料畫斜線（點為灰），不當 0；資料年 2025", "Not published / no data is hatched (grey dots), never 0; data year 2025", "非公表・データなしは斜線（点は灰色）で 0 扱いしない。データ年 2025"),
+  l3("z6 以下畫代表點，z6 起畫面", "Representative points below zoom 6, polygons from 6", "ズーム 6 未満は代表点、6 以上で面"),
+];
+
+// ─────────────────────────── 地名（CGNDB，364,736 筆） ───────────────────────────
+
+export const CA_PLACE_NAMES_COUNT = 364_736;
+export const CA_PLACE_GROUPS: readonly CaCat[] = [
+  { id: "settlement", values: ["settlement"], color: "#f27d1b", label: l3("聚落（29,754）", "Settlements (29,754)", "集落（29,754）") },
+  { id: "admin", values: ["admin"], color: "#e879f9", label: l3("行政區與原住民保留地（10,278）", "Administrative areas and reserves (10,278)", "行政区域・先住民保留地（10,278）") },
+  { id: "park", values: ["park"], color: "#16a34a", label: l3("公園與保護區（10,301）", "Parks and protected areas (10,301)", "公園・保護区（10,301）") },
+  { id: "water", values: ["water"], color: "#38bdf8", label: l3("水體（224,426）", "Water features (224,426)", "水域（224,426）") },
+  { id: "terrain", values: ["terrain"], color: "#b8a080", label: l3("山岳、地形與冰川（75,865）", "Mountains, landforms and glaciers (75,865)", "山岳・地形・氷河（75,865）") },
+  { id: "constructed", values: ["constructed"], color: "#fcd34d", label: l3("人工設施（11,281）", "Constructed features (11,281)", "人工施設（11,281）") },
+  { id: "other", values: ["other"], color: "#9ca3af", label: l3("其他（2,831）", "Other (2,831)", "その他（2,831）") },
+];
+export const CA_PLACE_NAMES_SOURCE: CaSource = {
+  org: "Natural Resources Canada, Canadian Geographical Names Database（CGNDB）",
+  url: "https://open.canada.ca/data/en/dataset/e27c6eba-3c5d-4051-9db2-082dc6411c2c",
+  license: CA_OGL_LICENSE,
+  short: "Contains information licensed under the Open Government Licence – Canada. Natural Resources Canada, Canadian Geographical Names Database",
+};
+export const CA_PLACE_NAMES_NOTES: readonly L3[] = [
+  l3("依官方建議顯示比例尺逐級出現（z3 約 300 個，z12 全部）", "Names appear progressively by the official relevance scale (about 300 at zoom 3, all by zoom 12)", "公式の推奨表示縮尺に応じて段階表示（ズーム 3 で約 300、12 で全件）"),
+  l3("資料庫含部分冒犯性歷史地名，命名機關仍在修訂", "The database still contains some offensive historical names; naming authorities are revising them", "データベースには一部不快な歴史的地名が残り、命名機関が改訂中"),
+  l3("涵蓋 13/13 省／地區；只收官方核定名稱", "Coverage 13/13; official names only", "13/13 州・準州を収録。公式名称のみ"),
+];
+export const CA_PLACE_NAMES_POPUP: CaPopupSpec = {
+  title: { props: ["name"], fallback: l3("地名", "Place name", "地名") },
+  fields: [
+    { prop: "names_other", label: l3("其他名稱", "Other names", "別名") },
+    { prop: "syllabic", label: l3("音節文字", "Syllabics", "音節文字") },
+    { prop: "generic_term", label: l3("類別（英）", "Generic term (EN)", "種別（英）") },
+    { prop: "generic_term_fr", label: l3("類別（法）", "Generic term (FR)", "種別（仏）") },
+    { prop: "language", label: l3("語言", "Language", "言語") },
+    { prop: "location", label: l3("位置描述", "Location", "位置") },
+    PROVINCE,
+    { prop: "decision_date", label: l3("核定日", "Decision date", "決定日"), kind: "code" },
+    { prop: "source_agency", label: l3("命名機關", "Naming authority", "命名機関") },
+    { prop: "cgndb_id", label: l3("CGNDB 代碼", "CGNDB ID", "CGNDB ID"), kind: "code" },
+  ],
+};
+
+// ─────────────────────────── 山體陰影（MRDEM-30） ───────────────────────────
+
+export const CA_HILLSHADE_COPERNICUS = "Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.";
+export const CA_HILLSHADE_SOURCE: CaSource = {
+  org: "Natural Resources Canada, Medium Resolution Digital Elevation Model（MRDEM-30）",
+  url: "https://open.canada.ca/data/en/dataset/18752265-bda3-498c-a4ba-9dfe68cb98da",
+  license: CA_OGL_LICENSE,
+  short: `${CA_OGL_SENTENCE} NRCan MRDEM-30. ${CA_HILLSHADE_COPERNICUS}`,
+};
+export const CA_HILLSHADE_NOTES: readonly L3[] = [
+  l3("NRCan 預產的 MRDEM-30 山體陰影，取 240 m 解析度；z3–8", "NRCan pre-computed MRDEM-30 hillshade at 240 m resolution; zoom 3–8", "NRCan 作成の MRDEM-30 陰影起伏（240 m 解像度）、ズーム 3–8"),
+  l3("大型湖泊與哈德遜灣為來源空白（透明）", "Large lakes and Hudson Bay are blank in the source (transparent)", "大きな湖とハドソン湾は出典で空白（透明）"),
+];

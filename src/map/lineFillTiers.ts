@@ -197,6 +197,11 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "caOilGas/ca-oil-gas-major-pipelines-line": {"width": "keep", "opacity": "keep"}, // 主要管線（依產品）· src/hooks/useCaEnergyLayers.ts
   "caOilGas/ca-oil-gas-pipelines-line": {"width": "keep", "opacity": "keep"}, // ODI 集輸管線 z8 起（依物質）· src/hooks/useCaEnergyLayers.ts
   "caPopulationCentres/ca-population-centres-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 人口中心面外框（F-2）· src/hooks/useCaEnergyLayers.ts
+  "caFederalDistricts/ca-fed-line": {"width": "standard", "opacity": "standard"}, // L-5 行政界中性灰：聯邦選區比照鄉鎮市區 · src/hooks/useCaAreaLayers.ts
+  "caPostalFsa/ca-fsa-line": {"width": "thin", "opacity": "standard"}, // L-5：FSA 細外框 · src/hooks/useCaAreaLayers.ts
+  "caIndigenousLands/ca-indigenous-lands-outline": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 原住民土地面外框（F-2）· src/hooks/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
+  "caRents/ca-rents-seam": {"width": "keep", "opacity": "keep"}, // 分級面底圖色細縫（F-2 gradedSeamPaint）· src/hooks/useCaAreaLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區比照村里 · src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-ni-sdz-line": {"width": "thin", "opacity": "standard"}, // L-5：北愛 SDZ（與 DZ 擇一）· src/hooks/useGbAdminLayers.ts
   "gbSmallAreaBoundaries/gb-small-areas-low-line": {"width": "thin", "opacity": "standard"}, // L-5：統計小區 z5–7 低縮放段 · src/hooks/useGbAdminLayers.ts
@@ -316,6 +321,12 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
   "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
   "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/hooks/useCaEnergyLayers.ts
+  "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/hooks/useCaAreaLayers.ts
+  "caIndigenousLands/ca-indigenous-lands-fill": "coverage", // 原住民土地面（4 類）· src/hooks/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-fill": "graded", // CIMD 五分位（BuPu 5 級）· src/hooks/useCaAreaLayers.ts
+  "caDeprivation/ca-cimd-na-fill": "coverage", // 無指數＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
+  "caRents/ca-rents-fill": "graded", // 平均月租 5 級（YlOrBr）· src/hooks/useCaAreaLayers.ts
+  "caRents/ca-rents-na-fill": "coverage", // 不公布＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts

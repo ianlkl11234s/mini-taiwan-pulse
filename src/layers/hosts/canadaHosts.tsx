@@ -3,6 +3,10 @@
 import { useCaAdminLayers } from "../../hooks/useCaAdminLayers";
 import { useCaAirportsPortsLayer, useCaMajorRoadsLayer, useCaRailwaysLayer, useCaTransitStopsLayer } from "../../hooks/useCaTransportLayers";
 import { useCaOilGasLayer, useCaPopulationCentresLayer, useCaPowerGridLayer, useCaPowerPlantsLayer, useCaWindTurbinesLayer } from "../../hooks/useCaEnergyLayers";
+import {
+  caCimdDimensionFromIdx, caRentUnitFromIdx, useCaDeprivationLayer, useCaFederalDistrictsLayer, useCaIndigenousLandsLayer, useCaPostalFsaLayer, useCaRentsLayer,
+} from "../../hooks/useCaAreaLayers";
+import { useCaHillshadeLayer, useCaPlaceNamesLayer } from "../../hooks/useCaTerrainLayers";
 import { gbDisplayModeFromIdx } from "../../hooks/useGbWaterLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -79,5 +83,59 @@ export const CaPopulationCentresHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef, deps.layerVisibility.caPopulationCentres, p.caPopulationCentresOpacity ?? 0.55, p.caPopulationCentresScale ?? 1, deps.isDarkTheme,
     gbDisplayModeFromIdx(p.caPopulationCentresDisplayModeIdx, "polygon"), p.caPopulationCentresCatMask,
   );
+  return null;
+};
+
+// ─────────────────────────── 第 2 波（面資料與社經、地名與地形） ───────────────────────────
+
+export const CaFederalDistrictsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaFederalDistrictsLayer");
+  const p = useKeyOverlayParams("caFederalDistricts");
+  useCaFederalDistrictsLayer(deps.mapRef, deps.layerVisibility.caFederalDistricts, p.caFederalDistrictsOpacity ?? 0.85, deps.isDarkTheme);
+  return null;
+};
+
+export const CaPostalFsaHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaPostalFsaLayer");
+  const p = useKeyOverlayParams("caPostalFsa");
+  useCaPostalFsaLayer(deps.mapRef, deps.layerVisibility.caPostalFsa, p.caPostalFsaOpacity ?? 0.7, deps.isDarkTheme, p.caPostalFsaCatMask);
+  return null;
+};
+
+export const CaIndigenousLandsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaIndigenousLandsLayer");
+  const p = useKeyOverlayParams("caIndigenousLands");
+  useCaIndigenousLandsLayer(
+    deps.mapRef, deps.layerVisibility.caIndigenousLands, p.caIndigenousLandsOpacity ?? 0.55, p.caIndigenousLandsScale ?? 1, deps.isDarkTheme,
+    gbDisplayModeFromIdx(p.caIndigenousLandsDisplayModeIdx, "polygon"), p.caIndigenousLandsCatMask,
+  );
+  return null;
+};
+
+export const CaDeprivationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaDeprivationLayer");
+  const p = useKeyOverlayParams("caDeprivation");
+  useCaDeprivationLayer(deps.mapRef, deps.layerVisibility.caDeprivation, p.caDeprivationOpacity ?? 0.55, p.caDeprivationScale ?? 1, deps.isDarkTheme, caCimdDimensionFromIdx(p.caDeprivationDimensionIdx));
+  return null;
+};
+
+export const CaRentsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaRentsLayer");
+  const p = useKeyOverlayParams("caRents");
+  useCaRentsLayer(deps.mapRef, deps.layerVisibility.caRents, p.caRentsOpacity ?? 0.55, p.caRentsScale ?? 1, deps.isDarkTheme, caRentUnitFromIdx(p.caRentsUnitIdx));
+  return null;
+};
+
+export const CaPlaceNamesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaPlaceNamesLayer");
+  const p = useKeyOverlayParams("caPlaceNames");
+  useCaPlaceNamesLayer(deps.mapRef, deps.layerVisibility.caPlaceNames, p.caPlaceNamesOpacity ?? 0.85, p.caPlaceNamesScale ?? 1, deps.isDarkTheme, p.caPlaceNamesCatMask);
+  return null;
+};
+
+export const CaHillshadeHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaHillshadeLayer");
+  const p = useKeyOverlayParams("caHillshade");
+  useCaHillshadeLayer(deps.mapRef, deps.layerVisibility.caHillshade, p.caHillshadeOpacity ?? 0.5);
   return null;
 };
