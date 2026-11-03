@@ -163,6 +163,7 @@ import {
   HIV_TESTING_CATEGORY_OPTIONS, INTERNET_SERVICE_TYPE_OPTIONS, NEEDLE_SERVICE_OPTIONS, PREP_FUNDING_OPTIONS,
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
+import { POLLING_COLOR_MODES } from "./pollingStationsTypes";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
@@ -4725,6 +4726,20 @@ export const LAYER_PARAMS_SPEC = {
     {
       kind: "toggle", name: "tempWireframe", label: "網格線", default: false, out: null,
       showWhen: { param: "tempExtruded", equals: true },
+    },
+  ],
+  // 2024 投開票所：著色模式進 overlayParams（idx 0＝領先政黨、1＝投票率；順序＝POLLING_COLOR_MODES）
+  pollingStations2024: [
+    opacitySlider("pollingStations2024Opacity", 0.9),
+    scaleSlider("pollingStations2024Scale", 1),
+    {
+      kind: "select", name: "pollingStations2024ColorBy", label: "著色", default: "lead",
+      options: [
+        { label: "領先政黨", value: "lead" },
+        { label: "投票率", value: "turnout" },
+      ],
+      out: "pollingStations2024ColorByIdx",
+      encode: [...POLLING_COLOR_MODES],
     },
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出

@@ -976,6 +976,33 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "活動", "研究中"],
   },
 
+  // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
+  pollingStations2024: {
+    key: "pollingStations2024",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2024 投開票所", alt: "2024 Polling Stations" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢。",
+      note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "polling-stations-2024",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "pollingStations2024",
+    popup: "pollingStations2024",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
+    description: "2024 年總統大選的投開票所位置與該所總統得票。色＝領先政黨（可切換成投票率）；放大到街區層級才顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    topics: ["政治", "選舉", "投開票所", "投票率"],
+  },
+
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件
   urbanZoningTaipei: {
     key: "urbanZoningTaipei",

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1504,
+    "keyCount": 1505,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2696,6 +2696,12 @@
         "election-events-2026-circle"
       ],
       "type": "electionEvents2026"
+    },
+    {
+      "layers": [
+        "polling-stations-2024-circle"
+      ],
+      "type": "pollingStations2024"
     },
     {
       "layers": [
@@ -14453,6 +14459,96 @@
         "circle"
       ],
       "sourceId": "election-events-2026",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "pollingStations2024",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "lead"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "road"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "lead"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "road"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "polling-stations-2024",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -124728,6 +124824,69 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "pollingStations2024": [
+      {
+        "label": "領先政黨",
+        "options": [
+          {
+            "label": "賴清德（民進黨）",
+            "value": "dpp"
+          },
+          {
+            "label": "侯友宜（國民黨）",
+            "value": "kmt"
+          },
+          {
+            "label": "柯文哲（民眾黨）",
+            "value": "tpp"
+          },
+          {
+            "label": "同票",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dpp",
+          "kmt",
+          "tpp",
+          "__other__"
+        ]
+      },
+      {
+        "label": "著色",
+        "options": [
+          {
+            "label": "領先政黨",
+            "value": "lead"
+          },
+          {
+            "label": "投票率",
+            "value": "turnout"
+          }
+        ],
+        "type": "select",
+        "value": "lead"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
