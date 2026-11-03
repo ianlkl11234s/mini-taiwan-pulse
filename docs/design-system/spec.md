@@ -552,6 +552,7 @@
 
 - 字標：見 §4.2（`FONT_DATA` 700 20px、暗 `#fff`／淡 `#333`、與工具列同列垂直置中，行高 26）。
 - HUD：字標正下方；`25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°`；10px `FONT_DATA` tabular-nums letterSpacing 0.5、暗 `textDim`／淡 `rgba(0,0,0,0.45)`。
+- **第二行游標座標**（2026-11-03，A2，§5.44）：只在桌機、滑鼠在地圖上時出現「游標 25.0418, 121.5654」（WGS84 小數 4 位、緯度在前），字樣同第一行、色 accent（淡色 `LIGHT.accent`）；`mouseout` 消失；量測中也顯示。`position: absolute` 疊在第一行下方，**不撐高**品牌列（否則右上工具列會跟著上下跳）。mousemove 以 rAF 節流，只重繪 HUD（`createCameraHudStore` 的游標訂閱），不重繪 App。手機與拍攝模式不顯示。
 - **實作**：`App.tsx`、`CameraHud`。
 
 ### 5.19 底圖選單（B3 純圖示）
@@ -1032,7 +1033,7 @@
 
 ### 5.43 地圖導航控制（N-1，2026-11-03）
 
-使用者 2026-11-03 拍板設計稿「甲 右下控制柱」：指北針、縮放 +／−、定位、比例尺。§5.17 T2「工具列外不加浮動按鈕」的例外。
+使用者 2026-11-03 拍板設計稿「甲 右下控制柱」：指北針、縮放 +／−、定位、比例尺。§5.17 T2「工具列外不加浮動按鈕」的例外。同日加第四顆「尺規」鈕（量測，§5.44）。
 
 - **桌機控制柱**：右下 `right 16`、`bottom LAYOUT.mapBottomInset`（64，與左下時間軸同基線）；由上而下 指北針 → 間距 8 → 縮放組（+／− 兩格一組、中間 1px `BORDER.panel` 分隔）→ 間距 8 → 定位。每格 30×30，底 `SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.sm`、`blur(12px)`；icon lucide 13px（`Plus`／`Minus`／`LocateFixed`）。hover 疊 `--control-bg-hover`、focus-visible 2px accent、停用 `--control-disabled-opacity`（§5.7）。每顆都有 `title`＋`aria-label`。層級 `Z_INDEX.mapOverlay`。Monitor split 時與停靠欄一起讓到 dock 左邊（`right` 同 split 公式）。
 - **右側停靠欄（§5.2 popup／AQI／圖例）**：控制柱顯示時整欄 `right` 再加 42（控制柱 30＋間距 12；一般 58、split 為 split 公式＋42）。拍攝模式、手機不加。
@@ -1041,6 +1042,7 @@
   - **z < 5 不渲染**（地球儀投影下不準），不保留空位。不可點（`pointer-events: none`）。
 - **指北針**：自畫 SVG 指針（北半 accent、南半 `textMuted`，不加 N 字），`rotateX(pitch) rotateZ(-bearing)`（同 Mapbox visualizePitch；不加 transition，避免跨 ±180° 整圈轉）。點擊：bearing≠0 → `easeTo({bearing:0})`（保留傾斜）；已朝北且有傾斜 → `easeTo({pitch:0})`，此時 title 改「回正北並取消傾斜」。永遠顯示。
 - **縮放**：±1 級 `easeTo`；到 `maxZoom`／`minZoom` 時該鍵停用。手機不顯示。
+- **尺規**（§5.44）：定位下方間距 8（手機 14），同 30×30 單鈕樣式，lucide `Ruler` 13px。量測中（含已完成、結果還在）為選中態：字 accent＋`inset 0 0 0 1px accent`，`aria-pressed="true"`、title「結束量測」；再按一次＝結束並清除。
 - **定位**：按下才讀一次 `navigator.geolocation`（不追蹤、不存、不上傳）→ `flyTo` z15，畫 accent 藍點＋精度圈（DOM Marker，切底圖不會消失；精度圈半徑依縮放換算）。定位中 icon 轉 accent 並呼吸（`prefers-reduced-motion` 不動）；拒絕權限、失敗、瀏覽器不支援用 `showTransientNotice` 提示（文案 `camera.locate*`）。
 - **淡色底圖**（light／streets）：`--light-*`；陰影只有 `LIGHT.elevationLg` 一階，控制柱改用它。
 - **拍攝模式**：控制柱與比例尺都隱藏（停靠欄 `right` 回到 16）。
@@ -1049,6 +1051,34 @@
 - **文案**：`camera.resetNorth`／`resetPitch`／`zoomIn`／`zoomOut`／`locate`／`locating`／`locateDenied`／`locateFailed`／`locateUnsupported`／`scaleBar`／`navigation`（三語）。
 - **禁止**：用 Mapbox 內建 `NavigationControl`／`ScaleControl` 的預設外觀；把比例尺做成可點；在手機加縮放鍵。
 - **實作**：`src/components/MapNavControls.tsx`、`MapScaleBar.tsx`、`mapNavControls.css`、`src/hooks/useMapCamera.ts`、`src/map/scaleBarMath.ts`（測試 `src/map/__tests__/scaleBarMath.test.ts`）；掛在 `App.tsx` 停靠欄旁與手機時間軸列內。
+
+### 5.44 游標座標、右鍵選單與量測（2026-11-03）
+
+使用者 2026-11-03 拍板設計稿 A2（HUD 第二行，見 §5.18）、B1（清單式右鍵選單）、C1（上方工具列＋地圖標籤），入口＝右鍵選單＋控制柱尺規鈕。
+
+#### 右鍵選單（B1）
+
+- **開啟**：桌機地圖右鍵；mapbox 的 `contextmenu` 延到 mouseup 才發，按下到放開移動 >4px 視為右鍵拖曳旋轉，不開。手機長按 500 ms（`touchstart` 計時；移動 >8px、多指、放開都取消；長按開了就擋掉放開後補發的 click）。量測繪製中、拍攝模式不開。
+- **藍點**：點的位置放 DOM Marker：accent 10px 圓＋1.5px 白內框＋3px accent 光暈（暗 `--border-accent`、淡 `--light-accent-faint`）；選單關閉即移除。
+- **位置**：點的右下 8px，超出視窗翻到左／上（`position: fixed`）。
+- **外觀**：沿用 §5.41 popover——底不透明（暗 `SURFACE.app`／淡 `LIGHT.surfaceSolid`）、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`（淡 `LIGHT.elevationLg`）、padding 4、寬 232、`Z_INDEX.popover`。
+- **內容**：標題列（「這個位置」10px `textDim`＋座標 11px `FONT_DATA` `textStrong`）→ 分隔線（1px `BORDER.soft`）→「複製座標（WGS84）」→「複製座標（TWD97）」＋右側 `EPSG:3826`（10px `FONT_DATA` `textDim`）→ 分隔線 →「從這裡量測距離」→「從這裡量測面積」→ 分隔線 →「分享這個位置」。每列高 28、`RADIUS.md`、gap 8、12px；icon 13px `textMuted`（`Copy`、自畫線段、`Pentagon`、`Share2`）；hover／focus 底 `--white-a4`（淡 `--light-fill-subtle`，ROW_HOVER 的 CSS 對應值）。
+- **鍵盤**：`role="menu"`／`menuitem`；開啟時焦點在第一項，上下鍵（Home／End）移動、Enter 執行、Esc 關閉。點外部、移動地圖、視窗縮放或失焦都關閉。
+- **複製**：WGS84 複製 `緯度, 經度` 小數 6 位（顯示 4 位）；TWD97 二度分帶（EPSG:3826，GRS80、中央經線 121°、k0 0.9999、假東距 250000）複製 `X, Y` 整數公尺（`src/map/coordinates.ts`，以 pyproj 控制點測試誤差 <1 m）。成功用 `showTransientNotice`「已複製座標」，剪貼簿被拒提示失敗。
+- **分享這個位置**：開既有分享視窗（`ShareModal` 的 `search` 覆寫），網址的 `lng`／`lat` 換成該點（小數 5 位），縮放、圖層、底圖等沿用目前網址；不改瀏覽器網址列。
+
+#### 量測（C1）
+
+- **入口**：右鍵選單兩項（第一點＝右鍵位置）、控制柱尺規鈕（開始距離量測，§5.43）。
+- **工具列**：桌機放在品牌列（§5.18）中間的彈性欄位，水平置中於品牌字標與右上工具列之間（同一個 flex 列，不會重疊；空間不足時隨品牌列換行）；手機在時間軸列下方 12px、左 12、右 54（讓過導航鈕），距離／面積只顯示 icon。高 36、`SURFACE.strong`、1px `BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`blur(12px)`。內容：`Ruler` 13px accent → 距離／面積分段（§5.8，選中 accent-faint 底＋accent 600 字，`aria-pressed`）→ 分隔線 → 總數（`FONT_DATA` 12px 600 `textStrong`、min-width 76 靠右）→ 分隔線 → 刪上一點（`Undo2`）、清除（`Trash2`）、完成（C2 主要按鈕、`Check`）。按鈕高 26（§5.7）。`role="toolbar"`。拍攝模式隱藏工具列，量測線保留。
+- **互動**：單擊加點；雙擊或 Enter 完成；Backspace 刪上一點；Esc 取消（清除並離開）；距離至少 2 點、面積 3 點才算完成，不足時完成＝取消。繪製中在地圖容器的 capture 階段攔截 click／dblclick（先於 mapbox），所以圖層 popup 點擊不觸發；同時停用雙擊縮放，離開時還原（原本開著才開回）。拖曳、滾輪縮放照常；拖曳後放開不算點。游標改十字。完成後保留線、標籤與工具列（總數），直到按清除、按尺規鈕或開新量測；完成後地圖點擊恢復正常。切換距離／面積清除已畫的點並重新繪製。「清除」＝清除並離開。手機：點地圖加點、按「完成」結束。拍攝模式暫停加點與快捷鍵。
+- **繪製**：GeoJSON source `measure-tool`＋4 支 layer（面 accent 12%、線 accent 2px、預覽段 1.5px 虛線 5／4、頂點半徑 5 白底 accent 2px 框）；暗 `COLORS.accent`、淡 `LIGHT.accent`。切底圖在 `style.load` 重掛；每次加點 `moveLayer` 到最上層。
+- **標籤**（DOM Marker，`pointer-events: none`）：距離模式每段中點上方 14px 標該段長度（`SURFACE.strong` 底、1px `BORDER.panel`、`RADIUS.md`、`FONT_DATA` 10px）；總長在最後一點上方 24px（11px 600 `textStrong`、accent 框）；面積模式在頂點平均位置標面積（同總長樣式），下方一行「周長 x km」。繪製中游標右下 hint「雙擊完成 · Backspace 刪點」（10px `textMuted`，手機不顯示）。
+- **計算**（`src/map/measureMath.ts`，turf 大地線）：距離 <1000 m 用 m（整數），否則 km（2 位）；面積 <10,000 m² 用 m²（整數），<1 km² 用公頃（1 位，英日文 ha），否則 km²（2 位）。單位前半形空白、千分位 `formatNumber`（§6.2）。
+- **不保存**：量測不進分享網址、不存 localStorage。
+- **文案**：`camera.cursor`、`contextMenu.*`、`measure.*`（三語）。
+- **禁止**：用 Mapbox 預設 popup 或第三方 draw 套件外觀；量測中讓圖層 popup 跳出；把量測寫進網址。
+- **實作**：`src/components/MapContextMenu.tsx`、`MeasureToolbar.tsx`、`mapMeasure.css`、`src/map/measureController.ts`、`measureMath.ts`、`coordinates.ts`（測試 `src/map/__tests__/measureMath.test.ts`、`coordinates.test.ts`）；`CameraHud.tsx`（游標行）；掛在 `App.tsx`。
 
 ## 6. 文案規則
 
