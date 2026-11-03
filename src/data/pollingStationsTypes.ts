@@ -48,6 +48,13 @@ export const POLLING_HEAT_VOTES_UNIT = 500;
  */
 export const POLLING_HEAT_FADE: readonly [number, number] = [11.5, 12.5];
 export const POLLING_POINT_FADE: readonly [number, number] = [12, 12.5];
+/** 三黨熱區的 heatmap-color：單一政黨色，alpha 隨密度線性升到 0.75（不像中性熱區在 d≈0.45 就飽和） */
+export function pollingPartyHeatColor(hex: string): unknown[] {
+  const n = Number.parseInt(hex.slice(1), 16);
+  const rgb = `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
+  return ["interpolate", ["linear"], ["heatmap-density"], 0, `rgba(${rgb},0)`, 0.1, `rgba(${rgb},0.2)`, 1, `rgba(${rgb},0.85)`];
+}
+
 /** 單一熱區 7 階色（同色、深淺）；alpha 淡入由 heatmapColorExpr 負責 */
 export function pollingHeatRamp(hex: string): string[] {
   const n = Number.parseInt(hex.slice(1), 16);

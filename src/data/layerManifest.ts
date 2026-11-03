@@ -1003,6 +1003,52 @@ export const LAYER_MANIFEST = {
     topics: ["政治", "選舉", "投開票所", "投票率"],
   },
 
+  // 🗳 政治：2026 議員選區（公開 RPC get_council_districts_2026；gis-platform mig 496；不 gate）
+  councilDistricts2026: {
+    key: "councilDistricts2026",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2026 議員選區", alt: "2026 Council Districts" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/election_districts_2026：官方沒有議員選區 polygon，依中選會 A0046 公告（縣市議員選舉區）的組成鄉鎮／村里，以內政部村里界（village_boundary_20260626）自建並簡化；寫入 Supabase，前端經公開 RPC 一次取全臺。",
+      note: "OGDL-1.0（中選會公告）＋村里界。161 區全為區域選區；原住民選區（平地／山地）沒有對應範圍，不在本層。",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "council-districts-2026", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "councilDistricts2026",
+    popup: "councilDistricts2026",
+    params: { count: 1, kinds: ["slider"] },
+    description: "2026-11-28 縣市議員選舉的區域選舉區範圍（161 區），點選看應選席次與組成鄉鎮。依中選會公告自村里界組成；原住民選區沒有對應範圍、不在本層。",
+    topics: ["政治", "選舉", "選舉區", "議員"],
+  },
+
+  // 🗳 政治：2022 村里得票（公開 bbox RPC get_election_results_2022_village；gis-platform mig 496；不 gate）
+  electionResults2022Village: {
+    key: "electionResults2022Village",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2022 村里得票", alt: "2022 Village Results" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/election_results_2022：中選會選舉資料庫 votedata（2022 地方公職人員選舉）縣市長與區域議員村里得票，議員依政黨加總；對到內政部村里界（village_boundary_20260626），中選會合併計票的村里標為合併組；寫入 Supabase，前端依視窗 bbox＋zoom 經公開 RPC 即時查詢。",
+      note: "OGDL-1.0。議員為政黨合計得票（無黨籍單獨一類）；合併計票的村里各面共用合併組數值；無 2022 對應結果的村里標無資料、不是 0。",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "election-results-2022-village", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "electionResults2022Village",
+    popup: "electionResults2022Village",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "2022 地方選舉各村里的縣市長與議員（政黨合計）得票，可切換最高黨、領先差距或投票率著色。縣市拉近（z8）才顯示，z10 起點選可看各黨得票率。",
+    topics: ["政治", "選舉", "得票", "投票率", "村里"],
+  },
+
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件
   urbanZoningTaipei: {
     key: "urbanZoningTaipei",

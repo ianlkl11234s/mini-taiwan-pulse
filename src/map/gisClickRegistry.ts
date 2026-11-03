@@ -743,6 +743,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
   { layers: ["base-osm-expressway-line"], type: "osmExpressway" },
   { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
+  // 🗳 政治面層（面積大，排在點位之後；村里比選區細，先命中村里）
+  { layers: ["election-results-2022-village-fill"], type: "electionResults2022Village" },
+  { layers: ["council-districts-2026-fill", "council-districts-2026-line"], type: "councilDistricts2026" },
   { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
   { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },
   { layers: ["base-county-boundary-line", "base-county-boundary-fill"], type: "countyBoundary" },

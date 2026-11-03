@@ -1,4 +1,4 @@
-// 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
+// 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所、2026 議員選區、2022 村里得票（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
 import { Row, SourceFooter, Title, formatTaiwanMinute } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -21,6 +21,19 @@ import {
   pollingLead,
   pollingNumber,
 } from "../../data/pollingStationsTypes";
+import { COUNCIL_DISTRICT_COLOR, formatMemberUnits } from "../../data/councilDistrictsLoader";
+import {
+  VILLAGE_ELECTIONS,
+  VILLAGE_ELECTION_PREFIX,
+  VILLAGE_MISSING_COLOR,
+  VILLAGE_RESULTS_FULL_ZOOM,
+  VILLAGE_RESULTS_SOURCE_URL,
+  VILLAGE_TOP_COLOR,
+  VILLAGE_TOP_KEYS,
+  type VillageElection,
+  type VillageTopKey,
+} from "../../data/electionResults2022Types";
+import { oneOfParam, paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 
 // i18n key 寫成字面值（localeParity 測試靠字面值判斷 key 有人用）
 const STATUS_KEY = {
@@ -197,6 +210,116 @@ export function PollingStationPanel({ props }: { props: Record<string, unknown> 
         />
       ))}
       <SourceFooter props={{ source: t("popup.politics.polling.source"), license: "OGDL-1.0", source_url: POLLING_SOURCE_URL }} />
+    </>
+  );
+}
+
+// ── 2026 議員選區（公開）──
+function PanelNote({ children }: { children: string }) {
+  const theme = useFeatureTheme();
+  return (
+    <div className="fi-row" style={{ padding: "4px 0", fontSize: FONT_SIZE.sm, lineHeight: 1.4, color: theme.textMuted }}>
+      {children}
+    </div>
+  );
+}
+
+export function CouncilDistrictPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const seats = pollingNumber(props.seats);
+  const area = pollingNumber(props.area_km2);
+  return (
+    <>
+      <Title color={COUNCIL_DISTRICT_COLOR}>{str(props.district_name) || t("popup.politics.council.fallbackTitle")}</Title>
+      <Row field="county" value={placeName(str(props.county), i18n)} />
+      <Row label={t("popup.politics.council.seats")} value={seats === null ? "" : formatNumber(seats)} mono />
+      <Row label={t("popup.politics.council.members")} value={formatMemberUnits(props.member_units)} />
+      <Row label={t("popup.politics.council.area")} value={area === null ? "" : `${formatNumber(area, { maximumFractionDigits: 1 })} km²`} mono />
+      {str(props.caveat) && <PanelNote>{str(props.caveat)}</PanelNote>}
+      <SourceFooter
+        props={{
+          source: t("popup.politics.council.source", { basis: str(props.basis) || "A0046" }),
+          license: "OGDL-1.0",
+          source_url: str(props.source_url),
+        }}
+      />
+    </>
+  );
+}
+
+// ── 2022 村里得票（公開）──
+const VILLAGE_ELECTION_KEY = {
+  mayor: "popup.politics.village.election.mayor",
+  council: "popup.politics.village.election.council",
+} as const;
+const VILLAGE_TOP_KEY = {
+  dpp: "popup.politics.village.party.dpp",
+  kmt: "popup.politics.village.party.kmt",
+  tpp: "popup.politics.village.party.tpp",
+  ind: "popup.politics.village.party.ind",
+  other: "popup.politics.village.party.other",
+} as const;
+
+function pct(v: unknown, formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string): string {
+  const n = pollingNumber(v);
+  return n === null ? "" : `${formatNumber(n, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+}
+
+export function ElectionResultsVillagePanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const values = useLayerParams("electionResults2022Village");
+  const election: VillageElection = oneOfParam(paramStr(values, "electionResults2022Village", "electionResults2022VillageElection"), VILLAGE_ELECTIONS, "mayor");
+  const px = VILLAGE_ELECTION_PREFIX[election];
+  const status = str(props.status);
+  const missing = status === "missing";
+  const basic = props._detail === "basic";
+  const top = oneOf(props[`${px}_top`], VILLAGE_TOP_KEYS[election]) as VillageTopKey | null;
+  const accent = missing || !top ? VILLAGE_MISSING_COLOR : VILLAGE_TOP_COLOR[top];
+  const place = basic ? "" : placeName(`${str(props.county)}${str(props.town)}`, i18n);
+  const electors = pollingNumber(props[`${px}_electors`]);
+  const valid = pollingNumber(props[`${px}_valid`]);
+  const margin = pollingNumber(props[`${px}_margin_pp`]);
+  return (
+    <>
+      <Title color={accent}>{str(props.village) || t("popup.politics.village.fallbackTitle")}</Title>
+      <Row field="countyDistrict" value={place} />
+      <Row label={t("popup.politics.village.election")} value={t(VILLAGE_ELECTION_KEY[election])} />
+      {missing ? (
+        <PanelNote>{t("popup.politics.village.missing")}</PanelNote>
+      ) : (
+        <>
+          {status === "merged" && (
+            <PanelNote>
+              {str(props.merged_label)
+                ? t("popup.politics.village.merged", { label: str(props.merged_label) })
+                : t("popup.politics.village.mergedNoLabel")}
+            </PanelNote>
+          )}
+          <Row label={t("popup.politics.village.top")} value={top ? t(VILLAGE_TOP_KEY[top]) : ""} color={top ? VILLAGE_TOP_COLOR[top] : undefined} />
+          <Row
+            label={t("popup.politics.village.margin")}
+            value={margin === null ? "" : t("popup.politics.village.marginValue", { pp: formatNumber(margin, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })}
+            mono
+          />
+          <Row label={t("popup.politics.village.turnout")} value={pct(props[`${px}_turnout`], formatNumber)} mono />
+          <Row label={t("popup.politics.village.electors")} value={electors === null ? "" : formatNumber(electors)} mono />
+          <Row label={t("popup.politics.village.valid")} value={valid === null ? "" : formatNumber(valid)} mono />
+          {VILLAGE_TOP_KEYS[election].map((k) => (
+            <Row
+              key={k}
+              label={t(VILLAGE_TOP_KEY[k])}
+              value={pct(props[`${px}_${k}_pct`], formatNumber)}
+              color={top === k ? VILLAGE_TOP_COLOR[k] : undefined}
+              mono
+            />
+          ))}
+          {basic && <PanelNote>{t("popup.politics.village.zoomForDetail", { zoom: VILLAGE_RESULTS_FULL_ZOOM })}</PanelNote>}
+          {election === "council" && <PanelNote>{t("popup.politics.village.councilNote")}</PanelNote>}
+        </>
+      )}
+      <SourceFooter props={{ source: t("popup.politics.village.source"), license: "OGDL-1.0", source_url: VILLAGE_RESULTS_SOURCE_URL }} />
     </>
   );
 }

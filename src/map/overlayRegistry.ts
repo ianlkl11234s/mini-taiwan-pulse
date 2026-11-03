@@ -1,5 +1,7 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
-import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
+import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp, pollingPartyHeatColor } from "../data/pollingStationsTypes";
+import { VILLAGE_COLOR_MODES, VILLAGE_ELECTIONS, VILLAGE_RESULTS_MIN_ZOOM, villageFillColor } from "../data/electionResults2022Types";
+import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
@@ -3697,6 +3699,90 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── 🗳 2022 村里得票（公開 bbox RPC）──
+  // dynamicData：useElectionResults2022VillageLayer 依視窗 bbox＋整數 zoom 查 get_election_results_2022_village 後 setData。
+  // 選舉（縣市長／議員政黨合計）× 著色（最高黨／領先差距／投票率）；status='missing' 一律灰（不是 0）。
+  // 面放在投開票所之前（registry 順序＝疊放順序，面在點下面）。色票 SSOT：data/electionResults2022Types.ts。
+  {
+    id: "electionResults2022Village",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "election-results-2022-village",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        minzoom: VILLAGE_RESULTS_MIN_ZOOM,
+        paint: (_isDark, p) => {
+          const election = VILLAGE_ELECTIONS[p?.electionResults2022VillageElectionIdx ?? 0] ?? "mayor";
+          const mode = VILLAGE_COLOR_MODES[p?.electionResults2022VillageColorByIdx ?? 0] ?? "top";
+          const op = p?.electionResults2022VillageOpacity ?? 0.7;
+          return {
+            "fill-color": villageFillColor(election, mode) as unknown as string,
+            "fill-opacity": ["case", ["==", ["get", "status"], "missing"], op * 0.5, op] as unknown as number,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: VILLAGE_RESULTS_MIN_ZOOM,
+        paint: (isDark) => ({
+          "line-color": mapSeamColor(isDark),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.2, 12, 0.6, 15, 1] as unknown as number,
+          "line-opacity": 0.6,
+        }),
+      },
+    ],
+  },
+  // ── 🗳 2026 議員選區（公開 RPC，一次抓全臺）──
+  // useCouncilDistrictsLayer 抓 get_council_districts_2026 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
+  // 目前 161 區全為區域選區（原住民選區無對應範圍，不在資料內）。
+  {
+    id: "councilDistricts2026",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "council-districts-2026",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["!=", ["geometry-type"], "Point"],
+        paint: (_isDark, p) => ({
+          "fill-color": COUNCIL_DISTRICT_COLOR,
+          "fill-opacity": 0.12 * (p?.councilDistricts2026Opacity ?? 0.9),
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: ["!=", ["geometry-type"], "Point"],
+        paint: (_isDark, p) => ({
+          "line-color": COUNCIL_DISTRICT_COLOR,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.8, 12, 2] as unknown as number,
+          "line-opacity": p?.councilDistricts2026Opacity ?? 0.9,
+        }),
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 8,
+        filter: ["==", ["get", "_label"], 1],
+        layout: {
+          "text-field": ["get", "district_name"],
+          ...poiLabelLayout(),
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+          "text-max-width": 8,
+          "text-optional": true,
+        },
+        paint: (dark, p) => ({
+          "text-color": dark ? "#ede9fe" : "#4c1d95",
+          ...labelHaloPaint(dark),
+          "text-opacity": p?.councilDistricts2026Opacity ?? 0.9,
+        }),
+      },
+    ],
+  },
   // ── 🗳 2024 投開票所（公開）──
   // 低縮放熱區：usePollingStationsLayer 開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat）setData。
   // 中性／投票率模式＝單色熱區（選舉人數加權）；領先政黨模式＝三黨各一層（各黨 2024 總統票數加權，三個開關個別控制）。
@@ -3722,11 +3808,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         // 投票率模式的熱區也用中性（選舉人數）——投票率是比率，不能用密度表現
         const activeMode = current === "lead" ? "lead" : "neutral";
         const on = activeMode === mode && (toggle === null || (p?.[toggle] ?? 1) > 0);
-        // 三黨疊在一起：各層再打 0.65 折，讓下層透得出來
-        const base = on ? Math.min(1, ((p?.pollingStations2024Opacity ?? 0.9) / 0.9) * 0.8) * (mode === "lead" ? 0.65 : 1) : 0;
-        const paint = heatmapPaint(1, 0.6, ["get", weight], pollingHeatRamp(color));
+        const base = on ? Math.min(1, ((p?.pollingStations2024Opacity ?? 0.9) / 0.9) * 0.8) : 0;
+        if (mode === "neutral") {
+          return {
+            ...heatmapPaint(1, 1, ["get", weight], pollingHeatRamp(color)),
+            "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
+          };
+        }
+        // 三黨疊在一起：同色、alpha 隨密度線性升（不提早飽和），三層 alpha 疊合後顏色才看得出哪黨票多；
+        // intensity 比中性低，避免城市核心三層都飽和成最上層的顏色。
         return {
-          ...paint,
+          ...heatmapPaint(1, 0.6, ["get", weight], pollingHeatRamp(color)),
+          "heatmap-color": pollingPartyHeatColor(color),
           "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
         };
       },

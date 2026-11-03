@@ -1,10 +1,16 @@
 // 政治 Politics 圖例：2026 選舉活動（色票 SSOT = src/data/electionEventsTypes.ts）、2024 投開票所（src/data/pollingStationsTypes.ts）
 import { useSyncExternalStore } from "react";
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSteps } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSquare, SwatchSteps } from "./legendKit";
 import { FireCatRows } from "./legendShared";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_PAST_OPACITY, ELECTION_TIER_RADIUS } from "../../data/electionEventsTypes";
 import { electionEventsMetaStore } from "../../data/electionEventsLoader";
 import { pollingLegendStore } from "../../data/pollingStationsLoader";
+import { villageLegendStore } from "../../data/electionResults2022Loader";
+import { COUNCIL_DISTRICT_COLOR } from "../../data/councilDistrictsLoader";
+import {
+  VILLAGE_COLOR_MODES, VILLAGE_ELECTIONS, VILLAGE_MARGIN_BREAKS, VILLAGE_MARGIN_DPP, VILLAGE_MARGIN_KMT,
+  VILLAGE_MISSING_COLOR, VILLAGE_TOP_COLOR, VILLAGE_TOP_KEYS, VILLAGE_TURNOUT_BREAKS, VILLAGE_TURNOUT_COLORS,
+} from "../../data/electionResults2022Types";
 import {
   POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_FETCH_LIMIT, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_LEAD_KEYS,
   POLLING_NEUTRAL_COLOR, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS,
@@ -101,6 +107,7 @@ export function PollingStationsLegend() {
       ) : (
         <LegendNote>{t("legend.politics.polling.heatElectors")}</LegendNote>
       )}
+      {mode === "lead" && POLLING_HEAT_PARTIES.filter(heatOn).length > 1 && <LegendNote>{t("legend.politics.polling.heatBlend")}</LegendNote>}
       <LegendRow swatch={<SwatchDot color={sample} opacity={0.9 * POLLING_ROAD_OPACITY} />}>{t("legend.politics.polling.road")}</LegendRow>
       {belowMinZoom && <LegendNote>{t("legend.politics.polling.zoomHint")}</LegendNote>}
       {!belowMinZoom && meta?.truncated && (
@@ -113,6 +120,71 @@ export function PollingStationsLegend() {
       </LegendNote>
       <LegendNote>{t("legend.politics.polling.year")}</LegendNote>
       <LegendNote>{t("legend.politics.polling.source")}</LegendNote>
+    </div>
+  );
+}
+
+// ── 2026 議員選區（公開）──
+export function CouncilDistrictsLegend() {
+  const i18n = useLocale();
+  const { t } = i18n;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <LegendTitle zh={localizeLayerName("councilDistricts2026", LAYER_MANIFEST.councilDistricts2026.name, i18n).primary} en="2026 Council Districts" />
+      <LegendRow swatch={<SwatchSquare color={COUNCIL_DISTRICT_COLOR} opacity={0.25} stroke={COUNCIL_DISTRICT_COLOR} />}>{t("legend.politics.council.area")}</LegendRow>
+      <LegendNote>{t("legend.politics.council.noIndigenous")}</LegendNote>
+      <LegendNote>{t("legend.politics.council.source")}</LegendNote>
+    </div>
+  );
+}
+
+// ── 2022 村里得票（公開）──
+const VILLAGE_TOP_LEGEND_KEY = {
+  dpp: "legend.politics.village.party.dpp",
+  kmt: "legend.politics.village.party.kmt",
+  tpp: "legend.politics.village.party.tpp",
+  ind: "legend.politics.village.party.ind",
+  other: "legend.politics.village.party.other",
+} as const;
+
+export function ElectionResultsVillageLegend() {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const values = useLayerParams("electionResults2022Village");
+  const election = oneOfParam(paramStr(values, "electionResults2022Village", "electionResults2022VillageElection"), VILLAGE_ELECTIONS, "mayor");
+  const mode = oneOfParam(paramStr(values, "electionResults2022Village", "electionResults2022VillageColorBy"), VILLAGE_COLOR_MODES, "top");
+  const { belowMinZoom } = useSyncExternalStore(villageLegendStore.subscribe, villageLegendStore.getSnapshot);
+  const others = VILLAGE_TOP_KEYS[election].filter((k) => k !== "dpp" && k !== "kmt");
+  const marginBreaks = ["", ...VILLAGE_MARGIN_BREAKS.map((b) => formatNumber(b)), ""];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <LegendTitle zh={localizeLayerName("electionResults2022Village", LAYER_MANIFEST.electionResults2022Village.name, i18n).primary} en="2022 Village Results" />
+      <LegendNote>{t(election === "mayor" ? "legend.politics.village.electionMayor" : "legend.politics.village.electionCouncil")}</LegendNote>
+      {mode === "turnout" ? (
+        <>
+          <LegendNote>{t("legend.politics.village.turnoutTitle")}</LegendNote>
+          <SwatchSteps colors={VILLAGE_TURNOUT_COLORS} breaks={["", ...VILLAGE_TURNOUT_BREAKS.map((b) => `${formatNumber(b)}%`), ""]} />
+        </>
+      ) : mode === "margin" ? (
+        <>
+          <LegendNote>{t("legend.politics.village.marginTitle")}</LegendNote>
+          <LegendNote>{t("legend.politics.village.party.dpp")}</LegendNote>
+          <SwatchSteps colors={VILLAGE_MARGIN_DPP} breaks={marginBreaks} />
+          <LegendNote>{t("legend.politics.village.party.kmt")}</LegendNote>
+          <SwatchSteps colors={VILLAGE_MARGIN_KMT} breaks={marginBreaks} />
+          <FireCatRows square cats={others.map((k) => ({ color: VILLAGE_TOP_COLOR[k], label: t(VILLAGE_TOP_LEGEND_KEY[k]) }))} />
+        </>
+      ) : (
+        <>
+          <LegendNote>{t("legend.politics.village.topTitle")}</LegendNote>
+          <FireCatRows square cats={VILLAGE_TOP_KEYS[election].map((k) => ({ color: VILLAGE_TOP_COLOR[k], label: t(VILLAGE_TOP_LEGEND_KEY[k]) }))} />
+        </>
+      )}
+      <LegendRow swatch={<SwatchSquare color={VILLAGE_MISSING_COLOR} opacity={0.5} />}>{t("legend.politics.village.missing")}</LegendRow>
+      <LegendNote>{t("legend.politics.village.merged")}</LegendNote>
+      {election === "council" && <LegendNote>{t("legend.politics.village.councilNote")}</LegendNote>}
+      {belowMinZoom && <LegendNote>{t("legend.politics.village.zoomHint")}</LegendNote>}
+      <LegendNote>{t("legend.politics.village.source")}</LegendNote>
     </div>
   );
 }

@@ -18,11 +18,11 @@
   ]
  },
  "summary": {
-  "layerKeys": 1505,
-  "overlayConfigs": 481,
-  "runtimeSublayers": 908,
+  "layerKeys": 1507,
+  "overlayConfigs": 483,
+  "runtimeSublayers": 913,
   "byResolution": {
-   "runtime": 404,
+   "runtime": 406,
    "static-scan": 277,
    "unresolved": 52,
    "shared-renderer": 772
@@ -30,10 +30,10 @@
   "byGeometry": {
    "point": 557,
    "heatmap": 186,
-   "line": 322,
-   "polygon": 1057,
+   "line": 324,
+   "polygon": 1059,
    "raster": 60,
-   "label": 59,
+   "label": 60,
    "3d": 33,
    "grid": 14,
    "point/label": 4
@@ -43,9 +43,9 @@
    "Three.js／WebGL CustomLayer": 10,
    "無 hook／factory（App 掛載或尚無實作）": 23
   },
-  "legendEntries": 1253,
+  "legendEntries": 1255,
   "legendTypes": {
-   "square-swatch": 84,
+   "square-swatch": 85,
    "svg-icon": 34,
    "dot-swatch": 192,
    "gradient+dot-swatch": 65,
@@ -65,14 +65,14 @@
    "line-swatch+svg-icon": 1,
    "dot-swatch+square-swatch+line-swatch(dashed)+svg-icon": 1,
    "size+dot-swatch+square-swatch+line-swatch": 1,
-   "dot-swatch+square-swatch+line-swatch": 1,
+   "dot-swatch+square-swatch+line-swatch": 2,
    "dot-swatch+square-swatch+svg-icon": 2,
    "gradient+line-swatch+svg-icon": 1,
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 445,
-   "static": 808
+   "ssr": 446,
+   "static": 809
   },
   "legendsWithIssues": 51,
   "ironRules": {
@@ -192,7 +192,7 @@
     "decorationExcluded": 149
    },
    "line-width@z10": {
-    "n": 133,
+    "n": 135,
     "min": 0.15,
     "p25": 0.5,
     "median": 1,
@@ -206,7 +206,7 @@
      "0.35×4",
      "0.15×3",
      "3×2",
-     "0.9×2"
+     "0.4×2"
     ],
     "dataDrivenCounted": 5,
     "notSet": 0,
@@ -214,16 +214,16 @@
     "decorationExcluded": 26
    },
    "line-width@z14": {
-    "n": 133,
+    "n": 135,
     "min": 0.15,
     "p25": 1,
     "median": 1,
-    "p75": 1.8,
+    "p75": 1.933,
     "max": 5,
     "mostCommon": [
      "1×43",
      "0.5×21",
-     "2×18",
+     "2×19",
      "1.4×18",
      "3.5×8",
      "1.2×5",
@@ -236,21 +236,21 @@
     "decorationExcluded": 26
    },
    "line-opacity": {
-    "n": 133,
+    "n": 135,
     "min": 0.04,
     "p25": 0.6,
     "median": 0.75,
     "p75": 0.8,
     "max": 1,
     "mostCommon": [
-     "0.6×46",
+     "0.6×47",
      "0.8×32",
      "0.85×28",
      "0.75×9",
      "0.65×7",
      "0.04×3",
-     "1×2",
-     "0.9×2"
+     "0.9×3",
+     "1×2"
     ],
     "dataDrivenCounted": 5,
     "notSet": 0,
@@ -258,7 +258,7 @@
     "decorationExcluded": 26
    },
    "fill-opacity": {
-    "n": 115,
+    "n": 117,
     "min": 0,
     "p25": 0.25,
     "median": 0.35,
@@ -274,7 +274,7 @@
      "0.45×4",
      "0.495×4"
     ],
-    "dataDrivenCounted": 17,
+    "dataDrivenCounted": 18,
     "notSet": 0,
     "unresolved": 0,
     "decorationExcluded": 0
@@ -336,19 +336,19 @@
      "0.13×1"
     ],
     "dataDrivenCounted": 2,
-    "notSet": 60,
+    "notSet": 61,
     "unresolved": 0,
     "decorationExcluded": 0
    },
    "text-size@z14": {
-    "n": 60,
+    "n": 61,
     "min": 11,
     "p25": 12,
     "median": 12,
     "p75": 12,
     "max": 13,
     "mostCommon": [
-     "12×57",
+     "12×58",
      "13×2",
      "11×1"
     ],
@@ -358,14 +358,14 @@
     "decorationExcluded": 0
    },
    "text-halo-width": {
-    "n": 60,
+    "n": 61,
     "min": 1.2,
     "p25": 1.25,
     "median": 1.25,
     "p75": 1.25,
     "max": 1.25,
     "mostCommon": [
-     "1.25×59",
+     "1.25×60",
      "1.2×1"
     ],
     "dataDrivenCounted": 0,
@@ -419,6 +419,7 @@
    "line-width@z10": [
     "provincialRoadEmergencyBays/line=3",
     "provincialRoadMonitored/line=3",
+    "electionResults2022Village/line=0.4",
     "landslideAnnual/outline=0.4",
     "ooklaFixedTaiwan/line=0.35",
     "ooklaFixedTaiwan/line=0.35",
@@ -468,6 +469,7 @@
     "tourHotSpringZones/fill=0.15",
     "tourScenicAreas/fill=0.15",
     "windPlan/fill=0.15",
+    "councilDistricts2026/fill=0.108",
     "firingNoticeAreas/fill=0.108",
     "companyAgeStructure/companyAgeStructure-demographics-fill=0",
     "companyIndustryDistribution/companyIndustryDistribution-demographics-fill=0",
@@ -521,20 +523,20 @@
    "waterBasins/line=[2,2]"
   ],
   "lineCapJoin": {
-   "cap=(預設 butt) join=(預設 miter)": 94,
+   "cap=(預設 butt) join=(預設 miter)": 96,
    "cap=round join=round": 33,
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 614,
-   "of": 908,
+   "sublayersWithDiff": 616,
+   "of": 913,
    "byProperty": {
     "circle-stroke-color": 346,
     "circle-stroke-opacity": 288,
-    "line-color": 86,
+    "line-color": 87,
     "heatmap-color": 63,
-    "text-color": 60,
-    "text-halo-color": 60,
+    "text-color": 61,
+    "text-halo-color": 61,
     "circle-color": 45,
     "fill-color": 31,
     "circle-opacity": 12,
@@ -547,12 +549,12 @@
   "colorEncoding": {
    "circle:categorical": 251,
    "circle:constant": 224,
-   "line:constant": 109,
+   "line:constant": 111,
    "heatmap:sequential": 67,
-   "symbol:constant": 60,
-   "fill:categorical": 51,
+   "symbol:constant": 61,
+   "fill:categorical": 52,
    "line:categorical": 47,
-   "fill:constant": 35,
+   "fill:constant": 36,
    "fill:sequential-step": 14,
    "fill:sequential": 13,
    "circle:data-driven": 9,
@@ -567,7 +569,7 @@
    "line:data-driven": 1
   },
   "textFont": {
-   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 58,
+   "[\"DIN Pro Medium\",\"Arial Unicode MS Regular\"]": 59,
    "[\"DIN Pro Bold\",\"Arial Unicode MS Bold\"]": 2
   },
   "statisticsProfile": {
@@ -680,6 +682,7 @@
   {"id":"companyPoints","members":["companyPoints"],"components":["CompanyPointsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch+square-swatch","features":{"dot":6,"square":7,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●","12x10"],"swatchColorCount":13,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"convenienceStores","members":["convenienceStores"],"components":["DenseSingleColorLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":8,"paintComparable":true},
   {"id":"coralReefDistribution","members":["coralReefDistribution"],"components":["CoralReefDistributionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":false},
+  {"id":"councilDistricts2026","members":["councilDistricts2026"],"components":["CouncilDistrictsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":1,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":1,"paintComparable":true},
   {"id":"culturalFacilities","members":["culturalFacilities"],"components":["CulturalFacilitiesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":true},
   {"id":"culturalHealthStations","members":["culturalHealthStations"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":true},
   {"id":"culturalMuseums","members":["culturalMuseums"],"components":["CulturalMuseumsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
@@ -697,6 +700,7 @@
   {"id":"earthquakesGlobal","members":["earthquakesGlobal"],"components":["EarthquakeGlobalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+size+dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[9,10],"swatchSizes":["14x14●","18x18●","4x4●","8x8●"],"swatchColorCount":5,"paintComparable":false},
   {"id":"ecoNetworkZones","members":["ecoNetworkZones"],"components":["EcoNetworkZonesLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":12,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":12,"paintComparable":true},
   {"id":"electionEvents2026","members":["electionEvents2026"],"components":["ElectionEventsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"size+dot-swatch+square-swatch+line-swatch","features":{"dot":3,"square":1,"line":1,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":true},"fontSizes":[],"swatchColorCount":0,"paintComparable":true},
+  {"id":"electionResults2022Village","members":["electionResults2022Village"],"components":["ElectionResultsVillageLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"static","resolutionNote":"SSR 不支援 useSyncExternalStore（無 getServerSnapshot）→ 原始碼啟發式","type":"dot-swatch+square-swatch+line-swatch","features":{"dot":2,"square":6,"line":2,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[],"swatchColorCount":0,"paintComparable":true},
   {"id":"emergencyHospitals","members":["emergencyHospitals"],"components":["EmergencyHospitalLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":4,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":4,"paintComparable":true},
   {"id":"erHospital","members":["erHospital"],"components":["ErCongestionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":5,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":5,"paintComparable":true},
   {"id":"exclusiveFisheryRightAreas","members":["exclusiveFisheryRightAreas"],"components":["AtlasLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"square-swatch","features":{"dot":0,"square":2,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["12x10"],"swatchColorCount":2,"paintComparable":true},
@@ -1964,6 +1968,7 @@
   "convenienceStores": {"label":"超商 Convenience Store","theme":"基礎建設 Infrastructure","dataClass":"A","color":"#26c6da","legend":"convenienceStores","legendType":"gradient+dot-swatch","popup":"convenienceStore","params":{"opacity":{"name":"convenienceStoresOpacity","default":1,"min":0.1,"max":1},"size":{"name":"convenienceScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":4,"z14":8},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#26c6da"],"lightDiffers":true,"light":["#00838f"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.75,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#26c6da"],"lightDiffers":true,"light":["#00838f"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "coralReefDistribution": {"label":"珊瑚礁歷史分布 Historical Coral Reefs","theme":"全球環境 Global Environment","dataClass":"D","color":"#f9735b","legend":"coralReefDistribution","legendType":"dot-swatch","popup":"coralReefDistribution","params":{"opacity":{"name":"coralReefDistributionOpacity","default":0.55,"min":0,"max":1},"controls":1},"hooks":["useCoralReefDistributionLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useCoralReefDistributionLayer.ts","src/map/lineFillSpec.ts"],"staticValues":{"fill-color":["non-literal @src/hooks/useCoralReefDistributionLayer.ts","non-literal @src/hooks/useCoralReefDistributionLayer.ts"],"fill-opacity":["non-literal @src/hooks/useCoralReefDistributionLayer.ts",0.55,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useCoralReefDistributionLayer.ts","non-literal @src/hooks/useCoralReefDistributionLayer.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useCoralReefDistributionLayer.ts",0.55,"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"]},"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "correctionalFacility": {"label":"矯正機關 Correctional","theme":"執法治安 Law & Order","dataClass":"A","color":"#374151","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"correctionalFacility","params":{"opacity":{"name":"correctionalFacilityOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"correctionalFacilityScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":5.1,"max":9},"z14":{"min":8.5,"max":15}},"circle-stroke-width":{"z10":{"min":1,"max":1.2},"z14":{"min":1,"max":1.2}},"circle-opacity":0.9,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "councilDistricts2026": {"label":"2026 議員選區 2026 Council Districts","theme":"政治 Politics","dataClass":"C","color":"#8b5cf6","legend":"councilDistricts2026","legendType":"square-swatch","popup":"councilDistricts2026","params":{"opacity":{"name":"councilDistricts2026Opacity","default":0.9,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.108},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#8b5cf6"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":1.52,"z14":2},"line-opacity":0.9},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#8b5cf6"]}}},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":8,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.9,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#ede9fe"],"lightDiffers":true,"light":["#4c1d95"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","line","polygon"],"render":["fill","line","text"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "countyBoundary": {"label":"縣市界 County","theme":"底圖 Base Map","dataClass":"B","color":"#4b5563","legend":null,"legendType":null,"popup":"countyBoundary","params":{"opacity":{"name":"countyBoundaryOpacity","default":0.85,"min":0.1,"max":1},"lineWidth":{"name":"countyBoundaryWidth","default":1,"min":0.3,"max":4},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":4,"values":{"fill-opacity":0},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#4b5563"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":4,"values":{"line-width":{"z10":2,"z14":3.5},"line-opacity":0.85,"line-cap":"butt","line-join":"miter"},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":false,"popup":true}},
   "court": {"label":"法院 Courts","theme":"執法治安 Law & Order","dataClass":"A","color":"#7c3aed","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"court","params":{"opacity":{"name":"courtOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"courtScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":5.1,"max":10.2},"z14":{"min":7.65,"max":15.3}},"circle-stroke-width":{"z10":{"min":1,"max":1.4},"z14":{"min":1,"max":1.4}},"circle-opacity":0.9,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":6},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "courtJurisdiction": {"label":"法院管轄區 Jurisdiction","theme":"執法治安 Law & Order","dataClass":"B","color":"#c4b5fd","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"courtJurisdiction","params":{"opacity":{"name":"courtJurisdictionOpacity","default":0.18,"min":0,"max":0.6},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.15},"colors":{"fill-color":{"kind":"constant","count":1,"dark":["#c4b5fd"]}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#9ca3af"],"lightDiffers":true,"light":["#374151"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
@@ -2004,6 +2009,7 @@
   "eduSchoolUniversity": {"label":"大專 University","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"gradient+dot-swatch+square-swatch","popup":"school","params":{"opacity":{"name":"eduSchoolsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"schoolScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"university","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "eduUniversityStudents": {"label":"大專學生數 University Students","theme":"教育 Education","dataClass":"A","color":"#ab47bc","legend":"schools","legendType":"gradient+dot-swatch+square-swatch","popup":"eduUniversityStudents","params":{"opacity":{"name":"eduUniversityStudentsOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"eduUniversityStudentsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"bubble","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":3,"max":22},"z14":{"min":3,"max":22}},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":2,"dark":["#90a4ae","#ab47bc"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "electionEvents2026": {"label":"2026 選舉活動 2026 Election Events","theme":"政治 Politics","dataClass":"C","color":"#8b5cf6","legend":"electionEvents2026","legendType":"size+dot-swatch+square-swatch+line-swatch","popup":"electionEvents2026","params":{"opacity":{"name":"electionEvents2026Opacity","default":0.9,"min":0.1,"max":1},"size":{"name":"electionEvents2026Scale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":5,"values":{"circle-radius":{"z10":{"min":3.033,"max":9.75},"z14":{"min":3.5,"max":11.25}},"circle-stroke-width":{"z10":{"min":1,"max":2},"z14":{"min":1,"max":2}},"circle-opacity":{"min":0,"max":0.9},"circle-stroke-opacity":{"min":0.315,"max":0.8}},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"categorical","count":5,"lightDiffers":true}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "electionResults2022Village": {"label":"2022 村里得票 2022 Village Results","theme":"政治 Politics","dataClass":"C","color":"#8b5cf6","legend":"electionResults2022Village","legendType":"dot-swatch+square-swatch+line-swatch","popup":"electionResults2022Village","params":{"opacity":{"name":"electionResults2022VillageOpacity","default":0.7,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","minzoom":8,"values":{"fill-opacity":{"min":0.35,"max":0.7}},"colors":{"fill-color":{"kind":"categorical","count":5}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","minzoom":8,"values":{"line-width":{"z10":0.4,"z14":0.867},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "emergencyHospitals": {"label":"急救責任醫院分級 Emergency Hospitals","theme":"醫療 Medical","dataClass":"A","color":"#a5b4fc","legend":"emergencyHospitals","legendType":"dot-swatch","popup":"emergencyHospitalLevel","params":{"opacity":{"name":"emergencyHospitalsOpacity","default":0.9,"min":0.1,"max":1},"size":{"name":"emergencyHospitalsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.9,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":4,"lightDiffers":true},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "erHospital": {"label":"急診壅塞 ER","theme":"醫療 Medical","dataClass":"C","color":"#ef4444","legend":"erHospital","legendType":"dot-swatch","popup":"erHospital","params":{"opacity":{"name":"erHospitalOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"erHospitalScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":6.5,"z14":6.5},"circle-stroke-width":{"z10":{"min":1,"max":2.2},"z14":{"min":1,"max":2.2}},"circle-opacity":0.85,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"categorical","count":2,"dark":["#ffffff","#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "etcGantry": {"label":"ETC 收費門架 Gantry","theme":"交通 Move","dataClass":"A","color":"#f06292","legend":null,"legendType":null,"popup":"etcGantry","params":{"opacity":{"name":"etcGantryOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"etcGantryScale","default":1,"min":0.3,"max":3},"height":{"name":"etcGantryZ","default":0,"min":0,"max":100},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5,"z14":10},"circle-opacity":0,"circle-blur":1},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]}},"themeDiff":["circle-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":4.5,"z14":4.5},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#f06292"],"lightDiffers":true,"light":["#c2185b"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-color","circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":false,"popup":true}},
@@ -2404,7 +2410,7 @@
   "policeIsoPrecinct": {"label":"分局（15/30 min）","theme":"執法治安 Law & Order","dataClass":"B","color":"#3b82f6","legend":"policeIsoSubstation","legendType":"square-swatch","popup":"policeIsoPrecinct","params":{"opacity":{"name":"policeIsoPrecinctOpacity","default":0.5,"min":0.1,"max":0.9},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0,"max":0.5}},"colors":{"fill-color":{"kind":"sequential-step","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.15,"z14":0.15},"line-opacity":{"min":0,"max":0.08}},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#7f1d1d"]}}}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "policeIsoSubstation": {"label":"派出所（5/10 min）","theme":"執法治安 Law & Order","dataClass":"B","color":"#1e40af","legend":"policeIsoSubstation","legendType":"square-swatch","popup":"policeIsoSubstation","params":{"opacity":{"name":"policeIsoSubstationOpacity","default":0.55,"min":0.1,"max":0.9},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":{"min":0,"max":0.55}},"colors":{"fill-color":{"kind":"sequential-step","count":8}}},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.15,"z14":0.15},"line-opacity":{"min":0,"max":0.08}},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#7f1d1d"]}}}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "policeStation": {"label":"警察機關 Police","theme":"執法治安 Law & Order","dataClass":"A","color":"#1e40af","legend":"policeStation","legendType":"gradient+size+dot-swatch+square-swatch+line-swatch","popup":"policeStation","params":{"opacity":{"name":"policeStationOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"policeStationScale","default":1,"min":0.3,"max":3},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":{"min":2.4,"max":6.8},"z14":{"min":4.2,"max":11.9}},"circle-stroke-width":{"z10":{"min":0.8,"max":1.2},"z14":{"min":0.8,"max":1.2}},"circle-opacity":0.8,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":7},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
-  "pollingStations2024": {"label":"2024 投開票所 2024 Polling Stations","theme":"政治 Politics","dataClass":"C","color":"#8b5cf6","legend":"pollingStations2024","legendType":"dot-swatch+square-swatch+line-swatch","popup":"pollingStations2024","params":{"opacity":{"name":"pollingStations2024Opacity","default":0.9,"min":0.1,"max":1},"size":{"name":"pollingStations2024Scale","default":1,"min":0.3,"max":3},"controls":7},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"neutral","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_electors\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":7}}},{"suffix":"dpp","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_dpp\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":7}}},{"suffix":"kmt","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_kmt\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":7}}},{"suffix":"tpp","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_tpp\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":7}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":{"min":0.405,"max":0.9},"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#8b5cf6"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
+  "pollingStations2024": {"label":"2024 投開票所 2024 Polling Stations","theme":"政治 Politics","dataClass":"C","color":"#8b5cf6","legend":"pollingStations2024","legendType":"dot-swatch+square-swatch+line-swatch","popup":"pollingStations2024","params":{"opacity":{"name":"pollingStations2024Opacity","default":0.9,"min":0.1,"max":1},"size":{"name":"pollingStations2024Scale","default":1,"min":0.3,"max":3},"controls":7},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"neutral","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":1,"heatmap-weight":"unresolved:[\"get\",\"w_electors\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":7}}},{"suffix":"dpp","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_dpp\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":1,"dark":["#1f9d55"]}}},{"suffix":"kmt","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_kmt\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":1,"dark":["#3b6fe0"]}}},{"suffix":"tpp","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.5,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0,"heatmap-intensity":0.6,"heatmap-weight":"unresolved:[\"get\",\"w_tpp\"]"},"colors":{"heatmap-color":{"kind":"sequential","count":1,"dark":["#22b8c7"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":{"min":0.405,"max":0.9},"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#8b5cf6"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "pollutionFacility": {"label":"污染潛勢設施 Facility","theme":"環境氣候 Environment","dataClass":"B","color":"#f97316","legend":"pollution","legendType":"gradient+dot-swatch","popup":"pollutionFacility","params":{"opacity":{"name":"pollutionFacilityOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"pollutionFacilityScale","default":1,"min":0.3,"max":3},"controls":9},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":"unresolved:[\"get\",\"max_sev\"]","z14":"unresolved:[\"get\",\"max_sev\"]"},"circle-stroke-width":{"z10":{"min":0.8,"max":1},"z14":{"min":0.8,"max":1}},"circle-opacity":0.6,"circle-stroke-opacity":0.8,"circle-blur":0.15},"colors":{"circle-color":{"kind":"sequential-step","count":5},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "pollutionPenaltyCritical": {"label":"重大裁處 Critical Penalty","theme":"環境氣候 Environment","dataClass":"B","color":"#ef4444","legend":"pollutionPenaltyCritical","legendType":"gradient+dot-swatch","popup":"pollutionPenalty","params":{"opacity":{"name":"pollutionPenaltyOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"pollutionPenaltyScale","default":1,"min":0.3,"max":3},"controls":7},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"critical-heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":10.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.3,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"critical-circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":10,"values":{"circle-radius":{"z10":{"min":2.2,"max":12.1},"z14":{"min":3.2,"max":17.6}},"circle-stroke-width":{"z10":{"min":1,"max":1.2},"z14":{"min":1,"max":1.2}},"circle-opacity":0.6,"circle-stroke-opacity":0.8,"circle-blur":0.08},"colors":{"circle-color":{"kind":"categorical","count":7},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "pollutionPenaltyGeneral": {"label":"一般裁處 General Penalty","theme":"環境氣候 Environment","dataClass":"B","color":"#94a3b8","legend":"pollutionPenaltyCritical","legendType":"gradient+dot-swatch","popup":"pollutionPenalty","params":{"opacity":{"name":"pollutionPenaltyOpacity","default":0.6,"min":0.1,"max":1},"size":{"name":"pollutionPenaltyScale","default":1,"min":0.3,"max":3},"controls":7},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"general-heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":0.1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"general-circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":{"min":1.4,"max":2.6},"z14":{"min":2.2,"max":4}},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":{"min":0.168,"max":0.27},"circle-stroke-opacity":0.8,"circle-blur":0.25},"colors":{"circle-color":{"kind":"categorical","count":7},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
