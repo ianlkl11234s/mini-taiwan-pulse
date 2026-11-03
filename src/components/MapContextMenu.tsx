@@ -70,6 +70,7 @@ export function MapContextMenu({ map, measure, isDarkTheme, enabled, onShareLoca
     const onContextMenu = (e: MapMouseEvent) => {
       const ev = e.originalEvent as MouseEvent;
       ev.preventDefault();
+      cancelPress(); // Android 長按同時發 contextmenu：由這條路徑開，取消長按計時避免重開
       const down = rightDown;
       rightDown = null;
       // 右鍵拖曳旋轉：mouseup 位置離按下點太遠 → 不開
