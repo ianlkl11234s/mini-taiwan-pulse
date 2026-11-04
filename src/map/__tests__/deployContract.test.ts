@@ -477,6 +477,9 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(locationFor("jp-medical/current.json")?.readsData).toBe(true);
     expect(pullScript).toContain('python3 /usr/local/bin/install-jp-medical-assets.py');
     expect(pullScript).toContain('--exclude "jp-medical/*"');
+    // fire 同步只收根層 pmtiles，子前綴（例 global-maritime/）不可遞迴灌進 /data/fire/
+    const fireSync = pullScript.split("\n").find((line: string) => line.includes('"$DATA_DIR/fire/"'));
+    expect(fireSync).toContain('--exclude "*/*"');
     expect(dockerfile).toContain('COPY scripts/deploy/install-jp-medical-assets.py');
     expect(dockerIgnore).toContain('public/jp-medical');
     expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
