@@ -5,6 +5,7 @@ import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
+import { pickFreewayTdcsCar } from "../data/freewayTdcsSimStore";
 import { pickTransitAccessCell } from "../data/transitAccessStore";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
 // C1b：3D 模組按需載入 —— 未載入代表該圖層從沒開過，點擊時直接跳過
@@ -546,6 +547,15 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "transitReachPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "transitReachPlayback" });
+            found = true;
+          }
+        }
+        // 國道逐車模擬是自訂 WebGL 圖層（不能 queryRenderedFeatures）：沒命中向量 feature 時找畫面上最近的車（10 px 內）。
+        if (!found && vis?.freewayTdcsSim) {
+          const picked = pickFreewayTdcsCar(map, e.point.x, e.point.y);
+          if (picked) {
+            setFeatureInfo({ layerType: "freewayTdcsSim", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "freewayTdcsSim" });
             found = true;
           }
         }

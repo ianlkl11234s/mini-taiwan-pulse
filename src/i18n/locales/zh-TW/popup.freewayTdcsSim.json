@@ -1,0 +1,11 @@
+{
+  "popup.freewayTdcsSim.onIc": "上國道",
+  "popup.freewayTdcsSim.offIc": "下國道",
+  "popup.freewayTdcsSim.onOutside": "（範圍外，從邊界駛入）",
+  "popup.freewayTdcsSim.offOutside": "（範圍外，從邊界駛出）",
+  "popup.freewayTdcsSim.avgSpeed": "全程平均車速",
+  "popup.freewayTdcsSim.serviceBreak": "途中有長停留（推測服務區），該段不顯示",
+  "popup.freewayTdcsSim.follow": "跟隨",
+  "popup.freewayTdcsSim.unfollow": "取消跟隨（Esc）",
+  "popup.freewayTdcsSim.inferNote": "上下交流道依原始門架序列；門架之間位置與車道為推算。"
+}

@@ -125,6 +125,7 @@ import {
   BUS_CROWDING_VIEWS, BUS_CROWDING_VIEW_LABELS,
 } from "./busCrowdingSimTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
+import { FREEWAY_TDCS_COLOR_MODES, FREEWAY_TDCS_COLOR_MODE_LABELS, FREEWAY_TDCS_VT_NAMES, FREEWAY_TDCS_VT_VALUES } from "./freewayTdcsSimTypes";
 import {
   TRANSIT_REACH_CLOCK_ID, TRANSIT_REACH_GRID_METRICS, TRANSIT_REACH_GRID_METRIC_LABELS, TRANSIT_REACH_GRID_VIEWS, TRANSIT_REACH_GRID_VIEW_LABELS,
   TRANSIT_REACH_MODES, TRANSIT_REACH_MODE_LABELS, TRANSIT_REACH_ORIGIN_PROVIDER, TRANSIT_REACH_RANGES, TRANSIT_REACH_RANGE_LABELS,
@@ -1528,6 +1529,21 @@ export const LAYER_PARAMS_SPEC = {
   freewayCongestion: [
     { kind: "slider", name: "freewayWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("freewayCongestionOpacity", 1),
+  ],
+  // 雙北國道逐車模擬（模擬面板）：顏色／車種／拖尾只在 Three.js 端讀（拖尾換值會重建 60 秒塊）。
+  freewayTdcsSim: [
+    opacitySlider("freewayTdcsSimOpacity", 0.9),
+    {
+      kind: "select", category: "color", name: "freewayTdcsSimColorMode", label: "顏色", default: "speed",
+      options: FREEWAY_TDCS_COLOR_MODES.map((value) => ({ value, label: FREEWAY_TDCS_COLOR_MODE_LABELS[value] })), out: null,
+    },
+    {
+      kind: "multiSelect", name: "freewayTdcsSimType", label: "車種", default: MULTI_SELECT_ALL,
+      options: FREEWAY_TDCS_VT_VALUES.map((value, i) => ({ value, label: FREEWAY_TDCS_VT_NAMES[i]! })), out: "freewayTdcsSimTypeMask",
+    },
+    { kind: "slider", name: "freewayTdcsSimTrail", labelPrefix: "拖尾", labelSuffix: " 秒", digits: 0, default: 60, min: 0, max: 300, step: 5 },
+    { kind: "slider", name: "freewayTdcsSimWidth", labelPrefix: "線寬", labelSuffix: " px", digits: 1, default: 2, min: 0.5, max: 6, step: 0.5 },
+    scaleSlider("freewayTdcsSimSize", 1),
   ],
   roadCongestion: [
     { kind: "slider", name: "roadCongestionWidth", labelPrefix: "寬度", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },

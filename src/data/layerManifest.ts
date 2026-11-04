@@ -188,6 +188,7 @@ import { ATLAS_LAYER_COLORS } from "./atlasLayerColors";
 import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
+import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
 import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
 
 /**
@@ -14781,6 +14782,36 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],
+  },
+
+  freewayTdcsSim: {
+    key: "freewayTdcsSim",
+    // 模擬面板（公開，2026-11-04 使用者拍板正式可見）；比照 transitReach／transitAccess 不鎖站主。
+    country: "SIM", section: { theme: "雙北國道逐車模擬", group: "國道逐車" },
+    ...layerName({ zh: "雙北國道逐車模擬", qualifier: "推算" }),
+    expandable: true,
+    color: FREEWAY_TDCS_SIM_COLOR,
+    icon: Truck,
+    // 上游登記：analytics data-catalog／pulse-data registry 的 freeway_tdcs_sim（analytics #286、pulse-data #55）。
+    // 推算圖層 → pulse_only＋derivedFromDatasets，資料來源總覽帶出 TDCS 出處與推算說明（lineage）＋catalog 來源卡。
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromDatasets: ["freeway_tdcs_sim"],
+      derivationType: "custom",
+      processing: "資料：交通部高速公路局「交通資料庫」TDCS M06A（各類車種旅次路徑原始資料，2026-09-28）。推算：taipei-gis-analytics pipelines/analysis/freeway_tdcs（sim/network.py、trips.py、lanes.py）：TDCS M06A 2026-09-28 13–17 時檔，取 16:00–18:00 經過雙北範圍內門架的旅次（約 13 萬趟、同時最多約 1.5 萬台）；門架間沿國道線形等速內插，車道以規則分配（換道 2.5 秒橫移）。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）；模擬面板公開圖層，資料在 R2 sim/v1/freeway_tdcs。門架通過時間是真實的；門架之間位置、車速、車道與換道、上下匝道時間皆為推算。分析專題：taipei-gis-analytics/docs/topic-research/freeway_tdcs/",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFreewayTdcsSimLayer ＋ map/freewayTdcsSimCustomLayer（Three.js 自訂圖層，無 OVERLAY_REGISTRY entry）：讀 R2 模擬資料包 data.itsmigu.com/sim/v1/freeway_tdcs/（ADR-0025；scripts/preprocess/build-freeway-tdcs-sim-bundle.py 自 public/freeway_tdcs/ 的 v3 三檔切出：共用檔約 3 MB＋每 5 分鐘一個時段檔 ≤2 MB，播到哪載到哪；DEV 讀不到時退回本機 public/freeway_tdcs/sim/）；時間跟全站時間軸（timeStore），拖尾每 60 秒一塊、GPU 依時間淡出。",
+    },
+    legend: "freewayTdcsSim",
+    popup: "freewayTdcsSim",
+    params: { count: 6, kinds: ["slider", "select", "multiSelect", "slider", "slider", "slider"] },
+    description: "雙北國道 2026-09-28（教師節連假最後一天）16:00–18:00 逐車推算位置：車點＋拖尾，可依車速或車種著色、點車看上下交流道並跟隨。資料：交通部高速公路局「交通資料庫」（TDCS M06A）；門架之間位置與車道為推算。",
+    topics: ["交通", "國道", "模擬", "推估", "車流"],
   },
 
   roadCongestion: {
