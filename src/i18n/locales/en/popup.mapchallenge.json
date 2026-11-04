@@ -1,0 +1,11 @@
+{
+  "popup.mapchallenge.title": "Around {place}",
+  "popup.mapchallenge.pop": "Population in cell (GHSL est.)",
+  "popup.mapchallenge.people": "{n} people",
+  "popup.mapchallenge.pd": "Population density",
+  "popup.mapchallenge.perKm2": "{n} people/km²",
+  "popup.mapchallenge.core": "Population core cell",
+  "popup.mapchallenge.yes": "Yes",
+  "popup.mapchallenge.no": "No",
+  "popup.mapchallenge.class": "Hotspot class"
+}

@@ -33,6 +33,8 @@ export const COVERAGE_AREAS = {
   hsinchuCity: { label: { zh: "新竹市", en: "Hsinchu City", ja: "新竹市" }, bbox: [120.88, 24.70, 121.03, 24.86] },
   changhua: { label: { zh: "彰化縣", en: "Changhua County", ja: "彰化県" }, bbox: [120.22, 23.78, 120.71, 24.21] },
   taichung: { label: { zh: "臺中市", en: "Taichung City", ja: "台中市" }, bbox: [120.46, 23.99, 121.46, 24.45] },
+  // 30 天地圖挑戰 Day 4 r8 細格：臺中市＋彰化縣（兩框聯集）
+  taichungChanghua: { label: { zh: "臺中與彰化", en: "Taichung & Changhua", ja: "台中・彰化" }, bbox: [120.22, 23.78, 121.46, 24.45] },
   tainan: { label: { zh: "臺南市", en: "Tainan City", ja: "台南市" }, bbox: [120.03, 22.88, 120.66, 23.42] },
 } as const satisfies Record<string, CoverageArea>;
 
@@ -97,6 +99,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   changhuaTrafficSignals: "changhua",
   statsTaichungRoadNoiseMonitoringStations: "taichung",
   tainanBridgeInspections: "tainan",
+  mapchallengeDay04ScaleTcCh: "taichungChanghua",
   tainanRoadTunnels: "tainan",
 };
 

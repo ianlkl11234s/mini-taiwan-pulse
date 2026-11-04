@@ -170,6 +170,7 @@ import {
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStationsTypes";
+import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
@@ -830,6 +831,17 @@ function displayModeSelect(key: string, def: "point" | "polygon"): SelectParamSp
 function categoryMultiSelect(key: string, options: ParamSelectOption[]): MultiSelectParamSpec {
   assertMultiSelectBitmaskCapacity(options);
   return { kind: "multiSelect", name: `${key}Category`, label: "類別", default: MULTI_SELECT_ALL, options, out: `${key}CategoryMask` };
+}
+
+/** 30 天地圖挑戰 Day 4：熱區四類（順序＝圖例＝bitmask） */
+const MAPCHALLENGE_HOTSPOT_OPTIONS: ParamSelectOption[] = MAPCHALLENGE_DAY04_HOTSPOT_CLASSES.map((c) => ({ label: c.zh, value: String(c.value) }));
+/** 30 天地圖挑戰 Day 4「設施」6 類：out＝`${key}KindIdx`（overlayRegistry 依索引取 `MAPCHALLENGE_DAY04_FACILITIES`） */
+function mapchallengeFacilitySelect(key: string): SelectParamSpec {
+  return {
+    kind: "select", category: "data", name: `${key}Kind`, label: "設施", default: MAPCHALLENGE_DAY04_DEFAULT_FACILITY,
+    options: MAPCHALLENGE_DAY04_FACILITIES.map((f) => ({ label: f.zh, value: f.key })),
+    out: `${key}KindIdx`, encode: MAPCHALLENGE_DAY04_FACILITY_KEYS,
+  };
 }
 
 /**
@@ -1556,6 +1568,15 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("freewayCongestionOpacity", 1),
   ],
   // 雙北國道逐車模擬（模擬面板）：顏色／車種／拖尾只在 Three.js 端讀（拖尾換值會重建 60 秒塊）。
+  // 30 天地圖挑戰 Day 4 群聚（模擬面板，公開）：設施 select 換 paint 讀的欄位（資料不重抓）；
+  // 熱區兩層的類別多選照 V-4，篩選屬性隨設施變（`<k>_c`），由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay04Population: [opacitySlider("mapchallengeDay04PopulationOpacity", 0.7)],
+  mapchallengeDay04Facility: [opacitySlider("mapchallengeDay04FacilityOpacity", 0.7), mapchallengeFacilitySelect("mapchallengeDay04Facility")],
+  mapchallengeDay04Overlap: [
+    opacitySlider("mapchallengeDay04OverlapOpacity", 0.7), mapchallengeFacilitySelect("mapchallengeDay04Overlap"),
+    categoryMultiSelect("mapchallengeDay04Overlap", MAPCHALLENGE_HOTSPOT_OPTIONS),
+  ],
+  mapchallengeDay04ScaleTcCh: [opacitySlider("mapchallengeDay04ScaleTcChOpacity", 0.7), categoryMultiSelect("mapchallengeDay04ScaleTcCh", MAPCHALLENGE_HOTSPOT_OPTIONS)],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

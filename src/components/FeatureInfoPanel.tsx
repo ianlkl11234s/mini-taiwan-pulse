@@ -176,6 +176,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "transitReachPlayback",
   // 國道逐車模擬（模擬面板）：panel 自掛 TDCS 出處與推算說明。
   "freewayTdcsSim",
+  // 30 天地圖挑戰 Day 4 群聚：panel 自掛 GHSL／設施來源。
+  "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

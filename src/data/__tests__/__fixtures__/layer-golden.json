@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1616,
+    "keyCount": 1620,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5317,6 +5317,30 @@
         "transit-access-grid-fill"
       ],
       "type": "transitAccessGrid"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-scale-tc-ch-fill"
+      ],
+      "type": "mapchallengeDay04ScaleTcCh"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-overlap-fill"
+      ],
+      "type": "mapchallengeDay04Overlap"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-facility-fill"
+      ],
+      "type": "mapchallengeDay04Facility"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-population-fill"
+      ],
+      "type": "mapchallengeDay04Population"
     },
     {
       "layers": [
@@ -97859,6 +97883,356 @@
       ],
       "sourceId": "post-office-fx-counters",
       "sourceUrl": "./finance/post_office_fx_cash_counters.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Population",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "pd"
+                  ],
+                  0
+                ],
+                "#8e2a81",
+                300,
+                "#ce436f",
+                1000,
+                "#f8745c",
+                3000,
+                "#feb57d",
+                10000,
+                "#fcf0b2"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "pd"
+                  ],
+                  0
+                ],
+                "#f9795d",
+                300,
+                "#da4a6a",
+                1000,
+                "#a4317e",
+                3000,
+                "#6c1d80",
+                10000,
+                "#37106c"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day04-population",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Facility",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience"
+                  ],
+                  0
+                ],
+                "rgba(107,114,128,0.35)",
+                1,
+                "#365c8d",
+                2,
+                "#248b8c",
+                4,
+                "#34b779",
+                10,
+                "#94d741",
+                30,
+                "#fde725"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience"
+                  ],
+                  0
+                ],
+                "rgba(107,114,128,0.35)",
+                1,
+                "#46c06f",
+                2,
+                "#229889",
+                4,
+                "#2e6e8e",
+                10,
+                "#423d82",
+                30,
+                "#46085c"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day04-facility",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Overlap",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "mapchallenge-day04-overlap",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04ScaleTcCh",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "factory_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "factory_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "mapchallenge-day04-scale-tc-ch",
+      "sourceUrl": "./mapchallenge/day04_clusters_r8_tc_ch.geojson"
     }
   ],
   "params": {
@@ -124221,6 +124595,168 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay04Facility": [
+      {
+        "label": "設施",
+        "options": [
+          {
+            "label": "便利商店",
+            "value": "convenience"
+          },
+          {
+            "label": "補習班",
+            "value": "cram"
+          },
+          {
+            "label": "診所",
+            "value": "clinic"
+          },
+          {
+            "label": "工廠",
+            "value": "factory"
+          },
+          {
+            "label": "寺廟",
+            "value": "temple"
+          },
+          {
+            "label": "國中小",
+            "value": "school"
+          }
+        ],
+        "type": "select",
+        "value": "convenience"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04Overlap": [
+      {
+        "label": "設施",
+        "options": [
+          {
+            "label": "便利商店",
+            "value": "convenience"
+          },
+          {
+            "label": "補習班",
+            "value": "cram"
+          },
+          {
+            "label": "診所",
+            "value": "clinic"
+          },
+          {
+            "label": "工廠",
+            "value": "factory"
+          },
+          {
+            "label": "寺廟",
+            "value": "temple"
+          },
+          {
+            "label": "國中小",
+            "value": "school"
+          }
+        ],
+        "type": "select",
+        "value": "convenience"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兩邊都是熱區",
+            "value": "3"
+          },
+          {
+            "label": "只有人口熱區",
+            "value": "1"
+          },
+          {
+            "label": "只有設施熱區",
+            "value": "2"
+          },
+          {
+            "label": "都不是",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "3",
+          "1",
+          "2",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04Population": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04ScaleTcCh": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兩邊都是熱區",
+            "value": "3"
+          },
+          {
+            "label": "只有人口熱區",
+            "value": "1"
+          },
+          {
+            "label": "只有設施熱區",
+            "value": "2"
+          },
+          {
+            "label": "都不是",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "3",
+          "1",
+          "2",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
       }
     ],
     "marineEcologicalMonitoringSites": [

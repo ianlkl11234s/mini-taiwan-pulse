@@ -1,0 +1,11 @@
+{
+  "popup.mapchallenge.title": "{place}付近",
+  "popup.mapchallenge.pop": "セル内人口（GHSL 推計）",
+  "popup.mapchallenge.people": "{n} 人",
+  "popup.mapchallenge.pd": "人口密度",
+  "popup.mapchallenge.perKm2": "{n} 人/km²",
+  "popup.mapchallenge.core": "人口コアセル",
+  "popup.mapchallenge.yes": "はい",
+  "popup.mapchallenge.no": "いいえ",
+  "popup.mapchallenge.class": "ホットスポット区分"
+}

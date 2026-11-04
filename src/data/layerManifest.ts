@@ -190,6 +190,7 @@ import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
 import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
+import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -15265,6 +15266,94 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["slider", "select", "multiSelect", "slider", "slider", "slider"] },
     description: "雙北國道 2026-09-28（教師節連假最後一天）16:00–18:00 逐車推算位置：車點＋拖尾，可依車速或車種著色、點車看上下交流道並跟隨。資料：交通部高速公路局「交通資料庫」（TDCS M06A）；門架之間位置與車道為推算。",
     topics: ["交通", "國道", "模擬", "推估", "車流"],
+  },
+  mapchallengeDay04Population: {
+    key: "mapchallengeDay04Population",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-04）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 4 群聚 Clusters" },
+    ...layerName({ zh: "人口密度基準", alt: "Population Density Baseline" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY04_COLOR,
+    icon: Users,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day04_clusters（30 天地圖挑戰 Day 4 群聚）：GHSL GHS-POP R2023A 2020 人口重算到 H3 r7（約 5.2 km²），只留人口密度 ≥100 人/km² 的格；六類設施點（超商 OSM、補習班名錄、衛福部診所、經濟部工廠登記 2026-06、內政部寺廟登記、教育部國中小名錄）數到格內；熱區＝有人住的格中人口／設施各取前 10%，<k>_c 標 3 兩邊都是、1 只有人口、2 只有設施、0 都不是。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫、pulse-data registry 未登記）。人口是 GHSL 2020 模型推估，不是戶籍；設施數是點位落格計數，點位座標誤差與名錄完整度沿用各來源。重疊率為分析報告確定值（前端常數）。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day04-population", url: "./mapchallenge/day04_clusters_r7.geojson" },
+    legend: "mapchallengeDay04Population",
+    popup: "mapchallengeDay04Population",
+    params: { count: 1, kinds: ["slider"] },
+    description: "30 天地圖挑戰 Day 4 群聚：全台 H3 r7 網格（每格約 5.2 km²，只畫人口密度 ≥100 人/km² 的 2,773 格）人口密度 5 級；人口為 GHSL 2020 模型推估（2020），不是戶籍。點格看格內人口、是否人口核心格（前 10%）與六類設施數。來源：GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄（政府資料開放授權）、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析。",
+    topics: ["人口", "群聚", "熱區", "網格", "30 天地圖挑戰"],
+  },
+  mapchallengeDay04Facility: {
+    key: "mapchallengeDay04Facility",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-04）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 4 群聚 Clusters" },
+    ...layerName({ zh: "設施群聚", alt: "Facility Clusters" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY04_COLOR,
+    icon: Store,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day04_clusters（30 天地圖挑戰 Day 4 群聚）：GHSL GHS-POP R2023A 2020 人口重算到 H3 r7（約 5.2 km²），只留人口密度 ≥100 人/km² 的格；六類設施點（超商 OSM、補習班名錄、衛福部診所、經濟部工廠登記 2026-06、內政部寺廟登記、教育部國中小名錄）數到格內；熱區＝有人住的格中人口／設施各取前 10%，<k>_c 標 3 兩邊都是、1 只有人口、2 只有設施、0 都不是。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫、pulse-data registry 未登記）。人口是 GHSL 2020 模型推估，不是戶籍；設施數是點位落格計數，點位座標誤差與名錄完整度沿用各來源。重疊率為分析報告確定值（前端常數）。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day04-facility", url: "./mapchallenge/day04_clusters_r7.geojson" },
+    legend: "mapchallengeDay04Facility",
+    popup: "mapchallengeDay04Facility",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "30 天地圖挑戰 Day 4 群聚：全台 H3 r7 有人住的格內，便利商店、補習班、診所、工廠、寺廟、國中小六類設施的每格數量 5 級（可切設施，每類一組色階；數量 0 的格畫淡灰）。設施資料約 2026 年（國中小名錄約 2024）。來源：GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄（政府資料開放授權）、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析。",
+    topics: ["群聚", "便利商店", "補習班", "診所", "工廠", "寺廟", "學校", "網格", "30 天地圖挑戰"],
+  },
+  mapchallengeDay04Overlap: {
+    key: "mapchallengeDay04Overlap",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-04）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 4 群聚 Clusters" },
+    ...layerName({ zh: "熱區重疊", alt: "Hotspot Overlap" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY04_COLOR,
+    icon: Layers,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day04_clusters（30 天地圖挑戰 Day 4 群聚）：GHSL GHS-POP R2023A 2020 人口重算到 H3 r7（約 5.2 km²），只留人口密度 ≥100 人/km² 的格；六類設施點（超商 OSM、補習班名錄、衛福部診所、經濟部工廠登記 2026-06、內政部寺廟登記、教育部國中小名錄）數到格內；熱區＝有人住的格中人口／設施各取前 10%，<k>_c 標 3 兩邊都是、1 只有人口、2 只有設施、0 都不是。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫、pulse-data registry 未登記）。人口是 GHSL 2020 模型推估，不是戶籍；設施數是點位落格計數，點位座標誤差與名錄完整度沿用各來源。重疊率為分析報告確定值（前端常數）。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day04-overlap", url: "./mapchallenge/day04_clusters_r7.geojson" },
+    legend: "mapchallengeDay04Overlap",
+    popup: "mapchallengeDay04Overlap",
+    params: { count: 3, kinds: ["slider", "select", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 4 群聚：人口熱區（有人住的格中人口前 10%）與設施熱區（設施數前 10%）是否重疊，四類可篩選；重疊率＝人口熱區裡也是設施熱區的比例（超商 82%、補習班 75%、診所 77%、工廠 41%、寺廟 41%、國中小 72%）。來源：GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄（政府資料開放授權）、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析。",
+    topics: ["群聚", "熱區", "人口", "設施", "網格", "30 天地圖挑戰"],
+  },
+  mapchallengeDay04ScaleTcCh: {
+    key: "mapchallengeDay04ScaleTcCh",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-04）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 4 群聚 Clusters" },
+    ...layerName({ zh: "臺中與彰化工廠細格", alt: "Taichung vs Changhua Factory Fine Grid" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY04_COLOR,
+    icon: Factory,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day04_clusters（30 天地圖挑戰 Day 4 群聚）：GHSL GHS-POP R2023A 2020 人口重算到 H3 r7（約 5.2 km²），只留人口密度 ≥100 人/km² 的格；六類設施點（超商 OSM、補習班名錄、衛福部診所、經濟部工廠登記 2026-06、內政部寺廟登記、教育部國中小名錄）數到格內；熱區＝有人住的格中人口／設施各取前 10%，<k>_c 標 3 兩邊都是、1 只有人口、2 只有設施、0 都不是。臺中／彰化細格另以 H3 r8（約 0.74 km²）重算，熱區由兩縣市各自取前 10%。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫、pulse-data registry 未登記）。人口是 GHSL 2020 模型推估，不是戶籍；設施數是點位落格計數，點位座標誤差與名錄完整度沿用各來源。重疊率為分析報告確定值（前端常數）。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day04-scale-tc-ch", url: "./mapchallenge/day04_clusters_r8_tc_ch.geojson" },
+    legend: "mapchallengeDay04ScaleTcCh",
+    popup: "mapchallengeDay04ScaleTcCh",
+    params: { count: 2, kinds: ["slider", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 4 群聚：臺中市與彰化縣 H3 r8 細格（每格約 0.74 km²，2,652 格）的人口熱區 × 工廠熱區，熱區由兩縣市各自取前 10%、兩縣市不互相比較；重疊率臺中 18%、彰化 45%。來源：GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄（政府資料開放授權）、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析。",
+    topics: ["群聚", "熱區", "工廠", "臺中", "彰化", "網格", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
