@@ -1,5 +1,5 @@
 /**
- * 雙北國道逐車模擬（本機研究層 freewayTdcsSim）共用常數：scene／圖例／說明框三邊同一份色票與標籤。
+ * 雙北國道逐車模擬（模擬面板 freewayTdcsSim）共用常數：scene／圖例／說明框三邊同一份色票與標籤。
  * 原型：taipei-gis-analytics pipelines/analysis/freeway_tdcs/（viewer/index.html、README.md）；
  * 資料：同 repo output/freeway_tdcs/ 的 trips.bin、trips_meta.json、network.json（換道版），本機複製到 public/freeway_tdcs/。
  */

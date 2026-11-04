@@ -1312,7 +1312,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   transitReachGrid: boolean;
   /** 交通可及性（模擬面板，公開、情境推演）：單一車站起點 0–12 小時到達範圍播放 */
   transitReachPlayback: boolean;
-  /** 雙北國道逐車模擬（本機研究層）：TDCS M06A 2026-09-28 16–18 時逐車推算位置 */
+  /** 雙北國道逐車模擬（模擬面板，公開、推算）：TDCS M06A 2026-09-28 16–18 時逐車推算位置 */
   freewayTdcsSim: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;

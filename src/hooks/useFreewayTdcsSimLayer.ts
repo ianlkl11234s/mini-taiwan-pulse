@@ -21,7 +21,7 @@ export interface FreewayTdcsSimParams {
 }
 
 /**
- * 雙北國道逐車模擬（本機研究層）。
+ * 雙北國道逐車模擬（模擬面板，公開）。
  * - 時間：跟著全站時間軸；custom layer 在 render 內讀 timeStore.getTime()（不進 React deps，development-rules §8）。
  * - 跟隨：說明框按「跟隨」寫入 store；這裡用 timeStore.subscribe 每次時間變動移鏡頭（不在 paint pass 內動鏡頭）。
  *   Esc、再按一次、關圖層或車駛離資料範圍時結束；結束原因寫進 store 由圖例顯示（原型的 toast）。

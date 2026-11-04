@@ -1,4 +1,4 @@
-// 雙北國道逐車模擬（本機研究層，localResearchGroup）Layer Host。
+// 雙北國道逐車模擬（模擬面板，公開）Layer Host。
 
 import { useFreewayTdcsSimLayer } from "../../hooks/useFreewayTdcsSimLayer";
 import { FREEWAY_TDCS_COLOR_MODES, FREEWAY_TDCS_SIM_KEY } from "../../data/freewayTdcsSimTypes";

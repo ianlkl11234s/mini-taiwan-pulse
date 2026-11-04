@@ -1530,7 +1530,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "freewayWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("freewayCongestionOpacity", 1),
   ],
-  // 雙北國道逐車模擬（本機研究層）：顏色／車種／拖尾只在 Three.js 端讀（拖尾換值會重建 60 秒塊）。
+  // 雙北國道逐車模擬（模擬面板）：顏色／車種／拖尾只在 Three.js 端讀（拖尾換值會重建 60 秒塊）。
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {

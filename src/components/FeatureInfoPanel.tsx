@@ -156,7 +156,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 交通可及性（公開模擬資料家族）：panel 自掛 OSM／GHSL／TDX 來源。
   "transitReachGrid",
   "transitReachPlayback",
-  // 國道逐車模擬（本機研究層）：panel 自掛 TDCS 出處與推算說明。
+  // 國道逐車模擬（模擬面板）：panel 自掛 TDCS 出處與推算說明。
   "freewayTdcsSim",
   "transitAccessGrid",
   "transitAccessPlayback",
