@@ -253,5 +253,7 @@
   "enum.statVariant.蔬果面積": "Fruit & vegetables area",
   "enum.statVariant.草地面積占比": "Grassland share",
   "enum.statVariant.道級": "Province",
-  "enum.statVariant.市郡區": "Municipality"
+  "enum.statVariant.市郡區": "Municipality",
+  "enum.statVariant.省／地區": "Province / territory",
+  "enum.statVariant.普查區": "Census division"
 }

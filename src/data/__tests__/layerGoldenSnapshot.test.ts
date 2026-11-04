@@ -232,7 +232,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +1 雙北國道逐車模擬 freewayTdcsSim（模擬面板）。
     // 2026-11-04: +10 加拿大第 0＋1 波 ca*（行政邊界、交通 4、能源 4、人口中心）。
     // 2026-11-04: +7 加拿大第 2 波（聯邦選區、FSA、原住民土地、CIMD、租金、地名、山體陰影）。
-    expect(keys.length).toBe(1525);
+    // 2026-11-04: +24 加拿大統計（ca 家族 statsCa*，省／地區 13／普查區 293）。
+    expect(keys.length).toBe(1549);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

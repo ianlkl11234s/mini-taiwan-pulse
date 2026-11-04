@@ -25,5 +25,7 @@
   "enum.dataSourceLevel.prosecutor_district": "District Prosecutors' Office jurisdiction",
   "enum.dataSourceLevel.gb_lad": "Local authority district",
   "enum.dataSourceLevel.kr_sido": "Province level (si/do)",
-  "enum.dataSourceLevel.kr_sigungu": "Municipal level (si/gun/gu)"
+  "enum.dataSourceLevel.kr_sigungu": "Municipal level (si/gun/gu)",
+  "enum.dataSourceLevel.ca_pr": "Province / territory",
+  "enum.dataSourceLevel.ca_cd": "Census division"
 }

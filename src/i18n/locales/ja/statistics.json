@@ -93,5 +93,7 @@
   "statistics.details.relatedLayers": "関連 GIS レイヤー",
   "statistics.details.indexEntry": "{group}／{subgroup}：{name}",
   "statistics.level.kr_sido": "広域自治体（市・道）",
-  "statistics.level.kr_sigungu": "基礎自治体（市・郡・区）"
+  "statistics.level.kr_sigungu": "基礎自治体（市・郡・区）",
+  "statistics.level.ca_pr": "州・準州",
+  "statistics.level.ca_cd": "国勢調査区（センサス・ディビジョン）"
 }

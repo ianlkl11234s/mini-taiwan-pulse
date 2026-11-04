@@ -479,5 +479,9 @@
   "enum.statLevel.kr_sido": "広域自治体（市・道）",
   "enum.statLevel.kr_sigungu": "基礎自治体（市・郡・区）",
   "enum.statBoundary.KR_SIDO_ADMDONGKOR_20261001": "韓国 広域行政区域界（2026-10-01版）",
-  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "韓国 市郡区行政区域界（2026-10-01版）"
+  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "韓国 市郡区行政区域界（2026-10-01版）",
+  "enum.statLevel.ca_pr": "州・準州",
+  "enum.statLevel.ca_cd": "国勢調査区（センサス・ディビジョン）",
+  "enum.statBoundary.CA_PR_CBF2021": "カナダ州・準州界（2021 年国勢調査）",
+  "enum.statBoundary.CA_CD_CBF2021": "カナダ国勢調査区界（2021 年国勢調査）"
 }

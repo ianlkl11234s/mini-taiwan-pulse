@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1525,
+    "keyCount": 1549,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4600,6 +4600,30 @@
         "statsKrEstablishmentsSgg-fill",
         "statsKrEmployeesSido-fill",
         "statsKrEmployeesSgg-fill",
+        "statsCaPopulationPr-fill",
+        "statsCaPopulationCd-fill",
+        "statsCaPopulationDensityPr-fill",
+        "statsCaPopulationDensityCd-fill",
+        "statsCaAgeYoungSharePr-fill",
+        "statsCaAgeYoungShareCd-fill",
+        "statsCaAgeWorkingSharePr-fill",
+        "statsCaAgeWorkingShareCd-fill",
+        "statsCaAgeOldSharePr-fill",
+        "statsCaAgeOldShareCd-fill",
+        "statsCaMedianAgePr-fill",
+        "statsCaMedianAgeCd-fill",
+        "statsCaHouseholdsPr-fill",
+        "statsCaHouseholdsCd-fill",
+        "statsCaHouseholdIncomePr-fill",
+        "statsCaHouseholdIncomeCd-fill",
+        "statsCaHouseholdIncomeAfterTaxPr-fill",
+        "statsCaHouseholdIncomeAfterTaxCd-fill",
+        "statsCaUnemploymentRatePr-fill",
+        "statsCaUnemploymentRateCd-fill",
+        "statsCaParticipationRatePr-fill",
+        "statsCaParticipationRateCd-fill",
+        "statsCaEmploymentRatePr-fill",
+        "statsCaEmploymentRateCd-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -133218,6 +133242,846 @@
       },
       {
         "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeOldShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeOldSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeOldShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeOldShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeOldSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeOldSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeOldShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeOldSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeWorkingShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeWorkingSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeWorkingShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeWorkingShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeWorkingSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeWorkingSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeWorkingShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeWorkingSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeYoungShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeYoungSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeYoungShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeYoungShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeYoungSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeYoungSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeYoungShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeYoungSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaEmploymentRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaEmploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaEmploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaEmploymentRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaEmploymentRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaEmploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaEmploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaEmploymentRatePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeAfterTaxCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomeAfterTaxPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeAfterTaxCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeAfterTaxCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeAfterTaxPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomeAfterTaxPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeAfterTaxCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeAfterTaxPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdsCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdsPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdsCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdsCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdsPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdsPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdsCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdsPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaMedianAgeCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaMedianAgePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaMedianAgeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaMedianAgeCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaMedianAgePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaMedianAgePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaMedianAgeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaMedianAgePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaParticipationRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaParticipationRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaParticipationRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaParticipationRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaParticipationRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaParticipationRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaParticipationRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaParticipationRatePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationDensityCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationDensityPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationDensityCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationDensityCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationDensityPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationDensityPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationDensityCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationDensityPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaUnemploymentRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaUnemploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaUnemploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaUnemploymentRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaUnemploymentRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaUnemploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaUnemploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaUnemploymentRatePr"
+      },
+      {
+        "label": "資料期別",
         "options": [],
         "status": "idle",
         "statusText": "尚未載入",
