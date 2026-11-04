@@ -103,6 +103,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | 類型 | 路徑 | 用途 |
 |---|---|---|
 | 經驗 | [`docs/LESSONS.md`](./docs/LESSONS.md) | 主題經驗總集（主入口） |
+| 進度 | [`docs/PROJECTS.md`](./docs/PROJECTS.md) | 專案追蹤總表（做到一半的專案） |
 | 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
 | 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
 | 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |

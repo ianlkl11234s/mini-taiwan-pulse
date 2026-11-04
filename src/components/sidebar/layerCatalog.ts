@@ -392,6 +392,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "臺北 307 走廊公車擁擠",
     "全台交通可及性",
     "雙北大眾運輸可及性",
+    "雙北國道逐車模擬",
   ],
 };
 
@@ -2539,6 +2540,13 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "大眾運輸可及性", layers: [fromManifest("transitAccessGrid"), fromManifest("transitAccessPlayback")] }],
   },
+  {
+    // 雙北國道逐車模擬（2026-11-04 使用者拍板正式可見）：公開模擬資料家族 sim/v1/freeway_tdcs，同交通可及性人人可見；跟全站時間軸。
+    title: "雙北國道逐車模擬",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{ title: "國道逐車", layers: [fromManifest("freewayTdcsSim")] }],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
@@ -3255,6 +3263,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "臺北 307 走廊公車擁擠": "city",
     "全台交通可及性": "city",
     "雙北大眾運輸可及性": "city",
+    "雙北國道逐車模擬": "city",
   },
 };
 
@@ -3446,6 +3455,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
     "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
+    "雙北國道逐車模擬": { zh: "雙北國道逐車模擬", sub: "Freeway Vehicles" },
   },
 };
 
