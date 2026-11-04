@@ -61,5 +61,12 @@
   "enum.statGroup.平均戶量": "Average household size",
   "enum.statGroup.住宅數": "Dwellings",
   "enum.statGroup.事業體數": "Establishments",
-  "enum.statGroup.從業人員數": "Persons employed"
+  "enum.statGroup.從業人員數": "Persons employed",
+  "enum.statGroup.年齡中位數": "Median age",
+  "enum.statGroup.私人家戶數": "Private households",
+  "enum.statGroup.家戶總所得中位數": "Median household total income",
+  "enum.statGroup.家戶稅後所得中位數": "Median household after-tax income",
+  "enum.statGroup.失業率": "Unemployment rate",
+  "enum.statGroup.勞動參與率": "Participation rate",
+  "enum.statGroup.就業率": "Employment rate"
 }

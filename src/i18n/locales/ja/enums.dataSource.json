@@ -25,5 +25,7 @@
   "enum.dataSourceLevel.prosecutor_district": "地方検察署の管轄区",
   "enum.dataSourceLevel.gb_lad": "地方自治体（LAD）",
   "enum.dataSourceLevel.kr_sido": "広域自治体（市・道）",
-  "enum.dataSourceLevel.kr_sigungu": "基礎自治体（市・郡・区）"
+  "enum.dataSourceLevel.kr_sigungu": "基礎自治体（市・郡・区）",
+  "enum.dataSourceLevel.ca_pr": "州・準州",
+  "enum.dataSourceLevel.ca_cd": "国勢調査区（センサス・ディビジョン）"
 }
