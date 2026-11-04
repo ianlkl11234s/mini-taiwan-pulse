@@ -1613,6 +1613,12 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "歷史地圖",
+        layers: [
+          fromManifest("historicalMapSinica"),
+        ],
+      },
+      {
         title: "玩・體驗 Experience",
         layers: [
           fromManifest("tourEvents"),

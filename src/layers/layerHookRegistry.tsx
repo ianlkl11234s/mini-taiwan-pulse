@@ -55,6 +55,7 @@ import {
 import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
+import { HistoricalMapSinicaHost } from "./hosts/historicalMapHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
 import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
 import {
@@ -299,6 +300,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpWelfareFacilitiesLayer", keys: ["jpWelfareDisability", "jpWelfareChild"], Host: JpWelfareFacilitiesHost },
   { id: "useJpMajorRoadsLayer", keys: ["jpMajorRoads"], Host: JpMajorRoadsHost },
   { id: "useJpExpresswaysLayer", keys: ["jpExpressways"], Host: JpExpresswaysHost },
+  { id: "useHistoricalMapSinicaLayer", keys: ["historicalMapSinica"], Host: HistoricalMapSinicaHost },
   { id: "useJpGsiTerrainLayers", keys: ["jpGsiHillshade", "jpGsiRelief"], Host: JpGsiTerrainHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   // 英國（2026-10-29 第 0b 波）

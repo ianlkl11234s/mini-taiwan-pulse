@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1620,
+    "keyCount": 1621,
     "sections": [
       "gisLayers",
       "overlays",
@@ -114394,6 +114394,52 @@
         "step": 0.05,
         "value": 0.75,
         "valueText": "0.75"
+      }
+    ],
+    "historicalMapSinica": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1904 臺灣堡圖（明治版）",
+            "value": "jm20k-1904"
+          },
+          {
+            "label": "1921 臺灣堡圖（大正版）",
+            "value": "jm20k-1921"
+          },
+          {
+            "label": "1921 日治二萬五千分一地形圖",
+            "value": "jm25k-1921"
+          },
+          {
+            "label": "1944 美軍航照",
+            "value": "am25k-1944"
+          },
+          {
+            "label": "1945 美軍城市地圖",
+            "value": "amcity-1945"
+          },
+          {
+            "label": "1953 臺糖鐵道網圖",
+            "value": "tm150k-1953"
+          },
+          {
+            "label": "1966 Corona 衛星影像",
+            "value": "corona-1966"
+          }
+        ],
+        "type": "select",
+        "value": "jm20k-1904"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "iPostBoxes": [

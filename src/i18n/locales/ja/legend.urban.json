@@ -162,5 +162,15 @@
   "legend.urban.gbSurplusUnderOffer": "交渉中（買付申込あり、{n}）",
   "legend.urban.gbSurplusOnMarket": "売出し中（{n}）",
   "legend.urban.gbSurplusScope": "中央政府、NHS、国防省、ウェールズ公的機関が登録した余剰資産のみ。イングランドの地方議会やスコットランド・北アイルランド自治政府の資産の多くは含まれません",
-  "legend.urban.gbSurplusCoverage": "420 か所：イングランド 290、ウェールズ 115、スコットランド 14、北アイルランド 1。データ時点 2026-06-29"
+  "legend.urban.gbSurplusCoverage": "420 か所：イングランド 290、ウェールズ 115、スコットランド 14、北アイルランド 1。データ時点 2026-06-29",
+  "legend.urban.historicalMapEra0": "1904 台湾堡図（明治版）",
+  "legend.urban.historicalMapEra1": "1921 台湾堡図（大正版）",
+  "legend.urban.historicalMapEra2": "1921 日本統治期 2万5千分の1地形図",
+  "legend.urban.historicalMapEra3": "1944 米軍航空写真",
+  "legend.urban.historicalMapEra4": "1945 米軍都市地図",
+  "legend.urban.historicalMapEra5": "1953 台湾糖業鉄道路線図",
+  "legend.urban.historicalMapEra6": "1966 コロナ衛星画像",
+  "legend.urban.historicalMapSource": "出典：中央研究院人文社会科学研究センター GIS専題センター「台湾百年歴史地図」、外部タイルを直接表示",
+  "legend.urban.historicalMapLicense": "ライセンス：CC BY-NC（非商用）",
+  "legend.urban.historicalMapOffset": "歴史的スキャン画像のため、位置にずれがある場合があります"
 }

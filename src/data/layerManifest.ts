@@ -7114,6 +7114,31 @@ export const LAYER_MANIFEST = {
     topics: ["觀光", "文資", "人文"],
   },
 
+  historicalMapSinica: {
+    key: "historicalMapSinica",
+    country: "TW", section: { theme: "觀光 Tourism", group: "歷史地圖" },
+    ...layerName({ zh: "古地圖", alt: "Historical Maps", qualifier: "臺灣百年歷史地圖" }),
+    expandable: true,
+    color: "#a16207",
+    icon: Map,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "中研院人社中心 GIS 專題中心「臺灣百年歷史地圖」WMTS（外部 XYZ，z8–18，tileSize 256）；7 個年代：1904／1921 臺灣堡圖、1921 二萬五千分一地形圖、1944 美軍航照、1945 美軍城市地圖、1953 臺糖鐵道網圖、1966 Corona",
+      note: "外部圖磚直連，非 analytics 資料集；授權 CC BY-NC（非商業）；圖資為歷史掃描，位置可能有偏移；沒有 feature 屬性與 popup；預設關閉",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useHistoricalMapSinicaLayer 外部 XYZ raster https://gis.sinica.edu.tw/tileserver/file-exists.php?img={層名}-{副檔名}-{z}-{x}-{y}，z8–18，依 historicalMapSinicaEraIdx 換 source，插在底圖第一個 symbol 下",
+    },
+    legend: "historicalMapSinica",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 7 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
+    topics: ["觀光", "歷史", "古地圖", "人文", "底圖"],
+  },
+
   tourEvents: {
     key: "tourEvents",
     country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
