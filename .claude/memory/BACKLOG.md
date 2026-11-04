@@ -291,6 +291,17 @@
 | VIS-5 | P3 | done | `parksTaipei` 改名「公園 Parks（臺北、臺中、臺南）」，描述寫三市處數與其他縣市未涵蓋（三語，使用者選甲不拆層；#795）。 | 未發版，隨下一次整批發版。 | 名稱與描述符合資料。 |
 | VIS-6 | P4 | done | 量測後只有 `forestRecreation`（2.41MB）點樣式仍載整份面資料超過 2MB，使用者 2026-11-01 決定先不處理；舊 `gb_flood_defences_z5.pmtiles` 已刪（#795）。 | 若之後要做：forestRecreation 改出代表點檔。 | 已結案。 |
 
+## 地圖基礎 GIS 元件（2026-11-03，#803／#804 隨 v2.21.0 上線，#808 已合 develop）
+
+規格：spec §5.43（導航控制 N-1）、§5.44（游標座標、右鍵選單、量測）。設計稿：使用者 artifact（導航 2YijJqCfxZrWpRdebiTwe9、座標選單量測 PNjE95bytVvi2Qinms5Jxp）。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| GUI-1 | P1 | blocked | #808 修正待發版：左側面板 leftDockTop 60→80 讓出游標行、比例尺刻度不疊字（單位移到長條右側、<80px 隱藏中點）、右鍵選單加寬 264px（develop `19ba3754`）。 | Blocker：develop 同時有 #807（2024 投開票所公開圖層，另一 session）未驗收，使用者 2026-11-03 選「先不發」。First action：#807 驗收完後列出 develop 上範圍外 PR 給使用者確認，再發 v2.22.0。 | 正式站 `main-*.js` 含新版號；正式站截圖：游標行與圖層面板有空白、z14.58（200 m）比例尺不疊字、英文右鍵選單 5 項單行。 |
+| GUI-2 | P2 | ready | v2.21.0 未驗項：手機實機觸控（長按選單、點地圖加點、尺規鈕）、真實定位成功流程（只用 mock geolocation 驗過）、實體滑鼠雙擊結束量測、站主登入後政治圖層（#802）、en／ja 窄桌機寬度量測工具列換行。 | First action：使用者手機開正式站逐項操作，或 agent-browser 站主 session 驗政治圖層。 | 每項有截圖或使用者確認；發現問題開 fix PR。 |
+| GUI-3 | P2 | blocked | 地址／地名搜尋（WebGIS 第 5 類）。 | Blocker：owner decision——地理編碼服務選 Mapbox Geocoding／TGOS／國土測繪中心（用量上限與授權不同）。First action：列三者配額、授權、繁中地址命中率比較給使用者選。 | 使用者選定服務；設計稿多版給使用者選位置與樣式後才實作（先看設計稿再實作）。 |
+| GUI-4 | P3 | blocked | 其餘候選元件：製圖輸出（PNG 附標題、圖例、比例尺、指北針、來源）、卷簾比對、範圍圈選（主站）、鷹眼小地圖、字級／色盲／高對比、CSV 下載（授權逐源確認）、使用者調整圖層順序。 | Blocker：owner decision——排優先序。建議先做製圖輸出與卷簾（寫文章、分析用）。 | 使用者選定項目後走「設計稿多版→拍板→實作→與 develop 並排截圖驗收」。 |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.

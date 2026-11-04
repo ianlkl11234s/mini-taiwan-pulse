@@ -13,7 +13,7 @@ import type { PointTier } from "./mapStyleScale";
 export type PointTierOrBubble = PointTier | "B";
 
 export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubble>> = {
-  // ── 小 S（半徑 3） · 25 層
+  // ── 小 S（半徑 3） · 26 層
   accidentTaipei: "S", // 北市事故點 Taipei Dots
   bikeStations: "S", // 公共自行車 Bike Station
   busStationsCity: "S", // 市區公車站 City Bus
@@ -31,6 +31,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   medLTC: "S", // 長照機構 LTC
   medPharmacy: "S", // 藥局 Pharmacy
   osmPowerTowers: "S", // 高壓鐵塔 Power Towers
+  pollingStations2024: "S", // 2024 投開票所 Polling Stations（街區層級密集）
   pollutionPenaltyMobile: "S", // 移動污染 Mobile Penalty
   schools: "S", // 學校總覽 All Schools
   streetTreesNational: "S", // 行道樹全國 Street Trees TW
@@ -301,6 +302,19 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   krRenewables: "B", // 南韓再生能源點：半徑＝裝置容量 4 級（未標容量用最小級） · src/hooks/useKrEnergyLayers.ts
   krSubstations: "B", // 南韓變電所：半徑＝電壓 5 級 · src/hooks/useKrEnergyLayers.ts
   krPowerTowers: "S", // 南韓高壓鐵塔（z11 起） · src/hooks/useKrEnergyLayers.ts
+  caTransitStops: "S", // 加拿大公共運輸站點（13.3 萬點，z12 起單點、之下熱區） · src/hooks/useCaTransportLayers.ts
+  caAirportsPorts: "M", // 加拿大機場與港口（次要點 z7 起用 S） · src/hooks/useCaTransportLayers.ts
+  caRailways: "M", // 加拿大鐵道車站（z8 起） · src/hooks/useCaTransportLayers.ts
+  caPowerPlants: "B", // 加拿大電廠：半徑＝裝置容量 4 級 · src/hooks/useCaEnergyLayers.ts
+  caWindTurbines: "S", // 加拿大風機（7,841 點，不畫熱區） · src/hooks/useCaEnergyLayers.ts
+  caPowerGrid: "S", // 加拿大變電站（z7 起） · src/hooks/useCaEnergyLayers.ts
+  caOilGas: "S", // 加拿大油氣點位（井、設施 z10 起單點、之下熱區；主要設施 M） · src/hooks/useCaEnergyLayers.ts
+  caPopulationCentres: "B", // 加拿大人口中心代表點：半徑＝人口級距 · src/hooks/useCaEnergyLayers.ts
+  caFederalDistricts: "S", // 加拿大聯邦選區代表點（z<6） · src/hooks/useCaAreaLayers.ts
+  caIndigenousLands: "S", // 加拿大原住民土地代表點（z<7 或點模式） · src/hooks/useCaAreaLayers.ts
+  caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/hooks/useCaAreaLayers.ts
+  caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/hooks/useCaAreaLayers.ts
+  caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/hooks/useCaTerrainLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts

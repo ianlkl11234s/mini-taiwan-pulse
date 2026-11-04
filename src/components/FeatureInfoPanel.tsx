@@ -30,6 +30,10 @@ import "./featureInfo/featureInfo.css";
 const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 南韓第 3–5 波 18 層：panel 自掛 SourceFooter
   ...KR_DATA_KEYS,
+  // 2024 投開票所：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
+  "pollingStations2024",
+  // 2026 議員選區：RPC feature 無來源欄，panel 補中選會出處／OGDL-1.0 並自掛 SourceFooter
+  "councilDistricts2026",
   "chatHighlight",
   "satellite", // 衛星：feature 無來源欄位，panel 補 Space-Track／UCS 常數並自掛 SourceFooter
   "landslideAnnual", // 年度崩塌地：tile 無來源欄，panel 補署名／授權並自掛 SourceFooter
@@ -75,6 +79,22 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "krSubstations",
   "krPowerTowers",
   "krOilGas",
+  "caAdminBoundaries",
+  "caTransitStops",
+  "caAirportsPorts",
+  "caMajorRoads",
+  "caRailways",
+  "caPowerPlants",
+  "caWindTurbines",
+  "caPowerGrid",
+  "caOilGas",
+  "caPopulationCentres",
+  "caFederalDistricts",
+  "caPostalFsa",
+  "caIndigenousLands",
+  "caDeprivation",
+  "caRents",
+  "caPlaceNames",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
   "gbBuiltUpAreas",
@@ -154,6 +174,10 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // 交通可及性（公開模擬資料家族）：panel 自掛 OSM／GHSL／TDX 來源。
   "transitReachGrid",
   "transitReachPlayback",
+  // 國道逐車模擬（模擬面板）：panel 自掛 TDCS 出處與推算說明。
+  "freewayTdcsSim",
+  "transitAccessGrid",
+  "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",

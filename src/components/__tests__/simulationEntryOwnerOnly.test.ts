@@ -27,8 +27,8 @@ const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSideba
 
 describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11-01 改 D-1）", () => {
   it("resolveLayerPanel：非站主只見交通可及性兩層；站主四層", () => {
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback"]);
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim"]);
     expect(LAYER_PANELS[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
 
@@ -54,7 +54,7 @@ describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback"]);
+    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);
@@ -77,6 +77,27 @@ describe("交通可及性（公開模擬）", () => {
     expect(LAYER_MANIFEST.transitReachGrid.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
     expect(LAYER_MANIFEST.transitReachPlayback.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
     expect(panelForExplorationLayers(["transitReachPlayback"]).panel).toBe("simulation");
+  });
+});
+
+describe("雙北大眾運輸可及性（公開模擬）", () => {
+  it("manifest section 指向模擬面板第四個主題；非站主看得到；Agent 開啟時導向模擬面板", () => {
+    const theme = layerPanelDef("simulation").themes[3]!;
+    expect(LAYER_MANIFEST.transitAccessGrid.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(LAYER_MANIFEST.transitAccessPlayback.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(GATED_LAYERS.has("transitAccessGrid")).toBe(false);
+    expect(GATED_LAYERS.has("transitAccessPlayback")).toBe(false);
+    expect(panelForExplorationLayers(["transitAccessGrid"]).panel).toBe("simulation");
+  });
+});
+
+describe("雙北國道逐車模擬（公開模擬）", () => {
+  it("manifest section 指向模擬面板第五個主題；非站主看得到；Agent 開啟時導向模擬面板", () => {
+    const theme = layerPanelDef("simulation").themes[4]!;
+    expect(LAYER_MANIFEST.freewayTdcsSim.section).toEqual({ theme: theme.title, group: theme.groups[0]!.title });
+    expect(GATED_LAYERS.has("freewayTdcsSim")).toBe(false);
+    expect(panelForExplorationLayers(["freewayTdcsSim"]).panel).toBe("simulation");
+    expect(getThemeLayerKeys(MAIN_THEMES)).not.toContain("freewayTdcsSim");
   });
 });
 

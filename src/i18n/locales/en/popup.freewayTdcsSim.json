@@ -1,0 +1,11 @@
+{
+  "popup.freewayTdcsSim.onIc": "Entered at",
+  "popup.freewayTdcsSim.offIc": "Exited at",
+  "popup.freewayTdcsSim.onOutside": " (outside the area; entered at the boundary)",
+  "popup.freewayTdcsSim.offOutside": " (outside the area; exited at the boundary)",
+  "popup.freewayTdcsSim.avgSpeed": "Average speed",
+  "popup.freewayTdcsSim.serviceBreak": "Long stop on the way (likely a service area); that part is not shown",
+  "popup.freewayTdcsSim.follow": "Follow",
+  "popup.freewayTdcsSim.unfollow": "Stop following (Esc)",
+  "popup.freewayTdcsSim.inferNote": "Entry and exit interchanges follow the original gantry sequence; positions between gantries and lanes are estimated."
+}

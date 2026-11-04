@@ -1,5 +1,5 @@
-// 政治 Politics popup：2026 選舉活動（owner-only）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
-import { Row, Title, formatTaiwanMinute } from "./shared";
+// 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所、2026 議員選區（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
+import { Row, SourceFooter, Title, formatTaiwanMinute } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useLocale } from "../../state/localeStore";
@@ -14,6 +14,14 @@ import {
   formatCrowdNumber,
   parseJsonArray,
 } from "../../data/electionEventsTypes";
+import {
+  POLLING_LEAD_COLOR,
+  POLLING_PRECISIONS,
+  POLLING_SOURCE_URL,
+  pollingLead,
+  pollingNumber,
+} from "../../data/pollingStationsTypes";
+import { COUNCIL_DISTRICT_COLOR, formatMemberUnits } from "../../data/councilDistrictsLoader";
 
 // i18n key 寫成字面值（localeParity 測試靠字面值判斷 key 有人用）
 const STATUS_KEY = {
@@ -130,3 +138,101 @@ export function ElectionEventPanel({ props }: { props: Record<string, unknown> }
     </>
   );
 }
+
+// ── 2024 投開票所（公開）──
+const POLLING_PRECISION_KEY = {
+  poi_name: "popup.politics.polling.precision.poi_name",
+  address_door: "popup.politics.polling.precision.address_door",
+  tgos_door: "popup.politics.polling.precision.tgos_door",
+  google: "popup.politics.polling.precision.google",
+  road: "popup.politics.polling.precision.road",
+} as const;
+const POLLING_PARTY_KEY = {
+  dpp: "popup.politics.polling.party.dpp",
+  kmt: "popup.politics.polling.party.kmt",
+  tpp: "popup.politics.polling.party.tpp",
+} as const;
+
+/** 「票數（得票率%）」；缺值回空字串（Row 會整列隱藏） */
+export function formatPartyVotes(
+  votes: unknown,
+  pct: unknown,
+  formatNumber: (n: number, o?: Intl.NumberFormatOptions) => string,
+): string {
+  const v = pollingNumber(votes);
+  const p = pollingNumber(pct);
+  if (v === null) return "";
+  return p === null ? formatNumber(v) : `${formatNumber(v)}（${formatNumber(p, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%）`;
+}
+
+export function PollingStationPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const lead = pollingLead(props);
+  const accent = POLLING_LEAD_COLOR[lead];
+  const precision = oneOf(props.precision, POLLING_PRECISIONS);
+  const electors = pollingNumber(props.pres24_electors);
+  const turnout = pollingNumber(props.pres24_turnout);
+  const place = placeName(`${str(props.county)}${str(props.town)}`, i18n);
+  return (
+    <>
+      <Title color={accent}>{str(props.name) || t("popup.politics.polling.fallbackTitle")}</Title>
+      <Row field="address" value={str(props.address)} />
+      <Row field="countyDistrict" value={place} />
+      <Row field="village" value={str(props.village)} />
+      <Row label={t("popup.politics.polling.stationNo")} value={str(props.station_no)} mono />
+      <Row label={t("popup.politics.polling.precision")} value={precision ? t(POLLING_PRECISION_KEY[precision]) : ""} />
+      <Row label={t("popup.politics.polling.electors")} value={electors === null ? "" : formatNumber(electors)} mono />
+      <Row
+        label={t("popup.politics.polling.turnout")}
+        value={turnout === null || turnout < 0 ? "" : `${formatNumber(turnout, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
+        mono
+      />
+      {(["dpp", "kmt", "tpp"] as const).map((k) => (
+        <Row
+          key={k}
+          label={t(POLLING_PARTY_KEY[k])}
+          value={formatPartyVotes(props[`pres24_${k}_votes`], props[`pres24_${k}_pct`], formatNumber)}
+          color={lead === k ? POLLING_LEAD_COLOR[k] : undefined}
+          mono
+        />
+      ))}
+      <SourceFooter props={{ source: t("popup.politics.polling.source"), license: "OGDL-1.0", source_url: POLLING_SOURCE_URL }} />
+    </>
+  );
+}
+
+// ── 2026 議員選區（公開）──
+function PanelNote({ children }: { children: string }) {
+  const theme = useFeatureTheme();
+  return (
+    <div className="fi-row" style={{ padding: "4px 0", fontSize: FONT_SIZE.sm, lineHeight: 1.4, color: theme.textMuted }}>
+      {children}
+    </div>
+  );
+}
+
+export function CouncilDistrictPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const seats = pollingNumber(props.seats);
+  const area = pollingNumber(props.area_km2);
+  return (
+    <>
+      <Title color={COUNCIL_DISTRICT_COLOR}>{str(props.district_name) || t("popup.politics.council.fallbackTitle")}</Title>
+      <Row field="county" value={placeName(str(props.county), i18n)} />
+      <Row label={t("popup.politics.council.seats")} value={seats === null ? "" : formatNumber(seats)} mono />
+      <Row label={t("popup.politics.council.members")} value={formatMemberUnits(props.member_units)} />
+      <Row label={t("popup.politics.council.area")} value={area === null ? "" : `${formatNumber(area, { maximumFractionDigits: 1 })} km²`} mono />
+      {str(props.caveat) && <PanelNote>{str(props.caveat)}</PanelNote>}
+      <SourceFooter
+        props={{
+          source: t("popup.politics.council.source", { basis: str(props.basis) || "A0046" }),
+          license: "OGDL-1.0",
+          source_url: str(props.source_url),
+        }}
+      />
+    </>
+  );
+}
+

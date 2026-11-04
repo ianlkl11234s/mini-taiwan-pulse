@@ -5,7 +5,8 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSema
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasBinaryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
+import { atlasBinaryLegendRows, atlasCategoryRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -35,6 +36,7 @@ const LEVEL_KEYS: Record<StatisticsLevel, MessageKey> = {
   statistical_min: 'statistics.level.statistical_min', statistical_l1: 'statistics.level.statistical_l1',
   statistical_l2: 'statistics.level.statistical_l2', prosecutor_district: 'statistics.level.prosecutor_district',
   gb_lad: 'statistics.level.gb_lad', kr_sido: 'statistics.level.kr_sido', kr_sigungu: 'statistics.level.kr_sigungu',
+  ca_pr: 'statistics.level.ca_pr', ca_cd: 'statistics.level.ca_cd',
 };
 /** 地理層級名稱（不傳 i18n＝目前語系快照；中文介面即原中文） */
 export function statisticsLevelLabel(level: StatisticsLevel, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {
@@ -216,11 +218,14 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const addiction = getAddictionRecipe(baseKey);
   const landslide = getLandslideRecipe(baseKey);
   const atlas = getAtlasRecipe(baseKey);
-  const atlasScale = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
+  const atlasScaleRaw = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
+  const atlasScale = atlasScaleRaw ? enumLabel('statLegendNote', atlasScaleRaw, atlasScaleRaw, i18n) : undefined;
   const t = useLegendTheme();
   // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
   const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
-  const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows;
+  // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
+  const atlasCategoryLegend = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />
@@ -238,9 +243,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
     {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
     {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
-    {atlas?.legend.display_note && <span>{atlas.legend.display_note}</span>}
+    {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
-    {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
+    {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} opacity={1} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}

@@ -1,13 +1,13 @@
 import type { LayerVisibility } from "../../types";
 import { STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
-import { GATED_LAYERS, GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
+import { GATED_LAYERS, GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, LAYER_MACRO_GROUPS, THEMES, scopeThemes, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, withoutStatisticsLayers, type ThemeDef } from "./layerCatalog";
 import { COUNTRIES, type CountryCode } from "../../constants/countries";
 
 /**
  * 圖層面板四個入口（圖層／統計／世界／模擬；模擬入口人人可見，站主限定的實驗只列給站主）—— 桌機 rail 與手機底部面板共用同一份定義
  * （layer-panel-unify P7）。每個入口只差主題清單與兩三個開關，面板本體都是 `LayersPanel`。
  * 「圖層」與「統計」依目前國家主體（`countryStore`）換內容：圖層＝該國主題樹（2026-10-28 國家主體化）；
- * 統計＝台灣、英國與南韓（2026-10-29 統計面板多國化，南韓 2026-10-31），其他國家顯示未涵蓋。
+ * 統計＝台灣、英國、南韓與加拿大（2026-10-29 統計面板多國化，南韓 2026-10-31、加拿大 2026-11-04），其他國家顯示未涵蓋。
  */
 export type LayerPanelId = "layers" | "statistics" | "world" | "simulation";
 
@@ -74,6 +74,9 @@ export const UK_THEMES = withoutStatisticsLayers(scopeThemes("GB"));
 /** 南韓：2026-10-31 第 0 波起（底圖／行政邊界），之後各波照台灣主題名加入。 */
 export const KOREA_THEMES = withoutStatisticsLayers(scopeThemes("KR"));
 
+/** 加拿大：2026-11-04 第 0＋1 波起（底圖、交通、能源、人口社經）。 */
+export const CANADA_THEMES = withoutStatisticsLayers(scopeThemes("CA"));
+
 /** 台灣：沿用全站大分類（`THEME_MACRO_GROUPS`，同時決定 THEMES 排序）。 */
 const TAIWAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(MAIN_THEMES);
 
@@ -106,6 +109,12 @@ export const KR_STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
   { zh: "經濟與住宅", en: "Economy & Housing", themes: ["社經"] },
 ];
 
+/** 加拿大統計：沿用統計入口的大分類名（人口與社會／經濟與住宅）。 */
+export const CA_STATISTICS_MACRO_GROUPS: PanelMacroGroup[] = [
+  { zh: "人口與社會", en: "Population & Society", themes: ["人口"] },
+  { zh: "經濟與住宅", en: "Economy & Housing", themes: ["社經"] },
+];
+
 /** 日本：沿用台灣共用大分類（2026-10-26 使用者決定；主題 title＝台灣主題中文短名，大分類同台灣對應主題）。 */
 export const JAPAN_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(JAPAN_THEMES);
 
@@ -114,6 +123,9 @@ export const FRANCE_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(FRANCE_T
 
 /** 南韓：沿用全站大分類。 */
 export const KOREA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(KOREA_THEMES);
+
+/** 加拿大：沿用全站大分類。 */
+export const CANADA_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(CANADA_THEMES);
 
 /** 英國：沿用全站大分類。 */
 export const UK_MACRO_GROUPS: PanelMacroGroup[] = sharedMacroGroups(UK_THEMES);
@@ -128,6 +140,7 @@ const COUNTRY_LAYER_THEMES: Record<CountryCode, { themes: ThemeDef[]; macroGroup
   FR: { themes: FRANCE_THEMES, macroGroups: FRANCE_MACRO_GROUPS },
   GB: { themes: UK_THEMES, macroGroups: UK_MACRO_GROUPS },
   KR: { themes: KOREA_THEMES, macroGroups: KOREA_MACRO_GROUPS },
+  CA: { themes: CANADA_THEMES, macroGroups: CANADA_MACRO_GROUPS },
 };
 
 /** 某國在「圖層」入口的主題樹。 */
@@ -147,25 +160,26 @@ export function countryLayerKeys(code: CountryCode): (keyof LayerVisibility)[] {
 }
 
 /** 統計入口的「全部關閉」範圍：各國統計主題（台灣、英國、南韓）＋只為相容舊網址存在的統計 render key。 */
-export const STATISTICS_ALL_OFF_KEYS = [...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])];
+export const STATISTICS_ALL_OFF_KEYS = [...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(CA_STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])];
 
 /** 各國「統計」入口的主題樹；不在表內的國家＝未涵蓋（空狀態）。 */
 const COUNTRY_STATISTICS_THEMES: Partial<Record<CountryCode, { themes: ThemeDef[]; macroGroups: readonly PanelMacroGroup[] }>> = {
   TW: { themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS },
   GB: { themes: GB_STATISTICS_TAB_THEMES, macroGroups: GB_STATISTICS_MACRO_GROUPS },
   KR: { themes: KR_STATISTICS_TAB_THEMES, macroGroups: KR_STATISTICS_MACRO_GROUPS },
+  CA: { themes: CA_STATISTICS_TAB_THEMES, macroGroups: CA_STATISTICS_MACRO_GROUPS },
 };
 
 /** 四個入口，順序＝桌機 rail 由上到下＝手機分頁由左到右。`layers` 的 `themes` 是台灣（預設國家）版本，實際依國家用 `resolveLayerPanel`。 */
 export const LAYER_PANELS: readonly LayerPanelDef[] = [
   { id: "layers", title: "圖層 Layers", shortTitle: "圖層", themes: MAIN_THEMES, macroGroups: TAIWAN_MACRO_GROUPS, countryScoped: true },
-  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true, countryScoped: true, countries: ["TW", "GB", "KR"] },
+  { id: "statistics", title: "統計 Statistics", shortTitle: "統計", themes: STATISTICS_TAB_THEMES, macroGroups: STATISTICS_MACRO_GROUPS, allOffKeys: STATISTICS_ALL_OFF_KEYS, statisticsModeControl: true, countryScoped: true, countries: ["TW", "GB", "KR", "CA"] },
   { id: "world", title: "世界 World", shortTitle: "世界", themes: WORLD_THEMES, macroGroups: WORLD_MACRO_GROUPS },
   // 模擬：大分類先不分（macroGroups 不給）。入口人人可見；站主限定的實驗（GATED_LAYERS）由 `resolveLayerPanel(…, owner)` 濾掉。
   { id: "simulation", title: "模擬 Simulation", shortTitle: "模擬", themes: SIMULATION_THEMES },
 ];
 
-/** 依國家主體解析後的入口內容。`covered=false`：本入口不涵蓋此國（統計在台灣、英國、南韓以外），面板顯示未涵蓋空狀態。 */
+/** 依國家主體解析後的入口內容。`covered=false`：本入口不涵蓋此國（統計在台灣、英國、南韓、加拿大以外），面板顯示未涵蓋空狀態。 */
 export interface ResolvedLayerPanel extends LayerPanelDef {
   covered: boolean;
 }

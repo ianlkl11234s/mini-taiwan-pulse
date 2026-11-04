@@ -1,10 +1,10 @@
 import { COMPARISON_STATISTICS_KEYS } from '../../../data/comparisonStatisticsKeys';
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
-import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
+import { GB_STATISTICS_TAB_THEMES, KR_STATISTICS_TAB_THEMES, CA_STATISTICS_TAB_THEMES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_PANELS, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
-import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS } from "../layerPanels";
+import { FRANCE_THEMES, JAPAN_THEMES, LAYER_PANELS, SIMULATION_THEMES, UK_THEMES, KOREA_THEMES, CANADA_THEMES, WORLD_THEMES, resolveLayerPanel, STATISTICS_MACRO_GROUPS, GB_STATISTICS_MACRO_GROUPS, KR_STATISTICS_MACRO_GROUPS, CA_STATISTICS_MACRO_GROUPS } from "../layerPanels";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
 import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
@@ -15,9 +15,14 @@ import { LANDSLIDE_ENABLED_STATISTICS_KEYS } from "../../../data/landslideStatis
 import { ATLAS_ENABLED_STATISTICS_KEYS } from "../../../data/atlasStatisticsRecipes";
 import { GB_ENABLED_STATISTICS_KEYS } from "../../../data/gbStatisticsRecipes";
 import { KR_ENABLED_STATISTICS_KEYS } from "../../../data/krStatisticsRecipes";
+import { CA_ENABLED_STATISTICS_KEYS } from "../../../data/caStatisticsRecipes";
+import { ELECTION_ENABLED_STATISTICS_KEYS } from "../../../data/electionStatisticsRecipes";
 
 const GB_KEYS: ReadonlySet<string> = new Set(GB_ENABLED_STATISTICS_KEYS);
 const KR_KEYS: ReadonlySet<string> = new Set(KR_ENABLED_STATISTICS_KEYS);
+const CA_KEYS: ReadonlySet<string> = new Set(CA_ENABLED_STATISTICS_KEYS);
+// 選舉統計放在 GIS「政治 Politics → 選舉」（與投開票所、議員選區同列），不進統計分頁。
+const ELECTION_KEYS: ReadonlySet<string> = new Set(ELECTION_ENABLED_STATISTICS_KEYS);
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與教育 Population & Education", groups: ["戶籍人口", "年齡結構", "人口動態", "遷徙", "原住民", "外來人口", "教育與少子化", "原住民保留地"] },
@@ -67,8 +72,9 @@ const EXPECTED_LAYER_KEYS = [
   "statsWasteCounty", "statsRecyclingCounty", "statsWasteRecyclingRate",
   ...ENVIRONMENT_ENABLED_STATISTICS_KEYS,
   ...LANDSLIDE_ENABLED_STATISTICS_KEYS,
-  // 英國統計（gb 家族）在英國的統計分頁，不在台灣的。
-  ...ATLAS_ENABLED_STATISTICS_KEYS.filter((key) => !GB_KEYS.has(key) && !KR_KEYS.has(key)),
+  // 英國、南韓、加拿大統計（gb／kr／ca 家族）在各自國家的統計分頁，不在台灣的。
+  // 選舉統計（election 家族）在 GIS「政治 Politics → 選舉」，不在統計分頁。
+  ...ATLAS_ENABLED_STATISTICS_KEYS.filter((key) => !GB_KEYS.has(key) && !KR_KEYS.has(key) && !CA_KEYS.has(key) && !ELECTION_KEYS.has(key)),
   "countyBoundary", "townshipBoundary",
 ];
 
@@ -162,12 +168,14 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(LAYER_PANELS.find(panel => panel.id === "statistics")!.themes).toBe(STATISTICS_TAB_THEMES);
     // 南韓統計的完整目錄主題（人口統計／社經統計）同樣只有統計面。
     const krStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "KR" && theme.groups.every(group => group.layers.every(layer => KR_KEYS.has(layer.key)))).map(theme => theme.title));
-    const nonStatisticsTitles = THEMES.filter(theme => !(theme.country === "TW" ? statisticsDataTitles : theme.country === "KR" ? krStatisticsDataTitles : gbStatisticsDataTitles).has(theme.title)).map(theme => theme.title).sort();
-    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
-    expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES)]));
+    // 加拿大統計的完整目錄主題（人口統計／社經統計）同樣只有統計面。
+    const caStatisticsDataTitles = new Set(THEMES.filter(theme => theme.country === "CA" && theme.groups.every(group => group.layers.every(layer => CA_KEYS.has(layer.key)))).map(theme => theme.title));
+    const nonStatisticsTitles = THEMES.filter(theme => !(theme.country === "TW" ? statisticsDataTitles : theme.country === "KR" ? krStatisticsDataTitles : theme.country === "CA" ? caStatisticsDataTitles : gbStatisticsDataTitles).has(theme.title)).map(theme => theme.title).sort();
+    expect([...MAIN_THEMES, ...WORLD_THEMES, ...JAPAN_THEMES, ...FRANCE_THEMES, ...UK_THEMES, ...KOREA_THEMES, ...CANADA_THEMES, ...SIMULATION_THEMES].map(theme => theme.title).sort()).toEqual(nonStatisticsTitles);
+    expect(new Set(MOBILE_STATISTICS_ALL_OFF_KEYS)).toEqual(new Set([...STATISTICS_RENDER_KEYS, ...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...getThemeLayerKeys(GB_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(KR_STATISTICS_TAB_THEMES), ...getThemeLayerKeys(CA_STATISTICS_TAB_THEMES)]));
   });
 
-  it("統計入口依國家：台灣與 develop 相同、英國人口／社經／住宅／農業、南韓人口／社經、日本法國未涵蓋", () => {
+  it("統計入口依國家：台灣與 develop 相同、英國人口／社經／住宅／農業、南韓與加拿大人口／社經、日本法國未涵蓋", () => {
     const tw = resolveLayerPanel("statistics", "TW");
     expect(tw.covered).toBe(true);
     expect(tw.themes).toBe(STATISTICS_TAB_THEMES);
@@ -199,6 +207,16 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(getThemeLayerKeys(kr.themes).sort()).toEqual([...KR_ENABLED_STATISTICS_KEYS].sort());
     // 南韓統計面不出現在南韓圖層頁
     for (const key of KR_ENABLED_STATISTICS_KEYS) expect(getThemeLayerKeys(KOREA_THEMES)).not.toContain(key);
+    const ca = resolveLayerPanel("statistics", "CA");
+    expect(ca.covered).toBe(true);
+    expect(ca.macroGroups).toBe(CA_STATISTICS_MACRO_GROUPS);
+    expect(ca.themes.map((theme) => ({ country: theme.country, title: theme.title, groups: theme.groups.map((group) => group.title) }))).toEqual([
+      { country: "CA", title: "人口", groups: ["人口（2021 普查）", "年齡結構（2021 普查）"] },
+      { country: "CA", title: "社經", groups: ["家戶與所得（2021 普查）", "勞動力（2021 普查）"] },
+    ]);
+    expect(getThemeLayerKeys(ca.themes).sort()).toEqual([...CA_ENABLED_STATISTICS_KEYS].sort());
+    // 加拿大統計面不出現在加拿大圖層頁
+    for (const key of CA_ENABLED_STATISTICS_KEYS) expect(getThemeLayerKeys(CANADA_THEMES)).not.toContain(key);
   });
 
   it("中文統計主題只出現在 Statistics，原有一般圖層仍保留", () => {
@@ -220,12 +238,28 @@ describe("Layers 與 Statistics 分頁", () => {
   });
 
   it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
-    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set([...EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary"), ...GB_ENABLED_STATISTICS_KEYS, ...KR_ENABLED_STATISTICS_KEYS]));
+    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set([...EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary"), ...GB_ENABLED_STATISTICS_KEYS, ...KR_ENABLED_STATISTICS_KEYS, ...CA_ENABLED_STATISTICS_KEYS]));
     const filtered = withoutStatisticsLayers([
       { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
     ]);
     expect(filtered).toEqual([
       { title: "混合主題", country: "TW", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
     ]);
+  });
+});
+
+describe("選舉統計放在政治主題", () => {
+  it("併進 GIS「政治 Politics → 選舉」群組（點位圖層之後），一般 Layers 保留、統計目錄不另開同名主題", () => {
+    const politics = MAIN_THEMES.filter((theme) => theme.title === "政治 Politics");
+    expect(politics).toHaveLength(1);
+    const election = politics[0]!.groups.find((group) => group.title === "選舉")!;
+    const keys = election.layers.map((layer) => layer.key);
+    expect(keys.slice(0, 2)).toEqual(["electionEvents2026", "pollingStations2024"]);
+    expect(keys.filter((key) => ELECTION_KEYS.has(key)).sort()).toEqual([...ELECTION_ENABLED_STATISTICS_KEYS].sort());
+    expect(THEMES.filter((theme) => theme.title === "政治 Politics")).toHaveLength(1);
+    expect(STATISTICS_DATA_THEMES.some((theme) => theme.title === "政治 Politics")).toBe(false);
+    // 一屆選舉一列：五個群組各有一個 lead，預設＝最高黨・縣市（公投＝同意票比率・縣市）
+    const leads = election.layers.filter((layer) => layer.variant?.lead).map((layer) => layer.key);
+    expect(leads).toEqual(["statsElectionPresidentTopPartyCounty", "statsElectionLegislatorPartyTopPartyCounty", "statsElectionMayorTopPartyCounty", "statsElectionCouncilorPartyTopPartyCounty", "statsElectionReferendumAgreeRateCounty"]);
   });
 });

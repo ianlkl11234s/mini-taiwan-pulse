@@ -61,5 +61,17 @@
   "enum.statGroup.平均戶量": "平均世帯人員",
   "enum.statGroup.住宅數": "住宅数",
   "enum.statGroup.事業體數": "事業所数",
-  "enum.statGroup.從業人員數": "従業者数"
+  "enum.statGroup.從業人員數": "従業者数",
+  "enum.statGroup.年齡中位數": "年齢中央値",
+  "enum.statGroup.私人家戶數": "一般世帯数",
+  "enum.statGroup.家戶總所得中位數": "世帯総所得の中央値",
+  "enum.statGroup.家戶稅後所得中位數": "世帯税引後所得の中央値",
+  "enum.statGroup.失業率": "失業率",
+  "enum.statGroup.勞動參與率": "労働力率",
+  "enum.statGroup.就業率": "就業率",
+  "enum.statGroup.總統選舉": "総統選挙",
+  "enum.statGroup.立委選舉（政黨票）": "立法委員選挙（政党票）",
+  "enum.statGroup.縣市長選舉": "県市長選挙",
+  "enum.statGroup.縣市議員選舉（政黨合計）": "県市議員選挙（政党合計）",
+  "enum.statGroup.全國性公民投票": "全国国民投票"
 }

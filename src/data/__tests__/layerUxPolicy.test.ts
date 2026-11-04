@@ -16,7 +16,8 @@ const MAPBOX_POINT_SIZE_BACKLOG: string[] = [
 ];
 
 /** 海事邊界的寬度同時縮放線與 basepoint，故不再新增重複的「大小」控制。 */
-const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary"] as const;
+// councilDistricts2026：symbol 只是面的選區名標籤（loader 算的面內代表點），沒有點位符號可調大小。
+const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary", "councilDistricts2026"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
@@ -92,7 +93,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-10-27：+2 地理院タイル陰影起伏図／色別標高図（外部 XYZ raster，同 jpWaterFloodHazard 無 feature 可點）。
     // 2026-10-29：-1 waterFloodExtreme 隨 10 降雨情境改版補上 popup（G29 方向 A）。
     // 2026-10-29：+2 英國 OS Terrain 50 山體陰影／色別標高（已上色 raster PMTiles，無 feature，同地理院地形）。
-    expect(missing).toHaveLength(51); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-04：+1 加拿大 MRDEM-30 山體陰影 caHillshade（raster PMTiles，無 feature 屬性）。
+    expect(missing).toHaveLength(52); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {

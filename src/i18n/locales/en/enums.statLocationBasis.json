@@ -31,5 +31,8 @@
   "enum.statLocationBasis.農戶所在地方行政區（依農戶歸戶，不是土地實際位置；LAD 2026 年界）": "Local authority district of the holding (allocated by holding, not where the land actually lies; 2026 LAD boundaries)",
   "enum.statLocationBasis.住民登錄地所在行政區（2026-10 界）": "Area of registered residence (October 2026 boundaries)",
   "enum.statLocationBasis.統計對象所在行政區（2024 年統計廳界對應到 2026-10 界）": "Area where the counted unit is (2024 Statistics Korea boundaries mapped to October 2026 boundaries)",
-  "enum.statLocationBasis.在地人數所在的首爾自治區（電信推估）": "Seoul autonomous district where people are present (telecom estimate)"
+  "enum.statLocationBasis.在地人數所在的首爾自治區（電信推估）": "Seoul autonomous district where people are present (telecom estimate)",
+  "enum.statLocationBasis.常住地所在的省／普查區（2021 年普查界）": "Province / census division of usual residence (2021 Census boundaries)",
+  "enum.statLocationBasis.家戶常住地所在的省／普查區（2021 年普查界）": "Province / census division where the household usually resides (2021 Census boundaries)",
+  "enum.statLocationBasis.投開票所所在村里（依中選會投開票所對到現行村里界彙總）；鄉鎮、縣市為全部投開票所加總": "Village where the polling station is located (CEC polling stations matched to current village boundaries); townships and counties sum all polling stations"
 }

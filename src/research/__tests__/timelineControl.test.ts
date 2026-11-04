@@ -66,6 +66,15 @@ describe("research timeline adapter", () => {
     await expect(adapter.apply({ mode: "replay", time: -1 })).rejects.toThrow("TIMELINE_REPLAY_TIME_REQUIRED");
   });
 
+  it("accepts the slow replay speeds 1×／3×／5×", async () => {
+    const tl = makeTimeline({ mode: "replay" });
+    const adapter = createTimelineControl({ getTimeline: () => tl, getShipDates: () => ({ state: "not_loaded", dates: [] }) });
+    for (const speed of [1, 3, 5] as const) {
+      await adapter.apply({ mode: "replay", time: 1_789_027_200, speed });
+      expect(tl.setSpeed).toHaveBeenCalledWith(speed);
+    }
+  });
+
   it("rejects live commands that pretend to seek or play", async () => {
     const adapter = createTimelineControl({ getTimeline: () => makeTimeline(), getShipDates: () => ({ state: "not_loaded", dates: [] }) });
     await expect(adapter.apply({ mode: "live", playing: true } as never)).rejects.toThrow("TIMELINE_LIVE_CANNOT_PLAY");

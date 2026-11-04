@@ -27,9 +27,24 @@ export interface AtlasDimension {
  */
 export type AtlasScaleDirection = "ascending" | "descending" | "diverging";
 
+/** 色票：partisan＝藍綠雙向（選舉 kmt_minus_dpp_pp；正值偏藍＝國民黨領先、負值偏綠，0 為中性灰），只配 direction diverging。 */
+export type AtlasScalePalette = "partisan";
+
 export interface AtlasScale {
   breaks: number[];
   direction: AtlasScaleDirection;
+  palette?: AtlasScalePalette;
+}
+
+/**
+ * 類別型圖例（legend.method＝categorical，例：最高黨 1=dpp 2=kmt…）：value 為整數碼；color 缺省時以 key
+ * 對應 Pulse 政黨色（dpp／kmt／tpp／npp／ind／other，statisticsVisuals STATISTICS_PARTY_COLOR）。
+ */
+export interface AtlasCategory {
+  value: number;
+  label: string;
+  color?: string;
+  key?: string;
 }
 
 /** 非數值狀態：無資料、不適用（無潛勢溪流、非臨海、無保留地、無此類病床）、來源刪除；都不上數值色。 */
@@ -66,7 +81,7 @@ export interface AtlasRecipe {
   release_options: AtlasReleaseOption[];
   legend: {
     /** binary＝0／1 旗標（金融服務欠缺鄉鎮）：breaks 固定 [1]，圖例只列 binary_labels 兩級，不顯示門檻區間。 */
-    method: "fixed_breaks" | "binary";
+    method: "fixed_breaks" | "binary" | "categorical";
     /** 預設維度組合的固定門檻（跨期可比，不依當期重算）。 */
     breaks: number[];
     direction: AtlasScaleDirection;
@@ -81,6 +96,15 @@ export interface AtlasRecipe {
     dimension_notes: Record<string, string> | null;
     /** method＝binary 時的兩級標籤 [值 0, 值 1]；其他層不帶。 */
     binary_labels?: [string, string];
+    /** method＝categorical 時的類別（地圖用 match 上色，popup 顯示類別名）；其他層不帶。 */
+    categories?: AtlasCategory[];
+    /** 色票（目前只有 partisan）；by_dimension 的個別組合也可各自帶。 */
+    palette?: AtlasScalePalette;
+    /**
+     * 依政黨上色的維度鍵（選舉 vote_share 的 party）：所選值是已知政黨 key 時，色階改用該黨色的 sequential；
+     * 其他值（all 等）照一般主題色。
+     */
+    party_dimension?: string;
     /** 圖例逐行固定說明（治安：人口分母、初步統計、查獲地、口徑斷點）；其他家族不帶。 */
     notes?: string[];
   };
