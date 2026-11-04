@@ -2572,6 +2572,9 @@ const THEME_CATALOG: ThemeDef[] = [
     groups: [{
       title: "Day 4 群聚 Clusters",
       layers: [fromManifest("mapchallengeDay04Population"), fromManifest("mapchallengeDay04Facility"), fromManifest("mapchallengeDay04Overlap"), fromManifest("mapchallengeDay04ScaleTcCh")],
+    }, {
+      title: "Day 5 視野 Perspectives",
+      layers: [fromManifest("mapchallengeDay05SeaView"), fromManifest("mapchallengeDay05SeaViewRuns")],
     }],
   },
 

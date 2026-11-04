@@ -191,6 +191,7 @@ import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
 import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
 import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
+import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -15354,6 +15355,51 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "multiSelect"] },
     description: "30 天地圖挑戰 Day 4 群聚：臺中市與彰化縣 H3 r8 細格（每格約 0.74 km²，2,652 格）的人口熱區 × 工廠熱區，熱區由兩縣市各自取前 10%、兩縣市不互相比較；重疊率臺中 18%、彰化 45%。來源：GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄（政府資料開放授權）、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析。",
     topics: ["群聚", "熱區", "工廠", "臺中", "彰化", "網格", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay05SeaView: {
+    key: "mapchallengeDay05SeaView",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-05）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 5 視野 Perspectives" },
+    ...layerName({ zh: "海景路段", alt: "Sea View Segments" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY05_COLOR,
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day05_sea_view（30 天地圖挑戰 Day 5 視野）：臺灣本島（綠島、小琉球、澎湖、金門、馬祖未涵蓋）鐵路與道路沿線每 50 m 取樣，用地形＋建物＋樹冠高度做 90 方位視線推估；每個取樣點算看得到海的連續視角（view_deg）與離海岸線距離（dsea_m），分隧道（-1）、看不到海（0）、看得到海（1）、開闊海景（2）四級；連續 ≥500 m（中斷 ≤200 m 視為連續）合成路段，依長度排名。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day05_sea_view）。視線是模型推估，不含隔音牆、護欄、行道樹與車內視角；高架段以橋面高度加 6 m 估算。路線線形來自 OpenStreetMap，與官方路線資料可能有出入。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day05-sea-view", url: "./mapchallenge/day05_sea_view_segments.geojson" },
+    legend: "mapchallengeDay05SeaView",
+    popup: "mapchallengeDay05SeaView",
+    params: { count: 3, kinds: ["slider", "select", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 5 視野：臺灣本島沿海鐵路與道路逐段判定看不看得到海（開闊海景、看得到海、看不到海、隧道四級），可切換運具與判定類別。以地形、建物、樹冠視線推估，連續 ≥500 m、中斷 ≤200 m 視為連續；綠島、小琉球、澎湖、金門、馬祖未涵蓋。點線段看路線、判定、海景視角與離海距離。來源：OpenStreetMap（ODbL，路線線形）；taipei-gis-analytics Day 5 視野分析。",
+    topics: ["海景", "鐵路", "道路", "視線", "海岸", "30 天地圖挑戰"],
+  },
+  mapchallengeDay05SeaViewRuns: {
+    key: "mapchallengeDay05SeaViewRuns",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-05）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 5 視野 Perspectives" },
+    ...layerName({ zh: "最長連續海景", alt: "Longest Sea View Runs" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY05_COLOR,
+    icon: Route,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/mapchallenge_2026_day05_sea_view（30 天地圖挑戰 Day 5 視野）：臺灣本島（綠島、小琉球、澎湖、金門、馬祖未涵蓋）鐵路與道路沿線每 50 m 取樣，用地形＋建物＋樹冠高度做 90 方位視線推估；每個取樣點算看得到海的連續視角（view_deg）與離海岸線距離（dsea_m），分隧道（-1）、看不到海（0）、看得到海（1）、開闊海景（2）四級；連續 ≥500 m（中斷 ≤200 m 視為連續）合成路段，依長度排名。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 登記為 mapchallenge_day05_sea_view）。視線是模型推估，不含隔音牆、護欄、行道樹與車內視角；高架段以橋面高度加 6 m 估算。路線線形來自 OpenStreetMap，與官方路線資料可能有出入。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day05-sea-view-runs", url: "./mapchallenge/day05_sea_view_runs.geojson" },
+    legend: "mapchallengeDay05SeaViewRuns",
+    popup: "mapchallengeDay05SeaViewRuns",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "30 天地圖挑戰 Day 5 視野：鐵路與道路上最長的連續海景路段（各取前 30 名），可切離海距離範圍（不限、≤200 m、≤100 m）與運具；前 3 名線更粗。以地形、建物、樹冠視線推估，連續 ≥500 m、中斷 ≤200 m 視為連續；綠島、小琉球、澎湖、金門、馬祖未涵蓋。點線看名次、長度、起訖鄉鎮與高架比例。來源：OpenStreetMap（ODbL，路線線形）；taipei-gis-analytics Day 5 視野分析。",
+    topics: ["海景", "鐵路", "道路", "視線", "排名", "30 天地圖挑戰"],
   },
 
   roadCongestion: {
