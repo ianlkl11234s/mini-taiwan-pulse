@@ -217,7 +217,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const addiction = getAddictionRecipe(baseKey);
   const landslide = getLandslideRecipe(baseKey);
   const atlas = getAtlasRecipe(baseKey);
-  const atlasScale = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
+  const atlasScaleRaw = atlas ? atlasScaleNote(baseKey, state.selection?.dimensions) : undefined;
+  const atlasScale = atlasScaleRaw ? enumLabel('statLegendNote', atlasScaleRaw, atlasScaleRaw, i18n) : undefined;
   const t = useLegendTheme();
   // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
   const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
@@ -241,7 +242,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {landslide?.legend.display_note && <span>{landslide.legend.display_note}</span>}
     {landslide?.status_labels.missing && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr('statistics.legend.hatchLabel', { label: landslide.status_labels.missing })}</LegendRow>}
     {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
-    {atlas?.legend.display_note && <span>{atlas.legend.display_note}</span>}
+    {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
     {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
