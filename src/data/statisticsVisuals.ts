@@ -119,6 +119,24 @@ const textFor = (key: string, label?: string, group?: string) => `${key} ${label
 const has = (text: string, terms: readonly string[]) => terms.some(term => text.includes(term.toLocaleLowerCase()));
 
 const PU_OR_6 = ['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788'] as const;
+/**
+ * 藍綠雙向（選舉 kmt_minus_dpp_pp）：綠（負＝民進黨領先）→ 中性灰（0）→ 藍（正＝國民黨領先）。
+ * 兩端取 Pulse 政黨色（ELECTION_CAMPS）的深一階，中段淺色；奇數類別時正中一類為中性灰。
+ */
+const PARTISAN_7 = ['#0f6b39', '#1f9d55', '#9fd4b0', '#e5e7eb', '#a9c0f2', '#3b6fe0', '#1d3f99'] as const;
+
+/**
+ * 統計圖層用的政黨色（categorical 圖例 key 缺 color 時、vote_share 依政黨 sequential 時）。
+ * dpp／kmt／tpp／npp 同 ELECTION_CAMP_COLOR；無黨籍橘、其他棕（與 missing 的斜線、灰底區隔）。
+ */
+export const STATISTICS_PARTY_COLOR: Readonly<Record<string, string>> = {
+  dpp: '#1f9d55',
+  kmt: '#3b6fe0',
+  tpp: '#22b8c7',
+  npp: '#f2c230',
+  ind: '#f08c2e',
+  other: '#b08968',
+};
 
 function linearChannel(value: number): number {
   const normalized = value / 255;
@@ -421,7 +439,17 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
  * `direction`（只有 recipe 明確宣告方向時才傳，例如社會脆弱度 Z 分數）：不論正負都用主題序列色；
  * `descending` 反轉（值越低越深＝能力構面越弱越深）。圖例必須同時寫出反轉，不可只靠顏色。
  */
-export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending' | 'diverging'): string[] {
+export function statisticsVisualColors(
+  key: string,
+  label: string,
+  breaks: readonly number[],
+  direction?: 'ascending' | 'descending' | 'diverging',
+  options?: { palette?: 'partisan'; partyColor?: string },
+): string[] {
+  // partisan（選舉藍綠差）：明確宣告才用，0 為中心；不論 direction 一律綠負藍正。
+  if (options?.palette === 'partisan') return resample(PARTISAN_7, breaks.length + 1);
+  // 依政黨 sequential（vote_share 選了某黨）：近白 → 該黨色 → 該黨色加深。
+  if (options?.partyColor) return resample(partySequentialAnchors(options.partyColor), breaks.length + 1);
   // diverging（英國房價／租金年變動率）：明確宣告的雙向 PuOr，breaks 以 0 為中間門檻（棕負紫正）。
   if (direction === 'diverging') return resample(PU_OR_6, breaks.length + 1);
   if (direction) {
@@ -430,4 +458,12 @@ export function statisticsVisualColors(key: string, label: string, breaks: reado
   }
   const palette = breaks.some(value => value < 0) ? PU_OR_6 : getStatisticsVisual(key, label).colors;
   return resample(palette, breaks.length + 1);
+}
+
+/** 單一政黨的 sequential 錨點：淺（與白混 85%）→ 原色 → 加深（暗 35%）；rgb() 為 0–1 線性通道。 */
+function partySequentialAnchors(color: string): string[] {
+  const base = rgb(color);
+  const light = hex(base.map((channel) => channel + (1 - channel) * 0.85));
+  const dark = hex(base.map((channel) => channel * 0.65));
+  return [light, color, dark];
 }

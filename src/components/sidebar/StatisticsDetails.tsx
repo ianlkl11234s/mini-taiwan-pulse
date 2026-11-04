@@ -5,7 +5,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSema
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
-import { atlasBinaryLegendRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
+import { atlasBinaryLegendRows, atlasCategoryRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
 import { getEducationPresentationView } from '../../data/statisticsPresentationViews';
@@ -220,7 +220,9 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
   const t = useLegendTheme();
   // 二元圖例（自來水不合格：有／無；金融服務欠缺鄉鎮：名單內／外）不是連續色階，不顯示「淺 → 深」通用說明。
   const atlasBinaryRows = atlas ? atlasBinaryLegendRows(atlas, recipe.colors)?.map(row => ({ ...row, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
-  const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows;
+  // 類別型（最高黨）：每類一列、用類別名（不顯示門檻區間與「淺 → 深」）。
+  const atlasCategoryLegend = atlas ? atlasCategoryRows(atlas)?.map(row => ({ color: row.color, label: enumLabel('statLegendNote', row.label, row.label, i18n) })) ?? null : null;
+  const binaryRows = (environment ? environmentLegendRows(environment, recipe.colors) : null) ?? atlasBinaryRows ?? atlasCategoryLegend;
   // LG-12：文字色走圖例主題（淡色底圖不再是暗色主題的淺字）；F-3 A：缺值細斜線、遮蔽交叉斜線，同地圖
   return <div style={{ fontSize: FONT_SIZE.sm, color: t.textDefault, display: 'grid', gap: 4 }}>
     <LegendTitle zh={statisticsTitle(baseKey, recipe.label, i18n)} style={{ marginBottom: 0 }} />

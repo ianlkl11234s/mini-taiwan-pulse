@@ -6,7 +6,7 @@ import { LABOR_STATISTICS_RECIPES_BY_KEY, getLaborStatisticsPresentationMetric, 
 import { ENVIRONMENT_STATISTICS_RECIPES_BY_KEY, environmentDefaultDimensions, type EnvironmentStatisticsLayerKey } from "./environmentStatisticsRecipes";
 import { ADDICTION_STATISTICS_RECIPES_BY_KEY, type AddictionStatisticsLayerKey } from "./addictionStatisticsRecipes";
 import { LANDSLIDE_STATISTICS_RECIPES_BY_KEY, type LandslideStatisticsLayerKey } from "./landslideStatisticsRecipes";
-import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasDefaultDimensions, atlasRenderScale, getAtlasRecipe, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
+import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasCategoryRows, atlasDefaultDimensions, atlasRecipeRenderScale, atlasRenderScale, getAtlasRecipe, type AtlasStatisticsLayerKey } from "./atlasStatisticsRecipes";
 import { DEMOGRAPHICS_STATISTICS_RECIPES_BY_KEY, demographicsDisplayLabel, demographicsLatestOption, type DemographicsStatisticsLayerKey } from "./demographicsStatisticsRecipes";
 import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
@@ -535,7 +535,7 @@ export const STATISTICS_RECIPES = {
       disclosure: recipe.disclosure,
     },
     breaks: recipe.legend.breaks,
-    colors: statisticsVisualColors(recipe.layer_key, recipe.label, recipe.legend.breaks, recipe.legend.direction),
+    colors: atlasColors(recipe.layer_key, recipe.label, atlasRecipeRenderScale(recipe)),
   }])) as Record<AtlasStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; provenance: unknown; breaks: number[]; colors: string[];
@@ -564,12 +564,19 @@ function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
  * @param selectedDimensions 目前選擇的維度（atlas 家族用）：癌別、行業等量級差很大的組合各有固定門檻，
  *   社會脆弱度子指標依正負號反轉色階；map 與圖例都經過這裡，確保兩者一致。其他家族忽略。
  */
+function atlasColors(key: string, label: string, scale: ReturnType<typeof atlasRecipeRenderScale>): string[] {
+  return statisticsVisualColors(key, label, scale.breaks, scale.direction, { palette: scale.palette, partyColor: scale.partyColor });
+}
+
 export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string, selectedDimensions?: Record<string, unknown>) {
   const baseKey = statisticsBaseKey(key, selectedIndicator);
   const source = STATISTICS_RECIPES[baseKey];
   const atlasScale = getAtlasRecipe(baseKey) ? atlasRenderScale(baseKey, selectedDimensions) : undefined;
   if (atlasScale) {
-    return { ...source, breaks: atlasScale.breaks, colors: statisticsVisualColors(baseKey, source.label, atlasScale.breaks, atlasScale.direction) };
+    const atlas = getAtlasRecipe(baseKey)!;
+    // categorical（最高黨）：地圖改用 match（regionalStatisticsMap），breaks／colors 只留給不認 categories 的舊路徑。
+    const categories = atlasCategoryRows(atlas);
+    return { ...source, breaks: atlasScale.breaks, colors: atlasColors(baseKey, source.label, atlasScale), ...(categories ? { categories } : {}) };
   }
   const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
   const laborMetric = getLaborStatisticsPresentationMetric(key, selectedIndicator);

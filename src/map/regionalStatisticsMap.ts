@@ -1,4 +1,4 @@
-import { statisticsColorStops } from '../data/statisticsColorScale';
+import { statisticsFillColorExpression } from '../data/statisticsFillColor';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
@@ -46,10 +46,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
-        const step: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
-        statisticsColorStops(recipe.breaks, recipe.colors).forEach(({ value, color }) => step.push(value, color));
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
-          'fill-color': ['case', HAS_VALUE, step, NO_FILL] as mapboxgl.ExpressionSpecification,
+          'fill-color': ['case', HAS_VALUE, statisticsFillColorExpression(recipe), NO_FILL] as mapboxgl.ExpressionSpecification,
           'fill-opacity': 0.55,
         } });
         map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } });
@@ -58,9 +56,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
         map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } as mapboxgl.LinePaint });
       }
       // A presentation source survives metric switches; refresh the scale as well as values.
-      const colorSteps: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
-      statisticsColorStops(recipe.breaks, recipe.colors).forEach(({value, color}) => colorSteps.push(value, color));
-      map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', HAS_VALUE, colorSteps, NO_FILL]);
+      map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', HAS_VALUE, statisticsFillColorExpression(recipe), NO_FILL]);
       map.setPaintProperty(`${key}-missing`, 'fill-pattern', hatchImageId('missing', isDark));
       map.setPaintProperty(`${key}-suppressed`, 'fill-pattern', hatchImageId('suppressed', isDark));
       map.setPaintProperty(`${key}-line`, 'line-color', seam['line-color'] as mapboxgl.ExpressionSpecification);

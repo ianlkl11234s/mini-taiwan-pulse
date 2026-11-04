@@ -20,6 +20,7 @@ import { FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_EXT_STATISTI
 import { GB_ENABLED_STATISTICS_KEYS, GB_STATISTICS_DOCUMENT } from "./gbStatisticsRecipes";
 import { KR_ENABLED_STATISTICS_KEYS, KR_STATISTICS_DOCUMENT } from "./krStatisticsRecipes";
 import type { CountryCode } from "../constants/countries";
+import { STATISTICS_PARTY_COLOR } from "./statisticsVisuals";
 import { ATLAS_LAZY_FAMILIES, atlasLazyRecipeDetailsDocument, type AtlasLazyRecipeFamily } from "./statisticsRecipeDetails";
 
 export type { AtlasRecipe, AtlasRecipeCatalogEntry, AtlasScale, AtlasStatusKind } from "./atlasStatisticsTypes";
@@ -206,11 +207,49 @@ export function resolveAtlasRelease(
  * 目前維度組合的固定門檻與方向：預設組合用 recipe 門檻；癌別、疾病別、病床別、行業、疫苗等量級差很大的組合
  * 各有一組固定門檻（交付時依最新一年分布算一次，不隨期別重算）。
  */
-export function atlasRenderScale(key: string, dimensions?: Record<string, unknown>): AtlasScale | undefined {
+export function atlasRenderScale(key: string, dimensions?: Record<string, unknown>): AtlasRenderScale | undefined {
   const recipe = getAtlasRecipe(key);
-  if (!recipe) return undefined;
+  return recipe ? atlasRecipeRenderScale(recipe, dimensions) : undefined;
+}
+
+/** 渲染用色階：門檻／方向之外帶色票（partisan）與政黨 sequential 色（legend.party_dimension 選到已知政黨時）。 */
+export type AtlasRenderScale = AtlasScale & { partyColor?: string };
+
+/** atlasRenderScale 的純函式版（測試用 fixture recipe 直接呼叫）。 */
+export function atlasRecipeRenderScale(recipe: AtlasRecipeCatalogEntry, dimensions?: Record<string, unknown>): AtlasRenderScale {
   const scoped = recipe.dimensions.length ? recipe.legend.by_dimension?.[tupleKey(recipe, dimensions)] : undefined;
-  return scoped ?? { breaks: recipe.legend.breaks, direction: recipe.legend.direction };
+  const scale: AtlasRenderScale = scoped
+    ? { ...scoped, palette: scoped.palette ?? recipe.legend.palette }
+    : { breaks: recipe.legend.breaks, direction: recipe.legend.direction, ...(recipe.legend.palette ? { palette: recipe.legend.palette } : {}) };
+  const partyKey = recipe.legend.party_dimension
+    ? String(dimensions?.[recipe.legend.party_dimension] ?? recipe.dimensions.find((d) => d.key === recipe.legend.party_dimension)?.default ?? "")
+    : "";
+  const partyColor = STATISTICS_PARTY_COLOR[partyKey];
+  if (partyColor && !scale.palette) scale.partyColor = partyColor;
+  return scale;
+}
+
+/**
+ * 類別型圖例（legend.method＝categorical）的類別與顏色：color 缺省時用 key 對應政黨色，再缺用中性灰；
+ * 非 categorical 回 null。地圖 match、圖例列與 popup 類別名都從這裡取，三者一致。
+ */
+export function atlasCategoryRows(recipe: Pick<AtlasRecipeCatalogEntry, "legend">): Array<{ value: number; label: string; color: string }> | null {
+  if (recipe.legend.method !== "categorical" || !recipe.legend.categories?.length) return null;
+  return recipe.legend.categories.map((category) => ({
+    value: category.value,
+    label: category.label,
+    color: category.color ?? (category.key ? STATISTICS_PARTY_COLOR[category.key] : undefined) ?? CATEGORY_FALLBACK_COLOR,
+  }));
+}
+
+/** 未知類別（recipe 沒列的碼）與缺色類別的中性灰。 */
+export const CATEGORY_FALLBACK_COLOR = "#9ca3af";
+
+/** popup 用：類別型圖層的數值碼 → 類別名；非 categorical 或碼不在清單回 undefined（照數值顯示）。 */
+export function atlasCategoryLabel(key: string, value: unknown): string | undefined {
+  const recipe = getAtlasRecipe(key);
+  if (!recipe || typeof value !== "number") return undefined;
+  return atlasCategoryRows(recipe)?.find((row) => row.value === value)?.label;
 }
 
 /** 目前維度組合的附註（社會脆弱度子指標的所屬構面與方向依據）。 */
