@@ -2448,6 +2448,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("electionEvents2026"),
           fromManifest("pollingStations2024"),
+          fromManifest("councilDistricts2026"),
         ],
       },
     ],

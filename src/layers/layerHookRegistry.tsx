@@ -40,7 +40,7 @@ import {
   IotWraRiverHost, IotWraStructureHost,
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
-import { ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
+import { CouncilDistrictsHost, ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
 import {
   EnergyPoiHost, FossilFuelHost, LivestockHost, A1AccidentRealtimeHost,
   SubstationDiamondIconHost, OsmPowerLinesGlowHost, PowerPolesHost,
@@ -543,4 +543,6 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useElectionEventsLayer", keys: ["electionEvents2026"], Host: ElectionEventsHost },
   // 政治：2024 投開票所（公開 bbox RPC；moveend debounce、zoom ≥ 12 才查）
   { id: "usePollingStationsLayer", keys: ["pollingStations2024"], Host: PollingStationsHost },
+  // 政治：2026 議員選區（公開 RPC，一次抓全臺）
+  { id: "useCouncilDistrictsLayer", keys: ["councilDistricts2026"], Host: CouncilDistrictsHost },
 ];

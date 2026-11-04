@@ -1539,5 +1539,6 @@
   "layer.statsCaParticipationRatePr": "Participation rate (province / territory)",
   "layer.statsCaParticipationRateCd": "Participation rate (census division)",
   "layer.statsCaEmploymentRatePr": "Employment rate (province / territory)",
-  "layer.statsCaEmploymentRateCd": "Employment rate (census division)"
+  "layer.statsCaEmploymentRateCd": "Employment rate (census division)",
+  "layer.councilDistricts2026": "2026 Council Districts"
 }

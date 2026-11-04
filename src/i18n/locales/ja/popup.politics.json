@@ -41,5 +41,10 @@
   "popup.politics.polling.party.dpp": "頼清徳（民進党）",
   "popup.politics.polling.party.kmt": "侯友宜（国民党）",
   "popup.politics.polling.party.tpp": "柯文哲（民衆党）",
-  "popup.politics.polling.source": "中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定"
+  "popup.politics.polling.source": "中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定",
+  "popup.politics.council.fallbackTitle": "議員選挙区",
+  "popup.politics.council.seats": "定数",
+  "popup.politics.council.members": "構成単位",
+  "popup.politics.council.area": "面積",
+  "popup.politics.council.source": "中央選挙委員会 {basis} 議員選挙区公告（OGDL-1.0）；範囲は内政部の村里境界から作成"
 }

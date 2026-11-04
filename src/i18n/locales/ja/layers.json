@@ -1539,5 +1539,6 @@
   "layer.statsCaParticipationRatePr": "労働力率（州・準州）",
   "layer.statsCaParticipationRateCd": "労働力率（国勢調査区）",
   "layer.statsCaEmploymentRatePr": "就業率（州・準州）",
-  "layer.statsCaEmploymentRateCd": "就業率（国勢調査区）"
+  "layer.statsCaEmploymentRateCd": "就業率（国勢調査区）",
+  "layer.councilDistricts2026": "2026年議員選挙区"
 }

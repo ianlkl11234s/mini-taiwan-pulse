@@ -41,5 +41,10 @@
   "popup.politics.polling.party.dpp": "賴清德（民進黨）",
   "popup.politics.polling.party.kmt": "侯友宜（國民黨）",
   "popup.politics.polling.party.tpp": "柯文哲（民眾黨）",
-  "popup.politics.polling.source": "中選會 2024 投開票所名冊＋選舉資料庫（OGDL-1.0）；座標為本站自行定位"
+  "popup.politics.polling.source": "中選會 2024 投開票所名冊＋選舉資料庫（OGDL-1.0）；座標為本站自行定位",
+  "popup.politics.council.fallbackTitle": "議員選舉區",
+  "popup.politics.council.seats": "應選席次",
+  "popup.politics.council.members": "組成單位",
+  "popup.politics.council.area": "面積",
+  "popup.politics.council.source": "中選會 {basis} 議員選舉區公告（OGDL-1.0）；範圍依內政部村里界自建"
 }
