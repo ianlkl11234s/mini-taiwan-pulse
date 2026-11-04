@@ -119,5 +119,8 @@
   "enum.statUnit.英鎊/月": "ポンド/月",
   "enum.statUnit.男/百女": "女性100人あたり男性",
   "enum.statUnit.老年/百幼年": "年少人口100人あたり老年人口",
-  "enum.statUnit.加幣/年": "カナダドル/年"
+  "enum.statUnit.加幣/年": "カナダドル/年",
+  "enum.statUnit.百分點": "ポイント",
+  "enum.statUnit.票": "票",
+  "enum.statUnit.類別碼": "カテゴリコード"
 }

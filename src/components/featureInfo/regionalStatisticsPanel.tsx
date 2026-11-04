@@ -7,6 +7,7 @@ import { statisticsTitle, statisticsUnit } from '../../i18n/statisticsText';
 import type { LocaleSnapshot } from "../../state/localeStore";
 import { boundaryVersionLabel, humanizeStatisticsText, statisticsAvailabilityLabel, statisticsDisclosure, statisticsLocationBasis, statisticsPeriodLabel } from '../../data/statisticsLabels';
 import { demographicsYtdText, type DemographicsYtdParts } from '../../data/demographicsStatisticsRecipes';
+import { atlasCategoryLabel } from '../../data/atlasStatisticsRecipes';
 
 const INPUT_LABELS: Record<string, string> = {
   official_complete_county_sum: '22縣市同類合計', numerator: '分子', denominator: '分母', numerator_hectares: '同類面積（公頃）',
@@ -58,6 +59,8 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
   if (typeof inputs === 'string') { try { inputs = JSON.parse(inputs); } catch { inputs = undefined; } }
   const numericFormat = format as { locale?: string; maximumFractionDigits?: number } | undefined;
   const observed = props.status === 'observed' && typeof props.value === 'number';
+  // 類別型圖層（最高黨）：值是類別碼，popup 顯示類別名而不是數字。
+  const categoryLabel = observed && typeof props.layer_key === 'string' ? atlasCategoryLabel(props.layer_key, props.value) : undefined;
   // 地檢署轄區（area_code PD_xxx）不是行政區：名稱用地檢署全銜，另列涵蓋縣市，避免被讀成縣市。
   const prosecutorDistrict = typeof props.area_code === 'string' && props.area_code.startsWith('PD_');
   // 英國統計：非數值狀態用 recipe 標籤（not_applicable＝未涵蓋、missing＝無資料），不顯示內部狀態碼。
@@ -79,7 +82,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {typeof props.sido_name === 'string' && props.sido_code !== props.area_code && <Row label={t('popup.baseMap.krSido')} value={props.sido_name} />}
     {typeof props.area_name_en === 'string' && typeof props.sido_name === 'string' && <Row label={t('popup.baseMap.krNameEnglish')} value={props.area_name_en} />}
     <Row label={t('popup.regionalStatistics.indicator')} value={props.indicator_name == null ? '—' : typeof (props.title_layer_key ?? props.layer_key) === 'string' ? statisticsTitle(String(props.title_layer_key ?? props.layer_key), String(props.indicator_name), i18n) : String(props.indicator_name)} />
-    <Row label={t('popup.regionalStatistics.value')} value={observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit == null ? '' : statisticsUnit(String(props.unit), i18n)}` : t('popup.regionalStatistics.notZero', { label: missingLabel })} />
+    <Row label={t('popup.regionalStatistics.value')} value={categoryLabel !== undefined ? enumLabel('statLegendNote', categoryLabel, categoryLabel, i18n) : observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit == null ? '' : statisticsUnit(String(props.unit), i18n)}` : props.status === 'not_applicable' && typeof props.status_label === 'string' ? missingLabel : t('popup.regionalStatistics.notZero', { label: missingLabel })} />
     {props.source_status != null && <Row label={t('popup.regionalStatistics.sourceStatus')} value={String(props.source_status)} />}
     {props.source_token != null && <Row label={t('popup.regionalStatistics.sourceToken')} value={String(props.source_token)} />}
     {props.missing_reason != null && <Row label={t('popup.regionalStatistics.missingReason')} value={String(props.missing_reason)} />}

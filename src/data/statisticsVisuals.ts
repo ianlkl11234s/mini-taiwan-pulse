@@ -1,5 +1,6 @@
 import {
   Activity,
+  Vote,
   Wallet,
   Music,
   Building2,
@@ -110,6 +111,9 @@ const THEMES = {
   // 人口統計：ColorBrewer RdPu（淺粉→深紫）。序列色只表數量高低；老化、性比例都不是好壞，不用紅綠。
   population: { theme: '人口', accent: '#c51b8a', colors: ['#feebe2', '#fbb4b9', '#f768a1', '#c51b8a', '#7a0177'] },
   security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
+  // 選舉統計（投票率、有效票、公投同意率）：中性紫（ColorBrewer Purples），不用政黨色以免讀成某黨；
+  // 依政黨的得票率改走 partyColor、藍綠差走 partisan、最高黨走類別色（statisticsVisualColors options）。
+  politics: { theme: '選舉', accent: '#8b5cf6', colors: ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'] },
   fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
 } as const satisfies Record<string, StatisticsTheme>;
 
@@ -120,6 +124,24 @@ const textFor = (key: string, label?: string, group?: string) => `${key} ${label
 const has = (text: string, terms: readonly string[]) => terms.some(term => text.includes(term.toLocaleLowerCase()));
 
 const PU_OR_6 = ['#b35806', '#f1a340', '#fee0b6', '#d8daeb', '#998ec3', '#542788'] as const;
+/**
+ * 藍綠雙向（選舉 kmt_minus_dpp_pp）：綠（負＝民進黨領先）→ 中性灰（0）→ 藍（正＝國民黨領先）。
+ * 兩端取 Pulse 政黨色（ELECTION_CAMPS）的深一階，中段淺色；奇數類別時正中一類為中性灰。
+ */
+const PARTISAN_7 = ['#0f6b39', '#1f9d55', '#9fd4b0', '#e5e7eb', '#a9c0f2', '#3b6fe0', '#1d3f99'] as const;
+
+/**
+ * 統計圖層用的政黨色（categorical 圖例 key 缺 color 時、vote_share 依政黨 sequential 時）。
+ * dpp／kmt／tpp／npp 同 ELECTION_CAMP_COLOR；無黨籍橘、其他棕（與 missing 的斜線、灰底區隔）。
+ */
+export const STATISTICS_PARTY_COLOR: Readonly<Record<string, string>> = {
+  dpp: '#1f9d55',
+  kmt: '#3b6fe0',
+  tpp: '#22b8c7',
+  npp: '#f2c230',
+  ind: '#f08c2e',
+  other: '#b08968',
+};
 
 function linearChannel(value: number): number {
   const normalized = value / 255;
@@ -322,6 +344,8 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsCaHouseholds/, 'housing', UsersRound],
   [/^statsCaHouseholdIncome/, 'labor', Wallet],
   [/^statsCa(?:UnemploymentRate|ParticipationRate|EmploymentRate)/, 'labor', Briefcase],
+  // 選舉統計（2026-11-04，村里／鄉鎮／縣市）：政治主題「選舉」群組。
+  [/^statsElection/, 'politics', Vote],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {
@@ -431,7 +455,17 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
  * `direction`（只有 recipe 明確宣告方向時才傳，例如社會脆弱度 Z 分數）：不論正負都用主題序列色；
  * `descending` 反轉（值越低越深＝能力構面越弱越深）。圖例必須同時寫出反轉，不可只靠顏色。
  */
-export function statisticsVisualColors(key: string, label: string, breaks: readonly number[], direction?: 'ascending' | 'descending' | 'diverging'): string[] {
+export function statisticsVisualColors(
+  key: string,
+  label: string,
+  breaks: readonly number[],
+  direction?: 'ascending' | 'descending' | 'diverging',
+  options?: { palette?: 'partisan'; partyColor?: string },
+): string[] {
+  // partisan（選舉藍綠差）：明確宣告才用，0 為中心；不論 direction 一律綠負藍正。
+  if (options?.palette === 'partisan') return resample(PARTISAN_7, breaks.length + 1);
+  // 依政黨 sequential（vote_share 選了某黨）：近白 → 該黨色 → 該黨色加深。
+  if (options?.partyColor) return resample(partySequentialAnchors(options.partyColor), breaks.length + 1);
   // diverging（英國房價／租金年變動率）：明確宣告的雙向 PuOr，breaks 以 0 為中間門檻（棕負紫正）。
   if (direction === 'diverging') return resample(PU_OR_6, breaks.length + 1);
   if (direction) {
@@ -440,4 +474,29 @@ export function statisticsVisualColors(key: string, label: string, breaks: reado
   }
   const palette = breaks.some(value => value < 0) ? PU_OR_6 : getStatisticsVisual(key, label).colors;
   return resample(palette, breaks.length + 1);
+}
+
+/**
+ * 單一政黨的 sequential 錨點：沿「白 → 政黨原色 → 黑」路徑取 9 個點，CIE L* 由 95 等距降到 30。
+ * 等距 L* 讓 resample 後每級亮度差都夠大（含色覺模擬，見 statisticsColorAccessibility.test）；
+ * rgb() 為 0–1 線性通道。
+ */
+function partySequentialAnchors(color: string): string[] {
+  const base = rgb(color);
+  const along = (u: number) => (u <= 0 ? base.map((channel) => channel + (1 - channel) * -u) : base.map((channel) => channel * (1 - u)));
+  const lightnessOf = (channels: readonly number[]) => {
+    const y = channels[0]! * 0.2126 + channels[1]! * 0.7152 + channels[2]! * 0.0722;
+    return y > 216 / 24389 ? 116 * Math.cbrt(y) - 16 : y * (24389 / 27);
+  };
+  return Array.from({ length: 9 }, (_, index) => {
+    const target = 95 + (30 - 95) * index / 8;
+    let lo = -1;
+    let hi = 0.95;
+    for (let step = 0; step < 40; step++) {
+      const mid = (lo + hi) / 2;
+      if (lightnessOf(along(mid)) > target) lo = mid;
+      else hi = mid;
+    }
+    return hex(along(lo));
+  });
 }

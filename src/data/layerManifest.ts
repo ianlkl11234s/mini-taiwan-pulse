@@ -544,7 +544,7 @@ const LANDSLIDE_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LANDSLIDE_ENABL
 
 /** atlas 統計的層級短名（名稱 qualifier 與 topics）：英國 LAD＝地方行政區。 */
 function atlasLevelQualifier(level: StatisticsLevel): string {
-  return level === "gb_lad" ? "地方行政區" : level === "kr_sido" ? "道級" : level === "kr_sigungu" ? "市郡區" : level === "ca_pr" ? "省／地區" : level === "ca_cd" ? "普查區" : level === "township" ? "鄉鎮" : "縣市";
+  return level === "gb_lad" ? "地方行政區" : level === "kr_sido" ? "道級" : level === "kr_sigungu" ? "市郡區" : level === "ca_pr" ? "省／地區" : level === "ca_cd" ? "普查區" : level === "township" ? "鄉鎮" : level === "village" ? "村里" : "縣市";
 }
 
 /** 英國統計只有 LAD 一個層級，名稱本身已帶地區括號，不再加層級 qualifier（避免雙括號）。 */

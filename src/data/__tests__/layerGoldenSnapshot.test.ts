@@ -234,7 +234,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +7 加拿大第 2 波（聯邦選區、FSA、原住民土地、CIMD、租金、地名、山體陰影）。
     // 2026-11-04: +24 加拿大統計（ca 家族 statsCa*，省／地區 13／普查區 293）。
     // 2026-11-03: +1 政治 2026 議員選區 councilDistricts2026（公開 RPC）。
-    expect(keys.length).toBe(1550);
+    // 2026-11-04: +66 選舉統計（election 家族 statsElection*，政治 → 選舉；村里／鄉鎮／縣市）。
+    expect(keys.length).toBe(1616);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

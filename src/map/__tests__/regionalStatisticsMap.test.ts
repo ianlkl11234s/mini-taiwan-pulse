@@ -86,6 +86,7 @@ function mapMock() {
     addLayer: (layer: Layer) => layers.set(layer.id, { ...layer, layout: { ...layer.layout }, paint: { ...layer.paint } }),
     setPaintProperty: (id: string, property: string, value: unknown) => { paintCalls.push([id, property, value]); layers.get(id)?.paint && (layers.get(id)!.paint![property] = value); },
     setLayoutProperty: (id: string, property: string, value: unknown) => { layoutCalls.push([id, property, value]); layers.get(id)?.layout && (layers.get(id)!.layout![property] = value); },
+    setFilter: (id: string, filter: unknown) => { const layer = layers.get(id) as (Layer & { filter?: unknown }) | undefined; if (layer) layer.filter = filter; },
     on: (event: string, listener: () => void) => events.set(event, listener),
     off: vi.fn(),
   };

@@ -474,7 +474,21 @@ function atlasTabTheme(title: string): CatalogTheme {
   return { title, defaultCollapsed: true, groups: atlasGroups(atlasTabThemeGroups(title)) };
 }
 
-const ATLAS_DATA_THEMES: CatalogTheme[] = ATLAS_DATA_THEME_TITLES.map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
+/**
+ * data_theme 是 GIS 主題（不是統計主題）的 atlas 家族：選舉統計併進 GIS「政治 Politics → 選舉」群組（與投開票所、
+ * 議員選區同列），不在統計目錄另開同名主題。
+ */
+const ATLAS_GIS_THEME_TITLES = new Set(["政治 Politics"]);
+/** GIS 主題裡的 atlas 統計群組：成員照統計入口標上群組變體（一屆選舉一列，列內下拉切指標×層級）。 */
+function atlasGisThemeGroups(title: string): SubGroupDef[] {
+  const groups = atlasGroups(atlasDataThemeGroups(title));
+  for (const layer of groups.flatMap((group) => group.layers)) {
+    const variant = getMedicalStatisticsGroup(layer.key);
+    if (variant) layer.variant = { group: variant.key, lead: variant.options[0]?.key === layer.key };
+  }
+  return groups;
+}
+const ATLAS_DATA_THEMES: CatalogTheme[] = ATLAS_DATA_THEME_TITLES.filter((title) => !ATLAS_GIS_THEME_TITLES.has(title)).map((title) => ({ title, groups: atlasGroups(atlasDataThemeGroups(title)) }));
 
 /**
  * atlas 的 data_theme 若與既有主題同名（例如臺北市局處統計併入「廢棄物統計」「工作與所得」），
@@ -2442,7 +2456,8 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "政治 Politics",
     country: "TW",
     defaultCollapsed: true,
-    groups: [
+    // 選舉統計（electionStatisticsRecipes，subgroup「選舉」）併在點位圖層之後：一屆選舉一列，列內下拉切指標×層級
+    groups: mergeAtlasGroups([
       {
         title: "選舉",
         layers: [
@@ -2451,7 +2466,7 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("councilDistricts2026"),
         ],
       },
-    ],
+    ], atlasGisThemeGroups("政治 Politics")),
   },
 
   // ───────────────────────────────────────────────────────────────
