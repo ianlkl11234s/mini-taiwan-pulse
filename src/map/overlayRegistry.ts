@@ -1,5 +1,6 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
-import { POLLING_COLOR_MODES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS } from "../data/pollingStationsTypes";
+import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
+import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
@@ -3697,9 +3698,96 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // ── 🗳 2024 投開票所（公開 bbox RPC）──
-  // dynamicData：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）查 get_polling_stations_2024 後 setData。
-  // 色＝2024 總統領先政黨（loader 衍生 `lead`）或投票率五階；precision='road'（僅路名）淡化。色票 SSOT：data/pollingStationsTypes.ts。
+  // ── 🗳 2026 議員選區（公開 RPC，一次抓全臺）──
+  // useCouncilDistrictsLayer 抓 get_council_districts_2026 後 setData；loader 另加每區一個面內代表點（_label=1）掛選區名。
+  // 目前 161 區全為區域選區（原住民選區無對應範圍，不在資料內）。
+  {
+    id: "councilDistricts2026",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "council-districts-2026",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["!=", ["geometry-type"], "Point"],
+        paint: (_isDark, p) => ({
+          "fill-color": COUNCIL_DISTRICT_COLOR,
+          "fill-opacity": 0.12 * (p?.councilDistricts2026Opacity ?? 0.9),
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: ["!=", ["geometry-type"], "Point"],
+        paint: (_isDark, p) => ({
+          "line-color": COUNCIL_DISTRICT_COLOR,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 7, 0.8, 12, 2] as unknown as number,
+          "line-opacity": p?.councilDistricts2026Opacity ?? 0.9,
+        }),
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 8,
+        filter: ["==", ["get", "_label"], 1],
+        layout: {
+          "text-field": ["get", "district_name"],
+          ...poiLabelLayout(),
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+          "text-max-width": 8,
+          "text-optional": true,
+        },
+        paint: (dark, p) => ({
+          "text-color": dark ? "#ede9fe" : "#4c1d95",
+          ...labelHaloPaint(dark),
+          "text-opacity": p?.councilDistricts2026Opacity ?? 0.9,
+        }),
+      },
+    ],
+  },
+  // ── 🗳 2024 投開票所（公開）──
+  // 低縮放熱區：usePollingStationsLayer 開圖層時抓一次全臺熱區點（get_polling_stations_2024_heat）setData。
+  // 中性／投票率模式＝單色熱區（選舉人數加權）；領先政黨模式＝三黨各一層（各黨 2024 總統票數加權，三個開關個別控制）。
+  // 不用的層 opacity 歸零（不 rebuild）；z11.5→12.5 淡出、與 z12 起的點位交接。熱區不可點擊（gisClickRegistry 不登記）。
+  {
+    id: "pollingStations2024",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "polling-stations-2024-heat",
+    dynamicData: true,
+    layers: [
+      { mode: "neutral" as const, suffix: "neutral", weight: "w_electors", color: POLLING_NEUTRAL_COLOR, toggle: null },
+      ...POLLING_HEAT_PARTIES.map((party) => ({
+        mode: "lead" as const, suffix: party, weight: `w_${party}`, color: POLLING_LEAD_COLOR[party],
+        toggle: `pollingStations2024Heat${party[0]!.toUpperCase()}${party.slice(1)}`,
+      })),
+    ].map(({ mode, suffix, weight, color, toggle }): OverlayLayerSpec => ({
+      suffix,
+      type: "heatmap",
+      maxzoom: POLLING_HEAT_FADE[1],
+      paint: (_isDark, p) => {
+        const idx = p?.pollingStations2024ColorByIdx ?? POLLING_COLOR_MODES.indexOf(POLLING_DEFAULT_COLOR_MODE);
+        const current = POLLING_COLOR_MODES[idx] ?? POLLING_DEFAULT_COLOR_MODE;
+        // 投票率模式的熱區也用中性（選舉人數）——投票率是比率，不能用密度表現
+        const activeMode = current === "lead" ? "lead" : "neutral";
+        const on = activeMode === mode && (toggle === null || (p?.[toggle] ?? 1) > 0);
+        const base = on ? Math.min(1, ((p?.pollingStations2024Opacity ?? 0.9) / 0.9) * 0.8) : 0;
+        if (mode === "neutral") {
+          return {
+            ...heatmapPaint(1, 1, ["get", weight], pollingHeatRamp(color)),
+            "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
+          };
+        }
+        // 三黨：每所只進該所領先政黨那一層（loader 已把非領先黨權重設 0），三層空間上大致互斥，不會整片混色
+        return {
+          ...heatmapPaint(1, 1.6, ["get", weight], pollingHeatRamp(color)),
+          "heatmap-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_HEAT_FADE[0], base, POLLING_HEAT_FADE[1], 0],
+        };
+      },
+    })),
+  },
+  // 點位：usePollingStationsLayer 依視窗 bbox（zoom ≥ 12）查 get_polling_stations_2024 後 setData。
+  // 色＝中性單色（預設）／2024 總統領先政黨（loader 衍生 `lead`）／投票率五階；precision='road'（僅路名）淡化。色票 SSOT：data/pollingStationsTypes.ts。
   {
     id: "pollingStations2024",
     sourceUrl: "./geo/_empty.geojson",
@@ -3712,7 +3800,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: POLLING_MIN_ZOOM,
         paint: (isDark, p) => {
           const op = p?.pollingStations2024Opacity ?? 0.9;
-          const byTurnout = (p?.pollingStations2024ColorByIdx ?? 0) === POLLING_COLOR_MODES.indexOf("turnout");
+          const mode = POLLING_COLOR_MODES[p?.pollingStations2024ColorByIdx ?? POLLING_COLOR_MODES.indexOf(POLLING_DEFAULT_COLOR_MODE)] ?? POLLING_DEFAULT_COLOR_MODE;
           const leadColor = [
             "match", ["get", "lead"],
             "dpp", POLLING_LEAD_COLOR.dpp,
@@ -3730,10 +3818,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           ];
           return {
             "circle-radius": 3,
-            "circle-color": (byTurnout ? turnoutColor : leadColor) as unknown as string,
-            "circle-opacity": ["case", ["==", ["get", "precision"], "road"], op * POLLING_ROAD_OPACITY, op] as unknown as number,
-            "circle-stroke-color": mapSeamColor(isDark),
+            "circle-color": (mode === "turnout" ? turnoutColor : mode === "lead" ? leadColor : POLLING_NEUTRAL_COLOR) as unknown as string,
+            // z12 起出點、z12.5 淡入到滿（與熱區交接，見 POLLING_POINT_FADE）
+            "circle-opacity": [
+              "interpolate", ["linear"], ["zoom"],
+              POLLING_POINT_FADE[0], ["case", ["==", ["get", "precision"], "road"], 0.35 * op * POLLING_ROAD_OPACITY, 0.35 * op],
+              POLLING_POINT_FADE[1], ["case", ["==", ["get", "precision"], "road"], op * POLLING_ROAD_OPACITY, op],
+            ] as unknown as number,
+            // 中性＝白點：淺色底圖的接縫色也是白，改深灰描邊才看得到
+            "circle-stroke-color": mode === "neutral" && !isDark ? "#475569" : mapSeamColor(isDark),
             "circle-stroke-width": 0.8,
+            "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_POINT_FADE[0], 0.35, POLLING_POINT_FADE[1], 1] as unknown as number,
           };
         },
       },

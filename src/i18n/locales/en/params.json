@@ -2202,5 +2202,11 @@
   "param.水體（224,426）": "Water features (224,426)",
   "param.山岳、地形與冰川（75,865）": "Mountains, landforms and glaciers (75,865)",
   "param.人工設施（11,281）": "Constructed features (11,281)",
-  "param.其他（2,831）": "Other (2,831)"
+  "param.其他（2,831）": "Other (2,831)",
+  "param.中性": "Neutral",
+  "param.領先政黨": "Leading party",
+  "param.投票率": "Turnout",
+  "param.熱區：民進黨": "Heatmap: DPP",
+  "param.熱區：國民黨": "Heatmap: KMT",
+  "param.熱區：民眾黨": "Heatmap: TPP"
 }

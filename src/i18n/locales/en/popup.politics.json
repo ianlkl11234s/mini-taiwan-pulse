@@ -41,5 +41,10 @@
   "popup.politics.polling.party.dpp": "Lai Ching-te (DPP)",
   "popup.politics.polling.party.kmt": "Hou Yu-ih (KMT)",
   "popup.politics.polling.party.tpp": "Ko Wen-je (TPP)",
-  "popup.politics.polling.source": "CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site"
+  "popup.politics.polling.source": "CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site",
+  "popup.politics.council.fallbackTitle": "Council district",
+  "popup.politics.council.seats": "Seats",
+  "popup.politics.council.members": "Made up of",
+  "popup.politics.council.area": "Area",
+  "popup.politics.council.source": "CEC {basis} council district notice (OGDL-1.0); boundary built from MOI village boundaries"
 }

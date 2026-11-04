@@ -1540,6 +1540,7 @@
   "layer.statsCaParticipationRateCd": "Participation rate (census division)",
   "layer.statsCaEmploymentRatePr": "Employment rate (province / territory)",
   "layer.statsCaEmploymentRateCd": "Employment rate (census division)",
+  "layer.councilDistricts2026": "2026 Council Districts",
   "layer.statsElectionPresidentTopPartyCounty": "Presidential Leading party (county/city)",
   "layer.statsElectionPresidentTopPartyTownship": "Presidential Leading party (township/district)",
   "layer.statsElectionPresidentTopPartyVillage": "Presidential Leading party (village)",

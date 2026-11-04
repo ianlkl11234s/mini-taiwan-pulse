@@ -1,6 +1,6 @@
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { POLLING_FETCH_LIMIT, pollingLead, pollingNumber } from "./pollingStationsTypes";
+import { POLLING_FETCH_LIMIT, POLLING_HEAT_ELECTORS_UNIT, POLLING_HEAT_PARTIES, POLLING_HEAT_VOTES_UNIT, pollingLead, pollingNumber } from "./pollingStationsTypes";
 
 /**
  * 2024 投開票所（公開）bbox 載入器。
@@ -166,3 +166,82 @@ export const pollingLegendStore = {
     return legendSnapshot;
   },
 };
+
+// ── 低縮放熱區（全臺一次抓、session 快取）──
+/**
+ * public.get_polling_stations_2024_heat() → jsonb（gis-platform mig 496）
+ *   { meta: { count, loaded_at }, cols: ["lng","lat","electors","dpp","kmt","tpp"], rows: [[…], …] }
+ * 只含有站址座標者（村里／鄉鎮代表點不進熱區）。票數缺值為 null → 權重 0。
+ * 三黨熱區：每所只計入該所領先政黨那一層（w_<領先黨>＝領先者得票數 ÷ 單位，其他兩層 0），各層空間上大致互斥；
+ * 同票或全缺值三層都 0。
+ * 權重在這裡先算好（w_electors／w_dpp…），paint 直接 get，不在 GPU 端除。
+ */
+export interface PollingHeatData {
+  fc: GeoJSON.FeatureCollection<GeoJSON.Point>;
+  count: number | null;
+  loadedAt: string | null;
+}
+
+export function normalizePollingHeat(raw: unknown): PollingHeatData {
+  const obj = (raw ?? {}) as { cols?: unknown; rows?: unknown; meta?: Record<string, unknown> };
+  const cols = Array.isArray(obj.cols) ? obj.cols.map(String) : [];
+  const rows = Array.isArray(obj.rows) ? (obj.rows as unknown[]) : [];
+  const idx = (name: string) => cols.indexOf(name);
+  const iLng = idx("lng");
+  const iLat = idx("lat");
+  const iE = idx("electors");
+  const iParty = POLLING_HEAT_PARTIES.map((p) => [p, idx(p)] as const);
+  const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
+  if (iLng >= 0 && iLat >= 0) {
+    for (const r of rows) {
+      if (!Array.isArray(r)) continue;
+      const lng = pollingNumber(r[iLng]);
+      const lat = pollingNumber(r[iLat]);
+      if (lng === null || lat === null) continue;
+      const props: Record<string, number> = {
+        w_electors: Math.max(0, (iE >= 0 ? pollingNumber(r[iE]) : null) ?? 0) / POLLING_HEAT_ELECTORS_UNIT,
+      };
+      // 三黨熱區：每所只進「該所 2024 總統領先政黨」那一層（權重＝領先者得票數）；同票或缺值不進任何一層
+      const votes: Record<string, unknown> = {};
+      for (const [p, i] of iParty) votes[`pres24_${p}_votes`] = i >= 0 ? r[i] : null;
+      const lead = pollingLead(votes);
+      for (const [p] of iParty) {
+        props[`w_${p}`] = p === lead ? Math.max(0, pollingNumber(votes[`pres24_${p}_votes`]) ?? 0) / POLLING_HEAT_VOTES_UNIT : 0;
+      }
+      features.push({ type: "Feature", geometry: { type: "Point", coordinates: [lng, lat] }, properties: props });
+    }
+  }
+  const meta = obj.meta ?? {};
+  return {
+    fc: { type: "FeatureCollection", features },
+    count: pollingNumber(meta.count),
+    loadedAt: typeof meta.loaded_at === "string" ? meta.loaded_at : null,
+  };
+}
+
+let heatPromise: Promise<PollingHeatData> | null = null;
+
+/** 測試用：清熱區快取 */
+export function clearPollingHeatCache(): void {
+  heatPromise = null;
+}
+
+/** 全臺熱區點（session 內只抓一次；失敗不快取，下次開圖層再試） */
+export function fetchPollingHeat(): Promise<PollingHeatData> {
+  if (heatPromise) return heatPromise;
+  if (!supabaseConfigured) return Promise.resolve(normalizePollingHeat(null));
+  const p = (async () => {
+    const { data, error, status } = await withLoading(
+      "polling:stations2024:heat",
+      "2024 投開票所熱區",
+      supabase.rpc("get_polling_stations_2024_heat"),
+    );
+    if (error) {
+      throw new PollingStationsError(`get_polling_stations_2024_heat: ${error.message}`, String(error.code ?? ""), status);
+    }
+    return normalizePollingHeat(data);
+  })();
+  heatPromise = p;
+  p.catch(() => { if (heatPromise === p) heatPromise = null; });
+  return p;
+}

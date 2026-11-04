@@ -1540,6 +1540,7 @@
   "layer.statsCaParticipationRateCd": "労働力率（国勢調査区）",
   "layer.statsCaEmploymentRatePr": "就業率（州・準州）",
   "layer.statsCaEmploymentRateCd": "就業率（国勢調査区）",
+  "layer.councilDistricts2026": "2026年議員選挙区",
   "layer.statsElectionPresidentTopPartyCounty": "総統選挙 最多得票政党（県市）",
   "layer.statsElectionPresidentTopPartyTownship": "総統選挙 最多得票政党（郷鎮市区）",
   "layer.statsElectionPresidentTopPartyVillage": "総統選挙 最多得票政党（村里）",

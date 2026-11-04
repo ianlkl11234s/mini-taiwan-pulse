@@ -26,5 +26,12 @@
   "legend.politics.polling.unmapped": "About 200 stations not yet located and not shown",
   "legend.politics.polling.unmappedExact": "About {count} stations not yet located and not shown",
   "legend.politics.polling.year": "These are 2024 polling station locations; for the 28 Nov 2026 election, follow each county's election commission notice",
-  "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site"
+  "legend.politics.polling.source": "Source: CEC 2024 polling station list + election database (OGDL-1.0); coordinates geocoded by this site",
+  "legend.politics.polling.neutral": "Polling station (neutral, no party colour)",
+  "legend.politics.polling.heatElectors": "Zoomed out below street level: heatmap weighted by 2024 presidential electors",
+  "legend.politics.polling.heatParties": "Zoomed out: party heatmaps — each station counts only toward its 2024 presidential leader's layer, weighted by the leader's votes; ties are excluded (toggle each layer in options). Showing: {parties}",
+  "legend.politics.polling.heatNone": "none (all three off)",
+  "legend.politics.council.area": "Electoral district (outline + light fill)",
+  "legend.politics.council.noIndigenous": "Indigenous constituencies (plains / mountain) are not shown: they have no mapped boundary",
+  "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries"
 }

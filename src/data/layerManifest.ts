@@ -989,20 +989,43 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢。",
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢；低縮放熱區另由公開 RPC get_polling_stations_2024_heat（mig 496）一次取全臺站址點。",
       note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
     },
     dataClass: "C",
-    source: {
-      kind: "supabase",
-      sourceId: "polling-stations-2024",
-      fallbackUrl: "./geo/_empty.geojson",
-    },
+    // [0] 低縮放熱區（全臺一次抓）、[1] z ≥ 12 bbox 點位；順序＝OVERLAY_REGISTRY 疊放順序
+    source: [
+      { kind: "supabase", sourceId: "polling-stations-2024-heat", fallbackUrl: "./geo/_empty.geojson" },
+      { kind: "supabase", sourceId: "polling-stations-2024", fallbackUrl: "./geo/_empty.geojson" },
+    ],
     legend: "pollingStations2024",
     popup: "pollingStations2024",
     params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
-    description: "2024 年總統大選的投開票所位置與該所總統得票。色＝領先政黨（可切換成投票率）；放大到街區層級才顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    description: "2024 年總統大選的投開票所位置與該所總統得票。拉遠看熱區（選舉人數，或民進黨／國民黨／民眾黨三層得票熱區），放大到街區層級才顯示各所；著色可選中性、領先政黨或投票率。2026-11-28 的投開票所以各縣市選委會公告為準。",
     topics: ["政治", "選舉", "投開票所", "投票率"],
+  },
+
+  // 🗳 政治：2026 議員選區（公開 RPC get_council_districts_2026；gis-platform mig 496；不 gate）
+  councilDistricts2026: {
+    key: "councilDistricts2026",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2026 議員選區", alt: "2026 Council Districts" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/election_districts_2026：官方沒有議員選區 polygon，依中選會 A0046 公告（縣市議員選舉區）的組成鄉鎮／村里，以內政部村里界（village_boundary_20260626）自建並簡化；寫入 Supabase，前端經公開 RPC 一次取全臺。",
+      note: "OGDL-1.0（中選會公告）＋村里界。161 區全為區域選區；原住民選區（平地／山地）沒有對應範圍，不在本層。",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "council-districts-2026", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "councilDistricts2026",
+    popup: "councilDistricts2026",
+    params: { count: 1, kinds: ["slider"] },
+    description: "2026-11-28 縣市議員選舉的區域選舉區範圍（161 區），點選看應選席次與組成鄉鎮。依中選會公告自村里界組成；原住民選區沒有對應範圍、不在本層。",
+    topics: ["政治", "選舉", "選舉區", "議員"],
   },
 
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件

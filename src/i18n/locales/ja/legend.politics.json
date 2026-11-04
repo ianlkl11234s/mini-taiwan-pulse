@@ -26,5 +26,12 @@
   "legend.politics.polling.unmapped": "約 200 か所は位置未特定のため非表示",
   "legend.politics.polling.unmappedExact": "約 {count} か所は位置未特定のため非表示",
   "legend.politics.polling.year": "2024年の投開票所の位置です。2026年11月28日の投開票所は各県市選挙委員会の公告に従ってください",
-  "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定"
+  "legend.politics.polling.source": "出典：中央選挙委員会 2024年投開票所名簿＋選挙データベース（OGDL-1.0）；座標は当サイトで推定",
+  "legend.politics.polling.neutral": "投開票所（中立色、政党別なし）",
+  "legend.politics.polling.heatElectors": "街区レベルより縮小時はヒートマップ表示（2024年総統選の選挙人数で重み付け）",
+  "legend.politics.polling.heatParties": "縮小時は政党別ヒートマップ：各投票所は2024年総統選の首位政党の層にのみ計上（重み＝首位候補の得票数、同数は除外。オプションで層ごとに切替）。表示中：{parties}",
+  "legend.politics.polling.heatNone": "なし（3層ともオフ）",
+  "legend.politics.council.area": "選挙区（輪郭＋淡い塗り）",
+  "legend.politics.council.noIndigenous": "原住民選挙区（平地・山地）は対応する範囲がないため含みません",
+  "legend.politics.council.source": "出典：中央選挙委員会 A0046 議員選挙区公告（OGDL-1.0）、内政部の村里境界から作成"
 }

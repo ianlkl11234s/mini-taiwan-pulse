@@ -24,8 +24,39 @@ export const POLLING_LEAD_COLOR: Record<PollingLeadKey, string> = {
 
 export const POLLING_LEAD_KEYS: readonly PollingLeadKey[] = ["dpp", "kmt", "tpp", "tie"];
 
-/** 著色模式（layerParamsSpec select 的 encode 順序；idx 0＝領先政黨） */
-export const POLLING_COLOR_MODES = ["lead", "turnout"] as const;
+/**
+ * 著色模式（layerParamsSpec select 的 encode 順序；idx 0＝領先政黨、1＝投票率、2＝中性）。
+ * ⚠️ 只能往尾端 append：既有分享網址與黃金快照的 idx 0／1 語意不可變。選單 UI 的排序與預設另在 spec 宣告（中性排第一、預設中性）。
+ */
+export const POLLING_COLOR_MODES = ["lead", "turnout", "neutral"] as const;
+export type PollingColorMode = (typeof POLLING_COLOR_MODES)[number];
+export const POLLING_DEFAULT_COLOR_MODE: PollingColorMode = "neutral";
+
+/** 中性模式的單色（點與熱區）：圖層代表色紫，刻意避開政黨色 */
+export const POLLING_NEUTRAL_COLOR = "#ffffff";
+
+// ── 低縮放熱區（zoom < POLLING_MIN_ZOOM；RPC get_polling_stations_2024_heat）──
+/** 三黨熱區（領先政黨模式）；順序＝圖層疊放順序（後者在上）與開關順序 */
+export const POLLING_HEAT_PARTIES = ["dpp", "kmt", "tpp"] as const;
+export type PollingHeatParty = (typeof POLLING_HEAT_PARTIES)[number];
+/** 熱區權重的除數：選舉人數 ÷ 1000、領先政黨得票數 ÷ 500（三黨同一除數，強弱才可互比） */
+export const POLLING_HEAT_ELECTORS_UNIT = 1000;
+export const POLLING_HEAT_VOTES_UNIT = 500;
+/**
+ * 熱區與點位交接：熱區在 z11.5 前全不透明，z12.5 淡到 0；點位 z12 起出現、z12.5 淡入到滿。
+ * 點位受 bbox 查詢上限限制只能 z ≥ 12 才抓（見 POLLING_MIN_ZOOM），交接區因此落在 z11.5–12.5。
+ */
+export const POLLING_HEAT_FADE: readonly [number, number] = [11.5, 12.5];
+export const POLLING_POINT_FADE: readonly [number, number] = [12, 12.5];
+/** 單一熱區 7 階色（同色、深淺）；alpha 淡入由 heatmapColorExpr 負責 */
+export function pollingHeatRamp(hex: string): string[] {
+  const n = Number.parseInt(hex.slice(1), 16);
+  const rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  // 低密度偏淡（往白混 45%）→ 高密度原色
+  return [0.45, 0.38, 0.3, 0.22, 0.14, 0.07, 0].map((w) =>
+    `#${rgb.map((c) => Math.round(c + (255 - c) * w).toString(16).padStart(2, "0")).join("")}`,
+  );
+}
 
 /** 投票率五階（%）：門檻取主圖層 15,626 所的約 20／40／60／80 百分位（69.7／72.1／73.9／75.6）取整 */
 export const POLLING_TURNOUT_BREAKS: readonly number[] = [70, 72, 74, 76];

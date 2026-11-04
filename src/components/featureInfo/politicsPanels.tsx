@@ -1,4 +1,4 @@
-// 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
+// 政治 Politics popup：2026 選舉活動（owner-only）、2024 投開票所、2026 議員選區（公開）。色票與代碼 SSOT = src/data/electionEventsTypes.ts
 import { Row, SourceFooter, Title, formatTaiwanMinute } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { FONT_SIZE } from "../../styles/designTokens";
@@ -21,6 +21,7 @@ import {
   pollingLead,
   pollingNumber,
 } from "../../data/pollingStationsTypes";
+import { COUNCIL_DISTRICT_COLOR, formatMemberUnits } from "../../data/councilDistrictsLoader";
 
 // i18n key 寫成字面值（localeParity 測試靠字面值判斷 key 有人用）
 const STATUS_KEY = {
@@ -200,3 +201,38 @@ export function PollingStationPanel({ props }: { props: Record<string, unknown> 
     </>
   );
 }
+
+// ── 2026 議員選區（公開）──
+function PanelNote({ children }: { children: string }) {
+  const theme = useFeatureTheme();
+  return (
+    <div className="fi-row" style={{ padding: "4px 0", fontSize: FONT_SIZE.sm, lineHeight: 1.4, color: theme.textMuted }}>
+      {children}
+    </div>
+  );
+}
+
+export function CouncilDistrictPanel({ props }: { props: Record<string, unknown> }) {
+  const i18n = useLocale();
+  const { t, formatNumber } = i18n;
+  const seats = pollingNumber(props.seats);
+  const area = pollingNumber(props.area_km2);
+  return (
+    <>
+      <Title color={COUNCIL_DISTRICT_COLOR}>{str(props.district_name) || t("popup.politics.council.fallbackTitle")}</Title>
+      <Row field="county" value={placeName(str(props.county), i18n)} />
+      <Row label={t("popup.politics.council.seats")} value={seats === null ? "" : formatNumber(seats)} mono />
+      <Row label={t("popup.politics.council.members")} value={formatMemberUnits(props.member_units)} />
+      <Row label={t("popup.politics.council.area")} value={area === null ? "" : `${formatNumber(area, { maximumFractionDigits: 1 })} km²`} mono />
+      {str(props.caveat) && <PanelNote>{str(props.caveat)}</PanelNote>}
+      <SourceFooter
+        props={{
+          source: t("popup.politics.council.source", { basis: str(props.basis) || "A0046" }),
+          license: "OGDL-1.0",
+          source_url: str(props.source_url),
+        }}
+      />
+    </>
+  );
+}
+
