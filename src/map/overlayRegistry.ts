@@ -16,6 +16,7 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { FIRE_HYDRANT_CAT_COLOR, fireStationColorMatch } from "../data/fireTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
+import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
@@ -12186,6 +12187,50 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
 ];
 
 OVERLAY_REGISTRY.push(...ATLAS_OVERLAYS);
+
+// ── 30 天地圖挑戰 Day 4 群聚（模擬面板，公開，2026-11-04）：H3 網格面 0.7＋底圖色格縫（G-3，FILL_TIERS grid）。
+// 四層各自 sourceId（同檔兩層靠瀏覽器快取），設施／熱區類別只換 paint 的欄位，篩選屬性隨設施變所以自己組 filter。
+function mapchallengeGridOverlay(
+  id: "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh",
+  sourceUrl: string,
+  sourceId: string,
+  color: (isDark: boolean, p?: Record<string, number>) => unknown,
+  filter?: (p?: Record<string, number>) => unknown[],
+  rebuildKeys?: string[],
+): OverlayConfig {
+  const opacity = (p?: Record<string, number>) => p?.[`${id}Opacity`] ?? 0.7;
+  return {
+    id, sourceUrl, sourceId,
+    attribution: MAPCHALLENGE_DAY04_ATTRIBUTION,
+    ...(filter ? { rebuildOnParamChange: ["fill", "outline"], rebuildOnParamKeys: rebuildKeys } : {}),
+    layers: [
+      { suffix: "fill", type: "fill", ...(filter ? { filter } : {}), paint: (isDark, p) => ({ "fill-color": color(isDark, p), "fill-opacity": opacity(p) }) },
+      { suffix: "outline", type: "line", ...(filter ? { filter } : {}), paint: (isDark, p) => ({ "line-color": mapSeamColor(isDark), "line-width": 0.5, "line-opacity": opacity(p) }) },
+    ],
+  };
+}
+
+const MAPCHALLENGE_DAY04_ATTRIBUTION = "GHSL GHS-POP R2023A 2020（CC BY 4.0）；經濟部、內政部、教育部、衛福部開放資料 · 政府資料開放授權條款；OpenStreetMap（ODbL）";
+
+/** 熱區類別篩選：屬性＝目前設施的 `<k>_c`；全選回 null（不加篩選） */
+function mapchallengeHotspotFilter(key: string, property: string, p?: Record<string, number>): unknown[] {
+  const def = { property, options: MAPCHALLENGE_DAY04_HOTSPOT_CLASSES.map((c) => ({ value: String(c.value), zh: c.zh })) };
+  return categoryFilterExpr(def, p?.[`${key}CategoryMask`]) ?? ["all"];
+}
+
+OVERLAY_REGISTRY.push(
+  mapchallengeGridOverlay("mapchallengeDay04Population", MAPCHALLENGE_DAY04_R7_URL, "mapchallenge-day04-population", (isDark) => mapchallengePopulationColorExpr(isDark)),
+  mapchallengeGridOverlay("mapchallengeDay04Facility", MAPCHALLENGE_DAY04_R7_URL, "mapchallenge-day04-facility",
+    (isDark, p) => mapchallengeFacilityColorExpr(mapchallengeFacilityAt(p?.mapchallengeDay04FacilityKindIdx), isDark)),
+  mapchallengeGridOverlay("mapchallengeDay04Overlap", MAPCHALLENGE_DAY04_R7_URL, "mapchallenge-day04-overlap",
+    (_isDark, p) => mapchallengeHotspotColorExpr(`${mapchallengeFacilityAt(p?.mapchallengeDay04OverlapKindIdx).key}_c`),
+    (p) => mapchallengeHotspotFilter("mapchallengeDay04Overlap", `${mapchallengeFacilityAt(p?.mapchallengeDay04OverlapKindIdx).key}_c`, p),
+    ["mapchallengeDay04OverlapKindIdx", "mapchallengeDay04OverlapCategoryMask"]),
+  mapchallengeGridOverlay("mapchallengeDay04ScaleTcCh", MAPCHALLENGE_DAY04_R8_URL, "mapchallenge-day04-scale-tc-ch",
+    () => mapchallengeHotspotColorExpr("factory_c"),
+    (p) => mapchallengeHotspotFilter("mapchallengeDay04ScaleTcCh", "factory_c", p),
+    ["mapchallengeDay04ScaleTcChCategoryMask"]),
+);
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
 // 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。

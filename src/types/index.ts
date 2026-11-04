@@ -422,6 +422,7 @@ export type ExpandableLayerKey =
   | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback" | "freewayTdcsSim"
+  | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -964,6 +965,7 @@ export interface FeatureInfo {
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "busCrowdingSimVehicle"
   | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback"
   | "freewayTdcsSim"
+  | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1319,6 +1321,14 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   transitReachPlayback: boolean;
   /** 雙北國道逐車模擬（模擬面板，公開、推算）：TDCS M06A 2026-09-28 16–18 時逐車推算位置 */
   freewayTdcsSim: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚（模擬面板，公開）：H3 r7 人口密度基準 */
+  mapchallengeDay04Population: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：H3 r7 每格設施數（6 類可切） */
+  mapchallengeDay04Facility: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：人口熱區 × 設施熱區重疊 */
+  mapchallengeDay04Overlap: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：臺中與彰化 H3 r8 工廠細格熱區 */
+  mapchallengeDay04ScaleTcCh: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

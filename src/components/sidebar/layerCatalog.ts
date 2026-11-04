@@ -393,6 +393,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "全台交通可及性",
     "雙北大眾運輸可及性",
     "雙北國道逐車模擬",
+    "30 天地圖挑戰",
   ],
 };
 
@@ -2563,6 +2564,16 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "國道逐車", layers: [fromManifest("freewayTdcsSim")] }],
   },
+  {
+    // 30 天地圖挑戰（2026-11-04）：每日一題的地圖作品，Day 4 群聚四層；公開靜態 GeoJSON，人人可見。
+    title: "30 天地圖挑戰",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{
+      title: "Day 4 群聚 Clusters",
+      layers: [fromManifest("mapchallengeDay04Population"), fromManifest("mapchallengeDay04Facility"), fromManifest("mapchallengeDay04Overlap"), fromManifest("mapchallengeDay04ScaleTcCh")],
+    }],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
@@ -3280,6 +3291,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "全台交通可及性": "city",
     "雙北大眾運輸可及性": "city",
     "雙北國道逐車模擬": "city",
+    "30 天地圖挑戰": "city",
   },
 };
 
@@ -3472,6 +3484,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
     "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
     "雙北國道逐車模擬": { zh: "雙北國道逐車模擬", sub: "Freeway Vehicles" },
+    "30 天地圖挑戰": { zh: "30 天地圖挑戰", sub: "30-Day Map Challenge" },
   },
 };
 

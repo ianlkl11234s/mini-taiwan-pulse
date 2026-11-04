@@ -1,0 +1,11 @@
+{
+  "popup.mapchallenge.title": "{place}一帶",
+  "popup.mapchallenge.pop": "格內人口（GHSL 推估）",
+  "popup.mapchallenge.people": "{n} 人",
+  "popup.mapchallenge.pd": "人口密度",
+  "popup.mapchallenge.perKm2": "{n} 人/km²",
+  "popup.mapchallenge.core": "人口核心格",
+  "popup.mapchallenge.yes": "是",
+  "popup.mapchallenge.no": "否",
+  "popup.mapchallenge.class": "熱區分類"
+}

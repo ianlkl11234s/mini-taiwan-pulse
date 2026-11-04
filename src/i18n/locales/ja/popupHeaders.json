@@ -106,5 +106,9 @@
   "popupHeader.firingNoticeAreas": "射撃公告区域",
   "popupHeader.freewayTdcsSim": "国道車両シミュレーション（推計）",
   "popupHeader.transitAccessGrid": "グリッド公共交通アクセス（シナリオ）",
-  "popupHeader.transitAccessPlayback": "単一出発地の公共交通到達範囲（シナリオ）"
+  "popupHeader.transitAccessPlayback": "単一出発地の公共交通到達範囲（シナリオ）",
+  "popupHeader.mapchallengeDay04Population": "人口密度ベースライン",
+  "popupHeader.mapchallengeDay04Facility": "施設クラスター",
+  "popupHeader.mapchallengeDay04Overlap": "ホットスポットの重なり",
+  "popupHeader.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド"
 }

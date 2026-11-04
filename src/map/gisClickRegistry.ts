@@ -914,6 +914,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["transit-reach-grid-fill"], type: "transitReachGrid" },
   // 🚌 雙北大眾運輸可及性網格（模擬面板，H3 res9 鋪滿雙北）
   { layers: ["transit-access-grid-fill"], type: "transitAccessGrid" },
+  // 🗺️ 30 天地圖挑戰 Day 4 群聚（模擬面板，H3 網格面）：臺中彰化細格範圍小，排在全台 r7 三層前
+  { layers: ["mapchallenge-day04-scale-tc-ch-fill"], type: "mapchallengeDay04ScaleTcCh" },
+  { layers: ["mapchallenge-day04-overlap-fill"], type: "mapchallengeDay04Overlap" },
+  { layers: ["mapchallenge-day04-facility-fill"], type: "mapchallengeDay04Facility" },
+  { layers: ["mapchallenge-day04-population-fill"], type: "mapchallengeDay04Population" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
