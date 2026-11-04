@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1549,
+    "keyCount": 1615,
     "sections": [
       "gisLayers",
       "overlays",
@@ -4624,6 +4624,72 @@
         "statsCaParticipationRateCd-fill",
         "statsCaEmploymentRatePr-fill",
         "statsCaEmploymentRateCd-fill",
+        "statsElectionPresidentTopPartyCounty-fill",
+        "statsElectionPresidentTopPartyTownship-fill",
+        "statsElectionPresidentTopPartyVillage-fill",
+        "statsElectionPresidentKmtMinusDppCounty-fill",
+        "statsElectionPresidentKmtMinusDppTownship-fill",
+        "statsElectionPresidentKmtMinusDppVillage-fill",
+        "statsElectionPresidentVoteShareCounty-fill",
+        "statsElectionPresidentVoteShareTownship-fill",
+        "statsElectionPresidentVoteShareVillage-fill",
+        "statsElectionPresidentTurnoutCounty-fill",
+        "statsElectionPresidentTurnoutTownship-fill",
+        "statsElectionPresidentTurnoutVillage-fill",
+        "statsElectionPresidentValidVotesCounty-fill",
+        "statsElectionPresidentValidVotesTownship-fill",
+        "statsElectionPresidentValidVotesVillage-fill",
+        "statsElectionLegislatorPartyTopPartyCounty-fill",
+        "statsElectionLegislatorPartyTopPartyTownship-fill",
+        "statsElectionLegislatorPartyTopPartyVillage-fill",
+        "statsElectionLegislatorPartyKmtMinusDppCounty-fill",
+        "statsElectionLegislatorPartyKmtMinusDppTownship-fill",
+        "statsElectionLegislatorPartyKmtMinusDppVillage-fill",
+        "statsElectionLegislatorPartyVoteShareCounty-fill",
+        "statsElectionLegislatorPartyVoteShareTownship-fill",
+        "statsElectionLegislatorPartyVoteShareVillage-fill",
+        "statsElectionLegislatorPartyTurnoutCounty-fill",
+        "statsElectionLegislatorPartyTurnoutTownship-fill",
+        "statsElectionLegislatorPartyTurnoutVillage-fill",
+        "statsElectionLegislatorPartyValidVotesCounty-fill",
+        "statsElectionLegislatorPartyValidVotesTownship-fill",
+        "statsElectionLegislatorPartyValidVotesVillage-fill",
+        "statsElectionMayorTopPartyCounty-fill",
+        "statsElectionMayorTopPartyTownship-fill",
+        "statsElectionMayorTopPartyVillage-fill",
+        "statsElectionMayorKmtMinusDppCounty-fill",
+        "statsElectionMayorKmtMinusDppTownship-fill",
+        "statsElectionMayorKmtMinusDppVillage-fill",
+        "statsElectionMayorVoteShareCounty-fill",
+        "statsElectionMayorVoteShareTownship-fill",
+        "statsElectionMayorVoteShareVillage-fill",
+        "statsElectionMayorTurnoutCounty-fill",
+        "statsElectionMayorTurnoutTownship-fill",
+        "statsElectionMayorTurnoutVillage-fill",
+        "statsElectionMayorValidVotesCounty-fill",
+        "statsElectionMayorValidVotesTownship-fill",
+        "statsElectionMayorValidVotesVillage-fill",
+        "statsElectionCouncilorPartyTopPartyCounty-fill",
+        "statsElectionCouncilorPartyTopPartyTownship-fill",
+        "statsElectionCouncilorPartyTopPartyVillage-fill",
+        "statsElectionCouncilorPartyKmtMinusDppCounty-fill",
+        "statsElectionCouncilorPartyKmtMinusDppTownship-fill",
+        "statsElectionCouncilorPartyKmtMinusDppVillage-fill",
+        "statsElectionCouncilorPartyVoteShareCounty-fill",
+        "statsElectionCouncilorPartyVoteShareTownship-fill",
+        "statsElectionCouncilorPartyVoteShareVillage-fill",
+        "statsElectionCouncilorPartyTurnoutCounty-fill",
+        "statsElectionCouncilorPartyTurnoutTownship-fill",
+        "statsElectionCouncilorPartyTurnoutVillage-fill",
+        "statsElectionCouncilorPartyValidVotesCounty-fill",
+        "statsElectionCouncilorPartyValidVotesTownship-fill",
+        "statsElectionCouncilorPartyValidVotesVillage-fill",
+        "statsElectionReferendumAgreeRateCounty-fill",
+        "statsElectionReferendumAgreeRateTownship-fill",
+        "statsElectionReferendumAgreeRateVillage-fill",
+        "statsElectionReferendumTurnoutCounty-fill",
+        "statsElectionReferendumTurnoutTownship-fill",
+        "statsElectionReferendumTurnoutVillage-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -153939,6 +154005,5532 @@
       }
     ],
     "statsEinvoiceAvgTicket": [
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyKmtMinusDppCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyKmtMinusDppTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyKmtMinusDppVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTopPartyCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTopPartyCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTopPartyTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTopPartyTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTopPartyVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTopPartyVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTurnoutCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTurnoutCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTurnoutTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTurnoutTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyTurnoutVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyTurnoutVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyValidVotesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyValidVotesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyValidVotesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyValidVotesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyValidVotesVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyValidVotesVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyVoteShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyVoteShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyVoteShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyVoteShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionCouncilorPartyVoteShareVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionCouncilorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionCouncilorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionCouncilorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionCouncilorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionCouncilorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionCouncilorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionCouncilorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionCouncilorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionCouncilorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionCouncilorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionCouncilorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionCouncilorPartyVoteShareVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyKmtMinusDppCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyKmtMinusDppTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyKmtMinusDppVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTopPartyCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTopPartyCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTopPartyTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTopPartyTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTopPartyVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTopPartyVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTurnoutCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTurnoutCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTurnoutTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTurnoutTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyTurnoutVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyTurnoutVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyValidVotesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyValidVotesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyValidVotesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyValidVotesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyValidVotesVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyValidVotesVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyVoteShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyVoteShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyVoteShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyVoteShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionLegislatorPartyVoteShareVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionLegislatorPartyTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionLegislatorPartyTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionLegislatorPartyKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionLegislatorPartyKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionLegislatorPartyVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionLegislatorPartyVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionLegislatorPartyTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionLegislatorPartyTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionLegislatorPartyValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionLegislatorPartyValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionLegislatorPartyValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionLegislatorPartyVoteShareVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorKmtMinusDppCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorKmtMinusDppCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorKmtMinusDppTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorKmtMinusDppTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorKmtMinusDppVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorKmtMinusDppVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTopPartyCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTopPartyCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTopPartyTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTopPartyTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTopPartyVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTopPartyVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTurnoutCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTurnoutCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTurnoutTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTurnoutTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorTurnoutVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorTurnoutVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorValidVotesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorValidVotesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorValidVotesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorValidVotesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorValidVotesVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorValidVotesVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorVoteShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorVoteShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorVoteShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorVoteShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionMayorVoteShareVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionMayorTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionMayorTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionMayorTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionMayorKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionMayorKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionMayorKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionMayorVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionMayorVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionMayorVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionMayorTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionMayorTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionMayorTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionMayorValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionMayorValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionMayorValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionMayorVoteShareVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentKmtMinusDppCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentKmtMinusDppCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentKmtMinusDppTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentKmtMinusDppTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentKmtMinusDppVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentKmtMinusDppVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTopPartyCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTopPartyCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTopPartyTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTopPartyTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTopPartyVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTopPartyVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTurnoutCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTurnoutCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTurnoutTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTurnoutTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentTurnoutVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentTurnoutVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentValidVotesCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentValidVotesCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentValidVotesTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentValidVotesTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentValidVotesVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentValidVotesVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentVoteShareCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentVoteShareCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentVoteShareTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentVoteShareTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionPresidentVoteShareVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "得票最高政黨・縣市",
+            "value": "statsElectionPresidentTopPartyCounty"
+          },
+          {
+            "label": "得票最高政黨・鄉鎮市區",
+            "value": "statsElectionPresidentTopPartyTownship"
+          },
+          {
+            "label": "得票最高政黨・村里",
+            "value": "statsElectionPresidentTopPartyVillage"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・縣市",
+            "value": "statsElectionPresidentKmtMinusDppCounty"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・鄉鎮市區",
+            "value": "statsElectionPresidentKmtMinusDppTownship"
+          },
+          {
+            "label": "國民黨減民進黨（百分點）・村里",
+            "value": "statsElectionPresidentKmtMinusDppVillage"
+          },
+          {
+            "label": "各黨得票率・縣市",
+            "value": "statsElectionPresidentVoteShareCounty"
+          },
+          {
+            "label": "各黨得票率・鄉鎮市區",
+            "value": "statsElectionPresidentVoteShareTownship"
+          },
+          {
+            "label": "各黨得票率・村里",
+            "value": "statsElectionPresidentVoteShareVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionPresidentTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionPresidentTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionPresidentTurnoutVillage"
+          },
+          {
+            "label": "有效票數・縣市",
+            "value": "statsElectionPresidentValidVotesCounty"
+          },
+          {
+            "label": "有效票數・鄉鎮市區",
+            "value": "statsElectionPresidentValidVotesTownship"
+          },
+          {
+            "label": "有效票數・村里",
+            "value": "statsElectionPresidentValidVotesVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionPresidentVoteShareVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumAgreeRateCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumAgreeRateCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumAgreeRateTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumAgreeRateTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumAgreeRateVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumAgreeRateVillage"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumTurnoutCounty": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumTurnoutCounty"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumTurnoutTownship": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumTurnoutTownship"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsElectionReferendumTurnoutVillage": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "同意票比率・縣市",
+            "value": "statsElectionReferendumAgreeRateCounty"
+          },
+          {
+            "label": "同意票比率・鄉鎮市區",
+            "value": "statsElectionReferendumAgreeRateTownship"
+          },
+          {
+            "label": "同意票比率・村里",
+            "value": "statsElectionReferendumAgreeRateVillage"
+          },
+          {
+            "label": "投票率・縣市",
+            "value": "statsElectionReferendumTurnoutCounty"
+          },
+          {
+            "label": "投票率・鄉鎮市區",
+            "value": "statsElectionReferendumTurnoutTownship"
+          },
+          {
+            "label": "投票率・村里",
+            "value": "statsElectionReferendumTurnoutVillage"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsElectionReferendumTurnoutVillage"
+      },
       {
         "label": "資料期別",
         "options": [],

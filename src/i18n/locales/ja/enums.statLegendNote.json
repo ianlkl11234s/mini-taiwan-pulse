@@ -206,5 +206,18 @@
   "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0022-01 Age (in single years), average age and median age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0022-01 Age (in single years), average age and median age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.",
   "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0485-01 Labour force status by age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0485-01 Labour force status by age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.",
   "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0015-01 Population and dwelling counts: Canada, provinces and territories, census subdivisions and dissemination areas. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0015-01 Population and dwelling counts: Canada, provinces and territories, census subdivisions and dissemination areas. Contains information licensed under the Open Government Licence – Canada.",
-  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada."
+  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.",
+  "enum.statLegendNote.舊屆里界可能已變，對不上現行村里者顯示無資料（不是 0）": "過去の選挙では村里境界が変わっている場合があり、現行の村里に対応しないものはデータなし（0 ではありません）",
+  "enum.statLegendNote.中選會合併計票（連江縣等數村合併一所，A 開頭代碼）不分配到組成村，組成村顯示無資料": "中央選挙委員会が複数村里を合算集計した票（連江県など、A で始まるコード）は各村里に配分せず、該当村里はデータなし",
+  "enum.statLegendNote.村里界一律用現行 VILLAGE_NLSC_1150817；鄉鎮／縣市由全部投開票所加總，與中選會彙總列一致": "村里境界はすべて現行版（VILLAGE_NLSC_1150817）；郷鎮・県市は全投票所の合計で、中央選挙委員会の集計値と一致",
+  "enum.statLegendNote.綠＝偏民進黨、藍＝偏國民黨，越深差距越大；正中灰色為相差 5 個百分點以內": "緑＝民進党優勢、青＝国民党優勢、濃いほど差が大きい；中央の灰色は差 5 ポイント以内",
+  "enum.statLegendNote.色階用所選政黨的代表色": "色階は選択した政党の色",
+  "enum.statLegendNote.顏色＝該區得票最高的政黨（以候選人所屬政黨歸類）": "色＝その地域で最多得票の政党（候補者の所属政党で分類）",
+  "enum.statLegendNote.無資料（舊屆對不上現行村里或合併計票）": "データなし（過去の境界が現行村里と一致しない、または合算集計）",
+  "enum.statLegendNote.民進黨": "民進党",
+  "enum.statLegendNote.國民黨": "国民党",
+  "enum.statLegendNote.民眾黨": "民衆党",
+  "enum.statLegendNote.時代力量": "時代力量",
+  "enum.statLegendNote.無黨籍": "無所属",
+  "enum.statLegendNote.其他政黨": "その他の政党"
 }

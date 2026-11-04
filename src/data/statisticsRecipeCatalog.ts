@@ -97,6 +97,7 @@ export function deriveStatisticsRecipeCatalog(
  * - 英國 gb（2026-10-29，ONS LAD 361 區，100 selector）：同 crime，selector 少、首屏即用；`delivery`（草稿斷點、狀態計數、bundle 路徑）只留在交付 JSON。
  * - 南韓 kr（2026-10-31，道級 16／市郡區 256，33 selector）：同 gb。
  * - 加拿大 ca（2026-11-04，省／地區 13／普查區 293，24 selector）：同 gb。
+ * - 選舉 election（2026-11-04，村里／鄉鎮／縣市，390 selector）：同 gb。
  * - comparison 不拆：172/188 筆只有 1 個 release_option，改 summary 反而更大；其餘欄位首屏皆需要。
  */
 export const STATISTICS_RECIPE_CATALOG_SPECS = [
@@ -123,4 +124,5 @@ export const STATISTICS_RECIPE_CATALOG_SPECS = [
   { family: "gb", source: "src/data/gbStatisticsRecipes.json", catalog: "src/data/gbStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "kr", source: "src/data/krStatisticsRecipes.json", catalog: "src/data/krStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
   { family: "ca", source: "src/data/caStatisticsRecipes.json", catalog: "src/data/caStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
+  { family: "election", source: "src/data/electionStatisticsRecipes.json", catalog: "src/data/electionStatisticsRecipes.catalog.json", omitRecipeKeys: ["delivery"], keepReleaseOptions: true },
 ] as const;

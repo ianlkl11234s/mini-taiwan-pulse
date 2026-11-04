@@ -179,8 +179,9 @@ describe('getStatisticsVisual', () => {
     // 2026-10-29: +18 英國統計（ONS LAD：人口 6、四地剝奪 8、房價租金 4）。
     // 2026-10-31: +33 南韓統計（道級／市郡區：住民登錄人口 14、SGIS 2024 社經 15、首爾生活人口 4）。
     // 2026-11-04: +24 加拿大統計（省／地區、普查區：2021 普查人口 6、年齡 8、所得 4、勞動力 6）。
-    expect(STATISTICS_KEYS).toHaveLength(784);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(796);
+    // 2026-11-04: +66 選舉統計（總統、立委政黨票、縣市長、議員政黨合計、公投 × 村里／鄉鎮／縣市）。
+    expect(STATISTICS_KEYS).toHaveLength(850);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(862);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

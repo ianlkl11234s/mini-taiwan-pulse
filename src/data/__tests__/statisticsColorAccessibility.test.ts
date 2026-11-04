@@ -24,7 +24,21 @@ for (const [vision,matrix] of Object.entries(matrices)) {
       expect(recipe.breaks).toEqual(source.breaks);
       expect(recipe.colors.length).toBe(recipe.breaks.length+1);
       const values = recipe.colors.map(color=>lightness(color,matrix));
-      const declared = getAtlasRecipe(key)?.legend.direction;
+      const atlasLegend = getAtlasRecipe(key)?.legend;
+      const declared = atlasLegend?.direction;
+      if (atlasLegend?.method === 'categorical') {
+        // 類別型（得票最高政黨）：顏色代表類別、不代表大小，只要求各類別顏色互不相同。
+        expect(new Set(recipe.colors).size, key).toBe(recipe.colors.length);
+        continue;
+      }
+      if (atlasLegend?.palette === 'partisan') {
+        // 政黨對比色（綠↔藍）：中間一級是「相差不大」灰色，往兩端越深。
+        const mid = (values.length - 1) / 2;
+        expect(Number.isInteger(mid), key).toBe(true);
+        for (let i=1;i<=mid;i++) expect(values[i]! - values[i-1]!,key).toBeGreaterThan(5);
+        for (let i=mid+1;i<values.length;i++) expect(values[i-1]! - values[i]!,key).toBeGreaterThan(5);
+        continue;
+      }
       if (declared && declared !== 'diverging') {
         // atlas 宣告方向（社會脆弱度 Z 分數）：不論正負都是序列色；descending 為反轉（值越低越深）。
         for (let i=1;i<values.length;i++) expect(declared === 'descending' ? values[i]! - values[i-1]! : values[i-1]! - values[i]!, key).toBeGreaterThan(5);

@@ -68,5 +68,10 @@
   "enum.statGroup.家戶稅後所得中位數": "Median household after-tax income",
   "enum.statGroup.失業率": "Unemployment rate",
   "enum.statGroup.勞動參與率": "Participation rate",
-  "enum.statGroup.就業率": "Employment rate"
+  "enum.statGroup.就業率": "Employment rate",
+  "enum.statGroup.總統選舉": "Presidential election",
+  "enum.statGroup.立委選舉（政黨票）": "Legislative election (party-list vote)",
+  "enum.statGroup.縣市長選舉": "Mayoral and magistrate election",
+  "enum.statGroup.縣市議員選舉（政黨合計）": "City and county council election (party totals)",
+  "enum.statGroup.全國性公民投票": "National referendum"
 }

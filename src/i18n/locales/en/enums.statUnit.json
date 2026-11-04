@@ -119,5 +119,8 @@
   "enum.statUnit.英鎊/月": "GBP/month",
   "enum.statUnit.男/百女": "males per 100 females",
   "enum.statUnit.老年/百幼年": "aged 65+ per 100 aged 0–14",
-  "enum.statUnit.加幣/年": "CAD/year"
+  "enum.statUnit.加幣/年": "CAD/year",
+  "enum.statUnit.百分點": "percentage points",
+  "enum.statUnit.票": "votes",
+  "enum.statUnit.類別碼": "category code"
 }

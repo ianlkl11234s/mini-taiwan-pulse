@@ -78,12 +78,14 @@ describe("vote_share 依所選政黨 sequential（legend.party_dimension）", ()
     expect(atlasRecipeRenderScale(recipe, { party: "all" }).partyColor).toBeUndefined();
   });
 
-  it("partyColor 產生淺 → 該黨色 → 深的 sequential，正中一類就是黨色", () => {
+  it("partyColor 產生同色相、由淺到深的 sequential（白 → 黨色 → 黑，L* 等距）", () => {
     const colors = statisticsVisualColors("k", "得票率", [20, 40, 60, 80], "ascending", { partyColor: STATISTICS_PARTY_COLOR.kmt });
     expect(colors).toHaveLength(5);
-    expect(colors[2]).toBe(STATISTICS_PARTY_COLOR.kmt);
     const lum = (c: string) => [1, 3, 5].reduce((sum, i) => sum + Number.parseInt(c.slice(i, i + 2), 16), 0);
-    expect(lum(colors[0]!)).toBeGreaterThan(lum(colors[2]!));
-    expect(lum(colors[4]!)).toBeLessThan(lum(colors[2]!));
+    for (let i = 1; i < colors.length; i++) expect(lum(colors[i]!)).toBeLessThan(lum(colors[i - 1]!));
+    // 國民黨色系：中段藍通道最大
+    const mid = colors[2]!;
+    const [r, , b] = [1, 3, 5].map((i) => Number.parseInt(mid.slice(i, i + 2), 16));
+    expect(b).toBeGreaterThan(r!);
   });
 });
