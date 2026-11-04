@@ -27,8 +27,8 @@ const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSideba
 
 describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11-01 改 D-1）", () => {
   it("resolveLayerPanel：非站主只見交通可及性兩層；站主四層", () => {
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh"]);
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
     expect(LAYER_PANELS[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
 
@@ -54,7 +54,7 @@ describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh"]);
+    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);

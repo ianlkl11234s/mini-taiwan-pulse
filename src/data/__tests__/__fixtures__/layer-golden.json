@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1620,
+    "keyCount": 1622,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5341,6 +5341,18 @@
         "mapchallenge-day04-population-fill"
       ],
       "type": "mapchallengeDay04Population"
+    },
+    {
+      "layers": [
+        "mapchallenge-day05-sea-view-runs-line"
+      ],
+      "type": "mapchallengeDay05SeaViewRuns"
+    },
+    {
+      "layers": [
+        "mapchallenge-day05-sea-view-line"
+      ],
+      "type": "mapchallengeDay05SeaView"
     },
     {
       "layers": [
@@ -98233,6 +98245,472 @@
       ],
       "sourceId": "mapchallenge-day04-scale-tc-ch",
       "sourceUrl": "./mapchallenge/day04_clusters_r8_tc_ch.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay05SeaView",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "+",
+              [
+                "*",
+                2,
+                [
+                  "+",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tier"
+                    ],
+                    0
+                  ],
+                  1
+                ]
+              ],
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "rail"
+                ],
+                1,
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#7dccbb",
+                1,
+                "#2196c0",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    2,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    1,
+                    0.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    3.5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    2,
+                    1
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#23328f",
+                1,
+                "#1e83b9",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    2,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    1,
+                    0.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    3.5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      ">=",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      1
+                    ],
+                    2,
+                    1
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "mapchallenge-day05-sea-view",
+      "sourceUrl": "./mapchallenge/day05_sea_view_segments.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay05SeaViewRuns",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "scope"
+              ],
+              "all"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "-",
+              31,
+              [
+                "to-number",
+                [
+                  "get",
+                  "rank"
+                ],
+                30
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "rail",
+                "#d95926",
+                "#3987e5"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  3,
+                  2
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  5,
+                  3.5
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "rail",
+                "#d95926",
+                "#3987e5"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  3,
+                  2
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  5,
+                  3.5
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "mapchallenge-day05-sea-view-runs",
+      "sourceUrl": "./mapchallenge/day05_sea_view_runs.geojson"
     }
   ],
   "params": {
@@ -124757,6 +125235,113 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay05SeaView": [
+      {
+        "label": "運具",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "開闊海景",
+            "value": "2"
+          },
+          {
+            "label": "看得到海",
+            "value": "1"
+          },
+          {
+            "label": "看不到海",
+            "value": "0"
+          },
+          {
+            "label": "隧道",
+            "value": "-1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2",
+          "1",
+          "0",
+          "-1"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay05SeaViewRuns": [
+      {
+        "label": "範圍",
+        "options": [
+          {
+            "label": "不限距離",
+            "value": "all"
+          },
+          {
+            "label": "離海 ≤200 m",
+            "value": "d200"
+          },
+          {
+            "label": "離海 ≤100 m",
+            "value": "d100"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "運具",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "marineEcologicalMonitoringSites": [

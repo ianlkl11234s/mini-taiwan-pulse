@@ -236,7 +236,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-03: +1 政治 2026 議員選區 councilDistricts2026（公開 RPC）。
     // 2026-11-04: +66 選舉統計（election 家族 statsElection*，政治 → 選舉；村里／鄉鎮／縣市）。
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
-    expect(keys.length).toBe(1620);
+    // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
+    expect(keys.length).toBe(1622);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

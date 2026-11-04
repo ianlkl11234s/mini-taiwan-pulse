@@ -1610,5 +1610,7 @@
   "layer.mapchallengeDay04Population": "Population Density Baseline",
   "layer.mapchallengeDay04Facility": "Facility Clusters",
   "layer.mapchallengeDay04Overlap": "Hotspot Overlap",
-  "layer.mapchallengeDay04ScaleTcCh": "Taichung vs Changhua Factory Fine Grid"
+  "layer.mapchallengeDay04ScaleTcCh": "Taichung vs Changhua Factory Fine Grid",
+  "layer.mapchallengeDay05SeaView": "Sea View Segments",
+  "layer.mapchallengeDay05SeaViewRuns": "Longest Sea View Runs"
 }

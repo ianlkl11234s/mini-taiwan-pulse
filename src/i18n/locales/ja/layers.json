@@ -1610,5 +1610,7 @@
   "layer.mapchallengeDay04Population": "人口密度ベースライン",
   "layer.mapchallengeDay04Facility": "施設クラスター",
   "layer.mapchallengeDay04Overlap": "ホットスポットの重なり",
-  "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド"
+  "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド",
+  "layer.mapchallengeDay05SeaView": "海の見える区間",
+  "layer.mapchallengeDay05SeaViewRuns": "海が見える最長連続区間"
 }

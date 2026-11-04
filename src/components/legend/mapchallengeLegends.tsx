@@ -4,7 +4,7 @@
  * - 設施群聚：每種設施一組色階；標題旁放該色階代表色（第 4 階），切設施時標題、色塊、級距一起換。
  * - 熱區重疊（r7 與臺中彰化 r8）：四類固定色＋大字重疊率。
  */
-import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
@@ -14,6 +14,10 @@ import {
   mapchallengeFacilityByKey, mapchallengeFacilityLabels, mapchallengeFacilityRamp, mapchallengeFacilitySwatch,
   mapchallengePopulationRamp, type MapchallengeFacilityKey,
 } from "../../data/mapchallengeDay04Types";
+import {
+  MAPCHALLENGE_DAY05_KIND_COLORS, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
+  mapchallengeDay05TierSwatch,
+} from "../../data/mapchallengeDay05Types";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
 export const MAPCHALLENGE_FACILITY_NAME_KEYS: Record<MapchallengeFacilityKey, `legend.mapchallenge.facility.${MapchallengeFacilityKey}`> = {
@@ -114,5 +118,58 @@ export function MapchallengeScaleTcChLegend() {
     <HotspotRows />
     <LegendNote>{t("legend.mapchallenge.tcchNote")}</LegendNote>
     <LegendNote>{t("legend.mapchallenge.source")}</LegendNote>
+  </div>;
+}
+
+// ── Day 5 視野：海景路段／最長連續海景 ─────────────────────────
+/** i18n key 寫成字面值（同上） */
+export const MAPCHALLENGE_DAY05_TIER_KEYS = {
+  2: "legend.mapchallenge.day05.tier2",
+  1: "legend.mapchallenge.day05.tier1",
+  0: "legend.mapchallenge.day05.tier0",
+  "-1": "legend.mapchallenge.day05.tierTunnel",
+} as const;
+
+const MAPCHALLENGE_DAY05_SCOPE_KEYS = {
+  all: "legend.mapchallenge.day05.scope.all",
+  d200: "legend.mapchallenge.day05.scope.d200",
+  d100: "legend.mapchallenge.day05.scope.d100",
+} as const;
+
+function Day05Footer() {
+  const { t } = useLocale();
+  return <>
+    <LegendNote>{t("legend.mapchallenge.day05.method")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day05.source")}</LegendNote>
+  </>;
+}
+
+/** LG-4 線型：寬度取 L-1 z14 值等比縮小（道路強 2、弱 1） */
+export function MapchallengeSeaViewLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day05.seaViewTitle")} />
+    {MAPCHALLENGE_DAY05_TIERS.map((tier) => {
+      const sw = mapchallengeDay05TierSwatch(tier.value, isDark);
+      return <LegendRow key={tier.value} swatch={<SwatchLine color={sw.color} opacity={sw.opacity} width={tier.value >= 1 ? 2 : 1} />}>
+        {t(MAPCHALLENGE_DAY05_TIER_KEYS[String(tier.value) as keyof typeof MAPCHALLENGE_DAY05_TIER_KEYS])}
+      </LegendRow>;
+    })}
+    <LegendNote>{t("legend.mapchallenge.day05.seaViewNote")}</LegendNote>
+    <Day05Footer />
+  </div>;
+}
+
+export function MapchallengeSeaViewRunsLegend() {
+  const { t } = useLocale();
+  const values = useLayerParams("mapchallengeDay05SeaViewRuns");
+  const scope = MAPCHALLENGE_DAY05_SCOPES.find((s) => s.value === paramStr(values, "mapchallengeDay05SeaViewRuns", "mapchallengeDay05SeaViewRunsScope")) ?? MAPCHALLENGE_DAY05_SCOPES[0];
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day05.runsTitle")} />
+    <LegendNote>{t("legend.mapchallenge.day05.runsScope", { scope: t(MAPCHALLENGE_DAY05_SCOPE_KEYS[scope.value]) })}</LegendNote>
+    <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY05_KIND_COLORS.rail} width={2} />}>{t("legend.mapchallenge.day05.rail")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY05_KIND_COLORS.road} width={2} />}>{t("legend.mapchallenge.day05.road")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY05_KIND_COLORS.rail} width={3} />}>{t("legend.mapchallenge.day05.top3")}</LegendRow>
+    <Day05Footer />
   </div>;
 }
