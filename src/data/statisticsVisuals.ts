@@ -1,5 +1,6 @@
 import {
   Activity,
+  Wallet,
   Music,
   Building2,
   Anchor,
@@ -312,6 +313,15 @@ const ATLAS_KEY_ICONS: ReadonlyArray<readonly [RegExp, ThemeName, LucideIcon]> =
   [/^statsKrDwellings/, 'housing', House],
   [/^statsKrEstablishments/, 'labor', Building2],
   [/^statsKrEmployees/, 'labor', Briefcase],
+  // 加拿大統計（2026-11-04，省／地區、普查區）：不新增色票。人口、密度、年齡＝人口 RdPu；私人家戶＝住宅 Oranges；
+  // 家戶所得與勞動力＝工作與所得（同台灣綜合所得稅 statsIncomeTax）。
+  [/^statsCaPopulation(?:Density)?(?:Pr|Cd)$/, 'population', Users],
+  [/^statsCaAgeYoungShare/, 'population', Baby],
+  [/^statsCaAgeWorkingShare/, 'population', PersonStanding],
+  [/^statsCa(?:AgeOldShare|MedianAge)/, 'population', Hourglass],
+  [/^statsCaHouseholds/, 'housing', UsersRound],
+  [/^statsCaHouseholdIncome/, 'labor', Wallet],
+  [/^statsCa(?:UnemploymentRate|ParticipationRate|EmploymentRate)/, 'labor', Briefcase],
 ];
 
 function atlasVisual(key: string): StatisticsVisual | undefined {

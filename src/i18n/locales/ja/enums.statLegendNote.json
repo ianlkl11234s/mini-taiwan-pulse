@@ -193,5 +193,18 @@
   "enum.statLegendNote.日夜生活人口比＝日間（09–18 時平均）÷夜間（00–06 時平均）×100；大於 100 表示白天流入。": "昼夜生活人口比＝昼間（9〜18時平均）÷夜間（0〜6時平均）×100。100を超えると昼間に流入。",
   "enum.statLegendNote.一般戶，不含集體戶。": "一般世帯のみ（施設等の世帯は含まない）。",
   "enum.statLegendNote.來源只到小數 1 位，也沒有戶內人口總數，道級無法依分子分母重算，因此只提供市郡區。": "出典は小数1位までで世帯人員の総数もないため、広域は分子・分母から再計算できず、市郡区のみ提供。",
-  "enum.statLegendNote.事業體與從業人員為 2024 年全國事業體調查口徑。": "事業所と従業者は2024年全国事業体調査の定義。"
+  "enum.statLegendNote.事業體與從業人員為 2024 年全國事業體調查口徑。": "事業所と従業者は2024年全国事業体調査の定義。",
+  "enum.statLegendNote.2021 年人口普查（普查日 2021-05-11），各表年份與口徑不同，不可相除或混算。": "2021 年国勢調査（調査日 2021-05-11）。表ごとに年次と定義が異なるため、割り算や混合計算はできません。",
+  "enum.statLegendNote.行政區界：加拿大統計局 2021 年普查製圖界線（OGL-Canada），簡化 1 公里並略去小於 1 平方公里的小島。": "境界：カナダ統計局 2021 年国勢調査の地図用境界（OGL-Canada）。1 km で簡略化し、1 km² 未満の小島は省略。",
+  "enum.statLegendNote.人口密度＝人口 ÷ 陸地面積，自行重算到小數 3 位（官方表只到小數 1 位，北方地區會顯示為 0）。": "人口密度＝人口 ÷ 陸地面積。小数 3 桁まで独自に再計算（公式表は小数 1 桁のため北部地域が 0 と表示される）。",
+  "enum.statLegendNote.年齡計數經加拿大統計局隨機捨入到 5 的倍數，比例誤差小於 0.01 個百分點。": "年齢別人数はカナダ統計局により 5 の倍数へランダム丸めされており、比率の誤差は 0.01 ポイント未満。",
+  "enum.statLegendNote.私人家戶＝有常住居民的私人住宅，不含集體住宅。": "一般世帯＝常住者のいる一般住宅。施設等の集合住宅は含まない。",
+  "enum.statLegendNote.所得為 2020 年度（2020 年幣值加幣），含 COVID-19 紓困給付，中位數因此偏高。": "所得は 2020 年分（2020 年価格のカナダドル）。COVID-19 給付金を含むため中央値は高めに出る。",
+  "enum.statLegendNote.來自 2021 普查長表（25% 抽樣，多數直接連結稅務資料），只算私人家戶。": "2021 年国勢調査の詳細票（25% 標本、大半は税務データと連結）による。一般世帯のみ。",
+  "enum.statLegendNote.參考週 2021-05-02～05-08 正值 COVID-19 第三波封鎖，失業率高於常態年份。": "参照週（2021-05-02～05-08）は COVID-19 第 3 波のロックダウン期間にあたり、失業率は平常年より高い。",
+  "enum.statLegendNote.2021 普查長表（25% 抽樣）推估，15 歲以上；與勞動力調查（LFS）月資料口徑不同。": "2021 年国勢調査の詳細票（25% 標本）による推計。15 歳以上。月次の労働力調査（LFS）とは定義が異なる。",
+  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0022-01 Age (in single years), average age and median age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0022-01 Age (in single years), average age and median age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.",
+  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0485-01 Labour force status by age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0485-01 Labour force status by age and gender: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.",
+  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0015-01 Population and dwelling counts: Canada, provinces and territories, census subdivisions and dissemination areas. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0015-01 Population and dwelling counts: Canada, provinces and territories, census subdivisions and dissemination areas. Contains information licensed under the Open Government Licence – Canada.",
+  "enum.statLegendNote.署名：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada.": "出典表示：Statistics Canada. Table 98-10-0057-01 Household income statistics by household type: Canada, provinces and territories, census divisions and census subdivisions. Contains information licensed under the Open Government Licence – Canada."
 }

@@ -1,0 +1,11 @@
+{
+  "popup.freewayTdcsSim.onIc": "流入",
+  "popup.freewayTdcsSim.offIc": "流出",
+  "popup.freewayTdcsSim.onOutside": "（範囲外、境界から流入）",
+  "popup.freewayTdcsSim.offOutside": "（範囲外、境界から流出）",
+  "popup.freewayTdcsSim.avgSpeed": "全区間の平均速度",
+  "popup.freewayTdcsSim.serviceBreak": "途中で長時間停車（サービスエリアと推定）、その区間は表示しません",
+  "popup.freewayTdcsSim.follow": "追跡",
+  "popup.freewayTdcsSim.unfollow": "追跡をやめる（Esc）",
+  "popup.freewayTdcsSim.inferNote": "流入・流出インターチェンジは元のガントリー記録に基づき、ガントリー間の位置と車線は推定です。"
+}

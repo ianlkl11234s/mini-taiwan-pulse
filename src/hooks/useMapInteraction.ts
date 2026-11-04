@@ -5,6 +5,8 @@ import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { requireH3 } from "../map/h3Runtime";
 import { pickTransitReachCell } from "../data/transitReachStore";
+import { pickFreewayTdcsCar } from "../data/freewayTdcsSimStore";
+import { pickTransitAccessCell } from "../data/transitAccessStore";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
 // C1b：3D 模組按需載入 —— 未載入代表該圖層從沒開過，點擊時直接跳過
 import { historicalFlightTrailsModule, realEstatePointsModule } from "../map/lazyThreeLayers";
@@ -488,6 +490,8 @@ export function useMapInteraction(
             if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
               properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
             }
+            // 加拿大：同一 key 有多個 tile layer（機場／港口、軌道／車站、油氣 6 類…），popup 依命中的 source-layer 選欄位規格。
+            if (f.layer?.id?.startsWith("ca-") && f.sourceLayer) properties = { ...properties, _ca_source_layer: f.sourceLayer };
             const waterIdentity = jpWaterSelectionIdentity(type, properties.source_id);
             if (waterIdentity) {
               properties = {
@@ -545,6 +549,25 @@ export function useMapInteraction(
           if (picked) {
             setFeatureInfo({ layerType: "transitReachPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
             sessionTracker.log("feature_click", { layerType: "transitReachPlayback" });
+            found = true;
+          }
+        }
+        // 國道逐車模擬是自訂 WebGL 圖層（不能 queryRenderedFeatures）：沒命中向量 feature 時找畫面上最近的車（10 px 內）。
+        if (!found && vis?.freewayTdcsSim) {
+          const picked = pickFreewayTdcsCar(map, e.point.x, e.point.y);
+          if (picked) {
+            setFeatureInfo({ layerType: "freewayTdcsSim", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "freewayTdcsSim" });
+            found = true;
+          }
+        }
+        // 雙北大眾運輸可及性播放層（同上，自訂 WebGL 圖層）：h3 res9 查格
+        if (!found && vis?.transitAccessPlayback) {
+          let picked: Record<string, unknown> | null = null;
+          try { picked = pickTransitAccessCell(e.lngLat.lng, e.lngLat.lat, requireH3().latLngToCell); } catch { picked = null; }
+          if (picked) {
+            setFeatureInfo({ layerType: "transitAccessPlayback", properties: picked, coords: [e.lngLat.lng, e.lngLat.lat] });
+            sessionTracker.log("feature_click", { layerType: "transitAccessPlayback" });
             found = true;
           }
         }

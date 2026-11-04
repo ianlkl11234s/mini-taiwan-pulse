@@ -253,5 +253,7 @@
   "enum.statVariant.蔬果面積": "野菜・果樹面積",
   "enum.statVariant.草地面積占比": "草地面積の割合",
   "enum.statVariant.道級": "広域",
-  "enum.statVariant.市郡區": "市郡区"
+  "enum.statVariant.市郡區": "市郡区",
+  "enum.statVariant.省／地區": "州・準州",
+  "enum.statVariant.普查區": "国勢調査区"
 }

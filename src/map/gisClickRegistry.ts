@@ -412,6 +412,20 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-fuel-stations-circle"], type: "krFuelStations" },
   { layers: ["kr-rail-stations-circle"], type: "krRailStations" },
   { layers: ["kr-oil-gas-pts-facility-circle", "kr-oil-gas-pts-pipeline-circle", "kr-oil-gas-point", "kr-oil-gas-pipelines-line", "kr-oil-gas-line", "kr-oil-gas-fill"], type: "krOilGas" },
+  { layers: ["ca-airports-circle", "ca-airports-minor-circle", "ca-ports-circle", "ca-ports-minor-circle"], type: "caAirportsPorts" },
+  { layers: ["ca-rail-stations-circle", "ca-rail-tracks-line", "ca-rail-tracks-minor-line"], type: "caRailways" },
+  { layers: ["ca-transit-stops-circle"], type: "caTransitStops" },
+  { layers: ["ca-power-plants-circle"], type: "caPowerPlants" },
+  { layers: ["ca-wind-turbines-circle"], type: "caWindTurbines" },
+  { layers: ["ca-oil-gas-major-facilities-circle", "ca-oil-gas-facilities-circle", "ca-oil-gas-wells-circle", "ca-oil-gas-pipeline-points-circle", "ca-oil-gas-major-pipelines-line", "ca-oil-gas-pipelines-line"], type: "caOilGas" },
+  { layers: ["ca-power-substations-circle", "ca-power-lines-line", "ca-power-cables-line"], type: "caPowerGrid" },
+  { layers: ["ca-major-roads-line"], type: "caMajorRoads" },
+  { layers: ["ca-population-centres-points-circle"], type: "caPopulationCentres" },
+  { layers: ["ca-place-names-circle"], type: "caPlaceNames" },
+  { layers: ["ca-indigenous-lands-points-circle"], type: "caIndigenousLands" },
+  { layers: ["ca-rents-points-circle"], type: "caRents" },
+  { layers: ["ca-cimd-points-circle"], type: "caDeprivation" },
+  { layers: ["ca-fed-points-circle"], type: "caFederalDistricts" },
   { layers: ["kr-bus-stops-circle"], type: "krBusStops" },
   { layers: ["kr-power-towers-circle"], type: "krPowerTowers" },
   { layers: ["kr-power-lines-line", "kr-power-cables-line"], type: "krPowerLines" },
@@ -420,6 +434,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-ports-line", "kr-ports-fill"], type: "krPorts" },
   // 南韓：三層級一次只開一層
   { layers: ["kr-admin-emd-fill", "kr-admin-sgg-fill", "kr-admin-sido-fill"], type: "krAdminBoundaries" },
+  { layers: ["ca-indigenous-lands-fill"], type: "caIndigenousLands" },
+  { layers: ["ca-population-centres-fill"], type: "caPopulationCentres" },
+  { layers: ["ca-rents-fill", "ca-rents-na-fill"], type: "caRents" },
+  { layers: ["ca-cimd-fill", "ca-cimd-na-fill"], type: "caDeprivation" },
+  { layers: ["ca-fsa-fill"], type: "caPostalFsa" },
+  { layers: ["ca-fed-fill"], type: "caFederalDistricts" },
+  { layers: ["ca-admin-csd-fill", "ca-admin-cd-fill", "ca-admin-pr-fill"], type: "caAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-agency-forecasts-points", "typhoon-agency-forecasts-line"], type: "typhoonAgencyForecast" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points", "typhoon-tracks-radii-fill"], type: "typhoonTrack" },
@@ -891,6 +912,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
   // 🚆 交通可及性網格（模擬面板，H3 res 7 鋪滿全台）：與其他 H3 格一起放大面積面層段。
   { layers: ["transit-reach-grid-fill"], type: "transitReachGrid" },
+  // 🚌 雙北大眾運輸可及性網格（模擬面板，H3 res9 鋪滿雙北）
+  { layers: ["transit-access-grid-fill"], type: "transitAccessGrid" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

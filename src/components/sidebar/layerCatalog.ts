@@ -31,7 +31,7 @@ import { ENVIRONMENT_ENABLED_STATISTICS_RECIPES, ENVIRONMENT_STATISTICS_THEME_TI
 import { DEMOGRAPHICS_ENABLED_STATISTICS_RECIPES, demographicsTabGroupTitle } from "../../data/demographicsStatisticsRecipes";
 import { ADDICTION_ENABLED_STATISTICS_RECIPES, ADDICTION_STATISTICS_SUBGROUPS, ADDICTION_STATISTICS_TAB_THEME_TITLE, ADDICTION_STATISTICS_THEME_TITLE } from "../../data/addictionStatisticsRecipes";
 import { LANDSLIDE_ENABLED_STATISTICS_RECIPES, LANDSLIDE_STATISTICS_SUBGROUPS, LANDSLIDE_STATISTICS_TAB_THEME_TITLE, LANDSLIDE_STATISTICS_THEME_TITLE } from "../../data/landslideStatisticsRecipes";
-import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STATISTICS_DATA_THEME_TITLES, KR_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
+import { ATLAS_DATA_THEME_TITLES, ATLAS_TAB_THEME_TITLES, GB_STATISTICS_DATA_THEME_TITLES, GB_STATISTICS_TAB_THEME_TITLES, KR_STATISTICS_DATA_THEME_TITLES, KR_STATISTICS_TAB_THEME_TITLES, CA_STATISTICS_DATA_THEME_TITLES, CA_STATISTICS_TAB_THEME_TITLES, atlasDataThemeGroups, atlasTabThemeGroups } from "../../data/atlasStatisticsRecipes";
 
 // ── Color Config ──
 
@@ -334,6 +334,16 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
+  CA: [
+    // 加拿大（2026-11-04 第 0＋1 波；第 2 波加「原民與農村」；title 沿用台灣主題中文短名，比照南韓、英國）
+    "底圖",
+    "交通",
+    "原民與農村",
+    "能源",
+    "人口社經",
+    // 加拿大統計（完整目錄；統計分頁另有「人口／社經」，見 CA_STATISTICS_TAB_THEMES）
+    ...CA_STATISTICS_DATA_THEME_TITLES,
+  ],
   GB: [
     // 英國（2026-10-29 英國第 0b 波；title 沿用台灣主題中文短名，與日本同名不衝突）
     "底圖",
@@ -381,6 +391,8 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "雙北跨河橋梁中斷",
     "臺北 307 走廊公車擁擠",
     "全台交通可及性",
+    "雙北大眾運輸可及性",
+    "雙北國道逐車模擬",
   ],
 };
 
@@ -749,6 +761,19 @@ const KR_STATISTICS_DATA_THEMES: ThemeDef[] = KR_STATISTICS_DATA_THEME_TITLES.ma
   title, country: "KR", groups: atlasGroups(atlasDataThemeGroups(title, "KR")),
 }));
 
+/**
+ * 加拿大統計分頁（2026-11-04）：人口／社經，主題與群組由 ca 家族 recipe 派生
+ * （一列一個指標，列內切換省／地區、普查區）。
+ */
+export const CA_STATISTICS_TAB_THEMES: ThemeDef[] = CA_STATISTICS_TAB_THEME_TITLES.map((title) => ({
+  title, country: "CA", groups: atlasGroups(atlasTabThemeGroups(title, "CA")),
+}));
+
+/** 加拿大完整目錄（THEMES，country CA）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
+const CA_STATISTICS_DATA_THEMES: ThemeDef[] = CA_STATISTICS_DATA_THEME_TITLES.map((title) => ({
+  title, country: "CA", groups: atlasGroups(atlasDataThemeGroups(title, "CA")),
+}));
+
 /** 英國完整目錄（THEMES，country GB）的統計主題；圖層頁不顯示（統計面在統計入口）。 */
 const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.map((title) => ({
   title, country: "GB", groups: atlasGroups(atlasDataThemeGroups(title, "GB")),
@@ -759,7 +784,7 @@ const GB_STATISTICS_DATA_THEMES: ThemeDef[] = GB_STATISTICS_DATA_THEME_TITLES.ma
  * 設施、等時圈和行政邊界不在此集合，避免它們因為同畫面出現而被誤分類為統計。
  */
 export const STATISTICS_TAB_CHOROPLETH_LAYER_KEYS = new Set<string>(
-  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES]
+  [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES, ...CA_STATISTICS_TAB_THEMES]
     .flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)))
     .filter((key) => !STATISTICS_TAB_REFERENCE_LAYER_KEYS.has(key)),
 );
@@ -798,7 +823,7 @@ for (const recipe of COMPARISON_UI_RECIPES) {
 }
 
 // 群組變體：統計入口裡屬於同一群組的成員標上 group／lead（LayersPanel 依此畫群組列）。
-for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
+for (const layer of [...STATISTICS_TAB_THEMES, ...GB_STATISTICS_TAB_THEMES, ...KR_STATISTICS_TAB_THEMES, ...CA_STATISTICS_TAB_THEMES].flatMap(theme => theme.groups.flatMap(group => group.layers))) {
   const group = getMedicalStatisticsGroup(layer.key);
   if (group) layer.variant = { group: group.key, lead: group.options[0]?.key === layer.key };
 }
@@ -811,6 +836,7 @@ const THEME_CATALOG: ThemeDef[] = [
   ...STATISTICS_DATA_THEMES,
   ...GB_STATISTICS_DATA_THEMES,
   ...KR_STATISTICS_DATA_THEMES,
+  ...CA_STATISTICS_DATA_THEMES,
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
@@ -2508,6 +2534,20 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "交通可及性", layers: [fromManifest("transitReachGrid"), fromManifest("transitReachPlayback")] }],
   },
+  {
+    // 雙北大眾運輸可及性（transit_access P1＋P2，2026-11-03）：公開模擬資料家族，同全台交通可及性人人可見。
+    title: "雙北大眾運輸可及性",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{ title: "大眾運輸可及性", layers: [fromManifest("transitAccessGrid"), fromManifest("transitAccessPlayback")] }],
+  },
+  {
+    // 雙北國道逐車模擬（2026-11-04 使用者拍板正式可見）：公開模擬資料家族 sim/v1/freeway_tdcs，同交通可及性人人可見；跟全站時間軸。
+    title: "雙北國道逐車模擬",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{ title: "國道逐車", layers: [fromManifest("freewayTdcsSim")] }],
+  },
 
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
@@ -2777,6 +2817,62 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "點位", layers: [fromManifest("krNpLocationSigns")] },
       { title: "線", layers: [fromManifest("krNpTrails")] },
     ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🇨🇦 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通、能源、人口中心；群組比照台灣與南韓同主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "底圖",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      // 第 2 波：聯邦選區、郵遞分區（FSA）屬參考界線，與行政界同群
+      { title: "行政邊界", layers: [fromManifest("caAdminBoundaries"), fromManifest("caFederalDistricts"), fromManifest("caPostalFsa")] },
+      // 第 2 波 C003：比照台灣 hillshade、英國 gbTerrainHillshade 的「底圖 › 地形」
+      { title: "地形", layers: [fromManifest("caHillshade")] },
+      // 第 2 波：比照台灣 placeNames 的「底圖 › 地名 Gazetteer」
+      { title: "地名 Gazetteer", layers: [fromManifest("caPlaceNames")] },
+    ],
+  },
+  {
+    title: "交通",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "場站", layers: [fromManifest("caTransitStops")] },
+      { title: "路網", layers: [fromManifest("caMajorRoads"), fromManifest("caRailways")] },
+      { title: "樞紐節點", layers: [fromManifest("caAirportsPorts")] },
+    ],
+  },
+  {
+    title: "能源",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "電力 · 廠", layers: [fromManifest("caPowerPlants")] },
+      { title: "電力 · 電網", layers: [fromManifest("caPowerGrid")] },
+      { title: "再生能源", layers: [fromManifest("caWindTurbines")] },
+      { title: "石化 · 油氣", layers: [fromManifest("caOilGas")] },
+    ],
+  },
+  {
+    title: "人口社經",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "人口分布", layers: [fromManifest("caPopulationCentres")] },
+      // 第 2 波：CIMD 剝奪指數、CMHC 租金（台灣租賃在「房地產」，加拿大目前只有一層，先放人口社經）
+      { title: "社經", layers: [fromManifest("caDeprivation")] },
+      { title: "租賃", layers: [fromManifest("caRents")] },
+    ],
+  },
+  {
+    title: "原民與農村",
+    country: "CA",
+    defaultCollapsed: true,
+    // 第 2 波 C019：比照台灣「原民與農村 › 原住民族」；法定土地非傳統領域
+    groups: [{ title: "原住民保留地", layers: [fromManifest("caIndigenousLands")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3115,6 +3211,17 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "人口統計": "city",
     "社經統計": "city",
   },
+  CA: {
+    // 加拿大主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照南韓、英國）。
+    "底圖": "baseline",
+    "交通": "city",
+    "能源": "environment",
+    "人口社經": "city",
+    "原民與農村": "city",
+    // 加拿大統計（完整目錄）：同英國、南韓歸移動與城市。
+    "人口統計": "city",
+    "社經統計": "city",
+  },
   GB: {
     // 英國主題 title＝台灣主題中文短名，大分類同台灣對應主題（比照日本）。
     "底圖": "baseline",
@@ -3156,6 +3263,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "雙北跨河橋梁中斷": "city",
     "臺北 307 走廊公車擁擠": "city",
     "全台交通可及性": "city",
+    "雙北大眾運輸可及性": "city",
+    "雙北國道逐車模擬": "city",
   },
 };
 
@@ -3291,6 +3400,19 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "人口": { zh: "人口", sub: "인구" },
     "社經": { zh: "社經", sub: "사회경제" },
   },
+  CA: {
+    // 加拿大主題副標用英文（官方雙語英法，介面先用英文；比照英國）
+    "底圖": { zh: "底圖", sub: "Base Map" },
+    "交通": { zh: "交通", sub: "Transport" },
+    "能源": { zh: "能源", sub: "Energy" },
+    "人口社經": { zh: "人口社經", sub: "People" },
+    "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
+    // 加拿大統計：完整目錄兩個、統計分頁兩個
+    "人口統計": { zh: "人口統計", sub: "Population Statistics" },
+    "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
+    "人口": { zh: "人口", sub: "Population" },
+    "社經": { zh: "社經", sub: "Socio-economic" },
+  },
   GB: {
     // 英國主題副標用英文（比照日本用日文、法國用法文）
     "底圖": { zh: "底圖", sub: "Base Map" },
@@ -3333,6 +3455,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
     "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
+    "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
+    "雙北國道逐車模擬": { zh: "雙北國道逐車模擬", sub: "Freeway Vehicles" },
   },
 };
 

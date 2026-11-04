@@ -479,5 +479,9 @@
   "enum.statLevel.kr_sido": "Province level (si/do)",
   "enum.statLevel.kr_sigungu": "Municipal level (si/gun/gu)",
   "enum.statBoundary.KR_SIDO_ADMDONGKOR_20261001": "South Korea province-level boundaries (1 Oct 2026)",
-  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "South Korea municipal boundaries (1 Oct 2026)"
+  "enum.statBoundary.KR_SGG_ADMDONGKOR_20261001": "South Korea municipal boundaries (1 Oct 2026)",
+  "enum.statLevel.ca_pr": "Province / territory",
+  "enum.statLevel.ca_cd": "Census division",
+  "enum.statBoundary.CA_PR_CBF2021": "Canada provinces and territories (2021 Census boundaries)",
+  "enum.statBoundary.CA_CD_CBF2021": "Canada census divisions (2021 Census boundaries)"
 }
