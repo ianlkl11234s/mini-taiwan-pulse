@@ -1,6 +1,5 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
-import { VILLAGE_COLOR_MODES, VILLAGE_ELECTIONS, VILLAGE_RESULTS_MIN_ZOOM, villageFillColor } from "../data/electionResults2022Types";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
@@ -3696,42 +3695,6 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": ["case", past, op * ELECTION_PAST_OPACITY, op] as unknown as number,
           };
         },
-      },
-    ],
-  },
-  // ── 🗳 2022 村里得票（公開 bbox RPC）──
-  // dynamicData：useElectionResults2022VillageLayer 依視窗 bbox＋整數 zoom 查 get_election_results_2022_village 後 setData。
-  // 選舉（縣市長／議員政黨合計）× 著色（最高黨／領先差距／投票率）；status='missing' 一律灰（不是 0）。
-  // 面放在投開票所之前（registry 順序＝疊放順序，面在點下面）。色票 SSOT：data/electionResults2022Types.ts。
-  {
-    id: "electionResults2022Village",
-    sourceUrl: "./geo/_empty.geojson",
-    sourceId: "election-results-2022-village",
-    dynamicData: true,
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        minzoom: VILLAGE_RESULTS_MIN_ZOOM,
-        paint: (_isDark, p) => {
-          const election = VILLAGE_ELECTIONS[p?.electionResults2022VillageElectionIdx ?? 0] ?? "mayor";
-          const mode = VILLAGE_COLOR_MODES[p?.electionResults2022VillageColorByIdx ?? 0] ?? "top";
-          const op = p?.electionResults2022VillageOpacity ?? 0.7;
-          return {
-            "fill-color": villageFillColor(election, mode) as unknown as string,
-            "fill-opacity": ["case", ["==", ["get", "status"], "missing"], op * 0.5, op] as unknown as number,
-          };
-        },
-      },
-      {
-        suffix: "line",
-        type: "line",
-        minzoom: VILLAGE_RESULTS_MIN_ZOOM,
-        paint: (isDark) => ({
-          "line-color": mapSeamColor(isDark),
-          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.2, 12, 0.6, 15, 1] as unknown as number,
-          "line-opacity": 0.6,
-        }),
       },
     ],
   },

@@ -2082,10 +2082,5 @@
   "param.投票率": "Turnout",
   "param.熱區：民進黨": "Heatmap: DPP",
   "param.熱區：國民黨": "Heatmap: KMT",
-  "param.熱區：民眾黨": "Heatmap: TPP",
-  "param.選舉": "Election",
-  "param.縣市長": "Mayor / magistrate",
-  "param.議員（政黨合計）": "Councillors (party totals)",
-  "param.最高黨": "Leading party",
-  "param.領先差距": "Lead margin"
+  "param.熱區：民眾黨": "Heatmap: TPP"
 }

@@ -744,7 +744,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["base-osm-expressway-line"], type: "osmExpressway" },
   { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
   // 🗳 政治面層（面積大，排在點位之後；村里比選區細，先命中村里）
-  { layers: ["election-results-2022-village-fill"], type: "electionResults2022Village" },
   { layers: ["council-districts-2026-fill", "council-districts-2026-line"], type: "councilDistricts2026" },
   { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
   { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },

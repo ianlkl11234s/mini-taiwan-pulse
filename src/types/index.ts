@@ -150,7 +150,7 @@ export type ExpandableLayerKey =
   | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "firingNoticeAreas"
   // 🗳 政治 Politics：2026 選舉活動（owner-only RPC）
-  | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026" | "electionResults2022Village"
+  | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -809,7 +809,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
-    | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026" | "electionResults2022Village"
+    | "electionEvents2026" | "pollingStations2024" | "councilDistricts2026"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute" | "railRoutes"
@@ -1270,8 +1270,6 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   pollingStations2024: boolean;
   /** 2026 縣市議員選舉區（公開 RPC get_council_districts_2026；gis-platform mig 496） */
   councilDistricts2026: boolean;
-  /** 2022 村里得票：縣市長＋議員政黨合計（公開 bbox RPC get_election_results_2022_village；gis-platform mig 496） */
-  electionResults2022Village: boolean;
   /** GitHub append-only 研究經 publisher 發布的全球重要事件；僅顯示有真實 Point 的位置 */
   globalEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */

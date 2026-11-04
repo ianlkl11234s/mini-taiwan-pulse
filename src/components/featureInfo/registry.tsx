@@ -99,7 +99,7 @@ import {
   FactoryLocationsPanel, IndustrialParkBoundariesPanel, RegulatedFacilitiesPanel,
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
-import { CouncilDistrictPanel, ElectionEventPanel, ElectionResultsVillagePanel, PollingStationPanel } from "./politicsPanels";
+import { CouncilDistrictPanel, ElectionEventPanel, PollingStationPanel } from "./politicsPanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -273,7 +273,6 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   electionEvents2026: ElectionEventPanel,
   pollingStations2024: PollingStationPanel,
   councilDistricts2026: CouncilDistrictPanel,
-  electionResults2022Village: ElectionResultsVillagePanel,
   disasterAlert: DisasterAlertPanel,
   plaActivity: PlaActivityPanel,
   vesselWatch: VesselWatchPanel,
@@ -840,7 +839,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   electionEvents2026: "2026 選舉活動",
   pollingStations2024: "2024 投開票所",
   councilDistricts2026: "2026 議員選區",
-  electionResults2022Village: "2022 村里得票",
   disasterAlert: "災害示警",
   plaActivity: "共機活動區",
   // ⚠️ 不可寫成「海巡」—— 本層含中國海事局（HAIXUN）與台灣海巡署兩種完全不同的船

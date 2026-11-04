@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1507,
+    "keyCount": 1506,
     "sections": [
       "gisLayers",
       "overlays",
@@ -3607,12 +3607,6 @@
         "base-osm-road-line"
       ],
       "type": "osmRoadDrive"
-    },
-    {
-      "layers": [
-        "election-results-2022-village-fill"
-      ],
-      "type": "electionResults2022Village"
     },
     {
       "layers": [
@@ -14472,159 +14466,6 @@
         "circle"
       ],
       "sourceId": "election-events-2026",
-      "sourceUrl": "./geo/_empty.geojson"
-    },
-    {
-      "dynamicData": true,
-      "filter": null,
-      "id": "electionResults2022Village",
-      "layers": [
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": 8,
-          "paint": {
-            "dark": {
-              "fill-color": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "status"
-                  ],
-                  "missing"
-                ],
-                "#9ca3af",
-                [
-                  "match",
-                  [
-                    "get",
-                    "m_top"
-                  ],
-                  "dpp",
-                  "#1f9d55",
-                  "kmt",
-                  "#3b6fe0",
-                  "tpp",
-                  "#22b8c7",
-                  "other",
-                  "#b08968",
-                  "#9ca3af"
-                ]
-              ],
-              "fill-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "status"
-                  ],
-                  "missing"
-                ],
-                0.35,
-                0.7
-              ]
-            },
-            "light": {
-              "fill-color": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "status"
-                  ],
-                  "missing"
-                ],
-                "#9ca3af",
-                [
-                  "match",
-                  [
-                    "get",
-                    "m_top"
-                  ],
-                  "dpp",
-                  "#1f9d55",
-                  "kmt",
-                  "#3b6fe0",
-                  "tpp",
-                  "#22b8c7",
-                  "other",
-                  "#b08968",
-                  "#9ca3af"
-                ]
-              ],
-              "fill-opacity": [
-                "case",
-                [
-                  "==",
-                  [
-                    "get",
-                    "status"
-                  ],
-                  "missing"
-                ],
-                0.35,
-                0.7
-              ]
-            }
-          },
-          "suffix": "fill",
-          "type": "fill"
-        },
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": 8,
-          "paint": {
-            "dark": {
-              "line-color": "#0a0a14",
-              "line-opacity": 0.6,
-              "line-width": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "zoom"
-                ],
-                8,
-                0.2,
-                12,
-                0.6,
-                15,
-                1
-              ]
-            },
-            "light": {
-              "line-color": "#ffffff",
-              "line-opacity": 0.6,
-              "line-width": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "zoom"
-                ],
-                8,
-                0.2,
-                12,
-                0.6,
-                15,
-                1
-              ]
-            }
-          },
-          "suffix": "line",
-          "type": "line"
-        }
-      ],
-      "pmtiles": null,
-      "rebuildOnParamChange": null,
-      "sourceId": "election-results-2022-village",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -105336,51 +105177,6 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
-      }
-    ],
-    "electionResults2022Village": [
-      {
-        "label": "選舉",
-        "options": [
-          {
-            "label": "縣市長",
-            "value": "mayor"
-          },
-          {
-            "label": "議員（政黨合計）",
-            "value": "council"
-          }
-        ],
-        "type": "select",
-        "value": "mayor"
-      },
-      {
-        "label": "著色",
-        "options": [
-          {
-            "label": "最高黨",
-            "value": "top"
-          },
-          {
-            "label": "領先差距",
-            "value": "margin"
-          },
-          {
-            "label": "投票率",
-            "value": "turnout"
-          }
-        ],
-        "type": "select",
-        "value": "top"
-      },
-      {
-        "label": "透明度 0.70",
-        "max": 1,
-        "min": 0.1,
-        "name": "透明度",
-        "step": 0.05,
-        "value": 0.7,
-        "valueText": "0.70"
       }
     ],
     "emergencyHospitals": [

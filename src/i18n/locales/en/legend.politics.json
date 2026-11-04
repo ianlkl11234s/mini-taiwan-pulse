@@ -33,20 +33,5 @@
   "legend.politics.polling.heatNone": "none (all three off)",
   "legend.politics.council.area": "Electoral district (outline + light fill)",
   "legend.politics.council.noIndigenous": "Indigenous constituencies (plains / mountain) are not shown: they have no mapped boundary",
-  "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries",
-  "legend.politics.village.electionMayor": "Election: 2022 mayor / magistrate",
-  "legend.politics.village.electionCouncil": "Election: 2022 councillors (party totals)",
-  "legend.politics.village.topTitle": "Colour = party with the most votes in the village",
-  "legend.politics.village.marginTitle": "Colour = lead margin (percentage points): green = DPP ahead, blue = KMT ahead; darker = larger lead",
-  "legend.politics.village.turnoutTitle": "Colour = turnout",
-  "legend.politics.village.party.dpp": "DPP",
-  "legend.politics.village.party.kmt": "KMT",
-  "legend.politics.village.party.tpp": "TPP",
-  "legend.politics.village.party.ind": "Independent",
-  "legend.politics.village.party.other": "Other",
-  "legend.politics.village.missing": "No matching 2022 result (not zero)",
-  "legend.politics.village.merged": "Some villages were counted together with neighbours by the CEC; each shows the combined group total",
-  "legend.politics.village.councilNote": "2022 councillor results are party totals (all candidates of a party summed); independents are a separate class",
-  "legend.politics.village.zoomHint": "Zoom in to county level (z8) to show",
-  "legend.politics.village.source": "Source: CEC election database (OGDL-1.0); village boundaries: MOI, June 2026"
+  "legend.politics.council.source": "Source: CEC A0046 council district notice (OGDL-1.0); boundaries built from MOI village boundaries"
 }

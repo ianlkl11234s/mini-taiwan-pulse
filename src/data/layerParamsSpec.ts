@@ -164,7 +164,6 @@ import {
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStationsTypes";
-import { VILLAGE_COLOR_MODES, VILLAGE_ELECTIONS } from "./electionResults2022Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
   ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
@@ -4760,30 +4759,6 @@ export const LAYER_PARAMS_SPEC = {
   // 2026 議員選區：只有透明度（161 區全為區域選區，原住民選區無範圍，不給區域／原住民切換）
   councilDistricts2026: [
     opacitySlider("councilDistricts2026Opacity", 0.9),
-  ],
-  // 2022 村里得票：選舉（idx 0＝縣市長、1＝議員政黨合計；順序＝VILLAGE_ELECTIONS）×
-  // 著色（idx 0＝最高黨、1＝領先差距、2＝投票率；順序＝VILLAGE_COLOR_MODES）
-  electionResults2022Village: [
-    {
-      kind: "select", name: "electionResults2022VillageElection", label: "選舉", default: "mayor", category: "data",
-      options: [
-        { label: "縣市長", value: "mayor" },
-        { label: "議員（政黨合計）", value: "council" },
-      ],
-      out: "electionResults2022VillageElectionIdx",
-      encode: [...VILLAGE_ELECTIONS],
-    },
-    {
-      kind: "select", name: "electionResults2022VillageColorBy", label: "著色", default: "top",
-      options: [
-        { label: "最高黨", value: "top" },
-        { label: "領先差距", value: "margin" },
-        { label: "投票率", value: "turnout" },
-      ],
-      out: "electionResults2022VillageColorByIdx",
-      encode: [...VILLAGE_COLOR_MODES],
-    },
-    opacitySlider("electionResults2022VillageOpacity", 0.7),
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。

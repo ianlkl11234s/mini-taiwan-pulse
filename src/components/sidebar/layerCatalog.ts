@@ -2423,7 +2423,6 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("electionEvents2026"),
           fromManifest("pollingStations2024"),
           fromManifest("councilDistricts2026"),
-          fromManifest("electionResults2022Village"),
         ],
       },
     ],

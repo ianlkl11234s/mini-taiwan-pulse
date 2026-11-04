@@ -228,8 +228,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-01: +2 交通可及性公開模擬 transitReachGrid、transitReachPlayback（G28 P5）。
     // 2026-11-02: +1 政治 2026 選舉活動 electionEvents2026（owner-only）。
     // 2026-11-03: +1 政治 2024 投開票所 pollingStations2024（公開 bbox RPC）。
-    // 2026-11-03: +2 政治 2026 議員選區 councilDistricts2026、2022 村里得票 electionResults2022Village（公開 RPC）。
-    expect(keys.length).toBe(1507);
+    // 2026-11-03: +1 政治 2026 議員選區 councilDistricts2026（公開 RPC）。
+    expect(keys.length).toBe(1506);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
