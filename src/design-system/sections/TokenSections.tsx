@@ -254,7 +254,7 @@ export function TypographySection() {
 
 // ── §12 左側停靠版面 ──────────────────────────────────────
 /** 版面示意用的文件值（不在 token 裡）：IconRailSidebar RAIL_WIDTH 56、工具列列底 58、popup 寬 280 */
-const DOC_LAYOUT = { railWidth: 56, panelLeft: 64, toolbarBottom: 58, edge: 16, popupWidth: 280, panelWidth: 300 } as const;
+const DOC_LAYOUT = { railWidth: 56, panelLeft: 64, toolbarBottom: 58, edge: 16, popupWidth: 280, panelWidth: 300, navSize: 30, navGap: 8, dockGap: 12, scaleHeight: 30 } as const;
 
 export const LAYOUT_SECTION: SectionDef = { id: "left-dock", no: "12", title: "左側停靠版面" };
 export function LeftDockSection() {
@@ -262,14 +262,17 @@ export function LeftDockSection() {
   const H = 900;
   const scale = 0.5;
   const tlLeft = DOC_LAYOUT.railWidth + DOC_LAYOUT.edge;
+  // §5.43：停靠欄讓出控制柱（30）＋間距（12）；控制柱＝指北針＋縮放兩格＋定位，兩段間距 8
+  const dockRight = DOC_LAYOUT.edge + DOC_LAYOUT.navSize + DOC_LAYOUT.dockGap;
+  const navHeight = DOC_LAYOUT.navSize * 4 + DOC_LAYOUT.navGap * 2;
   const label = (text: string, style: CSSProperties) => (
     <span className="ds-mono" style={{ position: "absolute", fontSize: 20, color: COLORS.textStrong, whiteSpace: "nowrap", ...style }}>{text}</span>
   );
   const box = (style: CSSProperties) => <div style={{ position: "absolute", boxSizing: "border-box", borderRadius: RADIUS.xl, ...style }} />;
   return (
     <Section def={LAYOUT_SECTION}>
-      <Spec section="§5.1、§5.24、§5.26" impl={["src/styles/designTokens.ts（LAYOUT）", "src/components/timeline/TimelineShell.tsx", "src/App.tsx"]} />
-      <p className="ds-note">1440×900 視窗縮 50%。紅字＝<code>LAYOUT</code> 真值；<code>TC3_*_WIDTH</code> 由 <code>TimelineShell.tsx</code> 匯入；rail 寬、工具列列底、popup 寬為文件值 <Tag kind="doc" />。</p>
+      <Spec section="§5.1、§5.24、§5.26、§5.43" impl={["src/styles/designTokens.ts（LAYOUT）", "src/components/timeline/TimelineShell.tsx", "src/App.tsx"]} />
+      <p className="ds-note">1440×900 視窗縮 50%。紅字＝<code>LAYOUT</code> 真值；<code>TC3_*_WIDTH</code> 由 <code>TimelineShell.tsx</code> 匯入；rail 寬、工具列列底、popup 寬為文件值 <Tag kind="doc" />。右下導航控制柱與比例尺見 §5.43：停靠欄整欄左移 42（控制柱 30＋間距 12），比例尺為欄底一列，popup／圖例往上讓 42。</p>
       <div style={{ width: W * scale, height: H * scale, maxWidth: "100%", overflow: "hidden", borderRadius: RADIUS.lg, border: `1px solid ${BORDER.panel}` }}>
         <div style={{ position: "relative", width: W, height: H, transform: `scale(${scale})`, transformOrigin: "0 0", background: "#1b1c20" }}>
           {box({ left: 0, top: 0, bottom: 0, width: DOC_LAYOUT.railWidth, background: SURFACE.app, borderRadius: 0, borderRight: `1px solid ${BORDER.panel}` })}
@@ -284,8 +287,12 @@ export function LeftDockSection() {
           {box({ left: tlLeft, bottom: LAYOUT.mapBottomInset, width: TC3_EXPANDED_WIDTH, height: 44, border: `2px dashed ${COLORS.accent}` })}
           {box({ left: tlLeft, bottom: LAYOUT.mapBottomInset, width: TC3_COLLAPSED_WIDTH, height: 36, background: SURFACE.strong, border: `1px solid ${BORDER.panel}`, borderRadius: RADIUS.pill })}
           {label(`時間軸 收合 ${TC3_COLLAPSED_WIDTH} ／ 展開 ${TC3_EXPANDED_WIDTH}（虛線）`, { left: tlLeft, bottom: LAYOUT.mapBottomInset + 56 })}
-          {box({ right: DOC_LAYOUT.edge, bottom: LAYOUT.mapBottomInset, width: DOC_LAYOUT.popupWidth, height: 220, background: SURFACE.strong, border: "1px solid rgba(100,170,255,0.25)" })}
-          {label(`右下停靠 popup ${DOC_LAYOUT.popupWidth}`, { right: DOC_LAYOUT.edge + 14, bottom: LAYOUT.mapBottomInset + 180 })}
+          {box({ right: dockRight, bottom: LAYOUT.mapBottomInset + DOC_LAYOUT.scaleHeight + DOC_LAYOUT.dockGap, width: DOC_LAYOUT.popupWidth, height: 220, background: SURFACE.strong, border: "1px solid rgba(100,170,255,0.25)" })}
+          {label(`右下停靠 popup ${DOC_LAYOUT.popupWidth}（right ${dockRight}）`, { right: dockRight + 14, bottom: LAYOUT.mapBottomInset + DOC_LAYOUT.scaleHeight + DOC_LAYOUT.dockGap + 180 })}
+          {box({ right: dockRight, bottom: LAYOUT.mapBottomInset, width: DOC_LAYOUT.popupWidth, height: DOC_LAYOUT.scaleHeight, background: SURFACE.panel, border: `1px solid ${BORDER.soft}`, borderRadius: RADIUS.md })}
+          {label("比例尺（欄底一列，高 30）", { right: dockRight + 10, bottom: LAYOUT.mapBottomInset + 9 })}
+          {box({ right: DOC_LAYOUT.edge, bottom: LAYOUT.mapBottomInset, width: DOC_LAYOUT.navSize, height: navHeight, background: SURFACE.strong, border: `1px solid ${BORDER.panel}` })}
+          {label("導航", { right: DOC_LAYOUT.edge, bottom: LAYOUT.mapBottomInset + navHeight + 6 })}
           <div style={{ position: "absolute", left: 0, right: 0, bottom: LAYOUT.mapBottomInset, borderTop: `2px solid ${COLORS.statusErr}` }} />
           {label(`底邊對齊 LAYOUT.mapBottomInset = ${LAYOUT.mapBottomInset}`, { left: DOC_LAYOUT.panelLeft + 10, bottom: LAYOUT.mapBottomInset - 34, color: COLORS.statusErr })}
         </div>

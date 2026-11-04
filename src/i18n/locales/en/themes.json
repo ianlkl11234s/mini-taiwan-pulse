@@ -5,6 +5,7 @@
   "theme.中國": "China",
   "theme.中捷車站出站人次": "Taichung MRT Station Exits",
   "theme.事件": "Events",
+  "theme.選舉": "Elections",
   "theme.交通": "Transport",
   "theme.交通與運輸": "Traffic & Transport",
   "theme.人口分布": "Population Distribution",
@@ -287,5 +288,7 @@
   "theme.首爾生活人口（2026-07）": "Seoul de facto population (2026-07)",
   "theme.家戶與住宅（2024）": "Households & dwellings (2024)",
   "theme.事業體（2024）": "Establishments (2024)",
-  "theme.國道逐車模擬（本機）": "Freeway Vehicle Simulation (Local)"
+  "theme.國道逐車模擬（本機）": "Freeway Vehicle Simulation (Local)",
+  "theme.雙北大眾運輸可及性": "Taipei Transit Access",
+  "theme.大眾運輸可及性": "Transit Access"
 }

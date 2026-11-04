@@ -262,6 +262,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "林業 Forestry",
     "太空 Space",
     "情勢 Situation",
+    "政治 Politics",
     TAIWAN_TELECOM_THEME_TITLE,
     // 台灣：統計資料主題（統計面在統計入口，其餘設施仍在台灣入口）
     "工作與所得 Work & Income",
@@ -380,6 +381,7 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "雙北跨河橋梁中斷",
     "臺北 307 走廊公車擁擠",
     "全台交通可及性",
+    "雙北大眾運輸可及性",
   ],
 };
 
@@ -2411,6 +2413,24 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🗳 POLITICS 政治 — 選舉活動等（站主限定的研究原型）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "政治 Politics",
+    country: "TW",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "選舉",
+        layers: [
+          fromManifest("electionEvents2026"),
+          fromManifest("pollingStations2024"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🌍 GLOBAL SITUATION / ENVIRONMENT（世界 rail 專屬；不再以泛稱「世界」包組）
   // ───────────────────────────────────────────────────────────────
   {
@@ -2489,6 +2509,13 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "SIM",
     defaultCollapsed: true,
     groups: [{ title: "交通可及性", layers: [fromManifest("transitReachGrid"), fromManifest("transitReachPlayback")] }],
+  },
+  {
+    // 雙北大眾運輸可及性（transit_access P1＋P2，2026-11-03）：公開模擬資料家族，同全台交通可及性人人可見。
+    title: "雙北大眾運輸可及性",
+    country: "SIM",
+    defaultCollapsed: true,
+    groups: [{ title: "大眾運輸可及性", layers: [fromManifest("transitAccessGrid"), fromManifest("transitAccessPlayback")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3059,6 +3086,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "林業 Forestry": "environment",
     "太空 Space": "intelligence",
     "情勢 Situation": "intelligence",
+    "政治 Politics": "intelligence",
     [TAIWAN_TELECOM_THEME_TITLE]: "publicLife",
   },
   JP: {
@@ -3137,6 +3165,7 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "雙北跨河橋梁中斷": "city",
     "臺北 307 走廊公車擁擠": "city",
     "全台交通可及性": "city",
+    "雙北大眾運輸可及性": "city",
   },
 };
 
@@ -3232,6 +3261,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "林業 Forestry": { zh: "林業", sub: "Forestry" },
     "太空 Space": { zh: "太空", sub: "Space" },
     "情勢 Situation": { zh: "情勢", sub: "Situation" },
+    "政治 Politics": { zh: "政治", sub: "Politics" },
     [TAIWAN_TELECOM_THEME_TITLE]: { zh: "通訊", sub: "Telecommunications" },
   },
   JP: {
@@ -3313,6 +3343,7 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "雙北跨河橋梁中斷": { zh: "雙北跨河橋梁中斷", sub: "Bridge Disruption" },
     "臺北 307 走廊公車擁擠": { zh: "臺北 307 走廊公車擁擠", sub: "Bus Crowding" },
     "全台交通可及性": { zh: "全台交通可及性", sub: "Transit Reach" },
+    "雙北大眾運輸可及性": { zh: "雙北大眾運輸可及性", sub: "Taipei Transit Access" },
   },
 };
 
@@ -3430,6 +3461,8 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "aviationRestrictedGlow",
   // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，資料只經 owner-authenticated Range API。
   "busCrowdingSim",
+  // 2026 選舉活動（研究原型）：owner-only RPC get_election_events_2026（gis-platform mig 494 登記 gated_layers）。
+  "electionEvents2026",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
   // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。

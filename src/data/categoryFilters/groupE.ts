@@ -1,5 +1,6 @@
 import type { CategoryFilterDef } from "../categoryFilters";
 import { VESSEL_CLASSES } from "../vesselWatchTypes";
+import { ELECTION_CAMPS } from "../electionEventsTypes";
 
 /**
  * 組別 E（台灣即時／災害／情勢類）。
@@ -8,6 +9,24 @@ import { VESSEL_CLASSES } from "../vesselWatchTypes";
  * 選項順序＝bitmask 位元順序，新增請加在最後。
  */
 export const CATEGORY_FILTERS_E: Record<string, CategoryFilterDef | readonly CategoryFilterDef[]> = {
+  // 2026 選舉活動（registry 圖層；camp_key 由 electionEventsLoader 衍生）
+  electionEvents2026: {
+    property: "camp_key",
+    label: "陣營",
+    options: ELECTION_CAMPS.filter((c) => c.key !== "other").map((c) => ({ value: c.key, zh: c.label })),
+    other: "其他政黨／無黨籍",
+  },
+  // 2024 投開票所（registry 圖層；lead＝2024 總統領先政黨，由 pollingStationsLoader 衍生；同票歸「其他」）
+  pollingStations2024: {
+    property: "lead",
+    label: "領先政黨",
+    options: [
+      { value: "dpp", zh: "賴清德（民進黨）" },
+      { value: "kmt", zh: "侯友宜（國民黨）" },
+      { value: "tpp", zh: "柯文哲（民眾黨）" },
+    ],
+    other: "同票",
+  },
   // ── hook 圖層 ──
   fireEvents: {
     property: "casualty",

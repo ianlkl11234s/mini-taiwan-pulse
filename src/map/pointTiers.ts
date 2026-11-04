@@ -13,7 +13,7 @@ import type { PointTier } from "./mapStyleScale";
 export type PointTierOrBubble = PointTier | "B";
 
 export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubble>> = {
-  // ── 小 S（半徑 3） · 25 層
+  // ── 小 S（半徑 3） · 26 層
   accidentTaipei: "S", // 北市事故點 Taipei Dots
   bikeStations: "S", // 公共自行車 Bike Station
   busStationsCity: "S", // 市區公車站 City Bus
@@ -31,6 +31,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   medLTC: "S", // 長照機構 LTC
   medPharmacy: "S", // 藥局 Pharmacy
   osmPowerTowers: "S", // 高壓鐵塔 Power Towers
+  pollingStations2024: "S", // 2024 投開票所 Polling Stations（街區層級密集）
   pollutionPenaltyMobile: "S", // 移動污染 Mobile Penalty
   schools: "S", // 學校總覽 All Schools
   streetTreesNational: "S", // 行道樹全國 Street Trees TW
@@ -77,6 +78,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockFarmSheep: "B", // 畜禽飼養場·羊 Sheep/Goat Farms
   mountainRescueIncidents: "B", // 山域事故 Mountain Rescue
   newsEvents: "B", // 新聞事件 News Events
+  electionEvents2026: "B", // 半徑＝規模分級 · 2026 選舉活動 Election Events
   noiseEnforcementEvents: "B", // 噪音裁處事件 Enforcement
   parkingOffstreet: "B", // 場外停車場 Off-street
   parksTaipei: "B", // 公園 Parks

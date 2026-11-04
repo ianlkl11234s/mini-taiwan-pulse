@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1504,
+    "keyCount": 1508,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2693,6 +2693,18 @@
     },
     {
       "layers": [
+        "election-events-2026-circle"
+      ],
+      "type": "electionEvents2026"
+    },
+    {
+      "layers": [
+        "polling-stations-2024-circle"
+      ],
+      "type": "pollingStations2024"
+    },
+    {
+      "layers": [
         "news-events-circle",
         "news-events-glow",
         "news-events-critical-halo",
@@ -5060,6 +5072,12 @@
         "transit-reach-grid-fill"
       ],
       "type": "transitReachGrid"
+    },
+    {
+      "layers": [
+        "transit-access-grid-fill"
+      ],
+      "type": "transitAccessGrid"
     },
     {
       "layers": [
@@ -14001,6 +14019,543 @@
       ],
       "sourceId": "medical-ltc",
       "sourceUrl": "./geo/medical_ltc.pmtiles"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "electionEvents2026",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "-",
+              1,
+              [
+                "coalesce",
+                [
+                  "get",
+                  "_past"
+                ],
+                0
+              ]
+            ]
+          },
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  0.75
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  1.25
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "camp_key"
+                  ],
+                  "dpp",
+                  "#1f9d55",
+                  "kmt",
+                  "#3b6fe0",
+                  "tpp",
+                  "#22b8c7",
+                  "npp",
+                  "#f2c230",
+                  "#0a0a14"
+                ],
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                2,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "camp_key"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "npp",
+                "#f2c230",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  0.75
+                ],
+                12,
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "match",
+                      [
+                        "get",
+                        "scale_tier"
+                      ],
+                      "L",
+                      9,
+                      "M",
+                      6,
+                      4
+                    ],
+                    [
+                      "case",
+                      [
+                        "==",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "_past"
+                          ],
+                          0
+                        ],
+                        1
+                      ],
+                      0.7,
+                      1
+                    ],
+                    1
+                  ],
+                  1.25
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                [
+                  "match",
+                  [
+                    "get",
+                    "camp_key"
+                  ],
+                  "dpp",
+                  "#1f9d55",
+                  "kmt",
+                  "#3b6fe0",
+                  "tpp",
+                  "#22b8c7",
+                  "npp",
+                  "#f2c230",
+                  "#ffffff"
+                ],
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "coalesce",
+                    [
+                      "get",
+                      "_past"
+                    ],
+                    0
+                  ],
+                  1
+                ],
+                0.315,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "in",
+                  [
+                    "get",
+                    "event_status"
+                  ],
+                  [
+                    "literal",
+                    [
+                      "cancelled",
+                      "postponed"
+                    ]
+                  ]
+                ],
+                2,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "election-events-2026",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "pollingStations2024",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "lead"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "road"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "lead"
+                ],
+                "dpp",
+                "#1f9d55",
+                "kmt",
+                "#3b6fe0",
+                "tpp",
+                "#22b8c7",
+                "#9ca3af"
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "precision"
+                  ],
+                  "road"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "polling-stations-2024",
+      "sourceUrl": "./geo/_empty.geojson"
     },
     {
       "dynamicData": true,
@@ -103730,6 +104285,82 @@
         "valueText": "1.0"
       }
     ],
+    "electionEvents2026": [
+      {
+        "label": "陣營",
+        "options": [
+          {
+            "label": "民主進步黨",
+            "value": "dpp"
+          },
+          {
+            "label": "中國國民黨",
+            "value": "kmt"
+          },
+          {
+            "label": "台灣民眾黨",
+            "value": "tpp"
+          },
+          {
+            "label": "時代力量",
+            "value": "npp"
+          },
+          {
+            "label": "其他政黨／無黨籍",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dpp",
+          "kmt",
+          "tpp",
+          "npp",
+          "__other__"
+        ]
+      },
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "未來 7 天",
+            "value": "next7"
+          },
+          {
+            "label": "未來 30 天",
+            "value": "next30"
+          },
+          {
+            "label": "已舉辦",
+            "value": "held"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "emergencyHospitals": [
       {
         "label": "透明度 0.90",
@@ -124285,6 +124916,69 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "pollingStations2024": [
+      {
+        "label": "領先政黨",
+        "options": [
+          {
+            "label": "賴清德（民進黨）",
+            "value": "dpp"
+          },
+          {
+            "label": "侯友宜（國民黨）",
+            "value": "kmt"
+          },
+          {
+            "label": "柯文哲（民眾黨）",
+            "value": "tpp"
+          },
+          {
+            "label": "同票",
+            "value": "__other__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "dpp",
+          "kmt",
+          "tpp",
+          "__other__"
+        ]
+      },
+      {
+        "label": "著色",
+        "options": [
+          {
+            "label": "領先政黨",
+            "value": "lead"
+          },
+          {
+            "label": "投票率",
+            "value": "turnout"
+          }
+        ],
+        "type": "select",
+        "value": "lead"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
@@ -164540,6 +165234,318 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "transitAccessGrid": [
+      {
+        "label": "目的類別",
+        "options": [
+          {
+            "label": "醫院",
+            "value": "hospital"
+          },
+          {
+            "label": "超市（中大型）",
+            "value": "supermarket"
+          },
+          {
+            "label": "學校（任一學段）",
+            "value": "school"
+          },
+          {
+            "label": "國小",
+            "value": "school_e"
+          },
+          {
+            "label": "國中",
+            "value": "school_j"
+          },
+          {
+            "label": "高中職",
+            "value": "school_s"
+          },
+          {
+            "label": "金融（分行＋郵局）",
+            "value": "finance"
+          }
+        ],
+        "type": "select",
+        "value": "hospital"
+      },
+      {
+        "label": "時段",
+        "options": [
+          {
+            "label": "平日尖峰",
+            "value": "wkdy_peak"
+          },
+          {
+            "label": "平日離峰",
+            "value": "wkdy_off"
+          },
+          {
+            "label": "平日深夜",
+            "value": "wkdy_night"
+          },
+          {
+            "label": "週六",
+            "value": "sat"
+          },
+          {
+            "label": "週日",
+            "value": "sun"
+          }
+        ],
+        "type": "select",
+        "value": "wkdy_peak"
+      },
+      {
+        "label": "公車版本",
+        "options": [
+          {
+            "label": "公車表定",
+            "value": "scheduled"
+          },
+          {
+            "label": "公車 GPS 實際行駛",
+            "value": "observed"
+          },
+          {
+            "label": "比較：GPS−表定",
+            "value": "cmp"
+          }
+        ],
+        "type": "select",
+        "value": "scheduled"
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "到最近據點時間",
+            "value": "near"
+          },
+          {
+            "label": "時間內可達據點數",
+            "value": "count"
+          },
+          {
+            "label": "等車不確定（P95−P5）",
+            "value": "spread"
+          },
+          {
+            "label": "大眾運輸÷開車",
+            "value": "ratio"
+          },
+          {
+            "label": "三級分區",
+            "value": "tier"
+          },
+          {
+            "label": "時間內可達比例",
+            "value": "night"
+          }
+        ],
+        "type": "select",
+        "value": "tier"
+      },
+      {
+        "label": "分位數",
+        "options": [
+          {
+            "label": "P5 運氣好",
+            "value": "5"
+          },
+          {
+            "label": "P25",
+            "value": "25"
+          },
+          {
+            "label": "P50 一般",
+            "value": "50"
+          },
+          {
+            "label": "P75",
+            "value": "75"
+          },
+          {
+            "label": "P95 運氣差",
+            "value": "95"
+          }
+        ],
+        "type": "select",
+        "value": "50"
+      },
+      {
+        "label": "可行上限（分） 依類別",
+        "max": 90,
+        "min": 0,
+        "name": "可行上限（分）",
+        "step": 5,
+        "value": 0,
+        "valueText": "依類別"
+      },
+      {
+        "label": "依賴下限（分） 依類別",
+        "max": 120,
+        "min": 0,
+        "name": "依賴下限（分）",
+        "step": 5,
+        "value": 0,
+        "valueText": "依類別"
+      },
+      {
+        "label": "依賴比值上限 3.0",
+        "max": 5,
+        "min": 1,
+        "name": "依賴比值上限",
+        "step": 0.5,
+        "value": 3,
+        "valueText": "3.0"
+      },
+      {
+        "label": "開車附加（分） 5",
+        "max": 15,
+        "min": 0,
+        "name": "開車附加（分）",
+        "step": 1,
+        "value": 5,
+        "valueText": "5"
+      },
+      {
+        "label": "開車用尖峰係數",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      }
+    ],
+    "transitAccessPlayback": [
+      {
+        "label": "起點",
+        "options": [
+          {
+            "label": "臺北車站",
+            "value": "taipei"
+          },
+          {
+            "label": "板橋車站",
+            "value": "banqiao"
+          },
+          {
+            "label": "淡水捷運站",
+            "value": "tamsui"
+          },
+          {
+            "label": "汐止火車站",
+            "value": "xizhi"
+          },
+          {
+            "label": "三峽老街",
+            "value": "sanxia"
+          },
+          {
+            "label": "新店安坑（達觀社區）",
+            "value": "ankeng"
+          },
+          {
+            "label": "內湖科學園區（港墘）",
+            "value": "neihu"
+          },
+          {
+            "label": "土城頂埔站",
+            "value": "dingpu"
+          }
+        ],
+        "type": "select",
+        "value": "taipei"
+      },
+      {
+        "label": "時段",
+        "options": [
+          {
+            "label": "平日尖峰",
+            "value": "wkdy_peak"
+          },
+          {
+            "label": "平日離峰",
+            "value": "wkdy_off"
+          },
+          {
+            "label": "平日深夜",
+            "value": "wkdy_night"
+          },
+          {
+            "label": "週六",
+            "value": "sat"
+          },
+          {
+            "label": "週日",
+            "value": "sun"
+          }
+        ],
+        "type": "select",
+        "value": "wkdy_peak"
+      },
+      {
+        "label": "公車版本",
+        "options": [
+          {
+            "label": "公車表定",
+            "value": "scheduled"
+          },
+          {
+            "label": "公車 GPS 實際行駛",
+            "value": "observed"
+          },
+          {
+            "label": "比較：GPS−表定",
+            "value": "cmp"
+          }
+        ],
+        "type": "select",
+        "value": "scheduled"
+      },
+      {
+        "label": "分位數",
+        "options": [
+          {
+            "label": "P5 運氣好",
+            "value": "5"
+          },
+          {
+            "label": "P50 一般",
+            "value": "50"
+          },
+          {
+            "label": "P95 運氣差",
+            "value": "95"
+          }
+        ],
+        "type": "select",
+        "value": "50"
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 1,
+        "valueText": "1.00"
+      },
+      {
+        "clock": "transitAccessPlayback",
+        "label": "出發後經過",
+        "type": "playback",
+        "value": ""
       }
     ],
     "transitAlerts": [

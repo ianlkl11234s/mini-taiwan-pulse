@@ -5,6 +5,7 @@ import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
+import { ELECTION_LAYER_COLOR } from "./electionEventsTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
@@ -143,6 +144,8 @@ import {
   TrendingUp, Umbrella,
   // 🗣️ 族語方言分布 G35（2026-10-31）
   Languages,
+  // 🗳 政治 選舉活動（2026-11-02）
+  Vote,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -186,6 +189,7 @@ import { BUS_CROWDING_REPRESENTATIVE_COLOR } from "./busCrowdingSimTypes";
 import { BUS_CROWDING_SIM_ASSETS } from "./busCrowdingSimAssets";
 import { TRANSIT_REACH_COLOR } from "./transitReachTypes";
 import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
+import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -945,6 +949,60 @@ export const LAYER_MANIFEST = {
     params: { count: 8, kinds: ["multiSelect", "slider", "select", "select", "toggle", "toggle", "toggle", "slider"] },
     description: "新聞事件地理標定（分類著色 + 嚴重度篩選 + 時間漣漪）",
     topics: ["情勢", "新聞", "事件"],
+  },
+
+  // 🗳 政治：2026 選舉活動（owner-only RPC get_election_events_2026；gis-platform mig 494 登記 gated_layers）
+  electionEvents2026: {
+    key: "electionEvents2026",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2026 選舉活動", alt: "2026 Election Events" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/election_events_2026（研究原型）：整合政黨行程、候選人公開貼文、中央社、警政署集會申請等來源，去重後定位（地址／地標／路口），寫入 Supabase intel schema；前端只經 owner-only RPC 讀取。",
+      note: "研究原型；站主限定。收錄公開預告或報導過的活動，不是全部；各陣營、各縣市來源完整度不同，不可比較活動量。不進 embed／分析倉庫／MCP。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "election-events-2026",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "electionEvents2026",
+    popup: "electionEvents2026",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
+    description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。",
+    topics: ["政治", "選舉", "活動", "研究中"],
+  },
+
+  // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
+  pollingStations2024: {
+    key: "pollingStations2024",
+    country: "TW", section: { theme: "政治 Politics", group: "選舉" },
+    ...layerName({ zh: "2024 投開票所", alt: "2024 Polling Stations" }),
+    expandable: true,
+    color: ELECTION_LAYER_COLOR,
+    icon: Vote,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/analysis/polling_stations：中選會 2024 投開票所名冊（data.gov.tw 168059，無座標）離線定位（站名比對 POI／門牌／路名），掛上中選會選舉資料庫 2024 總統站別結果；寫入 Supabase reference.polling_stations_2024，前端依視窗 bbox 經公開 RPC 即時查詢。",
+      note: "OGDL-1.0。座標為本站自行定位；僅定位到村里／鄉鎮代表點的約 2,200 所不顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "polling-stations-2024",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "pollingStations2024",
+    popup: "pollingStations2024",
+    params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
+    description: "2024 年總統大選的投開票所位置與該所總統得票。色＝領先政黨（可切換成投票率）；放大到街區層級才顯示。2026-11-28 的投開票所以各縣市選委會公告為準。",
+    topics: ["政治", "選舉", "投開票所", "投票率"],
   },
 
   // ③ PMTiles polygon —— 有 labelMobile、圖例與 urbanZoningNewTaipei **共用**同一元件
@@ -2624,6 +2682,49 @@ export const LAYER_MANIFEST = {
     params: { count: 7, kinds: ["slider", "linkedSelect", "select", "select", "select", "toggle", "playback"] },
     description: "情境推演；選一個台鐵／高鐵車站出發，播放 0–12 小時內交通可及範圍逐步擴張（H3 res 8 網格，前 2 小時每 15 分一階、之後每 30 分；整點等時線）。可切運具組合、自由車流／尖峰（推估），以及比較模式：航班／船班或高鐵讓哪裡提早 10 分以上。航班、船班畫成虛線。理想規則的情境推演，非實測：鐵道與航班取 TDX 定期時刻表每段最快一班、不計等車與班次頻率，換車 +5 分、台鐵↔高鐵 8 分、取車／進站 5 分、機場報到 40 分；開車用 OSM 路網類別車速（自由車流）或【推估】尖峰係數（僅台北市區有 VD 實測）；船班航行時間含第三方公告與 4 條【估算】，不反映停航與班次；離島未計班次頻率，常停航的航線仍算可達。來源：OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、TDX 運輸資料流通服務（政府資料開放授權）。",
     topics: ["交通", "可及性", "等時圈", "模擬", "情境推演", "推估", "鐵道", "航班", "船班"],
+  },
+  transitAccessGrid: {
+    key: "transitAccessGrid",
+    expandable: true,
+    country: "SIM", section: { theme: "雙北大眾運輸可及性", group: "大眾運輸可及性" },
+    ...layerName({ zh: "網格大眾運輸可及性", qualifier: "推估・情境推演" }),
+    color: TRANSIT_ACCESS_COLOR,
+    icon: Hexagon,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics transit_access P2：雙北每個有人口的 H3 res9 格（15,979 格）到最近醫院、中大型超市、學校（國小／國中／高中職）、金融（分行＋郵局）的大眾運輸旅行時間；反向計算（據點→格，4,018 個據點依 res10 合併成 3,159 個計算起點，含雙北界外 8 km 據點），60 分窗、最多 3 次轉乘、上限 120 分；5 時段 × 公車表定／GPS 兩版；另算開車（自由車流）到最近據點；人口 GHSL 2020 重算到 res9。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）。情境推演，非實測：以 TDX 時刻表（捷運、臺鐵、高鐵、公路客運、雙北與桃園／基隆市區公車）建 GTFS，用 r5 計算大眾運輸＋步行（每段步行上限 15 分）在時間窗內每分鐘出發的旅行時間分位數（P5 運氣好／P50 一般／P95 運氣差）；公車分表定版與 GPS 實際行駛版（雙北公車 GPS 反推實際班次；桃園、基隆兩版都是表定）。與 TDX、Google 路線規劃抽樣對照，單一格誤差約 10 分、模擬可能偏樂觀 0–6 分，只適合看量級。三級分區門檻（可行／邊緣／依賴私人運具）是假設值、網站上可調，結果對開車基準很敏感。反向計算（回程語意）與去程抽樣平均絕對差 4–5 分。最近據點時間＝各據點分位數的最小值（偏保守）；時間內可達比例由 5 個分位數推得下界。雙北以外未涵蓋。分析專題：taipei-gis-analytics/docs/topic-research/transit_access/",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "公開模擬資料家族（src/data/simBundle.ts）：https://data.itsmigu.com/sim/v1/transit_access/current.json → <bundle_version>/bundle.json → grid/cells.json、facilities.json、car.u8、grid/<network>/<slot>/{near.u8,count.u16,arg.u16}（bundle.json files[] 驗 sha256；切時段／版本才抓該組約 1.5 MB）；hook 以 h3 cellToBoundary 產面，目前類別原始值寫進 properties，指標／分位數／門檻只改 paint expression" },
+    legend: "transitAccessGrid",
+    popup: "transitAccessGrid",
+    // 預設指標＝三級分區：據點數門檻（count）與可達時間 T（night）的控件隱藏
+    params: { count: 11, kinds: ["slider", "select", "select", "select", "select", "select", "slider", "slider", "slider", "slider", "toggle"] },
+    description: "情境推演；雙北每個有人口的 H3 res9 網格搭大眾運輸＋步行到最近醫院、超市、學校、金融據點要多久：可切時段（平日尖峰／離峰／深夜、週六、週日）、公車表定或 GPS 實際行駛版與兩版比較，指標有最近據點時間、時間內可達據點數、等車不確定（P95−P5）、大眾運輸÷開車、三級分區（門檻可調）、時間內可達比例。情境推演，非實測：以 TDX 時刻表（捷運、臺鐵、高鐵、公路客運、雙北與桃園／基隆市區公車）建 GTFS，用 r5 計算大眾運輸＋步行（每段步行上限 15 分）在時間窗內每分鐘出發的旅行時間分位數（P5 運氣好／P50 一般／P95 運氣差）；公車分表定版與 GPS 實際行駛版（雙北公車 GPS 反推實際班次；桃園、基隆兩版都是表定）。與 TDX、Google 路線規劃抽樣對照，單一格誤差約 10 分、模擬可能偏樂觀 0–6 分，只適合看量級。來源：TDX 運輸資料流通服務（政府資料開放授權）、OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、醫院（衛福部，Pulse 醫院圖層）、學校（EduGis 113 學年，授權未標示）、金融機構分支（data.gov.tw 24323，政府資料開放授權）、郵局（授權未標示）。",
+    topics: ["交通", "大眾運輸", "可及性", "公車", "捷運", "醫院", "學校", "超市", "模擬", "情境推演", "推估", "人口"],
+  },
+  transitAccessPlayback: {
+    key: "transitAccessPlayback",
+    expandable: true,
+    country: "SIM", section: { theme: "雙北大眾運輸可及性", group: "大眾運輸可及性" },
+    ...layerName({ zh: "單一起點大眾運輸擴張", qualifier: "推估・情境推演" }),
+    color: TRANSIT_ACCESS_COLOR,
+    icon: Timer,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics transit_access P1：8 個起點（臺北車站、板橋、淡水、汐止、三峽、新店安坑、內湖科學園區、土城頂埔）× 5 時段 × 公車表定／GPS 兩版，到雙北每個 H3 res9 格（25,592 格）的大眾運輸旅行時間 P5／P50／P95（120 分窗、上限 240 分）；前端只播放，不重算。",
+      note: "DISPLAY_ONLY（尚未入分析倉庫）。情境推演，非實測：以 TDX 時刻表（捷運、臺鐵、高鐵、公路客運、雙北與桃園／基隆市區公車）建 GTFS，用 r5 計算大眾運輸＋步行（每段步行上限 15 分）在時間窗內每分鐘出發的旅行時間分位數（P5 運氣好／P50 一般／P95 運氣差）；公車分表定版與 GPS 實際行駛版（雙北公車 GPS 反推實際班次；桃園、基隆兩版都是表定）。與 TDX、Google 路線規劃抽樣對照，單一格誤差約 10 分、模擬可能偏樂觀 0–6 分，只適合看量級。240 分內到不了標不可達（不是 0）。雙北以外未涵蓋。分析專題：taipei-gis-analytics/docs/topic-research/transit_access/",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "公開模擬資料家族（src/data/simBundle.ts）：https://data.itsmigu.com/sim/v1/transit_access/current.json → <bundle_version>/bundle.json → single/cells.json、origins.json、single/<network>/<slot>/<origin>.u8（每檔 77 KB，切起點／時段／版本才抓）；沿用 transitReachCustomLayer 自訂 WebGL 圖層（另給 id），每幀只更新時間 uniform；比較模式 PuOr 雙向分色" },
+    legend: "transitAccessPlayback",
+    popup: "transitAccessPlayback",
+    params: { count: 6, kinds: ["slider", "select", "select", "select", "select", "playback"] },
+    description: "情境推演；從雙北 8 個起點之一出發，播放 0–4 小時內搭大眾運輸＋步行可到範圍逐步擴張（H3 res9 網格，前 2 小時每 15 分一階、之後每 30 分），可切時段、分位數（P5 運氣好／P50 一般／P95 運氣差）與公車表定／GPS 實際行駛版；比較模式顯示 GPS 版比表定版早或晚到多少。情境推演，非實測：以 TDX 時刻表（捷運、臺鐵、高鐵、公路客運、雙北與桃園／基隆市區公車）建 GTFS，用 r5 計算大眾運輸＋步行（每段步行上限 15 分）在時間窗內每分鐘出發的旅行時間分位數（P5 運氣好／P50 一般／P95 運氣差）；公車分表定版與 GPS 實際行駛版（雙北公車 GPS 反推實際班次；桃園、基隆兩版都是表定）。與 TDX、Google 路線規劃抽樣對照，單一格誤差約 10 分、模擬可能偏樂觀 0–6 分，只適合看量級。來源：TDX 運輸資料流通服務（政府資料開放授權）、OpenStreetMap（ODbL）、GHSL GHS-POP R2023A（CC BY 4.0）、醫院（衛福部，Pulse 醫院圖層）、學校（EduGis 113 學年，授權未標示）、金融機構分支（data.gov.tw 24323，政府資料開放授權）、郵局（授權未標示）。",
+    topics: ["交通", "大眾運輸", "可及性", "等時圈", "公車", "捷運", "模擬", "情境推演", "推估"],
   },
   bridgeRainThresholds: {
     key: "bridgeRainThresholds",

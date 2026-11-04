@@ -553,6 +553,8 @@
   "layer.statsRecyclingCounty": "資源回収車両数",
   "layer.cctv": "道路カメラ",
   "layer.newsEvents": "ニュースイベント",
+  "layer.electionEvents2026": "2026年選挙活動",
+  "layer.pollingStations2024": "2024年投開票所",
   "layer.urbanZoningTaipei": "台北市の用途地域",
   "layer.rail": "鉄道",
   "layer.railRoutes": "軌道路線",
@@ -1494,5 +1496,7 @@
   "layer.statsKrEstablishmentsSgg": "事業所数（基礎自治体）",
   "layer.statsKrEmployeesSido": "従業者数（広域）",
   "layer.statsKrEmployeesSgg": "従業者数（基礎自治体）",
-  "layer.freewayTdcsSim": "台北都市圏 国道車両シミュレーション"
+  "layer.freewayTdcsSim": "台北都市圏 国道車両シミュレーション",
+  "layer.transitAccessGrid": "グリッド公共交通アクセス",
+  "layer.transitAccessPlayback": "単一出発地の公共交通到達範囲"
 }

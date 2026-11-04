@@ -40,6 +40,7 @@ import {
   IotWraRiverHost, IotWraStructureHost,
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
+import { ElectionEventsHost, PollingStationsHost } from "./hosts/politicsHosts";
 import {
   EnergyPoiHost, FossilFuelHost, LivestockHost, A1AccidentRealtimeHost,
   SubstationDiamondIconHost, OsmPowerLinesGlowHost, PowerPolesHost,
@@ -55,6 +56,7 @@ import { BridgeResilienceHost, BssBridgeHost } from "./hosts/bridgeHosts";
 import { BusCrowdingSimHost } from "./hosts/busCrowdingSimHost";
 import { TransitReachGridHost, TransitReachPlaybackHost } from "./hosts/transitReachHosts";
 import { FreewayTdcsSimHost } from "./hosts/freewayTdcsSimHost";
+import { TransitAccessGridHost, TransitAccessPlaybackHost } from "./hosts/transitAccessHosts";
 import {
   NuscGammaRadiationHost, WaterEffluentLiveHost, CemsStackLiveHost, CwaUvDailyHost,
 } from "./hosts/environmentHosts";
@@ -262,6 +264,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useTransitReachGridLayer", keys: ["transitReachGrid"], Host: TransitReachGridHost },
   { id: "useTransitReachPlaybackLayer", keys: ["transitReachPlayback"], Host: TransitReachPlaybackHost },
   { id: "useFreewayTdcsSimLayer", keys: ["freewayTdcsSim"], Host: FreewayTdcsSimHost },
+  { id: "useTransitAccessGridLayer", keys: ["transitAccessGrid"], Host: TransitAccessGridHost },
+  { id: "useTransitAccessPlaybackLayer", keys: ["transitAccessPlayback"], Host: TransitAccessPlaybackHost },
 
   // ── 全球氣候 / 世界（L1088-1154）──
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
@@ -516,4 +520,8 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useAnimalAdoptionLayer", keys: ["animalAdoption"], Host: AnimalAdoptionHost },
   { id: "useAnimalShelterPressureLayer", keys: ["animalShelterPressure"], Host: AnimalShelterPressureHost },
   { id: "useAnimalWelfarePointsLayer", keys: ["animalWelfarePoints"], Host: AnimalWelfarePointsHost },
+  // 政治：2026 選舉活動（owner-only RPC；時間軸只改資料的 _past，不改 paint）
+  { id: "useElectionEventsLayer", keys: ["electionEvents2026"], Host: ElectionEventsHost },
+  // 政治：2024 投開票所（公開 bbox RPC；moveend debounce、zoom ≥ 12 才查）
+  { id: "usePollingStationsLayer", keys: ["pollingStations2024"], Host: PollingStationsHost },
 ];

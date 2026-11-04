@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { LIGHT, RADIUS } from "../styles/designTokens";
 
 type SheetLevel = "collapsed" | "half" | "full";
@@ -32,9 +32,14 @@ function getHeight(level: SheetLevel, isLandscape: boolean): number {
 
 export function MobileBottomSheet({ isLandscape, isDarkTheme = true, forceCollapsed = false, onExpandedChange, children }: Props) {
   const [level, setLevel] = useState<SheetLevel>("collapsed");
+  // 最新的 callback（App 每次重繪傳新函式）；只在 forceCollapsed 變化時呼叫
+  const onExpandedChangeRef = useRef(onExpandedChange);
+  useEffect(() => { onExpandedChangeRef.current = onExpandedChange; });
 
   useEffect(() => {
-    if (forceCollapsed) setLevel("collapsed");
+    if (!forceCollapsed) return;
+    setLevel("collapsed");
+    onExpandedChangeRef.current?.(false); // 讓 App 依收合狀態顯示手機比例尺（§5.43）
   }, [forceCollapsed]);
 
   const cycleLevel = useCallback(() => {
