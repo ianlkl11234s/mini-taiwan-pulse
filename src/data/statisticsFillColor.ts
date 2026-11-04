@@ -6,6 +6,24 @@ import { CATEGORY_FALLBACK_COLOR } from './atlasStatisticsRecipes';
  * - 類別型（recipe 帶 categories，例：最高黨 1=dpp 2=kmt…）：match 整數碼 → 類別色，清單外的碼為中性灰。
  * - 其餘：step 固定門檻（breaks＋colors）。
  */
+/**
+ * 類別型圖層的「不適用」（例：最高黨得票並列，無單一最高黨）：實心淺灰，
+ * 和缺值斜線、各政黨色都分得開。只用在類別型，其他圖層的 not_applicable 仍畫斜線。
+ */
+export const STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR = '#f5f5f4';
+
+/** 填色 case：有值走 fill expression；類別型的 not_applicable 填實心灰；其餘透明。 */
+export function statisticsFillCase(recipe: Parameters<typeof statisticsFillColorExpression>[0], hasValue: unknown[], noFill: string): unknown[] {
+  return recipe.categories?.length
+    ? ['case', hasValue, statisticsFillColorExpression(recipe), ['==', ['get', 'status'], 'not_applicable'], STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR, noFill]
+    : ['case', hasValue, statisticsFillColorExpression(recipe), noFill];
+}
+
+/** 斜線（缺值）圖層 filter：類別型的 not_applicable 已實心填色，不再疊斜線。 */
+export function statisticsMissingFilter(recipe: Parameters<typeof statisticsFillColorExpression>[0], isMissing: unknown[]): unknown[] {
+  return recipe.categories?.length ? ['all', isMissing, ['!=', ['get', 'status'], 'not_applicable']] : isMissing;
+}
+
 export function statisticsFillColorExpression(recipe: {
   breaks: readonly number[];
   colors: readonly string[];

@@ -89,3 +89,18 @@ describe("vote_share 依所選政黨 sequential（legend.party_dimension）", ()
     expect(b).toBeGreaterThan(r!);
   });
 });
+
+describe("類別型 not_applicable（最高黨並列）和缺值分開畫", () => {
+  it("類別型：not_applicable 實心淺灰、不疊斜線；非類別型維持原樣", async () => {
+    const { statisticsFillCase, statisticsMissingFilter, STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } = await import("../statisticsFillColor");
+    const hasValue = ["has"];
+    const isMissing = ["missing"];
+    const categorical = { breaks: [2], colors: ["#111111", "#222222"], categories: [{ value: 1, color: "#111111" }, { value: 2, color: "#222222" }] };
+    const fill = statisticsFillCase(categorical, hasValue, "rgba(0,0,0,0)");
+    expect(fill).toContain(STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR);
+    expect(statisticsMissingFilter(categorical, isMissing)).toEqual(["all", isMissing, ["!=", ["get", "status"], "not_applicable"]]);
+    const numeric = { breaks: [10], colors: ["#eeeeee", "#111111"] };
+    expect(statisticsFillCase(numeric, hasValue, "rgba(0,0,0,0)")).not.toContain(STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR);
+    expect(statisticsMissingFilter(numeric, isMissing)).toBe(isMissing);
+  });
+});

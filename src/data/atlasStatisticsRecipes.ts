@@ -285,10 +285,12 @@ export function atlasBinaryLegendRows(recipe: AtlasRecipeCatalogEntry, colors: r
 }
 
 /** 圖例的非數值狀態列：依本層實際會出現的狀態分開列出；遮蔽用交叉斜線，其餘用細斜線。 */
-export function atlasStatusLegendRows(recipe: AtlasRecipeCatalogEntry): Array<{ kind: AtlasStatusKind; hatch: "missing" | "suppressed"; label: string }> {
+export function atlasStatusLegendRows(recipe: AtlasRecipeCatalogEntry): Array<{ kind: AtlasStatusKind; hatch: "missing" | "suppressed"; label: string; solid?: boolean }> {
+  // 類別型的 not_applicable（最高黨並列）地圖上是實心淺灰（statisticsFillCase），圖例同樣用實心方塊。
+  const categorical = recipe.legend.method === "categorical";
   return (["not_applicable", "missing", "suppressed"] as const)
     .filter((kind) => recipe.status_labels[kind])
-    .map((kind) => ({ kind, hatch: kind === "suppressed" ? "suppressed" : "missing", label: recipe.status_labels[kind]! }));
+    .map((kind) => ({ kind, hatch: kind === "suppressed" ? "suppressed" : "missing", label: recipe.status_labels[kind]!, ...(categorical && kind === "not_applicable" ? { solid: true } : {}) }));
 }
 
 const DIMENSION_LABELS = new Map<string, string>();

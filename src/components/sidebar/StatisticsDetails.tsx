@@ -5,6 +5,7 @@ import { getLaborRecipe, getLaborStatisticsPresentationMetric, laborLocationSema
 import { environmentLegendRows, getEnvironmentRecipe } from '../../data/environmentStatisticsRecipes';
 import { PROSECUTOR_DISTRICT_LEGEND_NOTE, addictionStatusLegendRows, getAddictionRecipe } from '../../data/addictionStatisticsRecipes';
 import { getLandslideRecipe } from '../../data/landslideStatisticsRecipes';
+import { STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR } from '../../data/statisticsFillColor';
 import { atlasBinaryLegendRows, atlasCategoryRows, atlasDimensionNote, atlasLazyFamily, atlasScaleNote, atlasStatusLegendRows, getAtlasRecipe } from '../../data/atlasStatisticsRecipes';
 import { demographicsDisclosure, demographicsIndicatorNote, demographicsPeriodLabel, demographicsSource, getDemographicsRecipe } from '../../data/demographicsStatisticsRecipes';
 import { getComparisonRecipe } from '../../data/comparisonStatisticsRecipes';
@@ -244,7 +245,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {atlas?.legend.zero_note && <span>{enumLabel('statLegendNote', atlas.legend.zero_note, atlas.legend.zero_note, i18n)}</span>}
     {atlas?.legend.display_note && <span>{enumLabel('statLegendNote', atlas.legend.display_note, atlas.legend.display_note, i18n)}</span>}
     {atlas?.legend.notes?.map((note) => <span key={note}>{enumLabel('statLegendNote', note, note, i18n)}</span>)}
-    {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label }) => <LegendRow key={kind} swatch={<SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
+    {atlas && atlasStatusLegendRows(atlas).map(({ kind, hatch, label, solid }) => <LegendRow key={kind} swatch={solid ? <SwatchSquare color={STATISTICS_CATEGORY_NOT_APPLICABLE_COLOR} opacity={1} /> : <SwatchHatch kind={hatch} />}>{enumLabel('statLegendNote', label, label, i18n)}</LegendRow>)}
     {!addiction && !landslide && !atlas && <LegendRow swatch={<SwatchHatch kind="missing" />}>{tr(social || labor || environment || demographics ? 'statistics.legend.hatchSocial' : 'statistics.legend.hatchDefault')}</LegendRow>}
     {(agri || social) && <LegendRow swatch={<SwatchHatch kind="suppressed" />}>{tr('statistics.legend.crossHatch')}</LegendRow>}
     {agri && <span>{tr('statistics.legend.notReported', { label: agri.legend.not_reported_label })}</span>}

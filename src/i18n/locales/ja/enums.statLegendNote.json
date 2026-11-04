@@ -219,5 +219,6 @@
   "enum.statLegendNote.民眾黨": "民衆党",
   "enum.statLegendNote.時代力量": "時代力量",
   "enum.statLegendNote.無黨籍": "無所属",
-  "enum.statLegendNote.其他政黨": "その他の政党"
+  "enum.statLegendNote.其他政黨": "その他の政党",
+  "enum.statLegendNote.得票並列最高（無單一最高黨）": "最多得票が同数（単独の最多得票政党なし）"
 }

@@ -1,4 +1,4 @@
-import { statisticsFillColorExpression } from '../data/statisticsFillColor';
+import { statisticsFillCase, statisticsMissingFilter } from '../data/statisticsFillColor';
 import { STATISTICS_RENDER_KEYS, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
@@ -47,7 +47,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
-          'fill-color': ['case', HAS_VALUE, statisticsFillColorExpression(recipe), NO_FILL] as mapboxgl.ExpressionSpecification,
+          'fill-color': statisticsFillCase(recipe, HAS_VALUE, NO_FILL) as mapboxgl.ExpressionSpecification,
           'fill-opacity': 0.55,
         } });
         map.addLayer({ id: `${key}-missing`, type: 'fill', source: key, filter: IS_MISSING as mapboxgl.FilterSpecification, layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchImageId('missing', isDark), 'fill-opacity': 0.55 } });
@@ -56,7 +56,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map, getIsDark: () => boo
         map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { ...seam } as mapboxgl.LinePaint });
       }
       // A presentation source survives metric switches; refresh the scale as well as values.
-      map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', HAS_VALUE, statisticsFillColorExpression(recipe), NO_FILL]);
+      map.setPaintProperty(`${key}-fill`, 'fill-color', statisticsFillCase(recipe, HAS_VALUE, NO_FILL) as mapboxgl.ExpressionSpecification);
+      map.setFilter(`${key}-missing`, statisticsMissingFilter(recipe, IS_MISSING) as mapboxgl.FilterSpecification);
       map.setPaintProperty(`${key}-missing`, 'fill-pattern', hatchImageId('missing', isDark));
       map.setPaintProperty(`${key}-suppressed`, 'fill-pattern', hatchImageId('suppressed', isDark));
       map.setPaintProperty(`${key}-line`, 'line-color', seam['line-color'] as mapboxgl.ExpressionSpecification);

@@ -253,23 +253,23 @@
       "boundary_version": "VILLAGE_NLSC_1150817",
       "unit": "類別碼",
       "aggregation": "source_defined",
-      "default_release_id": "2024-president-top-party-village-v1-1290808aa776",
+      "default_release_id": "2024-president-top-party-village-v1-0d2bcbce558b",
       "dimensions": [],
       "release_options": [
         {
-          "release_id": "2024-president-top-party-village-v1-1290808aa776",
+          "release_id": "2024-president-top-party-village-v1-0d2bcbce558b",
           "period_start": "2024-01-13",
           "period_end": "2024-01-13",
           "dimensions": {}
         },
         {
-          "release_id": "2020-president-top-party-village-v1-23bcf73c89ba",
+          "release_id": "2020-president-top-party-village-v1-c865c33ac973",
           "period_start": "2020-01-11",
           "period_end": "2020-01-11",
           "dimensions": {}
         },
         {
-          "release_id": "2016-president-top-party-village-v1-b05a858b1e2a",
+          "release_id": "2016-president-top-party-village-v1-2e0ceec70d03",
           "period_start": "2016-01-16",
           "period_end": "2016-01-16",
           "dimensions": {}
@@ -329,7 +329,8 @@
         ]
       },
       "status_labels": {
-        "missing": "無資料（舊屆對不上現行村里或合併計票）"
+        "missing": "無資料（舊屆對不上現行村里或合併計票）",
+        "not_applicable": "得票並列最高（無單一最高黨）"
       },
       "format": {
         "locale": "zh-TW",
@@ -1713,23 +1714,23 @@
       "boundary_version": "VILLAGE_NLSC_1150817",
       "unit": "類別碼",
       "aggregation": "source_defined",
-      "default_release_id": "2024-legislator-party-top-party-village-v1-378af6731451",
+      "default_release_id": "2024-legislator-party-top-party-village-v1-f27f8bc7f8bc",
       "dimensions": [],
       "release_options": [
         {
-          "release_id": "2024-legislator-party-top-party-village-v1-378af6731451",
+          "release_id": "2024-legislator-party-top-party-village-v1-f27f8bc7f8bc",
           "period_start": "2024-01-13",
           "period_end": "2024-01-13",
           "dimensions": {}
         },
         {
-          "release_id": "2020-legislator-party-top-party-village-v1-0232cfb1782f",
+          "release_id": "2020-legislator-party-top-party-village-v1-a3d33bce6269",
           "period_start": "2020-01-11",
           "period_end": "2020-01-11",
           "dimensions": {}
         },
         {
-          "release_id": "2016-legislator-party-top-party-village-v1-71477c32bfb4",
+          "release_id": "2016-legislator-party-top-party-village-v1-b7b458e34a7d",
           "period_start": "2016-01-16",
           "period_end": "2016-01-16",
           "dimensions": {}
@@ -1789,7 +1790,8 @@
         ]
       },
       "status_labels": {
-        "missing": "無資料（舊屆對不上現行村里或合併計票）"
+        "missing": "無資料（舊屆對不上現行村里或合併計票）",
+        "not_applicable": "得票並列最高（無單一最高黨）"
       },
       "format": {
         "locale": "zh-TW",
@@ -3305,23 +3307,23 @@
       "boundary_version": "VILLAGE_NLSC_1150817",
       "unit": "類別碼",
       "aggregation": "source_defined",
-      "default_release_id": "2022-mayor-top-party-village-v1-1cc04692963d",
+      "default_release_id": "2022-mayor-top-party-village-v1-dbba18b13505",
       "dimensions": [],
       "release_options": [
         {
-          "release_id": "2022-mayor-top-party-village-v1-1cc04692963d",
+          "release_id": "2022-mayor-top-party-village-v1-dbba18b13505",
           "period_start": "2022-11-26",
           "period_end": "2022-12-18",
           "dimensions": {}
         },
         {
-          "release_id": "2018-mayor-top-party-village-v1-91f508f93c6d",
+          "release_id": "2018-mayor-top-party-village-v1-4306af21795b",
           "period_start": "2018-11-24",
           "period_end": "2018-11-24",
           "dimensions": {}
         },
         {
-          "release_id": "2014-mayor-top-party-village-v1-dd59a27695e3",
+          "release_id": "2014-mayor-top-party-village-v1-1ab0b9c3b7dc",
           "period_start": "2014-11-29",
           "period_end": "2014-11-29",
           "dimensions": {}
@@ -3381,7 +3383,8 @@
         ]
       },
       "status_labels": {
-        "missing": "無資料（舊屆對不上現行村里或合併計票）"
+        "missing": "無資料（舊屆對不上現行村里或合併計票）",
+        "not_applicable": "得票並列最高（無單一最高黨）"
       },
       "format": {
         "locale": "zh-TW",
@@ -4909,23 +4912,23 @@
       "boundary_version": "VILLAGE_NLSC_1150817",
       "unit": "類別碼",
       "aggregation": "source_defined",
-      "default_release_id": "2022-councilor-party-top-party-village-v1-ae23d7998b6d",
+      "default_release_id": "2022-councilor-party-top-party-village-v1-997709836c11",
       "dimensions": [],
       "release_options": [
         {
-          "release_id": "2022-councilor-party-top-party-village-v1-ae23d7998b6d",
+          "release_id": "2022-councilor-party-top-party-village-v1-997709836c11",
           "period_start": "2022-11-26",
           "period_end": "2022-11-26",
           "dimensions": {}
         },
         {
-          "release_id": "2018-councilor-party-top-party-village-v1-6b22bbf484a3",
+          "release_id": "2018-councilor-party-top-party-village-v1-cbd5ce07f231",
           "period_start": "2018-11-24",
           "period_end": "2018-11-24",
           "dimensions": {}
         },
         {
-          "release_id": "2014-councilor-party-top-party-village-v1-238b569a211c",
+          "release_id": "2014-councilor-party-top-party-village-v1-a88b8127bf44",
           "period_start": "2014-11-29",
           "period_end": "2014-11-29",
           "dimensions": {}
@@ -4985,7 +4988,8 @@
         ]
       },
       "status_labels": {
-        "missing": "無資料（舊屆對不上現行村里或合併計票）"
+        "missing": "無資料（舊屆對不上現行村里或合併計票）",
+        "not_applicable": "得票並列最高（無單一最高黨）"
       },
       "format": {
         "locale": "zh-TW",

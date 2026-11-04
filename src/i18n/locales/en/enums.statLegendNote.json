@@ -219,5 +219,6 @@
   "enum.statLegendNote.民眾黨": "TPP",
   "enum.statLegendNote.時代力量": "NPP",
   "enum.statLegendNote.無黨籍": "Independent",
-  "enum.statLegendNote.其他政黨": "Other parties"
+  "enum.statLegendNote.其他政黨": "Other parties",
+  "enum.statLegendNote.得票並列最高（無單一最高黨）": "Tied for most votes (no single leading party)"
 }
