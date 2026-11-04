@@ -186,6 +186,7 @@ export type GeneratedStaticKey =
   | "contextMenu.measureDistance"
   | "contextMenu.share"
   | "contextMenu.thisLocation"
+  | "country.CA"
   | "country.FR"
   | "country.GB"
   | "country.JP"

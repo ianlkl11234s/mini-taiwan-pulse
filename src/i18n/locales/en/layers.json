@@ -1498,5 +1498,22 @@
   "layer.statsKrEmployeesSgg": "Persons employed (municipal level)",
   "layer.freewayTdcsSim": "Greater Taipei Freeway Vehicles",
   "layer.transitAccessGrid": "Grid Transit Access",
-  "layer.transitAccessPlayback": "Transit Reach from One Origin"
+  "layer.transitAccessPlayback": "Transit Reach from One Origin",
+  "layer.caAdminBoundaries": "Administrative Boundaries (Canada)",
+  "layer.caTransitStops": "Public Transit Stops (Canada)",
+  "layer.caAirportsPorts": "Airports & Ports (Canada)",
+  "layer.caMajorRoads": "Major Roads (Canada)",
+  "layer.caRailways": "Railways (Canada)",
+  "layer.caPowerPlants": "Power Plants (Canada)",
+  "layer.caWindTurbines": "Wind Turbines (Canada)",
+  "layer.caPowerGrid": "Power Grid (Canada)",
+  "layer.caOilGas": "Oil & Gas Facilities (Canada)",
+  "layer.caPopulationCentres": "Population Centres (Canada)",
+  "layer.caFederalDistricts": "Federal Electoral Districts (Canada)",
+  "layer.caPostalFsa": "Forward Sortation Areas (Canada)",
+  "layer.caIndigenousLands": "Indigenous Lands (Canada)",
+  "layer.caDeprivation": "Deprivation Index CIMD (Canada)",
+  "layer.caRents": "Average Rents, CMHC (Canada)",
+  "layer.caPlaceNames": "Geographical Names (Canada)",
+  "layer.caHillshade": "Hillshade, MRDEM-30 (Canada)"
 }
