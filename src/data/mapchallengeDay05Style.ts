@@ -15,14 +15,22 @@ function widthStops(rail: boolean, tier: number): readonly [number, number] {
   return strong ? LINE_WIDTH.standard : LINE_WIDTH.thin;
 }
 
-/** 依運具＋判定的線寬（z10／z14 兩個插值點，同 lineWidthExpr；z10 以下固定為 z10 值） */
+/**
+ * V-1 全國視角（台灣 z7）：開闊海景／看得到海兩階在低縮放加粗（z7 道路 2、鐵路 2.5），到 z10 回到 L-1 標準值，
+ * z14 照 L-1；看不到海／隧道維持細。L-1 本身只有 z10／z14 兩點，z7 這個插值點是本層的資料編碼例外。
+ */
+const NATIONAL_STRONG_Z7 = { road: 2, rail: 2.5 } as const;
+
+/** 依運具＋判定的線寬（z7／z10／z14 三個插值點；z7 以下固定為 z7 值） */
 export function mapchallengeDay05SegmentWidthExpr(scale = 1): unknown[] {
-  const at = (z: 0 | 1) => ["case",
-    ["==", ["get", "kind"], "rail"],
-    ["case", [">=", ["to-number", ["get", "tier"], 0], 1], widthStops(true, 1)[z] * scale, widthStops(true, 0)[z] * scale],
-    ["case", [">=", ["to-number", ["get", "tier"], 0], 1], widthStops(false, 1)[z] * scale, widthStops(false, 0)[z] * scale],
-  ];
-  return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
+  const strong = [">=", ["to-number", ["get", "tier"], 0], 1];
+  const at = (z: 0 | 1 | "z7") => {
+    const pick = (rail: boolean) => z === "z7"
+      ? ["case", strong, NATIONAL_STRONG_Z7[rail ? "rail" : "road"] * scale, widthStops(rail, 0)[0] * scale]
+      : ["case", strong, widthStops(rail, 1)[z] * scale, widthStops(rail, 0)[z] * scale];
+    return ["case", ["==", ["get", "kind"], "rail"], pick(true), pick(false)];
+  };
+  return ["interpolate", ["linear"], ["zoom"], 7, at("z7"), 10, at(0), 14, at(1)];
 }
 
 /** 一般名次＝強調階（2／3.5）；前 3 名再加粗（3／5，資料編碼例外） */

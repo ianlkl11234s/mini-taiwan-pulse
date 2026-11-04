@@ -28,7 +28,7 @@
   "legend.mapchallenge.tcchNote": "Hotspot = top 10% within each county (about 0.74 km² fine cells); the two counties are not compared with each other.",
   "legend.mapchallenge.source": "GHSL GHS-POP R2023A 2020 (CC BY 4.0), MOEA factory registry 2026-06, MOI temple registry, MOE school directory, MOHW medical facilities, cram school directory, OpenStreetMap (ODbL, convenience stores); taipei-gis-analytics Day 4 cluster analysis",
   "legend.mapchallenge.day05.method": "Estimated from terrain + buildings + tree canopy; a view counts as continuous at ≥500 m with gaps ≤200 m; Green Island, Xiaoliuqiu, Penghu, Kinmen and Matsu not covered",
-  "legend.mapchallenge.day05.source": "Route geometry: OpenStreetMap (ODbL); line-of-sight estimate: taipei-gis-analytics Day 5 perspectives analysis",
+  "legend.mapchallenge.day05.source": "Terrain: MOI 20 m digital terrain model (2024); building height: GBA/OSM fusion; canopy height: Meta/WRI (CC BY 4.0); routes: OpenStreetMap (ODbL)",
   "legend.mapchallenge.day05.seaViewTitle": "Sea view along each segment",
   "legend.mapchallenge.day05.tier2": "Open sea view",
   "legend.mapchallenge.day05.tier1": "Sea visible",

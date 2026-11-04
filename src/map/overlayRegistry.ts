@@ -12239,7 +12239,7 @@ OVERLAY_REGISTRY.push(
 
 // ── 30 天地圖挑戰 Day 5 視野（模擬面板，公開，2026-11-05）：線層，運具 select ＋ 判定類別多選（V-4）／範圍 select
 // 都改 filter，所以 filter 函式自己組、參數變動時重建。寬依運具／判定或名次（資料編碼，LINE_TIERS keep）。
-const MAPCHALLENGE_DAY05_ATTRIBUTION = "路線線形：OpenStreetMap（ODbL）；視線推估：taipei-gis-analytics Day 5 視野分析";
+const MAPCHALLENGE_DAY05_ATTRIBUTION = "地形：內政部 20 m 數值地形模型（2024）；建物高度：GBA／OSM 融合；樹冠高度：Meta／WRI（CC BY 4.0）；路線：OpenStreetMap（ODbL）";
 const MAPCHALLENGE_DAY05_LINE_LAYOUT = { "line-cap": "round", "line-join": "round" } as const;
 
 function mapchallengeDay05Filter(parts: (unknown[] | null)[]): unknown[] {

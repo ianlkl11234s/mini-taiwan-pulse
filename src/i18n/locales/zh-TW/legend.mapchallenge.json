@@ -28,7 +28,7 @@
   "legend.mapchallenge.tcchNote": "熱區＝各縣市自己的前 10%（約 0.74 km² 細格），兩縣市不互相比較。",
   "legend.mapchallenge.source": "GHSL GHS-POP R2023A 2020（CC BY 4.0）、經濟部工廠登記 2026-06、內政部寺廟登記、教育部學校名錄、衛福部醫事機構、補習班名錄、OpenStreetMap（ODbL，超商）；taipei-gis-analytics Day 4 群聚分析",
   "legend.mapchallenge.day05.method": "地形＋建物＋樹冠視線推估；連續 ≥500 m、中斷 ≤200 m 視為連續；綠島、小琉球、澎湖、金門、馬祖未涵蓋",
-  "legend.mapchallenge.day05.source": "路線線形：OpenStreetMap（ODbL）；視線推估：taipei-gis-analytics Day 5 視野分析",
+  "legend.mapchallenge.day05.source": "地形：內政部 20 m 數值地形模型（2024）；建物高度：GBA／OSM 融合；樹冠高度：Meta／WRI（CC BY 4.0）；路線：OpenStreetMap（ODbL）",
   "legend.mapchallenge.day05.seaViewTitle": "路段的海景判定",
   "legend.mapchallenge.day05.tier2": "開闊海景",
   "legend.mapchallenge.day05.tier1": "看得到海",
