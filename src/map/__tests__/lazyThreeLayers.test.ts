@@ -4,7 +4,7 @@ import * as lazy from "../lazyThreeLayers";
 
 describe("lazyThreeLayers layer ids stay in sync with the real modules", () => {
   it("matches every duplicated id", async () => {
-    const [re, gfw, bloom, bars, sub, plant, lines, beam, ripple] = await Promise.all([
+    const [re, gfw, bloom, bars, sub, plant, lines, beam, ripple, freeway] = await Promise.all([
       import("../realEstatePointsCustomLayer"),
       import("../gfwV4TrackCustomLayer"),
       import("../buildingsNightBloomCustomLayer"),
@@ -14,6 +14,7 @@ describe("lazyThreeLayers layer ids stay in sync with the real modules", () => {
       import("../osmPowerLinesGlowCustomLayer"),
       import("../powerGenerationBeamCustomLayer"),
       import("../earthquakeRippleCustomLayer"),
+      import("../freewayTdcsSimCustomLayer"),
     ]);
     expect(lazy.RE_POINTS_LAYER_ID).toBe(re.RE_POINTS_LAYER_ID);
     expect(lazy.GFW_V4_TRACK_CUSTOM_LAYER_ID).toBe(gfw.GFW_V4_TRACK_CUSTOM_LAYER_ID);
@@ -24,6 +25,7 @@ describe("lazyThreeLayers layer ids stay in sync with the real modules", () => {
     expect(lazy.OSM_POWER_LINES_GLOW_LAYER_ID).toBe(lines.OSM_POWER_LINES_GLOW_LAYER_ID);
     expect(lazy.POWER_GENERATION_BEAM_LAYER_ID).toBe(beam.POWER_GENERATION_BEAM_LAYER_ID);
     expect(lazy.EARTHQUAKE_RIPPLE_LAYER_ID).toBe(ripple.EARTHQUAKE_RIPPLE_LAYER_ID);
+    expect(lazy.FREEWAY_TDCS_SIM_LAYER_ID).toBe(freeway.FREEWAY_TDCS_SIM_LAYER_ID);
   });
 });
 

@@ -60,6 +60,7 @@ export const POWER_PLANT_GLOW_LAYER_ID = "power-plant-glow-3d";
 export const OSM_POWER_LINES_GLOW_LAYER_ID = "osm-power-lines-three-glow";
 export const POWER_GENERATION_BEAM_LAYER_ID = "power-generation-beam-3d";
 export const EARTHQUAKE_RIPPLE_LAYER_ID = "earthquakes-global-ripple-3d";
+export const FREEWAY_TDCS_SIM_LAYER_ID = "freeway-tdcs-sim-3d";
 
 // ── 各圖層的 lazy 模組 ──
 export const reservoirLayerModule = lazyModule("three:reservoir", "水庫 3D 工具", () =>
@@ -76,6 +77,7 @@ export const powerPlantGlowModule = lazyModule("three:power-plant-glow", "發電
 export const osmPowerLinesGlowModule = lazyModule("three:power-lines-glow", "輸電線 3D 工具", () => import("./osmPowerLinesGlowCustomLayer"));
 export const powerGenerationBeamModule = lazyModule("three:power-beam", "機組出力 3D 工具", () => import("./powerGenerationBeamCustomLayer"));
 export const earthquakeRippleModule = lazyModule("three:quake-ripple", "地震漣漪 3D 工具", () => import("./earthquakeRippleCustomLayer"));
+export const freewayTdcsSimModule = lazyModule("three:freeway-tdcs-sim", "國道逐車模擬 3D 工具", () => import("./freewayTdcsSimCustomLayer"));
 
 /**
  * 背景預載清單（prewarmLayerChunks 用）。

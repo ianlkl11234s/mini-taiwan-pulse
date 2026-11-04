@@ -84,6 +84,7 @@ Release matrix 的最小格式：
 | **狀態框架** | `.claude/memory/`（本 repo，跟 commit） | 專案本體：pattern / 事件 / 術語 / backlog | 本檔列出的核心檔＋按任務選讀的專案特定檔 |
 | **長文** | `.claude/pitfalls/` | 事件 long-form archive | 具體 incident 的完整 postmortem |
 | **Feature 文件** | `docs/features/<slug>/` | 單一 feature 完整脈絡 | README + backlog + changelog + handoff |
+| **專案總表** | [`docs/PROJECTS.md`](../../docs/PROJECTS.md) | 做到一半的專案總覽（一列一專案，只放指標） | 狀態、下一步、正本連結；收尾時更新 |
 | **跨 repo SSOT** | `taipei-gis-analytics/docs/{handoff,adr}/` | 資料契約 + 決策紀錄 | Handoff（下游要接的） + ADR（決策） |
 
 ### 分工判斷樹

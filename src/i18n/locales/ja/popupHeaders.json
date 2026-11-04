@@ -104,6 +104,7 @@
   "popupHeader.tsunamiSirens": "津波警報台",
   "popupHeader.nuclearEpzEvacuation": "原発集結地点・収容施設",
   "popupHeader.firingNoticeAreas": "射撃公告区域",
+  "popupHeader.freewayTdcsSim": "国道車両シミュレーション（推計）",
   "popupHeader.transitAccessGrid": "グリッド公共交通アクセス（シナリオ）",
   "popupHeader.transitAccessPlayback": "単一出発地の公共交通到達範囲（シナリオ）"
 }

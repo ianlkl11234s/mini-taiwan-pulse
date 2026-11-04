@@ -106,6 +106,7 @@ import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { LanguageMenu } from "./components/toolbar/LanguageMenu";
 import { useLocale, localeStore } from "./state/localeStore";
 import { parseUrlState, buildUrl, cleanUrl, type UrlState } from "./lib/urlState";
+import { setTimelineJumpHandler } from "./state/timelineJumpBridge";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
@@ -561,6 +562,11 @@ export default function App() {
     pause: timeline.pause,
     setSpeed: timeline.setSpeed,
   };
+  // 圖例等元件的「跳到資料時段」（state/timelineJumpBridge）：寫入仍走 useTimeline.jumpToTime
+  useEffect(() => {
+    setTimelineJumpHandler(timeline.jumpToTime);
+    return () => setTimelineJumpHandler(null);
+  }, [timeline.jumpToTime]);
   const researchShipDatesRef = useRef<ShipDateAvailability>({ state: "not_loaded", dates: [] });
   researchShipDatesRef.current = {
     state: !layerVisibility.ships
