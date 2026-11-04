@@ -3862,7 +3862,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               POLLING_POINT_FADE[0], ["case", ["==", ["get", "precision"], "road"], 0.35 * op * POLLING_ROAD_OPACITY, 0.35 * op],
               POLLING_POINT_FADE[1], ["case", ["==", ["get", "precision"], "road"], op * POLLING_ROAD_OPACITY, op],
             ] as unknown as number,
-            "circle-stroke-color": mapSeamColor(isDark),
+            // 中性＝白點：淺色底圖的接縫色也是白，改深灰描邊才看得到
+            "circle-stroke-color": mode === "neutral" && !isDark ? "#475569" : mapSeamColor(isDark),
             "circle-stroke-width": 0.8,
             "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], POLLING_POINT_FADE[0], 0.35, POLLING_POINT_FADE[1], 1] as unknown as number,
           };

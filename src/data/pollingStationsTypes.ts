@@ -33,7 +33,7 @@ export type PollingColorMode = (typeof POLLING_COLOR_MODES)[number];
 export const POLLING_DEFAULT_COLOR_MODE: PollingColorMode = "neutral";
 
 /** 中性模式的單色（點與熱區）：圖層代表色紫，刻意避開政黨色 */
-export const POLLING_NEUTRAL_COLOR = "#8b5cf6";
+export const POLLING_NEUTRAL_COLOR = "#ffffff";
 
 // ── 低縮放熱區（zoom < POLLING_MIN_ZOOM；RPC get_polling_stations_2024_heat）──
 /** 三黨熱區（領先政黨模式）；順序＝圖層疊放順序（後者在上）與開關順序 */
