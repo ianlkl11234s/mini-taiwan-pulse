@@ -5,9 +5,13 @@ vi.mock("../../lib/supabase", () => ({ supabase: { rpc: (...a: unknown[]) => rpc
 
 import { clearCouncilDistrictsCache, fetchCouncilDistricts, formatMemberUnits, normalizeCouncilDistricts } from "../councilDistrictsLoader";
 import {
+  clearVillageOverviewCache,
   clearVillageResultsCache,
+  fetchVillageOverview,
   fetchVillageResults,
+  normalizeVillageOverview,
   normalizeVillageResults,
+  villageFetchPlan,
   snapVillageBounds,
   villageCacheKey,
   villageQueryZoom,
@@ -74,6 +78,49 @@ describe("2022 村里得票", () => {
   beforeEach(() => {
     rpc.mockReset();
     clearVillageResultsCache();
+    clearVillageOverviewCache();
+  });
+
+  it("總覽 normalize：cols＋rows＋geoms 組回 feature，欄名同 basic、_detail=basic；壞列略過", () => {
+    const d = normalizeVillageOverview({
+      meta: { count: 3, loaded_at: "x", detail: "basic" },
+      cols: ["villcode", "village", "status", "m_top", "m_margin_pp", "m_turnout", "c_top", "c_margin_pp", "c_turnout"],
+      rows: [
+        ["63000010001", "莊敬里", "ok", "kmt", 12.3, 58.1, "dpp", 2.1, 57.9],
+        ["63000010002", "某里", "weird", null, null, null, null, null, null],
+        ["63000010003", "無幾何", "ok", "dpp", 1, 50, "dpp", 1, 50],
+      ],
+      geoms: [SQUARE, SQUARE, null],
+    });
+    expect(d.fc.features).toHaveLength(2);
+    expect(d.fc.features[0]!.properties).toMatchObject({
+      villcode: "63000010001", village: "莊敬里", status: "ok", m_top: "kmt", m_margin_pp: 12.3, c_top: "dpp", c_turnout: 57.9, _detail: "basic",
+    });
+    expect(d.fc.features[1]!.properties!.status).toBe("missing");
+    expect(d.meta).toMatchObject({ count: 3, detail: "basic" });
+    expect(normalizeVillageOverview(null).fc.features).toEqual([]);
+  });
+
+  it("z < 10 不打 bbox RPC：z<8 不抓、z8–9 走總覽、z≥10 走 bbox；總覽未部署才退回 bbox", () => {
+    expect(villageFetchPlan(7.9)).toBe("none");
+    expect(villageFetchPlan(8)).toBe("overview");
+    expect(villageFetchPlan(9.99)).toBe("overview");
+    expect(villageFetchPlan(10)).toBe("bbox");
+    expect(villageFetchPlan(13.5)).toBe("bbox");
+    expect(villageFetchPlan(9, true)).toBe("bbox");
+  });
+
+  it("總覽：session 只抓一次（無參數）；失敗不快取", async () => {
+    rpc.mockReturnValueOnce(Promise.resolve({ data: null, error: { message: "boom", code: "500" }, status: 500 }));
+    await expect(fetchVillageOverview()).rejects.toThrow("boom");
+    rpc.mockReturnValue(Promise.resolve({ data: { meta: { detail: "basic" }, cols: ["villcode", "status"], rows: [["1", "ok"]], geoms: [SQUARE] }, error: null, status: 200 }));
+    const a = await fetchVillageOverview();
+    const b = await fetchVillageOverview();
+    expect(a).toBe(b);
+    expect(a.fc.features).toHaveLength(1);
+    expect(rpc).toHaveBeenCalledTimes(2);
+    expect(rpc).toHaveBeenLastCalledWith("get_election_results_2022_village_overview");
+    expect(rpc).not.toHaveBeenCalledWith("get_election_results_2022_village", expect.anything());
   });
 
   it("normalize：寫入 _detail、未知 status 視為 missing、略過非面", () => {

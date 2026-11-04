@@ -1,6 +1,6 @@
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { VILLAGE_RESULTS_MAX_QUERY_ZOOM, VILLAGE_RESULTS_MIN_ZOOM } from "./electionResults2022Types";
+import { VILLAGE_RESULTS_FULL_ZOOM, VILLAGE_RESULTS_MAX_QUERY_ZOOM, VILLAGE_RESULTS_MIN_ZOOM } from "./electionResults2022Types";
 
 /**
  * 2022 村里得票（公開）bbox 載入器。
@@ -12,7 +12,25 @@ import { VILLAGE_RESULTS_MAX_QUERY_ZOOM, VILLAGE_RESULTS_MIN_ZOOM } from "./elec
  * - 一律以整數 zoom（floor，夾在 8–14）呼叫；快取鍵含 zoom，跨 z9→z10 自然重查拿完整欄位。
  * - bbox 依 zoom 對齊格網（z8 1°、每放大一級減半、最細 0.02°），小幅平移直接命中快取，LRU 12 個範圍。
  * - 載入時把 meta.detail 寫進每個 feature 的 `_detail`，popup 據此判斷要不要提示「放大看詳細」。
+ *
+ * z8–9 不走 bbox：改用 get_election_results_2022_village_overview()（mig 498；全臺、預先 coverage 簡化不留縫），
+ * 開圖層後（且 zoom < 10 時）抓一次、session 快取；cols／rows／geoms 在前端組回 FeatureCollection，欄名同 basic。
  */
+
+/** 這個 zoom 該用全臺總覽（z8–9）還是 bbox（z ≥ 10） */
+export function villageUsesOverview(zoom: number): boolean {
+  return zoom >= VILLAGE_RESULTS_MIN_ZOOM && zoom < VILLAGE_RESULTS_FULL_ZOOM;
+}
+
+/**
+ * 這個 zoom 要抓什麼：z < 8 不抓；z8–9 抓總覽（總覽 RPC 未部署時退回 bbox）；z ≥ 10 抓 bbox。
+ * hook 只照這個決定呼叫，測試據此保證 z < 10 不打 bbox RPC。
+ */
+export function villageFetchPlan(zoom: number, overviewMissing = false): "none" | "overview" | "bbox" {
+  if (zoom < VILLAGE_RESULTS_MIN_ZOOM) return "none";
+  if (villageUsesOverview(zoom) && !overviewMissing) return "overview";
+  return "bbox";
+}
 
 export interface VillageBounds {
   west: number;
@@ -87,6 +105,55 @@ export function normalizeVillageResults(raw: unknown): VillageResultsData {
       loadedAt: typeof meta.loaded_at === "string" ? meta.loaded_at : null,
     },
   };
+}
+
+/** overview RPC 原始回應（cols＋rows＋geoms）→ FeatureCollection（純函式，測試用）；properties 欄名＝cols */
+export function normalizeVillageOverview(raw: unknown): VillageResultsData {
+  const obj = (raw ?? {}) as { cols?: unknown; rows?: unknown; geoms?: unknown; meta?: Record<string, unknown> };
+  const cols = Array.isArray(obj.cols) ? obj.cols.map(String) : [];
+  const rows = Array.isArray(obj.rows) ? (obj.rows as unknown[]) : [];
+  const geoms = Array.isArray(obj.geoms) ? (obj.geoms as unknown[]) : [];
+  const features: GeoJSON.Feature[] = [];
+  rows.forEach((r, i) => {
+    const g = geoms[i] as GeoJSON.Geometry | null | undefined;
+    if (!Array.isArray(r) || !g || (g.type !== "Polygon" && g.type !== "MultiPolygon")) return;
+    const props: Record<string, unknown> = {};
+    cols.forEach((c, j) => { props[c] = r[j] ?? null; });
+    features.push({ type: "Feature", geometry: g, properties: props });
+  });
+  const meta = obj.meta ?? {};
+  // 交給 bbox 版的 normalize 統一處理 status 與 _detail
+  return normalizeVillageResults({ meta: { ...meta, detail: "basic" }, features });
+}
+
+let overviewPromise: Promise<VillageResultsData> | null = null;
+
+/** 測試用：清總覽快取 */
+export function clearVillageOverviewCache(): void {
+  overviewPromise = null;
+}
+
+/** 全臺總覽（z8–9 用；session 內只抓一次，失敗不快取） */
+export function fetchVillageOverview(): Promise<VillageResultsData> {
+  if (overviewPromise) return overviewPromise;
+  if (!supabaseConfigured) return Promise.resolve(normalizeVillageOverview(null));
+  const p = (async () => {
+    const { data, error, status } = await withLoading(
+      "politics:village2022:overview",
+      "2022 村里得票（全臺）",
+      supabase.rpc("get_election_results_2022_village_overview"),
+    );
+    if (error) {
+      const e = new Error(`get_election_results_2022_village_overview: ${error.message}`) as Error & { code?: string; status?: number };
+      e.code = String(error.code ?? "");
+      e.status = status;
+      throw e;
+    }
+    return normalizeVillageOverview(data);
+  })();
+  overviewPromise = p;
+  p.catch(() => { if (overviewPromise === p) overviewPromise = null; });
+  return p;
 }
 
 const CACHE_MAX = 12;
