@@ -37,6 +37,7 @@
   "country.FR": "フランス",
   "country.GB": "イギリス",
   "country.KR": "韓国",
+  "country.CA": "カナダ",
   "country.menuAria": "国を切り替え（現在：{country}）",
   "statistics.uncovered": "{country}の統計データはまだありません",
   "statistics.backToTaiwan": "台湾に戻る",

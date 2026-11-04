@@ -75,6 +75,7 @@ import type { KrDataKey } from "../../data/krDataKeys";
 /** 南韓第 3–5 波 18 層的標題列（中文＋韓文原名，與其他國家圖層一致）。 */
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
+import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -459,6 +460,22 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   krSubstations: KrSubstationsPanel,
   krPowerTowers: KrPowerTowersPanel,
   krOilGas: KrOilGasPanel,
+  caAdminBoundaries: CaAdminBoundariesPanel,
+  caTransitStops: CaTransitStopsPanel,
+  caAirportsPorts: CaAirportsPortsPanel,
+  caMajorRoads: CaMajorRoadsPanel,
+  caRailways: CaRailwaysPanel,
+  caPowerPlants: CaPowerPlantsPanel,
+  caWindTurbines: CaWindTurbinesPanel,
+  caPowerGrid: CaPowerGridPanel,
+  caOilGas: CaOilGasPanel,
+  caPopulationCentres: CaPopulationCentresPanel,
+  caFederalDistricts: CaFederalDistrictsPanel,
+  caPostalFsa: CaPostalFsaPanel,
+  caIndigenousLands: CaIndigenousLandsPanel,
+  caDeprivation: CaDeprivationPanel,
+  caRents: CaRentsPanel,
+  caPlaceNames: CaPlaceNamesPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
   gbBuiltUpAreas: GbBuiltUpAreasPanel,
@@ -1093,6 +1110,22 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   krSubstations: "變電所 변전소",
   krPowerTowers: "高壓鐵塔 송전철탑",
   krOilGas: "油氣設施 석유·가스 시설",
+  caAdminBoundaries: "行政邊界 Administrative Boundaries",
+  caTransitStops: "公共運輸站點 Transit Stops",
+  caAirportsPorts: "機場與港口 Airports & Ports",
+  caMajorRoads: "主要道路 Major Roads",
+  caRailways: "鐵路 Railways",
+  caPowerPlants: "電廠 Power Plants",
+  caWindTurbines: "風機 Wind Turbines",
+  caPowerGrid: "電網 Power Grid",
+  caOilGas: "油氣設施 Oil & Gas",
+  caPopulationCentres: "人口中心 Population Centres",
+  caFederalDistricts: "聯邦選區 Federal Electoral Districts",
+  caPostalFsa: "郵遞分區 Forward Sortation Areas",
+  caIndigenousLands: "原住民法定土地 Indigenous Lands",
+  caDeprivation: "剝奪指數 Deprivation Index",
+  caRents: "平均月租 Average Rents",
+  caPlaceNames: "地名 Geographical Names",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
   gbBuiltUpAreas: "建成區 Built Up Areas",

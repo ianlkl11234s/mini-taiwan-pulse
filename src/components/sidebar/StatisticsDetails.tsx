@@ -35,6 +35,7 @@ const LEVEL_KEYS: Record<StatisticsLevel, MessageKey> = {
   statistical_min: 'statistics.level.statistical_min', statistical_l1: 'statistics.level.statistical_l1',
   statistical_l2: 'statistics.level.statistical_l2', prosecutor_district: 'statistics.level.prosecutor_district',
   gb_lad: 'statistics.level.gb_lad', kr_sido: 'statistics.level.kr_sido', kr_sigungu: 'statistics.level.kr_sigungu',
+  ca_pr: 'statistics.level.ca_pr', ca_cd: 'statistics.level.ca_cd',
 };
 /** 地理層級名稱（不傳 i18n＝目前語系快照；中文介面即原中文） */
 export function statisticsLevelLabel(level: StatisticsLevel, i18n: LocaleSnapshot = localeStore.getSnapshot()): string {

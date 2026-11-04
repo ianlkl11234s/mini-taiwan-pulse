@@ -479,6 +479,8 @@ describe("country（c=，國家主體）", () => {
     expect(parseUrlState("?v=1&c=JP").country).toBeUndefined();
     expect(parseUrlState("?v=1&c=kr").country).toBe("KR");
     expect(parseUrlState("?v=1&c=KR").country).toBeUndefined();
+    expect(parseUrlState("?v=1&c=ca").country).toBe("CA");
+    expect(parseUrlState("?v=1&c=CA").country).toBeUndefined();
     expect(parseUrlState("?v=1&c=kp").country).toBeUndefined();
     expect(parseUrlState("?v=1&c=").country).toBeUndefined();
   });
@@ -496,6 +498,7 @@ describe("country（c=，國家主體）", () => {
       ["FR", ["anfrWirelessSites"], "/?v=1&layers=anfrWirelessSites&c=fr"],
       ["GB", ["gbAdminBoundaries", "gbSmallAreaBoundaries"], "/?v=1&layers=gbAdminBoundaries%2CgbSmallAreaBoundaries&c=gb"],
       ["KR", ["krAdminBoundaries"], "/?v=1&layers=krAdminBoundaries&c=kr"],
+      ["CA", ["caAdminBoundaries"], "/?v=1&layers=caAdminBoundaries&c=ca"],
       ["TW", ["ooklaMobileTaiwan"], "/?v=1&layers=ooklaMobileTaiwan"],
     ] as const) {
       const url = buildUrl({ country, layers: [...layers] }, "/");
@@ -512,6 +515,7 @@ describe("country（c=，國家主體）", () => {
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=anfrWirelessSites").layers ?? [])).toBe("FR");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=gbAdminBoundaries").layers ?? [])).toBe("GB");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=krAdminBoundaries").layers ?? [])).toBe("KR");
+    expect(countryForLayerKeys(parseUrlState("?v=1&layers=caOilGas").layers ?? [])).toBe("CA");
     expect(countryForLayerKeys(parseUrlState("?v=1&layers=ooklaMobileTaiwan").layers ?? [])).toBe("TW");
   });
 });

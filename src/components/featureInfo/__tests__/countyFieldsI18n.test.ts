@@ -6,9 +6,10 @@ import { localeStore } from "../../../state/localeStore";
 type Panel = (arg: { props: Record<string, unknown> }) => ReactElement;
 const modules = import.meta.glob<Record<string, unknown>>("../*Panels.tsx", { eager: true });
 const SKIP = /japan|jma|jpMedical/i;
-// 非縣市名欄位：IXP 是國外城市、森林通用面板逐欄照列、滯洪池與全國行道樹的縣市是代碼
+// 非縣市名欄位：IXP、加拿大電廠是國外城市（來源原文英法名）、森林通用面板逐欄照列、滯洪池與全國行道樹的縣市是代碼
 const NOT_PLACE = new Set([
   "infraPanels.tsx#InternetExchangePointPanel",
+  "caPanels.tsx#CaPowerPlantsPanel",
   "forestryPanels.tsx#ForestryGenericPanel",
   "waterPanels.tsx#WaterDetentionBasinPanel",
   "urbanPanels.tsx#StreetTreesNationalPanel",

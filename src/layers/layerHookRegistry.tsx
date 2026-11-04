@@ -104,6 +104,7 @@ import { GbBrownfieldHost, GbNoiseHost, GbPlanningConstraintsHost, GbPollutionIn
 import { GbEarthquakesHost, GbGroundStabilityHost, GbLandslideHost, GbRadiationHost, GbRadonHost } from "./hosts/ukHosts";
 import { GbCareHomesHost, GbCareServicesHost, GbCourtsHost, GbFireStationsHost, GbHealthFacilitiesHost, GbSchoolsHost } from "./hosts/ukHosts";
 import { KrAdminHost, KrWaterLevelStationsHost, KrSluiceGatesHost, KrWaterQualityStationsHost, KrCoastalErosionFacilitiesHost, KrRiversOsmHost, KrMarinePollutionIncidentsHost, KrMarineEnvSitesHost, KrMarineProtectedAreasHost, KrPublicBicycleStationsHost, KrSeoulSubwayCongestionHost, KrBridgesHost, KrParkingLotsHost, KrSpeedCamerasHost, KrChildProtectionZonesHost, KrNationalParksHost, KrNpLocationSignsHost, KrNpTrailsHost, KrStreetTreesHost, KrBusStopsHost, KrRailStationsHost, KrAirportsHost, KrPortsHost, KrNationalRoadsHost, KrRailLinesHost, KrFuelStationsHost, KrPowerPlantsHost, KrRenewablesHost, KrPowerLinesHost, KrSubstationsHost, KrPowerTowersHost, KrOilGasHost } from "./hosts/koreaHosts";
+import { CaAdminHost, CaAirportsPortsHost, CaMajorRoadsHost, CaOilGasHost, CaPopulationCentresHost, CaPowerGridHost, CaPowerPlantsHost, CaRailwaysHost, CaTransitStopsHost, CaWindTurbinesHost, CaFederalDistrictsHost, CaPostalFsaHost, CaIndigenousLandsHost, CaDeprivationHost, CaRentsHost, CaPlaceNamesHost, CaHillshadeHost } from "./hosts/canadaHosts";
 import { GbAdminHost, GbFuelStationsHost, GbOilGasFieldsHost, GbPowerLinesHost, GbPowerPlantsHost, GbRenewablesHost, GbSubstationsHost, GbBathingWatersHost, GbCoastalErosionHost, GbFloodDefencesHost, GbForestRecreationHost, GbHydroStationsHost, GbMarineProtectedAreasHost, GbOpenAccessLandHost, GbProtectedAreasHost, GbTrailsHost, GbTreeProtectionHost, GbWoodlandHost, GbLondonBikePointsHost, GbLondonChargingZonesHost, GbLondonJamCamsHost, GbLondonRailHost, GbMaritimeLimitsHost, GbOpenSpaceHost, GbRiversHost, GbTransportHubsHost } from "./hosts/ukHosts";
 
 export interface LayerHookEntry {
@@ -337,6 +338,24 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useKrSubstationsLayer", keys: ["krSubstations"], Host: KrSubstationsHost },
   { id: "useKrPowerTowersLayer", keys: ["krPowerTowers"], Host: KrPowerTowersHost },
   { id: "useKrOilGasLayer", keys: ["krOilGas"], Host: KrOilGasHost },
+  // 加拿大（2026-11-04 第 0＋1 波：行政邊界、交通 4 層、能源 4 層、人口中心）
+  { id: "useCaAdminLayers", keys: ["caAdminBoundaries"], Host: CaAdminHost },
+  { id: "useCaTransitStopsLayer", keys: ["caTransitStops"], Host: CaTransitStopsHost },
+  { id: "useCaAirportsPortsLayer", keys: ["caAirportsPorts"], Host: CaAirportsPortsHost },
+  { id: "useCaMajorRoadsLayer", keys: ["caMajorRoads"], Host: CaMajorRoadsHost },
+  { id: "useCaRailwaysLayer", keys: ["caRailways"], Host: CaRailwaysHost },
+  { id: "useCaPowerPlantsLayer", keys: ["caPowerPlants"], Host: CaPowerPlantsHost },
+  { id: "useCaWindTurbinesLayer", keys: ["caWindTurbines"], Host: CaWindTurbinesHost },
+  { id: "useCaPowerGridLayer", keys: ["caPowerGrid"], Host: CaPowerGridHost },
+  { id: "useCaOilGasLayer", keys: ["caOilGas"], Host: CaOilGasHost },
+  { id: "useCaPopulationCentresLayer", keys: ["caPopulationCentres"], Host: CaPopulationCentresHost },
+  { id: "useCaFederalDistrictsLayer", keys: ["caFederalDistricts"], Host: CaFederalDistrictsHost },
+  { id: "useCaPostalFsaLayer", keys: ["caPostalFsa"], Host: CaPostalFsaHost },
+  { id: "useCaIndigenousLandsLayer", keys: ["caIndigenousLands"], Host: CaIndigenousLandsHost },
+  { id: "useCaDeprivationLayer", keys: ["caDeprivation"], Host: CaDeprivationHost },
+  { id: "useCaRentsLayer", keys: ["caRents"], Host: CaRentsHost },
+  { id: "useCaPlaceNamesLayer", keys: ["caPlaceNames"], Host: CaPlaceNamesHost },
+  { id: "useCaHillshadeLayer", keys: ["caHillshade"], Host: CaHillshadeHost },
   // 英國第 1 波（海域界線、建成區、綠地三層）
   { id: "useGbMaritimeLimitsLayer", keys: ["gbMaritimeLimits"], Host: GbMaritimeLimitsHost },
   { id: "useGbOpenSpaceLayers", keys: ["gbBuiltUpAreas", "gbGreenspace", "gbSportsFacilities", "gbGolfCourses", "gbCemeteries"], Host: GbOpenSpaceHost },

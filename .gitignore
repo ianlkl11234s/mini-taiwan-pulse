@@ -160,6 +160,18 @@ public/world/gb_terrain_relief.pmtiles
 # 英國第 11 波（規劃限制區 25.5MB、策略噪音 26.5MB 走 S3 deploy-assets/world/；棕地 18.9MB、回收點 4.6MB、廢棄物許可 7.5MB、污染排放（只含蘇格蘭）1.7MB git-track）
 public/world/gb_planning_constraints.pmtiles
 public/world/gb_noise.pmtiles
+# 加拿大第 0＋1 波（行政邊界 57.0MB、主要道路 26.3MB、鐵道 27.3MB、油氣 127.6MB 走 S3 deploy-assets/world/；站點 19.8MB、電網 17.2MB、人口中心 7.5MB、機場港口 5.7MB、風機 3.2MB、電廠 2.0MB git-track）
+public/world/ca_admin_boundaries.pmtiles
+public/world/ca_major_roads.pmtiles
+public/world/ca_railways.pmtiles
+public/world/ca_oil_gas.pmtiles
+public/world/ca_transit_stops.pmtiles
+public/world/ca_federal_districts.pmtiles
+public/world/ca_postal_fsa.pmtiles
+public/world/ca_indigenous_lands.pmtiles
+public/world/ca_deprivation.pmtiles
+public/world/ca_place_names.pmtiles
+public/world/ca_terrain_hillshade.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

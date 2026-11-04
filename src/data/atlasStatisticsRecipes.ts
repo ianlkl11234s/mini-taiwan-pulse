@@ -19,6 +19,7 @@ import { FINANCE_ACCESS_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_STATISTICS_DOCUM
 import { FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT } from "./financeAccessExtStatisticsRecipes";
 import { GB_ENABLED_STATISTICS_KEYS, GB_STATISTICS_DOCUMENT } from "./gbStatisticsRecipes";
 import { KR_ENABLED_STATISTICS_KEYS, KR_STATISTICS_DOCUMENT } from "./krStatisticsRecipes";
+import { CA_ENABLED_STATISTICS_KEYS, CA_STATISTICS_DOCUMENT } from "./caStatisticsRecipes";
 import type { CountryCode } from "../constants/countries";
 import { STATISTICS_PARTY_COLOR } from "./statisticsVisuals";
 import { ATLAS_LAZY_FAMILIES, atlasLazyRecipeDetailsDocument, type AtlasLazyRecipeFamily } from "./statisticsRecipeDetails";
@@ -41,6 +42,7 @@ const FAMILIES: ReadonlyArray<readonly [readonly string[], AtlasRecipeDocument |
   [FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, FINANCE_ACCESS_EXT_STATISTICS_DOCUMENT],
   [GB_ENABLED_STATISTICS_KEYS, GB_STATISTICS_DOCUMENT],
   [KR_ENABLED_STATISTICS_KEYS, KR_STATISTICS_DOCUMENT],
+  [CA_ENABLED_STATISTICS_KEYS, CA_STATISTICS_DOCUMENT],
 ];
 
 export const ATLAS_ENABLED_STATISTICS_KEYS = [
@@ -49,6 +51,7 @@ export const ATLAS_ENABLED_STATISTICS_KEYS = [
   ...CRIME_ENABLED_STATISTICS_KEYS, ...TAIPEI_AGENCY_ENABLED_STATISTICS_KEYS, ...MORTALITY_ENABLED_STATISTICS_KEYS,
   ...CULTURE_ENABLED_STATISTICS_KEYS, ...STATE_ASSETS_ENABLED_STATISTICS_KEYS, ...FINANCE_ACCESS_ENABLED_STATISTICS_KEYS,
   ...FINANCE_ACCESS_EXT_ENABLED_STATISTICS_KEYS, ...GB_ENABLED_STATISTICS_KEYS, ...KR_ENABLED_STATISTICS_KEYS,
+  ...CA_ENABLED_STATISTICS_KEYS,
 ] as const;
 export type AtlasStatisticsLayerKey = typeof ATLAS_ENABLED_STATISTICS_KEYS[number];
 
@@ -332,6 +335,10 @@ export const GB_STATISTICS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATIST
 export const KR_STATISTICS_TAB_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "KR").map((recipe) => recipe.tab_theme))];
 /** 南韓完整目錄（THEMES，country KR）的統計主題。 */
 export const KR_STATISTICS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "KR").map((recipe) => recipe.data_theme))];
+/** 加拿大統計分頁的主題（ca 家族 tab_theme 出現順序：人口→社經）。 */
+export const CA_STATISTICS_TAB_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "CA").map((recipe) => recipe.tab_theme))];
+/** 加拿大完整目錄（THEMES，country CA）的統計主題。 */
+export const CA_STATISTICS_DATA_THEME_TITLES = [...new Set(ATLAS_ENABLED_STATISTICS_RECIPES.filter((recipe) => atlasRecipeCountry(recipe) === "CA").map((recipe) => recipe.data_theme))];
 
 function groupsBy(select: (recipe: AtlasRecipeCatalogEntry) => boolean, groupOf: (recipe: AtlasRecipeCatalogEntry) => string = (recipe) => recipe.subgroup): Array<{ title: string; keys: string[] }> {
   const recipes = ATLAS_ENABLED_STATISTICS_RECIPES.filter(select);

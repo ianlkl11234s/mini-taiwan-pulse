@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1508,
+    "keyCount": 1549,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1955,6 +1955,102 @@
     },
     {
       "layers": [
+        "ca-airports-circle",
+        "ca-airports-minor-circle",
+        "ca-ports-circle",
+        "ca-ports-minor-circle"
+      ],
+      "type": "caAirportsPorts"
+    },
+    {
+      "layers": [
+        "ca-rail-stations-circle",
+        "ca-rail-tracks-line",
+        "ca-rail-tracks-minor-line"
+      ],
+      "type": "caRailways"
+    },
+    {
+      "layers": [
+        "ca-transit-stops-circle"
+      ],
+      "type": "caTransitStops"
+    },
+    {
+      "layers": [
+        "ca-power-plants-circle"
+      ],
+      "type": "caPowerPlants"
+    },
+    {
+      "layers": [
+        "ca-wind-turbines-circle"
+      ],
+      "type": "caWindTurbines"
+    },
+    {
+      "layers": [
+        "ca-oil-gas-major-facilities-circle",
+        "ca-oil-gas-facilities-circle",
+        "ca-oil-gas-wells-circle",
+        "ca-oil-gas-pipeline-points-circle",
+        "ca-oil-gas-major-pipelines-line",
+        "ca-oil-gas-pipelines-line"
+      ],
+      "type": "caOilGas"
+    },
+    {
+      "layers": [
+        "ca-power-substations-circle",
+        "ca-power-lines-line",
+        "ca-power-cables-line"
+      ],
+      "type": "caPowerGrid"
+    },
+    {
+      "layers": [
+        "ca-major-roads-line"
+      ],
+      "type": "caMajorRoads"
+    },
+    {
+      "layers": [
+        "ca-population-centres-points-circle"
+      ],
+      "type": "caPopulationCentres"
+    },
+    {
+      "layers": [
+        "ca-place-names-circle"
+      ],
+      "type": "caPlaceNames"
+    },
+    {
+      "layers": [
+        "ca-indigenous-lands-points-circle"
+      ],
+      "type": "caIndigenousLands"
+    },
+    {
+      "layers": [
+        "ca-rents-points-circle"
+      ],
+      "type": "caRents"
+    },
+    {
+      "layers": [
+        "ca-cimd-points-circle"
+      ],
+      "type": "caDeprivation"
+    },
+    {
+      "layers": [
+        "ca-fed-points-circle"
+      ],
+      "type": "caFederalDistricts"
+    },
+    {
+      "layers": [
         "kr-bus-stops-circle"
       ],
       "type": "krBusStops"
@@ -1998,6 +2094,52 @@
         "kr-admin-sido-fill"
       ],
       "type": "krAdminBoundaries"
+    },
+    {
+      "layers": [
+        "ca-indigenous-lands-fill"
+      ],
+      "type": "caIndigenousLands"
+    },
+    {
+      "layers": [
+        "ca-population-centres-fill"
+      ],
+      "type": "caPopulationCentres"
+    },
+    {
+      "layers": [
+        "ca-rents-fill",
+        "ca-rents-na-fill"
+      ],
+      "type": "caRents"
+    },
+    {
+      "layers": [
+        "ca-cimd-fill",
+        "ca-cimd-na-fill"
+      ],
+      "type": "caDeprivation"
+    },
+    {
+      "layers": [
+        "ca-fsa-fill"
+      ],
+      "type": "caPostalFsa"
+    },
+    {
+      "layers": [
+        "ca-fed-fill"
+      ],
+      "type": "caFederalDistricts"
+    },
+    {
+      "layers": [
+        "ca-admin-csd-fill",
+        "ca-admin-cd-fill",
+        "ca-admin-pr-fill"
+      ],
+      "type": "caAdminBoundaries"
     },
     {
       "layers": [
@@ -4458,6 +4600,30 @@
         "statsKrEstablishmentsSgg-fill",
         "statsKrEmployeesSido-fill",
         "statsKrEmployeesSgg-fill",
+        "statsCaPopulationPr-fill",
+        "statsCaPopulationCd-fill",
+        "statsCaPopulationDensityPr-fill",
+        "statsCaPopulationDensityCd-fill",
+        "statsCaAgeYoungSharePr-fill",
+        "statsCaAgeYoungShareCd-fill",
+        "statsCaAgeWorkingSharePr-fill",
+        "statsCaAgeWorkingShareCd-fill",
+        "statsCaAgeOldSharePr-fill",
+        "statsCaAgeOldShareCd-fill",
+        "statsCaMedianAgePr-fill",
+        "statsCaMedianAgeCd-fill",
+        "statsCaHouseholdsPr-fill",
+        "statsCaHouseholdsCd-fill",
+        "statsCaHouseholdIncomePr-fill",
+        "statsCaHouseholdIncomeCd-fill",
+        "statsCaHouseholdIncomeAfterTaxPr-fill",
+        "statsCaHouseholdIncomeAfterTaxCd-fill",
+        "statsCaUnemploymentRatePr-fill",
+        "statsCaUnemploymentRateCd-fill",
+        "statsCaParticipationRatePr-fill",
+        "statsCaParticipationRateCd-fill",
+        "statsCaEmploymentRatePr-fill",
+        "statsCaEmploymentRateCd-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -100763,6 +100929,1057 @@
         "valueText": "0.4"
       }
     ],
+    "caAdminBoundaries": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "省／地區（Province／territory）",
+            "value": "pr"
+          },
+          {
+            "label": "普查區（Census division）",
+            "value": "cd"
+          },
+          {
+            "label": "普查分區（Census subdivision）",
+            "value": "csd"
+          }
+        ],
+        "type": "select",
+        "value": "pr"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "caAirportsPorts": [
+      {
+        "label": "機場類型",
+        "options": [
+          {
+            "label": "大型機場",
+            "value": "large"
+          },
+          {
+            "label": "中型機場",
+            "value": "medium"
+          },
+          {
+            "label": "小型機場",
+            "value": "small"
+          },
+          {
+            "label": "直升機場",
+            "value": "heliport"
+          },
+          {
+            "label": "水上飛機基地",
+            "value": "seaplane"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "large",
+          "medium",
+          "small",
+          "heliport",
+          "seaplane"
+        ]
+      },
+      {
+        "label": "港口類型",
+        "options": [
+          {
+            "label": "港口",
+            "value": "port"
+          },
+          {
+            "label": "綜合港（含漁港）",
+            "value": "mixed"
+          },
+          {
+            "label": "遊艇港",
+            "value": "marina"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "port",
+          "mixed",
+          "marina"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caDeprivation": [
+      {
+        "label": "剝奪面向",
+        "options": [
+          {
+            "label": "經濟依賴",
+            "value": "econ_dep"
+          },
+          {
+            "label": "居住不穩定",
+            "value": "res_inst"
+          },
+          {
+            "label": "族裔文化組成",
+            "value": "ethno_cult"
+          },
+          {
+            "label": "情境脆弱性",
+            "value": "sit_vuln"
+          }
+        ],
+        "type": "select",
+        "value": "econ_dep"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caFederalDistricts": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "caHillshade": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.3,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.5,
+        "valueText": "0.50"
+      }
+    ],
+    "caIndigenousLands": [
+      {
+        "label": "土地類型",
+        "options": [
+          {
+            "label": "印第安保留地（Indian Reserve，3,289）",
+            "value": "reserve"
+          },
+          {
+            "label": "因紐特人所有地（27）",
+            "value": "inuit"
+          },
+          {
+            "label": "其他土地索償協定土地（27）",
+            "value": "claim"
+          },
+          {
+            "label": "Sechelt／Indian Land（34）",
+            "value": "sechelt"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "reserve",
+          "inuit",
+          "claim",
+          "sechelt"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "caMajorRoads": [
+      {
+        "label": "道路等級",
+        "options": [
+          {
+            "label": "高速公路（Freeway）",
+            "value": "freeway"
+          },
+          {
+            "label": "快速公路／幹線公路",
+            "value": "expressway"
+          },
+          {
+            "label": "有編號的省道級幹道（Arterial）",
+            "value": "arterial"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "freeway",
+          "expressway",
+          "arterial"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "caOilGas": [
+      {
+        "label": "子項",
+        "options": [
+          {
+            "label": "主要管線（CanVec）",
+            "value": "major_pipelines"
+          },
+          {
+            "label": "主要石化設施（2017）",
+            "value": "major_facilities"
+          },
+          {
+            "label": "油氣井（部分，非全量）",
+            "value": "wells"
+          },
+          {
+            "label": "井場與集輸設施",
+            "value": "facilities"
+          },
+          {
+            "label": "集輸／輸送管線",
+            "value": "pipelines"
+          },
+          {
+            "label": "管線附屬設施（riser、valve…）",
+            "value": "pipeline_points"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "major_pipelines",
+          "major_facilities",
+          "wells",
+          "facilities",
+          "pipelines",
+          "pipeline_points"
+        ]
+      },
+      {
+        "label": "管線物質",
+        "options": [
+          {
+            "label": "天然氣",
+            "value": "gas"
+          },
+          {
+            "label": "石油／油井流體",
+            "value": "oil"
+          },
+          {
+            "label": "多用途／其他／未標",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "gas",
+          "oil",
+          "other"
+        ]
+      },
+      {
+        "label": "主要設施類別",
+        "options": [
+          {
+            "label": "煉油廠",
+            "value": "refinery"
+          },
+          {
+            "label": "天然氣處理廠",
+            "value": "gas_processing"
+          },
+          {
+            "label": "LNG 終端",
+            "value": "lng_terminal"
+          },
+          {
+            "label": "地下儲氣",
+            "value": "gas_storage"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "refinery",
+          "gas_processing",
+          "lng_terminal",
+          "gas_storage"
+        ]
+      },
+      {
+        "defaultValue": "YlOrBr",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caPlaceNames": [
+      {
+        "label": "地名類別",
+        "options": [
+          {
+            "label": "聚落（29,754）",
+            "value": "settlement"
+          },
+          {
+            "label": "行政區與原住民保留地（10,278）",
+            "value": "admin"
+          },
+          {
+            "label": "公園與保護區（10,301）",
+            "value": "park"
+          },
+          {
+            "label": "水體（224,426）",
+            "value": "water"
+          },
+          {
+            "label": "山岳、地形與冰川（75,865）",
+            "value": "terrain"
+          },
+          {
+            "label": "人工設施（11,281）",
+            "value": "constructed"
+          },
+          {
+            "label": "其他（2,831）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "settlement",
+          "admin",
+          "park",
+          "water",
+          "terrain",
+          "constructed",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caPopulationCentres": [
+      {
+        "label": "規模",
+        "options": [
+          {
+            "label": "大都會人口中心（≥10 萬）",
+            "value": "large_urban"
+          },
+          {
+            "label": "中型人口中心（3–10 萬）",
+            "value": "medium"
+          },
+          {
+            "label": "小型人口中心（1,000–29,999）",
+            "value": "small"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "large_urban",
+          "medium",
+          "small"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "caPostalFsa": [
+      {
+        "label": "都市／農村",
+        "options": [
+          {
+            "label": "都市 FSA（1,462）",
+            "value": "urban"
+          },
+          {
+            "label": "農村 FSA（181）",
+            "value": "rural"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "urban",
+          "rural"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "caPowerGrid": [
+      {
+        "label": "子項",
+        "options": [
+          {
+            "label": "電力線（架空，不分電壓）",
+            "value": "above"
+          },
+          {
+            "label": "電力線（水下）",
+            "value": "under"
+          },
+          {
+            "label": "變電站",
+            "value": "substation"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "above",
+          "under",
+          "substation"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caPowerPlants": [
+      {
+        "label": "燃料別",
+        "options": [
+          {
+            "label": "水力",
+            "value": "hydro"
+          },
+          {
+            "label": "風力",
+            "value": "wind"
+          },
+          {
+            "label": "太陽光電",
+            "value": "solar"
+          },
+          {
+            "label": "生質能",
+            "value": "bioenergy"
+          },
+          {
+            "label": "燃氣",
+            "value": "gas"
+          },
+          {
+            "label": "燃煤",
+            "value": "coal"
+          },
+          {
+            "label": "核能",
+            "value": "nuclear"
+          },
+          {
+            "label": "燃油",
+            "value": "oil"
+          },
+          {
+            "label": "抽蓄水力",
+            "value": "pumped_hydro"
+          },
+          {
+            "label": "潮汐／其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "hydro",
+          "wind",
+          "solar",
+          "bioenergy",
+          "gas",
+          "coal",
+          "nuclear",
+          "oil",
+          "pumped_hydro",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caRailways": [
+      {
+        "label": "軌道等級",
+        "options": [
+          {
+            "label": "幹線",
+            "value": "main"
+          },
+          {
+            "label": "聯絡線",
+            "value": "connecting"
+          },
+          {
+            "label": "鐵路渡輪航線",
+            "value": "ferry"
+          },
+          {
+            "label": "側線／調車場／支線等",
+            "value": "minor"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "main",
+          "connecting",
+          "ferry",
+          "minor"
+        ]
+      },
+      {
+        "label": "車站類型",
+        "options": [
+          {
+            "label": "客運站",
+            "value": "passenger"
+          },
+          {
+            "label": "客貨／聯運站",
+            "value": "mixed"
+          },
+          {
+            "label": "貨運／維修／其他",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "passenger",
+          "mixed",
+          "other"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caRents": [
+      {
+        "label": "房型",
+        "options": [
+          {
+            "label": "2 房",
+            "value": "br2"
+          },
+          {
+            "label": "套房（Bachelor）",
+            "value": "bachelor"
+          },
+          {
+            "label": "1 房",
+            "value": "br1"
+          },
+          {
+            "label": "3 房以上",
+            "value": "br3"
+          }
+        ],
+        "type": "select",
+        "value": "br2"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caTransitStops": [
+      {
+        "label": "站型",
+        "options": [
+          {
+            "label": "站牌／月台",
+            "value": "0"
+          },
+          {
+            "label": "車站",
+            "value": "1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "0",
+          "1"
+        ]
+      },
+      {
+        "defaultValue": "BuPu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "BuPu"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caWindTurbines": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "canopyGiants": [
       {
         "label": "透明度 0.80",
@@ -132025,6 +133242,846 @@
       },
       {
         "label": "年度",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeOldShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeOldSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeOldShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeOldShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeOldSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeOldSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeOldShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeOldSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeWorkingShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeWorkingSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeWorkingShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeWorkingShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeWorkingSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeWorkingSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeWorkingShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeWorkingSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeYoungShareCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeYoungSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeYoungShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeYoungShareCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaAgeYoungSharePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaAgeYoungSharePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaAgeYoungShareCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaAgeYoungSharePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaEmploymentRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaEmploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaEmploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaEmploymentRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaEmploymentRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaEmploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaEmploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaEmploymentRatePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeAfterTaxCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomeAfterTaxPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeAfterTaxCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeAfterTaxCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeAfterTaxPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomeAfterTaxPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeAfterTaxCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeAfterTaxPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomeCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomeCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdIncomePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdIncomePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdIncomeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdIncomePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdsCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdsPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdsCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdsCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaHouseholdsPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaHouseholdsPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaHouseholdsCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaHouseholdsPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaMedianAgeCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaMedianAgePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaMedianAgeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaMedianAgeCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaMedianAgePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaMedianAgePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaMedianAgeCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaMedianAgePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaParticipationRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaParticipationRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaParticipationRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaParticipationRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaParticipationRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaParticipationRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaParticipationRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaParticipationRatePr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationDensityCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationDensityPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationDensityCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationDensityCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationDensityPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationDensityPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationDensityCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationDensityPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaPopulationPr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaPopulationPr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaPopulationCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaPopulationPr"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaUnemploymentRateCd": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaUnemploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaUnemploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaUnemploymentRateCd"
+      },
+      {
+        "label": "資料期別",
+        "options": [],
+        "status": "idle",
+        "statusText": "尚未載入",
+        "type": "linkedSelect",
+        "value": ""
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
+    "statsCaUnemploymentRatePr": [
+      {
+        "label": "地理層級／口徑",
+        "options": [
+          {
+            "label": "省／地區",
+            "value": "statsCaUnemploymentRatePr"
+          },
+          {
+            "label": "普查區",
+            "value": "statsCaUnemploymentRateCd"
+          }
+        ],
+        "status": "ready",
+        "type": "linkedSelect",
+        "value": "statsCaUnemploymentRatePr"
+      },
+      {
+        "label": "資料期別",
         "options": [],
         "status": "idle",
         "statusText": "尚未載入",
