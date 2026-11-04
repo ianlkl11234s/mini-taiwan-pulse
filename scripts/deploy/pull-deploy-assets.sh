@@ -56,8 +56,10 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 # ⚠️ aws s3 sync 是遞迴的，--include "*.pmtiles" 會連 agriculture/ 子前綴的 pmtiles 都抓，
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
+# 2026-11-04：末尾 --exclude "*/*" 兜底只收根層 *.pmtiles。先前漏排 global-maritime/，
+#    S3 全部 GFW 小時檔（無 --delete）被灌進 /data/fire/global-maritime/ 累積到 32G，撐爆主機磁碟、部署建不起來。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "public_life/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "public_life/*" --exclude "water_*.pmtiles" --exclude "*/*"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
