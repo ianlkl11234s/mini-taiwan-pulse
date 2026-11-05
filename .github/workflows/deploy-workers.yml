@@ -1,0 +1,120 @@
+# Pulse 主站發版：master 有新 commit → ① S3 deploy-assets 只補差異到 R2 site/ → ② build → ③ 部署 Cloudflare Worker。
+# 每天另跑一次 ① 當保險（不 build、不部署）。輪替資料（氣候、GFW）由 sync-rotating.yml 負責。
+# 安全：只接 push(master)／schedule／手動（不接 pull_request）；action 固定 commit SHA；
+# S3 金鑰為唯讀 IAM；R2 只用 R2_MIGRATION_*（只能寫 mini-tw-pulse）；同步程式只寫 site/、不刪任何東西。
+# build 與 deploy 放同一個 job：wrangler 的 assets 目錄是 repo 的 dist/，同一台 runner 才拿得到，免傳 artifact。
+name: deploy-workers
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '40 19 * * *' # 台灣 03:40
+  workflow_dispatch:
+    inputs:
+      sync_only:
+        description: '只跑 S3 → R2 同步（不 build、不部署）'
+        type: boolean
+        default: false
+      execute:
+        description: '同步真的寫入 R2（否則 dry-run）'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-workers
+  cancel-in-progress: false
+
+jobs:
+  sync-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # schedule／手動觸發預設跑在 default branch（develop）；對照表一律以正式分支 master 為準
+          ref: master
+          # 對照表要掃前端 src 的引用（根目錄的 *.html 在 cone 模式會自動帶入）
+          sparse-checkout: |
+            deploy/cloudflare
+            src
+            lab
+      - name: Install boto3 only
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet --disable-pip-version-check boto3==1.43.123
+      - name: Unit tests
+        run: '"$RUNNER_TEMP/venv/bin/python" deploy/cloudflare/test_sync_site_assets.py'
+      - name: Sync S3 → R2 site/
+        env:
+          S3_ACCESS_KEY: ${{ secrets.PULSE_SYNC_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.PULSE_SYNC_S3_SECRET_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
+          R2_MIGRATION_ACCESS_KEY_ID: ${{ secrets.R2_MIGRATION_ACCESS_KEY_ID }}
+          R2_MIGRATION_SECRET_ACCESS_KEY: ${{ secrets.R2_MIGRATION_SECRET_ACCESS_KEY }}
+          EXECUTE: ${{ github.event_name != 'workflow_dispatch' || inputs.execute }}
+        run: |
+          if [ "$EXECUTE" = "true" ]; then flag=--execute; else flag=--dry-run; fi
+          "$RUNNER_TEMP/venv/bin/python" deploy/cloudflare/sync_site_assets.py "$flag" --log "$RUNNER_TEMP/sync-log.csv"
+
+  build-deploy:
+    needs: sync-assets
+    # 只部署 master（手動觸發若選了其他分支就不部署）
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.sync_only))
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Build
+        env:
+          VITE_MAPBOX_TOKEN: ${{ secrets.VITE_MAPBOX_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_STATISTICS_COMPARISONS_ENABLED: 'false'
+        run: npm run build
+      - name: Check build has Supabase URL (漏 env 會整頁空白)
+        run: |
+          ls dist/assets/main-*.js >/dev/null
+          grep -l 'supabase.co' dist/assets/main-*.js || { echo '::error::main-*.js 沒有 supabase.co，VITE_SUPABASE_* 沒注入'; exit 1; }
+      - name: Deploy Worker
+        id: deploy
+        working-directory: deploy/cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          npx --yes wrangler@4.158.0 deploy 2>&1 | tee "$RUNNER_TEMP/wrangler.log"
+          url=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/wrangler.log" | head -n1)
+          if [ -z "$url" ]; then echo '::error::wrangler 輸出找不到 workers.dev 網址'; exit 1; fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Smoke test
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+          # 對照表內、Worker 走 R2 的圖層大檔（urban 家族，public/ 沒有同名檔）
+          RANGE_PATH: /urban/street_trees_national.pmtiles
+        run: |
+          set -euo pipefail
+          ver=$(node -p 'require("./package.json").version')
+          code=$(curl -sS -o "$RUNNER_TEMP/index.html" -w '%{http_code}' "$URL/")
+          [ "$code" = 200 ] || { echo "::error::首頁 $code"; exit 1; }
+          main=$(grep -oE '/assets/main-[A-Za-z0-9_-]+\.js' "$RUNNER_TEMP/index.html" | head -n1)
+          [ -n "$main" ] || { echo '::error::首頁找不到 main-*.js'; exit 1; }
+          curl -sSf -o "$RUNNER_TEMP/main.js" "$URL$main"
+          grep -q "\"$ver\"" "$RUNNER_TEMP/main.js" || { echo "::error::$main 不含版號 $ver"; exit 1; }
+          code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$RANGE_PATH")
+          [ "$code" = 206 ] || { echo "::error::$RANGE_PATH Range 回 $code（預期 206）"; exit 1; }
+          echo "smoke OK：$URL v$ver（$main），$RANGE_PATH Range 206" | tee -a "$GITHUB_STEP_SUMMARY"
