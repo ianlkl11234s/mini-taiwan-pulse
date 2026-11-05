@@ -46,6 +46,8 @@ export const LIVE_DECORATION_LAYERS: ReadonlySet<string> = new Set([
  */
 export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   stationsMetro: /^metro-pt-/,
+  // 30 天地圖挑戰 Day 5 海景發光（靜態線光暈，2026-11-05 使用者選設計稿 G5；map-layers.md §3.1 P-6 例外）
+  mapchallengeDay05SeaView: /^glow-/,
 };
 
 /**

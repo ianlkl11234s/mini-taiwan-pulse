@@ -41,3 +41,14 @@ export function mapchallengeDay05RunWidthExpr(scale = 1): unknown[] {
   return ["interpolate", ["linear"], ["zoom"], 10, at(0), 14, at(1)];
 }
 
+
+/**
+ * 海景發光（2026-11-05 使用者選設計稿 G5；P-6「靜態資料不畫光暈」的登記例外，map-layers.md §3.1）：
+ * 開闊／看得到海兩類線下墊兩層同色模糊線。寬與 blur 是主體線寬的倍數（跟著 z7／z10／z14 插值），
+ * 透明度再乘圖層透明度；淡底圖光暈透明度減半（淡底上同色光暈本來就弱，減半避免糊開）。
+ */
+export const MAPCHALLENGE_DAY05_GLOW = [
+  { suffix: "glow-outer", width: 8, blur: 6, opacity: 0.35 },
+  { suffix: "glow-inner", width: 3, blur: 2, opacity: 0.7 },
+] as const;
+export const MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR = 0.5;

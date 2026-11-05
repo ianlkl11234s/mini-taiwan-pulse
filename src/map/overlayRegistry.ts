@@ -20,7 +20,9 @@ import {
   MAPCHALLENGE_DAY05_RUNS_URL, MAPCHALLENGE_DAY05_RUN_SORT_KEY, MAPCHALLENGE_DAY05_SEGMENTS_URL, MAPCHALLENGE_DAY05_SORT_KEY, MAPCHALLENGE_DAY05_TIERS,
   mapchallengeDay05KindFilter, mapchallengeDay05RunColorExpr, mapchallengeDay05ScopeAt, mapchallengeDay05TierColorExpr,
 } from "../data/mapchallengeDay05Types";
-import { mapchallengeDay05RunWidthExpr, mapchallengeDay05SegmentWidthExpr } from "../data/mapchallengeDay05Style";
+import {
+  MAPCHALLENGE_DAY05_GLOW, MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR, mapchallengeDay05RunWidthExpr, mapchallengeDay05SegmentWidthExpr,
+} from "../data/mapchallengeDay05Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -12251,8 +12253,23 @@ OVERLAY_REGISTRY.push(
   {
     id: "mapchallengeDay05SeaView", sourceUrl: MAPCHALLENGE_DAY05_SEGMENTS_URL, sourceId: "mapchallenge-day05-sea-view",
     attribution: MAPCHALLENGE_DAY05_ATTRIBUTION,
-    rebuildOnParamChange: ["line"], rebuildOnParamKeys: ["mapchallengeDay05SeaViewKindIdx", "mapchallengeDay05SeaViewCategoryMask"],
-    layers: [{
+    rebuildOnParamChange: ["line", ...MAPCHALLENGE_DAY05_GLOW.map((g) => g.suffix)], rebuildOnParamKeys: ["mapchallengeDay05SeaViewKindIdx", "mapchallengeDay05SeaViewCategoryMask"],
+    layers: [...MAPCHALLENGE_DAY05_GLOW.map((g): OverlayConfig["layers"][number] => ({
+      // 光暈：只畫開闊／看得到海，畫在主體線下（P-6 例外，pointSpec POINT_SPEC_EXEMPT 登記）
+      suffix: g.suffix, type: "line",
+      layout: { ...MAPCHALLENGE_DAY05_LINE_LAYOUT, "line-sort-key": MAPCHALLENGE_DAY05_SORT_KEY },
+      filter: (p) => mapchallengeDay05Filter([
+        ["in", ["to-number", ["get", "tier"], 0], ["literal", [1, 2]]],
+        mapchallengeDay05KindFilter(p?.mapchallengeDay05SeaViewKindIdx),
+        categoryFilterExpr({ property: "tier", options: MAPCHALLENGE_DAY05_TIERS.map((t) => ({ value: String(t.value), zh: t.zh })) }, p?.mapchallengeDay05SeaViewCategoryMask),
+      ]),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay05TierColorExpr(isDark),
+        "line-width": mapchallengeDay05SegmentWidthExpr(g.width),
+        "line-blur": mapchallengeDay05SegmentWidthExpr(g.blur),
+        "line-opacity": g.opacity * (isDark ? 1 : MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR) * (p?.mapchallengeDay05SeaViewOpacity ?? 0.85),
+      }),
+    })), {
       suffix: "line", type: "line",
       layout: { ...MAPCHALLENGE_DAY05_LINE_LAYOUT, "line-sort-key": MAPCHALLENGE_DAY05_SORT_KEY },
       filter: (p) => mapchallengeDay05Filter([

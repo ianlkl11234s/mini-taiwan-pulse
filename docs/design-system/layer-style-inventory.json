@@ -20,7 +20,7 @@
  "summary": {
   "layerKeys": 1622,
   "overlayConfigs": 488,
-  "runtimeSublayers": 921,
+  "runtimeSublayers": 923,
   "byResolution": {
    "runtime": 411,
    "static-scan": 296,
@@ -215,7 +215,7 @@
     "dataDrivenCounted": 7,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 26
+    "decorationExcluded": 28
    },
    "line-width@z14": {
     "n": 140,
@@ -237,7 +237,7 @@
     "dataDrivenCounted": 7,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 26
+    "decorationExcluded": 28
    },
    "line-opacity": {
     "n": 140,
@@ -259,7 +259,7 @@
     "dataDrivenCounted": 5,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 26
+    "decorationExcluded": 28
    },
    "fill-opacity": {
     "n": 120,
@@ -507,12 +507,12 @@
    "暗 #0d1117 → 淡 #ffffff": 1
   },
   "decorationSublayers": {
-   "count": 175,
+   "count": 177,
    "byType": {
     "circle": 149,
-    "line": 26
+    "line": 28
    },
-   "keys": 152
+   "keys": 153
   },
   "lineDash": [
    "drinkingWaterProtectionZones/distance-outline=[2,2]",
@@ -534,18 +534,18 @@
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 622,
-   "of": 921,
+   "sublayersWithDiff": 624,
+   "of": 923,
    "byProperty": {
     "circle-stroke-color": 346,
     "circle-stroke-opacity": 288,
-    "line-color": 91,
+    "line-color": 93,
     "heatmap-color": 63,
     "text-color": 61,
     "text-halo-color": 61,
     "circle-color": 45,
     "fill-color": 33,
-    "line-opacity": 16,
+    "line-opacity": 18,
     "circle-opacity": 12,
     "fill-extrusion-color": 3,
     "circle-stroke-width": 1,
@@ -559,7 +559,7 @@
    "heatmap:sequential": 67,
    "symbol:constant": 61,
    "fill:categorical": 53,
-   "line:categorical": 49,
+   "line:categorical": 51,
    "fill:constant": 36,
    "fill:sequential-step": 16,
    "fill:sequential": 13,
@@ -2487,7 +2487,7 @@
   "mapchallengeDay04Overlap": {"label":"熱區重疊 Hotspot Overlap","theme":"30 天地圖挑戰","dataClass":"A","color":"#e24d66","legend":"mapchallengeDay04Overlap","legendType":"square-swatch","popup":"mapchallengeDay04Overlap","params":{"opacity":{"name":"mapchallengeDay04OverlapOpacity","default":0.7,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color","line-opacity"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay04Population": {"label":"人口密度基準 Population Density Baseline","theme":"30 天地圖挑戰","dataClass":"A","color":"#e24d66","legend":"mapchallengeDay04Population","legendType":"square-swatch","popup":"mapchallengeDay04Population","params":{"opacity":{"name":"mapchallengeDay04PopulationOpacity","default":0.7,"min":0.1,"max":1},"controls":1},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"sequential-step","count":5,"lightDiffers":true}},"themeDiff":["fill-color"]},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color","line-opacity"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay04ScaleTcCh": {"label":"臺中與彰化工廠細格 Taichung vs Changhua Factory Fine Grid","theme":"30 天地圖挑戰","dataClass":"A","color":"#e24d66","legend":"mapchallengeDay04ScaleTcCh","legendType":"square-swatch","popup":"mapchallengeDay04ScaleTcCh","params":{"opacity":{"name":"mapchallengeDay04ScaleTcChOpacity","default":0.7,"min":0.1,"max":1},"size":{"name":"mapchallengeDay04ScaleTcChOpacity","default":0.7,"min":0.1,"max":1},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"fill","type":"fill","role":"main","geometry":"polygon","render":"fill","values":{"fill-opacity":0.7},"colors":{"fill-color":{"kind":"categorical","count":4}}},{"suffix":"outline","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":0.5,"z14":0.5},"line-opacity":0.6},"colors":{"line-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["line-color","line-opacity"]}],"geometry":["line","polygon"],"render":["fill","line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
-  "mapchallengeDay05SeaView": {"label":"海景路段 Sea View Segments","theme":"30 天地圖挑戰","dataClass":"A","color":"#2196c0","legend":"mapchallengeDay05SeaView","legendType":"svg-icon","popup":"mapchallengeDay05SeaView","params":{"opacity":{"name":"mapchallengeDay05SeaViewOpacity","default":0.85,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":0.5,"max":2},"z14":{"min":1,"max":3.5}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":4,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "mapchallengeDay05SeaView": {"label":"海景路段 Sea View Segments","theme":"30 天地圖挑戰","dataClass":"A","color":"#2196c0","legend":"mapchallengeDay05SeaView","legendType":"svg-icon","popup":"mapchallengeDay05SeaView","params":{"opacity":{"name":"mapchallengeDay05SeaViewOpacity","default":0.85,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"glow-outer","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":4,"max":16},"z14":{"min":8,"max":28}},"line-blur":{"z10":{"min":3,"max":12},"z14":{"min":6,"max":21}},"line-opacity":0.298,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":4,"lightDiffers":true}},"themeDiff":["line-color","line-opacity"]},{"suffix":"glow-inner","type":"line","role":"decoration","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":1.5,"max":6},"z14":{"min":3,"max":10.5}},"line-blur":{"z10":{"min":1,"max":4},"z14":{"min":2,"max":7}},"line-opacity":0.595,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":4,"lightDiffers":true}},"themeDiff":["line-color","line-opacity"]},{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":0.5,"max":2},"z14":{"min":1,"max":3.5}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":4,"lightDiffers":true}},"themeDiff":["line-color"]}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "mapchallengeDay05SeaViewRuns": {"label":"最長連續海景 Longest Sea View Runs","theme":"30 天地圖挑戰","dataClass":"A","color":"#2196c0","legend":"mapchallengeDay05SeaViewRuns","legendType":"svg-icon","popup":"mapchallengeDay05SeaViewRuns","params":{"opacity":{"name":"mapchallengeDay05SeaViewRunsOpacity","default":0.85,"min":0.1,"max":1},"controls":3},"resolution":"runtime","evidence":["src/map/overlayRegistry.ts"],"sublayers":[{"suffix":"line","type":"line","role":"main","geometry":"line","render":"line","values":{"line-width":{"z10":{"min":2,"max":3},"z14":{"min":3.5,"max":5}},"line-opacity":0.85,"line-cap":"round","line-join":"round"},"colors":{"line-color":{"kind":"categorical","count":2,"dark":["#d95926","#3987e5"]}}}],"geometry":["line"],"render":["line"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "marineEcologicalMonitoringSites": {"label":"全海域生態系調查點位 Marine Ecosystem Survey Sites","theme":"海洋 Marine","dataClass":"A","color":"#4f46e5","legend":"marineEcologicalMonitoringSites","legendType":"dot-swatch","popup":"marineEcologicalMonitoringSites","params":{"opacity":{"name":"marineEcologicalMonitoringSitesOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineEcologicalMonitoringSitesScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":9.257,"z14":10.8},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":5.143,"z14":6},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"constant","count":1,"dark":["#4f46e5"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "marineMicroplastics": {"label":"海洋微塑膠調查站 Marine Microplastics Survey","theme":"海洋 Marine","dataClass":"A","color":"#9333ea","legend":"marineMicroplastics","legendType":"dot-swatch","popup":"marineMicroplastics","params":{"opacity":{"name":"marineMicroplasticsOpacity","default":0.85,"min":0.1,"max":1},"size":{"name":"marineMicroplasticsScale","default":1,"min":0.3,"max":3},"controls":2},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","values":{"circle-radius":{"z10":14.143,"z14":16.2},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":5}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","values":{"circle-radius":{"z10":7.857,"z14":9},"circle-stroke-width":{"z10":1.029,"z14":1.2},"circle-opacity":0.85,"circle-stroke-opacity":0.85},"colors":{"circle-color":{"kind":"categorical","count":5},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color"]},{"suffix":"label","type":"symbol","role":"main","geometry":"label","render":"text","minzoom":13,"values":{"text-size":{"z10":10,"z14":12},"text-opacity":0.85,"text-halo-width":1.25,"text-font":["DIN Pro Medium","Arial Unicode MS Regular"],"text-allow-overlap":false},"colors":{"text-color":{"kind":"constant","count":1,"dark":["#f8fafc"],"lightDiffers":true,"light":["#0f172a"]},"text-halo-color":{"kind":"constant","count":1,"dark":["#0f172a"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["text-color","text-halo-color"]}],"geometry":["label","point"],"render":["circle","text"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},

@@ -63,10 +63,25 @@ const GRAY = "107,114,128";
 export const MAPCHALLENGE_DAY05_NO_VIEW_COLOR = `rgba(${GRAY},0.6)`;
 export const MAPCHALLENGE_DAY05_TUNNEL_COLOR = `rgba(${GRAY},0.35)`;
 
+/**
+ * 發光（2026-11-05 使用者選設計稿 G5）：暗底圖的開闊／看得到海線芯往白混 40%（像燈管），淡底圖維持 YlGnBu 原色。
+ * 偏離 YlGnBu 是登記例外（map-layers.md §3.1 P-6），圖例、說明框、光暈子圖層都用同一個色。
+ */
+export const MAPCHALLENGE_DAY05_DARK_CORE_WHITEN = 0.4;
+function mixWhite(hex: string, t: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  const m = (c: number) => Math.round(c + (255 - c) * t).toString(16).padStart(2, "0");
+  return `#${m((n >> 16) & 255)}${m((n >> 8) & 255)}${m(n & 255)}`;
+}
+
+/** 類別多選預設只勾開闊海景＋看得到海（2026-11-05 使用者選 G5）；其他類可在篩選勾回 */
+export const MAPCHALLENGE_DAY05_DEFAULT_TIERS: readonly MapchallengeDay05Tier[] = [2, 1];
+
 export function mapchallengeDay05TierColor(tier: number, isDark: boolean): string {
   const ramp = paletteRamp("YlGnBu", isDark)!;
-  if (tier === 2) return ramp[isDark ? 4 : 5]!;
-  if (tier === 1) return ramp[2]!;
+  const core = (c: string) => (isDark ? mixWhite(c, MAPCHALLENGE_DAY05_DARK_CORE_WHITEN) : c);
+  if (tier === 2) return core(ramp[isDark ? 4 : 5]!);
+  if (tier === 1) return core(ramp[2]!);
   if (tier === 3) {
     const n = Number.parseInt(ramp[1]!.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${MAPCHALLENGE_DAY05_TREE_OPACITY})`;
