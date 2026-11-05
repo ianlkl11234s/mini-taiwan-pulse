@@ -109,12 +109,15 @@ jobs:
         run: |
           set -euo pipefail
           ver=$(node -p 'require("./package.json").version')
-          code=$(curl -sS -o "$RUNNER_TEMP/index.html" -w '%{http_code}' "$URL/")
-          [ "$code" = 200 ] || { echo "::error::首頁 $code"; exit 1; }
-          main=$(grep -oE '/assets/main-[A-Za-z0-9_-]+\.js' "$RUNNER_TEMP/index.html" | head -n1)
-          [ -n "$main" ] || { echo '::error::首頁找不到 main-*.js'; exit 1; }
-          curl -sSf -o "$RUNNER_TEMP/main.js" "$URL$main"
-          grep -q "\"$ver\"" "$RUNNER_TEMP/main.js" || { echo "::error::$main 不含版號 $ver"; exit 1; }
+          # 部署後新版首頁要幾秒到一兩分鐘才會在邊緣生效（v2.23.0 首跑讀到舊版），最多重試 12 次、每次間隔 10 秒
+          ok=""
+          for i in $(seq 1 12); do
+            code=$(curl -sS -o "$RUNNER_TEMP/index.html" -w '%{http_code}' "$URL/?smoke=$i" || true)
+            main=$(grep -oE '/assets/main-[A-Za-z0-9_-]+\.js' "$RUNNER_TEMP/index.html" | head -n1 || true)
+            if [ "$code" = 200 ] && [ -n "$main" ] && curl -sSf -o "$RUNNER_TEMP/main.js" "$URL$main" && grep -q "\"$ver\"" "$RUNNER_TEMP/main.js"; then ok=1; break; fi
+            echo "第 $i 次：首頁 $code、$main 尚未是 v$ver，10 秒後重試"; sleep 10
+          done
+          [ -n "$ok" ] || { echo "::error::2 分鐘內首頁仍不是 v$ver（最後 $code $main）"; exit 1; }
           code=$(curl -sS -o /dev/null -w '%{http_code}' -H 'Range: bytes=0-15' "$URL$RANGE_PATH")
           [ "$code" = 206 ] || { echo "::error::$RANGE_PATH Range 回 $code（預期 206）"; exit 1; }
           echo "smoke OK：$URL v$ver（$main），$RANGE_PATH Range 206" | tee -a "$GITHUB_STEP_SUMMARY"
