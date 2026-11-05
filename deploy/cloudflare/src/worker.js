@@ -1,6 +1,6 @@
 // Mini Taiwan Pulse 測試站 Worker（第 ③ 關）。
 // 重現 nginx.conf 的路由：網頁走 Workers 靜態資產、圖層大檔走 R2（data.itsmigu.com/site/）、
-// /api 與輪替資料（氣候、GFW、各種 manifest）測試期間暫時轉回現行正式站。
+// /api 與短效 manifest 測試期間暫時轉回現行正式站；氣候、GFW 由 sync-rotating.mjs 同步到 R2。
 // 規格來源：nginx.conf（v2.22.1）；每段註解標 nginx 行號。
 
 const R2_BASE = 'https://data.itsmigu.com/site';
@@ -33,8 +33,6 @@ const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urb
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響
 const CARET = ['/climate/', '/network_structures/', '/global-maritime/', '/jp-heights/', '/jp-medical/', '/flight-trails/', '/blog/', '/card/', '/lab/', '/assets/', '/api/research/v1/', '/.private-allen'];
-// 測試期轉回正式站：輪替資料（尚未有 R2 live/ 排程）
-const ORIGIN_FAMILIES = ['climate', 'global-maritime'];
 // 短效指標檔：測試期一律以正式站為準，避免 R2 一次性副本過期
 const SHORT_LIVED = [/manifest[^/]*\.json$/i, /_current\.[^/]+$/i, /^\/jp-heights\/catalog\.json$/, /^\/(aviation_data|ship_data|temperature_grid)\.json$/];
 
@@ -150,8 +148,16 @@ export default {
     const seg = path.split('/')[1] || '';
     const isCaret = CARET.some((p) => path.startsWith(p));
 
-    // 輪替資料與短效指標檔：測試期轉回正式站
-    if (ORIGIN_FAMILIES.includes(seg) || SHORT_LIVED.some((re) => re.test(path))) return fromOrigin(req, env, url);
+    // 輪替資料（sync-rotating.mjs 每小時同步到 R2）：L443-489、L586
+    if (seg === 'climate') return (await fromR2(req, path, ccMap(path))) || notFound({});
+    if (seg === 'global-maritime') {
+      const cc = /^\/global-maritime\/gfw-hourly\/(v3-shadow\/|v4\/)?manifest\.json$/.test(path) ? 'public,max-age=60,s-maxage=60,stale-while-revalidate=300'
+        : /^\/global-maritime\/gfw-hourly\/(v3-shadow\/|v4\/)?releases\//.test(path) ? 'public,max-age=604800,s-maxage=604800,immutable' : null;
+      return (await fromR2(req, path, cc)) || notFound(cc ? { 'Cache-Control': cc } : SEC);
+    }
+
+    // 短效指標檔：測試期轉回正式站
+    if (SHORT_LIVED.some((re) => re.test(path))) return fromOrigin(req, env, url);
 
     // ^~ 純 R2 家族（L562、L776-831）
     if (seg === 'network_structures') return (await fromR2(req, path, ccMap(path))) || fromOrigin(req, env, url, 'origin-miss');
