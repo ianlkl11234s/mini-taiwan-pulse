@@ -92,8 +92,9 @@ describe("R7 顏色解析器", () => {
     // 2026-11-04 +2 加拿大第 0＋1 波：公共運輸站點、油氣設施
     // 2026-11-04 +1 加拿大第 2 波：郵遞分區 FSA 代表點熱區
     // 2026-11-06 +2 南韓第 6 波：都市公園熱區、墓地代表點熱區
+    // 2026-11-06 +2 加拿大第 3 波：NPRI 設施、地震熱區
     // 2026-11-06 +2 日本第二輪：自然公園地域、国立公園（代表點熱區）
-    expect(HEATMAP_PALETTE_KEYS).toHaveLength(103);
+    expect(HEATMAP_PALETTE_KEYS).toHaveLength(105);
     for (const key of HEATMAP_PALETTE_KEYS) {
       const spec = getParamsSpec(key)!.find((s) => s.kind === "palette" && s.role === "heatmap")!;
       const theme = layerHeatmapTheme(key);

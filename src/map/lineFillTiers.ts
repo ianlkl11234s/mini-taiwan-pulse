@@ -337,6 +337,9 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "caDeprivation/ca-cimd-na-fill": "coverage", // 無指數＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
   "caRents/ca-rents-fill": "graded", // 平均月租 5 級（YlOrBr）· src/hooks/useCaAreaLayers.ts
   "caRents/ca-rents-na-fill": "coverage", // 不公布＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
+  "caPopulationGrid/ca-population-grid-r5-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r5）· src/hooks/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r6-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r6）· src/hooks/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r7-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r7）· src/hooks/useCaEnvLayers.ts
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts

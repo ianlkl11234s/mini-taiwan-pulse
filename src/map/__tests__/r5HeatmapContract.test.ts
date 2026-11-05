@@ -178,6 +178,9 @@ const HOOK_DENSE: readonly (readonly [string, string, number])[] = [
   // 加拿大（2026-11-04 第 0＋1 波）：公共運輸站點低縮放用 ca_transit_stops_grid 格網（weight＝count），z12 起單點；油氣井與 ODI 設施 z10 起畫點
   ["caTransitStops", "useCaTransportLayers.ts", 133_029],
   ["caOilGas", "useCaEnergyLayers.ts", 96_466],
+  // 加拿大第 3 波（2026-11-06）：NPRI 設施 z10 起畫點；地震 z12 起畫點（規模 ≥4 另一層全縮放畫點）
+  ["caNpriFacilities", "useCaEnvLayers.ts", 24_540],
+  ["caEarthquakes", "useCaEnvLayers.ts", 101_365],
 ];
 const HOOK_DETAIL_IS_POLYGON = new Set(["gbGreenspace", "gbSportsFacilities", "gbCemeteries"]);
 /** 乘數型透明度滑桿（預設 1，點的 alpha 寫在 paint）：火災兩層。 */

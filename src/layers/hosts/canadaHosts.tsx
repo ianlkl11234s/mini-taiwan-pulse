@@ -7,6 +7,10 @@ import {
   caCimdDimensionFromIdx, caRentUnitFromIdx, useCaDeprivationLayer, useCaFederalDistrictsLayer, useCaIndigenousLandsLayer, useCaPostalFsaLayer, useCaRentsLayer,
 } from "../../hooks/useCaAreaLayers";
 import { useCaHillshadeLayer, useCaPlaceNamesLayer } from "../../hooks/useCaTerrainLayers";
+import {
+  useCaAqhiStationsLayer, useCaClimateStationsLayer, useCaEarthquakesLayer, useCaNpriFacilitiesLayer, useCaPopulationGridLayer, useCaRadiationStationsLayer,
+  useCaWastewaterSystemsLayer,
+} from "../../hooks/useCaEnvLayers";
 import { gbDisplayModeFromIdx } from "../../hooks/useGbWaterLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -137,5 +141,59 @@ export const CaHillshadeHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useCaHillshadeLayer");
   const p = useKeyOverlayParams("caHillshade");
   useCaHillshadeLayer(deps.mapRef, deps.layerVisibility.caHillshade, p.caHillshadeOpacity ?? 0.5);
+  return null;
+};
+
+// ── 第 3 波（2026-11-06）：環境氣候、災害＋GHSL 人口網格 ──
+
+export const CaClimateStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaClimateStationsLayer");
+  const p = useKeyOverlayParams("caClimateStations");
+  useCaClimateStationsLayer(deps.mapRef, deps.layerVisibility.caClimateStations, p.caClimateStationsOpacity ?? 0.8, p.caClimateStationsScale ?? 1, deps.isDarkTheme, p.caClimateStationsCatMask);
+  return null;
+};
+
+export const CaAqhiStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaAqhiStationsLayer");
+  const p = useKeyOverlayParams("caAqhiStations");
+  useCaAqhiStationsLayer(deps.mapRef, deps.layerVisibility.caAqhiStations, p.caAqhiStationsOpacity ?? 0.9, p.caAqhiStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const CaRadiationStationsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaRadiationStationsLayer");
+  const p = useKeyOverlayParams("caRadiationStations");
+  useCaRadiationStationsLayer(deps.mapRef, deps.layerVisibility.caRadiationStations, p.caRadiationStationsOpacity ?? 0.9, p.caRadiationStationsScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+export const CaNpriFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaNpriFacilitiesLayer");
+  const p = useKeyOverlayParams("caNpriFacilities");
+  useCaNpriFacilitiesLayer(
+    deps.mapRef, deps.layerVisibility.caNpriFacilities, p.caNpriFacilitiesOpacity ?? 0.7, p.caNpriFacilitiesScale ?? 1, deps.isDarkTheme,
+    p.caNpriFacilitiesCatMask, p.caNpriFacilitiesRecentMask,
+  );
+  return null;
+};
+
+export const CaWastewaterSystemsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaWastewaterSystemsLayer");
+  const p = useKeyOverlayParams("caWastewaterSystems");
+  useCaWastewaterSystemsLayer(deps.mapRef, deps.layerVisibility.caWastewaterSystems, p.caWastewaterSystemsOpacity ?? 0.85, p.caWastewaterSystemsScale ?? 1, deps.isDarkTheme, p.caWastewaterSystemsCatMask);
+  return null;
+};
+
+export const CaEarthquakesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaEarthquakesLayer");
+  const p = useKeyOverlayParams("caEarthquakes");
+  useCaEarthquakesLayer(deps.mapRef, deps.layerVisibility.caEarthquakes, p.caEarthquakesOpacity ?? 0.7, p.caEarthquakesScale ?? 1, deps.isDarkTheme, p.caEarthquakesCatMask);
+  return null;
+};
+
+export const CaPopulationGridHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaPopulationGridLayer");
+  const p = useKeyOverlayParams("caPopulationGrid");
+  useCaPopulationGridLayer(deps.mapRef, deps.layerVisibility.caPopulationGrid, p.caPopulationGridOpacity ?? 0.6, deps.isDarkTheme);
   return null;
 };
