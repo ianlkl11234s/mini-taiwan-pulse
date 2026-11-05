@@ -162,5 +162,13 @@
   "legend.urban.gbSurplusUnderOffer": "Under offer ({n})",
   "legend.urban.gbSurplusOnMarket": "On the market ({n})",
   "legend.urban.gbSurplusScope": "Only surplus assets registered by central government, the NHS, the Ministry of Defence and Welsh public bodies; most English council and Scottish / Northern Irish devolved-government assets are not included",
-  "legend.urban.gbSurplusCoverage": "420 sites: England 290, Wales 115, Scotland 14, Northern Ireland 1; data as of 2026-06-29"
+  "legend.urban.gbSurplusCoverage": "420 sites: England 290, Wales 115, Scotland 14, Northern Ireland 1; data as of 2026-06-29",
+  "legend.urban.historicalMapSource": "Source: Academia Sinica RCHSS GIS Center, Taiwan Historical Maps, loaded directly from the external tile server",
+  "legend.urban.historicalMapLicense": "License: CC BY-NC (non-commercial use only)",
+  "legend.urban.historicalMapOffset": "Historical scans; positions may be offset",
+  "legend.urban.historicalMapEra0": "1904 Taiwan Fort Map (Meiji)",
+  "legend.urban.historicalMapEra1": "1921 Taiwan Fort Map (Taisho)",
+  "legend.urban.historicalMapEra2": "1944 US military aerial photos",
+  "legend.urban.historicalMapEra3": "1945 US Army city plans",
+  "legend.urban.historicalMapEra4": "1966 Corona satellite imagery"
 }

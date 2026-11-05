@@ -1610,5 +1610,6 @@
   "layer.mapchallengeDay04Population": "人口密度ベースライン",
   "layer.mapchallengeDay04Facility": "施設クラスター",
   "layer.mapchallengeDay04Overlap": "ホットスポットの重なり",
-  "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド"
+  "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド",
+  "layer.historicalMapSinica": "古地図（台湾百年歴史地図）"
 }

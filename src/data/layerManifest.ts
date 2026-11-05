@@ -7098,7 +7098,7 @@ export const LAYER_MANIFEST = {
     country: "TW", section: { theme: "觀光 Tourism", group: "玩・人文 Heritage" },
     ...layerName({ zh: "文化資產", alt: "Heritage" }),
     expandable: true,
-    color: "#6d4c41",
+    color: "#ea580c",
     icon: Castle,
     upstream: {
       status: "verified",
@@ -7110,8 +7110,33 @@ export const LAYER_MANIFEST = {
     legend: "tourHeritage",
     popup: "tourHeritage",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
-    description: "文化資產全國 3,013 點（古蹟、歷史建築、文化景觀、考古遺址、聚落建築群、紀念建築、史蹟七類同色系分色，基底 #6d4c41）",
+    description: "文化資產全國 3,013 點（古蹟、歷史建築、文化景觀、考古遺址、聚落建築群、紀念建築、史蹟七類分色，亮色系；2026-11-05 由棕色改）",
     topics: ["觀光", "文資", "人文"],
+  },
+
+  historicalMapSinica: {
+    key: "historicalMapSinica",
+    country: "TW", section: { theme: "歷史底圖 Historical Basemaps", group: "歷史地圖" },
+    ...layerName({ zh: "古地圖", alt: "Historical Maps", qualifier: "臺灣百年歷史地圖" }),
+    expandable: true,
+    color: "#a16207",
+    icon: Map,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "中研院人社中心 GIS 專題中心「臺灣百年歷史地圖」WMTS（外部 XYZ，z8–18，tileSize 256）；5 個年代：1904／1921 臺灣堡圖、1944 美軍航照、1945 美軍城市地圖、1966 Corona",
+      note: "外部圖磚直連，非 analytics 資料集；授權 CC BY-NC（非商業）；圖資為歷史掃描，位置可能有偏移；沒有 feature 屬性與 popup；預設關閉",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useHistoricalMapSinicaLayer 外部 XYZ raster https://gis.sinica.edu.tw/tileserver/file-exists.php?img={層名}-{副檔名}-{z}-{x}-{y}，z8–18，依 historicalMapSinicaEraIdx 換 source，插在底圖第一個 symbol 下",
+    },
+    legend: "historicalMapSinica",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 5 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
+    topics: ["歷史", "古地圖", "人文", "底圖", "OWNER_ONLY"],
   },
 
   tourEvents: {

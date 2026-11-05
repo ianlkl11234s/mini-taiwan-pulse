@@ -94,7 +94,8 @@ describe("Layer UX policy baseline", () => {
     // 2026-10-29：-1 waterFloodExtreme 隨 10 降雨情境改版補上 popup（G29 方向 A）。
     // 2026-10-29：+2 英國 OS Terrain 50 山體陰影／色別標高（已上色 raster PMTiles，無 feature，同地理院地形）。
     // 2026-11-04：+1 加拿大 MRDEM-30 山體陰影 caHillshade（raster PMTiles，無 feature 屬性）。
-    expect(missing).toHaveLength(52); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
+    // 2026-11-05：+1 古地圖 historicalMapSinica（中研院臺灣百年歷史地圖外部 XYZ 掃描 raster，無 feature 屬性）。
+    expect(missing).toHaveLength(53); // 2026-10-17：-2 移除無 consumer 的 wasteRoute / wasteStop（原 50）
   });
 
   it("已確認的點位缺口確實沒有大小控件，補齊時必須同步縮小基線", () => {
