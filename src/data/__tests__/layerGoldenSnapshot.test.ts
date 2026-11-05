@@ -238,7 +238,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
     // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
     // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
-    expect(keys.length).toBe(1623);
+    // 2026-11-06: +4 日本第二輪（自然公園地域 jpNaturalParkAreas2015、国立公園 jpNationalParksMoe、国指定鳥獣保護区 jpWildlifeProtectionMoe、人口集中地区 jpDid）。
+    expect(keys.length).toBe(1627);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

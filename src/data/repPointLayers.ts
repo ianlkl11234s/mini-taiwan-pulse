@@ -135,6 +135,10 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpWildlifeProtectionNational", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDesignatedArea", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDistrict", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
+  // 日本第二輪（2026-11-06）registry 面層：自然公園／国立公園預設面（大範圍），鳥獣保護区小而零散預設點
+  R({ key: "jpNaturalParkAreas2015", sourceId: "jp-natural-park-areas-2015", file: "world/jp_natural_park_areas_ksj_2015_points.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015_points", count: 19_193, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpNationalParksMoe", sourceId: "jp-national-parks-moe", file: "world/jp_national_parks_moe_r7_points.pmtiles", sourceLayer: "jp_national_parks_moe_r7_points", count: 15_293, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpWildlifeProtectionMoe", sourceId: "jp-wildlife-protection-moe", file: "world/jp_wildlife_protection_areas_moe_r7_points.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7_points", count: 347, def: "point" }),
   { key: "jpMarineEbsaCoastal", family: "jpTourism", file: "jp_marine_ebsa_moe_coastal_20150101_points.pmtiles", sourceLayer: "jp_marine_ebsa_coastal_points", count: 270, def: "point" },
 ];
 

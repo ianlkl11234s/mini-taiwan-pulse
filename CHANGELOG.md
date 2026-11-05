@@ -74,6 +74,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+
+- 日本第二輪：自然公園地域（国土数値情報 A10 2015，三區分）、国立公園（環境省令和 7 年 4 月，地種區分）、国指定鳥獣保護区（環境省令和 7 年 4 月）三層，可切點／面；人口集中地区 DID（A16 1995–2015 五期，國勢調查年切換）。`jp_natural_park_areas_ksj_2015.pmtiles`（23.6MB）已上傳 S3 deploy-assets/world/（2026-11-06，sha256 metadata 一致）
+
 ## v2.23.0 — 2026-11-06 — 30 天地圖挑戰 Day 4 群聚與 Day 5 海景、站主限定古地圖
 
 ### 新增
