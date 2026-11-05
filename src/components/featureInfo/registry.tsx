@@ -1,3 +1,4 @@
+import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWildlifeProtectionMoePanel } from "./jpNatureR2Panels";
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
@@ -557,6 +558,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpInlandFloodAreas: JpInlandFloodAreasPanel,
   jpZoningUseDistricts: JpZoningUseDistrictsPanel,
   jpNationalForests: JpNationalForestsPanel,
+  jpNaturalParkAreas2015: JpNaturalParkAreas2015Panel,
+  jpNationalParksMoe: JpNationalParksMoePanel,
+  jpWildlifeProtectionMoe: JpWildlifeProtectionMoePanel,
+  jpDid: JpDidPanel,
   jpWelfareDisability: JpWelfareDisabilityPanel,
   jpWelfareChild: JpWelfareChildPanel,
   jpMajorRoads: JpMajorRoadsPanel,
@@ -1223,6 +1228,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpInlandFloodAreas: "內水浸水想定區域 雨水出水浸水想定区域",
   jpZoningUseDistricts: "用途地域 用途地域",
   jpNationalForests: "国有林 国有林",
+  jpNaturalParkAreas2015: "自然公園地域",
+  jpNationalParksMoe: "國立公園",
+  jpWildlifeProtectionMoe: "國指定鳥獸保護區",
+  jpDid: "人口集中地區 DID",
   jpWelfareDisability: "障礙福祉設施 障害者福祉施設",
   jpWelfareChild: "兒童福祉設施 児童福祉施設",
   jpMajorRoads: "主要道路 国道・都道府県道",

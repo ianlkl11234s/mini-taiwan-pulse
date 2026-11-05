@@ -116,6 +116,7 @@ export type ExpandableLayerKey =
   | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+  | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
   | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
@@ -808,6 +809,7 @@ export interface FeatureInfo {
     | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+    | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
@@ -1258,6 +1260,10 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   accessibleParkFacilities: boolean;
   bicycleSupport: boolean;
   nationalParks: boolean;
+  jpNaturalParkAreas2015: boolean;  // 日本 自然公園地域（KSJ A10 2015，三區分巢狀，無名稱／種別）
+  jpNationalParksMoe: boolean;      // 日本 国立公園（環境省 令和7年4月，35 園 ZONE 7 類）
+  jpWildlifeProtectionMoe: boolean; // 日本 国指定鳥獣保護区（環境省 令和7年4月，347 面）
+  jpDid: boolean;                   // 日本 人口集中地区 DID（KSJ A16 1995–2015 五期，年份換檔）
   visitorCentres: boolean;
   publicLifeOsmCoverage: boolean;
   submarineCables: boolean;

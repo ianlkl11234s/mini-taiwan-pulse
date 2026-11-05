@@ -2634,7 +2634,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "人口社經",
     country: "JP",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km")] }],
+    groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km"), fromManifest("jpDid")] }],
   },
   {
     title: "基礎建設",
@@ -2671,6 +2671,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "JP",
     defaultCollapsed: true,
     groups: [
+      { title: "自然公園 Natural Parks", layers: [fromManifest("jpNationalParksMoe"), fromManifest("jpNaturalParkAreas2015")] },
       ...localResearchGroup("玩・自然 Nature", [
         "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
       ]),
@@ -2747,6 +2748,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "海域環境 Marine Environment", layers: [fromManifest("jmaSst"), fromManifest("jmaSeaIce")] },
       { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [
         fromManifest("jpMarineEbsaCoastal"),
+        fromManifest("jpWildlifeProtectionMoe"),
         ...(IS_PRODUCTION ? [] : [
           "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
           "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",

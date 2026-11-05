@@ -227,6 +227,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
   "busStationsCity", "canopyHeight",
   "jpBuildingHeight", "jpCanopyHeight", // Static PMTiles overlays; no React data hook.
+  "jpNaturalParkAreas2015", "jpNationalParksMoe", "jpWildlifeProtectionMoe", "jpDid", // 日本第二輪：純 PMTiles overlayRegistry，無 hook。
   "cemeteryOsm", "civilDefenseShelter", "contour25k",
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
   "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "jpAccommodationDensity",

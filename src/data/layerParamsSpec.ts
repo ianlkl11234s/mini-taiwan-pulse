@@ -164,6 +164,7 @@ import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioLabel } from "./floodScenarios";
+import { JP_DID_DEFAULT_YEAR, JP_DID_YEARS } from "./jpNatureR2Types";
 import { REP_POINT_LAYERS, repPointDense } from "./repPointLayers";
 import {
   ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
@@ -2616,6 +2617,19 @@ export const LAYER_PARAMS_SPEC = {
       out: "jpZoningUseDistrictsClassIdx", encode: ["all", ...JP_ZONING_GROUPS.map(g => g.value), ...JP_ZONING_CLASSES.map(c => String(c.code))] },
   ],
   jpNationalForests: [opacitySlider("jpNationalForestsOpacity", 0.7)],
+  // 日本第二輪（2026-11-06）：類別多選由 CATEGORY_FILTERS 自動補，點／面切換由 repPointLayers 自動補
+  jpNaturalParkAreas2015: [opacitySlider("jpNaturalParkAreas2015Opacity", 0.35)],
+  jpNationalParksMoe: [opacitySlider("jpNationalParksMoeOpacity", 0.35)],
+  jpWildlifeProtectionMoe: [opacitySlider("jpWildlifeProtectionMoeOpacity", 0.35)],
+  jpDid: [
+    opacitySlider("jpDidOpacity", 0.55),
+    {
+      // 國勢調查年份：一期一支 PMTiles，overlayRegistry 依 jpDidYearIdx 換 source url（同淹水情境）
+      kind: "select", name: "jpDidYear", label: "國勢調查年", default: JP_DID_DEFAULT_YEAR, category: "data",
+      options: JP_DID_YEARS.map((y) => ({ label: `${y} 年`, value: y })),
+      out: "jpDidYearIdx", encode: [...JP_DID_YEARS],
+    },
+  ],
   // 福祉兩層共用 PMTiles：類別 select 0=全部、色組、中分類單選（encode 順序同 jpWelfareFilter）；定位精度 0=1–3（預設）、1=全部
   jpWelfareDisability: [
     heatmapPalette("jpWelfareDisability"),

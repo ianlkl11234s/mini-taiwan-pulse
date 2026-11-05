@@ -164,6 +164,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbEarthquakes",
   "disasterShelters",
   "nationalParks",
+  // 日本第二輪自然保育三層＋DID：panel 自掛 SourceFooter
+  "jpNaturalParkAreas2015", "jpNationalParksMoe", "jpWildlifeProtectionMoe", "jpDid",
   "osmBridgeCarriers",
   "osmBridgeFootprints",
   "officialBridgesNewTaipei",

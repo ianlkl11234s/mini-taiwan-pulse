@@ -578,6 +578,7 @@ for f in \
   public/world/jp_national_forests.pmtiles \
   public/world/jp_welfare_facilities.pmtiles \
   public/world/jp_major_roads.pmtiles \
+  public/world/jp_natural_park_areas_ksj_2015.pmtiles \
   public/world/gb_admin_small_areas.pmtiles \
   public/world/gb_built_up_areas.pmtiles \
   public/world/gb_built_up_areas_v2.pmtiles \

@@ -1625,5 +1625,9 @@
   "layer.caNpriFacilities": "NPRI Pollutant Release Facilities (Canada)",
   "layer.caWastewaterSystems": "Wastewater Systems, WSER (Canada)",
   "layer.caEarthquakes": "Earthquakes 1985–2019 (Canada)",
-  "layer.caPopulationGrid": "Population Grid, GHSL 2020 (Canada)"
+  "layer.caPopulationGrid": "Population Grid, GHSL 2020 (Canada)",
+  "layer.jpNaturalParkAreas2015": "Natural Park Areas",
+  "layer.jpNationalParksMoe": "National Parks",
+  "layer.jpWildlifeProtectionMoe": "National Wildlife Protection Areas",
+  "layer.jpDid": "Densely Inhabited Districts (DID)"
 }

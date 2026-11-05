@@ -1,3 +1,4 @@
+import { JpDidLegend, JpNationalParksMoeLegend, JpNaturalParkAreas2015Legend, JpWildlifeProtectionMoeLegend } from "./legend/jpNatureR2Legends";
 import { COMPARISON_ENABLED_RECIPES } from "../data/comparisonStatisticsRecipes";
 import { KR_DATA_KEYS } from "../data/krDataKeys";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
@@ -294,6 +295,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpInlandFloodAreas", render: () => <JpInlandFloodAreasLegend /> },
   { id: "jpZoningUseDistricts", render: () => <JpZoningUseDistrictsLegend /> },
   { id: "jpNationalForests", render: () => <JpNationalForestsLegend /> },
+  { id: "jpNaturalParkAreas2015", render: () => <JpNaturalParkAreas2015Legend /> },
+  { id: "jpNationalParksMoe", render: () => <JpNationalParksMoeLegend /> },
+  { id: "jpWildlifeProtectionMoe", render: () => <JpWildlifeProtectionMoeLegend /> },
+  { id: "jpDid", render: () => <JpDidLegend /> },
   { id: "jpWelfareDisability", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareDisability" /> },
   { id: "jpWelfareChild", render: () => <JpWelfareFacilitiesLegend layerKey="jpWelfareChild" /> },
   { id: "jpMajorRoads", render: () => <JpMajorRoadsLegend /> },

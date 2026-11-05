@@ -132,4 +132,49 @@ export const CATEGORY_FILTERS_D: Record<string, CategoryFilterDef | readonly Cat
     ],
     other: "空白",
   },
+  // 日本第二輪（2026-11-06）自然保育三層：registry 圖層，withCategoryFilter 自動接線；選項順序＝圖例
+  jpNaturalParkAreas2015: {
+    property: "level",
+    label: "地域區分",
+    options: [
+      { value: "1", zh: "自然公園地域（外圍）" },
+      { value: "2", zh: "特別地域" },
+      { value: "3", zh: "特別保護地區" },
+    ],
+  },
+  jpNationalParksMoe: {
+    property: "zone",
+    label: "地種區分",
+    options: [
+      { value: "特別保護地区", zh: "特別保護地區" },
+      { value: "第1種特別地域", zh: "第 1 種特別地域" },
+      { value: "第2種特別地域", zh: "第 2 種特別地域" },
+      { value: "第3種特別地域", zh: "第 3 種特別地域" },
+      { value: "普通地域", zh: "普通地域" },
+      { value: "海域公園地区", zh: "海域公園地區" },
+      { value: "区分未定", zh: "區分未定" },
+    ],
+  },
+  jpWildlifeProtectionMoe: [
+    {
+      property: "category",
+      label: "指定區分",
+      options: [
+        { value: "集団渡来地", zh: "集團渡來地" },
+        { value: "集団繁殖地", zh: "集團繁殖地" },
+        { value: "希少鳥獣生息地", zh: "稀少鳥獸棲息地" },
+        { value: "大規模生息地", zh: "大規模棲息地" },
+      ],
+    },
+    {
+      property: "protection_class",
+      id: "Class",
+      label: "保護區分",
+      options: [
+        { value: "鳥獣保護区", zh: "鳥獸保護區" },
+        { value: "特別保護地区", zh: "特別保護地區" },
+        { value: "特別保護指定地域", zh: "特別保護指定區域" },
+      ],
+    },
+  ],
 };
