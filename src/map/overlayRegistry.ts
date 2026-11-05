@@ -16,6 +16,13 @@ import { paramDefault } from "../data/layerParamsSpec";
 import { FIRE_HYDRANT_CAT_COLOR, fireStationColorMatch } from "../data/fireTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodDepthFilter, floodScenarioUrl } from "../data/floodScenarios";
 import { withPointSpec } from "./pointSpec";
+import {
+  MAPCHALLENGE_DAY05_RUNS_URL, MAPCHALLENGE_DAY05_RUN_SORT_KEY, MAPCHALLENGE_DAY05_SEGMENTS_URL, MAPCHALLENGE_DAY05_SORT_KEY, MAPCHALLENGE_DAY05_TIERS,
+  mapchallengeDay05KindFilter, mapchallengeDay05RunColorExpr, mapchallengeDay05ScopeAt, mapchallengeDay05TierColorExpr,
+} from "../data/mapchallengeDay05Types";
+import {
+  MAPCHALLENGE_DAY05_GLOW, MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR, mapchallengeDay05RunWidthExpr, mapchallengeDay05SegmentWidthExpr,
+} from "../data/mapchallengeDay05Style";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -12230,6 +12237,70 @@ OVERLAY_REGISTRY.push(
     () => mapchallengeHotspotColorExpr("factory_c"),
     (p) => mapchallengeHotspotFilter("mapchallengeDay04ScaleTcCh", "factory_c", p),
     ["mapchallengeDay04ScaleTcChCategoryMask"]),
+);
+
+// ── 30 天地圖挑戰 Day 5 視野（模擬面板，公開，2026-11-05）：線層，運具 select ＋ 判定類別多選（V-4）／範圍 select
+// 都改 filter，所以 filter 函式自己組、參數變動時重建。寬依運具／判定或名次（資料編碼，LINE_TIERS keep）。
+const MAPCHALLENGE_DAY05_ATTRIBUTION = "地形：內政部 20 m 數值地形模型（2024）；建物高度：GBA／OSM 融合；樹冠高度：Meta／WRI（CC BY 4.0）；路線：OpenStreetMap（ODbL）";
+const MAPCHALLENGE_DAY05_LINE_LAYOUT = { "line-cap": "round", "line-join": "round" } as const;
+
+function mapchallengeDay05Filter(parts: (unknown[] | null)[]): unknown[] {
+  const used = parts.filter((f): f is unknown[] => f !== null);
+  return used.length === 0 ? ["all"] : ["all", ...used];
+}
+
+OVERLAY_REGISTRY.push(
+  {
+    id: "mapchallengeDay05SeaView", sourceUrl: MAPCHALLENGE_DAY05_SEGMENTS_URL, sourceId: "mapchallenge-day05-sea-view",
+    attribution: MAPCHALLENGE_DAY05_ATTRIBUTION,
+    rebuildOnParamChange: ["line", ...MAPCHALLENGE_DAY05_GLOW.map((g) => g.suffix)], rebuildOnParamKeys: ["mapchallengeDay05SeaViewKindIdx", "mapchallengeDay05SeaViewCategoryMask"],
+    layers: [...MAPCHALLENGE_DAY05_GLOW.map((g): OverlayConfig["layers"][number] => ({
+      // 光暈：只畫開闊／看得到海，畫在主體線下（P-6 例外，pointSpec POINT_SPEC_EXEMPT 登記）
+      suffix: g.suffix, type: "line",
+      layout: { ...MAPCHALLENGE_DAY05_LINE_LAYOUT, "line-sort-key": MAPCHALLENGE_DAY05_SORT_KEY },
+      filter: (p) => mapchallengeDay05Filter([
+        ["in", ["to-number", ["get", "tier"], 0], ["literal", [1, 2]]],
+        mapchallengeDay05KindFilter(p?.mapchallengeDay05SeaViewKindIdx),
+        categoryFilterExpr({ property: "tier", options: MAPCHALLENGE_DAY05_TIERS.map((t) => ({ value: String(t.value), zh: t.zh })) }, p?.mapchallengeDay05SeaViewCategoryMask),
+      ]),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay05TierColorExpr(isDark),
+        "line-width": mapchallengeDay05SegmentWidthExpr(g.width),
+        "line-blur": mapchallengeDay05SegmentWidthExpr(g.blur),
+        "line-opacity": g.opacity * (isDark ? 1 : MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR) * (p?.mapchallengeDay05SeaViewOpacity ?? 0.85),
+      }),
+    })), {
+      suffix: "line", type: "line",
+      layout: { ...MAPCHALLENGE_DAY05_LINE_LAYOUT, "line-sort-key": MAPCHALLENGE_DAY05_SORT_KEY },
+      filter: (p) => mapchallengeDay05Filter([
+        mapchallengeDay05KindFilter(p?.mapchallengeDay05SeaViewKindIdx),
+        categoryFilterExpr({ property: "tier", options: MAPCHALLENGE_DAY05_TIERS.map((t) => ({ value: String(t.value), zh: t.zh })) }, p?.mapchallengeDay05SeaViewCategoryMask),
+      ]),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay05TierColorExpr(isDark),
+        "line-width": mapchallengeDay05SegmentWidthExpr(),
+        "line-opacity": p?.mapchallengeDay05SeaViewOpacity ?? 0.85,
+      }),
+    }],
+  },
+  {
+    id: "mapchallengeDay05SeaViewRuns", sourceUrl: MAPCHALLENGE_DAY05_RUNS_URL, sourceId: "mapchallenge-day05-sea-view-runs",
+    attribution: MAPCHALLENGE_DAY05_ATTRIBUTION,
+    rebuildOnParamChange: ["line"], rebuildOnParamKeys: ["mapchallengeDay05SeaViewRunsScopeIdx", "mapchallengeDay05SeaViewRunsKindIdx"],
+    layers: [{
+      suffix: "line", type: "line",
+      layout: { ...MAPCHALLENGE_DAY05_LINE_LAYOUT, "line-sort-key": MAPCHALLENGE_DAY05_RUN_SORT_KEY },
+      filter: (p) => mapchallengeDay05Filter([
+        ["==", ["get", "scope"], mapchallengeDay05ScopeAt(p?.mapchallengeDay05SeaViewRunsScopeIdx)],
+        mapchallengeDay05KindFilter(p?.mapchallengeDay05SeaViewRunsKindIdx),
+      ]),
+      paint: (_isDark, p) => ({
+        "line-color": mapchallengeDay05RunColorExpr(),
+        "line-width": mapchallengeDay05RunWidthExpr(),
+        "line-opacity": p?.mapchallengeDay05SeaViewRunsOpacity ?? 0.85,
+      }),
+    }],
+  },
 );
 
 // R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，

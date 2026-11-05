@@ -264,6 +264,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **即時光暈上限**（`LIVE_DECORATION_CAP`）：不透明度 ≤ 0.35、`circle-blur` ≥ 0.6、半徑 ≤ 主體 ×2。⚠️ 目前半徑上限**只對固定階（S／M／L）生效**；泡泡（B）即時層（`newsEvents`、`a1AccidentRealtime`）只限透明度與 blur，不限半徑（`pointSpec.ts` 只在有固定階半徑時才限）。要補需拍板怎麼定 B 的主體半徑。
 - **即時層名單**：registry 集中在 `LIVE_DECORATION_LAYERS`：`newsEvents`、`lightning`、`lightningCwa`、`nuclearRadiation`、`a1AccidentRealtime`。hook **沒有集中名單**，各 hook 自己限制：引用 `LIVE_DECORATION_CAP` 的有淹水感測、地下水、IoT 河川、IoT 水工結構、河川水位；另有 AQI 測站、海洋觀測（CWA／ISOHE）、雨量、北市抽水站、災害示警 pulse、颱風目前位置 halo、衛星變軌 ring 自帶光暈（各層數值未逐一核對，待確認）。靜態 hook 層（待認領養動物、動物服務據點、清潔隊）光暈透明度 0（待確認）。
 - **例外**：捷運站「實際範圍（光暈示意）」模式的 `metro-pt-*` 光暈是範圍表示法，不套 P-6（`POINT_SPEC_EXEMPT`，2026-09-28 使用者）。
+- **例外**：30 天地圖挑戰 Day 5「海景路段」（`mapchallengeDay05SeaView`）的 `glow-outer`／`glow-inner` 兩層靜態線光暈（開闊海景、看得到海才畫；寬為主體 ×8／×3、blur ×6／×2、透明度 0.35／0.7×圖層透明度，淡底圖再減半），暗底圖線芯往白混 40%（偏離 YlGnBu）；類別預設只勾這兩類。圖層本身就是「哪裡看得到海」，光暈是資料編碼的強調，不是裝飾（`POINT_SPEC_EXEMPT`，2026-11-05 使用者在設計稿選 G5）。同層另有兩項線寬例外：z7 開闊／看得到海加粗到道路 2、鐵路 2.5（V-1），「最長連續海景」前 3 名 3／5（`mapchallengeDay05Style.ts`）。
 
 **P-7 車站（#393，2026-09-28）**：高鐵、台鐵、捷運的光柱預設**關**（`layerParamsSpec.ts` `thsrPillarVisible`／`traPillarVisible`／`metroPillarVisible` `default: false`）。捷運有兩種顯示模式（預設「Mapbox 點位」）：「Mapbox 點位」所有縮放都顯示點；「實際範圍（光暈示意）」z ≥ 10 用光暈示意站點範圍（捷運沒有站體面資料）、z < 10 顯示點。選項名稱「Mapbox 點位」含英文品牌名，與中文優先不一致，待決。
 
