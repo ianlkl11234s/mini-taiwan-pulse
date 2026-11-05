@@ -152,7 +152,8 @@ def list_s3(s3, bucket: str) -> dict[str, dict]:
         for page in pag.paginate(Bucket=bucket, Prefix=p):
             for o in page.get("Contents", []):
                 take(o)
-    return objs
+    # 依 key 字典序（= S3 全量列出的順序）：同一網址多對 key 時，site_manifest 取最後一個，順序要穩定
+    return dict(sorted(objs.items()))
 
 
 def get_json(s3, bucket: str, key: str):
