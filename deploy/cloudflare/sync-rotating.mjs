@@ -13,7 +13,7 @@
  * 寫入守門：key 只准 site/climate/ 或 site/global-maritime/gfw-hourly/ 開頭。R2 只用 R2_MIGRATION_* 金鑰。
  */
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream, mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
+import { createWriteStream, mkdtempSync, readFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pipeline } from 'node:stream/promises';
@@ -75,6 +75,19 @@ async function pool(items, limit, fn) {
   return errors;
 }
 
+/** 下載＋上傳整段重試（網路瞬斷）；驗證失敗不重試。 */
+async function withRetry(fn, attempts = 3) {
+  for (let i = 1; ; i++) {
+    try { return await fn(); }
+    catch (error) {
+      if (error.verification || i >= attempts) throw error;
+      await new Promise(r => setTimeout(r, 2000 * i));
+    }
+  }
+}
+function verifyFail(message) { const e = new Error(message); e.verification = true; throw e; }
+const describe = e => `${e?.name ?? 'Error'}: ${e?.message || e?.Code || '(no message)'}`;
+
 // ───────────── storage adapters（測試以假物件替換） ─────────────
 function isMissing(error) {
   return error?.name === 'NoSuchKey' || error?.name === 'NotFound' || error?.$metadata?.httpStatusCode === 404;
@@ -135,7 +148,8 @@ export async function awsStores() {
       async put(key, { file, body, bytes, contentType: ct, cacheControl, metadata }) {
         assertWritableKey(key);
         await r2.send(new PutObjectCommand({
-          Bucket: R2_BUCKET, Key: key, Body: body ?? createReadStream(file), ContentLength: body ? body.length : bytes,
+          Bucket: R2_BUCKET, Key: key, // Buffer body（≤ 數十 MB）讓 SDK 能自動重試；stream body 失敗時 SDK 不會重送。
+          Body: body ?? readFileSync(file), ContentLength: body ? body.length : bytes,
           ContentType: ct, CacheControl: cacheControl, Metadata: metadata,
         }));
       },
@@ -231,13 +245,15 @@ export async function syncGfwNamespace({ ns, src, dst, execute, work, concurrenc
   const errors = await pool(todo, concurrency, async (a) => {
     const temp = join(work, `gfw-${process.pid}-${n++}`);
     try {
+      await withRetry(async () => {
       const got = await src.download(`${srcPrefix}/${a.path}`, temp);
-      if (got === null || got.bytes !== a.bytes || got.sha256 !== a.sha256) fail(`artifact download/hash/bytes verification failed: ${a.path}`);
+      if (got === null || got.bytes !== a.bytes || got.sha256 !== a.sha256) verifyFail(`artifact download/hash/bytes verification failed: ${a.path}`);
       await out.put(`${dstPrefix}/${a.path}`, { file: temp, bytes: a.bytes, contentType: contentType(a.path), cacheControl: CACHE.gfwRelease, metadata: { sha256: a.sha256, 'src-etag': got.etag } });
+      });
       stats.uploaded++; stats.uploadedBytes += a.bytes;
     } finally { rmSync(temp, { force: true }); }
   });
-  if (errors.length) { stats.status = 'failed'; fail(`${errors.length} asset(s) failed, root not switched: ${errors[0].message}`); }
+  if (errors.length) { stats.status = 'failed'; fail(`${errors.length} asset(s) failed, root not switched: ${describe(errors[0])}`); }
 
   if (!rootCurrent) {
     if (installed && installed.release_id !== manifest.release_id) {
@@ -329,15 +345,18 @@ export async function syncClimate({ src, dst, execute, work, concurrency = 4, lo
     const errors = await pool(items, rank === 0 ? concurrency : 1, async (t) => {
       const temp = join(work, `climate-${process.pid}-${n++}`);
       try {
-        const got = await src.download(t.key, temp);
-        if (got === null) fail(`climate object vanished: ${t.rel}`);
-        if (got.etag && !got.etag.includes('-') && got.md5 !== got.etag) fail(`climate md5 mismatch: ${t.rel}`);
-        await out.put(t.dkey, { file: temp, bytes: got.bytes, contentType: contentType(t.rel), cacheControl: CACHE.climate, metadata: { sha256: got.sha256, 'src-etag': got.etag } });
+        const got = await withRetry(async () => {
+          const g = await src.download(t.key, temp);
+          if (g === null) verifyFail(`climate object vanished: ${t.rel}`);
+          if (g.etag && !g.etag.includes('-') && g.md5 !== g.etag) verifyFail(`climate md5 mismatch: ${t.rel}`);
+          await out.put(t.dkey, { file: temp, bytes: g.bytes, contentType: contentType(t.rel), cacheControl: CACHE.climate, metadata: { sha256: g.sha256, 'src-etag': g.etag } });
+          return g;
+        });
         stats.uploaded++; stats.uploadedBytes += got.bytes;
       } finally { rmSync(temp, { force: true }); }
     });
     // 一般檔有失敗就不換指標；指標內部也依序（png → json → manifest），任一失敗即停。
-    if (errors.length) { stats.status = 'failed'; fail(`climate: ${errors.length} upload(s) failed at phase ${rank}, later pointers not switched: ${errors[0].message}`); }
+    if (errors.length) { stats.status = 'failed'; fail(`climate: ${errors.length} upload(s) failed at phase ${rank}, later pointers not switched: ${describe(errors[0])}`); }
   }
   stats.status = todo.length ? 'updated' : 'current';
   return stats;
@@ -371,7 +390,7 @@ export async function main(argv = process.argv.slice(2)) {
   const run = async (name, fn) => {
     const t = Date.now();
     try { const s = await fn(); s.ms = Date.now() - t; results.push(s); }
-    catch (error) { failed = true; results.push({ ...newStats(name), status: 'ERROR', note: error.message, ms: Date.now() - t }); }
+    catch (error) { failed = true; results.push({ ...newStats(name), status: 'ERROR', note: describe(error), ms: Date.now() - t }); }
   };
   const log = (m) => console.log(m);
   console.log(`[sync-rotating] mode=${args.execute ? 'EXECUTE' : 'dry-run'}${args.prune ? ' +prune' : ''} concurrency=${args.concurrency}`);
