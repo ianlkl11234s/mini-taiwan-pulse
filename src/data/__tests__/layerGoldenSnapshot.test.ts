@@ -238,8 +238,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
     // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
     // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
+    // 2026-11-06: +5 南韓第 6 波（領海線、都市公園、綜合體育設施、OSM 墓地、人口 H3 網格）。
     // 2026-11-06: +7 加拿大第 3 波（氣象站、AQHI、輻射監測站、NPRI、污水系統、地震、人口網格）。
-    expect(keys.length).toBe(1630);
+    expect(keys.length).toBe(1635);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

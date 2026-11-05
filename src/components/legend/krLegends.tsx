@@ -1,6 +1,6 @@
 // 南韓第 1 波（國土基礎）圖例：交通 6 層＋能源 7 層。色票與署名 SSOT 在 data/krInfraTypes.ts。
 // OSM 補缺的層一律分開標「OSM 補缺」並署名 © OpenStreetMap contributors；沒涵蓋的地區寫「未涵蓋」。
-import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare } from "./legendKit";
+import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
@@ -12,7 +12,7 @@ import {
 } from "../../data/krInfraTypes";
 import { LINE_DASH, LINE_WIDTH } from "../../map/mapStyleScale";
 import type { ReactNode } from "react";
-import { KR_SPEC_BY_KEY, pickL3, type KrLayerSpec } from "../../data/krDataLayers";
+import { KR_SPEC_BY_KEY, krRampColors, pickL3, type KrLayerSpec } from "../../data/krDataLayers";
 import type { KrDataKey } from "../../data/krDataKeys";
 import { useLocale } from "../../state/localeStore";
 import { localizeLayerName } from "../../i18n/layerText";
@@ -212,7 +212,7 @@ export function KrOilGasLegend() {
   </div>;
 }
 
-// ───────── 南韓第 3–5 波 18 層：規格驅動的共用圖例（規格見 data/krDataLayers.ts）─────────
+// ───────── 南韓第 3–6 波 23 層：規格驅動的共用圖例（規格見 data/krDataLayers.ts）─────────
 function swatch(spec: KrLayerSpec, color: string): ReactNode {
   return spec.geom === "point" ? <SwatchDot color={color} /> : spec.geom === "line" ? <SwatchLine color={color} width={LINE_WIDTH.standard[1]} /> : <SwatchSquare color={color} />;
 }
@@ -223,9 +223,14 @@ export function KrDataLegend({ layerKey }: { layerKey: KrDataKey }) {
   const name = (LAYER_MANIFEST as Record<string, { name?: LayerName }>)[layerKey]?.name;
   const title = name ? localizeLayerName(layerKey, name, i18n).primary : layerKey;
   const locale = i18n.locale;
+  const theme = useLegendTheme();
+  const ramp = spec.ramp ? krRampColors(spec, theme.isDark) : null;
   return <div>
     <LegendTitle zh={title} />
-    {spec.cats ? spec.cats.map((c) => <LegendRow key={c.id} swatch={swatch(spec, c.color)}>{pickL3(c.label, locale)}</LegendRow>) : <LegendRow swatch={swatch(spec, spec.color)}>{title}</LegendRow>}
+    {spec.ramp && ramp ? <>
+      <LegendNote>{pickL3(spec.ramp.unit, locale)}</LegendNote>
+      {spec.ramp.labels.map((label, i) => <LegendRow key={label} swatch={<SwatchSquare color={ramp[i]!} />}>{label}</LegendRow>)}
+    </> : spec.cats ? spec.cats.map((c) => <LegendRow key={c.id} swatch={swatch(spec, c.color)}>{pickL3(c.label, locale)}</LegendRow>) : <LegendRow swatch={swatch(spec, spec.color)}>{title}</LegendRow>}
     {spec.cats && spec.otherLabel ? <LegendRow swatch={swatch(spec, spec.otherColor ?? spec.color)}>{pickL3(spec.otherLabel, locale)}</LegendRow> : null}
     {spec.legendNotes.map((n, i) => <LegendNote key={i}>{pickL3(n, locale)}</LegendNote>)}
     <LegendNote>{spec.sourceOrg}（{spec.license}）</LegendNote>

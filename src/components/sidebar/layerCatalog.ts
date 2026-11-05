@@ -332,6 +332,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 1 波（國土基礎）：交通、能源
     "交通",
     "能源",
+    // 第 6 波：人口網格（GHSL）、都市公園＋綜合體育設施、墓地（OSM）
+    "人口社經",
+    "運動休閒",
+    "殯葬",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2797,7 +2801,16 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
+      // 第 6 波：比照台灣「底圖 › 海域界線」（陸域行政界之外的海域法定界線）
+      { title: "海域界線", layers: [fromManifest("krTerritorialSea")] },
     ],
+  },
+  // 第 6 波：人口網格（GHSL），比照台灣、日本「人口社經 › 人口分布」
+  {
+    title: "人口社經",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("krPopulationH3")] }],
   },
   // 南韓第 3–5 波：主題與群組比照台灣同類（水資源 › 點位／面 / 線、海洋 › 海域環境、交通 › 場站／路網、林業 › 分區／點位／線；
   // 海岸型態台灣無同類，比照英國歸「災害 › 海岸侵蝕」）
@@ -2854,6 +2867,22 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "KR",
     defaultCollapsed: true,
     groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
+  },
+  // 第 6 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 墓區範圍」
+  {
+    title: "運動休閒",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "運動場館", layers: [fromManifest("krSportsFacilities")] },
+      { title: "公園 Parks", layers: [fromManifest("krUrbanParks")] },
+    ],
+  },
+  {
+    title: "殯葬",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "墓區範圍", layers: [fromManifest("krCemeteriesOsm")] }],
   },
   {
     title: "林業",
@@ -3276,6 +3305,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    // 第 6 波
+    "人口社經": "city",
+    "運動休閒": "publicLife",
+    "殯葬": "publicLife",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3467,6 +3500,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "환경·기후" },
     "林業": { zh: "林業", sub: "임업" },
     "能源": { zh: "能源", sub: "에너지" },
+    "人口社經": { zh: "人口社經", sub: "인구·사회경제" },
+    "運動休閒": { zh: "運動休閒", sub: "체육·여가" },
+    "殯葬": { zh: "殯葬", sub: "장사" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
