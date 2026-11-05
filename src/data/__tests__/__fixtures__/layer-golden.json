@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1623,
+    "keyCount": 1630,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2027,6 +2027,43 @@
     },
     {
       "layers": [
+        "ca-climate-stations-circle"
+      ],
+      "type": "caClimateStations"
+    },
+    {
+      "layers": [
+        "ca-aqhi-stations-circle"
+      ],
+      "type": "caAqhiStations"
+    },
+    {
+      "layers": [
+        "ca-radiation-stations-circle"
+      ],
+      "type": "caRadiationStations"
+    },
+    {
+      "layers": [
+        "ca-npri-facilities-circle"
+      ],
+      "type": "caNpriFacilities"
+    },
+    {
+      "layers": [
+        "ca-wastewater-systems-circle"
+      ],
+      "type": "caWastewaterSystems"
+    },
+    {
+      "layers": [
+        "ca-earthquakes-major-circle",
+        "ca-earthquakes-circle"
+      ],
+      "type": "caEarthquakes"
+    },
+    {
+      "layers": [
         "ca-indigenous-lands-points-circle"
       ],
       "type": "caIndigenousLands"
@@ -2106,6 +2143,14 @@
         "ca-population-centres-fill"
       ],
       "type": "caPopulationCentres"
+    },
+    {
+      "layers": [
+        "ca-population-grid-r7-fill",
+        "ca-population-grid-r6-fill",
+        "ca-population-grid-r5-fill"
+      ],
+      "type": "caPopulationGrid"
     },
     {
       "layers": [
@@ -104695,6 +104740,64 @@
         "valueText": "1.0"
       }
     ],
+    "caAqhiStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caClimateStations": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "現役（1,160）",
+            "value": "active"
+          },
+          {
+            "label": "歷史站（7,275）",
+            "value": "historical"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "active",
+          "historical"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "caDeprivation": [
       {
         "label": "剝奪面向",
@@ -104727,6 +104830,136 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caEarthquakes": [
+      {
+        "label": "規模",
+        "options": [
+          {
+            "label": "規模 <2",
+            "value": "lt2"
+          },
+          {
+            "label": "規模 2–3",
+            "value": "m2"
+          },
+          {
+            "label": "規模 3–4",
+            "value": "m3"
+          },
+          {
+            "label": "規模 4–5",
+            "value": "m4"
+          },
+          {
+            "label": "規模 ≥5",
+            "value": "m5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lt2",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -104855,6 +105088,159 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "caNpriFacilities": [
+      {
+        "label": "產業群",
+        "options": [
+          {
+            "label": "油氣開採、管線與煉製（15,673）",
+            "value": "oil_gas"
+          },
+          {
+            "label": "製造業（5,310）",
+            "value": "manufacturing"
+          },
+          {
+            "label": "礦業與金屬（1,009）",
+            "value": "mining_metals"
+          },
+          {
+            "label": "電力（381）",
+            "value": "electricity"
+          },
+          {
+            "label": "廢棄物與污水處理（674）",
+            "value": "waste_water"
+          },
+          {
+            "label": "其他（1,493）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "oil_gas",
+          "manufacturing",
+          "mining_metals",
+          "electricity",
+          "waste_water",
+          "other"
+        ]
+      },
+      {
+        "label": "申報狀態",
+        "options": [
+          {
+            "label": "2023–2025 年仍申報（8,790）",
+            "value": "recent"
+          },
+          {
+            "label": "2022 年以前停止申報（15,750）",
+            "value": "past"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "recent",
+          "past"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "caOilGas": [
@@ -105164,6 +105550,94 @@
         "value": "polygon"
       }
     ],
+    "caPopulationGrid": [
+      {
+        "defaultValue": "YlOrBr",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "caPostalFsa": [
       {
         "label": "都市／農村",
@@ -105380,6 +105854,26 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caRadiationStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
@@ -105609,6 +106103,44 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caWastewaterSystems": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中（2,475）",
+            "value": "operational"
+          },
+          {
+            "label": "已除役（62）",
+            "value": "decommissioned"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operational",
+          "decommissioned"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",

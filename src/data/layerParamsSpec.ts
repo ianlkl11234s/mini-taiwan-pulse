@@ -797,6 +797,15 @@ const CA_OPT_PLACE_GROUP: KrOpt = [
   ["settlement", "聚落（29,754）"], ["admin", "行政區與原住民保留地（10,278）"], ["park", "公園與保護區（10,301）"], ["water", "水體（224,426）"],
   ["terrain", "山岳、地形與冰川（75,865）"], ["constructed", "人工設施（11,281）"], ["other", "其他（2,831）"],
 ];
+// 加拿大第 3 波（2026-11-06）
+const CA_OPT_CLIMATE_STATUS: KrOpt = [["active", "現役（1,160）"], ["historical", "歷史站（7,275）"]];
+const CA_OPT_NPRI_GROUP: KrOpt = [
+  ["oil_gas", "油氣開採、管線與煉製（15,673）"], ["manufacturing", "製造業（5,310）"], ["mining_metals", "礦業與金屬（1,009）"],
+  ["electricity", "電力（381）"], ["waste_water", "廢棄物與污水處理（674）"], ["other", "其他（1,493）"],
+];
+const CA_OPT_NPRI_RECENT: KrOpt = [["recent", "2023–2025 年仍申報（8,790）"], ["past", "2022 年以前停止申報（15,750）"]];
+const CA_OPT_WSER_STATUS: KrOpt = [["operational", "運轉中（2,475）"], ["decommissioned", "已除役（62）"]];
+const CA_OPT_QUAKE_CLASS: KrOpt = [["lt2", "規模 <2"], ["m2", "規模 2–3"], ["m3", "規模 3–4"], ["m4", "規模 4–5"], ["m5", "規模 ≥5"]];
 function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSpec {
   return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
 }
@@ -2150,6 +2159,17 @@ export const LAYER_PARAMS_SPEC = {
   ],
   caPlaceNames: [krMulti("caPlaceNamesCatMask", "地名類別", CA_OPT_PLACE_GROUP), opacitySlider("caPlaceNamesOpacity", 0.85), scaleSlider("caPlaceNamesScale", 1)],
   caHillshade: [{ kind: "slider", name: "caHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  // 加拿大第 3 波（環境氣候、災害）＋GHSL 人口網格
+  caClimateStations: [krMulti("caClimateStationsCatMask", "狀態", CA_OPT_CLIMATE_STATUS), opacitySlider("caClimateStationsOpacity", densePointOpacity(8_435)), scaleSlider("caClimateStationsScale", 1)],
+  caAqhiStations: [opacitySlider("caAqhiStationsOpacity", 0.9), scaleSlider("caAqhiStationsScale", 1)],
+  caRadiationStations: [opacitySlider("caRadiationStationsOpacity", 0.9), scaleSlider("caRadiationStationsScale", 1)],
+  caNpriFacilities: [
+    krMulti("caNpriFacilitiesCatMask", "產業群", CA_OPT_NPRI_GROUP), krMulti("caNpriFacilitiesRecentMask", "申報狀態", CA_OPT_NPRI_RECENT),
+    heatmapPalette("caNpriFacilities"), opacitySlider("caNpriFacilitiesOpacity", densePointOpacity(24_540)), scaleSlider("caNpriFacilitiesScale", 1),
+  ],
+  caWastewaterSystems: [krMulti("caWastewaterSystemsCatMask", "狀態", CA_OPT_WSER_STATUS), opacitySlider("caWastewaterSystemsOpacity", 0.85), scaleSlider("caWastewaterSystemsScale", 1)],
+  caEarthquakes: [krMulti("caEarthquakesCatMask", "規模", CA_OPT_QUAKE_CLASS), heatmapPalette("caEarthquakes"), opacitySlider("caEarthquakesOpacity", densePointOpacity(101_365)), scaleSlider("caEarthquakesScale", 1)],
+  caPopulationGrid: [gridPalette("caPopulationGridPalette", "YlOrBr"), opacitySlider("caPopulationGridOpacity", 0.6)],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   // §3.8 V-5：點／面切換（8,716 面 < 1 萬點，不建熱區；面 z3 起已看得到，預設面）

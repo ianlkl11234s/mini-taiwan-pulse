@@ -10,6 +10,9 @@ const SKIP = /japan|jma|jpMedical/i;
 const NOT_PLACE = new Set([
   "infraPanels.tsx#InternetExchangePointPanel",
   "caPanels.tsx#CaPowerPlantsPanel",
+  // 加拿大第 3 波：NPRI 設施、污水系統的 city 是來源原文城市名
+  "caEnvPanels.tsx#CaNpriFacilitiesPanel",
+  "caEnvPanels.tsx#CaWastewaterSystemsPanel",
   "forestryPanels.tsx#ForestryGenericPanel",
   "waterPanels.tsx#WaterDetentionBasinPanel",
   "urbanPanels.tsx#StreetTreesNationalPanel",

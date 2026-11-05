@@ -74,6 +74,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+
+- 加拿大第 3 波 7 層：環境氣候（氣象站 8,435、AQHI 地點 134、輻射監測站 46、NPRI 污染申報設施 24,540、污水處理系統 2,537）、災害（歷史地震 1985–2019 共 101,365 筆），以及人口社經「人口網格」（GHSL 2020 模型推估，H3 六角格）。⚠️ 發版前 `ca_earthquakes.pmtiles`、`ca_population_grid.pmtiles` 已上傳 S3 deploy-assets/world/
+
 ## v2.23.0 — 2026-11-06 — 30 天地圖挑戰 Day 4 群聚與 Day 5 海景、站主限定古地圖
 
 ### 新增
