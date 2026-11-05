@@ -137,7 +137,7 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpWildlifeSpecialProtectionDistrict", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpMarineEbsaCoastal", family: "jpTourism", file: "jp_marine_ebsa_moe_coastal_20150101_points.pmtiles", sourceLayer: "jp_marine_ebsa_coastal_points", count: 270, def: "point" },
   // ── 南韓：useKrDataLayers 規格驅動層（circle id＝`${kebab(key)}-point-circle`，面＝規格 layerId） ──
-  { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14 },
+  { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14, heatIntensity: 0.05 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));
