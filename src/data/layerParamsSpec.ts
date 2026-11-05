@@ -2084,7 +2084,7 @@ export const LAYER_PARAMS_SPEC = {
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : 0.7) : 0.85)]),
   ]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),

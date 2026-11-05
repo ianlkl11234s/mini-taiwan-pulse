@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1627,
+    "keyCount": 1632,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1911,9 +1911,27 @@
     },
     {
       "layers": [
+        "kr-urban-parks-circle"
+      ],
+      "type": "krUrbanParks"
+    },
+    {
+      "layers": [
+        "kr-sports-facilities-circle"
+      ],
+      "type": "krSportsFacilities"
+    },
+    {
+      "layers": [
         "kr-np-trails-line"
       ],
       "type": "krNpTrails"
+    },
+    {
+      "layers": [
+        "kr-territorial-sea-line"
+      ],
+      "type": "krTerritorialSea"
     },
     {
       "layers": [
@@ -1933,6 +1951,19 @@
         "kr-national-parks-fill"
       ],
       "type": "krNationalParks"
+    },
+    {
+      "layers": [
+        "kr-cemeteries-osm-fill",
+        "kr-cemeteries-osm-point-circle"
+      ],
+      "type": "krCemeteriesOsm"
+    },
+    {
+      "layers": [
+        "kr-population-h3-fill"
+      ],
+      "type": "krPopulationH3"
     },
     {
       "layers": [
@@ -125156,6 +125187,136 @@
         "valueText": "1.0"
       }
     ],
+    "krCemeteriesOsm": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "墓地（landuse=cemetery）",
+            "value": "cemetery"
+          },
+          {
+            "label": "墓園（amenity=grave_yard）",
+            "value": "grave_yard"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cemetery",
+          "grave_yard"
+        ]
+      },
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "krChildProtectionZones": [
       {
         "label": "類別",
@@ -125944,6 +126105,17 @@
         "valueText": "1.0"
       }
     ],
+    "krPopulationH3": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "krPorts": [
       {
         "label": "透明度 0.45",
@@ -126604,6 +126776,44 @@
         "valueText": "1.0"
       }
     ],
+    "krSportsFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "營業中",
+            "value": "open"
+          },
+          {
+            "label": "休業",
+            "value": "suspended"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "open",
+          "suspended"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krStreetTrees": [
       {
         "label": "類別",
@@ -126786,6 +126996,147 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krTerritorialSea": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krUrbanParks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兒童公園",
+            "value": "children"
+          },
+          {
+            "label": "近鄰公園",
+            "value": "neighborhood"
+          },
+          {
+            "label": "小公園",
+            "value": "small"
+          },
+          {
+            "label": "主題公園（文化、水邊、體育、歷史、墓地等）",
+            "value": "theme"
+          },
+          {
+            "label": "其他（含未分類）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "children",
+          "neighborhood",
+          "small",
+          "theme",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "PuBuGn",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBuGn"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",

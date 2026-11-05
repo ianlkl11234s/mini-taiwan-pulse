@@ -24,14 +24,14 @@ export const KrAdminHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 第 3–5 波資料層：一個 key 一個 Host，共用 `useKrDataLayer`（規格見 data/krDataLayers.ts）。 */
+/** 第 3–6 波資料層：一個 key 一個 Host，共用 `useKrDataLayer`（規格見 data/krDataLayers.ts）。 */
 function makeKrDataHost(key: KrDataKey, fallbackOpacity: number): LayerHostComponent {
   const spec = KR_SPEC_BY_KEY[key];
   const hookId = `useKr${key.slice(2)}Layer`;
   const KrDataHost: LayerHostComponent = ({ deps }) => {
     bumpHostRender(hookId);
     const p = useKeyOverlayParams(key);
-    useKrDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`]);
+    useKrDataLayer(deps.mapRef, spec, deps.layerVisibility[key], p[`${key}Opacity`] ?? fallbackOpacity, p[`${key}Scale`] ?? 1, deps.isDarkTheme, p[`${key}CatMask`], p[`${key}DisplayModeIdx`]);
     return null;
   };
   return KrDataHost;
@@ -146,3 +146,9 @@ export const KrOilGasHost: LayerHostComponent = ({ deps }) => {
   useKrOilGasLayer(deps.mapRef, deps.layerVisibility.krOilGas, p.krOilGasOpacity ?? 0.6, deps.isDarkTheme, p.krOilGasCatMask, p.krOilGasPipeMask);
   return null;
 };
+// 第 6 波（2026-11-06）
+export const KrTerritorialSeaHost = makeKrDataHost("krTerritorialSea", 0.85);
+export const KrUrbanParksHost = makeKrDataHost("krUrbanParks", 0.8);
+export const KrSportsFacilitiesHost = makeKrDataHost("krSportsFacilities", 0.85);
+export const KrCemeteriesOsmHost = makeKrDataHost("krCemeteriesOsm", 0.7);
+export const KrPopulationH3Host = makeKrDataHost("krPopulationH3", 0.6);
