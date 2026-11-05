@@ -125,7 +125,8 @@ export function MapchallengeDay05SeaViewPanel({ props }: Props) {
     <Title color={sw.color}>{useRouteName(props)}</Title>
     <Row label={t("popup.mapchallenge.day05.kind")} value={t(KIND_KEYS[kind])} />
     <Row label={t("popup.mapchallenge.day05.verdict")} value={t(MAPCHALLENGE_DAY05_TIER_KEYS[String(tier) as keyof typeof MAPCHALLENGE_DAY05_TIER_KEYS])} color={sw.color} />
-    {tier >= 1 && <Row label={t("popup.mapchallenge.day05.viewDeg")} value={t("popup.mapchallenge.day05.degrees", { n: formatNumber(num(props.view_deg)) })} mono />}
+    {(tier === 1 || tier === 2) && <Row label={t("popup.mapchallenge.day05.viewDeg")} value={t("popup.mapchallenge.day05.degrees", { n: formatNumber(num(props.view_deg)) })} mono />}
+    {tier === 3 && <Row label={t("popup.mapchallenge.day05.note")} value={t("popup.mapchallenge.day05.treeNote", { n: formatNumber(num(props.view_deg)) })} />}
     <Row label={t("popup.mapchallenge.day05.dsea")} value={t("popup.mapchallenge.day05.meters", { n: formatNumber(num(props.dsea_m)) })} mono />
     <Day05Footer />
   </div>;

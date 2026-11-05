@@ -27,5 +27,6 @@
   "popup.mapchallenge.day05.pct": "{n}%",
   "popup.mapchallenge.day05.note": "Note",
   "popup.mapchallenge.day05.viaductNote": "The view relies mainly on viaduct height; noise barriers are not counted",
+  "popup.mapchallenge.day05.treeNote": "Roadside trees block part of the view; about {n}° if trees are ignored",
   "popup.mapchallenge.day05.unnamed": "(unnamed)"
 }

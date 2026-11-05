@@ -126,6 +126,7 @@ export function MapchallengeScaleTcChLegend() {
 export const MAPCHALLENGE_DAY05_TIER_KEYS = {
   2: "legend.mapchallenge.day05.tier2",
   1: "legend.mapchallenge.day05.tier1",
+  3: "legend.mapchallenge.day05.tier3",
   0: "legend.mapchallenge.day05.tier0",
   "-1": "legend.mapchallenge.day05.tierTunnel",
 } as const;

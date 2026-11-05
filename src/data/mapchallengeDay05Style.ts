@@ -10,20 +10,20 @@ import { MAPCHALLENGE_DAY05_TOP_RANK } from "./mapchallengeDay05Types";
 
 /** 線寬階（L-1）：鐵路高一階；看不到海與隧道降一階 */
 function widthStops(rail: boolean, tier: number): readonly [number, number] {
-  const strong = tier >= 1;
+  const strong = tier === 1 || tier === 2;
   if (rail) return strong ? LINE_WIDTH.emphasis : LINE_WIDTH.standard;
   return strong ? LINE_WIDTH.standard : LINE_WIDTH.thin;
 }
 
 /**
- * V-1 全國視角（台灣 z7）：開闊海景／看得到海兩階在低縮放加粗（z7 道路 2、鐵路 2.5），到 z10 回到 L-1 標準值，
+ * V-1 全國視角（台灣 z7）：開闊海景／看得到海兩階（樹縫間看得到不加粗）在低縮放加粗（z7 道路 2、鐵路 2.5），到 z10 回到 L-1 標準值，
  * z14 照 L-1；看不到海／隧道維持細。L-1 本身只有 z10／z14 兩點，z7 這個插值點是本層的資料編碼例外。
  */
 const NATIONAL_STRONG_Z7 = { road: 2, rail: 2.5 } as const;
 
 /** 依運具＋判定的線寬（z7／z10／z14 三個插值點；z7 以下固定為 z7 值） */
 export function mapchallengeDay05SegmentWidthExpr(scale = 1): unknown[] {
-  const strong = [">=", ["to-number", ["get", "tier"], 0], 1];
+  const strong = ["in", ["to-number", ["get", "tier"], 0], ["literal", [1, 2]]];
   const at = (z: 0 | 1 | "z7") => {
     const pick = (rail: boolean) => z === "z7"
       ? ["case", strong, NATIONAL_STRONG_Z7[rail ? "rail" : "road"] * scale, widthStops(rail, 0)[0] * scale]

@@ -27,5 +27,6 @@
   "popup.mapchallenge.day05.pct": "{n}%",
   "popup.mapchallenge.day05.note": "備註",
   "popup.mapchallenge.day05.viaductNote": "主要靠高架視高，隔音牆未計",
+  "popup.mapchallenge.day05.treeNote": "路邊樹叢遮住部分視線；不計路邊樹時視角約 {n}°",
   "popup.mapchallenge.day05.unnamed": "（未命名）"
 }

@@ -27,5 +27,6 @@
   "popup.mapchallenge.day05.pct": "{n}%",
   "popup.mapchallenge.day05.note": "備考",
   "popup.mapchallenge.day05.viaductNote": "高架の高さによる眺めが中心で、防音壁は考慮していません",
+  "popup.mapchallenge.day05.treeNote": "沿道の樹木が視線を一部さえぎる。樹木を除くと見える角度は約 {n}°",
   "popup.mapchallenge.day05.unnamed": "（名称なし）"
 }
