@@ -36,6 +36,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # schedule／手動觸發預設跑在 default branch（develop）；對照表一律以正式分支 master 為準
+          ref: master
           # 對照表要掃前端 src 的引用（根目錄的 *.html 在 cone 模式會自動帶入）
           sparse-checkout: |
             deploy/cloudflare
@@ -63,7 +65,8 @@ jobs:
 
   build-deploy:
     needs: sync-assets
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.sync_only)
+    # 只部署 master（手動觸發若選了其他分支就不部署）
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.sync_only))
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
