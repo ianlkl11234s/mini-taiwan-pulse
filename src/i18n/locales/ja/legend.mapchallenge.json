@@ -26,5 +26,22 @@
   "legend.mapchallenge.tcchTitle": "人口ホットスポット × 工場ホットスポット",
   "legend.mapchallenge.tcchRate": "台中 {tc}%｜彰化 {ch}%",
   "legend.mapchallenge.tcchNote": "ホットスポット＝各県市内の上位 10%（約 0.74 km² の細かいセル）。2 県市間の比較はしません。",
-  "legend.mapchallenge.source": "GHSL GHS-POP R2023A 2020（CC BY 4.0）、経済部工場登記 2026-06、内政部寺廟登記、教育部学校名簿、衛生福利部医療機関、学習塾名簿、OpenStreetMap（ODbL、コンビニ）；taipei-gis-analytics Day 4 クラスター分析"
+  "legend.mapchallenge.source": "GHSL GHS-POP R2023A 2020（CC BY 4.0）、経済部工場登記 2026-06、内政部寺廟登記、教育部学校名簿、衛生福利部医療機関、学習塾名簿、OpenStreetMap（ODbL、コンビニ）；taipei-gis-analytics Day 4 クラスター分析",
+  "legend.mapchallenge.day05.method": "地形＋建物＋樹冠による視線推定。500 m 以上、途切れ 200 m 以下を連続とみなす。緑島・小琉球・澎湖・金門・馬祖は対象外",
+  "legend.mapchallenge.day05.source": "地形：内政部 20 m 数値地形モデル（2024）；建物高さ：GBA／OSM 統合；樹冠高さ：Meta／WRI（CC BY 4.0）；路線：OpenStreetMap（ODbL）",
+  "legend.mapchallenge.day05.seaViewTitle": "区間ごとの海の眺め",
+  "legend.mapchallenge.day05.tier2": "開けた海の眺め",
+  "legend.mapchallenge.day05.tier1": "海が見える",
+  "legend.mapchallenge.day05.tier3": "木々の間から見える",
+  "legend.mapchallenge.day05.tier0": "海が見えない",
+  "legend.mapchallenge.day05.tierTunnel": "トンネル",
+  "legend.mapchallenge.day05.seaViewNote": "鉄道は道路より太く描画。海から 3 km 以内の路線のみ表示。 道路から 40 m 以内の樹木は 10 m 樹冠データ（Meta／WRI）で計上。海堤と海岸防風林は仮定の高さで計上。海は満潮時を基準（干潟は海とみなす）。「木々の間」は視線が一部さえぎられることを指す。",
+  "legend.mapchallenge.day05.runsTitle": "海が見える最長連続区間（上位 30）",
+  "legend.mapchallenge.day05.runsScope": "範囲：{scope}",
+  "legend.mapchallenge.day05.rail": "鉄道",
+  "legend.mapchallenge.day05.road": "道路",
+  "legend.mapchallenge.day05.top3": "上位 3 位は太線",
+  "legend.mapchallenge.day05.scope.all": "距離を問わない",
+  "legend.mapchallenge.day05.scope.d200": "海から 200 m 以内",
+  "legend.mapchallenge.day05.scope.d100": "海から 100 m 以内"
 }

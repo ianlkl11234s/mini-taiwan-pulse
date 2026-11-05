@@ -423,6 +423,7 @@ export type ExpandableLayerKey =
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback" | "freewayTdcsSim"
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
+  | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -966,6 +967,7 @@ export interface FeatureInfo {
   | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback"
   | "freewayTdcsSim"
   | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
+  | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1329,6 +1331,10 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   mapchallengeDay04Overlap: boolean;
   /** 30 天地圖挑戰 Day 4 群聚：臺中與彰化 H3 r8 工廠細格熱區 */
   mapchallengeDay04ScaleTcCh: boolean;
+  /** 30 天地圖挑戰 Day 5 視野（模擬面板，公開）：海景路段（鐵路／道路逐段判定） */
+  mapchallengeDay05SeaView: boolean;
+  /** 30 天地圖挑戰 Day 5 視野：最長連續海景（各取前 30 名） */
+  mapchallengeDay05SeaViewRuns: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */

@@ -117,6 +117,8 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
   "gasCoverageTaisugar/line": { width: "standard", opacity: "standard" }, // 台糖 最近距離 Coverage Taisugar
   "highways/line": { width: "standard", opacity: "reference" }, // 國道 Highway
   "hikingTrails/line": { width: "standard", opacity: "standard" }, // 全台步道 Hiking Trails
+  "mapchallengeDay05SeaView/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 海景路段（寬依運具＋判定）
+  "mapchallengeDay05SeaViewRuns/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 最長連續海景（寬依名次）
   "maritimeBoundary/line": { width: "standard", opacity: "reference" }, // 領海界線 Maritime Boundary
   "maritimeBoundary/line-24nm": { width: "standard", opacity: "reference" }, // 領海界線 Maritime Boundary
   "officialBridgesHsinchu/line": { width: "emphasis", opacity: "standard" }, // 新竹市橋梁清冊

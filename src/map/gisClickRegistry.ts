@@ -919,6 +919,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["mapchallenge-day04-overlap-fill"], type: "mapchallengeDay04Overlap" },
   { layers: ["mapchallenge-day04-facility-fill"], type: "mapchallengeDay04Facility" },
   { layers: ["mapchallenge-day04-population-fill"], type: "mapchallengeDay04Population" },
+  // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
+  { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
+  { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

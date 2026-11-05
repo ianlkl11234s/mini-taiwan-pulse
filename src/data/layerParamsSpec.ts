@@ -171,6 +171,9 @@ import {
   SELFTEST_CHANNEL_OPTIONS, SMOKING_FACILITY_OPTIONS, TREATMENT_CATEGORY_OPTIONS, toParamOptions,
 } from "./harmReductionTypes";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStationsTypes";
+import {
+  MAPCHALLENGE_DAY05_DEFAULT_SCOPE, MAPCHALLENGE_DAY05_DEFAULT_TIERS, MAPCHALLENGE_DAY05_KIND_ENCODE, MAPCHALLENGE_DAY05_KIND_OPTIONS, MAPCHALLENGE_DAY05_SCOPE_ENCODE, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
+} from "./mapchallengeDay05Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -829,9 +832,9 @@ function displayModeSelect(key: string, def: "point" | "polygon"): SelectParamSp
  * out＝`${key}CategoryMask`（bitmask，順序＝options）；options 的 value 順序必須和 hook 用的類別陣列一致
  * （`gbCategoryFilters.test.ts` 守）。
  */
-function categoryMultiSelect(key: string, options: ParamSelectOption[]): MultiSelectParamSpec {
+function categoryMultiSelect(key: string, options: ParamSelectOption[], defaultValue: string = MULTI_SELECT_ALL): MultiSelectParamSpec {
   assertMultiSelectBitmaskCapacity(options);
-  return { kind: "multiSelect", name: `${key}Category`, label: "類別", default: MULTI_SELECT_ALL, options, out: `${key}CategoryMask` };
+  return { kind: "multiSelect", name: `${key}Category`, label: "類別", default: defaultValue, options, out: `${key}CategoryMask` };
 }
 
 /** 30 天地圖挑戰 Day 4：熱區四類（順序＝圖例＝bitmask） */
@@ -844,6 +847,17 @@ function mapchallengeFacilitySelect(key: string): SelectParamSpec {
     out: `${key}KindIdx`, encode: MAPCHALLENGE_DAY04_FACILITY_KEYS,
   };
 }
+
+/** 30 天地圖挑戰 Day 5：運具下拉（全部／鐵路／道路；兩層共用）。out＝`${key}KindIdx`，idx 0＝全部 */
+function mapchallengeDay05KindSelect(key: string): SelectParamSpec {
+  return {
+    kind: "select", category: "data", name: `${key}Kind`, label: "運具", default: "all",
+    options: MAPCHALLENGE_DAY05_KIND_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+    out: `${key}KindIdx`, encode: [...MAPCHALLENGE_DAY05_KIND_ENCODE],
+  };
+}
+/** Day 5 海景路段判定四類（順序＝圖例＝bitmask） */
+const MAPCHALLENGE_DAY05_TIER_OPTIONS: ParamSelectOption[] = MAPCHALLENGE_DAY05_TIERS.map((t) => ({ label: t.zh, value: String(t.value) }));
 
 /**
  * R7 網格顏色（色盤選單）：預設沿用該網格現行色系在色盤庫裡的那一組（viridis／magma／cividis；
@@ -1578,6 +1592,20 @@ export const LAYER_PARAMS_SPEC = {
     categoryMultiSelect("mapchallengeDay04Overlap", MAPCHALLENGE_HOTSPOT_OPTIONS),
   ],
   mapchallengeDay04ScaleTcCh: [opacitySlider("mapchallengeDay04ScaleTcChOpacity", 0.7), categoryMultiSelect("mapchallengeDay04ScaleTcCh", MAPCHALLENGE_HOTSPOT_OPTIONS)],
+  // 30 天地圖挑戰 Day 5 視野（模擬面板，公開）：運具 select 與判定類別多選（V-4）都由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay05SeaView: [
+    opacitySlider("mapchallengeDay05SeaViewOpacity", 0.85), mapchallengeDay05KindSelect("mapchallengeDay05SeaView"),
+    categoryMultiSelect("mapchallengeDay05SeaView", MAPCHALLENGE_DAY05_TIER_OPTIONS, JSON.stringify(MAPCHALLENGE_DAY05_DEFAULT_TIERS.map(String))),
+  ],
+  mapchallengeDay05SeaViewRuns: [
+    opacitySlider("mapchallengeDay05SeaViewRunsOpacity", 0.85),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay05SeaViewRunsScope", label: "範圍", default: MAPCHALLENGE_DAY05_DEFAULT_SCOPE,
+      options: MAPCHALLENGE_DAY05_SCOPES.map((s) => ({ label: s.zh, value: s.value })),
+      out: "mapchallengeDay05SeaViewRunsScopeIdx", encode: [...MAPCHALLENGE_DAY05_SCOPE_ENCODE],
+    },
+    mapchallengeDay05KindSelect("mapchallengeDay05SeaViewRuns"),
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
