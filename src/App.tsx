@@ -2018,7 +2018,7 @@ export default function App() {
   // 古地圖開著且底圖地名還開著：同一張卡的第三段，提醒現代地名可關（按鈕與底圖選單「顯示地名」同一個開關）
   const [historicalLabelTipDismissed, setHistoricalLabelTipDismissed] = useState(false);
   useEffect(() => { if (!layerVisibility.historicalMapSinica) setHistoricalLabelTipDismissed(false); }, [layerVisibility.historicalMapSinica]);
-  const historicalLabelTip = layerVisibility.historicalMapSinica && showBasemapLabels && !historicalLabelTipDismissed
+  const historicalLabelTip = layerVisibility.historicalMapSinica && !lockedKeys.has("historicalMapSinica") && showBasemapLabels && !historicalLabelTipDismissed
     && !isMobile && !captureMode && !chatOpen && !agentActivityVisible
     ? {
       onHide: () => { setShowBasemapLabels(false); setHistoricalLabelTipDismissed(true); },

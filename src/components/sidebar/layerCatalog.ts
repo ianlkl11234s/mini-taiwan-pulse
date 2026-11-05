@@ -3633,7 +3633,20 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   // 土壤液化／軟弱土層（RIGHTS_HOLD）：私人 PMTiles 只經 owner-authenticated Range API。
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
+  // 古地圖（中研院臺灣百年歷史地圖）：圖磚是公開外部來源，但再利用授權（CC BY-NC）待中研院確認，先站主限定；
+  // 不需私人 Range API，只擋介面與網址還原。
+  "historicalMapSinica",
 ]);
+
+/** 站主限定、且對非站主連主題標題都不顯示的主題（主題內圖層全部上鎖時才隱藏）。 */
+export const OWNER_ONLY_THEME_TITLES: ReadonlySet<string> = new Set(["歷史底圖 Historical Basemaps"]);
+
+/** 面板用：站主限定主題在內部圖層全被鎖（非站主）時整個拿掉。 */
+export function hideOwnerOnlyThemes(themes: readonly ThemeDef[], lockedKeys?: ReadonlySet<keyof LayerVisibility>): readonly ThemeDef[] {
+  if (!lockedKeys || lockedKeys.size === 0) return themes;
+  return themes.filter((theme) => !OWNER_ONLY_THEME_TITLES.has(theme.title)
+    || !theme.groups.every((group) => group.layers.every((layer) => lockedKeys.has(layer.key))));
+}
 
 /**
  * 授權或再散布條件尚未驗證、且連站主研究檢視也不開放的圖層：所有帳號均 fail-closed。

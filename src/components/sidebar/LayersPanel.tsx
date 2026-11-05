@@ -6,7 +6,7 @@ import { searchLayers } from "../../lib/layerSearch";
 import { useLocale } from "../../state/localeStore";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
-import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
+import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, hideOwnerOnlyThemes, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
@@ -98,7 +98,7 @@ export function LayersPanel({
   const i18n = useLocale();
   const { active, t } = i18n;
   const q = search.trim().toLowerCase();
-  const themesToRender = themes ?? THEMES;
+  const themesToRender = useMemo(() => hideOwnerOnlyThemes(themes ?? THEMES, lockedKeys), [themes, lockedKeys]);
   const searchContext = useMemo(() => {
     const context = new Map<string, string>();
     for (const theme of themesToRender) {

@@ -7136,7 +7136,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "select"] },
     description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 5 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
-    topics: ["歷史", "古地圖", "人文", "底圖"],
+    topics: ["歷史", "古地圖", "人文", "底圖", "OWNER_ONLY"],
   },
 
   tourEvents: {
