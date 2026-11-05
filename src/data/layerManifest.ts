@@ -29,6 +29,7 @@ import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatist
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
+import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -696,6 +697,17 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓國立公園線形設施 671 段（探訪路 608、進入道路 54、纜車與軌道）", processing: "PCS_ITRF2000_TM（≈EPSG:5181）→ 4326；以公園邊界指派所屬公園；PMTiles z6–14", note: "平台標籤；22/23 座公園（缺 팔공산）" },
   krStreetTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "行道樹", alt: "Street Trees", icon: TreeDeciduous, dataset: "kr_street_trees", topics: ["南韓", "行道樹", "都市樹木", "樹種"],
     description: "南韓行道樹 1,043,931 棵（逐棵點位；僅約 85 個 시군구，서울、부산、대전、울산 幾乎未涵蓋）", processing: "座標混用 EPSG:5186／5179，依 좌표계코드轉換；剔 6,328 筆；PMTiles z13–15（34.9MB 走 deploy-assets）", note: "平台標籤；15/16 시·도（部分自治體）；無資料不代表沒有樹" },
+  // 第 6 波（2026-11-06）
+  krTerritorialSea: { theme: "底圖", group: "海域界線", zh: "領海線", alt: "Territorial Sea Limit", icon: Waves, dataset: "kr_territorial_sea", topics: ["南韓", "領海", "海域界線", "底圖"],
+    description: "南韓領海外側界線（12 海里；大韓海峽 3 海里；含鬱陵島、獨島周邊）", processing: "국립해양조사원 SHP EPSG:5179 → 4326；1 筆 3 段；PMTiles z0–10", note: "KOGL 1（출처표시）；只有外側線，EEZ 與暫定水域未涵蓋" },
+  krUrbanParks: { theme: "運動休閒", group: "公園 Parks", zh: "都市公園", alt: "Urban Parks", icon: Trees, dataset: "kr_urban_parks", topics: ["南韓", "公園", "都市公園", "綠地"],
+    description: "南韓都市公園 17,435 處（전국도시공원정보표준데이터，代表點）", processing: "同名同座標去重 735；清州市 195 筆座標落在他市剔除；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；點非公園範圍" },
+  krSportsFacilities: { theme: "運動休閒", group: "運動場館", zh: "綜合體育設施", alt: "Sports Complexes", icon: Activity, dataset: "kr_sports_facilities", topics: ["南韓", "體育", "運動場館", "LOCALDATA"],
+    description: "南韓民營綜合體育設施業 346 處（營業中 334、休業 12；LOCALDATA）", processing: "EPSG:5174 → 4326；排除歇業 214、取消 43、無座標 18；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；公營體育中心與學校設施未涵蓋" },
+  krCemeteriesOsm: { theme: "殯葬", group: "墓區範圍", zh: "墓地（OSM）", alt: "Cemeteries (OSM)", icon: Flower, dataset: "kr_cemeteries_osm", topics: ["南韓", "墓地", "殯葬", "OSM"],
+    description: "南韓 OSM 墓地 16,565 面（landuse=cemetery／amenity=grave_yard；代表點 16,842）", processing: "Geofabrik 2026-10-31 PBF，GDAL OSM driver 抽取；buffer(0) 修環；面 PMTiles z6–13＋代表點 z0–14", note: "ODbL；16/16 시·도但密度極不均；官方都計墓地境外不可取" },
+  krPopulationH3: { theme: "人口社經", group: "人口分布", zh: "人口網格（GHSL）", alt: "Population Grid (GHSL)", icon: Grid3x3, dataset: "ghsl_pop_h3_kr", topics: ["南韓", "人口", "網格", "H3", "GHSL"],
+    description: "南韓 2020 人口 H3 網格（GHSL 模型推估，第 7 級 28,436 格／第 8 級 160,048 格，合計 51,850,602 人）", processing: "GHS-POP R2023A 3 弧秒 → H3 r8（r7 為父格加總）；逐格面積算密度；PMTiles r7 z4–8、r8 z9–12", note: "CC BY 4.0；模型推估、非戶籍（住民登錄 2026-09 為 51,082,431）" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
@@ -713,7 +725,10 @@ const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => 
     legend: spec.key,
     popup: spec.key,
     params: (() => {
-      const kinds = [...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"])] as ("multiSelect" | "palette" | "slider")[];
+      // V-5 代表點層（repPointLayers）：layerParamsSpec 另補「樣式」select、≥1 萬點熱區色盤、「大小」滑桿
+      const rep = repPointLayer(spec.key);
+      const kinds = [...(rep ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+        ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),
     description: m.description,
