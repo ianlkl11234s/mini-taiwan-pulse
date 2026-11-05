@@ -14,6 +14,7 @@ import { JP_LANDSLIDE_LAYER_COLOR } from "./jpLandslideWarningTypes";
 import { JP_INLAND_FLOOD_LAYER_COLOR } from "./jpInlandFloodTypes";
 import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
 import { JP_FOREST_LAYER_COLOR } from "./jpNationalForestTypes";
+import { JP_NATURE_R2_LAYER_COLORS } from "./jpNatureR2Colors";
 import { JP_WELFARE_LAYER_COLOR } from "./jpWelfareFacilityTypes";
 import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR } from "./jpRoadTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
@@ -2981,6 +2982,100 @@ export const LAYER_MANIFEST = {
     params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "日本国有林（依機能類型分 6 類）；僅國有林、民有林不在內；合併分類面、非小班",
     topics: ["世界", "日本", "国有林", "森林", "林業", "保安林"],
+  },
+  // ── 日本第二輪（2026-11-06，layer-mapping-r2 C057／C105／X009）：registry 面層 ──
+  jpNaturalParkAreas2015: {
+    key: "jpNaturalParkAreas2015",
+    country: "JP", section: { theme: "觀光", group: "自然公園 Natural Parks" },
+    ...layerName({ zh: "自然公園地域", alt: "自然公園地域", qualifier: "2015" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpNaturalParkAreas2015,
+    icon: TreePine,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_natural_park_areas_ksj_2015：国土数値情報 A10 自然公園地域 2015 年度 47 縣 SHP，19,193 面（自然公園地域外圍 8,748、特別地域 8,965、特別保護地区 1,480）；PMTiles z4–13，z11 起不丟面",
+      note: "來源只有三個區分層，沒有公園名稱與国立／国定／都道府県立種別（名稱與種別看 jpNationalParksMoe 或研究層 jpNaturalParks*）；細區分（特別地域・特別保護地区）官方註明為參考表示、精度不保證；各縣原始資料年度 2002–2014 不一；岡山県非商用（tile 屬性 license_note）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-natural-park-areas-2015", url: "./world/jp_natural_park_areas_ksj_2015.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-natural-park-areas-2015-points", url: "./world/jp_natural_park_areas_ksj_2015_points.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpNaturalParkAreas2015",
+    popup: "jpNaturalParkAreas2015",
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
+    description: "日本自然公園（国立・国定・都道府県立合計）的範圍與規制強度：外圍、特別地域、特別保護地区三區分；無公園名稱與種別",
+    topics: ["世界", "日本", "自然公園", "保護區", "国土数値情報", "A10"],
+  },
+  jpNationalParksMoe: {
+    key: "jpNationalParksMoe",
+    country: "JP", section: { theme: "觀光", group: "自然公園 Natural Parks" },
+    ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "令和7" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpNationalParksMoe,
+    icon: TreePine,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_national_parks_moe_r7：環境省 生物多様性センター「国立公園区域等に関するGISデータ」nps.zip（令和7年4月），35 園 15,293 面、ZONE 7 類；PMTiles z4–13",
+      note: "只有国立公園；国定公園與都道府県立自然公園看 jpNaturalParkAreas2015。授權：生物多様性センター利用規約別紙把本 GIS データ列為非所管，不適用該站 PDL1.0，資料頁 gis.biodic.go.jp 連不上，利用條件未確認（使用者非商用，照常上圖並標 license_note）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-national-parks-moe", url: "./world/jp_national_parks_moe_r7.pmtiles", sourceLayer: "jp_national_parks_moe_r7", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-national-parks-moe-points", url: "./world/jp_national_parks_moe_r7_points.pmtiles", sourceLayer: "jp_national_parks_moe_r7_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpNationalParksMoe",
+    popup: "jpNationalParksMoe",
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
+    description: "日本 35 座國立公園的公園計畫地種區分（特別保護地區、第 1–3 種特別地域、普通地域、海域公園地區），環境省 2025-04 版",
+    topics: ["世界", "日本", "國立公園", "自然公園", "保護區", "環境省"],
+  },
+  jpWildlifeProtectionMoe: {
+    key: "jpWildlifeProtectionMoe",
+    country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" },
+    ...layerName({ zh: "國指定鳥獸保護區", alt: "国指定鳥獣保護区", qualifier: "令和7" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpWildlifeProtectionMoe,
+    icon: PawPrint,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_wildlife_protection_areas_moe_r7：環境省「国指定鳥獣保護区区域等に関するGISデータ」nwp.zip（令和7年4月），347 面（鳥獣保護区 161、特別保護地区 184、特別保護指定地域 2）",
+      note: "只有国指定；都道府県指定鳥獣保護区未涵蓋。內容與研究層 jpWildlifeProtection*（jp_wildlife_protection_moe_202504）同一版本，本層為正式層新檔名。授權同 jpNationalParksMoe（利用條件未確認）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-wildlife-protection-moe", url: "./world/jp_wildlife_protection_areas_moe_r7.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-wildlife-protection-moe-points", url: "./world/jp_wildlife_protection_areas_moe_r7_points.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpWildlifeProtectionMoe",
+    popup: "jpWildlifeProtectionMoe",
+    params: { count: 5, kinds: ["select", "multiSelect", "multiSelect", "slider", "slider"] },
+    description: "日本國指定鳥獸保護區 347 面，依指定區分（集團渡來地、集團繁殖地、稀少鳥獸棲息地、大規模棲息地）上色；含特別保護地區",
+    topics: ["世界", "日本", "鳥獸保護", "保護區", "環境省"],
+  },
+  jpDid: {
+    key: "jpDid",
+    country: "JP", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口集中地區 DID", alt: "人口集中地区" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpDid,
+    icon: Users,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_did_ksj：国土数値情報 A16 人口集中地区 1995／2000／2005／2010／2015 逐縣檔，多部分 DID 合併後各期 1,534／1,507／1,494／1,499／1,478 區，一期一支 PMTiles（z4–12）",
+      note: "DID＝國勢調查人口密度約 4,000 人/km² 以上的基本單位區相連、合計 5,000 人以上的地區（総務省統計局定義）。2020 期 KSJ 頁面未列、未納入；1990 以前各期非商用、本層不收。前回人口／面積缺值（新設 DID）保留空白",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "jp-did", url: "./world/jp_did_ksj_2015.pmtiles", sourceLayer: "jp_did", minzoom: 4, maxzoom: 12 },
+    legend: "jpDid",
+    popup: "jpDid",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本人口集中地區（DID）五期（1995–2015 國勢調查），可切年份；依人口密度 4 級上色",
+    topics: ["世界", "日本", "人口", "都市化", "國勢調查", "国土数値情報", "A16"],
   },
   jpWelfareDisability: {
     key: "jpWelfareDisability",

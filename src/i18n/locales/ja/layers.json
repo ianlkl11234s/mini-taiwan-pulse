@@ -1618,5 +1618,9 @@
   "layer.mapchallengeDay04ScaleTcCh": "台中・彰化 工場細密グリッド",
   "layer.mapchallengeDay05SeaView": "海の見える区間",
   "layer.mapchallengeDay05SeaViewRuns": "海が見える最長連続区間",
-  "layer.historicalMapSinica": "古地図（台湾百年歴史地図）"
+  "layer.historicalMapSinica": "古地図（台湾百年歴史地図）",
+  "layer.jpNaturalParkAreas2015": "自然公園地域",
+  "layer.jpNationalParksMoe": "国立公園",
+  "layer.jpWildlifeProtectionMoe": "国指定鳥獣保護区",
+  "layer.jpDid": "人口集中地区（DID）"
 }

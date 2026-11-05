@@ -1618,5 +1618,9 @@
   "layer.mapchallengeDay04ScaleTcCh": "Taichung vs Changhua Factory Fine Grid",
   "layer.mapchallengeDay05SeaView": "Sea View Segments",
   "layer.mapchallengeDay05SeaViewRuns": "Longest Sea View Runs",
-  "layer.historicalMapSinica": "Historical Maps (Taiwan)"
+  "layer.historicalMapSinica": "Historical Maps (Taiwan)",
+  "layer.jpNaturalParkAreas2015": "Natural Park Areas",
+  "layer.jpNationalParksMoe": "National Parks",
+  "layer.jpWildlifeProtectionMoe": "National Wildlife Protection Areas",
+  "layer.jpDid": "Densely Inhabited Districts (DID)"
 }

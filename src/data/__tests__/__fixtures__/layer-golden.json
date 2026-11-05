@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1628,
+    "keyCount": 1632,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1015,6 +1015,36 @@
         "jp-national-forests-point-circle"
       ],
       "type": "jpNationalForests"
+    },
+    {
+      "layers": [
+        "jp-natural-park-areas-2015-fill",
+        "jp-natural-park-areas-2015-points-circle-point",
+        "jp-natural-park-areas-2015-points-circle-polygon"
+      ],
+      "type": "jpNaturalParkAreas2015"
+    },
+    {
+      "layers": [
+        "jp-national-parks-moe-fill",
+        "jp-national-parks-moe-points-circle-point",
+        "jp-national-parks-moe-points-circle-polygon"
+      ],
+      "type": "jpNationalParksMoe"
+    },
+    {
+      "layers": [
+        "jp-wildlife-protection-moe-fill",
+        "jp-wildlife-protection-moe-points-circle-point",
+        "jp-wildlife-protection-moe-points-circle-polygon"
+      ],
+      "type": "jpWildlifeProtectionMoe"
+    },
+    {
+      "layers": [
+        "jp-did-fill"
+      ],
+      "type": "jpDid"
     },
     {
       "layers": [
@@ -100671,6 +100701,1169 @@
       ],
       "sourceId": "mapchallenge-day05-sea-view-runs",
       "sourceUrl": "./mapchallenge/day05_sea_view_runs.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNaturalParkAreas2015",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "level"
+                ],
+                1
+              ],
+              "visibility": "visible"
+            },
+            "light": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "level"
+                ],
+                1
+              ],
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_natural_park_areas_ksj_2015"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-natural-park-areas-2015",
+      "sourceUrl": "./world/jp_natural_park_areas_ksj_2015.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNaturalParkAreas2015",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_natural_park_areas_ksj_2015_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "circle-point"
+      ],
+      "sourceId": "jp-natural-park-areas-2015-points",
+      "sourceUrl": "./world/jp_natural_park_areas_ksj_2015_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNationalParksMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "-",
+                10,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_rank"
+                  ],
+                  7
+                ]
+              ],
+              "visibility": "visible"
+            },
+            "light": {
+              "fill-sort-key": [
+                "-",
+                10,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_rank"
+                  ],
+                  7
+                ]
+              ],
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_national_parks_moe_r7"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-national-parks-moe",
+      "sourceUrl": "./world/jp_national_parks_moe_r7.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNationalParksMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(54,92,141,0.00)",
+                0.05,
+                "rgba(54,92,141,0.11)",
+                0.15,
+                "rgba(40,124,142,0.33)",
+                0.3,
+                "rgba(31,154,138,0.66)",
+                0.45,
+                "rgba(52,183,121,0.99)",
+                0.6,
+                "rgba(111,207,88,1.00)",
+                0.8,
+                "rgba(184,222,41,1.00)",
+                1,
+                "rgba(253,231,37,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(70,192,111,0.00)",
+                0.05,
+                "rgba(70,192,111,0.11)",
+                0.15,
+                "rgba(33,166,133,0.33)",
+                0.3,
+                "rgba(35,138,141,0.66)",
+                0.45,
+                "rgba(46,110,142,0.99)",
+                0.6,
+                "rgba(60,78,138,1.00)",
+                0.8,
+                "rgba(71,43,122,1.00)",
+                1,
+                "rgba(70,8,92,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_national_parks_moe_r7_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "circle-point"
+      ],
+      "sourceId": "jp-national-parks-moe-points",
+      "sourceUrl": "./world/jp_national_parks_moe_r7_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpWildlifeProtectionMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "class_rank"
+                ],
+                1
+              ],
+              "visibility": "none"
+            },
+            "light": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "class_rank"
+                ],
+                1
+              ],
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_wildlife_protection_areas_moe_r7"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-wildlife-protection-moe",
+      "sourceUrl": "./world/jp_wildlife_protection_areas_moe_r7.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpWildlifeProtectionMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_wildlife_protection_areas_moe_r7_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "jp-wildlife-protection-moe-points",
+      "sourceUrl": "./world/jp_wildlife_protection_areas_moe_r7_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpDid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "/",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "population"
+                    ],
+                    0
+                  ],
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_km2"
+                      ],
+                      0
+                    ],
+                    0.0001
+                  ]
+                ],
+                "#365c8d",
+                6000,
+                "#1f9a8a",
+                8000,
+                "#6fcf58",
+                10000,
+                "#fde725"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "/",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "population"
+                    ],
+                    0
+                  ],
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_km2"
+                      ],
+                      0
+                    ],
+                    0.0001
+                  ]
+                ],
+                "#46c06f",
+                6000,
+                "#238a8d",
+                8000,
+                "#3c4e8a",
+                10000,
+                "#46085c"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "jp_did"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-did",
+      "sourceUrl": "./world/jp_did_ksj_2015.pmtiles"
     }
   ],
   "params": {
@@ -119710,6 +120903,44 @@
         "valueText": "0.75"
       }
     ],
+    "jpDid": [
+      {
+        "label": "國勢調查年",
+        "options": [
+          {
+            "label": "1995 年",
+            "value": "1995"
+          },
+          {
+            "label": "2000 年",
+            "value": "2000"
+          },
+          {
+            "label": "2005 年",
+            "value": "2005"
+          },
+          {
+            "label": "2010 年",
+            "value": "2010"
+          },
+          {
+            "label": "2015 年",
+            "value": "2015"
+          }
+        ],
+        "type": "select",
+        "value": "2015"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "jpEvacuationSites": [
       {
         "label": "類別",
@@ -120933,6 +122164,296 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "jpNationalParksMoe": [
+      {
+        "label": "地種區分",
+        "options": [
+          {
+            "label": "特別保護地區",
+            "value": "特別保護地区"
+          },
+          {
+            "label": "第 1 種特別地域",
+            "value": "第1種特別地域"
+          },
+          {
+            "label": "第 2 種特別地域",
+            "value": "第2種特別地域"
+          },
+          {
+            "label": "第 3 種特別地域",
+            "value": "第3種特別地域"
+          },
+          {
+            "label": "普通地域",
+            "value": "普通地域"
+          },
+          {
+            "label": "海域公園地區",
+            "value": "海域公園地区"
+          },
+          {
+            "label": "區分未定",
+            "value": "区分未定"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "特別保護地区",
+          "第1種特別地域",
+          "第2種特別地域",
+          "第3種特別地域",
+          "普通地域",
+          "海域公園地区",
+          "区分未定"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "jpNaturalParkAreas2015": [
+      {
+        "label": "地域區分",
+        "options": [
+          {
+            "label": "自然公園地域（外圍）",
+            "value": "1"
+          },
+          {
+            "label": "特別地域",
+            "value": "2"
+          },
+          {
+            "label": "特別保護地區",
+            "value": "3"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
       },
       {
         "label": "大小 1.0",
@@ -122934,6 +124455,92 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "jpWildlifeProtectionMoe": [
+      {
+        "label": "指定區分",
+        "options": [
+          {
+            "label": "集團渡來地",
+            "value": "集団渡来地"
+          },
+          {
+            "label": "集團繁殖地",
+            "value": "集団繁殖地"
+          },
+          {
+            "label": "稀少鳥獸棲息地",
+            "value": "希少鳥獣生息地"
+          },
+          {
+            "label": "大規模棲息地",
+            "value": "大規模生息地"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "集団渡来地",
+          "集団繁殖地",
+          "希少鳥獣生息地",
+          "大規模生息地"
+        ]
+      },
+      {
+        "label": "保護區分",
+        "options": [
+          {
+            "label": "鳥獸保護區",
+            "value": "鳥獣保護区"
+          },
+          {
+            "label": "特別保護地區",
+            "value": "特別保護地区"
+          },
+          {
+            "label": "特別保護指定區域",
+            "value": "特別保護指定地域"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "鳥獣保護区",
+          "特別保護地区",
+          "特別保護指定地域"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "jpWildlifeProtectionNational": [
