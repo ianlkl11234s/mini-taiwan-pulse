@@ -213,7 +213,7 @@ export const CA_POP_GRID_POPUP: CaPopupSpec = {
   title: { props: [], fallback: l3("人口網格", "Population grid", "人口グリッド") },
   fields: [
     { prop: "pop", label: l3("2020 推估人口", "Population 2020 (estimate)", "2020 年推計人口"), kind: "num" },
-    { prop: "density", label: l3("人口密度", "Density", "人口密度"), kind: "num", unit: "人／km²", digits: 1 },
+    { prop: "density", label: l3("人口密度", "Density", "人口密度"), kind: "num", unit: "/km²", digits: 1 },
     { prop: "area_km2", label: l3("格面積", "Cell area", "セル面積"), kind: "num", unit: "km²", digits: 1 },
     { prop: "h3", label: l3("H3 格", "H3 cell", "H3 セル"), kind: "code" },
   ],

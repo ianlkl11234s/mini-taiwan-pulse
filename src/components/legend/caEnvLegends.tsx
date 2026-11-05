@@ -94,7 +94,7 @@ export function CaPopulationGridLegend() {
   const t = useLegendTheme();
   const colors = usePaletteRamp("caPopulationGrid", t.isDark, CA_POP_GRID_BREAKS.length);
   return <div>
-    <LegendTitle zh={`${title}（GHSL 2020）`} />
+    <LegendTitle zh={title} />
     {SUB(pick({ zh: "人口密度（人／km²）", en: "Population density (per km²)", ja: "人口密度（人／km²）" }))}
     <SwatchSteps colors={colors} breaks={[...CA_POP_GRID_BREAKS.map((b) => b.min.toLocaleString("en-US")), "+"]} />
     <Notes notes={CA_POP_GRID_NOTES} source={CA_POP_GRID_SOURCE} pick={pick} />
