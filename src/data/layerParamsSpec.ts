@@ -1,3 +1,4 @@
+import { HISTORICAL_MAP_DEFAULT_ERA, HISTORICAL_MAP_ERAS } from './historicalMapSinica';
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { ENVIRONMENT_ENABLED_STATISTICS_KEYS, type EnvironmentStatisticsLayerKey } from './environmentStatisticsRecipes';
 import { DEMOGRAPHICS_ENABLED_STATISTICS_KEYS, type DemographicsStatisticsLayerKey } from './demographicsStatisticsRecipes';
@@ -2629,6 +2630,15 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", category: "data", name: "jpExpresswaysCategory", label: "路線種別", default: "all",
       options: [{ value: "all", label: "全部" }, ...JP_EXPRESSWAY_CATEGORIES.map(c => ({ value: c.value, label: c.label }))],
       out: "jpExpresswaysCategoryIdx", encode: ["all", ...JP_EXPRESSWAY_CATEGORIES.map(c => c.value)] },
+  ],
+  historicalMapSinica: [
+    opacitySlider("historicalMapSinicaOpacity", 0.85),
+    {
+      // 年代：一個年代一個 WMTS 層，hook 依 historicalMapSinicaEraIdx 換 source
+      kind: "select", name: "historicalMapSinicaEra", label: "年代", default: HISTORICAL_MAP_DEFAULT_ERA, category: "data",
+      options: HISTORICAL_MAP_ERAS.map((e) => ({ label: e.label, value: e.value })),
+      out: "historicalMapSinicaEraIdx", encode: HISTORICAL_MAP_ERAS.map((e) => e.value),
+    },
   ],
   jpGsiHillshade: [{ kind: "slider", name: "jpGsiHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
   jpGsiRelief: [{ kind: "slider", name: "jpGsiReliefOpacity", labelPrefix: "透明度", digits: 2, default: RASTER.opacity, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
