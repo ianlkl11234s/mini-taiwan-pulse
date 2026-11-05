@@ -687,8 +687,7 @@ export function HistoricalMapSinicaLegend({ eraIdx }: { eraIdx?: number }) {
   return <div>
     <LegendTitle zh={[
       i18n.t("legend.urban.historicalMapEra0"), i18n.t("legend.urban.historicalMapEra1"), i18n.t("legend.urban.historicalMapEra2"),
-      i18n.t("legend.urban.historicalMapEra3"), i18n.t("legend.urban.historicalMapEra4"), i18n.t("legend.urban.historicalMapEra5"),
-      i18n.t("legend.urban.historicalMapEra6"),
+      i18n.t("legend.urban.historicalMapEra3"), i18n.t("legend.urban.historicalMapEra4"),
     ][idx] ?? ""} />
     <LegendNote>{i18n.t("legend.urban.historicalMapSource")}</LegendNote>
     <LegendNote>{i18n.t("legend.urban.historicalMapLicense")}</LegendNote>

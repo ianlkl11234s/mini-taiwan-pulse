@@ -146,5 +146,8 @@
   "measure.done": "完成",
   "measure.hint": "雙擊完成 · Backspace 刪點",
   "measure.perimeter": "周長",
-  "measure.hectare": "公頃"
+  "measure.hectare": "公頃",
+  "layerHint.labelsTitle": "現代地名可以關掉",
+  "layerHint.labelsDetail": "古地圖上會疊著現代地名。也可以到右上工具列「底圖」選單，關閉「顯示地名」。",
+  "layerHint.labelsHide": "關閉地名"
 }

@@ -163,14 +163,12 @@
   "legend.urban.gbSurplusOnMarket": "上市標售中（{n}）",
   "legend.urban.gbSurplusScope": "只含中央政府、NHS、國防部與威爾斯公部門登錄的 surplus 資產；英格蘭地方議會與蘇格蘭、北愛自治政府資產多數不在此資料",
   "legend.urban.gbSurplusCoverage": "420 處：英格蘭 290、威爾斯 115、蘇格蘭 14、北愛爾蘭 1；資料日期 2026-06-29",
-  "legend.urban.historicalMapEra0": "1904 臺灣堡圖（明治版）",
-  "legend.urban.historicalMapEra1": "1921 臺灣堡圖（大正版）",
-  "legend.urban.historicalMapEra2": "1921 日治二萬五千分一地形圖",
-  "legend.urban.historicalMapEra3": "1944 美軍航照",
-  "legend.urban.historicalMapEra4": "1945 美軍城市地圖",
-  "legend.urban.historicalMapEra5": "1953 臺糖鐵道網圖",
-  "legend.urban.historicalMapEra6": "1966 Corona 衛星影像",
   "legend.urban.historicalMapSource": "來源：中央研究院人社中心 GIS 專題中心「臺灣百年歷史地圖」，外部圖磚直連",
   "legend.urban.historicalMapLicense": "授權：CC BY-NC（非商業使用）",
-  "legend.urban.historicalMapOffset": "圖資為歷史掃描，位置可能有偏移"
+  "legend.urban.historicalMapOffset": "圖資為歷史掃描，位置可能有偏移",
+  "legend.urban.historicalMapEra0": "1904 臺灣堡圖（明治版）",
+  "legend.urban.historicalMapEra1": "1921 臺灣堡圖（大正版）",
+  "legend.urban.historicalMapEra2": "1944 美軍航照",
+  "legend.urban.historicalMapEra3": "1945 美軍城市地圖",
+  "legend.urban.historicalMapEra4": "1966 Corona 衛星影像"
 }

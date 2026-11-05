@@ -68,33 +68,33 @@ export const TOUR_HOTEL_CLASS_INFO: Record<string, { label: string; color: strin
   "4": { label: "民宿", color: "#43a047" },
 };
 
-// tourHeritage category 七類同色系分色（fallback 基底 #6d4c41）
+// tourHeritage category 七類分色（2026-11-05 改亮色：原同色系棕色疊在黑白堡圖與深色底圖上看不見；色值取自原民 16 族色表 atlasLayerTypes，兩兩 CIE76 ΔE 最小 38.7，含 fallback 灰 #64748b）
 export const TOUR_HERITAGE_CATEGORY_COLOR: unknown[] = [
   "match", ["get", "category"],
-  "古蹟", "#5d4037",
-  "歷史建築", "#8d6e63",
-  "文化景觀", "#a1887f",
-  "考古遺址", "#b7791f",
-  "聚落建築群", "#9c6644",
-  "紀念建築", "#c9a227",
-  "史蹟", "#bf6f4a",
-  "#6d4c41",
+  "古蹟", "#e879f9",
+  "歷史建築", "#14b8a6",
+  "文化景觀", "#ca8a04",
+  "考古遺址", "#ea580c",
+  "聚落建築群", "#2563eb",
+  "紀念建築", "#65a30d",
+  "史蹟", "#db2777",
+  "#64748b",
 ];
 
 /** 圖例列（fallback 未列入，沿用搬移前既有行為） */
 export const TOUR_HERITAGE_CATS: { color: string; label: string }[] = [
-  { color: "#5d4037", label: "古蹟 Monument" },
-  { color: "#8d6e63", label: "歷史建築 Historic Building" },
-  { color: "#a1887f", label: "文化景觀 Cultural Landscape" },
-  { color: "#b7791f", label: "考古遺址 Archaeological Site" },
-  { color: "#9c6644", label: "聚落建築群 Historic Settlement" },
-  { color: "#c9a227", label: "紀念建築 Commemorative Building" },
-  { color: "#bf6f4a", label: "史蹟 Historic Site" },
+  { color: "#e879f9", label: "古蹟 Monument" },
+  { color: "#14b8a6", label: "歷史建築 Historic Building" },
+  { color: "#ca8a04", label: "文化景觀 Cultural Landscape" },
+  { color: "#ea580c", label: "考古遺址 Archaeological Site" },
+  { color: "#2563eb", label: "聚落建築群 Historic Settlement" },
+  { color: "#65a30d", label: "紀念建築 Commemorative Building" },
+  { color: "#db2777", label: "史蹟 Historic Site" },
 ];
 
 /**
  * popup 端查表（HeritagePanel）：key = geojson `category` 原始值（中文）。
- * 色碼與上方 match 表 / 圖例列同一組。未知類別由呼叫端另給 fallback（同 match 表基底色 `#6d4c41`）。
+ * 色碼與上方 match 表 / 圖例列同一組。未知類別由呼叫端另給 fallback（同 match 表基底色 `#64748b`）。
  */
 export const TOUR_HERITAGE_CATEGORY_COLOR_MAP: Record<string, string> = {
   古蹟: "#5d4037",

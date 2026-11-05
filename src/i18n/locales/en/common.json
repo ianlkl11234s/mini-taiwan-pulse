@@ -146,5 +146,8 @@
   "measure.done": "Done",
   "measure.hint": "Double-click to finish · Backspace removes a point",
   "measure.perimeter": "Perimeter",
-  "measure.hectare": "ha"
+  "measure.hectare": "ha",
+  "layerHint.labelsTitle": "Modern place names can be turned off",
+  "layerHint.labelsDetail": "Modern place names are drawn over the old map. You can also turn off \"Show place names\" in the Basemap menu on the top toolbar.",
+  "layerHint.labelsHide": "Hide place names"
 }
