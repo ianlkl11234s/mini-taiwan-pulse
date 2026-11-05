@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1616,
+    "keyCount": 1623,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5317,6 +5317,42 @@
         "transit-access-grid-fill"
       ],
       "type": "transitAccessGrid"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-scale-tc-ch-fill"
+      ],
+      "type": "mapchallengeDay04ScaleTcCh"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-overlap-fill"
+      ],
+      "type": "mapchallengeDay04Overlap"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-facility-fill"
+      ],
+      "type": "mapchallengeDay04Facility"
+    },
+    {
+      "layers": [
+        "mapchallenge-day04-population-fill"
+      ],
+      "type": "mapchallengeDay04Population"
+    },
+    {
+      "layers": [
+        "mapchallenge-day05-sea-view-runs-line"
+      ],
+      "type": "mapchallengeDay05SeaViewRuns"
+    },
+    {
+      "layers": [
+        "mapchallenge-day05-sea-view-line"
+      ],
+      "type": "mapchallengeDay05SeaView"
     },
     {
       "layers": [
@@ -66936,20 +66972,20 @@
                   "category"
                 ],
                 "古蹟",
-                "#5d4037",
+                "#e879f9",
                 "歷史建築",
-                "#8d6e63",
+                "#14b8a6",
                 "文化景觀",
-                "#a1887f",
+                "#ca8a04",
                 "考古遺址",
-                "#b7791f",
+                "#ea580c",
                 "聚落建築群",
-                "#9c6644",
+                "#2563eb",
                 "紀念建築",
-                "#c9a227",
+                "#65a30d",
                 "史蹟",
-                "#bf6f4a",
-                "#6d4c41"
+                "#db2777",
+                "#64748b"
               ],
               "circle-opacity": 0,
               "circle-radius": [
@@ -66975,20 +67011,20 @@
                   "category"
                 ],
                 "古蹟",
-                "#5d4037",
+                "#e879f9",
                 "歷史建築",
-                "#8d6e63",
+                "#14b8a6",
                 "文化景觀",
-                "#a1887f",
+                "#ca8a04",
                 "考古遺址",
-                "#b7791f",
+                "#ea580c",
                 "聚落建築群",
-                "#9c6644",
+                "#2563eb",
                 "紀念建築",
-                "#c9a227",
+                "#65a30d",
                 "史蹟",
-                "#bf6f4a",
-                "#6d4c41"
+                "#db2777",
+                "#64748b"
               ],
               "circle-opacity": 0,
               "circle-radius": [
@@ -67024,20 +67060,20 @@
                   "category"
                 ],
                 "古蹟",
-                "#5d4037",
+                "#e879f9",
                 "歷史建築",
-                "#8d6e63",
+                "#14b8a6",
                 "文化景觀",
-                "#a1887f",
+                "#ca8a04",
                 "考古遺址",
-                "#b7791f",
+                "#ea580c",
                 "聚落建築群",
-                "#9c6644",
+                "#2563eb",
                 "紀念建築",
-                "#c9a227",
+                "#65a30d",
                 "史蹟",
-                "#bf6f4a",
-                "#6d4c41"
+                "#db2777",
+                "#64748b"
               ],
               "circle-opacity": 0.8,
               "circle-radius": 4.5,
@@ -67053,20 +67089,20 @@
                   "category"
                 ],
                 "古蹟",
-                "#5d4037",
+                "#e879f9",
                 "歷史建築",
-                "#8d6e63",
+                "#14b8a6",
                 "文化景觀",
-                "#a1887f",
+                "#ca8a04",
                 "考古遺址",
-                "#b7791f",
+                "#ea580c",
                 "聚落建築群",
-                "#9c6644",
+                "#2563eb",
                 "紀念建築",
-                "#c9a227",
+                "#65a30d",
                 "史蹟",
-                "#bf6f4a",
-                "#6d4c41"
+                "#db2777",
+                "#64748b"
               ],
               "circle-opacity": 0.8,
               "circle-radius": 4.5,
@@ -97859,6 +97895,2751 @@
       ],
       "sourceId": "post-office-fx-counters",
       "sourceUrl": "./finance/post_office_fx_cash_counters.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Population",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "pd"
+                  ],
+                  0
+                ],
+                "#8e2a81",
+                300,
+                "#ce436f",
+                1000,
+                "#f8745c",
+                3000,
+                "#feb57d",
+                10000,
+                "#fcf0b2"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "pd"
+                  ],
+                  0
+                ],
+                "#f9795d",
+                300,
+                "#da4a6a",
+                1000,
+                "#a4317e",
+                3000,
+                "#6c1d80",
+                10000,
+                "#37106c"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day04-population",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Facility",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience"
+                  ],
+                  0
+                ],
+                "rgba(107,114,128,0.35)",
+                1,
+                "#365c8d",
+                2,
+                "#248b8c",
+                4,
+                "#34b779",
+                10,
+                "#94d741",
+                30,
+                "#fde725"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience"
+                  ],
+                  0
+                ],
+                "rgba(107,114,128,0.35)",
+                1,
+                "#46c06f",
+                2,
+                "#229889",
+                4,
+                "#2e6e8e",
+                10,
+                "#423d82",
+                30,
+                "#46085c"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "mapchallenge-day04-facility",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04Overlap",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "convenience_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "mapchallenge-day04-overlap",
+      "sourceUrl": "./mapchallenge/day04_clusters_r7.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay04ScaleTcCh",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "factory_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "factory_c"
+                  ],
+                  0
+                ],
+                3,
+                "#199e70",
+                1,
+                "#3987e5",
+                2,
+                "#d95926",
+                "rgba(107,114,128,0.35)"
+              ],
+              "fill-opacity": 0.7
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 0.5
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 0.5
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "mapchallenge-day04-scale-tc-ch",
+      "sourceUrl": "./mapchallenge/day04_clusters_r8_tc_ch.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay05SeaView",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-number",
+                [
+                  "get",
+                  "tier"
+                ],
+                0
+              ],
+              [
+                "literal",
+                [
+                  1,
+                  2
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "tier"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2",
+                  "1"
+                ]
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "+",
+              [
+                "*",
+                2,
+                [
+                  "match",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tier"
+                    ],
+                    0
+                  ],
+                  2,
+                  4,
+                  1,
+                  3,
+                  3,
+                  2,
+                  0,
+                  1,
+                  0
+                ]
+              ],
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "rail"
+                ],
+                1,
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    15,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    3
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    21,
+                    12
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    6
+                  ]
+                ]
+              ],
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#b1e0d6",
+                1,
+                "#7ac0d9",
+                3,
+                "rgba(32,119,180,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.2975,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    20,
+                    8
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    4
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    8
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    8,
+                    4
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    28,
+                    16
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    8
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    15,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    3
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    21,
+                    12
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    12,
+                    6
+                  ]
+                ]
+              ],
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#23328f",
+                1,
+                "#1e83b9",
+                3,
+                "rgba(41,157,193,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.14875,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    20,
+                    8
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    4
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    8
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    8,
+                    4
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    28,
+                    16
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    16,
+                    8
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-outer",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-number",
+                [
+                  "get",
+                  "tier"
+                ],
+                0
+              ],
+              [
+                "literal",
+                [
+                  1,
+                  2
+                ]
+              ]
+            ],
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "tier"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2",
+                  "1"
+                ]
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "+",
+              [
+                "*",
+                2,
+                [
+                  "match",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tier"
+                    ],
+                    0
+                  ],
+                  2,
+                  4,
+                  1,
+                  3,
+                  3,
+                  2,
+                  0,
+                  1,
+                  0
+                ]
+              ],
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "rail"
+                ],
+                1,
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    7,
+                    4
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    2
+                  ]
+                ]
+              ],
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#b1e0d6",
+                1,
+                "#7ac0d9",
+                3,
+                "rgba(32,119,180,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.595,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    7.5,
+                    3
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    1.5
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    10.5,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "line-blur": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    7,
+                    4
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    4,
+                    2
+                  ]
+                ]
+              ],
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#23328f",
+                1,
+                "#1e83b9",
+                3,
+                "rgba(41,157,193,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.2975,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    7.5,
+                    3
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    1.5
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    10.5,
+                    6
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    6,
+                    3
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "glow-inner",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "in",
+              [
+                "to-string",
+                [
+                  "get",
+                  "tier"
+                ]
+              ],
+              [
+                "literal",
+                [
+                  "2",
+                  "1"
+                ]
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "+",
+              [
+                "*",
+                2,
+                [
+                  "match",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tier"
+                    ],
+                    0
+                  ],
+                  2,
+                  4,
+                  1,
+                  3,
+                  3,
+                  2,
+                  0,
+                  1,
+                  0
+                ]
+              ],
+              [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "kind"
+                  ],
+                  "rail"
+                ],
+                1,
+                0
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#b1e0d6",
+                1,
+                "#7ac0d9",
+                3,
+                "rgba(32,119,180,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2.5,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    0.5
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    1,
+                    0.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    3.5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "tier"
+                  ],
+                  0
+                ],
+                2,
+                "#23328f",
+                1,
+                "#1e83b9",
+                3,
+                "rgba(41,157,193,0.7)",
+                -1,
+                "rgba(107,114,128,0.35)",
+                "rgba(107,114,128,0.6)"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2.5,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    0.5
+                  ]
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    1,
+                    0.5
+                  ]
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "get",
+                      "kind"
+                    ],
+                    "rail"
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    3.5,
+                    2
+                  ],
+                  [
+                    "case",
+                    [
+                      "in",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "tier"
+                        ],
+                        0
+                      ],
+                      [
+                        "literal",
+                        [
+                          1,
+                          2
+                        ]
+                      ]
+                    ],
+                    2,
+                    1
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line",
+        "glow-outer",
+        "glow-inner"
+      ],
+      "sourceId": "mapchallenge-day05-sea-view",
+      "sourceUrl": "./mapchallenge/day05_sea_view_segments.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay05SeaViewRuns",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "scope"
+              ],
+              "all"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "-",
+              31,
+              [
+                "to-number",
+                [
+                  "get",
+                  "rank"
+                ],
+                30
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "rail",
+                "#d95926",
+                "#3987e5"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  3,
+                  2
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  5,
+                  3.5
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "kind"
+                ],
+                "rail",
+                "#d95926",
+                "#3987e5"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  3,
+                  2
+                ],
+                14,
+                [
+                  "case",
+                  [
+                    "<=",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "rank"
+                      ],
+                      99
+                    ],
+                    3
+                  ],
+                  5,
+                  3.5
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "mapchallenge-day05-sea-view-runs",
+      "sourceUrl": "./mapchallenge/day05_sea_view_runs.geojson"
     }
   ],
   "params": {
@@ -114022,6 +116803,44 @@
         "valueText": "0.75"
       }
     ],
+    "historicalMapSinica": [
+      {
+        "label": "年代",
+        "options": [
+          {
+            "label": "1904 臺灣堡圖（明治版）",
+            "value": "jm20k-1904"
+          },
+          {
+            "label": "1921 臺灣堡圖（大正版）",
+            "value": "jm20k-1921"
+          },
+          {
+            "label": "1944 美軍航照",
+            "value": "am25k-1944"
+          },
+          {
+            "label": "1945 美軍城市地圖",
+            "value": "amcity-1945"
+          },
+          {
+            "label": "1966 Corona 衛星影像",
+            "value": "corona-1966"
+          }
+        ],
+        "type": "select",
+        "value": "jm20k-1904"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
     "iPostBoxes": [
       {
         "label": "透明度 0.80",
@@ -124221,6 +127040,277 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay04Facility": [
+      {
+        "label": "設施",
+        "options": [
+          {
+            "label": "便利商店",
+            "value": "convenience"
+          },
+          {
+            "label": "補習班",
+            "value": "cram"
+          },
+          {
+            "label": "診所",
+            "value": "clinic"
+          },
+          {
+            "label": "工廠",
+            "value": "factory"
+          },
+          {
+            "label": "寺廟",
+            "value": "temple"
+          },
+          {
+            "label": "國中小",
+            "value": "school"
+          }
+        ],
+        "type": "select",
+        "value": "convenience"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04Overlap": [
+      {
+        "label": "設施",
+        "options": [
+          {
+            "label": "便利商店",
+            "value": "convenience"
+          },
+          {
+            "label": "補習班",
+            "value": "cram"
+          },
+          {
+            "label": "診所",
+            "value": "clinic"
+          },
+          {
+            "label": "工廠",
+            "value": "factory"
+          },
+          {
+            "label": "寺廟",
+            "value": "temple"
+          },
+          {
+            "label": "國中小",
+            "value": "school"
+          }
+        ],
+        "type": "select",
+        "value": "convenience"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兩邊都是熱區",
+            "value": "3"
+          },
+          {
+            "label": "只有人口熱區",
+            "value": "1"
+          },
+          {
+            "label": "只有設施熱區",
+            "value": "2"
+          },
+          {
+            "label": "都不是",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "3",
+          "1",
+          "2",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04Population": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay04ScaleTcCh": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兩邊都是熱區",
+            "value": "3"
+          },
+          {
+            "label": "只有人口熱區",
+            "value": "1"
+          },
+          {
+            "label": "只有設施熱區",
+            "value": "2"
+          },
+          {
+            "label": "都不是",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "3",
+          "1",
+          "2",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      }
+    ],
+    "mapchallengeDay05SeaView": [
+      {
+        "label": "運具",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "開闊海景",
+            "value": "2"
+          },
+          {
+            "label": "看得到海",
+            "value": "1"
+          },
+          {
+            "label": "樹縫間看得到",
+            "value": "3"
+          },
+          {
+            "label": "看不到海",
+            "value": "0"
+          },
+          {
+            "label": "隧道",
+            "value": "-1"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "2",
+          "1"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay05SeaViewRuns": [
+      {
+        "label": "範圍",
+        "options": [
+          {
+            "label": "不限距離",
+            "value": "all"
+          },
+          {
+            "label": "離海 ≤200 m",
+            "value": "d200"
+          },
+          {
+            "label": "離海 ≤100 m",
+            "value": "d100"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "運具",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "鐵路",
+            "value": "rail"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       }
     ],
     "marineEcologicalMonitoringSites": [

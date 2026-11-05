@@ -146,5 +146,8 @@
   "measure.done": "完了",
   "measure.hint": "ダブルクリックで完了 · Backspace で点を削除",
   "measure.perimeter": "周長",
-  "measure.hectare": "ha"
+  "measure.hectare": "ha",
+  "layerHint.labelsTitle": "現代の地名は非表示にできます",
+  "layerHint.labelsDetail": "古地図の上に現代の地名が重なります。右上ツールバーの「ベースマップ」メニューで「地名を表示」をオフにすることもできます。",
+  "layerHint.labelsHide": "地名を非表示"
 }

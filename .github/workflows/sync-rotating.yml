@@ -1,0 +1,53 @@
+# 輪替資料（氣候、GFW 小時檔）S3 → R2 同步，取代 Zeabur 容器內的 refresh-climate.sh／refresh-gfw-hourly.sh。
+# 安全：只用 schedule／手動觸發（不接 pull_request，fork 拿不到 secrets）；
+# S3 金鑰為唯讀 IAM（只能讀 deploy-assets/climate、global-maritime）；R2 金鑰只能寫 mini-tw-pulse；
+# 只安裝 @aws-sdk/client-s3 一個套件（鎖版本），不跑整個專案的 npm ci。
+name: sync-rotating
+
+on:
+  schedule:
+    - cron: '15 * * * *'
+  workflow_dispatch:
+    inputs:
+      execute:
+        description: '真的寫入 R2（否則 dry-run）'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-rotating
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            deploy/cloudflare
+            scripts/deploy
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Install S3 SDK only
+        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @aws-sdk/client-s3@3.995.0
+      - name: Unit tests
+        run: node --test deploy/cloudflare/sync-rotating.test.mjs
+      - name: Sync
+        env:
+          S3_ACCESS_KEY: ${{ secrets.PULSE_SYNC_S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.PULSE_SYNC_S3_SECRET_KEY }}
+          S3_REGION: ${{ secrets.S3_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          R2_ENDPOINT_URL: ${{ secrets.R2_ENDPOINT_URL }}
+          R2_MIGRATION_ACCESS_KEY_ID: ${{ secrets.R2_MIGRATION_ACCESS_KEY_ID }}
+          R2_MIGRATION_SECRET_ACCESS_KEY: ${{ secrets.R2_MIGRATION_SECRET_ACCESS_KEY }}
+          EXECUTE: ${{ github.event_name == 'schedule' || inputs.execute }}
+        run: |
+          if [ "$EXECUTE" = "true" ]; then node deploy/cloudflare/sync-rotating.mjs --execute; else node deploy/cloudflare/sync-rotating.mjs; fi

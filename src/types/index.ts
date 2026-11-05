@@ -422,6 +422,8 @@ export type ExpandableLayerKey =
   | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "soilLiquefactionPotential" | "weakSoilClay0To5" | "weakSoilSand0To5" | "weakSoilClay5To10" | "weakSoilSand5To10" | "weakSoilClay10To20" | "weakSoilSand10To20" | "liquefactionMonitoringSites"
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback" | "freewayTdcsSim"
+  | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
+  | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -435,7 +437,7 @@ export type ExpandableLayerKey =
   | "jpEvacuationSites" | "jpPublicOffices" | "jpBusStops"
   | "jpLandslideWarningAreas" | "jpInlandFloodAreas"
   | "jpZoningUseDistricts" | "jpNationalForests"
-  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief"
+  | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
   | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade"
@@ -964,6 +966,8 @@ export interface FeatureInfo {
   | "bssNationalBridgePreview" | "bssNationalBridgePointsPreview" | "bridgeResilienceTwinCity" | "busCrowdingSim" | "busCrowdingSimVehicle"
   | "transitReachGrid" | "transitReachPlayback" | "transitAccessGrid" | "transitAccessPlayback"
   | "freewayTdcsSim"
+  | "mapchallengeDay04Population" | "mapchallengeDay04Facility" | "mapchallengeDay04Overlap" | "mapchallengeDay04ScaleTcCh"
+  | "mapchallengeDay05SeaView" | "mapchallengeDay05SeaViewRuns"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1319,6 +1323,18 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   transitReachPlayback: boolean;
   /** 雙北國道逐車模擬（模擬面板，公開、推算）：TDCS M06A 2026-09-28 16–18 時逐車推算位置 */
   freewayTdcsSim: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚（模擬面板，公開）：H3 r7 人口密度基準 */
+  mapchallengeDay04Population: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：H3 r7 每格設施數（6 類可切） */
+  mapchallengeDay04Facility: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：人口熱區 × 設施熱區重疊 */
+  mapchallengeDay04Overlap: boolean;
+  /** 30 天地圖挑戰 Day 4 群聚：臺中與彰化 H3 r8 工廠細格熱區 */
+  mapchallengeDay04ScaleTcCh: boolean;
+  /** 30 天地圖挑戰 Day 5 視野（模擬面板，公開）：海景路段（鐵路／道路逐段判定） */
+  mapchallengeDay05SeaView: boolean;
+  /** 30 天地圖挑戰 Day 5 視野：最長連續海景（各取前 30 名） */
+  mapchallengeDay05SeaViewRuns: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：H3 res9 網格到最近醫院／超市／學校／金融的大眾運輸時間 */
   transitAccessGrid: boolean;
   /** 雙北大眾運輸可及性（模擬面板，公開、情境推演）：單一起點 0–4 小時大眾運輸擴張播放 */
@@ -1849,6 +1865,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   jpExpressways: boolean;       // 日本高速道路（PMTiles line 1,289＋IC/JCT point 2,384；2025 現況）
   jpGsiHillshade: boolean;      // 國土地理院 陰影起伏図（外部 XYZ raster）
   jpGsiRelief: boolean;         // 國土地理院 色別標高図（外部 XYZ raster）
+  historicalMapSinica: boolean; // 中研院臺灣百年歷史地圖（外部 XYZ raster，7 個年代）
   gbAdminBoundaries: boolean;   // 英國地方政府區 LAD（PMTiles polygon，361 筆；ONS May 2026）
   krAdminBoundaries: boolean;   // 南韓行政邊界（PMTiles polygon，시·도 16／시군구 256／행정동 3,559；admdongkor ver20261001）
   caAdminBoundaries: boolean;   // 加拿大第 0＋1 波（PMTiles，public/world/ca_*.pmtiles）

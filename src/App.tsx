@@ -2015,6 +2015,16 @@ export default function App() {
     lockedKeys,
   });
   // 同一張卡的第二段（§5.42.1）：開著的圖層要放大或前往資料範圍才看得到；停用條件同上
+  // 古地圖開著且底圖地名還開著：同一張卡的第三段，提醒現代地名可關（按鈕與底圖選單「顯示地名」同一個開關）
+  const [historicalLabelTipDismissed, setHistoricalLabelTipDismissed] = useState(false);
+  useEffect(() => { if (!layerVisibility.historicalMapSinica) setHistoricalLabelTipDismissed(false); }, [layerVisibility.historicalMapSinica]);
+  const historicalLabelTip = layerVisibility.historicalMapSinica && !lockedKeys.has("historicalMapSinica") && showBasemapLabels && !historicalLabelTipDismissed
+    && !isMobile && !captureMode && !chatOpen && !agentActivityVisible
+    ? {
+      onHide: () => { setShowBasemapLabels(false); setHistoricalLabelTipDismissed(true); },
+      onDismiss: () => setHistoricalLabelTipDismissed(true),
+    }
+    : null;
   const layerHint = useLayerVisibilityHint({
     map: mapPrepared ? mapRef.current : null,
     enabled: !isMobile && !captureMode && !chatOpen && !agentActivityVisible,
@@ -3283,13 +3293,14 @@ export default function App() {
           rightOffset={topRightOffset}
         />
       {/* ── 視野提示（§5.42）：視野停在他國時提示切換國家主體（不自動切換）＋開著卻看不到的圖層（§5.42.1）；手機不做 ── */}
-      {(viewportHint.target || layerHint.rows.length > 0) && (
+      {(viewportHint.target || layerHint.rows.length > 0 || historicalLabelTip) && (
         <CountryViewportHint
           target={viewportHint.target}
           current={country}
           onSwitch={viewportHint.switchTo}
           onKeep={viewportHint.keep}
           layers={{ rows: layerHint.rows, more: layerHint.more, total: layerHint.total, onZoomIn: layerHint.zoomIn, onGoTo: layerHint.goTo, onDismiss: layerHint.dismiss }}
+          labelsTip={historicalLabelTip}
           isDarkTheme={isDarkTheme}
           rightOffset={topRightOffset}
         />

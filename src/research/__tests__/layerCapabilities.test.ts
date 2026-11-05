@@ -37,7 +37,8 @@ describe("layer capability registry", () => {
 
   it("omits locked layers entirely rather than exposing their registered source metadata", () => {
     const locked = new Set(["allenCoralAtlas", "schools"]);
-    expect(listLayerCapabilities({ query: "allen", limit: 20 }, locked)).toMatchObject({ totalMatched: 0, layers: [] });
+    // 查 "allenCoral" 而非 "allen"：「mapchallenge」（30 天地圖挑戰）的 key 也含 allen 子字串
+    expect(listLayerCapabilities({ query: "allenCoral", limit: 20 }, locked)).toMatchObject({ totalMatched: 0, layers: [] });
     expect((listLayerCapabilities({ query: "schools", limit: 20 }, locked).layers as { layerKey: string }[]).some(layer => layer.layerKey === "schools")).toBe(false);
   });
 

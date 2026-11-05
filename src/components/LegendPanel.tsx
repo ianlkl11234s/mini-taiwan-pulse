@@ -38,6 +38,7 @@ import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, 
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
+import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -57,7 +58,7 @@ import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserv
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
 import { CaAdminBoundariesLegend, CaTransitStopsLegend, CaAirportsPortsLegend, CaMajorRoadsLegend, CaRailwaysLegend, CaPowerPlantsLegend, CaWindTurbinesLegend, CaPowerGridLegend, CaOilGasLegend, CaPopulationCentresLegend, CaFederalDistrictsLegend, CaPostalFsaLegend, CaIndigenousLandsLegend, CaDeprivationLegend, CaRentsLegend, CaPlaceNamesLegend, CaHillshadeLegend } from "./legend/caLegends";
-import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
+import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapSinicaLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
 
@@ -275,6 +276,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "transitReachGrid", render: () => <TransitReachGridLegend /> },
   { id: "transitReachPlayback", render: () => <TransitReachPlaybackLegend /> },
   { id: "freewayTdcsSim", render: () => <FreewayTdcsSimLegend /> },
+  { id: "mapchallengeDay04Population", render: ({ isDark }) => <MapchallengePopulationLegend isDark={isDark} /> },
+  { id: "mapchallengeDay04Facility", render: ({ isDark }) => <MapchallengeFacilityLegend isDark={isDark} /> },
+  { id: "mapchallengeDay04Overlap", render: () => <MapchallengeOverlapLegend /> },
+  { id: "mapchallengeDay04ScaleTcCh", render: () => <MapchallengeScaleTcChLegend /> },
+  { id: "mapchallengeDay05SeaView", render: ({ isDark }) => <MapchallengeSeaViewLegend isDark={isDark} /> },
+  { id: "mapchallengeDay05SeaViewRuns", render: () => <MapchallengeSeaViewRunsLegend /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },
@@ -292,6 +299,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpExpressways", render: () => <JpExpresswaysLegend /> },
   { id: "jpGsiHillshade", render: () => <JpGsiHillshadeLegend /> },
   { id: "jpGsiRelief", render: () => <JpGsiReliefLegend /> },
+  { id: "historicalMapSinica", render: ({ overlayParams }) => <HistoricalMapSinicaLegend eraIdx={overlayParams.historicalMapSinicaEraIdx} /> },
   { id: "gbAdminBoundaries", render: () => <GbAdminBoundariesLegend /> },
   { id: "krAdminBoundaries", render: () => <KrAdminBoundariesLegend /> },
   // 南韓第 3–5 波 18 層：共用規格驅動圖例
