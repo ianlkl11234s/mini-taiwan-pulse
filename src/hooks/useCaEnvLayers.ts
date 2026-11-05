@@ -27,7 +27,11 @@ export const CA_WSER_CIRCLE_ID = "ca-wastewater-systems-circle";
 export const CA_QUAKE_HEATMAP_ID = "ca-earthquakes-heatmap";
 export const CA_QUAKE_CIRCLE_ID = "ca-earthquakes-circle";
 export const CA_QUAKE_MAJOR_CIRCLE_ID = "ca-earthquakes-major-circle";
-export const caPopGridFillId = (res: number) => `ca-population-grid-r${res}-fill`;
+/** 字面 id（點擊註冊表契約測試以字面比對，不可用樣板字串組）。 */
+const CA_POP_GRID_FILL_ID_BY_RES: Readonly<Record<number, string>> = {
+  5: "ca-population-grid-r5-fill", 6: "ca-population-grid-r6-fill", 7: "ca-population-grid-r7-fill",
+};
+export const caPopGridFillId = (res: number) => CA_POP_GRID_FILL_ID_BY_RES[res]!;
 export const CA_POP_GRID_FILL_IDS = CA_POP_GRID_LEVELS.map((l) => caPopGridFillId(l.res));
 
 type Expr = unknown[];
