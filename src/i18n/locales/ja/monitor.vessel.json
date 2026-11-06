@@ -17,6 +17,7 @@
   "monitor.vessel.noteNone": "接近帯に船なし",
   "monitor.vessel.loading": "データを読み込み中…",
   "monitor.vessel.noObservation": "直近{days}日間の観測記録なし",
+  "monitor.vessel.incompleteDays": "直近{days}日間にデータはありますが、隻数が不完全なため正確な隻数は表示できません",
   "monitor.vessel.unavailable": "データを一時的に利用できません",
   "monitor.vessel.dataLabel": "特殊船舶の接近帯",
   "monitor.vessel.unitShips": "隻",

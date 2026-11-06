@@ -62,6 +62,7 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   mapchallengeDay04Facility: "grid", // 30 天地圖挑戰 Day 4 設施群聚 Facility Clusters
   mapchallengeDay04Overlap: "grid", // 30 天地圖挑戰 Day 4 熱區重疊 Hotspot Overlap
   mapchallengeDay04Population: "grid", // 30 天地圖挑戰 Day 4 人口密度基準 Population Density Baseline
+  mapchallengeDay06Taipei1932: "coverage", // 30 天地圖挑戰 Day 6 1932 臺北市町界（面＋類別色）
   mapchallengeDay04ScaleTcCh: "grid", // 30 天地圖挑戰 Day 4 臺中與彰化工廠細格
   manufacturingCompanyDensityGrid: "grid", // 製造業公司登記密度 Manufacturing Registry Density
   nationalParks: "coverage", // 國家（自然）公園 National Parks
@@ -123,6 +124,8 @@ export const LINE_TIERS: Readonly<Record<string, LineTierSpec>> = {
   "hikingTrails/line": { width: "standard", opacity: "standard" }, // 全台步道 Hiking Trails
   "mapchallengeDay05SeaView/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 海景路段（寬依運具＋判定）
   "mapchallengeDay05SeaViewRuns/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 5 最長連續海景（寬依名次）
+  "mapchallengeDay06Coast/line": { width: "keep", opacity: "standard" }, // 30 天地圖挑戰 Day 6 臺南海岸線三代（L-1 強調值，最舊一代 ×1.4，mapchallengeDay06CoastWidthExpr）
+  "mapchallengeDay06Lighthouses/link": { width: "standard", opacity: "standard" }, // 30 天地圖挑戰 Day 6 今昔連線（虛線）
   "maritimeBoundary/line": { width: "standard", opacity: "reference" }, // 領海界線 Maritime Boundary
   "maritimeBoundary/line-24nm": { width: "standard", opacity: "reference" }, // 領海界線 Maritime Boundary
   "officialBridgesHsinchu/line": { width: "emphasis", opacity: "standard" }, // 新竹市橋梁清冊
@@ -190,6 +193,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
   "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/hooks/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useKrDataLayers.ts
   "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
   "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
   "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
@@ -329,6 +334,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
   "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/hooks/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/hooks/useKrDataLayers.ts
   "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
   "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/hooks/useCaEnergyLayers.ts
   "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/hooks/useCaAreaLayers.ts

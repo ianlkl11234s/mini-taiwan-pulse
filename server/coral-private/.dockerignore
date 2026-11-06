@@ -1,0 +1,6 @@
+# build context 是 server/coral-private（根目錄的 .dockerignore 不適用）。只放行映像需要的四個檔。
+*
+!package.json
+!package-lock.json
+!coral-private-server.mjs
+!bus-crowding-assets.mjs

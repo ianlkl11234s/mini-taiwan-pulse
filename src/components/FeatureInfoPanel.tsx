@@ -40,6 +40,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
   "fireHydrant",
   "trafficAccidents2025",
+  "jpTrafficAccidents2025", // 日本 C083：PMTiles tile 無來源欄，panel 自掛 SourceFooter
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   // 區域統計：feature 只帶 R2 來源紀錄的 publisher／license／source_url（不是中央版讀的 source_org），
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。
@@ -101,6 +102,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "caNpriFacilities",
   "caWastewaterSystems",
   "caEarthquakes",
+  "caEarthquakesLive",
   "caPopulationGrid",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",
@@ -190,6 +192,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   // 30 天地圖挑戰 Day 5 視野：panel 自掛路線線形／視線推估出處。
   "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns",
+  // 30 天地圖挑戰 Day 6 復古：panel 自掛 THCTS 出處與授權。
+  "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

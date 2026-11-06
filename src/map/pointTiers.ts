@@ -52,6 +52,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   livestockMarket: "L", // 拍賣/批發市場 Markets
   livestockSlaughter: "L", // 屠宰場 Slaughterhouses
   lngTerminal: "L", // LNG 接收站 Terminal
+  mapchallengeDay06Lighthouses: "L", // 30 天地圖挑戰 Day 6 燈塔與測候所今昔（21 處，點少要醒目）
   serviceArea: "L", // 國道服務區 Service Area
   // ── 泡泡（依資料） · 44 層
   a1AccidentRealtime: "B", // A1 即時事故 A1 Realtime
@@ -103,6 +104,8 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   welfareNursingHomes: "B", // 資料驅動半徑（床數），2026-09-29 拍板改泡泡 · 護理機構 Nursing Homes
   // ── 中 M（半徑 4.5） · 118 層
   manufacturingCompanyPoints: "M", // 製造業公司登記點位（suffix manufacturing-circle 原被誤判為裝飾，2026-09-28 補入）
+  mapchallengeDay06Coast: "M", // 30 天地圖挑戰 Day 6 當年海岸線以西的今日地名（51 點）
+  mapchallengeDay06Temples1921: "M", // 30 天地圖挑戰 Day 6 1921 祠廟（1,439 點 < 1 萬，V-1 直接畫點）
   accessibleParkFacilities: "M", // 無障礙設施探索 Accessibility
   agriProduceWholesale: "M", // 蔬果批發商 Produce Wholesale
   agriRetail: "M", // 農產零售商 Retail
@@ -163,6 +166,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   nuclearEpzEvacuation: "M", // 核電廠集結點與收容處所
   disasterResourceSites: "S", // 救災資源據點
   trafficAccidents2025: "S", // 2025 A1／A2 交通事故
+  jpTrafficAccidents2025: "S", // 日本 2025 人身事故（警察庁本票）
   mountainHuts: "M", // 山屋・高山營地 Mountain Huts
   nuclearRadiation: "M", // 核安輻射 Radiation
   officialBridgesHsinchu: "M", // 新竹市橋梁清冊
@@ -321,6 +325,7 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/hooks/useCaEnvLayers.ts
   caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/hooks/useCaEnvLayers.ts
   caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/hooks/useCaEnvLayers.ts
+  caEarthquakesLive: "B", // 加拿大即時地震：半徑＝規模（同 caEarthquakes） · src/hooks/useCaLiveEarthquakesLayer.ts
   caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/hooks/useCaEnvLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts

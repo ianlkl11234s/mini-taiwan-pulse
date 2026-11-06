@@ -2598,6 +2598,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 5 視野 Perspectives",
       layers: [fromManifest("mapchallengeDay05SeaView"), fromManifest("mapchallengeDay05SeaViewRuns")],
+    }, {
+      title: "Day 6 復古 Vintage",
+      layers: [fromManifest("mapchallengeDay06Coast"), fromManifest("mapchallengeDay06Taipei1932"), fromManifest("mapchallengeDay06Temples1921"), fromManifest("mapchallengeDay06Lighthouses")],
     }],
   },
 
@@ -2720,7 +2723,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "執法治安",
     country: "JP",
     defaultCollapsed: true,
-    groups: [{ title: "警政", layers: [fromManifest("jpPoliceFacilities")] }],
+    groups: [
+      { title: "警政", layers: [fromManifest("jpPoliceFacilities")] },
+      { title: "交通事故", layers: [fromManifest("jpTrafficAccidents2025")] },
+    ],
   },
   {
     title: "環境氣候",
@@ -2972,7 +2978,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "災害",
     country: "CA",
     defaultCollapsed: true,
-    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakes")] }],
+    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakesLive"), fromManifest("caEarthquakes")] }],
   },
 
   // ───────────────────────────────────────────────────────────────

@@ -1,0 +1,7 @@
+{
+  "popup.jpSafety.parties": "当事者",
+  "popup.jpSafety.road": "道路形状",
+  "popup.jpSafety.conditions": "昼夜・天候・路面",
+  "popup.jpSafety.prefecture": "都道府県",
+  "popup.jpSafety.accidentNote": "対象期間 {period}。警察庁本票、位置は警察が記録した発生地点"
+}

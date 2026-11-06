@@ -28,7 +28,7 @@ const PINNED = [
   // 土壤液化／軟弱土層
   "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
   "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
-  "historicalMapSinica", "water1944Taipei", "gbPollutionInventoryEngland", "allenCoralAtlas",
+  "water1944Taipei", "gbPollutionInventoryEngland", "allenCoralAtlas",
 ].sort();
 
 describe("站主限定名單（manifest OWNER_ONLY ⇔ GATED_LAYERS）", () => {

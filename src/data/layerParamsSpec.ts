@@ -69,6 +69,7 @@ import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
 import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, JP_TRAFFIC_ACCIDENT_TOTAL, JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS } from "./jpTrafficAccidentsTypes";
 import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
 import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
@@ -175,6 +176,10 @@ import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStatio
 import {
   MAPCHALLENGE_DAY05_DEFAULT_SCOPE, MAPCHALLENGE_DAY05_DEFAULT_TIERS, MAPCHALLENGE_DAY05_KIND_ENCODE, MAPCHALLENGE_DAY05_KIND_OPTIONS, MAPCHALLENGE_DAY05_SCOPE_ENCODE, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
 } from "./mapchallengeDay05Types";
+import {
+  MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_PLACES_ENCODE, MAPCHALLENGE_DAY06_PLACES_OPTIONS, MAPCHALLENGE_DAY06_STATUSES,
+  MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TYPE_ENCODE, MAPCHALLENGE_DAY06_TYPE_OPTIONS,
+} from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -806,6 +811,7 @@ const CA_OPT_NPRI_GROUP: KrOpt = [
 ];
 const CA_OPT_NPRI_RECENT: KrOpt = [["recent", "2023–2025 年仍申報（8,790）"], ["past", "2022 年以前停止申報（15,750）"]];
 const CA_OPT_WSER_STATUS: KrOpt = [["operational", "運轉中（2,475）"], ["decommissioned", "已除役（62）"]];
+const CA_OPT_QUAKE_LIVE_TYPE: KrOpt = [["earthquake", "地震"], ["industry", "疑似產業活動誘發"], ["mining", "礦場事件"], ["blast", "爆破（含採石）"]];
 const CA_OPT_QUAKE_CLASS: KrOpt = [["lt2", "規模 <2"], ["m2", "規模 2–3"], ["m3", "規模 3–4"], ["m4", "規模 4–5"], ["m5", "規模 ≥5"]];
 function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSpec {
   return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
@@ -1616,6 +1622,33 @@ export const LAYER_PARAMS_SPEC = {
     },
     mapchallengeDay05KindSelect("mapchallengeDay05SeaViewRuns"),
   ],
+  // 30 天地圖挑戰 Day 6 復古（模擬面板，公開）：類別多選（V-4）與 select 都由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay06Coast: [
+    opacitySlider("mapchallengeDay06CoastOpacity", 0.85), scaleSlider("mapchallengeDay06CoastScale", 1),
+    categoryMultiSelect("mapchallengeDay06Coast", MAPCHALLENGE_DAY06_ERAS.map((e) => ({ label: e.zh, value: String(e.value) }))),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06CoastPlaces", label: "今日地名（鯤鯓、塭、汕）", default: "show",
+      options: MAPCHALLENGE_DAY06_PLACES_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06CoastPlacesIdx", encode: [...MAPCHALLENGE_DAY06_PLACES_ENCODE],
+    },
+  ],
+  mapchallengeDay06Taipei1932: [
+    opacitySlider("mapchallengeDay06Taipei1932Opacity", 0.85),
+    categoryMultiSelect("mapchallengeDay06Taipei1932", MAPCHALLENGE_DAY06_SURVIVE.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Temples1921: [
+    opacitySlider("mapchallengeDay06Temples1921Opacity", 0.85), scaleSlider("mapchallengeDay06Temples1921Scale", 1),
+    categoryMultiSelect("mapchallengeDay06Temples1921", MAPCHALLENGE_DAY06_TEMPLE_CLASSES.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Lighthouses: [
+    opacitySlider("mapchallengeDay06LighthousesOpacity", 0.85), scaleSlider("mapchallengeDay06LighthousesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06LighthousesType", label: "類型", default: "all",
+      options: MAPCHALLENGE_DAY06_TYPE_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06LighthousesTypeIdx", encode: [...MAPCHALLENGE_DAY06_TYPE_ENCODE],
+    },
+    categoryMultiSelect("mapchallengeDay06Lighthouses", MAPCHALLENGE_DAY06_STATUSES.map((c) => ({ label: c.zh, value: c.value }))),
+  ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),
     {
@@ -2169,6 +2202,7 @@ export const LAYER_PARAMS_SPEC = {
     heatmapPalette("caNpriFacilities"), opacitySlider("caNpriFacilitiesOpacity", densePointOpacity(24_540)), scaleSlider("caNpriFacilitiesScale", 1),
   ],
   caWastewaterSystems: [krMulti("caWastewaterSystemsCatMask", "狀態", CA_OPT_WSER_STATUS), opacitySlider("caWastewaterSystemsOpacity", 0.85), scaleSlider("caWastewaterSystemsScale", 1)],
+  caEarthquakesLive: [krMulti("caEarthquakesLiveTypeMask", "事件類型", CA_OPT_QUAKE_LIVE_TYPE), opacitySlider("caEarthquakesLiveOpacity", 0.85), scaleSlider("caEarthquakesLiveScale", 1)],
   caEarthquakes: [krMulti("caEarthquakesCatMask", "規模", CA_OPT_QUAKE_CLASS), heatmapPalette("caEarthquakes"), opacitySlider("caEarthquakesOpacity", densePointOpacity(101_365)), scaleSlider("caEarthquakesScale", 1)],
   caPopulationGrid: [gridPalette("caPopulationGridPalette", "YlOrBr"), opacitySlider("caPopulationGridOpacity", 0.6)],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
@@ -2583,6 +2617,17 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
       options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
       out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
+  ],
+  jpTrafficAccidents2025: [
+    {
+      kind: "multiSelect", name: "jpTrafficAccidents2025Severity", label: "事故內容", default: MULTI_SELECT_ALL,
+      options: toParamOptions(JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS), out: "jpTrafficAccidents2025SeverityMask",
+    },
+    {
+      kind: "multiSelect", name: "jpTrafficAccidents2025Type", label: "事故類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS), out: "jpTrafficAccidents2025TypeMask",
+    },
+    opacitySlider("jpTrafficAccidents2025Opacity", densePointOpacity(JP_TRAFFIC_ACCIDENT_TOTAL)), scaleSlider("jpTrafficAccidents2025Scale", 1),
   ],
   jpEvacuationSites: [
     heatmapPalette("jpEvacuationSites"),

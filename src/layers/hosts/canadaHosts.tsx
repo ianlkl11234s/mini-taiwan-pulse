@@ -11,6 +11,7 @@ import {
   useCaAqhiStationsLayer, useCaClimateStationsLayer, useCaEarthquakesLayer, useCaNpriFacilitiesLayer, useCaPopulationGridLayer, useCaRadiationStationsLayer,
   useCaWastewaterSystemsLayer,
 } from "../../hooks/useCaEnvLayers";
+import { useCaLiveEarthquakesLayer } from "../../hooks/useCaLiveEarthquakesLayer";
 import { gbDisplayModeFromIdx } from "../../hooks/useGbWaterLayers";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -188,6 +189,14 @@ export const CaEarthquakesHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useCaEarthquakesLayer");
   const p = useKeyOverlayParams("caEarthquakes");
   useCaEarthquakesLayer(deps.mapRef, deps.layerVisibility.caEarthquakes, p.caEarthquakesOpacity ?? 0.7, p.caEarthquakesScale ?? 1, deps.isDarkTheme, p.caEarthquakesCatMask);
+  return null;
+};
+
+/** 即時地震（NRCan FDSN 近 30 天，上游直連、不跟時間軸）。 */
+export const CaEarthquakesLiveHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useCaLiveEarthquakesLayer");
+  const p = useKeyOverlayParams("caEarthquakesLive");
+  useCaLiveEarthquakesLayer(deps.mapRef, deps.layerVisibility.caEarthquakesLive, p.caEarthquakesLiveOpacity ?? 0.85, p.caEarthquakesLiveScale ?? 1, deps.isDarkTheme, p.caEarthquakesLiveTypeMask);
   return null;
 };
 

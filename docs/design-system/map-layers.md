@@ -219,6 +219,8 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 
 理由：現況中位寬 1、多數已是「暗黑淡白」；色號收斂成 viz-library M1 的 `#0a0a14`／`#ffffff`，取代 `#000000`、`#0f172a`、`#0d1117`、`#0b1118` 四種。暗色底圖用白描邊的 47 層**全部改為深色**（拍板 A，不因「即時」設例外；只有**依屬性變化的描邊**＝資料編碼才保留，見下表）。描邊寬配合 P-1 固定半徑，也固定 1px（原提案 z10 0.6／z14 1 的插值不再需要）。
 
+- **例外：淺色底圖保留自訂描邊色（2026-11-06，review F071）**：`pollingStations2024` 的「中性」模式是白點，淺色底圖接縫色也是白，白點白邊看不見 → 淺色底圖改用圖層自訂的深灰描邊。只動描邊色，半徑／寬度／透明度仍依點規格。登記在 `pointSpec.ts` 的 `POINT_STROKE_COLOR_KEEP_LIGHT`，新增同類例外要加進這個集合並在此列出。
+
 寫法：registry 由 `withPointSpec()` 自動套；hook 用 `pointStrokePaint(isDark, 滑桿值 ÷ 預設)`（`mapStyleScale.ts`，第二參數是透明度倍率，`circle-stroke-opacity = min(1, 0.8／0.9 × 倍率)`）。不要手寫 `Math.min(1, POINT_STROKE.opacity…)`（`hookPointSpec.test.ts` 擋）。
 
 **P-9 資料編碼描邊（保留，#396、#398、#401）**：描邊依資料屬性變化時不換成底圖色細縫；其餘點仍用細縫。hook 層逐一寫在各 hook；registry 層由 `withPointSpec` 自動判斷（`isDataDriven()`：描邊顏色／粗細／透明度有讀 feature 資料就保留原值），#401 還原了 #392 誤蓋的 34 層（急救醫院 ICU、規劃中設施狀態色、山難死亡、輻射過期、噪音、污染、運動場館開放、社福座標精度、警政司法層級粗細等）。圖例要寫出外框的意思（例火災「有外框＝有死傷」，用 `LegendNote`）。
@@ -264,6 +266,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **即時光暈上限**（`LIVE_DECORATION_CAP`）：不透明度 ≤ 0.35、`circle-blur` ≥ 0.6、半徑 ≤ 主體 ×2。⚠️ 目前半徑上限**只對固定階（S／M／L）生效**；泡泡（B）即時層（`newsEvents`、`a1AccidentRealtime`）只限透明度與 blur，不限半徑（`pointSpec.ts` 只在有固定階半徑時才限）。要補需拍板怎麼定 B 的主體半徑。
 - **即時層名單**：registry 集中在 `LIVE_DECORATION_LAYERS`：`newsEvents`、`lightning`、`lightningCwa`、`nuclearRadiation`、`a1AccidentRealtime`。hook **沒有集中名單**，各 hook 自己限制：引用 `LIVE_DECORATION_CAP` 的有淹水感測、地下水、IoT 河川、IoT 水工結構、河川水位；另有 AQI 測站、海洋觀測（CWA／ISOHE）、雨量、北市抽水站、災害示警 pulse、颱風目前位置 halo、衛星變軌 ring 自帶光暈（各層數值未逐一核對，待確認）。靜態 hook 層（待認領養動物、動物服務據點、清潔隊）光暈透明度 0（待確認）。
 - **例外**：捷運站「實際範圍（光暈示意）」模式的 `metro-pt-*` 光暈是範圍表示法，不套 P-6（`POINT_SPEC_EXEMPT`，2026-09-28 使用者）。
+- **例外**：30 天地圖挑戰 Day 6「廟不搬家」（`mapchallengeDay06Temples1921`）的 `same-mark` 外圈：只畫在 14 處「今天仍有同名寺廟」的 1921 祠廟上，中空圓圈、描邊 1.5px、中性對比色（暗 `#f8fafc`／淡 `#0f172a`，同今日位置點），半徑 z7 6／z10 7.5／z14 10（乘大小滑桿）。是資料編碼（同名原址）、不是選取或光暈；圖例有對應列（`POINT_SPEC_EXEMPT`，2026-11-06 使用者同意）。
 - **例外**：30 天地圖挑戰 Day 5「海景路段」（`mapchallengeDay05SeaView`）的 `glow-outer`／`glow-inner` 兩層靜態線光暈（開闊海景、看得到海才畫；寬為主體 ×8／×3、blur ×6／×2、透明度 0.35／0.7×圖層透明度，淡底圖再減半），暗底圖線芯往白混 40%（偏離 YlGnBu）；類別預設只勾這兩類。圖層本身就是「哪裡看得到海」，光暈是資料編碼的強調，不是裝飾（`POINT_SPEC_EXEMPT`，2026-11-05 使用者在設計稿選 G5）。同層另有兩項線寬例外：z7 開闊／看得到海加粗到道路 2、鐵路 2.5（V-1），「最長連續海景」前 3 名 3／5（`mapchallengeDay05Style.ts`）。
 
 **P-7 車站（#393，2026-09-28）**：高鐵、台鐵、捷運的光柱預設**關**（`layerParamsSpec.ts` `thsrPillarVisible`／`traPillarVisible`／`metroPillarVisible` `default: false`）。捷運有兩種顯示模式（預設「Mapbox 點位」）：「Mapbox 點位」所有縮放都顯示點；「實際範圍（光暈示意）」z ≥ 10 用光暈示意站點範圍（捷運沒有站體面資料）、z < 10 顯示點。選項名稱「Mapbox 點位」含英文品牌名，與中文優先不一致，待決。
@@ -362,6 +365,7 @@ R2 後：#1、#3 已解決（固定三階、底圖色描邊）；#2 只剩泡泡
 - **T-1 字型**：`text-font` 維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`（英數），強調用 Bold。中文：明確設定 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack）。mapbox-gl 預設已是 `'sans-serif'`（中文本來就在前端用系統字繪製），這次只是把字型名稱指定成與 UI 相同，**不增加下載或運算負擔**。已實作（R1）：`src/map/MapView.tsx`（主站）與 `src/bbox/BboxSelectorApp.tsx`（bbox 工具）以 `MAP_LOCAL_IDEOGRAPH_FONT`（= `FONT_CJK`）設定。embed（`src/embed/EmbedApp.tsx`，MapLibre）與分析卡片頁（`src/card/`，MapLibre）未設定——是否需要未驗證。
 - **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。（常數 `LABEL`；R3b 已接線，GFW 計數字級保留 vessel_count step。分析卡片頁的地圖標籤另用 11／12px、halo 1.2／1.4，見 `spec.md` §5.34。）
 - **T-3 密度**：POI 名稱 minzoom = max(現值, 13)、`text-allow-overlap: false`；計數徽章保留原出現縮放並可 overlap。廁所 16、垃圾桶 15、回收與遊戲場 14 維持；旅客中心 10 → 13。
+  - **例外**：30 天地圖挑戰 Day 6「1932 臺北市町界」（`mapchallengeDay06Taipei1932`）町名 z12 起（`MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM`）。町名不是一般 POI，而是本層主體（面＋町名才看得出哪些町名留下）；z12 正好一眼看完整個舊城 74 町，z13 只看得到一半。仍 `text-allow-overlap: false`。2026-11-06 使用者同意；`r3bStyleContract.test.ts` 釘住。
 
 ### 3.6 暗／淡底圖差異規則（K-4）
 

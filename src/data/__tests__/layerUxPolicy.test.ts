@@ -17,7 +17,8 @@ const MAPBOX_POINT_SIZE_BACKLOG: string[] = [
 
 /** 海事邊界的寬度同時縮放線與 basepoint，故不再新增重複的「大小」控制。 */
 // councilDistricts2026：symbol 只是面的選區名標籤（loader 算的面內代表點），沒有點位符號可調大小。
-const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary", "councilDistricts2026"] as const;
+// mapchallengeDay06Taipei1932（2026-11-06）：symbol 只是面的町名標籤（無點位），同 councilDistricts2026 不需大小控件。
+const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary", "councilDistricts2026", "mapchallengeDay06Taipei1932"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",

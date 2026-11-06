@@ -186,8 +186,9 @@ export const GB_EA_POLLUTION_ATTRIBUTION = "Contains Environment Agency informat
 export const GB_EA_POLLUTION_URL = "https://www.data.gov.uk/dataset/pollution-inventory";
 export const GB_EA_POLLUTION_LICENSE = "Environment Agency Conditional Licence";
 export const GB_EA_POLLUTION_YEAR = 2024;
-/** 2026-10-29 成品：RPC 回 England 2,536 點（routes 非空＝有申報排放 1,690、無 846）；另 4 筆 EA 場址座標落在蘇格蘭／威爾斯，疑似錯誤不回。 */
-export const GB_EA_POLLUTION_COUNTS = { total: 2_536, released: 1_690, none: 846, excluded: 4 } as const;
+/** 2026-11-06 成品（gb_pollution_inventory_20261106）：RPC 回 England 2,544 點（routes 非空＝有申報排放 1,693、無 851）；
+ *  其中 8 處來源座標落在英格蘭外（蘇格蘭 3、威爾斯 1、海上 4），analytics 已改用 ONSPD 郵遞區號中心（coord_source）。 */
+export const GB_EA_POLLUTION_COUNTS = { total: 2_544, released: 1_693, none: 851, postcodeCentroid: 8 } as const;
 
 // ─────────────────────────── C090 策略噪音地圖 gbNoise ───────────────────────────
 

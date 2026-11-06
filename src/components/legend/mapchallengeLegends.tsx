@@ -4,7 +4,7 @@
  * - 設施群聚：每種設施一組色階；標題旁放該色階代表色（第 4 階），切設施時標題、色塊、級距一起換。
  * - 熱區重疊（r7 與臺中彰化 r8）：四類固定色＋大字重疊率。
  */
-import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
+import { LegendNote, LegendNum, LegendRow, LegendTitle, SwatchDot, SwatchLine, SwatchSquare, useLegendTheme } from "./legendKit";
 import { paramStr, useLayerParams } from "../../layers/layerParamsAccess";
 import { useLocale } from "../../state/localeStore";
 import { FONT_DATA, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
@@ -18,6 +18,12 @@ import {
   MAPCHALLENGE_DAY05_KIND_COLORS, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
   mapchallengeDay05TierSwatch,
 } from "../../data/mapchallengeDay05Types";
+import {
+  MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_LINK_DASH, MAPCHALLENGE_DAY06_STATUSES, MAPCHALLENGE_DAY06_STATUS_COLORS, MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TAIPEI_COUNTS,
+  MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TEMPLE_STATS, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY,
+  MAPCHALLENGE_DAY06_OLDEST_WIDTH_MUL, MAPCHALLENGE_DAY06_SAME_RING,
+  mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, mapchallengeDay06TempleColor, mapchallengeDay06TodayColor,
+} from "../../data/mapchallengeDay06Types";
 
 /** i18n key 寫成字面值（localeParity 靠字面值判斷 key 有沒有人用） */
 export const MAPCHALLENGE_FACILITY_NAME_KEYS: Record<MapchallengeFacilityKey, `legend.mapchallenge.facility.${MapchallengeFacilityKey}`> = {
@@ -172,5 +178,86 @@ export function MapchallengeSeaViewRunsLegend() {
     <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY05_KIND_COLORS.road} width={2} />}>{t("legend.mapchallenge.day05.road")}</LegendRow>
     <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY05_KIND_COLORS.rail} width={3} />}>{t("legend.mapchallenge.day05.top3")}</LegendRow>
     <Day05Footer />
+  </div>;
+}
+
+// ── Day 6 復古：海岸線三代／1932 町界／1921 祠廟／燈塔測候所 ─────────────
+/** i18n key 寫成字面值（同上） */
+export const MAPCHALLENGE_DAY06_ERA_KEYS = {
+  1: "legend.mapchallenge.day06.era1",
+  2: "legend.mapchallenge.day06.era2",
+  3: "legend.mapchallenge.day06.era3",
+} as const;
+const MAPCHALLENGE_DAY06_SURVIVE_KEYS = { 1: "legend.mapchallenge.day06.surviveYes", 0: "legend.mapchallenge.day06.surviveNo" } as const;
+const MAPCHALLENGE_DAY06_TEMPLE_KEYS = { 1: "legend.mapchallenge.day06.templeYes", 0: "legend.mapchallenge.day06.templeNo" } as const;
+export const MAPCHALLENGE_DAY06_STATUS_KEYS = {
+  same: "legend.mapchallenge.day06.statusSame",
+  moved: "legend.mapchallenge.day06.statusMoved",
+  none: "legend.mapchallenge.day06.statusNone",
+} as const;
+
+function Day06Footer() {
+  const { t } = useLocale();
+  return <>
+    <LegendNote>{t("legend.mapchallenge.day06.license")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day06.source")}</LegendNote>
+  </>;
+}
+
+
+export function MapchallengeDay06CoastLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day06.coastTitle")} />
+    {MAPCHALLENGE_DAY06_ERAS.map((e) => <LegendRow key={e.value} swatch={<SwatchLine color={mapchallengeDay06EraColor(e.value, isDark)} width={e.value === 1 ? 3 * MAPCHALLENGE_DAY06_OLDEST_WIDTH_MUL : 3} />}>
+      {t(MAPCHALLENGE_DAY06_ERA_KEYS[e.value])}
+    </LegendRow>)}
+    <LegendRow swatch={<SwatchDot color={mapchallengeDay06EraColor(1, isDark)} />}>{t("legend.mapchallenge.day06.places")}</LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day06.coastNote")}</LegendNote>
+    <LegendNote>{t("legend.mapchallenge.day06.coastToday")}</LegendNote>
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06Taipei1932Legend() {
+  const { t } = useLocale();
+  const theme = useLegendTheme();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day06.taipeiTitle")} />
+    {MAPCHALLENGE_DAY06_SURVIVE.map((c) => <LegendRow key={c.value} swatch={<SwatchSquare color={mapchallengeDay06SurviveColor(c.value)} opacity={MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY * 2} stroke={theme.seam} />}>
+      {t(MAPCHALLENGE_DAY06_SURVIVE_KEYS[c.value], { n: c.value === 1 ? MAPCHALLENGE_DAY06_TAIPEI_COUNTS.survives : MAPCHALLENGE_DAY06_TAIPEI_COUNTS.total - MAPCHALLENGE_DAY06_TAIPEI_COUNTS.survives })}
+    </LegendRow>)}
+    <LegendNote>{t("legend.mapchallenge.day06.taipeiNote")}</LegendNote>
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06Temples1921Legend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day06.templeTitle")} />
+    <OverlapRate>{t("legend.mapchallenge.day06.templeRate", { pct: MAPCHALLENGE_DAY06_TEMPLE_STATS.contPct, control: MAPCHALLENGE_DAY06_TEMPLE_STATS.controlPct })}</OverlapRate>
+    {MAPCHALLENGE_DAY06_TEMPLE_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchDot color={mapchallengeDay06TempleColor(c.value)} />}>
+      {t(MAPCHALLENGE_DAY06_TEMPLE_KEYS[c.value])}
+    </LegendRow>)}
+    <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={mapchallengeDay06TodayColor(isDark)} strokeWidth={MAPCHALLENGE_DAY06_SAME_RING.strokeWidth} />}>
+      {t("legend.mapchallenge.day06.templeSame", { n: MAPCHALLENGE_DAY06_TEMPLE_STATS.sameName })}
+    </LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day06.templeNote", { n: MAPCHALLENGE_DAY06_TEMPLE_STATS.sameName })}</LegendNote>
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06LighthousesLegend({ isDark }: { isDark: boolean }) {
+  const { t } = useLocale();
+  return <div>
+    <LegendTitle zh={t("legend.mapchallenge.day06.lighthouseTitle")} />
+    {MAPCHALLENGE_DAY06_STATUSES.map((s) => <LegendRow key={s.value} swatch={<SwatchDot color={MAPCHALLENGE_DAY06_STATUS_COLORS[s.value]} />}>
+      {t(MAPCHALLENGE_DAY06_STATUS_KEYS[s.value])}
+    </LegendRow>)}
+    <LegendRow swatch={<SwatchDot color={mapchallengeDay06TodayColor(isDark)} />}>{t("legend.mapchallenge.day06.today")}</LegendRow>
+    <LegendRow swatch={<SwatchLine color={MAPCHALLENGE_DAY06_STATUS_COLORS.moved} width={2} dash={MAPCHALLENGE_DAY06_LINK_DASH} />}>{t("legend.mapchallenge.day06.link")}</LegendRow>
+    <LegendNote>{t("legend.mapchallenge.day06.lighthouseNote")}</LegendNote>
+    <Day06Footer />
   </div>;
 }

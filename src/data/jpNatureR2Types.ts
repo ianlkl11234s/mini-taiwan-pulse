@@ -67,9 +67,9 @@ export const jpDidUrl = (year: string) => `./world/jp_did_ksj_${year}.pmtiles`;
 export const JP_DID_COLOR = JP_NATURE_R2_LAYER_COLORS.jpDid;
 /** DID 個數（合併多部分後）與人口合計，pipeline QA 實算（qa.json） */
 export const JP_DID_COUNTS: Record<(typeof JP_DID_YEARS)[number], number> = { 1995: 1534, 2000: 1507, 2005: 1494, 2010: 1499, 2015: 1478 };
-/** 人口密度切點（人/km²）：DID 定義下限 4,000；4k–6k、6k–8k、8k–10k、≥10k */
+/** 人口密度切點（人/km²）：DID 定義下限 4,000；<6k（含 DID 定義下限 4k 與早年未達 4k 者）、6k–8k、8k–10k、≥10k */
 export const JP_DID_DENSITY_CUTS = [6000, 8000, 10000] as const;
-export const JP_DID_DENSITY_LABELS = ["4,000–6,000", "6,000–8,000", "8,000–10,000", "≥10,000"] as const;
+export const JP_DID_DENSITY_LABELS = ["<6,000", "6,000–8,000", "8,000–10,000", "≥10,000"] as const;
 export const JP_DID_SOURCE_URL = "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A16-v2_3.html";
 export const jpDidAttribution = (year: string) => `「国土数値情報（人口集中地区データ）${year}年」（国土交通省）を加工して作成 · 商用可（平成7年以降）`;
 export const JP_DID_LICENSE = "国土数値情報 利用規約（平成7年以降：商用可）";

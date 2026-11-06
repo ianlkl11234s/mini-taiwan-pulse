@@ -70,6 +70,33 @@ export function validateManifest(manifest) {
   return [...assets.values()];
 }
 
+/** v4 root 的結構與發布旗標驗證；回傳指向 release manifest 的 descriptor（呼叫端要下載並驗 bytes＋sha256）。共用給 sync-rotating。 */
+export function validateV4Root(manifest) {
+  if (manifest.schema_version !== 4) fail('not a v4 root');
+  if (manifest.production_cutover !== true || manifest.poc === true || manifest.shadow_only === true) fail('v4 root is not published');
+  if (!/^\d{4}-\d{2}-\d{2}__[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(manifest.release_id) || manifest.selected_utc_date !== manifest.release_id.slice(0, 10)) fail('invalid v4 root');
+  const ref = manifest.release_manifest;
+  const releasePrefix = `releases/${manifest.release_id}/`;
+  validateAsset(ref, releasePrefix);
+  if (ref.path !== releasePrefix + 'manifest.json') fail('invalid v4 pointer');
+  return ref;
+}
+/** v4 release manifest（已驗過 bytes＋sha256）的驗證；回傳全部資產（artifacts＋release manifest 自己）。 */
+export function validateV4Release(manifest, release) {
+  const ref = manifest.release_manifest;
+  const releasePrefix = `releases/${manifest.release_id}/`;
+  if (release.schema_version !== 4 || release.release_id !== manifest.release_id || !Array.isArray(release.artifacts) || !release.artifacts.length) fail('invalid v4 release');
+  if (release.production_cutover !== true || release.immutable !== true || !['tier1_status', 'tier2_status', 'readback_status'].every(k => release.release_truth?.[k] === 'passed')) fail('v4 release acceptance gate failed');
+  const assets = [...release.artifacts, ref];
+  const paths = new Set();
+  for (const a of assets) {
+    validateAsset(a, releasePrefix);
+    if (paths.has(a.path)) fail('duplicate v4 artifact');
+    paths.add(a.path);
+  }
+  return assets;
+}
+
 const CACHE_GRACE_MS = 8 * 86400000; // immutable cache 7d plus root/edge grace
 function rememberRetired(directory, installed, now) {
   const prefix = `releases/${installed.release_id}/`;
@@ -129,24 +156,10 @@ export async function refreshNamespace({ directory, prefix, download, now = Date
     const manifest = readManifest(candidate);
     let assets;
     if (manifest.schema_version === 4) {
-      if (manifest.production_cutover !== true || manifest.poc === true || manifest.shadow_only === true) fail('v4 root is not published');
-      if (!/^\d{4}-\d{2}-\d{2}__[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(manifest.release_id) || manifest.selected_utc_date !== manifest.release_id.slice(0, 10)) fail('invalid v4 root');
-      const ref = manifest.release_manifest;
-      const releasePrefix = `releases/${manifest.release_id}/`;
-      validateAsset(ref, releasePrefix);
-      if (ref.path !== releasePrefix + 'manifest.json') fail('invalid v4 pointer');
+      const ref = validateV4Root(manifest);
       const releasePath = join(stage, 'release.json');
       if (await download(`${prefix}/${ref.path}`, releasePath) === null || !await matches(releasePath, ref)) fail('v4 release manifest verification failed');
-      const release = readManifest(releasePath);
-      if (release.schema_version !== 4 || release.release_id !== manifest.release_id || !Array.isArray(release.artifacts) || !release.artifacts.length) fail('invalid v4 release');
-      if (release.production_cutover !== true || release.immutable !== true || !['tier1_status', 'tier2_status', 'readback_status'].every(k => release.release_truth?.[k] === 'passed')) fail('v4 release acceptance gate failed');
-      assets = [...release.artifacts, ref];
-      const paths = new Set();
-      for (const a of assets) {
-        validateAsset(a, releasePrefix);
-        if (paths.has(a.path)) fail('duplicate v4 artifact');
-        paths.add(a.path);
-      }
+      assets = validateV4Release(manifest, readManifest(releasePath));
     } else assets = validateManifest(manifest);
     let installed;
     if (existsSync(root)) {

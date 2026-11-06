@@ -1,13 +1,14 @@
 // Mini Taiwan Pulse 測試站 Worker（第 ③ 關）。
 // 重現 nginx.conf 的路由：網頁走 Workers 靜態資產、圖層大檔走 R2（data.itsmigu.com/site/）、
-// /api 與短效 manifest 測試期間暫時轉回現行正式站；氣候、GFW 由 sync-rotating.mjs 同步到 R2。
+// 只有 /api 轉到新主機（ORIGIN）；所有圖層檔一律只讀 R2（sync_site_assets.py 每天與每次發版從 S3 補差異），
+// 氣候、GFW 由 sync-rotating.mjs 同步到 R2。新主機不供檔，所以檔案路徑絕不轉 ORIGIN（2026-11-06）。
 // 規格來源：nginx.conf（v2.22.1）；每段註解標 nginx 行號。
 
 const R2_BASE = 'https://data.itsmigu.com/site';
 
 const HSTS = 'max-age=31536000';
 const CSP_MAIN_ENF = "frame-ancestors 'self'; object-src 'none'; base-uri 'self'";
-const CSP_MAIN_RO = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://protomaps.github.io; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://protomaps.github.io https://utcmcikhvxnohbxchbrs.supabase.co wss://utcmcikhvxnohbxchbrs.supabase.co https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://data.itsmigu.com https://pub-eae6980c040441adbd1eaded2870d3d2.r2.dev; frame-src 'self' https:; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
+const CSP_MAIN_RO = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://protomaps.github.io; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://protomaps.github.io https://utcmcikhvxnohbxchbrs.supabase.co wss://utcmcikhvxnohbxchbrs.supabase.co https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://data.itsmigu.com https://earthquakescanada.nrcan.gc.ca https://pub-eae6980c040441adbd1eaded2870d3d2.r2.dev; frame-src 'self' https:; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'";
 const CSP_EMBED = "frame-ancestors *; object-src 'none'; base-uri 'self'";
 const CSP_STRICT = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 const CSP_CARD = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://utcmcikhvxnohbxchbrs.supabase.co https://data.itsmigu.com https://protomaps.github.io https://pub-eae6980c040441adbd1eaded2870d3d2.r2.dev; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
@@ -26,6 +27,9 @@ const CC_RULES = [
 ];
 const ccMap = (p) => (CC_RULES.find(([re]) => re.test(p)) || [, 'public, max-age=86400'])[1];
 const CC_1Y = 'public, max-age=31536000, immutable';
+// ^~ 純 R2 家族的 Cache-Control（nginx L776-831）：版本化 release 1 年，指標檔短效
+const R2_FAMILY = ['jp-heights', 'jp-medical', 'flight-trails'];
+const familyCc = (seg, path) => /^\/(jp-heights\/assets|jp-medical\/releases|flight-trails\/releases)\//.test(path) ? CC_1Y : (seg === 'flight-trails' ? 'no-store' : 'public,max-age=60');
 
 // nginx L284-542：先 /data 再 dist
 const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urban', 'culture', 'civic_facilities', 'religion', 'funeral', 'welfare', 'hazards', 'indigenous_rural', 'marine', 'environment', 'public_life', 'poi', 'harm_reduction', 'world', 'tourism', 'coverage'];
@@ -33,8 +37,8 @@ const DATA_THEN_DIST = ['geo', 'h3', 'bus', 'forestry', 'fishery', 'flood', 'urb
 const DATA_ONLY = { water_resources: null, agriculture: null, business_registry: CC_1Y, industrial_zone: CC_1Y, sports: null, education: null, 'static-rpc': null, medical: null, base_map: null, fire: null, police_justice: null, road: null, rail: null, 'embed-snapshots': CC_1Y, 'embed-rail': CC_1Y };
 // ^~ 前綴：不受 L893 副檔名正則影響
 const CARET = ['/climate/', '/network_structures/', '/global-maritime/', '/jp-heights/', '/jp-medical/', '/flight-trails/', '/blog/', '/card/', '/lab/', '/assets/', '/api/research/v1/', '/.private-allen'];
-// 短效指標檔：測試期一律以正式站為準，避免 R2 一次性副本過期
-const SHORT_LIVED = [/manifest[^/]*\.json$/i, /_current\.[^/]+$/i, /^\/jp-heights\/catalog\.json$/, /^\/(aviation_data|ship_data|temperature_grid)\.json$/];
+// 短效指標檔：先 R2、再 dist（例如 /public_life/manifest.json 在 dist），都沒有回 404
+const SHORT_LIVED = [/manifest[^/]*\.json$/i, /_current\.[^/]+$/i, /^\/jp-heights\/catalog\.json$/];
 
 const MIME = { pmtiles: 'application/vnd.pmtiles', geojson: 'application/geo+json', json: 'application/json', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', svg: 'image/svg+xml', csv: 'text/csv', txt: 'text/plain', bin: 'application/octet-stream', gz: 'application/octet-stream', arrow: 'application/octet-stream', mp4: 'video/mp4' };
 const extOf = (p) => (p.match(/\.([A-Za-z0-9]+)$/) || [, ''])[1].toLowerCase();
@@ -46,6 +50,8 @@ function withHeaders(res, extra, { status, drop = [] } = {}) {
   return new Response(res.body, { status: status ?? res.status, statusText: res.statusText, headers: h });
 }
 const notFound = (extra = SEC) => new Response('<html><head><title>404 Not Found</title></head><body><center><h1>404 Not Found</h1></center></body></html>', { status: 404, headers: { 'Content-Type': 'text/html', ...extra } });
+// R2 沒有的檔：404，並標 X-Pulse-Src: r2-miss 方便清點（取代切換前的 origin-miss）
+const r2Miss = () => notFound({ 'X-Pulse-Src': 'r2-miss' });
 const redirect = (loc, status, extra = SEC) => new Response(null, { status, headers: { Location: loc, ...extra } });
 
 async function asset(env, req, path) {
@@ -88,16 +94,28 @@ async function fromR2(req, path, cc) {
   return new Response(r.body, { status: r.status, headers: out });
 }
 
-// 轉回現行正式站（Zeabur）。測試站網址與正式站不同，不會迴圈。
-async function fromOrigin(req, env, url, tag = 'origin') {
+// 新主機（Cloudflare Tunnel 後的 Caddy）的入口驗證 header：值一律來自 Worker secret
+// （wrangler secret put，不寫進 wrangler.jsonc）。瀏覽器送來的同名 header 一律先刪，回應也不帶出。
+const ORIGIN_AUTH_HEADERS = [
+  ['CF-Access-Client-Id', 'CF_ACCESS_CLIENT_ID'],
+  ['CF-Access-Client-Secret', 'CF_ACCESS_CLIENT_SECRET'],
+  ['X-Pulse-Origin-Auth', 'PULSE_ORIGIN_SECRET'],
+];
+const ORIGIN_AUTH_NAMES = ORIGIN_AUTH_HEADERS.map(([name]) => name);
+
+// 轉到 ORIGIN（新主機，只處理 /api）。
+export async function fromOrigin(req, env, url, tag = 'origin') {
   const target = new URL(url.pathname + url.search, env.ORIGIN);
   const h = new Headers(req.headers);
   h.delete('host'); h.delete('cookie');
+  for (const name of ORIGIN_AUTH_NAMES) h.delete(name);
+  for (const [name, key] of ORIGIN_AUTH_HEADERS) if (env[key]) h.set(name, env[key]);
+  h.delete('x-real-ip'); h.delete('x-forwarded-for'); // 新主機只信 Worker 設的值
   const ip = req.headers.get('cf-connecting-ip'); if (ip) { h.set('X-Forwarded-For', ip); h.set('X-Real-IP', ip); }
   const init = { method: req.method, headers: h, redirect: 'manual' };
   if (!['GET', 'HEAD'].includes(req.method)) { init.body = req.body; init.duplex = 'half'; }
   const r = await fetch(target, init);
-  return withHeaders(r, { 'X-Pulse-Src': tag });
+  return withHeaders(r, { 'X-Pulse-Src': tag }, { drop: ORIGIN_AUTH_NAMES });
 }
 
 export default {
@@ -156,15 +174,18 @@ export default {
       return (await fromR2(req, path, cc)) || notFound(cc ? { 'Cache-Control': cc } : SEC);
     }
 
-    // 短效指標檔：測試期轉回正式站
-    if (SHORT_LIVED.some((re) => re.test(path))) return fromOrigin(req, env, url);
+    // 短效指標檔：R2 → dist → 404（不轉 ORIGIN）
+    if (SHORT_LIVED.some((re) => re.test(path))) {
+      const cc = R2_FAMILY.includes(seg) ? familyCc(seg, path) : ccMap(path);
+      const r2 = await fromR2(req, path, cc);
+      if (r2) return r2;
+      const r = await asset(env, req, path);
+      return r ? withHeaders(r, { 'Cache-Control': cc }) : notFound({});
+    }
 
     // ^~ 純 R2 家族（L562、L776-831）
-    if (seg === 'network_structures') return (await fromR2(req, path, ccMap(path))) || fromOrigin(req, env, url, 'origin-miss');
-    if (seg === 'jp-heights' || seg === 'jp-medical' || seg === 'flight-trails') {
-      const cc = /^\/(jp-heights\/assets|jp-medical\/releases|flight-trails\/releases)\//.test(path) ? CC_1Y : (seg === 'flight-trails' ? 'no-store' : 'public,max-age=60');
-      return (await fromR2(req, path, cc)) || fromOrigin(req, env, url, 'origin-miss');
-    }
+    if (seg === 'network_structures') return (await fromR2(req, path, ccMap(path))) || r2Miss();
+    if (R2_FAMILY.includes(seg)) return (await fromR2(req, path, familyCc(seg, path))) || r2Miss();
 
     // L277 ookla：只走 dist
     if (/^\/geo\/ookla_(fixed_global|mobile_global|tw_z14|tw_z16)(_[0-9]+)?\.(geojson|pmtiles)$/.test(path)) {
@@ -185,9 +206,9 @@ export default {
       const r = await asset(env, req, path);
       return r ? withHeaders(r, { 'Cache-Control': ccMap(path) }) : notFound({});
     }
-    // 純 R2（L319-673）；測試期 R2 沒有時轉回正式站並標記，方便事後清點
+    // 純 R2（L319-673）：R2 沒有就 404（nginx 原本也是 /data 沒有就 404）
     if (seg in DATA_ONLY) {
-      return (await fromR2(req, path, DATA_ONLY[seg] || ccMap(path))) || fromOrigin(req, env, url, 'origin-miss');
+      return (await fromR2(req, path, DATA_ONLY[seg] || ccMap(path))) || r2Miss();
     }
 
     // location /（L843）：dist → 目錄 index → SPA fallback（有副檔名回 404）

@@ -1,6 +1,7 @@
 // 加拿大第 3 波圖例（氣象站、AQHI、輻射監測站、NPRI、污水處理系統、歷史地震）＋人口網格。
 // 色票、類別、備註與署名 SSOT 在 data/caEnvTypes.ts；未涵蓋的省份寫「未涵蓋」，人口網格標「GHSL 模型推估、非普查」。
-import type { ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
+import { caQuakeLiveStatus } from "../../data/caLiveQuakesLoader";
 import { LegendNote, LegendRow, LegendSizeRow, LegendTitle, SwatchDot, SwatchSteps, useLegendTheme } from "./legendKit";
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
@@ -11,7 +12,7 @@ import { JMA_QUAKE_RADIUS_STOPS } from "../../data/jmaTypes";
 import { pickL3, type CaCat, type CaSource, type L3 } from "../../data/caInfraTypes";
 import {
   CA_AQHI_COLOR, CA_AQHI_NOTES, CA_AQHI_SOURCE, CA_CLIMATE_NOTES, CA_CLIMATE_SOURCE, CA_CLIMATE_STATUSES, CA_NPRI_GROUPS, CA_NPRI_NOTES,
-  CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_NOTES, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_NOTES, CA_QUAKE_SOURCE,
+  CA_NPRI_SOURCE, CA_POP_GRID_BREAKS, CA_POP_GRID_NOTES, CA_POP_GRID_SOURCE, CA_QUAKE_COLOR, CA_QUAKE_LIVE_DAYS, CA_QUAKE_LIVE_NOTES, CA_QUAKE_LIVE_SOURCE, CA_QUAKE_LIVE_TYPES, CA_QUAKE_NOTES, CA_QUAKE_SOURCE,
   CA_RADIATION_COLOR, CA_RADIATION_NOTES, CA_RADIATION_SOURCE, CA_WSER_BANDS, CA_WSER_NOTES, CA_WSER_SOURCE, CA_WSER_STATUSES,
 } from "../../data/caEnvTypes";
 
@@ -86,6 +87,29 @@ export function CaEarthquakesLegend() {
     <LegendSizeRow fill={CA_QUAKE_COLOR} title={pick({ zh: "規模", en: "Magnitude", ja: "マグニチュード" })} items={JMA_QUAKE_RADIUS_STOPS.map(([m, px]) => ({ r: px, label: `M${m}` }))} />
     <Notes notes={CA_QUAKE_NOTES} source={CA_QUAKE_SOURCE} pick={pick} />
     <DenseHeatmapLegendRow layers={["caEarthquakes"]} />
+  </div>;
+}
+
+/** 即時地震：筆數與最新事件讀 loader 狀態 store；失敗時寫原因（圖面已清空，不留舊資料）。 */
+export function CaEarthquakesLiveLegend() {
+  const { title, pick } = useTitle("caEarthquakesLive");
+  const st = useSyncExternalStore(caQuakeLiveStatus.subscribe, caQuakeLiveStatus.get);
+  const status = st.state === "error"
+    ? pick({ zh: `讀取失敗（${st.error}），稍後自動重試`, en: `Failed to load (${st.error}); retrying automatically`, ja: `読み込み失敗（${st.error}）、自動で再試行` })
+    : st.state === "ready"
+      ? pick({
+        zh: `最近 ${CA_QUAKE_LIVE_DAYS} 天 ${st.count.toLocaleString("en-US")} 筆${st.latest ? `；最新 ${st.latest.slice(0, 16).replace("T", " ")} UTC` : ""}`,
+        en: `${st.count.toLocaleString("en-US")} events in the last ${CA_QUAKE_LIVE_DAYS} days${st.latest ? `; latest ${st.latest.slice(0, 16).replace("T", " ")} UTC` : ""}`,
+        ja: `直近 ${CA_QUAKE_LIVE_DAYS} 日 ${st.count.toLocaleString("en-US")} 件${st.latest ? `、最新 ${st.latest.slice(0, 16).replace("T", " ")} UTC` : ""}`,
+      })
+      : pick({ zh: "載入中…", en: "Loading…", ja: "読み込み中…" });
+  return <div>
+    <LegendTitle zh={title} />
+    <LegendNote>{status}</LegendNote>
+    <LegendSizeRow fill={CA_QUAKE_COLOR} title={pick({ zh: "規模", en: "Magnitude", ja: "マグニチュード" })} items={JMA_QUAKE_RADIUS_STOPS.map(([m, px]) => ({ r: px, label: `M${m}` }))} />
+    {SUB(pick({ zh: "事件類型（可在圖層設定篩選）", en: "Event type (filter in layer settings)", ja: "種別（レイヤー設定で絞り込み）" }))}
+    <Cats cats={CA_QUAKE_LIVE_TYPES} pick={pick} />
+    <Notes notes={CA_QUAKE_LIVE_NOTES} source={CA_QUAKE_LIVE_SOURCE} pick={pick} />
   </div>;
 }
 

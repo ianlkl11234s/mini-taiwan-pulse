@@ -1625,11 +1625,17 @@
   "layer.caRadiationStations": "Radiation Monitoring Stations (Canada)",
   "layer.caNpriFacilities": "NPRI Pollutant Release Facilities (Canada)",
   "layer.caWastewaterSystems": "Wastewater Systems, WSER (Canada)",
+  "layer.caEarthquakesLive": "Recent Earthquakes, last 30 days (Canada)",
   "layer.caEarthquakes": "Earthquakes 1985–2019 (Canada)",
   "layer.caPopulationGrid": "Population Grid, GHSL 2020 (Canada)",
   "layer.jpNaturalParkAreas2015": "Natural Park Areas",
   "layer.jpNationalParksMoe": "National Parks",
   "layer.jpWildlifeProtectionMoe": "National Wildlife Protection Areas",
   "layer.jpDid": "Densely Inhabited Districts (DID)",
-  "layer.water1944Taipei": "1944 Waterbodies (Taipei Basin)"
+  "layer.water1944Taipei": "1944 Waterbodies (Taipei Basin)",
+  "layer.jpTrafficAccidents2025": "Injury Crashes",
+  "layer.mapchallengeDay06Coast": "Tainan Coastlines, 3 Eras",
+  "layer.mapchallengeDay06Taipei1932": "Taipei Town Divisions 1932",
+  "layer.mapchallengeDay06Temples1921": "Temples That Stayed, 1921",
+  "layer.mapchallengeDay06Lighthouses": "Lighthouses & Weather Stations Then and Now"
 }

@@ -163,7 +163,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "funeralFacilities", "funeralOperators", "govServiceOffices", "iPostBoxes",
   "immigrationOffice", "internetExchangePoints", "anfrWirelessSites", "osmCommunicationSites", "ripeAtlasProbes", "ooklaMobilePerformance", "ooklaFixedPerformance",
   "ooklaMobileTaiwan", "ooklaFixedTaiwan", "investigationBureau", "landingStations", "livestockFeed",
-  "disasterResourceSites", "emergencyHospitals", "firingNoticeAreas", "livestockMarket", "nuclearEpzEvacuation", "trafficAccidents2025", "tsunamiSirens", "medHospital", "mountainHuts", "mountainRescueIncidents", "parksTaipei",
+  "disasterResourceSites", "emergencyHospitals", "firingNoticeAreas", "livestockMarket", "nuclearEpzEvacuation", "trafficAccidents2025", "jpTrafficAccidents2025", "tsunamiSirens", "medHospital", "mountainHuts", "mountainRescueIncidents", "parksTaipei",
   "performingVenues", "policeStation", "postOffices", "prosecutorsOffice",
   "protectedTreesNational", "publicLibraries", "publicToilets", "religionAncestralHalls",
   "religionChurches", "religionFoundations", "religionOtherWorship", "religionTop100",
@@ -207,7 +207,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   // 海域保護與漁業 G08：7 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
   "natureReserves", "wildlifeProtectedAreas", "openFishingLocations", "coastalAreaExtents", "artificialReefCenters", "protectedReefCenters", "setNetFishingAreas", "marineWildlifeAreas", "marineEcologicalMonitoringSites",
   // G37（2026-10-31）：atlas overlay，無 hook
-  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "importantWetlandZones", "water1944Taipei", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "waterRecreationRestrictedAreas", "batterySwapStations",
+  "exclusiveFisheryRightAreas", "toxicChemicalFacilities", "majorOccupationalAccidents", "renewablePermitsNational", "importantWetlands", "importantWetlandZones", "water1944Taipei", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns", "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses", "waterRecreationRestrictedAreas", "batterySwapStations",
   // 地層下陷＋海堤 G19：4 層純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles；測站 popup 的 RPC 不是 layer hook。
   "landSubsidenceStations", "landSubsidenceCumulative", "landSubsidenceRate", "seawallZones",
   // 文化幣藝文消費點 G23：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 React data hook。

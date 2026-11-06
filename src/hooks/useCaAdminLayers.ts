@@ -6,6 +6,7 @@ import { useMapReadyTick } from "./useMapReadyTick";
 import { paramDefault } from "../data/layerParamsSpec";
 import { BOUNDARY_GRAY } from "../map/mapStyleScale";
 import { hookLineLayout, hookLineOpacity, hookLinePaint } from "../map/lineFillSpec";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { CA_ADMIN_COLOR, CA_ADMIN_LEVELS } from "../data/caInfraTypes";
 
 /**
@@ -18,11 +19,13 @@ const SOURCE_ID = "ca-admin-boundaries";
 const FILE = "ca_admin_boundaries.pmtiles";
 const LINE_WIDTH = 1;
 
+// 檔內各 tile layer 的實際縮放範圍不同（pr 1–8、cd 3–9、csd 5–11）。z9+ 的圖磚只含 csd，若三層共用 maxzoom 11 的
+// source，pr／cd 在 z9+ 抓不到圖磚就消失；因此每層各用一個 source（同一個檔），maxzoom 對齊該層上限，更高縮放改由 overzoom。
 // layer id 寫成字面值：gisClickRegistry／lineFillTiers 的契約測試以字面值比對。順序＝CA_ADMIN_LEVELS（pr、cd、csd）。
 const subLayers = [
-  { sourceLayer: "pr", minzoom: CA_ADMIN_LEVELS[0].minzoom, fillId: "ca-admin-pr-fill", lineId: "ca-admin-pr-line" },
-  { sourceLayer: "cd", minzoom: CA_ADMIN_LEVELS[1].minzoom, fillId: "ca-admin-cd-fill", lineId: "ca-admin-cd-line" },
-  { sourceLayer: "csd", minzoom: CA_ADMIN_LEVELS[2].minzoom, fillId: "ca-admin-csd-fill", lineId: "ca-admin-csd-line" },
+  { sourceLayer: "pr", sourceId: "ca-admin-boundaries-pr", srcMaxzoom: 8, minzoom: CA_ADMIN_LEVELS[0].minzoom, fillId: "ca-admin-pr-fill", lineId: "ca-admin-pr-line" },
+  { sourceLayer: "cd", sourceId: "ca-admin-boundaries-cd", srcMaxzoom: 9, minzoom: CA_ADMIN_LEVELS[1].minzoom, fillId: "ca-admin-cd-fill", lineId: "ca-admin-cd-line" },
+  { sourceLayer: "csd", sourceId: SOURCE_ID, srcMaxzoom: 11, minzoom: CA_ADMIN_LEVELS[2].minzoom, fillId: "ca-admin-csd-fill", lineId: "ca-admin-csd-line" },
 ] as const;
 
 const opacityDefault = () => Number(paramDefault(KEY, `${KEY}Opacity`) ?? 0.85);
@@ -69,13 +72,13 @@ export function useCaAdminLayers(
 
     const mount = () => {
       registerPmtilesSourceTypeOnce();
-      if (!map.getSource(SOURCE_ID)) {
-        map.addSource(SOURCE_ID, { type: PMTILES_SOURCE_TYPE, url: absoluteUrl(FILE), minzoom: 1, maxzoom: 11 } as any);
-      }
       subLayers.forEach((sub, idx) => {
+        if (!map.getSource(sub.sourceId)) {
+          map.addSource(sub.sourceId, { type: PMTILES_SOURCE_TYPE, url: absoluteUrl(FILE), minzoom: 1, maxzoom: sub.srcMaxzoom } as any);
+        }
         if (!map.getLayer(sub.fillId)) {
           map.addLayer({
-            id: sub.fillId, type: "fill", source: SOURCE_ID, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
+            id: sub.fillId, type: "fill", source: sub.sourceId, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
             layout: { visibility: "none" },
             // 面透明度 0：只當點擊熱區（map-layers §2.4 行政界）
             paint: { "fill-color": CA_ADMIN_COLOR, "fill-opacity": 0 },
@@ -83,7 +86,7 @@ export function useCaAdminLayers(
         }
         if (!map.getLayer(sub.lineId)) {
           map.addLayer({
-            id: sub.lineId, type: "line", source: SOURCE_ID, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
+            id: sub.lineId, type: "line", source: sub.sourceId, "source-layer": sub.sourceLayer, minzoom: sub.minzoom,
             layout: { visibility: "none", ...hookLineLayout(KEY, sub.lineId) },
             paint: linePaint(sub.lineId, isDarkTheme, opacity),
           } as LineLayer);
@@ -91,6 +94,8 @@ export function useCaAdminLayers(
         const shown = idx === levelIdx;
         map.setLayoutProperty(sub.fillId, "visibility", shown ? "visible" : "none");
         map.setLayoutProperty(sub.lineId, "visibility", shown ? "visible" : "none");
+        // 只對目前顯示、尚未載完的 source 註冊 loading（切換層級時新 source 也要有提示）
+        if (shown && !map.isSourceLoaded(sub.sourceId)) keepLoadingUntilMapIdle(map, `${sub.sourceId}:render`, "加拿大行政邊界載入中", sub.sourceId);
         map.setPaintProperty(sub.lineId, "line-opacity", hookLineOpacity(KEY, sub.lineId, clamp01(opacity), opacityDefault(), isDarkTheme));
         map.setPaintProperty(sub.lineId, "line-color", BOUNDARY_GRAY[isDarkTheme ? "dark" : "light"]);
       });

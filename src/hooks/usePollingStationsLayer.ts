@@ -84,6 +84,9 @@ export function usePollingStationsLayer(
       if (!bounds) return;
       const key = pollingBoundsKey(snapPollingBounds(bounds));
       if (key === shownKey) {
+        // 回到已顯示的範圍：在途的另一範圍請求要作廢，否則它回來會覆蓋目前畫面
+        controller?.abort();
+        controller = null;
         setPollingLegendState({ meta: shownMeta, belowMinZoom: false });
         return;
       }

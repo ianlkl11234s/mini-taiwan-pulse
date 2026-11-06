@@ -15,6 +15,7 @@ const { parseUrlState, URL_STATE_VERSION } = await import("../../lib/urlState");
 const { isLayerLocked } = await import("../../lib/layerGates");
 const { LAYER_MANIFEST } = await import("../../data/layerManifest");
 const { normalizeGbEaPollution } = await import("../../data/gbEaPollutionLoader");
+const { runOwnerGateResets } = await import("../../lib/ownerGateRevoke");
 
 const KEY = "gbPollutionInventoryEngland" as const;
 const mapRef = { current: null };
@@ -59,6 +60,42 @@ describe("英格蘭污染排放申報：站主限定", () => {
     await Promise.resolve();
     expect(rpc).toHaveBeenCalledTimes(1);
     expect(rpc).toHaveBeenCalledWith("get_gb_ea_pollution_inventory");
+  });
+
+  it("撤權（登出／失去站主權限）：module cache 與 hook 資料清空，之後再開要重新打 RPC（review F088）", async () => {
+    harness.begin();
+    useGbEaPollutionInventoryLayer(mapRef, true);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(rpc).toHaveBeenCalledTimes(1);
+    // 重繪拿到資料：有 cache／data 時不重打
+    harness.begin();
+    useGbEaPollutionInventoryLayer(mapRef, true);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(rpc).toHaveBeenCalledTimes(1);
+
+    runOwnerGateResets(new Set([KEY]));
+
+    // 重繪：hook 的 data 已被清成 null → visible 時重新呼叫 RPC（cache 也清了）
+    harness.begin();
+    useGbEaPollutionInventoryLayer(mapRef, true);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(rpc).toHaveBeenCalledTimes(2);
+  });
+
+  it("撤權前發出、撤權後才回來的請求不寫回 cache", async () => {
+    let resolveRpc!: (v: unknown) => void;
+    rpc.mockReturnValueOnce(new Promise((r) => { resolveRpc = r; }));
+    harness.begin();
+    useGbEaPollutionInventoryLayer(mapRef, true);
+    runOwnerGateResets(new Set([KEY]));
+    resolveRpc({ data: { type: "FeatureCollection", features: [] }, error: null, status: 200 });
+    await new Promise((r) => setTimeout(r, 0));
+    harness.cleanup();
+
+    harness.begin();
+    useGbEaPollutionInventoryLayer(mapRef, true);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(rpc).toHaveBeenCalledTimes(2);
   });
 
   it("RPC 回應只留 Point，保留 released 給實心／空心", () => {

@@ -48,7 +48,15 @@ export const POINT_SPEC_EXEMPT: Readonly<Record<string, RegExp>> = {
   stationsMetro: /^metro-pt-/,
   // 30 天地圖挑戰 Day 5 海景發光（靜態線光暈，2026-11-05 使用者選設計稿 G5；map-layers.md §3.1 P-6 例外）
   mapchallengeDay05SeaView: /^glow-/,
+  // 30 天地圖挑戰 Day 6 祠廟「同名原址」外圈（資料編碼：14 處今天仍有同名寺廟，2026-11-06 使用者要求；map-layers.md §3.1 P-6 例外）
+  mapchallengeDay06Temples1921: /^same-mark$/,
 };
+
+/**
+ * 淺色底圖保留圖層自訂的描邊色（P-2 例外，只動描邊色，半徑／寬度／透明度仍依點規格）：
+ * 2024 投開票所的「中性」模式是白點，淺色底圖的接縫色也是白 → 白點白邊看不到，淺色改深灰描邊。
+ */
+export const POINT_STROKE_COLOR_KEEP_LIGHT: ReadonlySet<string> = new Set(["pollingStations2024"]);
 
 /**
  * 特例：全台 8–18 萬點的 allzoom 點層（2026-09-30，效能）。
@@ -168,7 +176,7 @@ export function withPointSpec(config: OverlayConfig): OverlayConfig {
         return {
           ...base,
           ...(tier === "B" ? {} : { "circle-radius": dense ? denseRadius(pointRadius(tier), sliderFactor(sizeSpec, params)) : pointRadius(tier, sliderFactor(sizeSpec, params)) }),
-          "circle-stroke-color": stroke("circle-stroke-color", mapSeamColor(isDark)),
+          "circle-stroke-color": !isDark && POINT_STROKE_COLOR_KEEP_LIGHT.has(config.id) ? base["circle-stroke-color"] : stroke("circle-stroke-color", mapSeamColor(isDark)),
           "circle-stroke-width": stroke("circle-stroke-width", dense ? denseStrokeWidth : POINT_STROKE.width),
           "circle-stroke-opacity": stroke("circle-stroke-opacity", strokeOpacity),
         };

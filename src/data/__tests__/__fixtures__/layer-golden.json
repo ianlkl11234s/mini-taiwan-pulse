@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1641,
+    "keyCount": 1647,
     "sections": [
       "gisLayers",
       "overlays",
@@ -112,6 +112,13 @@
         "traffic-accidents-2025-glow"
       ],
       "type": "trafficAccidents2025"
+    },
+    {
+      "layers": [
+        "jp-traffic-accidents-2025-circle",
+        "jp-traffic-accidents-2025-glow"
+      ],
+      "type": "jpTrafficAccidents2025"
     },
     {
       "layers": [
@@ -1660,7 +1667,8 @@
     },
     {
       "layers": [
-        "gb-planning-constraints-fill"
+        "gb-planning-constraints-fill",
+        "gb-planning-constraints-points-circle"
       ],
       "type": "gbPlanningConstraints"
     },
@@ -1768,20 +1776,23 @@
     {
       "layers": [
         "gb-tpo-fill",
-        "gb-ancient-woodland-fill"
+        "gb-ancient-woodland-fill",
+        "gb-tree-protection-points-circle"
       ],
       "type": "gbTreeProtection"
     },
     {
       "layers": [
         "gb-open-access-land-fill",
-        "gb-open-access-land-z5-fill"
+        "gb-open-access-land-z5-fill",
+        "gb-open-access-points-circle"
       ],
       "type": "gbOpenAccessLand"
     },
     {
       "layers": [
-        "gb-woodland-fill"
+        "gb-woodland-fill",
+        "gb-woodland-points-circle"
       ],
       "type": "gbWoodland"
     },
@@ -1967,12 +1978,6 @@
     },
     {
       "layers": [
-        "kr-population-h3-fill"
-      ],
-      "type": "krPopulationH3"
-    },
-    {
-      "layers": [
         "kr-airports-circle"
       ],
       "type": "krAirports"
@@ -2128,6 +2133,12 @@
         "ca-earthquakes-circle"
       ],
       "type": "caEarthquakes"
+    },
+    {
+      "layers": [
+        "ca-earthquakes-live-circle"
+      ],
+      "type": "caEarthquakesLive"
     },
     {
       "layers": [
@@ -3351,33 +3362,6 @@
         "indigenous-isolation-risk-glow"
       ],
       "type": "indigenousIsolationRisk"
-    },
-    {
-      "layers": [
-        "indigenous-regions-fill",
-        "indigenous-regions-outline",
-        "indigenous-regions-points-circle-point",
-        "indigenous-regions-points-circle-polygon"
-      ],
-      "type": "indigenousRegions"
-    },
-    {
-      "layers": [
-        "indigenous-language-dialects-fill",
-        "indigenous-language-dialects-outline",
-        "indigenous-language-dialects-points-circle-point",
-        "indigenous-language-dialects-points-circle-polygon"
-      ],
-      "type": "indigenousLanguageDialects"
-    },
-    {
-      "layers": [
-        "hakka-cultural-zones-fill",
-        "hakka-cultural-zones-outline",
-        "hakka-cultural-zones-points-circle-point",
-        "hakka-cultural-zones-points-circle-polygon"
-      ],
-      "type": "hakkaCulturalZones"
     },
     {
       "layers": [
@@ -5477,10 +5461,42 @@
     },
     {
       "layers": [
+        "mapchallenge-day06-lighthouses-circle",
+        "mapchallenge-day06-lighthouses-today-circle"
+      ],
+      "type": "mapchallengeDay06Lighthouses"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-temples-1921-circle"
+      ],
+      "type": "mapchallengeDay06Temples1921"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-coast-circle",
+        "mapchallenge-day06-coast-line"
+      ],
+      "type": "mapchallengeDay06Coast"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-taipei-1932-fill"
+      ],
+      "type": "mapchallengeDay06Taipei1932"
+    },
+    {
+      "layers": [
         "public-life-osm-coverage-fill",
         "public-life-osm-coverage-outline"
       ],
       "type": "publicLifeOsmCoverage"
+    },
+    {
+      "layers": [
+        "kr-population-h3-fill"
+      ],
+      "type": "krPopulationH3"
     },
     {
       "layers": [
@@ -5490,6 +5506,33 @@
         "national-parks-points-circle-polygon"
       ],
       "type": "nationalParks"
+    },
+    {
+      "layers": [
+        "indigenous-regions-fill",
+        "indigenous-regions-outline",
+        "indigenous-regions-points-circle-point",
+        "indigenous-regions-points-circle-polygon"
+      ],
+      "type": "indigenousRegions"
+    },
+    {
+      "layers": [
+        "indigenous-language-dialects-fill",
+        "indigenous-language-dialects-outline",
+        "indigenous-language-dialects-points-circle-point",
+        "indigenous-language-dialects-points-circle-polygon"
+      ],
+      "type": "indigenousLanguageDialects"
+    },
+    {
+      "layers": [
+        "hakka-cultural-zones-fill",
+        "hakka-cultural-zones-outline",
+        "hakka-cultural-zones-points-circle-point",
+        "hakka-cultural-zones-points-circle-polygon"
+      ],
+      "type": "hakkaCulturalZones"
     },
     {
       "layers": [
@@ -14900,12 +14943,30 @@
                   true
                 ],
                 "#0a0a14",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#f97316",
                 "#0a0a14"
               ],
               "circle-stroke-opacity": [
                 "case",
                 [
                   "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                [
+                  "!=",
                   [
                     "get",
                     "released"
@@ -14926,6 +14987,15 @@
                   true
                 ],
                 1,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1.5,
                 1
               ]
             },
@@ -14956,6 +15026,15 @@
                   true
                 ],
                 "#ffffff",
+                [
+                  "!=",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#f97316",
                 "#ffffff"
               ],
               "circle-stroke-opacity": [
@@ -14969,6 +15048,15 @@
                   true
                 ],
                 0.9,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
                 0.9
               ],
               "circle-stroke-width": [
@@ -14982,6 +15070,15 @@
                   true
                 ],
                 1,
+                [
+                  "!=",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1.5,
                 1
               ]
             }
@@ -15875,7 +15972,7 @@
                 ]
               ],
               "circle-radius": 3,
-              "circle-stroke-color": "#ffffff",
+              "circle-stroke-color": "#475569",
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
             }
@@ -34601,7 +34698,10 @@
       "id": "aquacultureWaterSatellite",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "literal",
+            true
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -34660,53 +34760,7 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "fill-opacity": [
-                "case",
-                [
-                  "any",
-                  [
-                    "==",
-                    [
-                      "get",
-                      "in_osm"
-                    ],
-                    true
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "nlsc_code"
-                    ],
-                    "0102"
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "solar_symbiotic"
-                    ],
-                    true
-                  ]
-                ],
-                0.5,
-                [
-                  "in",
-                  [
-                    "get",
-                    "nlsc_code"
-                  ],
-                  [
-                    "literal",
-                    [
-                      "0402",
-                      "0104"
-                    ]
-                  ]
-                ],
-                0.5,
-                0.5
-              ]
+              "fill-opacity": 0.35
             },
             "light": {
               "fill-color": [
@@ -34756,60 +34810,17 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "fill-opacity": [
-                "case",
-                [
-                  "any",
-                  [
-                    "==",
-                    [
-                      "get",
-                      "in_osm"
-                    ],
-                    true
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "nlsc_code"
-                    ],
-                    "0102"
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "solar_symbiotic"
-                    ],
-                    true
-                  ]
-                ],
-                0.5,
-                [
-                  "in",
-                  [
-                    "get",
-                    "nlsc_code"
-                  ],
-                  [
-                    "literal",
-                    [
-                      "0402",
-                      "0104"
-                    ]
-                  ]
-                ],
-                0.5,
-                0.5
-              ]
+              "fill-opacity": 0.35
             }
           },
           "suffix": "fill",
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "literal",
+            true
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -34868,53 +34879,7 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "line-opacity": [
-                "case",
-                [
-                  "any",
-                  [
-                    "==",
-                    [
-                      "get",
-                      "in_osm"
-                    ],
-                    true
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "nlsc_code"
-                    ],
-                    "0102"
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "solar_symbiotic"
-                    ],
-                    true
-                  ]
-                ],
-                0.5,
-                [
-                  "in",
-                  [
-                    "get",
-                    "nlsc_code"
-                  ],
-                  [
-                    "literal",
-                    [
-                      "0402",
-                      "0104"
-                    ]
-                  ]
-                ],
-                0.5,
-                0.5
-              ],
+              "line-opacity": 0.8,
               "line-width": 1
             },
             "light": {
@@ -34965,53 +34930,7 @@
                 "#90a4ae",
                 "#cfd8dc"
               ],
-              "line-opacity": [
-                "case",
-                [
-                  "any",
-                  [
-                    "==",
-                    [
-                      "get",
-                      "in_osm"
-                    ],
-                    true
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "nlsc_code"
-                    ],
-                    "0102"
-                  ],
-                  [
-                    "==",
-                    [
-                      "get",
-                      "solar_symbiotic"
-                    ],
-                    true
-                  ]
-                ],
-                0.5,
-                [
-                  "in",
-                  [
-                    "get",
-                    "nlsc_code"
-                  ],
-                  [
-                    "literal",
-                    [
-                      "0402",
-                      "0104"
-                    ]
-                  ]
-                ],
-                0.5,
-                0.5
-              ],
+              "line-opacity": 0.8,
               "line-width": 1
             }
           },
@@ -35025,7 +34944,8 @@
         "sourceLayer": "aquaculture_water_satellite"
       },
       "rebuildOnParamChange": [
-        "aquacultureWaterSatelliteOpacity"
+        "fill",
+        "line"
       ],
       "sourceId": "aquaculture-water-satellite",
       "sourceUrl": "./fishery/aquaculture_water_satellite.pmtiles"
@@ -35036,7 +34956,10 @@
       "id": "aquacultureWaterSatellite",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "literal",
+            true
+          ],
           "layout": {
             "dark": {
               "visibility": "visible"
@@ -35169,7 +35092,10 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "literal",
+            true
+          ],
           "layout": {
             "dark": {
               "visibility": "none"
@@ -35302,7 +35228,10 @@
           "type": "heatmap"
         },
         {
-          "filter": null,
+          "filter": [
+            "literal",
+            true
+          ],
           "layout": {
             "dark": {
               "visibility": "visible"
@@ -35431,7 +35360,11 @@
         "minzoom": 4,
         "sourceLayer": "aquaculture_water_satellite_points"
       },
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "heat-point",
+        "heat-polygon",
+        "circle-point"
+      ],
       "sourceId": "aquaculture-water-satellite-points",
       "sourceUrl": "./fishery/aquaculture_water_satellite_points.pmtiles"
     },
@@ -79818,6 +79751,321 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "jpTrafficAccidents2025",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "sev"
+            ],
+            [
+              "has",
+              "type"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 12.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(142,42,129,0.00)",
+                0.05,
+                "rgba(142,42,129,0.11)",
+                0.15,
+                "rgba(186,56,120,0.33)",
+                0.3,
+                "rgba(226,77,102,0.66)",
+                0.45,
+                "rgba(248,116,92,0.99)",
+                0.6,
+                "rgba(254,160,109,1.00)",
+                0.8,
+                "rgba(254,201,141,1.00)",
+                1,
+                "rgba(252,240,178,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(249,121,93,0.00)",
+                0.05,
+                "rgba(249,121,93,0.11)",
+                0.15,
+                "rgba(233,85,97,0.33)",
+                0.3,
+                "rgba(202,62,114,0.66)",
+                0.45,
+                "rgba(164,49,126,0.99)",
+                0.6,
+                "rgba(126,36,130,1.00)",
+                0.8,
+                "rgba(90,22,126,1.00)",
+                1,
+                "rgba(55,16,108,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.00390625,
+                12,
+                1
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heatmap",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "sev"
+            ],
+            [
+              "has",
+              "type"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "sev"
+              ],
+              "fatal",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sev"
+                ],
+                "fatal",
+                "#dc2626",
+                "injury",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sev"
+                ],
+                "fatal",
+                "#dc2626",
+                "injury",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "sev"
+            ],
+            [
+              "has",
+              "type"
+            ]
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "match",
+              [
+                "get",
+                "sev"
+              ],
+              "fatal",
+              1,
+              0
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sev"
+                ],
+                "fatal",
+                "#dc2626",
+                "injury",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "sev"
+                ],
+                "fatal",
+                "#dc2626",
+                "injury",
+                "#f97316",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.6,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 5,
+        "sourceLayer": "jp_traffic_accidents_2025"
+      },
+      "rebuildOnParamChange": [
+        "heatmap",
+        "glow",
+        "circle"
+      ],
+      "sourceId": "jp-traffic-accidents-2025",
+      "sourceUrl": "./world/jp_traffic_accidents_2025.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "disasterResourceSites",
       "layers": [
         {
@@ -102235,7 +102483,19 @@
                 10000,
                 "#fde725"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8800000000000001,
+                8,
+                0.55
+              ]
             },
             "light": {
               "fill-color": [
@@ -102271,7 +102531,19 @@
                 10000,
                 "#46085c"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8800000000000001,
+                8,
+                0.55
+              ]
             }
           },
           "suffix": "fill",
@@ -102280,7 +102552,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": null,
+          "minzoom": 8,
           "paint": {
             "dark": {
               "line-color": "#0a0a14",
@@ -102308,6 +102580,970 @@
       ],
       "sourceId": "jp-did",
       "sourceUrl": "./world/jp_did_ksj_2015.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Coast",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "coast"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "-",
+              4,
+              [
+                "to-number",
+                [
+                  "get",
+                  "era"
+                ],
+                3
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "era"
+                  ],
+                  3
+                ],
+                1,
+                "#b64d8e",
+                2,
+                "#2e81d5",
+                "#5ba74a"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "*",
+                  1.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  2,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  3.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ]
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "era"
+                  ],
+                  3
+                ],
+                1,
+                "#963372",
+                2,
+                "#3a8ce0",
+                "#77c466"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                [
+                  "*",
+                  1.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  2,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  3.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ]
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "place"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "latest"
+                  ],
+                  3
+                ],
+                1,
+                "#b64d8e",
+                2,
+                "#2e81d5",
+                "#5ba74a"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "latest"
+                  ],
+                  3
+                ],
+                1,
+                "#963372",
+                2,
+                "#3a8ce0",
+                "#77c466"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "place"
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line",
+        "circle",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-coast",
+      "sourceUrl": "./mapchallenge/day06_coast.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Taipei1932",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "zone"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "zone"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "label"
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-taipei-1932",
+      "sourceUrl": "./mapchallenge/day06_taipei_1932.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Temples1921",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "+",
+              [
+                "to-number",
+                [
+                  "get",
+                  "cont"
+                ],
+                0
+              ],
+              [
+                "*",
+                2,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "same"
+                  ],
+                  0
+                ]
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "cont"
+                  ],
+                  0
+                ],
+                1,
+                "#fea332",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "cont"
+                  ],
+                  0
+                ],
+                1,
+                "#fea332",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "same"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "rgba(0,0,0,0)",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                6,
+                10,
+                7.5,
+                14,
+                10
+              ],
+              "circle-stroke-color": "#f8fafc",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 1.5
+            },
+            "light": {
+              "circle-color": "rgba(0,0,0,0)",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                6,
+                10,
+                7.5,
+                14,
+                10
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 1.5
+            }
+          },
+          "suffix": "same-mark",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "same"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle",
+        "same-mark",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-temples-1921",
+      "sourceUrl": "./mapchallenge/day06_temples_1921.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Lighthouses",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "link"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "link",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "today"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f8fafc",
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0f172a",
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "today-circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "hist"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "link",
+        "today-circle",
+        "circle"
+      ],
+      "sourceId": "mapchallenge-day06-lighthouses",
+      "sourceUrl": "./mapchallenge/day06_lighthouse_weather.geojson"
     }
   ],
   "params": {
@@ -106583,6 +107819,54 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caEarthquakesLive": [
+      {
+        "label": "事件類型",
+        "options": [
+          {
+            "label": "地震",
+            "value": "earthquake"
+          },
+          {
+            "label": "疑似產業活動誘發",
+            "value": "industry"
+          },
+          {
+            "label": "礦場事件",
+            "value": "mining"
+          },
+          {
+            "label": "爆破（含採石）",
+            "value": "blast"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "earthquake",
+          "industry",
+          "mining",
+          "blast"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -124732,6 +126016,72 @@
         "valueText": "1.0"
       }
     ],
+    "jpTrafficAccidents2025": [
+      {
+        "label": "事故內容",
+        "options": [
+          {
+            "label": "死亡事故（24 小時內死亡）",
+            "value": "fatal"
+          },
+          {
+            "label": "負傷事故",
+            "value": "injury"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "fatal",
+          "injury"
+        ]
+      },
+      {
+        "label": "事故類型",
+        "options": [
+          {
+            "label": "車輛相撞（車両相互）",
+            "value": "veh"
+          },
+          {
+            "label": "人車事故（人対車両）",
+            "value": "ped"
+          },
+          {
+            "label": "車輛單獨（車両単独）",
+            "value": "single"
+          },
+          {
+            "label": "平交道列車（列車）",
+            "value": "train"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "veh",
+          "ped",
+          "single",
+          "train"
+        ]
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "jpWaterAgriculturalPonds": [
       {
         "defaultValue": "YlGnBu",
@@ -130224,6 +131574,193 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay06Coast": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "17–18 世紀",
+            "value": "1"
+          },
+          {
+            "label": "19 世紀",
+            "value": "2"
+          },
+          {
+            "label": "20 世紀初",
+            "value": "3"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "label": "今日地名（鯤鯓、塭、汕）",
+        "options": [
+          {
+            "label": "顯示",
+            "value": "show"
+          },
+          {
+            "label": "隱藏",
+            "value": "hide"
+          }
+        ],
+        "type": "select",
+        "value": "show"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay06Lighthouses": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "燈塔",
+            "value": "lighthouse"
+          },
+          {
+            "label": "測候所",
+            "value": "station"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "原址（150 m 內）",
+            "value": "same"
+          },
+          {
+            "label": "遷移",
+            "value": "moved"
+          },
+          {
+            "label": "今日清單無對應",
+            "value": "none"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "same",
+          "moved",
+          "none"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay06Taipei1932": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "町名今天仍在里名",
+            "value": "1"
+          },
+          {
+            "label": "町名已消失",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay06Temples1921": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "原址 100 m 內今天仍有寺廟",
+            "value": "1"
+          },
+          {
+            "label": "100 m 內沒有登記寺廟",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "marineEcologicalMonitoringSites": [
