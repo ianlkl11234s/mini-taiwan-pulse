@@ -2974,7 +2974,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "災害",
     country: "CA",
     defaultCollapsed: true,
-    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakes")] }],
+    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakesLive"), fromManifest("caEarthquakes")] }],
   },
 
   // ───────────────────────────────────────────────────────────────

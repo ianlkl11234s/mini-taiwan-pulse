@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1641,
+    "keyCount": 1642,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2133,6 +2133,12 @@
         "ca-earthquakes-circle"
       ],
       "type": "caEarthquakes"
+    },
+    {
+      "layers": [
+        "ca-earthquakes-live-circle"
+      ],
+      "type": "caEarthquakesLive"
     },
     {
       "layers": [
@@ -106562,6 +106568,54 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caEarthquakesLive": [
+      {
+        "label": "事件類型",
+        "options": [
+          {
+            "label": "地震",
+            "value": "earthquake"
+          },
+          {
+            "label": "疑似產業活動誘發",
+            "value": "industry"
+          },
+          {
+            "label": "礦場事件",
+            "value": "mining"
+          },
+          {
+            "label": "爆破（含採石）",
+            "value": "blast"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "earthquake",
+          "industry",
+          "mining",
+          "blast"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",

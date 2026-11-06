@@ -441,7 +441,7 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
-  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caPopulationGrid"
+  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid"
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
@@ -998,7 +998,7 @@ export interface FeatureInfo {
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries" | KrDataKey
     // 加拿大第 0＋1 波
-    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caPopulationGrid"
+    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caEarthquakesLive" | "caPopulationGrid"
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
@@ -1898,6 +1898,7 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   caNpriFacilities: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caWastewaterSystems: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   caEarthquakes: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caEarthquakesLive: boolean;   // 加拿大即時地震（瀏覽器直連 NRCan FDSN，近 30 天）
   caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
   krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
