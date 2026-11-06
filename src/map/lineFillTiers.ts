@@ -190,6 +190,8 @@ export const HOOK_LINE_TIERS: Readonly<Record<string, HookLineTierSpec>> = {
   "krAdminBoundaries/kr-admin-sgg-line": {"width": "standard", "opacity": "standard"}, // L-5：시군구比照鄉鎮市區 · src/hooks/useKrAdminLayers.ts
   "krAdminBoundaries/kr-admin-emd-line": {"width": "thin", "opacity": "standard"}, // L-5：행정동比照村里 · src/hooks/useKrAdminLayers.ts
   "krPorts/kr-ports-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 港灣區外框 · src/hooks/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 國立公園外框 · src/hooks/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-line": {"width": "keep", "opacity": "keep", "outline": "coverage"}, // 海洋保護區外框 · src/hooks/useKrDataLayers.ts
   "krNationalRoads/kr-national-roads-line": {"width": "standard", "opacity": "standard"}, // 一般國道（單一類，標準階）· src/hooks/useKrTransportLayers.ts
   "krRailLines/kr-rail-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依 line_class（幹線強調、地鐵輕軌標準、側線細）· src/hooks/useKrTransportLayers.ts
   "krPowerLines/kr-power-lines-line": {"width": "keep", "opacity": "keep"}, // 寬、透明度依電壓（比照 osmPowerLines）· src/hooks/useKrEnergyLayers.ts
@@ -329,6 +331,8 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "jpCareResidential/jp-medical-care-aggregate-fill": "graded", // src/hooks/useJpMedicalLayers.ts
   "jpNationalForests/jp-national-forests-fill": "coverage", // src/hooks/useJpNationalForestsLayer.ts
   "krPorts/kr-ports-fill": "coverage", // 港灣區面 · src/hooks/useKrTransportLayers.ts
+  "krNationalParks/kr-national-parks-fill": "coverage", // 國立公園面 · src/hooks/useKrDataLayers.ts
+  "krMarineProtectedAreas/kr-marine-protected-areas-fill": "coverage", // 海洋保護區面 · src/hooks/useKrDataLayers.ts
   "krOilGas/kr-oil-gas-fill": "coverage", // 油氣設施面（依類型色）· src/hooks/useKrEnergyLayers.ts
   "caPopulationCentres/ca-population-centres-fill": "coverage", // 人口中心面（依規模色）· src/hooks/useCaEnergyLayers.ts
   "caPostalFsa/ca-fsa-fill": "coverage", // FSA 面（都市／農村）· src/hooks/useCaAreaLayers.ts
