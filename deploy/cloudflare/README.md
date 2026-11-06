@@ -1,7 +1,7 @@
 # Cloudflare Workers 部署（Zeabur 搬家第 ③ 關，測試中）
 
 - `src/worker.js`：重現 `nginx.conf` 路由。網頁走 Workers 靜態資產（`dist/`），圖層大檔走 R2 `data.itsmigu.com/site/`，
-  `/api/*`、氣候、GFW 與短效 manifest 測試期轉回 `ORIGIN`（現行 Zeabur 正式站）。回應 header `X-Pulse-Src` 標示來源。
+  `/api/*`、氣候、GFW 與短效 manifest 測試期轉回 `ORIGIN`（新主機 `https://pulse-origin.itsmigu.com`：Cloudflare Tunnel＋Access，Caddy 再驗共用密鑰；2026-11-06 起）。回應 header `X-Pulse-Src` 標示來源。
 - 部署：在 repo 根目錄 `npm run build`（需 VITE_SUPABASE_URL／VITE_SUPABASE_ANON_KEY／VITE_MAPBOX_TOKEN），再於本資料夾 `npx wrangler deploy`。
 - 靜態資產 binding 不處理 Range，Worker 自己切 206（dist 內的 PMTiles 需要）。
 - 計畫與驗收紀錄：`.gis-agent-system/projects/2026-10-zeabur-migration/`。切換正式網域前，`ORIGIN` 必須改成不會被轉回本 Worker 的主機名稱。
@@ -14,7 +14,7 @@
 
 新主機的 `/api/*` 由 Caddy 提供，前面是 Cloudflare Access（service token）＋Caddy 的共用密鑰檢查。
 `fromOrigin()` 會在轉送到 `ORIGIN` 時加上下列 header；值只來自 Worker secret，瀏覽器送來的同名 header 一律先刪，
-回應也不會帶出。env 沒設時不加任何 header（目前 `ORIGIN` 仍是 Zeabur，行為不變）。
+回應也不會帶出。env 沒設時不加任何 header；新主機的 Access 與 Caddy 會擋下（403），所以三個 secret 缺一不可。
 
 | Worker secret | 轉成的 header | 值從哪來 |
 |---|---|---|
