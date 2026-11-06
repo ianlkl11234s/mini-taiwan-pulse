@@ -1218,7 +1218,25 @@ def build_toxic(m, feats):
 
 
 # 自然人雇主（遮蔽名、標註自然人、或「某某(即商號)」）一律改成類別字樣；「(即商號)」保留商號。
-_NATURAL_MASK = re.compile(r"[O○Ｏ〇]")
+# 遮蔽用字：O○Ｏ〇，以及姓氏後連續的小寫 o／數字 0（「謝oo」「鄭00」）；連續限定在 CJK 字之後、避免誤傷「100」之類
+_NATURAL_MASK = re.compile(r"[O○Ｏ〇]|(?<=[一-鿿])[oOｏＯ0０]{2,}")
+
+# 事故地點描述若含街道門牌／行政區地址（自然人雇主時等同其住居或營業地址），只留門牌之後的現場描述
+_ADDR_HINT = re.compile(r"[路街巷弄]|[縣市].{0,4}[鄉鎮市區]|[鄉鎮市區].{0,6}[村里]|\d+號")
+
+
+def scrub_place(place: str | None) -> str | None:
+    if not place or not _ADDR_HINT.search(place):
+        return place
+    m = list(re.finditer(r"\d+(?:之\d+)?號(?:之\d+)?", place))
+    rest = place[m[-1].end():].strip(" ，,、：:") if m else ""
+    return rest or None
+
+
+OCC_PRECISION_NOTE = {
+    "exact": "來源座標", "tgos": "地址定位（TGOS）", "cached": "地址定位（快取）",
+    "interpolated": "地址內插（門牌未精確命中）", "parcel_centroid": "地號中心點（非建物實際位置）",
+}
 
 
 def employer_label(raw: str | None) -> tuple[str | None, bool]:
@@ -1237,7 +1255,7 @@ def employer_label(raw: str | None) -> tuple[str | None, bool]:
 def build_occupational(m, feats):
     """勞動部職安署重大職災公開網（126835）：事件 2,480 起中 1,238 起有座標（49.9%）；其餘地址空白或無法定位，不上圖。
     上游 severity 是粗推估（死亡關鍵字→S1、罹災人數>0→S2），會把多數死亡事件歸在 S2，所以不輸出、不分色；改以災害類型分色。
-    個資：自然人雇主姓名（含部分遮蔽）不輸出，改標 employer_natural=1；自然人雇主的事故地址也不輸出（只留縣市與地點描述）。"""
+    個資：自然人雇主姓名（含部分遮蔽）不輸出，改標 employer_natural=1；自然人雇主的事故地址也不輸出（只留縣市與地點描述；地點描述若含街道門牌也一併去除）。"""
     out, natural_n = [], 0
     for f in drop_unmapped("majorOccupationalAccidents", feats):
         p = f["properties"]
@@ -1248,8 +1266,10 @@ def build_occupational(m, feats):
             "id": p["id"], "date": f"{d[:4]}-{d[4:6]}-{d[6:8]}" if len(d) == 8 else None, "year": to_int(d[:4]),
             "employer": employer, "employer_natural": 1 if natural else 0,
             "industry": s(p.get("industry")), "accident_type": s(p.get("accident_type")), "casualties": to_int(p.get("casualties")),
-            "place": s(p.get("place")), "address": None if natural else s(p.get("address")), "city": s(p.get("city")),
-            "precision": s(p.get("precision")), **source_props(m), "vintage": str(m.get("last_updated")),
+            "place": scrub_place(s(p.get("place"))) if natural else s(p.get("place")),
+            "address": None if natural else s(p.get("address")), "city": s(p.get("city")),
+            "precision": s(p.get("precision")), "precision_note": OCC_PRECISION_NOTE.get(str(p.get("precision")), s(p.get("precision"))),
+            **source_props(m), "vintage": str(m.get("last_updated")),
         }))
     AUDIT["majorOccupationalAccidents"]["natural_person_employers"] = natural_n
     return out

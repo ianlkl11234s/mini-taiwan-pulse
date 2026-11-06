@@ -3133,6 +3133,7 @@ export type GeneratedStaticKey =
   | "monitor.vessel.footerEnter"
   | "monitor.vessel.footerNearest"
   | "monitor.vessel.footerPeak"
+  | "monitor.vessel.incompleteDays"
   | "monitor.vessel.legacyHead"
   | "monitor.vessel.limits"
   | "monitor.vessel.loading"

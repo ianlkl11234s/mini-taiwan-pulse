@@ -92,6 +92,9 @@ export function freewayTdcsNeededParts(sim: FreewayTdcsSim, t: number, trail: nu
 // ── 時段檔管理（模組級；圖層只有一個） ──
 const decoded = new Map<number, FreewayTdcsPart>();
 const inflight = new Set<number>();
+/** 載入失敗的時段檔 → 失敗時間；冷卻期內不重試（避免 404／hash 失敗時無限請求迴圈） */
+const failedAt = new Map<number, number>();
+export const FREEWAY_TDCS_RETRY_COOLDOWN_MS = 30_000;
 let mergedKey = "";
 let gen = 0;
 let lastRequest: { sim: FreewayTdcsSim; t: number; trail: number; onData: (D: FreewayTdcsData) => void } | null = null;
@@ -107,16 +110,23 @@ export function ensureFreewayTdcsWindow(sim: FreewayTdcsSim, t: number, trail: n
   const [lo, hi] = need;
   for (let i = lo; i <= hi; i++) {
     if (decoded.has(i) || inflight.has(i)) continue;
+    const failed = failedAt.get(i);
+    if (failed !== undefined && Date.now() - failed < FREEWAY_TDCS_RETRY_COOLDOWN_MS) continue;
     inflight.add(i);
     const info = sim.parts[i]!;
+    let ok = false;
     loadSimFile(sim.bundle, info.file, LABEL).then((bin) => {
       decoded.set(i, decodeFreewayTdcsPart(info, bin));
+      failedAt.delete(i);
+      ok = true;
     }, (error) => {
+      failedAt.set(i, Date.now());
       console.warn(`[freewayTdcsSim] 時段檔 ${info.file} 載入失敗`, error);
     }).finally(() => {
       inflight.delete(i);
+      // 只有成功才立刻重跑合併；失敗等下一次時間軸／參數觸發（冷卻期後才會再試）
       const r = lastRequest;
-      if (r) ensureFreewayTdcsWindow(r.sim, r.t, r.trail, r.onData);
+      if (ok && r) ensureFreewayTdcsWindow(r.sim, r.t, r.trail, r.onData);
     });
   }
   // 已解碼但離目前很遠的檔丟掉（原始位元組仍在 simBundle 的檔案快取，跳回來不必重抓）
@@ -137,5 +147,5 @@ export function ensureFreewayTdcsWindow(sim: FreewayTdcsSim, t: number, trail: n
 
 /** 關圖層：清掉時段檔狀態（共用檔留著） */
 export function resetFreewayTdcsWindow(): void {
-  decoded.clear(); mergedKey = ""; lastRequest = null;
+  decoded.clear(); failedAt.clear(); mergedKey = ""; lastRequest = null;
 }

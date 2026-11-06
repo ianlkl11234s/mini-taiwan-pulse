@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { FREEWAY_TDCS_SIM_LAYER_ID, freewayTdcsSimModule, mountLazyCustomLayer } from "../map/lazyThreeLayers";
-import { ensureFreewayTdcsWindow, loadFreewayTdcsSim } from "../data/freewayTdcsSimLoader";
+import { ensureFreewayTdcsWindow, loadFreewayTdcsSim, resetFreewayTdcsWindow } from "../data/freewayTdcsSimLoader";
 import {
   freewayTdcsData, freewayTdcsFollowTrip, setFreewayTdcsData, setFreewayTdcsFollow, setFreewayTdcsFollowEndMsg,
   setFreewayTdcsStatus, subscribeFreewayTdcsColors, subscribeFreewayTdcsFollow, type FreewayTdcsFollowEndCode,
@@ -96,7 +96,7 @@ export function useFreewayTdcsSimLayer(
       console.warn("[freewayTdcsSim] 載入失敗", err);
       setFreewayTdcsStatus({ state: "error" });
     });
-    return () => { cancelled = true; unsubTime?.(); ensureRef.current = null; };
+    return () => { cancelled = true; unsubTime?.(); ensureRef.current = null; resetFreewayTdcsWindow(); };
   }, [visible, mapRef, mapTick]);
 
   // 參數或主題改變 → 重畫一次（時間變動由 custom layer 的 subscribeTimeRepaint 處理）
