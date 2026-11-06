@@ -94,7 +94,7 @@ export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
   const i18n = useLocale();
   const { t: tr } = i18n;
   const cat = String(props.category ?? "");
-  const color = TOUR_HERITAGE_CATEGORY_COLOR_MAP[cat] ?? "#6d4c41";
+  const color = TOUR_HERITAGE_CATEGORY_COLOR_MAP[cat] ?? "#64748b";
   return (
     <>
       <Title color={color}>{String(props.name ?? tr("popup.tourism.heritage"))}</Title>

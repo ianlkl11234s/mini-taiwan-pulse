@@ -670,6 +670,19 @@ function useHectares() {
 const natureFooter = (src: { attribution: string; url: string } | undefined) =>
   src ? <SourceFooter props={{ source_org: src.attribution, source_url: src.url, license: GB_NATURE_OGL_V3, fetched_at: GB_NATURE_FETCHED_AT }} /> : null;
 
+/** 代表點檔缺 source 時的退路：nation（＋類別）→ GB_PROTECTED_SOURCES 的鍵 */
+function gbProtectedSourceOf(nation: string, designation: string): string {
+  if (nation === "England") return "Natural England";
+  if (nation === "Wales") return "Natural Resources Wales";
+  if (nation === "Northern Ireland") return "DAERA / NIEA";
+  if (nation === "Scotland") return designation === "national_park" || designation === "nsa" ? "Scottish Government" : "NatureScot";
+  return "";
+}
+/** 代表點檔缺 source 時的退路：nation → GB_MPA_SOURCES 的鍵 */
+function gbMpaSourceOf(nation: string): string {
+  return ({ England: "Opendata_NE", Scotland: "SNH_Maps", "Northern Ireland": "DAERA_OpenContent" } as Record<string, string>)[nation] ?? "";
+}
+
 /** 英國保護區：名稱、類別（中文＋當地名稱）、地區、面積、代碼、來源機關。 */
 export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown> }) {
   const { t } = useLocale();
@@ -677,7 +690,8 @@ export function GbProtectedAreasPanel({ props }: { props: Record<string, unknown
   const ha = useHectares();
   const d = gbDesignation(props.designation);
   const local = text(props.designation_local);
-  const source = text(props.source);
+  // 低縮放代表點檔沒有 source 欄：用 nation（＋類別）推出主管機關
+  const source = text(props.source) || gbProtectedSourceOf(text(props.nation), text(props.designation));
   const attribution = GB_PROTECTED_SOURCES[source];
   const url = GB_PROTECTED_SOURCE_URLS[`${text(props.nation)}:${text(props.designation)}`] ?? "";
   return <>
@@ -698,7 +712,7 @@ export function GbMarineProtectedAreasPanel({ props }: { props: Record<string, u
   const nation = useNationLabel();
   const ha = useHectares();
   const type = GB_MPA_TYPES.find((m) => m.value === props.mpa_type);
-  const src = GB_MPA_SOURCES[text(props.source)];
+  const src = GB_MPA_SOURCES[text(props.source) || gbMpaSourceOf(text(props.nation))];
   const footer = src && props.mpa_type === "drmpa" ? { ...src, url: GB_MPA_DRMPA_URL } : src;
   return <>
     <Title color={type?.color ?? GB_MPA_COLOR}>{text(props.name) || t("popup.marine.gbMpaTitle")}</Title>
@@ -1609,7 +1623,12 @@ export function GbNoisePanel({ props }: { props: Record<string, unknown> }) {
 
 // ─────────────────────────── 第 12 波：公司登記、製造業、殯葬、養殖、土壤 ───────────────────────────
 
-const w12Number = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+/** tile 屬性（PMTiles）一律是字串（例 area_ha "0.12"），GeoJSON 才是數字：兩者都收，空字串／非數字回 null */
+const w12Number = (value: unknown) => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string" && value.trim() !== "") { const n = Number(value); return Number.isFinite(n) ? n : null; }
+  return null;
+};
 
 /** 公司登記／製造業：只有郵遞區號 district 聚合數字（無公司名、無個資）。 */
 function GbCompanyDistrictPanel({ props, manufacturing }: { props: Record<string, unknown>; manufacturing: boolean }) {
