@@ -310,13 +310,13 @@
 |---|---|---|---|---|---|
 | OG-4 | P2 | conditional | 私人 Range API（coral-private sidecar：jpWater、土壤液化、BSS、橋梁韌性、公車擁擠、allenCoralAtlas）改讀 `profiles.tier`，不再寫死 `OWNER_ID`。 | Trigger: 主站搬離 Zeabur（新站 /api/* 目前仍轉回 Zeabur，部署卡住）。現況：後台把這些層改成非 owner 只會解開介面、資料仍拿不到。Owner: 主 agent。First action: 搬遷方案定案後，在新 sidecar 以 Supabase JWT 查 tier，與 `public.gated_layers.required_tier` 對照。 | 後台改 tier 後，對應帳號能讀到資料；未登入仍 401。 |
 | OG-5 | P3 | blocked | 分享網址要不要讓站主還原站主限定圖層。 | Blocked on 使用者決定。現況：`urlState.parseLayers` 對所有站主限定 key 一律丟掉（連站主也是，有測試釘住，2026-11-05 古地圖時拍板「網址不還原」）。建議：站主可還原、其他人照舊丟掉（等 tier 載入後再套）。First action: 使用者選「維持」或「站主可還原」。 | 決定後測試與行為一致；非站主仍無法經網址開啟。 |
-| OG-6 | P3 | ready | 清掉 `urlState` 裡寫死排除 allenCoralAtlas 的那行（#836 後名單已含它，該行多餘但無害）。 | First action: 刪該行，跑 urlState 測試。 | 測試綠、行為不變。 |
-| EA-1 | P2 | scheduled | 英格蘭 EA Pollution Inventory 授權一年到期（2026-10-29 起算，2027-10-29 自動終止）。 | Trigger: 2027-10 前。First action: 確認 EA 是否續期或改發新年度檔；不續就刪 `reference.world_gb_ea_pollution_inventory` 資料並下架 `gbPollutionInventoryEngland`。⚠️ 圖例數字（2,536／1,690／846／另 4 處）寫死在前端，重新匯入時要一起改。 | 到期前已續期換資料，或已刪資料並下架。 |
-| EA-2 | P3 | ready | EA 成品有 4 筆郵遞區號在英格蘭（EX5、PL9、TQ12、DY7）但座標落在蘇格蘭 3、威爾斯 1，疑似來源座標錯誤；analytics catalog 寫 England 2,536（含 3＋1），實際 EA 2,540。 | First action: 在 analytics `pipelines/environment/gb/pollution_inventory/` 用郵遞區號（ONSPD）重定位或標記，修正 catalog 數字。 | 4 筆有合理座標或明確標記排除；catalog 數字與 DB 一致。 |
+| OG-6 | P3 | done | 清掉 `urlState.parseLayers` 寫死排除 allenCoralAtlas 的那行。 | 2026-11-06 #842 完成；`buildUrl` 的同名排除保留（buildUrl 不套 GATED_LAYERS，刪了分享網址會帶出該層）。 | urlState 測試綠、行為不變。 |
+| EA-1 | P2 | scheduled | 英格蘭 EA Pollution Inventory 授權一年到期（2026-10-29 起算，2027-10-29 自動終止）。 | Trigger: 2027-10 前。First action: 確認 EA 是否續期或改發新年度檔；不續就刪 `reference.world_gb_ea_pollution_inventory` 資料並下架 `gbPollutionInventoryEngland`。⚠️ 圖例數字（2,544／1,693／851／8 處郵遞區號定位）寫死在前端，重新匯入時要一起改。 | 到期前已續期換資料，或已刪資料並下架。 |
+| EA-2 | P3 | done | EA 座標錯誤修正。 | 2026-11-06 完成（analytics #299、gis-platform #203 mig 501 已套用、mini #839）：實際 8 筆（原 4 筆＋4 筆落海被舊 pipeline 靜默丟掉），錯在來源 xlsx，改放 ONSPD 郵遞區號中心並以 `coord_source` 標記；DB 2,544 筆全在英格蘭。pipeline 不再把含 EA 的 PMTiles 複製到 mini `public/world/`。 | DB 2,544、圖例同步。 |
 | LIC-1 | P3 | blocked | 自己托管的 CC BY-NC（非商用）檔案放哪：目前沒有規則（古地圖是外部圖磚，不適用）。 | Blocked on 使用者決定。skill `pulse-layer-release/references/license-and-deploy.md` 暫寫「遇到時列進驗收包要你決定」。First action: 使用者選預設（例：站主限定＋Supabase／私人儲存，或公開但標示非商用）。 | 規則寫進 license-and-deploy.md，之後同類直接照做。 |
-| N3-1 | P3 | ready | 夜間批次已知資料限制：南韓墓地（OSM）分布不均（全北道佔 42%）；日本 DID 在 z5 全國視角偏暗，只看得到東京、大阪一帶；加拿大人口網格有 398 格落在美國境內。 | First action: DID 調 z5 色階或加熱區（照 map-layers §3.8）；加拿大網格以國界裁切；南韓墓地若有官方來源再替換。 | 三項各自修正或在圖例註明，並截圖驗收。 |
-| N3-2 | P3 | ready | 日本第二輪剩 C083 交通事故（時間不夠沒做）。 | First action: 依 analytics `japan_opendata/layer-mapping-r2/` 的 C083 scout 紀錄開一波。 | 圖層上線或在 outcomes.csv 記 HOLD 原因。 |
-| N3-3 | P3 | blocked | 加拿大即時地震（NRCan FDSN）條款不清，現只上 1985–2019 封存檔。 | Blocked on 條款查證。First action: 查 NRCan earthquakescanada FDSN 使用條款；可用就做 collector 類即時層。 | 條款確認並記錄；可用則上線即時層。 |
+| N3-1 | P3 | partial | 夜間批次資料限制。 | 2026-11-06（#842、analytics #300）：日本 DID z5 已改清楚（填色不透明度隨縮放）。加拿大「398 格在美國」複核為 Natural Earth 1:10M 國界誤差，實際只有 16 格（約 380 人）在原始省界外、多在界河湖岸，未重產；若仍要裁切需重跑 02／03＋41MB 新檔上 S3（使用者決定）。南韓墓地：data.go.kr 查無有座標的全國墓地官方資料（추모공원 15114135 只收追悼公園），維持 OSM。 | 加拿大是否重產由使用者決定；其餘已結。 |
+| N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 已合 develop、未發版。 |
+| N3-3 | P3 | blocked | 加拿大即時地震 FDSN 條款。 | 2026-11-06 查證：服務無專屬條款；NRCan 站層條款非商業可重製需標示、商業轉發需書面許可；OGL 版只有到 2019 年代檔。選項寫在 analytics canada_opendata/waves/PLAN.md §5（寫信確認／照站條款加署名上線／只用 OGL 年代檔）。First action: 使用者選項。 | 使用者選定並執行。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
 ## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
