@@ -262,7 +262,7 @@ export function useGbRepPointLayers(
   });
   // < 1 萬點的層沒有熱區：「面」模式在面出現前改畫代表點（V-2 全英視角看得到），面出現後交給面
   const circleVisible = o.mode === "point" || !dense;
-  const circleMax = o.mode === "point" ? 24 : spec.polygonMinzoom;
+  const circleMax = o.mode === "point" ? 24 : heatmapMaxzoom(spec.polygonMinzoom); // +0.01：z9.5–10 的 tile 仍建 bucket，標記不提早消失
   useGbPmtilesLayers(mapRef, spec.source, o.visible, () => [
     ...(dense ? [{
       ...heat,

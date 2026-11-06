@@ -2,6 +2,7 @@ import { supabase } from "../lib/supabase";
 import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 
 /**
  * Energy MVP loader（layer 1-6 + KPI HUD）
@@ -933,3 +934,26 @@ export function fuelColorExpression(): unknown[] {
   cases.push(FUEL_FALLBACK_COLOR);
   return cases;
 }
+
+/**
+ * 撤權（登出／失去站主權限，review F088）：清掉 owner-gated RPC（mig 275）的 module cache。
+ * 公開的 staticRpc 系列（風機、光電、離岸場址、離島電網、地熱、充電站…）與 get_power_dashboard 不動。
+ */
+export function invalidateOwnerGatedEnergyCaches(): void {
+  for (const cached of [
+    _l1Cached, _l2Cached, _l3Cached, _l4Cached, _l5Cached, _l6Cached,
+    fetchPowerPlantsCached, fetchPowerGeneration24hCached,
+    fetchOsmSubstationsCached, fetchOsmPowerLinesCached, fetchOsmPowerTowersCached,
+    fetchOsmPowerPlantsStaticCached, fetchFossilFuelInfraCached,
+  ]) cached.invalidate();
+}
+
+/** 用到上列 cache 的站主限定圖層（含共用 fetchFacPrimary／OSM 電網的 Glow 實驗層） */
+export const OWNER_GATED_ENERGY_LAYER_KEYS = [
+  "facPrimary", "facOffshore", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement",
+  "powerPlants", "powerGenerationUnit", "osmSubstationsEhv", "osmSubstations", "osmPowerLines",
+  "osmPowerTowers", "osmPowerPlantsStatic", "fossilFuelInfra",
+  "powerPlantGlow", "substationEhvGlow", "powerLinesGlow",
+] as const;
+
+registerOwnerGateReset(OWNER_GATED_ENERGY_LAYER_KEYS, invalidateOwnerGatedEnergyCaches);
