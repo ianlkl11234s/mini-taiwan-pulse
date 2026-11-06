@@ -2719,7 +2719,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "執法治安",
     country: "JP",
     defaultCollapsed: true,
-    groups: [{ title: "警政", layers: [fromManifest("jpPoliceFacilities")] }],
+    groups: [
+      { title: "警政", layers: [fromManifest("jpPoliceFacilities")] },
+      { title: "交通事故", layers: [fromManifest("jpTrafficAccidents2025")] },
+    ],
   },
   {
     title: "環境氣候",

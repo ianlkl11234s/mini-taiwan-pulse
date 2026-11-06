@@ -1630,5 +1630,6 @@
   "layer.jpNaturalParkAreas2015": "Natural Park Areas",
   "layer.jpNationalParksMoe": "National Parks",
   "layer.jpWildlifeProtectionMoe": "National Wildlife Protection Areas",
-  "layer.jpDid": "Densely Inhabited Districts (DID)"
+  "layer.jpDid": "Densely Inhabited Districts (DID)",
+  "layer.jpTrafficAccidents2025": "Injury Crashes"
 }

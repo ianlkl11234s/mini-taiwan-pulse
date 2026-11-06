@@ -69,6 +69,7 @@ import { JMA_AUTUMN_PHENOMENA, JMA_SAKURA_PHENOMENA } from "./jmaPointTypes";
 // （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
 import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, JP_TRAFFIC_ACCIDENT_TOTAL, JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS } from "./jpTrafficAccidentsTypes";
 import { JP_EVACUATION_FILTERS } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_CLASSES } from "./jpPublicOfficeTypes";
 import { JP_LANDSLIDE_PHENOMENA } from "./jpLandslideWarningTypes";
@@ -2583,6 +2584,17 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
       options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
       out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
+  ],
+  jpTrafficAccidents2025: [
+    {
+      kind: "multiSelect", name: "jpTrafficAccidents2025Severity", label: "事故內容", default: MULTI_SELECT_ALL,
+      options: toParamOptions(JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS), out: "jpTrafficAccidents2025SeverityMask",
+    },
+    {
+      kind: "multiSelect", name: "jpTrafficAccidents2025Type", label: "事故類型", default: MULTI_SELECT_ALL,
+      options: toParamOptions(JP_TRAFFIC_ACCIDENT_TYPE_OPTIONS), out: "jpTrafficAccidents2025TypeMask",
+    },
+    opacitySlider("jpTrafficAccidents2025Opacity", densePointOpacity(JP_TRAFFIC_ACCIDENT_TOTAL)), scaleSlider("jpTrafficAccidents2025Scale", 1),
   ],
   jpEvacuationSites: [
     heatmapPalette("jpEvacuationSites"),

@@ -62,6 +62,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 酒駕事故 3.7 萬點（PMTiles）：排在減害據點之後，避免同位置時搶走服務據點的 popup
   { layers: ["harm-reduction-dui-crashes-circle", "harm-reduction-dui-crashes-glow"], type: "harmReductionDuiCrashes" },
   { layers: ["traffic-accidents-2025-circle", "traffic-accidents-2025-glow"], type: "trafficAccidents2025" },
+  { layers: ["jp-traffic-accidents-2025-circle", "jp-traffic-accidents-2025-glow"], type: "jpTrafficAccidents2025" },
   { layers: ["disaster-resource-sites-circle", "disaster-resource-sites-glow"], type: "disasterResourceSites" },
   { layers: ["tsunami-sirens-circle", "tsunami-sirens-glow"], type: "tsunamiSirens" },
   { layers: ["nuclear-epz-evacuation-circle", "nuclear-epz-evacuation-glow"], type: "nuclearEpzEvacuation" },
