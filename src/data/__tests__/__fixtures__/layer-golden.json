@@ -92136,7 +92136,7 @@
                 "#e879f9",
                 "#94a3b8"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": 0.35
             },
             "light": {
               "fill-color": [
@@ -92151,7 +92151,7 @@
                 "#e879f9",
                 "#94a3b8"
               ],
-              "fill-opacity": 0.55
+              "fill-opacity": 0.35
             }
           },
           "suffix": "fill",
@@ -92173,7 +92173,7 @@
           "paint": {
             "dark": {
               "line-color": "#e2e8f0",
-              "line-opacity": 0.8500000000000001,
+              "line-opacity": 0.6499999999999999,
               "line-width": [
                 "interpolate",
                 [
@@ -92201,7 +92201,7 @@
                 "#e879f9",
                 "#94a3b8"
               ],
-              "line-opacity": 0.8500000000000001,
+              "line-opacity": 0.6499999999999999,
               "line-width": [
                 "interpolate",
                 [
@@ -181539,13 +181539,13 @@
         ]
       },
       {
-        "label": "透明度 0.55",
+        "label": "透明度 0.35",
         "max": 1,
         "min": 0.1,
         "name": "透明度",
         "step": 0.05,
-        "value": 0.55,
-        "valueText": "0.55"
+        "value": 0.35,
+        "valueText": "0.35"
       },
       {
         "label": "大小 1.0",

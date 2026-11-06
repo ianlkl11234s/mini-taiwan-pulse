@@ -12182,7 +12182,7 @@ const ATLAS_OVERLAYS: OverlayConfig[] = [
   {
     id: "water1944Taipei", sourceUrl: "./geo/historical_water_1944_taipei.geojson", sourceId: "water-1944-taipei",
     attribution: "中央研究院人社中心 GIS 專題中心 臺灣百年歷史地圖 1944 美軍地形圖（CC BY-NC）衍生：水域面抽取", rebuildOnParamChange: ["fill", "outline"],
-    layers: polygonLayers("water1944Taipei", matchColorExpr("status", WATER_1944_STATUS_OPTIONS), 0.55, WATER_1944_POLYGON_MIN_ZOOM),
+    layers: polygonLayers("water1944Taipei", matchColorExpr("status", WATER_1944_STATUS_OPTIONS), 0.35, WATER_1944_POLYGON_MIN_ZOOM),
   },
   {
     id: "waterRecreationRestrictedAreas", sourceUrl: "./tourism/water_recreation_restricted_areas.geojson", sourceId: "water-recreation-restricted-areas",

@@ -2666,8 +2666,8 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ value: "all", label: "全部" }, ...JP_EXPRESSWAY_CATEGORIES.map(c => ({ value: c.value, label: c.label }))],
       out: "jpExpresswaysCategoryIdx", encode: ["all", ...JP_EXPRESSWAY_CATEGORIES.map(c => c.value)] },
   ],
-  // 1944 水域（臺北盆地）：面 0.55（使用者指定先用這版）；點／面切換、今日狀態多選由 repPointLayers／categoryFilters 補
-  water1944Taipei: [opacitySlider("water1944TaipeiOpacity", 0.55)],
+  // 1944 水域（臺北盆地）：面 0.35（規範 F-1 覆蓋面）；點／面切換、今日狀態多選由 repPointLayers／categoryFilters 補
+  water1944Taipei: [opacitySlider("water1944TaipeiOpacity", 0.35)],
   historicalMapSinica: [
     opacitySlider("historicalMapSinicaOpacity", 0.85),
     {
