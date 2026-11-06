@@ -163,6 +163,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   nuclearEpzEvacuation: "M", // 核電廠集結點與收容處所
   disasterResourceSites: "S", // 救災資源據點
   trafficAccidents2025: "S", // 2025 A1／A2 交通事故
+  jpTrafficAccidents2025: "S", // 日本 2025 人身事故（警察庁本票）
   mountainHuts: "M", // 山屋・高山營地 Mountain Huts
   nuclearRadiation: "M", // 核安輻射 Radiation
   officialBridgesHsinchu: "M", // 新竹市橋梁清冊

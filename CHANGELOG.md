@@ -75,6 +75,10 @@
 
 > 每個 user-facing PR 在這裡加一行，發布時搬成新版本段落（規則見 [docs/RELEASING.md](docs/RELEASING.md)）。
 
+### 新增
+
+- 日本「執法治安」新增「交通事故」：警察庁 2025 年人身事故 287,020 件（死亡 2,495、負傷 284,525），全國縮放畫熱區、z12 起出點，可依事故內容與事故類型篩選；物損事故未涵蓋。`jp_traffic_accidents_2025.pmtiles`（28.9MB）已上傳 S3 deploy-assets/world/（2026-11-06，sha256 metadata 一致）（#843）
+
 ### 修正
 
 - 英格蘭污染排放申報（站主限定）：8 處來源座標落在英格蘭外的 EA 場址改以郵遞區號中心定位，圖例改為 2,544 處（有申報 1,693、無申報 851）。⚠️ 發版前須先套 gis-platform mig 501 並重新匯入 analytics `gb_pollution_inventory_20261106.geojson`（#839）

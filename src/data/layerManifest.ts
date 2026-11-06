@@ -8,6 +8,7 @@ import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES }
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { ELECTION_LAYER_COLOR } from "./electionEventsTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS } from "./jpTrafficAccidentsTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR } from "./safetyG36Types";
@@ -2808,6 +2809,28 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["palette", "slider", "slider", "select"] },
     description: "日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊",
     topics: ["世界", "日本", "治安", "警察"],
+  },
+  // 日本第二輪 C083（2026-11-06）：警察庁 2025 本票人身事故點位；對應台灣 trafficAccidents2025。見 analytics docs/handoff/jp-c083-traffic-accidents.md
+  jpTrafficAccidents2025: {
+    key: "jpTrafficAccidents2025",
+    country: "JP", section: { theme: "執法治安", group: "交通事故" },
+    ...layerName({ zh: "人身交通事故", alt: "人身事故", qualifier: "2025" }),
+    expandable: true,
+    color: JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS[1].color,
+    icon: CarFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_traffic_accidents_2025", confidence: "HIGH" }],
+      processing: "analytics pipelines/world/jp_traffic_accidents_2025：本票 287,023 件，度分秒×1000 換十進位，缺座標 3 件剔除 → 287,020 點；PMTiles z5–12（z12 全點，以下抽稀只供熱區）",
+      note: "資料期間 2025-01-01～12-31（2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "jp-traffic-accidents-2025", url: "./world/jp_traffic_accidents_2025.pmtiles", sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 },
+    legend: "jpTrafficAccidents2025",
+    popup: "jpTrafficAccidents2025",
+    params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "2025 年全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
+    topics: ["世界", "日本", "治安", "交通事故", "傷亡", "道路安全"],
   },
   jpEvacuationSites: {
     key: "jpEvacuationSites",

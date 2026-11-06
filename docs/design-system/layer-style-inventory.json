@@ -18,18 +18,18 @@
   ]
  },
  "summary": {
-  "layerKeys": 1640,
-  "overlayConfigs": 496,
-  "runtimeSublayers": 937,
+  "layerKeys": 1641,
+  "overlayConfigs": 497,
+  "runtimeSublayers": 940,
   "byResolution": {
-   "runtime": 416,
+   "runtime": 417,
    "static-scan": 305,
    "unresolved": 57,
    "shared-renderer": 862
   },
   "byGeometry": {
-   "point": 586,
-   "heatmap": 212,
+   "point": 587,
+   "heatmap": 213,
    "line": 359,
    "polygon": 1182,
    "raster": 63,
@@ -43,12 +43,12 @@
    "Three.js／WebGL CustomLayer": 11,
    "無 hook／factory（App 掛載或尚無實作）": 27
   },
-  "legendEntries": 1388,
+  "legendEntries": 1389,
   "legendTypes": {
    "square-swatch": 96,
    "svg-icon": 40,
    "dot-swatch": 200,
-   "gradient+dot-swatch": 68,
+   "gradient+dot-swatch": 69,
    "square-swatch+hatch(missing)": 867,
    "gradient+size+dot-swatch": 4,
    "hatch(missing)": 3,
@@ -75,10 +75,10 @@
    "gradient+size+dot-swatch+square-swatch+line-swatch": 1
   },
   "legendResolution": {
-   "ssr": 487,
+   "ssr": 488,
    "static": 901
   },
-  "legendsWithIssues": 54,
+  "legendsWithIssues": 55,
   "ironRules": {
    "missingOpacity": [
     "activeFaults",
@@ -108,15 +108,15 @@
  "stats": {
   "distributions": {
    "circle-radius@z10": {
-    "n": 347,
+    "n": 348,
     "min": 1.75,
     "p25": 4.5,
     "median": 4.5,
-    "p75": 5.143,
+    "p75": 5,
     "max": 15.3,
     "mostCommon": [
      "4.5×188",
-     "3×41",
+     "3×42",
      "5.143×36",
      "6.5×14",
      "3.45×7",
@@ -127,10 +127,10 @@
     "dataDrivenCounted": 43,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 149
+    "decorationExcluded": 150
    },
    "circle-radius@z14": {
-    "n": 347,
+    "n": 348,
     "min": 3,
     "p25": 4.5,
     "median": 4.5,
@@ -138,7 +138,7 @@
     "max": 24.48,
     "mostCommon": [
      "4.5×190",
-     "3×41",
+     "3×42",
      "6×39",
      "6.5×15",
      "5×8",
@@ -149,17 +149,17 @@
     "dataDrivenCounted": 43,
     "notSet": 0,
     "unresolved": 5,
-    "decorationExcluded": 149
+    "decorationExcluded": 150
    },
    "circle-stroke-width@z14": {
-    "n": 352,
+    "n": 353,
     "min": 0.6,
     "p25": 1,
     "median": 1,
     "p75": 1.05,
     "max": 2.2,
     "mostCommon": [
-     "1×258",
+     "1×259",
      "1.2×60",
      "1.4×10",
      "1.3×4",
@@ -171,10 +171,10 @@
     "dataDrivenCounted": 36,
     "notSet": 0,
     "unresolved": 0,
-    "decorationExcluded": 149
+    "decorationExcluded": 150
    },
    "circle-opacity": {
-    "n": 348,
+    "n": 349,
     "min": 0.08,
     "p25": 0.75,
     "median": 0.8,
@@ -186,14 +186,14 @@
      "0.9×44",
      "0.75×41",
      "0.45×15",
-     "0.6×11",
+     "0.6×12",
      "0.54×7",
      "0.95×7"
     ],
     "dataDrivenCounted": 43,
     "notSet": 0,
     "unresolved": 4,
-    "decorationExcluded": 149
+    "decorationExcluded": 150
    },
    "line-width@z10": {
     "n": 144,
@@ -299,14 +299,14 @@
     "decorationExcluded": 0
    },
    "heatmap-radius@z14": {
-    "n": 69,
+    "n": 70,
     "min": 20,
     "p25": 20,
     "median": 20,
     "p75": 20,
     "max": 20,
     "mostCommon": [
-     "20×69"
+     "20×70"
     ],
     "dataDrivenCounted": 0,
     "notSet": 0,
@@ -497,22 +497,22 @@
    "text-halo-width": []
   },
   "circleStroke": {
-   "隨底圖切換": 350,
+   "隨底圖切換": 351,
    "固定 #c2410c": 1,
    "資料驅動": 1
   },
   "circleStrokeThemePairs": {
-   "暗 #0a0a14 → 淡 #ffffff": 261,
+   "暗 #0a0a14 → 淡 #ffffff": 262,
    "暗 #0f172a → 淡 #ffffff": 59,
    "暗 #0d1117 → 淡 #ffffff": 1
   },
   "decorationSublayers": {
-   "count": 177,
+   "count": 178,
    "byType": {
-    "circle": 149,
+    "circle": 150,
     "line": 28
    },
-   "keys": 153
+   "keys": 154
   },
   "lineDash": [
    "drinkingWaterProtectionZones/distance-outline=[2,2]",
@@ -534,13 +534,13 @@
    "cap=butt join=miter": 6
   },
   "themeDiff": {
-   "sublayersWithDiff": 632,
-   "of": 937,
+   "sublayersWithDiff": 634,
+   "of": 940,
    "byProperty": {
-    "circle-stroke-color": 350,
-    "circle-stroke-opacity": 292,
+    "circle-stroke-color": 351,
+    "circle-stroke-opacity": 293,
     "line-color": 94,
-    "heatmap-color": 65,
+    "heatmap-color": 66,
     "text-color": 61,
     "text-halo-color": 61,
     "circle-color": 45,
@@ -553,10 +553,10 @@
    }
   },
   "colorEncoding": {
-   "circle:categorical": 254,
+   "circle:categorical": 256,
    "circle:constant": 225,
    "line:constant": 115,
-   "heatmap:sequential": 69,
+   "heatmap:sequential": 70,
    "symbol:constant": 61,
    "fill:categorical": 56,
    "line:categorical": 54,
@@ -926,6 +926,7 @@
   {"id":"jpReligion","members":["jpReligionGsi","jpReligionOsm","jpReligionWikidata"],"components":["JpReligionLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":3,"square":0,"line":0,"dashed":0,"gradient":3,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":24,"paintComparable":false},
   {"id":"jpSchools","members":["jpSchools"],"components":["JpSchoolsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":13,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":20,"paintComparable":false},
   {"id":"jpStations","members":["jpStations"],"components":["JpStationsLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":6,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":6,"paintComparable":false},
+  {"id":"jpTrafficAccidents2025","members":["jpTrafficAccidents2025"],"components":["JpTrafficAccidents2025Legend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":2,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":9,"paintComparable":true,"issues":["圖層主色暗／淡不同，但圖例輸出完全相同"]},
   {"id":"jpWaterAgriculturalPonds","members":["jpWaterAgriculturalPonds"],"components":["JpWaterLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"gradient+dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":1,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":8,"paintComparable":false},
   {"id":"jpWaterDams","members":["jpWaterDams"],"components":["JpWaterLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"dot-swatch","features":{"dot":1,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchSizes":["10x10●"],"swatchColorCount":1,"paintComparable":false},
   {"id":"jpWaterFloodHazard","members":["jpWaterFloodHazard"],"components":["JpWaterFloodHazardLegend"],"evidence":"src/components/LegendPanel.tsx","resolution":"ssr","type":"text-only","features":{"dot":0,"square":0,"line":0,"dashed":0,"gradient":0,"hatch":0,"svg":0,"sizeSeries":false},"fontSizes":[9,10],"swatchColorCount":0,"paintComparable":false},
@@ -2429,6 +2430,7 @@
   "jpReligionWikidata": {"label":"宗教設施 宗教施設（Wikidata）","theme":"宗教","dataClass":"D","color":"#3b82f6","legend":"jpReligion","legendType":"gradient+dot-swatch","popup":"jpReligionWikidata","params":{"opacity":{"name":"jpReligionWikidataOpacity","default":0.75,"min":0,"max":1},"size":{"name":"jpReligionWikidataScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useJpReligionLayers"],"siblings":["jpReligionGsi","jpReligionOsm"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpReligionLayers.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpReligionLayers.ts"],"circle-opacity":["non-literal @src/hooks/useJpReligionLayers.ts"],"circle-radius":["non-literal @src/hooks/useJpReligionLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "jpSchools": {"label":"學校 学校","theme":"教育","dataClass":"D","color":"#f97316","legend":"jpSchools","legendType":"gradient+dot-swatch","popup":"jpSchools","params":{"opacity":{"name":"jpSchoolsOpacity","default":0.75,"min":0.1,"max":1},"size":{"name":"jpSchoolsScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useJpSchoolsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpSchoolsLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpSchoolsLayer.ts"],"circle-opacity":["non-literal @src/hooks/useJpSchoolsLayer.ts"],"circle-radius":["non-literal @src/hooks/useJpSchoolsLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "jpStations": {"label":"車站 駅","theme":"交通","dataClass":"D","color":"#38bdf8","legend":"jpStations","legendType":"dot-swatch","popup":"jpStations","params":{"opacity":{"name":"jpStationsOpacity","default":0.8,"min":0.1,"max":1},"size":{"name":"jpStationsScale","default":1,"min":0.3,"max":3},"controls":4},"hooks":["useJpStationsLayer"],"siblings":[],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpStationsLayer.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpStationsLayer.ts"],"circle-opacity":["non-literal @src/hooks/useJpStationsLayer.ts"],"circle-radius":["non-literal @src/hooks/useJpStationsLayer.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-color":["non-literal @src/map/mapStyleScale.ts"],"line-opacity":["non-literal @src/map/mapStyleScale.ts"],"line-width":["non-literal @src/map/mapStyleScale.ts"],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["point"],"render":["circle"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
+  "jpTrafficAccidents2025": {"label":"人身交通事故 人身事故（2025）","theme":"執法治安","dataClass":"B","color":"#f97316","legend":"jpTrafficAccidents2025","legendType":"gradient+dot-swatch","popup":"jpTrafficAccidents2025","params":{"opacity":{"name":"jpTrafficAccidents2025Opacity","default":0.6,"min":0.1,"max":1},"size":{"name":"jpTrafficAccidents2025Scale","default":1,"min":0.3,"max":3},"controls":4},"resolution":"runtime","evidence":[],"sublayers":[{"suffix":"heatmap","type":"heatmap","role":"main","geometry":"heatmap","render":"heatmap","maxzoom":12.01,"values":{"heatmap-radius":{"z10":12,"z14":20},"heatmap-opacity":0.8,"heatmap-intensity":1,"heatmap-weight":1},"colors":{"heatmap-color":{"kind":"sequential","count":7,"lightDiffers":true}},"themeDiff":["heatmap-color"]},{"suffix":"glow","type":"circle","role":"decoration","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":7.457,"z14":9},"circle-opacity":0,"circle-blur":0.8},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#dc2626","#f97316","#94a3b8"]}}},{"suffix":"circle","type":"circle","role":"main","geometry":"point","render":"circle","minzoom":12,"values":{"circle-radius":{"z10":3,"z14":3},"circle-stroke-width":{"z10":1,"z14":1},"circle-opacity":0.6,"circle-stroke-opacity":0.8},"colors":{"circle-color":{"kind":"categorical","count":3,"dark":["#dc2626","#f97316","#94a3b8"]},"circle-stroke-color":{"kind":"constant","count":1,"dark":["#0a0a14"],"lightDiffers":true,"light":["#ffffff"]}},"themeDiff":["circle-stroke-color","circle-stroke-opacity"]}],"geometry":["heatmap","point"],"render":["circle","heatmap"],"ironRules":{"opacity":true,"pointSize":true,"legend":true,"popup":true}},
   "jpWaterAgriculturalPonds": {"label":"農業蓄水池（2026-03）","theme":"水資源","dataClass":"D","color":"#65a30d","legend":"jpWaterAgriculturalPonds","legendType":"gradient+dot-swatch","popup":"jpWaterAgriculturalPonds","params":{"opacity":{"name":"jpWaterAgriculturalPondsOpacity","default":0.6,"min":0.1,"max":1},"controls":2},"hooks":["useJpWaterLayers"],"siblings":["jpWaterDams","jpWaterFloodHazard","jpWaterGroundwaterSites","jpWaterLakes","jpWaterLevelStations","jpWaterLocalFacilities","jpWaterNilimDams","jpWaterQualityStations","jpWaterRivers","jpWaterSewerFacilities","jpWaterSupplyAreas","jpWaterSupplyFacilities"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpWaterLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-radius":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"fill-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","unresolved:\"circle-opacity\"","unresolved:\"circle-opacity\""],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"raster-opacity":["non-literal @src/hooks/useJpWaterLayers.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point","polygon","raster"],"render":["circle","fill","heatmap","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "jpWaterDams": {"label":"水壩 ダム（2014）","theme":"水資源","dataClass":"D","color":"#0369a1","legend":"jpWaterDams","legendType":"dot-swatch","popup":"jpWaterDams","params":{"opacity":{"name":"jpWaterDamsOpacity","default":0.8,"min":0.1,"max":1},"controls":1},"hooks":["useJpWaterLayers"],"siblings":["jpWaterAgriculturalPonds","jpWaterFloodHazard","jpWaterGroundwaterSites","jpWaterLakes","jpWaterLevelStations","jpWaterLocalFacilities","jpWaterNilimDams","jpWaterQualityStations","jpWaterRivers","jpWaterSewerFacilities","jpWaterSupplyAreas","jpWaterSupplyFacilities"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpWaterLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-radius":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"fill-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","unresolved:\"circle-opacity\"","unresolved:\"circle-opacity\""],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"raster-opacity":["non-literal @src/hooks/useJpWaterLayers.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point","polygon","raster"],"render":["circle","fill","heatmap","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":true}},
   "jpWaterFloodHazard": {"label":"洪水浸水想定（最大規模）","theme":"災害","dataClass":"D","color":"#64748b","legend":"jpWaterFloodHazard","legendType":"text-only","popup":null,"params":{"opacity":{"name":"jpWaterFloodHazardOpacity","default":0.7,"min":0.3,"max":1},"controls":1},"hooks":["useJpWaterLayers"],"siblings":["jpWaterAgriculturalPonds","jpWaterDams","jpWaterGroundwaterSites","jpWaterLakes","jpWaterLevelStations","jpWaterLocalFacilities","jpWaterNilimDams","jpWaterQualityStations","jpWaterRivers","jpWaterSewerFacilities","jpWaterSupplyAreas","jpWaterSupplyFacilities"],"resolution":"static-scan","scope":"hook","evidence":["src/hooks/useJpWaterLayers.ts","src/map/lineFillSpec.ts","src/map/mapStyleScale.ts"],"staticValues":{"circle-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-radius":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"circle-stroke-color":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-opacity":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"circle-stroke-width":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"],"fill-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts"],"fill-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","unresolved:\"circle-opacity\"","unresolved:\"circle-opacity\""],"heatmap-color":["non-literal @src/map/mapStyleScale.ts"],"heatmap-intensity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-opacity":["non-literal @src/map/mapStyleScale.ts"],"heatmap-radius":["non-literal @src/map/mapStyleScale.ts"],"heatmap-weight":["non-literal @src/map/mapStyleScale.ts"],"line-cap":["unresolved:\"round\"","unresolved:\"butt\""],"line-color":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/mapStyleScale.ts"],"line-dasharray":["non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"line-join":["unresolved:\"round\"","unresolved:\"miter\""],"line-opacity":["non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts"],"line-width":[{"z10":1,"z14":1},{"z10":1,"z14":1},"non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/hooks/useJpWaterLayers.ts","non-literal @src/map/lineFillSpec.ts","non-literal @src/map/lineFillSpec.ts"],"raster-opacity":["non-literal @src/hooks/useJpWaterLayers.ts"],"raster-resampling":["unresolved:\"nearest\""],"text-allow-overlap":[0,1],"text-halo-color":["non-literal @src/map/mapStyleScale.ts"],"text-halo-width":["non-literal @src/map/mapStyleScale.ts"],"text-ignore-placement":[1],"text-size":["non-literal @src/map/mapStyleScale.ts","non-literal @src/map/mapStyleScale.ts"]},"geometry":["heatmap","line","point","polygon","raster"],"render":["circle","fill","heatmap","line","raster"],"ironRules":{"opacity":true,"legend":true,"popup":false}},
