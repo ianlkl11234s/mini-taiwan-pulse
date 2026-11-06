@@ -3655,70 +3655,22 @@ export function layerDisplayName(key: string, fallback?: string): LayerName {
   return LAYER_NAMES[key as keyof LayerVisibility] ?? { zh: fallback ?? key };
 }
 
-// ── owner-only 私人圖層 SSOT（見 docs/features/owner-gated-layers）──
-// 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。
-// DB 端由 migration 275 同步：對應 RPC 加 owner 檢查 + REVOKE anon。
+// ── owner-only 私人圖層（見 docs/features/owner-gated-layers）──
+// 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：面板、主題、模擬面板、搜尋一律顯示反灰＋鎖頭（spec §5.5），
+// 點了走 App 端權限提示／登入；不可整個隱藏。DB 端 public.gated_layers 為同一份名單（gis-platform mig 276／494／499／500）。
 // ⚠️ 明確排除（保持公開）：waterCanals（灌排渠道）、powerPoles（電桿 2.96M）。
 //
-// ⚠️ **P3-3 評估過收編進 manifest，結論是不收**（與 TRANSPORT_LABELS 不同類），
-//    三條硬理由（機械查證，非目測）：
-//    1. **沒有值重複可消滅**：manifest 裡 `gated: true` 的 entry 是 **0 個**，
-//       本表 35 個 key 全部只存在於這裡。收編＝**新增** 35 筆宣告，不是去重。
-//    2. **型別上表達不了**：`gated` 只存在於 `LayerManifestThemedEntry`，而本表有
-//       3 個 key（facOffshore / osmPowerPlantsStatic / powerPlants）是 orphan entry
-//       ——「已從 sidebar 下架但 API 敏感」正是它們要被鎖的理由，卻沒有 LayerDef 可載。
-//    3. **這是安全清單不是登記簿**：embedWhitelist / urlState / layerGates 三套測試
-//       以本表為錨（gated 外流＝私人資料洩漏）。搬 SSOT 是安全變更，要獨立驗收標準，
-//       不該搭在一次去重重構裡。
-export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
-  // 畜牧 Livestock（改走 owner-only RPC；不含 livestockFeed / livestockMarket）
-  "livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck",
-  "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther", "livestockSlaughter",
-  // 石化 · 油氣
-  "lpgSubpackaging", "lpgRetailers", "lngTerminal", "pipelineGas", "pipelineOilGas",
-  "industrialRefinery", "industrialStorageTank", "industrialPowerPlant", "coalTerminal",
-  "fossilFuelInfra",
-  // 電力 · 電網
-  "osmSubstationsEhv", "osmSubstations", "osmPowerLines", "osmPowerTowers",
-  "substationEhvGlow", "powerLinesGlow",
-  // 電力 · 廠
-  "facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement",
-  "powerGenerationUnit", "powerPlantGlow",
-  // 僅做 UI 鎖（資料載入路徑不動）
-  "aviationRestrictedGlow",
-  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，資料只經 owner-authenticated Range API。
-  "busCrowdingSim",
-  // 2026 選舉活動（研究原型）：owner-only RPC get_election_events_2026（gis-platform mig 494 登記 gated_layers）。
-  "electionEvents2026",
-  // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
-  "facOffshore", "osmPowerPlantsStatic", "powerPlants",
-  // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
-  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
-  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
-  // 全臺橋梁研究（進行中）：BSS 授權 HOLD，私人 PMTiles 只經 owner-authenticated Range API。
-  "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
-  // 雙北跨河橋梁韌性（研究中）：同一 BSS 授權 HOLD；私人 PMTiles＋JSON 只經 owner-authenticated Range API。
-  "bridgeResilienceTwinCity",
-  // 土壤液化／軟弱土層（RIGHTS_HOLD）：私人 PMTiles 只經 owner-authenticated Range API。
-  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
-  "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
-  // 古地圖（中研院臺灣百年歷史地圖）：圖磚是公開外部來源，但再利用授權（CC BY-NC）待中研院確認，先站主限定；
-  // 不需私人 Range API，只擋介面與網址還原。
-  "historicalMapSinica",
-  // 英格蘭污染排放申報（EA Pollution Inventory 2024）：EA Conditional Licence 限 internal or personal purposes，
-  // 使用者 2026-11-06 拍板站主限定；資料只在 Supabase，經 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499 登記 gated_layers）。
-  "gbPollutionInventoryEngland",
-]);
-
-/** 站主限定、且對非站主連主題標題都不顯示的主題（主題內圖層全部上鎖時才隱藏）。 */
-export const OWNER_ONLY_THEME_TITLES: ReadonlySet<string> = new Set(["歷史底圖 Historical Basemaps"]);
-
-/** 面板用：站主限定主題在內部圖層全被鎖（非站主）時整個拿掉。 */
-export function hideOwnerOnlyThemes(themes: readonly ThemeDef[], lockedKeys?: ReadonlySet<keyof LayerVisibility>): readonly ThemeDef[] {
-  if (!lockedKeys || lockedKeys.size === 0) return themes;
-  return themes.filter((theme) => !OWNER_ONLY_THEME_TITLES.has(theme.title)
-    || !theme.groups.every((group) => group.layers.every((layer) => lockedKeys.has(layer.key))));
-}
+// **唯一來源＝manifest `topics` 的 "OWNER_ONLY" 標記**（2026-11-06 統一；取代 P3-3「不收編」的結論）：
+//    - topics 存在於每一筆 manifest entry（含已從 sidebar 下架的 orphan：facOffshore／osmPowerPlantsStatic／powerPlants），
+//      不受 `gated` 只在 themed entry 的型別限制。
+//    - 這是安全清單：派生後由 src/data/__tests__/ownerOnlyRegistry.test.ts 釘死完整 key 清單（少一個標記＝紅），
+//      embedWhitelist／urlState／layerGates 的測試照舊以本 Set 為錨。
+//    - 新增站主限定圖層：在 manifest topics 加 "OWNER_ONLY"，同步更新上述釘死清單與 gis-platform gated_layers。
+export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>(
+  (Object.values(LAYER_MANIFEST) as LayerManifestEntry[])
+    .filter((entry) => entry.topics.includes("OWNER_ONLY"))
+    .map((entry) => entry.key as keyof LayerVisibility),
+);
 
 /**
  * 授權或再散布條件尚未驗證、且連站主研究檢視也不開放的圖層：所有帳號均 fail-closed。

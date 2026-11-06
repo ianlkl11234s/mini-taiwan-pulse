@@ -994,7 +994,7 @@ export const LAYER_MANIFEST = {
     popup: "electionEvents2026",
     params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
     description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。",
-    topics: ["政治", "選舉", "活動", "研究中"],
+    topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 
   // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
@@ -2025,7 +2025,7 @@ export const LAYER_MANIFEST = {
     popup: "allenCoralAtlas",
     params: { count: 3, kinds: ["slider", "select", "select"] },
     description: "Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。",
-    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究"],
+    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究", "OWNER_ONLY"],
   },
 
   globalEvents: {
@@ -2680,7 +2680,7 @@ export const LAYER_MANIFEST = {
     popup: ["busCrowdingSimVehicle", "busCrowdingSim"],
     params: { count: 4, kinds: ["slider", "select", "select", "select"] },
     description: "研究中；站主限定。臺北市 307 走廊周邊 257 條公車路線（新北市區公車未涵蓋）平日 7–9 時各路段「超載班次比例」：離開該站的班次中，負載達容量（假設 65 人）的比例。可切參數版本（7–9 時佔全日 13.7% 較寬鬆／18.0% 較擁擠）與方案（基準＋7 個調度情境）。班次 < 5 的路段不畫。資料日 2026-10-14；模擬推估，非實測，數字只看範圍。來源：TDX 公車路線與班表、taipei-gis-analytics 公車擁擠模型。",
-    topics: ["交通", "公車", "擁擠", "模擬", "推估", "研究中"],
+    topics: ["交通", "公車", "擁擠", "模擬", "推估", "研究中", "OWNER_ONLY"],
   },
   transitReachGrid: {
     key: "transitReachGrid",
@@ -14160,9 +14160,8 @@ export const LAYER_MANIFEST = {
   //    （同批 3 教育 edu-schools ×7、批 2 運動場館 ×5）——**不是**拍板②的「同 key 多 config」，
   //    仍寫單數形，契約測試按 `id` 過濾不受影響。7 層以畜種 filter 切分同一份資料，
   //    popup 也共用一個 `livestockFarm`（7 → 1）。
-  // ⚠️ 它們同時列在 `GATED_LAYERS`（owner-only RPC），但 THEMES 的 LayerDef **沒有**
-  //    `gated: true` —— GATED_LAYERS 是另一張 runtime 表，不在本 manifest 派生的四張裡，
-  //    manifest 的 `gated` 對齊的是 LayerDef → 照現況不填。
+  // ⚠️ 它們是站主限定（owner-only RPC）：名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
+  //    不用 `gated` 欄位（`gated` 對齊的是 LayerDef → 照現況不填）。
   livestockFarmPig: {
     key: "livestockFarmPig",
     country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
@@ -14184,7 +14183,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養豬場登記點位（依飼養規模分級）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmChicken: {
@@ -14208,7 +14207,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養雞場登記點位（蛋雞／肉雞）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmCattle: {
@@ -14232,7 +14231,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養牛場登記點位（乳牛／肉牛）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmDuck: {
@@ -14256,7 +14255,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養鴨場登記點位",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmGoose: {
@@ -14280,7 +14279,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養鵝場登記點位",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmSheep: {
@@ -14304,7 +14303,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養羊場登記點位（綿羊／山羊）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmOther: {
@@ -14328,7 +14327,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "其他畜禽飼養場（鹿／兔／鴕鳥等）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockSlaughter: {
@@ -14352,7 +14351,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockSlaughter",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "合法屠宰場（依屠宰畜種與規模）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFeed: {
@@ -15894,10 +15893,9 @@ export const LAYER_MANIFEST = {
     legend: "facPrimary",
     popup: "powerPlant",
     params: { count: 5, kinds: ["multiSelect", "slider", "slider", "slider", "slider"] },
-    // ⚠️ 本層在 GATED_LAYERS 裡，但 THEMES 的 LayerDef **沒有** gated: true
-    //    → manifest 對齊 LayerDef 不填（同批 7 飼養場 7 層）。
+    // ⚠️ 站主限定靠 topics "OWNER_ONLY"（GATED_LAYERS 由此派生），不填 `gated`（同批 7 飼養場 7 層）。
     description: "SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）",
-    topics: ["能源", "電力", "發電廠"],
+    topics: ["能源", "電力", "發電廠", "OWNER_ONLY"],
   },
 
   facSecondary: {
@@ -15921,7 +15919,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "SSOT 小型分散式發電設施",
-    topics: ["能源", "電力", "發電廠"],
+    topics: ["能源", "電力", "發電廠", "OWNER_ONLY"],
   },
 
   facPlanned: {
@@ -15945,7 +15943,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
     description: "SSOT 規劃中／興建中發電廠",
-    topics: ["能源", "電力", "發電廠", "規劃"],
+    topics: ["能源", "電力", "發電廠", "規劃", "OWNER_ONLY"],
   },
 
   facHistorical: {
@@ -15969,7 +15967,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "SSOT 已除役／停機發電廠",
-    topics: ["能源", "電力", "發電廠", "歷史"],
+    topics: ["能源", "電力", "發電廠", "歷史", "OWNER_ONLY"],
   },
 
   facOsmSupplement: {
@@ -15993,7 +15991,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 補充的發電設施（SSOT 未收錄的 IPP／小型廠）",
-    topics: ["能源", "電力", "發電廠", "OSM"],
+    topics: ["能源", "電力", "發電廠", "OSM", "OWNER_ONLY"],
   },
 
   powerGenerationUnit: {
@@ -16023,7 +16021,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] },
     description: "台電機組即時出力（預設平面圓點：色＝燃料、大小＝出力 MW；立體效果開啟疊 3D 光柱）",
-    topics: ["能源", "電力", "即時"],
+    topics: ["能源", "電力", "即時", "OWNER_ONLY"],
   },
 
   powerPlantGlow: {
@@ -16047,7 +16045,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）",
-    topics: ["能源", "電力", "視覺實驗"],
+    topics: ["能源", "電力", "視覺實驗", "OWNER_ONLY"],
   },
 
   aviationRestrictedGlow: {
@@ -16074,7 +16072,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 1, kinds: ["slider"] },
     description: "機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）",
-    topics: ["能源", "視覺實驗", "航空"],
+    topics: ["能源", "視覺實驗", "航空", "OWNER_ONLY"],
   },
 
   // ── 電力 · 電網 ────────────────────────────────────────────────────
@@ -16102,7 +16100,7 @@ export const LAYER_MANIFEST = {
     popup: "osmSubstation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 區域變電所（migration 235 電網層級分色）",
-    topics: ["能源", "電網", "變電所"],
+    topics: ["能源", "電網", "變電所", "OWNER_ONLY"],
   },
 
   osmSubstationsEhv: {
@@ -16126,7 +16124,7 @@ export const LAYER_MANIFEST = {
     popup: "osmSubstation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 超高壓變電所（345kV 級，halo ＋ core 兩層）",
-    topics: ["能源", "電網", "變電所"],
+    topics: ["能源", "電網", "變電所", "OWNER_ONLY"],
   },
 
   osmPowerLines: {
@@ -16150,7 +16148,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerLine",
     params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
-    topics: ["能源", "電網", "輸電線"],
+    topics: ["能源", "電網", "輸電線", "OWNER_ONLY"],
   },
 
   osmPowerTowers: {
@@ -16175,7 +16173,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerTower",
     params: { count: 3, kinds: ["slider", "palette", "slider"] },
     description: "OSM 高壓鐵塔點位",
-    topics: ["能源", "電網", "鐵塔"],
+    topics: ["能源", "電網", "鐵塔", "OWNER_ONLY"],
   },
 
   powerPoles: {
@@ -16226,7 +16224,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）",
-    topics: ["能源", "電網", "視覺實驗"],
+    topics: ["能源", "電網", "視覺實驗", "OWNER_ONLY"],
   },
 
   substationEhvGlow: {
@@ -16250,7 +16248,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）",
-    topics: ["能源", "電網", "視覺實驗"],
+    topics: ["能源", "電網", "視覺實驗", "OWNER_ONLY"],
   },
   // ══════════════════════════════════════════════════════════════════
   // ⛽ 能源 Energy —— 石化 · 油氣 10 ＋ 石化 · 加油站 5（AR-22 Phase 2 批 8-4）
@@ -16413,7 +16411,7 @@ export const LAYER_MANIFEST = {
     popup: "lpgSubpackaging",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化石油氣分裝場／儲存場",
-    topics: ["能源", "石化", "LPG"],
+    topics: ["能源", "石化", "LPG", "OWNER_ONLY"],
   },
 
   lpgRetailers: {
@@ -16437,7 +16435,7 @@ export const LAYER_MANIFEST = {
     popup: "lpgRetailers",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化石油氣加氣站與瓦斯零售商",
-    topics: ["能源", "石化", "LPG"],
+    topics: ["能源", "石化", "LPG", "OWNER_ONLY"],
   },
 
   lngTerminal: {
@@ -16461,7 +16459,7 @@ export const LAYER_MANIFEST = {
     popup: "lngTerminal",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化天然氣接收站（GEM 全球資料庫台灣段）",
-    topics: ["能源", "石化", "LNG"],
+    topics: ["能源", "石化", "LNG", "OWNER_ONLY"],
   },
 
   pipelineGas: {
@@ -16485,7 +16483,7 @@ export const LAYER_MANIFEST = {
     popup: "pipelineGas",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "天然氣輸送主幹線（GEM）",
-    topics: ["能源", "石化", "管線"],
+    topics: ["能源", "石化", "管線", "OWNER_ONLY"],
   },
 
   pipelineOilGas: {
@@ -16509,7 +16507,7 @@ export const LAYER_MANIFEST = {
     popup: "pipelineOilGas",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "原油／NGL 輸送管線（GEM）",
-    topics: ["能源", "石化", "管線"],
+    topics: ["能源", "石化", "管線", "OWNER_ONLY"],
   },
 
   industrialRefinery: {
@@ -16533,7 +16531,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialRefinery",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 煉油廠／石化工廠面（halo ＋ fill ＋ 可切邊框）",
-    topics: ["能源", "石化", "工業"],
+    topics: ["能源", "石化", "工業", "OWNER_ONLY"],
   },
 
   industrialStorageTank: {
@@ -16557,7 +16555,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialStorageTank",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 油氣儲槽面（halo ＋ fill ＋ 可切邊框）",
-    topics: ["能源", "石化", "工業"],
+    topics: ["能源", "石化", "工業", "OWNER_ONLY"],
   },
 
   industrialPowerPlant: {
@@ -16583,7 +16581,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialPowerPlant",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 火力發電廠廠區面（與 SSOT 的點位 facPrimary 互補）",
-    topics: ["能源", "石化", "工業", "發電廠"],
+    topics: ["能源", "石化", "工業", "發電廠", "OWNER_ONLY"],
   },
 
   coalTerminal: {
@@ -16607,7 +16605,7 @@ export const LAYER_MANIFEST = {
     popup: "coalTerminal",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "燃煤進口碼頭（GEM）",
-    topics: ["能源", "石化", "煤炭"],
+    topics: ["能源", "石化", "煤炭", "OWNER_ONLY"],
   },
 
   fossilFuelInfra: {
@@ -16637,7 +16635,7 @@ export const LAYER_MANIFEST = {
     popup: "fossilFuelFacility",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "早期能源 MVP 的石化設施合併層（已被上面的分類層取代，保留相容）",
-    topics: ["能源", "石化", "legacy"],
+    topics: ["能源", "石化", "legacy", "OWNER_ONLY"],
   },
   // ══════════════════════════════════════════════════════════════════
   // ♻️ 能源 Energy —— 再生能源 6 ＋ 覆蓋分析 5（AR-22 Phase 2 批 8-5）
@@ -17033,7 +17031,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 2, kinds: ["multiSelect", "slider"] },
     description: "SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留",
-    topics: ["能源", "再生能源", "風力", "orphan"],
+    topics: ["能源", "再生能源", "風力", "orphan", "OWNER_ONLY"],
   },
 
   islandPowerGrid: {
@@ -17105,7 +17103,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerPlantStatic",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar",
-    topics: ["能源", "電力", "發電廠", "orphan"],
+    topics: ["能源", "電力", "發電廠", "orphan", "OWNER_ONLY"],
   },
 
   powerPlants: {
@@ -17130,7 +17128,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar",
-    topics: ["能源", "電力", "發電廠", "orphan", "legacy"],
+    topics: ["能源", "電力", "發電廠", "orphan", "legacy", "OWNER_ONLY"],
   },
 
   powerStatusHud: {
