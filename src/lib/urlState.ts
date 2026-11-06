@@ -150,7 +150,6 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
     .map((s) => s.trim())
     .filter((k) => {
       if (!k || seen.has(k)) return false;
-      if (k === "allenCoralAtlas") return false; // private account layers are never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
       if (RELEASE_HOLD_LAYERS.has(k as keyof LayerVisibility)) return false; // 授權/再散布尚未驗證

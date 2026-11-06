@@ -12395,8 +12395,13 @@ OVERLAY_REGISTRY.push(
     attribution: jpDidAttribution(JP_DID_DEFAULT_YEAR),
     rebuildOnParamChange: ["fill", "outline"],
     layers: [
-      { suffix: "fill", type: "fill", paint: (isDark, p) => ({ "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": p?.jpDidOpacity ?? 0.55 }) },
-      { suffix: "outline", type: "line", paint: (isDark) => gradedSeamPaint(isDark, true) },
+      // V-1（map-layers §3.8）：z5 全國視角 DID 多半只剩 2–3 px，1px 底圖色細縫會把小面吃掉、0.55 透明度又太淡，
+      // 所以低縮放提高不透明度（z5 ×1.6、z8 起回到滑桿值），細縫 z8 起才畫。
+      { suffix: "fill", type: "fill", paint: (isDark, p) => {
+        const op = p?.jpDidOpacity ?? 0.55;
+        return { "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, Math.min(1, op * 1.6), 8, op] };
+      } },
+      { suffix: "outline", type: "line", minzoom: 8, paint: (isDark) => gradedSeamPaint(isDark, true) },
     ],
   },
 );
