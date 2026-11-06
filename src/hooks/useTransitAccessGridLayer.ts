@@ -188,8 +188,10 @@ export function useTransitAccessGridLayer(
   /** 目前 properties 對應的組合（類別|版本|時段）；資料換了才 bump，觸發 setData */
   const [dataRevision, setDataRevision] = useState(0);
   const [mountRevision, setMountRevision] = useState(0);
-  const latest = useRef({ controls, opacity });
-  latest.current = { controls, opacity };
+  /** properties 已填好該組合的資料；否則（載入中／失敗／缺 slot）整片不畫，避免缺 p* 被判成「依賴私人運具」 */
+  const [dataReady, setDataReady] = useState(false);
+  const latest = useRef({ controls, opacity, dataReady });
+  latest.current = { controls, opacity, dataReady };
 
   // 基本檔＋幾何（h3 延遲載入）：第一次開圖層才抓
   useEffect(() => {
@@ -209,7 +211,7 @@ export function useTransitAccessGridLayer(
     if (!visible || !base || !features) return;
     const needed = network === "cmp" ? ["observed", "scheduled"] : [network];
     // 清空 properties：舊組合的欄位（例如非比較模式沒有 s*）不能套到新的上色式，否則載入中或失敗時會畫出假差值
-    const clear = () => { for (const f of features) f.properties = { i: f.properties!.i }; setDataRevision((r) => r + 1); };
+    const clear = () => { for (const f of features) f.properties = { i: f.properties!.i }; setDataReady(false); setDataRevision((r) => r + 1); };
     const missing = needed.filter((net) => !base.meta.done.has(`${net}/${slot}`));
     if (missing.length) {
       setTransitAccessGridNotice(`${missing.join("、")}/${slot}`);
@@ -226,6 +228,7 @@ export function useTransitAccessGridLayer(
       if (g < 0) throw new Error(`bundle 沒有類別 ${group}`);
       fillCellProperties(features, base, g, main!, network === "cmp" ? sched! : null);
       setTransitAccessGridState({ base, network, slot, main: main!, sched: network === "cmp" ? sched! : null });
+      setDataReady(true);
       setDataRevision((r) => r + 1);
     }).catch((error: unknown) => {
       if (!cancelled) { setTransitAccessGridState(null); clear(); reportSimBundleError(TRANSIT_ACCESS_SLUG, "grid slot", error); }
@@ -248,7 +251,7 @@ export function useTransitAccessGridLayer(
       const paint = gridPaint(latest.current.controls, gridClassification(base.bundle.manifest), latest.current.opacity);
       if (!map.getLayer(TRANSIT_ACCESS_GRID_IDS.fill)) map.addLayer({
         id: TRANSIT_ACCESS_GRID_IDS.fill, type: "fill", source: SRC,
-        paint: { "fill-color": paint.color, "fill-opacity": paint.opacity },
+        paint: { "fill-color": paint.color, "fill-opacity": latest.current.dataReady ? paint.opacity : 0 },
       });
       if (!map.getLayer(TRANSIT_ACCESS_GRID_IDS.outline)) map.addLayer({
         id: TRANSIT_ACCESS_GRID_IDS.outline, type: "line", source: SRC, minzoom: 11,
@@ -274,7 +277,7 @@ export function useTransitAccessGridLayer(
     const map = mapRef.current; if (!map || !visible || !base || !map.getLayer(TRANSIT_ACCESS_GRID_IDS.fill)) return;
     const paint = gridPaint(latest.current.controls, gridClassification(base.bundle.manifest), opacity);
     map.setPaintProperty(TRANSIT_ACCESS_GRID_IDS.fill, "fill-color", paint.color);
-    map.setPaintProperty(TRANSIT_ACCESS_GRID_IDS.fill, "fill-opacity", paint.opacity);
+    map.setPaintProperty(TRANSIT_ACCESS_GRID_IDS.fill, "fill-opacity", dataReady ? paint.opacity : 0);
     map.setPaintProperty(TRANSIT_ACCESS_GRID_IDS.outline, "line-color", isDark ? "rgba(255,255,255,0.25)" : "rgba(15,23,42,0.2)");
-  }, [mapRef, visible, base, controls.metric, controls.network, controls.pct, controls.countTh, controls.nightT, t.a, t.b, t.r, t.overhead, t.peak, opacity, isDark, mountRevision, mapTick]);
+  }, [mapRef, visible, base, controls.metric, controls.network, controls.pct, controls.countTh, controls.nightT, t.a, t.b, t.r, t.overhead, t.peak, opacity, isDark, mountRevision, mapTick, dataReady]);
 }
