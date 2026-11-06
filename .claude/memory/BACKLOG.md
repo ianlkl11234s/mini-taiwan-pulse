@@ -316,7 +316,7 @@
 | LIC-1 | P3 | blocked | 自己托管的 CC BY-NC（非商用）檔案放哪：目前沒有規則（古地圖是外部圖磚，不適用）。 | Blocked on 使用者決定。skill `pulse-layer-release/references/license-and-deploy.md` 暫寫「遇到時列進驗收包要你決定」。First action: 使用者選預設（例：站主限定＋Supabase／私人儲存，或公開但標示非商用）。 | 規則寫進 license-and-deploy.md，之後同類直接照做。 |
 | N3-1 | P3 | done | 夜間批次資料限制。 | 2026-11-06（#842、analytics #300）：日本 DID z5 已改清楚（填色不透明度隨縮放）。加拿大「398 格在美國」複核為 Natural Earth 1:10M 國界誤差，實際只有 16 格（約 380 人）在原始省界外、多在界河湖岸；2026-11-06 使用者決定加拿大網格不裁切（16 格約 380 人在省界外），維持現檔。南韓墓地：data.go.kr 查無有座標的全國墓地官方資料（추모공원 15114135 只收追悼公園），維持 OSM。 | 全部已結。 |
 | N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 已合 develop、未發版。 |
-| N3-3 | P3 | in_progress | 加拿大即時地震 FDSN 條款與上線。 | 2026-11-06 使用者選「照 NRCan 站條款加署名上線」（非商業重製免申請；署名依條款三要素：完整標題、作者機關、官方著作重製且非合作／背書聲明，條款無固定句式）。新層 `caEarthquakesLive`（瀏覽器直連 FDSN、近 30 天、每 5 分鐘重抓、不跟時間軸、DISPLAY_ONLY）：mini PR #__MINI_PR__、pulse-data PR #62（registry `ca_earthquakes_fdsn`）。First action: PR 合進 develop 後改 done。 | 圖層上 develop；圖例／popup 有來源與聲明；check_layer_coverage 0 缺口。 |
+| N3-3 | P3 | in_progress | 加拿大即時地震 FDSN 條款與上線。 | 2026-11-06 使用者選「照 NRCan 站條款加署名上線」（非商業重製免申請；署名依條款三要素：完整標題、作者機關、官方著作重製且非合作／背書聲明，條款無固定句式）。新層 `caEarthquakesLive`（瀏覽器直連 FDSN、近 30 天、每 5 分鐘重抓、不跟時間軸、DISPLAY_ONLY）：mini PR #847、pulse-data PR #62（registry `ca_earthquakes_fdsn`）。First action: PR 合進 develop 後改 done。 | 圖層上 develop；圖例／popup 有來源與聲明；check_layer_coverage 0 缺口。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
 ## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
