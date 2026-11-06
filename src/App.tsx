@@ -20,6 +20,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
+import { lockedVisibleKeys, newlyLockedKeys, runOwnerGateResets } from "./lib/ownerGateRevoke";
 import { createMapInstanceEvents } from "./map/mapInstanceEvents";
 import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
@@ -1838,6 +1839,12 @@ export default function App() {
       if (value && statisticsKeys.some((key) => shouldClearFeatureInfoForLayerClick(key, undefined, layerVisibilityRef.current[key]))) {
         setFeatureInfo(null);
       }
+      if (!value) {
+        // 批次關閉（國家「全部關閉」等）：被關圖層的 popup／選取圈與展開面板一併清掉
+        const closing = new Set<string>(effectiveKeys as string[]);
+        setFeatureInfo((current) => (current && closing.has(current.layerType as string) ? null : current));
+        setExpandedLayer((current) => (current && closing.has(current) ? null : current));
+      }
       setLayerVisibility((prev) => {
         let next = statisticsKeys.length > 0
           ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
@@ -1853,8 +1860,20 @@ export default function App() {
         layerVisibilityRef.current,
       );
     },
-    [setLayerVisibility, layerVisibilityRef, setFeatureInfo],
+    [setLayerVisibility, layerVisibilityRef, setFeatureInfo, setExpandedLayer],
   );
+
+  // 撤權（登出／失去站主權限／後台改鎖，review F088）：lockedKeys 是唯一訊號（lib/ownerGateRevoke）。
+  // 已上鎖仍開著的圖層一律關掉（popup、展開面板一併清；URL／場景由 visibility 派生）；
+  // 這次新上鎖的 key 交給各模組註冊的清除（module cache、hook 暫存、Mapbox source 資料）。
+  const prevLockedKeysRef = useRef(lockedKeys);
+  useEffect(() => {
+    const toClose = lockedVisibleKeys(layerVisibilityRef.current, lockedKeys);
+    if (toClose.length > 0) handleBulkSetVisibility(toClose, false);
+    const revoked = newlyLockedKeys(prevLockedKeysRef.current, lockedKeys);
+    prevLockedKeysRef.current = lockedKeys;
+    runOwnerGateResets(revoked);
+  }, [lockedKeys, handleBulkSetVisibility, layerVisibilityRef]);
 
   const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
   const handleLocationJump = useCallback((id: string) => {

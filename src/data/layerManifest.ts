@@ -8,6 +8,7 @@ import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES }
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { ELECTION_LAYER_COLOR } from "./electionEventsTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS } from "./jpTrafficAccidentsTypes";
 import { JP_EVACUATION_LAYER_COLOR } from "./jpEvacuationSiteTypes";
 import { JP_PUBLIC_OFFICE_LAYER_COLOR } from "./jpPublicOfficeTypes";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR } from "./safetyG36Types";
@@ -2809,6 +2810,28 @@ export const LAYER_MANIFEST = {
     description: "日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊",
     topics: ["世界", "日本", "治安", "警察"],
   },
+  // 日本第二輪 C083（2026-11-06）：警察庁 2025 本票人身事故點位；對應台灣 trafficAccidents2025。見 analytics docs/handoff/jp-c083-traffic-accidents.md
+  jpTrafficAccidents2025: {
+    key: "jpTrafficAccidents2025",
+    country: "JP", section: { theme: "執法治安", group: "交通事故" },
+    ...layerName({ zh: "人身交通事故", alt: "人身事故", qualifier: "2025" }),
+    expandable: true,
+    color: JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS[1].color,
+    icon: CarFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_traffic_accidents_2025", confidence: "HIGH" }],
+      processing: "analytics pipelines/world/jp_traffic_accidents_2025：本票 287,023 件，度分秒×1000 換十進位，缺座標 3 件剔除 → 287,020 點；PMTiles z5–12（z12 全點，以下抽稀只供熱區）",
+      note: "資料期間 2025-01-01～12-31（2026-10-01 公開）；物損事故不在本票，未涵蓋；年齢等當事者屬性不收；PDL1.0",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "jp-traffic-accidents-2025", url: "./world/jp_traffic_accidents_2025.pmtiles", sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 },
+    legend: "jpTrafficAccidents2025",
+    popup: "jpTrafficAccidents2025",
+    params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
+    description: "2025 年全日本人身交通事故 28.7 萬件（死亡 2,495 件、負傷 28.5 萬件），可依事故內容與事故類型篩選；物損事故未納入",
+    topics: ["世界", "日本", "治安", "交通事故", "傷亡", "道路安全"],
+  },
   jpEvacuationSites: {
     key: "jpEvacuationSites",
     country: "JP", section: { theme: "災害", group: "避難設施" },
@@ -5100,6 +5123,30 @@ export const LAYER_MANIFEST = {
     description: "加拿大地震目錄 1985–2019 共 101,365 筆（NRCan；規模 ≥4 全國視角畫點，其餘拉遠畫熱區）",
     topics: ["加拿大", "災害", "地震", "歷史地震", "NRCan"],
   },
+  caEarthquakesLive: {
+    key: "caEarthquakesLive",
+    country: "CA", section: { theme: "災害", group: "地震 / 斷層" },
+    ...layerName({ zh: "即時地震（近 30 天）", alt: "Recent Earthquakes", qualifier: "NRCan" }),
+    expandable: true,
+    color: CA_QUAKE_COLOR,
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_earthquakes_fdsn", confidence: "HIGH" }],
+      processing: "瀏覽器直連 NRCan FDSN event 服務（earthquakescanada.nrcan.gc.ca/fdsnws/event/1/query?starttime=<現在−30 天>&format=text，CORS *）；約 300 筆／30 天，含 M<2；依英文地名前綴分爆破／礦場／疑似產業活動／地震；可見時每 5 分鐘重抓",
+      note: "NRCan 站層級條款（非商業重製、需標完整標題與機關並聲明非合作／背書；商業轉散布需書面許可），2026-11-06 使用者拍板照此上線；上游直連、不入我們的 DB／R2／分析倉庫（DISPLAY_ONLY，同 JMA 上游直連層）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaLiveEarthquakesLayer：fetch FDSN text → GeoJSON source ca-earthquakes-live＋circle ca-earthquakes-live-circle（非 OVERLAY_REGISTRY）；快照錨在掛鐘現在、不跟時間軸",
+    },
+    legend: "caEarthquakesLive",
+    popup: "caEarthquakesLive",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "加拿大 NRCan 地震目錄最近 30 天（即時、每 5 分鐘更新；半徑＝規模，可依事件類型篩選）",
+    topics: ["加拿大", "災害", "地震", "即時", "NRCan"],
+  },
   caPopulationGrid: {
     key: "caPopulationGrid",
     country: "CA", section: { theme: "人口社經", group: "人口分布" },
@@ -6581,7 +6628,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
-      processing: "analytics 成品 gb_pollution_inventory 取 authority==Environment Agency 2,540 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 只回座標在英格蘭的 2,536 點（另 4 筆 postcode 在英格蘭、座標落在蘇格蘭／威爾斯，疑似錯誤不回）；released＝routes 非空",
+      processing: "analytics 成品 gb_pollution_inventory （20261106 版）取 authority==Environment Agency 2,544 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 回英格蘭 2,544 點（8 處來源座標落在英格蘭外，analytics 改用 ONSPD 郵遞區號中心，coord_source 標明）；released＝routes 非空",
       note: "England：EA Conditional Licence 特別條件限「internal or personal purposes」、一年期（2026-10-29 起）→ 站主限定，不進 public/、S3 deploy-assets、R2、分析倉庫或任何公開網址；Scotland 另見 gbPollutionInventory（OGL）",
     },
     dataClass: "C",
@@ -6593,7 +6640,7 @@ export const LAYER_MANIFEST = {
     legend: "gbPollutionInventoryEngland",
     popup: "gbPollutionInventoryEngland",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,536 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
+    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,544 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
     topics: ["英國", "英格蘭", "污染", "排放", "工廠", "環境", "OWNER_ONLY"],
   },
   gbNoise: {

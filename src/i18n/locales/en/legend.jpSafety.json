@@ -1,0 +1,5 @@
+{
+  "legend.jpSafety.accidentsPeriod": "Period {period} (published 2026-10-01); {total} injury crashes, one point each",
+  "legend.jpSafety.accidentsScope": "Injury crashes only (fatal = death within 24 h); property-damage-only crashes are not in this file and not covered. Locations are as recorded by police; 3 crashes without coordinates are not mapped.",
+  "legend.jpSafety.accidentsSource": "Source: National Police Agency website (Traffic Accident Statistics Open Data), processed · Public Data License 1.0"
+}

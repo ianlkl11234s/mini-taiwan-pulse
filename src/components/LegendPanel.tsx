@@ -30,6 +30,7 @@ import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../dat
 import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
+import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
@@ -59,7 +60,7 @@ import { AnfrWirelessSitesLegend, CoverageLegend, EnergyFuelLegend, EnergyReserv
 import { AccessibleParkLegend, AnimalAdoptionLegend, AnimalShelterPressureLegend, AnimalWelfarePointsLegend, BicycleSupportLegend, EducationLegend, GovServiceOfficeLegend, GovernmentLifeLegend, JpMedicalLegend, JpPoliceFacilitiesLegend, JpEvacuationSitesLegend, JpLandslideWarningAreasLegend, JpInlandFloodAreasLegend, JpZoningUseDistrictsLegend, JpNationalForestsLegend, JpWelfareFacilitiesLegend, JpPublicOfficesLegend, JpBusStopsLegend, JpSchoolsLegend, EmergencyHospitalLegend, MedicalIsochroneLegend, MedicalLegend, PoliceIsochroneLegend, PoliceJusticeLegend, PublicLifeCoverageLegend, PublicLifeOsmLegend, PublicToiletLegend, WelfareLegend } from "./legend/civicServiceLegends";
 import { KrDataLegend, KrAirportsLegend, KrBusStopsLegend, KrFuelStationsLegend, KrNationalRoadsLegend, KrOilGasLegend, KrPortsLegend, KrPowerLinesLegend, KrPowerPlantsLegend, KrPowerTowersLegend, KrRailLinesLegend, KrRailStationsLegend, KrRenewablesLegend, KrSubstationsLegend } from "./legend/krLegends";
 import { CaAdminBoundariesLegend, CaTransitStopsLegend, CaAirportsPortsLegend, CaMajorRoadsLegend, CaRailwaysLegend, CaPowerPlantsLegend, CaWindTurbinesLegend, CaPowerGridLegend, CaOilGasLegend, CaPopulationCentresLegend, CaFederalDistrictsLegend, CaPostalFsaLegend, CaIndigenousLandsLegend, CaDeprivationLegend, CaRentsLegend, CaPlaceNamesLegend, CaHillshadeLegend } from "./legend/caLegends";
-import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
+import { CaClimateStationsLegend, CaAqhiStationsLegend, CaRadiationStationsLegend, CaNpriFacilitiesLegend, CaWastewaterSystemsLegend, CaEarthquakesLegend, CaEarthquakesLiveLegend, CaPopulationGridLegend } from "./legend/caEnvLegends";
 import { KrAdminBoundariesLegend, GbAdminBoundariesLegend, GbBuiltUpAreasLegend, GbGreenspaceLegend, GbMaritimeLimitsLegend, GbSmallAreaBoundariesLegend, JpGsiHillshadeLegend, JpGsiReliefLegend, HistoricalMapSinicaLegend, BuildingsGbaLegend, CanopyGiantsLegend, CanopyHeightLegend, EcoNetworkZonesLegend, JpBuildingHeightLegend, JpCanopyHeightLegend, JpPopulationMeshLegend, NonUrbanZoningLegend, ParksTaipeiLegend, PropertyValueAdminLegend, PropertyValueGridLegend, ProtectedTreesNationalLegend, RealEstateLegend, RiversideTreesTaipeiLegend, StreetTrees3epochLegend, StreetTreesNationalLegend, StreetTreesTaipeiDiffLegend, TreePitsTaipeiLegend, UrbanFormGridLegend, UrbanZoningLegend } from "./legend/urbanFormLegends";
 import { ArtsEventsLegend, CulturalFacilitiesLegend, CulturalMuseumsLegend, FuneralLegend, JpAccommodationDensityLegend, JpAccommodationTypesLegend, JpReligionLegend, LibrarySeatsLegend, PerformingVenuesLegend, ReligionLegend, SportsVenueLegend, TourAttractionsLegend, TourEventsLegend, TourHeritageLegend, TourHotelsLegend } from "./legend/cultureLegends";
 import { DenseSingleColorLegend } from "./legend/legendShared";
@@ -162,6 +163,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
   { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "trafficAccidents2025", render: () => <TrafficAccidents2025Legend /> },
+  { id: "jpTrafficAccidents2025", render: () => <JpTrafficAccidents2025Legend /> },
   { id: "drinkingWaterPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.drinkingWater")} color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.wasteBaskets")} color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.recyclingPoints")} color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra={i18n.t("legend.registry.recyclingExtra")} /> },
@@ -338,6 +340,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "caNpriFacilities", render: () => <CaNpriFacilitiesLegend /> },
   { id: "caWastewaterSystems", render: () => <CaWastewaterSystemsLegend /> },
   { id: "caEarthquakes", render: () => <CaEarthquakesLegend /> },
+  { id: "caEarthquakesLive", render: () => <CaEarthquakesLiveLegend /> },
   { id: "caPopulationGrid", render: () => <CaPopulationGridLegend /> },
   { id: "krPorts", render: () => <KrPortsLegend /> },
   { id: "krPowerLines", render: () => <KrPowerLinesLegend /> },

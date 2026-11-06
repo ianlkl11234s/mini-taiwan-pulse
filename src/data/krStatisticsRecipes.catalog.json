@@ -475,7 +475,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "男性人口 ÷ 女性人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -541,7 +542,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "男性人口 ÷ 女性人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -606,7 +608,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "0–14 歲人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -672,7 +675,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "0–14 歲人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -738,7 +742,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "15–64 歲人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -804,7 +809,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "15–64 歲人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -870,7 +876,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -936,7 +943,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 總人口 × 100",
       "location_semantics": "住民登錄地所在行政區（2026-10 界）",
       "disclosure": "행정안전부「지역별(행정동) 성별 연령별 주민등록 인구수」2026-09-30 基準，行政洞列以行政기관코드前綴加總到 시·도／시군구。住民登錄人口，不含未登錄外國人。",
       "publisher": "행정안전부（Ministry of the Interior and Safety）",
@@ -1267,7 +1275,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 0–14 歲人口 × 100",
       "location_semantics": "統計對象所在行政區（2024 年統計廳界對應到 2026-10 界）",
       "disclosure": "국가데이터처 SGIS「행정구역 통계 및 경계」2024 年總括統計（등록센서스：人口含外國人、一般戶、住宅、事業體與從業人員），代碼由 2025-2Q 統計廳碼對到 2026-10 行政區界。",
       "publisher": "국가데이터처（舊 통계청）SGIS",
@@ -1334,7 +1343,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "65 歲以上人口 ÷ 0–14 歲人口 × 100",
       "location_semantics": "統計對象所在行政區（2024 年統計廳界對應到 2026-10 界）",
       "disclosure": "국가데이터처 SGIS「행정구역 통계 및 경계」2024 年總括統計（등록센서스：人口含外國人、一般戶、住宅、事業體與從業人員），代碼由 2025-2Q 統計廳碼對到 2026-10 行政區界。",
       "publisher": "국가데이터처（舊 통계청）SGIS",
@@ -1403,7 +1413,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 0
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "該月每小時生活人口的平均",
       "location_semantics": "在地人數所在的首爾自治區（電信推估）",
       "disclosure": "서울시「행정동 단위 서울 생활인구(내국인)」2026-07 月檔，KT 電信資料推估的每小時在地人數；行政洞加總到首爾 25 區後取月平均。只涵蓋首爾。",
       "publisher": "서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）",
@@ -1472,7 +1483,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 0
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "該月 09:00–17:59 各小時生活人口的平均",
       "location_semantics": "在地人數所在的首爾自治區（電信推估）",
       "disclosure": "서울시「행정동 단위 서울 생활인구(내국인)」2026-07 月檔，KT 電信資料推估的每小時在地人數；行政洞加總到首爾 25 區後取月平均。只涵蓋首爾。",
       "publisher": "서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）",
@@ -1541,7 +1553,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 0
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "該月 00:00–05:59 各小時生活人口的平均",
       "location_semantics": "在地人數所在的首爾自治區（電信推估）",
       "disclosure": "서울시「행정동 단위 서울 생활인구(내국인)」2026-07 月檔，KT 電信資料推估的每小時在地人數；行政洞加總到首爾 25 區後取月平均。只涵蓋首爾。",
       "publisher": "서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）",
@@ -1610,7 +1623,8 @@
         "locale": "zh-TW",
         "maximumFractionDigits": 1
       },
-      "derived": false,
+      "derived": true,
+      "derived_method": "日間平均 ÷ 夜間平均 × 100；>100 表示白天流入",
       "location_semantics": "在地人數所在的首爾自治區（電信推估）",
       "disclosure": "서울시「행정동 단위 서울 생활인구(내국인)」2026-07 月檔，KT 電信資料推估的每小時在地人數；行政洞加總到首爾 25 區後取月平均。只涵蓋首爾。",
       "publisher": "서울특별시（서울 열린데이터광장；KT 통신 데이터 기반 추계）",

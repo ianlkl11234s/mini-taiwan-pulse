@@ -78,7 +78,7 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // 第三輪（I 軌）：崩塌地、魚塭小而零散預設點；河川面、橋梁輪廓預設面（拉遠時代表點／熱區補位）
   R({ key: "landslideAnnual", sourceId: "landslide-annual", file: "hazards/landslide_annual_swcb_20261006_points.pmtiles", sourceLayer: "landslide_annual_points", count: 143_511, def: "point", thinned: 2, heatIntensity: 0.2 }),
   R({ key: "aquaculturePonds", sourceId: "aquaculture-ponds", file: "fishery/aquaculture_ponds_osm_points.pmtiles", sourceLayer: "aquaculture_ponds_osm_points", count: 15_241, def: "point", heatIntensity: 0.3 }),
-  R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "waterRivers", sourceId: "water-river-polygons", file: "geo/water_river_polygons_points.pmtiles", sourceLayer: "river_polygons_points", count: 13_262, def: "polygon", heatIntensity: 0.3, opacityParam: "waterRiverOpacity" }),
   R({ key: "osmBridgeFootprints", sourceId: "osm-bridge-footprints", file: "network_structures/osm_bridge_footprints_20260906_v2_points.pmtiles", sourceLayer: "osm_bridge_footprints_points", count: 1_505, def: "polygon" }),
   // 淹水：10 情境一個情境一支（切情境換 source，同 `sourceUrlByParam`），tile layer 統一 flood_scenario_points
   R({ key: "waterFloodExtreme", sourceId: "water-flood-extreme", file: "geo/water_flood_650mm_24hr_points.pmtiles", sourceLayer: "flood_scenario_points", count: 2356, def: "polygon", opacityParam: "waterFloodOpacity" }),

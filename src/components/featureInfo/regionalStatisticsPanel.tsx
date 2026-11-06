@@ -81,7 +81,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     {/* 南韓統計（geometry 帶 sido_name）：市郡區名常重複（如「중구」），補所屬道級；道級帶英文名。 */}
     {typeof props.sido_name === 'string' && props.sido_code !== props.area_code && <Row label={t('popup.baseMap.krSido')} value={props.sido_name} />}
     {typeof props.area_name_en === 'string' && typeof props.sido_name === 'string' && <Row label={t('popup.baseMap.krNameEnglish')} value={props.area_name_en} />}
-    <Row label={t('popup.regionalStatistics.indicator')} value={props.indicator_name == null ? '—' : typeof (props.title_layer_key ?? props.layer_key) === 'string' ? statisticsTitle(String(props.title_layer_key ?? props.layer_key), String(props.indicator_name), i18n) : String(props.indicator_name)} />
+    <Row label={t('popup.regionalStatistics.indicator')} value={props.indicator_name == null ? '—' : typeof (props.title_layer_key ?? props.layer_key) === 'string' ? statisticsTitle(String(props.title_layer_key ?? props.layer_key), String(props.indicator_name), i18n, props.title_is_presentation === true) : String(props.indicator_name)} />
     <Row label={t('popup.regionalStatistics.value')} value={categoryLabel !== undefined ? enumLabel('statLegendNote', categoryLabel, categoryLabel, i18n) : observed ? `${Number(props.value).toLocaleString(numericFormat?.locale, { maximumFractionDigits: numericFormat?.maximumFractionDigits ?? 3 })} ${props.unit == null ? '' : statisticsUnit(String(props.unit), i18n)}` : props.status === 'not_applicable' && typeof props.status_label === 'string' ? missingLabel : t('popup.regionalStatistics.notZero', { label: missingLabel })} />
     {props.source_status != null && <Row label={t('popup.regionalStatistics.sourceStatus')} value={String(props.source_status)} />}
     {props.source_token != null && <Row label={t('popup.regionalStatistics.sourceToken')} value={String(props.source_token)} />}
@@ -108,6 +108,7 @@ export function RegionalStatisticsPanel({ props }: { props: Record<string, unkno
     <SourceFooter props={{
       source_org: props.publisher == null ? '' : statisticsPublisher(String(props.publisher), i18n),
       source_url: typeof props.source_url === 'string' ? props.source_url : '',
+      attribution_href: typeof props.attribution_href === 'string' ? props.attribution_href : undefined,
       license: typeof props.license === 'string' ? statisticsLicense(props.license, i18n) : '',
     }} />
   </>;

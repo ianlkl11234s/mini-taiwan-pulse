@@ -45,7 +45,7 @@ export function SpecPanel({ props, spec, source, color, extra, hideFooter, fetch
         const n = fmtNum(props[f.prop], f.digits ?? 0);
         if (!n) return null;
         value = f.unit ? `${n} ${f.unit}` : n;
-      } else if (f.kind === "bool") value = /^(true|1|yes)$/i.test(raw) ? pick({ zh: "是", en: "Yes", ja: "はい" }) : pick({ zh: "否", en: "No", ja: "いいえ" });
+      } else if (f.kind === "bool") value = /^(true|1|yes|y)$/i.test(raw) ? pick({ zh: "是", en: "Yes", ja: "はい" }) : pick({ zh: "否", en: "No", ja: "いいえ" });
       return <Row key={f.prop} label={pick(f.label)} value={value} mono={f.kind === "code"} />;
     })}
     {extra ? <Row label={pick({ zh: "備註", en: "Note", ja: "備考" })} value={extra} /> : null}

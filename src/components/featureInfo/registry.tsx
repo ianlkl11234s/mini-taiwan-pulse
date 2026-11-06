@@ -77,7 +77,7 @@ import type { KrDataKey } from "../../data/krDataKeys";
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
-import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaPopulationGridPanel } from "./caEnvPanels";
+import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaEarthquakesLivePanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -129,6 +129,7 @@ import {
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
 import { DisasterResourceSitesPanel, FiringNoticeAreasPanel, NuclearEpzEvacuationPanel, TrafficAccidents2025Panel, TsunamiSirensPanel } from "./g36SafetyPanels";
+import { JpTrafficAccidents2025Panel } from "./jpSafetyPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
@@ -486,6 +487,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   caNpriFacilities: CaNpriFacilitiesPanel,
   caWastewaterSystems: CaWastewaterSystemsPanel,
   caEarthquakes: CaEarthquakesPanel,
+  caEarthquakesLive: CaEarthquakesLivePanel,
   caPopulationGrid: CaPopulationGridPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
@@ -669,6 +671,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   accidentTaipei: AccidentTaipeiPanel,
   a1AccidentRealtime: A1AccidentRealtimePanel,
   trafficAccidents2025: TrafficAccidents2025Panel,
+  jpTrafficAccidents2025: JpTrafficAccidents2025Panel,
   disasterResourceSites: DisasterResourceSitesPanel,
   tsunamiSirens: TsunamiSirensPanel,
   nuclearEpzEvacuation: NuclearEpzEvacuationPanel,
@@ -1155,6 +1158,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   caNpriFacilities: "NPRI 申報設施 NPRI Facilities",
   caWastewaterSystems: "污水處理系統 Wastewater Systems",
   caEarthquakes: "地震 Earthquakes",
+  caEarthquakesLive: "即時地震 Recent Earthquakes",
   caPopulationGrid: "人口網格 Population Grid",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
@@ -1321,6 +1325,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   accidentTaipei: "北市事故點",
   a1AccidentRealtime: "A1 即時事故",
   trafficAccidents2025: "交通事故",
+  jpTrafficAccidents2025: "人身交通事故 人身事故",
   disasterResourceSites: "救災資源據點",
   tsunamiSirens: "海嘯警報臺",
   nuclearEpzEvacuation: "核電廠集結與收容",

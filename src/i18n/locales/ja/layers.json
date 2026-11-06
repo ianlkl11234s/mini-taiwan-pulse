@@ -1625,10 +1625,12 @@
   "layer.caRadiationStations": "放射線監視局（カナダ）",
   "layer.caNpriFacilities": "NPRI 汚染物質排出報告事業所（カナダ）",
   "layer.caWastewaterSystems": "下水処理システム WSER（カナダ）",
+  "layer.caEarthquakesLive": "地震・直近 30 日（カナダ）",
   "layer.caEarthquakes": "地震 1985–2019（カナダ）",
   "layer.caPopulationGrid": "人口グリッド GHSL 2020（カナダ）",
   "layer.jpNaturalParkAreas2015": "自然公園地域",
   "layer.jpNationalParksMoe": "国立公園",
   "layer.jpWildlifeProtectionMoe": "国指定鳥獣保護区",
-  "layer.jpDid": "人口集中地区（DID）"
+  "layer.jpDid": "人口集中地区（DID）",
+  "layer.jpTrafficAccidents2025": "人身事故"
 }

@@ -41,6 +41,21 @@
 
 **不屬站主權限、維持原樣**：`RELEASE_HOLD_LAYERS`（授權未驗證，連站主都鎖）、`IS_PRODUCTION`／`localResearchGroup`（開發中，只在本機 DEV 顯示；4 個 Glow 層同時在名單內）、統計比較 build flag。
 
+### 撤權清除（登出／失去權限，review F088）
+
+`App.tsx` 以 `lockedKeys` 為唯一訊號，邏輯集中在 `src/lib/ownerGateRevoke.ts`：
+
+1. **關層**：已上鎖但仍開著的 key 一律經 `handleBulkSetVisibility(keys, false)` 關掉（popup、展開面板一併清；URL 與場景由 visibility 派生，不會再帶）。
+2. **清快取**：這次「有→無」權限的 key（`newlyLockedKeys`）交給 `runOwnerGateResets`，各模組用 `registerOwnerGateReset(keys, reset)` 註冊：
+   gbEa、選舉活動、畜牧、石化（只清 owner-gated 那份，加油站不動）、`energyLoader` 的 owner-gated `cachedOnce`（電廠 L1–L6、OSM 電網、化石設施、機組出力）與 `useEnergyPoiLayer` 暫存。
+   module cache 都帶 generation：撤權前發出、撤權後才回來的請求不寫回。
+3. **清 Mapbox**：`MapView` 註冊的清除把 registry 中被撤權的 GeoJSON overlay source `setData(空)`；
+   source／layer 殼保留（`addAllOverlays` 建立、feed 靠 `getSource` 找它，直接移除會讓重新授權後開層空白或破壞 z-order），layer 由 visible=false 隱藏。
+   古地圖（自建 raster）則真的移除 layer 與所有年代 source，再開時重建。
+   私人 Range API 六組（Allen、日本水資源、土壤液化、BSS、橋梁韌性、公車擁擠）原本就由各自 host 在 `!access.allowed` 時 `removeSource` 並清快取，沿用不重做。
+
+新增站主限定圖層若有 module cache 或自建 source，記得 `registerOwnerGateReset`。
+
 ### 已知限制
 
 - 私人 Range API（`server/coral-private/*`）仍認寫死的站主 `OWNER_ID`，不讀 `profiles.tier`；把某層在後台降到 insider 只會解開介面，資料端仍只給站主。

@@ -46,6 +46,7 @@ const FIRE_HYDRANTS_OPACITY_DEFAULT = densePointOpacity(211_530);
  */
 const DENSE_FROM = {
   trafficAccidents2025: densePointsFromZoom(321_534, 5),
+  jpTrafficAccidents2025: densePointsFromZoom(287_020, 5),
   pollutionPenaltyGeneral: densePointsFromZoom(248_556, 5),
   streetTreesNational: densePointsFromZoom(210_436),
   manufacturingCompanyPoints: densePointsFromZoom(184_944),
@@ -297,6 +298,7 @@ import {
   DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TSUNAMI_SIREN_COLOR,
   disasterResourceHolderFilter, firingAgencyFilter, g36ColorExpression, nuclearEpzKindFilter, trafficAccidentFilter,
 } from "../data/safetyG36Types";
+import { JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS, jpTrafficAccidentFilter } from "../data/jpTrafficAccidentsTypes";
 import {
   ANNUAL_MIN_ZOOM, LANDSLIDE_LAYER_COLORS, annualYearFilter, dodRiskColorExpr, dodYearFilter, highwayCategoryColorExpr, highwayDisasterFilter,
 } from "../data/landslideTypes";
@@ -635,6 +637,7 @@ const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
 /** G36（2026-10-31）消防、民防、情勢與交通事故：點層共用公共生活點層 helper（attribution 明傳），射擊公告區為面。 */
 const G36_SAFETY_OVERLAYS: OverlayConfig[] = [
   publicLifePointOverlay("trafficAccidents2025", "./geo/traffic_accidents_2025.pmtiles", "traffic-accidents-2025", g36ColorExpression("cat", TRAFFIC_ACCIDENT_CLASS_OPTIONS), { sourceLayer: "traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "內政部警政署 A1／A2 類道路交通事故資料（2025-01-01～11-17）· 政府資料開放授權條款第1版", [2, 5], { filter: (p) => trafficAccidentFilter(p?.trafficAccidents2025ClassMask, p?.trafficAccidents2025CauseMask), dense: { pointsFromZoom: DENSE_FROM.trafficAccidents2025, intensity: 0.3 }, sortKey: ["match", ["get", "cat"], "A1", 1, 0] }),
+  publicLifePointOverlay("jpTrafficAccidents2025", "./world/jp_traffic_accidents_2025.pmtiles", "jp-traffic-accidents-2025", g36ColorExpression("sev", JP_TRAFFIC_ACCIDENT_SEVERITY_OPTIONS), { sourceLayer: "jp_traffic_accidents_2025", minzoom: 5, maxzoom: 12 }, "出典：警察庁ウェブサイト（交通事故統計情報のオープンデータ 2025）を加工して作成 · 公共データ利用規約第1.0版", [2, 5], { filter: (p) => jpTrafficAccidentFilter(p?.jpTrafficAccidents2025SeverityMask, p?.jpTrafficAccidents2025TypeMask), dense: { pointsFromZoom: DENSE_FROM.jpTrafficAccidents2025, intensity: 1 }, sortKey: ["match", ["get", "sev"], "fatal", 1, 0] }),
   publicLifePointOverlay("disasterResourceSites", "./geo/disaster_resource_sites.geojson", "disaster-resource-sites", g36ColorExpression("holder", DISASTER_RESOURCE_HOLDER_OPTIONS), undefined, "內政部消防署 救災資源資料庫（data.gov.tw 77862）· 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterResourceHolderFilter(p?.disasterResourceSitesHolderMask) }),
   publicLifePointOverlay("tsunamiSirens", "./hazards/tsunami_sirens.geojson", "tsunami-sirens", TSUNAMI_SIREN_COLOR, undefined, "內政部警政署 全國海嘯警報臺（data.gov.tw 34102）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12 }),
   publicLifePointOverlay("nuclearEpzEvacuation", "./hazards/nuclear_epz_evacuation.geojson", "nuclear-epz-evacuation", g36ColorExpression("kind", NUCLEAR_EPZ_KIND_OPTIONS), undefined, "核能安全委員會 核電廠緊急應變計畫區集結點與避難收容處所（data.gov.tw 102114／102434）· 政府資料開放授權條款第1版", [3.5, 7], { labelMinzoom: 12, filter: (p) => nuclearEpzKindFilter(p?.nuclearEpzEvacuationKindMask) }),
@@ -3733,14 +3736,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const op = p?.gbPollutionInventoryEnglandOpacity ?? def;
           const scale = p?.gbPollutionInventoryEnglandScale ?? 1;
           const released = ["==", ["get", "released"], true];
+          // 空環要寫成明確的條件分支：withPointSpec 的 normalizeMixedBranches 會把 case 最後的 fallback 換成標準值，
+          // 空環（同色描邊）若放在 fallback 會被換成底圖色細縫 → 846 個未申報場址變成底色空環
+          const unreleased = ["!=", ["get", "released"], true];
           const seam = pointStrokePaint(isDark, op / def);
           return {
             "circle-radius": 5 * scale,
             "circle-color": GB_POLLUTION_COLOR,
             "circle-opacity": ["case", released, op, 0] as unknown as number,
-            "circle-stroke-color": ["case", released, seam["circle-stroke-color"], GB_POLLUTION_COLOR] as unknown as string,
-            "circle-stroke-width": ["case", released, seam["circle-stroke-width"], GB_ENV_HOLLOW_STROKE] as unknown as number,
-            "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], op] as unknown as number,
+            "circle-stroke-color": ["case", released, seam["circle-stroke-color"], unreleased, GB_POLLUTION_COLOR, GB_POLLUTION_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", released, seam["circle-stroke-width"], unreleased, GB_ENV_HOLLOW_STROKE, GB_ENV_HOLLOW_STROKE] as unknown as number,
+            "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], unreleased, op, op] as unknown as number,
           };
         },
       },
@@ -5170,33 +5176,34 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./fishery/aquaculture_water_satellite.pmtiles",
     sourceId: "aquaculture-water-satellite",
     pmtiles: { sourceLayer: "aquaculture_water_satellite", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["aquacultureWaterSatelliteOpacity"],
+    // 信心層級改走 filter（點／熱區 companion 會沿用同一個 filter，opacity 篩選點層看不到）；切換信心層級才重建
+    rebuildOnParamChange: ["fill", "line"],
+    rebuildOnParamKeys: ["aquacultureWaterSatelliteConfidenceIdx"],
     layers: [
       {
         suffix: "fill", type: "fill",
+        filter: aquacultureWaterSatelliteConfidenceFilter,
         paint: (_isDark, p) => {
           const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
-          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0; // 0=全部 1=含蓄水池 2=只確定
-          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
-          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]]; // 蓄水池 0402 + 農業生產設施 0104
+          const isCertain: unknown[] = AQUACULTURE_WATER_CERTAIN;
+          const isReservoir: unknown[] = AQUACULTURE_WATER_RESERVOIR;
           return {
             "fill-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
-            // 確定恆顯示；蓄水池於「只確定」隱藏；不確定僅「全部」顯示
-            "fill-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+            "fill-opacity": base,
           };
         },
       },
       {
         suffix: "line", type: "line",
+        filter: aquacultureWaterSatelliteConfidenceFilter,
         paint: (_isDark, p) => {
           const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
-          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0;
-          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
-          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]];
+          const isCertain: unknown[] = AQUACULTURE_WATER_CERTAIN;
+          const isReservoir: unknown[] = AQUACULTURE_WATER_RESERVOIR;
           return {
             "line-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
             "line-width": 0.5,
-            "line-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+            "line-opacity": base,
           };
         },
       },
@@ -11980,6 +11987,16 @@ OVERLAY_REGISTRY.push(...LANDSLIDE_OVERLAYS);
  * PMTiles 點層不畫文字標籤（vector source 的 symbol placement 有 production 崩潰紀錄，見 helper 註解）。
  */
 const OGDL_ATTR = "政府資料開放授權條款第1版";
+/** 衛星偵測養殖水體的信心層級（0=全部 1=含蓄水池 2=只確定）：確定恆顯示；蓄水池於「只確定」隱藏；不確定僅「全部」顯示 */
+const AQUACULTURE_WATER_CERTAIN: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
+const AQUACULTURE_WATER_RESERVOIR: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]]; // 蓄水池 0402 + 農業生產設施 0104
+function aquacultureWaterSatelliteConfidenceFilter(p?: Record<string, number>): unknown[] {
+  const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0;
+  if (level === 0) return ["literal", true];
+  if (level === 2) return AQUACULTURE_WATER_CERTAIN;
+  return ["any", AQUACULTURE_WATER_CERTAIN, AQUACULTURE_WATER_RESERVOIR];
+}
+
 const polygonLayers = (key: string, color: unknown, def: number, minzoom?: number, filter?: (p?: Record<string, number>) => unknown[]): OverlayConfig["layers"] => [
   { suffix: "fill", type: "fill", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (_dark, p) => ({ "fill-color": color, "fill-opacity": p?.[`${key}Opacity`] ?? def }) },
   { suffix: "outline", type: "line", ...(minzoom ? { minzoom } : {}), ...(filter ? { filter } : {}), paint: (dark, p) => ({
@@ -12392,8 +12409,13 @@ OVERLAY_REGISTRY.push(
     attribution: jpDidAttribution(JP_DID_DEFAULT_YEAR),
     rebuildOnParamChange: ["fill", "outline"],
     layers: [
-      { suffix: "fill", type: "fill", paint: (isDark, p) => ({ "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": p?.jpDidOpacity ?? 0.55 }) },
-      { suffix: "outline", type: "line", paint: (isDark) => gradedSeamPaint(isDark, true) },
+      // V-1（map-layers §3.8）：z5 全國視角 DID 多半只剩 2–3 px，1px 底圖色細縫會把小面吃掉、0.55 透明度又太淡，
+      // 所以低縮放提高不透明度（z5 ×1.6、z8 起回到滑桿值），細縫 z8 起才畫。
+      { suffix: "fill", type: "fill", paint: (isDark, p) => {
+        const op = p?.jpDidOpacity ?? 0.55;
+        return { "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": ["interpolate", ["linear"], ["zoom"], 5, Math.min(1, op * 1.6), 8, op] };
+      } },
+      { suffix: "outline", type: "line", minzoom: 8, paint: (isDark) => gradedSeamPaint(isDark, true) },
     ],
   },
 );
