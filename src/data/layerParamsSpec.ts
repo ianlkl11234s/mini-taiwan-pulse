@@ -164,6 +164,7 @@ import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 import { FLOOD_SCENARIOS, FLOOD_SCENARIO_DEFAULT, floodScenarioLabel } from "./floodScenarios";
+import { JP_DID_DEFAULT_YEAR, JP_DID_YEARS } from "./jpNatureR2Types";
 import { REP_POINT_LAYERS, repPointDense } from "./repPointLayers";
 import {
   ALCOHOL_SERVICE_OPTIONS, CONDOM_OUTLET_OPTIONS, DUI_BASIS_OPTIONS, DUI_CLASS_OPTIONS, DUI_YEAR_OPTIONS,
@@ -797,6 +798,15 @@ const CA_OPT_PLACE_GROUP: KrOpt = [
   ["settlement", "聚落（29,754）"], ["admin", "行政區與原住民保留地（10,278）"], ["park", "公園與保護區（10,301）"], ["water", "水體（224,426）"],
   ["terrain", "山岳、地形與冰川（75,865）"], ["constructed", "人工設施（11,281）"], ["other", "其他（2,831）"],
 ];
+// 加拿大第 3 波（2026-11-06）
+const CA_OPT_CLIMATE_STATUS: KrOpt = [["active", "現役（1,160）"], ["historical", "歷史站（7,275）"]];
+const CA_OPT_NPRI_GROUP: KrOpt = [
+  ["oil_gas", "油氣開採、管線與煉製（15,673）"], ["manufacturing", "製造業（5,310）"], ["mining_metals", "礦業與金屬（1,009）"],
+  ["electricity", "電力（381）"], ["waste_water", "廢棄物與污水處理（674）"], ["other", "其他（1,493）"],
+];
+const CA_OPT_NPRI_RECENT: KrOpt = [["recent", "2023–2025 年仍申報（8,790）"], ["past", "2022 年以前停止申報（15,750）"]];
+const CA_OPT_WSER_STATUS: KrOpt = [["operational", "運轉中（2,475）"], ["decommissioned", "已除役（62）"]];
+const CA_OPT_QUAKE_CLASS: KrOpt = [["lt2", "規模 <2"], ["m2", "規模 2–3"], ["m3", "規模 3–4"], ["m4", "規模 4–5"], ["m5", "規模 ≥5"]];
 function krMulti(out: string, label: string, options: KrOpt): MultiSelectParamSpec {
   return { kind: "multiSelect", name: out.replace(/Mask$/, ""), label, default: MULTI_SELECT_ALL, options: options.map(([value, l]) => ({ label: l, value })), out };
 }
@@ -2083,7 +2093,7 @@ export const LAYER_PARAMS_SPEC = {
     ...(spec.heat ? [heatmapPalette(spec.key)] : []),
     ...(spec.geom === "point"
       ? [opacitySlider(`${spec.key}Opacity`, densePointOpacity(spec.count)), scaleSlider(`${spec.key}Scale`, 1)]
-      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : 0.7) : 0.85)]),
+      : [opacitySlider(`${spec.key}Opacity`, spec.geom === "polygon" ? (spec.key === "krNationalParks" ? 0.5 : spec.key === "krPopulationH3" ? 0.6 : 0.7) : 0.85)]),
   ]])),
   krAdminBoundaries: [
     opacitySlider("krAdminBoundariesOpacity", 0.85),
@@ -2150,6 +2160,17 @@ export const LAYER_PARAMS_SPEC = {
   ],
   caPlaceNames: [krMulti("caPlaceNamesCatMask", "地名類別", CA_OPT_PLACE_GROUP), opacitySlider("caPlaceNamesOpacity", 0.85), scaleSlider("caPlaceNamesScale", 1)],
   caHillshade: [{ kind: "slider", name: "caHillshadeOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: RASTER.sliderMin, max: RASTER.sliderMax, step: 0.05 }],
+  // 加拿大第 3 波（環境氣候、災害）＋GHSL 人口網格
+  caClimateStations: [krMulti("caClimateStationsCatMask", "狀態", CA_OPT_CLIMATE_STATUS), opacitySlider("caClimateStationsOpacity", densePointOpacity(8_435)), scaleSlider("caClimateStationsScale", 1)],
+  caAqhiStations: [opacitySlider("caAqhiStationsOpacity", 0.9), scaleSlider("caAqhiStationsScale", 1)],
+  caRadiationStations: [opacitySlider("caRadiationStationsOpacity", 0.9), scaleSlider("caRadiationStationsScale", 1)],
+  caNpriFacilities: [
+    krMulti("caNpriFacilitiesCatMask", "產業群", CA_OPT_NPRI_GROUP), krMulti("caNpriFacilitiesRecentMask", "申報狀態", CA_OPT_NPRI_RECENT),
+    heatmapPalette("caNpriFacilities"), opacitySlider("caNpriFacilitiesOpacity", densePointOpacity(24_540)), scaleSlider("caNpriFacilitiesScale", 1),
+  ],
+  caWastewaterSystems: [krMulti("caWastewaterSystemsCatMask", "狀態", CA_OPT_WSER_STATUS), opacitySlider("caWastewaterSystemsOpacity", 0.85), scaleSlider("caWastewaterSystemsScale", 1)],
+  caEarthquakes: [krMulti("caEarthquakesCatMask", "規模", CA_OPT_QUAKE_CLASS), heatmapPalette("caEarthquakes"), opacitySlider("caEarthquakesOpacity", densePointOpacity(101_365)), scaleSlider("caEarthquakesScale", 1)],
+  caPopulationGrid: [gridPalette("caPopulationGridPalette", "YlOrBr"), opacitySlider("caPopulationGridOpacity", 0.6)],
   // 英國第 1 波：海域界線（線透明度）、建成區與綠地三層（面透明度；F-1 覆蓋面階由 lineFillTiers 套）
   gbMaritimeLimits: [opacitySlider("gbMaritimeLimitsOpacity", 0.85)],
   // §3.8 V-5：點／面切換（8,716 面 < 1 萬點，不建熱區；面 z3 起已看得到，預設面）
@@ -2300,6 +2321,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   gbPollutionInventory: [opacitySlider("gbPollutionInventoryOpacity", densePointOpacity(1_450)), scaleSlider("gbPollutionInventoryScale", 1)],
+  gbPollutionInventoryEngland: [opacitySlider("gbPollutionInventoryEnglandOpacity", densePointOpacity(2_536)), scaleSlider("gbPollutionInventoryEnglandScale", 1)],
   // 英國第 12 波：公司登記／製造業（district 聚合點，大小滑桿）、殯葬（點）、養殖（點＋狀態選單，預設現役）、土壤母質（分級面）
   gbCompanies: [opacitySlider("gbCompaniesOpacity", densePointOpacity(2_835)), scaleSlider("gbCompaniesScale", 1)],
   gbManufacturing: [opacitySlider("gbManufacturingOpacity", densePointOpacity(2_698)), scaleSlider("gbManufacturingScale", 1)],
@@ -2596,6 +2618,19 @@ export const LAYER_PARAMS_SPEC = {
       out: "jpZoningUseDistrictsClassIdx", encode: ["all", ...JP_ZONING_GROUPS.map(g => g.value), ...JP_ZONING_CLASSES.map(c => String(c.code))] },
   ],
   jpNationalForests: [opacitySlider("jpNationalForestsOpacity", 0.7)],
+  // 日本第二輪（2026-11-06）：類別多選由 CATEGORY_FILTERS 自動補，點／面切換由 repPointLayers 自動補
+  jpNaturalParkAreas2015: [opacitySlider("jpNaturalParkAreas2015Opacity", 0.35)],
+  jpNationalParksMoe: [opacitySlider("jpNationalParksMoeOpacity", 0.35)],
+  jpWildlifeProtectionMoe: [opacitySlider("jpWildlifeProtectionMoeOpacity", 0.35)],
+  jpDid: [
+    opacitySlider("jpDidOpacity", 0.55),
+    {
+      // 國勢調查年份：一期一支 PMTiles，overlayRegistry 依 jpDidYearIdx 換 source url（同淹水情境）
+      kind: "select", name: "jpDidYear", label: "國勢調查年", default: JP_DID_DEFAULT_YEAR, category: "data",
+      options: JP_DID_YEARS.map((y) => ({ label: `${y} 年`, value: y })),
+      out: "jpDidYearIdx", encode: [...JP_DID_YEARS],
+    },
+  ],
   // 福祉兩層共用 PMTiles：類別 select 0=全部、色組、中分類單選（encode 順序同 jpWelfareFilter）；定位精度 0=1–3（預設）、1=全部
   jpWelfareDisability: [
     heatmapPalette("jpWelfareDisability"),

@@ -238,7 +238,11 @@ describe("黃金快照覆蓋度", () => {
     // 2026-11-04: +4 30 天地圖挑戰 Day 4 群聚 mapchallengeDay04*（模擬面板）。
     // 2026-11-05: +2 30 天地圖挑戰 Day 5 視野 mapchallengeDay05*（模擬面板）。
     // 2026-11-05: +1 古地圖 historicalMapSinica（外部 XYZ raster，7 個年代）。
-    expect(keys.length).toBe(1623);
+    // 2026-11-06: +5 南韓第 6 波（領海線、都市公園、綜合體育設施、OSM 墓地、人口 H3 網格）。
+    // 2026-11-06: +4 日本第二輪（自然公園地域 jpNaturalParkAreas2015、国立公園 jpNationalParksMoe、国指定鳥獣保護区 jpWildlifeProtectionMoe、人口集中地区 jpDid）。
+    // 2026-11-06: +7 加拿大第 3 波（氣象站、AQHI、輻射監測站、NPRI、污水系統、地震、人口網格）。
+    // 2026-11-06: +1 英格蘭污染排放申報（gbPollutionInventoryEngland，站主限定 owner-only RPC）。
+    expect(keys.length).toBe(1640);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

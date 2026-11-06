@@ -2,16 +2,19 @@ import type { AnyLayer, Map as MapboxMap } from "mapbox-gl";
 import { hookFillPaint, hookLineLayout, hookLinePaint } from "../map/lineFillSpec";
 import { LINE_WIDTH, densePointsFromZoom, heatmapMaxzoom, pointRadius, pointStrokePaint } from "../map/mapStyleScale";
 import { paramDefault } from "../data/layerParamsSpec";
-import { KR_CONGESTION_BREAKS, krSpecCatFilter, type KrLayerSpec } from "../data/krDataLayers";
+import { KR_CONGESTION_BREAKS, krRampColors, krSpecCatFilter, type KrLayerSpec } from "../data/krDataLayers";
 import { useHeatmapStyleSignature } from "../state/layerPalette";
-import { gbHeatmapBuild, useGbPmtilesLayers, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { gbHeatmapBuild, repPointSpecFor, useGbPmtilesLayers, useGbRepPointLayers, type GbRepPointsSpec, type LayerBuild, type SourceSpec } from "./useGbWaterLayers";
+import { repPointLayer, repPointModeFromIdx } from "../data/repPointLayers";
 
 /**
- * 南韓第 3–5 波 18 層的共用 hook：每層一個 PMTiles source（各自開關、靜態資料、不訂閱時間）。
+ * 南韓第 3–6 波 23 層的共用 hook：每層一個 PMTiles source（各自開關、靜態資料、不訂閱時間）。
  * 規格（來源檔、source-layer、分類、顏色）在 `data/krDataLayers.ts`；點層用 P-2 描邊與 P-1 尺寸、線層用 L-1 寬度、
  * 面層用 F-1 覆蓋面階。layer id 由規格以字面值給出（gisClickRegistry／lineFillTiers 以字面值比對）。
  * V-1（全國視角看得到）：點層 minzoom 降到圖磚起點；≥1 萬點的層（橋梁、停車場…）與使用者點名者拉遠改熱區（`spec.heat`，
  * 出點縮放＝`densePointsFromZoom`）。V-4：圖例有名目分類的層加類別多選篩選（`${key}CatMask`），點／線／面與熱區共用同一個 filter。
+ * V-5（第 6 波墓地）：`repPointLayers` 有登記的面層另畫代表點（`useGbRepPointLayers`），「面」模式才畫面。
+ * 序列分級面（第 6 波人口網格，`spec.ramp`）：色盤庫色階依固定斷點 step 上色、不畫外框。
  */
 export const krHeatmapId = (spec: KrLayerSpec) => spec.layerId.replace(/-circle$/, "-heatmap");
 /** 河川低縮放（z5–8）只畫 `waterway=river`，小溪、運河 z8 起才出（否則 2.2 萬條線糊成一片）。 */
@@ -23,8 +26,14 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 const opacityDefault = (key: string, fallback: number) => Number(paramDefault(key, `${key}Opacity`) ?? fallback);
 const scaleDefault = (key: string) => Number(paramDefault(key, `${key}Scale`) ?? 1);
 
-/** 圖層分類色：match(catProp) → 色；X003 以平日尖峰擁擠度分 4 級。 */
-export function krColorExpr(spec: KrLayerSpec): Expr | string {
+/** 圖層分類色：match(catProp) → 色；X003 以平日尖峰擁擠度分 4 級；`ramp` 依斷點 step。 */
+export function krColorExpr(spec: KrLayerSpec, isDark = true): Expr | string {
+  if (spec.ramp) {
+    const colors = krRampColors(spec, isDark);
+    const expr: unknown[] = ["step", ["to-number", ["get", spec.ramp.prop], 0], colors[0]];
+    spec.ramp.breaks.forEach((b, i) => expr.push(b, colors[i + 1]));
+    return expr;
+  }
   if (spec.key === "krSeoulSubwayCongestion") {
     const [a, b, c] = KR_CONGESTION_BREAKS;
     const cats = spec.cats!;
@@ -64,7 +73,29 @@ const setFilter = (map: MapboxMap, id: string, filter: unknown[] | null) => map.
 /** 低縮放熱區的 weight：格網計數（count）分段，避免首爾單格壓過全國。 */
 export const KR_DENSITY_WEIGHT = ["interpolate", ["linear"], ["coalesce", ["get", "count"], 1], 1, 0.05, 100, 0.3, 1000, 0.6, 10000, 1];
 
-export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: KrLayerSpec, visible: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number) {
+const kebab = (key: string) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
+/** V-5 代表點規格；沒登記的層回一組不會撞名的空殼（visible 恆為 false，hook 不畫任何東西）。 */
+function krRepPointSpec(spec: KrLayerSpec): { rep: GbRepPointsSpec; enabled: boolean } {
+  const id = kebab(spec.key);
+  const o = {
+    sourceId: `${id}-points`, heatId: `${id}-point-heatmap`, circleId: `${id}-point-circle`, attribution: spec.sourceOrg, loading: spec.loading.zh,
+    polygonMinzoom: spec.minzoom, opacityDefault: opacityDefault(spec.key, 0.7), tier: spec.tier ?? "S",
+  };
+  if (repPointLayer(spec.key)) return { rep: repPointSpecFor(spec.key, o), enabled: true };
+  return {
+    rep: { key: spec.key, source: { id: o.sourceId, file: spec.file, minzoom: 0, maxzoom: 0, attribution: o.attribution, loading: o.loading }, sourceLayer: spec.sourceLayer,
+      heatId: o.heatId, circleId: o.circleId, count: 0, polygonMinzoom: spec.minzoom, heatIntensity: 1, opacityDefault: o.opacityDefault },
+    enabled: false,
+  };
+}
+
+export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: KrLayerSpec, visibleIn: boolean, opacity: number, scale: number, isDark: boolean, catMask?: number, displayModeIdx?: number) {
+  const { rep, enabled: hasRep } = krRepPointSpec(spec);
+  const mode = hasRep ? repPointModeFromIdx(displayModeIdx, repPointLayer(spec.key)!.def) : "polygon";
+  const repHeatStyle = useHeatmapStyleSignature(hasRep ? [spec.key] : []);
+  useGbRepPointLayers(mapRef, rep, { visible: visibleIn && hasRep, mode, opacity, scale, isDark, color: krColorExpr(spec, isDark), filter: krSpecCatFilter(spec, catMask) }, repHeatStyle);
+  const visible = visibleIn && mode === "polygon";
   const source = krSourceSpec(spec);
   const heatStyle = useHeatmapStyleSignature(spec.heat ? [spec.key] : []);
   const filter = krSpecCatFilter(spec, catMask);
@@ -120,18 +151,25 @@ export function useKrDataLayer(mapRef: React.RefObject<MapboxMap | null>, spec: 
       };
       return [major, main] satisfies LayerBuild[];
     }
-    const fillPaint = (op: number) => hookFillPaint(spec.key, spec.layerId, { "fill-color": krColorExpr(spec), "fill-opacity": clamp01(op) },
-      { "fill-color": krColorExpr(spec), "fill-opacity": opacityDefault(spec.key, 0.7) }, isDark);
-    const outlineId = spec.outlineId!;
+    const fillPaint = (op: number) => hookFillPaint(spec.key, spec.layerId, { "fill-color": krColorExpr(spec, isDark), "fill-opacity": clamp01(op) },
+      { "fill-color": krColorExpr(spec, isDark), "fill-opacity": opacityDefault(spec.key, 0.7) }, isDark);
+    const fill: LayerBuild = {
+      id: spec.layerId,
+      layer: () => ({ id: spec.layerId, type: "fill", ...base, ...withFilter(filter), layout: { visibility: "none" }, paint: fillPaint(opacity) } as unknown as AnyLayer),
+      update: (map: MapboxMap) => {
+        setFilter(map, spec.layerId, filter);
+        map.setPaintProperty(spec.layerId, "fill-opacity", fillPaint(opacity)["fill-opacity"] as any);
+        if (spec.ramp) map.setPaintProperty(spec.layerId, "fill-color", fillPaint(opacity)["fill-color"] as any);
+      },
+    };
+    // 序列分級面（人口網格）：H3 格彼此相鄰，不畫外框（外框會把密集區糊成一片）
+    if (!spec.outlineId) return [fill] satisfies LayerBuild[];
+    const outlineId = spec.outlineId;
     const outlinePaint = (op: number) => hookLinePaint(spec.key, outlineId,
       { "line-color": krColorExpr(spec), "line-width": 1, "line-opacity": clamp01(op) + 0 },
       { "line-color": krColorExpr(spec), "line-width": 1, "line-opacity": opacityDefault(spec.key, 0.7) }, isDark);
     return [
-      {
-        id: spec.layerId,
-        layer: () => ({ id: spec.layerId, type: "fill", ...base, ...withFilter(filter), layout: { visibility: "none" }, paint: fillPaint(opacity) } as unknown as AnyLayer),
-        update: (map: MapboxMap) => { setFilter(map, spec.layerId, filter); map.setPaintProperty(spec.layerId, "fill-opacity", fillPaint(opacity)["fill-opacity"] as any); },
-      },
+      fill,
       {
         id: outlineId,
         layer: () => ({ id: outlineId, type: "line", ...base, ...withFilter(filter), layout: { visibility: "none", ...hookLineLayout(spec.key, outlineId) }, paint: outlinePaint(Math.min(1, opacity + 0.25)) } as unknown as AnyLayer),

@@ -116,6 +116,7 @@ export type ExpandableLayerKey =
   | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
   | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
   | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+  | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
   | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
@@ -440,13 +441,13 @@ export type ExpandableLayerKey =
   | "jpWelfareDisability" | "jpWelfareChild" | "jpMajorRoads" | "jpExpressways" | "jpGsiHillshade" | "jpGsiRelief" | "historicalMapSinica"
   | "gbAdminBoundaries" | "gbSmallAreaBoundaries"
   | "krAdminBoundaries" | KrDataKey
-  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade"
+  | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caHillshade" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caPopulationGrid"
   | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
   | "gbMaritimeLimits" | "gbBuiltUpAreas" | "gbGreenspace" | "gbSportsFacilities" | "gbGolfCourses" | "gbCemeteries"
   | "gbRivers" | "gbHydroStations" | "gbFloodDefenceAssets" | "gbCoastalErosionRisk" | "gbBathingWaters"
   | "gbTransportHubs" | "gbStationUsage" | "gbLondonRailLines" | "gbLondonStations" | "gbLondonBikePoints" | "gbLondonJamCams" | "gbLondonChargingZones"
   | "gbMajorRoads" | "gbTrafficCountsAadf"
-  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+  | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
   | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
   | "gbProtectedAreas" | "gbMarineProtectedAreas" | "gbWoodland" | "gbForestRecreation" | "gbTrails" | "gbOpenAccessLand" | "gbTreeProtection"
   | "gbPowerPlants" | "gbRenewables" | "gbPowerLines" | "gbSubstations" | "gbFuelStations" | "gbOilGasFields"
@@ -808,6 +809,7 @@ export interface FeatureInfo {
     | "harmReductionAlcohol" | "harmReductionPrep" | "harmReductionInternetAddiction" | "harmReductionAftercare" | "harmReductionSmokingCessation" | "harmReductionAntiDrugPharmacies" | "harmReductionCondomOutlets" | "harmReductionTherapeuticCommunities" | "harmReductionDuiCrashes"
     | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
     | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
+    | "jpNaturalParkAreas2015" | "jpNationalParksMoe" | "jpWildlifeProtectionMoe" | "jpDid"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
@@ -996,7 +998,7 @@ export interface FeatureInfo {
     // 南韓第 0 波：行政邊界（시·도／시군구／행정동）
     | "krAdminBoundaries" | KrDataKey
     // 加拿大第 0＋1 波
-    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames"
+    | "caAdminBoundaries" | "caTransitStops" | "caAirportsPorts" | "caMajorRoads" | "caRailways" | "caPowerPlants" | "caWindTurbines" | "caPowerGrid" | "caOilGas" | "caPopulationCentres" | "caFederalDistricts" | "caPostalFsa" | "caIndigenousLands" | "caDeprivation" | "caRents" | "caPlaceNames" | "caClimateStations" | "caAqhiStations" | "caRadiationStations" | "caNpriFacilities" | "caWastewaterSystems" | "caEarthquakes" | "caPopulationGrid"
     // 南韓第 1 波：交通 6 層、能源 7 個 key
     | "krBusStops" | "krRailStations" | "krAirports" | "krPorts" | "krNationalRoads" | "krRailLines" | "krFuelStations" | "krPowerPlants" | "krRenewables" | "krPowerLines" | "krSubstations" | "krPowerTowers" | "krOilGas"
     // 英國第 1 波：海域界線、建成區、綠地三層（地形 raster 待 PNG 重匯出，未接）
@@ -1008,7 +1010,7 @@ export interface FeatureInfo {
     // 英國第 10 波：主要路網、AADF 交通計數點
     | "gbMajorRoads" | "gbTrafficCountsAadf"
     // 英國第 11 波：規劃限制區、棕地、回收點、廢棄物許可、污染排放（蘇格蘭）、噪音
-    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbNoise"
+    | "gbPlanningConstraints" | "gbBrownfield" | "gbRecyclingCentres" | "gbWastePermits" | "gbPollutionInventory" | "gbPollutionInventoryEngland" | "gbNoise"
     // 英國第 12 波：公司登記、製造業、殯葬、養殖、土壤母質
     | "gbCompanies" | "gbManufacturing" | "gbFuneral" | "gbAquaculture" | "gbSoilParentMaterial"
     // 英國第 5 波：保護區、海洋保護區、林地、森林遊憩、步道、開放進入地、樹木保護
@@ -1258,6 +1260,10 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   accessibleParkFacilities: boolean;
   bicycleSupport: boolean;
   nationalParks: boolean;
+  jpNaturalParkAreas2015: boolean;  // 日本 自然公園地域（KSJ A10 2015，三區分巢狀，無名稱／種別）
+  jpNationalParksMoe: boolean;      // 日本 国立公園（環境省 令和7年4月，35 園 ZONE 7 類）
+  jpWildlifeProtectionMoe: boolean; // 日本 国指定鳥獣保護区（環境省 令和7年4月，347 面）
+  jpDid: boolean;                   // 日本 人口集中地区 DID（KSJ A16 1995–2015 五期，年份換檔）
   visitorCentres: boolean;
   publicLifeOsmCoverage: boolean;
   submarineCables: boolean;
@@ -1885,6 +1891,13 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   caRents: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
   caPlaceNames: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
   caHillshade: boolean;   // 加拿大第 2 波（PMTiles，public/world/ca_*.pmtiles）
+  caClimateStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caAqhiStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caRadiationStations: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caNpriFacilities: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caWastewaterSystems: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caEarthquakes: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
+  caPopulationGrid: boolean;   // 加拿大第 3 波（PMTiles，public/world/ca_*.pmtiles）
   krBusStops: boolean;        // 南韓全國公車站（PMTiles point，227,059；TAGO 彙整）
   krRailStations: boolean;    // 南韓鐵道車站（KORAIL＋都市鐵道，955）
   krAirports: boolean;        // 南韓機場（KAC 14＋仁川 OSM，15）
@@ -1923,7 +1936,8 @@ export interface LayerVisibility extends Record<KrDataKey | ComparisonStatistics
   gbBrownfield: boolean;        // 英格蘭棕地登記冊（Planning Data，30,303 點）
   gbRecyclingCentres: boolean;  // 英國回收點（OSM，12,959 點）
   gbWastePermits: boolean;      // 英國廢棄物處理許可（EA／SEPA／NIEA，8,711 點）
-  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭暫未顯示）
+  gbPollutionInventory: boolean; // 蘇格蘭污染排放申報（SEPA SPRI 2017，1,450 點；英格蘭另見 gbPollutionInventoryEngland）
+  gbPollutionInventoryEngland: boolean; // 英格蘭污染排放申報（EA Pollution Inventory 2024，2,536 點；站主限定 owner-only RPC get_gb_ea_pollution_inventory）
   gbNoise: boolean;             // 英國策略噪音地圖（Lden，141,566 面）
   gbCompanies: boolean;         // 英國公司登記（Companies House，郵遞區號 district 聚合 2,835 點）
   gbManufacturing: boolean;     // 英國製造業公司（同檔 c_C，2,698 點）

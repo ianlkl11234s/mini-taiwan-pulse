@@ -3,7 +3,8 @@ import { LegendNote, LegendRow, LegendTitle, SwatchDot, SwatchSquare } from "./l
 import { DenseHeatmapLegendRow } from "./legendShared";
 import { LAYER_MANIFEST, type LayerName } from "../../data/layerManifest";
 import {
-  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_ENV_FALLBACK_COLOR,
+  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_STATUSES, GB_CONSERVATION_BY_NATION, GB_EA_POLLUTION_ATTRIBUTION,
+  GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_YEAR, GB_ENV_FALLBACK_COLOR,
   GB_ENV_HOLLOW_STROKE, GB_NOISE_ATTRIBUTION, GB_NOISE_BANDS, GB_NOISE_SOURCE_COUNTS, GB_PLANNING_ATTRIBUTION, GB_PLANNING_CONSTRAINTS,
   GB_POLLUTION_ATTRIBUTION, GB_POLLUTION_COLOR, GB_POLLUTION_COUNTS, GB_POLLUTION_YEAR, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_BY_NATION,
   GB_RECYCLING_CENTRE_MINZOOM, GB_RECYCLING_CONTAINER_MINZOOM, GB_RECYCLING_KINDS, GB_RECYCLING_OSM_TIME, GB_WASTE_AUTHORITIES,
@@ -130,6 +131,21 @@ export function GbPollutionInventoryLegend() {
     <LegendNote>{i18n.t("legend.environment.gbPolEngland")}</LegendNote>
     <LegendNote>{i18n.t("legend.environment.gbPolUncovered")}</LegendNote>
     <LegendNote>{GB_POLLUTION_ATTRIBUTION}</LegendNote>
+  </div>;
+}
+
+/** 英格蘭污染排放申報（EA，站主限定）：配色同蘇格蘭層；有申報排放量實心、無申報空心。 */
+export function GbPollutionInventoryEnglandLegend() {
+  const i18n = useLocale();
+  const n = (v: number) => i18n.formatNumber(v);
+  return <div>
+    <LegendTitle zh={layerTitle("gbPollutionInventoryEngland", i18n)} en="Pollution Release Sites (EA, England)" />
+    <LegendRow swatch={<SwatchDot color={GB_POLLUTION_COLOR} />}>{i18n.t("legend.environment.gbEaReleased", { n: n(GB_EA_POLLUTION_COUNTS.released) })}</LegendRow>
+    <LegendRow swatch={<SwatchDot color="transparent" stroke={GB_POLLUTION_COLOR} strokeWidth={GB_ENV_HOLLOW_STROKE} />}>{i18n.t("legend.environment.gbEaNone", { n: n(GB_EA_POLLUTION_COUNTS.none) })}</LegendRow>
+    <LegendNote>{i18n.t("legend.environment.gbEaEngland", { n: n(GB_EA_POLLUTION_COUNTS.total) })}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.gbEaLicence", { year: GB_EA_POLLUTION_YEAR })}</LegendNote>
+    <LegendNote>{i18n.t("legend.environment.gbEaExcluded", { n: n(GB_EA_POLLUTION_COUNTS.excluded) })}</LegendNote>
+    <LegendNote>{GB_EA_POLLUTION_ATTRIBUTION}</LegendNote>
   </div>;
 }
 

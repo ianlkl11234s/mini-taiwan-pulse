@@ -6,13 +6,13 @@
  *   - `layerParamsSpec`：每層加「樣式（點位／面）」選單、≥ 1 萬點加「熱區顏色」、加「大小」滑桿；
  *   - `map/repPointOverlays`：registry 圖層（`family: "registry"`）自動產生第二個 config（同 id、代表點 source）；
  *   - `gisClickRegistry`：代表點 circle 的點擊彈窗沿用面層的 FeatureInfo 類型；
- *   - 日本／農業的 hook 與 factory（`family: "jpHook" | "jpTourism" | "agri"`）讀這張表取檔案與預設。
+ *   - 日本／農業的 hook 與 factory（`family: "jpHook" | "jpTourism" | "agri"`）、南韓 `useKrDataLayers`（`krData`）讀這張表取檔案與預設。
  *
  * 切換語意（與 `jpAirports`、英國 `gbDisplayModeFromIdx` 一致）：select 的 encode 順序 `[point, polygon]`，
  * 0＝點、1＝面。預設：小而零散的面（墓區、湖泊埤塘、樹穴、保護區類、產業園區…）點，大範圍面（分區、淹水、土壤、作物…）面。
  */
 export type RepPointDisplayMode = "point" | "polygon";
-export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism" | "jpGeojson";
+export type RepPointFamily = "registry" | "agri" | "jpHook" | "jpTourism" | "jpGeojson" | "krData";
 
 export interface RepPointLayer {
   /** 圖層 key（LayerVisibility） */
@@ -135,7 +135,13 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   { key: "jpWildlifeProtectionNational", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDesignatedArea", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
   { key: "jpWildlifeSpecialProtectionDistrict", family: "jpTourism", file: "jp_wildlife_protection_moe_202504_points.pmtiles", sourceLayer: "jp_wildlife_protection_moe_202504_points", count: 347, def: "point" },
+  // 日本第二輪（2026-11-06）registry 面層：自然公園／国立公園預設面（大範圍），鳥獣保護区小而零散預設點
+  R({ key: "jpNaturalParkAreas2015", sourceId: "jp-natural-park-areas-2015", file: "world/jp_natural_park_areas_ksj_2015_points.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015_points", count: 19_193, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpNationalParksMoe", sourceId: "jp-national-parks-moe", file: "world/jp_national_parks_moe_r7_points.pmtiles", sourceLayer: "jp_national_parks_moe_r7_points", count: 15_293, def: "polygon", heatIntensity: 0.3 }),
+  R({ key: "jpWildlifeProtectionMoe", sourceId: "jp-wildlife-protection-moe", file: "world/jp_wildlife_protection_areas_moe_r7_points.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7_points", count: 347, def: "point" }),
   { key: "jpMarineEbsaCoastal", family: "jpTourism", file: "jp_marine_ebsa_moe_coastal_20150101_points.pmtiles", sourceLayer: "jp_marine_ebsa_coastal_points", count: 270, def: "point" },
+  // ── 南韓：useKrDataLayers 規格驅動層（circle id＝`${kebab(key)}-point-circle`，面＝規格 layerId） ──
+  { key: "krCemeteriesOsm", family: "krData", file: "kr_cemeteries_osm_points.pmtiles", sourceLayer: "kr_cemeteries_osm_points", count: 16_842, def: "point", maxzoom: 14, heatIntensity: 0.05 },
 ];
 
 const BY_KEY = new Map(REP_POINT_LAYERS.map((l) => [l.key, l]));

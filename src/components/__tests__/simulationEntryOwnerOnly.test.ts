@@ -25,22 +25,19 @@ const baseProps = {
 const rail = (extra: object) => renderToStaticMarkup(createElement(IconRailSidebar, { ...baseProps, ...extra } as never));
 const mobile = (extra: object) => renderToStaticMarkup(createElement(LayerSidebar, { ...baseProps, isMobile: true, ...extra } as never));
 
-describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11-01 改 D-1）", () => {
-  it("resolveLayerPanel：非站主只見交通可及性兩層；站主四層", () => {
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
-    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW", true).themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
+describe("模擬入口與實驗人人可見；站主限定實驗對非站主顯示鎖頭列、不濾掉（2026-11-06 統一）", () => {
+  it("resolveLayerPanel：站主與非站主同一份清單", () => {
+    expect(getThemeLayerKeys(resolveLayerPanel("simulation", "TW").themes)).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
     expect(LAYER_PANELS[LAYER_PANELS.length - 1]!.id).toBe("simulation");
   });
 
-  it("非站主的模擬面板不含任何 GATED_LAYERS", () => {
-    expect([...panelLayerKeys("simulation")].filter((key) => GATED_LAYERS.has(key as keyof LayerVisibility))).toEqual([]);
+  it("站主限定實驗留在模擬面板（由 lockedKeys 上鎖）；交通可及性公開", () => {
+    expect([...panelLayerKeys("simulation")].filter((key) => GATED_LAYERS.has(key as keyof LayerVisibility))).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim"]);
     expect(GATED_LAYERS.has("transitReachGrid")).toBe(false);
     expect(GATED_LAYERS.has("transitReachPlayback")).toBe(false);
   });
 
-  it("桌機 rail：站主、非站主與未傳（載入中）都有「模擬」按鈕", () => {
-    expect(rail({ simulationOwner: true })).toContain("模擬 Simulation");
-    expect(rail({ simulationOwner: false })).toContain("模擬 Simulation");
+  it("桌機 rail：都有「模擬」按鈕", () => {
     expect(rail({})).toContain("模擬 Simulation");
   });
 
@@ -54,7 +51,7 @@ describe("模擬入口人人可見，站主限定實驗只列給站主（2026-11
 
 describe("雙北跨河橋梁韌性搬到模擬面板（D-6）", () => {
   it("模擬面板是橋梁韌性＋公車擁擠；BSS 兩層留在台灣入口", () => {
-    expect([...panelLayerKeys("simulation", "TW", true)]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
+    expect([...panelLayerKeys("simulation", "TW")]).toEqual(["bridgeResilienceTwinCity", "busCrowdingSim", "transitReachGrid", "transitReachPlayback", "transitAccessGrid", "transitAccessPlayback", "freewayTdcsSim", "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh", "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns"]);
     const main = new Set(getThemeLayerKeys(MAIN_THEMES));
     expect(main.has("bridgeResilienceTwinCity")).toBe(false);
     expect(main.has("bssNationalBridgePreview")).toBe(true);

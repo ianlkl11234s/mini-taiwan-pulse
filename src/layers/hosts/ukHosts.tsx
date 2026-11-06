@@ -13,6 +13,7 @@ import { useGbEarthquakesLayer, useGbGroundStabilityLayer, useGbLandslideLayer, 
 import { useGbCareHomesLayer, useGbCareServicesLayer, useGbCourtsLayer, useGbFireStationsLayer, useGbHealthFacilitiesLayer, useGbSchoolsLayer } from "../../hooks/useGbCivicLayers";
 import { useGbFuelStationsLayer, useGbOilGasFieldsLayer, useGbPowerLinesLayer, useGbPowerPlantsLayer, useGbRenewablesLayer, useGbSubstationsLayer } from "../../hooks/useGbEnergyLayers";
 import { useGbForestRecreationLayer, useGbMarineProtectedAreasLayer, useGbOpenAccessLandLayer, useGbProtectedAreasLayer, useGbTrailsLayer, useGbTreeProtectionLayer, useGbWoodlandLayer } from "../../hooks/useGbNatureLayers";
+import { useGbEaPollutionInventoryLayer } from "../../hooks/useGbEaPollutionInventoryLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -416,6 +417,13 @@ export const GbPollutionInventoryHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGbPollutionInventoryLayer");
   const p = useKeyOverlayParams("gbPollutionInventory");
   useGbPollutionInventoryLayer(deps.mapRef, deps.layerVisibility.gbPollutionInventory, p.gbPollutionInventoryOpacity ?? 0.8, p.gbPollutionInventoryScale ?? 1, deps.isDarkTheme);
+  return null;
+};
+
+/** 英格蘭污染排放申報（EA，站主限定 owner-only RPC）：只供資料，樣式在 overlayRegistry。 */
+export const GbPollutionInventoryEnglandHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGbEaPollutionInventoryLayer");
+  useGbEaPollutionInventoryLayer(deps.mapRef, deps.layerVisibility.gbPollutionInventoryEngland);
   return null;
 };
 

@@ -229,6 +229,7 @@
   "theme.農業統計": "農業統計",
   "theme.運動休閒 Sports & Leisure": "スポーツ・レジャー",
   "theme.運動場館": "スポーツ施設",
+  "theme.運動休閒": "スポーツ・レジャー",
   "theme.道路底圖": "道路ベースマップ",
   "theme.避難設施": "避難施設",
   "theme.警報與疏散": "警報・避難",
@@ -426,5 +427,6 @@
   "theme.Day 4 群聚 Clusters": "Day 4 クラスター",
   "theme.Day 5 視野 Perspectives": "Day 5 視点",
   "theme.歷史地圖": "歴史地図",
-  "theme.歷史底圖 Historical Basemaps": "歴史地図"
+  "theme.歷史底圖 Historical Basemaps": "歴史地図",
+  "theme.自然公園 Natural Parks": "自然公園"
 }

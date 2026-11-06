@@ -65,6 +65,10 @@ export const FILL_TIERS: Partial<Record<keyof LayerVisibility, FillTier | "keep"
   mapchallengeDay04ScaleTcCh: "grid", // 30 天地圖挑戰 Day 4 臺中與彰化工廠細格
   manufacturingCompanyDensityGrid: "grid", // 製造業公司登記密度 Manufacturing Registry Density
   nationalParks: "coverage", // 國家（自然）公園 National Parks
+  jpNaturalParkAreas2015: "coverage", // 日本 自然公園地域 2015
+  jpNationalParksMoe: "coverage", // 日本 国立公園（環境省 令和7）
+  jpWildlifeProtectionMoe: "coverage", // 日本 国指定鳥獣保護区（環境省 令和7）
+  jpDid: "graded", // 日本 人口集中地区 DID
   noiseCaptureGrid: "keep", // NoiseCapture 公民格網
   noiseControlZones: "background", // 噪音管制區 Control Zones
   nonUrbanZoning: "coverage", // 非都市土地使用分區 Non-Urban Zoning
@@ -333,6 +337,9 @@ export const HOOK_FILL_TIERS: Readonly<Record<string, FillTier | "keep">> = {
   "caDeprivation/ca-cimd-na-fill": "coverage", // 無指數＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
   "caRents/ca-rents-fill": "graded", // 平均月租 5 級（YlOrBr）· src/hooks/useCaAreaLayers.ts
   "caRents/ca-rents-na-fill": "coverage", // 不公布＝缺值斜線（F-3）· src/hooks/useCaAreaLayers.ts
+  "caPopulationGrid/ca-population-grid-r5-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r5）· src/hooks/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r6-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r6）· src/hooks/useCaEnvLayers.ts
+  "caPopulationGrid/ca-population-grid-r7-fill": "graded", // GHSL 人口密度 7 級（YlOrBr，H3 r7）· src/hooks/useCaEnvLayers.ts
   "gbBuiltUpAreas/gb-built-up-areas-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbGreenspace/gb-greenspace-park-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts
   "gbSportsFacilities/gb-greenspace-sports-fill": "coverage", // src/hooks/useGbOpenSpaceLayers.ts

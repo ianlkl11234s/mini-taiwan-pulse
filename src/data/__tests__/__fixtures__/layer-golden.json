@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1623,
+    "keyCount": 1640,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1018,6 +1018,36 @@
     },
     {
       "layers": [
+        "jp-natural-park-areas-2015-fill",
+        "jp-natural-park-areas-2015-points-circle-point",
+        "jp-natural-park-areas-2015-points-circle-polygon"
+      ],
+      "type": "jpNaturalParkAreas2015"
+    },
+    {
+      "layers": [
+        "jp-national-parks-moe-fill",
+        "jp-national-parks-moe-points-circle-point",
+        "jp-national-parks-moe-points-circle-polygon"
+      ],
+      "type": "jpNationalParksMoe"
+    },
+    {
+      "layers": [
+        "jp-wildlife-protection-moe-fill",
+        "jp-wildlife-protection-moe-points-circle-point",
+        "jp-wildlife-protection-moe-points-circle-polygon"
+      ],
+      "type": "jpWildlifeProtectionMoe"
+    },
+    {
+      "layers": [
+        "jp-did-fill"
+      ],
+      "type": "jpDid"
+    },
+    {
+      "layers": [
         "jp-welfare-disability-circle"
       ],
       "type": "jpWelfareDisability"
@@ -1605,6 +1635,12 @@
     },
     {
       "layers": [
+        "gb-ea-pollution-inventory-circle"
+      ],
+      "type": "gbPollutionInventoryEngland"
+    },
+    {
+      "layers": [
         "gb-waste-permits-circle"
       ],
       "type": "gbWastePermits"
@@ -1881,9 +1917,27 @@
     },
     {
       "layers": [
+        "kr-urban-parks-circle"
+      ],
+      "type": "krUrbanParks"
+    },
+    {
+      "layers": [
+        "kr-sports-facilities-circle"
+      ],
+      "type": "krSportsFacilities"
+    },
+    {
+      "layers": [
         "kr-np-trails-line"
       ],
       "type": "krNpTrails"
+    },
+    {
+      "layers": [
+        "kr-territorial-sea-line"
+      ],
+      "type": "krTerritorialSea"
     },
     {
       "layers": [
@@ -1903,6 +1957,19 @@
         "kr-national-parks-fill"
       ],
       "type": "krNationalParks"
+    },
+    {
+      "layers": [
+        "kr-cemeteries-osm-fill",
+        "kr-cemeteries-osm-point-circle"
+      ],
+      "type": "krCemeteriesOsm"
+    },
+    {
+      "layers": [
+        "kr-population-h3-fill"
+      ],
+      "type": "krPopulationH3"
     },
     {
       "layers": [
@@ -2027,6 +2094,43 @@
     },
     {
       "layers": [
+        "ca-climate-stations-circle"
+      ],
+      "type": "caClimateStations"
+    },
+    {
+      "layers": [
+        "ca-aqhi-stations-circle"
+      ],
+      "type": "caAqhiStations"
+    },
+    {
+      "layers": [
+        "ca-radiation-stations-circle"
+      ],
+      "type": "caRadiationStations"
+    },
+    {
+      "layers": [
+        "ca-npri-facilities-circle"
+      ],
+      "type": "caNpriFacilities"
+    },
+    {
+      "layers": [
+        "ca-wastewater-systems-circle"
+      ],
+      "type": "caWastewaterSystems"
+    },
+    {
+      "layers": [
+        "ca-earthquakes-major-circle",
+        "ca-earthquakes-circle"
+      ],
+      "type": "caEarthquakes"
+    },
+    {
+      "layers": [
         "ca-indigenous-lands-points-circle"
       ],
       "type": "caIndigenousLands"
@@ -2106,6 +2210,14 @@
         "ca-population-centres-fill"
       ],
       "type": "caPopulationCentres"
+    },
+    {
+      "layers": [
+        "ca-population-grid-r7-fill",
+        "ca-population-grid-r6-fill",
+        "ca-population-grid-r5-fill"
+      ],
+      "type": "caPopulationGrid"
     },
     {
       "layers": [
@@ -14740,6 +14852,138 @@
         "circle"
       ],
       "sourceId": "election-events-2026",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "gbPollutionInventoryEngland",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#0a0a14",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.9,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "gb-ea-pollution-inventory",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -100640,6 +100884,1169 @@
       ],
       "sourceId": "mapchallenge-day05-sea-view-runs",
       "sourceUrl": "./mapchallenge/day05_sea_view_runs.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNaturalParkAreas2015",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "level"
+                ],
+                1
+              ],
+              "visibility": "visible"
+            },
+            "light": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "level"
+                ],
+                1
+              ],
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_natural_park_areas_ksj_2015"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-natural-park-areas-2015",
+      "sourceUrl": "./world/jp_natural_park_areas_ksj_2015.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNaturalParkAreas2015",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(34,89,165,0.00)",
+                0.05,
+                "rgba(34,89,165,0.11)",
+                0.15,
+                "rgba(32,119,180,0.33)",
+                0.3,
+                "rgba(33,150,192,0.66)",
+                0.45,
+                "rgba(62,179,196,0.99)",
+                0.6,
+                "rgba(125,204,187,1.00)",
+                0.8,
+                "rgba(181,226,182,1.00)",
+                1,
+                "rgba(234,247,177,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(68,183,196,0.00)",
+                0.05,
+                "rgba(68,183,196,0.11)",
+                0.15,
+                "rgba(41,157,193,0.33)",
+                0.3,
+                "rgba(30,131,185,0.66)",
+                0.45,
+                "rgba(33,104,173,0.99)",
+                0.6,
+                "rgba(35,77,160,1.00)",
+                0.8,
+                "rgba(35,50,143,1.00)",
+                1,
+                "rgba(17,36,107,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "level"
+                  ]
+                ],
+                "1",
+                "#a3e635",
+                "2",
+                "#22c55e",
+                "3",
+                "#15803d",
+                "#22c55e"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_natural_park_areas_ksj_2015_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "circle-point"
+      ],
+      "sourceId": "jp-natural-park-areas-2015-points",
+      "sourceUrl": "./world/jp_natural_park_areas_ksj_2015_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNationalParksMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "-",
+                10,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_rank"
+                  ],
+                  7
+                ]
+              ],
+              "visibility": "visible"
+            },
+            "light": {
+              "fill-sort-key": [
+                "-",
+                10,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_rank"
+                  ],
+                  7
+                ]
+              ],
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_national_parks_moe_r7"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-national-parks-moe",
+      "sourceUrl": "./world/jp_national_parks_moe_r7.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpNationalParksMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "maxzoom": 10.01,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(54,92,141,0.00)",
+                0.05,
+                "rgba(54,92,141,0.11)",
+                0.15,
+                "rgba(40,124,142,0.33)",
+                0.3,
+                "rgba(31,154,138,0.66)",
+                0.45,
+                "rgba(52,183,121,0.99)",
+                0.6,
+                "rgba(111,207,88,1.00)",
+                0.8,
+                "rgba(184,222,41,1.00)",
+                1,
+                "rgba(253,231,37,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            },
+            "light": {
+              "heatmap-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "heatmap-density"
+                ],
+                0,
+                "rgba(70,192,111,0.00)",
+                0.05,
+                "rgba(70,192,111,0.11)",
+                0.15,
+                "rgba(33,166,133,0.33)",
+                0.3,
+                "rgba(35,138,141,0.66)",
+                0.45,
+                "rgba(46,110,142,0.99)",
+                0.6,
+                "rgba(60,78,138,1.00)",
+                0.8,
+                "rgba(71,43,122,1.00)",
+                1,
+                "rgba(70,8,92,1.00)"
+              ],
+              "heatmap-intensity": [
+                "interpolate",
+                [
+                  "exponential",
+                  2
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.001171875,
+                12,
+                0.3
+              ],
+              "heatmap-opacity": 0.8,
+              "heatmap-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                6,
+                10,
+                12,
+                14,
+                20
+              ],
+              "heatmap-weight": 1
+            }
+          },
+          "suffix": "heat-point",
+          "type": "heatmap"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "zone"
+                  ]
+                ],
+                "特別保護地区",
+                "#dc2626",
+                "第1種特別地域",
+                "#f97316",
+                "第2種特別地域",
+                "#facc15",
+                "第3種特別地域",
+                "#84cc16",
+                "普通地域",
+                "#15803d",
+                "海域公園地区",
+                "#0ea5e9",
+                "区分未定",
+                "#9ca3af",
+                "#9ca3af"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_national_parks_moe_r7_points"
+      },
+      "rebuildOnParamChange": [
+        "heat-point",
+        "circle-point"
+      ],
+      "sourceId": "jp-national-parks-moe-points",
+      "sourceUrl": "./world/jp_national_parks_moe_r7_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpWildlifeProtectionMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "class_rank"
+                ],
+                1
+              ],
+              "visibility": "none"
+            },
+            "light": {
+              "fill-sort-key": [
+                "to-number",
+                [
+                  "get",
+                  "class_rank"
+                ],
+                1
+              ],
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "jp_wildlife_protection_areas_moe_r7"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-wildlife-protection-moe",
+      "sourceUrl": "./world/jp_wildlife_protection_areas_moe_r7.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpWildlifeProtectionMoe",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "category"
+                  ]
+                ],
+                "集団渡来地",
+                "#0ea5e9",
+                "集団繁殖地",
+                "#f59e0b",
+                "希少鳥獣生息地",
+                "#a855f7",
+                "大規模生息地",
+                "#22c55e",
+                "#a855f7"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "jp_wildlife_protection_areas_moe_r7_points"
+      },
+      "rebuildOnParamChange": [
+        "circle-point"
+      ],
+      "sourceId": "jp-wildlife-protection-moe-points",
+      "sourceUrl": "./world/jp_wildlife_protection_areas_moe_r7_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpDid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "/",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "population"
+                    ],
+                    0
+                  ],
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_km2"
+                      ],
+                      0
+                    ],
+                    0.0001
+                  ]
+                ],
+                "#365c8d",
+                6000,
+                "#1f9a8a",
+                8000,
+                "#6fcf58",
+                10000,
+                "#fde725"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "/",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "population"
+                    ],
+                    0
+                  ],
+                  [
+                    "max",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "area_km2"
+                      ],
+                      0
+                    ],
+                    0.0001
+                  ]
+                ],
+                "#46c06f",
+                6000,
+                "#238a8d",
+                8000,
+                "#3c4e8a",
+                10000,
+                "#46085c"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#0a0a14",
+              "line-opacity": 0.6,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#ffffff",
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "jp_did"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "jp-did",
+      "sourceUrl": "./world/jp_did_ksj_2015.pmtiles"
     }
   ],
   "params": {
@@ -104695,6 +106102,64 @@
         "valueText": "1.0"
       }
     ],
+    "caAqhiStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caClimateStations": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "現役（1,160）",
+            "value": "active"
+          },
+          {
+            "label": "歷史站（7,275）",
+            "value": "historical"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "active",
+          "historical"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "caDeprivation": [
       {
         "label": "剝奪面向",
@@ -104727,6 +106192,136 @@
         "step": 0.05,
         "value": 0.55,
         "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caEarthquakes": [
+      {
+        "label": "規模",
+        "options": [
+          {
+            "label": "規模 <2",
+            "value": "lt2"
+          },
+          {
+            "label": "規模 2–3",
+            "value": "m2"
+          },
+          {
+            "label": "規模 3–4",
+            "value": "m3"
+          },
+          {
+            "label": "規模 4–5",
+            "value": "m4"
+          },
+          {
+            "label": "規模 ≥5",
+            "value": "m5"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "lt2",
+          "m2",
+          "m3",
+          "m4",
+          "m5"
+        ]
+      },
+      {
+        "defaultValue": "rocket",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "rocket"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
       },
       {
         "label": "大小 1.0",
@@ -104855,6 +106450,159 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "caNpriFacilities": [
+      {
+        "label": "產業群",
+        "options": [
+          {
+            "label": "油氣開採、管線與煉製（15,673）",
+            "value": "oil_gas"
+          },
+          {
+            "label": "製造業（5,310）",
+            "value": "manufacturing"
+          },
+          {
+            "label": "礦業與金屬（1,009）",
+            "value": "mining_metals"
+          },
+          {
+            "label": "電力（381）",
+            "value": "electricity"
+          },
+          {
+            "label": "廢棄物與污水處理（674）",
+            "value": "waste_water"
+          },
+          {
+            "label": "其他（1,493）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "oil_gas",
+          "manufacturing",
+          "mining_metals",
+          "electricity",
+          "waste_water",
+          "other"
+        ]
+      },
+      {
+        "label": "申報狀態",
+        "options": [
+          {
+            "label": "2023–2025 年仍申報（8,790）",
+            "value": "recent"
+          },
+          {
+            "label": "2022 年以前停止申報（15,750）",
+            "value": "past"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "recent",
+          "past"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "caOilGas": [
@@ -105164,6 +106912,94 @@
         "value": "polygon"
       }
     ],
+    "caPopulationGrid": [
+      {
+        "defaultValue": "YlOrBr",
+        "label": "網格顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "grid",
+        "type": "palette",
+        "value": "YlOrBr"
+      },
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "caPostalFsa": [
       {
         "label": "都市／農村",
@@ -105380,6 +107216,26 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caRadiationStations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.9,
+        "valueText": "0.90"
       },
       {
         "label": "大小 1.0",
@@ -105609,6 +107465,44 @@
         "step": 0.05,
         "value": 0.6,
         "valueText": "0.60"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "caWastewaterSystems": [
+      {
+        "label": "狀態",
+        "options": [
+          {
+            "label": "運轉中（2,475）",
+            "value": "operational"
+          },
+          {
+            "label": "已除役（62）",
+            "value": "decommissioned"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "operational",
+          "decommissioned"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
       },
       {
         "label": "大小 1.0",
@@ -114163,6 +116057,26 @@
         "valueText": "1.0"
       }
     ],
+    "gbPollutionInventoryEngland": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "gbPowerLines": [
       {
         "label": "透明度 0.85",
@@ -119679,6 +121593,44 @@
         "valueText": "0.75"
       }
     ],
+    "jpDid": [
+      {
+        "label": "國勢調查年",
+        "options": [
+          {
+            "label": "1995 年",
+            "value": "1995"
+          },
+          {
+            "label": "2000 年",
+            "value": "2000"
+          },
+          {
+            "label": "2005 年",
+            "value": "2005"
+          },
+          {
+            "label": "2010 年",
+            "value": "2010"
+          },
+          {
+            "label": "2015 年",
+            "value": "2015"
+          }
+        ],
+        "type": "select",
+        "value": "2015"
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      }
+    ],
     "jpEvacuationSites": [
       {
         "label": "類別",
@@ -120902,6 +122854,296 @@
         "step": 0.05,
         "value": 0.7,
         "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "jpNationalParksMoe": [
+      {
+        "label": "地種區分",
+        "options": [
+          {
+            "label": "特別保護地區",
+            "value": "特別保護地区"
+          },
+          {
+            "label": "第 1 種特別地域",
+            "value": "第1種特別地域"
+          },
+          {
+            "label": "第 2 種特別地域",
+            "value": "第2種特別地域"
+          },
+          {
+            "label": "第 3 種特別地域",
+            "value": "第3種特別地域"
+          },
+          {
+            "label": "普通地域",
+            "value": "普通地域"
+          },
+          {
+            "label": "海域公園地區",
+            "value": "海域公園地区"
+          },
+          {
+            "label": "區分未定",
+            "value": "区分未定"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "特別保護地区",
+          "第1種特別地域",
+          "第2種特別地域",
+          "第3種特別地域",
+          "普通地域",
+          "海域公園地区",
+          "区分未定"
+        ]
+      },
+      {
+        "defaultValue": "viridis",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "viridis"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
+      }
+    ],
+    "jpNaturalParkAreas2015": [
+      {
+        "label": "地域區分",
+        "options": [
+          {
+            "label": "自然公園地域（外圍）",
+            "value": "1"
+          },
+          {
+            "label": "特別地域",
+            "value": "2"
+          },
+          {
+            "label": "特別保護地區",
+            "value": "3"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "defaultValue": "YlGnBu",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "YlGnBu"
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
       },
       {
         "label": "大小 1.0",
@@ -122905,6 +125147,92 @@
         "valueText": "1.0"
       }
     ],
+    "jpWildlifeProtectionMoe": [
+      {
+        "label": "指定區分",
+        "options": [
+          {
+            "label": "集團渡來地",
+            "value": "集団渡来地"
+          },
+          {
+            "label": "集團繁殖地",
+            "value": "集団繁殖地"
+          },
+          {
+            "label": "稀少鳥獸棲息地",
+            "value": "希少鳥獣生息地"
+          },
+          {
+            "label": "大規模棲息地",
+            "value": "大規模生息地"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "集団渡来地",
+          "集団繁殖地",
+          "希少鳥獣生息地",
+          "大規模生息地"
+        ]
+      },
+      {
+        "label": "保護區分",
+        "options": [
+          {
+            "label": "鳥獸保護區",
+            "value": "鳥獣保護区"
+          },
+          {
+            "label": "特別保護地區",
+            "value": "特別保護地区"
+          },
+          {
+            "label": "特別保護指定區域",
+            "value": "特別保護指定地域"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "鳥獣保護区",
+          "特別保護地区",
+          "特別保護指定地域"
+        ]
+      },
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.35,
+        "valueText": "0.35"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "jpWildlifeProtectionNational": [
       {
         "label": "透明度 0.25",
@@ -123547,6 +125875,136 @@
         "step": 0.1,
         "value": 1,
         "valueText": "1.0"
+      }
+    ],
+    "krCemeteriesOsm": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "墓地（landuse=cemetery）",
+            "value": "cemetery"
+          },
+          {
+            "label": "墓園（amenity=grave_yard）",
+            "value": "grave_yard"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "cemetery",
+          "grave_yard"
+        ]
+      },
+      {
+        "defaultValue": "turku",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "turku"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.7,
+        "valueText": "0.70"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "krChildProtectionZones": [
@@ -124337,6 +126795,17 @@
         "valueText": "1.0"
       }
     ],
+    "krPopulationH3": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.6,
+        "valueText": "0.60"
+      }
+    ],
     "krPorts": [
       {
         "label": "透明度 0.45",
@@ -124997,6 +127466,44 @@
         "valueText": "1.0"
       }
     ],
+    "krSportsFacilities": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "營業中",
+            "value": "open"
+          },
+          {
+            "label": "休業",
+            "value": "suspended"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "open",
+          "suspended"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
     "krStreetTrees": [
       {
         "label": "類別",
@@ -125179,6 +127686,147 @@
         "step": 0.05,
         "value": 0.8,
         "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "krTerritorialSea": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "krUrbanParks": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "兒童公園",
+            "value": "children"
+          },
+          {
+            "label": "近鄰公園",
+            "value": "neighborhood"
+          },
+          {
+            "label": "小公園",
+            "value": "small"
+          },
+          {
+            "label": "主題公園（文化、水邊、體育、歷史、墓地等）",
+            "value": "theme"
+          },
+          {
+            "label": "其他（含未分類）",
+            "value": "other"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "children",
+          "neighborhood",
+          "small",
+          "theme",
+          "other"
+        ]
+      },
+      {
+        "defaultValue": "PuBuGn",
+        "label": "熱區顏色",
+        "options": [
+          {
+            "label": "岩漿",
+            "value": "magma"
+          },
+          {
+            "label": "翠綠",
+            "value": "viridis"
+          },
+          {
+            "label": "黃橙褐",
+            "value": "YlOrBr"
+          },
+          {
+            "label": "紫藍綠",
+            "value": "PuBuGn"
+          },
+          {
+            "label": "酒紅",
+            "value": "Burg"
+          },
+          {
+            "label": "流速",
+            "value": "speed"
+          },
+          {
+            "label": "巴特洛",
+            "value": "batlow"
+          },
+          {
+            "label": "藍紫",
+            "value": "BuPu"
+          },
+          {
+            "label": "畢爾包",
+            "value": "bilbao"
+          },
+          {
+            "label": "黃綠藍",
+            "value": "YlGnBu"
+          },
+          {
+            "label": "阿克頓",
+            "value": "acton"
+          },
+          {
+            "label": "東京",
+            "value": "tokyo"
+          },
+          {
+            "label": "火箭",
+            "value": "rocket"
+          },
+          {
+            "label": "紫藍",
+            "value": "PuBu"
+          },
+          {
+            "label": "圖爾庫",
+            "value": "turku"
+          },
+          {
+            "label": "色盲友善",
+            "value": "cividis"
+          },
+          {
+            "label": "奧斯陸",
+            "value": "oslo"
+          }
+        ],
+        "role": "heatmap",
+        "type": "palette",
+        "value": "PuBuGn"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.75,
+        "valueText": "0.75"
       },
       {
         "label": "大小 1.0",

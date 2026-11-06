@@ -129,6 +129,9 @@ export const HEATMAP_PALETTE_OVERRIDES: Readonly<Record<string, PaletteId>> = {
   urbanZoningNewTaipei: "cividis",
   nonUrbanZoning: "YlOrBr",
   jpLandslideWarningAreas: "bilbao",
+  // 日本第二輪（2026-11-06）：自然公園兩層同「觀光」主題，錯開主題色 Burg 與彼此
+  jpNaturalParkAreas2015: "YlGnBu",
+  jpNationalParksMoe: "viridis",
   // 第三輪（I 軌）：河川同「水資源」主題錯開湖泊埤塘、魚塭同「農業」主題錯開零售
   waterRivers: "PuBu",
   aquaculturePonds: "acton",

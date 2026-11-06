@@ -79,6 +79,7 @@ export const POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOrBubbl
   mountainRescueIncidents: "B", // 山域事故 Mountain Rescue
   newsEvents: "B", // 新聞事件 News Events
   electionEvents2026: "B", // 半徑＝規模分級 · 2026 選舉活動 Election Events
+  gbPollutionInventoryEngland: "M", // 英格蘭污染排放申報（EA，站主限定；比照蘇格蘭層 gbPollutionInventory）
   noiseEnforcementEvents: "B", // 噪音裁處事件 Enforcement
   parkingOffstreet: "B", // 場外停車場 Off-street
   parksTaipei: "B", // 公園 Parks
@@ -315,6 +316,12 @@ export const HOOK_POINT_TIERS: Partial<Record<keyof LayerVisibility, PointTierOr
   caDeprivation: "S", // 加拿大 CIMD DA 代表點（z<6，5.6 萬點依五分位上色、隨縮放 1.2–2.6px） · src/hooks/useCaAreaLayers.ts
   caRents: "M", // 加拿大租金 CMA／CA 代表點（z<6） · src/hooks/useCaAreaLayers.ts
   caPlaceNames: "S", // 加拿大地名點（依 relevance_scale 逐級出現） · src/hooks/useCaTerrainLayers.ts
+  caClimateStations: "S", // 加拿大氣象站（8,435 點，不畫熱區） · src/hooks/useCaEnvLayers.ts
+  caAqhiStations: "M", // 加拿大 AQHI 地點（134 點） · src/hooks/useCaEnvLayers.ts
+  caRadiationStations: "M", // 加拿大輻射監測站（46 點） · src/hooks/useCaEnvLayers.ts
+  caNpriFacilities: "S", // 加拿大 NPRI 申報設施（2.5 萬點，z10 起單點、之下熱區） · src/hooks/useCaEnvLayers.ts
+  caWastewaterSystems: "B", // 加拿大污水系統：半徑＝日均放流量級距 · src/hooks/useCaEnvLayers.ts
+  caEarthquakes: "B", // 加拿大地震：半徑＝規模（同 JMA／英國地震） · src/hooks/useCaEnvLayers.ts
   gbPowerPlants: "B", // 英國電廠：半徑＝裝置容量 4 級 · src/hooks/useGbEnergyLayers.ts
   gbRenewables: "B", // 英國再生能源專案：半徑＝裝置容量 4 級、z5 起（P-4 例外不畫熱區；施工中黃框） · src/hooks/useGbEnergyLayers.ts
   gbFuelStations: "M", // 英國加油站 · src/hooks/useGbEnergyLayers.ts

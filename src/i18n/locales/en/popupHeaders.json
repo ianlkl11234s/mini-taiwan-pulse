@@ -112,5 +112,9 @@
   "popupHeader.mapchallengeDay04Overlap": "Hotspot Overlap",
   "popupHeader.mapchallengeDay04ScaleTcCh": "Taichung vs Changhua Factory Fine Grid",
   "popupHeader.mapchallengeDay05SeaView": "Sea View Segments",
-  "popupHeader.mapchallengeDay05SeaViewRuns": "Longest Sea View Runs"
+  "popupHeader.mapchallengeDay05SeaViewRuns": "Longest Sea View Runs",
+  "popupHeader.jpNaturalParkAreas2015": "Natural Park Areas",
+  "popupHeader.jpNationalParksMoe": "National Parks",
+  "popupHeader.jpWildlifeProtectionMoe": "National Wildlife Protection Areas",
+  "popupHeader.jpDid": "Densely Inhabited Districts (DID)"
 }

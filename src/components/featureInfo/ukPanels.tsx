@@ -77,7 +77,8 @@ import {
 } from "../../data/gbHazardTypes";
 import { GB_GEO_HAZARD_KEYS, GB_SUSCEPTIBILITY_KEYS } from "../legend/gbHazardLegends";
 import {
-  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_OWNERSHIP, GB_BROWNFIELD_URL, GB_ENV_FETCHED_AT, GB_ENV_ODBL, GB_ENV_OGL_V3,
+  GB_BROWNFIELD_ATTRIBUTION, GB_BROWNFIELD_COLOR, GB_BROWNFIELD_OWNERSHIP, GB_BROWNFIELD_URL, GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_LICENSE,
+  GB_EA_POLLUTION_URL, GB_ENV_FETCHED_AT, GB_ENV_ODBL, GB_ENV_OGL_V3,
   GB_NOISE_COLOR, GB_NOISE_SOURCES, GB_PLANNING_COLOR, GB_PLANNING_SOURCE_URLS, GB_PLANNING_SOURCES, GB_POLLUTION_ATTRIBUTION,
   GB_POLLUTION_COLOR, GB_POLLUTION_LICENSE, GB_POLLUTION_URL, GB_RECYCLING_ATTRIBUTION, GB_RECYCLING_COLOR, GB_RECYCLING_URL,
   GB_WASTE_ISSUED_PLACEHOLDER, GB_WASTE_PERMITS_COLOR, gbBrownfieldStatus, gbNoiseBand, gbPlanningConstraint, gbRecyclingKind,
@@ -1558,6 +1559,34 @@ export function GbPollutionInventoryPanel({ props }: { props: Record<string, unk
     <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
     <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbPolNote")} />
     <SourceFooter props={{ source_org: GB_POLLUTION_ATTRIBUTION, source_url: GB_POLLUTION_URL, license: GB_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
+  </>;
+}
+
+/** 英格蘭污染排放申報（EA，站主限定）：途徑原文、物質數、五項空氣排放（未申報≠0）。 */
+const GB_EA_AIR_FIELDS = [["co2_air_kg", "CO₂"], ["nox_air_kg", "NOₓ"], ["so2_air_kg", "SO₂"], ["pm10_air_kg", "PM10"], ["nh3_air_kg", "NH₃"]] as const;
+export function GbPollutionInventoryEnglandPanel({ props }: { props: Record<string, unknown> }) {
+  const { t, formatNumber } = useLocale();
+  const nation = useNationLabel();
+  const num = (v: unknown) => {
+    const x = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
+    return Number.isFinite(x) ? x : null;
+  };
+  const subs = num(props.substances_released);
+  return <>
+    <Title color={GB_POLLUTION_COLOR}>{text(props.site_name) || text(props.site_ref)}</Title>
+    <Row label={t("popup.environmentLayer.gbPolSector")} value={text(props.sector) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolActivity")} value={text(props.activity) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.environmentLayer.gbPolYear")} value={text(props.year)} />
+    <Row label={t("popup.environmentLayer.gbEaRoutes")} value={text(props.routes) || t("popup.environmentLayer.gbEaRoutesNone")} />
+    <Row label={t("popup.environmentLayer.gbEaSubstances")} value={subs == null ? t("popup.environmentLayer.gbPolNotReported") : t("popup.environmentLayer.gbEaSubstancesValue", { n: formatNumber(subs) })} />
+    {GB_EA_AIR_FIELDS.map(([field, label]) => {
+      const kg = num(props[field]);
+      return <Row key={field} label={t("popup.environmentLayer.gbEaAir", { s: label })} value={kg == null ? t("popup.environmentLayer.gbPolNotReported") : `${formatNumber(kg)} kg`} />;
+    })}
+    <Row label={t("popup.environmentLayer.gbEaPostcode")} value={text(props.postcode) || t("popup.environmentLayer.gbNotStated")} />
+    <Row label={t("popup.baseMap.gbNation")} value={[nation(props.nation), text(props.lad_name)].filter(Boolean).join(" · ")} />
+    <Row label={t("popup.baseMap.gbNotes")} value={t("popup.environmentLayer.gbEaNote")} />
+    <SourceFooter props={{ source_org: GB_EA_POLLUTION_ATTRIBUTION, source_url: GB_EA_POLLUTION_URL, license: GB_EA_POLLUTION_LICENSE, fetched_at: GB_ENV_FETCHED_AT }} />
   </>;
 }
 

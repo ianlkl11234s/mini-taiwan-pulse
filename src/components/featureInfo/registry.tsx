@@ -1,3 +1,4 @@
+import { JpDidPanel, JpNationalParksMoePanel, JpNaturalParkAreas2015Panel, JpWildlifeProtectionMoePanel } from "./jpNatureR2Panels";
 import { JmaAmedasPanel, JmaQuakesPanel, JmaVolcanoesPanel, JmaWarningsPanel } from "./jmaPanels";
 import { JmaAutumnLeavesPanel, JmaRainySeasonPanel, JmaSakuraPanel, JmaSnowcapPanel, JmaWbgtPanel } from "./jmaPointPanels";
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
@@ -66,7 +67,7 @@ import {
 } from "./japanPanels";
 import { GbArtsVenuesPanel, GbCulturalFacilitiesPanel, GbMajorRoadsPanel, GbSurplusLandPanel, GbTrafficCountsAadfPanel, GbVisitorExperiencePanel } from "./ukPanels";
 import { GbAquaculturePanel, GbCompaniesPanel, GbFuneralPanel, GbManufacturingPanel, GbSoilParentMaterialPanel } from "./ukPanels";
-import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
+import { GbBrownfieldPanel, GbNoisePanel, GbPlanningConstraintsPanel, GbPollutionInventoryPanel, GbPollutionInventoryEnglandPanel, GbRecyclingCentresPanel, GbWastePermitsPanel } from "./ukPanels";
 import { GbEarthquakesPanel, GbGroundStabilityPanel, GbLandslidePanel, GbRadiationPanel, GbRadonPanel } from "./ukPanels";
 import { GbCareHomesPanel, GbCareServicesPanel, GbCourtsPanel, GbFireStationsPanel, GbHealthFacilitiesPanel, GbSchoolsPanel } from "./ukPanels";
 import { KR_DATA_SPECS } from "../../data/krDataLayers";
@@ -76,6 +77,7 @@ import type { KrDataKey } from "../../data/krDataKeys";
 const KR_HEADER_LABELS = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, `${s.title.fallback.zh}`])) as Record<KrDataKey, string>;
 import { KR_DATA_PANELS, KrAdminBoundariesPanel, KrBusStopsPanel, KrRailStationsPanel, KrAirportsPanel, KrPortsPanel, KrNationalRoadsPanel, KrRailLinesPanel, KrFuelStationsPanel, KrPowerPlantsPanel, KrRenewablesPanel, KrPowerLinesPanel, KrSubstationsPanel, KrPowerTowersPanel, KrOilGasPanel } from "./krPanels";
 import { CaAdminBoundariesPanel, CaTransitStopsPanel, CaAirportsPortsPanel, CaMajorRoadsPanel, CaRailwaysPanel, CaPowerPlantsPanel, CaWindTurbinesPanel, CaPowerGridPanel, CaOilGasPanel, CaPopulationCentresPanel, CaFederalDistrictsPanel, CaPostalFsaPanel, CaIndigenousLandsPanel, CaDeprivationPanel, CaRentsPanel, CaPlaceNamesPanel } from "./caPanels";
+import { CaClimateStationsPanel, CaAqhiStationsPanel, CaRadiationStationsPanel, CaNpriFacilitiesPanel, CaWastewaterSystemsPanel, CaEarthquakesPanel, CaPopulationGridPanel } from "./caEnvPanels";
 import { GbAdminBoundariesPanel, GbFuelStationsPanel, GbOilGasFieldsPanel, GbPowerLinesPanel, GbPowerPlantsPanel, GbRenewablesPanel, GbSubstationsPanel, GbBathingWatersPanel, GbBuiltUpAreasPanel, GbCemeteriesPanel, GbCoastalErosionRiskPanel, GbFloodDefenceAssetsPanel, GbForestRecreationPanel, GbGolfCoursesPanel, GbGreenspacePanel, GbMarineProtectedAreasPanel, GbOpenAccessLandPanel, GbProtectedAreasPanel, GbTrailsPanel, GbTreeProtectionPanel, GbWoodlandPanel, GbHydroStationsPanel, GbLondonBikePointsPanel, GbLondonChargingZonesPanel, GbLondonJamCamsPanel, GbLondonRailLinesPanel, GbLondonStationsPanel, GbMaritimeLimitsPanel, GbRiversPanel, GbSmallAreaBoundariesPanel, GbSportsFacilitiesPanel, GbStationUsagePanel, GbTransportHubsPanel } from "./ukPanels";
 import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
@@ -478,6 +480,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   caDeprivation: CaDeprivationPanel,
   caRents: CaRentsPanel,
   caPlaceNames: CaPlaceNamesPanel,
+  caClimateStations: CaClimateStationsPanel,
+  caAqhiStations: CaAqhiStationsPanel,
+  caRadiationStations: CaRadiationStationsPanel,
+  caNpriFacilities: CaNpriFacilitiesPanel,
+  caWastewaterSystems: CaWastewaterSystemsPanel,
+  caEarthquakes: CaEarthquakesPanel,
+  caPopulationGrid: CaPopulationGridPanel,
   gbSmallAreaBoundaries: GbSmallAreaBoundariesPanel,
   gbMaritimeLimits: GbMaritimeLimitsPanel,
   gbBuiltUpAreas: GbBuiltUpAreasPanel,
@@ -508,6 +517,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   gbRecyclingCentres: GbRecyclingCentresPanel,
   gbWastePermits: GbWastePermitsPanel,
   gbPollutionInventory: GbPollutionInventoryPanel,
+  gbPollutionInventoryEngland: GbPollutionInventoryEnglandPanel,
   gbNoise: GbNoisePanel,
   gbTrafficCountsAadf: GbTrafficCountsAadfPanel,
   gbProtectedAreas: GbProtectedAreasPanel,
@@ -549,6 +559,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpInlandFloodAreas: JpInlandFloodAreasPanel,
   jpZoningUseDistricts: JpZoningUseDistrictsPanel,
   jpNationalForests: JpNationalForestsPanel,
+  jpNaturalParkAreas2015: JpNaturalParkAreas2015Panel,
+  jpNationalParksMoe: JpNationalParksMoePanel,
+  jpWildlifeProtectionMoe: JpWildlifeProtectionMoePanel,
+  jpDid: JpDidPanel,
   jpWelfareDisability: JpWelfareDisabilityPanel,
   jpWelfareChild: JpWelfareChildPanel,
   jpMajorRoads: JpMajorRoadsPanel,
@@ -1135,6 +1149,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   caDeprivation: "剝奪指數 Deprivation Index",
   caRents: "平均月租 Average Rents",
   caPlaceNames: "地名 Geographical Names",
+  caClimateStations: "氣象站 Climate Stations",
+  caAqhiStations: "AQHI 地點 AQHI Locations",
+  caRadiationStations: "輻射監測站 Radiation Monitoring",
+  caNpriFacilities: "NPRI 申報設施 NPRI Facilities",
+  caWastewaterSystems: "污水處理系統 Wastewater Systems",
+  caEarthquakes: "地震 Earthquakes",
+  caPopulationGrid: "人口網格 Population Grid",
   gbSmallAreaBoundaries: "統計小區 Small Areas",
   gbMaritimeLimits: "海域界線 Maritime Limits",
   gbBuiltUpAreas: "建成區 Built Up Areas",
@@ -1165,6 +1186,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gbRecyclingCentres: "回收點 Recycling Points",
   gbWastePermits: "廢棄物處理許可 Waste Permits",
   gbPollutionInventory: "污染排放申報 Pollution Releases",
+  gbPollutionInventoryEngland: "污染排放申報（英格蘭）Pollution Releases",
   gbNoise: "策略噪音地圖 Strategic Noise Map",
   gbTrafficCountsAadf: "年平均日交通量 AADF",
   gbProtectedAreas: "保護區 Protected Areas",
@@ -1208,6 +1230,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpInlandFloodAreas: "內水浸水想定區域 雨水出水浸水想定区域",
   jpZoningUseDistricts: "用途地域 用途地域",
   jpNationalForests: "国有林 国有林",
+  jpNaturalParkAreas2015: "自然公園地域",
+  jpNationalParksMoe: "國立公園",
+  jpWildlifeProtectionMoe: "國指定鳥獸保護區",
+  jpDid: "人口集中地區 DID",
   jpWelfareDisability: "障礙福祉設施 障害者福祉施設",
   jpWelfareChild: "兒童福祉設施 児童福祉施設",
   jpMajorRoads: "主要道路 国道・都道府県道",

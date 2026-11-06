@@ -332,6 +332,10 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     // 第 1 波（國土基礎）：交通、能源
     "交通",
     "能源",
+    // 第 6 波：人口網格（GHSL）、都市公園＋綜合體育設施、墓地（OSM）
+    "人口社經",
+    "運動休閒",
+    "殯葬",
     // 南韓統計（完整目錄；統計分頁另有「人口／社經」，見 KR_STATISTICS_TAB_THEMES）
     ...KR_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -342,6 +346,9 @@ export const THEME_SCOPE: Readonly<Record<ThemeScope, readonly string[]>> = {
     "原民與農村",
     "能源",
     "人口社經",
+    // 第 3 波：環境氣候、災害
+    "環境氣候",
+    "災害",
     // 加拿大統計（完整目錄；統計分頁另有「人口／社經」，見 CA_STATISTICS_TAB_THEMES）
     ...CA_STATISTICS_DATA_THEME_TITLES,
   ],
@@ -2627,7 +2634,7 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "人口社經",
     country: "JP",
     defaultCollapsed: true,
-    groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km")] }],
+    groups: [{ title: "人口分布", layers: [fromManifest("jpPopulationMesh1km"), fromManifest("jpDid")] }],
   },
   {
     title: "基礎建設",
@@ -2664,6 +2671,7 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "JP",
     defaultCollapsed: true,
     groups: [
+      { title: "自然公園 Natural Parks", layers: [fromManifest("jpNationalParksMoe"), fromManifest("jpNaturalParkAreas2015")] },
       ...localResearchGroup("玩・自然 Nature", [
         "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
       ]),
@@ -2740,6 +2748,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "海域環境 Marine Environment", layers: [fromManifest("jmaSst"), fromManifest("jmaSeaIce")] },
       { title: "海域保護與漁業 Protected Areas & Fisheries", layers: [
         fromManifest("jpMarineEbsaCoastal"),
+        fromManifest("jpWildlifeProtectionMoe"),
         ...(IS_PRODUCTION ? [] : [
           "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
           "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
@@ -2794,7 +2803,16 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       { title: "行政邊界", layers: [fromManifest("krAdminBoundaries")] },
+      // 第 6 波：比照台灣「底圖 › 海域界線」（陸域行政界之外的海域法定界線）
+      { title: "海域界線", layers: [fromManifest("krTerritorialSea")] },
     ],
+  },
+  // 第 6 波：人口網格（GHSL），比照台灣、日本「人口社經 › 人口分布」
+  {
+    title: "人口社經",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "人口分布", layers: [fromManifest("krPopulationH3")] }],
   },
   // 南韓第 3–5 波：主題與群組比照台灣同類（水資源 › 點位／面 / 線、海洋 › 海域環境、交通 › 場站／路網、林業 › 分區／點位／線；
   // 海岸型態台灣無同類，比照英國歸「災害 › 海岸侵蝕」）
@@ -2852,6 +2870,22 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [{ title: "都市樹木 Urban Trees", layers: [fromManifest("krStreetTrees")] }],
   },
+  // 第 6 波：比照台灣「運動休閒 › 運動場館／公園 Parks」與「殯葬 › 墓區範圍」
+  {
+    title: "運動休閒",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [
+      { title: "運動場館", layers: [fromManifest("krSportsFacilities")] },
+      { title: "公園 Parks", layers: [fromManifest("krUrbanParks")] },
+    ],
+  },
+  {
+    title: "殯葬",
+    country: "KR",
+    defaultCollapsed: true,
+    groups: [{ title: "墓區範圍", layers: [fromManifest("krCemeteriesOsm")] }],
+  },
   {
     title: "林業",
     country: "KR",
@@ -2905,7 +2939,8 @@ const THEME_CATALOG: ThemeDef[] = [
     country: "CA",
     defaultCollapsed: true,
     groups: [
-      { title: "人口分布", layers: [fromManifest("caPopulationCentres")] },
+      // 第 3 波：GHSL 人口網格比照日本、台灣人口網格的「人口社經 › 人口分布」
+      { title: "人口分布", layers: [fromManifest("caPopulationCentres"), fromManifest("caPopulationGrid")] },
       // 第 2 波：CIMD 剝奪指數、CMHC 租金（台灣租賃在「房地產」，加拿大目前只有一層，先放人口社經）
       { title: "社經", layers: [fromManifest("caDeprivation")] },
       { title: "租賃", layers: [fromManifest("caRents")] },
@@ -2917,6 +2952,26 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     // 第 2 波 C019：比照台灣「原民與農村 › 原住民族」；法定土地非傳統領域
     groups: [{ title: "原住民保留地", layers: [fromManifest("caIndigenousLands")] }],
+  },
+  {
+    // 第 3 波：群組名比照台灣與日本「環境氣候」（氣象、空品、環境污染、水質與污水）；
+    // 輻射監測站比照台灣 nuscGammaRadiation、英國 gbRadiation 放「環境污染」，NPRI 比照台灣 pollutionFacility
+    title: "環境氣候",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [
+      { title: "氣象", layers: [fromManifest("caClimateStations")] },
+      { title: "空品", layers: [fromManifest("caAqhiStations")] },
+      { title: "環境污染", layers: [fromManifest("caNpriFacilities"), fromManifest("caRadiationStations")] },
+      { title: "水質與污水 Water Quality", layers: [fromManifest("caWastewaterSystems")] },
+    ],
+  },
+  {
+    // 第 3 波 C070：比照台灣 earthquakes、英國 gbEarthquakes 的「災害 › 地震 / 斷層」
+    title: "災害",
+    country: "CA",
+    defaultCollapsed: true,
+    groups: [{ title: "地震 / 斷層", layers: [fromManifest("caEarthquakes")] }],
   },
 
   // ───────────────────────────────────────────────────────────────
@@ -3003,7 +3058,7 @@ const THEME_CATALOG: ThemeDef[] = [
       { title: "都市樹木 Urban Trees", layers: [fromManifest("gbTreeProtection")] },
       // 第 9 波 C072：加馬劑量率比照台灣 nuscGammaRadiation（環境輻射）的「環境氣候 › 環境污染」
       // 第 11 波 C092：污染排放申報比照台灣 pollutionFacility（申報工廠）；C090 噪音比照台灣「噪音／聲響 Noise」
-      { title: "環境污染", layers: [fromManifest("gbRadiation"), fromManifest("gbPollutionInventory")] },
+      { title: "環境污染", layers: [fromManifest("gbRadiation"), fromManifest("gbPollutionInventory"), fromManifest("gbPollutionInventoryEngland")] },
       { title: "噪音／聲響 Noise", layers: [fromManifest("gbNoise")] },
     ],
   },
@@ -3252,6 +3307,10 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "環境氣候": "environment",
     "林業": "environment",
     "能源": "environment",
+    // 第 6 波
+    "人口社經": "city",
+    "運動休閒": "publicLife",
+    "殯葬": "publicLife",
     // 南韓統計（完整目錄）：同英國歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3263,6 +3322,8 @@ const THEME_MACRO_GROUPS: Readonly<Record<ThemeScope, Readonly<Record<string, La
     "能源": "environment",
     "人口社經": "city",
     "原民與農村": "city",
+    "環境氣候": "environment",
+    "災害": "safety",
     // 加拿大統計（完整目錄）：同英國、南韓歸移動與城市。
     "人口統計": "city",
     "社經統計": "city",
@@ -3441,6 +3502,9 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "環境氣候": { zh: "環境氣候", sub: "환경·기후" },
     "林業": { zh: "林業", sub: "임업" },
     "能源": { zh: "能源", sub: "에너지" },
+    "人口社經": { zh: "人口社經", sub: "인구·사회경제" },
+    "運動休閒": { zh: "運動休閒", sub: "체육·여가" },
+    "殯葬": { zh: "殯葬", sub: "장사" },
     // 南韓統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "인구 통계" },
     "社經統計": { zh: "社經統計", sub: "사회경제 통계" },
@@ -3454,6 +3518,8 @@ const THEME_NAMES: Readonly<Record<ThemeScope, Readonly<Record<string, ThemeName
     "能源": { zh: "能源", sub: "Energy" },
     "人口社經": { zh: "人口社經", sub: "People" },
     "原民與農村": { zh: "原民與農村", sub: "Indigenous & Rural" },
+    "環境氣候": { zh: "環境氣候", sub: "Environment" },
+    "災害": { zh: "災害", sub: "Hazard" },
     // 加拿大統計：完整目錄兩個、統計分頁兩個
     "人口統計": { zh: "人口統計", sub: "Population Statistics" },
     "社經統計": { zh: "社經統計", sub: "Socio-economic Statistics" },
@@ -3589,67 +3655,22 @@ export function layerDisplayName(key: string, fallback?: string): LayerName {
   return LAYER_NAMES[key as keyof LayerVisibility] ?? { zh: fallback ?? key };
 }
 
-// ── owner-only 私人圖層 SSOT（見 docs/features/owner-gated-layers）──
-// 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。
-// DB 端由 migration 275 同步：對應 RPC 加 owner 檢查 + REVOKE anon。
+// ── owner-only 私人圖層（見 docs/features/owner-gated-layers）──
+// 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：面板、主題、模擬面板、搜尋一律顯示反灰＋鎖頭（spec §5.5），
+// 點了走 App 端權限提示／登入；不可整個隱藏。DB 端 public.gated_layers 為同一份名單（gis-platform mig 276／494／499／500）。
 // ⚠️ 明確排除（保持公開）：waterCanals（灌排渠道）、powerPoles（電桿 2.96M）。
 //
-// ⚠️ **P3-3 評估過收編進 manifest，結論是不收**（與 TRANSPORT_LABELS 不同類），
-//    三條硬理由（機械查證，非目測）：
-//    1. **沒有值重複可消滅**：manifest 裡 `gated: true` 的 entry 是 **0 個**，
-//       本表 35 個 key 全部只存在於這裡。收編＝**新增** 35 筆宣告，不是去重。
-//    2. **型別上表達不了**：`gated` 只存在於 `LayerManifestThemedEntry`，而本表有
-//       3 個 key（facOffshore / osmPowerPlantsStatic / powerPlants）是 orphan entry
-//       ——「已從 sidebar 下架但 API 敏感」正是它們要被鎖的理由，卻沒有 LayerDef 可載。
-//    3. **這是安全清單不是登記簿**：embedWhitelist / urlState / layerGates 三套測試
-//       以本表為錨（gated 外流＝私人資料洩漏）。搬 SSOT 是安全變更，要獨立驗收標準，
-//       不該搭在一次去重重構裡。
-export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
-  // 畜牧 Livestock（改走 owner-only RPC；不含 livestockFeed / livestockMarket）
-  "livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck",
-  "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther", "livestockSlaughter",
-  // 石化 · 油氣
-  "lpgSubpackaging", "lpgRetailers", "lngTerminal", "pipelineGas", "pipelineOilGas",
-  "industrialRefinery", "industrialStorageTank", "industrialPowerPlant", "coalTerminal",
-  "fossilFuelInfra",
-  // 電力 · 電網
-  "osmSubstationsEhv", "osmSubstations", "osmPowerLines", "osmPowerTowers",
-  "substationEhvGlow", "powerLinesGlow",
-  // 電力 · 廠
-  "facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement",
-  "powerGenerationUnit", "powerPlantGlow",
-  // 僅做 UI 鎖（資料載入路徑不動）
-  "aviationRestrictedGlow",
-  // 公車擁擠模擬（模擬面板，研究中）：使用者 2026-10-25 拍板站主限定，資料只經 owner-authenticated Range API。
-  "busCrowdingSim",
-  // 2026 選舉活動（研究原型）：owner-only RPC get_election_events_2026（gis-platform mig 494 登記 gated_layers）。
-  "electionEvents2026",
-  // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
-  "facOffshore", "osmPowerPlantsStatic", "powerPlants",
-  // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
-  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
-  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
-  // 全臺橋梁研究（進行中）：BSS 授權 HOLD，私人 PMTiles 只經 owner-authenticated Range API。
-  "bssNationalBridgePreview", "bssNationalBridgePointsPreview",
-  // 雙北跨河橋梁韌性（研究中）：同一 BSS 授權 HOLD；私人 PMTiles＋JSON 只經 owner-authenticated Range API。
-  "bridgeResilienceTwinCity",
-  // 土壤液化／軟弱土層（RIGHTS_HOLD）：私人 PMTiles 只經 owner-authenticated Range API。
-  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10",
-  "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
-  // 古地圖（中研院臺灣百年歷史地圖）：圖磚是公開外部來源，但再利用授權（CC BY-NC）待中研院確認，先站主限定；
-  // 不需私人 Range API，只擋介面與網址還原。
-  "historicalMapSinica",
-]);
-
-/** 站主限定、且對非站主連主題標題都不顯示的主題（主題內圖層全部上鎖時才隱藏）。 */
-export const OWNER_ONLY_THEME_TITLES: ReadonlySet<string> = new Set(["歷史底圖 Historical Basemaps"]);
-
-/** 面板用：站主限定主題在內部圖層全被鎖（非站主）時整個拿掉。 */
-export function hideOwnerOnlyThemes(themes: readonly ThemeDef[], lockedKeys?: ReadonlySet<keyof LayerVisibility>): readonly ThemeDef[] {
-  if (!lockedKeys || lockedKeys.size === 0) return themes;
-  return themes.filter((theme) => !OWNER_ONLY_THEME_TITLES.has(theme.title)
-    || !theme.groups.every((group) => group.layers.every((layer) => lockedKeys.has(layer.key))));
-}
+// **唯一來源＝manifest `topics` 的 "OWNER_ONLY" 標記**（2026-11-06 統一；取代 P3-3「不收編」的結論）：
+//    - topics 存在於每一筆 manifest entry（含已從 sidebar 下架的 orphan：facOffshore／osmPowerPlantsStatic／powerPlants），
+//      不受 `gated` 只在 themed entry 的型別限制。
+//    - 這是安全清單：派生後由 src/data/__tests__/ownerOnlyRegistry.test.ts 釘死完整 key 清單（少一個標記＝紅），
+//      embedWhitelist／urlState／layerGates 的測試照舊以本 Set 為錨。
+//    - 新增站主限定圖層：在 manifest topics 加 "OWNER_ONLY"，同步更新上述釘死清單與 gis-platform gated_layers。
+export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>(
+  (Object.values(LAYER_MANIFEST) as LayerManifestEntry[])
+    .filter((entry) => entry.topics.includes("OWNER_ONLY"))
+    .map((entry) => entry.key as keyof LayerVisibility),
+);
 
 /**
  * 授權或再散布條件尚未驗證、且連站主研究檢視也不開放的圖層：所有帳號均 fail-closed。

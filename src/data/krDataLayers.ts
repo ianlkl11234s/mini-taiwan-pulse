@@ -1,5 +1,5 @@
 /**
- * 南韓第 3–5 波資料層（18 層）規格 SSOT：hook paint、圖例、popup 三邊共用。
+ * 南韓第 3–6 波資料層（23 層）規格 SSOT：hook paint、圖例、popup 三邊共用。
  * 資料與授權原句見 taipei-gis-analytics `docs/data-catalog/{water_resources,marine,transportation,forestry}/kr_*.md`
  * 與 `docs/topic-research/south_korea_opendata/waves/w{3,4,5}/layer-plan.md`（2026-10-31 逐一重開授權頁）。
  * 介面字串（類別名、備註）以三語 `L3` 寫在本檔，顯示時依目前語系挑；圖層名／主題名走 layers.json／themes.json。
@@ -8,6 +8,7 @@
  */
 import type { KrDataKey } from "./krDataKeys";
 import { selectedMultiSelectValues } from "./multiSelectMapbox";
+import { paletteRamp, resampleRamp } from "../map/palettes";
 
 export interface L3 { zh: string; en: string; ja: string }
 const l3 = (zh: string, en: string, ja: string): L3 => ({ zh, en, ja });
@@ -27,6 +28,11 @@ export interface KrLayerSpec {
   srcMaxzoom: number;
   minzoom: number;
   /** V-1／P-4：拉遠改熱區（點在 `densePointsFromZoom(count, minzoom)` 起畫、之下為熱區）；intensity 依資料密度目視校正。 */
+  /**
+   * 序列分級面（第 6 波人口網格）：`prop` 依固定斷點 `breaks` 分 `breaks.length + 1` 級，色取色盤庫 `palette`
+   * （暗／淡兩版，`paletteRamp`）重新取樣；不設外框。圖例逐級列出 `labels`。
+   */
+  ramp?: { prop: string; palette: "YlOrBr"; breaks: readonly number[]; labels: readonly string[]; unit: L3 };
   heat?: {
     intensity: number;
     /** 低縮放另用「格網計數」檔畫熱區（weight 吃 `count`；source maxzoom 以上自動 overzoom），點檔 `file` 從 `minzoom` 起接手。 */
@@ -54,6 +60,9 @@ export const KR_FETCHED_AT = "2026-10-31";
 export const KR_PLATFORM_LICENSE = "이용허락범위 제한 없음（data.go.kr 平台標籤）";
 const DG = (pk: string) => `https://www.data.go.kr/data/${pk}/fileData.do`;
 const DGS = (pk: string) => `https://www.data.go.kr/data/${pk}/standard.do`;
+
+/** 第 6 波（2026-11-06 重開授權頁）。 */
+export const KR_W6_FETCHED_AT = "2026-11-06";
 
 export const KR_UNMEASURED = l3("未測", "Not measured", "未測定");
 const UNNAMED = l3("(未命名)", "(unnamed)", "(名称なし)");
@@ -387,6 +396,93 @@ export const KR_DATA_SPECS: readonly KrLayerSpec[] = [
     sourceOrg: "산림청 도시숲가로수관리 가로수 현황 (공공데이터포털)", sourceUrl: DG("15120900"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_FETCHED_AT,
     loading: l3("南韓行道樹載入中", "Loading South Korea street trees", "韓国の街路樹を読み込み中"),
   },
+  // ───────────── 第 6 波：底圖、運動休閒、殯葬、人口網格 ─────────────
+  {
+    key: "krTerritorialSea", file: "kr_territorial_sea.pmtiles", sourceLayer: "kr_territorial_sea", geom: "line", layerId: "kr-territorial-sea-line",
+    srcMinzoom: 0, srcMaxzoom: 10, minzoom: 0, color: "#38bdf8", count: 1,
+    title: { props: ["zone"], fallback: l3("領海外側線", "Territorial sea limit", "領海の外側線") },
+    fields: [{ prop: "legal_basis", label: l3("法源", "Legal basis", "法的根拠") }, { prop: "revised", label: l3("修訂日", "Revised", "改訂日") },
+             { prop: "reference_chart", label: l3("參考圖", "Reference chart", "参考図") }, { prop: "chart_scale", label: l3("比例尺", "Scale", "縮尺") },
+             { prop: "agency", label: l3("調查機關", "Surveyed by", "調査機関") }, { prop: "survey_year", label: l3("調查年", "Survey year", "調査年"), kind: "year" }],
+    legendNotes: [l3("領海外側界線（12 海里；大韓海峽 3 海里），含鬱陵島、獨島周邊", "Outer limit of the territorial sea (12 nm; 3 nm in the Korea Strait), incl. Ulleungdo and Dokdo", "領海の外側線（12海里。大韓海峡は3海里）。鬱陵島・独島周辺を含む"),
+                  l3("直線基線、接續水域、專屬經濟海域、韓日／韓中暫定水域未涵蓋", "Baselines, contiguous zone, EEZ and the Korea–Japan / Korea–China provisional zones are not covered", "直線基線・接続水域・EEZ・日韓／中韓暫定水域は未収録")],
+    popupNotes: [],
+    sourceOrg: "해양수산부 국립해양조사원 영해한계선 (공공데이터포털)", sourceUrl: DG("15114329"), license: "공공누리 제1유형（출처표시）", fetchedAt: KR_W6_FETCHED_AT,
+    loading: l3("南韓領海線載入中", "Loading South Korea territorial sea limit", "韓国の領海線を読み込み中"),
+  },
+  {
+    key: "krUrbanParks", file: "kr_urban_parks.pmtiles", sourceLayer: "kr_urban_parks", geom: "point", layerId: "kr-urban-parks-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 10, heat: { intensity: 1.5 }, color: "#7cb342", tier: "M", count: 17435,
+    catProp: "kind", otherColor: "#94a3b8", otherLabel: l3("其他（含未分類）", "Other (incl. unclassified)", "その他（未分類を含む）"),
+    cats: [
+      { id: "children", values: ["어린이공원"], color: "#f59e0b", label: l3("兒童公園", "Children's park", "児童公園") },
+      { id: "neighborhood", values: ["근린공원"], color: "#7cb342", label: l3("近鄰公園", "Neighbourhood park", "近隣公園") },
+      { id: "small", values: ["소공원"], color: "#2dd4bf", label: l3("小公園", "Small park", "小公園") },
+      { id: "theme", values: ["문화공원", "수변공원", "체육공원", "역사공원", "묘지공원", "도시농업공원", "문화공원수변공원", "가로공원"], color: "#a78bfa", label: l3("主題公園（文化、水邊、體育、歷史、墓地等）", "Themed park (culture, waterside, sports, history, cemetery…)", "主題公園（文化・水辺・運動・歴史・墓地など）") },
+    ],
+    title: { props: ["name"], fallback: l3("都市公園", "Urban park", "都市公園") },
+    fields: [{ prop: "kind", label: l3("公園種類", "Park type", "公園種別") }, { prop: "area_m2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 },
+             { prop: "address", label: l3("地址", "Address", "住所") }, { prop: "designated", label: l3("指定告示日", "Designated", "指定告示日") },
+             { prop: "fac_sport", label: l3("運動設施", "Sports facilities", "運動施設") }, { prop: "fac_play", label: l3("遊戲設施", "Play facilities", "遊戯施設") },
+             { prop: "fac_amenity", label: l3("便利設施", "Amenities", "便益施設") }, { prop: "fac_culture", label: l3("教養設施", "Cultural facilities", "教養施設") },
+             { prop: "agency", label: l3("管理機關", "Agency", "管理機関") }, { prop: "ref_date", label: l3("資料基準日", "Data as of", "データ基準日") }, { prop: "manage_no", label: l3("管理號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("點為公園代表點，非公園範圍；只含依都市公園法指定的都市公園（國立公園、自然公園另層）", "Points are park reference points, not park extents; only parks designated under the Urban Parks Act (national and natural parks are separate)", "点は公園の代表点で範囲ではない。都市公園法の指定公園のみ（国立公園・自然公園は別レイヤー）"),
+                  l3("清州市上傳的 195 筆座標落在大田、忠南、世宗（與地址不符），未上圖", "195 parks submitted by Cheongju have coordinates outside the city (in Daejeon, Chungnam, Sejong) and are not shown", "清州市提出の195件は座標が住所と合わず（大田・忠南・世宗に位置）、表示していない")],
+    popupNotes: [],
+    sourceOrg: "국토교통부·지방자치단체 전국도시공원정보표준데이터 (공공데이터포털)", sourceUrl: DGS("15012890"), license: KR_PLATFORM_LICENSE, fetchedAt: KR_W6_FETCHED_AT,
+    loading: l3("南韓都市公園載入中", "Loading South Korea urban parks", "韓国の都市公園を読み込み中"),
+  },
+  {
+    key: "krSportsFacilities", file: "kr_sports_facilities.pmtiles", sourceLayer: "kr_sports_facilities", geom: "point", layerId: "kr-sports-facilities-circle",
+    srcMinzoom: 0, srcMaxzoom: 14, minzoom: 0, color: "#ef6c00", tier: "M", count: 346,
+    catProp: "status",
+    cats: [
+      { id: "open", values: ["영업"], color: "#ef6c00", label: l3("營業中", "Operating", "営業中") },
+      { id: "suspended", values: ["휴업"], color: "#94a3b8", label: l3("休業", "Temporarily closed", "休業") },
+    ],
+    title: { props: ["name"], fallback: l3("綜合體育設施", "Sports complex", "総合体育施設") },
+    fields: [{ prop: "status", label: l3("營業狀態", "Status", "営業状態"), map: { "영업": l3("營業中", "Operating", "営業中"), "휴업": l3("休業", "Temporarily closed", "休業") } },
+             { prop: "licensed", label: l3("許可日", "Licensed", "許可日") }, { prop: "address", label: l3("地址", "Address", "住所") },
+             { prop: "updated", label: l3("最後修改", "Last updated", "最終更新") }, { prop: "manage_no", label: l3("管理號", "Management no.", "管理番号"), kind: "code" }],
+    legendNotes: [l3("只有民營綜合體育設施業許可；公營國民體育中心、學校體育設施、健身房與武道館未涵蓋", "Licensed private sports complexes only; public sports centres, school facilities, gyms and martial-arts dojos are not covered", "民間の総合体育施設業の許可のみ。公営の国民体育センター・学校体育施設・ジム・道場は未収録"),
+                  l3("歇業、許可取消者已排除", "Closed and cancelled businesses are excluded", "廃業・許可取消は除外")],
+    popupNotes: [],
+    sourceOrg: "행정안전부 지방행정 인허가데이터(LOCALDATA) 종합체육시설업 (공공데이터포털)", sourceUrl: "https://www.data.go.kr/data/15155071/openapi.do", license: KR_PLATFORM_LICENSE, fetchedAt: KR_W6_FETCHED_AT,
+    loading: l3("南韓綜合體育設施載入中", "Loading South Korea sports complexes", "韓国の総合体育施設を読み込み中"),
+  },
+  {
+    // V-5：面＋代表點（`kr_cemeteries_osm_points.pmtiles`，登記在 repPointLayers，預設點）
+    key: "krCemeteriesOsm", file: "kr_cemeteries_osm.pmtiles", sourceLayer: "kr_cemeteries_osm", geom: "polygon", layerId: "kr-cemeteries-osm-fill", outlineId: "kr-cemeteries-osm-line",
+    srcMinzoom: 6, srcMaxzoom: 13, minzoom: 6, color: "#4a7c59", count: 16565,
+    catProp: "kind",
+    cats: [
+      { id: "cemetery", values: ["cemetery"], color: "#4a7c59", label: l3("墓地（landuse=cemetery）", "Cemetery (landuse=cemetery)", "墓地（landuse=cemetery）") },
+      { id: "grave_yard", values: ["grave_yard"], color: "#a3a3a3", label: l3("墓園（amenity=grave_yard）", "Graveyard (amenity=grave_yard)", "墓所（amenity=grave_yard）") },
+    ],
+    title: { props: ["name"], fallback: l3("墓地", "Cemetery", "墓地") },
+    fields: [{ prop: "kind", label: l3("OSM 類型", "OSM type", "OSM種別") }, { prop: "religion", label: l3("宗教", "Religion", "宗教") }, { prop: "operator", label: l3("經營者", "Operator", "運営者") },
+             { prop: "area_m2", label: l3("面積", "Area", "面積"), kind: "num", unit: "m²", digits: 0 }, { prop: "osm_id", label: l3("OSM 編號", "OSM ID", "OSM ID"), kind: "code" }],
+    legendNotes: [l3("OpenStreetMap 標註，完整度未驗、各地密度不均（全北 6,997 處占 42%，首爾 70、釜山 32）；空白不代表沒有墓地", "OpenStreetMap tagging; completeness unverified and very uneven (Jeonbuk 6,997 = 42%, Seoul 70, Busan 32); blank areas do not mean no cemeteries", "OpenStreetMapの登録。網羅性は未検証で地域差が大きい（全北6,997件で42%、ソウル70、釜山32）。空白は墓地がないことを意味しない"),
+                  l3("官方都市計畫墓地圖層境外無法取得，未涵蓋", "The official urban-planning cemetery layer is not accessible from abroad and is not covered", "公式の都市計画墓地レイヤーは国外から取得できず未収録")],
+    popupNotes: [],
+    sourceOrg: OSM_ATTR, sourceUrl: "https://www.openstreetmap.org/copyright", license: "ODbL 1.0", fetchedAt: KR_W6_FETCHED_AT,
+    loading: l3("南韓墓地載入中", "Loading South Korea cemeteries", "韓国の墓地を読み込み中"),
+  },
+  {
+    key: "krPopulationH3", file: "kr_population_h3.pmtiles", sourceLayer: "kr_population_h3", geom: "polygon", layerId: "kr-population-h3-fill",
+    srcMinzoom: 4, srcMaxzoom: 12, minzoom: 4, color: "#fea332", count: 160048,
+    ramp: { prop: "density", palette: "YlOrBr", breaks: [10, 50, 200, 1000, 5000, 15000], labels: ["< 10", "10–50", "50–200", "200–1,000", "1,000–5,000", "5,000–15,000", "≥ 15,000"],
+            unit: l3("人口密度（人/km²）", "Population density (people/km²)", "人口密度（人/km²）") },
+    title: { props: [], fallback: l3("人口網格", "Population grid", "人口グリッド") },
+    fields: [{ prop: "pop", label: l3("推估人口", "Estimated population", "推計人口"), kind: "num", digits: 0 },
+             { prop: "density", label: l3("人口密度（人/km²）", "Density (people/km²)", "人口密度（人/km²）"), kind: "num", digits: 0 },
+             { prop: "res", label: l3("H3 解析度", "H3 resolution", "H3解像度"), kind: "code" }],
+    legendNotes: [l3("GHSL 2020 模型推估、非戶籍：全國合計 51,850,602 人（行政安全部住民登錄 2026-09 為 51,082,431）", "GHSL 2020 model estimate, not the resident registry: national total 51,850,602 (resident registration, Sept 2026: 51,082,431)", "GHSL 2020年のモデル推計で住民登録ではない。全国計51,850,602人（住民登録2026年9月は51,082,431人）"),
+                  l3("拉遠為 H3 第 7 級格（約 5 km²），zoom 9 起為第 8 級格（約 0.7 km²）；沒有格子＝推估無人居住", "H3 resolution 7 cells (≈5 km²) when zoomed out, resolution 8 (≈0.7 km²) from zoom 9; no cell = no estimated population", "縮小時はH3解像度7（約5km²）、ズーム9から解像度8（約0.7km²）。セルなし＝推計人口なし")],
+    popupNotes: [l3("GHSL 2020 模型推估，非戶籍人口", "GHSL 2020 model estimate, not registered population", "GHSL 2020年のモデル推計（住民登録人口ではない）")],
+    sourceOrg: "European Commission JRC, GHSL GHS-POP R2023A (2020)", sourceUrl: "https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php", license: "CC BY 4.0", fetchedAt: KR_W6_FETCHED_AT,
+    loading: l3("南韓人口網格載入中", "Loading South Korea population grid", "韓国の人口グリッドを読み込み中"),
+  },
 ];
 
 export const KR_SPEC_BY_KEY: Readonly<Record<KrDataKey, KrLayerSpec>> = Object.fromEntries(KR_DATA_SPECS.map((s) => [s.key, s])) as Record<KrDataKey, KrLayerSpec>;
@@ -394,6 +490,12 @@ export const KR_UNNAMED = UNNAMED;
 
 /** X003 擁擠度分級：以 `peak_wkd` 數值判斷（hook 用 step 表達式，圖例用同一組門檻）。 */
 export const KR_CONGESTION_BREAKS = [34, 80, 130] as const;
+
+/** 序列分級面的色階（色盤庫暗／淡版重新取樣成「斷點數＋1」級；圖例與 hook 共用）。 */
+export function krRampColors(spec: Pick<KrLayerSpec, "ramp">, isDark: boolean): string[] {
+  const r = spec.ramp!;
+  return resampleRamp(paletteRamp(r.palette, isDark)!, r.breaks.length + 1);
+}
 
 export function pickL3(text: L3, locale: string): string {
   return locale === "ja" ? text.ja : locale === "en" ? text.en : text.zh;

@@ -133,6 +133,8 @@ public/world/jp_national_forests.pmtiles
 # 日本第四波（福祉施設 57MB、主要道路 142MB，走 S3 deploy-assets/world/；jp_expressways 5.8MB git-track）
 public/world/jp_welfare_facilities.pmtiles
 public/world/jp_major_roads.pmtiles
+# 日本第二輪（2026-11-06）：自然公園地域 A10 2015 23.6MB 走 S3 deploy-assets/world/；国立公園 18.8MB、鳥獣保護区、DID 五期（各約 6MB）與代表點檔 git-track
+public/world/jp_natural_park_areas_ksj_2015.pmtiles
 # 英國第 0b 波（統計小區 56.8MB 走 S3 deploy-assets/world/；gb_admin_lad 6.2MB git-track）
 public/world/gb_admin_small_areas.pmtiles
 # 英國第 1 波（建成區 41.6MB、綠地 67.8MB 走 S3 deploy-assets/world/；gb_maritime_limits 0.5MB git-track）
@@ -172,6 +174,8 @@ public/world/ca_indigenous_lands.pmtiles
 public/world/ca_deprivation.pmtiles
 public/world/ca_place_names.pmtiles
 public/world/ca_terrain_hillshade.pmtiles
+public/world/ca_earthquakes.pmtiles
+public/world/ca_population_grid.pmtiles
 # 日本旅宿／自然保護／世界遺產交付資產。可發布檔走 S3 deploy-assets/world；
 # HOLD / non-commercial 檔只供本地 research，deployContract 另以逐檔 ledger 阻擋上傳。
 public/world/jp_accommodation_canonical_20260910.geojson

@@ -1,7 +1,14 @@
 import { CATEGORY_FILTERS, categoryDefs, categoryFilterExpr, categoryMaskKey } from "../data/categoryFilters";
+import {
+  JP_NATURAL_PARK_AREAS_URL, JP_NATURAL_PARK_AREAS_COLOR, JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_ATTRIBUTION,
+  JP_NATIONAL_PARKS_MOE_URL, JP_NATIONAL_PARK_ZONES, JP_NATIONAL_PARKS_MOE_ATTRIBUTION,
+  JP_WILDLIFE_MOE_URL, JP_WILDLIFE_MOE_COLOR, JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_ATTRIBUTION,
+  JP_DID_DEFAULT_YEAR, JP_DID_YEARS, jpDidUrl, jpDidAttribution, jpDidDensityColorExpr,
+} from "../data/jpNatureR2Types";
 import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE, POLLING_HEAT_FADE, POLLING_HEAT_PARTIES, POLLING_LEAD_COLOR, POLLING_MIN_ZOOM, POLLING_NEUTRAL_COLOR, POLLING_POINT_FADE, POLLING_ROAD_OPACITY, POLLING_TURNOUT_BREAKS, POLLING_TURNOUT_COLORS, pollingHeatRamp } from "../data/pollingStationsTypes";
 import { COUNCIL_DISTRICT_COLOR } from "../data/councilDistrictsLoader";
 import { ELECTION_CAMPS, ELECTION_CAMP_COLOR, ELECTION_HOLLOW_STATUSES, ELECTION_PAST_OPACITY, ELECTION_PAST_RADIUS, ELECTION_TIER_RADIUS } from "../data/electionEventsTypes";
+import { GB_EA_POLLUTION_ATTRIBUTION, GB_EA_POLLUTION_COUNTS, GB_EA_POLLUTION_SOURCE_ID, GB_ENV_HOLLOW_STROKE, GB_POLLUTION_COLOR } from "../data/gbEnvPlanningTypes";
 import { FORESTRY_PAINT_COLORS, HIKING_TRAIL_PAINT_COLORS } from "./layerPaintColors";
 import { gridRampFor, heatmapRampFor, heatmapStackFactor } from "../state/layerPalette";
 import { FACILITY_STATUS_PAINT_COLORS } from "./layerPaintColors";
@@ -27,7 +34,7 @@ import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALL
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
 import { withRepPoints } from "./repPointOverlays";
-import { BOUNDARY_GRAY, GRADED_SEAM, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
+import { BOUNDARY_GRAY, GRADED_SEAM, gradedSeamPaint, POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX, RASTER, EXTRUSION, LABEL, poiLabelLayout, labelHaloPaint, badgeLabelLayout, mapSeamColor, TRANSFER_STATION, transferRingColor, POINT_STROKE, pointStrokePaint, densePointOpacity, densePointsFromZoom, heatmapMaxzoom, heatmapPaint, POINT_OPACITY, propertyValueGridHeightScale } from "./mapStyleScale";
 
 /** 消防栓 211,530 點（G36 擴全國）：P-4 依點數為 10，但保留原本點 minzoom 12。 */
 const FIRE_HYDRANTS_POINTS_FROM_ZOOM = densePointsFromZoom(211_530, 12);
@@ -3701,6 +3708,39 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": ["case", hollow, campColor, mapSeamColor(isDark)] as unknown as string,
             "circle-stroke-width": ["case", hollow, 2, 0.8] as unknown as number,
             "circle-stroke-opacity": ["case", past, op * ELECTION_PAST_OPACITY, op] as unknown as number,
+          };
+        },
+      },
+    ],
+  },
+  // ── 🇬🇧 英格蘭污染排放申報（EA，站主限定）──
+  // dynamicData：useGbEaPollutionInventoryLayer 從 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499）拉一次後 setData。
+  // EA Conditional Licence 限 internal or personal purposes → 不走任何公開檔。配色、實心／空心語意比照蘇格蘭層 gbPollutionInventory：
+  // released（routes 非空＝有申報排放量）實心；無申報＝同色空心。2,536 點 z5 起直接畫（§3.8：英國全覽 z5.5 畫得出點）。
+  {
+    id: "gbPollutionInventoryEngland",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: GB_EA_POLLUTION_SOURCE_ID,
+    dynamicData: true,
+    attribution: GB_EA_POLLUTION_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 5,
+        paint: (isDark, p) => {
+          const def = densePointOpacity(GB_EA_POLLUTION_COUNTS.total);
+          const op = p?.gbPollutionInventoryEnglandOpacity ?? def;
+          const scale = p?.gbPollutionInventoryEnglandScale ?? 1;
+          const released = ["==", ["get", "released"], true];
+          const seam = pointStrokePaint(isDark, op / def);
+          return {
+            "circle-radius": 5 * scale,
+            "circle-color": GB_POLLUTION_COLOR,
+            "circle-opacity": ["case", released, op, 0] as unknown as number,
+            "circle-stroke-color": ["case", released, seam["circle-stroke-color"], GB_POLLUTION_COLOR] as unknown as string,
+            "circle-stroke-width": ["case", released, seam["circle-stroke-width"], GB_ENV_HOLLOW_STROKE] as unknown as number,
+            "circle-stroke-opacity": ["case", released, seam["circle-stroke-opacity"], op] as unknown as number,
           };
         },
       },
@@ -12300,6 +12340,61 @@ OVERLAY_REGISTRY.push(
         "line-opacity": p?.mapchallengeDay05SeaViewRunsOpacity ?? 0.85,
       }),
     }],
+  },
+);
+
+// ── 日本第二輪（2026-11-06，C057／C105／X009）：自然公園地域 A10-2015、環境省国立公園／国指定鳥獣保護区（令和7年4月）、
+// 人口集中地区 DID 五期（年份 select 換檔，同淹水情境 sourceUrlByParam）。色與類別讀 data/jpNatureR2Types.ts；
+// 類別多選走 categoryFilters/groupD（withCategoryFilter 自動接線）；點／面切換走 repPointLayers（DID 為統計區劃面，不做點切換）。
+function jpMatchColor(property: string, rows: readonly { value: string; color: string }[], fallback: string): unknown[] {
+  return ["match", ["to-string", ["get", property]], ...rows.flatMap((r) => [r.value, r.color]), fallback];
+}
+const JP_NATURAL_PARK_LEVEL_COLOR = jpMatchColor("level", JP_NATURAL_PARK_LEVELS, JP_NATURAL_PARK_AREAS_COLOR);
+const JP_NATIONAL_PARK_ZONE_COLOR = jpMatchColor("zone", JP_NATIONAL_PARK_ZONES, "#9ca3af");
+const JP_WILDLIFE_CATEGORY_COLOR = jpMatchColor("category", JP_WILDLIFE_CATEGORIES, JP_WILDLIFE_MOE_COLOR);
+
+OVERLAY_REGISTRY.push(
+  {
+    id: "jpNaturalParkAreas2015", sourceUrl: JP_NATURAL_PARK_AREAS_URL, sourceId: "jp-natural-park-areas-2015",
+    pmtiles: { sourceLayer: "jp_natural_park_areas_ksj_2015", minzoom: 4, maxzoom: 13 },
+    attribution: JP_NATURAL_PARK_AREAS_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["to-number", ["get", "level"], 1] }, paint: (_d, p) => ({ "fill-color": JP_NATURAL_PARK_LEVEL_COLOR, "fill-opacity": p?.jpNaturalParkAreas2015Opacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_NATURAL_PARK_LEVEL_COLOR, "line-width": 1, "line-opacity": (p?.jpNaturalParkAreas2015Opacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpNationalParksMoe", sourceUrl: JP_NATIONAL_PARKS_MOE_URL, sourceId: "jp-national-parks-moe",
+    pmtiles: { sourceLayer: "jp_national_parks_moe_r7", minzoom: 4, maxzoom: 13 },
+    attribution: JP_NATIONAL_PARKS_MOE_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      // zone_rank 小＝規制嚴，排在上層（sort-key 大者後畫）
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["-", 10, ["to-number", ["get", "zone_rank"], 7]] }, paint: (_d, p) => ({ "fill-color": JP_NATIONAL_PARK_ZONE_COLOR, "fill-opacity": p?.jpNationalParksMoeOpacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_NATIONAL_PARK_ZONE_COLOR, "line-width": 1, "line-opacity": (p?.jpNationalParksMoeOpacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpWildlifeProtectionMoe", sourceUrl: JP_WILDLIFE_MOE_URL, sourceId: "jp-wildlife-protection-moe",
+    pmtiles: { sourceLayer: "jp_wildlife_protection_areas_moe_r7", minzoom: 4, maxzoom: 13 },
+    attribution: JP_WILDLIFE_MOE_ATTRIBUTION,
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", layout: { "fill-sort-key": ["to-number", ["get", "class_rank"], 1] }, paint: (_d, p) => ({ "fill-color": JP_WILDLIFE_CATEGORY_COLOR, "fill-opacity": p?.jpWildlifeProtectionMoeOpacity ?? 0.35 }) },
+      { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": JP_WILDLIFE_CATEGORY_COLOR, "line-width": 1, "line-opacity": (p?.jpWildlifeProtectionMoeOpacity ?? 0.35) > 0 ? 0.8 : 0 }) },
+    ],
+  },
+  {
+    id: "jpDid", sourceUrl: jpDidUrl(JP_DID_DEFAULT_YEAR), sourceId: "jp-did",
+    sourceUrlByParam: { param: "jpDidYearIdx", urls: JP_DID_YEARS.map((y) => jpDidUrl(y)) },
+    pmtiles: { sourceLayer: "jp_did", minzoom: 4, maxzoom: 12 },
+    attribution: jpDidAttribution(JP_DID_DEFAULT_YEAR),
+    rebuildOnParamChange: ["fill", "outline"],
+    layers: [
+      { suffix: "fill", type: "fill", paint: (isDark, p) => ({ "fill-color": jpDidDensityColorExpr(isDark), "fill-opacity": p?.jpDidOpacity ?? 0.55 }) },
+      { suffix: "outline", type: "line", paint: (isDark) => gradedSeamPaint(isDark, true) },
+    ],
   },
 );
 

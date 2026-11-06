@@ -2,6 +2,7 @@ import type { CountryCode } from "../constants/countries";
 import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
+import { CA_NPRI_GROUPS, CA_QUAKE_COLOR, CA_RADIATION_COLOR, CA_WSER_STATUSES } from "./caEnvTypes";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
@@ -14,6 +15,7 @@ import { JP_LANDSLIDE_LAYER_COLOR } from "./jpLandslideWarningTypes";
 import { JP_INLAND_FLOOD_LAYER_COLOR } from "./jpInlandFloodTypes";
 import { JP_ZONING_LAYER_COLOR } from "./jpZoningUseDistrictTypes";
 import { JP_FOREST_LAYER_COLOR } from "./jpNationalForestTypes";
+import { JP_NATURE_R2_LAYER_COLORS } from "./jpNatureR2Colors";
 import { JP_WELFARE_LAYER_COLOR } from "./jpWelfareFacilityTypes";
 import { JP_ROAD_LAYER_COLOR, JP_EXPRESSWAY_LAYER_COLOR } from "./jpRoadTypes";
 import { JP_BUS_STOP_LAYER_COLOR } from "./jpBusStopTypes";
@@ -29,6 +31,7 @@ import { ATLAS_ENABLED_STATISTICS_RECIPES, atlasRecipeCountry, type AtlasStatist
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 import { statisticsManifestParams } from "./statisticsParamsSpec";
 import { KR_DATA_SPECS } from "./krDataLayers";
+import { repPointDense, repPointLayer } from "./repPointLayers";
 import type { KrDataKey } from "./krDataKeys";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -696,6 +699,17 @@ const KR_DATA_ENTRY_META: Record<KrDataKey, { theme: string; group: string; zh: 
     description: "南韓國立公園線形設施 671 段（探訪路 608、進入道路 54、纜車與軌道）", processing: "PCS_ITRF2000_TM（≈EPSG:5181）→ 4326；以公園邊界指派所屬公園；PMTiles z6–14", note: "平台標籤；22/23 座公園（缺 팔공산）" },
   krStreetTrees: { theme: "環境氣候", group: "都市樹木 Urban Trees", zh: "行道樹", alt: "Street Trees", icon: TreeDeciduous, dataset: "kr_street_trees", topics: ["南韓", "行道樹", "都市樹木", "樹種"],
     description: "南韓行道樹 1,043,931 棵（逐棵點位；僅約 85 個 시군구，서울、부산、대전、울산 幾乎未涵蓋）", processing: "座標混用 EPSG:5186／5179，依 좌표계코드轉換；剔 6,328 筆；PMTiles z13–15（34.9MB 走 deploy-assets）", note: "平台標籤；15/16 시·도（部分自治體）；無資料不代表沒有樹" },
+  // 第 6 波（2026-11-06）
+  krTerritorialSea: { theme: "底圖", group: "海域界線", zh: "領海線", alt: "Territorial Sea Limit", icon: Waves, dataset: "kr_territorial_sea", topics: ["南韓", "領海", "海域界線", "底圖"],
+    description: "南韓領海外側界線（12 海里；大韓海峽 3 海里；含鬱陵島、獨島周邊）", processing: "국립해양조사원 SHP EPSG:5179 → 4326；1 筆 3 段；PMTiles z0–10", note: "KOGL 1（출처표시）；只有外側線，EEZ 與暫定水域未涵蓋" },
+  krUrbanParks: { theme: "運動休閒", group: "公園 Parks", zh: "都市公園", alt: "Urban Parks", icon: Trees, dataset: "kr_urban_parks", topics: ["南韓", "公園", "都市公園", "綠地"],
+    description: "南韓都市公園 17,435 處（전국도시공원정보표준데이터，代表點）", processing: "同名同座標去重 735；清州市 195 筆座標落在他市剔除；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；點非公園範圍" },
+  krSportsFacilities: { theme: "運動休閒", group: "運動場館", zh: "綜合體育設施", alt: "Sports Complexes", icon: Activity, dataset: "kr_sports_facilities", topics: ["南韓", "體育", "運動場館", "LOCALDATA"],
+    description: "南韓民營綜合體育設施業 346 處（營業中 334、休業 12；LOCALDATA）", processing: "EPSG:5174 → 4326；排除歇業 214、取消 43、無座標 18；電話欄排除；PMTiles z0–14", note: "平台標籤；16/16 시·도；公營體育中心與學校設施未涵蓋" },
+  krCemeteriesOsm: { theme: "殯葬", group: "墓區範圍", zh: "墓地（OSM）", alt: "Cemeteries (OSM)", icon: Flower, dataset: "kr_cemeteries_osm", topics: ["南韓", "墓地", "殯葬", "OSM"],
+    description: "南韓 OSM 墓地 16,565 面（landuse=cemetery／amenity=grave_yard；代表點 16,842）", processing: "Geofabrik 2026-10-31 PBF，GDAL OSM driver 抽取；buffer(0) 修環；面 PMTiles z6–13＋代表點 z0–14", note: "ODbL；16/16 시·도但密度極不均；官方都計墓地境外不可取" },
+  krPopulationH3: { theme: "人口社經", group: "人口分布", zh: "人口網格（GHSL）", alt: "Population Grid (GHSL)", icon: Grid3x3, dataset: "ghsl_pop_h3_kr", topics: ["南韓", "人口", "網格", "H3", "GHSL"],
+    description: "南韓 2020 人口 H3 網格（GHSL 模型推估，第 7 級 28,436 格／第 8 級 160,048 格，合計 51,850,602 人）", processing: "GHS-POP R2023A 3 弧秒 → H3 r8（r7 為父格加總）；逐格面積算密度；PMTiles r7 z4–8、r8 z9–12", note: "CC BY 4.0；模型推估、非戶籍（住民登錄 2026-09 為 51,082,431）" },
 };
 const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => {
   const m = KR_DATA_ENTRY_META[spec.key];
@@ -713,7 +727,10 @@ const KR_DATA_MANIFEST_ENTRIES = Object.fromEntries(KR_DATA_SPECS.map((spec) => 
     legend: spec.key,
     popup: spec.key,
     params: (() => {
-      const kinds = [...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"])] as ("multiSelect" | "palette" | "slider")[];
+      // V-5 代表點層（repPointLayers）：layerParamsSpec 另補「樣式」select、≥1 萬點熱區色盤、「大小」滑桿
+      const rep = repPointLayer(spec.key);
+      const kinds = [...(rep ? ["select"] : []), ...(spec.cats ? ["multiSelect"] : []), ...(spec.heat ? ["palette"] : []), ...(isPoint ? ["slider", "slider"] : ["slider"]),
+        ...(rep && repPointDense(rep) ? ["palette"] : []), ...(rep ? ["slider"] : [])] as ("select" | "multiSelect" | "palette" | "slider")[];
       return { count: kinds.length, kinds };
     })(),
     description: m.description,
@@ -977,7 +994,7 @@ export const LAYER_MANIFEST = {
     popup: "electionEvents2026",
     params: { count: 4, kinds: ["multiSelect", "slider", "slider", "select"] },
     description: "研究中；站主限定。2026 地方選舉（投票日 11/28）各陣營公開預告或報導過的造勢、掃街、座談等活動。色＝陣營、大小＝規模；相對時間軸時間，已過的活動變淡，未來的照常顯示。",
-    topics: ["政治", "選舉", "活動", "研究中"],
+    topics: ["政治", "選舉", "活動", "研究中", "OWNER_ONLY"],
   },
 
   // 🗳 政治：2024 投開票所（公開 bbox RPC get_polling_stations_2024；gis-platform mig 495；不 gate、不進 embed 白名單）
@@ -2008,7 +2025,7 @@ export const LAYER_MANIFEST = {
     popup: "allenCoralAtlas",
     params: { count: 3, kinds: ["slider", "select", "select"] },
     description: "Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。",
-    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究"],
+    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究", "OWNER_ONLY"],
   },
 
   globalEvents: {
@@ -2663,7 +2680,7 @@ export const LAYER_MANIFEST = {
     popup: ["busCrowdingSimVehicle", "busCrowdingSim"],
     params: { count: 4, kinds: ["slider", "select", "select", "select"] },
     description: "研究中；站主限定。臺北市 307 走廊周邊 257 條公車路線（新北市區公車未涵蓋）平日 7–9 時各路段「超載班次比例」：離開該站的班次中，負載達容量（假設 65 人）的比例。可切參數版本（7–9 時佔全日 13.7% 較寬鬆／18.0% 較擁擠）與方案（基準＋7 個調度情境）。班次 < 5 的路段不畫。資料日 2026-10-14；模擬推估，非實測，數字只看範圍。來源：TDX 公車路線與班表、taipei-gis-analytics 公車擁擠模型。",
-    topics: ["交通", "公車", "擁擠", "模擬", "推估", "研究中"],
+    topics: ["交通", "公車", "擁擠", "模擬", "推估", "研究中", "OWNER_ONLY"],
   },
   transitReachGrid: {
     key: "transitReachGrid",
@@ -2966,6 +2983,100 @@ export const LAYER_MANIFEST = {
     params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
     description: "日本国有林（依機能類型分 6 類）；僅國有林、民有林不在內；合併分類面、非小班",
     topics: ["世界", "日本", "国有林", "森林", "林業", "保安林"],
+  },
+  // ── 日本第二輪（2026-11-06，layer-mapping-r2 C057／C105／X009）：registry 面層 ──
+  jpNaturalParkAreas2015: {
+    key: "jpNaturalParkAreas2015",
+    country: "JP", section: { theme: "觀光", group: "自然公園 Natural Parks" },
+    ...layerName({ zh: "自然公園地域", alt: "自然公園地域", qualifier: "2015" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpNaturalParkAreas2015,
+    icon: TreePine,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_natural_park_areas_ksj_2015：国土数値情報 A10 自然公園地域 2015 年度 47 縣 SHP，19,193 面（自然公園地域外圍 8,748、特別地域 8,965、特別保護地区 1,480）；PMTiles z4–13，z11 起不丟面",
+      note: "來源只有三個區分層，沒有公園名稱與国立／国定／都道府県立種別（名稱與種別看 jpNationalParksMoe 或研究層 jpNaturalParks*）；細區分（特別地域・特別保護地区）官方註明為參考表示、精度不保證；各縣原始資料年度 2002–2014 不一；岡山県非商用（tile 屬性 license_note）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-natural-park-areas-2015", url: "./world/jp_natural_park_areas_ksj_2015.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-natural-park-areas-2015-points", url: "./world/jp_natural_park_areas_ksj_2015_points.pmtiles", sourceLayer: "jp_natural_park_areas_ksj_2015_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpNaturalParkAreas2015",
+    popup: "jpNaturalParkAreas2015",
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
+    description: "日本自然公園（国立・国定・都道府県立合計）的範圍與規制強度：外圍、特別地域、特別保護地区三區分；無公園名稱與種別",
+    topics: ["世界", "日本", "自然公園", "保護區", "国土数値情報", "A10"],
+  },
+  jpNationalParksMoe: {
+    key: "jpNationalParksMoe",
+    country: "JP", section: { theme: "觀光", group: "自然公園 Natural Parks" },
+    ...layerName({ zh: "國立公園", alt: "国立公園", qualifier: "令和7" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpNationalParksMoe,
+    icon: TreePine,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_national_parks_moe_r7：環境省 生物多様性センター「国立公園区域等に関するGISデータ」nps.zip（令和7年4月），35 園 15,293 面、ZONE 7 類；PMTiles z4–13",
+      note: "只有国立公園；国定公園與都道府県立自然公園看 jpNaturalParkAreas2015。授權：生物多様性センター利用規約別紙把本 GIS データ列為非所管，不適用該站 PDL1.0，資料頁 gis.biodic.go.jp 連不上，利用條件未確認（使用者非商用，照常上圖並標 license_note）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-national-parks-moe", url: "./world/jp_national_parks_moe_r7.pmtiles", sourceLayer: "jp_national_parks_moe_r7", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-national-parks-moe-points", url: "./world/jp_national_parks_moe_r7_points.pmtiles", sourceLayer: "jp_national_parks_moe_r7_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpNationalParksMoe",
+    popup: "jpNationalParksMoe",
+    params: { count: 5, kinds: ["select", "multiSelect", "slider", "palette", "slider"] },
+    description: "日本 35 座國立公園的公園計畫地種區分（特別保護地區、第 1–3 種特別地域、普通地域、海域公園地區），環境省 2025-04 版",
+    topics: ["世界", "日本", "國立公園", "自然公園", "保護區", "環境省"],
+  },
+  jpWildlifeProtectionMoe: {
+    key: "jpWildlifeProtectionMoe",
+    country: "JP", section: { theme: "海洋", group: "海域保護與漁業 Protected Areas & Fisheries" },
+    ...layerName({ zh: "國指定鳥獸保護區", alt: "国指定鳥獣保護区", qualifier: "令和7" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpWildlifeProtectionMoe,
+    icon: PawPrint,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_wildlife_protection_areas_moe_r7：環境省「国指定鳥獣保護区区域等に関するGISデータ」nwp.zip（令和7年4月），347 面（鳥獣保護区 161、特別保護地区 184、特別保護指定地域 2）",
+      note: "只有国指定；都道府県指定鳥獣保護区未涵蓋。內容與研究層 jpWildlifeProtection*（jp_wildlife_protection_moe_202504）同一版本，本層為正式層新檔名。授權同 jpNationalParksMoe（利用條件未確認）",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-wildlife-protection-moe", url: "./world/jp_wildlife_protection_areas_moe_r7.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7", minzoom: 4, maxzoom: 13 },
+      { kind: "pmtiles", sourceId: "jp-wildlife-protection-moe-points", url: "./world/jp_wildlife_protection_areas_moe_r7_points.pmtiles", sourceLayer: "jp_wildlife_protection_areas_moe_r7_points", minzoom: 4, maxzoom: 10 },
+    ],
+    legend: "jpWildlifeProtectionMoe",
+    popup: "jpWildlifeProtectionMoe",
+    params: { count: 5, kinds: ["select", "multiSelect", "multiSelect", "slider", "slider"] },
+    description: "日本國指定鳥獸保護區 347 面，依指定區分（集團渡來地、集團繁殖地、稀少鳥獸棲息地、大規模棲息地）上色；含特別保護地區",
+    topics: ["世界", "日本", "鳥獸保護", "保護區", "環境省"],
+  },
+  jpDid: {
+    key: "jpDid",
+    country: "JP", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口集中地區 DID", alt: "人口集中地区" }),
+    expandable: true,
+    color: JP_NATURE_R2_LAYER_COLORS.jpDid,
+    icon: Users,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "taipei-gis-analytics pipelines/world/jp_did_ksj：国土数値情報 A16 人口集中地区 1995／2000／2005／2010／2015 逐縣檔，多部分 DID 合併後各期 1,534／1,507／1,494／1,499／1,478 區，一期一支 PMTiles（z4–12）",
+      note: "DID＝國勢調查人口密度約 4,000 人/km² 以上的基本單位區相連、合計 5,000 人以上的地區（総務省統計局定義）。2020 期 KSJ 頁面未列、未納入；1990 以前各期非商用、本層不收。前回人口／面積缺值（新設 DID）保留空白",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "jp-did", url: "./world/jp_did_ksj_2015.pmtiles", sourceLayer: "jp_did", minzoom: 4, maxzoom: 12 },
+    legend: "jpDid",
+    popup: "jpDid",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本人口集中地區（DID）五期（1995–2015 國勢調查），可切年份；依人口密度 4 級上色",
+    topics: ["世界", "日本", "人口", "都市化", "國勢調查", "国土数値情報", "A16"],
   },
   jpWelfareDisability: {
     key: "jpWelfareDisability",
@@ -4838,6 +4949,183 @@ export const LAYER_MANIFEST = {
     topics: ["加拿大", "底圖", "地形", "陰影"],
   },
 
+  // 🇨🇦 加拿大第 3 波（2026-11-06：C095 氣象站、C096 AQHI、C076 輻射、C099 NPRI、C098 污水系統、C070 歷史地震）＋GHSL 人口網格
+  caClimateStations: {
+    key: "caClimateStations",
+    country: "CA", section: { theme: "環境氣候", group: "氣象" },
+    ...layerName({ zh: "氣象站", alt: "Climate Stations", qualifier: "MSC" }),
+    expandable: true,
+    color: "#4dd0e1",
+    icon: Thermometer,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_climate_stations", confidence: "HIGH" }],
+      processing: "ECCC MSC GeoMet OGC API climate-stations 全量 8,435 站；status 依最後資料日（2026 年仍有資料＝現役 1,160、其餘歷史站 7,275）；PMTiles z3–10",
+      note: "ECCC Data Services End-use Licence（可商用、須署名，非 OGL）；13/13 省／地區；只有站點與資料期間，不含觀測值",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaClimateStationsLayer 自建 mapbox-pmtiles source；source-layer=ca_climate_stations；5.0MB git-track",
+      staticAssets: ["./world/ca_climate_stations.pmtiles"],
+    },
+    legend: "caClimateStations",
+    popup: "caClimateStations",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "加拿大氣象站 8,435 站（現役 1,160、歷史站 7,275；ECCC 氣候站目錄）",
+    topics: ["加拿大", "氣象", "氣象站", "ECCC"],
+  },
+  caAqhiStations: {
+    key: "caAqhiStations",
+    country: "CA", section: { theme: "環境氣候", group: "空品" },
+    ...layerName({ zh: "AQHI 空品健康指數地點", alt: "AQHI Locations", qualifier: "MSC" }),
+    expandable: true,
+    color: "#00bcd4",
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_aqhi_stations", confidence: "HIGH" }],
+      processing: "ECCC MSC GeoMet OGC API aqhi-stations：134 個 AQHI 發布地點；PMTiles z3–10",
+      note: "ECCC Data Services End-use Licence（可商用、須署名）；13/13 省／地區（魁北克 3 處）；地點是 AQHI 預報／觀測的社區代表點，不是單一測站；不含即時指數",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaAqhiStationsLayer 自建 mapbox-pmtiles source；source-layer=ca_aqhi_stations；0.1MB git-track",
+      staticAssets: ["./world/ca_aqhi_stations.pmtiles"],
+    },
+    legend: "caAqhiStations",
+    popup: "caAqhiStations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "加拿大空品健康指數（AQHI）發布地點 134 處（ECCC）",
+    topics: ["加拿大", "空品", "AQHI", "空氣品質"],
+  },
+  caRadiationStations: {
+    key: "caRadiationStations",
+    country: "CA", section: { theme: "環境氣候", group: "環境污染" },
+    ...layerName({ zh: "環境輻射監測站", alt: "Radiation Monitoring Stations", qualifier: "CRMN" }),
+    expandable: true,
+    color: CA_RADIATION_COLOR,
+    icon: Radiation,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_radiation_stations", confidence: "HIGH" }],
+      processing: "Health Canada CRMN MapServer：/query 不回幾何，改以 /find 聯集查詢並驗證與總數 46 一致；PMTiles z3–10",
+      note: "OGL–Canada；13/13 省／地區；只有站點與監測項目，不含讀值",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaRadiationStationsLayer 自建 mapbox-pmtiles source；source-layer=ca_radiation_stations；0.1MB git-track",
+      staticAssets: ["./world/ca_radiation_stations.pmtiles"],
+    },
+    legend: "caRadiationStations",
+    popup: "caRadiationStations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "加拿大輻射監測網（CRMN）46 站（Health Canada）",
+    topics: ["加拿大", "環境輻射", "輻射", "核安"],
+  },
+  caNpriFacilities: {
+    key: "caNpriFacilities",
+    country: "CA", section: { theme: "環境氣候", group: "環境污染" },
+    ...layerName({ zh: "污染物排放申報設施", alt: "Pollutant Release Facilities", qualifier: "NPRI" }),
+    expandable: true,
+    color: CA_NPRI_GROUPS[0]!.color,
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_npri_facilities", confidence: "HIGH" }],
+      processing: "ECCC NPRI 地理位置檔 24,552 列 → 剔無效座標 3、重複編號 9：24,540 設施；關鍵產業別 19 類粗分 6 群；最近申報年 ≥2023 為仍申報（8,790）；PMTiles z3–10",
+      note: "OGL–Canada；13/13 省／地區（4 筆無省別）；是申報設施點位，不含排放量；歷年曾申報設施都在內",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaNpriFacilitiesLayer 自建 mapbox-pmtiles source；source-layer=ca_npri_facilities；z10 以下熱區、z10 起單點；10.3MB git-track",
+      staticAssets: ["./world/ca_npri_facilities.pmtiles"],
+    },
+    legend: "caNpriFacilities",
+    popup: "caNpriFacilities",
+    params: { count: 5, kinds: ["multiSelect", "multiSelect", "palette", "slider", "slider"] },
+    description: "加拿大國家污染物排放清冊（NPRI）申報設施 24,540 處（1993–2025 年曾申報；依產業群著色）",
+    topics: ["加拿大", "污染", "NPRI", "工廠", "排放"],
+  },
+  caWastewaterSystems: {
+    key: "caWastewaterSystems",
+    country: "CA", section: { theme: "環境氣候", group: "水質與污水 Water Quality" },
+    ...layerName({ zh: "污水處理系統", alt: "Wastewater Systems", qualifier: "WSER" }),
+    expandable: true,
+    color: CA_WSER_STATUSES[0]!.color,
+    icon: Droplets,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_wastewater_systems", confidence: "HIGH" }],
+      processing: "ECCC 污水系統放流水法規（WSER）申報資料 2,538 列 → 剔無效座標 1：2,537 系統（運轉中 2,475、已除役 62）；點大小依日均放流量；排除業主名稱與郵遞區號；PMTiles z3–10",
+      note: "OGL–Canada；11/13 省／地區（西北地區、努納武特未涵蓋：WSER 不適用）；只含受 WSER 管制、日處理 ≥100 m³ 的系統",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaWastewaterSystemsLayer 自建 mapbox-pmtiles source；source-layer=ca_wastewater_systems；2.4MB git-track",
+      staticAssets: ["./world/ca_wastewater_systems.pmtiles"],
+    },
+    legend: "caWastewaterSystems",
+    popup: "caWastewaterSystems",
+    params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
+    description: "加拿大污水處理系統 2,537 處（WSER 申報；點大小依日均放流量）",
+    topics: ["加拿大", "污水", "下水道", "水質"],
+  },
+  caEarthquakes: {
+    key: "caEarthquakes",
+    country: "CA", section: { theme: "災害", group: "地震 / 斷層" },
+    ...layerName({ zh: "歷史地震", alt: "Earthquakes 1985–2019", qualifier: "NRCan" }),
+    expandable: true,
+    color: CA_QUAKE_COLOR,
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ca_earthquakes", confidence: "HIGH" }],
+      processing: "NRCan 加拿大地震目錄封存檔（open.canada.ca 4cedd37e，eqarchive-en.csv，1985–2019）101,365 筆；依規模分 5 級；另產規模 ≥4 子層（2,605 筆，全縮放不抽稀）；PMTiles z3–10",
+      note: "OGL–Canada；13/13 省／地區＋鄰近海域與境外事件（21,904 筆無省別）；資料停更於 2019；即時 FDSN 服務頁未附授權，未使用",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaEarthquakesLayer 自建 mapbox-pmtiles source；source-layer=ca_earthquakes（z12 以下熱區、z12 起單點）＋ca_earthquakes_major（規模 ≥4，z3–12）；24.9MB 走 S3 deploy-assets（gitignore）",
+      staticAssets: ["./world/ca_earthquakes.pmtiles"],
+    },
+    legend: "caEarthquakes",
+    popup: "caEarthquakes",
+    params: { count: 4, kinds: ["multiSelect", "palette", "slider", "slider"] },
+    description: "加拿大地震目錄 1985–2019 共 101,365 筆（NRCan；規模 ≥4 全國視角畫點，其餘拉遠畫熱區）",
+    topics: ["加拿大", "災害", "地震", "歷史地震", "NRCan"],
+  },
+  caPopulationGrid: {
+    key: "caPopulationGrid",
+    country: "CA", section: { theme: "人口社經", group: "人口分布" },
+    ...layerName({ zh: "人口網格", alt: "Population Grid", qualifier: "GHSL 2020" }),
+    expandable: true,
+    color: "#fea332", // YlOrBr（人口社經主題預設色盤）第 5 階
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ghsl_pop_h3_ca", confidence: "HIGH" }],
+      processing: "JRC GHSL GHS-POP R2023A 2020（3 弧秒）依格心落在省界（CBF 2021，含 0.02° 緩衝）彙整成 H3 第 8 級，再往上彙整成第 5／6／7 級；只留有人口的格；密度＝人口÷格面積",
+      note: "CC BY 4.0；GHSL 2020 模型推估、非普查；全國合計與 2021 普查 36,991,981 人比較見 analytics data-catalog",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCaPopulationGridLayer 自建 mapbox-pmtiles source；source-layer=ca_population_grid_r5（z2–5）／_r6（z5–7）／_r7（z7 起）；41.3MB 走 S3 deploy-assets（gitignore）",
+      staticAssets: ["./world/ca_population_grid.pmtiles"],
+    },
+    legend: "caPopulationGrid",
+    popup: "caPopulationGrid",
+    params: { count: 2, kinds: ["palette", "slider"] },
+    description: "加拿大人口網格（GHSL 2020 模型推估，H3 六角格；拉遠第 5 級、放大到第 7 級）",
+    topics: ["加拿大", "人口", "人口密度", "GHSL", "H3"],
+  },
+
   // 🇬🇧 英國第 1 波（2026-10-29：C002 海域界線、C023 建成區、C044／C043／C052 綠地三層）
   // C003 地形兩層（gb_terrain_hillshade／gb_terrain_relief）已由 analytics #246 重匯出成 PNG，見下方 gbTerrainHillshade／gbTerrainRelief。
   gbMaritimeLimits: {
@@ -6267,7 +6555,7 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
       processing: "只上蘇格蘭：analytics 成品 gb_pollution_inventory（3,990 點）篩 authority==SEPA → SEPA SPRI 2017 申報 1,450 場址，前端另產 gb_pollution_inventory_sepa.pmtiles（z5–13，同 layer 名）；英格蘭 EA Pollution Inventory 2024 不進前端任何檔案",
-      note: "Scotland：OGL（SEPA SPRI Atom <rights>）；England：EA Conditional Licence 特別條件限「internal or personal purposes」，授權待使用者拍板，暫未顯示；Wales、Northern Ireland 未涵蓋；1/4 顯示",
+      note: "Scotland：OGL（SEPA SPRI Atom <rights>）；England：EA Conditional Licence 特別條件限「internal or personal purposes」，不在本層，另見站主限定圖層 gbPollutionInventoryEngland；Wales、Northern Ireland 未涵蓋；1/4 顯示",
     },
     dataClass: "D",
     source: {
@@ -6278,8 +6566,35 @@ export const LAYER_MANIFEST = {
     legend: "gbPollutionInventory",
     popup: "gbPollutionInventory",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "蘇格蘭環保署（SEPA）污染物排放申報場址 1,450 處（2017 年），有申報空氣或水體排放實心、申報皆無空心；英格蘭授權待確認暫未顯示，威爾斯、北愛未涵蓋",
+    description: "蘇格蘭環保署（SEPA）污染物排放申報場址 1,450 處（2017 年），有申報空氣或水體排放實心、申報皆無空心；英格蘭 EA 資料另見站主限定圖層，威爾斯、北愛未涵蓋",
     topics: ["英國", "蘇格蘭", "污染", "排放", "工廠", "環境"],
+  },
+  // 英格蘭 EA（站主限定）：EA Conditional Licence 限 internal or personal purposes，使用者 2026-11-06 拍板；
+  // 資料只在 Supabase reference.world_gb_ea_pollution_inventory，經 owner-only RPC get_gb_ea_pollution_inventory（gis-platform mig 499）讀取。
+  gbPollutionInventoryEngland: {
+    key: "gbPollutionInventoryEngland",
+    country: "GB", section: { theme: "環境氣候", group: "環境污染" },
+    ...layerName({ zh: "污染排放申報場址", alt: "Pollution Release Sites", qualifier: "EA 英格蘭" }),
+    expandable: true,
+    color: GB_POLLUTION_COLOR,
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
+      processing: "analytics 成品 gb_pollution_inventory 取 authority==Environment Agency 2,540 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 只回座標在英格蘭的 2,536 點（另 4 筆 postcode 在英格蘭、座標落在蘇格蘭／威爾斯，疑似錯誤不回）；released＝routes 非空",
+      note: "England：EA Conditional Licence 特別條件限「internal or personal purposes」、一年期（2026-10-29 起）→ 站主限定，不進 public/、S3 deploy-assets、R2、分析倉庫或任何公開網址；Scotland 另見 gbPollutionInventory（OGL）",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "gb-ea-pollution-inventory",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gbPollutionInventoryEngland",
+    popup: "gbPollutionInventoryEngland",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,536 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
+    topics: ["英國", "英格蘭", "污染", "排放", "工廠", "環境", "OWNER_ONLY"],
   },
   gbNoise: {
     key: "gbNoise",
@@ -13845,9 +14160,8 @@ export const LAYER_MANIFEST = {
   //    （同批 3 教育 edu-schools ×7、批 2 運動場館 ×5）——**不是**拍板②的「同 key 多 config」，
   //    仍寫單數形，契約測試按 `id` 過濾不受影響。7 層以畜種 filter 切分同一份資料，
   //    popup 也共用一個 `livestockFarm`（7 → 1）。
-  // ⚠️ 它們同時列在 `GATED_LAYERS`（owner-only RPC），但 THEMES 的 LayerDef **沒有**
-  //    `gated: true` —— GATED_LAYERS 是另一張 runtime 表，不在本 manifest 派生的四張裡，
-  //    manifest 的 `gated` 對齊的是 LayerDef → 照現況不填。
+  // ⚠️ 它們是站主限定（owner-only RPC）：名單來源是 topics 的 "OWNER_ONLY"（GATED_LAYERS 由此派生），
+  //    不用 `gated` 欄位（`gated` 對齊的是 LayerDef → 照現況不填）。
   livestockFarmPig: {
     key: "livestockFarmPig",
     country: "TW", section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
@@ -13869,7 +14183,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養豬場登記點位（依飼養規模分級）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmChicken: {
@@ -13893,7 +14207,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養雞場登記點位（蛋雞／肉雞）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmCattle: {
@@ -13917,7 +14231,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養牛場登記點位（乳牛／肉牛）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmDuck: {
@@ -13941,7 +14255,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養鴨場登記點位",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmGoose: {
@@ -13965,7 +14279,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養鵝場登記點位",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmSheep: {
@@ -13989,7 +14303,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "養羊場登記點位（綿羊／山羊）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFarmOther: {
@@ -14013,7 +14327,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockFarm",
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "其他畜禽飼養場（鹿／兔／鴕鳥等）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockSlaughter: {
@@ -14037,7 +14351,7 @@ export const LAYER_MANIFEST = {
     popup: "livestockSlaughter",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "合法屠宰場（依屠宰畜種與規模）",
-    topics: ["農業", "畜牧", "動態"],
+    topics: ["農業", "畜牧", "動態", "OWNER_ONLY"],
   },
 
   livestockFeed: {
@@ -15579,10 +15893,9 @@ export const LAYER_MANIFEST = {
     legend: "facPrimary",
     popup: "powerPlant",
     params: { count: 5, kinds: ["multiSelect", "slider", "slider", "slider", "slider"] },
-    // ⚠️ 本層在 GATED_LAYERS 裡，但 THEMES 的 LayerDef **沒有** gated: true
-    //    → manifest 對齊 LayerDef 不填（同批 7 飼養場 7 層）。
+    // ⚠️ 站主限定靠 topics "OWNER_ONLY"（GATED_LAYERS 由此派生），不填 `gated`（同批 7 飼養場 7 層）。
     description: "SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）",
-    topics: ["能源", "電力", "發電廠"],
+    topics: ["能源", "電力", "發電廠", "OWNER_ONLY"],
   },
 
   facSecondary: {
@@ -15606,7 +15919,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "SSOT 小型分散式發電設施",
-    topics: ["能源", "電力", "發電廠"],
+    topics: ["能源", "電力", "發電廠", "OWNER_ONLY"],
   },
 
   facPlanned: {
@@ -15630,7 +15943,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 4, kinds: ["multiSelect", "multiSelect", "slider", "slider"] },
     description: "SSOT 規劃中／興建中發電廠",
-    topics: ["能源", "電力", "發電廠", "規劃"],
+    topics: ["能源", "電力", "發電廠", "規劃", "OWNER_ONLY"],
   },
 
   facHistorical: {
@@ -15654,7 +15967,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "SSOT 已除役／停機發電廠",
-    topics: ["能源", "電力", "發電廠", "歷史"],
+    topics: ["能源", "電力", "發電廠", "歷史", "OWNER_ONLY"],
   },
 
   facOsmSupplement: {
@@ -15678,7 +15991,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 補充的發電設施（SSOT 未收錄的 IPP／小型廠）",
-    topics: ["能源", "電力", "發電廠", "OSM"],
+    topics: ["能源", "電力", "發電廠", "OSM", "OWNER_ONLY"],
   },
 
   powerGenerationUnit: {
@@ -15708,7 +16021,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 4, kinds: ["multiSelect", "toggle", "slider", "slider"] },
     description: "台電機組即時出力（預設平面圓點：色＝燃料、大小＝出力 MW；立體效果開啟疊 3D 光柱）",
-    topics: ["能源", "電力", "即時"],
+    topics: ["能源", "電力", "即時", "OWNER_ONLY"],
   },
 
   powerPlantGlow: {
@@ -15732,7 +16045,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）",
-    topics: ["能源", "電力", "視覺實驗"],
+    topics: ["能源", "電力", "視覺實驗", "OWNER_ONLY"],
   },
 
   aviationRestrictedGlow: {
@@ -15759,7 +16072,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 1, kinds: ["slider"] },
     description: "機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）",
-    topics: ["能源", "視覺實驗", "航空"],
+    topics: ["能源", "視覺實驗", "航空", "OWNER_ONLY"],
   },
 
   // ── 電力 · 電網 ────────────────────────────────────────────────────
@@ -15787,7 +16100,7 @@ export const LAYER_MANIFEST = {
     popup: "osmSubstation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 區域變電所（migration 235 電網層級分色）",
-    topics: ["能源", "電網", "變電所"],
+    topics: ["能源", "電網", "變電所", "OWNER_ONLY"],
   },
 
   osmSubstationsEhv: {
@@ -15811,7 +16124,7 @@ export const LAYER_MANIFEST = {
     popup: "osmSubstation",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 超高壓變電所（345kV 級，halo ＋ core 兩層）",
-    topics: ["能源", "電網", "變電所"],
+    topics: ["能源", "電網", "變電所", "OWNER_ONLY"],
   },
 
   osmPowerLines: {
@@ -15835,7 +16148,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerLine",
     params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
-    topics: ["能源", "電網", "輸電線"],
+    topics: ["能源", "電網", "輸電線", "OWNER_ONLY"],
   },
 
   osmPowerTowers: {
@@ -15860,7 +16173,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerTower",
     params: { count: 3, kinds: ["slider", "palette", "slider"] },
     description: "OSM 高壓鐵塔點位",
-    topics: ["能源", "電網", "鐵塔"],
+    topics: ["能源", "電網", "鐵塔", "OWNER_ONLY"],
   },
 
   powerPoles: {
@@ -15911,7 +16224,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）",
-    topics: ["能源", "電網", "視覺實驗"],
+    topics: ["能源", "電網", "視覺實驗", "OWNER_ONLY"],
   },
 
   substationEhvGlow: {
@@ -15935,7 +16248,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）",
-    topics: ["能源", "電網", "視覺實驗"],
+    topics: ["能源", "電網", "視覺實驗", "OWNER_ONLY"],
   },
   // ══════════════════════════════════════════════════════════════════
   // ⛽ 能源 Energy —— 石化 · 油氣 10 ＋ 石化 · 加油站 5（AR-22 Phase 2 批 8-4）
@@ -16098,7 +16411,7 @@ export const LAYER_MANIFEST = {
     popup: "lpgSubpackaging",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化石油氣分裝場／儲存場",
-    topics: ["能源", "石化", "LPG"],
+    topics: ["能源", "石化", "LPG", "OWNER_ONLY"],
   },
 
   lpgRetailers: {
@@ -16122,7 +16435,7 @@ export const LAYER_MANIFEST = {
     popup: "lpgRetailers",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化石油氣加氣站與瓦斯零售商",
-    topics: ["能源", "石化", "LPG"],
+    topics: ["能源", "石化", "LPG", "OWNER_ONLY"],
   },
 
   lngTerminal: {
@@ -16146,7 +16459,7 @@ export const LAYER_MANIFEST = {
     popup: "lngTerminal",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "液化天然氣接收站（GEM 全球資料庫台灣段）",
-    topics: ["能源", "石化", "LNG"],
+    topics: ["能源", "石化", "LNG", "OWNER_ONLY"],
   },
 
   pipelineGas: {
@@ -16170,7 +16483,7 @@ export const LAYER_MANIFEST = {
     popup: "pipelineGas",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "天然氣輸送主幹線（GEM）",
-    topics: ["能源", "石化", "管線"],
+    topics: ["能源", "石化", "管線", "OWNER_ONLY"],
   },
 
   pipelineOilGas: {
@@ -16194,7 +16507,7 @@ export const LAYER_MANIFEST = {
     popup: "pipelineOilGas",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "原油／NGL 輸送管線（GEM）",
-    topics: ["能源", "石化", "管線"],
+    topics: ["能源", "石化", "管線", "OWNER_ONLY"],
   },
 
   industrialRefinery: {
@@ -16218,7 +16531,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialRefinery",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 煉油廠／石化工廠面（halo ＋ fill ＋ 可切邊框）",
-    topics: ["能源", "石化", "工業"],
+    topics: ["能源", "石化", "工業", "OWNER_ONLY"],
   },
 
   industrialStorageTank: {
@@ -16242,7 +16555,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialStorageTank",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 油氣儲槽面（halo ＋ fill ＋ 可切邊框）",
-    topics: ["能源", "石化", "工業"],
+    topics: ["能源", "石化", "工業", "OWNER_ONLY"],
   },
 
   industrialPowerPlant: {
@@ -16268,7 +16581,7 @@ export const LAYER_MANIFEST = {
     popup: "industrialPowerPlant",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "OSM 火力發電廠廠區面（與 SSOT 的點位 facPrimary 互補）",
-    topics: ["能源", "石化", "工業", "發電廠"],
+    topics: ["能源", "石化", "工業", "發電廠", "OWNER_ONLY"],
   },
 
   coalTerminal: {
@@ -16292,7 +16605,7 @@ export const LAYER_MANIFEST = {
     popup: "coalTerminal",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "燃煤進口碼頭（GEM）",
-    topics: ["能源", "石化", "煤炭"],
+    topics: ["能源", "石化", "煤炭", "OWNER_ONLY"],
   },
 
   fossilFuelInfra: {
@@ -16322,7 +16635,7 @@ export const LAYER_MANIFEST = {
     popup: "fossilFuelFacility",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "早期能源 MVP 的石化設施合併層（已被上面的分類層取代，保留相容）",
-    topics: ["能源", "石化", "legacy"],
+    topics: ["能源", "石化", "legacy", "OWNER_ONLY"],
   },
   // ══════════════════════════════════════════════════════════════════
   // ♻️ 能源 Energy —— 再生能源 6 ＋ 覆蓋分析 5（AR-22 Phase 2 批 8-5）
@@ -16718,7 +17031,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 2, kinds: ["multiSelect", "slider"] },
     description: "SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留",
-    topics: ["能源", "再生能源", "風力", "orphan"],
+    topics: ["能源", "再生能源", "風力", "orphan", "OWNER_ONLY"],
   },
 
   islandPowerGrid: {
@@ -16790,7 +17103,7 @@ export const LAYER_MANIFEST = {
     popup: "osmPowerPlantStatic",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar",
-    topics: ["能源", "電力", "發電廠", "orphan"],
+    topics: ["能源", "電力", "發電廠", "orphan", "OWNER_ONLY"],
   },
 
   powerPlants: {
@@ -16815,7 +17128,7 @@ export const LAYER_MANIFEST = {
     popup: "powerPlant",
     params: { count: 3, kinds: ["multiSelect", "slider", "slider"] },
     description: "legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar",
-    topics: ["能源", "電力", "發電廠", "orphan", "legacy"],
+    topics: ["能源", "電力", "發電廠", "orphan", "legacy", "OWNER_ONLY"],
   },
 
   powerStatusHud: {
