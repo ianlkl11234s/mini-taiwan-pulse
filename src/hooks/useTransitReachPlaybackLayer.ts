@@ -161,6 +161,7 @@ export function useTransitReachPlaybackLayer(
       if (cancelled) return;
       layerRef.current!.setTimes(null, null, false);
       setTransitReachPlaybackState(null);
+      setIso(null);
       reportSimBundleError(TRANSIT_REACH_SLUG, "od", error);
     });
     return () => { cancelled = true; };
