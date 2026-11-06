@@ -181,7 +181,7 @@ npm test
 npm run dev
 ```
 
-**給使用者驗收的本機站**：worktree 停在最新 `origin/develop`，`npx vite --strictPort --host 127.0.0.1 --port <空 port>`（不歸 gis-up 管，只殺自己的 PID，禁 `pkill -f vite`）。截圖用 agent-browser：`--session <唯一名>`、`--args "--use-angle=swiftshader,--enable-unsafe-swiftshader,--ignore-gpu-blocklist"`、每次呼叫 ≤60 秒；每層截國家全覽縮放＋放大各一張。不要 curl vite 轉譯後的 `/src/**` 模組（會印出金鑰）。
+**給使用者驗收的本機站**：worktree 停在最新 `origin/develop`，`npx vite --strictPort --host 127.0.0.1 --port <空 port>`（不歸 gis-up 管，只殺自己的 PID，禁 `pkill -f vite`）。每層截國家全覽縮放＋放大各一張；agent-browser 參數與不 curl vite 模組等坑見 analytics `pulse-layer-release/references/pitfalls.md` 2026-11-06 段。
 
 **常見驗收失敗**：
 - TS2739 → `LayerVisibility` 加了 key 但 `layerManifest.ts` 沒補 entry
