@@ -7,6 +7,8 @@ description: 從資料落地到 Layer 上線的完整驗收 SOP + UX baseline �
 
 **目的**：把「從 taipei-gis-analytics 資料落地 → mini-taiwan-pulse 上線」變成無法漏項的流程。
 
+**與一條龍流程的分工**：使用者只給方向（「做 X 國第 N 波」）時，入口是 analytics 的 `pulse-layer-release` skill（盤點→資料→前端→登記→大檔→合併 develop→驗收包，DoD 在其 `references/definition-of-done.md`）；本 skill 是其中的前端接線與 UX 驗收段。授權判定與新網站部署規則看該 skill 的 `references/license-and-deploy.md`，平行 worker 規則看 `references/parallel-brief-template.md`，這裡不重抄。
+
 ## 何時觸發
 
 - 「新 layer 要接」「PMTiles 好了要怎麼上」
@@ -34,7 +36,9 @@ Step 7  收尾 (changelog + backlog 標 ✅)
 - 選 slug：kebab-case，例如 `air-quality-station`
 - 開 upstream handoff（若還沒）：`taipei-gis-analytics/docs/handoff/<slug>.md`
 - 開 downstream feature 資料夾：`cp -r docs/features/_TEMPLATE docs/features/<slug>`
-- 開 branch：`git checkout -b feat/<slug>`
+- 開 worktree 與 branch（不碰主 checkout）：`git worktree add -b feat/<slug> .worktrees/<slug> origin/develop`，進去 `npm ci`；需要的 gitignored 大檔從主 checkout `ln -f` hardlink
+- 檔案放哪：國外圖層一律 `public/world/<cc>_*.pmtiles`（既有家族，免改 `deploy/cloudflare/site_manifest.py`、`nginx.conf`、`scripts/deploy/pull-deploy-assets.sh`）；>20MB 不進 git、上傳 S3 deploy-assets
+- 授權限內部使用的資料：**不放 `public/`**，走 Supabase owner-only RPC（`docs/features/owner-gated-layers/`）；只加 `GATED_LAYERS` 而檔案公開＝散布
 
 ## Step 1 — 資料完整性驗收（⚠️ 最常漏的地方）
 
@@ -177,6 +181,8 @@ npm test
 npm run dev
 ```
 
+**給使用者驗收的本機站**：worktree 停在最新 `origin/develop`，`npx vite --strictPort --host 127.0.0.1 --port <空 port>`（不歸 gis-up 管，只殺自己的 PID，禁 `pkill -f vite`）。截圖用 agent-browser：`--session <唯一名>`、`--args "--use-angle=swiftshader,--enable-unsafe-swiftshader,--ignore-gpu-blocklist"`、每次呼叫 ≤60 秒；每層截國家全覽縮放＋放大各一張。不要 curl vite 轉譯後的 `/src/**` 模組（會印出金鑰）。
+
 **常見驗收失敗**：
 - TS2739 → `LayerVisibility` 加了 key 但 `layerManifest.ts` 沒補 entry
 - layerConsistency「沒有 manifest entry」→ 同上（別塞 `HANDWRITTEN_LAYER_COLORS` 繞過）
@@ -193,7 +199,9 @@ npm run dev
 
 ## Step 7 — 收尾
 
-- 更新 `docs/features/<slug>/changelog.md`（PR # + squash hash）
+- 根目錄 `CHANGELOG.md` 條目只加在 `## [Unreleased]`（沒有對應小節就自己新增）
+- PR `--base develop`，`gh pr merge --merge`（禁 squash）；合併後看 develop CI；**不發版到 master**（發版須使用者拍板）
+- 更新 `docs/features/<slug>/changelog.md`（PR # + merge commit hash）
 - 更新 `docs/features/<slug>/backlog.md` 標 ✅
 - 更新 `.claude/memory/STATUS.md` 加最新段落
 - 若踩到新坑 → 寫 `.claude/pitfalls/YYYY-MM-DD-<slug>.md`
