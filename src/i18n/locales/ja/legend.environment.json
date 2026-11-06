@@ -200,7 +200,7 @@
   "legend.environment.gbEaNone": "当該年の排出量報告なし（{n}、白抜き）",
   "legend.environment.gbEaEngland": "イングランドの報告施設 {n} か所",
   "legend.environment.gbEaLicence": "EA Pollution Inventory {year}；Environment Agency Conditional Licence：サイト管理者の個人閲覧のみ",
-  "legend.environment.gbEaExcluded": "ほかに EA 施設 {n} か所は座標がイングランド外（誤りの疑い）のため非表示",
+  "legend.environment.gbEaPostcodeCentroid": "うち {n} か所は提供元座標がイングランド外（誤り）のため、郵便番号の中心に配置",
   "legend.environment.gbNoiseSourceNote": "「騒音源」メニューで道路（{road} 面）と鉄道（{rail} 面）を切替、ズーム 5 から表示",
   "legend.environment.gbNoiseNote": "戦略騒音モデルの推計値（地上 4 m の昼夕夜加重 Lden）で実測ではない。55 dB 未満は未掲載",
   "legend.environment.gbNoiseCoverage": "北アイルランド：対象外。ウェールズの鉄道：対象外",

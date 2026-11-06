@@ -6604,7 +6604,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "verified",
       datasets: [{ datasetId: "gb_pollution_inventory", confidence: "HIGH" }],
-      processing: "analytics 成品 gb_pollution_inventory 取 authority==Environment Agency 2,540 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 只回座標在英格蘭的 2,536 點（另 4 筆 postcode 在英格蘭、座標落在蘇格蘭／威爾斯，疑似錯誤不回）；released＝routes 非空",
+      processing: "analytics 成品 gb_pollution_inventory （20261106 版）取 authority==Environment Agency 2,544 列（依許可證號 site_ref）→ gis-platform scripts/load_gb_ea_pollution_inventory.py 匯入 Supabase；RPC 回英格蘭 2,544 點（8 處來源座標落在英格蘭外，analytics 改用 ONSPD 郵遞區號中心，coord_source 標明）；released＝routes 非空",
       note: "England：EA Conditional Licence 特別條件限「internal or personal purposes」、一年期（2026-10-29 起）→ 站主限定，不進 public/、S3 deploy-assets、R2、分析倉庫或任何公開網址；Scotland 另見 gbPollutionInventory（OGL）",
     },
     dataClass: "C",
@@ -6616,7 +6616,7 @@ export const LAYER_MANIFEST = {
     legend: "gbPollutionInventoryEngland",
     popup: "gbPollutionInventoryEngland",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,536 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
+    description: "站主限定。英格蘭環境署（EA）Pollution Inventory 2024 年申報場址 2,544 處；有申報排放量實心、該年無申報空心。授權限個人檢視，不公開",
     topics: ["英國", "英格蘭", "污染", "排放", "工廠", "環境", "OWNER_ONLY"],
   },
   gbNoise: {
