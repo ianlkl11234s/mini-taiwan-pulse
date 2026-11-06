@@ -507,8 +507,8 @@ export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onAct
   }, [q, statusFilter]);
 
   const searchResults = useMemo(
-    () => (q ? searchLayers(search, { lockedKeys }).filter((r) => isDataSourceBrowserVisible(r.key) && matchesFilter(r.key)) : []),
-    [q, search, lockedKeys, statusFilter],
+    () => (q ? searchLayers(search, { excludeLocked: false }).filter((r) => isDataSourceBrowserVisible(r.key) && matchesFilter(r.key)) : []),
+    [q, search, statusFilter],
   );
   const visibleSearchResults = searchResults.slice(0, 50);
 

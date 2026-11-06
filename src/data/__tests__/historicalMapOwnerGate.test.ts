@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GATED_LAYERS, RELEASE_HOLD_LAYERS, THEMES, hideOwnerOnlyThemes } from "../../components/sidebar/layerCatalog";
+import { GATED_LAYERS, RELEASE_HOLD_LAYERS, THEMES } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED } from "../../embed/embedWhitelist";
 import { parseUrlState, URL_STATE_VERSION } from "../../lib/urlState";
 import { LAYER_MANIFEST } from "../layerManifest";
@@ -20,10 +20,8 @@ describe("古地圖：站主限定", () => {
     expect(LAYER_MANIFEST[KEY].topics).toContain("OWNER_ONLY");
   });
 
-  it("歷史底圖主題只有這一層；非站主（上鎖）整個主題不顯示，站主看得到", () => {
+  it("歷史底圖主題只有這一層；主題對所有人顯示，非站主由列鎖頭擋（2026-11-06 起不再整個隱藏）", () => {
     const theme = THEMES.find((t) => t.title === THEME)!;
     expect(theme.groups.flatMap((g) => g.layers.map((l) => l.key))).toEqual([KEY]);
-    expect(hideOwnerOnlyThemes(THEMES, new Set([KEY])).some((t) => t.title === THEME)).toBe(false);
-    expect(hideOwnerOnlyThemes(THEMES, new Set()).some((t) => t.title === THEME)).toBe(true);
   });
 });

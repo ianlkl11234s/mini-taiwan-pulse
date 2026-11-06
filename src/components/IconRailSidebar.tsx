@@ -77,8 +77,6 @@ interface IconRailSidebarProps {
   compactLayers?: boolean;
   /** 使用者在國家選單選了國家（App 用來 flyTo 該國）；網址、Agent 切國家都不呼叫 */
   onCountryFly?: (code: CountryCode) => void;
-  /** 站主才為 true：模擬面板多列站主限定實驗（橋梁韌性、公車擁擠）；未傳＝非站主，只列公開模擬（2026-11-01 改 D-1）。 */
-  simulationOwner?: boolean;
   /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -111,7 +109,6 @@ export function IconRailSidebar({
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onCountryFly,
-  simulationOwner = false,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
   agentAvailable, agentActive, onAgentToggle,
@@ -383,14 +380,13 @@ export function IconRailSidebar({
             }}
           >
             {panels.map((entry) => activePanel === entry.id && (() => {
-              const panel = resolveLayerPanel(entry.id, country, simulationOwner);
+              const panel = resolveLayerPanel(entry.id, country);
               return (
               <LayersPanel
                 // 切國家要 remount：主題收合狀態是 useState initializer，只在掛載時讀 defaultCollapsed
                 key={`${panel.id}:${panel.countryScoped ? country : ""}`}
                 panelId={panel.id}
                 availablePanelIds={panelIds}
-                simulationOwner={simulationOwner}
                 country={country}
                 covered={panel.covered}
                 onCountrySelect={panel.countryScoped ? selectCountry : undefined}

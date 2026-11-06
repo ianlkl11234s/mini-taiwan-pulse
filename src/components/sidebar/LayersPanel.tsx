@@ -6,7 +6,7 @@ import { searchLayers } from "../../lib/layerSearch";
 import { useLocale } from "../../state/localeStore";
 import { localizeSectionTitle } from "../../i18n/layerText";
 import { localizeMacroTitle, localizeThemeTitle } from "./sectionText";
-import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, hideOwnerOnlyThemes, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
+import { LAYER_COLORS, THEMES, TRANSPORT_LABELS, layerDisplayName, themeKey, themeName, type ThemeDef } from "./layerCatalog";
 import { LAYER_PANELS, PANEL_COUNTRIES, panelLayerKeys, type LayerPanelId, type PanelMacroGroup } from "./layerPanels";
 import { CountryMenu } from "./CountryMenu";
 import { countryDef, DEFAULT_COUNTRY, type CountryCode } from "../../constants/countries";
@@ -64,10 +64,8 @@ export interface LayersPanelProps {
   onClose?: () => void;
   /** 本面板是哪個入口；給了且有 `onSearchInPanel` 才會顯示「其他面板還有 N 筆」 */
   panelId?: LayerPanelId;
-  /** 目前使用者看得到的入口（模擬只對站主）；「其他面板還有 N 筆」只算這些。未給＝全部。 */
+  /** 目前看得到的入口；「其他面板還有 N 筆」只算這些。未給＝全部。 */
   availablePanelIds?: readonly LayerPanelId[];
-  /** 站主才為 true：模擬面板的搜尋範圍含站主限定實驗（同 `resolveLayerPanel`）。 */
-  simulationOwner?: boolean;
   /** 切到另一個入口並帶入關鍵字（P9）；`country` 有值時同時切國家主體（不飛鏡頭） */
   onSearchInPanel?: (panelId: LayerPanelId, query: string, country?: CountryCode) => void;
   /** 目前國家主體（國家選單、「其他面板」提示用）；未給＝台灣 */
@@ -91,14 +89,14 @@ export function LayersPanel({
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
-  panelId, availablePanelIds, simulationOwner = false, onSearchInPanel,
+  panelId, availablePanelIds, onSearchInPanel,
   country = DEFAULT_COUNTRY, onCountrySelect, covered = true,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const i18n = useLocale();
   const { active, t } = i18n;
   const q = search.trim().toLowerCase();
-  const themesToRender = useMemo(() => hideOwnerOnlyThemes(themes ?? THEMES, lockedKeys), [themes, lockedKeys]);
+  const themesToRender = themes ?? THEMES;
   const searchContext = useMemo(() => {
     const context = new Map<string, string>();
     for (const theme of themesToRender) {
@@ -124,7 +122,7 @@ export function LayersPanel({
     favoriteKeys,
     scopeKeys: new Set(searchContext.keys()),
     contextByKey: searchContext,
-    lockedKeys,
+    excludeLocked: false,
   });
   const visibleSearchResults = searchResults.slice(0, 50);
   // 其他入口（同一國家；統計不涵蓋目前國家時算台灣的統計）＋其他國家的「圖層」入口（顯示國名）
@@ -137,7 +135,7 @@ export function LayersPanel({
           id: panel.id,
           country: hitCountry === country ? undefined : hitCountry,
           shortTitle: t(`panel.${panel.id}.short`),
-          count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry, simulationOwner), lockedKeys }).length,
+          count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys(panel.id, hitCountry), excludeLocked: false }).length,
         };
       }),
       ...PANEL_COUNTRIES.filter((code) => code !== country).map((code) => ({
@@ -145,7 +143,7 @@ export function LayersPanel({
         id: "layers" as LayerPanelId,
         country: code as CountryCode | undefined,
         shortTitle: t(countryDef(code).labelKey),
-        count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys("layers", code), lockedKeys }).length,
+        count: searchLayers(search, { favoriteKeys, scopeKeys: panelLayerKeys("layers", code), excludeLocked: false }).length,
       })),
     ].filter((hit) => hit.count > 0)
     : [];

@@ -1,7 +1,7 @@
 # owner-gated-layers（私人圖層鎖定）
 
 > **Slug**：`owner-gated-layers`
-> **狀態**：上線
+> **狀態**：上線（2026-11-06 名單與呈現統一，見「現況」）
 > **Owner**：migu
 > **上線日期**：2026-07-07
 > **相關 PR**：前端 #60（Phase 1+2）· #62（lock_type）；gis-platform #28（275/276/277）· #30（278/279）
@@ -12,11 +12,45 @@
 把一批敏感私有資料圖層鎖起來：只有登入且 `profiles.tier='owner'` 的帳號能開啟；
 其他訪客照常看到圖層名稱但顯示鎖頭、無法 toggle、資料也不會下載。
 
-## 機制摘要
+## 現況（2026-11-06 統一）
+
+### 名單：一份
+
+- **唯一來源＝manifest `topics` 的 `"OWNER_ONLY"` 標記**（`src/data/layerManifest.ts`）。
+  `layerCatalog.ts` 的 `GATED_LAYERS` 由它派生（名稱、型別不變，urlState／embedWhitelist／layerGates／搜尋等消費端照舊）。
+- 釘死清單測試 `src/data/__tests__/ownerOnlyRegistry.test.ts`：manifest 標記與 `GATED_LAYERS` 都必須等於表內 59 個 key；
+  少一個標記（＝私人圖層對外開放）或多一個都會紅。新增站主限定圖層時三處一起改：manifest topics、該測試、gis-platform `public.gated_layers`。
+- DB `public.gated_layers`：mig 276（34 列）＋494（electionEvents2026）＋499（gbPollutionInventoryEngland）＋**500**（補前端獨有的 22 個 key 與 allenCoralAtlas，共 23 列，`rpc_name` NULL、`required_tier='owner'`、`lock_type='full'`）。
+  DB 另有 `info_medical_ltc`（member tier，mig 281）不屬站主限定，不在前端名單。
+- 舊的 manifest 第三套名單（`OWNER_ONLY` 標記執行時沒人讀）與 `OWNER_ONLY_THEME_TITLES` 已併入／移除。
+
+### 呈現：一種（spec §5.5）
+
+非站主一律看到**反灰＋鎖頭**，點了走 `App.tsx` `handleGatedIntercept`（未登入導 Google 登入；已登入非站主顯示「私人圖層，僅擁有者可檢視」）。不可整個隱藏。
+
+| 位置 | 2026-11-06 前 | 現在 |
+|---|---|---|
+| 圖層面板列（含 jpWater、土壤液化、BSS、allenCoralAtlas 等私人 Range API 層） | 鎖頭 | 鎖頭（不變） |
+| 主題「歷史底圖」（古地圖） | 非站主整個主題隱藏 | 主題照常顯示，列帶鎖頭；右上地名提示卡仍只在解鎖時出現 |
+| 模擬面板（busCrowdingSim、bridgeResilienceTwinCity） | 非站主濾掉 | 列出鎖頭列（`resolveLayerPanel` 不再分站主） |
+| 面板搜尋（圖層、資料來源） | 上鎖層不出結果 | 照常列出並帶鎖頭（`searchLayers(…, { excludeLocked: false })`）；Agent 工具 `catalogTools` 仍用預設 fail-closed |
+| facOffshore／osmPowerPlantsStatic／powerPlants | 無介面 | 不變：沒有 LayerDef，只擋程式化開啟 |
+
+`lockedKeys`（`App.tsx`）＝ tier＋`get_layer_gates()` 解析 ∪ RELEASE_HOLD ∪ 各私人 Range API 探測結果。
+私人 API 探測（jpWater、土壤液化、BSS、橋梁韌性、公車擁擠、allenCoralAtlas）負責資料能不能讀，名單負責介面上不上鎖，兩者都要過。
+
+**不屬站主權限、維持原樣**：`RELEASE_HOLD_LAYERS`（授權未驗證，連站主都鎖）、`IS_PRODUCTION`／`localResearchGroup`（開發中，只在本機 DEV 顯示；4 個 Glow 層同時在名單內）、統計比較 build flag。
+
+### 已知限制
+
+- 私人 Range API（`server/coral-private/*`）仍認寫死的站主 `OWNER_ID`，不讀 `profiles.tier`；把某層在後台降到 insider 只會解開介面，資料端仍只給站主。
+- 分享網址：`urlState.parseLayers` 在解析階段就丟掉所有 `GATED_LAYERS`（測試 `urlState.test.ts`「🔒 gated 圖層一律 drop」釘住），所以站主收到含私人圖層的分享網址也不會還原。這是設計上的丟棄，不是 tier 載入時序問題；要改需使用者拍板。
+
+## 機制摘要（Phase 1，2026-07-07 原始設計）
 
 三層防護：
 
-1. **前端 SSOT 旗標**：`src/components/sidebar/layerCatalog.ts` 的 `GATED_LAYERS`（Set）為單一真實來源，
+1. **前端 SSOT 旗標**：`src/components/sidebar/layerCatalog.ts` 的 `GATED_LAYERS`（Set）為單一真實來源（2026-11-06 起改由 manifest 派生，見上），
    LayerDef 另加 `gated?: boolean` 型別欄位。桌機 `IconRailSidebar` 與手機 `LayerSidebar` 兩邊
    都依 `GATED_LAYERS.has(key) && !isOwner` 顯示鎖頭（inline SVG，非 emoji）+ 降透明度 + title 提示。
 2. **前端 toggle gate**：`App.tsx` 的 `handleGatedIntercept` 攔截所有「開啟」意圖
@@ -28,23 +62,8 @@
 owner 判定：`src/lib/auth.ts` 的 `useMemberGate()` 登入後 `select tier from profiles where id = auth.uid()`；
 tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），完成後才解鎖。
 
-## 鎖定的 layer keys
-
-有鎖頭 UI（在 sidebar）：
-
-| 群組 | keys |
-|---|---|
-| 畜牧 Livestock | livestockFarmPig / Chicken / Cattle / Duck / Goose / Sheep / Other、livestockSlaughter |
-| 石化 · 油氣 | lpgSubpackaging、lpgRetailers、lngTerminal、pipelineGas、pipelineOilGas、industrialRefinery、industrialStorageTank、industrialPowerPlant、coalTerminal、fossilFuelInfra |
-| 電力 · 電網 | osmSubstationsEhv、osmSubstations、osmPowerLines、osmPowerTowers、substationEhvGlow、powerLinesGlow |
-| 電力 · 廠 | facPrimary、facPlanned、facHistorical、facSecondary、facOsmSupplement、powerGenerationUnit、powerPlantGlow |
-| 僅 UI 鎖（資料路徑不動） | aviationRestrictedGlow |
-
-無鎖頭 UI（已從 sidebar 下架，但 API 敏感 → loader 改直連 + 列入 GATED_LAYERS 防程式化開啟）：
-
-- facOffshore（get_ssot_facilities_offshore_zones）
-- osmPowerPlantsStatic（get_osm_power_plants_static）
-- powerPlants（電廠總圖，資料源 `all_power_plants_v`；Phase 8 從 sidebar 下架，migration 279 REVOKE 後補入 GATED_LAYERS）
+Phase 1 的 key 分組（電力、石化、畜牧與 3 個無介面層）與後來加入的日本水資源、BSS、橋梁韌性、公車擁擠、選舉活動、土壤液化、古地圖、
+英格蘭污染排放、allenCoralAtlas，完整清單看 `ownerOnlyRegistry.test.ts`。
 
 **明確排除（保持公開，不鎖）**：`waterCanals`（灌排渠道）、`powerPoles`（電桿 2.96M）、
 加油站 5 層（gasStationCpc/Fpcc/Taisugar/Other/Canonical）與加油站覆蓋分析。
