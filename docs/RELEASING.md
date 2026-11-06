@@ -35,6 +35,7 @@
    npm version X.Y.Z --no-git-tag-version   # 同步改 package.json 與 package-lock.json
    ```
    把 `CHANGELOG.md` 的 Unreleased 內容搬成 `## vX.Y.Z — YYYY-MM-DD — <標題>`，並在版本總覽表最上方加一列；commit message：`chore(release): vX.Y.Z`
+   發布 commit 前，同時更新 `docs/PROJECTS.md` 的「最後盤點」日期與相關專案列，以及 `.claude/memory/STATUS.md`（`docsFreshness` 測試會在最新版日期晚於最後盤點日時失敗）
 4. 把 `develop` 合進 `master`（PR：`gh pr create --base master --head develop --title "release: vX.Y.Z"`，`gh pr merge --merge`）← **會觸發正式站部署，須使用者拍板**
 5. 在 master 的 merge commit 打 tag 並推送（逐一列名，不用 `--tags`）：
    ```bash

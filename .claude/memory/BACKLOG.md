@@ -88,7 +88,7 @@
 
 | ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
 |---|---|---|---|---|---|
-| MC-4 | P2 | blocked | 多國化議題 3（主站遷移、43GB 同步）定方向；議題 2 已於 2026-10-29 P0–P5 全部上線（MC-2 一併結案：server.ts 與 pulse-conductor `references/multi-country.md` 已說明 `map_context.country`）。 | Blocked: 等使用者討論。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 唯讀量 S3 deploy-assets 依資料夾的組成。 | 議題 3 有拍板紀錄（寫進專案 README 或 ADR）。 |
+| MC-4 | P2 | blocked | 多國化議題 3（主站遷移、43GB 同步）定方向；議題 2 已於 2026-10-29 P0–P5 全部上線（MC-2 一併結案：server.ts 與 pulse-conductor `references/multi-country.md` 已說明 `map_context.country`）。 | Blocked: 等使用者討論。前提（2026-11-06）：Zeabur 自 v2.22.0 起不再自動部署，正式站停在 v2.21.0，最新版只在 Cloudflare 測試站。研究結論在 `.gis-agent-system/projects/2026-10-multi-country/README.md`。First action: 唯讀量 S3 deploy-assets 依資料夾的組成。 | 議題 3 有拍板紀錄（寫進專案 README 或 ADR）。 |
 | MC-6 | P3 | ready | 跨國行政區表補英文名（`boundaries_admin.name_en` 台灣、日本目前全空）。 | Owner: mini-pulse-gis-mcp `warehouse/admin_tables.py`。First action: 台灣接內政部羅馬拼音 CSV（analytics `place_name_romanization_moi`），日本接國土數值情報或 geoBoundaries 英文名。 | 兩國 name_en 非空率 >99%，重組倉庫後台灣既有工具輸出不變。 |
 | MC-7 | P3 | conditional | 拆開混有多國資料的兩張表（airspace、allen_coral_atlas 暫標 TW）。 | Trigger: 要對日本或全球做空域、珊瑚礁分析時。First action: 依 country 欄拆成 TW 與 WORLD 兩份 registry，照 Ookla 拆表做法（pulse-data #48）。 | check_registry 0 ERROR，台灣表 geom_3826 不變，nearby 回歸一致。 |
 | MC-8 | P3 | verifying | 觀察多國 eval 兩個不穩點：N10 有一次沒畫日本 1,898 區分級圖；N08 有 2 次沒載入 pulse-conductor、沒移鏡頭。 | 下次跑 agent-regression 時各加跑 3 次記錄；連續出現再定位是 show_result 負載還是 skill 觸發。 | 各 3 次中上圖與載入 skill 都 ≥2 次，或開修正 PR。紀錄在 mini-pulse-gis-mcp `eval/agent-regression/README.md`。 |
@@ -112,7 +112,7 @@
 |---|---|---|---|---|---|
 | MC-5 | P3 | ready | Refresh static LST after the 2026 warm season. | Gate passed (not_before 2026-10-01); as of 2026-10-05 the latest product is still `urban_heat_lst_*_20260729` and production serves that build. Rerun the median pipeline for the full 2026 warm season, review color ranges, then publish a dated replacement. | Replaced asset has date/provenance and expected P2–P98 ranges. [Urban Heat backlog](../../docs/features/urban-heat-lst/backlog.md) |
 | EM-30 | P2 | conditional | Remove rail-geometry fallback only after an observation window. | Not before 2026-11-01 (observation date set 2026-10-16; the fallback in `src/embed/railReplayData.ts` is still present). Owner: 使用者 (approval to delete the old S3 object). First action: check fallback fetch counts, then remove code and old S3 object together with approval. | Production has used the hashed asset through the window and no fallback fetch occurred. [Embeddable map backlog](../../docs/features/embeddable-map/backlog.md) |
-| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成、靜態大檔改放 Cloudflare R2 之後（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
+| JPRD-1 | P3 | conditional | 日本主要道路補上市町村道（2026-10-28 使用者決定先不做）。 | Trigger: Zeabur 搬遷完成（Zeabur 已不再自動部署，正式站停在 v2.21.0）、靜態大檔改放 Cloudflare R2 之後（使用者：「先完整搬家完再說」）。Owner: 使用者。現況：`jpMajorRoads` 只收 N13-2024 的国道、都道府県道、高速（N13_003=1／2／4），PMTiles 141.9MB。這三類只佔全部線段約 8%（抽樣 mesh 5136），全收粗估 PMTiles 超過 1GB（推估，未實際產出）。當初的 150MB 是派工自訂目標，理由是 Zeabur 主機磁碟已用 96%、主站 /data 會整包同步 S3 deploy-assets，不是平台硬限制。First action: 搬完後在 analytics `pipelines/world/jp_major_roads/` 另產一份市町村道 PMTiles，前端另開一層（例如 z12 以上才顯示），不併進現有主要道路層。 | 市町村道圖層上線，四鐵則齊全，檔案放 R2，不佔主機磁碟。[Feature README](../../docs/features/jp-wave4-welfare-roads-terrain/README.md) |
 
 ## Verification/cleanup queue
 
@@ -220,7 +220,6 @@
 | PERF-2 | P3 | ready | 啟用 brotli（現在只有 gzip）。 | nginx 加 brotli 模組，或讓 Cloudflare 邊緣壓縮；先查 CF 設定。 | 回應帶 `Content-Encoding: br`。 |
 | A11Y-1 | P2 | ready | 移除 viewport 的 `user-scalable=no`（Lighthouse 無障礙唯一未過項）。 | 先確認地圖雙指縮放不受影響。 | Lighthouse 無障礙 ≥ 0.95。 |
 | OPS-1 | P2 | ready | 無 WebGL 時顯示說明，而不是整個畫面空白。 | 加初始化失敗提示與 ErrorBoundary。 | 無 WebGL 環境看得到提示與替代連結。 |
-| PRIV-1 | P3 | ready | 新增隱私說明頁。 | 寫清楚登入走 Supabase 與 Google、BYOK 金鑰留在瀏覽器、AI 對話送往的服務、Mapbox 載圖請求。 | 頁面存在，內容與 PRIV-2 的第三方清單一致。 |
 | SEC-3 | P2 | ready | 公開 RPC 收回多餘的 PUBLIC EXECUTE，只留需要的角色。 | gis-platform 473（2026-10-17 已套用）加上限時刻意沒 REVOKE PUBLIC：交易內實測收回會讓 15 個只靠 PUBLIC 的服務角色失權（gis_monitor_hermes、global_events_publisher、supabase_read_only_user、air_ticket_writer、cloud_agent_ro 等）。First action: 盤點這些角色實際呼叫哪些函式，先明確 GRANT 給它們，再 REVOKE PUBLIC。 | 收回後各服務角色呼叫正常、anon 只剩前端用到的函式。 |
 | SEC-4 | P3 | ready | `get_rain_basin_accumulated` 本身太慢（查 1 天約 13.6 s、7 天約 29 s），473 的 30 天上限擋不住。 | 目前無前端呼叫者。二選一：pre-aggregate／加索引優化，或確認無人使用後收回 anon／authenticated 權限。 | 1 天查詢 < 1 s，或 anon 已不能執行。 |
 | I18N-1 | P2 | ready | 英日文介面下，統計圖層彈窗／說明的「資料限制／口徑說明」段落改成對應語言（2026-10-24 發現：目前英日文仍顯示中文）。 | 範圍：全部統計圖層（atlas 各家族、治安、死因、臺北局處、社會、勞動、環境、成癮、崩塌、人口等）。原因：說明文字（各家族 recipe／release 的 `disclosure`）直接寫在 recipe／資料設定，彈窗（`regionalStatisticsPanel.tsx` 的 dataLimits 列）與說明・來源（`StatisticsDetails.tsx`）只經 `humanizeStatisticsText` 換內部代碼，沒接 i18n。建議做法：說明文字改用翻譯鍵（比照 `enum.statLegendNote.*`），或 recipe 帶 `disclosure_en`／`disclosure_ja` 欄位由 builder 產生；可依家族分批，先做 atlas 第二批（G10／G16／G23）。粗估 1–2 天。 | 英日文介面開任一統計層，資料限制段落無中文外漏；`statisticsText.test.ts` 加 disclosure 的外文檢查。 |
@@ -297,7 +296,6 @@
 
 | ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
 |---|---|---|---|---|---|
-| GUI-1 | P1 | blocked | #808 修正待發版：左側面板 leftDockTop 60→80 讓出游標行、比例尺刻度不疊字（單位移到長條右側、<80px 隱藏中點）、右鍵選單加寬 264px（develop `19ba3754`）。 | Blocker：develop 同時有 #807（2024 投開票所公開圖層，另一 session）未驗收，使用者 2026-11-03 選「先不發」。First action：#807 驗收完後列出 develop 上範圍外 PR 給使用者確認，再發 v2.22.0。 | 正式站 `main-*.js` 含新版號；正式站截圖：游標行與圖層面板有空白、z14.58（200 m）比例尺不疊字、英文右鍵選單 5 項單行。 |
 | GUI-2 | P2 | ready | v2.21.0 未驗項：手機實機觸控（長按選單、點地圖加點、尺規鈕）、真實定位成功流程（只用 mock geolocation 驗過）、實體滑鼠雙擊結束量測、站主登入後政治圖層（#802）、en／ja 窄桌機寬度量測工具列換行。 | First action：使用者手機開正式站逐項操作，或 agent-browser 站主 session 驗政治圖層。 | 每項有截圖或使用者確認；發現問題開 fix PR。 |
 | GUI-3 | P2 | blocked | 地址／地名搜尋（WebGIS 第 5 類）。 | Blocker：owner decision——地理編碼服務選 Mapbox Geocoding／TGOS／國土測繪中心（用量上限與授權不同）。First action：列三者配額、授權、繁中地址命中率比較給使用者選。 | 使用者選定服務；設計稿多版給使用者選位置與樣式後才實作（先看設計稿再實作）。 |
 | GUI-4 | P3 | blocked | 其餘候選元件：製圖輸出（PNG 附標題、圖例、比例尺、指北針、來源）、卷簾比對、範圍圈選（主站）、鷹眼小地圖、字級／色盲／高對比、CSV 下載（授權逐源確認）、使用者調整圖層順序。 | Blocker：owner decision——排優先序。建議先做製圖輸出與卷簾（寫文章、分析用）。 | 使用者選定項目後走「設計稿多版→拍板→實作→與 develop 並排截圖驗收」。 |
@@ -318,6 +316,18 @@
 | N3-2 | P3 | done | 日本 C083 交通事故。 | 2026-11-06 上 develop（mini #843、analytics #301、pulse-data #61）：`jpTrafficAccidents2025` 警察庁 2025 本票 287,020 點（死亡 2,495），`jp_traffic_accidents_2025.pmtiles` 28.9MB 已上 S3。未做：warehouse 入倉、2019–2024 年度。 | 已合 develop、未發版。 |
 | N3-3 | P3 | blocked | 加拿大即時地震 FDSN 條款。 | 2026-11-06 查證：服務無專屬條款；NRCan 站層條款非商業可重製需標示、商業轉發需書面許可；OGL 版只有到 2019 年代檔。選項寫在 analytics canada_opendata/waves/PLAN.md §5（寫信確認／照站條款加署名上線／只用 OGL 年代檔）。First action: 使用者選項。 | 使用者選定並執行。 |
 | N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
+
+## 2026-11-06 review 修正輪後續
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| GP-502 | P1 | blocked | 套用 gis-platform mig 502（PR #202 合併時為 501，因與 #203 撞號經 #204 改名；已合 main、未套用）：收回 `cloud_agent_ro` 對英國 EA 污染名錄（`reference.world_gb_ea_pollution_inventory`、`get_gb_ea_pollution_inventory()`）的讀取與執行權。資安：目前雲端唯讀帳號讀得到授權受限資料。 | Blocked on 使用者拍板套用（正式 DB 不由 agent 套）。First action: 套用前唯讀查現有權限，套用後跑 `migrations/502_revoke_cloud_agent_ro_gb_ea_pollution_inventory.test.psql`。 | `cloud_agent_ro` 讀表、執行函式皆被拒；站主 RPC 仍可讀。 |
+| GP-296 | P3 | blocked | mig 296 的 default privileges 讓 `reference` schema 新表自動授 SELECT 給 `cloud_agent_ro`，授權限定的物件（如 EA 污染名錄）每次都要另外收權。 | Blocked on 使用者決定是否改 default privileges。First action: 唯讀列 `reference` schema 現有表的 `cloud_agent_ro` 權限與 default ACL，列出改法與影響（會不會讓既有 MCP 查詢失效）給使用者選。 | 使用者選定：維持（每次收權寫進 onboarding 清單）或改 default（新 migration 並驗 MCP 倉庫查詢不壞）。 |
+| COL-F010 | P2 | ready | `supabase_writer` 舊的 partial 寫入會蓋掉較新的 ok（`live.weather_raster_frames` 缺 revision 欄，無法判斷新舊）。 | First action: gis-platform 先加 revision 欄 migration（須使用者套用），collectors 再改 upsert 的 WHERE 條件只允許較新 revision 覆寫；上游先動、下游後動。 | 舊 partial 重送不會覆蓋較新的 ok 列；有回歸測試。 |
+| RV-F039 | P3 | ready | 消防局／港口 3D 柱不跟圖例類別篩選（review F039，2026-11-06 修正輪暫緩：跨多檔）。 | First action: 讓 3D 柱的資料來源吃同一個 category filter（參考 2D 點層的 filter 寫法）。 | 圖例取消某類別後 3D 柱同步消失；有測試。 |
+| RV-F045 | P3 | ready | 發電機組光柱（beams）不跟圖例類別篩選（review F045，同上暫緩）。 | First action: 同 RV-F039，可一起做。 | 同上。 |
+| RV-F068 | P3 | ready | 加拿大 PMTiles 縮放範圍的資料端問題（review F068；前端部分已在 #845 修）。 | First action: 確認哪幾支 ca_*.pmtiles 的 minzoom／maxzoom 與 manifest 不一致，重切後以新檔名上 S3（不覆寫舊檔）。 | 拉遠時圖層照規格出現；manifest 與檔案縮放範圍一致。 |
+| RV-CA-DERIVED | P3 | ready | 加拿大失業率／勞參率／就業率統計是否該標 derived（review F036／F073 修正時發現，未確認）。 | First action: 對照 StatCan 原表，看這三個比率是官方發布值還是由人數自算。 | recipes JSON 標示與來源一致；資料來源總覽同步。 |
 
 ## 大眾運輸可及性 transit_access：三市與雲端運算（2026-11-06）
 
@@ -359,3 +369,8 @@ Older completed work is intentionally discoverable through git log, feature chan
 - **G008**：無具體維護痛點（layerManifest.ts 12.1k 行等大檔無新問題），原條件「除非點名痛點否則 no-action」成立；日後有痛點再開窄範圍項。
 - **TD-2**：owner 2026-08-22 已明確拒絕回補 2026-03 前的 TRA delay（舊格式 64 天缺 scheduled_trains／coverage_pct／to-arrival delay）；S3 原檔仍保留，要重啟請新增 trigger 與 owner。
 - **AR-43**：自述已被 pulse-research MCP／倉庫（AG-*）取代，無程式；拆自原 AR-41~44。
+
+## 已關閉（2026-11-06）
+
+- **GUI-1**：#808 修正已隨 v2.22.0（2026-11-04）發布；正式站因 Zeabur 不再自動部署仍是 v2.21.0，部署驗收併入搬家後的正式站驗收（GUI-2）。
+- **PRIV-1**：隱私說明頁已隨 v2.12.0 上線（CHANGELOG v2.12.0 / 2026-10-23 紀錄）。
