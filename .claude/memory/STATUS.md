@@ -1,9 +1,21 @@
 # Status
 
-**最後更新**：2026-11-03 v2.21.0 上線（地圖導航控制、量測與右鍵選單、政治主題站主限定）；#808 版面修正已合 develop 未發版；2026-11-01 v2.19.0 上線（南韓第 0–5 波＋四國圖層可見性整修＋台灣 G35–G37）
+**最後更新**：2026-11-06 v2.22.0～v2.24.0 已 tag 但正式站 Zeabur 停在 v2.21.0（不再自動部署）；review 修正輪進行中。前一次：2026-11-03 v2.21.0 上線（地圖導航控制、量測與右鍵選單、政治主題站主限定）
 
 > 本檔只重寫當前 checkpoint；舊段落在 [`docs/archive/2026-10-27/STATUS-history.md`](../../docs/archive/2026-10-27/STATUS-history.md)。
 > 本檔只放這次碰到的範圍、上線狀態、卡點和下一步。完整計畫與數字看 [`PLAN-prod-connect-20261003.md`](../../docs/features/general-analysis/PLAN-prod-connect-20261003.md)，契約看 [`SPEC-prod-connect-p1-p3.md`](../../docs/features/general-analysis/SPEC-prod-connect-p1-p3.md)，操作看 [`PROD-HOME.md`](../../docs/features/general-analysis/PROD-HOME.md)，決策看 ADR-0017。
+
+## 2026-11-04～11-06：v2.22.0～v2.24.0 發版；正式站部署停擺；review 修正輪進行中
+
+| repo / system | 現況 |
+|---|---|
+| **mini-taiwan-pulse** | v2.22.0（2026-11-04）：#810 雙北大眾運輸可及性、#811 議員選區與投開票所熱區、#812／#813 加拿大第 1–2 批與統計、#814 國道逐車模擬與時間軸慢速、#816 歷屆選舉統計、#808 版面修正；v2.22.1：部署同步規則修正（fire 只收根層 pmtiles）；v2.23.0（11-06）：30 天地圖挑戰 Day 4／Day 5、站主限定古地圖（#823）；v2.24.0（11-06）：南韓第 6 波（#830）、日本第二輪（#831）、加拿大第 3 波（#832）、英格蘭 EA 污染站主限定（#834）、站主限定統一呈現（#836）。 |
+| **gis-platform** | mig 499（EA 匯入）、500（gated_layers 59 列）於 2026-11-06 已套用；mig 496／497 是否套用：**未確認**；#202（mig 501，收回 `cloud_agent_ro` 對 EA 名錄讀取）待使用者拍板。 |
+| **data-collectors** | #172 修正 PR 進行中（COL-F010 相關）。 |
+
+- 正式站：2026-11-06 實測 `main-CX09PLB2.js` 仍含 2.21.0；Zeabur 自 v2.22.0 起不觸發部署（redeploy 504／INTERNAL_SERVER_ERROR／GITHUB_SOURCE_UNAVAILABLE），使用者決定不再處理、優先搬家；最新版只在 Cloudflare 測試站。搬到新環境前不可部署 v2.22.0（舊 fire 同步會灌滿磁碟）。
+- review 修正輪（2026-11-06 開始）：mini、gis-platform #202、collectors #172 修正 PR 進行中，正本 `.gis-agent-system/reports/code-review/`；後續 BACKLOG GP-501、GP-296、COL-F010。
+- 下一步：Zeabur 搬遷（MC-4、§5a）；搬完後驗收 v2.22.0～v2.24.0 的正式站畫面（含 GUI-2）；專案總覽見 [`docs/PROJECTS.md`](../../docs/PROJECTS.md)。
 
 ## 2026-11-03：地圖基礎 GIS 元件 → v2.21.0 上線；#808 修正待發版
 
