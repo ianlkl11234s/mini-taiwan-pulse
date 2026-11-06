@@ -1,0 +1,61 @@
+# 私有圖層 sidecar 映像發布到 GHCR（Zeabur 搬家：新主機 docker compose 從這裡 pull）。
+# 觸發：push master 且 sidecar 相關路徑有變，或手動。不接 pull_request／pull_request_target，PR 不會推映像。
+# 安全：只用 GITHUB_TOKEN（packages: write，本 repo 的 package）；checkout 固定 SHA、不留憑證；
+# 映像內不含任何祕密（執行期設定由主機 env 提供）。tag 用 commit sha（主機固定版用）與 latest。
+name: publish-coral-private
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - server/coral-private/**
+      - .github/workflows/publish-coral-private.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-coral-private
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/ianlkl11234s/pulse-coral-private
+
+jobs:
+  publish:
+    # 手動觸發若選了 master 以外的分支就不發布
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: server/coral-private
+      - name: Build
+        run: docker build --pull -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:latest" -f server/coral-private/Dockerfile server/coral-private
+      - name: Smoke (container 能啟動、兩個 port 都在聽；不打 S3)
+        run: |
+          set -euo pipefail
+          docker run -d --name coral-smoke "$IMAGE:$GITHUB_SHA"
+          for _ in $(seq 1 20); do
+            if docker exec coral-smoke node -e "const n=require('net');let ok=0;for(const p of [8789,8796]){const s=n.connect(p,'127.0.0.1',()=>{s.end();if(++ok===2)process.exit(0)});s.on('error',()=>process.exit(1))}setTimeout(()=>process.exit(1),2000)"; then
+              echo 'smoke OK'; docker rm -f coral-smoke >/dev/null; exit 0
+            fi
+            sleep 1
+          done
+          docker logs coral-smoke || true
+          echo '::error::sidecar 20 秒內沒有在 8789／8796 聽'; exit 1
+      - name: Push to GHCR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+          docker logout ghcr.io
+          echo "pushed $IMAGE:$GITHUB_SHA（+latest）" | tee -a "$GITHUB_STEP_SUMMARY"
