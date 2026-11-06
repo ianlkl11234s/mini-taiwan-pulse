@@ -91,6 +91,9 @@ INDICATORS = [
     dict(base="statsKrEstablishments", tab="socioeconomic", sub=SUB_BUSINESS, label="事業體數", digits=0, loc=LOC_SGIS, notes=SGIS_NOTES + [SGIS_BUSINESS]),
     dict(base="statsKrEmployees", tab="socioeconomic", sub=SUB_BUSINESS, label="從業人員數", digits=0, loc=LOC_SGIS, notes=SGIS_NOTES + [SGIS_BUSINESS]),
 ]
+# 本專案（或上游 pipeline）由來源欄位自行計算的指標：derived=True，並以 handoff 的 definition 當 derived_method。
+# 來源直接公布的值（人口、SGIS 平均年齡、戶數…）維持 False。
+DERIVED_BASES = ['statsKrSexRatio', 'statsKrAgeYoungShare', 'statsKrAgeWorkingShare', 'statsKrAgeOldShare', 'statsKrAgingIndex', 'statsKrSeoulLivingPop', 'statsKrSeoulLivingPopDay', 'statsKrSeoulLivingPopNight', 'statsKrSeoulDayNightRatio']
 LEVEL_SUFFIX = {"kr_sido": "Sido", "kr_sigungu": "Sgg"}
 SGIS_DATASET = "kr_sgis_admin_stats"
 
@@ -183,7 +186,8 @@ def main() -> None:
             },
             "status_labels": {kind: label for kind, label in layer["status_labels"].items() if statuses.get(kind)},
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
-            "derived": False,
+            "derived": spec["base"] in DERIVED_BASES,
+            **({"derived_method": layer["definition"]} if spec["base"] in DERIVED_BASES else {}),
             "location_semantics": spec["loc"],
             "disclosure": layer["disclosure"],
             "publisher": release["publisher"], "license": release["license"],
