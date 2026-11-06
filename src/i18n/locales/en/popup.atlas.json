@@ -296,5 +296,8 @@
   "popup.atlas.swLessee": "Lessee",
   "popup.atlas.swContract": "Lease period",
   "popup.atlas.swUse": "Lease purpose",
-  "popup.atlas.swTaipowerCaution": "This is land leased out by Taipower for a battery swap or charging station; it is not confirmed to be an operating swap station"
+  "popup.atlas.swTaipowerCaution": "This is land leased out by Taipower for a battery swap or charging station; it is not confirmed to be an operating swap station",
+  "popup.atlas.w1944Town": "District",
+  "popup.atlas.w1944Overlap": "Overlap with today's rivers",
+  "popup.atlas.w1944Caution": "Extracted by colour from the 1944 US Army topographic map; positions may be off by 5–15 m. Overlap is measured against today's river polygons buffered by 50 m"
 }

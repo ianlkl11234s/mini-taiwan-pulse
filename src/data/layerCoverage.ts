@@ -27,6 +27,8 @@ export const COVERAGE_AREAS = {
   seoul: { label: { zh: "首爾", en: "Seoul", ja: "ソウル" }, bbox: [126.76, 37.41, 127.19, 37.72] },
   taipei: { label: { zh: "臺北市", en: "Taipei City", ja: "台北市" }, bbox: [121.44, 24.94, 121.69, 25.23] },
   newTaipei: { label: { zh: "新北市", en: "New Taipei City", ja: "新北市" }, bbox: [121.28, 24.67, 122.01, 25.30] },
+  // 1944 水域：public/geo/historical_water_1944_taipei.geojson 外框（121.399–121.652, 24.946–25.155）取整，含板橋、新莊、汐止
+  taipeiBasin: { label: { zh: "臺北盆地", en: "Taipei Basin", ja: "台北盆地" }, bbox: [121.39, 24.94, 121.66, 25.16] },
   // 新北外框已包住臺北市
   twinCity: { label: { zh: "雙北", en: "Taipei & New Taipei", ja: "台北・新北" }, bbox: [121.28, 24.67, 122.01, 25.30] },
   taoyuan: { label: { zh: "桃園市", en: "Taoyuan City", ja: "桃園市" }, bbox: [120.98, 24.59, 121.48, 25.13] },
@@ -83,6 +85,7 @@ export const LAYER_COVERAGE: Partial<Record<keyof LayerVisibility, CoverageAreaI
   statsTaipeiUsagePermitCountByBuildTypeTownship: "taipei",
   statsTaipeiUsagePermitCountTownship: "taipei",
   statsTaipeiUsagePermitHouseholdCountTownship: "taipei",
+  water1944Taipei: "taipeiBasin",
   // 新北市、雙北
   bridgeComparisonNewTaipei: "newTaipei",
   officialBridgesNewTaipei: "newTaipei",

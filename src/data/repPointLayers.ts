@@ -85,6 +85,7 @@ export const REP_POINT_LAYERS: readonly RepPointLayer[] = [
   // ── 台灣：GeoJSON registry 圖層（前端算代表點；小而零散／保護區類預設點，大範圍面預設面） ──
   G({ key: "importantWetlands", sourceId: "important-wetlands", count: 89, def: "point" }),
   G({ key: "importantWetlandZones", sourceId: "important-wetland-zones", count: 578, def: "polygon" }),
+  G({ key: "water1944Taipei", sourceId: "water-1944-taipei", count: 474, def: "polygon" }),
   G({ key: "cemeteryZoning", sourceId: "cemetery-zoning", count: 114, def: "point" }),
   G({ key: "waterRecreationRestrictedAreas", sourceId: "water-recreation-restricted-areas", count: 33, def: "point" }),
   G({ key: "tourHotSpringZones", sourceId: "tour-hot-spring-zones", count: 16, def: "point" }),

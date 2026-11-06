@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1640,
+    "keyCount": 1641,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5121,6 +5121,15 @@
         "important-wetlands-points-circle-polygon"
       ],
       "type": "importantWetlands"
+    },
+    {
+      "layers": [
+        "water-1944-taipei-fill",
+        "water-1944-taipei-outline",
+        "water-1944-taipei-points-circle-point",
+        "water-1944-taipei-points-circle-polygon"
+      ],
+      "type": "water1944Taipei"
     },
     {
       "layers": [
@@ -92094,6 +92103,258 @@
       ],
       "sourceId": "important-wetland-zones-points",
       "sourceUrl": "./environment/important_wetland_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "water1944Taipei",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": "#e2e8f0",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.4,
+                14,
+                1.4
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "water-1944-taipei",
+      "sourceUrl": "./geo/historical_water_1944_taipei.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "water1944Taipei",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-point",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "still",
+                "#38bdf8",
+                "gone",
+                "#e879f9",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle-polygon",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle-point",
+        "circle-polygon"
+      ],
+      "sourceId": "water-1944-taipei-points",
+      "sourceUrl": "./geo/historical_water_1944_taipei.geojson"
     },
     {
       "dynamicData": null,
@@ -181252,6 +181513,59 @@
         "step": 5,
         "value": 70,
         "valueText": "70 m"
+      }
+    ],
+    "water1944Taipei": [
+      {
+        "label": "今日狀態",
+        "options": [
+          {
+            "label": "今日仍是河道",
+            "value": "still"
+          },
+          {
+            "label": "今日已非河道",
+            "value": "gone"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "still",
+          "gone"
+        ]
+      },
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.55,
+        "valueText": "0.55"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "polygon"
       }
     ],
     "waterBasins": [

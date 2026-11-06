@@ -14,7 +14,7 @@ import {
   TWC_OFFICE_TYPE_OPTIONS, TWC_FACILITY_TYPE_OPTIONS, STATE_TENDER_KIND_OPTIONS,
   ATM_INSTITUTION_OPTIONS, BRANCH_CATEGORY_OPTIONS, SECURITIES_TYPE_OPTIONS, INSURANCE_TYPE_OPTIONS, FINANCE_SOURCE_DATE_LABELS,
   DIALECT_GROUP_OPTIONS, HAKKA_ACCENT_OPTIONS, TOUR_SERVICE_SITE_OPTIONS, visitorColor,
-  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS,
+  EXCLUSIVE_FISHERY_STATUS_OPTIONS, RENEWABLE_PERMIT_CLASS_OPTIONS, OCCUPATIONAL_ACCIDENT_TYPE_OPTIONS, WETLAND_LEVEL_OPTIONS, WETLAND_ZONE_OPTIONS, WATER_1944_STATUS_OPTIONS,
   WATER_RECREATION_KIND_OPTIONS, BATTERY_SWAP_OPERATOR_OPTIONS,
   optionColor, type AtlasLayerKey,
 } from "../../data/atlasLayerTypes";
@@ -1090,6 +1090,23 @@ function ImportantWetlandZonePanel({ props }: Props) {
   </>;
 }
 
+// 1944 水域：鄉鎮缺值寫「—」不寫 0（spec §6.5）；面積由 area_m2 換公頃
+function Water1944Panel({ props }: Props) {
+  const i18n = useLocale();
+  const { t } = i18n;
+  const color = optionColor(WATER_1944_STATUS_OPTIONS, props.status);
+  const statusText = enumOf("atlasWater1944Status", props.status, optionLabel(WATER_1944_STATUS_OPTIONS, props.status), i18n);
+  const area = num(props.area_m2);
+  const pct = num(props.modern_overlap_pct);
+  return <>
+    <Title color={color}>{statusText}</Title>
+    <Row label={t("popup.atlas.w1944Town")} value={str(props.town) || "—"} />
+    <Row field="area" value={area == null ? "—" : fmt(area / 10_000, 2, t("popup.atlas.unitHectares"), i18n)} />
+    <Row label={t("popup.atlas.w1944Overlap")} value={pct == null ? "—" : `${pct}%`} mono />
+    <Row field="caution" value={t("popup.atlas.w1944Caution")} />
+  </>;
+}
+
 function WaterRecreationPanel({ props }: Props) {
   const i18n = useLocale();
   const { t } = i18n;
@@ -1171,6 +1188,7 @@ export const ATLAS_PANELS: Record<AtlasLayerKey, FC<Props>> = {
   renewablePermitsNational: RenewablePermitNationalPanel,
   importantWetlands: ImportantWetlandPanel,
   importantWetlandZones: ImportantWetlandZonePanel,
+  water1944Taipei: Water1944Panel,
   waterRecreationRestrictedAreas: WaterRecreationPanel,
   batterySwapStations: BatterySwapPanel,
   artificialReefCenters: ArtificialReefPanel,
@@ -1240,6 +1258,7 @@ export const ATLAS_HEADER_LABELS: Record<AtlasLayerKey, string> = {
   renewablePermitsNational: manifestZh("renewablePermitsNational"),
   importantWetlands: manifestZh("importantWetlands"),
   importantWetlandZones: manifestZh("importantWetlandZones"),
+  water1944Taipei: manifestZh("water1944Taipei"),
   waterRecreationRestrictedAreas: manifestZh("waterRecreationRestrictedAreas"),
   batterySwapStations: manifestZh("batterySwapStations"),
   artificialReefCenters: manifestZh("artificialReefCenters"),

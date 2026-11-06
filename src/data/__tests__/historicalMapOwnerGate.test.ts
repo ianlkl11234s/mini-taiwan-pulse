@@ -20,8 +20,8 @@ describe("古地圖：站主限定", () => {
     expect(LAYER_MANIFEST[KEY].topics).toContain("OWNER_ONLY");
   });
 
-  it("歷史底圖主題只有這一層；主題對所有人顯示，非站主由列鎖頭擋（2026-11-06 起不再整個隱藏）", () => {
+  it("歷史底圖主題＝古地圖＋1944 水域（兩層都站主限定）；主題對所有人顯示，非站主由列鎖頭擋（2026-11-06 起不再整個隱藏）", () => {
     const theme = THEMES.find((t) => t.title === THEME)!;
-    expect(theme.groups.flatMap((g) => g.layers.map((l) => l.key))).toEqual([KEY]);
+    expect(theme.groups.flatMap((g) => g.layers.map((l) => l.key))).toEqual([KEY, "water1944Taipei"]);
   });
 });

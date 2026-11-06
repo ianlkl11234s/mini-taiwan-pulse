@@ -7455,6 +7455,31 @@ export const LAYER_MANIFEST = {
     topics: ["歷史", "古地圖", "人文", "底圖", "OWNER_ONLY"],
   },
 
+  water1944Taipei: {
+    key: "water1944Taipei",
+    country: "TW", section: { theme: "歷史底圖 Historical Basemaps", group: "歷史地圖" },
+    ...layerName({ zh: "1944 水域", alt: "1944 Waterbodies", qualifier: "臺北盆地" }),
+    expandable: true,
+    color: ATLAS_LAYER_COLORS.water1944Taipei,
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "中研院「臺灣百年歷史地圖」1944 美軍地形圖 AM25K_1944A 圖磚 → 依顏色抽取臺北盆地水域面 474 面（GIS/_worktree-backups/2026-11-06/water1944/scripts）→ mini scripts/preprocess/build-water-1944-taipei.py 與今日河川面（water_river_polygons，外擴 50 m，TWD97）比對重疊比例、分 still／gone、補鄉鎮",
+      note: "衍生資料，非 analytics 資料集；原圖 CC BY-NC（非商業）；只涵蓋臺北盆地，細水路未收錄，位置可能偏移 5–15 m",
+    },
+    dataClass: "A",
+    source: [
+      { kind: "geojson", sourceId: "water-1944-taipei", url: "./geo/historical_water_1944_taipei.geojson" },
+      { kind: "geojson", sourceId: "water-1944-taipei-points", url: "./geo/historical_water_1944_taipei.geojson" },
+    ],
+    legend: "water1944Taipei",
+    popup: "water1944Taipei",
+    params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
+    description: "1944 美軍地形圖抽取的臺北盆地水域 474 面，依與今日河川面的重疊比例分「今日仍是河道」與「今日已非河道」兩類（站主限定）",
+    topics: ["歷史", "古地圖", "水域", "河川", "OWNER_ONLY"],
+  },
+
   tourEvents: {
     key: "tourEvents",
     country: "TW", section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },

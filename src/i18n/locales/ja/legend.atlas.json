@@ -29,5 +29,6 @@
   "legend.atlas.sugarMill": "製糖工場の拠点",
   "legend.atlas.postFxCounter": "外貨現金取扱郵便局（外貨両替所ではない）",
   "legend.atlas.toxicSite": "毒性化学物質の取扱事業場（住所の点）",
-  "legend.atlas.otherAccidentType": "その他の種類"
+  "legend.atlas.otherAccidentType": "その他の種類",
+  "legend.atlas.licenseSinicaCcByNc": "原図 CC BY-NC（中央研究院人社センター GIS 専題センター）、本レイヤーは派生データ"
 }

@@ -296,5 +296,8 @@
   "popup.atlas.swLessee": "承租人",
   "popup.atlas.swContract": "契約期間",
   "popup.atlas.swUse": "出租用途",
-  "popup.atlas.swTaipowerCaution": "這是台電出租的土地，用途登記為換電站或充電站，不保證目前是營運中的換電站"
+  "popup.atlas.swTaipowerCaution": "這是台電出租的土地，用途登記為換電站或充電站，不保證目前是營運中的換電站",
+  "popup.atlas.w1944Town": "鄉鎮市區",
+  "popup.atlas.w1944Overlap": "與今日河道重疊",
+  "popup.atlas.w1944Caution": "由 1944 美軍地形圖依顏色抽取，位置可能偏移 5–15 m；重疊比例以今日河川面外擴 50 m 計算"
 }

@@ -941,6 +941,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "歷史地圖",
         layers: [
           fromManifest("historicalMapSinica"),
+          fromManifest("water1944Taipei"),
         ],
       },
     ],
