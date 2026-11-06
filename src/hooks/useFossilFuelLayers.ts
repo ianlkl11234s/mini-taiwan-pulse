@@ -134,7 +134,7 @@ export function useFossilFuelLayers({ mapRef, visibility }: UseFossilFuelLayersO
     let cancelled = false;
     loadLocked()
       .then((d) => { if (cancelled) return; lockedDataRef.current = d; feed(FOSSIL_LOCKED_FE_KEYS, d); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[FossilFuel] locked load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[FossilFuel] locked load failed:", err); });
     return () => { cancelled = true; };
   }, [anyLockedVisible, feed]);
 

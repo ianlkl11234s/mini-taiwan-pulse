@@ -124,7 +124,7 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
     let cancelled = false;
     loadFarms()
       .then((d) => { if (cancelled) return; farmsDataRef.current = d; feedAll(); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[Livestock] farms load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[Livestock] farms load failed:", err); });
     return () => { cancelled = true; };
   }, [anyFarmVisible, feedAll]);
 
@@ -134,7 +134,7 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
     let cancelled = false;
     loadSlaughter()
       .then((d) => { if (cancelled) return; slaughterDataRef.current = d; feedAll(); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[Livestock] slaughter load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[Livestock] slaughter load failed:", err); });
     return () => { cancelled = true; };
   }, [slaughterVisible, feedAll]);
 

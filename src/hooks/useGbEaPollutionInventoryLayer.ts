@@ -72,7 +72,7 @@ export function useGbEaPollutionInventoryLayer(mapRef: React.RefObject<MapboxMap
     loadOnce()
       .then((fc) => { if (!cancelled) setData(fc); })
       .catch((err: unknown) => {
-        if (isAccessDenied(err)) return;
+        if (cancelled || isAccessDenied(err)) return;
         if (isMissingGbEaPollutionRpc(err)) {
           if (!missingRpcLogged) console.info(`[GbEaPollution] ${GB_EA_POLLUTION_RPC} 尚未部署，圖層暫無資料`);
           missingRpcLogged = true;

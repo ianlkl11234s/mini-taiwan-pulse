@@ -99,7 +99,7 @@ export function useElectionEventsLayer(
     loadOnce()
       .then((d) => { if (!cancelled) setData(d); })
       .catch((err: unknown) => {
-        if (isAccessDenied(err)) return;
+        if (cancelled || isAccessDenied(err)) return;
         if (isMissingRpc(err)) {
           if (!missingRpcLogged) console.info("[ElectionEvents] get_election_events_2026 尚未部署，圖層暫無資料");
           missingRpcLogged = true;
