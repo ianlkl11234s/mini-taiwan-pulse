@@ -857,6 +857,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 功能分區在重要濕地範圍內 → 排在範圍前面，點到分區時優先顯示分區
   { layers: ["important-wetland-zones-fill", "important-wetland-zones-outline"], type: "importantWetlandZones" },
   { layers: ["important-wetlands-fill", "important-wetlands-outline"], type: "importantWetlands" },
+  { layers: ["water-1944-taipei-fill", "water-1944-taipei-outline"], type: "water1944Taipei" },
   { layers: ["water-recreation-restricted-areas-fill", "water-recreation-restricted-areas-outline"], type: "waterRecreationRestrictedAreas" },
   { layers: ["toxic-chemical-facilities-circle", "toxic-chemical-facilities-glow"], type: "toxicChemicalFacilities" },
   { layers: ["major-occupational-accidents-circle", "major-occupational-accidents-glow"], type: "majorOccupationalAccidents" },

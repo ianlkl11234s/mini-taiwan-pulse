@@ -19,8 +19,8 @@ describe("古地圖：公開", () => {
     expect(parseUrlState(`?v=${URL_STATE_VERSION}&layers=${KEY}`).layers).toEqual([KEY]);
   });
 
-  it("歷史底圖主題只有這一層，對所有人顯示", () => {
+  it("歷史底圖主題對所有人顯示：古地圖（公開）＋1944 水域（站主限定，非站主上鎖）", () => {
     const theme = THEMES.find((t) => t.title === THEME)!;
-    expect(theme.groups.flatMap((g) => g.layers.map((l) => l.key))).toEqual([KEY]);
+    expect(theme.groups.flatMap((g) => g.layers.map((l) => l.key))).toEqual([KEY, "water1944Taipei"]);
   });
 });

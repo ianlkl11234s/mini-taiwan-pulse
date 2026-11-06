@@ -98,6 +98,14 @@ export const CATEGORY_FILTERS_B: Record<string, CategoryFilterDef | readonly Cat
       { value: "其他分區", zh: "其他分區" },
     ],
   },
+  water1944Taipei: {
+    property: "status",
+    label: "今日狀態",
+    options: [
+      { value: "still", zh: "今日仍是河道" },
+      { value: "gone", zh: "今日已非河道" },
+    ],
+  },
   indigenousLanguageDialects: {
     property: "ethnic_group",
     label: "族別",

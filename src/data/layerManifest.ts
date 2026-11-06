@@ -7488,7 +7488,7 @@ export const LAYER_MANIFEST = {
     upstream: {
       status: "catalog_missing",
       datasets: [],
-      processing: "中研院人社中心 GIS 專題中心「臺灣百年歷史地圖」WMTS（外部 XYZ，z8–18，tileSize 256）；5 個年代：1904／1921 臺灣堡圖、1944 美軍航照、1945 美軍城市地圖、1966 Corona",
+      processing: "中研院人社中心 GIS 專題中心「臺灣百年歷史地圖」WMTS（外部 XYZ，z8–18，tileSize 256）；6 個年代：1904／1921 臺灣堡圖、1944 美軍航照、1944 美軍地形圖、1945 美軍城市地圖、1966 Corona",
       note: "外部圖磚直連，非 analytics 資料集；授權 CC BY-NC（非商業）；圖資為歷史掃描，位置可能有偏移；沒有 feature 屬性與 popup；預設關閉",
     },
     dataClass: "D",
@@ -7499,8 +7499,33 @@ export const LAYER_MANIFEST = {
     legend: "historicalMapSinica",
     popup: null,
     params: { count: 2, kinds: ["slider", "select"] },
-    description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 5 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
+    description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 6 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
     topics: ["歷史", "古地圖", "人文", "底圖"],
+  },
+
+  water1944Taipei: {
+    key: "water1944Taipei",
+    country: "TW", section: { theme: "歷史底圖 Historical Basemaps", group: "歷史地圖" },
+    ...layerName({ zh: "1944 水域", alt: "1944 Waterbodies", qualifier: "臺北盆地" }),
+    expandable: true,
+    color: ATLAS_LAYER_COLORS.water1944Taipei,
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "中研院「臺灣百年歷史地圖」1944 美軍地形圖 AM25K_1944A 圖磚 → 依顏色抽取臺北盆地水域面 474 面（GIS/_worktree-backups/2026-11-06/water1944/scripts）→ mini scripts/preprocess/build-water-1944-taipei.py 與今日河川面（water_river_polygons，外擴 50 m，TWD97）切成交集（still）與差集（gone）、丟 < 500 m² 碎片、補鄉鎮 → 830 片",
+      note: "衍生資料，非 analytics 資料集；原圖 CC BY-NC（非商業）；只涵蓋臺北盆地，細水路未收錄，位置可能偏移 5–15 m",
+    },
+    dataClass: "A",
+    source: [
+      { kind: "geojson", sourceId: "water-1944-taipei", url: "./geo/historical_water_1944_taipei.geojson" },
+      { kind: "geojson", sourceId: "water-1944-taipei-points", url: "./geo/historical_water_1944_taipei.geojson" },
+    ],
+    legend: "water1944Taipei",
+    popup: "water1944Taipei",
+    params: { count: 4, kinds: ["select", "multiSelect", "slider", "slider"] },
+    description: "1944 美軍地形圖抽取的臺北盆地水域，依今日河川面切成「今日仍是河道」223 片與「今日已非河道」607 片（站主限定）",
+    topics: ["歷史", "古地圖", "水域", "河川", "OWNER_ONLY"],
   },
 
   tourEvents: {
