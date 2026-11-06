@@ -58,6 +58,14 @@ describe("matchStyleLayers：key 找得到自己的 style layer", () => {
     const got = matchStyleLayers({ ids: new Set(["kr-bridges-circle"]), sources: new Set() }, style).map((l) => l.id);
     expect(got.sort()).toEqual(["density", "kr-bridges-circle", "kr-bridges-heatmap"]);
   });
+  it("兄弟 key 共用 source 時，不吃進別人的熱區（review F040）", () => {
+    const style: HintStyleLayer[] = [
+      { id: "sports-venues-circle", type: "circle", source: "sports-venues", minzoom: 12 },
+      { id: "sports-venues-school-heat", type: "heatmap", source: "sports-venues", maxzoom: 12 },
+    ];
+    const seeds = { ids: new Set(["sports-venues-circle"]), sources: new Set(["sports-venues"]), excludeIds: new Set(["sports-venues-school-heat"]) };
+    expect(matchStyleLayers(seeds, style).map((l) => l.id)).toEqual(["sports-venues-circle"]);
+  });
   it("倫敦車站從 manifest popup 反查到點擊登記簿的 style layer", () => {
     expect(layerHintSeeds("gbLondonStations").ids.has("gb-london-stations-circle")).toBe(true);
   });
