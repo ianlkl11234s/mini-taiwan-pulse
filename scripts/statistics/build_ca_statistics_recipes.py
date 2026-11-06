@@ -74,6 +74,9 @@ INDICATORS = [
     dict(base="statsCaParticipationRate", tab="socioeconomic", sub=SUB_LABOUR, label="勞動參與率", digits=1, loc=LOC_RES, notes=LABOUR_NOTES),
     dict(base="statsCaEmploymentRate", tab="socioeconomic", sub=SUB_LABOUR, label="就業率", digits=1, loc=LOC_RES, notes=LABOUR_NOTES),
 ]
+# 由來源欄位自行計算的指標（人口密度重算到小數 3 位、年齡比例由計數相除）：derived=True，以 handoff 的 definition 當 derived_method。
+# 失業／參與／就業率等來源另有公布值的指標維持 False（未逐一核對上游是否自算；handoff 補充後再擴充）。
+DERIVED_BASES = ['statsCaPopulationDensity', 'statsCaAgeYoungShare', 'statsCaAgeWorkingShare', 'statsCaAgeOldShare']
 LEVEL_SUFFIX = {"ca_pr": "Pr", "ca_cd": "Cd"}
 
 
@@ -162,7 +165,8 @@ def main() -> None:
             },
             "status_labels": {kind: label for kind, label in layer["status_labels"].items() if statuses.get(kind)},
             "format": {"locale": "zh-TW", "maximumFractionDigits": spec["digits"]},
-            "derived": False,
+            "derived": spec["base"] in DERIVED_BASES,
+            **({"derived_method": layer["definition"]} if spec["base"] in DERIVED_BASES else {}),
             "location_semantics": spec["loc"],
             "disclosure": layer["disclosure"],
             "publisher": release["publisher"], "license": release["license"],

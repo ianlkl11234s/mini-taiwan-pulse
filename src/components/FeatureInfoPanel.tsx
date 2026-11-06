@@ -40,6 +40,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   // G36：PMTiles tile 無來源欄，panel 依 src／常數自掛 SourceFooter
   "fireHydrant",
   "trafficAccidents2025",
+  "jpTrafficAccidents2025", // 日本 C083：PMTiles tile 無來源欄，panel 自掛 SourceFooter
   "analysisResult", // Agent 暫時分析結果：面板自帶「暫時分析結果 · 非完整來源圖層」footer
   // 區域統計：feature 只帶 R2 來源紀錄的 publisher／license／source_url（不是中央版讀的 source_org），
   // 中央版會一律誤判成「來源資訊待補」；panel 自掛 SourceFooter 並依語系翻機關與授權。

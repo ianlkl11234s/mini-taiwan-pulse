@@ -133,9 +133,11 @@ def sync_filter(rel: str, filters: list) -> bool:
 def simulate(s3: dict, ptrs: dict, rail_members: list[tuple[int, str]]) -> tuple[dict, dict]:
     """served/data path → list of (s3_key, rule, extra_note)。第二個回傳：家族說明。"""
     landed: dict[str, list] = defaultdict(list)
-    for key in s3:
-        full = key[len(PREFIX):]
-        for rule, src, dest, filters in SYNCS:
+    # 外層照 SYNCS 規則順序（pull 腳本就是依序執行 aws s3 sync），同一網址後面規則覆蓋前面，
+    # 所以 landed[path][-1] 才是真正的勝者；外層若走 S3 key 順序，勝者會變成「key 字母序最後」而非「sync 規則最後」。
+    for rule, src, dest, filters in SYNCS:
+        for key in s3:
+            full = key[len(PREFIX):]
             if not full.startswith(src):
                 continue
             rel = full[len(src):]

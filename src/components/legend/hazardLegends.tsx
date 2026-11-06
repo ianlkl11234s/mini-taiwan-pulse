@@ -1,7 +1,7 @@
 // Legend sub-components (hazardLegends) — moved verbatim out of LegendPanel.tsx; registry wiring stays in LegendPanel.tsx (LEGEND_REGISTRY).
 import { useEffect, useState } from "react";
 import { timeStore } from "../../state/timeStore";
-import { activeAgencyVersions, fetchTyphoonAgencyForecasts, groupAgencyTracks, type AgencyForecastTrack } from "../../data/typhoonAgencyForecastsLoader";
+import { activeAgencyVersions, fetchTyphoonAgencyForecasts, groupAgencyTracks, subscribeTyphoonAgencyForecastsRefresh, type AgencyForecastTrack } from "../../data/typhoonAgencyForecastsLoader";
 import { TYPHOON_AGENCIES, TYPHOON_AGENCY_COLORS, TYPHOON_AGENCY_LABELS, TYPHOON_GALE_COLOR, TYPHOON_STORM_COLOR } from "../../data/typhoonTypes";
 import { useLocale } from "../../state/localeStore";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
@@ -524,7 +524,9 @@ export function TyphoonAgencyForecastLegend() {
       .then((rows) => { if (!cancelled) setTracks(groupAgencyTracks(rows)); })
       .catch(() => { if (!cancelled) setTracks([]); });
     const unsub = timeStore.subscribeThrottled(1000, (tm) => setNowTs(tm));
-    return () => { cancelled = true; unsub(); };
+    // 地圖每 REFRESH_MS 重抓；圖例跟著更新，不停在 mount 當下的發布時間
+    const unsubRefresh = subscribeTyphoonAgencyForecastsRefresh((rows) => { if (!cancelled) setTracks(groupAgencyTracks(rows)); });
+    return () => { cancelled = true; unsub(); unsubRefresh(); };
   }, []);
   const active = tracks ? activeAgencyVersions(tracks, nowTs) : [];
   const issuedBy = new Map(active.map((tr) => [tr.agency, tr.issued_label]));
