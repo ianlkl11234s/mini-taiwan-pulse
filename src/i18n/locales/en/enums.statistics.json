@@ -274,6 +274,7 @@
   "enum.statMetric.班級數": "Classes",
   "enum.statMetric.每班學生數": "Students per class",
   "enum.statMetric.人數（千人）": "People (thousands)",
+  "enum.statMetric.非勞動力率": "Non-labor-force rate",
   "enum.statMetric.非勞動力率（%）": "Non-labor-force rate (%)",
   "enum.statDimValue.source_field.市區租借站數": "Urban rental stations",
   "enum.statDimValue.source_field.市區年租借次數": "Urban rentals per year",
