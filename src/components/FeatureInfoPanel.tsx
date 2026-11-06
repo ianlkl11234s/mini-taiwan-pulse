@@ -192,6 +192,8 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "mapchallengeDay04Population", "mapchallengeDay04Facility", "mapchallengeDay04Overlap", "mapchallengeDay04ScaleTcCh",
   // 30 天地圖挑戰 Day 5 視野：panel 自掛路線線形／視線推估出處。
   "mapchallengeDay05SeaView", "mapchallengeDay05SeaViewRuns",
+  // 30 天地圖挑戰 Day 6 復古：panel 自掛 THCTS 出處與授權。
+  "mapchallengeDay06Coast", "mapchallengeDay06Taipei1932", "mapchallengeDay06Temples1921", "mapchallengeDay06Lighthouses",
   "transitAccessGrid",
   "transitAccessPlayback",
   // 土壤液化 owner-only 8 層：tile 沒有來源欄位，panel 補官方機關常數並自掛 SourceFooter。

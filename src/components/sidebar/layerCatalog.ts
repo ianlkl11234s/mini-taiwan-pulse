@@ -2597,6 +2597,9 @@ const THEME_CATALOG: ThemeDef[] = [
     }, {
       title: "Day 5 視野 Perspectives",
       layers: [fromManifest("mapchallengeDay05SeaView"), fromManifest("mapchallengeDay05SeaViewRuns")],
+    }, {
+      title: "Day 6 復古 Vintage",
+      layers: [fromManifest("mapchallengeDay06Coast"), fromManifest("mapchallengeDay06Taipei1932"), fromManifest("mapchallengeDay06Temples1921"), fromManifest("mapchallengeDay06Lighthouses")],
     }],
   },
 

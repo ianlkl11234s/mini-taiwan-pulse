@@ -30,6 +30,13 @@ import {
 import {
   MAPCHALLENGE_DAY05_GLOW, MAPCHALLENGE_DAY05_GLOW_LIGHT_FACTOR, mapchallengeDay05RunWidthExpr, mapchallengeDay05SegmentWidthExpr,
 } from "../data/mapchallengeDay05Style";
+import {
+  MAPCHALLENGE_DAY06_COAST_URL, MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_LABEL_MINZOOM, MAPCHALLENGE_DAY06_LIGHTHOUSE_URL,
+  MAPCHALLENGE_DAY06_LINK_DASH, MAPCHALLENGE_DAY06_STATUSES, MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, MAPCHALLENGE_DAY06_SURVIVE,
+  MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, MAPCHALLENGE_DAY06_TAIPEI_URL, MAPCHALLENGE_DAY06_TEMPLES_URL, MAPCHALLENGE_DAY06_TEMPLE_CLASSES,
+  MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY, mapchallengeDay06EraColorExpr, mapchallengeDay06TodayColor,
+  mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
+} from "../data/mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
 import { withLineFillSpec } from "./lineFillSpec";
@@ -12417,6 +12424,126 @@ OVERLAY_REGISTRY.push(
       } },
       { suffix: "outline", type: "line", minzoom: 8, paint: (isDark) => gradedSeamPaint(isDark, true) },
     ],
+  },
+);
+
+// ── 30 天地圖挑戰 Day 6 復古（模擬面板，公開，2026-11-06）：THCTS 衍生資料（CC BY-NC-SA 3.0 臺灣版）。
+// 類別多選（V-4）與 select 都改 filter，所以 filter 函式自己組、參數變動時重建（同 Day 5）。
+const MAPCHALLENGE_DAY06_THCTS_ATTR = "中央研究院《臺灣歷史文化地圖系統》第一版（2003），CC BY-NC-SA 3.0 臺灣版；本層為衍生資料，同條款";
+const mcDay06Filter = (parts: (unknown[] | null)[]): unknown[] => {
+  const used = parts.filter((f): f is unknown[] => f !== null);
+  return used.length === 0 ? ["all"] : ["all", ...used];
+};
+const mcDay06Cat = <T extends { value: number | string; zh: string }>(property: string, list: readonly T[], mask: number | undefined) =>
+  categoryFilterExpr({ property, options: list.map((o) => ({ value: String(o.value), zh: o.zh })) }, mask);
+const mcDay06Label = (minzoom: number, opacityKey: string, filter: OverlayLayerSpec["filter"], field: unknown = ["get", "name"]): OverlayLayerSpec => ({
+  suffix: "label", type: "symbol", minzoom,
+  layout: {
+    "text-field": field, ...poiLabelLayout(), "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+    "text-variable-anchor": ["top", "bottom", "left", "right"], "text-radial-offset": .8, "text-max-width": 14, "text-optional": true,
+  },
+  filter,
+  paint: (dark, p) => ({ "text-color": dark ? "#f8fafc" : "#0f172a", ...labelHaloPaint(dark), "text-opacity": p?.[opacityKey] ?? 0.85 }),
+});
+
+OVERLAY_REGISTRY.push(
+  {
+    // 1. 臺南海岸線三代（線，依年代分色）＋當年海岸線以西的今日地名（點，依最舊一代上色；可隱藏）
+    id: "mapchallengeDay06Coast", sourceUrl: MAPCHALLENGE_DAY06_COAST_URL, sourceId: "mapchallenge-day06-coast",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；OpenStreetMap（ODbL）；內政部地名資料`,
+    rebuildOnParamChange: ["line", "circle", "label"], rebuildOnParamKeys: ["mapchallengeDay06CoastCategoryMask", "mapchallengeDay06CoastPlacesIdx"],
+    layers: [{
+      suffix: "line", type: "line",
+      layout: { "line-cap": "round", "line-join": "round", "line-sort-key": ["-", 4, ["to-number", ["get", "era"], 3]] },
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "coast"], mcDay06Cat("era", MAPCHALLENGE_DAY06_ERAS, p?.mapchallengeDay06CoastCategoryMask)]),
+      paint: (isDark, p) => ({
+        "line-color": mapchallengeDay06EraColorExpr(isDark),
+        "line-width": mapchallengeDay06CoastWidthExpr(p?.mapchallengeDay06CoastScale ?? 1),
+        "line-opacity": p?.mapchallengeDay06CoastOpacity ?? 0.85,
+      }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => (Math.trunc(p?.mapchallengeDay06CoastPlacesIdx ?? 0) === 1
+        ? ["==", ["get", "kind"], "__hidden__"]
+        : ["==", ["get", "kind"], "place"]),
+      paint: (isDark, p) => ({
+        "circle-color": mapchallengeDay06EraColorExpr(isDark, "latest"),
+        "circle-opacity": p?.mapchallengeDay06CoastOpacity ?? 0.85,
+      }),
+    }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06CoastOpacity", (p) => (Math.trunc(p?.mapchallengeDay06CoastPlacesIdx ?? 0) === 1
+      ? ["==", ["get", "kind"], "__hidden__"]
+      : ["==", ["get", "kind"], "place"]))],
+  },
+  {
+    // 2. 1932 臺北市町界（面＋外框＋町名）：町名仍在里名（橘）／已消失（灰）
+    id: "mapchallengeDay06Taipei1932", sourceUrl: MAPCHALLENGE_DAY06_TAIPEI_URL, sourceId: "mapchallenge-day06-taipei-1932",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；內政部村里界（2026-06-26）`,
+    rebuildOnParamChange: ["fill", "outline", "label"], rebuildOnParamKeys: ["mapchallengeDay06Taipei1932CategoryMask"],
+    layers: [{
+      suffix: "fill", type: "fill",
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "zone"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]),
+      paint: (_isDark, p) => ({
+        "fill-color": MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR,
+        "fill-opacity": MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY * ((p?.mapchallengeDay06Taipei1932Opacity ?? 0.85) / 0.85),
+      }),
+    }, {
+      suffix: "outline", type: "line",
+      filter: (p) => mcDay06Filter([["==", ["get", "kind"], "zone"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]),
+      paint: (_isDark, p) => ({ "line-color": MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, "line-width": 1, "line-opacity": p?.mapchallengeDay06Taipei1932Opacity ?? 0.85 }),
+    }, mcDay06Label(MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, "mapchallengeDay06Taipei1932Opacity",
+      (p) => mcDay06Filter([["==", ["get", "kind"], "label"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]))],
+  },
+  {
+    // 3. 廟不搬家：1921 祠廟（1,439 點 < 1 萬，V-1 直接畫點）；同名原址 14 處加外圈、z13 起標名稱
+    id: "mapchallengeDay06Temples1921", sourceUrl: MAPCHALLENGE_DAY06_TEMPLES_URL, sourceId: "mapchallenge-day06-temples-1921",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；內政部全國宗教資訊系統（2026-08-01 擷取）`,
+    rebuildOnParamChange: ["circle", "same-mark", "label"], rebuildOnParamKeys: ["mapchallengeDay06Temples1921CategoryMask"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      layout: { "circle-sort-key": ["+", ["to-number", ["get", "cont"], 0], ["*", 2, ["to-number", ["get", "same"], 0]]] },
+      filter: (p) => mcDay06Filter([mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
+      paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85 }),
+    }, {
+      // 同名原址 14 處外圈（資料編碼，不是裝飾；POINT_SPEC_EXEMPT 登記、map-layers.md §3.1 P-6 例外）
+      suffix: "same-mark", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
+      paint: (isDark, p) => {
+        const scale = p?.mapchallengeDay06Temples1921Scale ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], ...MAPCHALLENGE_DAY06_SAME_RING.radius.flatMap(([z, r]) => [z, r * scale])],
+          "circle-color": "rgba(0,0,0,0)", "circle-opacity": 0,
+          "circle-stroke-color": mapchallengeDay06TodayColor(isDark), "circle-stroke-width": MAPCHALLENGE_DAY06_SAME_RING.strokeWidth,
+          "circle-stroke-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85,
+        };
+      },
+    }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06Temples1921Opacity",
+      (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]))],
+  },
+  {
+    // 4. 燈塔與測候所今昔：歷史點（狀態色）＋今日點（中性色）＋虛線連線（遷移距離）
+    id: "mapchallengeDay06Lighthouses", sourceUrl: MAPCHALLENGE_DAY06_LIGHTHOUSE_URL, sourceId: "mapchallenge-day06-lighthouses",
+    attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；Pulse 燈塔圖層；中央氣象署測站清單`,
+    rebuildOnParamChange: ["link", "today-circle", "circle"], rebuildOnParamKeys: ["mapchallengeDay06LighthousesTypeIdx", "mapchallengeDay06LighthousesCategoryMask"],
+    layers: [{
+      suffix: "link", type: "line",
+      layout: { "line-cap": "butt", "line-join": "round" },
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "link"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (_isDark, p) => ({
+        "line-color": MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2],
+        "line-dasharray": [...MAPCHALLENGE_DAY06_LINK_DASH], "line-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85,
+      }),
+    }, {
+      suffix: "today-circle", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "today"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (isDark, p) => ({ "circle-color": mapchallengeDay06TodayColor(isDark), "circle-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85 }),
+    }, {
+      suffix: "circle", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["get", "role"], "hist"], mapchallengeDay06TypeFilter(p?.mapchallengeDay06LighthousesTypeIdx),
+        mcDay06Cat("status", MAPCHALLENGE_DAY06_STATUSES, p?.mapchallengeDay06LighthousesCategoryMask)]),
+      paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06LighthousesOpacity ?? 0.85 }),
+    }],
   },
 );
 

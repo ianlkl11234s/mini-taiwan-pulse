@@ -196,6 +196,7 @@ import { FREEWAY_TDCS_SIM_COLOR } from "./freewayTdcsSimTypes";
 import { TRANSIT_ACCESS_COLOR } from "./transitAccessTypes";
 import { MAPCHALLENGE_DAY04_COLOR } from "./mapchallengeDay04Types";
 import { MAPCHALLENGE_DAY05_COLOR } from "./mapchallengeDay05Types";
+import { MAPCHALLENGE_DAY06_COLOR } from "./mapchallengeDay06Types";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -7499,7 +7500,7 @@ export const LAYER_MANIFEST = {
     popup: null,
     params: { count: 2, kinds: ["slider", "select"] },
     description: "中研院臺灣百年歷史地圖（1904 堡圖到 1966 Corona 共 5 個年代的掃描古地圖，外部圖磚，CC BY-NC，位置可能有偏移）",
-    topics: ["歷史", "古地圖", "人文", "底圖", "OWNER_ONLY"],
+    topics: ["歷史", "古地圖", "人文", "底圖"],
   },
 
   tourEvents: {
@@ -15786,6 +15787,95 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "select", "select"] },
     description: "30 天地圖挑戰 Day 5 視野：鐵路與道路上最長的連續海景路段（各取前 30 名），可切離海距離範圍（不限、≤200 m、≤100 m）與運具；前 3 名線更粗；只計開闊與看得到海兩級（被路邊樹叢遮擋的「樹縫間」不算）。以地形、建物、樹冠視線推估，連續 ≥500 m、中斷 ≤200 m 視為連續；路邊 40 m 內的樹叢以 10 m 樹冠資料（樹冠：Meta／WRI）計入，海堤與沿海防風林以假設高度計入，海以漲潮時為準（潮間帶算海）；綠島、小琉球、澎湖、金門、馬祖未涵蓋。點線看名次、長度、起訖鄉鎮與高架比例。來源：地形：內政部 20 m 數值地形模型（2024）；建物高度：GBA／OSM 融合；樹冠高度：Meta／WRI（CC BY 4.0）；海堤：經濟部水利署；保安林：農業部林業及自然保育署；路線：OpenStreetMap（ODbL）。",
     topics: ["海景", "鐵路", "道路", "視線", "排名", "30 天地圖挑戰"],
+  },
+
+  mapchallengeDay06Coast: {
+    key: "mapchallengeDay06Coast",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-06）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 6 復古 Vintage" },
+    ...layerName({ zh: "臺南海岸線三代", alt: "Tainan Coastlines, 3 Eras" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY06_COLOR,
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 6 復古：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月），CC BY-NC-SA 3.0 臺灣版 圖層 242 十七至十八世紀臺灣西南部海岸線、244 十九世紀、243 二十世紀初（TWD67 轉 WGS84）；各段距今天海岸線的距離以 OpenStreetMap natural=coastline（ODbL，2026-11-06 擷取）算線段中點的最短距離。今日地名取內政部地名資料（2026-10-12 版）名稱含「鯤鯓」「塭」「汕」、且位在某代海岸線最東界以西的今天陸地（上限口徑，未扣當年沙洲）者。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 待登記為 mapchallenge_day06_vintage）。本層為 THCTS 衍生資料，依 CC BY-NC-SA 3.0 臺灣版同條款釋出（非商業）。TWD67 轉 WGS84 以七參數轉換，車站實證中位殘差約 49 m。三代海岸線描的是含台江內海、倒風內海等潟湖的水陸界，不只外海岸；19 世紀線在北緯 23.05–23.15° 與 17–18 世紀一樣深入內陸，可能描了殘存水域或另一時點，原始圖說未查；三代確切年代與底圖未查。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day06-coast", url: "./mapchallenge/day06_coast.geojson" },
+    legend: "mapchallengeDay06Coast",
+    popup: "mapchallengeDay06Coast",
+    params: { count: 4, kinds: ["slider", "slider", "multiSelect", "select"] },
+    description: "30 天地圖挑戰 Day 6 復古：臺灣西南部 17–18 世紀、19 世紀、20 世紀初三代海岸線（含台江內海等潟湖岸），可依年代篩選；另可顯示當年海岸線以西、今天地名仍帶「鯤鯓」「塭」「汕」的地點（51 處）。三代共同範圍內，當年海水最深入處到今天外海岸的中位距離：17–18 世紀約 17.9 km、19 世紀約 7.6 km、20 世紀初約 2.0 km。點線看年代、距今天海岸線的距離。來源：中央研究院《臺灣歷史文化地圖系統》（CC BY-NC-SA 3.0 臺灣版，本層為衍生資料）；OpenStreetMap（ODbL）；內政部地名資料。",
+    topics: ["海岸線", "台江內海", "古地圖", "臺南", "地名", "30 天地圖挑戰"],
+  },
+  mapchallengeDay06Taipei1932: {
+    key: "mapchallengeDay06Taipei1932",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-06）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 6 復古 Vintage" },
+    ...layerName({ zh: "1932 臺北市町界", alt: "Taipei Town Divisions 1932" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY06_COLOR,
+    icon: Grid3x3,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 6 復古：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月），CC BY-NC-SA 3.0 臺灣版 圖層 228 1932年臺北市町界（78 面、74 個町與大字，同名多面合併；TWD67 轉 WGS84）。與內政部村里界（2026-06-26 版）以 TWD97 面積疊合：列出占町面積 ≥20% 的主要里；町名去掉「町」後的詞幹出現在重疊（占該里 ≥5%）的里名中，算「町名今天仍在里名」（單字詞幹要求里名以它開頭）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 待登記為 mapchallenge_day06_vintage）。本層為 THCTS 衍生資料，依 CC BY-NC-SA 3.0 臺灣版同條款釋出（非商業）。TWD67 轉 WGS84 以七參數轉換，車站實證中位殘差約 49 m。datum 殘差約 50 m，0.1 km² 級小町的里比例有幾個百分點誤差；沿淡水河、新店溪的町（西園、馬場、濱町、泉町）有 4–17% 面積落在今新北市，是 1932 町界含河道、今天縣市界在河心的定義差；綠町→綠堤里可能只是巧合，未查里名由來。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day06-taipei-1932", url: "./mapchallenge/day06_taipei_1932.geojson" },
+    legend: "mapchallengeDay06Taipei1932",
+    popup: "mapchallengeDay06Taipei1932",
+    params: { count: 2, kinds: ["slider", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 6 復古：1932 年臺北市 74 個町與大字的範圍，分「町名今天仍在里名」（13 個，例如西門、東門、南門、新起、永樂、蓬萊、圓山）與「已消失」，z12 起顯示町名。點面看今天大致對應的區與里。來源：中央研究院《臺灣歷史文化地圖系統》（CC BY-NC-SA 3.0 臺灣版，本層為衍生資料）；內政部村里界（2026-06-26）。",
+    topics: ["町", "日治", "古地圖", "臺北", "地名", "30 天地圖挑戰"],
+  },
+  mapchallengeDay06Temples1921: {
+    key: "mapchallengeDay06Temples1921",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-06）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 6 復古 Vintage" },
+    ...layerName({ zh: "廟不搬家：1921 祠廟", alt: "Temples That Stayed, 1921" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY06_COLOR,
+    icon: Church,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 6 復古：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月），CC BY-NC-SA 3.0 臺灣版 圖層 175 臺灣地形圖祠廟（1921，1,439 點；TWD67 轉 WGS84）。每點找今天最近的登記寺廟（內政部全國宗教資訊系統寺廟 19,201 筆，2026-08-01 擷取），100 m 內有者算「原址仍有寺廟」；對照組＝每點整批平移 300／600 m × 8 方向（落海剔除）後同樣計算。有名稱的 29 點另做同名比對（名稱正規化、500 m 內）。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 待登記為 mapchallenge_day06_vintage）。本層為 THCTS 衍生資料，依 CC BY-NC-SA 3.0 臺灣版同條款釋出（非商業）。TWD67 轉 WGS84 以七參數轉換，車站實證中位殘差約 49 m。今天名錄只含已登記寺廟，未登記小廟、土地公祠不在內，延續率是下限；寺廟密集區可能把別座廟算進來（偏高），以對照組處理。只能說「附近仍有廟」，除同名者外不能說是同一座。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day06-temples-1921", url: "./mapchallenge/day06_temples_1921.geojson" },
+    legend: "mapchallengeDay06Temples1921",
+    popup: "mapchallengeDay06Temples1921",
+    params: { count: 3, kinds: ["slider", "slider", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 6 復古：1921 年地形圖上的 1,439 座祠廟，1,007 座（70%）原址 100 m 內今天仍有登記寺廟；把所有點整批平移 300 或 600 m 再算，只有約 9%。可依有無篩選；有名稱且今天找得到同名寺廟的 14 處標出名稱（例：指南宮 16 m、吳鳳廟 8 m）。點看最近的今日寺廟與距離。來源：中央研究院《臺灣歷史文化地圖系統》（CC BY-NC-SA 3.0 臺灣版，本層為衍生資料）；內政部全國宗教資訊系統（2026-08-01 擷取）。",
+    topics: ["寺廟", "宗教", "日治", "古地圖", "延續", "30 天地圖挑戰"],
+  },
+  mapchallengeDay06Lighthouses: {
+    key: "mapchallengeDay06Lighthouses",
+    // 30 天地圖挑戰（模擬面板，公開，2026-11-06）：靜態 GeoJSON，不在 GATED_LAYERS。
+    country: "SIM", section: { theme: "30 天地圖挑戰", group: "Day 6 復古 Vintage" },
+    ...layerName({ zh: "燈塔與測候所今昔", alt: "Lighthouses & Weather Stations Then and Now" }),
+    expandable: true,
+    color: MAPCHALLENGE_DAY06_COLOR,
+    icon: TowerControl,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "30 天地圖挑戰 Day 6 復古：中央研究院，《臺灣歷史文化地圖系統》第一版，（台北，中央研究院，2003年9月），CC BY-NC-SA 3.0 臺灣版 圖層 199 臺灣地形圖燈塔（16 處）與 186 日治初期（1896–1901）測候所（5 處；TWD67 轉 WGS84）。今日位置：燈塔取 Pulse 現行燈塔清單（36 座主要燈塔），測候所取中央氣象署測站清單的署屬有人站；名稱正規化後同名者優先，改名或改字者取 150 m 內最近一座；直線距離 ≤150 m 算原址。兩份今日清單為 Pulse 現行靜態檔，未另查更新日期。",
+      note: "DISPLAY_ONLY（不入分析倉庫；pulse-data registry 待登記為 mapchallenge_day06_vintage）。本層為 THCTS 衍生資料，依 CC BY-NC-SA 3.0 臺灣版同條款釋出（非商業）。TWD67 轉 WGS84 以七參數轉換，車站實證中位殘差約 49 m。今日燈塔清單只收 36 座主要燈塔，不含港燈與燈杆，「清單無對應」不代表消失；彭佳嶼歷史點位落在海上，判為原圖數化偏差、不畫連線；塭港堆燈塔今日座標疑為概略值；未查各站遷址史，不推論原因。",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mapchallenge-day06-lighthouses", url: "./mapchallenge/day06_lighthouse_weather.geojson" },
+    legend: "mapchallengeDay06Lighthouses",
+    popup: "mapchallengeDay06Lighthouses",
+    params: { count: 4, kinds: ["slider", "slider", "select", "multiSelect"] },
+    description: "30 天地圖挑戰 Day 6 復古：日治時期地形圖上的 16 座燈塔與 1896 年起設的 5 個測候所，連到今天同一座燈塔或氣象站，分原址（150 m 內）、遷移、今日清單無對應。5 個百年測候所今天都還是氣象署有人站，臺北站只差 10 m。可切燈塔／測候所。點看名稱、設立年、今昔距離。來源：中央研究院《臺灣歷史文化地圖系統》（CC BY-NC-SA 3.0 臺灣版，本層為衍生資料）；Pulse 燈塔圖層（36 座主要燈塔）、中央氣象署測站清單。",
+    topics: ["燈塔", "氣象站", "日治", "古地圖", "今昔", "30 天地圖挑戰"],
   },
 
   roadCongestion: {

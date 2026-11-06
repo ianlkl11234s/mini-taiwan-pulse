@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import type { Map as MapboxMap, RasterLayer } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 import {
   HISTORICAL_MAP_ATTRIBUTION, HISTORICAL_MAP_MAX_ZOOM, HISTORICAL_MAP_MIN_ZOOM,
   historicalMapEraByIdx, historicalMapTileUrl,
@@ -31,18 +30,6 @@ export function useHistoricalMapSinicaLayer(
   eraIdx: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
-
-  // 撤權（review F088）：移除 layer 與所有年代 source；之後再開時 mount() 會重建
-  useEffect(() => registerOwnerGateReset(["historicalMapSinica"], () => {
-    const map = mapRef.current;
-    if (!map) return;
-    try {
-      if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
-      for (const id of Object.keys(map.getStyle()?.sources ?? {})) {
-        if (id.startsWith(SOURCE_PREFIX)) map.removeSource(id);
-      }
-    } catch { /* style 切換中：style.load 只在 visible 時重建 */ }
-  }), [mapRef, mapTick]);
 
   useEffect(() => {
     const map = mapRef.current;
