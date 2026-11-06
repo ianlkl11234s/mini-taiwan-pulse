@@ -29,7 +29,9 @@ export type ViewportCountry = CountryCode | "none" | null;
 
 export function viewportCountryAt(center: readonly [number, number], zoom: number): ViewportCountry {
   if (!(zoom >= VIEWPORT_HINT_MIN_ZOOM)) return null;
-  return countryForPoint(center[0], center[1]) ?? "none";
+  // map.getCenter() 換世界副本時 lng 會超出 ±180，bbox 比對前先正規化
+  const lng = ((((center[0] + 180) % 360) + 360) % 360) - 180;
+  return countryForPoint(lng, center[1]) ?? "none";
 }
 
 /** 要提示切換到哪一國；不提示回 null。 */

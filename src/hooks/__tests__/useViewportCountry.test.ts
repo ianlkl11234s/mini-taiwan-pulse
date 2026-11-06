@@ -34,6 +34,7 @@ describe("視野提示：zoom 門檻", () => {
   it("zoom < 4.5 不判斷（看東亞、全歐時不跳）", () => {
     expect(viewportCountryAt(TOKYO, 3)).toBeNull();
     expect(viewportCountryAt(TOKYO, VIEWPORT_HINT_MIN_ZOOM - 0.01)).toBeNull();
+    expect(viewportCountryAt([TOKYO[0] + 360, TOKYO[1]], 6)).toBe("JP"); // 世界副本 lng 超出 ±180（review F016）
     expect(viewportCountryAt(TOKYO, VIEWPORT_HINT_MIN_ZOOM)).toBe("JP");
     expect(viewportCountryAt(PARIS, 6)).toBe("FR");
   });
