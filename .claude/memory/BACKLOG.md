@@ -278,7 +278,7 @@
 | KRREL-1 | P2 | done | 南韓＋圖層可見性整修（#769／#773–#775、#779–#788）整批發版到正式站。 | 2026-11-01 v2.19.0 上線（#790、#792 merge `3110ba9c`，tag＋Release；範圍外 #766／#770／#771／#772／#777／#791 經使用者同意一起發）。S3 deploy-assets 256 檔已上傳。 | 已驗：`main-*.js` 含 2.19.0；8 支大檔 206；四國全國視角截圖；提示卡、點面切換、類別篩選、消防栓彈窗實測通過；console 無新錯誤。 |
 | KRH-1 | P3 | blocked | HOLD 兩層：C101 廣域淨水場、C117 생태자연도。 | 淨水場：地址名冊用 Nominatim 補座標，點位級命中只有 1/42，需另找座標來源。生態自然圖：KOGL 3（可商用、禁改作），全國 0.8–2.7GB、江原道單檔 614MB，等 Zeabur 主機搬遷後處理。First action: 搬遷完成後在 analytics 重評體積與切圖方式。 | 兩層各有可用座標／PMTiles，或在 analytics PLAN §3 註明放棄原因。 |
 | KRI18N-1 | P3 | ready | 南韓 50 層＋統計的英文、日文介面只抽查，沒有逐層驗。 | First action: 本機 dev 用 `?lang=en`／`?lang=ja` 逐層開圖、看圖例與彈窗，記錄缺漏。 | 每層 en／ja 圖例與彈窗無缺字、無中文殘留。 |
-| KRW-6 | P3 | ready | 南韓第 6–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
+| KRW-6 | P3 | ready | （第 6 波 2026-11-06 已做，#830）南韓第 7–10 波（領海、公園、體育、墓地、學校醫療消防、文化、產業、LOCALDATA 等）；第 11 波待 data.go.kr key。 | First action: 依 analytics `south_korea_opendata/system-inventory.md` §3 與 `waves/AGENT_BRIEF.md` 開第 6 波。key 由使用者自行註冊。 | 每波照 PLAN §3 填 PR、驗收與 HOLD。 |
 
 ## 圖層可見性整修（2026-10-31，map-layers §3.8 V-1～V-7，#779–#788 已合 develop）
 
@@ -301,6 +301,23 @@
 | GUI-2 | P2 | ready | v2.21.0 未驗項：手機實機觸控（長按選單、點地圖加點、尺規鈕）、真實定位成功流程（只用 mock geolocation 驗過）、實體滑鼠雙擊結束量測、站主登入後政治圖層（#802）、en／ja 窄桌機寬度量測工具列換行。 | First action：使用者手機開正式站逐項操作，或 agent-browser 站主 session 驗政治圖層。 | 每項有截圖或使用者確認；發現問題開 fix PR。 |
 | GUI-3 | P2 | blocked | 地址／地名搜尋（WebGIS 第 5 類）。 | Blocker：owner decision——地理編碼服務選 Mapbox Geocoding／TGOS／國土測繪中心（用量上限與授權不同）。First action：列三者配額、授權、繁中地址命中率比較給使用者選。 | 使用者選定服務；設計稿多版給使用者選位置與樣式後才實作（先看設計稿再實作）。 |
 | GUI-4 | P3 | blocked | 其餘候選元件：製圖輸出（PNG 附標題、圖例、比例尺、指北針、來源）、卷簾比對、範圍圈選（主站）、鷹眼小地圖、字級／色盲／高對比、CSV 下載（授權逐源確認）、使用者調整圖層順序。 | Blocker：owner decision——排優先序。建議先做製圖輸出與卷簾（寫文章、分析用）。 | 使用者選定項目後走「設計稿多版→拍板→實作→與 develop 並排截圖驗收」。 |
+
+## 夜間三國圖層、站主限定統一（2026-11-06，#830–#836 隨 v2.24.0 發版）
+
+南韓第 6 波、加拿大第 3 波、日本第二輪 16 層；pulse-data registry 全面補登（#57–#60，check_layer_coverage.py 0 缺口）；英格蘭 EA 站主限定（gis-platform mig 499 已套用、2,540 筆）；站主限定名單與呈現統一（mig 500 已套用，DB gated_layers 59 列）。
+
+| ID | Pri | State | Item | Blocker / trigger / first action | Acceptance |
+|---|---|---|---|---|---|
+| OG-4 | P2 | conditional | 私人 Range API（coral-private sidecar：jpWater、土壤液化、BSS、橋梁韌性、公車擁擠、allenCoralAtlas）改讀 `profiles.tier`，不再寫死 `OWNER_ID`。 | Trigger: 主站搬離 Zeabur（新站 /api/* 目前仍轉回 Zeabur，部署卡住）。現況：後台把這些層改成非 owner 只會解開介面、資料仍拿不到。Owner: 主 agent。First action: 搬遷方案定案後，在新 sidecar 以 Supabase JWT 查 tier，與 `public.gated_layers.required_tier` 對照。 | 後台改 tier 後，對應帳號能讀到資料；未登入仍 401。 |
+| OG-5 | P3 | blocked | 分享網址要不要讓站主還原站主限定圖層。 | Blocked on 使用者決定。現況：`urlState.parseLayers` 對所有站主限定 key 一律丟掉（連站主也是，有測試釘住，2026-11-05 古地圖時拍板「網址不還原」）。建議：站主可還原、其他人照舊丟掉（等 tier 載入後再套）。First action: 使用者選「維持」或「站主可還原」。 | 決定後測試與行為一致；非站主仍無法經網址開啟。 |
+| OG-6 | P3 | ready | 清掉 `urlState` 裡寫死排除 allenCoralAtlas 的那行（#836 後名單已含它，該行多餘但無害）。 | First action: 刪該行，跑 urlState 測試。 | 測試綠、行為不變。 |
+| EA-1 | P2 | scheduled | 英格蘭 EA Pollution Inventory 授權一年到期（2026-10-29 起算，2027-10-29 自動終止）。 | Trigger: 2027-10 前。First action: 確認 EA 是否續期或改發新年度檔；不續就刪 `reference.world_gb_ea_pollution_inventory` 資料並下架 `gbPollutionInventoryEngland`。⚠️ 圖例數字（2,536／1,690／846／另 4 處）寫死在前端，重新匯入時要一起改。 | 到期前已續期換資料，或已刪資料並下架。 |
+| EA-2 | P3 | ready | EA 成品有 4 筆郵遞區號在英格蘭（EX5、PL9、TQ12、DY7）但座標落在蘇格蘭 3、威爾斯 1，疑似來源座標錯誤；analytics catalog 寫 England 2,536（含 3＋1），實際 EA 2,540。 | First action: 在 analytics `pipelines/environment/gb/pollution_inventory/` 用郵遞區號（ONSPD）重定位或標記，修正 catalog 數字。 | 4 筆有合理座標或明確標記排除；catalog 數字與 DB 一致。 |
+| LIC-1 | P3 | blocked | 自己托管的 CC BY-NC（非商用）檔案放哪：目前沒有規則（古地圖是外部圖磚，不適用）。 | Blocked on 使用者決定。skill `pulse-layer-release/references/license-and-deploy.md` 暫寫「遇到時列進驗收包要你決定」。First action: 使用者選預設（例：站主限定＋Supabase／私人儲存，或公開但標示非商用）。 | 規則寫進 license-and-deploy.md，之後同類直接照做。 |
+| N3-1 | P3 | ready | 夜間批次已知資料限制：南韓墓地（OSM）分布不均（全北道佔 42%）；日本 DID 在 z5 全國視角偏暗，只看得到東京、大阪一帶；加拿大人口網格有 398 格落在美國境內。 | First action: DID 調 z5 色階或加熱區（照 map-layers §3.8）；加拿大網格以國界裁切；南韓墓地若有官方來源再替換。 | 三項各自修正或在圖例註明，並截圖驗收。 |
+| N3-2 | P3 | ready | 日本第二輪剩 C083 交通事故（時間不夠沒做）。 | First action: 依 analytics `japan_opendata/layer-mapping-r2/` 的 C083 scout 紀錄開一波。 | 圖層上線或在 outcomes.csv 記 HOLD 原因。 |
+| N3-3 | P3 | blocked | 加拿大即時地震（NRCan FDSN）條款不清，現只上 1985–2019 封存檔。 | Blocked on 條款查證。First action: 查 NRCan earthquakescanada FDSN 使用條款；可用就做 collector 類即時層。 | 條款確認並記錄；可用則上線即時層。 |
+| N3-4 | P3 | ready | 日本舊研究層 jpWildlifeProtection 與新層 jpWildlifeProtectionMoe 同源；舊 jpNaturalParks（2010，有公園名）與新 2015 版。 | 使用者 2026-11-06 決定兩組都並存。First action: 無；若之後要合併，先讓新層帶公園名。 | — |
 
 ## Feature backlog index
 
