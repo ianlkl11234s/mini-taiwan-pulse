@@ -102,6 +102,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "caNpriFacilities",
   "caWastewaterSystems",
   "caEarthquakes",
+  "caEarthquakesLive",
   "caPopulationGrid",
   "gbSmallAreaBoundaries",
   "gbMaritimeLimits",

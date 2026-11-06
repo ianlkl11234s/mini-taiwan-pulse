@@ -439,6 +439,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["ca-npri-facilities-circle"], type: "caNpriFacilities" },
   { layers: ["ca-wastewater-systems-circle"], type: "caWastewaterSystems" },
   { layers: ["ca-earthquakes-major-circle", "ca-earthquakes-circle"], type: "caEarthquakes" },
+  { layers: ["ca-earthquakes-live-circle"], type: "caEarthquakesLive" },
   { layers: ["ca-indigenous-lands-points-circle"], type: "caIndigenousLands" },
   { layers: ["ca-rents-points-circle"], type: "caRents" },
   { layers: ["ca-cimd-points-circle"], type: "caDeprivation" },

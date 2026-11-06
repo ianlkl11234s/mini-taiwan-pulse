@@ -179,6 +179,53 @@ export const CA_QUAKE_POPUP: CaPopupSpec = {
   notes: [l3("省外或海上事件不列省別", "Province is blank for offshore or out-of-country events", "海域・国外のイベントは州なし")],
 };
 
+// ─────────────────────────── 即時地震（NRCan FDSN event 服務，近 30 天） ───────────────────────────
+
+/**
+ * 授權：FDSN 服務無專屬條款，套 NRCan 站層級條款（https://natural-resources.canada.ca/corporate/terms-conditions）：
+ * 非商業重製免申請；須標示完整標題與作者機關，並註明是加拿大政府官方著作之重製、非與其合作或經其背書；
+ * 商業轉散布須書面許可。條款沒有固定署名句式，以下依這三個要素擬（2026-11-06 使用者拍板照此上線）。
+ */
+export const CA_QUAKE_LIVE_DAYS = 30;
+export const CA_QUAKE_LIVE_QUERY_URL = "https://earthquakescanada.nrcan.gc.ca/fdsnws/event/1/query";
+export const CA_QUAKE_LIVE_PAGE_URL = "https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php";
+/** 事件類型：依 NRCan 事件地名英文段的前綴關鍵字分（爆破／礦場／疑似產業活動），其餘視為天然地震。 */
+export const CA_QUAKE_LIVE_TYPES: readonly CaCat[] = [
+  { id: "earthquake", values: ["earthquake"], color: CA_QUAKE_COLOR, label: l3("地震", "Earthquake", "地震") },
+  { id: "industry", values: ["industry"], color: CA_QUAKE_COLOR, label: l3("疑似產業活動誘發", "(Suspected) industry-related", "産業活動由来（疑い含む）") },
+  { id: "mining", values: ["mining"], color: CA_QUAKE_COLOR, label: l3("礦場事件", "Mining event", "鉱山イベント") },
+  { id: "blast", values: ["blast"], color: CA_QUAKE_COLOR, label: l3("爆破（含採石）", "Blast (incl. quarry)", "発破（採石含む）") },
+];
+export const CA_QUAKE_LIVE_SOURCE: CaSource = {
+  org: "Natural Resources Canada（加拿大自然資源部）, Earthquakes Canada — Search the Earthquake Database（FDSN event web service）",
+  url: CA_QUAKE_LIVE_PAGE_URL,
+  license: "NRCan Terms and Conditions：非商業重製（商業轉散布須書面許可）",
+  short: "資料來源：Natural Resources Canada（加拿大自然資源部）Earthquakes Canada 地震目錄（FDSN），非商業使用",
+};
+/** 條款要求的「官方著作重製、非合作或背書」聲明：圖例、popup 都放。 */
+export const CA_QUAKE_LIVE_DISCLAIMER: L3 = l3(
+  "本圖重製自加拿大政府官方著作，非與加拿大政府合作製作，亦未經其背書",
+  "Reproduction of an official work published by the Government of Canada; not produced in affiliation with, or with the endorsement of, the Government of Canada",
+  "カナダ政府の公式著作物の複製であり、カナダ政府との提携またはその承認を受けて作成されたものではありません",
+);
+export const CA_QUAKE_LIVE_NOTES: readonly L3[] = [
+  l3("NRCan 地震目錄最近 30 天（含規模 <2 的小地震、鄰近海域與美國阿拉斯加等境外事件）；不跟時間軸，每 5 分鐘重抓", "Last 30 days from the NRCan catalogue (incl. M<2, offshore and cross-border events); not tied to the timeline, refreshed every 5 min", "NRCan カタログ直近 30 日（M2 未満、近海・国外を含む）。タイムライン非連動、5 分ごと更新"),
+  l3("初報可能事後修訂或刪除；規模型別混合（ML、MwN…）不換算", "Preliminary solutions may be revised or removed; mixed magnitude types (ML, MwN…) not converted", "速報値は修正・削除されることがある。マグニチュード種別は混在（換算なし）"),
+  CA_QUAKE_LIVE_DISCLAIMER,
+];
+export const CA_QUAKE_LIVE_POPUP: CaPopupSpec = {
+  title: { props: ["place"], fallback: l3("地震", "Earthquake", "地震") },
+  fields: [
+    { prop: "event_type", label: l3("事件類型", "Event type", "種別"), map: Object.fromEntries(CA_QUAKE_LIVE_TYPES.map((c) => [c.id, c.label])) },
+    { prop: "time_utc", label: l3("時間（UTC）", "Time (UTC)", "発生時刻（UTC）"), kind: "code" },
+    { prop: "magnitude", label: l3("規模", "Magnitude", "マグニチュード"), kind: "num", digits: 1 },
+    { prop: "mag_type", label: l3("規模型別", "Magnitude type", "マグニチュード種別"), kind: "code" },
+    { prop: "depth_km", label: l3("深度", "Depth", "深さ"), kind: "num", unit: "km", digits: 1 },
+    { prop: "event_id", label: l3("事件代碼", "Event ID", "イベント ID"), kind: "code" },
+  ],
+  notes: [l3("地名為 NRCan 原文（英文段）；初報可能修訂", "Place name as published by NRCan (English part); preliminary solutions may be revised", "地名は NRCan 原文（英語部分）。速報値は修正されることがある"), CA_QUAKE_LIVE_DISCLAIMER],
+};
+
 // ─────────────────────────── 人口網格（GHSL 2020 → H3） ───────────────────────────
 
 export const CA_POP_GRID_PALETTE_ID = "YlOrBr";
