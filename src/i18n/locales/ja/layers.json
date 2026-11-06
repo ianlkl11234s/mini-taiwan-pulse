@@ -1413,6 +1413,7 @@
   "layer.gbRecyclingCentres": "リサイクル拠点",
   "layer.gbWastePermits": "廃棄物処理許可施設",
   "layer.gbPollutionInventory": "汚染物質排出報告施設",
+  "layer.gbPollutionInventoryEngland": "汚染物質排出報告施設",
   "layer.gbNoise": "戦略騒音地図",
   "layer.gbCompanies": "登記会社",
   "layer.gbManufacturing": "製造業の会社",

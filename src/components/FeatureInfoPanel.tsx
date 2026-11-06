@@ -132,6 +132,7 @@ const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
   "gbRecyclingCentres",
   "gbWastePermits",
   "gbPollutionInventory",
+  "gbPollutionInventoryEngland",
   "gbNoise",
   "gbTrafficCountsAadf",
   "gbProtectedAreas",

@@ -49,7 +49,7 @@ import { DrinkingWaterProtectionZonesLegend, GbBathingWatersLegend, GbCoastalEro
 import { GbArtsVenuesLegend, GbCulturalFacilitiesLegend, GbVisitorExperienceLegend } from "./legend/gbCultureLegends";
 import { GbSurplusLandLegend, GbTerrainHillshadeLegend, GbTerrainReliefLegend } from "./legend/gbLandLegends";
 import { GbAquacultureLegend, GbCompaniesLegend, GbFuneralLegend, GbManufacturingLegend, GbSoilParentMaterialLegend } from "./legend/gbBusinessAgriLegends";
-import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
+import { GbBrownfieldLegend, GbNoiseLegend, GbPlanningConstraintsLegend, GbPollutionInventoryLegend, GbPollutionInventoryEnglandLegend, GbRecyclingCentresLegend, GbWastePermitsLegend } from "./legend/gbEnvPlanningLegends";
 import { GbEarthquakesLegend, GbGroundStabilityLegend, GbLandslideLegend, GbRadiationLegend, GbRadonLegend } from "./legend/gbHazardLegends";
 import { GbCareHomesLegend, GbCareServicesLegend, GbCourtsLegend, GbFireStationsLegend, GbHealthFacilitiesLegend, GbSchoolsLegend } from "./legend/gbCivicLegends";
 import { GbFuelStationsLegend, GbOilGasFieldsLegend, GbPowerLinesLegend, GbPowerPlantsLegend, GbRenewablesLegend, GbSubstationsLegend } from "./legend/gbEnergyLegends";
@@ -377,6 +377,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gbRecyclingCentres", render: () => <GbRecyclingCentresLegend /> },
   { id: "gbWastePermits", render: () => <GbWastePermitsLegend /> },
   { id: "gbPollutionInventory", render: () => <GbPollutionInventoryLegend /> },
+  { id: "gbPollutionInventoryEngland", render: () => <GbPollutionInventoryEnglandLegend /> },
   { id: "gbNoise", render: () => <GbNoiseLegend /> },
   { id: "gbTrafficCountsAadf", render: () => <GbTrafficCountsAadfLegend /> },
   { id: "gbProtectedAreas", render: () => <GbProtectedAreasLegend /> },

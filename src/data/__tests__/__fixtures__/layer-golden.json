@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1639,
+    "keyCount": 1640,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1632,6 +1632,12 @@
         "gb-pollution-inventory-circle"
       ],
       "type": "gbPollutionInventory"
+    },
+    {
+      "layers": [
+        "gb-ea-pollution-inventory-circle"
+      ],
+      "type": "gbPollutionInventoryEngland"
     },
     {
       "layers": [
@@ -14846,6 +14852,138 @@
         "circle"
       ],
       "sourceId": "election-events-2026",
+      "sourceUrl": "./geo/_empty.geojson"
+    },
+    {
+      "dynamicData": true,
+      "filter": null,
+      "id": "gbPollutionInventoryEngland",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#0a0a14",
+                "#0a0a14"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0.8
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.8,
+                0
+              ],
+              "circle-radius": 4.5,
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                "#ffffff",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                0.9,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "released"
+                  ],
+                  true
+                ],
+                1,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "gb-ea-pollution-inventory",
       "sourceUrl": "./geo/_empty.geojson"
     },
     {
@@ -115900,6 +116038,26 @@
       }
     ],
     "gbPollutionInventory": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.8,
+        "valueText": "0.80"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "gbPollutionInventoryEngland": [
       {
         "label": "透明度 0.80",
         "max": 1,
