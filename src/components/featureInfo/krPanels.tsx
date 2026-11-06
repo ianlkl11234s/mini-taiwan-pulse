@@ -313,7 +313,8 @@ export function KrOilGasPanel({ props: raw }: { props: Record<string, unknown> }
     </> : <>
       <Row label={t("popup.energy.krOgType")} value={type ? t(KR_OIL_GAS_TYPE_KEYS[type.value]) : krText(props.facility_type)} />
       <Row label={t("popup.energy.krContent")} value={krText(props.content)} />
-      <Row label={t("popup.energy.krBasis")} value={t(krText(props.basis) === "name" ? "popup.energy.krBasisName" : "popup.energy.krBasisTag")} />
+      {/* 低縮放代表點檔（kr_oil_gas_pts）沒有 basis 欄：缺值不猜，整列不顯示 */}
+      {krText(props.basis) ? <Row label={t("popup.energy.krBasis")} value={t(krText(props.basis) === "name" ? "popup.energy.krBasisName" : "popup.energy.krBasisTag")} /> : null}
       <Row label={t("popup.energy.gbOperator")} value={krText(props.operator)} />
       <Row label={t("popup.energy.krArea")} value={area != null ? t("popup.energy.krM2", { value: area.toLocaleString(undefined, { maximumFractionDigits: 0 }) }) : ""} />
     </>}

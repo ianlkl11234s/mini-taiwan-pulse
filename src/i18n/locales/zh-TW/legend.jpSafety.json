@@ -1,0 +1,5 @@
+{
+  "legend.jpSafety.accidentsPeriod": "資料期間 {period}（2026-10-01 公開），共 {total} 件人身事故，一點一件",
+  "legend.jpSafety.accidentsScope": "只有人身事故（死亡＝24 小時內死亡）；物損事故不在本票，未涵蓋。座標為警察記錄的發生地點，缺座標 3 件未上圖。",
+  "legend.jpSafety.accidentsSource": "出典：警察庁ウェブサイト（交通事故統計情報のオープンデータ）を加工して作成 · 公共データ利用規約第1.0版"
+}

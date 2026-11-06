@@ -129,6 +129,7 @@ import {
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
 import { DisasterResourceSitesPanel, FiringNoticeAreasPanel, NuclearEpzEvacuationPanel, TrafficAccidents2025Panel, TsunamiSirensPanel } from "./g36SafetyPanels";
+import { JpTrafficAccidents2025Panel } from "./jpSafetyPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel, EmergencyHospitalLevelPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
@@ -669,6 +670,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   accidentTaipei: AccidentTaipeiPanel,
   a1AccidentRealtime: A1AccidentRealtimePanel,
   trafficAccidents2025: TrafficAccidents2025Panel,
+  jpTrafficAccidents2025: JpTrafficAccidents2025Panel,
   disasterResourceSites: DisasterResourceSitesPanel,
   tsunamiSirens: TsunamiSirensPanel,
   nuclearEpzEvacuation: NuclearEpzEvacuationPanel,
@@ -1321,6 +1323,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   accidentTaipei: "北市事故點",
   a1AccidentRealtime: "A1 即時事故",
   trafficAccidents2025: "交通事故",
+  jpTrafficAccidents2025: "人身交通事故 人身事故",
   disasterResourceSites: "救災資源據點",
   tsunamiSirens: "海嘯警報臺",
   nuclearEpzEvacuation: "核電廠集結與收容",

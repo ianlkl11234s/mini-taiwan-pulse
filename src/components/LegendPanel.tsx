@@ -30,6 +30,7 @@ import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../dat
 import { SeaWaterQualityStationsLegend, RiverRpiSegmentsLegend, Pm25ManualStationsLegend, DioxinStationsLegend, IncineratorEmissionsLegend, NuscGammaRadiationLegend, WaterEffluentLiveLegend, CemsStackLiveLegend, CwaUvDailyLegend } from "./legend/environmentLegends";
 import { HarmReductionHivSelftestLegend, HarmReductionHivTestingLegend, HarmReductionNeedleLegend, HarmReductionPreventionCentersLegend, HarmReductionTreatmentLegend, HarmReductionAlcoholLegend, HarmReductionPrepLegend, HarmReductionInternetAddictionLegend, HarmReductionAftercareLegend, HarmReductionSmokingCessationLegend, HarmReductionAntiDrugPharmaciesLegend, HarmReductionCondomOutletsLegend, HarmReductionTherapeuticCommunitiesLegend, HarmReductionDuiCrashesLegend } from "./legend/harmReductionLegends";
 import { DisasterResourceSitesLegend, FiringNoticeAreasLegend, NuclearEpzEvacuationLegend, TrafficAccidents2025Legend, TsunamiSirensLegend } from "./legend/g36SafetyLegends";
+import { JpTrafficAccidents2025Legend } from "./legend/jpSafetyLegends";
 import { RailRoutesLegend, MetroStationsLegend } from "./legend/railRoutesLegend";
 import { GibsSnowCoverLegend, JmaAmedasLegend, JmaImageryLegend, JmaKosaLegend, JmaRiskFloodLegend, JmaQuakesLegend, JmaSnowDepthLegend, JmaVolcanoesLegend, JmaWarningsLegend } from "./legend/jmaLegends";
 import { JmaAutumnLeavesLegend, JmaLightningLegend, JmaRainySeasonLegend, JmaSakuraLegend, JmaSnowcapLegend, JmaWbgtLegend } from "./legend/jmaPointLegends";
@@ -162,6 +163,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "harmReductionTherapeuticCommunities", render: () => <HarmReductionTherapeuticCommunitiesLegend /> },
   { id: "harmReductionDuiCrashes", render: () => <HarmReductionDuiCrashesLegend /> },
   { id: "trafficAccidents2025", render: () => <TrafficAccidents2025Legend /> },
+  { id: "jpTrafficAccidents2025", render: () => <JpTrafficAccidents2025Legend /> },
   { id: "drinkingWaterPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.drinkingWater")} color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
   { id: "publicWasteBaskets", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.wasteBaskets")} color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
   { id: "materialRecyclingPoints", render: ({ i18n }) => <PublicLifeOsmLegend label={i18n.t("legend.registry.recyclingPoints")} color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra={i18n.t("legend.registry.recyclingExtra")} /> },

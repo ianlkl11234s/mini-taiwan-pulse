@@ -2270,5 +2270,13 @@
   "param.2000 年": "2000",
   "param.2005 年": "2005",
   "param.2010 年": "2010",
-  "param.2015 年": "2015"
+  "param.2015 年": "2015",
+  "param.事故內容": "Severity",
+  "param.事故類型": "Crash type",
+  "param.死亡事故（24 小時內死亡）": "Fatal crash (death within 24 h)",
+  "param.負傷事故": "Injury crash",
+  "param.車輛相撞（車両相互）": "Vehicle–vehicle",
+  "param.人車事故（人対車両）": "Vehicle–pedestrian",
+  "param.車輛單獨（車両単独）": "Single vehicle",
+  "param.平交道列車（列車）": "Train (level crossing)"
 }

@@ -40,6 +40,7 @@ export interface OverlayMap {
   getLayoutProperty(id: string, name: string): any;
   setLayoutProperty(id: string, name: string, value: any): void;
   setPaintProperty(id: string, name: string, value: any): void;
+  getFilter?(id: string): any;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -347,7 +348,7 @@ export function addOverlay(
     if (config.pmtiles) {
       // PMTiles 向量切片。預設走 mapbox-pmtiles 自訂 source type（呼叫端 MapView 須先
       // registerPmtilesSourceTypeOnce()）；/embed 注入 pmtiles:// protocol 版本。
-      const source = opts?.pmtilesSource ? opts.pmtilesSource(config) : defaultPmtilesSource(config, params);
+      const source = opts?.pmtilesSource ? opts.pmtilesSource({ ...config, sourceUrl: effectiveSourceUrl(config, params) }) : defaultPmtilesSource(config, params);
       map.addSource(config.sourceId, source as any);
       // 只追蹤預設（主站 mapbox-pmtiles）路徑；embed 注入的 source 不參與索引 swap
       if (!opts?.pmtilesSource) pmtilesSourceUrlsOf(map).set(config.sourceId, source.url as string);
@@ -450,6 +451,17 @@ export function updateOverlayTheme(
     if (needRebuild) {
       // 記住目前 visibility 狀態
       let wasHidden = false;
+      // 靜態 filter 的子圖層可能被 hook 覆寫（例：newsEvents 時間軸 published_ts <= 現在）；重建要沿用目前生效的 filter，
+      // 否則暫停中改透明度會讓尚未發生的事件冒出來。函式 filter 由參數決定，照新參數重算。
+      const liveFilters = new Map<string, unknown>();
+      for (const suffix of config.rebuildOnParamChange) {
+        const id = layerId(config, suffix);
+        const spec = config.layers.find((l) => l.suffix === suffix);
+        if (spec && typeof spec.filter !== "function" && map.getLayer(id)) {
+          const live = map.getFilter?.(id);
+          if (live != null) liveFilters.set(id, live);
+        }
+      }
       for (const suffix of config.rebuildOnParamChange) {
         const id = layerId(config, suffix);
         if (map.getLayer(id)) {
@@ -464,7 +476,7 @@ export function updateOverlayTheme(
         if (map.getLayer(id)) continue;
         const paint = applyLayerOpacity(config, spec.paint(isDark, params), params);
         const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout;
-        const filter = resolveFilter(spec, params);
+        const filter = liveFilters.get(id) ?? resolveFilter(spec, params);
         map.addLayer({
           id,
           type: spec.type as "line",

@@ -20,7 +20,8 @@ const numOrNull = (v: unknown): number | null => {
   const s = text(v);
   if (s === "") return null;
   const n = Number(s);
-  return Number.isFinite(n) ? n : null;
+  // 負值／-99999 是來源的缺值哨兵，不是數量（DID 2010 年有 50 筆 prev_* 為 -99999）
+  return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
 export function JpNaturalParkAreas2015Panel({ props }: Props) {

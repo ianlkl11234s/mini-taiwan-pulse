@@ -328,16 +328,18 @@ export function usePlaActivityLayer(
     // 換底圖會清掉 source/layer，重餵一次
     const onStyleLoad = () => {
       layersReadyRef.current = false;
+      const prevThresh = Math.max(appliedThreshRef.current, 0); // 回放中沿用目前門檻
       appliedThreshRef.current = -1;
       if (!ensureLayers(map)) return;
       refreshSource(map);
       apply();
+      applyThresh(map, prevThresh); // 重建的層不帶 filter：補回回放門檻＋類別篩選（回放關閉時也要補）
     };
     map.on("style.load", onStyleLoad);
     return () => {
       map.off("style.load", onStyleLoad);
     };
-  }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
+  }, [visible, ensureLayers, refreshSource, applyThresh, mapRef, mapTick]);
 
   // ── 類別篩選（V-4）：mask 變動／圖層（重）建後，重送「回放門檻＋類別」filter ──
   useEffect(() => {

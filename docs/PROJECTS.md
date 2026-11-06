@@ -143,7 +143,7 @@
 
 | 專案 | 狀態 | 做到哪 | 下一步 | 正本 | 最後進展 |
 |---|---|---|---|---|---|
-| 2026-11-06 review 修正輪 | 🟡 | mini、gis-platform #202（mig 501）、collectors #172 的修正 PR 進行中 | 各 PR 等 CI 後由使用者拍板合併；mig 501 須使用者套用（BACKLOG GP-501） | `../.gis-agent-system/reports/code-review/`；BACKLOG GP-501／GP-296／COL-F010 | 2026-11-06 |
+| 2026-11-06 review 修正輪 | 🟡 | mini #844／#845 已合 develop；gis-platform #202／#204、collectors #172 已合 main；F088 進行中 | mig 502 須使用者套用（BACKLOG GP-502）；暫緩項 RV-F039／F045／F068 | `../.gis-agent-system/reports/code-review/`；BACKLOG GP-502／GP-296／COL-F010 | 2026-11-06 |
 | Zeabur 停止營運搬遷 | 🟡 | 第 1 階段 11 個靜態站 10-29 切 Cloudflare；主站自 v2.22.0 起不再自動部署（正式站停在 v2.21.0），最新版先由 Cloudflare 測試站提供 | **期限 11 月底**：第 2 階段開 Akamai、主站方案 §5a（R2＋Workers 重構）待拍板；flight-arc-sharing 網址待決；collector／OSRM／Valhalla／research-gateway 未搬；搬時換金鑰；搬到新環境後不可部署 v2.22.0 | `../.gis-agent-system/projects/2026-10-zeabur-migration/README.md` §5a §7 | 2026-11-06 |
 | Supabase Disk IO 複量 | 🟡 | 第三輪 mig 451–460 於 10-16 套用 | 原定約 10-23 用 pg_stat_io 取差值，未查證有沒有做；中間若重啟，基準作廢 | `../gis-platform/docs/research/2026-10-16-disk-io-round3.md` | 2026-10-16 |
 | 地圖圖層改版 R6 | 🟢 | 段 1–3 隨 v2.8.0 上線 | R6-V 正式站目視；段 4（船、公車、垃圾車、漁船）R6-4 暫不碰 | [`features/map-layer-restyle/R6-PROPOSAL.md`](./features/map-layer-restyle/R6-PROPOSAL.md)；BACKLOG R6-V／R6-4 | 2026-10-15 |

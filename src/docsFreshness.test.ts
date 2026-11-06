@@ -10,8 +10,9 @@ describe("docs 新鮮度", () => {
     const audit = read("docs/PROJECTS.md").match(/最後盤點：(\d{4}-\d{2}-\d{2})/);
     expect(audit, "docs/PROJECTS.md 找不到「最後盤點：YYYY-MM-DD」").not.toBeNull();
 
-    const [, version, releaseDate] = latest!;
-    const auditDate = audit![1];
+    const version = latest![1]!;
+    const releaseDate = latest![2]!;
+    const auditDate = audit![1]!;
     expect(
       auditDate >= releaseDate,
       `最新版 v${version} 發布於 ${releaseDate}，但 docs/PROJECTS.md 的「最後盤點」仍是 ${auditDate}。` +
