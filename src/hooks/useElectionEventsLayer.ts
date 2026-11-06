@@ -4,6 +4,7 @@ import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { feedDynamicSource } from "../map/dynamicSourceFeed";
 import { isAccessDenied } from "../lib/layerGates";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 import {
   fetchElectionEvents,
   isMissingRpc,
@@ -29,22 +30,35 @@ const TIME_THROTTLE_MS = 500;
 let cache: ElectionEventsData | null = null;
 let inflight: Promise<ElectionEventsData> | null = null;
 let missingRpcLogged = false;
+/** 撤權時遞增：撤權前發出、撤權後才回來的請求不得寫回 cache */
+let generation = 0;
 
 function loadOnce(): Promise<ElectionEventsData> {
   if (cache) return Promise.resolve(cache);
   if (inflight) return inflight;
-  inflight = fetchElectionEvents()
+  const gen = generation;
+  const p = fetchElectionEvents()
     .then((d) => {
+      if (gen !== generation) throw new Error("[ElectionEvents] access revoked");
       cache = d;
       inflight = null;
       setElectionEventsMeta(d.meta);
       return d;
     })
     .catch((err: unknown) => {
-      inflight = null;
+      if (inflight === p) inflight = null;
       throw err;
     });
-  return inflight;
+  inflight = p;
+  return p;
+}
+
+/** 撤權（登出／失去站主權限，review F088）：清 module cache 與圖例 meta */
+export function clearElectionEventsCache(): void {
+  generation += 1;
+  cache = null;
+  inflight = null;
+  setElectionEventsMeta(null);
 }
 
 /** 依時間軸時間 t 產生要上圖的 FeatureCollection（純函式，測試用） */
@@ -74,13 +88,18 @@ export function useElectionEventsLayer(
   const [data, setData] = useState<ElectionEventsData | null>(cache);
   const mapTick = useMapReadyTick(mapRef, visible);
 
+  useEffect(() => registerOwnerGateReset(["electionEvents2026"], () => {
+    clearElectionEventsCache();
+    setData(null);
+  }), []);
+
   useEffect(() => {
     if (!visible || data) return;
     let cancelled = false;
     loadOnce()
       .then((d) => { if (!cancelled) setData(d); })
       .catch((err: unknown) => {
-        if (isAccessDenied(err)) return;
+        if (cancelled || isAccessDenied(err)) return;
         if (isMissingRpc(err)) {
           if (!missingRpcLogged) console.info("[ElectionEvents] get_election_events_2026 尚未部署，圖層暫無資料");
           missingRpcLogged = true;

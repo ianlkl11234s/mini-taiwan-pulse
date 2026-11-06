@@ -3,6 +3,7 @@ import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import type { LayerVisibility } from "../types";
 import { fetchLivestockFarms, fetchLivestockSlaughterhouses } from "../data/livestockLoader";
 import { isAccessDenied } from "../lib/layerGates";
+import { registerOwnerGateReset } from "../lib/ownerGateRevoke";
 
 /**
  * 畜牧 owner-only 動態圖層資料供應 hook（見 docs/features/owner-gated-layers）。
@@ -36,6 +37,16 @@ let slaughterCache: GeoJSON.FeatureCollection | null = null;
 let slaughterCachedAt = 0;
 let slaughterInflight: Promise<GeoJSON.FeatureCollection> | null = null;
 
+/** 撤權時遞增：撤權前發出、撤權後才回來的請求不得寫回 cache */
+let generation = 0;
+
+/** 撤權（登出／失去站主權限，review F088）：清 module cache */
+export function clearLivestockCache(): void {
+  generation += 1;
+  farmsCache = null; farmsCachedAt = 0; farmsInflight = null;
+  slaughterCache = null; slaughterCachedAt = 0; slaughterInflight = null;
+}
+
 function loadCached(
   getCache: () => GeoJSON.FeatureCollection | null,
   getAt: () => number,
@@ -49,14 +60,16 @@ function loadCached(
   if (cached && now - getAt() < CACHE_TTL_MS) return Promise.resolve(cached);
   const inflight = getInflight();
   if (inflight) return inflight;
+  const gen = generation;
   const p = fetcher()
     .then((d) => {
+      if (gen !== generation) throw new Error("[Livestock] access revoked");
       setCache(d);
       setInflight(null);
       return d;
     })
     .catch((err) => {
-      setInflight(null);
+      if (gen === generation) setInflight(null);
       throw err;
     });
   setInflight(p);
@@ -87,6 +100,12 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
   const farmsDataRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const slaughterDataRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
+  useEffect(() => registerOwnerGateReset([...FARM_KEYS, "livestockSlaughter"], () => {
+    clearLivestockCache();
+    farmsDataRef.current = null;
+    slaughterDataRef.current = null;
+  }), []);
+
   const anyFarmVisible = FARM_KEYS.some((k) => visibility[k]);
   const slaughterVisible = visibility.livestockSlaughter;
 
@@ -105,7 +124,7 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
     let cancelled = false;
     loadFarms()
       .then((d) => { if (cancelled) return; farmsDataRef.current = d; feedAll(); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[Livestock] farms load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[Livestock] farms load failed:", err); });
     return () => { cancelled = true; };
   }, [anyFarmVisible, feedAll]);
 
@@ -115,7 +134,7 @@ export function useLivestockLayers({ mapRef, visibility }: UseLivestockLayersOpt
     let cancelled = false;
     loadSlaughter()
       .then((d) => { if (cancelled) return; slaughterDataRef.current = d; feedAll(); })
-      .catch((err) => { if (!isAccessDenied(err)) console.warn("[Livestock] slaughter load failed:", err); });
+      .catch((err) => { if (!cancelled && !isAccessDenied(err)) console.warn("[Livestock] slaughter load failed:", err); });
     return () => { cancelled = true; };
   }, [slaughterVisible, feedAll]);
 
