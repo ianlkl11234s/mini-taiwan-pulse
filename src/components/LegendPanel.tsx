@@ -288,7 +288,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay05SeaViewRuns", render: () => <MapchallengeSeaViewRunsLegend /> },
   { id: "mapchallengeDay06Coast", render: ({ isDark }) => <MapchallengeDay06CoastLegend isDark={isDark} /> },
   { id: "mapchallengeDay06Taipei1932", render: () => <MapchallengeDay06Taipei1932Legend /> },
-  { id: "mapchallengeDay06Temples1921", render: () => <MapchallengeDay06Temples1921Legend /> },
+  { id: "mapchallengeDay06Temples1921", render: ({ isDark }) => <MapchallengeDay06Temples1921Legend isDark={isDark} /> },
   { id: "mapchallengeDay06Lighthouses", render: ({ isDark }) => <MapchallengeDay06LighthousesLegend isDark={isDark} /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },

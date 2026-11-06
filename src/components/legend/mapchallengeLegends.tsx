@@ -21,6 +21,7 @@ import {
 import {
   MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_LINK_DASH, MAPCHALLENGE_DAY06_STATUSES, MAPCHALLENGE_DAY06_STATUS_COLORS, MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TAIPEI_COUNTS,
   MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TEMPLE_STATS, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY,
+  MAPCHALLENGE_DAY06_OLDEST_WIDTH_MUL, MAPCHALLENGE_DAY06_SAME_RING,
   mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, mapchallengeDay06TempleColor, mapchallengeDay06TodayColor,
 } from "../../data/mapchallengeDay06Types";
 
@@ -208,7 +209,7 @@ export function MapchallengeDay06CoastLegend({ isDark }: { isDark: boolean }) {
   const { t } = useLocale();
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day06.coastTitle")} />
-    {MAPCHALLENGE_DAY06_ERAS.map((e) => <LegendRow key={e.value} swatch={<SwatchLine color={mapchallengeDay06EraColor(e.value, isDark)} width={3} />}>
+    {MAPCHALLENGE_DAY06_ERAS.map((e) => <LegendRow key={e.value} swatch={<SwatchLine color={mapchallengeDay06EraColor(e.value, isDark)} width={e.value === 1 ? 3 * MAPCHALLENGE_DAY06_OLDEST_WIDTH_MUL : 3} />}>
       {t(MAPCHALLENGE_DAY06_ERA_KEYS[e.value])}
     </LegendRow>)}
     <LegendRow swatch={<SwatchDot color={mapchallengeDay06EraColor(1, isDark)} />}>{t("legend.mapchallenge.day06.places")}</LegendRow>
@@ -231,7 +232,7 @@ export function MapchallengeDay06Taipei1932Legend() {
   </div>;
 }
 
-export function MapchallengeDay06Temples1921Legend() {
+export function MapchallengeDay06Temples1921Legend({ isDark }: { isDark: boolean }) {
   const { t } = useLocale();
   return <div>
     <LegendTitle zh={t("legend.mapchallenge.day06.templeTitle")} />
@@ -239,6 +240,9 @@ export function MapchallengeDay06Temples1921Legend() {
     {MAPCHALLENGE_DAY06_TEMPLE_CLASSES.map((c) => <LegendRow key={c.value} swatch={<SwatchDot color={mapchallengeDay06TempleColor(c.value)} />}>
       {t(MAPCHALLENGE_DAY06_TEMPLE_KEYS[c.value])}
     </LegendRow>)}
+    <LegendRow swatch={<SwatchDot color="transparent" opacity={1} stroke={mapchallengeDay06TodayColor(isDark)} strokeWidth={MAPCHALLENGE_DAY06_SAME_RING.strokeWidth} />}>
+      {t("legend.mapchallenge.day06.templeSame", { n: MAPCHALLENGE_DAY06_TEMPLE_STATS.sameName })}
+    </LegendRow>
     <LegendNote>{t("legend.mapchallenge.day06.templeNote", { n: MAPCHALLENGE_DAY06_TEMPLE_STATS.sameName })}</LegendNote>
     <Day06Footer />
   </div>;

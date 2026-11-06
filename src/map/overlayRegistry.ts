@@ -35,7 +35,7 @@ import {
   MAPCHALLENGE_DAY06_LINK_DASH, MAPCHALLENGE_DAY06_STATUSES, MAPCHALLENGE_DAY06_STATUS_COLOR_EXPR, MAPCHALLENGE_DAY06_SURVIVE,
   MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, MAPCHALLENGE_DAY06_TAIPEI_URL, MAPCHALLENGE_DAY06_TEMPLES_URL, MAPCHALLENGE_DAY06_TEMPLE_CLASSES,
   MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, MAPCHALLENGE_DAY06_ZONE_FILL_OPACITY, mapchallengeDay06EraColorExpr, mapchallengeDay06TodayColor,
-  mapchallengeDay06TypeFilter,
+  mapchallengeDay06TypeFilter, MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, MAPCHALLENGE_DAY06_SAME_RING, mapchallengeDay06CoastWidthExpr,
 } from "../data/mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY04_HOTSPOT_CLASSES, MAPCHALLENGE_DAY04_R7_URL, MAPCHALLENGE_DAY04_R8_URL, mapchallengeFacilityAt, mapchallengeFacilityColorExpr, mapchallengeHotspotColorExpr, mapchallengePopulationColorExpr } from "../data/mapchallengeDay04Types";
 import { RESERVOIR_WATER_COLOR, powerOutputRadiusExpr, reservoirAlertColorExpr, reservoirCapacityRadiusExpr, reservoirPctLabelExpr } from "./r6FlatEncodings";
@@ -12458,7 +12458,7 @@ OVERLAY_REGISTRY.push(
       filter: (p) => mcDay06Filter([["==", ["get", "kind"], "coast"], mcDay06Cat("era", MAPCHALLENGE_DAY06_ERAS, p?.mapchallengeDay06CoastCategoryMask)]),
       paint: (isDark, p) => ({
         "line-color": mapchallengeDay06EraColorExpr(isDark),
-        "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.5, 10, 2, 14, 3.5],
+        "line-width": mapchallengeDay06CoastWidthExpr(p?.mapchallengeDay06CoastScale ?? 1),
         "line-opacity": p?.mapchallengeDay06CoastOpacity ?? 0.85,
       }),
     }, {
@@ -12490,19 +12490,32 @@ OVERLAY_REGISTRY.push(
       suffix: "outline", type: "line",
       filter: (p) => mcDay06Filter([["==", ["get", "kind"], "zone"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]),
       paint: (_isDark, p) => ({ "line-color": MAPCHALLENGE_DAY06_SURVIVE_COLOR_EXPR, "line-width": 1, "line-opacity": p?.mapchallengeDay06Taipei1932Opacity ?? 0.85 }),
-    }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06Taipei1932Opacity",
+    }, mcDay06Label(MAPCHALLENGE_DAY06_TAIPEI_LABEL_MINZOOM, "mapchallengeDay06Taipei1932Opacity",
       (p) => mcDay06Filter([["==", ["get", "kind"], "label"], mcDay06Cat("survives", MAPCHALLENGE_DAY06_SURVIVE, p?.mapchallengeDay06Taipei1932CategoryMask)]))],
   },
   {
-    // 3. 廟不搬家：1921 祠廟（1,439 點 < 1 萬，V-1 直接畫點）；同名原址 14 處 z13 起標名稱
+    // 3. 廟不搬家：1921 祠廟（1,439 點 < 1 萬，V-1 直接畫點）；同名原址 14 處加外圈、z13 起標名稱
     id: "mapchallengeDay06Temples1921", sourceUrl: MAPCHALLENGE_DAY06_TEMPLES_URL, sourceId: "mapchallenge-day06-temples-1921",
     attribution: `${MAPCHALLENGE_DAY06_THCTS_ATTR}；內政部全國宗教資訊系統（2026-08-01 擷取）`,
-    rebuildOnParamChange: ["circle", "label"], rebuildOnParamKeys: ["mapchallengeDay06Temples1921CategoryMask"],
+    rebuildOnParamChange: ["circle", "same-mark", "label"], rebuildOnParamKeys: ["mapchallengeDay06Temples1921CategoryMask"],
     layers: [{
       suffix: "circle", type: "circle",
       layout: { "circle-sort-key": ["+", ["to-number", ["get", "cont"], 0], ["*", 2, ["to-number", ["get", "same"], 0]]] },
       filter: (p) => mcDay06Filter([mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
       paint: (_isDark, p) => ({ "circle-color": MAPCHALLENGE_DAY06_TEMPLE_COLOR_EXPR, "circle-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85 }),
+    }, {
+      // 同名原址 14 處外圈（資料編碼，不是裝飾；POINT_SPEC_EXEMPT 登記、map-layers.md §3.1 P-6 例外）
+      suffix: "same-mark", type: "circle",
+      filter: (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]),
+      paint: (isDark, p) => {
+        const scale = p?.mapchallengeDay06Temples1921Scale ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], ...MAPCHALLENGE_DAY06_SAME_RING.radius.flatMap(([z, r]) => [z, r * scale])],
+          "circle-color": "rgba(0,0,0,0)", "circle-opacity": 0,
+          "circle-stroke-color": mapchallengeDay06TodayColor(isDark), "circle-stroke-width": MAPCHALLENGE_DAY06_SAME_RING.strokeWidth,
+          "circle-stroke-opacity": p?.mapchallengeDay06Temples1921Opacity ?? 0.85,
+        };
+      },
     }, mcDay06Label(MAPCHALLENGE_DAY06_LABEL_MINZOOM, "mapchallengeDay06Temples1921Opacity",
       (p) => mcDay06Filter([["==", ["to-number", ["get", "same"], 0], 1], mcDay06Cat("cont", MAPCHALLENGE_DAY06_TEMPLE_CLASSES, p?.mapchallengeDay06Temples1921CategoryMask)]))],
   },

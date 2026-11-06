@@ -65,6 +65,13 @@ describe("R3b G4 / T3 / F4 style contract", () => {
     expect(JSON.stringify(paint(extrusion("propertyValueGrid"), false, { propertyValueGridExtruded: 1 })["fill-extrusion-height"])).toContain("40");
   });
 
+  it("T-3 登記例外（map-layers.md §3.5）：低於 z13 的名稱標籤只限這裡列的圖層", () => {
+    const expected = { mapchallengeDay06Taipei1932: 12 };
+    for (const [id, minzoom] of Object.entries(expected)) {
+      expect(OVERLAY_REGISTRY.find((item) => item.id === id)?.layers.find((item) => item.suffix === "label")?.minzoom, id).toBe(minzoom);
+    }
+  });
+
   it("五個 POI label 保留門檻，visitor 調為 13、toilets 仍為 16", () => {
     const expected = { publicWasteBaskets: 15, materialRecyclingPoints: 14, playgrounds: 14, visitorCentres: 13, publicToilets: 16 };
     for (const [id, minzoom] of Object.entries(expected)) {

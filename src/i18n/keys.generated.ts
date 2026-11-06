@@ -1680,6 +1680,7 @@ export type GeneratedStaticKey =
   | "legend.mapchallenge.day06.templeNo"
   | "legend.mapchallenge.day06.templeNote"
   | "legend.mapchallenge.day06.templeRate"
+  | "legend.mapchallenge.day06.templeSame"
   | "legend.mapchallenge.day06.templeTitle"
   | "legend.mapchallenge.day06.templeYes"
   | "legend.mapchallenge.day06.today"

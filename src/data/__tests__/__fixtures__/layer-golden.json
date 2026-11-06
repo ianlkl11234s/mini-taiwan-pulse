@@ -102367,10 +102367,10 @@
                   3
                 ],
                 1,
-                "#fecc61",
+                "#b64d8e",
                 2,
-                "#f27d1b",
-                "#bd4503"
+                "#2e81d5",
+                "#5ba74a"
               ],
               "line-opacity": 0.85,
               "line-width": [
@@ -102381,10 +102381,72 @@
                 [
                   "zoom"
                 ],
+                7,
+                [
+                  "*",
+                  1.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
                 10,
-                2,
+                [
+                  "*",
+                  2,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
                 14,
-                3.5
+                [
+                  "*",
+                  3.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ]
               ]
             },
             "light": {
@@ -102399,10 +102461,10 @@
                   3
                 ],
                 1,
-                "#822d05",
+                "#963372",
                 2,
-                "#b94303",
-                "#e66911"
+                "#3a8ce0",
+                "#77c466"
               ],
               "line-opacity": 0.85,
               "line-width": [
@@ -102413,10 +102475,72 @@
                 [
                   "zoom"
                 ],
+                7,
+                [
+                  "*",
+                  1.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
                 10,
-                2,
+                [
+                  "*",
+                  2,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ],
                 14,
-                3.5
+                [
+                  "*",
+                  3.5,
+                  [
+                    "case",
+                    [
+                      "==",
+                      [
+                        "to-number",
+                        [
+                          "get",
+                          "era"
+                        ],
+                        3
+                      ],
+                      1
+                    ],
+                    1.4,
+                    1
+                  ]
+                ]
               ]
             }
           },
@@ -102447,10 +102571,10 @@
                   3
                 ],
                 1,
-                "#fecc61",
+                "#b64d8e",
                 2,
-                "#f27d1b",
-                "#bd4503"
+                "#2e81d5",
+                "#5ba74a"
               ],
               "circle-opacity": 0.85,
               "circle-radius": 4.5,
@@ -102470,10 +102594,10 @@
                   3
                 ],
                 1,
-                "#822d05",
+                "#963372",
                 2,
-                "#b94303",
-                "#e66911"
+                "#3a8ce0",
+                "#77c466"
               ],
               "circle-opacity": 0.85,
               "circle-radius": 4.5,
@@ -102713,7 +102837,7 @@
               "right"
             ]
           },
-          "minzoom": 13,
+          "minzoom": 12,
           "paint": {
             "dark": {
               "text-color": "#f8fafc",
@@ -102839,6 +102963,73 @@
               1
             ]
           ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "rgba(0,0,0,0)",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                6,
+                10,
+                7.5,
+                14,
+                10
+              ],
+              "circle-stroke-color": "#f8fafc",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 1.5
+            },
+            "light": {
+              "circle-color": "rgba(0,0,0,0)",
+              "circle-opacity": 0,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                6,
+                10,
+                7.5,
+                14,
+                10
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": 1.5
+            }
+          },
+          "suffix": "same-mark",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "same"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
           "layout": {
             "text-allow-overlap": false,
             "text-field": [
@@ -102894,6 +103085,7 @@
       "pmtiles": null,
       "rebuildOnParamChange": [
         "circle",
+        "same-mark",
         "label"
       ],
       "sourceId": "mapchallenge-day06-temples-1921",
