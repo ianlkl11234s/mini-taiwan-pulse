@@ -83,7 +83,7 @@ import { BridgeResiliencePanel } from "./bridgeResiliencePanels";
 import { BusCrowdingSimPanel, BusCrowdingSimVehiclePanel } from "./busCrowdingSimPanels";
 import { TransitReachGridPanel, TransitReachPlaybackPanel } from "./transitReachPanels";
 import { FreewayTdcsSimPanel } from "./freewayTdcsSimPanels";
-import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel } from "./mapchallengePanels";
+import { MapchallengeDay04FacilityPanel, MapchallengeDay04OverlapPanel, MapchallengeDay04PopulationPanel, MapchallengeDay04ScaleTcChPanel, MapchallengeDay05SeaViewPanel, MapchallengeDay05SeaViewRunsPanel, MapchallengeDay06CoastPanel, MapchallengeDay06LighthousesPanel, MapchallengeDay06Taipei1932Panel, MapchallengeDay06Temples1921Panel } from "./mapchallengePanels";
 import { TransitAccessGridPanel, TransitAccessPlaybackPanel } from "./transitAccessPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BssNationalBridgePreviewPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
@@ -638,6 +638,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   mapchallengeDay04ScaleTcCh: MapchallengeDay04ScaleTcChPanel,
   mapchallengeDay05SeaView: MapchallengeDay05SeaViewPanel,
   mapchallengeDay05SeaViewRuns: MapchallengeDay05SeaViewRunsPanel,
+  mapchallengeDay06Coast: MapchallengeDay06CoastPanel,
+  mapchallengeDay06Taipei1932: MapchallengeDay06Taipei1932Panel,
+  mapchallengeDay06Temples1921: MapchallengeDay06Temples1921Panel,
+  mapchallengeDay06Lighthouses: MapchallengeDay06LighthousesPanel,
   transitAccessGrid: TransitAccessGridPanel,
   transitAccessPlayback: TransitAccessPlaybackPanel,
   // Base map
@@ -1295,6 +1299,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   mapchallengeDay04ScaleTcCh: "臺中與彰化工廠細格",
   mapchallengeDay05SeaView: "海景路段",
   mapchallengeDay05SeaViewRuns: "最長連續海景",
+  mapchallengeDay06Coast: "臺南海岸線三代",
+  mapchallengeDay06Taipei1932: "1932 臺北市町界",
+  mapchallengeDay06Temples1921: "廟不搬家：1921 祠廟",
+  mapchallengeDay06Lighthouses: "燈塔與測候所今昔",
   transitAccessGrid: "網格大眾運輸可及性（情境推演）",
   transitAccessPlayback: "單一起點大眾運輸擴張（情境推演）",
   // Base map

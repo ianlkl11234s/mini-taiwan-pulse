@@ -937,6 +937,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌊 30 天地圖挑戰 Day 5 視野（模擬面板，線；±5px bbox 命中）：最長連續海景在上、路段在下
   { layers: ["mapchallenge-day05-sea-view-runs-line"], type: "mapchallengeDay05SeaViewRuns" },
   { layers: ["mapchallenge-day05-sea-view-line"], type: "mapchallengeDay05SeaView" },
+  // 🏯 30 天地圖挑戰 Day 6 復古：點與線在上（燈塔歷史／今日點、祠廟、今日地名、海岸線），町界面放最後（面會吞點擊）
+  { layers: ["mapchallenge-day06-lighthouses-circle", "mapchallenge-day06-lighthouses-today-circle"], type: "mapchallengeDay06Lighthouses" },
+  { layers: ["mapchallenge-day06-temples-1921-circle"], type: "mapchallengeDay06Temples1921" },
+  { layers: ["mapchallenge-day06-coast-circle", "mapchallenge-day06-coast-line"], type: "mapchallengeDay06Coast" },
+  { layers: ["mapchallenge-day06-taipei-1932-fill"], type: "mapchallengeDay06Taipei1932" },
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },

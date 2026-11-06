@@ -11,7 +11,10 @@ import {
 import {
   MAPCHALLENGE_DAY05_KIND_COLORS, MAPCHALLENGE_DAY05_VIADUCT_NOTE_PCT, mapchallengeDay05TierLabel, mapchallengeDay05TierSwatch,
 } from "../../data/mapchallengeDay05Types";
-import { MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
+import {
+  MAPCHALLENGE_DAY06_STATUS_COLORS, MAPCHALLENGE_DAY06_TEMPLE_COLOR, mapchallengeDay06EraColor, mapchallengeDay06SurviveColor, type MapchallengeDay06Status,
+} from "../../data/mapchallengeDay06Types";
+import { MAPCHALLENGE_DAY06_ERA_KEYS, MAPCHALLENGE_DAY06_STATUS_KEYS, MAPCHALLENGE_DAY05_TIER_KEYS, MAPCHALLENGE_FACILITY_NAME_KEYS, MAPCHALLENGE_FACILITY_UNIT_KEYS, MAPCHALLENGE_HOTSPOT_CLASS_KEYS } from "../legend/mapchallengeLegends";
 import { Row, SourceFooter, Title } from "./shared";
 import { LIGHT_FEATURE, useFeatureTheme } from "./featureTheme";
 
@@ -146,5 +149,82 @@ export function MapchallengeDay05SeaViewRunsPanel({ props }: Props) {
     <Row label={t("popup.mapchallenge.day05.viaduct")} value={t("popup.mapchallenge.day05.pct", { n: formatNumber(viaduct) })} mono />
     {viaduct >= MAPCHALLENGE_DAY05_VIADUCT_NOTE_PCT && <Row label={t("popup.mapchallenge.day05.note")} value={t("popup.mapchallenge.day05.viaductNote")} />}
     <Day05Footer />
+  </div>;
+}
+
+// ── Day 6 復古 ───────────────────────────────────────────────
+function Day06Footer() {
+  const { t } = useLocale();
+  return <SourceFooter props={{ source: t("legend.mapchallenge.day06.sourceShort") }} />;
+}
+
+const eraOf = (v: unknown): 1 | 2 | 3 => (num(v) === 1 ? 1 : num(v) === 2 ? 2 : 3);
+
+export function MapchallengeDay06CoastPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const isDark = useFeatureTheme() !== LIGHT_FEATURE;
+  if (props.kind === "place") {
+    const latest = eraOf(props.latest);
+    return <div>
+      <Title color={mapchallengeDay06EraColor(latest, isDark)}>{str(props.name)}</Title>
+      <Row label={t("popup.mapchallenge.day06.town")} value={str(props.town)} />
+      <Row label={t("popup.mapchallenge.day06.westOf")} value={t(MAPCHALLENGE_DAY06_ERA_KEYS[latest])} color={mapchallengeDay06EraColor(latest, isDark)} />
+      <Row label={t("popup.mapchallenge.day06.note")} value={t("popup.mapchallenge.day06.placeNote")} />
+      <Day06Footer />
+    </div>;
+  }
+  const era = eraOf(props.era);
+  return <div>
+    <Title color={mapchallengeDay06EraColor(era, isDark)}>{t("popup.mapchallenge.day06.coastTitle", { era: t(MAPCHALLENGE_DAY06_ERA_KEYS[era]) })}</Title>
+    <Row label={t("popup.mapchallenge.day06.source")} value={t("popup.mapchallenge.day06.coastSource", { id: era === 1 ? 242 : era === 2 ? 244 : 243 })} />
+    <Row label={t("popup.mapchallenge.day06.dCoast")} value={t("popup.mapchallenge.day06.km", { n: formatNumber(num(props.d_km)) })} mono />
+    <Row label={t("popup.mapchallenge.day06.note")} value={t("popup.mapchallenge.day06.coastNote")} />
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06Taipei1932Panel({ props }: Props) {
+  const { t } = useLocale();
+  const surv = num(props.survives) === 1;
+  return <div>
+    <Title color={mapchallengeDay06SurviveColor(surv ? 1 : 0)}>{str(props.name)}</Title>
+    <Row label={t("popup.mapchallenge.day06.surviveRow")} value={surv ? t("popup.mapchallenge.day06.surviveYes", { villages: str(props.survive_villages) }) : t("popup.mapchallenge.day06.surviveNo")} color={mapchallengeDay06SurviveColor(surv ? 1 : 0)} />
+    <Row label={t("popup.mapchallenge.day06.district")} value={str(props.district)} />
+    <Row label={t("popup.mapchallenge.day06.mainVillages")} value={str(props.main_villages)} />
+    <Row label={t("popup.mapchallenge.day06.area")} value={t("popup.mapchallenge.day06.km2", { n: String(props.area_km2 ?? "") })} mono />
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06Temples1921Panel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const cont = num(props.cont) === 1;
+  const color = cont ? MAPCHALLENGE_DAY06_TEMPLE_COLOR : MAPCHALLENGE_DAY04_ZERO_SWATCH;
+  return <div>
+    <Title color={color}>{str(props.name) || t("popup.mapchallenge.day06.templeUnnamed")}</Title>
+    <Row label={t("popup.mapchallenge.day06.templeRow")} value={t(cont ? "popup.mapchallenge.day06.templeYes" : "popup.mapchallenge.day06.templeNo")} color={color} />
+    <Row label={t("popup.mapchallenge.day06.nearest")} value={t("popup.mapchallenge.day06.nameDist", { name: str(props.nearest), n: formatNumber(num(props.d_m)) })} />
+    {num(props.same) === 1 && <Row label={t("popup.mapchallenge.day06.sameName")} value={t("popup.mapchallenge.day06.nameDist", { name: str(props.same_name), n: formatNumber(num(props.same_d_m)) })} color={MAPCHALLENGE_DAY06_TEMPLE_COLOR} />}
+    <Day06Footer />
+  </div>;
+}
+
+export function MapchallengeDay06LighthousesPanel({ props }: Props) {
+  const { t, formatNumber } = useLocale();
+  const status = (["same", "moved", "none"].includes(str(props.status)) ? str(props.status) : "none") as MapchallengeDay06Status;
+  const isToday = props.role === "today";
+  const d = props.d_m;
+  return <div>
+    <Title color={MAPCHALLENGE_DAY06_STATUS_COLORS[status]}>{isToday ? str(props.today_name) : str(props.name)}</Title>
+    <Row label={t("popup.mapchallenge.day06.point")} value={t(isToday ? "popup.mapchallenge.day06.pointToday" : "popup.mapchallenge.day06.pointHist")} />
+    <Row label={t("popup.mapchallenge.day06.type")} value={t(props.type === "station" ? "popup.mapchallenge.day06.typeStation" : "popup.mapchallenge.day06.typeLighthouse")} />
+    {isToday && <Row label={t("popup.mapchallenge.day06.histName")} value={str(props.name)} />}
+    <Row label={t("popup.mapchallenge.day06.year")} value={str(props.year)} mono />
+    <Row label={t("popup.mapchallenge.day06.histNote")} value={str(props.note)} />
+    <Row label={t("popup.mapchallenge.day06.status")} value={t(MAPCHALLENGE_DAY06_STATUS_KEYS[status])} color={MAPCHALLENGE_DAY06_STATUS_COLORS[status]} />
+    {!isToday && status !== "none" && <Row label={t("popup.mapchallenge.day06.todayName")} value={str(props.today_name)} />}
+    {status !== "none" && d !== null && d !== undefined && <Row label={t("popup.mapchallenge.day06.dThenNow")} value={t("popup.mapchallenge.day06.meters", { n: formatNumber(num(d)) })} mono />}
+    <Row label={t("popup.mapchallenge.day06.note")} value={str(props.remark)} />
+    <Day06Footer />
   </div>;
 }

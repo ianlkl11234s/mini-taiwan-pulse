@@ -2278,5 +2278,19 @@
   "param.車輛相撞（車両相互）": "Vehicle–vehicle",
   "param.人車事故（人対車両）": "Vehicle–pedestrian",
   "param.車輛單獨（車両単独）": "Single vehicle",
-  "param.平交道列車（列車）": "Train (level crossing)"
+  "param.平交道列車（列車）": "Train (level crossing)",
+  "param.今日地名（鯤鯓、塭、汕）": "Today's place names (鯤鯓, 塭, 汕)",
+  "param.隱藏": "Hide",
+  "param.燈塔": "Lighthouse",
+  "param.測候所": "Weather station",
+  "param.17–18 世紀": "17th–18th century",
+  "param.19 世紀": "19th century",
+  "param.20 世紀初": "Early 20th century",
+  "param.町名今天仍在里名": "Name survives in village names",
+  "param.町名已消失": "Name no longer used",
+  "param.原址 100 m 內今天仍有寺廟": "Temple within 100 m today",
+  "param.100 m 內沒有登記寺廟": "No registered temple within 100 m",
+  "param.原址（150 m 內）": "Same site (within 150 m)",
+  "param.遷移": "Moved",
+  "param.今日清單無對應": "No match in today's list"
 }

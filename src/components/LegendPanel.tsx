@@ -40,7 +40,7 @@ import { AqiLegend, AviationNoiseZonesLegend, DustForecastLegend, H3RampLegend, 
 import { AisstreamVesselsLegend, AllenCoralAtlasLegend, AquacultureIntegratedLegend, AquacultureLegend, AquacultureWaterSatelliteMoaLegend, AquacultureWaterUnionLegend, CoralReefDistributionLegend, GfwDarkVesselsLegend, GfwFishingEffortLegend, GfwHourlyGridLegend, GfwHourlyTracksLegend, GfwVesselPresenceLegend, IsobathLegend, MarineObservationLegend, MaritimeBoundaryLegend, PlaActivityLegend, ShipsLegend, VesselWatchLegend, WorldTrashDebrisLegend } from "./legend/maritimeLegends";
 import { TransitReachGridLegend, TransitReachPlaybackLegend } from "./legend/transitReachLegends";
 import { FreewayTdcsSimLegend } from "./legend/freewayTdcsSimLegends";
-import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend } from "./legend/mapchallengeLegends";
+import { MapchallengeFacilityLegend, MapchallengeOverlapLegend, MapchallengePopulationLegend, MapchallengeScaleTcChLegend, MapchallengeSeaViewLegend, MapchallengeSeaViewRunsLegend, MapchallengeDay06CoastLegend, MapchallengeDay06LighthousesLegend, MapchallengeDay06Taipei1932Legend, MapchallengeDay06Temples1921Legend } from "./legend/mapchallengeLegends";
 import { TransitAccessGridLegend, TransitAccessPlaybackLegend } from "./legend/transitAccessLegends";
 import { AviationAirspaceLegend, CctvLegend, DroneZonesLegend, FlightsLegend, FreewayCongestionLegend, HistoricalFlightTrailsLegend, JpRailwaysLegend, JpMajorRoadsLegend, JpExpresswaysLegend, JpStationsLegend, OsmRoadDriveLegend, ParkingLegend, PortsLegend, RailLegend, RoadCongestionLegend, RoadEventsLegend, SatelliteLegend, TouristShuttleLegend, BusCrowdingSimLegend } from "./legend/transportLegends";
 import { AspectVectorLegend, BridgeResilienceLegend, BssBridgeLineLegend, BssBridgePointLegend, DisasterAlertLegend, EarthquakeGlobalLegend, EarthquakeLegend, EarthquakeReplayLegend, ErCongestionLegend, FireEventLegend, FireHydrantLegend, FireIsochroneLegend, FireStationLegend, FloodSensorLegend, GlobalEventsLegend, LiquefactionMonitoringLegend, MountainRescueLegend, NewsEventsLegend, NuclearLegend, SlopeVectorLegend, SoilLiquefactionPotentialLegend, TyphoonAgencyForecastLegend, TyphoonTrackLegend, WeakSoilLegend } from "./legend/hazardLegends";
@@ -286,6 +286,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "mapchallengeDay04ScaleTcCh", render: () => <MapchallengeScaleTcChLegend /> },
   { id: "mapchallengeDay05SeaView", render: ({ isDark }) => <MapchallengeSeaViewLegend isDark={isDark} /> },
   { id: "mapchallengeDay05SeaViewRuns", render: () => <MapchallengeSeaViewRunsLegend /> },
+  { id: "mapchallengeDay06Coast", render: ({ isDark }) => <MapchallengeDay06CoastLegend isDark={isDark} /> },
+  { id: "mapchallengeDay06Taipei1932", render: () => <MapchallengeDay06Taipei1932Legend /> },
+  { id: "mapchallengeDay06Temples1921", render: () => <MapchallengeDay06Temples1921Legend /> },
+  { id: "mapchallengeDay06Lighthouses", render: ({ isDark }) => <MapchallengeDay06LighthousesLegend isDark={isDark} /> },
   { id: "transitAccessGrid", render: () => <TransitAccessGridLegend /> },
   { id: "transitAccessPlayback", render: () => <TransitAccessPlaybackLegend /> },
   { id: "bridgeRainThresholds", render: ({ i18n }) => <NetworkStructuresLegend title={i18n.t("legend.registry.bridgeRain")} rows={[{ label: i18n.t("legend.registry.bridgeRainRow1"), color: "#ef4444" }, { label: i18n.t("legend.registry.bridgeRainRow2"), color: "#3b82f6" }, { label: i18n.t("legend.registry.bridgeRainRow3"), color: "#94a3b8" }]} /> },

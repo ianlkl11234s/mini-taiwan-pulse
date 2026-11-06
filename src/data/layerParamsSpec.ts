@@ -176,6 +176,10 @@ import { POLLING_COLOR_MODES, POLLING_DEFAULT_COLOR_MODE } from "./pollingStatio
 import {
   MAPCHALLENGE_DAY05_DEFAULT_SCOPE, MAPCHALLENGE_DAY05_DEFAULT_TIERS, MAPCHALLENGE_DAY05_KIND_ENCODE, MAPCHALLENGE_DAY05_KIND_OPTIONS, MAPCHALLENGE_DAY05_SCOPE_ENCODE, MAPCHALLENGE_DAY05_SCOPES, MAPCHALLENGE_DAY05_TIERS,
 } from "./mapchallengeDay05Types";
+import {
+  MAPCHALLENGE_DAY06_ERAS, MAPCHALLENGE_DAY06_PLACES_ENCODE, MAPCHALLENGE_DAY06_PLACES_OPTIONS, MAPCHALLENGE_DAY06_STATUSES,
+  MAPCHALLENGE_DAY06_SURVIVE, MAPCHALLENGE_DAY06_TEMPLE_CLASSES, MAPCHALLENGE_DAY06_TYPE_ENCODE, MAPCHALLENGE_DAY06_TYPE_OPTIONS,
+} from "./mapchallengeDay06Types";
 import { MAPCHALLENGE_DAY04_DEFAULT_FACILITY, MAPCHALLENGE_DAY04_FACILITIES, MAPCHALLENGE_DAY04_FACILITY_KEYS, MAPCHALLENGE_DAY04_HOTSPOT_CLASSES } from "./mapchallengeDay04Types";
 import { DISASTER_RESOURCE_HOLDER_OPTIONS, FIRING_AGENCY_OPTIONS, NUCLEAR_EPZ_KIND_OPTIONS, TRAFFIC_ACCIDENT_CAUSE_OPTIONS, TRAFFIC_ACCIDENT_CLASS_OPTIONS, TRAFFIC_ACCIDENT_TOTAL } from "./safetyG36Types";
 import {
@@ -1617,6 +1621,33 @@ export const LAYER_PARAMS_SPEC = {
       out: "mapchallengeDay05SeaViewRunsScopeIdx", encode: [...MAPCHALLENGE_DAY05_SCOPE_ENCODE],
     },
     mapchallengeDay05KindSelect("mapchallengeDay05SeaViewRuns"),
+  ],
+  // 30 天地圖挑戰 Day 6 復古（模擬面板，公開）：類別多選（V-4）與 select 都由 overlayRegistry 的 filter 自己組。
+  mapchallengeDay06Coast: [
+    opacitySlider("mapchallengeDay06CoastOpacity", 0.85), scaleSlider("mapchallengeDay06CoastScale", 1),
+    categoryMultiSelect("mapchallengeDay06Coast", MAPCHALLENGE_DAY06_ERAS.map((e) => ({ label: e.zh, value: String(e.value) }))),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06CoastPlaces", label: "今日地名（鯤鯓、塭、汕）", default: "show",
+      options: MAPCHALLENGE_DAY06_PLACES_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06CoastPlacesIdx", encode: [...MAPCHALLENGE_DAY06_PLACES_ENCODE],
+    },
+  ],
+  mapchallengeDay06Taipei1932: [
+    opacitySlider("mapchallengeDay06Taipei1932Opacity", 0.85),
+    categoryMultiSelect("mapchallengeDay06Taipei1932", MAPCHALLENGE_DAY06_SURVIVE.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Temples1921: [
+    opacitySlider("mapchallengeDay06Temples1921Opacity", 0.85), scaleSlider("mapchallengeDay06Temples1921Scale", 1),
+    categoryMultiSelect("mapchallengeDay06Temples1921", MAPCHALLENGE_DAY06_TEMPLE_CLASSES.map((c) => ({ label: c.zh, value: String(c.value) }))),
+  ],
+  mapchallengeDay06Lighthouses: [
+    opacitySlider("mapchallengeDay06LighthousesOpacity", 0.85), scaleSlider("mapchallengeDay06LighthousesScale", 1),
+    {
+      kind: "select", category: "data", name: "mapchallengeDay06LighthousesType", label: "類型", default: "all",
+      options: MAPCHALLENGE_DAY06_TYPE_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "mapchallengeDay06LighthousesTypeIdx", encode: [...MAPCHALLENGE_DAY06_TYPE_ENCODE],
+    },
+    categoryMultiSelect("mapchallengeDay06Lighthouses", MAPCHALLENGE_DAY06_STATUSES.map((c) => ({ label: c.zh, value: c.value }))),
   ],
   freewayTdcsSim: [
     opacitySlider("freewayTdcsSimOpacity", 0.9),

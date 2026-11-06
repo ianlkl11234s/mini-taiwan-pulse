@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 1642,
+    "keyCount": 1646,
     "sections": [
       "gisLayers",
       "overlays",
@@ -5449,6 +5449,32 @@
         "mapchallenge-day05-sea-view-line"
       ],
       "type": "mapchallengeDay05SeaView"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-lighthouses-circle",
+        "mapchallenge-day06-lighthouses-today-circle"
+      ],
+      "type": "mapchallengeDay06Lighthouses"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-temples-1921-circle"
+      ],
+      "type": "mapchallengeDay06Temples1921"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-coast-circle",
+        "mapchallenge-day06-coast-line"
+      ],
+      "type": "mapchallengeDay06Coast"
+    },
+    {
+      "layers": [
+        "mapchallenge-day06-taipei-1932-fill"
+      ],
+      "type": "mapchallengeDay06Taipei1932"
     },
     {
       "layers": [
@@ -102293,6 +102319,778 @@
       ],
       "sourceId": "jp-did",
       "sourceUrl": "./world/jp_did_ksj_2015.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Coast",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "coast"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round",
+            "line-sort-key": [
+              "-",
+              4,
+              [
+                "to-number",
+                [
+                  "get",
+                  "era"
+                ],
+                3
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "era"
+                  ],
+                  3
+                ],
+                1,
+                "#fecc61",
+                2,
+                "#f27d1b",
+                "#bd4503"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "era"
+                  ],
+                  3
+                ],
+                1,
+                "#822d05",
+                2,
+                "#b94303",
+                "#e66911"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                2,
+                14,
+                3.5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "place"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "latest"
+                  ],
+                  3
+                ],
+                1,
+                "#fecc61",
+                2,
+                "#f27d1b",
+                "#bd4503"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "latest"
+                  ],
+                  3
+                ],
+                1,
+                "#822d05",
+                2,
+                "#b94303",
+                "#e66911"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "place"
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "line",
+        "circle",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-coast",
+      "sourceUrl": "./mapchallenge/day06_coast.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Taipei1932",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "zone"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "zone"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "survives"
+                  ],
+                  0
+                ],
+                1,
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-opacity": 0.8,
+              "line-width": 1
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "kind"
+              ],
+              "label"
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "outline",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-taipei-1932",
+      "sourceUrl": "./mapchallenge/day06_taipei_1932.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Temples1921",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": {
+            "circle-sort-key": [
+              "+",
+              [
+                "to-number",
+                [
+                  "get",
+                  "cont"
+                ],
+                0
+              ],
+              [
+                "*",
+                2,
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "same"
+                  ],
+                  0
+                ]
+              ]
+            ]
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "cont"
+                  ],
+                  0
+                ],
+                1,
+                "#fea332",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "cont"
+                  ],
+                  0
+                ],
+                1,
+                "#fea332",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 4.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "to-number",
+                [
+                  "get",
+                  "same"
+                ],
+                0
+              ],
+              1
+            ]
+          ],
+          "layout": {
+            "text-allow-overlap": false,
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              10,
+              10,
+              14,
+              12
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle",
+        "label"
+      ],
+      "sourceId": "mapchallenge-day06-temples-1921",
+      "sourceUrl": "./mapchallenge/day06_temples_1921.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "mapchallengeDay06Lighthouses",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "link"
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                1,
+                14,
+                2
+              ]
+            }
+          },
+          "suffix": "link",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "today"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f8fafc",
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#0f172a",
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "today-circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "==",
+              [
+                "get",
+                "role"
+              ],
+              "hist"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#0a0a14",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "status"
+                ],
+                "same",
+                "#3987e5",
+                "moved",
+                "#d95926",
+                "#6b7280"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": 6.5,
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "link",
+        "today-circle",
+        "circle"
+      ],
+      "sourceId": "mapchallenge-day06-lighthouses",
+      "sourceUrl": "./mapchallenge/day06_lighthouse_weather.geojson"
     }
   ],
   "params": {
@@ -130319,6 +131117,193 @@
         "step": 0.05,
         "value": 0.85,
         "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay06Coast": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "17–18 世紀",
+            "value": "1"
+          },
+          {
+            "label": "19 世紀",
+            "value": "2"
+          },
+          {
+            "label": "20 世紀初",
+            "value": "3"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3"
+        ]
+      },
+      {
+        "label": "今日地名（鯤鯓、塭、汕）",
+        "options": [
+          {
+            "label": "顯示",
+            "value": "show"
+          },
+          {
+            "label": "隱藏",
+            "value": "hide"
+          }
+        ],
+        "type": "select",
+        "value": "show"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay06Lighthouses": [
+      {
+        "label": "類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "燈塔",
+            "value": "lighthouse"
+          },
+          {
+            "label": "測候所",
+            "value": "station"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "原址（150 m 內）",
+            "value": "same"
+          },
+          {
+            "label": "遷移",
+            "value": "moved"
+          },
+          {
+            "label": "今日清單無對應",
+            "value": "none"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "same",
+          "moved",
+          "none"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
+      }
+    ],
+    "mapchallengeDay06Taipei1932": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "町名今天仍在里名",
+            "value": "1"
+          },
+          {
+            "label": "町名已消失",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      }
+    ],
+    "mapchallengeDay06Temples1921": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "原址 100 m 內今天仍有寺廟",
+            "value": "1"
+          },
+          {
+            "label": "100 m 內沒有登記寺廟",
+            "value": "0"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "0"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "name": "透明度",
+        "step": 0.05,
+        "value": 0.85,
+        "valueText": "0.85"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "name": "大小",
+        "step": 0.1,
+        "value": 1,
+        "valueText": "1.0"
       }
     ],
     "marineEcologicalMonitoringSites": [
