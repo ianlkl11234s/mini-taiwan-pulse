@@ -104,7 +104,17 @@ export function fetchTyphoonAgencyForecasts(): Promise<TyphoonAgencyForecastRow[
 /** 定期刷新用：清掉快取後重抓（圖層開著時才會呼叫） */
 export function refetchTyphoonAgencyForecasts(): Promise<TyphoonAgencyForecastRow[]> {
   fetchAgencyForecastsCached.invalidate();
-  return fetchAgencyForecastsCached();
+  return fetchAgencyForecastsCached().then((rows) => {
+    for (const listener of refreshListeners) listener(rows);
+    return rows;
+  });
+}
+
+const refreshListeners = new Set<(rows: TyphoonAgencyForecastRow[]) => void>();
+/** 定期重抓成功後通知（圖例這類獨立元件跟著地圖同步發布時間／預報有無） */
+export function subscribeTyphoonAgencyForecastsRefresh(listener: (rows: TyphoonAgencyForecastRow[]) => void): () => void {
+  refreshListeners.add(listener);
+  return () => { refreshListeners.delete(listener); };
 }
 
 /** 一家一版一條路徑（agency × track_index × issued_ts） */
