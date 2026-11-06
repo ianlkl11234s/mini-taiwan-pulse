@@ -40,6 +40,7 @@ export interface OverlayMap {
   getLayoutProperty(id: string, name: string): any;
   setLayoutProperty(id: string, name: string, value: any): void;
   setPaintProperty(id: string, name: string, value: any): void;
+  getFilter?(id: string): any;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -457,7 +458,7 @@ export function updateOverlayTheme(
         const id = layerId(config, suffix);
         const spec = config.layers.find((l) => l.suffix === suffix);
         if (spec && typeof spec.filter !== "function" && map.getLayer(id)) {
-          const live = map.getFilter(id);
+          const live = map.getFilter?.(id);
           if (live != null) liveFilters.set(id, live);
         }
       }
