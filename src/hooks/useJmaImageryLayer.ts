@@ -117,7 +117,10 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     if (!map) return;
     const spec = jmaImageryProduct(product);
 
-    const hide = () => { try { handleRef.current?.setVisible(false); } catch { /* style 轉換中 */ } };
+    const hide = () => {
+      pendingShownRef.current = null; // 隱藏後不可再被 sourcedata／idle 回報成 shown
+      try { handleRef.current?.setVisible(false); } catch { /* style 轉換中 */ }
+    };
 
     const run = (tSec: number) => {
       if (!(visible && visRef.current)) {
@@ -141,7 +144,12 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
       const f = pick.frame;
       const url = f.url!;
       const failed = failedRef.current;
-      if (failed && failed.url === url && Date.now() - failed.at < IMAGE_RETRY_MS) return; // 保留 error 狀態，稍後再試
+      if (failed && failed.url === url && Date.now() - failed.at < IMAGE_RETRY_MS) {
+        // 冷卻只擋網路重試：仍要隱藏舊幀並維持 error，避免畫面留著另一時間的影像
+        hide();
+        setJmaImageryStatus(product, { state: "error", validTimeIso: null, message: "影像載入失敗" });
+        return;
+      }
       const bbox = { lonMin: f.lonMin!, lonMax: f.lonMax!, latMin: f.latMin!, latMax: f.latMax! };
       if (!handleRef.current) {
         handleRef.current = createJmaImageryLayer(map, {
@@ -194,6 +202,7 @@ export function useJmaImageryLayer({ mapRef, visible, opacity, product }: UseJma
     const confirmShown = () => {
       const f = pendingShownRef.current;
       if (!f || disposed) return;
+      if (f.url !== currentUrlRef.current) return; // 已換幀：這個確認屬於舊幀
       pendingShownRef.current = null;
       setJmaImageryStatus(product, { state: "shown", validTimeIso: f.validTimeIso, frameStatus: f.status });
     };

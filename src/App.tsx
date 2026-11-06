@@ -1838,6 +1838,12 @@ export default function App() {
       if (value && statisticsKeys.some((key) => shouldClearFeatureInfoForLayerClick(key, undefined, layerVisibilityRef.current[key]))) {
         setFeatureInfo(null);
       }
+      if (!value) {
+        // 批次關閉（國家「全部關閉」等）：被關圖層的 popup／選取圈與展開面板一併清掉
+        const closing = new Set<string>(effectiveKeys as string[]);
+        setFeatureInfo((current) => (current && closing.has(current.layerType as string) ? null : current));
+        setExpandedLayer((current) => (current && closing.has(current) ? null : current));
+      }
       setLayerVisibility((prev) => {
         let next = statisticsKeys.length > 0
           ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
@@ -1853,7 +1859,7 @@ export default function App() {
         layerVisibilityRef.current,
       );
     },
-    [setLayerVisibility, layerVisibilityRef, setFeatureInfo],
+    [setLayerVisibility, layerVisibilityRef, setFeatureInfo, setExpandedLayer],
   );
 
   const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;

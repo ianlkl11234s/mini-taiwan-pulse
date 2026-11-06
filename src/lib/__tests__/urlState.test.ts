@@ -487,6 +487,11 @@ describe("country（c=，國家主體）", () => {
 
   it("buildUrl 寫小寫、台灣不寫，且可 round-trip", () => {
     expect(buildUrl({ country: "TW" }, "/")).toBe("/?v=1");
+    // 相機在台灣時 TW 可省略；相機在日本卻選台灣時 c=tw 必須保留（review F013/F015/F017）
+    expect(buildUrl({ country: "TW", camera: { center: [121.5, 25.0], zoom: 8, pitch: 0, bearing: 0 } }, "/")).not.toContain("c=");
+    const jpCam = buildUrl({ country: "TW", camera: { center: [139.7, 35.7], zoom: 8, pitch: 0, bearing: 0 } }, "/");
+    expect(jpCam).toContain("c=tw");
+    expect(parseUrlState(jpCam.slice(1)).country).toBe("TW");
     const url = buildUrl({ country: "JP" }, "/");
     expect(url).toBe("/?v=1&c=jp");
     expect(parseUrlState(url.slice(1)).country).toBe("JP");

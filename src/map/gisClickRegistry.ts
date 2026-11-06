@@ -362,7 +362,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-waste-permits-circle"], type: "gbWastePermits" },
   { layers: ["gb-recycling-centre-circle", "gb-recycling-container-circle"], type: "gbRecyclingCentres" },
   { layers: ["gb-brownfield-circle"], type: "gbBrownfield" },
-  { layers: ["gb-planning-constraints-fill"], type: "gbPlanningConstraints" },
+  { layers: ["gb-planning-constraints-fill", "gb-planning-constraints-points-circle"], type: "gbPlanningConstraints" },
   { layers: ["gb-noise-fill"], type: "gbNoise" },
   // 英國第 10 波：計數點（點）排在主要路網（線）前面
   { layers: ["gb-traffic-counts-aadf-major-circle", "gb-traffic-counts-aadf-minor-circle"], type: "gbTrafficCountsAadf" },
@@ -381,9 +381,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gb-greenspace-golf-fill"], type: "gbGolfCourses" },
   { layers: ["gb-greenspace-burial-fill"], type: "gbCemeteries" },
   { layers: ["gb-london-charging-zones-line", "gb-london-charging-zones-fill"], type: "gbLondonChargingZones" },
-  { layers: ["gb-tpo-fill", "gb-ancient-woodland-fill"], type: "gbTreeProtection" },
-  { layers: ["gb-open-access-land-fill", "gb-open-access-land-z5-fill"], type: "gbOpenAccessLand" },
-  { layers: ["gb-woodland-fill"], type: "gbWoodland" },
+  { layers: ["gb-tpo-fill", "gb-ancient-woodland-fill", "gb-tree-protection-points-circle"], type: "gbTreeProtection" },
+  { layers: ["gb-open-access-land-fill", "gb-open-access-land-z5-fill", "gb-open-access-points-circle"], type: "gbOpenAccessLand" },
+  { layers: ["gb-woodland-fill", "gb-woodland-points-circle"], type: "gbWoodland" },
   { layers: ["gb-marine-protected-areas-points-circle", "gb-marine-protected-areas-line", "gb-marine-protected-areas-fill"], type: "gbMarineProtectedAreas" },
   { layers: ["gb-protected-areas-points-circle", "gb-protected-areas-line", "gb-protected-areas-fill"], type: "gbProtectedAreas" },
   { layers: ["gb-oil-gas-points-circle", "gb-oil-gas-fields-line", "gb-oil-gas-fields-fill"], type: "gbOilGasFields" },
@@ -414,7 +414,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["kr-marine-protected-areas-fill"], type: "krMarineProtectedAreas" },
   { layers: ["kr-national-parks-fill"], type: "krNationalParks" },
   { layers: ["kr-cemeteries-osm-fill"], type: "krCemeteriesOsm" },
-  { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
   // 南韓第 1 波：點（機場 → 電廠 → 再生能源 → 變電所 → 燃料站 → 鐵道站 → 公車站 → 鐵塔）→ 線（電網、國道、鐵道）→ 面（油氣、港灣）
   { layers: ["kr-airports-circle"], type: "krAirports" },
   { layers: ["kr-power-plants-circle", "kr-power-plants-minor-circle"], type: "krPowerPlants" },
@@ -667,9 +666,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // atlas 批次 2026-10：點位（小目標）排在面層前；線／混合幾何的點也在這裡
   { layers: ["indigenous-tribes-circle", "indigenous-tribes-glow"], type: "indigenousTribes" },
   { layers: ["indigenous-isolation-risk-circle", "indigenous-isolation-risk-glow"], type: "indigenousIsolationRisk" },
-  { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
-  { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
-  { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
   { layers: ["provincial-road-signs-circle", "provincial-road-signs-glow"], type: "provincialRoadSigns" },
   { layers: ["provincial-road-mileposts-circle", "provincial-road-mileposts-glow"], type: "provincialRoadMileposts" },
   { layers: ["freeway-traffic-signs-circle", "freeway-traffic-signs-glow"], type: "freewayTrafficSigns" },
@@ -943,8 +939,14 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🏙️ 公共生活 OSM 覆蓋度 H3：鋪滿整個分析範圍的面層，排在最前會吞掉其下所有圖層的點擊
   //    （first-hit-wins）→ 與其他 H3 格一起放在大面積面層段。
   { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
+  // 南韓人口 H3 格：覆蓋全國的面，排在南韓點線 entry 之前會搶走設施點擊 → 放面層段
+  { layers: ["kr-population-h3-fill"], type: "krPopulationH3" },
   // 🏞️ 國家公園：大面積面層，排在道路、站點與 POI 之前會讓園區內的點擊先命中公園 → 放大面積面層段。
   { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
+  // 原民／族語方言／客家文化重點發展區：鄉鎮級大面積面，排在點層之前會吞掉鄉鎮內所有點擊 → 放面層段
+  { layers: ["indigenous-regions-fill", "indigenous-regions-outline"], type: "indigenousRegions" },
+  { layers: ["indigenous-language-dialects-fill", "indigenous-language-dialects-outline"], type: "indigenousLanguageDialects" },
+  { layers: ["hakka-cultural-zones-fill", "hakka-cultural-zones-outline"], type: "hakkaCulturalZones" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
