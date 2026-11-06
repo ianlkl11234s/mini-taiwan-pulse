@@ -10,6 +10,6 @@
     "html_handling": "none",
     "not_found_handling": "none"
   },
-  "vars": { "ORIGIN": "https://mini-taiwan-pulse.itsmigu.com" },
+  "vars": { "ORIGIN": "https://pulse-origin.itsmigu.com" },
   "observability": { "enabled": true }
 }
