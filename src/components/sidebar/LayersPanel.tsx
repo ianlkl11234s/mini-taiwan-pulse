@@ -336,6 +336,11 @@ export function LayersPanel({
           const someOn = onCount > 0;
 
           const handleBulkToggle = () => {
+            // 整個主題都上鎖（例：非站主看歷史底圖）：走鎖定列同一條權限提示／登入，不讓 bulk 靜默濾成空（spec §5.5）
+            if (!someOn && allKeys.length > 0 && allKeys.every((k) => lockedKeys?.has(k))) {
+              onToggleVisibility(allKeys[0]!);
+              return;
+            }
             // 有任何一個 on → 全部 off；全部 off → 全部 on
             if (onBulkSetVisibility) {
               onBulkSetVisibility(allKeys, !someOn);

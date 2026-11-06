@@ -8,6 +8,19 @@ vi.mock("react", async (importOriginal) => {
   return { ...actual, useSyncExternalStore: <T,>(subscribe: (cb: () => void) => () => void, get: () => T, server?: () => T) => actual.useSyncExternalStore(subscribe, get, server ?? get) };
 });
 
+// 抓主題列「全部開關」的 handler，驗證全鎖主題不會靜默無反應
+const bulkToggles = new Map<string, () => void>();
+vi.mock("../ThemeBanner", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../ThemeBanner")>();
+  return {
+    ...actual,
+    ThemeBanner: (props: { title: string; onBulkToggle: () => void }) => {
+      bulkToggles.set(props.title, props.onBulkToggle);
+      return actual.ThemeBanner(props as never);
+    },
+  };
+});
+
 import { LayersPanel } from "../LayersPanel";
 import { GATED_LAYERS, THEMES } from "../layerCatalog";
 import { resolveLayerPanel } from "../layerPanels";
@@ -42,5 +55,19 @@ describe("站主限定圖層：非站主一律鎖頭列，不隱藏", () => {
     expect(lockIcons(html)).toBeGreaterThan(0);
     expect(searchLayers("古地圖").some((r) => r.key === "historicalMapSinica")).toBe(false);
     expect(searchLayers("古地圖", { excludeLocked: false }).some((r) => r.key === "historicalMapSinica")).toBe(true);
+  });
+
+  it("全鎖主題的「全部開關」走鎖定列同一條權限提示（onToggleVisibility），不走 bulk", () => {
+    const toggled: string[] = [];
+    const bulk: string[][] = [];
+    bulkToggles.clear();
+    panel({
+      themes: THEMES.filter((t) => t.title === "歷史底圖 Historical Basemaps"),
+      onToggleVisibility: (key: string) => toggled.push(key),
+      onBulkSetVisibility: (keys: string[]) => bulk.push(keys),
+    });
+    bulkToggles.get("歷史底圖 Historical Basemaps")!();
+    expect(toggled).toEqual(["historicalMapSinica"]);
+    expect(bulk).toEqual([]);
   });
 });
